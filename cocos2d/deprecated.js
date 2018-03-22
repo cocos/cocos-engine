@@ -130,15 +130,16 @@ if (CC_DEV) {
         ownerName = ownerName || js.getClassName(ownerCtor);
         for (var prop in obj) {
             (function(){
-                var originFunc = ownerCtor[prop];
+                var propName = prop;
+                var originFunc = ownerCtor[propName];
                 if (!originFunc) return;
 
                 function warn () {
-                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, prop, obj[prop]);
+                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, propName, obj[propName]);
                     return originFunc.apply(this, arguments);
                 }
                 
-                ownerCtor[prop] = warn;
+                ownerCtor[propName] = warn;
             })();
         }
     }
@@ -153,6 +154,9 @@ if (CC_DEV) {
         cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
         return this.textureLoaded();
     });
+    markAsRemoved(cc.SpriteFrame, [
+        'addLoadedEventListener'
+    ]);
 
     // cc.textureCache
     js.get(cc, 'textureCache', function () {
@@ -196,6 +200,61 @@ if (CC_DEV) {
         EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
         EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
     }, 'cc.Director');
+    markFunctionWarning(cc.Director.prototype, {
+        convertToGL: 'cc.view.convertToLocationInView',
+        convertToUI: '',
+        getWinSizeInPixels: 'cc.director.getWinSize',
+        getVisibleSize: 'cc.visibleRect',
+        getVisibleOrigin: 'cc.visibleRect',
+        purgeCachedData: 'cc.loader.releaseAll',
+        setDepthTest: 'cc.Camera.main.depth',
+        setClearColor: 'cc.Camera.main.backgroundColor',
+        getRunningScene: 'cc.director.getScene',
+        getAnimationInterval: 'cc.game.getFrameRate',
+        setAnimationInterval: 'cc.game.setFrameRate',
+        
+    }, 'cc.Director');
+    markAsRemoved(cc.Director, [
+        'pushScene',
+        'popScene',
+        'popToRootScene',
+        'popToSceneStackLevel',
+        'setProjection',
+        'getProjection',
+    ], 'cc.Director');
+
+    // Scheduler
+    provideClearError(cc.Scheduler, {
+        scheduleCallbackForTarget: 'schedule',
+        scheduleUpdateForTarget: 'scheduleUpdate',
+        unscheduleCallbackForTarget: 'unschedule',
+        unscheduleUpdateForTarget: 'unscheduleUpdate',
+        unscheduleAllCallbacksForTarget: 'unscheduleAllForTarget',
+        unscheduleAllCallbacks: 'unscheduleAll',
+        unscheduleAllCallbacksWithMinPriority: 'unscheduleAllWithMinPriority'
+    }, 'cc.Scheduler');
+
+    // cc.view
+    provideClearError(cc.view, {
+        adjustViewPort: 'adjustViewportMeta',
+        setViewPortInPoints: 'setViewportInPoints',
+        getViewPortRect: 'getViewportRect'
+    }, 'cc.view');
+    markAsRemovedInObject(cc.view, [
+        'isViewReady',
+        'setFrameZoomFactor',
+        'canSetContentScaleFactor',
+        'setContentTranslateLeftTop',
+        'getContentTranslateLeftTop',
+        'setViewName',
+        'getViewName'
+    ], 'cc.view');
+
+    // Loader
+    markAsRemoved(cc.Pipeline, [
+        'flowInDeps',
+        'getItems'
+    ], 'cc.loader');
 
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [

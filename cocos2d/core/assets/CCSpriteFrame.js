@@ -179,18 +179,6 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * !#en Add a event listener for texture loaded event.
-     * !#zh 添加纹理读取事件监听事件
-     * @method addLoadedEventListener
-     * @param {Function} callback
-     * @param {Object} target
-     * @deprecated since 3.1, please use EventTarget API instead
-     */
-    addLoadedEventListener: function (callback, target) {
-        this.once("load", callback, target);
-    },
-
-    /**
      * !#en Returns whether the sprite frame is rotated in the texture.
      * !#zh 获取 SpriteFrame 是否旋转
      * @method isRotated

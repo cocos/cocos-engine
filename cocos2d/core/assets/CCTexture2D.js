@@ -549,7 +549,7 @@ var Texture2D = cc.Class({
      * Release texture, please use destroy instead.
      * !#zh 释放纹理，请使用 destroy 替代。
      * @method releaseTexture
-     * @deprecated
+     * @deprecated since v2.0
      */
     releaseTexture () {
         this._image = null;

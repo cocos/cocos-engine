@@ -133,24 +133,19 @@ var View = function () {
     _t._designResolutionSize = cc.size(w, h);
     _t._originalDesignResolutionSize = cc.size(w, h);
     // Viewport is the container's rect related to content's coordinates in pixel
-    _t._viewPortRect = cc.rect(0, 0, w, h);
+    _t._viewportRect = cc.rect(0, 0, w, h);
     // The visible rect in content's coordinate in point
     _t._visibleRect = cc.rect(0, 0, w, h);
-    _t._contentTranslateLeftTop = {left: 0, top: 0};
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
-    // the view name
-    _t._viewName = "Cocos2dHTML5";
     // Custom callback for resize event
     _t._resizeCallback = null;
     _t._orientationChanging = true;
     _t._resizing = false;
 
     _t._scaleX = 1;
-    _t._originalScaleX = 1;
     _t._scaleY = 1;
-    _t._originalScaleY = 1;
 
     _t._isRotated = false;
     _t._orientation = 3;
@@ -169,11 +164,8 @@ var View = function () {
 
     _t._initialized = false;
 
-    _t._contentTranslateLeftTop = null;
-
-    _t._frameZoomFactor = 1.0;
-    _t.__resizeWithBrowserSize = false;
-    _t._isAdjustViewPort = true;
+    _t._resizeWithBrowserSize = false;
+    _t._isAdjustViewport = true;
 
     _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     _t.enableAntiAlias(true);
@@ -227,7 +219,6 @@ View.prototype = {
     },
 
     /**
-     * <p>
      * !#en
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
      *   1. cc.macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
@@ -236,7 +227,6 @@ View.prototype = {
      *   4. cc.macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
      *   5. Custom value, e.g: "480"                                                         <br/>
      * !#zh 设置目标内容的每英寸像素点密度。
-     * </p>
      *
      * @method setTargetDensityDPI
      * @param {String} densityDPI
@@ -261,7 +251,7 @@ View.prototype = {
      * !#en
      * Sets whether resize canvas automatically when browser's size changed.<br/>
      * Useful only on web.
-     * !#zh 设置当发现浏览器(模拟器)的尺寸改变时，是否自动调整 canvas 尺寸大小。
+     * !#zh 设置当发现浏览器的尺寸改变时，是否自动调整 canvas 尺寸大小。
      * 仅在 Web 模式下有效。
      * @method resizeWithBrowserSize
      * @param {Boolean} enabled - Whether enable automatic resize with browser's resize event
@@ -269,8 +259,8 @@ View.prototype = {
     resizeWithBrowserSize: function (enabled) {
         if (enabled) {
             //enable
-            if (!this.__resizeWithBrowserSize) {
-                this.__resizeWithBrowserSize = true;
+            if (!this._resizeWithBrowserSize) {
+                this._resizeWithBrowserSize = true;
                 window.addEventListener('resize', this._resizeEvent);
                 window.addEventListener('orientationchange', this._orientationChange);
             }
@@ -403,20 +393,10 @@ View.prototype = {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_WECHATGAME && !CC_QQPLAY) {
             this._setViewportMeta(__BrowserGetter.meta, false);
-            this._isAdjustViewPort = false;
+            this._isAdjustViewport = false;
         }
-    },
-
-    // Other helper functions
-    _resetScale: function () {
-        this._scaleX = this._originalScaleX;
-        this._scaleY = this._originalScaleY;
-    },
-
-    // Useless, just make sure the compatibility temporarily, should be removed
-    _adjustSizeToBrowser: function () {
     },
 
     initialize: function () {
@@ -433,11 +413,11 @@ View.prototype = {
      * 默认设置为启动，我们强烈建议你不要将它设置为关闭。
      * 即使当它启动时，你仍然能够设置你的 viewport meta，它不会被覆盖。
      * 仅在 Web 模式下有效
-     * @method adjustViewPort
+     * @method adjustViewportMeta
      * @param {Boolean} enabled - Enable automatic modification to "viewport" meta
      */
-    adjustViewPort: function (enabled) {
-        this._isAdjustViewPort = enabled;
+    adjustViewportMeta: function (enabled) {
+        this._isAdjustViewport = enabled;
     },
 
     /**
@@ -548,58 +528,7 @@ View.prototype = {
         return this._autoFullScreen;
     },
 
-    /**
-     * !#en
-     * Get whether render system is ready(no matter opengl or canvas),<br/>
-     * this name is for the compatibility with cocos2d-x, subclass must implement this method.
-     * !#zh 查看渲染系统是否准备完善（无论是在 OpenGL 还是 Canvas），
-     * 这个方法名是为了和 cocos2d-x 保持对接，它的子类必须实现这个方法。
-     * @method isViewReady
-     * @return {Boolean}
-     * @deprecated
-     */
-    isViewReady: function () {
-        return cc.game.canvas && cc.game._renderContext;
-    },
-
-    /** 
-     * !#en
-     * Set zoom factor for frame. This method is for debugging big resolution (e.g.new ipad) app on desktop.
-     * !#zh 给外框设置缩放系数。这个方法是为了调试大分辨率设备（例如：新款 ipad）下的桌面应用。
-     * @method setFrameZoomFactor
-     * @param {Number} zoomFactor
-     */
-    setFrameZoomFactor: function (zoomFactor) {
-        this._frameZoomFactor = zoomFactor;
-        cc.director.setProjection(cc.director.getProjection());
-    },
-
-    /**
-     * !#en
-     * Sets the resolution translate on View.
-
-     * @method setContentTranslateLeftTop
-     * @param {Number} offsetLeft
-     * @param {Number} offsetTop
-     * @deprecated
-     */
-    setContentTranslateLeftTop: function (offsetLeft, offsetTop) {
-        this._contentTranslateLeftTop = {left: offsetLeft, top: offsetTop};
-    },
-
-    /**
-     * !#en
-     * Returns the resolution translate on View
-     * !#zh 返回转化分辨率后的视图
-     * @method getContentTranslateLeftTop
-     * @return {Size|Object}
-     */
-    getContentTranslateLeftTop: function () {
-        return this._contentTranslateLeftTop;
-    },
-
-    /** 
-     * !#en
+    /*
      * Not support on native.<br/>
      * On web, it sets the size of the canvas.
      * !#zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
@@ -703,7 +632,7 @@ View.prototype = {
      * @return {Vec2}
      */
     getVisibleOrigin: function () {
-        return cc.p(this._visibleRect.x,this._visibleRect.y);
+        return cc.v2(this._visibleRect.x,this._visibleRect.y);
     },
 
     /**
@@ -714,19 +643,9 @@ View.prototype = {
      * @return {Vec2}
      */
     getVisibleOriginInPixel: function () {
-        return cc.p(this._visibleRect.x * this._scaleX,
+        return cc.v2(this._visibleRect.x * this._scaleX,
                     this._visibleRect.y * this._scaleY);
     },
-
-    /**
-     * !#en
-     * Returns whether developer can set content's scale factor.
-     * !#zh 返回开发者是否能够设置 content 的尺寸元素。
-     * @method canSetContentScaleFactor
-     * @deprecated
-     * @return {Boolean}
-     */
-    canSetContentScaleFactor: function () {},
 
     /**
      * !#en
@@ -824,7 +743,7 @@ View.prototype = {
         }
 
         if(result.viewport){
-            var vp = this._viewPortRect,
+            var vp = this._viewportRect,
                 vb = this._visibleRect,
                 rv = result.viewport;
 
@@ -848,8 +767,6 @@ View.prototype = {
         cc.winSize.width = director._winSizeInPoints.width;
         cc.winSize.height = director._winSizeInPoints.height;
 
-        this._originalScaleX = this._scaleX;
-        this._originalScaleY = this._scaleY;
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
@@ -905,19 +822,19 @@ View.prototype = {
      * !#en
      * Sets view port rectangle with points.
      * !#zh 用设计分辨率下的点尺寸来设置视窗。
-     * @method setViewPortInPoints
-     * @deprecated
+     * @method setViewportInPoints
+     * @deprecated since v2.0
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w width
      * @param {Number} h height
      */
-    setViewPortInPoints: function (x, y, w, h) {
-        var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc.game._renderContext.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
-            (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
-            (w * locScaleX * locFrameZoomFactor),
-            (h * locScaleY * locFrameZoomFactor));
+    setViewportInPoints: function (x, y, w, h) {
+        var locScaleX = this._scaleX, locScaleY = this._scaleY;
+        cc.game._renderContext.viewport((x * locScaleX + this._viewportRect.x),
+            (y * locScaleY + this._viewportRect.y),
+            (w * locScaleX),
+            (h * locScaleY));
     },
 
     /**
@@ -925,18 +842,18 @@ View.prototype = {
      * Sets Scissor rectangle with points.
      * !#zh 用设计分辨率下的点的尺寸来设置 scissor 剪裁区域。
      * @method setScissorInPoints
-     * @deprecated
+     * @deprecated since v2.0
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w
      * @param {Number} h
      */
     setScissorInPoints: function (x, y, w, h) {
-        var zoomFactor = this._frameZoomFactor, scaleX = this._scaleX, scaleY = this._scaleY;
-        var sx = Math.ceil(x * scaleX * zoomFactor + this._viewPortRect.x * zoomFactor);
-        var sy = Math.ceil(y * scaleY * zoomFactor + this._viewPortRect.y * zoomFactor);
-        var sw = Math.ceil(w * scaleX * zoomFactor);
-        var sh = Math.ceil(h * scaleY * zoomFactor);
+        var scaleX = this._scaleX, scaleY = this._scaleY;
+        var sx = Math.ceil(x * scaleX + this._viewportRect.x);
+        var sy = Math.ceil(y * scaleY + this._viewportRect.y);
+        var sw = Math.ceil(w * scaleX);
+        var sh = Math.ceil(h * scaleY);
 
         if (!_scissorRect) {
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
@@ -957,7 +874,7 @@ View.prototype = {
      * Returns whether GL_SCISSOR_TEST is enable
      * !#zh 检查 scissor 是否生效。
      * @method isScissorEnabled
-     * @deprecated
+     * @deprecated since v2.0
      * @return {Boolean}
      */
     isScissorEnabled: function () {
@@ -969,7 +886,7 @@ View.prototype = {
      * Returns the current scissor rectangle
      * !#zh 返回当前的 scissor 剪裁区域。
      * @method getScissorRect
-     * @deprecated
+     * @deprecated since v2.0
      * @return {Rect}
      */
     getScissorRect: function () {
@@ -980,8 +897,8 @@ View.prototype = {
         var scaleXFactor = 1 / this._scaleX;
         var scaleYFactor = 1 / this._scaleY;
         return cc.rect(
-            (_scissorRect.x - this._viewPortRect.x) * scaleXFactor,
-            (_scissorRect.y - this._viewPortRect.y) * scaleYFactor,
+            (_scissorRect.x - this._viewportRect.x) * scaleXFactor,
+            (_scissorRect.y - this._viewportRect.y) * scaleYFactor,
             _scissorRect.width * scaleXFactor,
             _scissorRect.height * scaleYFactor
         );
@@ -989,39 +906,13 @@ View.prototype = {
 
     /**
      * !#en
-     * Sets the name of the view
-     * !#zh 设置视图名称。
-     * @method setViewName
-     * @deprecated
-     * @param {String} viewName
-     */
-    setViewName: function (viewName) {
-        if (viewName != null && viewName.length > 0) {
-            this._viewName = viewName;
-        }
-    },
-
-    /**
-     * !#en
-     * Returns the name of the view
-     * !#zh 返回视图名称。
-     * @method getViewName
-     * @deprecated
-     * @return {String}
-     */
-    getViewName: function () {
-        return this._viewName;
-    },
-
-    /**
-     * !#en
      * Returns the view port rectangle.
      * !#zh 返回视窗剪裁区域。
-     * @method getViewPortRect
+     * @method getViewportRect
      * @return {Rect}
      */
-    getViewPortRect: function () {
-        return this._viewPortRect;
+    getViewportRect: function () {
+        return this._viewportRect;
     },
 
     /**
@@ -1070,23 +961,23 @@ View.prototype = {
     convertToLocationInView: function (tx, ty, relatedPos) {
         var x = this._devicePixelRatio * (tx - relatedPos.left);
         var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
+        return this._isRotated ? {x: this._viewportRect.width - y, y: x} : {x: x, y: y};
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
-        var viewport = this._viewPortRect, _t = this;
+        var viewport = this._viewportRect, _t = this;
         in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
         in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
     },
 
     _convertPointWithScale: function (point) {
-        var viewport = this._viewPortRect;
+        var viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
     },
 
     _convertTouchesWithScale: function (touches) {
-        var viewport = this._viewPortRect, scaleX = this._scaleX, scaleY = this._scaleY,
+        var viewport = this._viewportRect, scaleX = this._scaleX, scaleY = this._scaleY,
             selTouch, selPoint, selPrePoint;
         for (var i = 0; i < touches.length; i++) {
             selTouch = touches[i];
