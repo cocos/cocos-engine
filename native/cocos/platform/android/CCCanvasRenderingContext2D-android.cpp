@@ -385,4 +385,32 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
     
 }
 
+// transform
+//TODO:
+
+void CanvasRenderingContext2D::translate(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::scale(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::rotate(float angle)
+{
+
+}
+
+void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
+{
+
+}
+
+void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
+{
+
+}
+
 NS_CC_END
