@@ -348,17 +348,11 @@ let ArmatureDisplay = cc.Class({
         if (this._material || !texture)
             return;
 
-        let url = texture.url;
-        let material = renderer.materialUtil.get(texture.url);
-
         // Get material
-        if (!material) {
-            material = new SpriteMaterial();
-            renderer.materialUtil.register(url, material);
-        }
+        let material = new SpriteMaterial();
+        material.texture = texture;
 
-        material.texture = texture.getImpl();
-        this._material = material;
+        this.setMaterial(material);
     },
 
     _buildArmature () {

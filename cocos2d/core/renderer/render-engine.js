@@ -14354,6 +14354,166 @@ module.exports = (function () {
     }
   }
   
+  /**
+   * JS Implementation of MurmurHash2
+   * 
+   * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+   * @see http://github.com/garycourt/murmurhash-js
+   * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
+   * @see http://sites.google.com/site/murmurhash/
+   * 
+   * @param {string} str ASCII only
+   * @param {number} seed Positive integer only
+   * @return {number} 32-bit positive integer hash
+   */
+  
+  function murmurhash2_32_gc(str, seed) {
+    var
+      l = str.length,
+      h = seed ^ l,
+      i = 0,
+      k;
+    
+    while (l >= 4) {
+      k = 
+        ((str.charCodeAt(i) & 0xff)) |
+        ((str.charCodeAt(++i) & 0xff) << 8) |
+        ((str.charCodeAt(++i) & 0xff) << 16) |
+        ((str.charCodeAt(++i) & 0xff) << 24);
+      
+      k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+      k ^= k >>> 24;
+      k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+  
+    h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16)) ^ k;
+  
+      l -= 4;
+      ++i;
+    }
+    
+    switch (l) {
+    case 3: h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
+    case 2: h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
+    case 1: h ^= (str.charCodeAt(i) & 0xff);
+            h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+    }
+  
+    h ^= h >>> 13;
+    h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+    h ^= h >>> 15;
+  
+    return h >>> 0;
+  }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+  
+  // function genHashCode (str) {
+  //     var hash = 0;
+  //     if (str.length == 0) {
+  //         return hash;
+  //     }
+  //     for (var i = 0; i < str.length; i++) {
+  //         var char = str.charCodeAt(i);
+  //         hash = ((hash<<5)-hash)+char;
+  //         hash = hash & hash; // Convert to 32bit integer
+  //     }
+  //     return hash;
+  // }
+  
+  function serializeDefines (defines) {
+      let str = '';
+      for (let i = 0; i < defines.length; i++) {
+          str += defines[i].name + defines[i].value;
+      }
+      return str;
+  }
+  
+  function serializePass (pass) {
+      let str = pass._programName + pass._cullMode;
+      if (pass._blend) {
+          str += pass._blendEq + pass._blendAlphaEq + pass._blendSrc + pass._blendDst
+               + pass._blendSrcAlpha + pass._blendDstAlpha + pass._blendColor;
+      }
+      if (pass._depthTest) {
+          str += pass._depthWrite + pass._depthFunc;
+      }
+      if (pass._stencilTest) {
+          str += pass._stencilFuncFront + pass._stencilRefFront + pass._stencilMaskFront
+               + pass._stencilFailOpFront + pass._stencilZFailOpFront + pass._stencilZPassOpFront
+               + pass._stencilWriteMaskFront
+               + pass._stencilFuncBack + pass._stencilRefBack + pass._stencilMaskBack
+               + pass._stencilFailOpBack + pass._stencilZFailOpBack + pass._stencilZPassOpBack 
+               + pass._stencilWriteMaskBack;
+      }
+      return str;
+  }
+  
+  function computeHash(material) {
+      let effect = material._effect;
+      let hashData = '';
+      if (effect) {
+          let i, j, techData, param, prop, propKey;
+  
+          // effect._defines
+          hashData += serializeDefines(effect._defines);
+          // effect._techniques
+          for (i = 0; i < effect._techniques.length; i++) {
+              techData = effect._techniques[i];
+              // technique.stageIDs
+              hashData += techData.stageIDs;
+              // technique._layer
+              // hashData += + techData._layer + "_";
+              // technique.passes
+              for (j = 0; j < techData.passes.length; j++) {
+                  hashData += serializePass(techData.passes[j]);
+              }
+              //technique._parameters
+              for (j = 0; j < techData._parameters.length; j++) {
+                  param = techData._parameters[j];
+                  propKey = param.name;
+                  prop = effect._properties[propKey];
+                  if (!prop) {
+                      continue;
+                  }
+                  switch(param.type) {
+                      case renderer.PARAM_INT:
+                      case renderer.PARAM_FLOAT:
+                          hashData += prop + ';';
+                          break;
+                      case renderer.PARAM_INT2:
+                      case renderer.PARAM_FLOAT2:
+                          hashData += prop.x + ',' + prop.y + ';';
+                          break;
+                      case renderer.PARAM_INT4:
+                      case renderer.PARAM_FLOAT4:
+                          hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
+                          break;
+                      case renderer.PARAM_COLOR4:
+                          hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
+                          break;
+                      case renderer.PARAM_MAT2:
+                          hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
+                          break;
+                      case renderer.PARAM_TEXTURE_2D:
+                      case renderer.PARAM_TEXTURE_CUBE:
+                          hashData += material._texIds[propKey] + ';';
+                          break;
+                      case renderer.PARAM_INT3:
+                      case renderer.PARAM_FLOAT3:
+                      case renderer.PARAM_COLOR3:
+                      case renderer.PARAM_MAT3:
+                      case renderer.PARAM_MAT4:
+                          hashData += JSON.stringify(prop) + ';';
+                          break;
+                      default:
+                          break;
+                  }
+              }
+          }
+      }
+      return hashData ? murmurhash2_32_gc(hashData, 666) : hashData;
+  }
+  
   // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
    
   class Material extends Asset {
@@ -14361,36 +14521,16 @@ module.exports = (function () {
       super(persist);
   
       this._effect = null; // renderer.Effect
-    }
-  }
-  
-  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
-   
-  class MaterialUtil {
-    constructor () {
-        this._cache = {};
+      this._texIds = {}; // ids collected from texture defines
+      this._hash = '';
     }
   
-    get (key) {
-      return this._cache[key];
+    get hash () {
+      return this._hash;
     }
   
-    register (key, material) {
-      if (key === undefined || this._cache[key]) {
-          console.warn("Material key is invalid or already exists");
-      }
-      else if (!material instanceof Material) {
-          console.warn("Invalid Material");
-      }
-      else {
-          this._cache[key] = material;
-      }
-    }
-  
-    unregister (key) {
-      if (key !== undefined) {
-          delete this._cache[key];
-      }
+    updateHash (value) {
+      this._hash = value || computeHash(this);
     }
   }
   
@@ -14433,6 +14573,7 @@ module.exports = (function () {
       );
       
       this._mainTech = mainTech;
+      this._texture = null;
     }
   
     get effect () {
@@ -14456,11 +14597,15 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getProperty('texture');
+      return this._texture;
     }
   
     set texture(val) {
-      this._effect.setProperty('texture', val);
+      if (this._texture !== val) {
+        this._texture = val;
+        this._effect.setProperty('texture', val.getImpl());
+        this._texIds['texture'] = val.getId();
+      }
     }
   
     clone () {
@@ -14468,6 +14613,7 @@ module.exports = (function () {
       copy.texture = this.texture;
       copy.useTexture = this.useTexture;
       copy.useModel = this.useModel;
+      copy.updateHash();
       return copy;
     }
   }
@@ -14507,6 +14653,7 @@ module.exports = (function () {
       );
       
       this._mainTech = mainTech;
+      this._texture = null;
     }
   
     get effect () {
@@ -14514,16 +14661,21 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getProperty('texture');
+      return this._texture;
     }
   
     set texture (val) {
-      this._effect.setProperty('texture', val);
+      if (this._texture !== val) {
+        this._texture = val;
+        this._effect.setProperty('texture', val.getImpl());
+        this._texIds['texture'] = val.getId();
+      }
     }
   
     clone () {
       let copy = new GraySpriteMaterial(values);
       copy.texture = this.texture;
+      copy.updateHash();
       return copy;
     }
   }
@@ -14568,6 +14720,7 @@ module.exports = (function () {
       );
       
       this._mainTech = mainTech;
+      this._texture = null;
     }
   
     get effect () {
@@ -14583,11 +14736,15 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getProperty('texture');
+      return this._texture;
     }
   
     set texture (val) {
-      this._effect.setProperty('texture', val);
+      if (this._texture !== val) {
+        this._texture = val;
+        this._effect.setProperty('texture', val.getImpl());
+        this._texIds['texture'] = val.getId();
+      }
     }
     
     get alphaThreshold () {
@@ -14603,6 +14760,7 @@ module.exports = (function () {
       copy.useTexture = this.useTexture;
       copy.texture = this.texture;
       copy.alphaThreshold = this.alphaThreshold;
+      copy.updateHash();
       return copy;
     }
   }
@@ -14649,6 +14807,7 @@ module.exports = (function () {
       );
       
       this._mainTech = mainTech;
+      this._texture = null;
       this._lb = vec2.create();
       this._rt = vec2.create();
     }
@@ -14658,11 +14817,15 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getProperty('texture');
+      return this._texture;
     }
   
     set texture (val) {
-      this._effect.setProperty('texture', val);
+      if (this._texture !== val) {
+        this._texture = val;
+        this._effect.setProperty('texture', val.getImpl());
+        this._texIds['texture'] = val.getId();
+      }
     }
   
     get stateMap () {
@@ -14734,6 +14897,7 @@ module.exports = (function () {
       copy.quadSize = this.quadSize;
       copy.z = this.z;
       copy.uv = this.uv;
+      copy.updateHash();
       return copy;
     }
   }
@@ -14927,9 +15091,6 @@ module.exports = (function () {
     // shaders
     shaders,
   
-    // utils
-    MaterialUtil,
-  
     // memop
     RecyclePool,
     Pool,
@@ -14943,4 +15104,3 @@ module.exports = (function () {
   return renderEngine;
   
   }());
-  

@@ -212,7 +212,6 @@ var Sprite = cc.Class({
                 if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                     // Drop previous material, because texture have changed
                     this._material = null;
-                    this._customMaterial = false;
                 }
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
@@ -457,7 +456,6 @@ var Sprite = cc.Class({
      */
     setState: function (state) {
         this._state = state;
-        // TODO: change the state
         this._material = null;
         this._activateMaterial();
     },
@@ -490,22 +488,22 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 key = url + ':gray';
             }
-            this._material = renderer.materialUtil.get(key);
-            if (!this._material) {
-                if (this._state === State.GRAY) {
-                    this._material = new GraySpriteMaterial();
-                }
-                else {
-                    this._material = new SpriteMaterial();
-                }
-                renderer.materialUtil.register(key, this._material);
+            if (this._state === State.GRAY) {
+                this._material = new GraySpriteMaterial();
+            }
+            else {
+                this._material = new SpriteMaterial();
             }
             // TODO: old texture in material have been released by loader
-            this._material.texture = texture.getImpl();
+            this._material.texture = texture;
         }
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
+            // Update hash inside
             this._updateBlendFunc();
+        }
+        else {
+            this._material.updateHash();
         }
     },
     
@@ -514,10 +512,6 @@ var Sprite = cc.Class({
             return;
         }
 
-        if (!this._customMaterial) {
-            this._material = this._material.clone();
-            this._customMaterial = true;
-        }
         var pass = this._material._mainTech.passes[0];
         pass.setBlend(
             gfx.BLEND_FUNC_ADD,
@@ -525,6 +519,7 @@ var Sprite = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
+        this._material.updateHash();
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {

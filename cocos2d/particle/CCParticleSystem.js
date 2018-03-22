@@ -1326,10 +1326,12 @@ var ParticleSystem = cc.Class({
         // Get material
         if (!this._material) {
             this._material = new ParticleMaterial();
+            // Particle System cannot be batched, so every one use a unique hash id
+            this._material.updateHash(this.__instanceId);
         }
 
         let vfx = this._vfx;
-        this._material.texture = this._texture.getImpl();
+        this._material.texture = this._texture;
         this._material.stateMap = this._vfx.textures.state0;
         this._material.quadMap = this._vfx.textures.quads;
         this._material.z = this.node.z;

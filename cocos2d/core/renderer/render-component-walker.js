@@ -211,7 +211,7 @@ RenderComponentWalker.prototype = {
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
-        effect = this._stencilMgr.handleEffect(effect);
+        this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
@@ -252,12 +252,12 @@ RenderComponentWalker.prototype = {
     batchQueue () {
         let vertexId = 0,
             comp = this._queue[0],
-            material = null, 
-            assembler = null, 
+            material = null,
+            assembler = null,
             datas = null,
-            data = null
+            data = null,
             cullingMask = 1,
-            needNewBuf = false,
+            broken = false,
             iaData = false;
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
@@ -293,8 +293,12 @@ RenderComponentWalker.prototype = {
                 iaData = data.type === IARenderData.type;
 
                 // breaking batch
-                needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (!_batchData.material || _batchData.material.effect != material.effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
+                broken = iaData || 
+                         !_batchData.material || _batchData.material._hash != material._hash || 
+                         _batchData.cullingMask !== cullingMask ||
+                         (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
+                         (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+                if (broken) {
                     this._flush(_batchData);
                     _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                     _batchData.material = material;

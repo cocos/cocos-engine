@@ -243,6 +243,9 @@ var Texture2D = cc.Class({
     },
 
     ctor () {
+        // Id for generate hash in material
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        
         /**
          * !#en
          * The url of the texture, this could be empty if the texture wasn't created via a file.
