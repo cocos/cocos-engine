@@ -229,7 +229,7 @@ cc.Director.prototype = {
      * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
-     * @deprecated
+     * @deprecated since v2.0
      */
     convertToGL: function (uiPoint) {
         var container = cc.game.container;
@@ -251,7 +251,7 @@ cc.Director.prototype = {
      * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
-     * @deprecated
+     * @deprecated since v2.0
      */
     convertToUI: function (glPoint) {
         var container = cc.game.container;
@@ -302,31 +302,11 @@ cc.Director.prototype = {
      * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
      * @method getWinSizeInPixels
      * @return {Size}
-     * @deprecated
+     * @deprecated since v2.0
      */
     getWinSizeInPixels: function () {
         return cc.size(this._winSizeInPoints.width, this._winSizeInPoints.height);
     },
-
-    /**
-     * !#en Returns the visible size of the running scene.
-     * !#zh 获取运行场景的可见大小。
-     * @method getVisibleSize
-     * @see cc.visibleRect
-     * @return {Size}
-     * @deprecated
-     */
-    getVisibleSize: null,
-
-    /**
-     * !#en Returns the visible origin of the running scene.
-     * !#zh 获取视图在游戏内容中的坐标原点。
-     * @method getVisibleOrigin
-     * @see cc.visibleRect
-     * @return {Vec2}
-     * @deprecated
-     */
-    getVisibleOrigin: null,
 
     /**
      * !#en Pause the director's ticker, only involve the game logic execution.
@@ -343,55 +323,9 @@ cc.Director.prototype = {
         this._paused = true;
     },
 
-    /*
-     * !#en
-     * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
-     * The new scene will be executed.<br/>
-     * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
-     * ONLY call it if there is a running scene.
-     * !#zh
-     * 暂停当前运行的场景，压入到暂停的场景栈中。<br/>
-     * 新场景将被执行。 <br/>
-     * 尽量避免压入大场景，以减少内存分配。 <br/>
-     * 只能在有运行场景时调用它。
-     * @method pushScene
-     * @param {Scene} scene
-     * @deprecated
-     */
-    pushScene: function (scene) {
-    },
-
-    /*
-     * Pops out a scene from the queue.<br/>
-     * This scene will replace the running one.<br/>
-     * The running scene will be deleted. If there are no more scenes in the stack the execution is terminated.<br/>
-     * ONLY call it if there is a running scene.
-     * @deprecated
-     */
-    popScene: function () {
-    },
-
-    /**
-     * Pops out all scenes from the queue until the root scene in the queue. <br/>
-     * This scene will replace the running one.  <br/>
-     * Internally it will call "popToSceneStackLevel(1)".
-     * @deprecated
-     */
-    popToRootScene: function () {},
-
-    /**
-     * Pops out all scenes from the queue until it reaches "level".                             <br/>
-     * If level is 0, it will end the director.                                                 <br/>
-     * If level is 1, it will pop all scenes until it reaches to root scene.                    <br/>
-     * If level is <= than the current stack level, it won't do anything.
-     * @param {Number} level
-     * @deprecated
-     */
-    popToSceneStackLevel: function (level) {},
-
     /**
      * Removes cached all cocos2d cached data.
-     * @deprecated
+     * @deprecated since v2.0
      */
     purgeCachedData: function () {
         cc.loader.releaseAll();
@@ -775,9 +709,14 @@ cc.Director.prototype = {
      * !#zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
      * @method setDepthTest
      * @param {Boolean} on
-     * @deprecated
+     * @deprecated since v2.0
      */
-    setDepthTest: function () {},
+    setDepthTest: function (value) {
+        if (!cc.Camera.main) {
+            return;
+        }
+        cc.Camera.main.depth = !!value;
+    },
 
     /**
      * !#en
@@ -788,46 +727,22 @@ cc.Director.prototype = {
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
      * @method setClearColor
      * @param {Color} clearColor
-     * @deprecated
+     * @deprecated since v2.0
      */
     setClearColor: function (clearColor) {
         if (!cc.Camera.main) {
             return;
         }
-        
         cc.Camera.main.backgroundColor = clearColor;
     },
 
     /**
-     * !#en
-     * Sets an OpenGL projection.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 设置 OpenGL 投影。
-     * @method setProjection
-     * @param {Number} projection
-     * @deprecated
-     */
-    setProjection: function (projection) {},
-
-    /**
-     * !#en
-     * Gets an OpenGL projection.
-     * !#zh 获取 OpenGL 投影。
-     * @method getProjection
-     * @return {Number}
-     * @deprecated
-     */
-    getProjection: function () {},
-
-    /**
-     * !#en
-     * Returns current render Scene, normally you will never need to use this API.
-     * In most case, you probably want to use `getScene` instead.
-     * !#zh 获取当前运行的渲染场景，一般情况下，你不会需要用到这个接口，请使用 getScene。
+     * !#en Returns current logic Scene.
+     * !#zh 获取当前逻辑场景。
      * @method getRunningScene
      * @private
      * @return {Scene}
-     * @deprecated
+     * @deprecated since v2.0
      */
     getRunningScene: function () {
         return this._scene;
@@ -850,25 +765,22 @@ cc.Director.prototype = {
      * !#en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
      * !#zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
      * @method getAnimationInterval
-     * @deprecated
+     * @deprecated since v2.0
      * @return {Number}
      */
     getAnimationInterval: function () {
-        return cc.game._frameTime;
+        return 1000 / cc.game.getFrameRate();
     },
 
     /**
      * Sets animation interval, this doesn't control the main loop.
      * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
      * @method setAnimationInterval
-     * @deprecated
+     * @deprecated since v2.0
      * @param {Number} value - The animation interval desired.
      */
     setAnimationInterval: function (value) {
-        if (!this.invalid) {
-            this.stopAnimation();
-            this.startAnimation();
-        }
+        cc.game.setFrameRate(Math.round(1000 / value));
     },
 
     /**
@@ -1255,7 +1167,7 @@ cc.Director._getInstance = function () {
  * @default 0
  * @readonly
  * @static
- * @deprecated
+ * @deprecated since v2.0
  */
 cc.Director.PROJECTION_2D = 0;
 
@@ -1265,7 +1177,7 @@ cc.Director.PROJECTION_2D = 0;
  * @default 1
  * @readonly
  * @static
- * @deprecated
+ * @deprecated since v2.0
  */
 cc.Director.PROJECTION_3D = 1;
 
@@ -1275,7 +1187,7 @@ cc.Director.PROJECTION_3D = 1;
  * @default 3
  * @readonly
  * @static
- * @deprecated
+ * @deprecated since v2.0
  */
 cc.Director.PROJECTION_CUSTOM = 3;
 
@@ -1285,6 +1197,6 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @default cc.Director.PROJECTION_2D
  * @readonly
  * @static
- * @deprecated
+ * @deprecated since v2.0
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;

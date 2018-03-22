@@ -333,7 +333,7 @@ cc.macro = {
      * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
      * 如果游戏中的静态物体比较多的话，建议将此选项打开。
      * @property {Boolean} ENABLE_CULLING
-     * @deprecated
+     * @deprecated since v2.0
      * @default false
      */
     ENABLE_CULLING: false,

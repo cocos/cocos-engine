@@ -1074,7 +1074,7 @@ var ParticleSystem = cc.Class({
      * @method setTextureWithRect
      * @param {Texture2D} texture
      * @param {Rect} rect
-     * @deprecated
+     * @deprecated since v1.9
      */
     setTextureWithRect: function (texture, rect) {
         if (texture instanceof cc.Texture2D) {

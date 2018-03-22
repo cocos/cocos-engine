@@ -282,7 +282,7 @@ proto.flowIn = function (items) {
     }
 };
 
-/**
+/*
  * !#en
  * Let new items flow into the pipeline and give a callback when the list of items are all completed. </br>
  * This is for loading dependencies for an existing item in flow, usually used in a pipe logic. </br>
@@ -346,28 +346,6 @@ proto.copyItemStates = function (srcItem, dstItems) {
     for (var i = 0; i < dstItems.length; ++i) {
         dstItems[i].states = srcItem.states;
     }
-};
-
-/**
- * !#en Returns whether the pipeline is flowing (contains item) currently.
- * !#zh 获取 pipeline 当前是否正在处理中。
- * @method isFlowing
- * @return {Boolean}
- * @deprecated since v1.3
- */
-proto.isFlowing = function () {
-    return true;
-};
-
-/**
- * !#en Returns all items in pipeline. Returns null, please use API of Loader or LoadingItems.
- * !#zh 获取 pipeline 中的所有 items。返回 null，请使用 Loader / LoadingItems API。
- * @method getItems
- * @return {LoadingItems}
- * @deprecated since v1.3
- */
-proto.getItems = function () {
-    return null;
 };
 
 /**
