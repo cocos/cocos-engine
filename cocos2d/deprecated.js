@@ -197,6 +197,22 @@ if (CC_DEV) {
         EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
     }, 'cc.Director');
 
+    // cc.view
+    provideClearError(cc.view, {
+        adjustViewPort: 'adjustViewportMeta',
+        setViewPortInPoints: 'setViewportInPoints',
+        getViewPortRect: 'getViewportRect'
+    }, 'cc.view');
+    markAsRemovedInObject(cc.view, [
+        'isViewReady',
+        'setFrameZoomFactor',
+        'canSetContentScaleFactor',
+        'setContentTranslateLeftTop',
+        'getContentTranslateLeftTop',
+        'setViewName',
+        'getViewName'
+    ], 'cc.view');
+
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
         'attachDebugDrawToCamera',

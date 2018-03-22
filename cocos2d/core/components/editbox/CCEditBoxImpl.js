@@ -370,7 +370,7 @@ _p._beginEditingOnMobile = function () {
     } else {
         this.__fullscreen = false;
     }
-    this.__autoResize = cc.view.__resizeWithBrowserSize;
+    this.__autoResize = cc.view._resizeWithBrowserSize;
     cc.view.resizeWithBrowserSize(false);
 };
 

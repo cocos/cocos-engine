@@ -239,7 +239,7 @@ cc.Director.prototype = {
         var top = box.top + window.pageYOffset - container.clientTop;
         var x = view._devicePixelRatio * (uiPoint.x - left);
         var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
-        return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
+        return view._isRotated ? {x: view._viewportRect.width - y, y: x} : {x: x, y: y};
     },
 
     /**
@@ -262,7 +262,7 @@ cc.Director.prototype = {
         var uiPoint = {x: 0, y: 0};
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
-            uiPoint.y = top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
+            uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
         }
         else {
             uiPoint.x = left + glPoint.x * view._devicePixelRatio;

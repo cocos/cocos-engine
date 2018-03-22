@@ -116,7 +116,7 @@ module.exports = {
         }
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            let vp = cc.view.getViewPortRect();
+            let vp = cc.view.getViewportRect();
             this.device.setViewport(vp.x, vp.y, vp.width, vp.height);
             this._camera.a = cc.view.getScaleX();
             this._camera.d = -cc.view.getScaleY();
