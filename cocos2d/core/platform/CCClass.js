@@ -925,6 +925,11 @@ function CCClass (options) {
         name = cc.js.getClassName(cls);
     }
 
+    cls._sealed = true;
+    if (base) {
+        base._sealed = false;
+    }
+
     // define Properties
     var properties = options.properties;
     if (typeof properties === 'function' ||
