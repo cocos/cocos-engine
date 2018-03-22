@@ -367,8 +367,8 @@ if (CC_QQPLAY) {
 
         // bk game
         detectGesture: function () {
-            var touchArr = BK.TouchEvent.getTouchEvent();
-            if (!touchArr) {
+            var allTouchArr = BK.TouchEvent.getAllTouchEvent();
+            if (!allTouchArr) {
                 return;
             }
 
@@ -376,18 +376,19 @@ if (CC_QQPLAY) {
             var _touchMoveEvents = [];
             var _touchEndEvents = [];
 
-            for (var i = 0; i < touchArr.length; i++) {
+            var touchArr = allTouchArr[allTouchArr.length - 1];
+            for(var i = 0; i < touchArr.length; i++) {
                 var touch_event = touchArr[i];
                 //touch begin
-                if (touchArr[i].status === 2) {
+                if (touch_event.status === 2) {
                     _touchBeginEvents.push(touch_event);
                 }
                 //touch moved
-                else if (touchArr[i].status === 3) {
+                else if (touch_event.status === 3) {
                     _touchMoveEvents.push(touch_event);
                 }
                 //touch end
-                else if (touchArr[i].status === 1) {
+                else if (touch_event.status === 1) {
                     _touchEndEvents.push(touch_event);
                 }
             }
@@ -401,8 +402,6 @@ if (CC_QQPLAY) {
             if (_touchEndEvents.length > 0) {
                 this.handleTouchesEnd(this.getTouchesByEvent(_touchEndEvents));
             }
-
-            BK.TouchEvent.updateTouchStatus();
         },
 
         /**
@@ -417,6 +416,7 @@ if (CC_QQPLAY) {
                 width: element.width,
                 height: element.height
             };
+            BK.Script.getTouchModeAll = 1;
         },
 
         _registerKeyboardEvent: function () {
