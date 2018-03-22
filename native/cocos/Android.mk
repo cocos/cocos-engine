@@ -86,9 +86,7 @@ scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
-scripting/js-bindings/manual/jsb_opengl_functions.cpp \
 scripting/js-bindings/manual/jsb_opengl_manual.cpp \
-scripting/js-bindings/manual/jsb_opengl_registration.cpp \
 scripting/js-bindings/manual/jsb_opengl_utils.cpp \
 scripting/js-bindings/manual/jsb_classtype.cpp \
 scripting/js-bindings/manual/jsb_conversions.cpp \

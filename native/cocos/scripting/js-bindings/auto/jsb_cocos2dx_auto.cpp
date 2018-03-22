@@ -1160,6 +1160,35 @@ static bool js_cocos2dx_CanvasRenderingContext2D_lineTo(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_lineTo)
 
+static bool js_cocos2dx_CanvasRenderingContext2D_setTransform(se::State& s)
+{
+    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_setTransform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 6) {
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        float arg5 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
+        ok &= seval_to_float(args[2], &arg2);
+        ok &= seval_to_float(args[3], &arg3);
+        ok &= seval_to_float(args[4], &arg4);
+        ok &= seval_to_float(args[5], &arg5);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_setTransform : Error processing arguments");
+        cobj->setTransform(arg0, arg1, arg2, arg3, arg4, arg5);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_setTransform)
+
 static bool js_cocos2dx_CanvasRenderingContext2D_stroke(se::State& s)
 {
     cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
@@ -1196,6 +1225,27 @@ static bool js_cocos2dx_CanvasRenderingContext2D_measureText(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_measureText)
 
+static bool js_cocos2dx_CanvasRenderingContext2D_scale(se::State& s)
+{
+    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_scale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        float arg0 = 0;
+        float arg1 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_scale : Error processing arguments");
+        cobj->scale(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_scale)
+
 static bool js_cocos2dx_CanvasRenderingContext2D_clearRect(se::State& s)
 {
     cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
@@ -1220,6 +1270,35 @@ static bool js_cocos2dx_CanvasRenderingContext2D_clearRect(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_clearRect)
+
+static bool js_cocos2dx_CanvasRenderingContext2D_transform(se::State& s)
+{
+    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_transform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 6) {
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        float arg3 = 0;
+        float arg4 = 0;
+        float arg5 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
+        ok &= seval_to_float(args[2], &arg2);
+        ok &= seval_to_float(args[3], &arg3);
+        ok &= seval_to_float(args[4], &arg4);
+        ok &= seval_to_float(args[5], &arg5);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_transform : Error processing arguments");
+        cobj->transform(arg0, arg1, arg2, arg3, arg4, arg5);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_transform)
 
 static bool js_cocos2dx_CanvasRenderingContext2D_fillText(se::State& s)
 {
@@ -1333,6 +1412,25 @@ static bool js_cocos2dx_CanvasRenderingContext2D_fillRect(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_fillRect)
 
+static bool js_cocos2dx_CanvasRenderingContext2D_rotate(se::State& s)
+{
+    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_rotate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_rotate : Error processing arguments");
+        cobj->rotate(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_rotate)
+
 static bool js_cocos2dx_CanvasRenderingContext2D_beginPath(se::State& s)
 {
     cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
@@ -1347,6 +1445,27 @@ static bool js_cocos2dx_CanvasRenderingContext2D_beginPath(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_beginPath)
+
+static bool js_cocos2dx_CanvasRenderingContext2D_translate(se::State& s)
+{
+    cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_translate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        float arg0 = 0;
+        float arg1 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_translate : Error processing arguments");
+        cobj->translate(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_translate)
 
 static bool js_cocos2dx_CanvasRenderingContext2D_createLinearGradient(se::State& s)
 {
@@ -1432,14 +1551,19 @@ bool js_register_cocos2dx_CanvasRenderingContext2D(se::Object* obj)
     cls->defineFunction("restore", _SE(js_cocos2dx_CanvasRenderingContext2D_restore));
     cls->defineFunction("moveTo", _SE(js_cocos2dx_CanvasRenderingContext2D_moveTo));
     cls->defineFunction("lineTo", _SE(js_cocos2dx_CanvasRenderingContext2D_lineTo));
+    cls->defineFunction("setTransform", _SE(js_cocos2dx_CanvasRenderingContext2D_setTransform));
     cls->defineFunction("stroke", _SE(js_cocos2dx_CanvasRenderingContext2D_stroke));
     cls->defineFunction("measureText", _SE(js_cocos2dx_CanvasRenderingContext2D_measureText));
+    cls->defineFunction("scale", _SE(js_cocos2dx_CanvasRenderingContext2D_scale));
     cls->defineFunction("clearRect", _SE(js_cocos2dx_CanvasRenderingContext2D_clearRect));
+    cls->defineFunction("transform", _SE(js_cocos2dx_CanvasRenderingContext2D_transform));
     cls->defineFunction("fillText", _SE(js_cocos2dx_CanvasRenderingContext2D_fillText));
     cls->defineFunction("strokeText", _SE(js_cocos2dx_CanvasRenderingContext2D_strokeText));
     cls->defineFunction("save", _SE(js_cocos2dx_CanvasRenderingContext2D_save));
     cls->defineFunction("fillRect", _SE(js_cocos2dx_CanvasRenderingContext2D_fillRect));
+    cls->defineFunction("rotate", _SE(js_cocos2dx_CanvasRenderingContext2D_rotate));
     cls->defineFunction("beginPath", _SE(js_cocos2dx_CanvasRenderingContext2D_beginPath));
+    cls->defineFunction("translate", _SE(js_cocos2dx_CanvasRenderingContext2D_translate));
     cls->defineFunction("createLinearGradient", _SE(js_cocos2dx_CanvasRenderingContext2D_createLinearGradient));
     cls->defineFunction("closePath", _SE(js_cocos2dx_CanvasRenderingContext2D_closePath));
     cls->defineFinalizeFunction(_SE(js_cocos2d_CanvasRenderingContext2D_finalize));

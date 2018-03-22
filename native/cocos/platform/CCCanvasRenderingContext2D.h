@@ -89,6 +89,14 @@ public:
     void set_strokeStyle(const std::string& strokeStyle);
     void set_globalCompositeOperation(const std::string& globalCompositeOperation);
 
+    // transform
+    void translate(float x, float y);
+    void scale(float x, float y);
+    void rotate(float angle);
+
+    void transform(float a, float b, float c, float d, float e, float f);
+    void setTransform(float a, float b, float c, float d, float e, float f);
+
 private:
     void recreateBuffer();
 

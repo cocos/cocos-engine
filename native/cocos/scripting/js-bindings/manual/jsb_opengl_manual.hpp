@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+namespace se {
+    class Object;
+}
 
-// forward declaration of new functions
-SE_DECLARE_FUNC(JSB_glGetSupportedExtensions);
+bool JSB_register_opengl(se::Object* obj);

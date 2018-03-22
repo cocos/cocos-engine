@@ -329,13 +329,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasGradient constructor: %p, width: %f, height: %f\n", this, width, height);
+    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
+    [_impl recreateBufferWithWidth:width height:height];
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasGradient destructor: %p\n", this);
+    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     [_impl release];
 }
 
@@ -546,6 +547,33 @@ void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)
 {
     
+}
+
+// transform
+
+void CanvasRenderingContext2D::translate(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::scale(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::rotate(float angle)
+{
+
+}
+
+void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
+{
+
+}
+
+void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
+{
+
 }
 
 NS_CC_END

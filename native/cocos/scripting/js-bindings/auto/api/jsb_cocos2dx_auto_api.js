@@ -597,6 +597,26 @@ float
 },
 
 /**
+ * @method setTransform
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {float} arg5
+ */
+setTransform : function (
+float, 
+float, 
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
  * @method stroke
  */
 stroke : function (
@@ -617,6 +637,18 @@ str
 },
 
 /**
+ * @method scale
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+scale : function (
+float, 
+float 
+)
+{
+},
+
+/**
  * @method clearRect
  * @param {float} arg0
  * @param {float} arg1
@@ -624,6 +656,26 @@ str
  * @param {float} arg3
  */
 clearRect : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method transform
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {float} arg5
+ */
+transform : function (
+float, 
+float, 
 float, 
 float, 
 float, 
@@ -689,9 +741,31 @@ float
 },
 
 /**
+ * @method rotate
+ * @param {float} arg0
+ */
+rotate : function (
+float 
+)
+{
+},
+
+/**
  * @method beginPath
  */
 beginPath : function (
+)
+{
+},
+
+/**
+ * @method translate
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+translate : function (
+float, 
+float 
 )
 {
 },
