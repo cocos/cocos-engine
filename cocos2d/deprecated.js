@@ -130,15 +130,16 @@ if (CC_DEV) {
         ownerName = ownerName || js.getClassName(ownerCtor);
         for (var prop in obj) {
             (function(){
-                var originFunc = ownerCtor[prop];
+                var propName = prop;
+                var originFunc = ownerCtor[propName];
                 if (!originFunc) return;
 
                 function warn () {
-                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, prop, obj[prop]);
+                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, propName, obj[propName]);
                     return originFunc.apply(this, arguments);
                 }
                 
-                ownerCtor[prop] = warn;
+                ownerCtor[propName] = warn;
             })();
         }
     }
