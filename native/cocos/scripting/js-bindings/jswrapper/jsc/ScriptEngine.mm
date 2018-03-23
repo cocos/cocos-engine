@@ -31,6 +31,9 @@
 #include "Utils.hpp"
 #include "../State.hpp"
 #include "../MappingUtils.hpp"
+#include "PlatformUtils.h"
+
+#import "EJConvertTypedArray.h"
 
 #if SE_DEBUG > 0
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
@@ -254,6 +257,9 @@ namespace se {
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
         _globalObj->setProperty("window", Value(_globalObj));
+
+        if (!isSupportTypedArrayAPI())
+            EJJSContextPrepareTypedArrayAPI(_cx);
 
         if (_globalObj->getProperty("console", &__consoleVal) && __consoleVal.isObject())
         {
