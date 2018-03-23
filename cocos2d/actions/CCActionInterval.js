@@ -550,7 +550,7 @@ cc.Repeat = cc.Class({
                 locInnerAction.stop();
                 locInnerAction.startWithTarget(this.target);
                 locNextDt += locInnerAction._duration / locDuration;
-                this._nextDt = locNextDt;
+                this._nextDt = locNextDt > 1 ? 1 : locNextDt;
             }
 
             // fix for issue #1288, incorrect end value of repeat
