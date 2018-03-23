@@ -4,6 +4,70 @@
 var renderer = renderer || {};
 
 /**
+ * @class ProgramLib
+ */
+renderer.ProgramLib = {
+
+/**
+ * @method getProgram
+ * @param {String} arg0
+ * @param {map_object} arg1
+ * @return {cc.renderer::Program}
+ */
+getProgram : function (
+str, 
+map 
+)
+{
+    return cc.renderer::Program;
+},
+
+/**
+ * @method define
+ * @param {String} arg0
+ * @param {String} arg1
+ * @param {String} arg2
+ * @param {Array} arg3
+ */
+define : function (
+str, 
+str, 
+str, 
+array 
+)
+{
+},
+
+/**
+ * @method getKey
+ * @param {String} arg0
+ * @param {map_object} arg1
+ * @return {unsigned int}
+ */
+getKey : function (
+str, 
+map 
+)
+{
+    return 0;
+},
+
+/**
+ * @method ProgramLib
+ * @constructor
+ * @param {cc.renderer::DeviceGraphics} arg0
+ * @param {Array} arg1
+ */
+ProgramLib : function (
+devicegraphics, 
+array 
+)
+{
+},
+
+};
+
+/**
  * @class Model
  */
 renderer.Model = {
@@ -141,6 +205,16 @@ Model : function (
 renderer.Base = {
 
 /**
+ * @method getProgramLib
+ * @return {cc.renderer::ProgramLib}
+ */
+getProgramLib : function (
+)
+{
+    return cc.renderer::ProgramLib;
+},
+
+/**
  * @method init
 * @param {cc.renderer::DeviceGraphics|cc.renderer::DeviceGraphics} devicegraphics
 * @param {Array|Array} array
@@ -176,13 +250,15 @@ renderer.ForwardRenderer = {
  * @method init
  * @param {cc.renderer::DeviceGraphics} arg0
  * @param {Array} arg1
- * @param {int} arg2
+ * @param {cc.renderer::Texture2D} arg2
  * @param {int} arg3
+ * @param {int} arg4
  * @return {bool}
  */
 init : function (
 devicegraphics, 
 array, 
+texture2d, 
 int, 
 int 
 )
@@ -481,16 +557,6 @@ Camera : function (
 renderer.Technique = {
 
 /**
- * @method getPasses
- * @return {Array}
- */
-getPasses : function (
-)
-{
-    return new Array();
-},
-
-/**
  * @method getStageIDs
  * @return {unsigned int}
  */
@@ -501,6 +567,18 @@ getStageIDs : function (
 },
 
 /**
+ * @method setPass
+ * @param {int} arg0
+ * @param {cc.renderer::Pass} arg1
+ */
+setPass : function (
+int, 
+pass 
+)
+{
+},
+
+/**
  * @method setStages
  * @param {Array} arg0
  */
@@ -508,6 +586,16 @@ setStages : function (
 array 
 )
 {
+},
+
+/**
+ * @method getPasses
+ * @return {Array}
+ */
+getPasses : function (
+)
+{
+    return new Array();
 },
 
 /**
@@ -572,18 +660,6 @@ str
  * @method clear
  */
 clear : function (
-)
-{
-},
-
-/**
- * @method setProperty
- * @param {String} arg0
- * @param {cc.renderer::Technique::Parameter} arg1
- */
-setProperty : function (
-str, 
-parameter 
 )
 {
 },
@@ -1137,9 +1213,29 @@ Light : function (
 renderer.Pass = {
 
 /**
+ * @method getStencilTest
+ * @return {bool}
+ */
+getStencilTest : function (
+)
+{
+    return false;
+},
+
+/**
  * @method setStencilBack
  */
 setStencilBack : function (
+)
+{
+},
+
+/**
+ * @method setStencilTest
+ * @param {bool} arg0
+ */
+setStencilTest : function (
+bool 
 )
 {
 },
