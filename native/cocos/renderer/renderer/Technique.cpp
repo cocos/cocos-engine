@@ -380,4 +380,9 @@ void Technique::setStages(const std::vector<std::string>& stages)
     _stageIDs = Config::getStageIDs(stages);
 }
 
+void Technique::setPass(int index, Pass* pass)
+{
+    _passes.replace(index, pass);
+}
+
 RENDERER_END

@@ -293,6 +293,23 @@ bool seval_to_Vec4(const se::Value& v, cocos2d::Vec4* pt)
     return true;
 }
 
+bool seval_to_mat(const se::Value& v, int length, float* out)
+{
+    assert(v.isObject() && out != nullptr);
+    se::Object* obj = v.toObject();
+    
+    se::Value tmp;
+    char propName[3] = {0};
+    for (int i = 0; i < length; ++i)
+    {
+        snprintf(propName, 3, "m%2d", i);
+        obj->getProperty(propName, &tmp);
+        *(out + i) = tmp.toFloat();
+    }
+
+    return true;
+}
+
 bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
 {
     assert(v.isObject() && mat != nullptr);
@@ -1700,6 +1717,123 @@ bool seval_to_EffectDefineTemplate(const se::Value& v, std::vector<cocos2d::Valu
     return true;
 }
 
+bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret)
+{
+    assert(ret != nullptr);
+    
+    auto paramType = ret->getType();
+    switch (paramType)
+    {
+        case cocos2d::renderer::Technique::Parameter::Type::INT:
+        {
+            int32_t value;
+            seval_to_int32(v, &value);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, &value);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::INT2:
+        {
+            cocos2d::Vec2 vec2;
+            seval_to_Vec2(v, &vec2);
+            int data[2] = {(int)vec2.x, (int)vec2.y};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 2);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::INT3:
+        {
+            cocos2d::Vec3 vec3;
+            seval_to_Vec3(v, &vec3);
+            int data[3] = {(int)vec3.x, (int)vec3.y, (int)vec3.z};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 3);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::INT4:
+        {
+            cocos2d::Vec4 vec4;
+            seval_to_Vec4(v, &vec4);
+            int data[4] = {(int)vec4.x, (int)vec4.y, (int)vec4.z, (int)vec4.w};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 4);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT:
+        {
+            float value;
+            seval_to_float(v, &value);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, &value);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT2:
+        {
+            cocos2d::Vec2 vec2;
+            seval_to_Vec2(v, &vec2);
+            float data[2] = {vec2.x, vec2.y};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 2);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT3:
+        {
+            cocos2d::Vec3 vec3;
+            seval_to_Vec3(v, &vec3);
+            float data[3] = {vec3.x, vec3.y, vec3.z};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 3);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT4:
+        {
+            cocos2d::Vec4 vec4;
+            seval_to_Vec4(v, &vec4);
+            float data[4] = {vec4.x, vec4.y, vec4.z, vec4.w};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 4);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::MAT4:
+        {
+            cocos2d::Mat4 mat4;
+            seval_to_Mat4(v, &mat4);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, mat4.m, 16);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::MAT3:
+        {
+            float* data = nullptr;
+            seval_to_mat(v, 9, data);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 9);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::MAT2:
+        {
+            float* data = nullptr;
+            seval_to_mat(v, 4, data);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 4);
+            *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D:
+        {
+            cocos2d::renderer::Texture* texture = nullptr;
+            seval_to_native_ptr(v, &texture);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, texture);
+            *ret = std::move(param);
+            break;
+        }
+        default:
+            assert(false);
+            break;
+    }
+    
+    return true;
+}
+
 bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret)
 {
     assert(ret != nullptr);
@@ -1714,12 +1848,12 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
     std::vector<cocos2d::renderer::Texture*> textures;
     cocos2d::renderer::Texture* texture = nullptr;
 
-    std::vector<std::string> keys;
-    obj->getAllKeys(&keys);
-    for (auto& key: keys)
-    {
-//        SE_LOGD("key: %s\n", key.c_str());
-    }
+//    std::vector<std::string> keys;
+//    obj->getAllKeys(&keys);
+//    for (auto& key: keys)
+//    {
+////        SE_LOGD("key: %s\n", key.c_str());
+//    }
 
     bool ok = false;
 
@@ -2965,13 +3099,98 @@ bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* 
     return true;
 }
 
+namespace
+{
+    enum class DataType
+    {
+        INT,
+        FLOAT
+    };
+    
+    void toVec2(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec2 vec2;
+        if (DataType::INT == type)
+        {
+            vec2.x = *intptr;
+            vec2.y = *(intptr + 1);
+        }
+        else
+        {
+            vec2.x = *floatptr;
+            vec2.y = *(floatptr + 1);
+        }
+        
+        Vec2_to_seval(vec2, ret);
+    }
+    
+    void toVec3(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec3 vec3;
+        if (DataType::INT == type)
+        {
+            vec3.x = *intptr;
+            vec3.y = *(intptr + 1);
+            vec3.z = *(intptr + 2);
+        }
+        else
+        {
+            vec3.x = *floatptr;
+            vec3.y = *(floatptr + 1);
+            vec3.z = *(floatptr + 2);
+        }
+        
+        Vec3_to_seval(vec3, ret);
+    }
+    
+    void toVec4(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec4 vec4;
+        if (DataType::INT == type)
+        {
+            vec4.x = *intptr;
+            vec4.y = *(intptr + 1);
+            vec4.z = *(intptr + 2);
+            vec4.w = *(intptr + 3);
+        }
+        else
+        {
+            vec4.x = *floatptr;
+            vec4.y = *(floatptr + 1);
+            vec4.z = *(floatptr + 2);
+            vec4.w = *(floatptr + 3);
+        }
+        
+        Vec4_to_seval(vec4, ret);
+    }
+    
+    void toMat(float* data, int num, se::Value* ret)
+    {
+        se::HandleObject obj(se::Object::createPlainObject());
+        
+        char propName[4] = {0};
+        for (int i  = 0; i < num; ++i)
+        {
+            if (i < 10)
+                snprintf(propName, 3, "m0%d", i);
+            else
+                snprintf(propName, 3, "m%d", i);
+            
+            obj->setProperty(propName, se::Value(*(data + i)));
+        }
+        ret->setObject(obj);
+    }
+}
+
 bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret)
 {
     assert(ret != nullptr);
-//    se::HandleObject obj(se::Object::createPlainObject());
-//    obj->setProperty("name", se::Value(v.getName()));
-//    obj->setProperty("type", se::Value((uint8_t)v.getType()));
-//    obj->setProperty("size", se::Value(v.getCount()));
 
     auto type = v.getType();
     if (type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D || type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE)
@@ -2987,34 +3206,58 @@ bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& 
                 native_ptr_to_seval<cocos2d::renderer::Texture>(texArray[0], &val);
                 arr->setArrayElement(i, val);
             }
-//            obj->setProperty("val", se::Value(arr));
             ret->setObject(arr);
         }
         else
         {
             se::Value val;
             native_ptr_to_seval<cocos2d::renderer::Texture>(v.getTexture(), &val);
-//            obj->setProperty("val", val);
             *ret = val;
         }
     }
     else
     {
         void* data = v.getValue();
-        auto bytes = v.getBytes();
-
-        if (type == cocos2d::renderer::Technique::Parameter::Type::INT
-            || type == cocos2d::renderer::Technique::Parameter::Type::INT2
-            || type == cocos2d::renderer::Technique::Parameter::Type::INT3
-            || type == cocos2d::renderer::Technique::Parameter::Type::INT4)
-        {
-            se::HandleObject typedArr(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, data, bytes));
-//            obj->setProperty("val", se::Value(typedArr));
-            ret->setObject(typedArr);
+        
+        switch (type) {
+            case cocos2d::renderer::Technique::Parameter::Type::INT:
+                ret->setInt32(*((int32_t*)data));
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT2:
+                toVec2(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT3:
+                toVec3(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT4:
+                toVec4(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT:
+                ret->setFloat(*((float*)data));
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT2:
+                toVec2(data, DataType::FLOAT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT3:
+                toVec3(data, DataType::FLOAT, ret);
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT4:
+                toVec4(data, DataType::FLOAT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT2:
+                toMat((float*)data, 4, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT3:
+                toMat((float*)data, 9, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT4:
+                toMat((float*)data, 16, ret);
+                break;
+            default:
+                assert(false);
+                break;
         }
     }
 
-//    ret->setObject(obj);
     return true;
 }
 

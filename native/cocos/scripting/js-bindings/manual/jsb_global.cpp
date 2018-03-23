@@ -291,7 +291,7 @@ namespace {
 #endif
 
 
-            RENDERER_LOGD("Evaluate: %s", reletivePath.c_str());
+//            RENDERER_LOGD("Evaluate: %s", fullPath.c_str());
 
             auto se = se::ScriptEngine::getInstance();
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());

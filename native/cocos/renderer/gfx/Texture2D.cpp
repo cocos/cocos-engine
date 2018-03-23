@@ -504,12 +504,12 @@ RENDERER_BEGIN
 
 Texture2D::Texture2D()
 {
-    RENDERER_LOGD("Construct Texture2D: %p", this);
+//    RENDERER_LOGD("Construct Texture2D: %p", this);
 }
 
 Texture2D::~Texture2D()
 {
-    RENDERER_LOGD("Destruct Texture2D: %p", this);
+//    RENDERER_LOGD("Destruct Texture2D: %p", this);
 }
 
 bool Texture2D::init(DeviceGraphics* device, const Options& options)

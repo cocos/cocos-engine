@@ -62,6 +62,8 @@ public:
                         StencilOp stencilZFailOp = StencilOp::KEEP,
                         StencilOp stencilZPassOp = StencilOp::KEEP,
                         uint8_t stencilWriteMask = 0xff);
+    inline void setStencilTest(bool value) { _stencilTest = value; }
+    inline bool getStencilTest() const { return _stencilTest; }
     
 private:
     friend class BaseRenderer;
