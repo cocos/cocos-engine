@@ -485,9 +485,9 @@ var EditBox = cc.Class({
         this._impl.setString(text);
     },
 
-    _updateLabelStringStyle (text) {
+    _updateLabelStringStyle (text, ignorePassword) {
         let inputFlag = this.inputFlag;
-        if (inputFlag === InputFlag.PASSWORD) {
+        if (!ignorePassword && inputFlag === InputFlag.PASSWORD) {
             let passwordString = '';
             let len = text.length;
             for (let i = 0; i < len; ++i) {
@@ -523,6 +523,7 @@ var EditBox = cc.Class({
     },
 
     editBoxTextChanged(text) {
+        text = this._updateLabelStringStyle(text, true);
         this.string = text;
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
         this.node.emit('text-changed', this);
