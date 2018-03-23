@@ -531,6 +531,7 @@ var PhysicsManager = cc.Class({
     _checkDebugDrawValid () {
         if (!this._debugDrawer || !this._debugDrawer.isValid) {
             let node = new cc.Node('PHYSICS_MANAGER_DEBUG_DRAW');
+            node.zIndex = cc.macro.MAX_ZINDEX;
             cc.game.addPersistRootNode(node);
             this._debugDrawer = node.addComponent(cc.Graphics);
         }
