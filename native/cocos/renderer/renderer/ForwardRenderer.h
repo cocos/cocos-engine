@@ -33,7 +33,7 @@ class ForwardRenderer final : public BaseRenderer
 public:
     ForwardRenderer();
 
-    bool init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, int width, int height);
+    bool init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture, int width, int height);
     void render(Scene* scene);
 
 private:

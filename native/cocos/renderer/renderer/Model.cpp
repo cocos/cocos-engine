@@ -30,7 +30,7 @@ RENDERER_BEGIN
 
 Model::Model()
 {
-    RENDERER_LOGD("Model construction %p", this);
+//    RENDERER_LOGD("Model construction %p", this);
 }
 
 Model::~Model()

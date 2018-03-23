@@ -3,6 +3,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 // #include "Renderer.h"
 #include "renderer/INode.h"
+#include "jsb_conversions.hpp"
 
 using namespace cocos2d;
 using namespace cocos2d::renderer;
@@ -181,6 +182,45 @@ static bool js_renderer_Effect_extractDefines(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Effect_extractDefines)
 
+static bool js_renderer_Effect_setProperty(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setProperty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string arg0;
+        
+        ok &= seval_to_std_string(args[0], &arg0);
+        
+        // get property type by arg0
+        cocos2d::renderer::Technique::Parameter::Type propType = cocos2d::renderer::Technique::Parameter::Type::UNKNOWN;
+        const auto& techinques = cobj->getTechniques();
+        for (const auto& techinque : techinques)
+        {
+            const auto& parameters = techinque->getParameters();
+            for (const auto& param : parameters)
+            {
+                if (arg0 == param.getName())
+                {
+                    propType = param.getType();
+                    break;
+                }
+            }
+        }
+        assert(propType != cocos2d::renderer::Technique::Parameter::Type::UNKNOWN);
+        cocos2d::renderer::Technique::Parameter arg1(arg0, propType);
+        ok &= seval_to_TechniqueParameter_not_constructor(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_setProperty : Error processing arguments");
+        cobj->setProperty(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_setProperty)
+
 static bool js_renderer_Light_extractView(se::State& s)
 {
     cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
@@ -285,7 +325,7 @@ public:
             se::HandleObject obj(se::Object::createPlainObject());
             args.push_back(se::Value(obj));
             func.toObject()->call(args, _jsNode.toObject(), &ret);
-            seval_to_Mat4(ret, &worldMatrix);
+            seval_to_Mat4(se::Value(obj), &worldMatrix);
         }
         return worldMatrix;
     }
@@ -364,6 +404,135 @@ static bool js_renderer_Model_setNode(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Model_setNode)
 
+static bool js_renderer_Technique_prop_getPasses(se::State& s)
+{
+    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_getPasses: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0)
+    {
+        const auto& passes = cobj->getPasses();
+        Vector_to_seval<cocos2d::renderer::Pass>(passes, &s.rval());
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_renderer_Technique_prop_getPasses);
+
+static bool js_renderer_Tehchnique_setPass(se::State& s)
+{
+    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_getPasses: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 2)
+    {
+        int arg0 = 0;
+        cocos2d::renderer::Pass* arg1 = nullptr;
+        
+        bool ok = seval_to_int32(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Tehchnique_setPass: Can not convert arg1 to int.");
+        
+        ok |= seval_to_native_ptr(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_Tehchnique_setPass: Can not convert arg0 to Pass*.");
+        
+        cobj->setPass(arg0, arg1);
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Tehchnique_setPass);
+
+static bool js_renderer_Pass_prop_getStencilTest(se::State& s)
+{
+    cocos2d::renderer::Pass* cobj = (cocos2d::renderer::Pass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Pass_getStencilTest: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0)
+    {
+        bool stencilTest = cobj->getStencilTest();
+        boolean_to_seval(stencilTest, &s.rval());
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_renderer_Pass_prop_getStencilTest);
+
+static bool js_renderer_Pass_prop_setStencilTest(se::State& s)
+{
+    cocos2d::renderer::Pass* cobj = (cocos2d::renderer::Pass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Pass_sStencilTest: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 1)
+    {
+        bool arg0 = false;
+        bool ok = seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Pass_prop_setStencilTest : can not convert arg0 to bool");
+        cobj->setStencilTest(arg0);
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_SET(js_renderer_Pass_prop_setStencilTest);
+
+static bool js_renderer_Config_addStage(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 1)
+    {
+        std::string arg0;
+        bool ok = seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Scene_addCamera : Error processing arguments");
+        cocos2d::renderer::Config::addStage(arg0);
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Config_addStage);
+
+static bool js_renderer_BaseRenderer_prop_getProgramLib(se::State& s)
+{
+    cocos2d::renderer::BaseRenderer* cobj = (cocos2d::renderer::BaseRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_BaseRenderer_prop_getProgramLib: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0)
+    {
+        auto programLib = cobj->getProgramLib();
+        native_ptr_to_seval<cocos2d::renderer::ProgramLib>(programLib, &s.rval());
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_renderer_BaseRenderer_prop_getProgramLib);
+
+static bool js_register_renderer_Config(se::Object* obj)
+{
+    auto cls = se::Class::create("Config", obj, nullptr, nullptr);
+    cls->defineStaticFunction("addStage", _SE(js_renderer_Config_addStage));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::Config>(cls);
+    
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Camera
@@ -375,6 +544,7 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // Effect
     __jsb_cocos2d_renderer_Effect_proto->defineFunction("extractDefines", _SE(js_renderer_Effect_extractDefines));
+    __jsb_cocos2d_renderer_Effect_proto->defineFunction("setProperty", _SE(js_renderer_Effect_setProperty));
 
     // Light
     __jsb_cocos2d_renderer_Light_proto->defineFunction("extractView", _SE(js_renderer_Light_extractView));
@@ -393,6 +563,26 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // Model
     __jsb_cocos2d_renderer_Model_proto->defineFunction("setNode", _SE(js_renderer_Model_setNode));
+    
+    // Technique
+    __jsb_cocos2d_renderer_Technique_proto->defineProperty("_passes", _SE(js_renderer_Technique_prop_getPasses), nullptr);
+    
+    // BaseRenderer
+    __jsb_cocos2d_renderer_BaseRenderer_proto->defineProperty("_programLib", _SE(js_renderer_BaseRenderer_prop_getProgramLib), nullptr);
+    
+    // Config
+    
+    // Get the ns
+    se::Value nsVal;
+    if (!global->getProperty("renderer", &nsVal))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("renderer", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    
+    js_register_renderer_Config(ns);
 
     return true;
 }

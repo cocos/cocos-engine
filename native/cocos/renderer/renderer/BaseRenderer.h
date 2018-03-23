@@ -66,6 +66,7 @@ public:
     virtual ~BaseRenderer();
     
     void registerStage(const std::string& name, const StageCallback& callback);
+    ProgramLib* getProgramLib() const { return _programLib; }
     
 protected:
     void render(const View*, const Scene* scene);
