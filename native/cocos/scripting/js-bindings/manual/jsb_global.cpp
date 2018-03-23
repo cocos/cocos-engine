@@ -561,7 +561,7 @@ static bool js_performance_now(se::State& s)
 }
 SE_BIND_FUNC(js_performance_now)
 
-static bool js_getImageInfo(se::State& s)
+static bool js_loadImage(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -569,7 +569,7 @@ static bool js_getImageInfo(se::State& s)
     if (argc == 2) {
         std::string path;
         ok &= seval_to_std_string(args[0], &path);
-        SE_PRECONDITION2(ok, false, "js_getImageInfo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
 
         se::Value callbackVal = args[1];
         assert(callbackVal.isObject());
@@ -599,6 +599,41 @@ static bool js_getImageInfo(se::State& s)
                     se::HandleObject retObj(se::Object::createPlainObject());
                     Data data;
                     data.copy(img->getData(), img->getDataLen());
+
+#ifdef CC_NEW_RENDERER
+                    // Convert to RGBA8888 because Web engine only supports it.
+                    //FIX ME: How to handle other formats?
+                    if (Image::PixelFormat::RGB888 == img->getRenderFormat())
+                    {
+                        unsigned char convertedData[img->getWidth() * img->getHeight() * 4];
+                        auto dataT = data.getBytes();
+                        for (size_t i = 0, len = data.getSize() / 3; i < len; ++i)
+                        {
+                            convertedData[i * 4] = *dataT++;
+                            convertedData[i * 4 + 1] = *dataT++;
+                            convertedData[i * 4 + 2] = *dataT++;
+                            convertedData[i * 4 + 3] = 255;
+                        }
+                        data.copy(convertedData, sizeof(convertedData));
+                    }
+
+                    se::Value dataVal;
+                    Data_to_seval(data, &dataVal);
+                    SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
+                    retObj->setProperty("data", dataVal);
+                    retObj->setProperty("width", se::Value(img->getWidth()));
+                    retObj->setProperty("height", se::Value(img->getHeight()));
+                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
+                    retObj->setProperty("bpp", se::Value(32));
+                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
+                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
+                    retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
+
+                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
+                    retObj->setProperty("glFormat", se::Value(GL_RGBA));
+                    retObj->setProperty("glInternalFormat", se::Value(GL_RGBA));
+                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+#else
                     se::Value dataVal;
                     Data_to_seval(data, &dataVal);
                     retObj->setProperty("data", dataVal);
@@ -614,6 +649,7 @@ static bool js_getImageInfo(se::State& s)
                     retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
                     retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
                     retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+#endif
 
                     se::ValueArray seArgs;
                     seArgs.push_back(se::Value(retObj));
@@ -635,7 +671,7 @@ static bool js_getImageInfo(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_getImageInfo)
+SE_BIND_FUNC(js_loadImage)
 
 static bool js_getTextTextureInfo(se::State& s)
 {
@@ -700,8 +736,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
-    global->defineFunction("getImageInfo", _SE(js_getImageInfo));
-    global->defineFunction("getTextTextureInfo", _SE(js_getTextTextureInfo));
+    __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
