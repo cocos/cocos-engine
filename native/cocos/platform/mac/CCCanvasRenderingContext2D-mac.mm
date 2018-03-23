@@ -3,6 +3,7 @@
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
@@ -74,7 +75,7 @@ namespace {
 @synthesize textBaseLine = _textBaseLine;
 
 -(id) init {
-    if ([super init]) {
+    if (self = [super init]) {
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
         [self updateFontWithName:@"Arial" fontSize:30];
@@ -93,21 +94,31 @@ namespace {
 }
 
 -(NSFont*) _createSystemFont {
-    NSString* fntName = [[_fontName lastPathComponent] stringByDeletingPathExtension];
     NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
-
-    NSFont *font = [[NSFontManager sharedFontManager]
-                    fontWithFamily:fntName
+    NSFont* font = [[NSFontManager sharedFontManager]
+                    fontWithFamily:_fontName
                     traits:mask
                     weight:0
                     size:_fontSize];
 
     if (font == nil) {
+        const auto& familyMap = getFontFamilyNameMap();
+        auto iter = familyMap.find([_fontName UTF8String]);
+        if (iter != familyMap.end()) {
+            font = [[NSFontManager sharedFontManager]
+               fontWithFamily: [NSString stringWithUTF8String:iter->second.c_str()]
+               traits: mask
+               weight: 0
+               size: _fontSize];
+        }
+    }
+
+    if (font == nil) {
         font = [[NSFontManager sharedFontManager]
-                fontWithFamily:@"Arial"
+                fontWithFamily: @"Arial"
                 traits: mask
-                weight:0
-                size:_fontSize];
+                weight: 0
+                size: _fontSize];
     }
     return font;
 }
@@ -221,6 +232,16 @@ namespace {
     unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
 
     NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+
+    // For text debugging ...
+//    for (int i = 0; i < textureSize; i += 4) {
+//        if (data[i+3] == 0)
+//        {
+//            data[i+3] = 255;
+//        }
+//    }
+    //
+
     uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
     if (buffer) {
         memcpy(buffer, data, textureSize);
@@ -308,13 +329,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-//    SE_LOGD("CanvasGradient constructor: %p, width: %f, height: %f\n", this, width, height);
+    SE_LOGD("CanvasGradient constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
+    [_impl recreateBufferWithWidth:width height:height];
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasGradient destructor: %p\n", this);
+    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     [_impl release];
 }
 
@@ -525,6 +547,33 @@ void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)
 {
     
+}
+
+// transform
+
+void CanvasRenderingContext2D::translate(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::scale(float x, float y)
+{
+
+}
+
+void CanvasRenderingContext2D::rotate(float angle)
+{
+
+}
+
+void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
+{
+
+}
+
+void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
+{
+
 }
 
 NS_CC_END

@@ -31,7 +31,7 @@
 
 #include "audio/win32/AudioCache.h"
 #include <thread>
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 
 #include "audio/win32/AudioDecoderManager.h"
@@ -360,7 +360,7 @@ void AudioCache::invokingLoadCallbacks()
     }
 
     auto isDestroyed = _isDestroyed;
-    auto scheduler = Director::getInstance()->getScheduler();
+    auto scheduler = Application::getInstance()->getScheduler();
     scheduler->performFunctionInCocosThread([&, isDestroyed](){
         if (*isDestroyed)
         {

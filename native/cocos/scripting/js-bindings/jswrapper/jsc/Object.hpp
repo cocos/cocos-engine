@@ -394,9 +394,6 @@ namespace se {
         void* _privateData;
         JSObjectFinalizeCallback _finalizeCb;
 
-        mutable uint8_t* _arrayBuffer;
-        mutable size_t _arrayBufferSize;
-
         uint32_t _rootCount;
         uint32_t _currentVMId;
 #if SE_DEBUG > 0

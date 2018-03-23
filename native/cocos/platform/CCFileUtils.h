@@ -405,9 +405,9 @@ public:
      *  @note This method could access relative path and absolute path.
      *        If the relative path was passed to the vector, FileUtils will add the default resource directory before the relative path.
      *        For instance:
-     *            On Android, the default resource root path is "assets/".
+     *            On Android, the default resource root path is "@assets/".
      *            If "/mnt/sdcard/" and "resources-large" were set to the search paths vector,
-     *            "resources-large" will be converted to "assets/resources-large" since it was a relative path.
+     *            "resources-large" will be converted to "@assets/resources-large" since it was a relative path.
      *
      *  @param searchPaths The array contains search paths.
      *  @see fullPathForFilename(const char*)
@@ -416,6 +416,11 @@ public:
      *  @lua NA
      */
     virtual void setSearchPaths(const std::vector<std::string>& searchPaths);
+
+    /**
+     * Get default resource root path.
+     */
+    const std::string& getDefaultResourceRootPath() const;
 
     /**
      * Set default resource root path.
@@ -432,11 +437,20 @@ public:
     /**
      *  Gets the array of search paths.
      *
-     *  @return The array of search paths.
+     *  @return The array of search paths which may contain the prefix of default resource root path. 
+     *  @note In best practise, getter function should return the value of setter function passes in.
+     *        But since we should not break the compatibility, we keep using the old logic. 
+     *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
      *  @see fullPathForFilename(const char*).
      *  @lua NA
      */
     virtual const std::vector<std::string>& getSearchPaths() const;
+
+    /**
+     *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
+     *  @return The array of the original search paths
+     */
+    virtual const std::vector<std::string>& getOriginalSearchPaths() const;
 
     /**
      *  Gets the writable path.
@@ -552,7 +566,7 @@ public:
     /**
      *  Checks whether the path is an absolute path.
      *
-     *  @note On Android, if the parameter passed in is relative to "assets/", this method will treat it as an absolute path.
+     *  @note On Android, if the parameter passed in is relative to "@assets/", this method will treat it as an absolute path.
      *        Also on Blackberry, path starts with "app/native/Resources/" is treated as an absolute path.
      *
      *  @param path The path that needs to be checked.
@@ -725,10 +739,15 @@ protected:
     std::vector<std::string> _searchPathArray;
 
     /**
+     * The search paths which was set by 'setSearchPaths' / 'addSearchPath'.
+     */
+    std::vector<std::string> _originalSearchPaths;
+
+    /**
      *  The default root path of resources.
      *  If the default root path of resources needs to be changed, do it in the `init` method of FileUtils's subclass.
      *  For instance:
-     *  On Android, the default root path of resources will be assigned with "assets/" in FileUtilsAndroid::init().
+     *  On Android, the default root path of resources will be assigned with "@assets/" in FileUtilsAndroid::init().
      *  Similarly on Blackberry, we assign "app/native/Resources/" to this variable in FileUtilsBlackberry::init().
      */
     std::string _defaultResRootPath;

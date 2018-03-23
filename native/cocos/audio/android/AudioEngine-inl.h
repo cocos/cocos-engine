@@ -31,6 +31,8 @@
 #include <SLES/OpenSLES_Android.h>
 #include <string>
 #include <unordered_map>
+#include <functional>
+
 #include "base/CCRef.h"
 #include "base/ccUtils.h"
 

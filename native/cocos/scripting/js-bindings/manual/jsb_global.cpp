@@ -6,14 +6,21 @@
 #include "jsb_conversions.hpp"
 #include "xxtea/xxtea.h"
 
+#include "base/CCScheduler.h"
+#include "base/CCThreadPool.h"
+#include "platform/CCApplication.h"
+
 #include <regex>
 
 using namespace cocos2d;
+using namespace cocos2d::experimental;
 
 se::Object* __jscObj = nullptr;
 se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
 se::Object* __glObj = nullptr;
+
+static ThreadPool* __threadPool = nullptr;
 
 static std::string xxteaKey = "";
 void jsb_set_xxtea_key(const std::string& key)
@@ -197,16 +204,16 @@ namespace {
 
     std::unordered_map<std::string, se::Value> __moduleCache;
 
-//    static bool require(se::State& s)
-//    {
-//        const auto& args = s.args();
-//        int argc = (int)args.size();
-//        assert(argc >= 1);
-//        assert(args[0].isString());
-//
-//        return jsb_run_script(args[0].toString(), &s.rval());
-//    }
-//    SE_BIND_FUNC(require)
+    static bool require(se::State& s)
+    {
+        const auto& args = s.args();
+        int argc = (int)args.size();
+        assert(argc >= 1);
+        assert(args[0].isString());
+
+        return jsb_run_script(args[0].toString(), &s.rval());
+    }
+    SE_BIND_FUNC(require)
 
     static bool doModuleRequire(const std::string& path, se::Value* ret, const std::string& prevScriptFileDir)
     {
@@ -269,7 +276,7 @@ namespace {
             snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
 
             // Add current script path to require function invocation
-            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
+            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)requireModule\\((.*?)\\)"), "$1requireModule($2, currentScriptDir)") + suffix;
 
 //            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
 //            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
@@ -296,7 +303,7 @@ namespace {
             auto se = se::ScriptEngine::getInstance();
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
             se::Value moduleVal;
-            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+            if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
             {
                 se::Value exportsVal;
                 if (moduleVal.toObject()->getProperty("exports", &exportsVal))
@@ -337,412 +344,15 @@ namespace {
         return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
     }
     SE_BIND_FUNC(moduleRequire)
-
-    static bool ccpAdd(se::State& s)
-    {
-        if (s.args().size() == 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1 + pt2;
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpAdd)
-
-    static bool ccpDistanceSQ(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt1.getDistanceSq(pt2);
-            s.rval().setFloat(result);
-            return true;
-        }
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpDistanceSQ)
-
-    static bool ccpDistance(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt1.getDistance(pt2);
-            s.rval().setFloat(result);
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpDistance)
-
-    static bool ccpSub(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1 - pt2;
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpSub)
-
-    static bool ccpNeg(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            pt = -pt;
-            ok = Vec2_to_seval(pt, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpNeg)
-
-    static bool ccpMult(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            SE_ASSERT(args[1].isNumber(), "Error processing arguments");
-            Vec2 result = pt * args[1].toFloat();
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpMult)
-
-    static bool ccpMidpoint(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1.getMidpoint(pt2);
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpMidpoint)
-
-    static bool ccpDot(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt1.dot(pt2);
-            s.rval().setFloat(result);
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpDot)
-
-    static bool ccpCross(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt1.cross(pt2);
-            s.rval().setFloat(result);
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpCross)
-
-    static bool ccpPerp(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt.getPerp();
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpPerp)
-
-    static bool ccpRPerp(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt.getRPerp();
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpRPerp)
-
-    static bool ccpProject(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1.project(pt2);
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpProject)
-
-    static bool ccpRotate(se::State& s)
-    {
-        if (s.args().size()== 2)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1.rotate(pt2);
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 2);
-        return false;
-    }
-    SE_BIND_FUNC(ccpRotate)
-
-    static bool ccpNormalize(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            pt.normalize();
-            ok = Vec2_to_seval(pt, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpNormalize)
-
-    static bool ccpClamp(se::State& s)
-    {
-        if (s.args().size()== 3)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt1, pt2, pt3;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt1);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt2);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            ok = seval_to_Vec2(args[1], &pt3);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            Vec2 result = pt1.getClampPoint(pt2, pt3);
-            ok = Vec2_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 3);
-        return false;
-    }
-    SE_BIND_FUNC(ccpClamp)
-
-    static bool ccpLengthSQ(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt.getLengthSq();
-            s.rval().setFloat(result);
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpLengthSQ)
-
-    static bool ccpLength(se::State& s)
-    {
-        if (s.args().size()== 1)
-        {
-            const se::ValueArray& args = s.args();
-            Vec2 pt;
-            bool ok = false;
-            ok = seval_to_Vec2(args[0], &pt);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-            float result = pt.getLength();
-            s.rval().setFloat(result);
-            return true;
-        }
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccpLength)
-
-    static bool ccassert(se::State& s)
-    {
-        const se::ValueArray& args = s.args();
-        size_t argc = args.size();
-        if (argc >= 1)
-        {
-            if (argc == 1)
-            {
-                SE_ASSERT(args[0].toBoolean(), "NO MESSAGE");
-            }
-            else
-            {
-                SE_ASSERT(args[0].toBoolean(), "%s", args[1].toString().c_str());
-            }
-            return true;
-        }
-
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)s.args().size(), 1);
-        return false;
-    }
-    SE_BIND_FUNC(ccassert)
-
-    bool jsb_register_var_under_cc()
-    {
-        // Vec2 Math
-        __ccObj->defineFunction("pAdd", _SE(ccpAdd));
-        __ccObj->defineFunction("pDistanceSQ", _SE(ccpDistanceSQ));
-        __ccObj->defineFunction("pDistance", _SE(ccpDistance));
-        __ccObj->defineFunction("pSub", _SE(ccpSub));
-        __ccObj->defineFunction("pNeg", _SE(ccpNeg));
-        __ccObj->defineFunction("pMult", _SE(ccpMult));
-        __ccObj->defineFunction("pMidpoint", _SE(ccpMidpoint));
-        __ccObj->defineFunction("pDot", _SE(ccpDot));
-        __ccObj->defineFunction("pCross", _SE(ccpCross));
-        __ccObj->defineFunction("pPerp", _SE(ccpPerp));
-        __ccObj->defineFunction("pRPerp", _SE(ccpRPerp));
-        __ccObj->defineFunction("pProject", _SE(ccpProject));
-        __ccObj->defineFunction("pRotate", _SE(ccpRotate));
-        __ccObj->defineFunction("pNormalize", _SE(ccpNormalize));
-        __ccObj->defineFunction("pClamp", _SE(ccpClamp));
-        __ccObj->defineFunction("pLengthSQ", _SE(ccpLengthSQ));
-        __ccObj->defineFunction("pLength", _SE(ccpLength));
-
-        //
-        __ccObj->defineFunction("assert", _SE(ccassert));
-
-        return true;
-    }
-}
+} // namespace {
 
 bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
+{
+    se::AutoHandleScope hs;
+    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
+}
+
+bool jsb_run_script_module(const std::string& filePath, se::Value* rval/* = nullptr */)
 {
     return doModuleRequire(filePath, rval, "");
 }
@@ -951,13 +561,173 @@ static bool js_performance_now(se::State& s)
 }
 SE_BIND_FUNC(js_performance_now)
 
+static bool js_loadImage(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string path;
+        ok &= seval_to_std_string(args[0], &path);
+        SE_PRECONDITION2(ok, false, "js_loadImage : Error processing arguments");
+
+        se::Value callbackVal = args[1];
+        assert(callbackVal.isObject());
+        assert(callbackVal.toObject()->isFunction());
+
+        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+        if (fullPath.empty())
+        {
+            SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
+            return false;
+        }
+
+        Image* img = new (std::nothrow) Image();
+
+        __threadPool->pushTask([=](int tid){
+            // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
+            // Image::initWithImageFile will call fullPathForFilename internally which may
+            // cause thread race issues. Therefore, we get the full path of file before
+            // going into task callback.
+            // Be careful of invoking any Cocos2d-x interface in a sub-thread.
+            bool loadSucceed = img->initWithImageFile(fullPath);
+
+            Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
+                if (loadSucceed)
+                {
+                    se::AutoHandleScope hs;
+                    se::HandleObject retObj(se::Object::createPlainObject());
+                    Data data;
+                    data.copy(img->getData(), img->getDataLen());
+
+#ifdef CC_NEW_RENDERER
+                    // Convert to RGBA8888 because Web engine only supports it.
+                    //FIX ME: How to handle other formats?
+                    if (Image::PixelFormat::RGB888 == img->getRenderFormat())
+                    {
+                        unsigned char convertedData[img->getWidth() * img->getHeight() * 4];
+                        auto dataT = data.getBytes();
+                        for (size_t i = 0, len = data.getSize() / 3; i < len; ++i)
+                        {
+                            convertedData[i * 4] = *dataT++;
+                            convertedData[i * 4 + 1] = *dataT++;
+                            convertedData[i * 4 + 2] = *dataT++;
+                            convertedData[i * 4 + 3] = 255;
+                        }
+                        data.copy(convertedData, sizeof(convertedData));
+                    }
+
+                    se::Value dataVal;
+                    Data_to_seval(data, &dataVal);
+                    SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
+                    retObj->setProperty("data", dataVal);
+                    retObj->setProperty("width", se::Value(img->getWidth()));
+                    retObj->setProperty("height", se::Value(img->getHeight()));
+                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
+                    retObj->setProperty("bpp", se::Value(32));
+                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
+                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
+                    retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
+
+                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
+                    retObj->setProperty("glFormat", se::Value(GL_RGBA));
+                    retObj->setProperty("glInternalFormat", se::Value(GL_RGBA));
+                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+#else
+                    se::Value dataVal;
+                    Data_to_seval(data, &dataVal);
+                    retObj->setProperty("data", dataVal);
+                    retObj->setProperty("width", se::Value(img->getWidth()));
+                    retObj->setProperty("height", se::Value(img->getHeight()));
+                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
+                    retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
+                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
+                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
+                    retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
+
+                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
+                    retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
+                    retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
+                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+#endif
+
+                    se::ValueArray seArgs;
+                    seArgs.push_back(se::Value(retObj));
+                    callbackVal.toObject()->call(seArgs, nullptr);
+                }
+                else
+                {
+                    SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
+                    assert(false);
+                }
+
+                img->release();
+            });
+
+        });
+
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_loadImage)
+
+static bool js_getTextTextureInfo(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+
+        /*
+         const char * text,
+         const FontDefinition& textDefinition,
+         TextAlign align,
+         int &width,
+         int &height,
+         bool& hasPremultipliedAlpha
+         */
+
+        std::string text;
+        ok = seval_to_std_string(args[0], &text);
+        SE_PRECONDITION2(ok, false, "Convert arg0 text failed!");
+        FontDefinition fontDef;
+        ok = seval_to_FontDefinition(args[1], &fontDef);
+        SE_PRECONDITION2(ok, false, "Convert arg1 fontDef failed!");
+        int32_t align;
+        ok = seval_to_int32(args[2], &align);
+        Device::TextAlign textAlign = (Device::TextAlign)align;
+        int width = 0;
+        int height = 0;
+        bool hasPremultipliedAlpha = false;
+        Data data = Device::getTextureDataForText(text.c_str(), fontDef, textAlign, width, height, hasPremultipliedAlpha);
+
+        se::HandleObject retObj(se::Object::createPlainObject());
+        se::Value dataVal;
+        if (Data_to_seval(data, &dataVal))
+            retObj->setProperty("data", dataVal);
+
+        retObj->setProperty("width", se::Value(width));
+        retObj->setProperty("height", se::Value(height));
+        retObj->setProperty("hasPremultipliedAlpha", se::Value(hasPremultipliedAlpha));
+
+        s.rval().setObject(retObj);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_getTextTextureInfo)
+
 bool jsb_register_global_variables(se::Object* global)
 {
-    global->defineFunction("require", _SE(moduleRequire));
+    __threadPool = ThreadPool::newFixedThreadPool(3);
+
+    global->defineFunction("require", _SE(require));
+    global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("cc", global, &__ccObj);
-
-    jsb_register_var_under_cc();
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
     getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
@@ -965,6 +735,8 @@ bool jsb_register_global_variables(se::Object* global)
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
+
+    __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
@@ -980,7 +752,16 @@ bool jsb_register_global_variables(se::Object* global)
 
     se::ScriptEngine::getInstance()->clearException();
 
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+        delete __threadPool;
+        __threadPool = nullptr;
+
+        PoolManager::getInstance()->getCurrentPool()->clear();
+    });
+
     se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+
+        PoolManager::getInstance()->getCurrentPool()->clear();
 
         __moduleCache.clear();
 

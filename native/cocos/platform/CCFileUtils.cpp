@@ -88,6 +88,7 @@ public:
 public:
     DictMaker()
         : _resultType(SAX_RESULT_NONE)
+        , _state(SAX_NONE)
     {
     }
 
@@ -131,7 +132,7 @@ public:
         return _rootArray;
     }
 
-    void startElement(void *ctx, const char *name, const char **atts)
+    virtual void startElement(void *ctx, const char *name, const char **atts) override
     {
         CC_UNUSED_PARAM(ctx);
         CC_UNUSED_PARAM(atts);
@@ -222,7 +223,7 @@ public:
         }
     }
 
-    void endElement(void *ctx, const char *name)
+    virtual void endElement(void *ctx, const char *name) override
     {
         CC_UNUSED_PARAM(ctx);
         SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
@@ -294,7 +295,7 @@ public:
         _state = SAX_NONE;
     }
 
-    void textHandler(void *ctx, const char *ch, int len)
+    virtual void textHandler(void *ctx, const char *ch, int len) override
     {
         CC_UNUSED_PARAM(ctx);
         if (_state == SAX_NONE)
@@ -387,12 +388,12 @@ bool FileUtils::writeValueMapToFile(const ValueMap& dict, const std::string& ful
     doc->LinkEndChild(docType);
 
     tinyxml2::XMLElement *rootEle = doc->NewElement("plist");
-    rootEle->SetAttribute("version", "1.0");
     if (nullptr == rootEle)
     {
         delete doc;
         return false;
     }
+    rootEle->SetAttribute("version", "1.0");
     doc->LinkEndChild(rootEle);
 
     tinyxml2::XMLElement *innerDict = generateElementForDict(dict, doc);
@@ -427,12 +428,12 @@ bool FileUtils::writeValueVectorToFile(const ValueVector& vecData, const std::st
     doc->LinkEndChild(docType);
 
     tinyxml2::XMLElement *rootEle = doc->NewElement("plist");
-    rootEle->SetAttribute("version", "1.0");
     if (nullptr == rootEle)
     {
         delete doc;
         return false;
     }
+    rootEle->SetAttribute("version", "1.0");
     doc->LinkEndChild(rootEle);
 
     tinyxml2::XMLElement *innerDict = generateElementForArray(vecData, doc);
@@ -806,7 +807,6 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
                 _fullPathCache.insert(std::make_pair(filename, fullpath));
                 return fullpath;
             }
-
         }
     }
 
@@ -825,6 +825,11 @@ std::string FileUtils::fullPathFromRelativeFile(const std::string &filename, con
 
 void FileUtils::setSearchResolutionsOrder(const std::vector<std::string>& searchResolutionsOrder)
 {
+    if (_searchResolutionsOrderArray == searchResolutionsOrder)
+    {
+        return;
+    }
+
     bool existDefault = false;
     _fullPathCache.clear();
     _searchResolutionsOrderArray.clear();
@@ -873,41 +878,64 @@ const std::vector<std::string>& FileUtils::getSearchPaths() const
     return _searchPathArray;
 }
 
+const std::vector<std::string>& FileUtils::getOriginalSearchPaths() const
+{
+    return _originalSearchPaths;
+}
+
 void FileUtils::setWritablePath(const std::string& writablePath)
 {
     _writablePath = writablePath;
 }
 
+const std::string& FileUtils::getDefaultResourceRootPath() const
+{
+    return _defaultResRootPath;
+}
+
 void FileUtils::setDefaultResourceRootPath(const std::string& path)
 {
-    _defaultResRootPath = path;
+    if (_defaultResRootPath != path)
+    {
+        _fullPathCache.clear();
+        _defaultResRootPath = path;
+        if (!_defaultResRootPath.empty() && _defaultResRootPath[_defaultResRootPath.length()-1] != '/')
+        {
+            _defaultResRootPath += '/';
+        }
+
+        // Updates search paths
+        setSearchPaths(_originalSearchPaths);
+    }
 }
 
 void FileUtils::setSearchPaths(const std::vector<std::string>& searchPaths)
 {
     bool existDefaultRootPath = false;
+    _originalSearchPaths = searchPaths;
 
     _fullPathCache.clear();
     _searchPathArray.clear();
-    for (const auto& iter : searchPaths)
+
+    for (const auto& path : _originalSearchPaths)
     {
         std::string prefix;
-        std::string path;
+        std::string fullPath;
 
-        if (!isAbsolutePath(iter))
+        if (!isAbsolutePath(path))
         { // Not an absolute path
             prefix = _defaultResRootPath;
         }
-        path = prefix + (iter);
+        fullPath = prefix + path;
         if (!path.empty() && path[path.length()-1] != '/')
         {
-            path += "/";
+            fullPath += "/";
         }
         if (!existDefaultRootPath && path == _defaultResRootPath)
         {
             existDefaultRootPath = true;
         }
-        _searchPathArray.push_back(path);
+        _searchPathArray.push_back(fullPath);
     }
 
     if (!existDefaultRootPath)
@@ -929,8 +957,10 @@ void FileUtils::addSearchPath(const std::string &searchpath,const bool front)
         path += "/";
     }
     if (front) {
+        _originalSearchPaths.insert(_originalSearchPaths.begin(), searchpath);
         _searchPathArray.insert(_searchPathArray.begin(), path);
     } else {
+        _originalSearchPaths.push_back(searchpath);
         _searchPathArray.push_back(path);
     }
 }
@@ -1264,9 +1294,9 @@ bool FileUtils::createDirectory(const std::string& path)
 
     // Create path recursively
     subpath = "";
-    for (int i = 0; i < dirs.size(); ++i)
+    for (const auto& iter : dirs)
     {
-        subpath += dirs[i];
+        subpath += iter;
         dir = opendir(subpath.c_str());
 
         if (!dir)
@@ -1456,7 +1486,7 @@ std::string FileUtils::normalizePath(const std::string& path) const
     ret = std::regex_replace(ret, std::regex("/\\.$"), "");
 
     size_t pos;
-    while ((pos = ret.find("..")) != std::string::npos)
+    while ((pos = ret.find("..")) != std::string::npos && pos > 2)
     {
         size_t prevSlash = ret.rfind("/", pos-2);
         if (prevSlash == std::string::npos)

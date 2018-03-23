@@ -32,6 +32,8 @@
 #include "PlatformUtils.h"
 #include "../MappingUtils.hpp"
 
+#include "EJConvertTypedArray.h"
+
 namespace se {
 
     namespace {
@@ -60,8 +62,6 @@ namespace se {
     , _obj(nullptr)
     , _privateData(nullptr)
     , _finalizeCb(nullptr)
-    , _arrayBuffer(nullptr)
-    , _arrayBufferSize(0)
     , _rootCount(0)
 #if SE_DEBUG > 0
     , _id(++__id)
@@ -75,10 +75,6 @@ namespace se {
     Object::~Object()
     {
         _cleanup();
-        if (_arrayBuffer != nullptr)
-        {
-            free(_arrayBuffer);
-        }
     }
 
     Object* Object::createPlainObject()
@@ -127,55 +123,19 @@ namespace se {
             }
 
             Object* obj = Object::_createJSObject(nullptr, jsobj);
+            if (obj != nullptr)
+                obj->_type = Type::ARRAY_BUFFER;
             return obj;
         }
-        else
 #endif
-        {
-            HandleObject arr(Object::createArrayObject(byteLength));
-            if (!arr.isEmpty())
-            {
-                uint8_t* p = (uint8_t*)data;
-                for (size_t i = 0; i < byteLength; ++i)
-                {
-                    arr->setArrayElement((uint32_t)i, se::Value(p[i]));
-                }
+        JSObjectRef ret = EJJSObjectMakeTypedArray(__cx, kEJJSTypedArrayTypeArrayBuffer, byteLength);
+        NSData* nsData = [NSData dataWithBytes:data length:byteLength];
+        EJJSObjectSetTypedArrayData(__cx, ret, nsData);
 
-                ValueArray args;
-                args.push_back(Value(arr));
-                Value func;
-                bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_createArrayBufferObject", &func);
-                if (ok && func.isObject() && func.toObject()->isFunction())
-                {
-                    Value ret;
-                    ok = func.toObject()->call(args, nullptr, &ret);
-                    if (ok && ret.isObject())
-                    {
-                        Object* obj = Object::_createJSObject(nullptr, ret.toObject()->_obj);
-                        if (obj != nullptr)
-                            obj->_type = Type::ARRAY_BUFFER;
-                        return obj;
-                    }
-                }
-            }
-        }
-
-        return nullptr;
-    }
-
-    template<typename T>
-    static bool _setArrayElement(Object* arr, void* data, size_t byteLength)
-    {
-        T* p = (T*)data;
-        size_t count = byteLength / sizeof(T);
-        for (size_t i = 0; i < count; ++i)
-        {
-            if (!arr->setArrayElement((uint32_t)i, se::Value(p[i])))
-            {
-                return false;
-            }
-        }
-        return true;
+        Object* obj = Object::_createJSObject(nullptr, ret);
+        if (obj != nullptr)
+            obj->_type = Type::ARRAY_BUFFER;
+        return obj;
     }
 
     Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
@@ -203,29 +163,42 @@ namespace se {
             
             JSValueRef exception = nullptr;
             JSTypedArrayType jscTypedArrayType = kJSTypedArrayTypeNone;
+            Type objectType = Type::UNKNOWN;
             switch (type) {
                 case TypedArrayType::INT8:
+                    objectType = Type::TYPED_ARRAY_INT8;
                     jscTypedArrayType = kJSTypedArrayTypeInt8Array;
                     break;
                 case TypedArrayType::INT16:
+                    objectType = Type::TYPED_ARRAY_INT16;
                     jscTypedArrayType = kJSTypedArrayTypeInt16Array;
                     break;
                 case TypedArrayType::INT32:
+                    objectType = Type::TYPED_ARRAY_INT32;
                     jscTypedArrayType = kJSTypedArrayTypeInt32Array;
                     break;
                 case TypedArrayType::UINT8:
+                    objectType = Type::TYPED_ARRAY_UINT8;
                     jscTypedArrayType = kJSTypedArrayTypeUint8Array;
                     break;
+                case TypedArrayType::UINT8_CLAMPED:
+                    objectType = Type::TYPED_ARRAY_UINT8_CLAMPED;
+                    jscTypedArrayType = kJSTypedArrayTypeUint8ClampedArray;
+                    break;
                 case TypedArrayType::UINT16:
+                    objectType = Type::TYPED_ARRAY_UINT16;
                     jscTypedArrayType = kJSTypedArrayTypeUint16Array;
                     break;
                 case TypedArrayType::UINT32:
+                    objectType = Type::TYPED_ARRAY_UINT32;
                     jscTypedArrayType = kJSTypedArrayTypeUint32Array;
                     break;
                 case TypedArrayType::FLOAT32:
+                    objectType = Type::TYPED_ARRAY_FLOAT32;
                     jscTypedArrayType = kJSTypedArrayTypeFloat32Array;
                     break;
                 case TypedArrayType::FLOAT64:
+                    objectType = Type::TYPED_ARRAY_FLOAT64;
                     jscTypedArrayType = kJSTypedArrayTypeFloat64Array;
                     break;
                 default:
@@ -238,88 +211,72 @@ namespace se {
                 return nullptr;
             }
             Object* obj = Object::_createJSObject(nullptr, jsobj);
+            if (obj != nullptr)
+                obj->_type = objectType;
             return obj;
         }
-        else
 #endif
-        {
-            HandleObject arr(Object::createArrayObject(byteLength));
-            Type objectType = Type::UNKNOWN;
-
-            if (!arr.isEmpty())
-            {
-                const char* typedArrayCtor = nullptr;
-                switch (type) {
-                    case TypedArrayType::INT8:
-                        typedArrayCtor = "Int8Array";
-                        objectType = Type::TYPED_ARRAY_INT8;
-                        _setArrayElement<int8_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::INT16:
-                        typedArrayCtor = "Int16Array";
-                        objectType = Type::TYPED_ARRAY_INT16;
-                        _setArrayElement<int16_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::INT32:
-                        typedArrayCtor = "Int32Array";
-                        objectType = Type::TYPED_ARRAY_INT32;
-                        _setArrayElement<int32_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::UINT8:
-                        typedArrayCtor = "Uint8Array";
-                        objectType = Type::TYPED_ARRAY_UINT8;
-                        _setArrayElement<uint8_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::UINT16:
-                        typedArrayCtor = "Uint16Array";
-                        objectType = Type::TYPED_ARRAY_UINT16;
-                        _setArrayElement<uint16_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::UINT32:
-                        typedArrayCtor = "Uint32Array";
-                        objectType = Type::TYPED_ARRAY_UINT32;
-                        _setArrayElement<uint32_t>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::FLOAT32:
-                        typedArrayCtor = "Float32Array";
-                        objectType = Type::TYPED_ARRAY_FLOAT32;
-                        _setArrayElement<float>(arr.get(), data, byteLength);
-                        break;
-                    case TypedArrayType::FLOAT64:
-                        typedArrayCtor = "Float64Array";
-                        objectType = Type::TYPED_ARRAY_FLOAT64;
-                        _setArrayElement<double>(arr.get(), data, byteLength);
-                        break;
-                    default:
-                        assert(false); // Should never go here.
-                        break;
-                }
-
-                Value func;
-                bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty(typedArrayCtor, &func);
-                // On <= iOS 9, typed array constructor is an object rather than a function.
-                // Therefore, don't check whether typed array constructor is a function here.
-                if (ok && func.isObject()/* && func.toObject()->isFunction() */)
-                {
-                    JSValueRef exception = nullptr;
-                    JSObjectRef ret = JSObjectCallAsConstructor(__cx, func.toObject()->_obj, 1, &arr->_obj, &exception);
-                    if (exception == nullptr)
-                    {
-                        Object* obj = Object::_createJSObject(nullptr, ret);
-                        if (obj != nullptr)
-                            obj->_type = objectType;
-
-                        return obj;
-                    }
-                    else
-                    {
-                        ScriptEngine::getInstance()->_clearException(exception);
-                    }
-                }
-            }
+        size_t numElements = 0;
+        EJJSTypedArrayType jscTypedArrayType = kEJJSTypedArrayTypeNone;
+        Type objectType = Type::UNKNOWN;
+        switch (type) {
+            case TypedArrayType::INT8:
+                objectType = Type::TYPED_ARRAY_INT8;
+                jscTypedArrayType = kEJJSTypedArrayTypeInt8Array;
+                numElements = byteLength;
+                break;
+            case TypedArrayType::INT16:
+                objectType = Type::TYPED_ARRAY_INT16;
+                jscTypedArrayType = kEJJSTypedArrayTypeInt16Array;
+                numElements = byteLength / 2;
+                break;
+            case TypedArrayType::INT32:
+                objectType = Type::TYPED_ARRAY_INT32;
+                jscTypedArrayType = kEJJSTypedArrayTypeInt32Array;
+                numElements = byteLength / 4;
+                break;
+            case TypedArrayType::UINT8:
+                objectType = Type::TYPED_ARRAY_UINT8;
+                jscTypedArrayType = kEJJSTypedArrayTypeUint8Array;
+                numElements = byteLength;
+                break;
+            case TypedArrayType::UINT8_CLAMPED:
+                objectType = Type::TYPED_ARRAY_UINT8_CLAMPED;
+                jscTypedArrayType = kEJJSTypedArrayTypeUint8ClampedArray;
+                numElements = byteLength;
+                break;
+            case TypedArrayType::UINT16:
+                objectType = Type::TYPED_ARRAY_UINT16;
+                jscTypedArrayType = kEJJSTypedArrayTypeUint16Array;
+                numElements = byteLength / 2;
+                break;
+            case TypedArrayType::UINT32:
+                objectType = Type::TYPED_ARRAY_UINT32;
+                jscTypedArrayType = kEJJSTypedArrayTypeUint32Array;
+                numElements = byteLength / 4;
+                break;
+            case TypedArrayType::FLOAT32:
+                objectType = Type::TYPED_ARRAY_FLOAT32;
+                jscTypedArrayType = kEJJSTypedArrayTypeFloat32Array;
+                numElements = byteLength / 4;
+                break;
+            case TypedArrayType::FLOAT64:
+                objectType = Type::TYPED_ARRAY_FLOAT64;
+                jscTypedArrayType = kEJJSTypedArrayTypeFloat64Array;
+                numElements = byteLength / 8;
+                break;
+            default:
+                break;
         }
 
-        return nullptr;
+        JSObjectRef ret = EJJSObjectMakeTypedArray(__cx, jscTypedArrayType, numElements);
+        NSData* nsData = [NSData dataWithBytes:data length:byteLength];
+        EJJSObjectSetTypedArrayData(__cx, ret, nsData);
+
+        Object* obj = Object::_createJSObject(nullptr, ret);
+        if (obj != nullptr)
+            obj->_type = objectType;
+        return obj;
     }
 
     Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
@@ -711,7 +668,9 @@ namespace se {
             return ret;
         }
 #endif
-        return isInstanceOfConstructor(__cx, _obj, "__jscTypedArrayConstructor");
+
+        EJJSTypedArrayType typedArrayType = EJJSObjectGetTypedArrayType(__cx, _obj);
+        return typedArrayType >= kEJJSTypedArrayTypeInt8Array && typedArrayType <= kEJJSTypedArrayTypeFloat64Array;
     }
 
     Object::TypedArrayType Object::getTypedArrayType() const
@@ -788,50 +747,48 @@ namespace se {
             return typedArrayType;
         }
 #endif
-        if (isInstanceOfConstructor(__cx, _obj, "Int8Array"))
-        {
-            _type = Type::TYPED_ARRAY_INT8;
-            typedArrayType = TypedArrayType::INT8;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Int16Array"))
-        {
-            _type = Type::TYPED_ARRAY_INT16;
-            typedArrayType = TypedArrayType::INT16;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Int32Array"))
-        {
-            _type = Type::TYPED_ARRAY_INT32;
-            typedArrayType = TypedArrayType::INT32;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Uint8Array"))
-        {
-            _type = Type::TYPED_ARRAY_UINT8;
-            typedArrayType = TypedArrayType::UINT8;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Uint8ClampedArray"))
-        {
-            _type = Type::TYPED_ARRAY_UINT8_CLAMPED;
-            typedArrayType = TypedArrayType::UINT8_CLAMPED;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Uint16Array"))
-        {
-            _type = Type::TYPED_ARRAY_UINT16;
-            typedArrayType = TypedArrayType::UINT16;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Uint32Array"))
-        {
-            _type = Type::TYPED_ARRAY_UINT32;
-            typedArrayType = TypedArrayType::UINT32;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Float32Array"))
-        {
-            _type = Type::TYPED_ARRAY_FLOAT32;
-            typedArrayType = TypedArrayType::FLOAT32;
-        }
-        else if (isInstanceOfConstructor(__cx, _obj, "Float64Array"))
-        {
-            _type = Type::TYPED_ARRAY_FLOAT64;
-            typedArrayType = TypedArrayType::FLOAT64;
+        EJJSTypedArrayType ejTypedArrayType = EJJSObjectGetTypedArrayType(__cx, _obj);
+
+        switch (ejTypedArrayType) {
+            case kEJJSTypedArrayTypeInt8Array:
+                _type = Type::TYPED_ARRAY_INT8;
+                typedArrayType = TypedArrayType::INT8;
+                break;
+            case kEJJSTypedArrayTypeInt16Array:
+                _type = Type::TYPED_ARRAY_INT16;
+                typedArrayType = TypedArrayType::INT16;
+                break;
+            case kEJJSTypedArrayTypeInt32Array:
+                _type = Type::TYPED_ARRAY_INT32;
+                typedArrayType = TypedArrayType::INT32;
+                break;
+            case kEJJSTypedArrayTypeUint8Array:
+                _type = Type::TYPED_ARRAY_UINT8;
+                typedArrayType = TypedArrayType::UINT8;
+                break;
+            case kEJJSTypedArrayTypeUint8ClampedArray:
+                _type = Type::TYPED_ARRAY_UINT8_CLAMPED;
+                typedArrayType = TypedArrayType::UINT8_CLAMPED;
+                break;
+            case kEJJSTypedArrayTypeUint16Array:
+                _type = Type::TYPED_ARRAY_UINT16;
+                typedArrayType = TypedArrayType::UINT16;
+                break;
+            case kEJJSTypedArrayTypeUint32Array:
+                _type = Type::TYPED_ARRAY_UINT32;
+                typedArrayType = TypedArrayType::UINT32;
+                break;
+            case kEJJSTypedArrayTypeFloat32Array:
+                _type = Type::TYPED_ARRAY_FLOAT32;
+                typedArrayType = TypedArrayType::FLOAT32;
+                break;
+            case kEJJSTypedArrayTypeFloat64Array:
+                _type = Type::TYPED_ARRAY_FLOAT64;
+                typedArrayType = TypedArrayType::FLOAT64;
+                break;
+            default:
+                typedArrayType = TypedArrayType::NONE;
+                break;
         }
 
         return typedArrayType;
@@ -876,53 +833,11 @@ namespace se {
 
             return true;
         }
-        else
 #endif
-        {
-            Value func;
-            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_getTypedArrayData", &func);
-            if (ok && func.isObject() && func.toObject()->isFunction())
-            {
-                ValueArray args;
-                args.push_back(Value((Object*)this));
-
-                Value rval;
-                ok = func.toObject()->call(args, nullptr, &rval);
-                if (ok && rval.isObject() && rval.toObject()->isArray())
-                {
-                    uint32_t len = 0;
-                    Object* arrObj = rval.toObject();
-                    if (arrObj->getArrayLength(&len))
-                    {
-                        if (len > 0)
-                        {
-                            Value tmp;
-                            if (_arrayBuffer == nullptr)
-                            {
-                                _arrayBuffer = (uint8_t*)malloc(len);
-                            }
-                            else if (_arrayBufferSize != len)
-                            {
-                                _arrayBuffer = (uint8_t*)realloc(_arrayBuffer, len);
-                            }
-
-                            *length = _arrayBufferSize = len;
-                            *ptr = _arrayBuffer;
-                            for (uint32_t i = 0; i < len; ++i)
-                            {
-                                if (arrObj->getArrayElement(i, &tmp) && tmp.isNumber())
-                                {
-                                    _arrayBuffer[i] = tmp.toUint8();
-                                }
-                            }
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
+        NSMutableData* data = EJJSObjectGetTypedArrayData(__cx, _obj);
+        *ptr = (uint8_t*)data.mutableBytes;
+        *length = data.length;
+        return true;
     }
 
     bool Object::_isNativeFunction() const
@@ -1009,52 +924,11 @@ namespace se {
 
             return (*ptr != nullptr);
         }
-        else
 #endif
-        {
-            Value func;
-            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_getArrayBufferData", &func);
-            if (ok && func.isObject() && func.toObject()->isFunction())
-            {
-                ValueArray args;
-                args.push_back(Value((Object*)this));
-
-                Value rval;
-                ok = func.toObject()->call(args, nullptr, &rval);
-                if (ok && rval.isObject() && rval.toObject()->isArray())
-                {
-                    uint32_t len = 0;
-                    Object* arrObj = rval.toObject();
-                    if (arrObj->getArrayLength(&len))
-                    {
-                        if (len > 0)
-                        {
-                            Value tmp;
-                            if (_arrayBuffer == nullptr)
-                            {
-                                _arrayBuffer = (uint8_t*)malloc(len);
-                            }
-                            else if (_arrayBufferSize != len)
-                            {
-                                _arrayBuffer = (uint8_t*)realloc(_arrayBuffer, len);
-                            }
-
-                            *length = _arrayBufferSize = len;
-                            *ptr = _arrayBuffer;
-                            for (uint32_t i = 0; i < len; ++i)
-                            {
-                                if (arrObj->getArrayElement(i, &tmp) && tmp.isNumber())
-                                {
-                                    _arrayBuffer[i] = tmp.toUint8();
-                                }
-                            }
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        NSMutableData* data = EJJSObjectGetTypedArrayData(__cx, _obj);
+        *ptr = (uint8_t*)data.mutableBytes;
+        *length = data.length;
+        return true;
     }
 
     void* Object::getPrivateData() const

@@ -26,6 +26,7 @@
 #import "CCApplication.h"
 #import <UIKit/UIKit.h>
 #import "base/CCScheduler.h"
+#include "base/CCAutoreleasePool.h"
 #import "CCEAGLView-ios.h"
 #import "renderer/gfx/DeviceGraphics.h"
 #import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
@@ -132,12 +133,15 @@
 {
     static std::chrono::steady_clock::time_point prevTime;
     static std::chrono::steady_clock::time_point now;
-    float dt = 0.f;
+    static float dt = 0.f;
+
+    prevTime = std::chrono::steady_clock::now();
     
     _scheduler->update(dt);
     cocos2d::EventDispatcher::dispatchTickEvent(dt);
     
     [(CCEAGLView*)(_application->getView()) swapBuffers];
+    cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
     
     now = std::chrono::steady_clock::now();
     dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;

@@ -34,6 +34,7 @@
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "platform/android/CCFileUtils-android.h"
 #include "base/CCScheduler.h"
+#include "base/CCAutoreleasePool.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
@@ -125,10 +126,16 @@ extern "C"
 	 * Cocos2dxRenderer native functions implementation.
 	 *****************************************************/
 
-    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h)
+    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
     {
+        std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
+        LOGD("CocosRenderer.nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
         g_width = w;
         g_height = h;
+
+        if (!defaultResourcePath.empty())
+            FileUtils::getInstance()->setDefaultResourceRootPath(defaultResourcePath);
+
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
 
@@ -141,13 +148,16 @@ extern "C"
 	{
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
-        float dt = 0.f;
-        
+        static float dt = 0.f;
+
         g_app->getScheduler()->update(dt);
         EventDispatcher::dispatchTickEvent(dt);
+        PoolManager::getInstance()->getCurrentPool()->clear();
 
         now = std::chrono::steady_clock::now();
         dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+
+        prevTime = std::chrono::steady_clock::now();
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnPause()
@@ -195,52 +205,64 @@ extern "C"
 	 * Touches native functions implementation.
 	 ***********************************************************/
 
+    static void dispatchTouchEventWithOnePoint(JNIEnv* env, cocos2d::TouchEvent::Type type, jint id, jfloat x, jfloat y)
+    {
+        cocos2d::TouchEvent touchEvent;
+        touchEvent.type = type;
+
+        cocos2d::TouchInfo touchInfo;
+        touchInfo.index = id;
+        touchInfo.x = x;
+        touchInfo.y = y;
+        touchEvent.touches.push_back(touchInfo);
+        
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+    }
+
+    static void dispatchTouchEventWithPoints(JNIEnv* env, cocos2d::TouchEvent::Type type, jintArray ids, jfloatArray xs, jfloatArray ys)
+    {
+        cocos2d::TouchEvent touchEvent;
+        touchEvent.type = type;
+
+        int size = env->GetArrayLength(ids);
+        jint id[size];
+        jfloat x[size];
+        jfloat y[size];
+
+        env->GetIntArrayRegion(ids, 0, size, id);
+        env->GetFloatArrayRegion(xs, 0, size, x);
+        env->GetFloatArrayRegion(ys, 0, size, y);
+
+        for(int i = 0; i < size; i++)
+        {
+            cocos2d::TouchInfo touchInfo;
+            touchInfo.index = id[i];
+            touchInfo.x = x[i];
+            touchInfo.y = y[i];
+            touchEvent.touches.push_back(touchInfo);
+        }
+
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+    }
+
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
     {
-        //TODO
+        dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::BEGAN, id, x, y);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesEnd(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
     {
-        //TODO
+        dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::ENDED, id, x, y);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesMove(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
     {
-        int size = env->GetArrayLength(ids);
-        jint id[size];
-        jfloat x[size];
-        jfloat y[size];
-
-        env->GetIntArrayRegion(ids, 0, size, id);
-        env->GetFloatArrayRegion(xs, 0, size, x);
-        env->GetFloatArrayRegion(ys, 0, size, y);
-
-        intptr_t idlong[size];
-        for(int i = 0; i < size; i++)
-            idlong[i] = id[i];
-
-        //TODO
-        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesMove(size, idlong, x, y);
+        dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::MOVED, ids, xs, ys);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesCancel(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
     {
-        int size = env->GetArrayLength(ids);
-        jint id[size];
-        jfloat x[size];
-        jfloat y[size];
-
-        env->GetIntArrayRegion(ids, 0, size, id);
-        env->GetFloatArrayRegion(xs, 0, size, x);
-        env->GetFloatArrayRegion(ys, 0, size, y);
-
-        intptr_t idlong[size];
-        for(int i = 0; i < size; i++)
-            idlong[i] = id[i];
-
-        //TODO
-        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesCancel(size, idlong, x, y);
+        dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::CANCELLED, ids, xs, ys);
     }
 
     JNIEXPORT jboolean JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeKeyEvent(JNIEnv * env, jobject thiz, jint keyCode, jboolean isPressed)
@@ -351,12 +373,12 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     return fd;
 }
 
-int getDeviceSampleRate()
+int getDeviceSampleRateJNI()
 {
     return g_deviceSampleRate;
 }
 
-int getDeviceAudioBufferSizeInFrames()
+int getDeviceAudioBufferSizeInFramesJNI()
 {
     return g_deviceAudioBufferSizeInFrames;
 }

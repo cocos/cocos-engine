@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include <unordered_map>
+
 namespace se {
     class Object;
 }
 
-bool JSB_register_opengl(se::Object* obj);
+bool register_platform_bindings(se::Object* obj);
+const std::unordered_map<std::string, std::string>& getFontFamilyNameMap();

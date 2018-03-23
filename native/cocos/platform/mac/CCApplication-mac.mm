@@ -28,7 +28,8 @@ THE SOFTWARE.
 #import <algorithm>
 #import <mutex>
 
-#import "base/CCScheduler.h"
+#include "base/CCScheduler.h"
+#include "base/CCAutoreleasePool.h"
 #import "platform/CCApplication.h"
 #import "platform/desktop/CCGLView-desktop.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
@@ -111,7 +112,8 @@ void Application::start()
         EventDispatcher::dispatchTickEvent(dt);
 
         CAST_VIEW(_view)->swapBuffers();
-        
+        PoolManager::getInstance()->getCurrentPool()->clear();
+
         now = std::chrono::steady_clock::now();
         dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
     }

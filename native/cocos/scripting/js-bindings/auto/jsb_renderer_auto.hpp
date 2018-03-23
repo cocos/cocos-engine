@@ -3,6 +3,16 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
+extern se::Object* __jsb_cocos2d_renderer_ProgramLib_proto;
+extern se::Class* __jsb_cocos2d_renderer_ProgramLib_class;
+
+bool js_register_cocos2d_renderer_ProgramLib(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_ProgramLib_getProgram);
+SE_DECLARE_FUNC(js_renderer_ProgramLib_define);
+SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
+SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
+
 extern se::Object* __jsb_cocos2d_renderer_Model_proto;
 extern se::Class* __jsb_cocos2d_renderer_Model_class;
 
@@ -27,6 +37,7 @@ extern se::Class* __jsb_cocos2d_renderer_BaseRenderer_class;
 
 bool js_register_cocos2d_renderer_BaseRenderer(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_BaseRenderer_getProgramLib);
 SE_DECLARE_FUNC(js_renderer_BaseRenderer_init);
 SE_DECLARE_FUNC(js_renderer_BaseRenderer_BaseRenderer);
 
@@ -80,9 +91,10 @@ extern se::Class* __jsb_cocos2d_renderer_Technique_class;
 
 bool js_register_cocos2d_renderer_Technique(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Technique_getPasses);
 SE_DECLARE_FUNC(js_renderer_Technique_getStageIDs);
+SE_DECLARE_FUNC(js_renderer_Technique_setPass);
 SE_DECLARE_FUNC(js_renderer_Technique_setStages);
+SE_DECLARE_FUNC(js_renderer_Technique_getPasses);
 SE_DECLARE_FUNC(js_renderer_Technique_getParameters);
 SE_DECLARE_FUNC(js_renderer_Technique_Technique);
 
@@ -163,7 +175,9 @@ extern se::Class* __jsb_cocos2d_renderer_Pass_class;
 
 bool js_register_cocos2d_renderer_Pass(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_Pass_getStencilTest);
 SE_DECLARE_FUNC(js_renderer_Pass_setStencilBack);
+SE_DECLARE_FUNC(js_renderer_Pass_setStencilTest);
 SE_DECLARE_FUNC(js_renderer_Pass_setCullMode);
 SE_DECLARE_FUNC(js_renderer_Pass_setBlend);
 SE_DECLARE_FUNC(js_renderer_Pass_setStencilFront);
@@ -194,9 +208,4 @@ SE_DECLARE_FUNC(js_renderer_Scene_removeView);
 SE_DECLARE_FUNC(js_renderer_Scene_addLight);
 SE_DECLARE_FUNC(js_renderer_Scene_removeLight);
 SE_DECLARE_FUNC(js_renderer_Scene_Scene);
-
-extern se::Object* __jsb_cocos2d_renderer_ProgramLib_proto;
-extern se::Class* __jsb_cocos2d_renderer_ProgramLib_class;
-bool js_register_renderer_ProgramLib(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_ProgramLib_getProgram);
 

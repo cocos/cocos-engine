@@ -162,7 +162,7 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
     {
         const char* s = strFilePath.c_str();
 
-        // Found "assets/" at the beginning of the path and we don't want it
+        // Found "@assets/" at the beginning of the path and we don't want it
         if (strFilePath.find(_defaultResRootPath) == 0) s += _defaultResRootPath.length();
         
         if (obbfile && obbfile->fileExists(s))
@@ -219,7 +219,7 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) con
     else
     {
         // find it in apk's assets dir
-        // Found "assets/" at the beginning of the path and we don't want it
+        // Found "@assets/" at the beginning of the path and we don't want it
         CCLOG("find in apk dirPath(%s)", dirPath.c_str());
         const char* s = dirPath.c_str();
         if (dirPath.find(_defaultResRootPath) == 0)
@@ -268,7 +268,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
     std::string relativePath;
     size_t position = fullPath.find(_defaultResRootPath);
     if (0 == position) {
-        // "assets/" is at the beginning of the path and we don't want it
+        // "@assets/" is at the beginning of the path and we don't want it
         relativePath += fullPath.substr(_defaultResRootPath.length());
     } else {
         relativePath = fullPath;

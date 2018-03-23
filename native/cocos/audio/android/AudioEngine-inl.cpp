@@ -33,20 +33,18 @@
 #include <sys/types.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
-
 #include <unordered_map>
-#include "platform/android/jni/JniHelper.h"
 #include <android/log.h>
-#include <jni.h>
+#include <thread>
+#include <mutex>
+
 #include "audio/include/AudioEngine.h"
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
-#include "base/CCEventDispatcher.h"
-#include "base/CCEventType.h"
-#include "base/CCEventListenerCustom.h"
 #include "base/ccUTF8.h"
 #include "platform/android/CCFileUtils-android.h"
-#include "platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
+#include "platform/android/jni/JniImp.h"
+#include "platform/android/jni/JniHelper.h"
 
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
@@ -71,7 +69,7 @@ class CallerThreadUtils : public ICallerThreadUtils
 public:
     virtual void performFunctionInCallerThread(const std::function<void()>& func)
     {
-        Director::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     };
 
     virtual std::thread::id getCallerThreadId()
@@ -147,12 +145,12 @@ AudioEngineImpl::~AudioEngineImpl()
 
     if (_onPauseListener != nullptr)
     {
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_onPauseListener);
+//TODO:cjh        Application::getInstance()->getEventDispatcher()->removeEventListener(_onPauseListener);
     }
 
     if (_onResumeListener != nullptr)
     {
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_onResumeListener);
+//TODO:cjh        Director::getInstance()->getEventDispatcher()->removeEventListener(_onResumeListener);
     }
 
     __impl = nullptr;
@@ -185,11 +183,11 @@ bool AudioEngineImpl::init()
         result = (*_outputMixObject)->Realize(_outputMixObject, SL_BOOLEAN_FALSE);
         if(SL_RESULT_SUCCESS != result){ ERRORLOG("realize the output mix fail"); break; }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, getDeviceSampleRate(), getDeviceAudioBufferSizeInFrames(), fdGetter, &__callerThreadUtils);
+        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, getDeviceSampleRateJNI(), getDeviceAudioBufferSizeInFramesJNI(), fdGetter, &__callerThreadUtils);
 
-        _onPauseListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_BACKGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterBackground, this));
+        _onPauseListener = nullptr;//Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_BACKGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterBackground, this));
 
-        _onResumeListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_FOREGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterForeground, this));
+        _onResumeListener = nullptr;//Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_FOREGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterForeground, this));
 
         ret = true;
     }while (false);

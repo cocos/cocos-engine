@@ -99,6 +99,28 @@ str
 },
 
 /**
+ * @method normalizePath
+ * @param {String} arg0
+ * @return {String}
+ */
+normalizePath : function (
+str 
+)
+{
+    return ;
+},
+
+/**
+ * @method getDefaultResourceRootPath
+ * @return {String}
+ */
+getDefaultResourceRootPath : function (
+)
+{
+    return ;
+},
+
+/**
  * @method loadFilenameLookupDictionaryFromFile
  * @param {String} arg0
  */
@@ -141,6 +163,18 @@ getSearchPaths : function (
 },
 
 /**
+ * @method getFileDir
+ * @param {String} arg0
+ * @return {String}
+ */
+getFileDir : function (
+str 
+)
+{
+    return ;
+},
+
+/**
  * @method writeToFile
  * @param {map_object} arg0
  * @param {String} arg1
@@ -152,6 +186,16 @@ str
 )
 {
     return false;
+},
+
+/**
+ * @method getOriginalSearchPaths
+ * @return {Array}
+ */
+getOriginalSearchPaths : function (
+)
+{
+    return new Array();
 },
 
 /**
@@ -553,6 +597,26 @@ float
 },
 
 /**
+ * @method setTransform
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {float} arg5
+ */
+setTransform : function (
+float, 
+float, 
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
  * @method stroke
  */
 stroke : function (
@@ -573,6 +637,18 @@ str
 },
 
 /**
+ * @method scale
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+scale : function (
+float, 
+float 
+)
+{
+},
+
+/**
  * @method clearRect
  * @param {float} arg0
  * @param {float} arg1
@@ -580,6 +656,26 @@ str
  * @param {float} arg3
  */
 clearRect : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method transform
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {float} arg5
+ */
+transform : function (
+float, 
+float, 
 float, 
 float, 
 float, 
@@ -645,9 +741,31 @@ float
 },
 
 /**
+ * @method rotate
+ * @param {float} arg0
+ */
+rotate : function (
+float 
+)
+{
+},
+
+/**
  * @method beginPath
  */
 beginPath : function (
+)
+{
+},
+
+/**
+ * @method translate
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+translate : function (
+float, 
+float 
 )
 {
 },

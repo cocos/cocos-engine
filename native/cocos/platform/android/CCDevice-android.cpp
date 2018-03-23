@@ -103,9 +103,9 @@ public:
             fullPathOrFontName = FileUtils::getInstance()->fullPathForFilename(textDefinition._fontName);
             // If the path name returned includes the 'assets' dir then that needs to be removed, because the android.content.Context
             // requires this portion of the path to be omitted for assets inside the app package.
-            if (fullPathOrFontName.find("assets/") == 0)
+            if (fullPathOrFontName.find("@assets/") == 0)
             {
-                fullPathOrFontName = fullPathOrFontName.substr(strlen("assets/"));   // Chop out the 'assets/' portion of the path.
+                fullPathOrFontName = fullPathOrFontName.substr(strlen("@assets/"));   // Chop out the 'assets/' portion of the path.
             }
         }
 

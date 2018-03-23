@@ -33,7 +33,7 @@
 #import <Foundation/Foundation.h>
 #import <OpenAL/alc.h>
 #include <thread>
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 
 #include "audio/apple/AudioDecoder.h"
@@ -420,7 +420,7 @@ void AudioCache::invokingLoadCallbacks()
     }
 
     auto isDestroyed = _isDestroyed;
-    auto scheduler = Director::getInstance()->getScheduler();
+    auto scheduler = Application::getInstance()->getScheduler();
     scheduler->performFunctionInCocosThread([&, isDestroyed](){
         if (*isDestroyed)
         {

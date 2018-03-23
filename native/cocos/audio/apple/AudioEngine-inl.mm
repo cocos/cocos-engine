@@ -35,7 +35,7 @@
 
 #include "audio/include/AudioEngine.h"
 #include "platform/CCFileUtils.h"
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 #include "base/ccUtils.h"
 
@@ -155,10 +155,10 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
                 NSError *error = nil;
                 [[AVAudioSession sharedInstance] setActive:YES error:&error];
                 alcMakeContextCurrent(s_ALContext);
-                if (Director::getInstance()->isPaused())
+                //FIXME:cjh                if (Director::getInstance()->isPaused())
                 {
                     ALOGD("AVAudioSessionInterruptionTypeEnded, director was paused, try to resume it.");
-                    Director::getInstance()->resume();
+//FIXME:cjh                    Director::getInstance()->resume();
                 }
             }
             else
@@ -197,7 +197,7 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
         else if (isAudioSessionInterrupted)
         {
             ALOGD("Audio session is still interrupted, pause director!");
-            Director::getInstance()->pause();
+            //FIXME:cjh Director::getInstance()->pause();
         }
     }
 }
@@ -246,7 +246,7 @@ AudioEngineImpl::~AudioEngineImpl()
 {
     if (_scheduler != nullptr)
     {
-        _scheduler->unschedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this);
+        _scheduler->unschedule("AudioEngine", this);
     }
 
     if (s_ALContext) {
@@ -355,7 +355,7 @@ bool AudioEngineImpl::init()
 
             // ================ Workaround end ================ //
 
-            _scheduler = Director::getInstance()->getScheduler();
+            _scheduler = Application::getInstance()->getScheduler();
             ret = true;
             ALOGI("OpenAL was initialized successfully!");
         }
@@ -431,7 +431,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
 
     if (_lazyInitLoop) {
         _lazyInitLoop = false;
-        _scheduler->schedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this, 0.05f, false);
+        _scheduler->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
     }
 
     return _currentAudioID++;
@@ -685,7 +685,7 @@ void AudioEngineImpl::update(float dt)
 
     if(_audioPlayers.empty()){
         _lazyInitLoop = true;
-        _scheduler->unschedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this);
+        _scheduler->unschedule("AudioEngine", this);
     }
 }
 
