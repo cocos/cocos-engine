@@ -29,14 +29,6 @@ const FillType = Sprite.FillType;
 const simpleRenderUtil = require('./simple');
 
 module.exports = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-        return renderData;
-    },
-    
     update (sprite) {
         let renderData = sprite._renderData;
         let uvDirty = renderData.uvDirty,
@@ -70,6 +62,9 @@ module.exports = {
         }
         if (vertDirty) {
             this.updateVerts(sprite, fillStart, fillEnd);
+        }
+        if (renderData.worldMatDirty) {
+            this.updateWorldVerts(sprite);
         }
     },
 
@@ -136,13 +131,13 @@ module.exports = {
 
         renderData.uvDirty = false;
     },
+
     updateVerts (sprite, fillStart, fillEnd) {
         let renderData = sprite._renderData,
             data = renderData._data,
-            width = renderData._width,
-            height = renderData._height,
-            appx = renderData._pivotX * width,
-            appy = renderData._pivotY * height;
+            node = sprite.node,
+            width = node.width, height = node.height,
+            appx = node.anchorX * width, appy = node.anchorY * height;
 
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
@@ -168,18 +163,19 @@ module.exports = {
                 break;
         }
 
-        data[0].x = l;
-        data[0].y = b;
-        data[1].x = r;
-        data[1].y = b;
-        data[2].x = l;
-        data[2].y = t;
-        data[3].x = r;
-        data[3].y = t;
+        data[4].x = l;
+        data[4].y = b;
+        data[5].x = r;
+        data[5].y = b;
+        data[6].x = l;
+        data[6].y = t;
+        data[7].x = r;
+        data[7].y = t;
 
         renderData.vertDirty = false;
     },
 
-    fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,
-    fillIndexBuffer: simpleRenderUtil.fillIndexBuffer
+    updateWorldVerts: simpleRenderUtil.updateWorldVerts,
+    createData: simpleRenderUtil.createData,
+    fillBuffers: simpleRenderUtil.fillBuffers
 };

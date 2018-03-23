@@ -40,7 +40,6 @@ const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
-var _queue = null;
 var _batchData = {
     node: null,
     vfmt: null,
@@ -93,7 +92,6 @@ var RenderComponentWalker = function (device, renderScene) {
         return new renderEngine.Model();
     }, 16);
     
-    this._queue = [];
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
@@ -141,6 +139,10 @@ RenderComponentWalker.prototype = {
     },
 
     _handleRender (node) {
+        if (node._localMatDirty) {
+            node._calculWorldMatrix();
+        }
+
         if (node.groupIndex !== 0) {
             this._curCameraNode = node;
         }
@@ -150,14 +152,14 @@ RenderComponentWalker.prototype = {
 
         let comp = node._renderComponent;
         if (comp) {
-            _queue.push(comp);
+            this.renderComp(comp, comp.constructor._assembler);
         }
     },
 
     _postHandleRender (node) {
         let comp = node._renderComponent;
         if (comp && comp.constructor._postAssembler) {
-            _queue.push(comp);
+            this.renderComp(comp, comp.constructor._postAssembler);
         }
 
         if (this._curCameraNode === node) {
@@ -249,92 +251,71 @@ RenderComponentWalker.prototype = {
         this._renderScene.addModel(model);
     },
 
-    batchQueue () {
-        let vertexId = 0,
-            comp = this._queue[0],
-            material = null,
-            assembler = null,
+    renderComp (comp, assembler) {
+        if (!assembler) {
+            return;
+        }
+        
+        let material = null, 
             datas = null,
             data = null,
             cullingMask = 1,
             broken = false,
             iaData = false;
 
-        for (let i = 0, len = this._queue.length; i < len; i++) {
-            comp = this._queue[i];
-            if (comp._toPostHandle) {
-                assembler = comp.constructor._postAssembler;
-                comp._toPostHandle = false;
-            }
-            else {
-                assembler = comp.constructor._assembler;
-                if (comp.constructor._postAssembler) {
-                    comp._toPostHandle = true;
-                }
-            }
-            if (!assembler) {
+        // Update render data
+        datas = assembler.updateRenderData(comp, _batchData);
+
+        cullingMask = comp.node._cullingMask;
+
+        for (let id = 0; id < datas.length; id ++) {
+            data = datas[id];
+            material = data.material;
+            // Nothing can be rendered without material
+            if (!material) {
                 continue;
             }
-            
-            // Update render data
-            datas = assembler.updateRenderData(comp, _batchData);
 
-            cullingMask = comp.node._cullingMask;
+            // Check ia data, each ia data should be packed into a separated model
+            iaData = data.type === IARenderData.type;
 
-            for (let id = 0; id < datas.length; id ++) {
-                data = datas[id];
-                material = data.material;
-                // Nothing can be rendered without material
-                if (!material) {
-                    continue;
-                }
+            // breaking batch
+            broken = iaData || 
+                        !_batchData.material || _batchData.material._hash != material._hash || 
+                        _batchData.cullingMask !== cullingMask ||
+                        (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
+                        (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+            if (broken) {
+                this._flush(_batchData);
+                _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
+                _batchData.material = material;
+                _batchData.vfmt = comp._vertexFormat;
+                _batchData.vertexOffset = 0;
+                _batchData.byteOffset = 0;
+                _batchData.indiceOffset = 0;
+                _batchData.cullingMask = cullingMask;
+            }
 
-                // Check ia data, each ia data should be packed into a separated model
-                iaData = data.type === IARenderData.type;
-
-                // breaking batch
-                broken = iaData || 
-                         !_batchData.material || _batchData.material._hash != material._hash || 
-                         _batchData.cullingMask !== cullingMask ||
-                         (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
-                         (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (broken) {
-                    this._flush(_batchData);
-                    _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
-                    _batchData.material = material;
-                    _batchData.vfmt = comp._vertexFormat;
-                    _batchData.vertexOffset = 0;
-                    _batchData.byteOffset = 0;
-                    _batchData.indiceOffset = 0;
-                    _batchData.cullingMask = cullingMask;
-                }
-
-                _batchData.data = data;
-                if (iaData) {
-                    this._flushIA(_batchData);
-                }
-                else {
-                    assembler.fillBuffers(comp, _batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
-                    _batchData.vertexOffset += data.vertexCount;
-                    _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
-                    _batchData.indiceOffset += data.indiceCount;
-                }
+            _batchData.data = data;
+            if (iaData) {
+                this._flushIA(_batchData);
+            }
+            else {
+                assembler.fillBuffers(comp, _batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
+                _batchData.vertexOffset += data.vertexCount;
+                _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
+                _batchData.indiceOffset += data.indiceCount;
             }
         }
-
-        // last batch
-        this._flush(_batchData);
-        this._queue.length = 0;
     },
 
     visit (scene) {
         this.reset();
-        
-        // Store all render components to _queue
-        _queue = this._queue;
-        scene.walk(this._handleRender, this._postHandleRender);
 
-        this.batchQueue();
+        // Store all render components to _queue
+        scene.walk(this._handleRender, this._postHandleRender);
+        
+        this._flush(_batchData);
     }
 }
 

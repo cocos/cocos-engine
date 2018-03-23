@@ -154,6 +154,10 @@ var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: RenderComponent,
 
+    ctor () {
+        this._assembler = null;
+    },
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
@@ -214,6 +218,7 @@ var Sprite = cc.Class({
                     this._material = null;
                 }
                 this._applySpriteFrame(lastSprite);
+                this._checkDirtyState(value, lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
                 }
@@ -238,6 +243,7 @@ var Sprite = cc.Class({
                     this.destroyRenderData(this._renderData);
                     this._renderData = null;
                     this._type = value;
+                    this._updateAssembler();
                 }
             },
             type: SpriteType,
@@ -270,6 +276,7 @@ var Sprite = cc.Class({
                         this._renderData.vertDirty = true;
                     }
                     this._fillType = value;
+                    this._updateAssembler();
                 }
             },
             type: FillType,
@@ -471,7 +478,44 @@ var Sprite = cc.Class({
 
     onEnable: function () {
         this._super();
+        
+        this._updateAssembler();
+        
+        let renderData = this._renderData;
+        if (!renderData) {
+            renderData = this._renderData = Sprite._assembler.createData(this);
+            renderData.worldMatDirty = true;
+        }
+
         this._activateMaterial();
+
+        this.node.on('size-changed', this._onNodeSizeDirty, this);
+        this.node.on('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.on('world-matrix-changed', this._onNodeMatrixDirty, this);
+    },
+
+    onDisable: function () {
+        this._super();
+
+        this.node.off('size-changed', this._onNodeSizeDirty, this);
+        this.node.off('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.off('world-matrix-changed', this._onNodeMatrixDirty, this);
+    },
+
+    _onNodeSizeDirty () {
+        if (this._renderData) {
+            this._renderData.vertDirty = true;
+        }
+    },
+
+    _onNodeMatrixDirty () {
+        if (this._renderData) {
+            this._renderData.worldMatDirty = true;
+        }
+    },
+
+    _updateAssembler: function () {
+        this._assembler = Sprite._assembler.getAssembler(this);
     },
 
     _activateMaterial: function () {
@@ -505,6 +549,10 @@ var Sprite = cc.Class({
         else {
             this._material.updateHash();
         }
+
+        if (this._renderData) {
+            this._renderData.material = this._material;
+        }
     },
     
     _updateBlendFunc: function () {
@@ -534,6 +582,42 @@ var Sprite = cc.Class({
         }
     },
 
+    _checkDirtyState (spriteFrame, oldSpriteFrame) {
+        let renderData = this._renderData;
+        if (!renderData) {
+            return;
+        }
+
+        if (!spriteFrame || !oldSpriteFrame) {
+            renderData.uvDirty = true;
+            renderData.vertDirty = true;
+            return;
+        }
+
+        let rect = spriteFrame._rect, 
+            oldRect = oldSpriteFrame._rect;
+        let rectSizeChanged = rect.width !== oldRect.width || rect.height !== oldRect.height;
+        if (rect.x !== oldRect.x ||
+            rect.y !== oldRect.y ||
+            rectSizeChanged ||
+            spriteFrame._rotated !== oldSpriteFrame._rotated ||
+            spriteFrame._texture.width !== oldSpriteFrame._texture.width) {
+            renderData.uvDirty = true;
+        }
+
+        let originalSize = spriteFrame._originalSize,
+            oldOriginalSize = oldSpriteFrame._originalSize,
+            offset = spriteFrame._offset,
+            oldOffset = oldSpriteFrame._offset;
+        if (rectSizeChanged ||
+            originalSize.width !== oldOriginalSize.width ||
+            originalSize.height !== oldOriginalSize.height ||
+            offset.x !== oldOffset.x ||
+            offset.y !== oldOffset.y) {
+            renderData.vertDirty = true;
+        }
+    },
+
     _applySpriteSize: function () {
         if (this._spriteFrame) {
             if (SizeMode.RAW === this._sizeMode) {
@@ -550,11 +634,6 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
-        // Mark render data dirty
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderData.vertDirty = true;
-        }
         // Reactivate material
         if (this.enabledInHierarchy) {
             this._activateMaterial();
@@ -568,7 +647,7 @@ var Sprite = cc.Class({
         }
 
         var spriteFrame = this._spriteFrame;
-        if (spriteFrame) {
+        if (spriteFrame && (!oldFrame || spriteFrame._texture !== oldFrame._texture)) {
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
             }

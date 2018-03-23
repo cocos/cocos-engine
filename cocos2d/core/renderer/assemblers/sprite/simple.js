@@ -25,23 +25,63 @@
 
 const Sprite = require('../../../components/CCSprite');
 
-module.exports = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-        return renderData;
-    },
+const js = require('../../../platform/js');
+const assembler = require('../assembler');
+
+module.exports = js.addon({
+    useModel: false,
 
     update (sprite) {
         let renderData = sprite._renderData;
+        
         if (renderData.uvDirty) {
             this.updateUVs(sprite);
         }
-        if (renderData.vertDirty) {
+
+        let vertDirty = renderData.vertDirty;
+        if (vertDirty) {
             this.updateVerts(sprite);
         }
+        if (vertDirty || renderData.worldMatDirty) {
+            this.updateWorldVerts(sprite);
+        }
+    },
+
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
+            indiceOffset = batchData.indiceOffset;
+
+        let data = sprite._renderData._data;
+        let node = sprite.node;
+        let z = node._position.z;
+        let color = node._color._val;
+    
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset ++] = vert.x;
+            vbuf[vertexOffset ++] = vert.y;
+            vbuf[vertexOffset ++] = z;
+            uintbuf[vertexOffset ++] = color;
+            vbuf[vertexOffset ++] = vert.u;
+            vbuf[vertexOffset ++] = vert.v;
+        }
+
+        ibuf[indiceOffset ++] = vertexId;
+        ibuf[indiceOffset ++] = vertexId + 1;
+        ibuf[indiceOffset ++] = vertexId + 2;
+        ibuf[indiceOffset ++] = vertexId + 1;
+        ibuf[indiceOffset ++] = vertexId + 3;
+        ibuf[indiceOffset ++] = vertexId + 2;
+    },
+
+    createData (sprite) {
+        let renderData = sprite.requestRenderData();
+        // 0-4 for world verts
+        // 5-8 for local verts
+        renderData.dataLength = 8;
+        renderData.vertexCount = 4;
+        renderData.indiceCount = 6;
+        return renderData;
     },
 
     updateUVs (sprite) {
@@ -88,13 +128,30 @@ module.exports = {
         }
     },
 
+    updateWorldVerts (sprite) {
+        let node = sprite.node,
+            renderData = sprite._renderData,
+            data = renderData._data,
+            matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        
+        for (let i = 0; i < 4; i++) {
+            let local = data[i+4];
+            let world = data[i];
+            world.x = local.x * a + local.y * c + tx;
+            world.y = local.x * b + local.y * d + ty;
+        }
+
+        renderData.worldMatDirty = false;
+    },
+
     updateVerts (sprite) {
         let renderData = sprite._renderData,
+            node = sprite.node,
             data = renderData._data,
-            cw = renderData._width,
-            ch = renderData._height,
-            appx = renderData._pivotX * cw,
-            appy = renderData._pivotY * ch,
+            cw = node.width, ch = node.height,
+            appx = node.anchorX * cw, appy = node.anchorY * ch,
             l, b, r, t;
         if (sprite.trim) {
             l = -appx;
@@ -104,13 +161,10 @@ module.exports = {
         }
         else {
             let frame = sprite.spriteFrame,
-                ow = frame._originalSize.width,
-                oh = frame._originalSize.height,
-                rw = frame._rect.width,
-                rh = frame._rect.height,
+                ow = frame._originalSize.width, oh = frame._originalSize.height,
+                rw = frame._rect.width, rh = frame._rect.height,
                 offset = frame._offset,
-                scaleX = cw / ow,
-                scaleY = ch / oh;
+                scaleX = cw / ow, scaleY = ch / oh;
             let trimLeft = offset.x + (ow - rw) / 2;
             let trimRight = offset.x - (ow - rw) / 2;
             let trimBottom = offset.y + (oh - rh) / 2;
@@ -121,54 +175,15 @@ module.exports = {
             t = ch + trimTop * scaleY - appy;
         }
         
-        data[0].x = l;
-        data[0].y = b;
-        data[1].x = r;
-        data[1].y = b;
-        data[2].x = l;
-        data[2].y = t;
-        data[3].x = r;
-        data[3].y = t;
+        data[4].x = l;
+        data[4].y = b;
+        data[5].x = r;
+        data[5].y = b;
+        data[6].x = l;
+        data[6].y = t;
+        data[7].x = r;
+        data[7].y = t;
 
         renderData.vertDirty = false;
-    },
-
-    fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        let node = sprite.node;
-        let renderData = sprite._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        let color = node._color._val;
-        
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
-    
-        let vert;
-        let length = renderData.dataLength;
-        for (let i = 0; i < length; i++) {
-            vert = data[i];
-            vbuf[index + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[index + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[index + 2] = z;
-            vbuf[index + 4] = vert.u;
-            vbuf[index + 5] = vert.v;
-            uintbuf[index + 3] = color;
-            index += 6;
-        }
-    },
-    
-    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        ibuf[offset + 0] = vertexId;
-        ibuf[offset + 1] = vertexId + 1;
-        ibuf[offset + 2] = vertexId + 2;
-        ibuf[offset + 3] = vertexId + 1;
-        ibuf[offset + 4] = vertexId + 3;
-        ibuf[offset + 5] = vertexId + 2;
     }
-};
+}, assembler);

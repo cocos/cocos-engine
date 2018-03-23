@@ -26,25 +26,20 @@
 const Sprite = require('../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
+const simpleRenderUtil = require('./simple');
+
 module.exports = {
     createData (sprite) {
         let renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
+        // 0-4 for local verts
+        // 5-20 for world verts
+        renderData.dataLength = 20;
+
         renderData.vertexCount = 16;
         renderData.indiceCount = 54;
         return renderData;
     },
     
-    update (sprite) {
-        let renderData = sprite._renderData;
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
-        }
-        if (renderData.vertDirty) {
-            this.updateVerts(sprite);
-        }
-    },
-
     updateUVs (sprite) {
         let material = sprite.getMaterial();
         let renderData = sprite._renderData;
@@ -92,10 +87,9 @@ module.exports = {
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             data = renderData._data,
-            width = renderData._width,
-            height = renderData._height,
-            appx = renderData._pivotX * width, 
-            appy = renderData._pivotY * height;
+            node = sprite.node,
+            width = node.width, height = node.height,
+            appx = node.anchorX * width, appy = node.anchorY * height;
     
         let frame = sprite.spriteFrame;
         let rect = frame._rect;
@@ -112,6 +106,7 @@ module.exports = {
         yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
+        
         data[0].x = -appx;
         data[0].y = -appy;
         data[1].x = leftWidth * xScale - appx;
@@ -123,51 +118,63 @@ module.exports = {
 
         renderData.vertDirty = false;
     },
-    
-    fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        let node = sprite.node;
-        let renderData = sprite._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        
-        let color = node._color._val;
-        
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
 
-        let colD, rowD;
-        for (let row = 0; row < 4; ++row) {
-            rowD = data[row];
-            for (let col = 0; col < 4; ++col) {
-                colD = data[col];
-                vbuf[index] = colD.x*a + rowD.y*c + tx;
-                vbuf[index + 1] = colD.x*b + rowD.y*d + ty;
-                vbuf[index + 2] = z;
-                vbuf[index + 4] = colD.u;
-                vbuf[index + 5] = rowD.v;
-                uintbuf[index + 3] = color;
-                index += 6;
-            }
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
+            indiceOffset = batchData.indiceOffset;
+
+        let node = sprite.node;
+        let z = node._position.z;
+        let color = node._color._val;
+
+        let data = sprite._renderData._data;
+        for (let i = 4; i < 20; ++i) {
+            let vert = data[i];
+
+            vbuf[vertexOffset] = vert.x;
+            vbuf[vertexOffset + 1] = vert.y;
+            vbuf[vertexOffset + 2] = z;
+            vbuf[vertexOffset + 4] = vert.u;
+            vbuf[vertexOffset + 5] = vert.v;
+            uintbuf[vertexOffset + 3] = color;
+            vertexOffset += 6;
         }
-    },
-    
-    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
+        
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
                 let start = vertexId + r*4 + c;
-                ibuf[offset++] = start;
-                ibuf[offset++] = start + 1;
-                ibuf[offset++] = start + 4;
-                ibuf[offset++] = start + 1;
-                ibuf[offset++] = start + 5;
-                ibuf[offset++] = start + 4;
+                ibuf[indiceOffset++] = start;
+                ibuf[indiceOffset++] = start + 1;
+                ibuf[indiceOffset++] = start + 4;
+                ibuf[indiceOffset++] = start + 1;
+                ibuf[indiceOffset++] = start + 5;
+                ibuf[indiceOffset++] = start + 4;
             }
         }
-    }
+    },
+
+    updateWorldVerts (sprite) {
+        let node = sprite.node,
+            renderData = sprite._renderData,
+            data = renderData._data,
+            matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        
+        for (let row = 0; row < 4; ++row) {
+            let rowD = data[row];
+            for (let col = 0; col < 4; ++col) {
+                let colD = data[col];
+                let world = data[4 + row*4 + col];
+                world.x = colD.x*a + rowD.y*c + tx;
+                world.y = colD.x*b + rowD.y*d + ty;
+                world.u = colD.u;
+                world.v = rowD.v;
+            }
+        }
+
+        renderData.worldMatDirty = false;
+    },
+
+    update: simpleRenderUtil.update
 };

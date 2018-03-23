@@ -1966,6 +1966,7 @@ var Node = cc.Class({
         if (this._localMatDirty) {
             this._updateLocalMatrix();
         }
+        
         // Assume parent world matrix is correct
         if (this._parent) {
             let parentMat = this._parent._worldMatrix;
@@ -1974,8 +1975,9 @@ var Node = cc.Class({
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
-        this.emit(WORLD_MATRIX_CHANGED);
         this._worldMatDirty = false;
+
+        this.emit(WORLD_MATRIX_CHANGED);
 
         for (let i = 0, len = this._children.length; i < len; ++i) {
             let child = this._children[i];
