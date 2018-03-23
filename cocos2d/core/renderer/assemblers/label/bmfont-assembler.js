@@ -31,7 +31,7 @@ const Overflow = Label.Overflow;
 
 const TextUtils = require('../../../utils/text-utils').TextUtils;
 
-const spriteAssembler = require('../sprite/simple');
+const ttf = require('./ttf-assembler');
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -158,7 +158,7 @@ module.exports = {
         this._resetProperties();
     },
 
-    fillVertexBuffer: spriteAssembler.fillVertexBuffer,
+    fillVertexBuffer: ttf.fillVertexBuffer,
 
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
         let renderData = comp._renderData;
