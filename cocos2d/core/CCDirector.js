@@ -357,7 +357,7 @@ cc.Director.prototype = {
         this.stopAnimation();
 
         // Clear all caches
-        this.purgeCachedData();
+        cc.loader.releaseAll();
     },
 
     /**
