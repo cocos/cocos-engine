@@ -320,7 +320,7 @@ static bool js_cocos2dx_##cls_set_##property(se::State& s) \
     SE_PRECONDITION2(cobj, false, "js_cocos2dx_#cls_set_#property : Invalid Native Object"); \
     const auto& args = s.args(); \
     size_t argc = args.size(); \
-    CC_UNUSED bool ok = true; \
+    bool ok = true; \
     if (argc == 1) { \
         type arg0; \
         ok &= convertFunc(args[0], &arg0); \

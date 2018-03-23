@@ -29,12 +29,12 @@ RENDERER_BEGIN
 Pass::Pass(const std::string& programName)
 : _programName(programName)
 {
-    RENDERER_LOGD("Pass constructor: %p", this);
+//    RENDERER_LOGD("Pass constructor: %p", this);
 }
 
 Pass::~Pass()
 {
-    RENDERER_LOGD("Pass destructor: %p", this);
+//    RENDERER_LOGD("Pass destructor: %p", this);
 }
 
 void Pass::setCullMode(CullMode cullMode)

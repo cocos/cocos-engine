@@ -156,7 +156,11 @@ namespace se {
         if (isSupportTypedArrayAPI())
         {
             void* copiedData = malloc(byteLength);
-            memcpy(copiedData, data, byteLength);
+            if (data)
+                memcpy(copiedData, data, byteLength);
+            else
+                memset(copiedData, 0, byteLength);
+            
             JSValueRef exception = nullptr;
             JSTypedArrayType jscTypedArrayType = kJSTypedArrayTypeNone;
             Type objectType = Type::UNKNOWN;

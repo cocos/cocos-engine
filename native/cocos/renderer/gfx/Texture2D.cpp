@@ -504,12 +504,12 @@ RENDERER_BEGIN
 
 Texture2D::Texture2D()
 {
-    RENDERER_LOGD("Construct Texture2D: %p", this);
+//    RENDERER_LOGD("Construct Texture2D: %p", this);
 }
 
 Texture2D::~Texture2D()
 {
-    RENDERER_LOGD("Destruct Texture2D: %p", this);
+//    RENDERER_LOGD("Destruct Texture2D: %p", this);
 }
 
 bool Texture2D::init(DeviceGraphics* device, const Options& options)
@@ -522,7 +522,14 @@ bool Texture2D::init(DeviceGraphics* device, const Options& options)
 
         if (options.images.empty())
         {
-            const_cast<Options&>(options).images.push_back(Data());
+            const auto& glFmt = glTextureFmt(_format);
+            int len = options.width * options.height * glFmt.bpp / 8;
+            unsigned char* tmpData = new unsigned char[len];
+            memset(tmpData, 255, len);
+            Data data;
+            data.copy(tmpData, len);
+            delete [] tmpData;
+            const_cast<Options&>(options).images.push_back(data);
         }
 
         update(options);
@@ -654,7 +661,7 @@ void Texture2D::setImage(const GLTextureFmt& glFmt, const ImageOption& option)
 
     //Set the row align only when mipmapsNum == 1 and the data is uncompressed
     GLint aligment = 1;
-    if (!_hasMipmap && !_compressed && glFmt.bpp > 0)
+    if (_hasMipmap && !_compressed && glFmt.bpp > 0)
     {
         unsigned int bytesPerRow = option.width * glFmt.bpp / 8;
 

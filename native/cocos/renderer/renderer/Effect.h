@@ -48,6 +48,7 @@ public:
     void clear();
     
     Technique* getTechnique(const std::string& stage) const;
+    const Vector<Technique*>& getTechniques() const { return _techniques; }
     
     Value getDefineValue(const std::string& name) const;
     void setDefineValue(const std::string& name, const Value& value);

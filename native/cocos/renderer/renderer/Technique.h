@@ -86,7 +86,7 @@ public:
         inline uint8_t getCount() const { return _count; }
         inline void* getValue() const { return _value; }
         inline uint16_t getBytes() const { return _bytes; };
-        
+                
         std::vector<Texture*> getTextureArray() const;
         void setTexture(Texture* texture);
         Texture* getTexture() const;
@@ -115,13 +115,11 @@ public:
     virtual ~Technique();
     
     void setStages(const std::vector<std::string>& stages);
-    
-    // Should rename function name in binding codes.
+    void setPass(int index, Pass* pass);
+
+    const std::vector<Parameter>& getParameters() const { return _parameters; }
     const Vector<Pass*>& getPasses() const { return _passes; }
     uint32_t getStageIDs() const { return _stageIDs; }
-    
-    // TODO: add get functions
-    const std::vector<Parameter>& getParameters() const { return _parameters; }
     
 private:
     static uint32_t _genID;
