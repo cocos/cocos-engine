@@ -91,7 +91,8 @@
     "name": "ScrollView",
     "entries": [
       "./cocos2d/core/components/CCScrollView.js"
-    ]
+    ],
+    "dependencies": ["Layout"]
   },
   {
     "name": "Toggle",
