@@ -138,9 +138,13 @@ Audio.State = {
     };
 
     proto.mount = function (elem) {
-        if (sys.platform === sys.WECHAT_GAME || elem instanceof HTMLElement) {
-            this._element = document.createElement('audio');
-            this._element.src = elem.src;
+        if (elem instanceof HTMLElement) {
+            if (sys.platform === sys.WECHAT_GAME) {
+                this._element = elem;
+            } else {
+                this._element = document.createElement('audio');
+                this._element.src = elem.src;
+            }
             this._audioType = Audio.Type.DOM;
         } else {
             this._element = new WebAudioElement(elem, this);
