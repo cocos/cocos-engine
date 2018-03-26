@@ -80,6 +80,37 @@ npm test
 
 3. Open [http://localhost:8512/test/visual-tests/index.html](http://localhost:8512/test/visual-tests/index.html) in your browser.
 
+### DebugInfos  
+
+View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)  
+All the debug infos are defined in file EngineErrorMap.md.  
+The file DebugInfos.json will be generated based on EngineErrorMap.md, when run gulp build* command.
+
+For details below:
+
+1. Define log in EngineErrorMap.md 
+
+    example
+    ```
+    ### 1001  
+      
+    cocos2d: removeAction: Target not found
+          
+    ```
+
+2. Define deprecated log in EngineErrorMap.md 
+   The log should be marked as DEPRECATED when then logId is no longer referenced in the project.
+
+    example
+    ```
+    ### 1000
+      
+    <!-- DEPRECATED -->
+    cc.ActionManager.addAction(): action must be non-null  
+    
+    ```
+
+
 ## Links
 
 * [Official site](http://cocos2d-x.org/creator)
