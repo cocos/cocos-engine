@@ -42,13 +42,13 @@ var Stage = cc.Enum({
 });
 
 let _passPool = new RecyclePool(function () {
-    return new renderer.Pass();
+    return new renderer.Pass('');
 }, 16);
 let _techPool = new RecyclePool(function () {
-    return new renderer.Technique([], null, []);
+    return new renderer.Technique([], [], []);
 }, 16);
 let _effectPool = new RecyclePool(function () {
-    return new renderer.Effect([]);
+    return new renderer.Effect([], [], []);
 }, 16);
 
 function clonePass (from) {
@@ -74,7 +74,8 @@ function cloneEffect (effect) {
     let l = cloneTech._passes.length = technique._passes.length;
     for (let i = 0; i < l; i++) {
         let pass = technique._passes[i];
-        cloneTech._passes[i] = clonePass(pass);
+        // cloneTech._passes[i] = clonePass(pass);
+        cloneTech.setPass(i, clonePass(pass));
     }
     clone._techniques.push(cloneTech);
     return clone;

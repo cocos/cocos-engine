@@ -39,13 +39,8 @@ const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
-    '../../cocos2d/core/CCGame',
-    '../../cocos2d/core/load-pipeline/audio-downloader',
-    '../../cocos2d/core/platform/CCInputManager.js',
-    '../../cocos2d/core/platform/CCVisibleRect.js',
-    '../../cocos2d/core/graphics/helper.js',
     '../../cocos2d/audio/CCAudio',
-    '../../external/box2d/box2d.js',
+    // '../../external/box2d/box2d.js',
 ];
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {

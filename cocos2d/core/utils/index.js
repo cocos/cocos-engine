@@ -26,7 +26,7 @@
  
 require('./CCPath');
 if (!CC_EDITOR && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY) {
-=    require('./CCProfiler');
+    require('./CCProfiler');
 }
 require('./find');
 require('./mutable-forward-iterator');

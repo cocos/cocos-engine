@@ -30,7 +30,7 @@ const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const EventListeners = require('./event/event-listeners');
-const renderer = require('./renderer');
+const renderer = require('./renderer/index');
 const eventManager = require('./event-manager');
 
 //----------------------------------------------------------------------------------------------------------------------
