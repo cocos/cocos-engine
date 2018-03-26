@@ -399,7 +399,11 @@ var Node = cc.Class({
 
     properties: {
         // SERIALIZABLE
-        _opacity: 255,
+        _opacity: {
+            default: undefined,
+            type: cc.Integer
+        },
+        
         _color: cc.Color.WHITE,
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
@@ -779,11 +783,10 @@ var Node = cc.Class({
          */
         opacity: {
             get () {
-                return this._opacity;
+                return this._color.a;
             },
             set (value) {
-                if (this._opacity !== value) {
-                    this._opacity = value;
+                if (this._color.a !== value) {
                     this._color.a = value;
                 }
             },
@@ -1116,6 +1119,11 @@ var Node = cc.Class({
                 this._rotationX = rotx;
                 this._rotationY = roty;
             }
+        }
+
+        // TODO: remove _opacity in future version, 3.0 ?
+        if (this._opacity !== 255 && this._opacity !== undefined) {
+            this._color.a = this._opacity;
         }
 
         this._updateOrderOfArrival();
@@ -1966,6 +1974,7 @@ var Node = cc.Class({
         if (this._localMatDirty) {
             this._updateLocalMatrix();
         }
+        
         // Assume parent world matrix is correct
         if (this._parent) {
             let parentMat = this._parent._worldMatrix;
@@ -1974,8 +1983,9 @@ var Node = cc.Class({
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
-        this.emit(WORLD_MATRIX_CHANGED);
         this._worldMatDirty = false;
+
+        this.emit(WORLD_MATRIX_CHANGED);
 
         for (let i = 0, len = this._children.length; i < len; ++i) {
             let child = this._children[i];

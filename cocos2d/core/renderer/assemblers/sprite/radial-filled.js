@@ -239,11 +239,9 @@ module.exports = {
     },
 
     _calculateVertices : function (sprite) {
-        let renderData = sprite._renderData,
-            width = renderData._width,
-            height = renderData._height,
-            appx = renderData._pivotX * width,
-            appy = renderData._pivotY * height;
+        let node = sprite.node,
+            width = node.width, height = node.height,
+            appx = node.anchorX * width, appy = node.anchorY * height;
 
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
@@ -315,12 +313,32 @@ module.exports = {
         }
     },
 
-    fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
+            indiceOffset = batchData.indiceOffset;
 
-    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        let renderData = sprite._renderData;
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            ibuf[offset+i] = vertexId+i;
+        let data = sprite._renderData._data;
+        let node = sprite.node;
+        let z = node._position.z;
+        let color = node._color._val;
+    
+        let matrix = node._worldMatrix;
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+
+        let count = data.length;
+        for (let i = 0; i < count; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
+            vbuf[vertexOffset ++] = z;
+            uintbuf[vertexOffset ++] = color;
+            vbuf[vertexOffset ++] = vert.u;
+            vbuf[vertexOffset ++] = vert.v;
+        }
+
+        for (let i = 0; i < count; i++) {
+            ibuf[indiceOffset+i] = vertexId+i;
         }
     }
 };

@@ -231,7 +231,7 @@ cc.macro = {
      * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
      * You can modify this value to have a better behavior if you find it's not enough.
      * !#zh
-     * 用于甄别一个触点对象是否已经失效，并且可以被移除的延时时长
+     * 用于甄别一个触点对象是否已经失效并且可以被移除的延时时长
      * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
      * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
      * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
@@ -333,7 +333,7 @@ cc.macro = {
      * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
      * 如果游戏中的静态物体比较多的话，建议将此选项打开。
      * @property {Boolean} ENABLE_CULLING
-     * @deprecated
+     * @deprecated since v2.0
      * @default false
      */
     ENABLE_CULLING: false,

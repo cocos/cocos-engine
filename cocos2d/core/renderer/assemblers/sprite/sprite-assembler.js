@@ -36,123 +36,53 @@ const tiledRenderUtil = require('./tiled');
 const radialFilledRenderUtil = require('./radial-filled');
 const barFilledRenderUtil = require('./bar-filled');
 
-let filledRenderUtil = {
-    createData (sprite) {
-        if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderUtil.createData(sprite);
-        }
-        return barFilledRenderUtil.createData(sprite);
-    },
-    update (sprite) {
-        if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderUtil.update(sprite);
-        }
-        return barFilledRenderUtil.update(sprite);
-    },
-    fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        if (sprite._fillType === FillType.RADIAL) {
-            radialFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
-        }
-        else {
-            barFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
-        }
-    },
-    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        if (sprite._fillType === FillType.RADIAL) {
-            radialFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
-        }
-        else {
-            barFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
-        }
-    }
-};
-
 // Inline all type switch to avoid jit deoptimization during inlined function change
 let spriteAssembler = js.addon({
     useModel: false,
 
-    updateRenderData (sprite) {
-        // Create render data if needed
-        if (!sprite._renderData) {
-            switch (sprite.type) {
-                case SpriteType.SIMPLE:
-                    sprite._renderData = simpleRenderUtil.createData(sprite);
-                    break;
-                case SpriteType.SLICED:
-                    sprite._renderData = slicedRenderUtil.createData(sprite);
-                    break;
-                case SpriteType.TILED:
-                    sprite._renderData = tiledRenderUtil.createData(sprite);
-                    break;
-                case SpriteType.FILLED:
-                    sprite._renderData = filledRenderUtil.createData(sprite);
-                    break;
-            }
+    getAssembler (sprite) {
+        let util = simpleRenderUtil;
+        
+        switch (sprite.type) {
+            case SpriteType.SLICED:
+                util = slicedRenderUtil;
+                break;
+            case SpriteType.TILED:
+                util = tiledRenderUtil;
+                break;
+            case SpriteType.FILLED:
+                if (sprite._fillType === FillType.RADIAL) {
+                    util = radialFilledRenderUtil;
+                }
+                else {
+                    util = barFilledRenderUtil;
+                }
+                break;
         }
 
-        let renderData = sprite._renderData;
-        let size = sprite.node._contentSize;
-        let anchor = sprite.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        
-        if (sprite.spriteFrame) {
-            switch (sprite.type) {
-                case SpriteType.SIMPLE:
-                    simpleRenderUtil.update(sprite);
-                    break;
-                case SpriteType.SLICED:
-                    slicedRenderUtil.update(sprite);
-                    break;
-                case SpriteType.TILED:
-                    tiledRenderUtil.update(sprite);
-                    break;
-                case SpriteType.FILLED:
-                    filledRenderUtil.update(sprite);
-                    break;
-            }    
+        return util;
+    },
+
+    createData (sprite) {
+        return sprite._assembler.createData(sprite);
+    },
+
+    updateRenderData (sprite) {
+        let datas = sprite.__allocedDatas;
+        if (!sprite.spriteFrame) {
+            return datas;
         }
-        renderData.material = sprite.getMaterial();
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
+
+        sprite._assembler.update(sprite);
+
+        return datas;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
-        // vertex buffer
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                simpleRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
-                break;
-            case SpriteType.SLICED:
-                slicedRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
-                break;
-            case SpriteType.TILED:
-                tiledRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
-                break;
-            case SpriteType.FILLED:
-                filledRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
-                break;
-        }
-        
-        // index buffer
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                simpleRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
-                break;
-            case SpriteType.SLICED:
-                slicedRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
-                break;
-            case SpriteType.TILED:
-                tiledRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
-                break;
-            case SpriteType.FILLED:
-                filledRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
-                break;
-        }
+        sprite._assembler.fillBuffers(sprite, batchData, vertexId, vbuf, uintbuf, ibuf);
     }
 }, assembler);
 
-module.exports = Sprite._assembler = spriteAssembler;
+Sprite._assembler = spriteAssembler;
+
+module.exports = spriteAssembler;

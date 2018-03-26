@@ -41,46 +41,6 @@ var Stage = cc.Enum({
     EXIT_LEVEL: 3,
 });
 
-let _passPool = new RecyclePool(function () {
-    return new renderer.Pass('');
-}, 16);
-let _techPool = new RecyclePool(function () {
-    return new renderer.Technique([], [], []);
-}, 16);
-let _effectPool = new RecyclePool(function () {
-    return new renderer.Effect([], [], []);
-}, 16);
-
-function clonePass (from) {
-    let to = _passPool.add();
-    for (var name in from) {
-        to[name] = from[name];
-    }
-    return to;
-}
-
-function cloneEffect (effect) {
-    let clone = _effectPool.add();
-    // properties and defines won't change
-    clone._properties = effect._properties;
-    clone._defines = effect._defines;
-    // only deal with transparent stage
-    let technique = effect.getTechnique('transparent');
-    let cloneTech = _techPool.add();
-    cloneTech._parameters = technique._parameters;
-    cloneTech._stageIDs = technique._stageIDs;
-    cloneTech._layer = technique._layer;
-    // clone passes
-    let l = cloneTech._passes.length = technique._passes.length;
-    for (let i = 0; i < l; i++) {
-        let pass = technique._passes[i];
-        // cloneTech._passes[i] = clonePass(pass);
-        cloneTech.setPass(i, clonePass(pass));
-    }
-    clone._techniques.push(cloneTech);
-    return clone;
-}
-
 function StencilManager () {
     // todo: 8 is least Stencil depth supported by webGL device, it could be adjusted to vendor implementation value
     this._maxLevel = 8;
@@ -94,11 +54,6 @@ StencilManager.prototype = {
     constructor: StencilManager,
 
     reset () {
-        // Reset pools
-        _effectPool.reset();
-        _techPool.reset();
-        _passPool.reset();
-        
         // reset stack and stage
         this._maskStack.length = 0;
         this.stage = Stage.DISABLED;
@@ -106,10 +61,11 @@ StencilManager.prototype = {
 
     handleEffect (effect) {
         let technique = effect.getTechnique('transparent');
+        let passes = technique.passes;
         if (this.stage === Stage.DISABLED) {
             this.stage = Stage.DISABLED;
-            for (let i = 0; i < technique._passes.length; ++i) {
-                let pass = technique._passes[i];
+            for (let i = 0; i < passes.length; ++i) {
+                let pass = passes[i];
                 pass._stencilTest = false;
             }
             return effect;
@@ -132,10 +88,6 @@ StencilManager.prototype = {
             }
             failOp = gfx.STENCIL_OP_KEEP;
             writeMask = 0;
-
-            // clone effect to avoid stencil state pollution
-            effect = cloneEffect(effect);
-            technique = effect.getTechnique('transparent');
         }
         else {
             func = gfx.DS_FUNC_NEVER;
@@ -163,12 +115,11 @@ StencilManager.prototype = {
             }
         }
         
-        for (let i = 0; i < technique._passes.length; ++i) {
-            let pass = technique._passes[i];
+        for (let i = 0; i < passes.length; ++i) {
+            let pass = passes[i];
             pass.setStencilFront(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
             pass.setStencilBack(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
         }
-        return effect;
     },
 
     pushMask (mask) {

@@ -154,6 +154,10 @@ var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: RenderComponent,
 
+    ctor () {
+        this._assembler = null;
+    },
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
@@ -212,9 +216,9 @@ var Sprite = cc.Class({
                 if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                     // Drop previous material, because texture have changed
                     this._material = null;
-                    this._customMaterial = false;
                 }
                 this._applySpriteFrame(lastSprite);
+                this._checkDirtyState(value, lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
                 }
@@ -239,6 +243,7 @@ var Sprite = cc.Class({
                     this.destroyRenderData(this._renderData);
                     this._renderData = null;
                     this._type = value;
+                    this._updateAssembler();
                 }
             },
             type: SpriteType,
@@ -271,6 +276,7 @@ var Sprite = cc.Class({
                         this._renderData.vertDirty = true;
                     }
                     this._fillType = value;
+                    this._updateAssembler();
                 }
             },
             type: FillType,
@@ -457,7 +463,6 @@ var Sprite = cc.Class({
      */
     setState: function (state) {
         this._state = state;
-        // TODO: change the state
         this._material = null;
         this._activateMaterial();
     },
@@ -473,7 +478,44 @@ var Sprite = cc.Class({
 
     onEnable: function () {
         this._super();
+        
+        this._updateAssembler();
+        
+        let renderData = this._renderData;
+        if (!renderData) {
+            renderData = this._renderData = Sprite._assembler.createData(this);
+            renderData.worldMatDirty = true;
+        }
+
         this._activateMaterial();
+
+        this.node.on('size-changed', this._onNodeSizeDirty, this);
+        this.node.on('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.on('world-matrix-changed', this._onNodeMatrixDirty, this);
+    },
+
+    onDisable: function () {
+        this._super();
+
+        this.node.off('size-changed', this._onNodeSizeDirty, this);
+        this.node.off('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.off('world-matrix-changed', this._onNodeMatrixDirty, this);
+    },
+
+    _onNodeSizeDirty () {
+        if (this._renderData) {
+            this._renderData.vertDirty = true;
+        }
+    },
+
+    _onNodeMatrixDirty () {
+        if (this._renderData) {
+            this._renderData.worldMatDirty = true;
+        }
+    },
+
+    _updateAssembler: function () {
+        this._assembler = Sprite._assembler.getAssembler(this);
     },
 
     _activateMaterial: function () {
@@ -490,22 +532,26 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 key = url + ':gray';
             }
-            this._material = renderer.materialUtil.get(key);
-            if (!this._material) {
-                if (this._state === State.GRAY) {
-                    this._material = new GraySpriteMaterial();
-                }
-                else {
-                    this._material = new SpriteMaterial();
-                }
-                renderer.materialUtil.register(key, this._material);
+            if (this._state === State.GRAY) {
+                this._material = new GraySpriteMaterial();
+            }
+            else {
+                this._material = new SpriteMaterial();
             }
             // TODO: old texture in material have been released by loader
-            this._material.texture = texture.getImpl();
+            this._material.texture = texture;
         }
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
+            // Update hash inside
             this._updateBlendFunc();
+        }
+        else {
+            this._material.updateHash();
+        }
+
+        if (this._renderData) {
+            this._renderData.material = this._material;
         }
     },
     
@@ -514,10 +560,6 @@ var Sprite = cc.Class({
             return;
         }
 
-        if (!this._customMaterial) {
-            this._material = this._material.clone();
-            this._customMaterial = true;
-        }
         var pass = this._material._mainTech.passes[0];
         pass.setBlend(
             gfx.BLEND_FUNC_ADD,
@@ -525,6 +567,7 @@ var Sprite = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
+        this._material.updateHash();
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -536,6 +579,42 @@ var Sprite = cc.Class({
             });
         } else {
             this._atlas = null;
+        }
+    },
+
+    _checkDirtyState (spriteFrame, oldSpriteFrame) {
+        let renderData = this._renderData;
+        if (!renderData) {
+            return;
+        }
+
+        if (!spriteFrame || !oldSpriteFrame) {
+            renderData.uvDirty = true;
+            renderData.vertDirty = true;
+            return;
+        }
+
+        let rect = spriteFrame._rect, 
+            oldRect = oldSpriteFrame._rect;
+        let rectSizeChanged = rect.width !== oldRect.width || rect.height !== oldRect.height;
+        if (rect.x !== oldRect.x ||
+            rect.y !== oldRect.y ||
+            rectSizeChanged ||
+            spriteFrame._rotated !== oldSpriteFrame._rotated ||
+            spriteFrame._texture.width !== oldSpriteFrame._texture.width) {
+            renderData.uvDirty = true;
+        }
+
+        let originalSize = spriteFrame._originalSize,
+            oldOriginalSize = oldSpriteFrame._originalSize,
+            offset = spriteFrame._offset,
+            oldOffset = oldSpriteFrame._offset;
+        if (rectSizeChanged ||
+            originalSize.width !== oldOriginalSize.width ||
+            originalSize.height !== oldOriginalSize.height ||
+            offset.x !== oldOffset.x ||
+            offset.y !== oldOffset.y) {
+            renderData.vertDirty = true;
         }
     },
 
@@ -555,11 +634,6 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
-        // Mark render data dirty
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderData.vertDirty = true;
-        }
         // Reactivate material
         if (this.enabledInHierarchy) {
             this._activateMaterial();
@@ -573,7 +647,7 @@ var Sprite = cc.Class({
         }
 
         var spriteFrame = this._spriteFrame;
-        if (spriteFrame) {
+        if (spriteFrame && (!oldFrame || spriteFrame._texture !== oldFrame._texture)) {
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
             }

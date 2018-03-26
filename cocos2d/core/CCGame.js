@@ -255,20 +255,30 @@ var game = {
 
 //  @Game play control
     /**
-     * !#en Set frameRate of game.
+     * !#en Set frame rate of game.
      * !#zh 设置游戏帧率。
      * @method setFrameRate
      * @param {Number} frameRate
      */
     setFrameRate: function (frameRate) {
-        var self = this, config = self.config, CONFIG_KEY = self.CONFIG_KEY;
+        var config = this.config, CONFIG_KEY = this.CONFIG_KEY;
         config[CONFIG_KEY.frameRate] = frameRate;
-        if (self._intervalId)
-            window.cancelAnimFrame(self._intervalId);
-        self._intervalId = 0;
-        self._paused = true;
-        self._setAnimFrame();
-        self._runMainLoop();
+        if (this._intervalId)
+            window.cancelAnimFrame(this._intervalId);
+        this._intervalId = 0;
+        this._paused = true;
+        this._setAnimFrame();
+        this._runMainLoop();
+    },
+
+    /**
+     * !#en Get frame rate set for the game, it doesn't represent the real frame rate.
+     * !#zh 获取设置的游戏帧率（不等同于实际帧率）。
+     * @method getFrameRate
+     * @return {Number} frame rate
+     */
+    getFrameRate: function () {
+        return this.config[this.CONFIG_KEY.frameRate];
     },
 
     /**

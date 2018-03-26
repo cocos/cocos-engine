@@ -133,24 +133,19 @@ var View = function () {
     _t._designResolutionSize = cc.size(w, h);
     _t._originalDesignResolutionSize = cc.size(w, h);
     // Viewport is the container's rect related to content's coordinates in pixel
-    _t._viewPortRect = cc.rect(0, 0, w, h);
+    _t._viewportRect = cc.rect(0, 0, w, h);
     // The visible rect in content's coordinate in point
     _t._visibleRect = cc.rect(0, 0, w, h);
-    _t._contentTranslateLeftTop = {left: 0, top: 0};
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
-    // the view name
-    _t._viewName = "Cocos2dHTML5";
     // Custom callback for resize event
     _t._resizeCallback = null;
     _t._orientationChanging = true;
     _t._resizing = false;
 
     _t._scaleX = 1;
-    _t._originalScaleX = 1;
     _t._scaleY = 1;
-    _t._originalScaleY = 1;
 
     _t._isRotated = false;
     _t._orientation = 3;
@@ -169,11 +164,8 @@ var View = function () {
 
     _t._initialized = false;
 
-    _t._contentTranslateLeftTop = null;
-
-    _t._frameZoomFactor = 1.0;
-    _t.__resizeWithBrowserSize = false;
-    _t._isAdjustViewPort = true;
+    _t._resizeWithBrowserSize = false;
+    _t._isAdjustViewport = true;
 
     _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     _t.enableAntiAlias(true);
@@ -227,14 +219,14 @@ View.prototype = {
     },
 
     /**
-     * <p>
+     * !#en
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
      *   1. cc.macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
      *   2. cc.macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
      *   3. cc.macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
      *   4. cc.macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
      *   5. Custom value, e.g: "480"                                                         <br/>
-     * </p>
+     * !#zh 设置目标内容的每英寸像素点密度。
      *
      * @method setTargetDensityDPI
      * @param {String} densityDPI
@@ -245,7 +237,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the current target-densitydpi value of cc.view.
+     * !#zh 获取目标内容的每英寸像素点密度。
      * @method getTargetDensityDPI
      * @returns {String}
      */
@@ -254,16 +248,19 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets whether resize canvas automatically when browser's size changed.<br/>
      * Useful only on web.
+     * !#zh 设置当发现浏览器的尺寸改变时，是否自动调整 canvas 尺寸大小。
+     * 仅在 Web 模式下有效。
      * @method resizeWithBrowserSize
      * @param {Boolean} enabled - Whether enable automatic resize with browser's resize event
      */
     resizeWithBrowserSize: function (enabled) {
         if (enabled) {
             //enable
-            if (!this.__resizeWithBrowserSize) {
-                this.__resizeWithBrowserSize = true;
+            if (!this._resizeWithBrowserSize) {
+                this._resizeWithBrowserSize = true;
                 window.addEventListener('resize', this._resizeEvent);
                 window.addEventListener('orientationchange', this._orientationChange);
             }
@@ -278,10 +275,15 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets the callback function for cc.view's resize action,<br/>
      * this callback will be invoked before applying resolution policy, <br/>
      * so you can do any additional modifications within the callback.<br/>
      * Useful only on web.
+     * !#zh 设置 cc.view 调整视窗尺寸行为的回调函数，
+     * 这个回调函数会在应用适配模式之前被调用，
+     * 因此你可以在这个回调函数内添加任意附加改变，
+     * 仅在 Web 平台下有效。
      * @method setResizeCallback
      * @param {Function|Null} callback - The callback function
      */
@@ -292,11 +294,16 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets the orientation of the game, it can be landscape, portrait or auto.
      * When set it to landscape or portrait, and screen w/h ratio doesn't fit, 
      * cc.view will automatically rotate the game canvas using CSS.
      * Note that this function doesn't have any effect in native, 
      * in native, you need to set the application orientation in native project settings
+     * !#zh 设置游戏屏幕朝向，它能够是横版，竖版或自动。
+     * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
+     * cc.view 会自动用 CSS 旋转游戏场景的 canvas，
+     * 这个方法不会对 native 部分产生任何影响，对于 native 而言，你需要在应用设置中的设置排版。
      * @method setOrientation
      * @param {Number} orientation - Possible values: cc.macro.ORIENTATION_LANDSCAPE | cc.macro.ORIENTATION_PORTRAIT | cc.macro.ORIENTATION_AUTO
      */
@@ -386,20 +393,10 @@ View.prototype = {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_WECHATGAME && !CC_QQPLAY) {
             this._setViewportMeta(__BrowserGetter.meta, false);
-            this._isAdjustViewPort = false;
+            this._isAdjustViewport = false;
         }
-    },
-
-    // Other helper functions
-    _resetScale: function () {
-        this._scaleX = this._originalScaleX;
-        this._scaleY = this._originalScaleY;
-    },
-
-    // Useless, just make sure the compatibility temporarily, should be removed
-    _adjustSizeToBrowser: function () {
     },
 
     initialize: function () {
@@ -407,21 +404,30 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets whether the engine modify the "viewport" meta in your web page.<br/>
      * It's enabled by default, we strongly suggest you not to disable it.<br/>
      * And even when it's enabled, you can still set your own "viewport" meta, it won't be overridden<br/>
      * Only useful on web
-     * @method adjustViewPort
+     * !#zh 设置引擎是否调整 viewport meta 来配合屏幕适配。
+     * 默认设置为启动，我们强烈建议你不要将它设置为关闭。
+     * 即使当它启动时，你仍然能够设置你的 viewport meta，它不会被覆盖。
+     * 仅在 Web 模式下有效
+     * @method adjustViewportMeta
      * @param {Boolean} enabled - Enable automatic modification to "viewport" meta
      */
-    adjustViewPort: function (enabled) {
-        this._isAdjustViewPort = enabled;
+    adjustViewportMeta: function (enabled) {
+        this._isAdjustViewport = enabled;
     },
 
     /**
+     * !#en
      * Retina support is enabled by default for Apple device but disabled for other devices,<br/>
      * it takes effect only when you called setDesignResolutionPolicy<br/>
      * Only useful on web
+     * !#zh 对于 Apple 这种支持 Retina 显示的设备上默认进行优化而其他类型设备默认不进行优化，
+     * 它仅会在你调用 setDesignResolutionPolicy 方法时有影响。
+     * 仅在 Web 模式下有效。
      * @method enableRetina
      * @param {Boolean} enabled - Enable or disable retina display
      */
@@ -430,8 +436,11 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Check whether retina display is enabled.<br/>
      * Only useful on web
+     * !#zh 检查是否对 Retina 显示设备进行优化。
+     * 仅在 Web 模式下有效。
      * @method isRetinaEnabled
      * @return {Boolean}
      */
@@ -483,9 +492,12 @@ View.prototype = {
         return this._antiAliasEnabled;
     },
     /**
+     * !#en
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
      * You can pass true as parameter to enable it and disable it by passing false.<br/>
      * Only useful on web
+     * !#zh 启动时，移动端游戏会在移动端自动尝试进入全屏模式。
+     * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
      * @method enableAutoFullScreen
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
@@ -504,8 +516,11 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Check whether auto full screen is enabled.<br/>
      * Only useful on web
+     * !#zh 检查自动进入全屏模式是否启动。
+     * 仅在 Web 模式下有效。
      * @method isAutoFullScreenEnabled
      * @return {Boolean} Auto full screen enabled or not
      */
@@ -513,48 +528,10 @@ View.prototype = {
         return this._autoFullScreen;
     },
 
-    /**
-     * Get whether render system is ready(no matter opengl or canvas),<br/>
-     * this name is for the compatibility with cocos2d-x, subclass must implement this method.
-     * @method isViewReady
-     * @return {Boolean}
-     */
-    isViewReady: function () {
-        return cc.game.canvas && cc.game._renderContext;
-    },
-
-    /*
-     * Set zoom factor for frame. This method is for debugging big resolution (e.g.new ipad) app on desktop.
-     * @method setFrameZoomFactor
-     * @param {Number} zoomFactor
-     */
-    setFrameZoomFactor: function (zoomFactor) {
-        this._frameZoomFactor = zoomFactor;
-        cc.director.setProjection(cc.director.getProjection());
-    },
-
-    /**
-     * Sets the resolution translate on View.
-     * @method setContentTranslateLeftTop
-     * @param {Number} offsetLeft
-     * @param {Number} offsetTop
-     */
-    setContentTranslateLeftTop: function (offsetLeft, offsetTop) {
-        this._contentTranslateLeftTop = {left: offsetLeft, top: offsetTop};
-    },
-
-    /**
-     * Returns the resolution translate on View
-     * @method getContentTranslateLeftTop
-     * @return {Size|Object}
-     */
-    getContentTranslateLeftTop: function () {
-        return this._contentTranslateLeftTop;
-    },
-
     /*
      * Not support on native.<br/>
      * On web, it sets the size of the canvas.
+     * !#zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
      * @method setCanvasSize
      * @param {Number} width
      * @param {Number} height
@@ -575,10 +552,14 @@ View.prototype = {
         this._resizeEvent();
     },
 
-    /*
+    /**
+     * !#en
      * Returns the canvas size of the view.<br/>
      * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
      * On web, it returns the size of the canvas element.
+     * !#zh 返回视图中 canvas 的尺寸。
+     * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
+     * 在 Web 平台下，它返回 canvas 元素尺寸。
      * @method getCanvasSize
      * @return {Size}
      */
@@ -587,9 +568,13 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the frame size of the view.<br/>
      * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
      * On web, it returns the size of the canvas's outer DOM element.
+     * !#zh 返回视图中边框尺寸。
+     * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
+     * 在 web 平台下，它返回 canvas 元素的外层 DOM 元素尺寸。
      * @method getFrameSize
      * @return {Size}
      */
@@ -598,8 +583,11 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * On native, it sets the frame size of view.<br/>
      * On web, it sets the size of the canvas's outer DOM element.
+     * !#zh 在 native 平台下，设置视图框架尺寸。
+     * 在 web 平台下，设置 canvas 外层 DOM 元素尺寸。
      * @method setFrameSize
      * @param {Number} width
      * @param {Number} height
@@ -614,7 +602,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the visible area size of the view port.
+     * !#zh 返回视图窗口可见区域尺寸。
      * @method getVisibleSize
      * @return {Size}
      */
@@ -623,7 +613,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the visible area size of the view port.
+     * !#zh 返回视图窗口可见区域像素尺寸。
      * @method getVisibleSizeInPixel
      * @return {Size}
      */
@@ -633,34 +625,32 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the visible origin of the view port.
+     * !#zh 返回视图窗口可见区域原点。
      * @method getVisibleOrigin
      * @return {Vec2}
      */
     getVisibleOrigin: function () {
-        return cc.p(this._visibleRect.x,this._visibleRect.y);
+        return cc.v2(this._visibleRect.x,this._visibleRect.y);
     },
 
     /**
+     * !#en
      * Returns the visible origin of the view port.
+     * !#zh 返回视图窗口可见区域像素原点。
      * @method getVisibleOriginInPixel
      * @return {Vec2}
      */
     getVisibleOriginInPixel: function () {
-        return cc.p(this._visibleRect.x * this._scaleX,
+        return cc.v2(this._visibleRect.x * this._scaleX,
                     this._visibleRect.y * this._scaleY);
     },
 
     /**
-     * Returns whether developer can set content's scale factor.
-     * @method canSetContentScaleFactor
-     * @deprecated
-     * @return {Boolean}
-     */
-    canSetContentScaleFactor: function () {},
-
-    /**
+     * !#en
      * Returns the current resolution policy
+     * !#zh 返回当前分辨率方案
      * @see cc.ResolutionPolicy
      * @method getResolutionPolicy
      * @return {ResolutionPolicy}
@@ -670,7 +660,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets the current resolution policy
+     * !#zh 设置当前分辨率模式
      * @see cc.ResolutionPolicy
      * @method setResolutionPolicy
      * @param {ResolutionPolicy|Number} resolutionPolicy
@@ -697,6 +689,7 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets the resolution policy with designed view size in points.<br/>
      * The resolution policy include: <br/>
      * [1] ResolutionExactFit       Fill screen by stretch-to-fit: if the design resolution ratio of width to height is different from the screen resolution ratio, your game view will be stretched.<br/>
@@ -705,6 +698,7 @@ View.prototype = {
      * [4] ResolutionFixedHeight    Scale the content's height to screen's height and proportionally scale its width<br/>
      * [5] ResolutionFixedWidth     Scale the content's width to screen's width and proportionally scale its height<br/>
      * [cc.ResolutionPolicy]        [Web only feature] Custom resolution policy, constructed by cc.ResolutionPolicy<br/>
+     * !#zh 通过设置设计分辨率和匹配模式来进行游戏画面的屏幕适配。
      * @method setDesignResolutionSize
      * @param {Number} width Design resolution width.
      * @param {Number} height Design resolution height.
@@ -749,7 +743,7 @@ View.prototype = {
         }
 
         if(result.viewport){
-            var vp = this._viewPortRect,
+            var vp = this._viewportRect,
                 vb = this._visibleRect,
                 rv = result.viewport;
 
@@ -773,16 +767,17 @@ View.prototype = {
         cc.winSize.width = director._winSizeInPoints.width;
         cc.winSize.height = director._winSizeInPoints.height;
 
-        this._originalScaleX = this._scaleX;
-        this._originalScaleY = this._scaleY;
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
     },
 
     /**
+     * !#en
      * Returns the designed size for the view.
      * Default resolution size is the same as 'getFrameSize'.
+     * !#zh 返回视图的设计分辨率。
+     * 默认下分辨率尺寸同 `getFrameSize` 方法相同
      * @method getDesignResolutionSize
      * @return {Size}
      */
@@ -791,6 +786,7 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets the container to desired pixel resolution and fit the game content to it.
      * This function is very useful for adaptation in mobile browsers.
      * In some HD android devices, the resolution is very high, but its browser performance may not be very good.
@@ -800,6 +796,7 @@ View.prototype = {
      *     1. Set viewport's width to the desired width in pixel
      *     2. Set body width to the exact pixel resolution
      *     3. The resolution policy will be reset with designed view size in points.
+     * !#zh 设置容器（container）需要的像素分辨率并且适配相应分辨率的游戏内容。
      * @method setRealPixelResolution
      * @param {Number} width Design resolution width.
      * @param {Number} height Design resolution height.
@@ -822,37 +819,41 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Sets view port rectangle with points.
-     * @method setViewPortInPoints
-     * @deprecated
+     * !#zh 用设计分辨率下的点尺寸来设置视窗。
+     * @method setViewportInPoints
+     * @deprecated since v2.0
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w width
      * @param {Number} h height
      */
-    setViewPortInPoints: function (x, y, w, h) {
-        var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc.game._renderContext.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
-            (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
-            (w * locScaleX * locFrameZoomFactor),
-            (h * locScaleY * locFrameZoomFactor));
+    setViewportInPoints: function (x, y, w, h) {
+        var locScaleX = this._scaleX, locScaleY = this._scaleY;
+        cc.game._renderContext.viewport((x * locScaleX + this._viewportRect.x),
+            (y * locScaleY + this._viewportRect.y),
+            (w * locScaleX),
+            (h * locScaleY));
     },
 
     /**
+     * !#en
      * Sets Scissor rectangle with points.
+     * !#zh 用设计分辨率下的点的尺寸来设置 scissor 剪裁区域。
      * @method setScissorInPoints
-     * @deprecated
+     * @deprecated since v2.0
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w
      * @param {Number} h
      */
     setScissorInPoints: function (x, y, w, h) {
-        var zoomFactor = this._frameZoomFactor, scaleX = this._scaleX, scaleY = this._scaleY;
-        var sx = Math.ceil(x * scaleX * zoomFactor + this._viewPortRect.x * zoomFactor);
-        var sy = Math.ceil(y * scaleY * zoomFactor + this._viewPortRect.y * zoomFactor);
-        var sw = Math.ceil(w * scaleX * zoomFactor);
-        var sh = Math.ceil(h * scaleY * zoomFactor);
+        var scaleX = this._scaleX, scaleY = this._scaleY;
+        var sx = Math.ceil(x * scaleX + this._viewportRect.x);
+        var sy = Math.ceil(y * scaleY + this._viewportRect.y);
+        var sw = Math.ceil(w * scaleX);
+        var sh = Math.ceil(h * scaleY);
 
         if (!_scissorRect) {
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
@@ -869,9 +870,11 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns whether GL_SCISSOR_TEST is enable
+     * !#zh 检查 scissor 是否生效。
      * @method isScissorEnabled
-     * @deprecated
+     * @deprecated since v2.0
      * @return {Boolean}
      */
     isScissorEnabled: function () {
@@ -879,9 +882,11 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the current scissor rectangle
+     * !#zh 返回当前的 scissor 剪裁区域。
      * @method getScissorRect
-     * @deprecated
+     * @deprecated since v2.0
      * @return {Rect}
      */
     getScissorRect: function () {
@@ -892,46 +897,28 @@ View.prototype = {
         var scaleXFactor = 1 / this._scaleX;
         var scaleYFactor = 1 / this._scaleY;
         return cc.rect(
-            (_scissorRect.x - this._viewPortRect.x) * scaleXFactor,
-            (_scissorRect.y - this._viewPortRect.y) * scaleYFactor,
+            (_scissorRect.x - this._viewportRect.x) * scaleXFactor,
+            (_scissorRect.y - this._viewportRect.y) * scaleYFactor,
             _scissorRect.width * scaleXFactor,
             _scissorRect.height * scaleYFactor
         );
     },
 
     /**
-     * Sets the name of the view
-     * @method setViewName
-     * @deprecated
-     * @param {String} viewName
-     */
-    setViewName: function (viewName) {
-        if (viewName != null && viewName.length > 0) {
-            this._viewName = viewName;
-        }
-    },
-
-    /**
-     * Returns the name of the view
-     * @method getViewName
-     * @deprecated
-     * @return {String}
-     */
-    getViewName: function () {
-        return this._viewName;
-    },
-
-    /**
+     * !#en
      * Returns the view port rectangle.
-     * @method getViewPortRect
+     * !#zh 返回视窗剪裁区域。
+     * @method getViewportRect
      * @return {Rect}
      */
-    getViewPortRect: function () {
-        return this._viewPortRect;
+    getViewportRect: function () {
+        return this._viewportRect;
     },
 
     /**
+     * !#en
      * Returns scale factor of the horizontal direction (X axis).
+     * !#zh 返回横轴的缩放比，这个缩放比是将画布像素分辨率放到设计分辨率的比例。
      * @method getScaleX
      * @return {Number}
      */
@@ -940,7 +927,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns scale factor of the vertical direction (Y axis).
+     * !#zh 返回纵轴的缩放比，这个缩放比是将画布像素分辨率缩放到设计分辨率的比例。
      * @method getScaleY
      * @return {Number}
      */
@@ -949,7 +938,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns device pixel ratio for retina display.
+     * !#zh 返回设备或浏览器像素比例。
      * @method getDevicePixelRatio
      * @return {Number}
      */
@@ -958,7 +949,9 @@ View.prototype = {
     },
 
     /**
+     * !#en
      * Returns the real location in view for a translation based on a related position
+     * !#zh 将屏幕坐标转换为游戏视图下的坐标。
      * @method convertToLocationInView
      * @param {Number} tx - The X axis translation
      * @param {Number} ty - The Y axis translation
@@ -968,23 +961,23 @@ View.prototype = {
     convertToLocationInView: function (tx, ty, relatedPos) {
         var x = this._devicePixelRatio * (tx - relatedPos.left);
         var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
+        return this._isRotated ? {x: this._viewportRect.width - y, y: x} : {x: x, y: y};
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
-        var viewport = this._viewPortRect, _t = this;
+        var viewport = this._viewportRect, _t = this;
         in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
         in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
     },
 
     _convertPointWithScale: function (point) {
-        var viewport = this._viewPortRect;
+        var viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
     },
 
     _convertTouchesWithScale: function (touches) {
-        var viewport = this._viewPortRect, scaleX = this._scaleX, scaleY = this._scaleY,
+        var viewport = this._viewportRect, scaleX = this._scaleX, scaleY = this._scaleY,
             selTouch, selPoint, selPrePoint;
         for (var i = 0; i < touches.length; i++) {
             selTouch = touches[i];
@@ -1021,7 +1014,9 @@ View._getInstance = function () {
 cc.ContainerStrategy = cc.Class({
     name: "ContainerStrategy",
     /**
+     * !#en
      * Manipulation before appling the strategy
+     * !#zh 在应用策略之前的操作
      * @method preApply
      * @param {View} view - The target view
      */
@@ -1029,7 +1024,9 @@ cc.ContainerStrategy = cc.Class({
     },
 
     /**
+     * !#en
      * Function to apply this strategy
+     * !#zh 策略应用方法
      * @method apply
      * @param {View} view
      * @param {Size} designedResolution
@@ -1038,7 +1035,9 @@ cc.ContainerStrategy = cc.Class({
     },
 
     /**
+     * !#en
      * Manipulation after applying the strategy
+     * !#zh 策略调用之后的操作
      * @method postApply
      * @param {View} view  The target view
      */
@@ -1121,7 +1120,9 @@ cc.ContentStrategy = cc.Class({
     },
 
     /**
+     * !#en
      * Manipulation before applying the strategy
+     * !#zh 策略应用前的操作
      * @method preApply
      * @param {View} view - The target view
      */
@@ -1129,9 +1130,10 @@ cc.ContentStrategy = cc.Class({
     },
 
     /**
-     * Function to apply this strategy
+     * !#en Function to apply this strategy
      * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
+     * !#zh 调用策略方法
      * @method apply
      * @param {View} view
      * @param {Size} designedResolution
@@ -1142,7 +1144,9 @@ cc.ContentStrategy = cc.Class({
     },
 
     /**
+     * !#en
      * Manipulation after applying the strategy
+     * !#zh 策略调用之后的操作
      * @method postApply
      * @param {View} view - The target view
      */
@@ -1386,7 +1390,8 @@ cc.ResolutionPolicy = cc.Class({
     },
 
     /**
-     * Manipulation before applying the resolution policy
+     * !#en Manipulation before applying the resolution policy
+     * !#zh 策略应用前的操作
      * @method preApply
      * @param {View} view The target view
      */
@@ -1396,9 +1401,10 @@ cc.ResolutionPolicy = cc.Class({
     },
 
     /**
-     * Function to apply this resolution policy
+     * !#en Function to apply this resolution policy
      * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
+     * !#zh 调用策略方法
      * @method apply
      * @param {View} view - The target view
      * @param {Size} designedResolution - The user defined design resolution
@@ -1410,7 +1416,8 @@ cc.ResolutionPolicy = cc.Class({
     },
 
     /**
-     * Manipulation after appyling the strategy
+     * !#en Manipulation after appyling the strategy
+     * !#zh 策略应用之后的操作
      * @method postApply
      * @param {View} view - The target view
      */
@@ -1420,7 +1427,9 @@ cc.ResolutionPolicy = cc.Class({
     },
 
     /**
+     * !#en
      * Setup the container's scale strategy
+     * !#zh 设置容器的适配策略
      * @method setContainerStrategy
      * @param {ContainerStrategy} containerStg
      */
@@ -1430,7 +1439,9 @@ cc.ResolutionPolicy = cc.Class({
     },
 
     /**
+     * !#en
      * Setup the content's scale strategy
+     * !#zh 设置内容的适配策略
      * @method setContentStrategy
      * @param {ContentStrategy} contentStg
      */

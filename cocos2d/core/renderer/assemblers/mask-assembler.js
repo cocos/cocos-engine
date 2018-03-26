@@ -124,8 +124,7 @@ let maskFrontAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillVertexBuffer(mask, batchData.byteOffset / 4, vbuf, uintbuf);
-                spriteAssembler.fillIndexBuffer(mask, batchData.indiceOffset, vertexId, ibuf);
+                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
             }
             else {
                 // Share node for correct global matrix

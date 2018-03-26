@@ -243,6 +243,9 @@ var Texture2D = cc.Class({
     },
 
     ctor () {
+        // Id for generate hash in material
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        
         /**
          * !#en
          * The url of the texture, this could be empty if the texture wasn't created via a file.
@@ -286,8 +289,10 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Get renderer texture implementation object
      * extended from renderEngine.TextureAsset
+     * !#zh  返回渲染器内部贴图对象
      * @method getImpl
      */
     getImpl () {
@@ -371,7 +376,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Init with HTML element.
+     * !#zh 用 HTML Image 或 Canvas 对象初始化贴图。
      * @method initWithElement
      * @param {HTMLImageElement|HTMLCanvasElement} element
      * @example
@@ -398,7 +405,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Intializes with a texture2d with data in Uint8Array.
+     * !#zh 使用一个存储在 Unit8Array 中的图像数据（raw data）初始化数据。
      * @method initWithData
      * @param {TypedArray} data
      * @param {Number} pixelFormat
@@ -421,8 +430,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * HTMLElement Object getter, available only on web.
-     * In most case, it will return null, because we are recycling the dom image element for better loading performance and lower image cache memory usage.
+     * !#zh 获取当前贴图对应的 HTML Image 或 Canvas 对象，只在 Web 平台下有效。
      * @method getHtmlElementObj
      * @return {HTMLImageElement|HTMLCanvasElement}
      */
@@ -449,7 +459,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Pixel format of the texture.
+     * !#zh 获取纹理的像素格式。
      * @method getPixelFormat
      * @return {Number}
      */
@@ -459,8 +471,9 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Whether or not the texture has their Alpha premultiplied,
-     * support only in WebGl rendering mode.
+     * !#en
+     * Whether or not the texture has their Alpha premultiplied.
+     * !#zh 检查纹理在上传 GPU 时预乘选项是否开启。
      * @method hasPremultipliedAlpha
      * @return {Boolean}
      */
@@ -469,7 +482,9 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Whether or not use mipmap, support only in WebGl rendering mode.
+     * !#en
+     * Whether or not use mipmap.
+     * !#zh 检查问题在上传 GPU 时是否生成 mipmap。
      * @method hasMipmap
      * @return {Boolean}
      */
@@ -478,7 +493,10 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Handler of texture loaded event.
+     * Since v2.0, you don't need to invoke this function, it will be invoked automatically after texture loaded.
+     * !#zh 贴图加载事件处理器。v2.0 之后你将不在需要手动执行这个函数，它会在贴图加载成功之后自动执行。
      * @method handleLoadedTexture
      * @param {Boolean} [premultiplied]
      */
@@ -516,7 +534,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Description of cc.Texture2D.
+     * !#zh cc.Texture2D 描述。
      * @method description
      * @returns {String}
      */
@@ -525,9 +545,11 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Release texture, please use destroy instead.
+     * !#zh 释放纹理，请使用 destroy 替代。
      * @method releaseTexture
-     * @deprecated
+     * @deprecated since v2.0
      */
     releaseTexture () {
         this._image = null;
@@ -535,8 +557,10 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Sets the wrap s and wrap t options. <br/>
+     * !#en Sets the wrap s and wrap t options. <br/>
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
+     * !#zh 设置纹理包装模式。
+     * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
      * @method setTexParameters
      * @param {Texture2D.WrapMode} wrapS
      * @param {Texture2D.WrapMode} wrapT
@@ -551,8 +575,8 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Sets the minFilter and magFilter options
-     * supported only in native or WebGl rendering mode
+     * !#en Sets the minFilter and magFilter options
+     * !#zh 设置纹理贴图缩小和放大过滤器算法选项。
      * @method setFilters
      * @param {Texture2D.Filter} minFilter
      * @param {Texture2D.Filter} magFilter
@@ -567,8 +591,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Sets the flipY options
-     * supported only in native or WebGl rendering mode
+     * !#zh 设置贴图的纵向翻转选项。
      * @method setFlipY
      * @param {Boolean} flipY
      */
@@ -581,8 +606,9 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en
      * Sets the premultiply alpha options
-     * supported only in native or WebGl rendering mode
+     * !#zh 设置贴图的预乘选项。
      * @method setPremultiplyAlpha
      * @param {Boolean} premultiply
      */
@@ -595,8 +621,9 @@ var Texture2D = cc.Class({
     },
     
     /**
+     * !#en
      * Sets whether generate mipmaps for the texture
-     * supported only in native or WebGl rendering mode
+     * !#zh 是否为纹理设置生成 mipmaps。
      * @method setMipmap
      * @param {Boolean} mipmap
      */
