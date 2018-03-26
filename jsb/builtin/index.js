@@ -1,4 +1,4 @@
-// window.CC_RUNTIME = true;
+// window.CC_JSB = true;
 window.CC_JSB = true;
 // console.log("CC_JSB:" + CC_JSB);
 window.CC_WECHATGAME = true;

@@ -556,27 +556,7 @@ cc.Director.prototype = {
             var uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            if (CC_JSB && cc.runtime && uuid !== this._launchSceneUuid) {
-                var self = this;
-                var groupName = cc.path.basename(info.url) + '_' + info.uuid;
-                console.log('==> start preload: ' + groupName);
-                var ensureAsync = false;
-                cc.LoaderLayer.preload([groupName], function () {
-                    console.log('==> end preload: ' + groupName);
-                    if (ensureAsync) {
-                        self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
-                    }
-                    else {
-                        setTimeout(function () {
-                            self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
-                        }, 0);
-                    }
-                });
-                ensureAsync = true;
-            }
-            else {
-                this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
-            }
+            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
             return true;
         }
         else {

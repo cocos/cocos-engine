@@ -530,7 +530,7 @@ function initSys () {
         };
         sys.__audioSupport = {};
     }
-    else if (CC_RUNTIME) {
+    else if (CC_JSB) {
         var env = wx.getSystemInfoSync();
         sys.isMobile = false; //FIXME:
         sys.platform = sys.WECHAT_GAME;

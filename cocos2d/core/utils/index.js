@@ -25,7 +25,7 @@
  ****************************************************************************/
  
 require('./CCPath');
-if (!CC_EDITOR && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY) {
+if (!CC_EDITOR && !CC_JSB && !CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
     require('./CCProfiler');
 }
 require('./find');

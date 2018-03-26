@@ -40,7 +40,7 @@
  */
 
 var _global = typeof window === 'undefined' ? global : window;
-_global.dragonBones = CC_JSB ? dragonBones : require('./lib/dragonBones');
+_global.dragonBones = require('./lib/dragonBones');
 
 dragonBones.DisplayType = {
     Image : 0,
@@ -123,12 +123,9 @@ dragonBones.BoneType = {
 };
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
-
-    if (!CC_JSB) {
-        require('./CCFactory');
-        require('./CCSlot');
-        require('./CCTextureData');
-    }
+    require('./CCFactory');
+    require('./CCSlot');
+    require('./CCTextureData');
 
     // require the component for dragonbones
     require('./DragonBonesAsset');

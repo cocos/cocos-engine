@@ -162,41 +162,22 @@ var _touchStartHandler = function (touch, event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
-            event = Event.EventTouch.pool.get(event);
-        }
         event.type = EventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
-            event.touch = null;
-            event._touches = null;
-            Event.EventTouch.pool.put(event);
-        }
         return true;
     }
     return false;
 };
 var _touchMoveHandler = function (touch, event) {
-    if (CC_JSB) {
-        event = Event.EventTouch.pool.get(event);
-    }
     var node = this.owner;
     event.type = EventType.TOUCH_MOVE;
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
-        event.touch = null;
-        event._touches = null;
-        Event.EventTouch.pool.put(event);
-    }
 };
 var _touchEndHandler = function (touch, event) {
-    if (CC_JSB) {
-        event = Event.EventTouch.pool.get(event);
-    }
     var pos = touch.getLocation();
     var node = this.owner;
 
@@ -209,16 +190,8 @@ var _touchEndHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
-        event.touch = null;
-        event._touches = null;
-        Event.EventTouch.pool.put(event);
-    }
 };
 var _touchCancelHandler = function (touch, event) {
-    if (CC_JSB) {
-        event = Event.EventTouch.pool.get(event);
-    }
     var pos = touch.getLocation();
     var node = this.owner;
 
@@ -226,11 +199,6 @@ var _touchCancelHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
-        event.touch = null;
-        event._touches = null;
-        Event.EventTouch.pool.put(event);
-    }
 };
 
 var _mouseDownHandler = function (event) {
@@ -238,31 +206,15 @@ var _mouseDownHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
-            // jsb event will be replaced so can be stopped immediately
-            event.stopPropagation();
-            event = Event.EventMouse.pool.get(event);
-        }
         event.type = EventType.MOUSE_DOWN;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
-            Event.EventMouse.pool.put(event);
-        }
-        else {
-            event.stopPropagation();
-        }
     }
 };
 var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
     var hit = node._hitTest(pos, this);
-    if (CC_JSB && (hit || this._previousIn)) {
-        // jsb event will be replaced so can be stopped immediately
-        event.stopPropagation();
-        event = Event.EventMouse.pool.get(event);
-    }
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -292,32 +244,17 @@ var _mouseMoveHandler = function (event) {
     }
 
     // Event processed, cleanup
-    if (CC_JSB) {
-        Event.EventMouse.pool.put(event);
-    }
-    else {
-        event.stopPropagation();
-    }
+    event.stopPropagation();
 };
 var _mouseUpHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
-            // jsb event will be replaced so can be stopped immediately
-            event.stopPropagation();
-            event = Event.EventMouse.pool.get(event);
-        }
         event.type = EventType.MOUSE_UP;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
-            Event.EventMouse.pool.put(event);
-        }
-        else {
-            event.stopPropagation();
-        }
+        event.stopPropagation();
     }
 };
 var _mouseWheelHandler = function (event) {
@@ -325,21 +262,10 @@ var _mouseWheelHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        //FIXME: separate wheel event and other mouse event.
-        if (CC_JSB) {
-            // jsb event will be replaced so can be stopped immediately
-            event.stopPropagation();
-            event = Event.EventMouse.pool.get(event);
-        }
         event.type = EventType.MOUSE_WHEEL;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
-            Event.EventMouse.pool.put(event);
-        }
-        else {
-            event.stopPropagation();
-        }
+        event.stopPropagation();
     }
 };
 

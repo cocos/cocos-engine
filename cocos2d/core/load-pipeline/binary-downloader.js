@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (CC_JSB || CC_RUNTIME) {
+if (CC_JSB || CC_JSB) {
     module.exports = function (item, callback) {
         var url = item.url;
 

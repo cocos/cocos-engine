@@ -51,7 +51,7 @@ cc.macro = {
      * @property REPEAT_FOREVER
      * @type {Number}
      */
-    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
+    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
 
     /**
      * @property FLT_EPSILON

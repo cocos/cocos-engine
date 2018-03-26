@@ -39,9 +39,7 @@ else {
     require('./cocos2d/motion-streak');
     require('./cocos2d/core/components/CCStudioComponent');
     require('./extensions/ccpool/CCNodePool');
-    if (!CC_JSB) {
-        require('./cocos2d/actions');
-    }
+    require('./cocos2d/actions');
 }
 
 require('./extensions/spine');
