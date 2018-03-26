@@ -74,7 +74,7 @@ let Camera = cc.Class({
         this._fov = Math.PI * 60 / 180;
         camera.setFov(this._fov);
         camera.setNear(0.1);
-        camera.setFar(1024);
+        camera.setFar(4096);
 
         let view = new renderEngine.View();
         camera.view = view;
