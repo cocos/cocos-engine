@@ -767,37 +767,6 @@ function initSys () {
             }
         };
 
-        //Whether or not the Canvas BlendModes are supported.
-        sys._supportCanvasNewBlendModes = (function(){
-            var canvas = _tmpCanvas1;
-            canvas.width = 1;
-            canvas.height = 1;
-            var context = canvas.getContext('2d');
-            context.fillStyle = '#000';
-            context.fillRect(0, 0, 1, 1);
-            context.globalCompositeOperation = 'multiply';
-
-            var canvas2 = _tmpCanvas2;
-            canvas2.width = 1;
-            canvas2.height = 1;
-            var context2 = canvas2.getContext('2d');
-            context2.fillStyle = '#fff';
-            context2.fillRect(0, 0, 1, 1);
-            context.drawImage(canvas2, 0, 0, 1, 1);
-
-            return context.getImageData(0, 0, 1, 1).data[0] === 0;
-        })();
-
-        // Adjust mobile css settings
-        if (cc.sys.isMobile) {
-            var fontStyle = document.createElement("style");
-            fontStyle.type = "text/css";
-            document.body.appendChild(fontStyle);
-
-            fontStyle.textContent = "body,canvas,div{ -moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;-khtml-user-select: none;"
-                                    + "-webkit-tap-highlight-color:rgba(0,0,0,0);}";
-        }
-
         /**
          * cc.sys.localStorage is a local storage component.
          * @property {Object} localStorage

@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const utils = require('../utils');
+
 let renderer = {
 
     createData (sprite) {
@@ -110,13 +112,13 @@ let renderer = {
 
         // TODO: handle blend function
 
-        // color & opacity
-        // TODO: Ignore color temporarily
+        // opacity
         ctx.glphaAlpha = node.opacity / 255;
 
         let tex = comp._spriteFrame._texture,
-            image = tex._image,
             data = comp._renderData._data;
+
+        let image = utils.getColorizedImage(tex, node.color);
 
         let x = data[0].x;
         let y = data[0].y;
