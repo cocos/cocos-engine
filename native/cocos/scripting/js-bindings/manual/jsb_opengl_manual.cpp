@@ -75,6 +75,93 @@ namespace {
         }
     }
 
+    // Lookup tables for fast [un]premultiplied alpha color values
+    // From https://bugzilla.mozilla.org/show_bug.cgi?id=662130
+
+    GLubyte* __premultiplyTable = nullptr;
+    GLubyte* __unPremultiplyTable = nullptr;
+
+    const GLubyte* premultiplyTable()
+    {
+        if( !__premultiplyTable ) {
+            __premultiplyTable = (GLubyte*)malloc(256*256);
+
+            unsigned char *data = __premultiplyTable;
+            for( int a = 0; a <= 255; a++ ) {
+                for( int c = 0; c <= 255; c++ ) {
+                    data[a*256+c] = (a * c + 254) / 255;
+                }
+            }
+        }
+
+        return __premultiplyTable;
+    }
+
+    const GLubyte* unPremultiplyTable()
+    {
+        if( !__unPremultiplyTable ) {
+            __unPremultiplyTable = (GLubyte*)malloc(256*256);
+
+            unsigned char *data = __unPremultiplyTable;
+            // a == 0 case
+            for( int c = 0; c <= 255; c++ ) {
+                data[c] = c;
+            }
+
+            for( int a = 1; a <= 255; a++ ) {
+                for( int c = 0; c <= 255; c++ ) {
+                    data[a*256+c] = (c * 255) / a;
+                }
+            }
+        }
+
+        return __unPremultiplyTable;
+    }
+
+    void premultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, int byteLength, GLenum format)
+    {
+        const GLubyte *table = premultiplyTable();
+
+        if( format == GL_RGBA ) {
+            for( int i = 0; i < byteLength; i += 4 ) {
+                unsigned short a = inPixels[i+3] * 256;
+                outPixels[i+0] = table[ a + inPixels[i+0] ];
+                outPixels[i+1] = table[ a + inPixels[i+1] ];
+                outPixels[i+2] = table[ a + inPixels[i+2] ];
+                outPixels[i+3] = inPixels[i+3];
+            }
+        }
+        else if ( format == GL_LUMINANCE_ALPHA ) {
+            for( int i = 0; i < byteLength; i += 2 ) {
+                unsigned short a = inPixels[i+1] * 256;
+                outPixels[i+0] = table[ a + inPixels[i+0] ];
+                outPixels[i+1] = inPixels[i+1];
+            }
+        }
+    }
+
+    void unPremultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, int byteLength, GLenum format)
+    {
+        const GLubyte *table = unPremultiplyTable();
+
+        if( format == GL_RGBA ) {
+            for( int i = 0; i < byteLength; i += 4 ) {
+                unsigned short a = inPixels[i+3] * 256;
+                outPixels[i+0] = table[ a + inPixels[i+0] ];
+                outPixels[i+1] = table[ a + inPixels[i+1] ];
+                outPixels[i+2] = table[ a + inPixels[i+2] ];
+                outPixels[i+3] = inPixels[i+3];
+            }
+        }
+        else if ( format == GL_LUMINANCE_ALPHA ) {
+            for( int i = 0; i < byteLength; i += 2 ) {
+                unsigned short a = inPixels[i+1] * 256;
+                outPixels[i+0] = table[ a + inPixels[i+0] ];
+                outPixels[i+1] = inPixels[i+1];
+            }
+        }
+    }
+
     template<typename T>
     class GLData
     {
@@ -1421,13 +1508,16 @@ static bool JSB_glPixelStorei(se::State& s) {
     if (arg0 == GL_UNPACK_FLIP_Y_WEBGL)
     {
         __unpackFlipY = arg1 == 0 ? false : true;
-        SE_LOGE("cjh FIXME: support GL_UNPACK_FLIP_Y_WEBGL: %d\n", arg1);
         return true;
     }
-
-    if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
+    else if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
     {
-        SE_LOGE("cjh FIXME: support GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL: %d\n", arg1);
+        __premultiplyAlpha = arg1 == 0 ? false : true;
+        return true;
+    }
+    else if (arg0 == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
+    {
+        SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
         return true;
     }
 
@@ -1709,6 +1799,19 @@ static bool JSB_glTexImage2D(se::State& s) {
         {
             SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
             return false;
+        }
+    }
+
+    if (__premultiplyAlpha)
+    {
+        if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
+        {
+            int byteLength = 0;
+            if (format == GL_RGBA)
+                byteLength = width * height * 4;
+            else
+                byteLength = width * height * 2;
+            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
         }
     }
 
@@ -3142,7 +3245,7 @@ static bool JSB_glGetParameter(se::State& s)
             break;
 
         case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
-            //        ret = JSValueMakeBoolean(ctx, false);
+            ret.setBoolean(false);
             break;
 
             // string
