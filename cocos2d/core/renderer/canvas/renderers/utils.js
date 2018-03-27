@@ -24,11 +24,36 @@
  ****************************************************************************/
 
 const WHITE = (255<<16) + (255<<8) + 255;
-let colorCanvas = {};
-let canvasPool = [];
 
-module.exports = {
-    getColorizedImage (texture, color) {
+let textureColorizer = {
+    colorCanvas: {},
+    colorUsed: {},
+    canvasPool: [],
+
+    checking: false,
+
+    check () {
+        for (let key in this.colorUsed) {
+            if (!this.colorUsed[key]) {
+                let canvas = this.colorCanvas[key];
+                canvas.width = 0;
+                canvas.height = 0;
+                this.canvasPool.push(canvas);
+                delete this.colorCanvas[key];
+                delete this.colorUsed[key];
+            }
+            else {
+                this.colorUsed[key] = false;
+            }
+        }
+    },
+
+    startCheck () {
+        cc.director.on(cc.Director.EVENT_AFTER_DRAW, this.check, this);
+        this.checking = true;
+    },
+
+    getImage (texture, color) {
         if (!texture || !texture.url) {
             return null;
         }
@@ -41,14 +66,15 @@ module.exports = {
 
         // get from cache
         let key = texture.url + cval;
-        if (colorCanvas[key]) {
-            return colorCanvas[key];
+        if (this.colorCanvas[key]) {
+            this.colorUsed[key] = true;
+            return this.colorCanvas[key];
         }
 
         let x = 0, y = 0, w = texture.width, h = texture.height;
         let image = texture._image;
 
-        let canvas = document.createElement("canvas");
+        let canvas = this.canvasPool.pop() || document.createElement("canvas");
         let ctx = canvas.getContext("2d");
         canvas.width = w;
         canvas.height = h;
@@ -66,14 +92,24 @@ module.exports = {
         ctx.globalCompositeOperation = "destination-atop";
         ctx.drawImage(image, x, y, w, h);
 
-        colorCanvas[key] = canvas;
+        this.colorCanvas[key] = canvas;
+        this.colorUsed[key] = true;
+        if (!this.checking) {
+            this.startCheck();
+        }
         return canvas;
     },
     
-    dropColorizedImage (texture, color) {
+    dropImage (texture, color) {
         let key = texture.url + (color._val & 0x00ffffff);
-        if (colorCanvas[key]) {
-            delete colorCanvas[key];
+        if (this.colorCanvas[key]) {
+            delete this.colorCanvas[key];
         }
+    }
+};
+
+module.exports = {
+    getColorizedImage (texture, color) {
+        return textureColorizer.getImage(texture, color);
     }
 };
