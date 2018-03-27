@@ -119,7 +119,7 @@ module.exports = {
             let vp = cc.view.getViewportRect();
             this.device.setViewport(vp.x, vp.y, vp.width, vp.height);
             this._camera.a = cc.view.getScaleX();
-            this._camera.d = -cc.view.getScaleY();
+            this._camera.d = cc.view.getScaleY();
             this._camera.tx = vp.x;
             this._camera.ty = vp.y + vp.height;
         }
