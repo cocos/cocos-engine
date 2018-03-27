@@ -30,10 +30,12 @@ const postRendererMap = renderers.postMap;
 
 let RenderComponentWalker = function (device, defaultCamera) {
     this._device = device;
-    let vx = this._device._vx;
-    let vy = this._device._vy;
-    let vh = this._device._vh;
+    // let vx = this._device._vx;
+    // let vy = this._device._vy;
+    // let vh = this._device._vh;
     this._camera = defaultCamera;
+    this._renderHandler = this._handleRender.bind(this);
+    this._postRenderHandler = this._postHandleRender.bind(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -42,18 +44,24 @@ RenderComponentWalker.prototype = {
     reset() {},
 
     _handleRender (node) {
+        if (node._localMatDirty) {
+            node._calculWorldMatrix();
+        }
+
         let comp = node._renderComponent;
+        let opacity = node.opacity;
         let compName = js.getClassName(comp);
-        if (compName && rendererMap[compName]) {
-            rendererMap[compName](comp);
+        if (opacity && compName && rendererMap[compName]) {
+            this._render(comp, rendererMap[compName]);
         }
     },
 
     _postHandleRender (node) {
         let comp = node._renderComponent;
+        let opacity = node.opacity;
         let compName = js.getClassName(comp);
-        if (compName && postRendererMap[compName]) {
-            postRendererMap[compName](comp);
+        if (opacity && compName && postRendererMap[compName]) {
+            this._render(comp, postRendererMap[compName]);
         }
     },
 
@@ -61,13 +69,19 @@ RenderComponentWalker.prototype = {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
-        let drawCall = renderer(ctx, comp);
+        let drawCall = renderer.draw(ctx, comp);
         this._device._stats.drawcalls += drawCall;
     },
 
     visit (scene) {
+        let ctx = this._device._ctx;
+        let canvas = this._device._canvas;
+        let background = cc.Camera.main.backgroundColor;
+        ctx.fillStyle = 'rgba(' + background.r + ', ' + background.g + ', ' + background.b + ', ' + background.a + ')';
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
-        scene.walk(this._handleRender, this._postHandleRender);
+        scene.walk(this._renderHandler, this._postRenderHandler);
     }
 }
 
