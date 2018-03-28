@@ -511,7 +511,7 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
 
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;

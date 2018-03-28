@@ -448,16 +448,13 @@ var widgetManager = cc._widgetManager = module.exports = {
         if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         }
-        else if (!CC_JSB) {
+        else {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
             }
             else {
                 cc.eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
             }
-        }
-        else {
-            cc.eventManager.addListener(this.onResized.bind(this), 1);
         }
     },
     add: function (widget) {
