@@ -1,8 +1,30 @@
-//require("src/jsb_prepare.js")
+/****************************************************************************
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+ 
 let {enums, glTextureFmt} = require("./enums");
 let VertexFormat = require("./vertex-format-jsb");
-//require("src/vmath.js");
-
 
 window.device = gfx.Device.getInstance();
 window.device._gl = window.gl;
@@ -44,9 +66,19 @@ _p = gfx.Texture2D.prototype;
 _p._ctor = function(device, options) {
     this.init(device, options);
 };
-_p.destroy = function() {
-    
-}
+_p.destroy = function() { 
+};
+_p.update = function(options) {
+    if (options.images) {
+        for (let i = 0, len = options.images.length; i < len; ++i) {
+            let image = options.images[i];
+            if (image != null && image._data) {
+                options.images[i] = image._data;
+            }
+        }
+    }
+    this.updateBinding(options);
+};
 cc.defineGetterSetter(_p, "_width", _p.getWidth);
 cc.defineGetterSetter(_p, "_height", _p.getHeight);
 
