@@ -187,7 +187,8 @@ Application::Application(const std::string& name)
 
     createView(name);
     
-    renderer::DeviceGraphics::getInstance();
+    //TODO: Runtime doesn't need renderer stuff temporarily.
+    // renderer::DeviceGraphics::getInstance();
 
     se::ScriptEngine::getInstance();
     EventDispatcher::init();

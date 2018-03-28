@@ -497,7 +497,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
     {
         _impl.textAlign = CanvasTextAlign::LEFT;
     }
-    else if (textAlign == "center")
+    else if (textAlign == "center" || textAlign == "middle")
     {
         _impl.textAlign = CanvasTextAlign::CENTER;
     }
