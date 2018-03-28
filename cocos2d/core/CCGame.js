@@ -527,9 +527,9 @@ var game = {
                     cc.warnID(3802);
                     return;
                 }
-                this._persistRootNodes[id] = node;
-                node._persistNode = true;
             }
+            this._persistRootNodes[id] = node;
+            node._persistNode = true;
         }
     },
 
