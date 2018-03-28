@@ -604,7 +604,7 @@ void DeviceGraphics::initCaps()
 
     GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_UNITS, &_caps.maxTextureUnits));
     
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     // FIXME: how to get these infomations
     _caps.maxColorAttatchments = 1;
     _caps.maxDrawBuffers = 1;

@@ -1133,6 +1133,24 @@ bool js_register_renderer_Camera(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_Technique_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_Technique_class = nullptr;
 
+static bool js_renderer_Technique_getPasses(se::State& s)
+{
+    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_getPasses : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cocos2d::Vector<cocos2d::renderer::Pass *>& result = cobj->getPasses();
+        ok &= Vector_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Technique_getPasses : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Technique_getPasses)
+
 static bool js_renderer_Technique_getStageIDs(se::State& s)
 {
     cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
@@ -1191,24 +1209,6 @@ static bool js_renderer_Technique_setStages(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Technique_setStages)
 
-static bool js_renderer_Technique_getPasses(se::State& s)
-{
-    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_getPasses : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::Vector<cocos2d::renderer::Pass *>& result = cobj->getPasses();
-        ok &= Vector_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Technique_getPasses : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Technique_getPasses)
-
 static bool js_renderer_Technique_getParameters(se::State& s)
 {
     cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
@@ -1265,10 +1265,10 @@ bool js_register_renderer_Technique(se::Object* obj)
 {
     auto cls = se::Class::create("Technique", obj, nullptr, _SE(js_renderer_Technique_constructor));
 
+    cls->defineFunction("passes", _SE(js_renderer_Technique_getPasses));
     cls->defineFunction("getStageIDs", _SE(js_renderer_Technique_getStageIDs));
     cls->defineFunction("setPass", _SE(js_renderer_Technique_setPass));
     cls->defineFunction("setStages", _SE(js_renderer_Technique_setStages));
-    cls->defineFunction("getPasses", _SE(js_renderer_Technique_getPasses));
     cls->defineFunction("getParameters", _SE(js_renderer_Technique_getParameters));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Technique_finalize));
     cls->install();
@@ -1304,27 +1304,6 @@ static bool js_renderer_Effect_getDefineValue(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_Effect_getDefineValue)
-
-static bool js_renderer_Effect_getProperty(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getProperty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-        const cocos2d::renderer::Technique::Parameter& result = cobj->getProperty(arg0);
-        ok &= TechniqueParameter_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_getProperty)
 
 static bool js_renderer_Effect_clear(se::State& s)
 {
@@ -1422,7 +1401,6 @@ bool js_register_renderer_Effect(se::Object* obj)
     auto cls = se::Class::create("Effect", obj, nullptr, _SE(js_renderer_Effect_constructor));
 
     cls->defineFunction("getDefineValue", _SE(js_renderer_Effect_getDefineValue));
-    cls->defineFunction("getProperty", _SE(js_renderer_Effect_getProperty));
     cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
     cls->defineFunction("getTechnique", _SE(js_renderer_Effect_getTechnique));
     cls->defineFunction("define", _SE(js_renderer_Effect_setDefineValue));

@@ -82,8 +82,8 @@ namespace {
         const GLint border = 0;
 
         if (IsTarget3D(target)) {
-            GL_CHECK(glTexImage3D(target, level, dui->internalFormat, width, height, depth,
-                         border, dui->unpackFormat, dui->unpackType, data));
+//            GL_CHECK(glTexImage3D(target, level, dui->internalFormat, width, height, depth,
+//                         border, dui->unpackFormat, dui->unpackType, data));
         } else {
             MOZ_ASSERT(depth == 1);
             GL_CHECK(glTexImage2D(target, level, dui->internalFormat, width, height, border, dui->unpackFormat, dui->unpackType, data));
@@ -96,7 +96,7 @@ namespace {
                   const webgl::PackingInfo& pi, const void* data)
     {
         if (IsTarget3D(target)) {
-            GL_CHECK(glTexSubImage3D(target, level, xOffset, yOffset, zOffset, width, height, depth, pi.format, pi.type, data));
+//            GL_CHECK(glTexSubImage3D(target, level, xOffset, yOffset, zOffset, width, height, depth, pi.format, pi.type, data));
         } else {
             MOZ_ASSERT(zOffset == 0);
             MOZ_ASSERT(depth == 1);
@@ -112,8 +112,8 @@ namespace {
         const GLint border = 0;
 
         if (IsTarget3D(target)) {
-            GL_CHECK(glCompressedTexImage3D(target, level, internalFormat, width, height,
-                                      depth, border, dataSize, data));
+//            GL_CHECK(glCompressedTexImage3D(target, level, internalFormat, width, height,
+//                                      depth, border, dataSize, data));
         } else {
             MOZ_ASSERT(depth == 1);
             GL_CHECK(glCompressedTexImage2D(target, level, internalFormat, width, height,
@@ -128,9 +128,9 @@ namespace {
                             GLsizei dataSize, const void* data)
     {
         if (IsTarget3D(target)) {
-            GL_CHECK(glCompressedTexSubImage3D(target, level, xOffset, yOffset, zOffset,
-                                         width, height, depth, sizedUnpackFormat, dataSize,
-                                         data));
+//            GL_CHECK(glCompressedTexSubImage3D(target, level, xOffset, yOffset, zOffset,
+//                                         width, height, depth, sizedUnpackFormat, dataSize,
+//                                         data));
         } else {
             MOZ_ASSERT(zOffset == 0);
             MOZ_ASSERT(depth == 1);

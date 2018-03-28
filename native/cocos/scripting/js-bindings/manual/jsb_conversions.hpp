@@ -247,6 +247,8 @@ bool std_vector_int_to_seval(const std::vector<int>& v, se::Value* ret);
 bool std_vector_float_to_seval(const std::vector<float>& v, se::Value* ret);
 //bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value* ret);
 bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v, se::Value* ret);
+bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret);
+bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret);
 //bool FontDefinition_to_seval(const cocos2d::FontDefinition& v, se::Value* ret);
 //bool Acceleration_to_seval(const cocos2d::Acceleration* v, se::Value* ret);
@@ -260,6 +262,7 @@ bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* r
 bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret);
 bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret);
 bool std_vector_TechniqueParameter_to_seval(const std::vector<cocos2d::renderer::Technique::Parameter>& v, se::Value* ret);
+bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret);
 
 template<typename T>
 bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret)

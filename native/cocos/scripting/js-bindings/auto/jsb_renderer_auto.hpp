@@ -91,10 +91,10 @@ extern se::Class* __jsb_cocos2d_renderer_Technique_class;
 
 bool js_register_cocos2d_renderer_Technique(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_Technique_getPasses);
 SE_DECLARE_FUNC(js_renderer_Technique_getStageIDs);
 SE_DECLARE_FUNC(js_renderer_Technique_setPass);
 SE_DECLARE_FUNC(js_renderer_Technique_setStages);
-SE_DECLARE_FUNC(js_renderer_Technique_getPasses);
 SE_DECLARE_FUNC(js_renderer_Technique_getParameters);
 SE_DECLARE_FUNC(js_renderer_Technique_Technique);
 
