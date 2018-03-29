@@ -81,7 +81,7 @@ let textureColorizer = {
 
         // Draw color
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(' + color.r + ',' + color.g + ',' + color.b + ')';
+        ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b}`;
         ctx.fillRect(x, y, w, h);
 
         // Multiply color with texture
@@ -111,5 +111,9 @@ let textureColorizer = {
 module.exports = {
     getColorizedImage (texture, color) {
         return textureColorizer.getImage(texture, color);
+    },
+
+    dropImage (texture, color) {
+        textureColorizer.dropImage(texture, color);
     }
 };

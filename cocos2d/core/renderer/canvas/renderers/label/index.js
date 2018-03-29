@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,42 +23,32 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let js = require('../../../platform/js');
-
-let Sprite = require('../../../components/CCSprite');
-let Label = require('../../../components/CCLabel');
-let Mask = require('../../../components/CCMask');
-let RichText = require('../../../components/CCRichText');
-// the following should be placed into their own module folder
-// let Graphics = require('../../../graphics/graphics');
-// let ParticleSystem = require('../../../../particle/CCParticleSystem');
-// let TiledLayer = require('../../../../tilemap/CCTiledLayer');
-// let Skeleton = require('../../../../../extensions/spine/Skeleton');
-// let Armature = require('../../../../../extensions/dragonbones/ArmatureDisplay');
-
-let spriteRenderer = require('./sprite/');
-let labelRenderer = require('./label/');
-
-let map = {};
-let postMap = {};
-
-function addRenderer (Component, handler, postHandler) {
-    let name = js.getClassName(Component);
-    map[name] = handler;
-    if (postHandler) {
-        postMap[name] = postHandler;
-    }
-    Component._assembler = handler;
-    Component._postAssembler = handler;
-}
-
-addRenderer(Sprite, spriteRenderer);
-addRenderer(Label, labelRenderer);
-addRenderer(Mask, null);
-addRenderer(RichText, null);
+const ttf = require('./ttf');
+const bmfont = require('./bmfont');
 
 module.exports = {
-    map,
-    postMap,
-    addRenderer
+    getAssembler (comp) {
+        let assembler = ttf;
+        
+        if (comp.font instanceof cc.BitmapFont) {
+            assembler = bmfont;
+        }
+
+        return assembler;
+    },
+
+    createData (comp) {
+        return comp._assembler.createData(comp);
+    },
+
+    draw (ctx, comp) {
+        // Check whether need to render
+        if (!comp._texture) {
+            return 0;
+        }
+
+        let assembler = comp._assembler;
+        assembler.update(comp);
+        return assembler.draw(ctx, comp);
+    }
 };

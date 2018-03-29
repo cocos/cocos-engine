@@ -32,7 +32,7 @@ const js = require('../../platform/js');
 const assembler = require('./assembler');
 const spriteAssembler = require('./sprite/simple');
 const Graphics = require('../../graphics/graphics');
-const graphicsAssembler = require('./graphics/graphics-assembler');
+const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);

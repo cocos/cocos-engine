@@ -480,12 +480,6 @@ var Sprite = cc.Class({
         this._super();
         
         this._updateAssembler();
-        
-        let renderData = this._renderData;
-        if (!renderData) {
-            renderData = this._renderData = Sprite._assembler.createData(this);
-            renderData.worldMatDirty = true;
-        }
 
         this._activateMaterial();
 
@@ -515,7 +509,17 @@ var Sprite = cc.Class({
     },
 
     _updateAssembler: function () {
-        this._assembler = Sprite._assembler.getAssembler(this);
+        let assembler = Sprite._assembler.getAssembler(this);
+        
+        if (this._assembler !== assembler) {
+            this._assembler = assembler;
+            this._renderData = null;
+        }
+
+        if (!this._renderData) {
+            this._renderData = this._assembler.createData(this);
+            this._renderData.worldMatDirty = true;
+        }
     },
 
     _activateMaterial: function () {

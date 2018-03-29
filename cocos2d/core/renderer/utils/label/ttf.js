@@ -33,8 +33,6 @@ const Overflow = Label.Overflow;
 const TextUtils = utils.TextUtils;
 const CustomFontLoader = utils.CustomFontLoader;
 
-const spriteAssembler = require('../sprite/simple');
-
 let _comp = null;
 
 let _context = null;
@@ -72,64 +70,6 @@ let _isItalic = false;
 let _isUnderline = false;
 
 module.exports = {
-    createData (comp) {
-        let renderData = comp.requestRenderData();
-
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-
-        let data = renderData._data;
-        data[0].u = 0;
-        data[0].v = 1;
-        data[1].u = 1;
-        data[1].v = 1;
-        data[2].u = 0;
-        data[2].v = 0;
-        data[3].u = 1;
-        data[3].v = 0;
-        return renderData;
-    },
-
-    fillVertexBuffer (comp, off, vbuf, uintbuf) {
-        let node = comp.node;
-        let renderData = comp._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        let color = cc.Color.WHITE._val;
-        
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
-    
-        let vert;
-        let length = renderData.dataLength;
-        for (let i = 0; i < length; i++) {
-            vert = data[i];
-            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[off + 2] = z;
-            vbuf[off + 4] = vert.u;
-            vbuf[off + 5] = vert.v;
-            uintbuf[off + 3] = color;
-            off += 6;
-        }
-    },
-    
-    fillIndexBuffer (comp, offset, vertexId, ibuf) {
-        ibuf[offset + 0] = vertexId;
-        ibuf[offset + 1] = vertexId + 1;
-        ibuf[offset + 2] = vertexId + 2;
-        ibuf[offset + 3] = vertexId + 1;
-        ibuf[offset + 4] = vertexId + 3;
-        ibuf[offset + 5] = vertexId + 2;
-    },
-
     update (comp) {
         if (!comp._renderData.vertDirty) return;
 
@@ -141,12 +81,12 @@ module.exports = {
             this._calculateSplitedStrings();
             this._updateLabelDimensions();
             this._calculateTextBaseline();
-            this._updateTexture();
-    
-            this._updateVerts();
-            
+            this._updateTexture(_comp);
+                
             _comp._actualFontSize = _fontSize;
             _comp.node.setContentSize(_canvasSize);
+
+            this._updateVerts(_comp);
 
             _comp._renderData.vertDirty = _comp._renderData.uvDirty = false;
 
@@ -159,22 +99,6 @@ module.exports = {
     },
 
     _updateVerts () {
-        let renderData = _comp._renderData;
-
-        let width = _canvasSize.width,
-            height = _canvasSize.height,
-            appx = renderData._pivotX * width,
-            appy = renderData._pivotY * height;
-
-        let data = renderData._data;
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = width - appx;
-        data[1].y = -appy;
-        data[2].x = -appx;
-        data[2].y = height - appy;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
     },
 
     _updateFontFamly () {
@@ -197,8 +121,9 @@ module.exports = {
     },
 
     _updateProperties () {
-        _context = _comp._context;
-        _canvas = _comp._canvas;
+        let assemblerData = _comp._assemblerData;
+        _context = assemblerData._context;
+        _canvas = assemblerData._canvas;
         _texture = _comp._texture;
         
         _string = _comp.string.toString();
@@ -267,7 +192,7 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture () {
+    _updateTexture (comp) {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
