@@ -53,8 +53,9 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
 /*
  * @param [options.sourcemaps = true]
  * @param [options.babelifyOpt]
+ * @param [options.aliasifyConfig]
  */
-module.exports = function createBundler(entryFiles, options) {
+module.exports = function createBundler(entryFiles, options, aliasifyConfig) {
     // https://github.com/substack/node-browserify#methods
     var browserifyOpt = {
         entries: [].concat(entryFiles),
@@ -92,6 +93,13 @@ module.exports = function createBundler(entryFiles, options) {
         console.error('Please run "npm install babelify".');
         throw e;
     }
+    var aliasify;
+    try {
+        aliasify = require('aliasify');
+    } catch (e) {
+        console.error('Please run "npm install aliasify".');
+        throw e;
+    }
 
     var b;
     if (options && options.cacheDir) {
@@ -124,5 +132,6 @@ module.exports = function createBundler(entryFiles, options) {
             highlightCode: false,
             sourceMaps: true,
             compact: false
-        });
+        })
+        .transform(aliasify, aliasifyConfig);
 };

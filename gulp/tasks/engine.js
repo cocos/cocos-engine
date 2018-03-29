@@ -211,9 +211,15 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    excludes = excludes.concat(jsbSkipModules);
+    var aliasifyConfig = {
+        replacements: {
+            '(.*)render-engine(.js)?': './cocos2d/core/renderer/render-engine.jsb'
+        },
+        verbose: false
+    }
 
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, null, aliasifyConfig);
+    excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
@@ -242,9 +248,15 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    excludes = excludes.concat(jsbSkipModules);
+    var aliasifyConfig = {
+        replacements: {
+            '(.*)render-engine(.js)?': './cocos2d/core/renderer/render-engine.jsb'
+        },
+        verbose: false
+    }
 
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, null, aliasifyConfig);
+    excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
