@@ -55,7 +55,7 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
  * @param [options.babelifyOpt]
  * @param [options.aliasifyConfig]
  */
-module.exports = function createBundler(entryFiles, options, aliasifyConfig) {
+module.exports = function createBundler(entryFiles, options) {
     // https://github.com/substack/node-browserify#methods
     var browserifyOpt = {
         entries: [].concat(entryFiles),
@@ -133,5 +133,5 @@ module.exports = function createBundler(entryFiles, options, aliasifyConfig) {
             sourceMaps: true,
             compact: false
         })
-        .transform(aliasify, aliasifyConfig);
+        .transform(aliasify, (options && options.aliasifyConfig) || {});
 };

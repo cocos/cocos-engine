@@ -47,6 +47,12 @@ var jsbSkipModules = [
     '../../cocos2d/audio/CCAudio',
     '../../external/box2d/box2d.js',
 ];
+var aliasifyConfig = {
+    replacements: {
+        '(.*)render-engine(.js)?': './cocos2d/core/renderer/render-engine.jsb'
+    },
+    verbose: false
+};
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
     if (typeof opt_macroFlags === 'function') {
@@ -211,14 +217,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var aliasifyConfig = {
-        replacements: {
-            '(.*)render-engine(.js)?': './cocos2d/core/renderer/render-engine.jsb'
-        },
-        verbose: false
-    }
-
-    var bundler = createBundler(sourceFile, null, aliasifyConfig);
+    var bundler = createBundler(sourceFile, {
+        aliasifyConfig: aliasifyConfig
+    });
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
@@ -248,14 +249,9 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var aliasifyConfig = {
-        replacements: {
-            '(.*)render-engine(.js)?': './cocos2d/core/renderer/render-engine.jsb'
-        },
-        verbose: false
-    }
-
-    var bundler = createBundler(sourceFile, null, aliasifyConfig);
+    var bundler = createBundler(sourceFile, {
+        aliasifyConfig: aliasifyConfig
+    });
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
