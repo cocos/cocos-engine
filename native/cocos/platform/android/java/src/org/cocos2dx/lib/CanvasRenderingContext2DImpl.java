@@ -60,6 +60,9 @@ public class CanvasRenderingContext2DImpl {
     private int mFillStyleG = 0;
     private int mFillStyleB = 0;
     private int mFillStyleA = 255;
+    private String mFontName = "Arial";
+    private float mFontSize = 40.0f;
+    private boolean mIsPaintDirty = false;
 
     private class Size {
         Size(float w, float h) {
@@ -179,12 +182,24 @@ public class CanvasRenderingContext2DImpl {
         mBitmap.setPixels(clearColor, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
     }
 
+    private void updatePaint() {
+        if (mIsPaintDirty || mPaint == null) {
+            if (mPaint == null) {
+                mPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
+            }
+
+            mPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+            mIsPaintDirty = false;
+        }
+    }
+
     private void fillRect(float x, float y, float w, float h) {
         Log.d(TAG, "fillRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
     }
 
     private void fillText(String text, float x, float y, float maxWidth) {
         Log.d(TAG, "fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
+        updatePaint();
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mPaint.getFontMetrics().bottom;
@@ -197,19 +212,24 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private float measureText(String text) {
+        updatePaint();
         float ret = mPaint.measureText(text);
         Log.d(TAG, "measureText: " + text + ", return: " + ret);
         return ret;
     }
 
     private Size measureTextReturnSize(String text) {
+        updatePaint();
         Paint.FontMetrics fm = mPaint.getFontMetrics();
         return new Size(measureText(text), fm.bottom - fm.top);
     }
 
     private void updateFont(String fontName, float fontSize) {
         Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
-        mPaint = newPaint(fontName, (int)fontSize, false); //TODO: bold
+        mFontName = fontName;
+        mFontSize = fontSize;
+        mPaint = null; // Reset paint to re-create paint object in updatePaint
+        mIsPaintDirty = true;
     }
 
     private void setTextAlign(int align) {
@@ -228,8 +248,7 @@ public class CanvasRenderingContext2DImpl {
         mFillStyleG = (int)(g * 255.0f);
         mFillStyleB = (int)(b * 255.0f);
         mFillStyleA = (int)(a * 255.0f);
-
-        mPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+        mIsPaintDirty = true;
     }
 
     private Point convertDrawPoint(final Point point, String text) {
