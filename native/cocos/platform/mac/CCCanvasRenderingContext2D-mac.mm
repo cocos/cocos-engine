@@ -522,7 +522,7 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
     }
-    else if (textBaseline == "bottom")
+    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //TODO:cjh, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
     }
