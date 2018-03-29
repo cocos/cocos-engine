@@ -107,6 +107,8 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
         jsTouch->setProperty("identifier", se::Value(touch.index));
         jsTouch->setProperty("clientX", se::Value(touch.x));
         jsTouch->setProperty("clientY", se::Value(touch.y));
+        jsTouch->setProperty("pageX", se::Value(touch.x));
+        jsTouch->setProperty("pageY", se::Value(touch.y));
 
         _jsTouchObjArray->setArrayElement(touchIndex, se::Value(jsTouch));
         ++touchIndex;
