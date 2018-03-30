@@ -62,21 +62,36 @@ cc.defineGetterSetter(_p, "count", _p.getCount);
 gfx.VertexFormat = VertexFormat;
 Object.assign(gfx, enums);
 
+function convertImages(images) {
+    if (images) {
+        for (let i = 0, len = images.length; i < len; ++i) {
+            let image = images[i];
+            if (image !== null) {
+                if (image instanceof window.HTMLCanvasElement) {
+                    if (image._data) {
+                        images[i] = image._data._data;
+                    }
+                    else {
+                        images[i] = null;
+                    }
+                }
+                else if (image instanceof window.HTMLImageElement) {
+                    images[i] = image._data;
+                }
+            }
+        }
+    }
+}
+
 _p = gfx.Texture2D.prototype;
 _p._ctor = function(device, options) {
+    convertImages(options.images);
     this.init(device, options);
 };
 _p.destroy = function() { 
 };
 _p.update = function(options) {
-    if (options.images) {
-        for (let i = 0, len = options.images.length; i < len; ++i) {
-            let image = options.images[i];
-            if (image != null && image._data) {
-                options.images[i] = image._data;
-            }
-        }
-    }
+    convertImages(options.images);
     this.updateBinding(options);
 };
 cc.defineGetterSetter(_p, "_width", _p.getWidth);

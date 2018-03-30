@@ -59,7 +59,7 @@ class VertexFormat {
         normalize: (info.normalize === undefined) ? false : info.normalize,
         bytes: info.num * attrTypeBytes(info.type),
       };
-      log('info.num is:' + info.num + ' attrTypeBytes(info.type) is:' + attrTypeBytes(info.type));
+      // log('info.num is:' + info.num + ' attrTypeBytes(info.type) is:' + attrTypeBytes(info.type));
 
       this._attr2el[el.name] = el;
       this._elements.push(el);
