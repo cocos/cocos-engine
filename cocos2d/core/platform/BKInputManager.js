@@ -376,32 +376,41 @@ if (CC_QQPLAY) {
             var _touchMoveEvents = [];
             var _touchEndEvents = [];
 
-            var touchArr = allTouchArr[allTouchArr.length - 1];
+            var touchArr = allTouchArr;
             for(var i = 0; i < touchArr.length; i++) {
-                var touch_event = touchArr[i];
-                //touch begin
-                if (touch_event.status === 2) {
-                    _touchBeginEvents.push(touch_event);
+                _touchBeginEvents.length = 0;
+                _touchMoveEvents.length = 0;
+                _touchEndEvents.length = 0;
+
+                for (var j = 0; j < touchArr[i].length; ++j) {
+
+                    var touch_event = touchArr[i][j];
+                    //touch begin
+                    if (touch_event.status === 2) {
+                        _touchBeginEvents.push(touch_event);
+                    }
+                    //touch moved
+                    else if (touch_event.status === 3) {
+                        _touchMoveEvents.push(touch_event);
+                    }
+                    //touch end
+                    else if (touch_event.status === 1) {
+                        _touchEndEvents.push(touch_event);
+                    }
                 }
-                //touch moved
-                else if (touch_event.status === 3) {
-                    _touchMoveEvents.push(touch_event);
+
+                if (_touchBeginEvents.length > 0) {
+                    this.handleTouchesBegin(this.getTouchesByEvent(_touchBeginEvents));
                 }
-                //touch end
-                else if (touch_event.status === 1) {
-                    _touchEndEvents.push(touch_event);
+                if (_touchMoveEvents.length > 0) {
+                    this.handleTouchesMove(this.getTouchesByEvent(_touchMoveEvents));
                 }
+                if (_touchEndEvents.length > 0) {
+                    this.handleTouchesEnd(this.getTouchesByEvent(_touchEndEvents));
+                }
+
             }
 
-            if (_touchBeginEvents.length > 0) {
-                this.handleTouchesBegin(this.getTouchesByEvent(_touchBeginEvents));
-            }
-            if (_touchMoveEvents.length > 0) {
-                this.handleTouchesMove(this.getTouchesByEvent(_touchMoveEvents));
-            }
-            if (_touchEndEvents.length > 0) {
-                this.handleTouchesEnd(this.getTouchesByEvent(_touchEndEvents));
-            }
         },
 
         /**
