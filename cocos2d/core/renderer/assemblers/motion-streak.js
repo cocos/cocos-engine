@@ -23,10 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../core/platform/js');
-const assembler = require('../core/renderer/assemblers/assembler');
-const MotionStreak = require('./CCMotionStreak');
-const renderEngine = require('../core/renderer/render-engine');
+const js = require('../../platform/js');
+const assembler = require('../../renderer/assemblers/assembler');
+const renderEngine = require('../../renderer/render-engine');
+
+const MotionStreak = require('../../components/CCMotionStreak');
 
 function Point (point, dir) {
     this.point = point || cc.v2();

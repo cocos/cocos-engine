@@ -51,6 +51,7 @@ var components = [
     require('./CCToggleGroup'),
     require('./CCToggle'),
     require('./CCBlockInputEvents'),
+    require('./CCMotionStreak')
 ];
 
 // Delay require render components assemblers

@@ -27,3 +27,4 @@ require('./sprite');
 require('./mask-assembler');
 require('./graphics');
 require('./label');
+require('./motion-streak');
