@@ -23,43 +23,51 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let SpriteType = require('../../../../components/CCSprite').Type;
-let simple = require('./simple');
-let sliced = require('./sliced');
-let tiled = require('./tiled');
+const utils = require('../utils');
+const simple = require('./simple');
 
-module.exports = {
-    getAssembler: function (sprite) {
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                return simple;
-            case SpriteType.SLICED:
-                return sliced;
-            case SpriteType.TILED:
-                return tiled;
-            case SpriteType.FILLED:
-                if (sprite._fillType === FillType.RADIAL) {
-                    return null;
-                }
-                else {
-                    return null;
-                }
-        }
-    },
-
+let renderer = {
     createData (sprite) {
-        return sprite._assembler.createData(sprite);
+        let renderData = sprite.requestRenderData();
+        return renderData;
     },
+    
+    update (sprite) {},
 
     draw (ctx, sprite) {
         let node = sprite.node;
-        // Check whether need to render
-        if (!sprite._spriteFrame || !sprite._spriteFrame.textureLoaded()) {
-            return 0;
-        }
-        // update
-        sprite._assembler.update(sprite);
+        // Transform
+        let matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        ctx.transform(a, b, c, d, tx, -ty);
 
-        return sprite._assembler.draw(ctx, sprite);
+        // TODO: handle blend function
+
+        // opacity
+        ctx.glphaAlpha = node.opacity / 255;
+
+        let frame = sprite.spriteFrame;
+        let rect = frame._rect;
+        let tex = frame._texture;
+        let sx = rect.x;
+        let sy = rect.y;
+        let sw = frame._rotated ? rect.height : rect.width;
+        let sh = frame._rotated ? rect.width : rect.height;
+
+        let image = utils.getFrameCache(tex, node.color, sx, sy, sw, sh);
+
+        let w = node.width,
+            h = node.height,
+            x = -node.anchorX * w,
+            y = -node.anchorY * h;
+        y = - y - h;
+
+        ctx.translate(x, y);
+        ctx.fillStyle = ctx.createPattern(image, 'repeat');
+        ctx.fillRect(0, 0, w, h);
+        return 1;
     }
-};
+}
+
+module.exports = renderer

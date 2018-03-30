@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const utils = require('../utils');
+const simple = require('./simple');
 
 let renderer = {
     createData (sprite) {
@@ -32,6 +33,8 @@ let renderer = {
         renderData.dataLength = 4;
         return renderData;
     },
+
+    update: simple.update,
     
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
