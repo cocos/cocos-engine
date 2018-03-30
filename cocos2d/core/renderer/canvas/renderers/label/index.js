@@ -48,6 +48,8 @@ module.exports = {
         }
 
         let assembler = comp._assembler;
+        if (!assembler) return 0;
+        
         assembler.update(comp);
         return assembler.draw(ctx, comp);
     }

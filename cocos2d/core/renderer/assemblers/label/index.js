@@ -43,27 +43,36 @@ var labelAssembler = js.addon({
 
     updateRenderData (comp) {
         this.datas.length = 0;
-        if (comp.string !== undefined && comp.string !== null && comp.string !== "") {
-            let renderData = comp._renderData;
 
-            // let size = comp.node._contentSize;
-            // let anchor = comp.node._anchorPoint;
-            // renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+        if (comp.string === undefined || 
+            comp.string === null || 
+            comp.string === "" ||
+            !comp._assembler) {
+            return this.datas;
+        } 
 
-            comp._assembler.update(comp);
+        let renderData = comp._renderData;
 
-            renderData.material = comp.getMaterial();
-            this.datas.push(renderData);
-        }
+        // let size = comp.node._contentSize;
+        // let anchor = comp.node._anchorPoint;
+        // renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+
+        comp._assembler.update(comp);
+
+        renderData.material = comp.getMaterial();
+        this.datas.push(renderData);
         return this.datas;
     },
 
     fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let assembler = comp._assembler;
+        if (!assembler) return;
+
         let vertexOffset = batchData.byteOffset / 4,
             indiceOffset = batchData.indiceOffset;
         
-        comp._assembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
-        comp._assembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
+        assembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
+        assembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
     }
 }, assembler);
 
