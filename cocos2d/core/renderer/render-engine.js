@@ -14600,7 +14600,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   SpriteMaterial.prototype.clone = function clone () {
-    var copy = new SpriteMaterial(values);
+    var copy = new SpriteMaterial();
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
@@ -14672,7 +14672,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   };
 
   GraySpriteMaterial.prototype.clone = function clone () {
-    var copy = new GraySpriteMaterial(values);
+    var copy = new GraySpriteMaterial();
     copy.texture = this.texture;
     copy.updateHash();
     return copy;
@@ -14762,7 +14762,7 @@ var StencilMaterial = (function (Material$$1) {
   };
 
   StencilMaterial.prototype.clone = function clone () {
-    var copy = new StencilMaterial(values);
+    var copy = new StencilMaterial();
     copy.useTexture = this.useTexture;
     copy.texture = this.texture;
     copy.alphaThreshold = this.alphaThreshold;
@@ -14903,7 +14903,7 @@ var ParticleMaterial = (function (Material$$1) {
   };
 
   ParticleMaterial.prototype.clone = function clone () {
-    var copy = new ParticleMaterial(values);
+    var copy = new ParticleMaterial();
     copy.texture = this.texture;
     copy.stateMap = this.stateMap;
     copy.quadMap = this.quadMap;

@@ -271,6 +271,8 @@ if (CC_DEV) {
     // cc.Node
     markAsRemoved(cc._BaseNode, [
         'tag',
+        'getTag',
+        'setTag',
         'getChildByTag',
         'removeChildByTag'
     ]);
@@ -291,6 +293,7 @@ if (CC_DEV) {
         'isIgnoreAnchorPointForPosition',
         'ignoreAnchorPointForPosition',
         'isRunning',
+        '_sgNode',
     ]);
 
     markFunctionWarning(cc.Node.prototype, {
@@ -317,6 +320,10 @@ if (CC_DEV) {
         setSkewX: 'skewX',
         getSkewY: 'skewY',
         setSkewY: 'skewY',
+        getScaleX: 'scaleX',
+        setScaleX: 'scaleX',
+        getScaleY: 'scaleY',
+        setScaleY: 'scaleY',
         getOpacity: 'opacity',
         setOpacity: 'opacity',
         getColor: 'color',
