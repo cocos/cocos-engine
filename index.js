@@ -125,20 +125,6 @@ function defined (name) {
     return typeof _global[name] === 'object';
 }
 
-defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-defineMacro('CC_PREVIEW', !CC_EDITOR);
-defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
-defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-defineMacro('CC_JSB', defined('jsb'));
-defineMacro('CC_JSB', false);
-defineMacro('CC_BUILD', false);
-defineMacro('CC_WECHATGAME', false);
-if (CC_JSB) {
-    defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues.
-} else {
-    defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
-}
 
 // PREDEFINE
 
