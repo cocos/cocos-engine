@@ -158,7 +158,35 @@ module.exports = {
         this._resetProperties();
     },
 
-    fillVertexBuffer: ttf.fillVertexBuffer,
+    fillVertexBuffer (comp, off, vbuf, uintbuf) {
+        let node = comp.node;
+        let renderData = comp._renderData;
+        let data = renderData._data;
+        let z = node._position.z;
+        let color = node.color._val;
+        
+        node._updateWorldMatrix();
+        let matrix = node._worldMatrix;
+        let a = matrix.m00,
+            b = matrix.m01,
+            c = matrix.m04,
+            d = matrix.m05,
+            tx = matrix.m12,
+            ty = matrix.m13;
+    
+        let vert;
+        let length = renderData.dataLength;
+        for (let i = 0; i < length; i++) {
+            vert = data[i];
+            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
+            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
+            vbuf[off + 2] = z;
+            vbuf[off + 4] = vert.u;
+            vbuf[off + 5] = vert.v;
+            uintbuf[off + 3] = color;
+            off += 6;
+        }
+    },
 
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
         let renderData = comp._renderData;

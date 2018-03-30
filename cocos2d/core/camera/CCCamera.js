@@ -27,6 +27,7 @@
 const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
+const game = require('../CCGame');
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -74,7 +75,7 @@ let Camera = cc.Class({
         this._fov = Math.PI * 60 / 180;
         camera.setFov(this._fov);
         camera.setNear(0.1);
-        camera.setFar(1024);
+        camera.setFar(4096);
 
         let view = new renderEngine.View();
         camera.view = view;
@@ -291,16 +292,20 @@ let Camera = cc.Class({
 
     onEnable () {
         this.node.on('world-matrix-changed', this._onMatrixDirty, this);
-
         this._matrixDirty = true;
-        renderer.scene.addCamera(this._camera);
+        
+        if (game.renderType === game.RENDER_TYPE_WEBGL) {
+            renderer.scene.addCamera(this._camera);
+        }
         _cameras.push(this);
     },
 
     onDisable () {
         this.node.off('world-matrix-changed', this._onMatrixDirty, this);
 
-        renderer.scene.removeCamera(this._camera);
+        if (game.renderType === game.RENDER_TYPE_WEBGL) {
+            renderer.scene.removeCamera(this._camera);
+        }
         cc.js.array.remove(_cameras, this);
     },
 

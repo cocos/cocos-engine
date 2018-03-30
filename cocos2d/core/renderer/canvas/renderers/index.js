@@ -36,18 +36,22 @@ let RichText = require('../../../components/CCRichText');
 // let Skeleton = require('../../../../../extensions/spine/Skeleton');
 // let Armature = require('../../../../../extensions/dragonbones/ArmatureDisplay');
 
+let spriteRenderer = require('./sprite/');
+
 let map = {};
 let postMap = {};
 
-function addRenderer (component, handler, postHandler) {
-    let name = js.getClassName(component);
+function addRenderer (Component, handler, postHandler) {
+    let name = js.getClassName(Component);
     map[name] = handler;
     if (postHandler) {
         postMap[name] = postHandler;
     }
+    Component._assembler = handler;
+    Component._postAssembler = handler;
 }
 
-addRenderer(Sprite, null);
+addRenderer(Sprite, spriteRenderer);
 addRenderer(Label, null);
 addRenderer(Mask, null);
 addRenderer(RichText, null);

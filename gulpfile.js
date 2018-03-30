@@ -59,19 +59,19 @@ gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5
 
 gulp.task('build-jsb-dev', function (done) {
     Engine.buildJsb([
-        './jsb/index.js',
+        './index.js',
     ], './bin/jsb_polyfill.dev.js', [], done);
 });
 
 gulp.task('build-jsb-min', function (done) {
     Engine.buildJsbMin([
-        './jsb/index.js',
+        './index.js',
     ], './bin/jsb_polyfill.js', [], done);
 });
 
 gulp.task('build-jsb-preview',  function (done) {
     Engine.buildJsbPreview([
-        './jsb/index.js',
+        './index.js',
     ], './bin/jsb_polyfill-for-preview.js', [], done);
 });
 
