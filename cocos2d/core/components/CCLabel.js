@@ -342,7 +342,6 @@ var Label = cc.Class({
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
-
                 if ( typeof value === 'string' ) {
                     cc.warnID(4000);
                 }
