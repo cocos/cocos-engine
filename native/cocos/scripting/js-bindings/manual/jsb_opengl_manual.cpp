@@ -1185,7 +1185,15 @@ static bool JSB_glFramebufferRenderbuffer(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3  ));
+    if( arg1 == GL_DEPTH_STENCIL_ATTACHMENT) {
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_DEPTH_ATTACHMENT, (GLenum)arg2 , (GLuint)arg3));
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_STENCIL_ATTACHMENT, (GLenum)arg2 , (GLuint)arg3));
+    }
+    else
+    {
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3));
+    }
+
     s.rval().setUndefined();
     return true;
 }
@@ -1597,6 +1605,10 @@ static bool JSB_glRenderbufferStorage(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    if( arg1 == GL_DEPTH_STENCIL ) {
+        arg1 = GL_DEPTH24_STENCIL8;
+    }
 
     JSB_GL_CHECK(glRenderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
     s.rval().setUndefined();
@@ -3415,11 +3427,11 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("hint", _SE(JSB_glHint));
     __glObj->defineFunction("isBuffer", _SE(JSB_glIsBuffer));
     __glObj->defineFunction("isEnabled", _SE(JSB_glIsEnabled));
-    __glObj->defineFunction("isFramebuffer", _SE(JSB_glIsFramebuffer));
-    __glObj->defineFunction("isProgram", _SE(JSB_glIsProgram));
-    __glObj->defineFunction("isRenderbuffer", _SE(JSB_glIsRenderbuffer));
-    __glObj->defineFunction("isShader", _SE(JSB_glIsShader));
-    __glObj->defineFunction("isTexture", _SE(JSB_glIsTexture));
+    __glObj->defineFunction("_isFramebuffer", _SE(JSB_glIsFramebuffer));
+    __glObj->defineFunction("_isProgram", _SE(JSB_glIsProgram));
+    __glObj->defineFunction("_isRenderbuffer", _SE(JSB_glIsRenderbuffer));
+    __glObj->defineFunction("_isShader", _SE(JSB_glIsShader));
+    __glObj->defineFunction("_isTexture", _SE(JSB_glIsTexture));
     __glObj->defineFunction("lineWidth", _SE(JSB_glLineWidth));
     __glObj->defineFunction("_linkProgram", _SE(JSB_glLinkProgram));
     __glObj->defineFunction("pixelStorei", _SE(JSB_glPixelStorei));

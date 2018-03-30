@@ -29,8 +29,8 @@ THE SOFTWARE.
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 
 #define glClearDepth                glClearDepthf
 #define glDepthRange                glDepthRangef
@@ -40,7 +40,7 @@ THE SOFTWARE.
 //#define glMapBuffer                 glMapBufferOES
 //#define glUnmapBuffer               glUnmapBufferOES
 //
-//#define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
+#define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
 //#define GL_DEPTH_STENCIL            GL_DEPTH_STENCIL_OES
 //#define GL_WRITE_ONLY               GL_WRITE_ONLY_OES
 

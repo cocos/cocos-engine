@@ -91,6 +91,10 @@ THE SOFTWARE.
 #define GL_MAX_VARYING_VECTORS                         0x8DFC
 #endif
 
+#ifndef GL_DEPTH_STENCIL
+#define GL_DEPTH_STENCIL 0x84F9
+#endif
+
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 #include "platform/mac/CCGL-mac.h"
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS

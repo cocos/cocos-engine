@@ -129,9 +129,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 /** CCEAGLView uses double-buffer. This method swaps the buffers */
 -(void) swapBuffers;
 
-- (CGRect) convertRectFromViewToSurface:(CGRect)rect;
-- (CGPoint) convertPointFromViewToSurface:(CGPoint)point;
-
 - (BOOL) isReady;
 
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float) duration distance:(float) dis;

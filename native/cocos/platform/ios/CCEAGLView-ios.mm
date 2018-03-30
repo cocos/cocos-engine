@@ -77,8 +77,6 @@ namespace
         else
             return GL_RGBA8_OES;
     }
-    
-    bool isReady = false;
 }
 
 //CLASS IMPLEMENTATIONS:
@@ -110,6 +108,7 @@ namespace
         _pixelformatString = format;
         _pixelformat = pixelformat2glenum(_pixelformatString);
         _depthFormat = depth;
+        // Multisampling doc: https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/WorkingwithEAGLContexts/WorkingwithEAGLContexts.html#//apple_ref/doc/uid/TP40008793-CH103-SW4
         _multisampling = sampling;
         _requestedSamples = nSamples;
         _preserveBackbuffer = retained;
@@ -212,6 +211,7 @@ namespace
 
 - (void) layoutSubviews
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, _defaultFramebuffer);
     if (_defaultColorBuffer)
     {
         glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
@@ -235,6 +235,7 @@ namespace
     
     if (_multisampling)
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, _msaaFramebuffer);
         if (_msaaColorBuffer)
         {
             glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
@@ -247,8 +248,11 @@ namespace
             glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, _requestedSamples, _depthFormat, backingWidth, backingHeight);
         }
     }
-    
-    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    else
+    {
+        glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    }
+
     CHECK_GL_ERROR();
     
     GLenum error;
@@ -305,7 +309,7 @@ namespace
     
     if (_multisampling)
     {
-        glGenRenderbuffers(1, &_msaaFramebuffer);
+        glGenFramebuffers(1, &_msaaFramebuffer);
         if (0 == _msaaFramebuffer)
         {
             NSLog(@"Can not create multi sampling frame buffer");
@@ -347,7 +351,6 @@ namespace
     }
     glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _msaaColorBuffer);
-    
     CHECK_GL_ERROR();
     return TRUE;
 }
@@ -378,8 +381,8 @@ namespace
     if (!_multisampling || (0 == _msaaFramebuffer))
         return TRUE;
     
-    glBindFramebuffer(GL_RENDERBUFFER, _msaaColorBuffer);
-    glGenBuffers(1, &_msaaDepthBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _msaaFramebuffer);
+    glGenRenderbuffers(1, &_msaaDepthBuffer);
     if (0 == _msaaDepthBuffer)
     {
         NSLog(@"Can not create multi sampling depth buffer.");
@@ -394,7 +397,7 @@ namespace
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _msaaDepthBuffer);
     
     CHECK_GL_ERROR();
-    
+
     return TRUE;
 }
 
@@ -404,19 +407,19 @@ namespace
     // - preconditions
     //    -> context_ MUST be the OpenGL context
     //    -> renderbuffer_ must be the RENDER BUFFER
-        
+
     if (_multisampling)
     {
         /* Resolve from msaaFramebuffer to resolveFramebuffer */
-        //glDisable(GL_SCISSOR_TEST);     
+        //glDisable(GL_SCISSOR_TEST);
         glBindFramebuffer(GL_READ_FRAMEBUFFER_APPLE, _msaaFramebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, _msaaFramebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, _defaultFramebuffer);
         glResolveMultisampleFramebufferAPPLE();
     }
     
     CHECK_GL_ERROR();
     
-    if(_discardFramebufferSupported)
+    if (_discardFramebufferSupported)
     {    
         if (_multisampling)
         {
@@ -431,7 +434,7 @@ namespace
                 glDiscardFramebufferEXT(GL_READ_FRAMEBUFFER_APPLE, 1, attachments);
             }
             
-            glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
+
         }
         else if (_depthFormat)
         {
@@ -442,7 +445,9 @@ namespace
         
         CHECK_GL_ERROR();
     }
-        
+
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+
     if(![_context presentRenderbuffer:GL_RENDERBUFFER])
          NSLog(@"cocos2d: Failed to swap renderbuffer in %s\n", __FUNCTION__);
 
