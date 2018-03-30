@@ -1479,7 +1479,7 @@ static bool js_gfx_Texture2D_updateSubImage(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Texture2D_updateSubImage)
 
-static bool js_gfx_Texture2D_update(se::State& s)
+static bool js_gfx_Texture2D_updateBinding(se::State& s)
 {
     cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_Texture2D_update : Invalid Native Object");
@@ -1496,7 +1496,7 @@ static bool js_gfx_Texture2D_update(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Texture2D_update)
+SE_BIND_FUNC(js_gfx_Texture2D_updateBinding)
 
 static bool js_gfx_Texture2D_create(se::State& s)
 {
@@ -1554,7 +1554,7 @@ bool js_register_gfx_Texture2D(se::Object* obj)
     cls->defineFunction("updateImage", _SE(js_gfx_Texture2D_updateImage));
     cls->defineFunction("init", _SE(js_gfx_Texture2D_init));
     cls->defineFunction("updateSubImage", _SE(js_gfx_Texture2D_updateSubImage));
-    cls->defineFunction("update", _SE(js_gfx_Texture2D_update));
+    cls->defineFunction("updateBinding", _SE(js_gfx_Texture2D_updateBinding));
     cls->defineStaticFunction("create", _SE(js_gfx_Texture2D_create));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Texture2D_finalize));
     cls->install();

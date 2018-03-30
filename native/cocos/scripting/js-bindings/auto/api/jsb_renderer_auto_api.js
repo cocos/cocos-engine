@@ -645,18 +645,6 @@ str
 },
 
 /**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.renderer::Technique::Parameter}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.renderer::Technique::Parameter;
-},
-
-/**
  * @method clear
  */
 clear : function (

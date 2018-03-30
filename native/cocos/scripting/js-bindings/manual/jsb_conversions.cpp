@@ -8,6 +8,7 @@
 
 #include "jsb_conversions.hpp"
 #include <sstream>
+#include <regex>
 
 // seval to native
 
@@ -2038,6 +2039,17 @@ bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<coco
     return true;
 }
 
+namespace
+{
+    void adjustShaderSource(std::string& shaderSource)
+    {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+        shaderSource = std::regex_replace(shaderSource, std::regex("precision\\s+(lowp|mediump|highp)\\s+float\\s*?;"), "");
+        shaderSource = std::regex_replace(shaderSource, std::regex("\\s(lowp|mediump|highp)\\s"), " ");
+#endif
+    }
+}
+
 bool seval_to_ProgramLib_Template(const se::Value& v, cocos2d::renderer::ProgramLib::Template* ret)
 {
     assert(ret != nullptr);
@@ -2063,12 +2075,14 @@ bool seval_to_ProgramLib_Template(const se::Value& v, cocos2d::renderer::Program
     {
         ok = seval_to_std_string(tmp, &ret->vert);
         SE_PRECONDITION2(ok, false, "Convert vert failed!");
+        adjustShaderSource(ret->vert);
     }
 
     if (obj->getProperty("frag", &tmp))
     {
         ok = seval_to_std_string(tmp, &ret->frag);
         SE_PRECONDITION2(ok, false, "Convert frag failed!");
+        adjustShaderSource(ret->frag);
     }
 
     if (obj->getProperty("defines", &tmp))
