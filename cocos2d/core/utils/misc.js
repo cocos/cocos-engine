@@ -189,7 +189,8 @@ misc.clamp01 = function (value) {
 };
 
 /**
- * Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
+ * !#en Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
+ * !#zh 取两个数据间的线性插值，ratio 参数用于设置插值偏向起始端点的距离。
  * @method lerp
  * @param {Number} a number A
  * @param {Number} b number B
@@ -201,7 +202,8 @@ misc.lerp = function (a, b, r) {
 };
 
 /**
- * converts degrees to radians
+ * !#en converts degrees to radians
+ * !#zh 角度转换为弧度
  * @param {Number} angle
  * @return {Number}
  * @method degreesToRadians
@@ -211,7 +213,8 @@ misc.degreesToRadians = function (angle) {
 };
 
 /**
- * converts radians to degrees
+ * !#en converts radians to degrees
+ * !#zh 弧度转化为角度
  * @param {Number} angle
  * @return {Number}
  * @method radiansToDegrees
