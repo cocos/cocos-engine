@@ -64,8 +64,7 @@ module.exports = {
         this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
-        // this.device = new renderEngine.Device(canvas, opts);
-        this.device = window.device;
+        this.device = new renderEngine.Device(canvas, opts);
         this.scene = new renderEngine.Scene();
 
         this._walker = new RenderComponentWalker(this.device, this.scene);
