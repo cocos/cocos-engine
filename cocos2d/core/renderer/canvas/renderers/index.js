@@ -49,7 +49,7 @@ function addRenderer (Component, handler, postHandler) {
         postMap[name] = postHandler;
     }
     Component._assembler = handler;
-    Component._postAssembler = handler;
+    Component._postAssembler = postHandler;
 }
 
 addRenderer(Sprite, spriteRenderer);

@@ -61,6 +61,8 @@ module.exports = {
     _forward: null,
 
     initWebGL (canvas, opts) {
+        require('./assemblers');
+
         this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
@@ -96,7 +98,9 @@ module.exports = {
         this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
 
-    initCanvas (canvas, canvasRenderer) {
+    initCanvas (canvas) {
+        let canvasRenderer = require('./canvas');
+        
         this.Texture2D = renderEngine.canvas.Texture2D;
 
         this.canvas = canvas;

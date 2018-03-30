@@ -54,7 +54,4 @@ var components = [
     require('./CCMotionStreak')
 ];
 
-// Delay require render components assemblers
-require('../renderer/assemblers');
-
 module.exports = components;

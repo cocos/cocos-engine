@@ -764,8 +764,7 @@ var game = {
         if (!this._renderContext) {
             game.renderType = game.RENDER_TYPE_CANVAS;
             // Could be ignored by module settings
-            var canvasRenderer = require('./renderer/canvas');
-            renderer.initCanvas(localCanvas, canvasRenderer);
+            renderer.initCanvas(localCanvas);
             this._renderContext = renderer.device._ctx;
         }
         cc.renderer = renderer;
