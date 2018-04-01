@@ -66,4 +66,8 @@ if (CC_EDITOR) {
     }
 }
 
+if (CC_JSB) {
+  require('./jsb/jsb-loader.js');
+}
+
 module.exports = cc;

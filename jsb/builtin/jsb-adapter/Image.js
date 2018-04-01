@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,17 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+let HTMLImageElement = require('./HTMLImageElement');
 
-cc.WebView = ccui.WebView;
-
-//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
-if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-    cc.WebView = {};
+function Image (width, height) {
+    return new HTMLImageElement(width, height);
 }
 
-cc.WebView.EventType = {
-    LOADING: 0,
-    LOADED: 1,
-    ERROR: 2,
-    JS_EVALUATED: 3
-};
+module.exports = Image;

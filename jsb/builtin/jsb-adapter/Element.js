@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,27 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+let Node = require('./Node');
 
-'use strict';
+class Element extends Node {
+  constructor() {
+    super()
+    this.className = ''
+    this.children = []
+  }
+}
 
-/**
- * Enum for text alignment
- * @readonly
- * @enum {number}
- */
-cc.TextAlignment = cc.Enum({
-    LEFT: 0,
-    CENTER: 1,
-    RIGHT: 2
-});
-
-/**
- * Enum for vertical text alignment
- * @readonly
- * @enum {number}
- */
-cc.VerticalTextAlignment = cc.Enum({
-    TOP: 0,
-    CENTER: 1,
-    BOTTOM: 2
-});
+module.exports = Element;

@@ -40,7 +40,5 @@ require('./CCMacro');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./CCAssetLibrary');
-    if (!CC_JSB) {
-        require('./CCVisibleRect');
-    }
+    require('./CCVisibleRect');
 }

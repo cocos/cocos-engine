@@ -169,16 +169,9 @@ var js = {
      * @return {Function}
      */
     getSuper (ctor) {
-        if (CC_JSB && ctor.hasOwnProperty('$super')) {
-            // babel runtime uses Object.setPrototypeOf to inherit static members,
-            // so $super will always inheritable even if it is non-enumerable.
-            return ctor.$super;
-        }
-        else {
-            var proto = ctor.prototype; // binded function do not have prototype
-            var dunderProto = proto && Object.getPrototypeOf(proto);
-            return dunderProto && dunderProto.constructor;
-        }
+        var proto = ctor.prototype; // binded function do not have prototype
+        var dunderProto = proto && Object.getPrototypeOf(proto);
+        return dunderProto && dunderProto.constructor;
     },
 
     /**

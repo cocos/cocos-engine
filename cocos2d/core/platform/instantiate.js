@@ -126,7 +126,7 @@ function doInstantiate (obj, parent) {
         }
         return null;
     }
-    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
+    if (_isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }

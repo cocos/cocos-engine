@@ -511,7 +511,7 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
 
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
@@ -529,6 +529,52 @@ function initSys () {
             height: 0
         };
         sys.__audioSupport = {};
+    }
+    else if (CC_JSB) {
+        var env = wx.getSystemInfoSync();
+        sys.isMobile = false; //FIXME:
+        sys.platform = sys.WECHAT_GAME;
+        sys.language = env.language.substr(0, 2);
+        if (env.platform === "android") {
+            sys.os = sys.OS_ANDROID;
+        }
+        else if (env.platform === "ios") {
+            sys.os = sys.OS_IOS;
+        }
+        else if (env.platform === 'mac') {
+            sys.os = sys.OS_OSX;
+        }
+        else if (env.platform === 'windows') {
+            sys.os = sys.OS_WINDOWS;
+        }
+
+        var version = /[\d\.]+/.exec(env.system);
+        sys.osVersion = version[0];
+        sys.osMainVersion = parseInt(sys.osVersion);
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        sys.browserVersion = env.version;
+
+        var w = env.windowWidth;
+        var h = env.windowHeight;
+        var ratio = env.pixelRatio || 1;
+        sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+        };
+
+        sys.localStorage = window.localStorage;
+
+        sys.capabilities = {
+            "canvas": false,
+            "opengl": true,
+            "webp": false
+        };
+        sys.__audioSupport = {
+            ONLY_ONE: false,
+            WEB_AUDIO: false,
+            DELAY_CREATE_CTX: false,
+            format: ['.mp3']
+        };
     }
     else if (CC_WECHATGAME) {
         var env = wx.getSystemInfoSync();
