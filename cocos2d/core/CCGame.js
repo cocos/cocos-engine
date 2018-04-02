@@ -31,7 +31,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-var renderer = require('./renderer');
+var renderer = require('./renderer/index.js');
 var inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
@@ -695,7 +695,7 @@ var game = {
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame) {
+        if (isWeChatGame || CC_JSB) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             this.canvas = localCanvas = canvas;

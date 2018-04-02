@@ -26,13 +26,7 @@
 
 var EventTarget = require('../event/event-target');
 var eventManager = require('../event-manager');
-var inputManger;
-if (CC_JSB) {
-    inputManger = cc.inputManager;
-}
-else {
-    inputManger = require('../platform/CCInputManager');
-}
+var inputManger = require('../platform/CCInputManager');;
 
 /**
  * !#en The event type supported by SystemEvent
@@ -117,18 +111,10 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.KEYBOARD,
                     onKeyPressed: function (keyCode, event) {
                         event.type = EventType.KEY_DOWN;
-                        if (CC_JSB) {
-                            event.keyCode = keyCode;
-                            event.isPressed = true;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     },
                     onKeyReleased: function (keyCode, event) {
                         event.type = EventType.KEY_UP;
-                        if (CC_JSB) {
-                            event.keyCode = keyCode;
-                            event.isPressed = false;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });
@@ -149,9 +135,6 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.ACCELERATION,
                     callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        if (CC_JSB) {
-                            event.acc = acc;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });

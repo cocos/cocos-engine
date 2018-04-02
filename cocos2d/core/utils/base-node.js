@@ -353,9 +353,7 @@ var BaseNode = cc.Class({
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
-            if (!CC_JSB) {
-                eventManager._setDirtyForNode(this);
-            }
+            eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
         }

@@ -1,16 +1,15 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
@@ -23,17 +22,26 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const { screenWidth, screenHeight, devicePixelRatio } = {screenWidth: window.innerWidth, screenHeight: window.innerHeight, devicePixelRatio: 1};//cjh wx.getSystemInfoSync()
 
-'use strict';
-if (!cc.runtime) {
-    var _p = cc.TMXObject.prototype;
-    cc.defineGetterSetter(_p, 'type', _p.getType, null);
-    cc.defineGetterSetter(_p, 'name', _p.getObjectName, _p.setObjectName);
-    cc.defineGetterSetter(_p, 'id', _p.getId, null);
-    cc.defineGetterSetter(_p, 'gid', _p.getGid, null);
-    cc.defineGetterSetter(_p, 'offset', _p.getOffset, null);
-    cc.defineGetterSetter(_p, 'objectSize', _p.getObjectSize, null);
-    cc.defineGetterSetter(_p, 'objectVisible', _p.getObjectVisible, null);
-    cc.defineGetterSetter(_p, 'objectRotation', _p.getObjectRotation, null);
-    cc.defineGetterSetter(_p, 'sgNode', _p.getNode, null);
+const innerWidth = screenWidth
+const innerHeight = screenHeight
+const screen = {
+  availWidth: innerWidth,
+  availHeight: innerHeight
 }
+const performance = null//cjh wx.getPerformance()
+const ontouchstart = null
+const ontouchmove = null
+const ontouchend = null
+
+module.exports = {
+    innerWidth: innerWidth,
+    innerHeight: innerHeight,
+    devicePixelRatio: devicePixelRatio,
+    screen: screen,
+    performance: performance,
+    ontouchstart: ontouchstart,
+    ontouchmove: ontouchmove,
+    ontouchend: ontouchend
+};

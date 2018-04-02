@@ -180,7 +180,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
 
 // can deferred load raw assets in runtime
 function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR || CC_JSB) {
+    if (CC_EDITOR) {
         return false;
     }
     var res = item.deferredLoadRaw;

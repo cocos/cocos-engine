@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,20 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import gulp from 'gulp';
+import sourcemaps from "gulp-sourcemaps";
+import babelify from "babelify";
+import browserify from 'browserify';
+import source from "vinyl-source-stream";
+import uglify from 'gulp-uglify';
+import buffer from 'vinyl-buffer';
 
-cc.VideoPlayer = ccui.VideoPlayer;
-
-//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
-if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-    cc.VideoPlayer = {};
-}
-
-cc.VideoPlayer.EventType = {
-    PLAYING: 0,
-    PAUSED: 1,
-    STOPPED: 2,
-    COMPLETED: 3,
-    META_LOADED: 4,
-    CLICKED: 5,
-    READY_TO_PLAY: 6
-};
+gulp.task("default", ()=>{
+  return browserify('./index.js')
+         .transform(babelify)
+         .bundle()
+         .pipe(source('jsb.js'))
+         .pipe(buffer())
+         // .pipe(sourcemaps.init({ loadMaps: true }))
+         // .pipe(uglify()) // Use any gulp plugins you want now
+         // .pipe(sourcemaps.write('./'))
+         .pipe(gulp.dest('./dist'));
+});

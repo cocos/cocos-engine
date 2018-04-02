@@ -106,7 +106,7 @@ cc._initDebugSetting = function (mode) {
     if (mode === cc.DebugMode.NONE)
         return;
 
-    if (!CC_JSB && mode > cc.DebugMode.ERROR) {
+    if (mode > cc.DebugMode.ERROR) {
         //log to web page
 
         function logToWebPage (msg) {

@@ -229,13 +229,7 @@ var PhysicsCollider = cc.Class({
             var fixture = fixtures[i];
             fixture.collider = null;
 
-            if (CC_JSB) {
-                if (cc.sys.isObjectValid(fixture)) {
-                    manager._unregisterContactFixture(fixture);
-                }
-            } else {
-                manager._unregisterContactFixture(fixture);
-            }
+            manager._unregisterContactFixture(fixture);
 
             if (body) {
                 body.DestroyFixture(fixture);

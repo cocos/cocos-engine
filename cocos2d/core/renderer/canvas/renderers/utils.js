@@ -24,27 +24,58 @@
  ****************************************************************************/
 
 const WHITE = (255<<16) + (255<<8) + 255;
+const MAX_CANVAS_COUNT = 32;
 
-let textureColorizer = {
-    colorCanvas: {},
-    colorUsed: {},
+function colorizedFrame (canvas, texture, color, sx, sy, sw, sh) {
+    let image = texture._image;
+
+    let ctx = canvas.getContext("2d");
+    canvas.width = sw;
+    canvas.height = sh;
+
+    // Draw color
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+    ctx.fillRect(0, 0, sw, sh);
+
+    // Multiply color with texture
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    // Clip out transparent pixels
+    ctx.globalCompositeOperation = "destination-atop";
+    ctx.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+    return canvas;
+}
+
+let canvasMgr = {
+    canvasMap: {},
+    canvasUsed: {},
     canvasPool: [],
 
     checking: false,
 
     check () {
-        for (let key in this.colorUsed) {
-            if (!this.colorUsed[key]) {
-                let canvas = this.colorCanvas[key];
+        let exist = false;
+        for (let key in this.canvasUsed) {
+            exist = true;
+            if (!this.canvasUsed[key]) {
+                let canvas = this.canvasMap[key];
                 canvas.width = 0;
                 canvas.height = 0;
-                this.canvasPool.push(canvas);
-                delete this.colorCanvas[key];
-                delete this.colorUsed[key];
+                if (this.canvasPool.length < 32) {
+                    this.canvasPool.push(canvas);
+                }
+                delete this.canvasMap[key];
+                delete this.canvasUsed[key];
             }
             else {
-                this.colorUsed[key] = false;
+                this.canvasUsed[key] = false;
             }
+        }
+        if (!exist) {
+            cc.director.off(cc.Director.EVENT_AFTER_DRAW, this.check, this);
+            this.checking = false;
         }
     },
 
@@ -53,11 +84,33 @@ let textureColorizer = {
         this.checking = true;
     },
 
-    getImage (texture, color) {
+    getCanvas (key) {
+        this.canvasUsed[key] = true;
+        return this.canvasMap[key];
+    },
+
+    cacheCanvas (canvas, key) {
+        this.canvasMap[key] = canvas;
+        this.canvasUsed[key] = true;
+        if (!this.checking) {
+            this.startCheck();
+        }
+    },
+    
+    dropImage (texture, color) {
+        let key = texture.url + (color._val & 0x00ffffff);
+        if (this.canvasMap[key]) {
+            delete this.canvasMap[key];
+        }
+    }
+};
+
+module.exports = {
+    getColorizedImage (texture, color) {
         if (!texture || !texture.url) {
             return null;
         }
-        
+
         // original image
         let cval = color._val & 0x00ffffff;
         if (cval === WHITE) {
@@ -66,54 +119,46 @@ let textureColorizer = {
 
         // get from cache
         let key = texture.url + cval;
-        if (this.colorCanvas[key]) {
-            this.colorUsed[key] = true;
-            return this.colorCanvas[key];
+        let cache = canvasMgr.getCanvas(key);
+        if (!cache) {
+            cache = canvasMgr.canvasPool.pop() || document.createElement("canvas");
+            colorizedFrame(cache, texture, color, 0, 0, texture.width, texture.height);
+            canvasMgr.cacheCanvas(cache, key);
         }
-
-        let x = 0, y = 0, w = texture.width, h = texture.height;
-        let image = texture._image;
-
-        let canvas = this.canvasPool.pop() || document.createElement("canvas");
-        let ctx = canvas.getContext("2d");
-        canvas.width = w;
-        canvas.height = h;
-
-        // Draw color
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b}`;
-        ctx.fillRect(x, y, w, h);
-
-        // Multiply color with texture
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.drawImage(image, x, y, w, h);
-
-        // Clip out transparent pixels
-        ctx.globalCompositeOperation = "destination-atop";
-        ctx.drawImage(image, x, y, w, h);
-
-        this.colorCanvas[key] = canvas;
-        this.colorUsed[key] = true;
-        if (!this.checking) {
-            this.startCheck();
-        }
-        return canvas;
+        return cache;
     },
-    
-    dropImage (texture, color) {
-        let key = texture.url + (color._val & 0x00ffffff);
-        if (this.colorCanvas[key]) {
-            delete this.colorCanvas[key];
-        }
-    }
-};
 
-module.exports = {
-    getColorizedImage (texture, color) {
-        return textureColorizer.getImage(texture, color);
+    getFrameCache (texture, color, sx, sy, sw, sh) {
+        if (!texture || !texture.url || sx < 0 || sy < 0 || sw <= 0 || sh <= 0) {
+            return null;
+        }
+
+        let key = texture.url;
+        let generate = false;
+        let cval = color._val & 0x00ffffff;
+        if (cval !== WHITE) {
+            key += cval;
+            generate = true;
+        }
+        if (sx !== 0 || sy !== 0 && sw !== texture.width && sh !== texture.height) {
+            key += '_' + sx + '_' + sy + '_' + sw + '_' + sh;
+            generate = true;
+        }
+        if (!generate) {
+            return texture._image;
+        }
+        
+        // get from cache
+        let cache = canvasMgr.getCanvas(key);
+        if (!cache) {
+            cache = canvasMgr.canvasPool.pop() || document.createElement("canvas");
+            colorizedFrame(cache, texture, color, sx, sy, sw, sh);
+            canvasMgr.cacheCanvas(cache, key);
+        }
+        return cache;
     },
 
     dropImage (texture, color) {
-        textureColorizer.dropImage(texture, color);
+        canvasMgr.dropImage(texture, color);
     }
 };

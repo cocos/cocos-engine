@@ -66,7 +66,14 @@ module.exports = {
         this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
-        this.device = new renderEngine.Device(canvas, opts);
+        if (CC_JSB) {
+            // native codes will create an instance of Device, so just use the global instance.
+            this.device = window.device;
+        }
+        else {
+            this.device = new renderEngine.Device(canvas, opts);
+        }
+        
         this.scene = new renderEngine.Scene();
 
         this._walker = new RenderComponentWalker(this.device, this.scene);

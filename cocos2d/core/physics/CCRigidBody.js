@@ -310,7 +310,7 @@ var RigidBody = cc.Class({
                 this._linearVelocity = value;
                 var b2body = this._b2Body;
                 if (b2body) {
-                    var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+                    var temp = b2body.m_linearVelocity;
                     temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
                     b2body.SetLinearVelocity(temp);
                 }
@@ -625,37 +625,28 @@ var RigidBody = cc.Class({
     getJointList: function () {
         if (!this._b2Body) return [];
 
-        if (CC_JSB) {
-            var joints = this._b2Body.GetJointList();
-            for (var i = 0; i < joints.length; i++) {
-                joints[i] = joints[i]._joint;
-            }
-            return joints;
+        var joints = [];
+
+        var list = this._b2Body.GetJointList();
+        if (!list) return [];
+
+        joints.push(list.joint._joint);
+        
+        // find prev joint
+        var prev = list.prev;
+        while (prev) {
+            joints.push(prev.joint._joint);
+            prev = prev.prev;
         }
-        else {
-            var joints = [];
 
-            var list = this._b2Body.GetJointList();
-            if (!list) return [];
-
-            joints.push(list.joint._joint);
-            
-            // find prev joint
-            var prev = list.prev;
-            while (prev) {
-                joints.push(prev.joint._joint);
-                prev = prev.prev;
-            }
-
-            // find next joint
-            var next = list.next;
-            while (next) {
-                joints.push(next.joint._joint);
-                next = next.next;
-            }
-
-            return joints;
+        // find next joint
+        var next = list.next;
+        while (next) {
+            joints.push(next.joint._joint);
+            next = next.next;
         }
+
+        return joints;
     },
 
     /**
@@ -763,10 +754,7 @@ var RigidBody = cc.Class({
         var pos = this.node.convertToWorldSpaceAR(VEC2_ZERO);
 
         var temp;
-        if (CC_JSB) {
-            temp = tempb2Vec21;
-        }
-        else if (this.type === BodyType.Animated) {
+        if (this.type === BodyType.Animated) {
             temp = b2body.GetLinearVelocity();
         }
         else {
@@ -821,7 +809,7 @@ var RigidBody = cc.Class({
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+        var temp = b2body.m_linearVelocity;
         temp.Set(0, 0);
 
         b2body.SetLinearVelocity(temp);

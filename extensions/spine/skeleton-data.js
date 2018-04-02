@@ -213,7 +213,7 @@ var SkeletonData = cc.Class({
 
     // PRIVATE
 
-    _getTexture: !CC_JSB && function (line) {
+    _getTexture: function (line) {
         var names = this.textureNames;
         for (var i = 0; i < names.length; i++) {
             if (names[i] === line) {
