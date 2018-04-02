@@ -97,8 +97,7 @@ let canvasMgr = {
         }
     },
     
-    dropImage (texture, color) {
-        let key = texture.url + (color._val & 0x00ffffff);
+    dropImage (key) {
         if (this.canvasMap[key]) {
             delete this.canvasMap[key];
         }
@@ -158,7 +157,8 @@ module.exports = {
         return cache;
     },
 
-    dropImage (texture, color) {
-        canvasMgr.dropImage(texture, color);
+    dropColorizedImage (texture, color) {
+        let key = texture.url + (color._val & 0x00ffffff);
+        canvasMgr.dropImage(key);
     }
 };

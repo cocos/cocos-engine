@@ -28,7 +28,7 @@ module.exports = js.addon({
 
     _updateTexture (comp) {
         ttfUtils._updateTexture(comp);
-        utils.dropImage(comp._texture, comp.node.color);
+        utils.dropColorizedImage(comp._texture, comp.node.color);
     },
 
     draw (ctx, comp) {
