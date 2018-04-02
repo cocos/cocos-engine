@@ -63,10 +63,6 @@ let spriteAssembler = js.addon({
         return util;
     },
 
-    createData (sprite) {
-        return sprite._assembler.createData(sprite);
-    },
-
     updateRenderData (sprite) {
         let datas = sprite.__allocedDatas;
         if (!sprite.spriteFrame) {

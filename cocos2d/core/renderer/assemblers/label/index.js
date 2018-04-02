@@ -26,57 +26,53 @@
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
 const Label = require('../../../components/CCLabel');
-const ttfAssembler = require('./ttf-assembler');
-const bmfontAssembler = require('./bmfont-assembler');
+const ttfAssembler = require('./ttf');
+const bmfontAssembler = require('./bmfont');
 
 var labelAssembler = js.addon({
+
+    getAssembler (comp) {
+        let assembler = ttfAssembler;
+        
+        if (comp.font instanceof cc.BitmapFont) {
+            assembler = bmfontAssembler;
+        }
+
+        return assembler;
+    },
+
     updateRenderData (comp) {
         this.datas.length = 0;
-        if (comp.string !== undefined && comp.string !== null && comp.string !== "") {
-            let assembler;
-            if (comp.font instanceof cc.BitmapFont) {
-                assembler = bmfontAssembler;
-            }
-            else {
-                assembler = ttfAssembler;
-            }
 
-            let renderData = comp._renderData;
-            if (!renderData) {
-                renderData = comp._renderData = assembler.createData(comp);
-            }
+        if (comp.string === undefined || 
+            comp.string === null || 
+            comp.string === "" ||
+            !comp._assembler) {
+            return this.datas;
+        } 
 
-            let size = comp.node._contentSize;
-            let anchor = comp.node._anchorPoint;
-            renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+        let renderData = comp._renderData;
 
-            assembler.update(comp);
+        // let size = comp.node._contentSize;
+        // let anchor = comp.node._anchorPoint;
+        // renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
 
-            renderData.material = comp.getMaterial();
-            this.datas.push(renderData);
-        }
+        comp._assembler.update(comp);
+
+        renderData.material = comp.getMaterial();
+        this.datas.push(renderData);
         return this.datas;
     },
 
     fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let assembler = comp._assembler;
+        if (!assembler) return;
+
         let vertexOffset = batchData.byteOffset / 4,
             indiceOffset = batchData.indiceOffset;
         
-        // vertex buffer
-        if (comp.font instanceof cc.BitmapFont) {
-            bmfontAssembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
-        }
-        else {
-            ttfAssembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
-        }
-
-        // index buffer
-        if (comp.font instanceof cc.BitmapFont) {
-            bmfontAssembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
-        }
-        else {
-            ttfAssembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
-        }
+        assembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
+        assembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
     }
 }, assembler);
 

@@ -172,7 +172,8 @@
   {
     "name": "MotionStreak",
     "entries": [
-      "./cocos2d/motion-streak/index.js"
+      "./cocos2d/core/components/motion-streak/CCMotionStreak.js",
+      "./cocos2d/core/renderer/assemblers/motion-streak.js"
     ]
   },
   {

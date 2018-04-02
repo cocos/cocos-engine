@@ -32,7 +32,7 @@ const js = require('../../platform/js');
 const assembler = require('./assembler');
 const spriteAssembler = require('./sprite/simple');
 const Graphics = require('../../graphics/graphics');
-const graphicsAssembler = require('./graphics/graphics-assembler');
+const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);
@@ -149,7 +149,7 @@ let maskEndAssembler = js.addon({
             datas = mask._renderDatas;
         }
         else {
-            datas = mask._graphics._renderDatas;
+            datas = mask._graphics._impl._renderDatas;
         }
         let material = mask.getMaterial();
         for (let i = 0; i < datas.length; i++) {

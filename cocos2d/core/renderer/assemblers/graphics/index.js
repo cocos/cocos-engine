@@ -28,6 +28,7 @@ const PointFlags = require('../../../graphics/types').PointFlags;
 const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
+const Impl = require('./impl');
 
 const macro = require('../../../platform/CCMacro');
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
@@ -50,6 +51,7 @@ const abs     = Math.abs;
 
 let _matrix = math.mat4.create();
 let _renderData = null;
+let _impl = null;
 let _curColor = 0;
 
 function curveDivs (r, arc, tol) {
@@ -68,8 +70,12 @@ function clamp (v, min, max) {
 }
 
 let graphicsAssembler = js.addon({
+    createImpl () {
+        return new Impl();
+    },
+
     updateRenderData (graphics) {
-        let datas = graphics._renderDatas;
+        let datas = graphics._impl._renderDatas;
         if (datas.length === 0) {
             datas.push(graphics.requestRenderData());
         }
@@ -98,7 +104,7 @@ let graphicsAssembler = js.addon({
             nodeG = nodeColor.g / 255,
             nodeB = nodeColor.b / 255,
             nodeA = nodeColor.a / 255;
-        for (let i = 0, l = data.length; i < l; i++) {
+        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             vbuf[offset++] = data[i].x * a + data[i].y * c + tx;
             vbuf[offset++] = data[i].x * b + data[i].y * d + ty;
             vbuf[offset++] = z;
@@ -122,38 +128,55 @@ let graphicsAssembler = js.addon({
     },
 
     genRenderData (graphics, cverts) {
-        let renderDatas = graphics._renderDatas; 
-        let renderData = renderDatas[renderDatas.length - 1];
-        let maxVertsCount = renderData.dataLength + cverts;
+        let renderDatas = _impl._renderDatas; 
+        let renderData = renderDatas[_impl._dataOffset];
+
+        let maxVertsCount = renderData.vertexCount + cverts;
         if (maxVertsCount > MAX_VERTEX ||
             maxVertsCount * 3 > MAX_INDICE) {
-            renderData = graphics.requestRenderData();
+            ++_impl._dataOffset;
+            maxVertsCount = cverts;
+            
+            if (_impl._dataOffset < renderDatas.length) {
+                renderData = renderDatas[_impl._dataOffset];
+            }
+            else {
+                renderData = graphics.requestRenderData();
+                renderDatas[_impl._dataOffset] = renderData;
+            }
         }
+
+        if (maxVertsCount > renderData.dataLength) {
+            renderData.dataLength = maxVertsCount;
+        }
+
         return renderData;
     },
 
     stroke (graphics) {
-        if (graphics._renderDatas.length === 0) {
-            graphics._renderDatas.push(graphics.requestRenderData());
+        let renderDatas = graphics._impl._renderDatas;
+        if (renderDatas.length === 0) {
+            renderDatas.push(graphics.requestRenderData());
         }
 
         _curColor = graphics._strokeColor._val;
 
-        this._flattenPaths(graphics);
+        this._flattenPaths(graphics._impl);
         this._expandStroke(graphics);
     
-        graphics._updatePathOffset = true;
+        graphics._impl._updatePathOffset = true;
     },
 
     fill (graphics) {
-        if (graphics._renderDatas.length === 0) {
-            graphics._renderDatas.push(graphics.requestRenderData());
+        let renderDatas = graphics._impl._renderDatas;
+        if (renderDatas.length === 0) {
+            renderDatas.push(graphics.requestRenderData());
         }
 
         _curColor = graphics._fillColor._val;
 
         this._expandFill(graphics);
-        this._updatePathOffset = true;
+        graphics._impl._updatePathOffset = true;
     },
 
     _expandStroke (graphics) {
@@ -161,16 +184,18 @@ let graphicsAssembler = js.addon({
             lineCap = graphics.lineCap,
             lineJoin = graphics.lineJoin,
             miterLimit = graphics.miterLimit;
+
+        _impl = graphics._impl;
     
-        let ncap = curveDivs(w, PI, graphics._tessTol);
+        let ncap = curveDivs(w, PI, _impl._tessTol);
     
-        this._calculateJoins(graphics, w, lineJoin, miterLimit);
+        this._calculateJoins(_impl, w, lineJoin, miterLimit);
     
-        let paths = graphics._paths;
+        let paths = _impl._paths;
         
         // Calculate max vertex usage.
         let cverts = 0;
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pointsLength = path.points.length;
 
@@ -186,16 +211,16 @@ let graphicsAssembler = js.addon({
                 }
             }
         }
-
+        
         let renderData = _renderData = this.genRenderData(graphics, cverts),
             data = renderData._data,
             indicesBuffer = renderData._indices;
             
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pts = path.points;
             let pointsLength = pts.length;
-            let offset = data.length;
+            let offset = renderData.vertexCount;
 
             let p0, p1;
             let start, end, loop;
@@ -268,25 +293,27 @@ let graphicsAssembler = js.addon({
 
             // stroke indices
             let indicesOffset = indicesBuffer.length;
-            for (let start = offset+2, end = data.length; start < end; start++) {
+            for (let start = offset+2, end = renderData.vertexCount; start < end; start++) {
                 indicesBuffer[indicesOffset++] = start - 2;
                 indicesBuffer[indicesOffset++] = start - 1;
                 indicesBuffer[indicesOffset++] = start;
             }
         }
 
-        renderData.vertexCount = data.length;
         renderData.indiceCount = indicesBuffer.length;
 
         _renderData = null;
+        _impl = null;
     },
     
     _expandFill (graphics) {
-        let paths = graphics._paths;
+        _impl = graphics._impl;
+
+        let paths = _impl._paths;
 
         // Calculate max vertex usage.
         let cverts = 0;
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pointsLength = path.points.length;
 
@@ -297,7 +324,7 @@ let graphicsAssembler = js.addon({
             data = renderData._data,
             indicesBuffer = renderData._indices;
 
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pts = path.points;
             let pointsLength = pts.length;
@@ -307,7 +334,7 @@ let graphicsAssembler = js.addon({
             }
     
             // Calculate shape vertices.
-            let offset = data.length;
+            let offset = renderData.vertexCount;
     
             for (let j = 0; j < pointsLength; ++j) {
                 this._vset(pts[j].x, pts[j].y);
@@ -317,7 +344,7 @@ let graphicsAssembler = js.addon({
     
             if (path.complex) {
                 let earcutData = [];
-                for (let j = offset, end = data.length; j < end; j++) {
+                for (let j = offset, end = renderData.vertexCount; j < end; j++) {
                     earcutData.push(data[j].x);
                     earcutData.push(data[j].y);
                 }
@@ -334,7 +361,7 @@ let graphicsAssembler = js.addon({
             }
             else {
                 let first = offset;
-                for (let start = offset+2, end = data.length; start < end; start++) {
+                for (let start = offset+2, end = renderData.vertexCount; start < end; start++) {
                     indicesBuffer[indicesOffset++] = first;
                     indicesBuffer[indicesOffset++] = start - 1;
                     indicesBuffer[indicesOffset++] = start;
@@ -342,13 +369,13 @@ let graphicsAssembler = js.addon({
             }
         }
 
-        renderData.vertexCount = data.length;
         renderData.indiceCount = indicesBuffer.length;
 
         _renderData = null;
+        _impl = null;
     },
 
-    _calculateJoins (graphics, w, lineJoin, miterLimit) {
+    _calculateJoins (impl, w, lineJoin, miterLimit) {
         let iw = 0.0;
     
         if (w > 0.0) {
@@ -356,8 +383,8 @@ let graphicsAssembler = js.addon({
         }
     
         // Calculate which joins needs extra vertices to append, and gather vertex count.
-        let paths = graphics._paths;
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+        let paths = impl._paths;
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
     
             let pts = path.points;
@@ -420,9 +447,9 @@ let graphicsAssembler = js.addon({
         }
     },
     
-    _flattenPaths (graphics) {
-        let paths = graphics._paths;
-        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+    _flattenPaths (impl) {
+        let paths = impl._paths;
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pts = path.points;
     
@@ -613,13 +640,13 @@ let graphicsAssembler = js.addon({
     
     _vset (x, y) {
         let data = _renderData._data;
-
-        let offset = data.length;
-        _renderData.dataLength = offset + 1;
+        let offset = _renderData.vertexCount;
 
         data[offset].x = x;
         data[offset].y = y;
         data[offset].color = _curColor;
+
+        _renderData.vertexCount ++;
     }
 }, assembler);
 

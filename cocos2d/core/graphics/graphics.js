@@ -33,41 +33,6 @@ const Helper = require('./helper');
 const Types = require('./types');
 const LineCap = Types.LineCap;
 const LineJoin = Types.LineJoin;
-const PointFlags = Types.PointFlags;
-
-// Point
-function Point (x, y) {
-    cc.Vec2.call(this, x, y);
-    this.reset();
-}
-cc.js.extend(Point, cc.Vec2);
-
-Point.prototype.reset = function () {
-    this.dx = 0;
-    this.dy = 0;
-    this.dmx = 0;
-    this.dmy = 0;
-    this.flags = 0;
-    this.len = 0;
-};
-
-// Path
-function Path () {
-    this.reset();
-}
-Path.prototype.reset = function () {
-    this.closed = false;
-    this.nbevel = 0;
-    this.complex = true;
-
-    if (this.points) {
-        this.points.length = 0;
-    }
-    else {
-        this.points = [];
-    }
-};
-
 
 /**
  * @class Graphics
@@ -82,25 +47,7 @@ let Graphics = cc.Class({
     },
 
     ctor () {
-        // inner properties
-        this._tessTol = 0.25;
-        this._distTol = 0.01;
-        this._updatePathOffset = false;
-        
-        this._paths = null;
-        this._pathLength = 0;
-        this._pathOffset = 0;
-        
-        this._points = null;
-        this._pointsOffset = 0;
-        
-        this._commandx = 0;
-        this._commandy = 0;
-
-        this._paths = [];
-        this._points = [];
-
-        this._renderDatas = [];
+        this._impl = Graphics._assembler.createImpl();
     },
 
     properties: {
@@ -125,6 +72,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineWidth = value;
+                this._impl.lineWidth = value;
             }
         },
 
@@ -142,6 +90,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineJoin = value;
+                this._impl.lineJoin = value;
             },
             type: LineJoin
         },
@@ -160,6 +109,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineCap = value;
+                this._impl.lineCap = value;
             },
             type: LineCap
         },
@@ -178,6 +128,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._strokeColor = cc.color(value);
+                this._impl.strokeColor = value;
             }
         },
 
@@ -195,6 +146,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._fillColor = cc.color(value);
+                this._impl.fillColor = value;
             }
         },
 
@@ -212,6 +164,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._miterLimit = value;
+                this._impl.miterLimit = value;
             }
         }
     },
@@ -228,8 +181,7 @@ let Graphics = cc.Class({
 
     onDestroy () {
         this._super();
-        // all requested render data will be destroyed by RenderComponent
-        this._renderDatas.length = 0;
+        this._impl = null;
     },
 
     _activateMaterial () {
@@ -248,16 +200,7 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     moveTo (x, y) {
-        if (this._updatePathOffset) {
-            this._pathOffset = this._pathLength;
-            this._updatePathOffset = false;
-        }
-    
-        this._addPath();
-        this._addPoint(x, y, PointFlags.PT_CORNER);
-    
-        this._commandx = x;
-        this._commandy = y;
+        this._impl.moveTo(x, y);
     },
 
     /**
@@ -268,10 +211,7 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     lineTo (x, y) {
-        this._addPoint(x, y, PointFlags.PT_CORNER);
-        
-        this._commandx = x;
-        this._commandy = y;
+        this._impl.lineTo(x, y);
     },
 
     /**
@@ -286,18 +226,7 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     bezierCurveTo (c1x, c1y, c2x, c2y, x, y) {
-        var path = this._curPath;
-        var last = path.points[path.points.length - 1];
-    
-        if (last.x === c1x && last.y === c1y && c2x === x && c2y === y) {
-            this.lineTo(x, y);
-            return;
-        }
-    
-        Helper.tesselateBezier(this, last.x, last.y, c1x, c1y, c2x, c2y, x, y, 0, PointFlags.PT_CORNER);
-    
-        this._commandx = x;
-        this._commandy = y;
+        this._impl.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
     },
 
     /**
@@ -310,9 +239,7 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     quadraticCurveTo (cx, cy, x, y) {
-        var x0 = this._commandx;
-        var y0 = this._commandy;
-        this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
+        this._impl.quadraticCurveTo(cx, cy, x, y);
     },
 
     /**
@@ -327,7 +254,7 @@ let Graphics = cc.Class({
      * @param {Number} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
      */
     arc (cx, cy, r, startAngle, endAngle, counterclockwise) {
-        Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
+        this._impl.arc(cx, cy, r, startAngle, endAngle, counterclockwise);
     },
 
     /**
@@ -340,8 +267,7 @@ let Graphics = cc.Class({
      * @param {Number} [ry] The ellipse's y-axis radius.
      */
     ellipse (cx, cy, rx, ry) {
-        Helper.ellipse(this, cx, cy, rx, ry);
-        this._curPath.complex = false;
+        this._impl.ellipse(cx, cy, rx, ry);
     },
 
     /**
@@ -353,8 +279,7 @@ let Graphics = cc.Class({
      * @param {Number} [r] The circle's radius.
      */
     circle (cx, cy, r) {
-        Helper.ellipse(this, cx, cy, r, r);
-        this._curPath.complex = false;
+        this._impl.circle(cx, cy, r);
     },
 
     /**
@@ -367,12 +292,7 @@ let Graphics = cc.Class({
      * @param {Number} [h] The rectangle's height.
      */
     rect (x, y, w, h) {
-        this.moveTo(x, y);
-        this.lineTo(x, y + h);
-        this.lineTo(x + w, y + h);
-        this.lineTo(x + w, y);
-        this.close();
-        this._curPath.complex = false;
+        this._impl.rect(x, y, w, h);
     },
 
     /**
@@ -386,8 +306,7 @@ let Graphics = cc.Class({
      * @param {Number} [r] The radius of the rectangle.
      */
     roundRect (x, y, w, h, r) {
-        Helper.roundRect(this, x, y, w, h, r);
-        this._curPath.complex = false;
+        this._impl.roundRect(x, y, w, h, r);
     },
 
     /**
@@ -411,29 +330,7 @@ let Graphics = cc.Class({
      * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
     clear (clean) {
-        this._pathLength = 0;
-        this._pathOffset = 0;
-        this._pointsOffset = 0;
-        
-        this._curPath = null;
-    
-        let datas = this._renderDatas;
-        if (clean) {
-            this._paths.length = 0;
-            this._points.length = 0;
-            // manually destroy render datas
-            for (let i = 0, l = datas.length; i < l; i++) {
-                this.destroyRenderData(datas[i]);
-            }
-            datas.length = 0;
-        }
-        else {
-            for (let i = 0, l = datas.length; i < l; i++) {
-                let data = datas[i];
-                data.vertexCount = data.indiceCount = data.dataLength = 0;
-                data._indices.length = 0;
-            }
-        }
+        this._impl.clear(this, clean);
     },
 
     /**
@@ -442,7 +339,7 @@ let Graphics = cc.Class({
      * @method close
      */
     close () {
-        this._curPath.closed = true;
+        this._impl.close();
     },
 
     /**
@@ -461,47 +358,6 @@ let Graphics = cc.Class({
      */
     fill () {
         Graphics._assembler.fill(this);
-    },
-
-    _addPath () {
-        var offset = this._pathLength;
-        var path = this._paths[offset];
-    
-        if (!path) {
-            path = new Path();
-    
-            this._paths.push(path);
-        } else {
-            path.reset();
-        }
-    
-        this._pathLength++;
-        this._curPath = path;
-    
-        return path;
-    },
-    
-    _addPoint (x, y, flags) {
-        var path = this._curPath;
-        if (!path) return;
-    
-        var pt;
-        var points = this._points;
-        var pathPoints = path.points;
-    
-        var offset = this._pointsOffset++;
-        pt = points[offset];
-    
-        if (!pt) {
-            pt = new Point(x, y);
-            points.push(pt);
-        } else {
-            pt.x = x;
-            pt.y = y;
-        }
-    
-        pt.flags = flags;
-        pathPoints.push(pt);
     }
 });
 

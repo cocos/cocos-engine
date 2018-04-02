@@ -35,7 +35,7 @@ function colorizedFrame (canvas, texture, color, sx, sy, sw, sh) {
 
     // Draw color
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = 'rgba(' + color.r + ',' + color.g + ',' + color.b + ')';
+    ctx.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
     ctx.fillRect(0, 0, sw, sh);
 
     // Multiply color with texture
@@ -97,12 +97,11 @@ let canvasMgr = {
         }
     },
     
-    // dropImage (texture, color) {
-    //     let key = texture.url + (color._val & 0x00ffffff);
-    //     if (this.canvasMap[key]) {
-    //         delete this.canvasMap[key];
-    //     }
-    // }
+    dropImage (key) {
+        if (this.canvasMap[key]) {
+            delete this.canvasMap[key];
+        }
+    }
 };
 
 module.exports = {
@@ -156,5 +155,10 @@ module.exports = {
             canvasMgr.cacheCanvas(cache, key);
         }
         return cache;
+    },
+
+    dropColorizedImage (texture, color) {
+        let key = texture.url + (color._val & 0x00ffffff);
+        canvasMgr.dropImage(key);
     }
 };

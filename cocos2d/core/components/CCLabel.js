@@ -147,6 +147,31 @@ function debounce (func, wait, immediate) {
     };
 }
 
+let _canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                _canvas: canvas,
+                _context: context
+            }
+        }
+
+        data.width = data.height = 1;
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
+
 
 /**
  * !#en The Label Component.
@@ -164,6 +189,7 @@ var Label = cc.Class({
         }
 
         this._actualFontSize = 0;
+        this._assemblerData = null;
     },
 
     editor: CC_EDITOR && {
@@ -356,6 +382,7 @@ var Label = cc.Class({
                 }
                 this._fontAtlas = null;
                 this._material = null;
+                this._updateAssembler();
                 this._activateMaterial();
                 this._updateRenderData();
             },
@@ -441,11 +468,40 @@ var Label = cc.Class({
 
     onEnable: function () {
         this._super();
+
+        this._updateAssembler();
         this._activateMaterial();
+    },
+
+    onDestroy () {
+        this._resetAssemblerData();
+    },
+
+    _resetAssemblerData () {
+        if (this._assemblerData) {
+            _canvasPool.put(this._assemblerData);
+        }
+        this._assemblerData = null;
+    },
+
+    _updateAssembler () {
+        let assembler = Label._assembler.getAssembler(this);
+        
+        if (this._assembler !== assembler) {
+            this._assembler = assembler;
+            this._renderData = null;
+        }
+
+        if (!this._renderData) {
+            this._renderData = this._assembler.createData(this);
+            this._renderData.worldMatDirty = true;
+        }
     },
 
     _activateMaterial: function () {
         if (this._material) return;
+
+        this._resetAssemblerData();
 
         let material;
         let font = this.font;
@@ -458,19 +514,21 @@ var Label = cc.Class({
             
             material = new SpriteMaterial();
             // TODO: old texture in material have been released by loader
-            material.texture = spriteFrame.getTexture();
+            material.texture = this._texture = spriteFrame._texture;
         }
         else {
-            material = new SpriteMaterial();
-            this._texture = new cc.Texture2D();
-            this._canvas = document.createElement("canvas");
-            // create canvas with size so that the default texture impl can be created and don't need activate material again
-            this._canvas.width = this._canvas.height = 1;
-            this._texture.initWithElement(this._canvas);
-            this._texture.handleLoadedTexture();
-            this._context = this._canvas.getContext("2d");
+            this._assemblerData = _canvasPool.get();
 
+            this._texture = new cc.Texture2D();
+            this._texture.initWithElement(this._assemblerData._canvas);
+            this._texture.handleLoadedTexture();
+
+            material = new SpriteMaterial();
             material.texture = this._texture;
+        }
+
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            this._texture.url = this.uuid + '_texture';
         }
 
         this.setMaterial(material);
