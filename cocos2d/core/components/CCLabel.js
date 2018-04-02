@@ -147,6 +147,31 @@ function debounce (func, wait, immediate) {
     };
 }
 
+let _canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                _canvas: canvas,
+                _context: context
+            }
+        }
+
+        data.width = data.height = 1;
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
+
 
 /**
  * !#en The Label Component.
@@ -448,6 +473,17 @@ var Label = cc.Class({
         this._activateMaterial();
     },
 
+    onDestroy () {
+        this._resetAssemblerData();
+    },
+
+    _resetAssemblerData () {
+        if (this._assemblerData) {
+            _canvasPool.put(this._assemblerData);
+        }
+        this._assemblerData = null;
+    },
+
     _updateAssembler () {
         let assembler = Label._assembler.getAssembler(this);
         
@@ -465,7 +501,7 @@ var Label = cc.Class({
     _activateMaterial: function () {
         if (this._material) return;
 
-        this._assemblerData = null;
+        this._resetAssemblerData();
 
         let material;
         let font = this.font;
@@ -481,15 +517,10 @@ var Label = cc.Class({
             material.texture = this._texture = spriteFrame._texture;
         }
         else {
-            let assemblerData = this._assemblerData = {};
-
-            assemblerData._canvas = document.createElement("canvas");
-            // create canvas with size so that the default texture impl can be created and don't need activate material again
-            assemblerData._canvas.width = assemblerData._canvas.height = 1;
-            assemblerData._context = assemblerData._canvas.getContext("2d");
+            this._assemblerData = _canvasPool.get();
 
             this._texture = new cc.Texture2D();
-            this._texture.initWithElement(assemblerData._canvas);
+            this._texture.initWithElement(this._assemblerData._canvas);
             this._texture.handleLoadedTexture();
 
             material = new SpriteMaterial();
