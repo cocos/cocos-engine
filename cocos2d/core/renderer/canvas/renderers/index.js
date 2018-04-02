@@ -30,14 +30,15 @@ let Label = require('../../../components/CCLabel');
 let Mask = require('../../../components/CCMask');
 let RichText = require('../../../components/CCRichText');
 // the following should be placed into their own module folder
-// let Graphics = require('../../../graphics/graphics');
+let Graphics = require('../../../graphics/graphics');
 // let ParticleSystem = require('../../../../particle/CCParticleSystem');
 // let TiledLayer = require('../../../../tilemap/CCTiledLayer');
 // let Skeleton = require('../../../../../extensions/spine/Skeleton');
 // let Armature = require('../../../../../extensions/dragonbones/ArmatureDisplay');
 
-let spriteRenderer = require('./sprite/');
-let labelRenderer = require('./label/');
+let spriteRenderer = require('./sprite');
+let labelRenderer = require('./label');
+let graphicsRenderer = require('./graphics');
 
 let map = {};
 let postMap = {};
@@ -56,6 +57,7 @@ addRenderer(Sprite, spriteRenderer);
 addRenderer(Label, labelRenderer);
 addRenderer(Mask, null);
 addRenderer(RichText, null);
+addRenderer(Graphics, graphicsRenderer);
 
 module.exports = {
     map,

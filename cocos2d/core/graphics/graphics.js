@@ -72,6 +72,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineWidth = value;
+                this._impl.lineWidth = value;
             }
         },
 
@@ -89,6 +90,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineJoin = value;
+                this._impl.lineJoin = value;
             },
             type: LineJoin
         },
@@ -107,6 +109,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._lineCap = value;
+                this._impl.lineCap = value;
             },
             type: LineCap
         },
@@ -125,6 +128,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._strokeColor = cc.color(value);
+                this._impl.strokeColor = value;
             }
         },
 
@@ -142,6 +146,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._fillColor = cc.color(value);
+                this._impl.fillColor = value;
             }
         },
 
@@ -159,6 +164,7 @@ let Graphics = cc.Class({
             },
             set (value) {
                 this._miterLimit = value;
+                this._impl.miterLimit = value;
             }
         }
     },
