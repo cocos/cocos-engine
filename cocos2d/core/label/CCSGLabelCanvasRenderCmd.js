@@ -25,7 +25,8 @@
 
  ****************************************************************************/
 (function () {
-    _ccsg.Label.TTFLabelBaker = function () {};
+    _ccsg.Label.TTFLabelBaker = function () {
+    };
 
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
@@ -43,7 +44,7 @@
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
         }
 
-        if(locFlag & flags.contentDirty) {
+        if (locFlag & flags.contentDirty) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
             this._dirtyFlag &= ~flags.contentDirty;
         }
@@ -59,29 +60,33 @@
         }
     };
 
-
     proto._syncStatus = function (parentCmd) {
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
-        if (parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
+        if (parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty)) {
             locFlag |= flags.colorDirty;
+        }
 
-        if (parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
+        if (parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty)) {
             locFlag |= flags.opacityDirty;
+        }
 
-        if (parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
+        if (parentCmd && (parentCmd._dirtyFlag & flags.transformDirty)) {
             locFlag |= flags.transformDirty;
+        }
 
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
 
         this._dirtyFlag = locFlag;
 
-        if (colorDirty)
+        if (colorDirty) {
             this._syncDisplayColor();
-        if (opacityDirty)
+        }
+        if (opacityDirty) {
             this._syncDisplayOpacity();
+        }
 
         if (colorDirty || opacityDirty || (this._dirtyFlag & flags.textDirty)) {
             this._rebuildLabelSkin();
@@ -110,21 +115,20 @@
         var fontDesc = node._fontSize.toString() + 'px ';
         var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
         fontDesc = fontDesc + fontFamily;
-        if(node._isBold) {
-            fontDesc = "bold " + fontDesc;
+        if (node._isBold) {
+            fontDesc = 'bold ' + fontDesc;
         }
 
         return fontDesc;
     };
 
     proto._measureText = function (ctx) {
-        return function(string) {
+        return function (string) {
             return ctx.measureText(string).width;
         };
     };
 
-
-    proto._calculateLabelFont = function() {
+    proto._calculateLabelFont = function () {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
 
@@ -144,7 +148,7 @@
 
                 var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
                 var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
-                if(canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
+                if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                     fontDesc = this._constructFontDesc();
                     this._labelContext.font = fontDesc;
                     return fontDesc;
@@ -152,7 +156,7 @@
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
                 var actualFontSize = this._drawFontsize + 1;
-                var textFragment = "";
+                var textFragment = '';
                 var tryDivideByTwo = true;
                 var startShrinkFontSize = actualFontSize | 0;
 
@@ -163,7 +167,7 @@
                         actualFontSize = startShrinkFontSize - 1;
                         startShrinkFontSize = actualFontSize;
                     }
-                    if(actualFontSize <= 0) {
+                    if (actualFontSize <= 0) {
                         cc.logID(4003);
                         break;
                     }
@@ -176,11 +180,13 @@
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         var j = 0;
                         var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
-                        textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
-                                                                 allWidth,
-                                                                 canvasWidthNoMargin,
-                                                                 this._measureText(this._labelContext));
-                        while(j < textFragment.length) {
+                        textFragment = cc.TextUtils.fragmentText(
+                            paragraphedStrings[i],
+                            allWidth,
+                            canvasWidthNoMargin,
+                            this._measureText(this._labelContext),
+                        );
+                        while (j < textFragment.length) {
                             var measureWidth = this._labelContext.measureText(textFragment[j]).width;
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
@@ -189,7 +195,7 @@
                         this._splitedStrings = this._splitedStrings.concat(textFragment);
                     }
 
-                    if(tryDivideByTwo) {
+                    if (tryDivideByTwo) {
                         if (totalHeight > canvasHeightNoMargin) {
                             startShrinkFontSize = actualFontSize | 0;
                         } else {
@@ -219,11 +225,11 @@
         return fontDesc;
     };
 
-    proto._getMargin = function() {
+    proto._getMargin = function () {
         return (this._node && this._node._margin) || 0;
     };
 
-    proto._calculateParagraphLength = function(paragraphedStrings, ctx) {
+    proto._calculateParagraphLength = function (paragraphedStrings, ctx) {
         var paragraphLength = [];
 
         for (var i = 0; i < paragraphedStrings.length; ++i) {
@@ -234,17 +240,21 @@
         return paragraphLength;
     };
 
-    proto._calculateCanvasSize = function() {
+    proto._calculateCanvasSize = function () {
         var node = this._node;
         var canvasWidth = node._contentSize.width;
         var canvasHeight = node._contentSize.height;
-        if (canvasWidth <= 0) canvasWidth = 1;
-        if (canvasHeight <= 0) canvasHeight = 1;
+        if (canvasWidth <= 0) {
+            canvasWidth = 1;
+        }
+        if (canvasHeight <= 0) {
+            canvasHeight = 1;
+        }
 
         return cc.size(canvasWidth, canvasHeight);
     };
 
-    proto._calculateSplitedStrings = function() {
+    proto._calculateSplitedStrings = function () {
         var node = this._node;
 
         var paragraphedStrings = node._string.split('\n');
@@ -255,10 +265,12 @@
             var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
             for (i = 0; i < paragraphedStrings.length; ++i) {
                 var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
-                var textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
-                                                             allWidth,
-                                                             canvasWidthNoMargin,
-                                                             this._measureText(this._labelContext));
+                var textFragment = cc.TextUtils.fragmentText(
+                    paragraphedStrings[i],
+                    allWidth,
+                    canvasWidthNoMargin,
+                    this._measureText(this._labelContext),
+                );
                 this._splitedStrings = this._splitedStrings.concat(textFragment);
             }
         }
@@ -268,7 +280,7 @@
 
     };
 
-    proto._updateLabelDimensions = function() {
+    proto._updateLabelDimensions = function () {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
         var i;
@@ -278,7 +290,7 @@
             this._canvasSize.height = this._splitedStrings.length * this._getLineHeight();
             _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
-        else if(_ccsg.Label.Overflow.NONE === node._overFlow) {
+        else if (_ccsg.Label.Overflow.NONE === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
             var canvasSizeX = 0;
             var canvasSizeY = 0;
@@ -290,7 +302,7 @@
 
             this._canvasSize.width = Math.round(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
             this._canvasSize.height = Math.round(canvasSizeY.toFixed(2));
-            if(node._isItalic) {
+            if (node._isItalic) {
                 //0.0174532925 = 3.141592653 / 180
                 this._canvasSize.width += node._drawFontsize * Math.tan(12 * 0.0174532925);
             }
@@ -302,7 +314,7 @@
 
     };
 
-    proto._calculateFillTextStartPosition = function() {
+    proto._calculateFillTextStartPosition = function () {
         var node = this._node;
         var lineHeight = this._getLineHeight();
         var lineCount = this._splitedStrings.length;
@@ -332,7 +344,7 @@
         return cc.p(labelX, firstLinelabelY);
     };
 
-    proto._calculateTextBaseline = function() {
+    proto._calculateTextBaseline = function () {
         var node = this._node;
         var hAlign;
         var vAlign;
@@ -375,7 +387,6 @@
         this._updateTexture();
     };
 
-
     proto._calculateUnderlineStartPosition = function () {
         var node = this._node;
         var lineHeight = this._getLineHeight();
@@ -398,7 +409,7 @@
         return cc.p(labelX, firstLinelabelY);
     };
 
-    proto._updateTexture = function() {
+    proto._updateTexture = function () {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
 
         this._labelContext.font = this._fontDesc;
@@ -413,26 +424,39 @@
 
         //do real rendering
         for (var i = 0; i < this._splitedStrings.length; ++i) {
-            if(this._node.isOutlined())
-            {
-                var strokeColor = this._node.getOutlineColor() || cc.color(255,255,255,255);
+            if (this._node.isOutlined()) {
+                var strokeColor = this._node.getOutlineColor() || cc.color(255, 255, 255, 255);
                 this._labelContext.globalCompositeOperation = 'source-over';
                 this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
                 this._labelContext.lineWidth = this._node.getOutlineWidth() * 2;
                 this._labelContext.strokeText(this._splitedStrings[i],
-                                              startPosition.x, startPosition.y + i * lineHeight);
+                    startPosition.x, startPosition.y + i * lineHeight,
+                );
             }
-            if(this._node.getFillColorGradientEnabled()) {
+            if (this._node.getFillColorGradientEnabled()) {
                 var gradientStartColor = this._node.getGradientStartColor() || cc.color(255, 255, 255, 255);
                 var gradientEndColor = this._node.getGradientEndColor() || cc.color(255, 255, 255, 255);
                 var gradientArgument = this._getGradientArgs();
-                var gradient = this._labelContext.createLinearGradient(gradientArgument.left, gradientArgument.top, gradientArgument.right, gradientArgument.bottom);
+                var gradient = this._labelContext.createLinearGradient(
+                    gradientArgument.left,
+                    gradientArgument.top,
+                    gradientArgument.right,
+                    gradientArgument.bottom,
+                );
                 gradient.addColorStop(0, cc.colorToHex(gradientStartColor));
                 gradient.addColorStop(1, cc.colorToHex(gradientEndColor));
                 this._labelContext.fillStyle = gradient;
             }
+            const shadow = this._node.getShadowOptions();
+            if (shadow) {
+                this._labelContext.shadowColor = shadow.color;
+                this._labelContext.shadowOffsetX = shadow.offset.width;
+                // 需要校正坐标系
+                this._labelContext.shadowOffsetY = -shadow.offset.height;
+                this._labelContext.shadowBlur = shadow.blur;
+            }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
-            if(this._node._isUnderline) {
+            if (this._node._isUnderline) {
                 underlineStartPosition = this._calculateUnderlineStartPosition();
                 this._labelContext.save();
                 this._labelContext.beginPath();
@@ -456,8 +480,8 @@
         this._gradientArgument.left = 0;
         this._gradientArgument.top = 0;
         var contentSize = this._node._contentSize;
-        switch(this._node.getFillColorGradientDirection()) {
-                //horizontal
+        switch (this._node.getFillColorGradientDirection()) {
+            //horizontal
             case 0:
                 this._gradientArgument.right = contentSize.width;
                 this._gradientArgument.bottom = 0;
@@ -506,7 +530,7 @@
             bb = this._currentRegion,
             l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY,
             vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
-            
+
         this._needDraw = !(r < vl || l > vr || t < vb || b > vt);
     };
 
@@ -518,8 +542,9 @@
             var locDisplayOpacity = this._displayedOpacity;
             var alpha = locDisplayOpacity / 255;
 
-            if (locDisplayOpacity === 0)
+            if (locDisplayOpacity === 0) {
                 return;
+            }
 
             var wrapper = ctx || cc._renderContext,
                 context = wrapper.getContext();
@@ -536,7 +561,6 @@
                 w = this._node._contentSize.width;
                 h = this._node._contentSize.height;
 
-
                 var textureWidth = this._texture.getPixelWidth();
                 var textureHeight = this._texture.getPixelHeight();
 
@@ -551,10 +575,11 @@
                     context.fillRect(x, y, w, h);
                 }
                 else {
-                    if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+                    if (sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
                         context.drawImage(image,
                             sx, sy, sw, sh,
-                            x, y, w, h);
+                            x, y, w, h,
+                        );
                     }
                 }
             }
