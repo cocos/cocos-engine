@@ -584,11 +584,13 @@ static bool js_loadImage(se::State& s)
         std::string fullPath;
         int imageBytes = 0;
         unsigned char* imageData = nullptr;
-        std::smatch match;
-        if (path.find("data:") == 0 && std::regex_match(path.cbegin(), path.cend(), match, std::regex("^data:image/\\w+;base64,(.*?)$")))
+        size_t pos = std::string::npos;
+        if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
         {
-            std::string base64Str = match[1];
-            imageBytes = base64Decode((const unsigned char *)base64Str.data(), (unsigned int)base64Str.length(), &imageData);
+            size_t dataStartPos = pos + strlen("base64,");
+            const char* base64Data = path.data() + dataStartPos;
+            size_t dataLen = path.length() - dataStartPos;
+            imageBytes = base64Decode((const unsigned char *)base64Data, (unsigned int)dataLen, &imageData);
             if (imageBytes <= 0 || imageData == nullptr)
             {
                 SE_REPORT_ERROR("Decode base64 image data failed!");
