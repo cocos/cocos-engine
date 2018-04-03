@@ -110,13 +110,12 @@ let tmxAssembler = js.addon({
         let appx = node._anchorPoint.x * node._contentSize.width,
             appy = node._anchorPoint.y * node._contentSize.height;
 
-        node.getWorldMatrix(_mat4_temp2);
+        node.getWorldMatrix(_mat4_temp);
         vec3.set(_vec3_temp, -appx, -appy, 0);
-        mat4.translate(_mat4_temp2, _mat4_temp2, _vec3_temp);
+        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 
-        let matrix = _mat4_temp2;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05,
+            tx = _mat4_temp.m12, ty = _mat4_temp.m13;
 
         let maptw = comp._mapTileSize.width,
             mapth = comp._mapTileSize.height,
@@ -148,8 +147,8 @@ let tmxAssembler = js.addon({
         if (enabledCulling) {
             let camera = cc.Camera.findCamera(comp.node);
             if (camera) {
-                camera.getWorldToCameraMatrix(_mat4_temp);
-                mat4.mul(_mat4_temp, matrix, _mat4_temp);
+                camera.getWorldToCameraMatrix(_mat4_temp2);
+                mat4.mul(_mat4_temp, _mat4_temp, _mat4_temp2);
                 cullingA = _mat4_temp.m00;
                 cullingD = _mat4_temp.m05;
                 cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
@@ -159,7 +158,7 @@ let tmxAssembler = js.addon({
             }
                 
             if (layerOrientation === Orientation.ORTHO) {
-                cc.vmath.mat4.invert(_mat4_temp, _mat4_temp);
+                mat4.invert(_mat4_temp, _mat4_temp);
 
                 let rect = cc.visibleRect;
                 let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05, 
@@ -256,7 +255,7 @@ let tmxAssembler = js.addon({
                     mat4.copy(_mat4_temp, tiledNode._mat4_temp);
                     vec3.set(_vec3_temp, -left, -bottom, 0);
                     mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-                    mat4.multiply(_mat4_temp, matrix, _mat4_temp);
+                    mat4.multiply(_mat4_temp, node._worldMatrix, _mat4_temp);
                     a = _mat4_temp.m00; b = _mat4_temp.m01; c = _mat4_temp.m04; d = _mat4_temp.m05;
                     tx = _mat4_temp.m12; ty = _mat4_temp.m13;
                 }
