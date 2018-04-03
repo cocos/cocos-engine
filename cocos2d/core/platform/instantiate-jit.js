@@ -162,7 +162,14 @@ function equalsToDefault (def, value) {
             (def.constructor === Object && value.constructor === Object)
         ) {
             try {
-                return JSON.stringify(def) === JSON.stringify(value);
+                if (CC_JSB) {
+                    //FIXME: JSON.stringify will take lots of time for compare object at runtime on JSB.
+                    // We need to consider a new way for checking whether two objects are equal.
+                    return false;
+                }
+                else {
+                    return JSON.stringify(def) === JSON.stringify(value);
+                }
             }
             catch (e) {
             }

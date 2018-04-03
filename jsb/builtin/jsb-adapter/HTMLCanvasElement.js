@@ -22,8 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
 const HTMLElement = require('./HTMLElement');
 const ImageData = require('./ImageData');
+const DOMRect = require('./DOMRect');
 
 class CanvasGradient {
     constructor() {
@@ -276,6 +278,18 @@ class HTMLCanvasElement extends HTMLElement {
         return this._height;
     }
 
+    get clientWidth() {
+        return this._width;
+    }
+
+    get clientHeight() {
+        return this._height;
+    }
+
+    getBoundingClientRect() {
+        return new DOMRect(0, 0, this._width, this._height);
+    }
+
     addEventListener(eventName, listener, options) {
         let ret = super.addEventListener(eventName, listener, options);
         if (ret) {
@@ -316,6 +330,10 @@ ctx2DProto.getImageData = function(sx, sy, sw, sh) {
 ctx2DProto.drawImage = function(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
     //TODO:cjh
 }
+
+//TODO:cjh
+ctx2DProto.bezierCurveTo = function() {}
+ctx2DProto.fill = function() {}
 
 function touchEventHandlerFactory(type) {
     return (touches) => {
