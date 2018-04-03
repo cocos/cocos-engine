@@ -468,7 +468,15 @@ cc.CallFunc = cc.ActionInstant.extend({
      */
     execute:function () {
         if (this._function) {
-            this._function.call(this._selectorTarget, this.target, this._data);
+            try {
+                this._function.call(this._selectorTarget, this.target, this._data);
+            } catch(e) {
+                if (Log && Log.Error) {
+                    Log.Error(e.message);
+                } else {
+                    console.error(e.message);
+                }
+            }
         }
     },
 
