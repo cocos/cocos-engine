@@ -1266,7 +1266,7 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     }
     label._updateLabel();
     return true;
-}, 20);
+}, 120);
 
 _ccsg.Label.pool.get = function (string, fontAsset) {
     var label = this._get();
