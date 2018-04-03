@@ -80,7 +80,8 @@ var _sharedResources = [];
 var _sharedList = [];
 
 /**
- * Loader for resource loading process. It's a singleton object.
+ * !#en Loader for resource loading process. It's a singleton object.
+ * !#zh Loader 是一个管控读取资源进程的单例对象。
  * @class loader
  * @extends Pipeline
  * @static
@@ -97,26 +98,34 @@ function CCLoader () {
     ]);
 
     /**
-     * The asset loader in cc.loader's pipeline, it's by default the first pipe.
+     * !#en The asset loader in cc.loader's pipeline, it's by default the first pipe.
      * It's used to identify an asset's type, and determine how to download it.
+     * !#zh assetLoader 在 cc.loader 的管线中，被默认作为第一个管道。
+     * 它被用来识别一个资产的类型，同时决定如何下载它。
      * @property assetLoader
      * @type {Object}
      */
     this.assetLoader = assetLoader;
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the second pipe.
+     * !#en The downloader in cc.loader's pipeline, it's by default the second pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
      * You can add your own download function with addDownloadHandlers
+     * !#zh downloader 在 cc.loader 的管线中，被默认作为第二管道。
+     * 它通过设置几种句柄类型（如：pure text，image，script，audio，font，uuid）来下载文件。
+     * 你能够通过 addDownloadHandlers 函数来添加自己的下载函数。
      * @property downloader
      * @type {Object}
      */
     this.downloader = downloader;
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the third pipe.
+     * !#en The loader in cc.loader's pipeline, it's by default the third pipe.
      * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
-     * You can add your own download function with addLoadHandlers
+     * You can add your own load function with addLoadHandlers
+     * !#zh loader 在 cc.loader 的管线中，被默认作为第三个管道。
+     * 它通过设置几种句柄类型（如：JSON，image，plist，fnt，uuid）来解析下载好的文件内容。
+     * 你可以通过 addLoadHandles 来添加自己的读取函数。
      * @property loader
      * @type {Object}
      */
@@ -144,14 +153,16 @@ proto.init = function (director) {
 };
 
 /**
- * Gets a new XMLHttpRequest instance.
+ * !#en Gets a new XMLHttpRequest instance.
+ * !#zh 获取一个新的 XMLHttpRequest 详情。
  * @method getXMLHttpRequest
  * @returns {XMLHttpRequest}
  */
 proto.getXMLHttpRequest = getXMLHttpRequest;
 
 /**
- * Add custom supported types handler or modify existing type handler for download process.
+ * !#en Add custom supported types handler or modify existing type handler for download process.
+ * !#zh 在下载进程中添加自定义可支持类型句柄或修饰已存在类型句柄。
  * @example
  *  cc.loader.addDownloadHandlers({
  *      // This will match all url with `.scene` extension or all url with `scene` type
@@ -165,7 +176,8 @@ proto.addDownloadHandlers = function (extMap) {
 };
 
 /**
- * Add custom supported types handler or modify existing type handler for load process.
+ * !#en Add custom supported types handler or modify existing type handler for load process.
+ * !#zh 在读取进行中添加自定义可支持类型句柄或修饰已存在类型句柄。
  * @example
  *  cc.loader.addLoadHandlers({
  *      // This will match all url with `.scene` extension or all url with `scene` type
@@ -179,7 +191,7 @@ proto.addLoadHandlers = function (extMap) {
 };
 
 /**
- * Load resources with a progression callback and a complete callback.
+ * !#en Load resources with a progression callback and a complete callback.
  * The progression callback is the same as Pipeline's {{#crossLink "LoadingItems/onProgress:method"}}onProgress{{/crossLink}}
  * The complete callback is almost the same as Pipeline's {{#crossLink "LoadingItems/onComplete:method"}}onComplete{{/crossLink}}
  * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
@@ -206,7 +218,10 @@ proto.addLoadHandlers = function (extMap) {
  *     var aTex = results.getContent('a.png');
  *     var bJsonObj = results.getContent('b.json');
  * });
- *
+ *!#zh 通过进展回调函数或者一个完成回调进行读取资源操作。
+ * 进展回调函数与管线的 {{#crossLink "LoadingItems/onProgress:method"}}onProgress{{/crossLink}} 相同。
+ * 完成回调与管线的 {{#crossLink "LoadingItems/onComplete:method"}}onComplete{{/crossLink}} 几乎相同。
+ * 二者唯一的区别在于当用户将一个单独的地址作为资源，完成回调函数会直接设置返回结果为第二参数。
  * @method load
  * @param {String|String[]|Object} resources - Url list in an array
  * @param {Function} [progressCallback] - Callback invoked when progression change
@@ -398,10 +413,10 @@ proto._parseLoadResArgs = function (type, onProgress, onComplete) {
 };
 
 /**
- * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
+ * !#en Load resources from the "resources" folder inside the "assets" folder of your project.<br>
  * <br>
  * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
- *
+ * !#zh 从你工程下 "assets" 文件夹内的 "resources" 文件夹读取资源
  * @method loadRes
  * @param {String} url - Url of the target resource.
  *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -521,8 +536,8 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
 };
 
 /**
- * This method is like {{#crossLink "loader/loadRes:method"}}{{/crossLink}} except that it accepts array of url.
- *
+ * !#en This method is like {{#crossLink "loader/loadRes:method"}}{{/crossLink}} except that it accepts array of url.
+ * !#zh 这个函数方法类似于 {{#crossLink "loader/loadRes:method"}}{{/crossLink}} 除了它能接受地址数组作为参数外。
  * @method loadResArray
  * @param {String[]} urls - Array of URLs of the target resource.
  *                          The url is relative to the "resources" folder, extensions must be omitted.
@@ -579,10 +594,10 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
 };
 
 /**
- * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
+ * !#en Load all assets in a folder inside the "assets/resources" folder of your project.<br>
  * <br>
  * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
- *
+ * !#zh 从你工程下的 "assets/resources" 文件夹中读取全部的资源。
  * @method loadResDir
  * @param {String} url - Url of the target folder.
  *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -641,11 +656,14 @@ proto.loadResDir = function (url, type, progressCallback, completeCallback) {
 };
 
 /**
- * Get resource data by id. <br>
+ * !#en Get resource data by id. <br>
  * When you load resources with {{#crossLink "loader/load:method"}}{{/crossLink}} or {{#crossLink "loader/loadRes:method"}}{{/crossLink}},
  * the url will be the unique identity of the resource.
  * After loaded, you can acquire them by passing the url to this API.
- *
+ * !#zh 通过 id 获取资源数据。
+ * 当你使用 {{#crossLink "loader/load:method"}}{{/crossLink}} 或者 {{#crossLink "loader/loadRes:method"}}{{/crossLink}} 读取资源时，
+ * 地址信息将作为资源的唯一识别信息。
+ * 读取完成之后，你可以通过使用这个 API 传入地址信息获取读取后资源。
  * @method getRes
  * @param {String} url
  * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
