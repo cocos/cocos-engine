@@ -41,6 +41,7 @@ const mat4 = math.mat4;
 const vec3 = math.vec3;
 
 let _mat4_temp = mat4.create();
+let _mat4_temp2 = mat4.create();
 let _vec3_temp = vec3.create();
 
 let tmxAssembler = js.addon({
@@ -105,14 +106,16 @@ let tmxAssembler = js.addon({
         if (!tiles || !comp._tileset) {
             return;
         }
-                
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
+        
         let appx = node._anchorPoint.x * node._contentSize.width,
             appy = node._anchorPoint.y * node._contentSize.height;
+
+        node.getWorldMatrix(_mat4_temp);
+        vec3.set(_vec3_temp, -appx, -appy, 0);
+        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+
+        let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05,
+            tx = _mat4_temp.m12, ty = _mat4_temp.m13;
 
         let maptw = comp._mapTileSize.width,
             mapth = comp._mapTileSize.height,
@@ -144,8 +147,8 @@ let tmxAssembler = js.addon({
         if (enabledCulling) {
             let camera = cc.Camera.findCamera(comp.node);
             if (camera) {
-                camera.getWorldToCameraMatrix(_mat4_temp);
-                mat4.mul(_mat4_temp, matrix, _mat4_temp);
+                camera.getWorldToCameraMatrix(_mat4_temp2);
+                mat4.mul(_mat4_temp, _mat4_temp, _mat4_temp2);
                 cullingA = _mat4_temp.m00;
                 cullingD = _mat4_temp.m05;
                 cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
@@ -155,7 +158,7 @@ let tmxAssembler = js.addon({
             }
                 
             if (layerOrientation === Orientation.ORTHO) {
-                cc.vmath.mat4.invert(_mat4_temp, matrix);
+                mat4.invert(_mat4_temp, _mat4_temp);
 
                 let rect = cc.visibleRect;
                 let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05, 
@@ -249,16 +252,13 @@ let tmxAssembler = js.addon({
                     // transform
                     a2 = a; b2 = b; c2 = c; d2 = d; tx2 = tx; ty2 = ty;
                     tiledNode._updateLocalMatrix();
-                    cc.vmath.mat4.copy(_mat4_temp, tiledNode._mat4_temp);
-                    _vec3_temp.x = -left; _vec3_temp.y = -bottom; _vec3_temp.z = 0;
-                    cc.vmath.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-                    cc.vmath.mat4.multiply(_mat4_temp, matrix, _mat4_temp);
+                    mat4.copy(_mat4_temp, tiledNode._mat4_temp);
+                    vec3.set(_vec3_temp, -left, -bottom, 0);
+                    mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+                    mat4.multiply(_mat4_temp, node._worldMatrix, _mat4_temp);
                     a = _mat4_temp.m00; b = _mat4_temp.m01; c = _mat4_temp.m04; d = _mat4_temp.m05;
                     tx = _mat4_temp.m12; ty = _mat4_temp.m13;
                 }
-                
-                left -= appx;
-                bottom -= appy;
 
                 right = left + tilew;
                 top = bottom + tileh;
