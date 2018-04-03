@@ -417,7 +417,7 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._cullingMask === this.cullingMask;
+        return node._cullingMask & this.cullingMask;
     },
 
     /**
