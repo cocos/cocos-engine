@@ -493,7 +493,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
     {
         _impl.textAlign = CanvasTextAlign::LEFT;
     }
-    else if (textAlign == "center")
+    else if (textAlign == "center" || textAlign == "middle")
     {
         _impl.textAlign = CanvasTextAlign::CENTER;
     }
@@ -518,7 +518,7 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
     }
-    else if (textBaseline == "bottom")
+    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //TODO:cjh, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
     }

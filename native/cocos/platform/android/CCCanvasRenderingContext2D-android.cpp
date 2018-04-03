@@ -29,6 +29,7 @@ public:
     {
         jobject obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
         _obj = JniHelper::getEnv()->NewGlobalRef(obj);
+        JniHelper::getEnv()->DeleteLocalRef(obj);
     }
 
     ~CanvasRenderingContext2DImpl()
@@ -167,13 +168,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasGradient constructor: %p, width: %f, height: %f\n", this, width, height);
+    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = new CanvasRenderingContext2DImpl();
+    _impl->recreateBuffer(width, height);
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasGradient destructor: %p\n", this);
+    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     delete _impl;
 }
 
@@ -185,7 +187,7 @@ void CanvasRenderingContext2D::recreateBuffer()
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
-    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+    SE_LOGD("CanvasRenderingContext2D::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     _impl->clearRect(x, y, width, height);
 }
 
@@ -333,7 +335,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
     {
         _impl->setTextAlign(CanvasTextAlign::LEFT);
     }
-    else if (textAlign == "center")
+    else if (textAlign == "center" || textAlign == "middle")
     {
         _impl->setTextAlign(CanvasTextAlign::CENTER);
     }
@@ -358,7 +360,7 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl->setTextBaseline(CanvasTextBaseline::MIDDLE);
     }
-    else if (textBaseline == "bottom")
+    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //TODO:cjh, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl->setTextBaseline(CanvasTextBaseline::BOTTOM);
     }

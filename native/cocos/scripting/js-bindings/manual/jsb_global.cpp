@@ -575,11 +575,36 @@ static bool js_loadImage(se::State& s)
         assert(callbackVal.isObject());
         assert(callbackVal.toObject()->isFunction());
 
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
-        if (fullPath.empty())
+        if (path.empty())
         {
-            SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
+            SE_REPORT_ERROR("src is empty!");
             return false;
+        }
+
+        std::string fullPath;
+        int imageBytes = 0;
+        unsigned char* imageData = nullptr;
+        size_t pos = std::string::npos;
+        if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
+        {
+            size_t dataStartPos = pos + strlen("base64,");
+            const char* base64Data = path.data() + dataStartPos;
+            size_t dataLen = path.length() - dataStartPos;
+            imageBytes = base64Decode((const unsigned char *)base64Data, (unsigned int)dataLen, &imageData);
+            if (imageBytes <= 0 || imageData == nullptr)
+            {
+                SE_REPORT_ERROR("Decode base64 image data failed!");
+                return false;
+            }
+        }
+        else
+        {
+            fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+            if (fullPath.empty())
+            {
+                SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
+                return false;
+            }
         }
 
         Image* img = new (std::nothrow) Image();
@@ -590,7 +615,15 @@ static bool js_loadImage(se::State& s)
             // cause thread race issues. Therefore, we get the full path of file before
             // going into task callback.
             // Be careful of invoking any Cocos2d-x interface in a sub-thread.
-            bool loadSucceed = img->initWithImageFile(fullPath);
+            bool loadSucceed = false;
+            if (fullPath.empty())
+            {
+                loadSucceed = img->initWithImageData(imageData, imageBytes);
+            }
+            else
+            {
+                loadSucceed = img->initWithImageFile(fullPath);
+            }
 
             Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
                 if (loadSucceed)

@@ -82,6 +82,7 @@ namespace {
         const GLint border = 0;
 
         if (IsTarget3D(target)) {
+            assert(false);
 //            GL_CHECK(glTexImage3D(target, level, dui->internalFormat, width, height, depth,
 //                         border, dui->unpackFormat, dui->unpackType, data));
         } else {
@@ -96,6 +97,7 @@ namespace {
                   const webgl::PackingInfo& pi, const void* data)
     {
         if (IsTarget3D(target)) {
+            assert(false);
 //            GL_CHECK(glTexSubImage3D(target, level, xOffset, yOffset, zOffset, width, height, depth, pi.format, pi.type, data));
         } else {
             MOZ_ASSERT(zOffset == 0);
@@ -112,6 +114,7 @@ namespace {
         const GLint border = 0;
 
         if (IsTarget3D(target)) {
+            assert(false);
 //            GL_CHECK(glCompressedTexImage3D(target, level, internalFormat, width, height,
 //                                      depth, border, dataSize, data));
         } else {
@@ -128,6 +131,7 @@ namespace {
                             GLsizei dataSize, const void* data)
     {
         if (IsTarget3D(target)) {
+            assert(false);
 //            GL_CHECK(glCompressedTexSubImage3D(target, level, xOffset, yOffset, zOffset,
 //                                         width, height, depth, sizedUnpackFormat, dataSize,
 //                                         data));
