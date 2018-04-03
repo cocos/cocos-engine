@@ -29,6 +29,7 @@ public:
     {
         jobject obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
         _obj = JniHelper::getEnv()->NewGlobalRef(obj);
+        JniHelper::getEnv()->DeleteLocalRef(obj);
     }
 
     ~CanvasRenderingContext2DImpl()
