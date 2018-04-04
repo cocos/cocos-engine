@@ -3,13 +3,13 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "org.cocos2d.helloworld"
-        minSdkVersion 10
-        targetSdkVersion PROP_TARGET_SDK_VERSION
+        minSdkVersion PROP_TARGET_SDK_VERSION
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
