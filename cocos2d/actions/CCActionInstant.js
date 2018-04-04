@@ -80,7 +80,7 @@ cc.Show = cc.Class({
     extends: cc.ActionInstant,
 
     update:function (dt) {
-        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        var _renderComps = this.target.getComponentsInChildren(cc.RenderComponent);
         for (var i = 0; i < _renderComps.length; ++i) {
             var render = _renderComps[i];
             render.enabled = true;
@@ -119,7 +119,7 @@ cc.Hide = cc.Class({
     extends: cc.ActionInstant,
 
     update:function (dt) {
-        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        var _renderComps = this.target.getComponentsInChildren(cc.RenderComponent);
         for (var i = 0; i < _renderComps.length; ++i) {
             var render = _renderComps[i];
             render.enabled = false;
@@ -158,7 +158,7 @@ cc.ToggleVisibility = cc.Class({
     extends: cc.ActionInstant,
 
     update:function (dt) {
-        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        var _renderComps = this.target.getComponentsInChildren(cc.RenderComponent);
         for (var i = 0; i < _renderComps.length; ++i) {
             var render = _renderComps[i];
             render.enabled = !render.enabled;

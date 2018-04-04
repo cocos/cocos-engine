@@ -466,6 +466,10 @@ if (CC_DEV) {
 
         rand: 'Math.random() * 0xffffff',
         randomMinus1To1: '(Math.random() - 0.5) * 2',
+
+        container: 'cc.game.container',
+        _canvas: 'cc.game.canvas',
+        _renderType: 'cc.game.renderType',
     }, 'cc');
     markAsRemovedInObject(cc, [
         'BlendFunc',
