@@ -18,8 +18,6 @@
       "from": "frameworks/runtime-src",
       "to": "frameworks/runtime-src",
       "exclude": [
-        "proj.android/bin",
-        "proj.android/assets",
         "proj.ios_mac/HelloJavascript.xcodeproj/project.xcworkspace",
         "proj.ios_mac/HelloJavascript.xcodeproj/xcuserdata",
         "proj.win32/Debug.win32",
@@ -28,24 +26,6 @@
       ]
     },
     "append_dir": [
-      {
-        "from": "cocos/platform/android/java/src",
-        "to": "frameworks/runtime-src/proj.android/src",
-        "include": [
-          "*.java"
-        ]
-      },
-      {
-        "from": "cocos/platform/android/java/libs",
-        "to": "frameworks/runtime-src/proj.android/libs",
-        "include": [
-          "*.jar"
-        ]
-      },
-      {
-        "from":"extensions/anysdk/platform/android/src",
-        "to":"frameworks/runtime-src/proj.android/src"
-      },
       {
         "from":"extensions/anysdk/platform/android/src",
         "to":"frameworks/runtime-src/proj.android-studio/app/src"
@@ -75,10 +55,6 @@
         "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj.user",
         "frameworks/runtime-src/proj.win32/PROJECT_NAME.sln",
         "frameworks/runtime-src/proj.win32/main.cpp",
-        "frameworks/runtime-src/proj.android/.project",
-        "frameworks/runtime-src/proj.android/AndroidManifest.xml",
-        "frameworks/runtime-src/proj.android/build.xml",
-        "frameworks/runtime-src/proj.android/res/values/strings.xml",
         "frameworks/runtime-src/proj.android-studio/settings.gradle",
         "frameworks/runtime-src/proj.android-studio/app/res/values/strings.xml",
         "frameworks/runtime-src/proj.ios_mac/ios/main.m",
@@ -90,7 +66,6 @@
     "project_replace_package_name": {
       "src_package_name": "org.cocos2dx.hellojavascript",
       "files": [
-        "frameworks/runtime-src/proj.android/AndroidManifest.xml",
         "frameworks/runtime-src/proj.android-studio/app/build.gradle",
         "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml"
       ]
