@@ -34,7 +34,7 @@
  * @module cc
  * @main cc
  */
-cc = {};
+cc = cc || {};
 
 require('./predefine');
 require('./CCDebugger');
