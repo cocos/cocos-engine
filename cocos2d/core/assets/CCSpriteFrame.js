@@ -536,8 +536,6 @@ proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;
 
-if (!CC_JSB) {
-    cc.SpriteFrame = SpriteFrame;
-}
+cc.SpriteFrame = SpriteFrame;
 
 module.exports = SpriteFrame;
