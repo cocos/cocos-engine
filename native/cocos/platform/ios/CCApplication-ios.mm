@@ -32,6 +32,26 @@
 #import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #import "scripting/js-bindings/event/EventDispatcher.h"
 
+namespace
+{
+    bool setCanvasCallback(se::Object* global)
+    {
+        CGRect bounds = [UIScreen mainScreen].bounds;
+        float scale = [[UIScreen mainScreen] scale];
+        float width = bounds.size.width * scale;
+        float height = bounds.size.height * scale;
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+                (int)(width),
+                (int)(height));
+        se->evalString(commandBuf);
+        glViewport(0, 0, width, height);
+        glDepthMask(GL_TRUE);
+        return true;
+    }
+}
+
 @interface MainLoop : NSObject
 {
     id _displayLink;
@@ -97,8 +117,15 @@
 
 -(void) firstStart:(id) view
 {
-    if ([view isReady])
+    if ([view isReady]) {
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        se->addRegisterCallback(setCanvasCallback);
+
+        if(!_application->applicationDidFinishLaunching())
+            return;
+
         [self startMainLoop];
+    }
     else
         [self performSelector:@selector(firstStart:) withObject:view afterDelay:0];
 }
@@ -149,26 +176,6 @@
 
 @end
 
-namespace
-{
-    bool setCanvasCallback(se::Object* global)
-    {
-        CGRect bounds = [UIScreen mainScreen].bounds;
-        float scale = [[UIScreen mainScreen] scale];
-        float width = bounds.size.width * scale;
-        float height = bounds.size.height * scale;
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                (int)(width),
-                (int)(height));
-        se->evalString(commandBuf);
-        glViewport(0, 0, width, height);
-        glDepthMask(GL_TRUE);
-        return true;
-    }
-}
-
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
@@ -210,12 +217,6 @@ Application::~Application()
 
 void Application::start()
 {
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    se->addRegisterCallback(setCanvasCallback);
-    
-    if(!applicationDidFinishLaunching())
-        return;
-    
     if (_delegate)
         [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
 }
