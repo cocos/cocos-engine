@@ -30,10 +30,8 @@
 require('./jsb_opengl_constants');
 window.gl = window.gl || {};
 
-gl.canvas = {
-    clientWidth: window.innerWidth,
-    clientHeight: window.innerHeight
-};
+gl.drawingBufferWidth = window.innerWidth;
+gl.drawingBufferHeight = window.innerHeight;
 
 //
 // Create functions
@@ -52,7 +50,7 @@ gl.createBuffer = function() {
 
 gl.createRenderbuffer = function() {
     // Returns a "WebGLRenderBuffer" object
-    var ret = gl._createRenderuffer();
+    var ret = gl._createRenderbuffer();
     return { renderbuffer_id:ret};
 };
 
@@ -164,7 +162,7 @@ gl.bindBuffer = function(target, buffer) {
 };
 
 // void bindRenderbuffer(GLenum target, WebGLRenderbuffer? renderbuffer);
-gl.bindRenderBuffer = function(target, buffer) {
+gl.bindRenderbuffer = function(target, buffer) {
     var buffer_id;
 
     // Accept numbers too. eg: gl.bindRenderbuffer(0)
@@ -173,7 +171,7 @@ gl.bindRenderBuffer = function(target, buffer) {
     else if (buffer === null)
         buffer_id = 0;
     else
-        buffer_id = buffer.buffer_id;
+        buffer_id = buffer.renderbuffer_id;
 
     gl._bindRenderbuffer(target, buffer_id);
 };
@@ -188,14 +186,53 @@ gl.bindFramebuffer = function(target, buffer) {
     else if( buffer === null )
         buffer_id = null;
     else
-        buffer_id = buffer.buffer_id;
+        buffer_id = buffer.framebuffer_id;
 
     gl._bindFramebuffer(target, buffer_id);
 };
 
+gl.framebufferRenderbuffer = function(target, attachment, renderbuffertarget, renderbuffer) {
+    gl._framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer.renderbuffer_id);
+};
+
 gl.framebufferTexture2D = function(target, attachment, textarget, texture, level) {
     gl._framebufferTexture2D(target, attachment, textarget, texture.texture_id, level);
-}
+};
+
+gl.isFramebuffer = function(buffer) {
+    if (buffer && buffer.framebuffer_id) {
+        return gl._isFramebuffer(buffer.framebuffer_id);
+    }
+    return false;
+};
+
+gl.isProgram = function(program) {
+    if (program && program.program_id) {
+        return gl._isProgram(program.program_id);
+    }
+    return false;
+};
+
+gl.isRenderbuffer = function(buffer) {
+    if (buffer && buffer.renderbuffer_id) {
+        return gl._isRenderbuffer(buffer.renderbuffer_id);
+    }
+    return false;
+};
+
+gl.isShader = function(shader) {
+    if (shader && shader.shader_id) {
+        return gl._isShader(shader.shader_id);
+    }
+    return false;
+};
+
+gl.isTexture = function(texture) {
+    if (texture && texture.texture_id) {
+        return gl._isTexture(texture.texture_id);
+    }
+    return false;
+};
 
 //
 // Uniform related
@@ -415,17 +452,19 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            console.log(`==> texImage2D HTMLImageElement internalformat: ${image._glInternalFormat}, format: ${image._glFormat}, image: w:${image.width}, h:${image.height}, dataLen:${image._data.length}`);
+            // console.log(`==> texImage2D HTMLImageElement internalformat: ${image._glInternalFormat}, format: ${image._glFormat}, image: w:${image.width}, h:${image.height}, dataLen:${image._data.length}`);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
        
             _glTexImage2D(target, level, image._glInternalFormat, image.width, image.height, 0, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
-            console.log(`==> texImage2D HTMLCanvasElement internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);//, dataLen:${image._data.length}`);
-            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data._data);
+            // console.log(`==> texImage2D HTMLCanvasElement internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);//, dataLen:${image._data.length}`);
+            if (image._data) {
+                _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data._data);
+            }
         }
         else if (image instanceof ImageData) {
-            console.log(`==> texImage2D ImageData internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);
+            // console.log(`==> texImage2D ImageData internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);
             _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data);
         }
         else {
@@ -463,7 +502,9 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
-            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data._data);
+            if (image._data) {
+                _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data._data);
+            }
         }
         else if (image instanceof ImageData) {
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data);

@@ -22,10 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
-// window.CC_JSB = true;
+
 window.CC_JSB = true;
-// console.log("CC_JSB:" + CC_JSB);
 window.CC_WECHATGAME = true;
 
 // Simulate wechat game API:
@@ -168,6 +166,12 @@ jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
 require('./jsb_prepare');
 require('./jsb_opengl');
+const { btoa, atob } = require('./base64/base64.min');
+window.btoa = btoa;
+window.atob = atob;
+const { Blob, URL } = require('./Blob');
+window.Blob = Blob;
+window.URL = URL;
 window.DOMParser = require('./xmldom/dom-parser').DOMParser;
 require('./jsb-adapter');
 require('./jsb_audioengine');

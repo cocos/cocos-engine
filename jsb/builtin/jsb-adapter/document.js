@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
 let HTMLElement = require('./HTMLElement');
 let Image = require('./Image');
 let Audio = require('./Audio');
@@ -38,12 +39,18 @@ class Document extends Node {
     this.documentElement = window
     this.hidden = false
     this.style = {}
-    this.location = window.location
+    this.location = require('./location')
 
     this.head = new HTMLElement('head')
     this.body = new HTMLElement('body')
 
     this.fonts = new FontFaceSet()
+
+    this.scripts = []
+  }
+
+  createElementNS(namespaceURI, qualifiedName, options) {
+    return this.createElement(qualifiedName);
   }
 
   createElement(tagName) {
@@ -98,7 +105,7 @@ class Document extends Node {
       return document.head
     } else if (query === 'body') {
       return document.body
-    } else if (query === 'canvas' || query === 'GameCanvas') {
+    } else if (query === 'canvas') {
       return window.canvas
     } else if (query === `#${window.canvas.id}`) {
       return window.canvas

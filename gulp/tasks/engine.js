@@ -41,6 +41,7 @@ const Optimizejs = require('gulp-optimize-js');
 var jsbSkipModules = [
     '../../cocos2d/audio/CCAudio',
     // '../../external/box2d/box2d.js',
+    // '../../external/chipmunk/chipmunk.js'
 ];
 var aliasifyConfig = {
     replacements: {
