@@ -1009,10 +1009,7 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    /*
-     * The initializer for Node which will be called before all components onLoad
-     */
-    _onBatchCreated () {
+    _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
         if (this._scaleX !== undefined) {
@@ -1051,6 +1048,13 @@ var Node = cc.Class({
         if (this._opacity !== 255 && this._opacity !== undefined) {
             this._color.a = this._opacity;
         }
+    },
+
+    /*
+     * The initializer for Node which will be called before all components onLoad
+     */
+    _onBatchCreated () {
+        this._upgrade_1x_to_2x();
 
         this._updateOrderOfArrival();
 
@@ -1079,6 +1083,8 @@ var Node = cc.Class({
 
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
+        this._upgrade_1x_to_2x();
+        
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
             if (ActionManagerExist) {
