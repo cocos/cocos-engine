@@ -48,10 +48,6 @@ cc.Audio.Type = {
     cc.audioEngine = audioEngine;
     audioEngine.play = audioEngine.play2d;
     audioEngine.setMaxWebAudioSize = function () {};
-    // deprecated
-    // var Module = require('../cocos2d/audio/deprecated');
-    // Module.removed(audioEngine);
-    // Module.deprecated(audioEngine);
 
     proto.State = audioEngine.AudioState;
 
