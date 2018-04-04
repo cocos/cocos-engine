@@ -338,13 +338,17 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         }
     },
 
-    _createRenderCmd: function(){
+    _createRenderCmd: function () {
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
             return new _ccsg.ParticleSystem.CanvasRenderCmd(this);
         else
             return new _ccsg.ParticleSystem.WebGLRenderCmd(this);
     },
-
+    onEnter: function () {
+        // udpate after action in run!
+        this.scheduleUpdateWithPriority(1);
+        _ccsg.Node.prototype.onEnter.call(this);
+    },
     /**
      * This is a hack function for performance, it's only available on Canvas mode. <br/>
      * It's very expensive to change color on Canvas mode, so if set it to true, particle system will ignore the changing color operation.
@@ -1364,8 +1368,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         //  colorModulate = YES;
         this.autoRemoveOnFinish = false;
 
-        // udpate after action in run!
-        this.scheduleUpdateWithPriority(1);
         this._renderCmd._initWithTotalParticles(numberOfParticles);
         return true;
     },
