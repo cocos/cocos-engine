@@ -94,7 +94,7 @@ let maskFrontAssembler = js.addon({
             if (mask.spriteFrame) {
                 datas = mask._renderDatas;
                 datas.length = 0;
-                renderData.dataLength = 4;
+                renderData.dataLength = 8;
                 spriteAssembler.update(mask);
                 renderData.material = mask.getMaterial();
                 datas.push(renderData);
@@ -169,8 +169,7 @@ let maskEndAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillVertexBuffer(mask, batchData.byteOffset / 4, vbuf, uintbuf);
-                spriteAssembler.fillIndexBuffer(mask, batchData.indiceOffset, vertexId, ibuf);
+                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
             }
             else {
                 // Share node for correct global matrix
