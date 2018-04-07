@@ -26,8 +26,2464 @@
  ****************************************************************************/
  
 
-var renderEngine = (function () {
 'use strict';
+
+var ForwardRenderer = window.renderer.ForwardRenderer;
+
+var chunks = {
+};
+
+var templates = [
+  {
+    name: 'gray_sprite',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+    defines: [
+    ],
+  },
+  {
+    name: 'sprite',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
+    defines: [
+      { name: 'useTexture', },
+      { name: 'useModel', },
+      { name: 'alphaTest', } ],
+  },
+  {
+    name: 'vfx_emitter',
+    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+    frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\n \nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 100.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = decode(randomD.ba, NOISE_SCALE);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
+    defines: [
+    ],
+  },
+  {
+    name: 'vfx_particle',
+    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
+    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
+    defines: [
+    ],
+  },
+  {
+    name: 'vfx_quad',
+    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pixel = floor(index * quadsize);\n    vec2 pIndex = floor(pixel / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, pIndex / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = vec4(encode(0.0, POSITION_SCALE), encode(0.0, POSITION_SCALE));\n        return;\n    }\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    float x = decode(posData.rg, POSITION_SCALE);\n    float y = decode(posData.ba, POSITION_SCALE);\n    vec2 pos = vec2(x, y);\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(mod(decode(rotData.rg, ROTATION_SCALE), 180.0));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(pixel, vec2(2.0)) - 0.5) * size;\n    x = vert.x * a + vert.y * c + pos.x;\n    y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
+    defines: [
+    ],
+  },
+  {
+    name: 'vfx_update',
+    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation = mod(rotation + deltaRotation * dt / life, 180.0);\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 180.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(mod(decode(control.rg, ROTATION_SCALE), 180.0));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
+    defines: [
+    ],
+  } ];
+
+var shaders = {
+    chunks: chunks,
+    templates: templates
+};
+
+// reference: https://github.com/mziccard/node-timsort
+
+/**
+ * Default minimum size of a run.
+ */
+var DEFAULT_MIN_MERGE = 32;
+
+/**
+ * Minimum ordered subsequece required to do galloping.
+ */
+var DEFAULT_MIN_GALLOPING = 7;
+
+/**
+ * Default tmp storage length. Can increase depending on the size of the
+ * smallest run to merge.
+ */
+var DEFAULT_TMP_STORAGE_LENGTH = 256;
+
+/**
+ * Pre-computed powers of 10 for efficient lexicographic comparison of
+ * small integers.
+ */
+var POWERS_OF_TEN = [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
+
+/**
+ * Estimate the logarithm base 10 of a small integer.
+ *
+ * @param {number} x - The integer to estimate the logarithm of.
+ * @return {number} - The estimated logarithm of the integer.
+ */
+function log10(x) {
+  if (x < 1e5) {
+    if (x < 1e2) {
+      return x < 1e1 ? 0 : 1;
+    }
+
+    if (x < 1e4) {
+      return x < 1e3 ? 2 : 3;
+    }
+
+    return 4;
+  }
+
+  if (x < 1e7) {
+    return x < 1e6 ? 5 : 6;
+  }
+
+  if (x < 1e9) {
+    return x < 1e8 ? 7 : 8;
+  }
+
+  return 9;
+}
+
+/**
+ * Default alphabetical comparison of items.
+ *
+ * @param {string|object|number} a - First element to compare.
+ * @param {string|object|number} b - Second element to compare.
+ * @return {number} - A positive number if a.toString() > b.toString(), a
+ * negative number if .toString() < b.toString(), 0 otherwise.
+ */
+function alphabeticalCompare(a, b) {
+  if (a === b) {
+    return 0;
+  }
+
+  if (~~a === a && ~~b === b) {
+    if (a === 0 || b === 0) {
+      return a < b ? -1 : 1;
+    }
+
+    if (a < 0 || b < 0) {
+      if (b >= 0) {
+        return -1;
+      }
+
+      if (a >= 0) {
+        return 1;
+      }
+
+      a = -a;
+      b = -b;
+    }
+
+    var al = log10(a);
+    var bl = log10(b);
+
+    var t = 0;
+
+    if (al < bl) {
+      a *= POWERS_OF_TEN[bl - al - 1];
+      b /= 10;
+      t = -1;
+    } else if (al > bl) {
+      b *= POWERS_OF_TEN[al - bl - 1];
+      a /= 10;
+      t = 1;
+    }
+
+    if (a === b) {
+      return t;
+    }
+
+    return a < b ? -1 : 1;
+  }
+
+  var aStr = String(a);
+  var bStr = String(b);
+
+  if (aStr === bStr) {
+    return 0;
+  }
+
+  return aStr < bStr ? -1 : 1;
+}
+
+/**
+ * Compute minimum run length for TimSort
+ *
+ * @param {number} n - The size of the array to sort.
+ */
+function minRunLength(n) {
+  var r = 0;
+
+  while (n >= DEFAULT_MIN_MERGE) {
+    r |= (n & 1);
+    n >>= 1;
+  }
+
+  return n + r;
+}
+
+/**
+ * Counts the length of a monotonically ascending or strictly monotonically
+ * descending sequence (run) starting at array[lo] in the range [lo, hi). If
+ * the run is descending it is made ascending.
+ *
+ * @param {array} array - The array to reverse.
+ * @param {number} lo - First element in the range (inclusive).
+ * @param {number} hi - Last element in the range.
+ * @param {function} compare - Item comparison function.
+ * @return {number} - The length of the run.
+ */
+function makeAscendingRun(array, lo, hi, compare) {
+  var runHi = lo + 1;
+
+  if (runHi === hi) {
+    return 1;
+  }
+
+  // Descending
+  if (compare(array[runHi++], array[lo]) < 0) {
+    while (runHi < hi && compare(array[runHi], array[runHi - 1]) < 0) {
+      runHi++;
+    }
+
+    reverseRun(array, lo, runHi);
+    // Ascending
+  } else {
+    while (runHi < hi && compare(array[runHi], array[runHi - 1]) >= 0) {
+      runHi++;
+    }
+  }
+
+  return runHi - lo;
+}
+
+/**
+ * Reverse an array in the range [lo, hi).
+ *
+ * @param {array} array - The array to reverse.
+ * @param {number} lo - First element in the range (inclusive).
+ * @param {number} hi - Last element in the range.
+ */
+function reverseRun(array, lo, hi) {
+  hi--;
+
+  while (lo < hi) {
+    var t = array[lo];
+    array[lo++] = array[hi];
+    array[hi--] = t;
+  }
+}
+
+/**
+ * Perform the binary sort of the array in the range [lo, hi) where start is
+ * the first element possibly out of order.
+ *
+ * @param {array} array - The array to sort.
+ * @param {number} lo - First element in the range (inclusive).
+ * @param {number} hi - Last element in the range.
+ * @param {number} start - First element possibly out of order.
+ * @param {function} compare - Item comparison function.
+ */
+function binaryInsertionSort(array, lo, hi, start, compare) {
+  if (start === lo) {
+    start++;
+  }
+
+  for (; start < hi; start++) {
+    var pivot = array[start];
+
+    // Ranges of the array where pivot belongs
+    var left = lo;
+    var right = start;
+
+    /*
+     *   pivot >= array[i] for i in [lo, left)
+     *   pivot <  array[i] for i in  in [right, start)
+     */
+    while (left < right) {
+      var mid = (left + right) >>> 1;
+
+      if (compare(pivot, array[mid]) < 0) {
+        right = mid;
+      } else {
+        left = mid + 1;
+      }
+    }
+
+    /*
+     * Move elements right to make room for the pivot. If there are elements
+     * equal to pivot, left points to the first slot after them: this is also
+     * a reason for which TimSort is stable
+     */
+    var n = start - left;
+    // Switch is just an optimization for small arrays
+    switch (n) {
+      case 3:
+        array[left + 3] = array[left + 2];
+      /* falls through */
+      case 2:
+        array[left + 2] = array[left + 1];
+      /* falls through */
+      case 1:
+        array[left + 1] = array[left];
+        break;
+      default:
+        while (n > 0) {
+          array[left + n] = array[left + n - 1];
+          n--;
+        }
+    }
+
+    array[left] = pivot;
+  }
+}
+
+/**
+ * Find the position at which to insert a value in a sorted range. If the range
+ * contains elements equal to the value the leftmost element index is returned
+ * (for stability).
+ *
+ * @param {number} value - Value to insert.
+ * @param {array} array - The array in which to insert value.
+ * @param {number} start - First element in the range.
+ * @param {number} length - Length of the range.
+ * @param {number} hint - The index at which to begin the search.
+ * @param {function} compare - Item comparison function.
+ * @return {number} - The index where to insert value.
+ */
+function gallopLeft(value, array, start, length, hint, compare) {
+  var lastOffset = 0;
+  var maxOffset = 0;
+  var offset = 1;
+
+  if (compare(value, array[start + hint]) > 0) {
+    maxOffset = length - hint;
+
+    while (offset < maxOffset && compare(value, array[start + hint + offset]) > 0) {
+      lastOffset = offset;
+      offset = (offset << 1) + 1;
+
+      if (offset <= 0) {
+        offset = maxOffset;
+      }
+    }
+
+    if (offset > maxOffset) {
+      offset = maxOffset;
+    }
+
+    // Make offsets relative to start
+    lastOffset += hint;
+    offset += hint;
+
+    // value <= array[start + hint]
+  } else {
+    maxOffset = hint + 1;
+    while (offset < maxOffset && compare(value, array[start + hint - offset]) <= 0) {
+      lastOffset = offset;
+      offset = (offset << 1) + 1;
+
+      if (offset <= 0) {
+        offset = maxOffset;
+      }
+    }
+    if (offset > maxOffset) {
+      offset = maxOffset;
+    }
+
+    // Make offsets relative to start
+    var tmp = lastOffset;
+    lastOffset = hint - offset;
+    offset = hint - tmp;
+  }
+
+  /*
+   * Now array[start+lastOffset] < value <= array[start+offset], so value
+   * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
+   * binary search, with invariant array[start + lastOffset - 1] < value <=
+   * array[start + offset].
+   */
+  lastOffset++;
+  while (lastOffset < offset) {
+    var m = lastOffset + ((offset - lastOffset) >>> 1);
+
+    if (compare(value, array[start + m]) > 0) {
+      lastOffset = m + 1;
+
+    } else {
+      offset = m;
+    }
+  }
+  return offset;
+}
+
+/**
+ * Find the position at which to insert a value in a sorted range. If the range
+ * contains elements equal to the value the rightmost element index is returned
+ * (for stability).
+ *
+ * @param {number} value - Value to insert.
+ * @param {array} array - The array in which to insert value.
+ * @param {number} start - First element in the range.
+ * @param {number} length - Length of the range.
+ * @param {number} hint - The index at which to begin the search.
+ * @param {function} compare - Item comparison function.
+ * @return {number} - The index where to insert value.
+ */
+function gallopRight(value, array, start, length, hint, compare) {
+  var lastOffset = 0;
+  var maxOffset = 0;
+  var offset = 1;
+
+  if (compare(value, array[start + hint]) < 0) {
+    maxOffset = hint + 1;
+
+    while (offset < maxOffset && compare(value, array[start + hint - offset]) < 0) {
+      lastOffset = offset;
+      offset = (offset << 1) + 1;
+
+      if (offset <= 0) {
+        offset = maxOffset;
+      }
+    }
+
+    if (offset > maxOffset) {
+      offset = maxOffset;
+    }
+
+    // Make offsets relative to start
+    var tmp = lastOffset;
+    lastOffset = hint - offset;
+    offset = hint - tmp;
+
+    // value >= array[start + hint]
+  } else {
+    maxOffset = length - hint;
+
+    while (offset < maxOffset && compare(value, array[start + hint + offset]) >= 0) {
+      lastOffset = offset;
+      offset = (offset << 1) + 1;
+
+      if (offset <= 0) {
+        offset = maxOffset;
+      }
+    }
+
+    if (offset > maxOffset) {
+      offset = maxOffset;
+    }
+
+    // Make offsets relative to start
+    lastOffset += hint;
+    offset += hint;
+  }
+
+  /*
+   * Now array[start+lastOffset] < value <= array[start+offset], so value
+   * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
+   * binary search, with invariant array[start + lastOffset - 1] < value <=
+   * array[start + offset].
+   */
+  lastOffset++;
+
+  while (lastOffset < offset) {
+    var m = lastOffset + ((offset - lastOffset) >>> 1);
+
+    if (compare(value, array[start + m]) < 0) {
+      offset = m;
+
+    } else {
+      lastOffset = m + 1;
+    }
+  }
+
+  return offset;
+}
+
+var TimSort = function TimSort(array, compare) {
+  this.array = array;
+  this.compare = compare;
+  this.minGallop = DEFAULT_MIN_GALLOPING;
+  this.length = array.length;
+
+  this.tmpStorageLength = DEFAULT_TMP_STORAGE_LENGTH;
+  if (this.length < 2 * DEFAULT_TMP_STORAGE_LENGTH) {
+    this.tmpStorageLength = this.length >>> 1;
+  }
+
+  this.tmp = new Array(this.tmpStorageLength);
+
+  this.stackLength =
+    (this.length < 120 ? 5 :
+      this.length < 1542 ? 10 :
+        this.length < 119151 ? 19 : 40);
+
+  this.runStart = new Array(this.stackLength);
+  this.runLength = new Array(this.stackLength);
+  this.stackSize = 0;
+};
+
+/**
+ * Push a new run on TimSort's stack.
+ *
+ * @param {number} runStart - Start index of the run in the original array.
+ * @param {number} runLength - Length of the run;
+ */
+TimSort.prototype.pushRun = function pushRun (runStart, runLength) {
+  this.runStart[this.stackSize] = runStart;
+  this.runLength[this.stackSize] = runLength;
+  this.stackSize += 1;
+};
+
+/**
+ * Merge runs on TimSort's stack so that the following holds for all i:
+ * 1) runLength[i - 3] > runLength[i - 2] + runLength[i - 1]
+ * 2) runLength[i - 2] > runLength[i - 1]
+ */
+TimSort.prototype.mergeRuns = function mergeRuns () {
+    var this$1 = this;
+
+  while (this.stackSize > 1) {
+    var n = this$1.stackSize - 2;
+
+    if ((n >= 1 &&
+      this$1.runLength[n - 1] <= this$1.runLength[n] + this$1.runLength[n + 1]) ||
+      (n >= 2 &&
+      this$1.runLength[n - 2] <= this$1.runLength[n] + this$1.runLength[n - 1])) {
+
+      if (this$1.runLength[n - 1] < this$1.runLength[n + 1]) {
+        n--;
+      }
+
+    } else if (this$1.runLength[n] > this$1.runLength[n + 1]) {
+      break;
+    }
+    this$1.mergeAt(n);
+  }
+};
+
+/**
+ * Merge all runs on TimSort's stack until only one remains.
+ */
+TimSort.prototype.forceMergeRuns = function forceMergeRuns () {
+    var this$1 = this;
+
+  while (this.stackSize > 1) {
+    var n = this$1.stackSize - 2;
+
+    if (n > 0 && this$1.runLength[n - 1] < this$1.runLength[n + 1]) {
+      n--;
+    }
+
+    this$1.mergeAt(n);
+  }
+};
+
+/**
+ * Merge the runs on the stack at positions i and i+1. Must be always be called
+ * with i=stackSize-2 or i=stackSize-3 (that is, we merge on top of the stack).
+ *
+ * @param {number} i - Index of the run to merge in TimSort's stack.
+ */
+TimSort.prototype.mergeAt = function mergeAt (i) {
+  var compare = this.compare;
+  var array = this.array;
+
+  var start1 = this.runStart[i];
+  var length1 = this.runLength[i];
+  var start2 = this.runStart[i + 1];
+  var length2 = this.runLength[i + 1];
+
+  this.runLength[i] = length1 + length2;
+
+  if (i === this.stackSize - 3) {
+    this.runStart[i + 1] = this.runStart[i + 2];
+    this.runLength[i + 1] = this.runLength[i + 2];
+  }
+
+  this.stackSize--;
+
+  /*
+   * Find where the first element in the second run goes in run1. Previous
+   * elements in run1 are already in place
+   */
+  var k = gallopRight(array[start2], array, start1, length1, 0, compare);
+  start1 += k;
+  length1 -= k;
+
+  if (length1 === 0) {
+    return;
+  }
+
+  /*
+   * Find where the last element in the first run goes in run2. Next elements
+   * in run2 are already in place
+   */
+  length2 = gallopLeft(array[start1 + length1 - 1], array, start2, length2, length2 - 1, compare);
+
+  if (length2 === 0) {
+    return;
+  }
+
+  /*
+   * Merge remaining runs. A tmp array with length = min(length1, length2) is
+   * used
+   */
+  if (length1 <= length2) {
+    this.mergeLow(start1, length1, start2, length2);
+
+  } else {
+    this.mergeHigh(start1, length1, start2, length2);
+  }
+};
+
+/**
+ * Merge two adjacent runs in a stable way. The runs must be such that the
+ * first element of run1 is bigger than the first element in run2 and the
+ * last element of run1 is greater than all the elements in run2.
+ * The method should be called when run1.length <= run2.length as it uses
+ * TimSort temporary array to store run1. Use mergeHigh if run1.length >
+ * run2.length.
+ *
+ * @param {number} start1 - First element in run1.
+ * @param {number} length1 - Length of run1.
+ * @param {number} start2 - First element in run2.
+ * @param {number} length2 - Length of run2.
+ */
+TimSort.prototype.mergeLow = function mergeLow (start1, length1, start2, length2) {
+
+  var compare = this.compare;
+  var array = this.array;
+  var tmp = this.tmp;
+  var i = 0;
+
+  for (i = 0; i < length1; i++) {
+    tmp[i] = array[start1 + i];
+  }
+
+  var cursor1 = 0;
+  var cursor2 = start2;
+  var dest = start1;
+
+  array[dest++] = array[cursor2++];
+
+  if (--length2 === 0) {
+    for (i = 0; i < length1; i++) {
+      array[dest + i] = tmp[cursor1 + i];
+    }
+    return;
+  }
+
+  if (length1 === 1) {
+    for (i = 0; i < length2; i++) {
+      array[dest + i] = array[cursor2 + i];
+    }
+    array[dest + length2] = tmp[cursor1];
+    return;
+  }
+
+  var minGallop = this.minGallop;
+
+  while (true) {
+    var count1 = 0;
+    var count2 = 0;
+    var exit = false;
+
+    do {
+      if (compare(array[cursor2], tmp[cursor1]) < 0) {
+        array[dest++] = array[cursor2++];
+        count2++;
+        count1 = 0;
+
+        if (--length2 === 0) {
+          exit = true;
+          break;
+        }
+
+      } else {
+        array[dest++] = tmp[cursor1++];
+        count1++;
+        count2 = 0;
+        if (--length1 === 1) {
+          exit = true;
+          break;
+        }
+      }
+    } while ((count1 | count2) < minGallop);
+
+    if (exit) {
+      break;
+    }
+
+    do {
+      count1 = gallopRight(array[cursor2], tmp, cursor1, length1, 0, compare);
+
+      if (count1 !== 0) {
+        for (i = 0; i < count1; i++) {
+          array[dest + i] = tmp[cursor1 + i];
+        }
+
+        dest += count1;
+        cursor1 += count1;
+        length1 -= count1;
+        if (length1 <= 1) {
+          exit = true;
+          break;
+        }
+      }
+
+      array[dest++] = array[cursor2++];
+
+      if (--length2 === 0) {
+        exit = true;
+        break;
+      }
+
+      count2 = gallopLeft(tmp[cursor1], array, cursor2, length2, 0, compare);
+
+      if (count2 !== 0) {
+        for (i = 0; i < count2; i++) {
+          array[dest + i] = array[cursor2 + i];
+        }
+
+        dest += count2;
+        cursor2 += count2;
+        length2 -= count2;
+
+        if (length2 === 0) {
+          exit = true;
+          break;
+        }
+      }
+      array[dest++] = tmp[cursor1++];
+
+      if (--length1 === 1) {
+        exit = true;
+        break;
+      }
+
+      minGallop--;
+
+    } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
+
+    if (exit) {
+      break;
+    }
+
+    if (minGallop < 0) {
+      minGallop = 0;
+    }
+
+    minGallop += 2;
+  }
+
+  this.minGallop = minGallop;
+
+  if (minGallop < 1) {
+    this.minGallop = 1;
+  }
+
+  if (length1 === 1) {
+    for (i = 0; i < length2; i++) {
+      array[dest + i] = array[cursor2 + i];
+    }
+    array[dest + length2] = tmp[cursor1];
+
+  } else if (length1 === 0) {
+    throw new Error('mergeLow preconditions were not respected');
+
+  } else {
+    for (i = 0; i < length1; i++) {
+      array[dest + i] = tmp[cursor1 + i];
+    }
+  }
+};
+
+/**
+ * Merge two adjacent runs in a stable way. The runs must be such that the
+ * first element of run1 is bigger than the first element in run2 and the
+ * last element of run1 is greater than all the elements in run2.
+ * The method should be called when run1.length > run2.length as it uses
+ * TimSort temporary array to store run2. Use mergeLow if run1.length <=
+ * run2.length.
+ *
+ * @param {number} start1 - First element in run1.
+ * @param {number} length1 - Length of run1.
+ * @param {number} start2 - First element in run2.
+ * @param {number} length2 - Length of run2.
+ */
+TimSort.prototype.mergeHigh = function mergeHigh (start1, length1, start2, length2) {
+  var compare = this.compare;
+  var array = this.array;
+  var tmp = this.tmp;
+  var i = 0;
+
+  for (i = 0; i < length2; i++) {
+    tmp[i] = array[start2 + i];
+  }
+
+  var cursor1 = start1 + length1 - 1;
+  var cursor2 = length2 - 1;
+  var dest = start2 + length2 - 1;
+  var customCursor = 0;
+  var customDest = 0;
+
+  array[dest--] = array[cursor1--];
+
+  if (--length1 === 0) {
+    customCursor = dest - (length2 - 1);
+
+    for (i = 0; i < length2; i++) {
+      array[customCursor + i] = tmp[i];
+    }
+
+    return;
+  }
+
+  if (length2 === 1) {
+    dest -= length1;
+    cursor1 -= length1;
+    customDest = dest + 1;
+    customCursor = cursor1 + 1;
+
+    for (i = length1 - 1; i >= 0; i--) {
+      array[customDest + i] = array[customCursor + i];
+    }
+
+    array[dest] = tmp[cursor2];
+    return;
+  }
+
+  var minGallop = this.minGallop;
+
+  while (true) {
+    var count1 = 0;
+    var count2 = 0;
+    var exit = false;
+
+    do {
+      if (compare(tmp[cursor2], array[cursor1]) < 0) {
+        array[dest--] = array[cursor1--];
+        count1++;
+        count2 = 0;
+        if (--length1 === 0) {
+          exit = true;
+          break;
+        }
+
+      } else {
+        array[dest--] = tmp[cursor2--];
+        count2++;
+        count1 = 0;
+        if (--length2 === 1) {
+          exit = true;
+          break;
+        }
+      }
+
+    } while ((count1 | count2) < minGallop);
+
+    if (exit) {
+      break;
+    }
+
+    do {
+      count1 = length1 - gallopRight(tmp[cursor2], array, start1, length1, length1 - 1, compare);
+
+      if (count1 !== 0) {
+        dest -= count1;
+        cursor1 -= count1;
+        length1 -= count1;
+        customDest = dest + 1;
+        customCursor = cursor1 + 1;
+
+        for (i = count1 - 1; i >= 0; i--) {
+          array[customDest + i] = array[customCursor + i];
+        }
+
+        if (length1 === 0) {
+          exit = true;
+          break;
+        }
+      }
+
+      array[dest--] = tmp[cursor2--];
+
+      if (--length2 === 1) {
+        exit = true;
+        break;
+      }
+
+      count2 = length2 - gallopLeft(array[cursor1], tmp, 0, length2, length2 - 1, compare);
+
+      if (count2 !== 0) {
+        dest -= count2;
+        cursor2 -= count2;
+        length2 -= count2;
+        customDest = dest + 1;
+        customCursor = cursor2 + 1;
+
+        for (i = 0; i < count2; i++) {
+          array[customDest + i] = tmp[customCursor + i];
+        }
+
+        if (length2 <= 1) {
+          exit = true;
+          break;
+        }
+      }
+
+      array[dest--] = array[cursor1--];
+
+      if (--length1 === 0) {
+        exit = true;
+        break;
+      }
+
+      minGallop--;
+
+    } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
+
+    if (exit) {
+      break;
+    }
+
+    if (minGallop < 0) {
+      minGallop = 0;
+    }
+
+    minGallop += 2;
+  }
+
+  this.minGallop = minGallop;
+
+  if (minGallop < 1) {
+    this.minGallop = 1;
+  }
+
+  if (length2 === 1) {
+    dest -= length1;
+    cursor1 -= length1;
+    customDest = dest + 1;
+    customCursor = cursor1 + 1;
+
+    for (i = length1 - 1; i >= 0; i--) {
+      array[customDest + i] = array[customCursor + i];
+    }
+
+    array[dest] = tmp[cursor2];
+
+  } else if (length2 === 0) {
+    throw new Error('mergeHigh preconditions were not respected');
+
+  } else {
+    customCursor = dest - (length2 - 1);
+    for (i = 0; i < length2; i++) {
+      array[customCursor + i] = tmp[i];
+    }
+  }
+};
+
+/**
+ * Sort an array in the range [lo, hi) using TimSort.
+ *
+ * @param {array} array - The array to sort.
+ * @param {number} lo - First element in the range (inclusive).
+ * @param {number} hi - Last element in the range.
+ * @param {function=} compare - Item comparison function. Default is alphabetical.
+ */
+function sort (array, lo, hi, compare) {
+  if (!Array.isArray(array)) {
+    throw new TypeError('Can only sort arrays');
+  }
+
+  /*
+   * Handle the case where a comparison function is not provided. We do
+   * lexicographic sorting
+   */
+
+  if (lo === undefined) {
+    lo = 0;
+  }
+
+  if (hi === undefined) {
+    hi = array.length;
+  }
+
+  if (compare === undefined) {
+    compare = alphabeticalCompare;
+  }
+
+  var remaining = hi - lo;
+
+  // The array is already sorted
+  if (remaining < 2) {
+    return;
+  }
+
+  var runLength = 0;
+  // On small arrays binary sort can be used directly
+  if (remaining < DEFAULT_MIN_MERGE) {
+    runLength = makeAscendingRun(array, lo, hi, compare);
+    binaryInsertionSort(array, lo, hi, lo + runLength, compare);
+    return;
+  }
+
+  var ts = new TimSort(array, compare);
+
+  var minRun = minRunLength(remaining);
+
+  do {
+    runLength = makeAscendingRun(array, lo, hi, compare);
+    if (runLength < minRun) {
+      var force = remaining;
+      if (force > minRun) {
+        force = minRun;
+      }
+
+      binaryInsertionSort(array, lo, lo + force, lo + runLength, compare);
+      runLength = force;
+    }
+    // Push new run and merge if necessary
+    ts.pushRun(lo, runLength);
+    ts.mergeRuns();
+
+    // Go find next run
+    remaining -= runLength;
+    lo += runLength;
+
+  } while (remaining !== 0);
+
+  // Force merging of remaining runs
+  ts.forceMergeRuns();
+}
+
+var FixedArray = function FixedArray(size) {
+  this._count = 0;
+  this._data = new Array(size);
+};
+
+var prototypeAccessors = { length: {},data: {} };
+
+FixedArray.prototype._resize = function _resize (size) {
+    var this$1 = this;
+
+  if (size > this._data.length) {
+    for (var i = this._data.length; i < size; ++i) {
+      this$1._data[i] = undefined;
+    }
+  }
+};
+
+prototypeAccessors.length.get = function () {
+  return this._count;
+};
+
+prototypeAccessors.data.get = function () {
+  return this._data;
+};
+
+FixedArray.prototype.reset = function reset () {
+    var this$1 = this;
+
+  for (var i = 0; i < this._count; ++i) {
+    this$1._data[i] = undefined;
+  }
+
+  this._count = 0;
+};
+
+FixedArray.prototype.push = function push (val) {
+  if (this._count >= this._data.length) {
+    this._resize(this._data.length * 2);
+  }
+
+  this._data[this._count] = val;
+  ++this._count;
+};
+
+FixedArray.prototype.pop = function pop () {
+  --this._count;
+
+  if (this._count < 0) {
+    this._count = 0;
+  }
+
+  var ret = this._data[this._count];
+  this._data[this._count] = undefined;
+
+  return ret;
+};
+
+FixedArray.prototype.fastRemove = function fastRemove (idx) {
+  if (idx >= this._count) {
+    return;
+  }
+
+  var last = this._count - 1;
+  this._data[idx] = this._data[last];
+  this._data[last] = undefined;
+  this._count -= 1;
+};
+
+FixedArray.prototype.indexOf = function indexOf (val) {
+  var idx = this._data.indexOf(val);
+  if (idx >= this._count) {
+    return -1;
+  }
+
+  return idx;
+};
+
+FixedArray.prototype.sort = function sort$1 (cmp) {
+  return sort(this._data, 0, this._count, cmp);
+};
+
+Object.defineProperties( FixedArray.prototype, prototypeAccessors );
+
+var Pool = function Pool(fn, size) {
+  var this$1 = this;
+
+  this._fn = fn;
+  this._idx = size - 1;
+  this._frees = new Array(size);
+
+  for (var i = 0; i < size; ++i) {
+    this$1._frees[i] = fn();
+  }
+};
+
+Pool.prototype._expand = function _expand (size) {
+    var this$1 = this;
+
+  var old = this._frees;
+  this._frees = new Array(size);
+
+  var len = size - old.length;
+  for (var i = 0; i < len; ++i) {
+    this$1._frees[i] = this$1._fn();
+  }
+
+  for (var i$1 = len, j = 0; i$1 < size; ++i$1, ++j) {
+    this$1._frees[i$1] = old[j];
+  }
+
+  this._idx += len;
+};
+
+Pool.prototype.alloc = function alloc () {
+  // create some more space (expand by 20%, minimum 1)
+  if (this._idx < 0) {
+    this._expand(Math.round(this._frees.length * 1.2) + 1);
+  }
+
+  var ret = this._frees[this._idx];
+  this._frees[this._idx] = null;
+  --this._idx;
+
+  return ret;
+};
+
+Pool.prototype.free = function free (obj) {
+  ++this._idx;
+  this._frees[this._idx] = obj;
+};
+
+// NOTE: you must have `_prev` and `_next` field in the object returns by `fn`
+
+var LinkedArray = function LinkedArray(fn, size) {
+  this._fn = fn;
+  this._count = 0;
+  this._head = null;
+  this._tail = null;
+
+  this._pool = new Pool(fn, size);
+};
+
+var prototypeAccessors$1 = { head: {},tail: {},length: {} };
+
+prototypeAccessors$1.head.get = function () {
+  return this._head;
+};
+
+prototypeAccessors$1.tail.get = function () {
+  return this._tail;
+};
+
+prototypeAccessors$1.length.get = function () {
+  return this._count;
+};
+
+LinkedArray.prototype.add = function add () {
+  var node = this._pool.alloc();
+
+  if (!this._tail) {
+    this._head = node;
+  } else {
+    this._tail._next = node;
+    node._prev = this._tail;
+  }
+  this._tail = node;
+  this._count += 1;
+
+  return node;
+};
+
+LinkedArray.prototype.remove = function remove (node) {
+  if (node._prev) {
+    node._prev._next = node._next;
+  } else {
+    this._head = node._next;
+  }
+
+  if (node._next) {
+    node._next._prev = node._prev;
+  } else {
+    this._tail = node._prev;
+  }
+
+  node._next = null;
+  node._prev = null;
+  this._pool.free(node);
+  this._count -= 1;
+};
+
+LinkedArray.prototype.forEach = function forEach (fn, binder) {
+    var this$1 = this;
+
+  var cursor = this._head;
+  if (!cursor) {
+    return;
+  }
+
+  if (binder) {
+    fn = fn.bind(binder);
+  }
+
+  var idx = 0;
+  var next = cursor;
+
+  while (cursor) {
+    next = cursor._next;
+    fn(cursor, idx, this$1);
+
+    cursor = next;
+    ++idx;
+  }
+};
+
+Object.defineProperties( LinkedArray.prototype, prototypeAccessors$1 );
+
+var RecyclePool = function RecyclePool(fn, size) {
+  var this$1 = this;
+
+  this._fn = fn;
+  this._count = 0;
+  this._data = new Array(size);
+
+  for (var i = 0; i < size; ++i) {
+    this$1._data[i] = fn();
+  }
+};
+
+var prototypeAccessors$2 = { length: {},data: {} };
+
+prototypeAccessors$2.length.get = function () {
+  return this._count;
+};
+
+prototypeAccessors$2.data.get = function () {
+  return this._data;
+};
+
+RecyclePool.prototype.reset = function reset () {
+  this._count = 0;
+};
+
+RecyclePool.prototype.resize = function resize (size) {
+    var this$1 = this;
+
+  if (size > this._data.length) {
+    for (var i = this._data.length; i < size; ++i) {
+      this$1._data[i] = this$1._fn();
+    }
+  }
+};
+
+RecyclePool.prototype.add = function add () {
+  if (this._count >= this._data.length) {
+    this.resize(this._data.length * 2);
+  }
+
+  return this._data[this._count++];
+};
+
+RecyclePool.prototype.remove = function remove (idx) {
+  if (idx >= this._count) {
+    return;
+  }
+
+  var last = this._count - 1;
+  var tmp = this._data[idx];
+  this._data[idx] = this._data[last];
+  this._data[last] = tmp;
+  this._count -= 1;
+};
+
+RecyclePool.prototype.sort = function sort$1 (cmp) {
+  return sort(this._data, 0, this._count, cmp);
+};
+
+Object.defineProperties( RecyclePool.prototype, prototypeAccessors$2 );
+
+var _bufferPools = Array(8);
+for (var i = 0; i < 8; ++i) {
+  _bufferPools[i] = [];
+}
+
+// Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
+
+/**
+ * BaseRenderData is a core data abstraction for renderer, this is a abstract class.
+ * An inherited render data type should define raw vertex datas.
+ * User should also define the effect, vertex count and index count.
+ */
+var BaseRenderData = function BaseRenderData () {
+    this.material = null;
+    this.vertexCount = 0;
+    this.indiceCount = 0;
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var _pool;
+var _dataPool = new Pool(function () {
+  return {
+    x: 0.0,
+    y: 0.0,
+    u: 0.0,
+    v: 0.0,
+    color: 0
+  };
+}, 128);
+
+/**
+ * RenderData is most widely used render data type.
+ * It describes raw vertex data with a fixed data layout.
+ * Each vertex is described by five property: x, y, u, v, color. The data layout might be extended in the future.
+ * Vertex data objects are managed automatically by RenderData, user only need to set the dataLength property.
+ * User can also define rendering index orders for the vertex list.
+ */
+var RenderData = (function (BaseRenderData$$1) {
+  function RenderData () {
+    BaseRenderData$$1.call(this);
+    this._data = [];
+    this._indices = [];
+
+    this._pivotX = 0;
+    this._pivotY = 0;
+    this._width = 0;
+    this._height = 0;
+
+    this.uvDirty = true;
+    this.vertDirty = true;
+  }
+
+  if ( BaseRenderData$$1 ) RenderData.__proto__ = BaseRenderData$$1;
+  RenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
+  RenderData.prototype.constructor = RenderData;
+
+  var prototypeAccessors = { type: {},dataLength: {} };
+
+  prototypeAccessors.type.get = function () {
+    return RenderData.type;
+  };
+
+  prototypeAccessors.dataLength.get = function () {
+    return this._data.length;
+  };
+
+  prototypeAccessors.dataLength.set = function (length) {
+    var data = this._data;
+    if (data.length !== length) {
+      // Free extra data
+      for (var i = length; i < data.length; i++) {
+        _dataPool.free(data[i]);
+      }
+      // Alloc needed data
+      for (var i$1 = data.length; i$1 < length; i$1++) {
+        data[i$1] = _dataPool.alloc();
+      }
+      data.length = length;
+    }
+  };
+
+  RenderData.prototype.updateSizeNPivot = function updateSizeNPivot (width, height, pivotX, pivotY) {
+    if (width !== this._width || 
+        height !== this._height ||
+        pivotX !== this._pivotX ||
+        pivotY !== this._pivotY) 
+    {
+      this._width = width;
+      this._height = height;
+      this._pivotX = pivotX;
+      this._pivotY = pivotY;
+      this.vertDirty = true;
+    }
+  };
+  
+  RenderData.alloc = function alloc () {
+    return _pool.alloc();
+  };
+
+  RenderData.free = function free (data) {
+    if (data instanceof RenderData) {
+      for (var i = data.length-1; i > 0; i--) {
+        _dataPool.free(data._data[i]);
+      }
+      data._data.length = 0;
+      data._indices.length = 0;
+      data.material = null;
+      data.uvDirty = true;
+      data.vertDirty = true;
+      data.vertexCount = 0;
+      data.indiceCount = 0;
+      _pool.free(data);
+    }
+  };
+
+  Object.defineProperties( RenderData.prototype, prototypeAccessors );
+
+  return RenderData;
+}(BaseRenderData));
+
+RenderData.type = 'RenderData';
+
+_pool = new Pool(function () {
+  return new RenderData();
+}, 32);
+
+// Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
+ 
+/**
+ * IARenderData is user customized render data type, user should provide the entier input assembler.
+ * IARenderData just defines a property `ia` for accessing the input assembler.
+ * It doesn't manage memory so users should manage the memory of input assembler by themselves.
+ */
+var IARenderData = (function (BaseRenderData$$1) {
+    function IARenderData () {
+        BaseRenderData$$1.call(this);
+        this.ia = null;
+    }
+
+    if ( BaseRenderData$$1 ) IARenderData.__proto__ = BaseRenderData$$1;
+    IARenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
+    IARenderData.prototype.constructor = IARenderData;
+
+    var prototypeAccessors = { type: {} };
+
+    prototypeAccessors.type.get = function () {
+        return IARenderData.type;
+    };
+
+    Object.defineProperties( IARenderData.prototype, prototypeAccessors );
+
+    return IARenderData;
+}(BaseRenderData));
+
+IARenderData.type = 'IARenderData';
+
+var gfx = window.gfx;
+
+var renderer = window.renderer;
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var BASE = 255;
+var NOISE_SCALE = 10000;
+var POS_SCALE = 1;
+var LIFE_SCALE = 100;
+var COLOR_SCALE = 1;
+var ROTATION_SCALE = 1;
+var MAX_SCALE = 500;
+var _vertexFmt = new gfx.VertexFormat([
+  { name: 'a_quad', type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
+]);
+
+var _dataOpts = {
+  width: 0,
+  height: 0,
+  minFilter: gfx.FILTER_NEAREST,
+  magFilter: gfx.FILTER_NEAREST,
+  wrapS: gfx.WRAP_CLAMP,
+  wrapT: gfx.WRAP_CLAMP,
+  format: gfx.TEXTURE_FMT_RGBA8,
+  images: []
+};
+
+function encode (value, scale, outArr, offset) {
+  value = value * scale + BASE * BASE / 2;
+  outArr[offset] = Math.floor((value % BASE) / BASE * 255);
+  outArr[offset+1] = Math.floor(Math.floor(value / BASE) / BASE * 255);
+}
+
+function decode (arr, offset, scale) {
+  return (((arr[offset] / 255) * BASE +
+           (arr[offset+1] / 255) * BASE * BASE) - BASE * BASE / 2) / scale;
+}
+
+function clampf (value, min_inclusive, max_inclusive) {
+  return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+}
+
+var Particles = function Particles (device, renderer$$1, config) {
+  this._device = device;
+  this._config = config;
+  this._sizeScale = 1;
+  this._accelScale = 1;
+  this._radiusScale = 1;
+    
+  var opts = {};
+  var programLib = renderer$$1._programLib;
+  this.programs = {
+    emitter: programLib.getProgram('vfx_emitter', opts),
+    update: programLib.getProgram('vfx_update', opts),
+    quad: programLib.getProgram('vfx_quad', opts),
+  };
+
+  this.textures = {
+    // need swap
+    state0: new gfx.Texture2D(device, opts),
+    state1: new gfx.Texture2D(device, opts),
+    // no swap needed
+    noise: new gfx.Texture2D(device, opts),
+    quads: new gfx.Texture2D(device, opts),
+  };
+
+  this.framebuffers = {
+    state0: new gfx.FrameBuffer(device, 0, 0, {
+      colors: [this.textures.state0]
+    }),
+    state1: new gfx.FrameBuffer(device, 0, 0, {
+      colors: [this.textures.state1]
+    }),
+    quads: new gfx.FrameBuffer(device, 0, 0, {
+      colors: [this.textures.quads]
+    })
+  };
+
+  var verts = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+  var indices = new Uint8Array([ 0, 1, 2, 1, 3, 2]);
+  this.buffers = {
+    updateVB: new gfx.VertexBuffer(device, _vertexFmt, gfx.USAGE_STATIC, verts, 4),
+    updateIB: new gfx.IndexBuffer(device, gfx.INDEX_FMT_UINT8, gfx.USAGE_STATIC, indices, 6),
+    indexes: null,
+    particleCache: null
+  };
+
+  this._elapsed = 0;
+  this._stopped = false;
+
+  this.updateMaxParticle(config);
+  this.updateSizeScale(config);
+  this.updateRadiusScale(config);
+  this.updateAccelScale(config);
+
+  // Vector uniforms
+  this._pos = new Float32Array([config.sourcePos.x, config.sourcePos.y]);
+  this._posVar = new Float32Array([config.posVar.x, config.posVar.y]);
+  this._gravity = new Float32Array([config.gravity.x, config.gravity.y]);
+  this._color = new Float32Array([config.startColor.r, config.startColor.g, config.startColor.b, config.startColor.a]);
+  this._colorVar = new Float32Array([config.startColorVar.r, config.startColorVar.g, config.startColorVar.b, config.startColorVar.a]);
+  this._endColor = new Float32Array([config.endColor.r, config.endColor.g, config.endColor.b, config.endColor.a]);
+  this._endColorVar = new Float32Array([config.endColorVar.r, config.endColorVar.g, config.endColorVar.b, config.endColorVar.a]);
+};
+
+var prototypeAccessors$3 = { vertexFormat: {},particleCount: {},stopped: {},pos: {},posVar: {},gravity: {},startColor: {},startColorVar: {},endColor: {},endColorVar: {} };
+
+prototypeAccessors$3.vertexFormat.get = function () {
+  return _vertexFmt;
+};
+
+// TODO: it's too slow, need other approach to retrieve the real particle count
+prototypeAccessors$3.particleCount.get = function () {
+  var particleCount = 0;
+  var device = this._device;
+  device.setFrameBuffer(this.framebuffers.state0);
+  var w = this.statesize[0], h = this.statesize[1],
+      tw = this._tw, th = this._th,
+      rgba = this.buffers.particleCache;
+  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+  for (var y = 0; y < th; y++) {
+    for (var x = 0; x < tw; x++) {
+      var offset = y * 3 * tw * 12 + x * 12;
+      var rest = decode(rgba, offset, LIFE_SCALE);
+      if (rest > 0) {
+        particleCount++;
+      }
+    }
+  }
+  return particleCount;
+};
+
+prototypeAccessors$3.stopped.get = function () {
+  return this._stopped;
+};
+
+Particles.prototype.updateMaxParticle = function updateMaxParticle (config) {
+  var emissionMax = Math.floor(config.emissionRate * (config.life + config.lifeVar));
+  var maxParticle;
+  if (config.totalParticles > emissionMax) {
+    maxParticle = emissionMax;
+    this._emitVar = config.lifeVar;
+  }
+  else {
+    maxParticle = config.totalParticles;
+    this._emitVar = 0;
+  }
+  if (maxParticle !== this._maxParticle) {
+    this._maxParticle = maxParticle;
+    this._tw = Math.ceil(Math.sqrt(maxParticle));
+    this._th = Math.floor(Math.sqrt(maxParticle));
+    this.initTextures();
+    this.initBuffers();
+  }
+};
+
+prototypeAccessors$3.pos.set = function (pos) {
+  this._pos[0] = pos.x;
+  this._pos[1] = pos.y;
+};
+
+prototypeAccessors$3.posVar.set = function (posVar) {
+  this._posVar[0] = posVar.x;
+  this._posVar[1] = posVar.y;
+};
+
+prototypeAccessors$3.gravity.set = function (gravity) {
+  this._gravity[0] = gravity.x;
+  this._gravity[1] = gravity.y;
+};
+
+prototypeAccessors$3.startColor.set = function (color) {
+  this._color[0] = color.r;
+  this._color[1] = color.g;
+  this._color[2] = color.b;
+  this._color[3] = color.a;
+};
+
+prototypeAccessors$3.startColorVar.set = function (color) {
+  this._colorVar[0] = color.r;
+  this._colorVar[1] = color.g;
+  this._colorVar[2] = color.b;
+  this._colorVar[3] = color.a;
+};
+
+prototypeAccessors$3.endColor.set = function (color) {
+  this._endColor[0] = color.r;
+  this._endColor[1] = color.g;
+  this._endColor[2] = color.b;
+  this._endColor[3] = color.a;
+};
+
+prototypeAccessors$3.endColorVar.set = function (color) {
+  this._endColorVar[0] = color.r;
+  this._endColorVar[1] = color.g;
+  this._endColorVar[2] = color.b;
+  this._endColorVar[3] = color.a;
+};
+
+Particles.prototype._updateTex = function _updateTex (tex, data, width, height) {
+  _dataOpts.images.length = 1;
+  _dataOpts.images[0] = data;
+  _dataOpts.width = width;
+  _dataOpts.height = height;
+  tex.update(_dataOpts);
+};
+
+Particles.prototype._initNoise = function _initNoise () {
+  var tw = this._tw, th = this._th;
+  var w = (tw + 1) * 3, h = (th + 1) * 3;
+  var data = new Uint8Array(w * h * 4);
+  var offset = 0;
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      encode(Math.random(), NOISE_SCALE, data, offset);
+      encode(Math.random(), NOISE_SCALE, data, offset + 2);
+      offset += 4;
+    }
+  }
+  this._noisesize = new Float32Array([w, h]);
+  this._updateTex(this.textures.noise, data, w, h);
+};
+
+Particles.prototype.initTextures = function initTextures () {
+  var tw = this._tw, th = this._th;
+  this.statesize = new Float32Array([tw * 3, th * 3]);
+  this.quadsize = new Float32Array([tw * 2, th * 2]);
+  var data = new Uint8Array(tw * 3 * th * 3 * 4);
+  // decode([97, 97], 0, LIFE_SCALE); equals to -128, just for initalize a negative value in life
+  data.fill(97);
+  this._updateTex(this.textures.state0, data, tw * 3, th * 3);
+  this._updateTex(this.textures.state1, data, tw * 3, th * 3);
+  this._updateTex(this.textures.quads, null, tw * 2, th * 2);
+  this._initNoise();
+};
+
+Particles.prototype.initBuffers = function initBuffers () {
+  var w = this.quadsize[0], h = this.quadsize[1],
+      indexes = new Float32Array(w * h * 2),
+      i = 0;
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      indexes[i + 0] = x;
+      indexes[i + 1] = y;
+      i += 2;
+    }
+  }
+  this.buffers.indexes = indexes;
+  this.buffers.particleCache = new Uint8Array(this.statesize[0] * this.statesize[1] * 4);
+};
+
+Particles.prototype.updateSizeScale = function updateSizeScale (config) {
+  var size = config.startSize,
+      sizeVar = config.startSizeVar,
+      endSize = config.endSize,
+      endSizeVar = config.endSizeVar;
+  var scale = Math.floor(Math.pow(BASE, 2) / Math.max(size + sizeVar, endSize + endSizeVar));
+  this._sizeScale = clampf(scale, 1, MAX_SCALE);
+};
+
+Particles.prototype.updateAccelScale = function updateAccelScale (config) {
+  var radial = config.radialAccel,
+      radialVar = config.radialAccelVar,
+      tangential = config.tangentialAccel,
+      tangentialVar = config.tangentialAccelVar;
+  var accelScale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radial) + radialVar, Math.abs(tangential) + tangentialVar) / 2);
+  this._accelScale = clampf(accelScale, 1, MAX_SCALE);
+};
+
+Particles.prototype.updateRadiusScale = function updateRadiusScale (config) {
+  var radius = config.startRadius,
+      radiusVar = config.startRadiusVar,
+      endRadius = config.endRadius,
+      endRadiusVar = config.endRadiusVar;
+  var scale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radius) + radiusVar, Math.abs(endRadius) + endRadiusVar));
+  this._radiusScale = clampf(scale, 1, MAX_SCALE);
+};
+
+Particles.prototype.resetSystem = function resetSystem () {
+  this._stopped = false;
+};
+
+Particles.prototype.stopSystem = function stopSystem () {
+  this._stopped = true;
+};
+
+Particles.prototype.getState = function getState (framebuffer) {
+    var this$1 = this;
+
+  var device = this._device;
+  device.setFrameBuffer(framebuffer);
+  var w = this.statesize[0], h = this.statesize[1],
+      tw = this._tw, th = this._th,
+      rgba = new Uint8Array(w * h * 4);
+  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+  var particles = [];
+  for (var y = 0; y < th; y++) {
+    for (var x = 0; x < tw; x++) {
+      var offset = y * 3 * tw * 12 + x * 12;
+      var colorI = offset + 1 * 4;
+      var deltaRGI = offset + 2 * 4;
+      var deltaBAI = offset + tw * 12;
+      var sizeI = offset + tw * 12 + 1 * 4;
+      var rotI = offset + tw * 12 + 2 * 4;
+      var control1I = offset + 2 * tw * 12;
+      var control2I = offset + 2 * tw * 12 + 1 * 4;
+      var posI = offset + 2 * tw * 12 + 2 * 4;
+        
+      var rest = decode(rgba, offset, LIFE_SCALE);
+      var life = decode(rgba, offset + 2, LIFE_SCALE);
+      var color = {
+        r: rgba[colorI],
+        g: rgba[colorI+1],
+        b: rgba[colorI+2],
+        a: rgba[colorI+3]
+      };
+      var deltaColor = {
+        r: decode(rgba, deltaRGI, COLOR_SCALE),
+        g: decode(rgba, deltaRGI + 2, COLOR_SCALE),
+        b: decode(rgba, deltaBAI, COLOR_SCALE),
+        a: decode(rgba, deltaBAI + 2, COLOR_SCALE)
+      };
+      var size = decode(rgba, sizeI, this$1._sizeScale);
+      var deltaSize = decode(rgba, sizeI + 2, this$1._sizeScale);
+      var rot = decode(rgba, rotI, ROTATION_SCALE);
+      var deltaRot = decode(rgba, rotI + 2, ROTATION_SCALE);
+      var control = (void 0);
+      if (this$1._config.emitterMode === 0) {
+        control = [
+          decode(rgba, control1I, POS_SCALE),
+          decode(rgba, control1I + 2, POS_SCALE),
+          decode(rgba, control2I, this$1._accelScale),
+          decode(rgba, control2I + 2, this$1._accelScale)
+        ];
+      }
+      else {
+        control = [
+          decode(rgba, control1I, ROTATION_SCALE),
+          decode(rgba, control1I + 2, this$1._radiusScale),
+          decode(rgba, control2I, ROTATION_SCALE),
+          decode(rgba, control2I + 2, this$1._radiusScale)
+        ];
+      }
+      var pos = {
+        x: decode(rgba, posI, POS_SCALE),
+        y: decode(rgba, posI + 2, POS_SCALE)
+      };
+      particles.push({
+        rest: rest,
+        life: life,
+        color: color,
+        deltaColor: deltaColor,
+        size: size,
+        deltaSize: deltaSize,
+        rot: rot,
+        deltaRot: deltaRot,
+        control: control,
+        pos: pos
+      });
+    }
+  }
+  return particles;
+};
+
+Particles.prototype.getNoise = function getNoise () {
+  var device = this._device;
+  var framebuffer = new gfx.FrameBuffer(device, 0, 0, {
+      colors: [this.textures.noise]
+    });
+  device.setFrameBuffer(framebuffer);
+  var w = this._noisesize[0], h = this._noisesize[1],
+      rgba = new Uint8Array(w * h * 4);
+  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+  var noises = [];
+  var offset = 0;
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      noises.push(decode(rgba, offset, 10000));
+      noises.push(decode(rgba, offset+2, 10000));
+      offset += 4;
+    }
+  }
+  return noises;
+};
+
+Particles.prototype.getQuads = function getQuads () {
+  var device = this._device;
+  var framebuffer = new gfx.FrameBuffer(device, 0, 0, {
+      colors: [this.textures.quads]
+    });
+  device.setFrameBuffer(framebuffer);
+  var w = this.quadsize[0], h = this.quadsize[1],
+      rgba = new Uint8Array(w * h * 4);
+  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+  var quads = [];
+  var off1 = 0, off2 = 0;
+  for (var y = 0; y < h; y += 2) {
+    for (var x = 0; x < w; x += 2) {
+      off1 = (y * w + x) * 4;
+      off2 = ((y + 1) * w + x) * 4;
+      quads.push([
+        decode(rgba, off1, POS_SCALE),
+        decode(rgba, off1+2, POS_SCALE),
+        decode(rgba, off1+4, POS_SCALE),
+        decode(rgba, off1+6, POS_SCALE),
+        decode(rgba, off2, POS_SCALE),
+        decode(rgba, off2+2, POS_SCALE),
+        decode(rgba, off2+4, POS_SCALE),
+        decode(rgba, off2+6, POS_SCALE)
+      ]);
+    }
+  }
+  return quads;
+};
+
+Particles.prototype.step = function step (dt) {
+  var config = this._config;
+  var device = this._device;
+
+  // setup
+  device.setViewport(0, 0, this.statesize[0], this.statesize[1]);
+
+  // Emitter
+  device.setFrameBuffer(this.framebuffers.state1);
+  device.setTexture('noise', this.textures.noise, 0);
+  device.setTexture('state', this.textures.state0, 1);
+  device.setUniform('statesize', this.statesize);
+  device.setUniform('noisesize', this._noisesize);
+  device.setUniform('stopped', this._stopped);
+  device.setUniform('dt', dt);
+  device.setUniform('mode', config.emitterMode);
+  device.setUniform('noiseId', Math.floor(Math.random() * 16));
+  device.setUniform('emitVar', this._emitVar);
+  device.setUniform('life', config.life);
+  device.setUniform('lifeVar', config.lifeVar);
+  device.setUniform('pos', this._pos);
+  device.setUniform('posVar', this._posVar);
+  device.setUniform('color', this._color);
+  device.setUniform('colorVar', this._colorVar);
+  device.setUniform('endColor', this._endColor);
+  device.setUniform('endColorVar', this._endColorVar);
+  device.setUniform('size', config.startSize);
+  device.setUniform('sizeVar', config.startSizeVar);
+  device.setUniform('endSize', config.endSize);
+  device.setUniform('endSizeVar', config.endSizeVar);
+  device.setUniform('rot', config.startSpin);
+  device.setUniform('rotVar', config.startSpinVar);
+  device.setUniform('endRot', config.endSpin);
+  device.setUniform('endRotVar', config.endSpinVar);
+  device.setUniform('angle', config.angle);
+  device.setUniform('angleVar', config.angleVar);
+  device.setUniform('speed', config.speed);
+  device.setUniform('speedVar', config.speedVar);
+  device.setUniform('radial', config.radialAccel);
+  device.setUniform('radialVar', config.radialAccelVar);
+  device.setUniform('tangent', config.tangentialAccel);
+  device.setUniform('tangentVar', config.tangentialAccelVar);
+  device.setUniform('radius', config.startRadius);
+  device.setUniform('radiusVar', config.startRadiusVar);
+  device.setUniform('endRadius', config.endRadius);
+  device.setUniform('endRadiusVar', config.endRadiusVar);
+  device.setUniform('rotatePS', config.rotatePerS);
+  device.setUniform('rotatePSVar', config.rotatePerSVar);
+  device.setUniform('sizeScale', this._sizeScale);
+  device.setUniform('accelScale', this._accelScale);
+  device.setUniform('radiusScale', this._radiusScale);
+  device.setVertexBuffer(0, this.buffers.updateVB);
+  device.setIndexBuffer(this.buffers.updateIB);
+  device.setProgram(this.programs.emitter);
+  device.draw(0, this.buffers.updateIB.count);
+
+  // Update
+  device.setFrameBuffer(this.framebuffers.state0);
+  device.setTexture('state', this.textures.state1, 0);
+  device.setUniform('statesize', this.statesize);
+  device.setUniform('dt', dt);
+  device.setUniform('mode', config.emitterMode);
+  device.setUniform('gravity', this._gravity);
+  device.setUniform('sizeScale', this._sizeScale);
+  device.setUniform('accelScale', this._accelScale);
+  device.setUniform('radiusScale', this._radiusScale);
+  device.setVertexBuffer(0, this.buffers.updateVB);
+  device.setIndexBuffer(this.buffers.updateIB);
+  device.setProgram(this.programs.update);
+  device.draw(0, this.buffers.updateIB.count);
+
+  // Draw quad
+  device.setViewport(0, 0, this._tw * 2, this._th * 2);
+  device.setFrameBuffer(this.framebuffers.quads);
+  device.setTexture('state', this.textures.state0, 0);
+  device.setUniform('quadsize', this.quadsize);
+  device.setUniform('statesize', this.statesize);
+  device.setUniform('sizeScale', this._sizeScale);
+  device.setVertexBuffer(0, this.buffers.updateVB);
+  device.setIndexBuffer(this.buffers.updateIB);
+  device.setProgram(this.programs.quad);
+  device.draw(0, this.buffers.updateIB.count);
+
+  this._elapsed += dt;
+  if (config.duration !== -1 && config.duration < this._elapsed) {
+    this.stopSystem();
+  }
+};
+
+Object.defineProperties( Particles.prototype, prototypeAccessors$3 );
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var Asset = function Asset(persist) {
+  if ( persist === void 0 ) persist = true;
+
+  this._loaded = false;
+  this._persist = persist;
+};
+
+Asset.prototype.unload = function unload () {
+  this._loaded = false;
+};
+
+Asset.prototype.reload = function reload () {
+  // TODO
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var Texture = (function (Asset$$1) {
+  function Texture(persist) {
+    if ( persist === void 0 ) persist = true;
+
+    Asset$$1.call(this, persist);
+
+    this._texture = null;
+  }
+
+  if ( Asset$$1 ) Texture.__proto__ = Asset$$1;
+  Texture.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
+  Texture.prototype.constructor = Texture;
+
+  Texture.prototype.getImpl = function getImpl () {
+    return this._texture;
+  };
+
+  Texture.prototype.getId = function getId () {};
+
+  Texture.prototype.destroy = function destroy () {
+    this._texture && this._texture.destroy();
+  };
+
+  return Texture;
+}(Asset));
+
+/**
+ * JS Implementation of MurmurHash2
+ * 
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @see http://github.com/garycourt/murmurhash-js
+ * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
+ * @see http://sites.google.com/site/murmurhash/
+ * 
+ * @param {string} str ASCII only
+ * @param {number} seed Positive integer only
+ * @return {number} 32-bit positive integer hash
+ */
+
+function murmurhash2_32_gc(str, seed) {
+  var
+    l = str.length,
+    h = seed ^ l,
+    i = 0,
+    k;
+  
+  while (l >= 4) {
+  	k = 
+  	  ((str.charCodeAt(i) & 0xff)) |
+  	  ((str.charCodeAt(++i) & 0xff) << 8) |
+  	  ((str.charCodeAt(++i) & 0xff) << 16) |
+  	  ((str.charCodeAt(++i) & 0xff) << 24);
+    
+    k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+    k ^= k >>> 24;
+    k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+
+	h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16)) ^ k;
+
+    l -= 4;
+    ++i;
+  }
+  
+  switch (l) {
+  case 3: h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
+  case 2: h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
+  case 1: h ^= (str.charCodeAt(i) & 0xff);
+          h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+  }
+
+  h ^= h >>> 13;
+  h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+  h ^= h >>> 15;
+
+  return h >>> 0;
+}
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+// function genHashCode (str) {
+//     var hash = 0;
+//     if (str.length == 0) {
+//         return hash;
+//     }
+//     for (var i = 0; i < str.length; i++) {
+//         var char = str.charCodeAt(i);
+//         hash = ((hash<<5)-hash)+char;
+//         hash = hash & hash; // Convert to 32bit integer
+//     }
+//     return hash;
+// }
+
+function serializeDefines (defines) {
+    var str = '';
+    for (var i = 0; i < defines.length; i++) {
+        str += defines[i].name + defines[i].value;
+    }
+    return str;
+}
+
+function serializePass (pass) {
+    var str = pass._programName + pass._cullMode;
+    if (pass._blend) {
+        str += pass._blendEq + pass._blendAlphaEq + pass._blendSrc + pass._blendDst
+             + pass._blendSrcAlpha + pass._blendDstAlpha + pass._blendColor;
+    }
+    if (pass._depthTest) {
+        str += pass._depthWrite + pass._depthFunc;
+    }
+    if (pass._stencilTest) {
+        str += pass._stencilFuncFront + pass._stencilRefFront + pass._stencilMaskFront
+             + pass._stencilFailOpFront + pass._stencilZFailOpFront + pass._stencilZPassOpFront
+             + pass._stencilWriteMaskFront
+             + pass._stencilFuncBack + pass._stencilRefBack + pass._stencilMaskBack
+             + pass._stencilFailOpBack + pass._stencilZFailOpBack + pass._stencilZPassOpBack 
+             + pass._stencilWriteMaskBack;
+    }
+    return str;
+}
+
+function computeHash(material) {
+    var effect = material._effect;
+    var hashData = '';
+    if (effect) {
+        var i, j, techData, param, prop, propKey;
+
+        // effect._defines
+        hashData += serializeDefines(effect._defines);
+        // effect._techniques
+        for (i = 0; i < effect._techniques.length; i++) {
+            techData = effect._techniques[i];
+            // technique.stageIDs
+            hashData += techData.stageIDs;
+            // technique._layer
+            // hashData += + techData._layer + "_";
+            // technique.passes
+            for (j = 0; j < techData.passes.length; j++) {
+                hashData += serializePass(techData.passes[j]);
+            }
+            //technique._parameters
+            for (j = 0; j < techData._parameters.length; j++) {
+                param = techData._parameters[j];
+                propKey = param.name;
+                prop = effect._properties[propKey];
+                if (!prop) {
+                    continue;
+                }
+                switch(param.type) {
+                    case renderer.PARAM_INT:
+                    case renderer.PARAM_FLOAT:
+                        hashData += prop + ';';
+                        break;
+                    case renderer.PARAM_INT2:
+                    case renderer.PARAM_FLOAT2:
+                        hashData += prop.x + ',' + prop.y + ';';
+                        break;
+                    case renderer.PARAM_INT4:
+                    case renderer.PARAM_FLOAT4:
+                        hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
+                        break;
+                    case renderer.PARAM_COLOR4:
+                        hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
+                        break;
+                    case renderer.PARAM_MAT2:
+                        hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
+                        break;
+                    case renderer.PARAM_TEXTURE_2D:
+                    case renderer.PARAM_TEXTURE_CUBE:
+                        hashData += material._texIds[propKey] + ';';
+                        break;
+                    case renderer.PARAM_INT3:
+                    case renderer.PARAM_FLOAT3:
+                    case renderer.PARAM_COLOR3:
+                    case renderer.PARAM_MAT3:
+                    case renderer.PARAM_MAT4:
+                        hashData += JSON.stringify(prop) + ';';
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    return hashData ? murmurhash2_32_gc(hashData, 666) : hashData;
+}
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var Material = (function (Asset$$1) {
+  function Material(persist) {
+    if ( persist === void 0 ) persist = false;
+
+    Asset$$1.call(this, persist);
+
+    this._effect = null; // renderer.Effect
+    this._texIds = {}; // ids collected from texture defines
+    this._hash = '';
+  }
+
+  if ( Asset$$1 ) Material.__proto__ = Asset$$1;
+  Material.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
+  Material.prototype.constructor = Material;
+
+  var prototypeAccessors = { hash: {} };
+
+  prototypeAccessors.hash.get = function () {
+    return this._hash;
+  };
+
+  Material.prototype.updateHash = function updateHash (value) {
+    this._hash = value || computeHash(this);
+  };
+
+  Object.defineProperties( Material.prototype, prototypeAccessors );
+
+  return Material;
+}(Asset));
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var SpriteMaterial = (function (Material$$1) {
+  function SpriteMaterial() {
+    Material$$1.call(this, false);
+
+    var pass = new renderer.Pass('sprite');
+    pass.setDepth(false, false);
+    pass.setCullMode(gfx.CULL_NONE);
+    pass.setBlend(
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+    );
+
+    var mainTech = new renderer.Technique(
+      ['transparent'],
+      [
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
+      [
+        pass
+      ]
+    );
+
+    this._effect = new renderer.Effect(
+      [
+        mainTech ],
+      {},
+      [
+        { name: 'useTexture', value: true },
+        { name: 'useModel', value: false },
+        { name: 'alphaTest', value: false } ]
+    );
+    
+    this._mainTech = mainTech;
+    this._texture = null;
+  }
+
+  if ( Material$$1 ) SpriteMaterial.__proto__ = Material$$1;
+  SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
+  SpriteMaterial.prototype.constructor = SpriteMaterial;
+
+  var prototypeAccessors = { effect: {},useTexture: {},useModel: {},texture: {} };
+
+  prototypeAccessors.effect.get = function () {
+    return this._effect;
+  };
+  
+  prototypeAccessors.useTexture.get = function () {
+    this._effect.getDefine('useTexture', val);
+  };
+
+  prototypeAccessors.useTexture.set = function (val) {
+    this._effect.define('useTexture', val);
+  };
+  
+  prototypeAccessors.useModel.get = function () {
+    this._effect.getDefine('useModel', val);
+  };
+
+  prototypeAccessors.useModel.set = function (val) {
+    this._effect.define('useModel', val);
+  };
+
+  prototypeAccessors.texture.get = function () {
+    return this._texture;
+  };
+
+  prototypeAccessors.texture.set = function (val) {
+    if (this._texture !== val) {
+      this._texture = val;
+      this._effect.setProperty('texture', val.getImpl());
+      this._texIds['texture'] = val.getId();
+    }
+  };
+
+  SpriteMaterial.prototype.clone = function clone () {
+    var copy = new SpriteMaterial();
+    copy.texture = this.texture;
+    copy.useTexture = this.useTexture;
+    copy.useModel = this.useModel;
+    copy.updateHash();
+    return copy;
+  };
+
+  Object.defineProperties( SpriteMaterial.prototype, prototypeAccessors );
+
+  return SpriteMaterial;
+}(Material));
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var GraySpriteMaterial = (function (Material$$1) {
+  function GraySpriteMaterial() {
+    Material$$1.call(this, false);
+
+    var pass = new renderer.Pass('gray_sprite');
+    pass.setDepth(false, false);
+    pass.setCullMode(gfx.CULL_NONE);
+    pass.setBlend(
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+    );
+
+    var mainTech = new renderer.Technique(
+      ['transparent'],
+      [
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
+      [
+        pass
+      ]
+    );
+
+    this._effect = new renderer.Effect(
+      [
+        mainTech ],
+      {},
+      []
+    );
+    
+    this._mainTech = mainTech;
+    this._texture = null;
+  }
+
+  if ( Material$$1 ) GraySpriteMaterial.__proto__ = Material$$1;
+  GraySpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
+  GraySpriteMaterial.prototype.constructor = GraySpriteMaterial;
+
+  var prototypeAccessors = { effect: {},texture: {} };
+
+  prototypeAccessors.effect.get = function () {
+    return this._effect;
+  };
+
+  prototypeAccessors.texture.get = function () {
+    return this._texture;
+  };
+
+  prototypeAccessors.texture.set = function (val) {
+    if (this._texture !== val) {
+      this._texture = val;
+      this._effect.setProperty('texture', val.getImpl());
+      this._texIds['texture'] = val.getId();
+    }
+  };
+
+  GraySpriteMaterial.prototype.clone = function clone () {
+    var copy = new GraySpriteMaterial();
+    copy.texture = this.texture;
+    copy.updateHash();
+    return copy;
+  };
+
+  Object.defineProperties( GraySpriteMaterial.prototype, prototypeAccessors );
+
+  return GraySpriteMaterial;
+}(Material));
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var StencilMaterial = (function (Material$$1) {
+  function StencilMaterial() {
+    Material$$1.call(this, false);
+
+    this._pass = new renderer.Pass('sprite');
+    this._pass.setDepth(false, false);
+    this._pass.setCullMode(gfx.CULL_NONE);
+    this._pass.setBlend(
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+    );
+
+    var mainTech = new renderer.Technique(
+      ['transparent'],
+      [
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT } ],
+      [
+        this._pass
+      ]
+    );
+
+    this._effect = new renderer.Effect(
+      [
+        mainTech ],
+      {},
+      [
+        { name: 'useTexture', value: true },
+        { name: 'useModel', value: false },
+        { name: 'alphaTest', value: true } ]
+    );
+    
+    this._mainTech = mainTech;
+    this._texture = null;
+  }
+
+  if ( Material$$1 ) StencilMaterial.__proto__ = Material$$1;
+  StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
+  StencilMaterial.prototype.constructor = StencilMaterial;
+
+  var prototypeAccessors = { effect: {},useTexture: {},texture: {},alphaThreshold: {} };
+
+  prototypeAccessors.effect.get = function () {
+    return this._effect;
+  };
+  
+  prototypeAccessors.useTexture.get = function () {
+    this._effect.getDefine('useTexture', val);
+  };
+
+  prototypeAccessors.useTexture.set = function (val) {
+    this._effect.define('useTexture', val);
+  };
+
+  prototypeAccessors.texture.get = function () {
+    return this._texture;
+  };
+
+  prototypeAccessors.texture.set = function (val) {
+    if (this._texture !== val) {
+      this._texture = val;
+      this._effect.setProperty('texture', val.getImpl());
+      this._texIds['texture'] = val.getId();
+    }
+  };
+  
+  prototypeAccessors.alphaThreshold.get = function () {
+    return this._effect.getProperty('alphaThreshold');
+  };
+
+  prototypeAccessors.alphaThreshold.set = function (val) {
+    this._effect.setProperty('alphaThreshold', val);
+  };
+
+  StencilMaterial.prototype.clone = function clone () {
+    var copy = new StencilMaterial();
+    copy.useTexture = this.useTexture;
+    copy.texture = this.texture;
+    copy.alphaThreshold = this.alphaThreshold;
+    copy.updateHash();
+    return copy;
+  };
+
+  Object.defineProperties( StencilMaterial.prototype, prototypeAccessors );
+
+  return StencilMaterial;
+}(Material));
 
 var _d2r = Math.PI / 180.0;
 var _r2d = 180.0 / Math.PI;
@@ -252,7 +2708,7 @@ function log2(v) {
  * @param {number} v
  * @returns {number}
  */
-function log10(v) {
+function log10$1(v) {
   return  (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
           (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4 :
           (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
@@ -468,7 +2924,7 @@ var bits_ = Object.freeze({
 	max: max,
 	isPow2: isPow2,
 	log2: log2,
-	log10: log10,
+	log10: log10$1,
 	popCount: popCount,
 	countTrailingZeros: countTrailingZeros,
 	nextPow2: nextPow2$1,
@@ -7305,2540 +9761,6 @@ var math = Object.freeze({
 	nextPow2: nextPow2
 });
 
-var renderer = window.renderer;
-
-var gfx = window.gfx;
-
-// reference: https://github.com/mziccard/node-timsort
-
-/**
- * Default minimum size of a run.
- */
-var DEFAULT_MIN_MERGE = 32;
-
-/**
- * Minimum ordered subsequece required to do galloping.
- */
-var DEFAULT_MIN_GALLOPING = 7;
-
-/**
- * Default tmp storage length. Can increase depending on the size of the
- * smallest run to merge.
- */
-var DEFAULT_TMP_STORAGE_LENGTH = 256;
-
-/**
- * Pre-computed powers of 10 for efficient lexicographic comparison of
- * small integers.
- */
-var POWERS_OF_TEN = [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
-
-/**
- * Estimate the logarithm base 10 of a small integer.
- *
- * @param {number} x - The integer to estimate the logarithm of.
- * @return {number} - The estimated logarithm of the integer.
- */
-function log10$1(x) {
-  if (x < 1e5) {
-    if (x < 1e2) {
-      return x < 1e1 ? 0 : 1;
-    }
-
-    if (x < 1e4) {
-      return x < 1e3 ? 2 : 3;
-    }
-
-    return 4;
-  }
-
-  if (x < 1e7) {
-    return x < 1e6 ? 5 : 6;
-  }
-
-  if (x < 1e9) {
-    return x < 1e8 ? 7 : 8;
-  }
-
-  return 9;
-}
-
-/**
- * Default alphabetical comparison of items.
- *
- * @param {string|object|number} a - First element to compare.
- * @param {string|object|number} b - Second element to compare.
- * @return {number} - A positive number if a.toString() > b.toString(), a
- * negative number if .toString() < b.toString(), 0 otherwise.
- */
-function alphabeticalCompare(a, b) {
-  if (a === b) {
-    return 0;
-  }
-
-  if (~~a === a && ~~b === b) {
-    if (a === 0 || b === 0) {
-      return a < b ? -1 : 1;
-    }
-
-    if (a < 0 || b < 0) {
-      if (b >= 0) {
-        return -1;
-      }
-
-      if (a >= 0) {
-        return 1;
-      }
-
-      a = -a;
-      b = -b;
-    }
-
-    var al = log10$1(a);
-    var bl = log10$1(b);
-
-    var t = 0;
-
-    if (al < bl) {
-      a *= POWERS_OF_TEN[bl - al - 1];
-      b /= 10;
-      t = -1;
-    } else if (al > bl) {
-      b *= POWERS_OF_TEN[al - bl - 1];
-      a /= 10;
-      t = 1;
-    }
-
-    if (a === b) {
-      return t;
-    }
-
-    return a < b ? -1 : 1;
-  }
-
-  var aStr = String(a);
-  var bStr = String(b);
-
-  if (aStr === bStr) {
-    return 0;
-  }
-
-  return aStr < bStr ? -1 : 1;
-}
-
-/**
- * Compute minimum run length for TimSort
- *
- * @param {number} n - The size of the array to sort.
- */
-function minRunLength(n) {
-  var r = 0;
-
-  while (n >= DEFAULT_MIN_MERGE) {
-    r |= (n & 1);
-    n >>= 1;
-  }
-
-  return n + r;
-}
-
-/**
- * Counts the length of a monotonically ascending or strictly monotonically
- * descending sequence (run) starting at array[lo] in the range [lo, hi). If
- * the run is descending it is made ascending.
- *
- * @param {array} array - The array to reverse.
- * @param {number} lo - First element in the range (inclusive).
- * @param {number} hi - Last element in the range.
- * @param {function} compare - Item comparison function.
- * @return {number} - The length of the run.
- */
-function makeAscendingRun(array, lo, hi, compare) {
-  var runHi = lo + 1;
-
-  if (runHi === hi) {
-    return 1;
-  }
-
-  // Descending
-  if (compare(array[runHi++], array[lo]) < 0) {
-    while (runHi < hi && compare(array[runHi], array[runHi - 1]) < 0) {
-      runHi++;
-    }
-
-    reverseRun(array, lo, runHi);
-    // Ascending
-  } else {
-    while (runHi < hi && compare(array[runHi], array[runHi - 1]) >= 0) {
-      runHi++;
-    }
-  }
-
-  return runHi - lo;
-}
-
-/**
- * Reverse an array in the range [lo, hi).
- *
- * @param {array} array - The array to reverse.
- * @param {number} lo - First element in the range (inclusive).
- * @param {number} hi - Last element in the range.
- */
-function reverseRun(array, lo, hi) {
-  hi--;
-
-  while (lo < hi) {
-    var t = array[lo];
-    array[lo++] = array[hi];
-    array[hi--] = t;
-  }
-}
-
-/**
- * Perform the binary sort of the array in the range [lo, hi) where start is
- * the first element possibly out of order.
- *
- * @param {array} array - The array to sort.
- * @param {number} lo - First element in the range (inclusive).
- * @param {number} hi - Last element in the range.
- * @param {number} start - First element possibly out of order.
- * @param {function} compare - Item comparison function.
- */
-function binaryInsertionSort(array, lo, hi, start, compare) {
-  if (start === lo) {
-    start++;
-  }
-
-  for (; start < hi; start++) {
-    var pivot = array[start];
-
-    // Ranges of the array where pivot belongs
-    var left = lo;
-    var right = start;
-
-    /*
-     *   pivot >= array[i] for i in [lo, left)
-     *   pivot <  array[i] for i in  in [right, start)
-     */
-    while (left < right) {
-      var mid = (left + right) >>> 1;
-
-      if (compare(pivot, array[mid]) < 0) {
-        right = mid;
-      } else {
-        left = mid + 1;
-      }
-    }
-
-    /*
-     * Move elements right to make room for the pivot. If there are elements
-     * equal to pivot, left points to the first slot after them: this is also
-     * a reason for which TimSort is stable
-     */
-    var n = start - left;
-    // Switch is just an optimization for small arrays
-    switch (n) {
-      case 3:
-        array[left + 3] = array[left + 2];
-      /* falls through */
-      case 2:
-        array[left + 2] = array[left + 1];
-      /* falls through */
-      case 1:
-        array[left + 1] = array[left];
-        break;
-      default:
-        while (n > 0) {
-          array[left + n] = array[left + n - 1];
-          n--;
-        }
-    }
-
-    array[left] = pivot;
-  }
-}
-
-/**
- * Find the position at which to insert a value in a sorted range. If the range
- * contains elements equal to the value the leftmost element index is returned
- * (for stability).
- *
- * @param {number} value - Value to insert.
- * @param {array} array - The array in which to insert value.
- * @param {number} start - First element in the range.
- * @param {number} length - Length of the range.
- * @param {number} hint - The index at which to begin the search.
- * @param {function} compare - Item comparison function.
- * @return {number} - The index where to insert value.
- */
-function gallopLeft(value, array, start, length, hint, compare) {
-  var lastOffset = 0;
-  var maxOffset = 0;
-  var offset = 1;
-
-  if (compare(value, array[start + hint]) > 0) {
-    maxOffset = length - hint;
-
-    while (offset < maxOffset && compare(value, array[start + hint + offset]) > 0) {
-      lastOffset = offset;
-      offset = (offset << 1) + 1;
-
-      if (offset <= 0) {
-        offset = maxOffset;
-      }
-    }
-
-    if (offset > maxOffset) {
-      offset = maxOffset;
-    }
-
-    // Make offsets relative to start
-    lastOffset += hint;
-    offset += hint;
-
-    // value <= array[start + hint]
-  } else {
-    maxOffset = hint + 1;
-    while (offset < maxOffset && compare(value, array[start + hint - offset]) <= 0) {
-      lastOffset = offset;
-      offset = (offset << 1) + 1;
-
-      if (offset <= 0) {
-        offset = maxOffset;
-      }
-    }
-    if (offset > maxOffset) {
-      offset = maxOffset;
-    }
-
-    // Make offsets relative to start
-    var tmp = lastOffset;
-    lastOffset = hint - offset;
-    offset = hint - tmp;
-  }
-
-  /*
-   * Now array[start+lastOffset] < value <= array[start+offset], so value
-   * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
-   * binary search, with invariant array[start + lastOffset - 1] < value <=
-   * array[start + offset].
-   */
-  lastOffset++;
-  while (lastOffset < offset) {
-    var m = lastOffset + ((offset - lastOffset) >>> 1);
-
-    if (compare(value, array[start + m]) > 0) {
-      lastOffset = m + 1;
-
-    } else {
-      offset = m;
-    }
-  }
-  return offset;
-}
-
-/**
- * Find the position at which to insert a value in a sorted range. If the range
- * contains elements equal to the value the rightmost element index is returned
- * (for stability).
- *
- * @param {number} value - Value to insert.
- * @param {array} array - The array in which to insert value.
- * @param {number} start - First element in the range.
- * @param {number} length - Length of the range.
- * @param {number} hint - The index at which to begin the search.
- * @param {function} compare - Item comparison function.
- * @return {number} - The index where to insert value.
- */
-function gallopRight(value, array, start, length, hint, compare) {
-  var lastOffset = 0;
-  var maxOffset = 0;
-  var offset = 1;
-
-  if (compare(value, array[start + hint]) < 0) {
-    maxOffset = hint + 1;
-
-    while (offset < maxOffset && compare(value, array[start + hint - offset]) < 0) {
-      lastOffset = offset;
-      offset = (offset << 1) + 1;
-
-      if (offset <= 0) {
-        offset = maxOffset;
-      }
-    }
-
-    if (offset > maxOffset) {
-      offset = maxOffset;
-    }
-
-    // Make offsets relative to start
-    var tmp = lastOffset;
-    lastOffset = hint - offset;
-    offset = hint - tmp;
-
-    // value >= array[start + hint]
-  } else {
-    maxOffset = length - hint;
-
-    while (offset < maxOffset && compare(value, array[start + hint + offset]) >= 0) {
-      lastOffset = offset;
-      offset = (offset << 1) + 1;
-
-      if (offset <= 0) {
-        offset = maxOffset;
-      }
-    }
-
-    if (offset > maxOffset) {
-      offset = maxOffset;
-    }
-
-    // Make offsets relative to start
-    lastOffset += hint;
-    offset += hint;
-  }
-
-  /*
-   * Now array[start+lastOffset] < value <= array[start+offset], so value
-   * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
-   * binary search, with invariant array[start + lastOffset - 1] < value <=
-   * array[start + offset].
-   */
-  lastOffset++;
-
-  while (lastOffset < offset) {
-    var m = lastOffset + ((offset - lastOffset) >>> 1);
-
-    if (compare(value, array[start + m]) < 0) {
-      offset = m;
-
-    } else {
-      lastOffset = m + 1;
-    }
-  }
-
-  return offset;
-}
-
-var TimSort = function TimSort(array, compare) {
-  this.array = array;
-  this.compare = compare;
-  this.minGallop = DEFAULT_MIN_GALLOPING;
-  this.length = array.length;
-
-  this.tmpStorageLength = DEFAULT_TMP_STORAGE_LENGTH;
-  if (this.length < 2 * DEFAULT_TMP_STORAGE_LENGTH) {
-    this.tmpStorageLength = this.length >>> 1;
-  }
-
-  this.tmp = new Array(this.tmpStorageLength);
-
-  this.stackLength =
-    (this.length < 120 ? 5 :
-      this.length < 1542 ? 10 :
-        this.length < 119151 ? 19 : 40);
-
-  this.runStart = new Array(this.stackLength);
-  this.runLength = new Array(this.stackLength);
-  this.stackSize = 0;
-};
-
-/**
- * Push a new run on TimSort's stack.
- *
- * @param {number} runStart - Start index of the run in the original array.
- * @param {number} runLength - Length of the run;
- */
-TimSort.prototype.pushRun = function pushRun (runStart, runLength) {
-  this.runStart[this.stackSize] = runStart;
-  this.runLength[this.stackSize] = runLength;
-  this.stackSize += 1;
-};
-
-/**
- * Merge runs on TimSort's stack so that the following holds for all i:
- * 1) runLength[i - 3] > runLength[i - 2] + runLength[i - 1]
- * 2) runLength[i - 2] > runLength[i - 1]
- */
-TimSort.prototype.mergeRuns = function mergeRuns () {
-    var this$1 = this;
-
-  while (this.stackSize > 1) {
-    var n = this$1.stackSize - 2;
-
-    if ((n >= 1 &&
-      this$1.runLength[n - 1] <= this$1.runLength[n] + this$1.runLength[n + 1]) ||
-      (n >= 2 &&
-      this$1.runLength[n - 2] <= this$1.runLength[n] + this$1.runLength[n - 1])) {
-
-      if (this$1.runLength[n - 1] < this$1.runLength[n + 1]) {
-        n--;
-      }
-
-    } else if (this$1.runLength[n] > this$1.runLength[n + 1]) {
-      break;
-    }
-    this$1.mergeAt(n);
-  }
-};
-
-/**
- * Merge all runs on TimSort's stack until only one remains.
- */
-TimSort.prototype.forceMergeRuns = function forceMergeRuns () {
-    var this$1 = this;
-
-  while (this.stackSize > 1) {
-    var n = this$1.stackSize - 2;
-
-    if (n > 0 && this$1.runLength[n - 1] < this$1.runLength[n + 1]) {
-      n--;
-    }
-
-    this$1.mergeAt(n);
-  }
-};
-
-/**
- * Merge the runs on the stack at positions i and i+1. Must be always be called
- * with i=stackSize-2 or i=stackSize-3 (that is, we merge on top of the stack).
- *
- * @param {number} i - Index of the run to merge in TimSort's stack.
- */
-TimSort.prototype.mergeAt = function mergeAt (i) {
-  var compare = this.compare;
-  var array = this.array;
-
-  var start1 = this.runStart[i];
-  var length1 = this.runLength[i];
-  var start2 = this.runStart[i + 1];
-  var length2 = this.runLength[i + 1];
-
-  this.runLength[i] = length1 + length2;
-
-  if (i === this.stackSize - 3) {
-    this.runStart[i + 1] = this.runStart[i + 2];
-    this.runLength[i + 1] = this.runLength[i + 2];
-  }
-
-  this.stackSize--;
-
-  /*
-   * Find where the first element in the second run goes in run1. Previous
-   * elements in run1 are already in place
-   */
-  var k = gallopRight(array[start2], array, start1, length1, 0, compare);
-  start1 += k;
-  length1 -= k;
-
-  if (length1 === 0) {
-    return;
-  }
-
-  /*
-   * Find where the last element in the first run goes in run2. Next elements
-   * in run2 are already in place
-   */
-  length2 = gallopLeft(array[start1 + length1 - 1], array, start2, length2, length2 - 1, compare);
-
-  if (length2 === 0) {
-    return;
-  }
-
-  /*
-   * Merge remaining runs. A tmp array with length = min(length1, length2) is
-   * used
-   */
-  if (length1 <= length2) {
-    this.mergeLow(start1, length1, start2, length2);
-
-  } else {
-    this.mergeHigh(start1, length1, start2, length2);
-  }
-};
-
-/**
- * Merge two adjacent runs in a stable way. The runs must be such that the
- * first element of run1 is bigger than the first element in run2 and the
- * last element of run1 is greater than all the elements in run2.
- * The method should be called when run1.length <= run2.length as it uses
- * TimSort temporary array to store run1. Use mergeHigh if run1.length >
- * run2.length.
- *
- * @param {number} start1 - First element in run1.
- * @param {number} length1 - Length of run1.
- * @param {number} start2 - First element in run2.
- * @param {number} length2 - Length of run2.
- */
-TimSort.prototype.mergeLow = function mergeLow (start1, length1, start2, length2) {
-
-  var compare = this.compare;
-  var array = this.array;
-  var tmp = this.tmp;
-  var i = 0;
-
-  for (i = 0; i < length1; i++) {
-    tmp[i] = array[start1 + i];
-  }
-
-  var cursor1 = 0;
-  var cursor2 = start2;
-  var dest = start1;
-
-  array[dest++] = array[cursor2++];
-
-  if (--length2 === 0) {
-    for (i = 0; i < length1; i++) {
-      array[dest + i] = tmp[cursor1 + i];
-    }
-    return;
-  }
-
-  if (length1 === 1) {
-    for (i = 0; i < length2; i++) {
-      array[dest + i] = array[cursor2 + i];
-    }
-    array[dest + length2] = tmp[cursor1];
-    return;
-  }
-
-  var minGallop = this.minGallop;
-
-  while (true) {
-    var count1 = 0;
-    var count2 = 0;
-    var exit = false;
-
-    do {
-      if (compare(array[cursor2], tmp[cursor1]) < 0) {
-        array[dest++] = array[cursor2++];
-        count2++;
-        count1 = 0;
-
-        if (--length2 === 0) {
-          exit = true;
-          break;
-        }
-
-      } else {
-        array[dest++] = tmp[cursor1++];
-        count1++;
-        count2 = 0;
-        if (--length1 === 1) {
-          exit = true;
-          break;
-        }
-      }
-    } while ((count1 | count2) < minGallop);
-
-    if (exit) {
-      break;
-    }
-
-    do {
-      count1 = gallopRight(array[cursor2], tmp, cursor1, length1, 0, compare);
-
-      if (count1 !== 0) {
-        for (i = 0; i < count1; i++) {
-          array[dest + i] = tmp[cursor1 + i];
-        }
-
-        dest += count1;
-        cursor1 += count1;
-        length1 -= count1;
-        if (length1 <= 1) {
-          exit = true;
-          break;
-        }
-      }
-
-      array[dest++] = array[cursor2++];
-
-      if (--length2 === 0) {
-        exit = true;
-        break;
-      }
-
-      count2 = gallopLeft(tmp[cursor1], array, cursor2, length2, 0, compare);
-
-      if (count2 !== 0) {
-        for (i = 0; i < count2; i++) {
-          array[dest + i] = array[cursor2 + i];
-        }
-
-        dest += count2;
-        cursor2 += count2;
-        length2 -= count2;
-
-        if (length2 === 0) {
-          exit = true;
-          break;
-        }
-      }
-      array[dest++] = tmp[cursor1++];
-
-      if (--length1 === 1) {
-        exit = true;
-        break;
-      }
-
-      minGallop--;
-
-    } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
-
-    if (exit) {
-      break;
-    }
-
-    if (minGallop < 0) {
-      minGallop = 0;
-    }
-
-    minGallop += 2;
-  }
-
-  this.minGallop = minGallop;
-
-  if (minGallop < 1) {
-    this.minGallop = 1;
-  }
-
-  if (length1 === 1) {
-    for (i = 0; i < length2; i++) {
-      array[dest + i] = array[cursor2 + i];
-    }
-    array[dest + length2] = tmp[cursor1];
-
-  } else if (length1 === 0) {
-    throw new Error('mergeLow preconditions were not respected');
-
-  } else {
-    for (i = 0; i < length1; i++) {
-      array[dest + i] = tmp[cursor1 + i];
-    }
-  }
-};
-
-/**
- * Merge two adjacent runs in a stable way. The runs must be such that the
- * first element of run1 is bigger than the first element in run2 and the
- * last element of run1 is greater than all the elements in run2.
- * The method should be called when run1.length > run2.length as it uses
- * TimSort temporary array to store run2. Use mergeLow if run1.length <=
- * run2.length.
- *
- * @param {number} start1 - First element in run1.
- * @param {number} length1 - Length of run1.
- * @param {number} start2 - First element in run2.
- * @param {number} length2 - Length of run2.
- */
-TimSort.prototype.mergeHigh = function mergeHigh (start1, length1, start2, length2) {
-  var compare = this.compare;
-  var array = this.array;
-  var tmp = this.tmp;
-  var i = 0;
-
-  for (i = 0; i < length2; i++) {
-    tmp[i] = array[start2 + i];
-  }
-
-  var cursor1 = start1 + length1 - 1;
-  var cursor2 = length2 - 1;
-  var dest = start2 + length2 - 1;
-  var customCursor = 0;
-  var customDest = 0;
-
-  array[dest--] = array[cursor1--];
-
-  if (--length1 === 0) {
-    customCursor = dest - (length2 - 1);
-
-    for (i = 0; i < length2; i++) {
-      array[customCursor + i] = tmp[i];
-    }
-
-    return;
-  }
-
-  if (length2 === 1) {
-    dest -= length1;
-    cursor1 -= length1;
-    customDest = dest + 1;
-    customCursor = cursor1 + 1;
-
-    for (i = length1 - 1; i >= 0; i--) {
-      array[customDest + i] = array[customCursor + i];
-    }
-
-    array[dest] = tmp[cursor2];
-    return;
-  }
-
-  var minGallop = this.minGallop;
-
-  while (true) {
-    var count1 = 0;
-    var count2 = 0;
-    var exit = false;
-
-    do {
-      if (compare(tmp[cursor2], array[cursor1]) < 0) {
-        array[dest--] = array[cursor1--];
-        count1++;
-        count2 = 0;
-        if (--length1 === 0) {
-          exit = true;
-          break;
-        }
-
-      } else {
-        array[dest--] = tmp[cursor2--];
-        count2++;
-        count1 = 0;
-        if (--length2 === 1) {
-          exit = true;
-          break;
-        }
-      }
-
-    } while ((count1 | count2) < minGallop);
-
-    if (exit) {
-      break;
-    }
-
-    do {
-      count1 = length1 - gallopRight(tmp[cursor2], array, start1, length1, length1 - 1, compare);
-
-      if (count1 !== 0) {
-        dest -= count1;
-        cursor1 -= count1;
-        length1 -= count1;
-        customDest = dest + 1;
-        customCursor = cursor1 + 1;
-
-        for (i = count1 - 1; i >= 0; i--) {
-          array[customDest + i] = array[customCursor + i];
-        }
-
-        if (length1 === 0) {
-          exit = true;
-          break;
-        }
-      }
-
-      array[dest--] = tmp[cursor2--];
-
-      if (--length2 === 1) {
-        exit = true;
-        break;
-      }
-
-      count2 = length2 - gallopLeft(array[cursor1], tmp, 0, length2, length2 - 1, compare);
-
-      if (count2 !== 0) {
-        dest -= count2;
-        cursor2 -= count2;
-        length2 -= count2;
-        customDest = dest + 1;
-        customCursor = cursor2 + 1;
-
-        for (i = 0; i < count2; i++) {
-          array[customDest + i] = tmp[customCursor + i];
-        }
-
-        if (length2 <= 1) {
-          exit = true;
-          break;
-        }
-      }
-
-      array[dest--] = array[cursor1--];
-
-      if (--length1 === 0) {
-        exit = true;
-        break;
-      }
-
-      minGallop--;
-
-    } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
-
-    if (exit) {
-      break;
-    }
-
-    if (minGallop < 0) {
-      minGallop = 0;
-    }
-
-    minGallop += 2;
-  }
-
-  this.minGallop = minGallop;
-
-  if (minGallop < 1) {
-    this.minGallop = 1;
-  }
-
-  if (length2 === 1) {
-    dest -= length1;
-    cursor1 -= length1;
-    customDest = dest + 1;
-    customCursor = cursor1 + 1;
-
-    for (i = length1 - 1; i >= 0; i--) {
-      array[customDest + i] = array[customCursor + i];
-    }
-
-    array[dest] = tmp[cursor2];
-
-  } else if (length2 === 0) {
-    throw new Error('mergeHigh preconditions were not respected');
-
-  } else {
-    customCursor = dest - (length2 - 1);
-    for (i = 0; i < length2; i++) {
-      array[customCursor + i] = tmp[i];
-    }
-  }
-};
-
-/**
- * Sort an array in the range [lo, hi) using TimSort.
- *
- * @param {array} array - The array to sort.
- * @param {number} lo - First element in the range (inclusive).
- * @param {number} hi - Last element in the range.
- * @param {function=} compare - Item comparison function. Default is alphabetical.
- */
-function sort (array, lo, hi, compare) {
-  if (!Array.isArray(array)) {
-    throw new TypeError('Can only sort arrays');
-  }
-
-  /*
-   * Handle the case where a comparison function is not provided. We do
-   * lexicographic sorting
-   */
-
-  if (lo === undefined) {
-    lo = 0;
-  }
-
-  if (hi === undefined) {
-    hi = array.length;
-  }
-
-  if (compare === undefined) {
-    compare = alphabeticalCompare;
-  }
-
-  var remaining = hi - lo;
-
-  // The array is already sorted
-  if (remaining < 2) {
-    return;
-  }
-
-  var runLength = 0;
-  // On small arrays binary sort can be used directly
-  if (remaining < DEFAULT_MIN_MERGE) {
-    runLength = makeAscendingRun(array, lo, hi, compare);
-    binaryInsertionSort(array, lo, hi, lo + runLength, compare);
-    return;
-  }
-
-  var ts = new TimSort(array, compare);
-
-  var minRun = minRunLength(remaining);
-
-  do {
-    runLength = makeAscendingRun(array, lo, hi, compare);
-    if (runLength < minRun) {
-      var force = remaining;
-      if (force > minRun) {
-        force = minRun;
-      }
-
-      binaryInsertionSort(array, lo, lo + force, lo + runLength, compare);
-      runLength = force;
-    }
-    // Push new run and merge if necessary
-    ts.pushRun(lo, runLength);
-    ts.mergeRuns();
-
-    // Go find next run
-    remaining -= runLength;
-    lo += runLength;
-
-  } while (remaining !== 0);
-
-  // Force merging of remaining runs
-  ts.forceMergeRuns();
-}
-
-var FixedArray = function FixedArray(size) {
-  this._count = 0;
-  this._data = new Array(size);
-};
-
-var prototypeAccessors = { length: {},data: {} };
-
-FixedArray.prototype._resize = function _resize (size) {
-    var this$1 = this;
-
-  if (size > this._data.length) {
-    for (var i = this._data.length; i < size; ++i) {
-      this$1._data[i] = undefined;
-    }
-  }
-};
-
-prototypeAccessors.length.get = function () {
-  return this._count;
-};
-
-prototypeAccessors.data.get = function () {
-  return this._data;
-};
-
-FixedArray.prototype.reset = function reset () {
-    var this$1 = this;
-
-  for (var i = 0; i < this._count; ++i) {
-    this$1._data[i] = undefined;
-  }
-
-  this._count = 0;
-};
-
-FixedArray.prototype.push = function push (val) {
-  if (this._count >= this._data.length) {
-    this._resize(this._data.length * 2);
-  }
-
-  this._data[this._count] = val;
-  ++this._count;
-};
-
-FixedArray.prototype.pop = function pop () {
-  --this._count;
-
-  if (this._count < 0) {
-    this._count = 0;
-  }
-
-  var ret = this._data[this._count];
-  this._data[this._count] = undefined;
-
-  return ret;
-};
-
-FixedArray.prototype.fastRemove = function fastRemove (idx) {
-  if (idx >= this._count) {
-    return;
-  }
-
-  var last = this._count - 1;
-  this._data[idx] = this._data[last];
-  this._data[last] = undefined;
-  this._count -= 1;
-};
-
-FixedArray.prototype.indexOf = function indexOf (val) {
-  var idx = this._data.indexOf(val);
-  if (idx >= this._count) {
-    return -1;
-  }
-
-  return idx;
-};
-
-FixedArray.prototype.sort = function sort$1 (cmp) {
-  return sort(this._data, 0, this._count, cmp);
-};
-
-Object.defineProperties( FixedArray.prototype, prototypeAccessors );
-
-var Pool = function Pool(fn, size) {
-  var this$1 = this;
-
-  this._fn = fn;
-  this._idx = size - 1;
-  this._frees = new Array(size);
-
-  for (var i = 0; i < size; ++i) {
-    this$1._frees[i] = fn();
-  }
-};
-
-Pool.prototype._expand = function _expand (size) {
-    var this$1 = this;
-
-  var old = this._frees;
-  this._frees = new Array(size);
-
-  var len = size - old.length;
-  for (var i = 0; i < len; ++i) {
-    this$1._frees[i] = this$1._fn();
-  }
-
-  for (var i$1 = len, j = 0; i$1 < size; ++i$1, ++j) {
-    this$1._frees[i$1] = old[j];
-  }
-
-  this._idx += len;
-};
-
-Pool.prototype.alloc = function alloc () {
-  // create some more space (expand by 20%, minimum 1)
-  if (this._idx < 0) {
-    this._expand(Math.round(this._frees.length * 1.2) + 1);
-  }
-
-  var ret = this._frees[this._idx];
-  this._frees[this._idx] = null;
-  --this._idx;
-
-  return ret;
-};
-
-Pool.prototype.free = function free (obj) {
-  ++this._idx;
-  this._frees[this._idx] = obj;
-};
-
-// NOTE: you must have `_prev` and `_next` field in the object returns by `fn`
-
-var LinkedArray = function LinkedArray(fn, size) {
-  this._fn = fn;
-  this._count = 0;
-  this._head = null;
-  this._tail = null;
-
-  this._pool = new Pool(fn, size);
-};
-
-var prototypeAccessors$1 = { head: {},tail: {},length: {} };
-
-prototypeAccessors$1.head.get = function () {
-  return this._head;
-};
-
-prototypeAccessors$1.tail.get = function () {
-  return this._tail;
-};
-
-prototypeAccessors$1.length.get = function () {
-  return this._count;
-};
-
-LinkedArray.prototype.add = function add () {
-  var node = this._pool.alloc();
-
-  if (!this._tail) {
-    this._head = node;
-  } else {
-    this._tail._next = node;
-    node._prev = this._tail;
-  }
-  this._tail = node;
-  this._count += 1;
-
-  return node;
-};
-
-LinkedArray.prototype.remove = function remove (node) {
-  if (node._prev) {
-    node._prev._next = node._next;
-  } else {
-    this._head = node._next;
-  }
-
-  if (node._next) {
-    node._next._prev = node._prev;
-  } else {
-    this._tail = node._prev;
-  }
-
-  node._next = null;
-  node._prev = null;
-  this._pool.free(node);
-  this._count -= 1;
-};
-
-LinkedArray.prototype.forEach = function forEach (fn, binder) {
-    var this$1 = this;
-
-  var cursor = this._head;
-  if (!cursor) {
-    return;
-  }
-
-  if (binder) {
-    fn = fn.bind(binder);
-  }
-
-  var idx = 0;
-  var next = cursor;
-
-  while (cursor) {
-    next = cursor._next;
-    fn(cursor, idx, this$1);
-
-    cursor = next;
-    ++idx;
-  }
-};
-
-Object.defineProperties( LinkedArray.prototype, prototypeAccessors$1 );
-
-var RecyclePool = function RecyclePool(fn, size) {
-  var this$1 = this;
-
-  this._fn = fn;
-  this._count = 0;
-  this._data = new Array(size);
-
-  for (var i = 0; i < size; ++i) {
-    this$1._data[i] = fn();
-  }
-};
-
-var prototypeAccessors$2 = { length: {},data: {} };
-
-prototypeAccessors$2.length.get = function () {
-  return this._count;
-};
-
-prototypeAccessors$2.data.get = function () {
-  return this._data;
-};
-
-RecyclePool.prototype.reset = function reset () {
-  this._count = 0;
-};
-
-RecyclePool.prototype.resize = function resize (size) {
-    var this$1 = this;
-
-  if (size > this._data.length) {
-    for (var i = this._data.length; i < size; ++i) {
-      this$1._data[i] = this$1._fn();
-    }
-  }
-};
-
-RecyclePool.prototype.add = function add () {
-  if (this._count >= this._data.length) {
-    this.resize(this._data.length * 2);
-  }
-
-  return this._data[this._count++];
-};
-
-RecyclePool.prototype.remove = function remove (idx) {
-  if (idx >= this._count) {
-    return;
-  }
-
-  var last = this._count - 1;
-  var tmp = this._data[idx];
-  this._data[idx] = this._data[last];
-  this._data[last] = tmp;
-  this._count -= 1;
-};
-
-RecyclePool.prototype.sort = function sort$1 (cmp) {
-  return sort(this._data, 0, this._count, cmp);
-};
-
-Object.defineProperties( RecyclePool.prototype, prototypeAccessors$2 );
-
-var _bufferPools = Array(8);
-for (var i = 0; i < 8; ++i) {
-  _bufferPools[i] = [];
-}
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var _a16_view = new Float32Array(16);
-var _a16_proj = new Float32Array(16);
-var _a16_viewProj = new Float32Array(16);
-
-// Add stage to renderer
-renderer.addStage('transparent');
-
-var ForwardRenderer = (function (superclass) {
-  function ForwardRenderer (device, builtin) {
-    superclass.call(this, device, builtin);
-    this._registerStage('transparent', this._transparentStage.bind(this));
-  }
-
-  if ( superclass ) ForwardRenderer.__proto__ = superclass;
-  ForwardRenderer.prototype = Object.create( superclass && superclass.prototype );
-  ForwardRenderer.prototype.constructor = ForwardRenderer;
-
-  ForwardRenderer.prototype.reset = function reset () {
-    this._reset();
-  };
-
-  ForwardRenderer.prototype.render = function render (scene) {
-    var this$1 = this;
-
-    this._reset();
-
-    scene._cameras.sort(function (a, b) {
-      if (a._depth > b._depth) { return 1; }
-      else if (a._depth < b._depth) { return -1; }
-      else { return 0; }
-    });
-
-    for (var i = 0; i < scene._cameras.length; ++i) {
-      var camera = scene._cameras.data[i];
-      this$1.renderCamera(camera, scene);
-    }
-  };
-
-  ForwardRenderer.prototype.renderCamera = function renderCamera (camera, scene) {
-    var canvas = this._device._gl.canvas;
-
-    var view = camera.view;
-    var dirty = camera.dirty;
-    if (!view) {
-      view = this._requestView();
-      dirty = true;
-    }
-    if (dirty) {
-      var width = canvas.width;
-      var height = canvas.height;
-      if (camera._framebuffer) {
-        width = camera._framebuffer._width;
-        height = camera._framebuffer._height;
-      }
-      camera.extractView(view, width, height);
-    }
-    this._render(view, scene);
-  };
-
-  ForwardRenderer.prototype._transparentStage = function _transparentStage (view, items) {
-    var this$1 = this;
-
-    // update uniforms
-    this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-
-    // draw it
-    for (var i = 0; i < items.length; ++i) {
-      var item = items.data[i];
-      this$1._draw(item);
-    }
-  };
-
-  return ForwardRenderer;
-}(renderer.Base));
-
-var chunks = {
-};
-
-var templates = [
-  {
-    name: 'gray_sprite',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
-    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
-    defines: [
-    ],
-  },
-  {
-    name: 'sprite',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
-    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
-    defines: [
-      { name: 'useTexture', },
-      { name: 'useModel', },
-      { name: 'alphaTest', } ],
-  },
-  {
-    name: 'vfx_emitter',
-    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-    frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\n \nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 100.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = decode(randomD.ba, NOISE_SCALE);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
-    defines: [
-    ],
-  },
-  {
-    name: 'vfx_particle',
-    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
-    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
-    defines: [
-    ],
-  },
-  {
-    name: 'vfx_quad',
-    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pixel = floor(index * quadsize);\n    vec2 pIndex = floor(pixel / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, pIndex / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = vec4(encode(0.0, POSITION_SCALE), encode(0.0, POSITION_SCALE));\n        return;\n    }\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    float x = decode(posData.rg, POSITION_SCALE);\n    float y = decode(posData.ba, POSITION_SCALE);\n    vec2 pos = vec2(x, y);\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(mod(decode(rotData.rg, ROTATION_SCALE), 180.0));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(pixel, vec2(2.0)) - 0.5) * size;\n    x = vert.x * a + vert.y * c + pos.x;\n    y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
-    defines: [
-    ],
-  },
-  {
-    name: 'vfx_update',
-    vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-    frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation = mod(rotation + deltaRotation * dt / life, 180.0);\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 180.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(mod(decode(control.rg, ROTATION_SCALE), 180.0));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
-    defines: [
-    ],
-  } ];
-
-var shaders = {
-    chunks: chunks,
-    templates: templates
-};
-
-// Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
-
-/**
- * BaseRenderData is a core data abstraction for renderer, this is a abstract class.
- * An inherited render data type should define raw vertex datas.
- * User should also define the effect, vertex count and index count.
- */
-var BaseRenderData = function BaseRenderData () {
-    this.material = null;
-    this.vertexCount = 0;
-    this.indiceCount = 0;
-};
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var _pool;
-var _dataPool = new Pool(function () {
-  return {
-    x: 0.0,
-    y: 0.0,
-    u: 0.0,
-    v: 0.0,
-    color: 0
-  };
-}, 128);
-
-/**
- * RenderData is most widely used render data type.
- * It describes raw vertex data with a fixed data layout.
- * Each vertex is described by five property: x, y, u, v, color. The data layout might be extended in the future.
- * Vertex data objects are managed automatically by RenderData, user only need to set the dataLength property.
- * User can also define rendering index orders for the vertex list.
- */
-var RenderData = (function (BaseRenderData$$1) {
-  function RenderData () {
-    BaseRenderData$$1.call(this);
-    this._data = [];
-    this._indices = [];
-
-    this._pivotX = 0;
-    this._pivotY = 0;
-    this._width = 0;
-    this._height = 0;
-
-    this.uvDirty = true;
-    this.vertDirty = true;
-  }
-
-  if ( BaseRenderData$$1 ) RenderData.__proto__ = BaseRenderData$$1;
-  RenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
-  RenderData.prototype.constructor = RenderData;
-
-  var prototypeAccessors = { type: {},dataLength: {} };
-
-  prototypeAccessors.type.get = function () {
-    return RenderData.type;
-  };
-
-  prototypeAccessors.dataLength.get = function () {
-    return this._data.length;
-  };
-
-  prototypeAccessors.dataLength.set = function (length) {
-    var data = this._data;
-    if (data.length !== length) {
-      // Free extra data
-      for (var i = length; i < data.length; i++) {
-        _dataPool.free(data[i]);
-      }
-      // Alloc needed data
-      for (var i$1 = data.length; i$1 < length; i$1++) {
-        data[i$1] = _dataPool.alloc();
-      }
-      data.length = length;
-    }
-  };
-
-  RenderData.prototype.updateSizeNPivot = function updateSizeNPivot (width, height, pivotX, pivotY) {
-    if (width !== this._width || 
-        height !== this._height ||
-        pivotX !== this._pivotX ||
-        pivotY !== this._pivotY) 
-    {
-      this._width = width;
-      this._height = height;
-      this._pivotX = pivotX;
-      this._pivotY = pivotY;
-      this.vertDirty = true;
-    }
-  };
-  
-  RenderData.alloc = function alloc () {
-    return _pool.alloc();
-  };
-
-  RenderData.free = function free (data) {
-    if (data instanceof RenderData) {
-      for (var i = data.length-1; i > 0; i--) {
-        _dataPool.free(data._data[i]);
-      }
-      data._data.length = 0;
-      data._indices.length = 0;
-      data.material = null;
-      data.uvDirty = true;
-      data.vertDirty = true;
-      data.vertexCount = 0;
-      data.indiceCount = 0;
-      _pool.free(data);
-    }
-  };
-
-  Object.defineProperties( RenderData.prototype, prototypeAccessors );
-
-  return RenderData;
-}(BaseRenderData));
-
-RenderData.type = 'RenderData';
-
-_pool = new Pool(function () {
-  return new RenderData();
-}, 32);
-
-// Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
- 
-/**
- * IARenderData is user customized render data type, user should provide the entier input assembler.
- * IARenderData just defines a property `ia` for accessing the input assembler.
- * It doesn't manage memory so users should manage the memory of input assembler by themselves.
- */
-var IARenderData = (function (BaseRenderData$$1) {
-    function IARenderData () {
-        BaseRenderData$$1.call(this);
-        this.ia = null;
-    }
-
-    if ( BaseRenderData$$1 ) IARenderData.__proto__ = BaseRenderData$$1;
-    IARenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
-    IARenderData.prototype.constructor = IARenderData;
-
-    var prototypeAccessors = { type: {} };
-
-    prototypeAccessors.type.get = function () {
-        return IARenderData.type;
-    };
-
-    Object.defineProperties( IARenderData.prototype, prototypeAccessors );
-
-    return IARenderData;
-}(BaseRenderData));
-
-IARenderData.type = 'IARenderData';
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var BASE = 255;
-var NOISE_SCALE = 10000;
-var POS_SCALE = 1;
-var LIFE_SCALE = 100;
-var COLOR_SCALE = 1;
-var ROTATION_SCALE = 1;
-var MAX_SCALE = 500;
-var _vertexFmt = new gfx.VertexFormat([
-  { name: 'a_quad', type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
-]);
-
-var _dataOpts = {
-  width: 0,
-  height: 0,
-  minFilter: gfx.FILTER_NEAREST,
-  magFilter: gfx.FILTER_NEAREST,
-  wrapS: gfx.WRAP_CLAMP,
-  wrapT: gfx.WRAP_CLAMP,
-  format: gfx.TEXTURE_FMT_RGBA8,
-  images: []
-};
-
-function encode (value, scale, outArr, offset) {
-  value = value * scale + BASE * BASE / 2;
-  outArr[offset] = Math.floor((value % BASE) / BASE * 255);
-  outArr[offset+1] = Math.floor(Math.floor(value / BASE) / BASE * 255);
-}
-
-function decode (arr, offset, scale) {
-  return (((arr[offset] / 255) * BASE +
-           (arr[offset+1] / 255) * BASE * BASE) - BASE * BASE / 2) / scale;
-}
-
-function clampf (value, min_inclusive, max_inclusive) {
-  return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
-}
-
-var Particles = function Particles (device, renderer$$1, config) {
-  this._device = device;
-  this._config = config;
-  this._sizeScale = 1;
-  this._accelScale = 1;
-  this._radiusScale = 1;
-    
-  var opts = {};
-  var programLib = renderer$$1._programLib;
-  this.programs = {
-    emitter: programLib.getProgram('vfx_emitter', opts),
-    update: programLib.getProgram('vfx_update', opts),
-    quad: programLib.getProgram('vfx_quad', opts),
-  };
-
-  this.textures = {
-    // need swap
-    state0: new gfx.Texture2D(device, opts),
-    state1: new gfx.Texture2D(device, opts),
-    // no swap needed
-    noise: new gfx.Texture2D(device, opts),
-    quads: new gfx.Texture2D(device, opts),
-  };
-
-  this.framebuffers = {
-    state0: new gfx.FrameBuffer(device, 0, 0, {
-      colors: [this.textures.state0]
-    }),
-    state1: new gfx.FrameBuffer(device, 0, 0, {
-      colors: [this.textures.state1]
-    }),
-    quads: new gfx.FrameBuffer(device, 0, 0, {
-      colors: [this.textures.quads]
-    })
-  };
-
-  var verts = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
-  var indices = new Uint8Array([ 0, 1, 2, 1, 3, 2]);
-  this.buffers = {
-    updateVB: new gfx.VertexBuffer(device, _vertexFmt, gfx.USAGE_STATIC, verts, 4),
-    updateIB: new gfx.IndexBuffer(device, gfx.INDEX_FMT_UINT8, gfx.USAGE_STATIC, indices, 6),
-    indexes: null,
-    particleCache: null
-  };
-
-  this._elapsed = 0;
-  this._stopped = false;
-
-  this.updateMaxParticle(config);
-  this.updateSizeScale(config);
-  this.updateRadiusScale(config);
-  this.updateAccelScale(config);
-
-  // Vector uniforms
-  this._pos = new Float32Array([config.sourcePos.x, config.sourcePos.y]);
-  this._posVar = new Float32Array([config.posVar.x, config.posVar.y]);
-  this._gravity = new Float32Array([config.gravity.x, config.gravity.y]);
-  this._color = new Float32Array([config.startColor.r, config.startColor.g, config.startColor.b, config.startColor.a]);
-  this._colorVar = new Float32Array([config.startColorVar.r, config.startColorVar.g, config.startColorVar.b, config.startColorVar.a]);
-  this._endColor = new Float32Array([config.endColor.r, config.endColor.g, config.endColor.b, config.endColor.a]);
-  this._endColorVar = new Float32Array([config.endColorVar.r, config.endColorVar.g, config.endColorVar.b, config.endColorVar.a]);
-};
-
-var prototypeAccessors$3 = { vertexFormat: {},particleCount: {},stopped: {},pos: {},posVar: {},gravity: {},startColor: {},startColorVar: {},endColor: {},endColorVar: {} };
-
-prototypeAccessors$3.vertexFormat.get = function () {
-  return _vertexFmt;
-};
-
-// TODO: it's too slow, need other approach to retrieve the real particle count
-prototypeAccessors$3.particleCount.get = function () {
-  var particleCount = 0;
-  var device = this._device;
-  device.setFrameBuffer(this.framebuffers.state0);
-  var w = this.statesize[0], h = this.statesize[1],
-      tw = this._tw, th = this._th,
-      rgba = this.buffers.particleCache;
-  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
-  for (var y = 0; y < th; y++) {
-    for (var x = 0; x < tw; x++) {
-      var offset = y * 3 * tw * 12 + x * 12;
-      var rest = decode(rgba, offset, LIFE_SCALE);
-      if (rest > 0) {
-        particleCount++;
-      }
-    }
-  }
-  return particleCount;
-};
-
-prototypeAccessors$3.stopped.get = function () {
-  return this._stopped;
-};
-
-Particles.prototype.updateMaxParticle = function updateMaxParticle (config) {
-  var emissionMax = Math.floor(config.emissionRate * (config.life + config.lifeVar));
-  var maxParticle;
-  if (config.totalParticles > emissionMax) {
-    maxParticle = emissionMax;
-    this._emitVar = config.lifeVar;
-  }
-  else {
-    maxParticle = config.totalParticles;
-    this._emitVar = 0;
-  }
-  if (maxParticle !== this._maxParticle) {
-    this._maxParticle = maxParticle;
-    this._tw = Math.ceil(Math.sqrt(maxParticle));
-    this._th = Math.floor(Math.sqrt(maxParticle));
-    this.initTextures();
-    this.initBuffers();
-  }
-};
-
-prototypeAccessors$3.pos.set = function (pos) {
-  this._pos[0] = pos.x;
-  this._pos[1] = pos.y;
-};
-
-prototypeAccessors$3.posVar.set = function (posVar) {
-  this._posVar[0] = posVar.x;
-  this._posVar[1] = posVar.y;
-};
-
-prototypeAccessors$3.gravity.set = function (gravity) {
-  this._gravity[0] = gravity.x;
-  this._gravity[1] = gravity.y;
-};
-
-prototypeAccessors$3.startColor.set = function (color) {
-  this._color[0] = color.r;
-  this._color[1] = color.g;
-  this._color[2] = color.b;
-  this._color[3] = color.a;
-};
-
-prototypeAccessors$3.startColorVar.set = function (color) {
-  this._colorVar[0] = color.r;
-  this._colorVar[1] = color.g;
-  this._colorVar[2] = color.b;
-  this._colorVar[3] = color.a;
-};
-
-prototypeAccessors$3.endColor.set = function (color) {
-  this._endColor[0] = color.r;
-  this._endColor[1] = color.g;
-  this._endColor[2] = color.b;
-  this._endColor[3] = color.a;
-};
-
-prototypeAccessors$3.endColorVar.set = function (color) {
-  this._endColorVar[0] = color.r;
-  this._endColorVar[1] = color.g;
-  this._endColorVar[2] = color.b;
-  this._endColorVar[3] = color.a;
-};
-
-Particles.prototype._updateTex = function _updateTex (tex, data, width, height) {
-  _dataOpts.images.length = 1;
-  _dataOpts.images[0] = data;
-  _dataOpts.width = width;
-  _dataOpts.height = height;
-  tex.update(_dataOpts);
-};
-
-Particles.prototype._initNoise = function _initNoise () {
-  var tw = this._tw, th = this._th;
-  var w = (tw + 1) * 3, h = (th + 1) * 3;
-  var data = new Uint8Array(w * h * 4);
-  var offset = 0;
-  for (var y = 0; y < h; y++) {
-    for (var x = 0; x < w; x++) {
-      encode(Math.random(), NOISE_SCALE, data, offset);
-      encode(Math.random(), NOISE_SCALE, data, offset + 2);
-      offset += 4;
-    }
-  }
-  this._noisesize = new Float32Array([w, h]);
-  this._updateTex(this.textures.noise, data, w, h);
-};
-
-Particles.prototype.initTextures = function initTextures () {
-  var tw = this._tw, th = this._th;
-  this.statesize = new Float32Array([tw * 3, th * 3]);
-  this.quadsize = new Float32Array([tw * 2, th * 2]);
-  var data = new Uint8Array(tw * 3 * th * 3 * 4);
-  // decode([97, 97], 0, LIFE_SCALE); equals to -128, just for initalize a negative value in life
-  data.fill(97);
-  this._updateTex(this.textures.state0, data, tw * 3, th * 3);
-  this._updateTex(this.textures.state1, data, tw * 3, th * 3);
-  this._updateTex(this.textures.quads, null, tw * 2, th * 2);
-  this._initNoise();
-};
-
-Particles.prototype.initBuffers = function initBuffers () {
-  var w = this.quadsize[0], h = this.quadsize[1],
-      indexes = new Float32Array(w * h * 2),
-      i = 0;
-  for (var y = 0; y < h; y++) {
-    for (var x = 0; x < w; x++) {
-      indexes[i + 0] = x;
-      indexes[i + 1] = y;
-      i += 2;
-    }
-  }
-  this.buffers.indexes = indexes;
-  this.buffers.particleCache = new Uint8Array(this.statesize[0] * this.statesize[1] * 4);
-};
-
-Particles.prototype.updateSizeScale = function updateSizeScale (config) {
-  var size = config.startSize,
-      sizeVar = config.startSizeVar,
-      endSize = config.endSize,
-      endSizeVar = config.endSizeVar;
-  var scale = Math.floor(Math.pow(BASE, 2) / Math.max(size + sizeVar, endSize + endSizeVar));
-  this._sizeScale = clampf(scale, 1, MAX_SCALE);
-};
-
-Particles.prototype.updateAccelScale = function updateAccelScale (config) {
-  var radial = config.radialAccel,
-      radialVar = config.radialAccelVar,
-      tangential = config.tangentialAccel,
-      tangentialVar = config.tangentialAccelVar;
-  var accelScale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radial) + radialVar, Math.abs(tangential) + tangentialVar) / 2);
-  this._accelScale = clampf(accelScale, 1, MAX_SCALE);
-};
-
-Particles.prototype.updateRadiusScale = function updateRadiusScale (config) {
-  var radius = config.startRadius,
-      radiusVar = config.startRadiusVar,
-      endRadius = config.endRadius,
-      endRadiusVar = config.endRadiusVar;
-  var scale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radius) + radiusVar, Math.abs(endRadius) + endRadiusVar));
-  this._radiusScale = clampf(scale, 1, MAX_SCALE);
-};
-
-Particles.prototype.resetSystem = function resetSystem () {
-  this._stopped = false;
-};
-
-Particles.prototype.stopSystem = function stopSystem () {
-  this._stopped = true;
-};
-
-Particles.prototype.getState = function getState (framebuffer) {
-    var this$1 = this;
-
-  var device = this._device;
-  device.setFrameBuffer(framebuffer);
-  var w = this.statesize[0], h = this.statesize[1],
-      tw = this._tw, th = this._th,
-      rgba = new Uint8Array(w * h * 4);
-  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
-  var particles = [];
-  for (var y = 0; y < th; y++) {
-    for (var x = 0; x < tw; x++) {
-      var offset = y * 3 * tw * 12 + x * 12;
-      var colorI = offset + 1 * 4;
-      var deltaRGI = offset + 2 * 4;
-      var deltaBAI = offset + tw * 12;
-      var sizeI = offset + tw * 12 + 1 * 4;
-      var rotI = offset + tw * 12 + 2 * 4;
-      var control1I = offset + 2 * tw * 12;
-      var control2I = offset + 2 * tw * 12 + 1 * 4;
-      var posI = offset + 2 * tw * 12 + 2 * 4;
-        
-      var rest = decode(rgba, offset, LIFE_SCALE);
-      var life = decode(rgba, offset + 2, LIFE_SCALE);
-      var color = {
-        r: rgba[colorI],
-        g: rgba[colorI+1],
-        b: rgba[colorI+2],
-        a: rgba[colorI+3]
-      };
-      var deltaColor = {
-        r: decode(rgba, deltaRGI, COLOR_SCALE),
-        g: decode(rgba, deltaRGI + 2, COLOR_SCALE),
-        b: decode(rgba, deltaBAI, COLOR_SCALE),
-        a: decode(rgba, deltaBAI + 2, COLOR_SCALE)
-      };
-      var size = decode(rgba, sizeI, this$1._sizeScale);
-      var deltaSize = decode(rgba, sizeI + 2, this$1._sizeScale);
-      var rot = decode(rgba, rotI, ROTATION_SCALE);
-      var deltaRot = decode(rgba, rotI + 2, ROTATION_SCALE);
-      var control = (void 0);
-      if (this$1._config.emitterMode === 0) {
-        control = [
-          decode(rgba, control1I, POS_SCALE),
-          decode(rgba, control1I + 2, POS_SCALE),
-          decode(rgba, control2I, this$1._accelScale),
-          decode(rgba, control2I + 2, this$1._accelScale)
-        ];
-      }
-      else {
-        control = [
-          decode(rgba, control1I, ROTATION_SCALE),
-          decode(rgba, control1I + 2, this$1._radiusScale),
-          decode(rgba, control2I, ROTATION_SCALE),
-          decode(rgba, control2I + 2, this$1._radiusScale)
-        ];
-      }
-      var pos = {
-        x: decode(rgba, posI, POS_SCALE),
-        y: decode(rgba, posI + 2, POS_SCALE)
-      };
-      particles.push({
-        rest: rest,
-        life: life,
-        color: color,
-        deltaColor: deltaColor,
-        size: size,
-        deltaSize: deltaSize,
-        rot: rot,
-        deltaRot: deltaRot,
-        control: control,
-        pos: pos
-      });
-    }
-  }
-  return particles;
-};
-
-Particles.prototype.getNoise = function getNoise () {
-  var device = this._device;
-  var framebuffer = new gfx.FrameBuffer(device, 0, 0, {
-      colors: [this.textures.noise]
-    });
-  device.setFrameBuffer(framebuffer);
-  var w = this._noisesize[0], h = this._noisesize[1],
-      rgba = new Uint8Array(w * h * 4);
-  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
-  var noises = [];
-  var offset = 0;
-  for (var y = 0; y < h; y++) {
-    for (var x = 0; x < w; x++) {
-      noises.push(decode(rgba, offset, 10000));
-      noises.push(decode(rgba, offset+2, 10000));
-      offset += 4;
-    }
-  }
-  return noises;
-};
-
-Particles.prototype.getQuads = function getQuads () {
-  var device = this._device;
-  var framebuffer = new gfx.FrameBuffer(device, 0, 0, {
-      colors: [this.textures.quads]
-    });
-  device.setFrameBuffer(framebuffer);
-  var w = this.quadsize[0], h = this.quadsize[1],
-      rgba = new Uint8Array(w * h * 4);
-  device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
-  var quads = [];
-  var off1 = 0, off2 = 0;
-  for (var y = 0; y < h; y += 2) {
-    for (var x = 0; x < w; x += 2) {
-      off1 = (y * w + x) * 4;
-      off2 = ((y + 1) * w + x) * 4;
-      quads.push([
-        decode(rgba, off1, POS_SCALE),
-        decode(rgba, off1+2, POS_SCALE),
-        decode(rgba, off1+4, POS_SCALE),
-        decode(rgba, off1+6, POS_SCALE),
-        decode(rgba, off2, POS_SCALE),
-        decode(rgba, off2+2, POS_SCALE),
-        decode(rgba, off2+4, POS_SCALE),
-        decode(rgba, off2+6, POS_SCALE)
-      ]);
-    }
-  }
-  return quads;
-};
-
-Particles.prototype.step = function step (dt) {
-  var config = this._config;
-  var device = this._device;
-
-  // setup
-  device.setViewport(0, 0, this.statesize[0], this.statesize[1]);
-
-  // Emitter
-  device.setFrameBuffer(this.framebuffers.state1);
-  device.setTexture('noise', this.textures.noise, 0);
-  device.setTexture('state', this.textures.state0, 1);
-  device.setUniform('statesize', this.statesize);
-  device.setUniform('noisesize', this._noisesize);
-  device.setUniform('stopped', this._stopped);
-  device.setUniform('dt', dt);
-  device.setUniform('mode', config.emitterMode);
-  device.setUniform('noiseId', Math.floor(Math.random() * 16));
-  device.setUniform('emitVar', this._emitVar);
-  device.setUniform('life', config.life);
-  device.setUniform('lifeVar', config.lifeVar);
-  device.setUniform('pos', this._pos);
-  device.setUniform('posVar', this._posVar);
-  device.setUniform('color', this._color);
-  device.setUniform('colorVar', this._colorVar);
-  device.setUniform('endColor', this._endColor);
-  device.setUniform('endColorVar', this._endColorVar);
-  device.setUniform('size', config.startSize);
-  device.setUniform('sizeVar', config.startSizeVar);
-  device.setUniform('endSize', config.endSize);
-  device.setUniform('endSizeVar', config.endSizeVar);
-  device.setUniform('rot', config.startSpin);
-  device.setUniform('rotVar', config.startSpinVar);
-  device.setUniform('endRot', config.endSpin);
-  device.setUniform('endRotVar', config.endSpinVar);
-  device.setUniform('angle', config.angle);
-  device.setUniform('angleVar', config.angleVar);
-  device.setUniform('speed', config.speed);
-  device.setUniform('speedVar', config.speedVar);
-  device.setUniform('radial', config.radialAccel);
-  device.setUniform('radialVar', config.radialAccelVar);
-  device.setUniform('tangent', config.tangentialAccel);
-  device.setUniform('tangentVar', config.tangentialAccelVar);
-  device.setUniform('radius', config.startRadius);
-  device.setUniform('radiusVar', config.startRadiusVar);
-  device.setUniform('endRadius', config.endRadius);
-  device.setUniform('endRadiusVar', config.endRadiusVar);
-  device.setUniform('rotatePS', config.rotatePerS);
-  device.setUniform('rotatePSVar', config.rotatePerSVar);
-  device.setUniform('sizeScale', this._sizeScale);
-  device.setUniform('accelScale', this._accelScale);
-  device.setUniform('radiusScale', this._radiusScale);
-  device.setVertexBuffer(0, this.buffers.updateVB);
-  device.setIndexBuffer(this.buffers.updateIB);
-  device.setProgram(this.programs.emitter);
-  device.draw(0, this.buffers.updateIB.count);
-
-  // Update
-  device.setFrameBuffer(this.framebuffers.state0);
-  device.setTexture('state', this.textures.state1, 0);
-  device.setUniform('statesize', this.statesize);
-  device.setUniform('dt', dt);
-  device.setUniform('mode', config.emitterMode);
-  device.setUniform('gravity', this._gravity);
-  device.setUniform('sizeScale', this._sizeScale);
-  device.setUniform('accelScale', this._accelScale);
-  device.setUniform('radiusScale', this._radiusScale);
-  device.setVertexBuffer(0, this.buffers.updateVB);
-  device.setIndexBuffer(this.buffers.updateIB);
-  device.setProgram(this.programs.update);
-  device.draw(0, this.buffers.updateIB.count);
-
-  // Draw quad
-  device.setViewport(0, 0, this._tw * 2, this._th * 2);
-  device.setFrameBuffer(this.framebuffers.quads);
-  device.setTexture('state', this.textures.state0, 0);
-  device.setUniform('quadsize', this.quadsize);
-  device.setUniform('statesize', this.statesize);
-  device.setUniform('sizeScale', this._sizeScale);
-  device.setVertexBuffer(0, this.buffers.updateVB);
-  device.setIndexBuffer(this.buffers.updateIB);
-  device.setProgram(this.programs.quad);
-  device.draw(0, this.buffers.updateIB.count);
-
-  this._elapsed += dt;
-  if (config.duration !== -1 && config.duration < this._elapsed) {
-    this.stopSystem();
-  }
-};
-
-Object.defineProperties( Particles.prototype, prototypeAccessors$3 );
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var Asset = function Asset(persist) {
-  if ( persist === void 0 ) persist = true;
-
-  this._loaded = false;
-  this._persist = persist;
-};
-
-Asset.prototype.unload = function unload () {
-  this._loaded = false;
-};
-
-Asset.prototype.reload = function reload () {
-  // TODO
-};
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var Texture = (function (Asset$$1) {
-  function Texture(persist) {
-    if ( persist === void 0 ) persist = true;
-
-    Asset$$1.call(this, persist);
-
-    this._texture = null;
-  }
-
-  if ( Asset$$1 ) Texture.__proto__ = Asset$$1;
-  Texture.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
-  Texture.prototype.constructor = Texture;
-
-  Texture.prototype.getImpl = function getImpl () {
-    return this._texture;
-  };
-
-  Texture.prototype.getId = function getId () {};
-
-  Texture.prototype.destroy = function destroy () {
-    this._texture && this._texture.destroy();
-  };
-
-  return Texture;
-}(Asset));
-
-/**
- * JS Implementation of MurmurHash2
- * 
- * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
- * @see http://github.com/garycourt/murmurhash-js
- * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
- * @see http://sites.google.com/site/murmurhash/
- * 
- * @param {string} str ASCII only
- * @param {number} seed Positive integer only
- * @return {number} 32-bit positive integer hash
- */
-
-function murmurhash2_32_gc(str, seed) {
-  var
-    l = str.length,
-    h = seed ^ l,
-    i = 0,
-    k;
-  
-  while (l >= 4) {
-  	k = 
-  	  ((str.charCodeAt(i) & 0xff)) |
-  	  ((str.charCodeAt(++i) & 0xff) << 8) |
-  	  ((str.charCodeAt(++i) & 0xff) << 16) |
-  	  ((str.charCodeAt(++i) & 0xff) << 24);
-    
-    k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
-    k ^= k >>> 24;
-    k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
-
-	h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16)) ^ k;
-
-    l -= 4;
-    ++i;
-  }
-  
-  switch (l) {
-  case 3: h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
-  case 2: h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
-  case 1: h ^= (str.charCodeAt(i) & 0xff);
-          h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
-  }
-
-  h ^= h >>> 13;
-  h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
-  h ^= h >>> 15;
-
-  return h >>> 0;
-}
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
-
-// function genHashCode (str) {
-//     var hash = 0;
-//     if (str.length == 0) {
-//         return hash;
-//     }
-//     for (var i = 0; i < str.length; i++) {
-//         var char = str.charCodeAt(i);
-//         hash = ((hash<<5)-hash)+char;
-//         hash = hash & hash; // Convert to 32bit integer
-//     }
-//     return hash;
-// }
-
-function serializeDefines (defines) {
-    var str = '';
-    for (var i = 0; i < defines.length; i++) {
-        str += defines[i].name + defines[i].value;
-    }
-    return str;
-}
-
-function serializePass (pass) {
-    var str = pass._programName + pass._cullMode;
-    if (pass._blend) {
-        str += pass._blendEq + pass._blendAlphaEq + pass._blendSrc + pass._blendDst
-             + pass._blendSrcAlpha + pass._blendDstAlpha + pass._blendColor;
-    }
-    if (pass._depthTest) {
-        str += pass._depthWrite + pass._depthFunc;
-    }
-    if (pass._stencilTest) {
-        str += pass._stencilFuncFront + pass._stencilRefFront + pass._stencilMaskFront
-             + pass._stencilFailOpFront + pass._stencilZFailOpFront + pass._stencilZPassOpFront
-             + pass._stencilWriteMaskFront
-             + pass._stencilFuncBack + pass._stencilRefBack + pass._stencilMaskBack
-             + pass._stencilFailOpBack + pass._stencilZFailOpBack + pass._stencilZPassOpBack 
-             + pass._stencilWriteMaskBack;
-    }
-    return str;
-}
-
-function computeHash(material) {
-    var effect = material._effect;
-    var hashData = '';
-    if (effect) {
-        var i, j, techData, param, prop, propKey;
-
-        // effect._defines
-        hashData += serializeDefines(effect._defines);
-        // effect._techniques
-        for (i = 0; i < effect._techniques.length; i++) {
-            techData = effect._techniques[i];
-            // technique.stageIDs
-            hashData += techData.stageIDs;
-            // technique._layer
-            // hashData += + techData._layer + "_";
-            // technique.passes
-            for (j = 0; j < techData.passes.length; j++) {
-                hashData += serializePass(techData.passes[j]);
-            }
-            //technique._parameters
-            for (j = 0; j < techData._parameters.length; j++) {
-                param = techData._parameters[j];
-                propKey = param.name;
-                prop = effect._properties[propKey];
-                if (!prop) {
-                    continue;
-                }
-                switch(param.type) {
-                    case renderer.PARAM_INT:
-                    case renderer.PARAM_FLOAT:
-                        hashData += prop + ';';
-                        break;
-                    case renderer.PARAM_INT2:
-                    case renderer.PARAM_FLOAT2:
-                        hashData += prop.x + ',' + prop.y + ';';
-                        break;
-                    case renderer.PARAM_INT4:
-                    case renderer.PARAM_FLOAT4:
-                        hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
-                        break;
-                    case renderer.PARAM_COLOR4:
-                        hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
-                        break;
-                    case renderer.PARAM_MAT2:
-                        hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
-                        break;
-                    case renderer.PARAM_TEXTURE_2D:
-                    case renderer.PARAM_TEXTURE_CUBE:
-                        hashData += material._texIds[propKey] + ';';
-                        break;
-                    case renderer.PARAM_INT3:
-                    case renderer.PARAM_FLOAT3:
-                    case renderer.PARAM_COLOR3:
-                    case renderer.PARAM_MAT3:
-                    case renderer.PARAM_MAT4:
-                        hashData += JSON.stringify(prop) + ';';
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
-    return hashData ? murmurhash2_32_gc(hashData, 666) : hashData;
-}
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var Material = (function (Asset$$1) {
-  function Material(persist) {
-    if ( persist === void 0 ) persist = false;
-
-    Asset$$1.call(this, persist);
-
-    this._effect = null; // renderer.Effect
-    this._texIds = {}; // ids collected from texture defines
-    this._hash = '';
-  }
-
-  if ( Asset$$1 ) Material.__proto__ = Asset$$1;
-  Material.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
-  Material.prototype.constructor = Material;
-
-  var prototypeAccessors = { hash: {} };
-
-  prototypeAccessors.hash.get = function () {
-    return this._hash;
-  };
-
-  Material.prototype.updateHash = function updateHash (value) {
-    this._hash = value || computeHash(this);
-  };
-
-  Object.defineProperties( Material.prototype, prototypeAccessors );
-
-  return Material;
-}(Asset));
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var SpriteMaterial = (function (Material$$1) {
-  function SpriteMaterial() {
-    Material$$1.call(this, false);
-
-    var pass = new renderer.Pass('sprite');
-    pass.setDepth(false, false);
-    pass.setCullMode(gfx.CULL_NONE);
-    pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
-    );
-
-    var mainTech = new renderer.Technique(
-      ['transparent'],
-      [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
-      [
-        pass
-      ]
-    );
-
-    this._effect = new renderer.Effect(
-      [
-        mainTech ],
-      {},
-      [
-        { name: 'useTexture', value: true },
-        { name: 'useModel', value: false },
-        { name: 'alphaTest', value: false } ]
-    );
-    
-    this._mainTech = mainTech;
-    this._texture = null;
-  }
-
-  if ( Material$$1 ) SpriteMaterial.__proto__ = Material$$1;
-  SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
-  SpriteMaterial.prototype.constructor = SpriteMaterial;
-
-  var prototypeAccessors = { effect: {},useTexture: {},useModel: {},texture: {} };
-
-  prototypeAccessors.effect.get = function () {
-    return this._effect;
-  };
-  
-  prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture', val);
-  };
-
-  prototypeAccessors.useTexture.set = function (val) {
-    this._effect.define('useTexture', val);
-  };
-  
-  prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel', val);
-  };
-
-  prototypeAccessors.useModel.set = function (val) {
-    this._effect.define('useModel', val);
-  };
-
-  prototypeAccessors.texture.get = function () {
-    return this._texture;
-  };
-
-  prototypeAccessors.texture.set = function (val) {
-    if (this._texture !== val) {
-      this._texture = val;
-      this._effect.setProperty('texture', val.getImpl());
-      this._texIds['texture'] = val.getId();
-    }
-  };
-
-  SpriteMaterial.prototype.clone = function clone () {
-    var copy = new SpriteMaterial();
-    copy.texture = this.texture;
-    copy.useTexture = this.useTexture;
-    copy.useModel = this.useModel;
-    copy.updateHash();
-    return copy;
-  };
-
-  Object.defineProperties( SpriteMaterial.prototype, prototypeAccessors );
-
-  return SpriteMaterial;
-}(Material));
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var GraySpriteMaterial = (function (Material$$1) {
-  function GraySpriteMaterial() {
-    Material$$1.call(this, false);
-
-    var pass = new renderer.Pass('gray_sprite');
-    pass.setDepth(false, false);
-    pass.setCullMode(gfx.CULL_NONE);
-    pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
-    );
-
-    var mainTech = new renderer.Technique(
-      ['transparent'],
-      [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
-      [
-        pass
-      ]
-    );
-
-    this._effect = new renderer.Effect(
-      [
-        mainTech ],
-      {},
-      []
-    );
-    
-    this._mainTech = mainTech;
-    this._texture = null;
-  }
-
-  if ( Material$$1 ) GraySpriteMaterial.__proto__ = Material$$1;
-  GraySpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
-  GraySpriteMaterial.prototype.constructor = GraySpriteMaterial;
-
-  var prototypeAccessors = { effect: {},texture: {} };
-
-  prototypeAccessors.effect.get = function () {
-    return this._effect;
-  };
-
-  prototypeAccessors.texture.get = function () {
-    return this._texture;
-  };
-
-  prototypeAccessors.texture.set = function (val) {
-    if (this._texture !== val) {
-      this._texture = val;
-      this._effect.setProperty('texture', val.getImpl());
-      this._texIds['texture'] = val.getId();
-    }
-  };
-
-  GraySpriteMaterial.prototype.clone = function clone () {
-    var copy = new GraySpriteMaterial();
-    copy.texture = this.texture;
-    copy.updateHash();
-    return copy;
-  };
-
-  Object.defineProperties( GraySpriteMaterial.prototype, prototypeAccessors );
-
-  return GraySpriteMaterial;
-}(Material));
-
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-var StencilMaterial = (function (Material$$1) {
-  function StencilMaterial() {
-    Material$$1.call(this, false);
-
-    this._pass = new renderer.Pass('sprite');
-    this._pass.setDepth(false, false);
-    this._pass.setCullMode(gfx.CULL_NONE);
-    this._pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
-    );
-
-    var mainTech = new renderer.Technique(
-      ['transparent'],
-      [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT } ],
-      [
-        this._pass
-      ]
-    );
-
-    this._effect = new renderer.Effect(
-      [
-        mainTech ],
-      {},
-      [
-        { name: 'useTexture', value: true },
-        { name: 'useModel', value: false },
-        { name: 'alphaTest', value: true } ]
-    );
-    
-    this._mainTech = mainTech;
-    this._texture = null;
-  }
-
-  if ( Material$$1 ) StencilMaterial.__proto__ = Material$$1;
-  StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
-  StencilMaterial.prototype.constructor = StencilMaterial;
-
-  var prototypeAccessors = { effect: {},useTexture: {},texture: {},alphaThreshold: {} };
-
-  prototypeAccessors.effect.get = function () {
-    return this._effect;
-  };
-  
-  prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture', val);
-  };
-
-  prototypeAccessors.useTexture.set = function (val) {
-    this._effect.define('useTexture', val);
-  };
-
-  prototypeAccessors.texture.get = function () {
-    return this._texture;
-  };
-
-  prototypeAccessors.texture.set = function (val) {
-    if (this._texture !== val) {
-      this._texture = val;
-      this._effect.setProperty('texture', val.getImpl());
-      this._texIds['texture'] = val.getId();
-    }
-  };
-  
-  prototypeAccessors.alphaThreshold.get = function () {
-    return this._effect.getProperty('alphaThreshold');
-  };
-
-  prototypeAccessors.alphaThreshold.set = function (val) {
-    this._effect.setProperty('alphaThreshold', val);
-  };
-
-  StencilMaterial.prototype.clone = function clone () {
-    var copy = new StencilMaterial();
-    copy.useTexture = this.useTexture;
-    copy.texture = this.texture;
-    copy.alphaThreshold = this.alphaThreshold;
-    copy.updateHash();
-    return copy;
-  };
-
-  Object.defineProperties( StencilMaterial.prototype, prototypeAccessors );
-
-  return StencilMaterial;
-}(Material));
-
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
 var ParticleMaterial = (function (Material$$1) {
@@ -10167,6 +10089,4 @@ var renderEngine = {
   gfx: gfx,
 };
 
-return renderEngine;
-
-}());
+module.exports = renderEngine;

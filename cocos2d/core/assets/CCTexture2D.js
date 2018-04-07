@@ -362,6 +362,9 @@ var Texture2D = cc.Class({
                 this._image = options.images[0];
             }
             else if (options.image !== undefined) {
+                // Release previous gl texture if existed
+                this._texture.destroy();
+                
                 this._image = options.image;
                 if (!options.images) {
                     _images.length = 0;
