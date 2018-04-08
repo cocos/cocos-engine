@@ -89,6 +89,9 @@ var RenderComponent = cc.Class({
     setMaterial (material) {
         material.updateHash();
         this._material = material;
+    },
+
+    _onNodeWorldMatrixChanged () {
     }
 });
 RenderComponent._assembler = null;
