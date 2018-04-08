@@ -2704,9 +2704,15 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
 {
     assert(ret != nullptr);
-    assert(!v.isNull());
-    se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
-    ret->setObject(obj);
+    if (v.isNull())
+    {
+        ret->setNull();
+    }
+    else
+    {
+        se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
+        ret->setObject(obj);
+    }
     return true;
 }
 

@@ -764,7 +764,13 @@ bool jsb_register_global_variables(se::Object* global)
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
     getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
-    getOrCreatePlainObject_r("gl", global, &__glObj);
+
+    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
+    glContextCls->install();
+
+    SAFE_DEC_REF(__glObj);
+    __glObj = se::Object::createObjectWithClass(glContextCls);
+    global->setProperty("gl", se::Value(__glObj));
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));

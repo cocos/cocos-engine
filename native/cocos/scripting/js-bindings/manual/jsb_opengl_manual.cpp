@@ -34,10 +34,130 @@
 
 namespace {
 
+    GLint __defaultFbo = 0;
+
+    class WebGLObject
+    {
+    public:
+        WebGLObject(GLuint id)
+        : _id(id)
+        {}
+
+        virtual ~WebGLObject()
+        {}
+
+        GLuint _id;
+    };
+
+    class WebGLTexture final : public WebGLObject
+    {
+    public:
+        WebGLTexture(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLTexture()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLTexture (%u) by GC\n", _id);
+                glDeleteTextures(1, &_id);
+            }
+        }
+    };
+
+    class WebGLBuffer final : public WebGLObject
+    {
+    public:
+        WebGLBuffer(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLBuffer()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLBuffer (%u) by GC\n", _id);
+                glDeleteBuffers(1, &_id);
+            }
+        }
+    };
+
+    class WebGLRenderbuffer final : public WebGLObject
+    {
+    public:
+        WebGLRenderbuffer(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLRenderbuffer()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLRenderbuffer (%u) by GC\n", _id);
+                glDeleteRenderbuffers(1, &_id);
+            }
+        }
+    };
+
+    class WebGLFramebuffer final : public WebGLObject
+    {
+    public:
+        WebGLFramebuffer(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLFramebuffer()
+        {
+            if (_id != __defaultFbo)
+            {
+                SE_LOGD("Destroy WebGLFramebuffer (%u) by GC\n", _id);
+                glDeleteFramebuffers(1, &_id);
+            }
+        }
+    };
+
+    class WebGLProgram final : public WebGLObject
+    {
+    public:
+        WebGLProgram(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLProgram()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLProgram (%u) by GC\n", _id);
+                glDeleteProgram(_id);
+            }
+        }
+    };
+
+    class WebGLShader final : public WebGLObject
+    {
+    public:
+        WebGLShader(GLuint id)
+        : WebGLObject(id)
+        {}
+        virtual ~WebGLShader()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLShader (%u) by GC\n", _id);
+                glDeleteShader(_id);
+            }
+        }
+    };
+
+    se::Class* __jsb_WebGLTexture_class = nullptr;
+    se::Class* __jsb_WebGLBuffer_class = nullptr;
+    se::Class* __jsb_WebGLRenderbuffer_class = nullptr;
+    se::Class* __jsb_WebGLFramebuffer_class = nullptr;
+    se::Class* __jsb_WebGLProgram_class = nullptr;
+    se::Class* __jsb_WebGLShader_class = nullptr;
+    se::Class* __jsb_WebGLActiveInfo_class = nullptr;
+    se::Class* __jsb_WebGLUniformLocation_class = nullptr;
+
+    std::unordered_map<GLuint, se::Value> __shaders;
+
     bool __unpackFlipY = false;
     bool __premultiplyAlpha = false;
-
-    GLint __defaultFbo = 0;
 
     //FIXME:cjh: ONLY SUPPORT RGBA format now.
     void flipPixelsY(GLubyte *pixels, int bytesPerRow, int rows)
@@ -335,7 +455,7 @@ static bool JSB_glActiveTexture(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glActiveTexture((GLenum)arg0));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glActiveTexture)
@@ -347,15 +467,16 @@ static bool JSB_glAttachShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    WebGLProgram* arg0;
+    WebGLShader* arg1;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glAttachShader((GLuint)arg0 , (GLuint)arg1  ));
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    GLuint shaderId = arg1 != nullptr ? arg1->_id : 0;
+    JSB_GL_CHECK(glAttachShader(programId, shaderId));
 
-    s.rval().setUndefined();
     return true;
 }
 SE_BIND_FUNC(JSB_glAttachShader)
@@ -367,15 +488,18 @@ static bool JSB_glBindAttribLocation(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 3, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1; std::string arg2;
+    WebGLProgram* arg0;
+    uint32_t arg1;
+    std::string arg2;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
-    ok &= seval_to_std_string(args[2], &arg2 );
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_uint32(args[1], &arg1);
+    ok &= seval_to_std_string(args[2], &arg2);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glBindAttribLocation((GLuint)arg0 , (GLuint)arg1 , arg2.c_str()  ));
-    s.rval().setUndefined();
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glBindAttribLocation(programId, (GLuint)arg1 , arg2.c_str()));
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBindAttribLocation)
@@ -387,14 +511,14 @@ static bool JSB_glBindBuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
-
+    uint32_t arg0;
+    WebGLBuffer* arg1;
     ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint bufferId = arg1 != nullptr ? arg1->_id : 0;
+    JSB_GL_CHECK(glBindBuffer((GLenum)arg0 , bufferId));
 
-    JSB_GL_CHECK(glBindBuffer((GLenum)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
     return true;
 }
 SE_BIND_FUNC(JSB_glBindBuffer)
@@ -406,22 +530,14 @@ static bool JSB_glBindFramebuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
+    uint32_t arg0; WebGLFramebuffer* arg1;
 
     ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[1], &arg1);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint frameBufferId = arg1 != nullptr ? arg1->_id : __defaultFbo;
 
-    if (args[1].isNullOrUndefined())
-    {
-        arg1 = __defaultFbo;
-    }
-    else
-    {
-        ok &= seval_to_uint32(args[1], &arg1 );
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-    }
-
-    JSB_GL_CHECK(glBindFramebuffer((GLenum)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
+    JSB_GL_CHECK(glBindFramebuffer((GLenum)arg0 , frameBufferId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindFramebuffer)
@@ -433,14 +549,14 @@ static bool JSB_glBindRenderbuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
+    uint32_t arg0;
+    WebGLRenderbuffer* arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_uint32(args[0], &arg0);
+    ok &= seval_to_native_ptr(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glBindRenderbuffer((GLenum)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
+    GLuint renderBufferId = arg1 != nullptr ? arg1->_id : 0;
+    JSB_GL_CHECK(glBindRenderbuffer((GLenum)arg0, renderBufferId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindRenderbuffer)
@@ -452,14 +568,16 @@ static bool JSB_glBindTexture(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
+    uint32_t arg0;
+    WebGLTexture* arg1 = nullptr;
 
     ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glBindTexture((GLenum)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
+    GLuint textureId = arg1 != nullptr ? arg1->_id : 0;
+    JSB_GL_CHECK(glBindTexture((GLenum)arg0 , textureId));
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBindTexture)
@@ -480,7 +598,7 @@ static bool JSB_glBlendColor(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBlendColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBlendColor)
@@ -498,7 +616,7 @@ static bool JSB_glBlendEquation(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBlendEquation((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBlendEquation)
@@ -517,7 +635,7 @@ static bool JSB_glBlendEquationSeparate(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBlendEquationSeparate((GLenum)arg0 , (GLenum)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBlendEquationSeparate)
@@ -536,7 +654,7 @@ static bool JSB_glBlendFunc(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBlendFunc((GLenum)arg0 , (GLenum)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBlendFunc)
@@ -557,7 +675,7 @@ static bool JSB_glBlendFuncSeparate(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBlendFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBlendFuncSeparate)
@@ -586,7 +704,7 @@ static bool JSB_glBufferData(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBufferData((GLenum)arg0 , count, (GLvoid*)arg1 , (GLenum)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBufferData)
@@ -618,7 +736,7 @@ static bool JSB_glBufferSubData(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBufferSubData((GLenum)arg0 , (GLintptr)arg1 , count, (GLvoid*)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glBufferSubData)
@@ -655,7 +773,7 @@ static bool JSB_glClear(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glClear((GLbitfield)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glClear)
@@ -676,7 +794,7 @@ static bool JSB_glClearColor(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glClearColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glClearColor)
@@ -694,7 +812,7 @@ static bool JSB_glClearDepthf(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glClearDepthf((GLclampf)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glClearDepthf)
@@ -712,7 +830,7 @@ static bool JSB_glClearStencil(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glClearStencil((GLint)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glClearStencil)
@@ -733,7 +851,7 @@ static bool JSB_glColorMask(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glColorMask((GLboolean)arg0 , (GLboolean)arg1 , (GLboolean)arg2 , (GLboolean)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glColorMask)
@@ -745,13 +863,11 @@ static bool JSB_glCompileShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLShader* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glCompileShader((GLuint)arg0  ));
-    s.rval().setUndefined();
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glCompileShader(shaderId));
     return true;
 }
 SE_BIND_FUNC(JSB_glCompileShader)
@@ -777,7 +893,7 @@ static bool JSB_glCompressedTexImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glCompressedTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLsizei)arg3 , (GLsizei)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLvoid*)arg7  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glCompressedTexImage2D)
@@ -804,7 +920,7 @@ static bool JSB_glCompressedTexSubImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glCompressedTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLsizei)arg4 , (GLsizei)arg5 , (GLenum)arg6 , (GLsizei)arg7 , (GLvoid*)arg8  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glCompressedTexSubImage2D)
@@ -829,7 +945,7 @@ static bool JSB_glCopyTexImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glCopyTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLint)arg3 , (GLint)arg4 , (GLsizei)arg5 , (GLsizei)arg6 , (GLint)arg7  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glCopyTexImage2D)
@@ -854,24 +970,33 @@ static bool JSB_glCopyTexSubImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glCopyTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLsizei)arg7  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glCopyTexSubImage2D)
 
-// Arguments:
-// Ret value: GLuint
 static bool JSB_glCreateProgram(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
-    GLuint ret_val;
+    GLuint id = glCreateProgram();
 
-    ret_val = glCreateProgram();
-    s.rval().setUint32((uint32_t)ret_val);
+    auto obj = se::Object::createObjectWithClass(__jsb_WebGLProgram_class);
+    auto cobj = new (std::nothrow) WebGLProgram(id);
+    obj->setPrivateData(cobj);
+    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateProgram)
+
+static bool JSB_glProgramFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLProgram)", s.nativeThisObject());
+    WebGLProgram* cobj = (WebGLProgram*) s.nativeThisObject();
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glProgramFinalize)
 
 // Arguments: GLenum
 // Ret value: GLuint
@@ -884,13 +1009,29 @@ static bool JSB_glCreateShader(se::State& s) {
 
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLuint ret_val;
+    GLuint ret_val = glCreateShader((GLenum)arg0);
 
-    ret_val = glCreateShader((GLenum)arg0);
-    s.rval().setUint32((uint32_t)ret_val);
+    se::Object* obj = se::Object::createObjectWithClass(__jsb_WebGLShader_class);
+    s.rval().setObject(obj, true);
+    WebGLShader* shader = new (std::nothrow) WebGLShader(ret_val);
+    obj->setPrivateData(shader);
+
+    __shaders.emplace(shader->_id, s.rval());
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateShader)
+
+static bool JSB_glShaderFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLShader)", s.nativeThisObject());
+    WebGLShader* cobj = (WebGLShader*) s.nativeThisObject();
+    auto iter = __shaders.find(cobj->_id);
+    if (iter != __shaders.end())
+        __shaders.erase(iter);
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glShaderFinalize)
 
 // Arguments: GLenum
 // Ret value: void
@@ -905,7 +1046,7 @@ static bool JSB_glCullFace(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glCullFace((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glCullFace)
@@ -917,13 +1058,13 @@ static bool JSB_glDeleteProgram(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLProgram* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glDeleteProgram((GLuint)arg0  ));
-    s.rval().setUndefined();
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glDeleteProgram(id));
+    arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteProgram)
@@ -935,13 +1076,17 @@ static bool JSB_glDeleteShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLShader* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glDeleteShader(shaderId));
+    arg0->_id = 0;
 
-    JSB_GL_CHECK(glDeleteShader((GLuint)arg0  ));
-    s.rval().setUndefined();
+    auto iter = __shaders.find(shaderId);
+    if (iter != __shaders.end())
+        __shaders.erase(iter);
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteShader)
@@ -959,7 +1104,7 @@ static bool JSB_glDepthFunc(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDepthFunc((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDepthFunc)
@@ -977,7 +1122,7 @@ static bool JSB_glDepthMask(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDepthMask((GLboolean)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDepthMask)
@@ -996,7 +1141,7 @@ static bool JSB_glDepthRangef(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDepthRangef((GLclampf)arg0 , (GLclampf)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDepthRangef)
@@ -1015,7 +1160,7 @@ static bool JSB_glDetachShader(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDetachShader((GLuint)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDetachShader)
@@ -1033,7 +1178,7 @@ static bool JSB_glDisable(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDisable((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDisable)
@@ -1051,7 +1196,7 @@ static bool JSB_glDisableVertexAttribArray(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDisableVertexAttribArray((GLuint)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDisableVertexAttribArray)
@@ -1071,7 +1216,7 @@ static bool JSB_glDrawArrays(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glDrawArrays((GLenum)arg0 , (GLint)arg1 , (GLsizei)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDrawArrays)
@@ -1105,7 +1250,7 @@ static bool JSB_glDrawElements(se::State& s) {
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     JSB_GL_CHECK(glDrawElements((GLenum)arg0 , (GLsizei)arg1 , (GLenum)arg2 , (GLvoid*)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glDrawElements)
@@ -1123,7 +1268,7 @@ static bool JSB_glEnable(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glEnable((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glEnable)
@@ -1141,7 +1286,7 @@ static bool JSB_glEnableVertexAttribArray(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glEnableVertexAttribArray((GLuint)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glEnableVertexAttribArray)
@@ -1153,7 +1298,7 @@ static bool JSB_glFinish(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     JSB_GL_CHECK(glFinish( ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glFinish)
@@ -1165,7 +1310,7 @@ static bool JSB_glFlush(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     JSB_GL_CHECK(glFlush( ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glFlush)
@@ -1177,24 +1322,23 @@ static bool JSB_glFramebufferRenderbuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 4, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1; uint32_t arg2; uint32_t arg3;
+    uint32_t arg0; uint32_t arg1; uint32_t arg2; WebGLRenderbuffer* arg3;
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
     ok &= seval_to_uint32(args[2], &arg2 );
-    ok &= seval_to_uint32(args[3], &arg3 );
+    ok &= seval_to_native_ptr(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
+    GLuint renderBufferId = arg3 != nullptr ? arg3->_id : 0;
     if( arg1 == GL_DEPTH_STENCIL_ATTACHMENT) {
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_DEPTH_ATTACHMENT, (GLenum)arg2 , (GLuint)arg3));
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_STENCIL_ATTACHMENT, (GLenum)arg2 , (GLuint)arg3));
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_DEPTH_ATTACHMENT, (GLenum)arg2 , renderBufferId));
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_STENCIL_ATTACHMENT, (GLenum)arg2 , renderBufferId));
     }
     else
     {
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3));
+        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , renderBufferId));
     }
 
-    s.rval().setUndefined();
     return true;
 }
 SE_BIND_FUNC(JSB_glFramebufferRenderbuffer)
@@ -1206,17 +1350,18 @@ static bool JSB_glFramebufferTexture2D(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 5, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1; uint32_t arg2; uint32_t arg3; int32_t arg4;
+    uint32_t arg0; uint32_t arg1; uint32_t arg2; WebGLTexture* arg3; int32_t arg4;
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
     ok &= seval_to_uint32(args[2], &arg2 );
-    ok &= seval_to_uint32(args[3], &arg3 );
+    ok &= seval_to_native_ptr(args[3], &arg3 );
     ok &= seval_to_int32(args[4], &arg4 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glFramebufferTexture2D((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3 , (GLint)arg4  ));
-    s.rval().setUndefined();
+    GLuint textureId = arg3 != nullptr ? arg3->_id : 0;
+    JSB_GL_CHECK(glFramebufferTexture2D((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , textureId , (GLint)arg4  ));
+
     return true;
 }
 SE_BIND_FUNC(JSB_glFramebufferTexture2D)
@@ -1234,7 +1379,7 @@ static bool JSB_glFrontFace(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glFrontFace((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glFrontFace)
@@ -1252,7 +1397,7 @@ static bool JSB_glGenerateMipmap(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glGenerateMipmap((GLenum)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glGenerateMipmap)
@@ -1264,12 +1409,13 @@ static bool JSB_glGetAttribLocation(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; std::string arg1;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_std_string(args[1], &arg1 );
+    WebGLProgram* arg0;
+    std::string arg1;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_std_string(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    int ret_val = glGetAttribLocation((GLuint)arg0 , arg1.c_str());
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    int ret_val = glGetAttribLocation(programId, arg1.c_str());
     JSB_GL_CHECK_ERROR();
     s.rval().setInt32(ret_val);
     return true;
@@ -1297,15 +1443,17 @@ static bool JSB_glGetUniformLocation(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; std::string arg1;
+    WebGLProgram* arg0;
+    std::string arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     ok &= seval_to_std_string(args[1], &arg1 );
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     int ret_val;
 
-    ret_val = glGetUniformLocation((GLuint)arg0 , arg1.c_str());
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    ret_val = glGetUniformLocation(programId , arg1.c_str());
     JSB_GL_CHECK_ERROR();
     s.rval().setInt32(ret_val);
     return true;
@@ -1326,7 +1474,7 @@ static bool JSB_glHint(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glHint((GLenum)arg0 , (GLenum)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glHint)
@@ -1338,14 +1486,15 @@ static bool JSB_glIsBuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
+    GLboolean ret_val = GL_FALSE;
 
-    ret_val = glIsBuffer((GLuint)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    if (dynamic_cast<WebGLBuffer*>(arg0))
+        ret_val = glIsBuffer(arg0->_id);
+
+    s.rval().setBoolean(ret_val == GL_TRUE);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsBuffer)
@@ -1376,13 +1525,17 @@ static bool JSB_glIsFramebuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
+    GLboolean ret_val = GL_FALSE;
 
-    ret_val = glIsFramebuffer((GLuint)arg0);
+    if (dynamic_cast<WebGLFramebuffer*>(arg0))
+    {
+        GLuint frameBufferId = arg0 != nullptr ? arg0->_id : __defaultFbo;
+        ret_val = glIsFramebuffer(frameBufferId);
+    }
+
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1395,14 +1548,16 @@ static bool JSB_glIsProgram(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
-
-    ret_val = glIsProgram((GLuint)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    GLboolean ret_val = GL_FALSE;
+    if (dynamic_cast<WebGLProgram*>(arg0))
+    {
+        GLuint id = arg0 != nullptr ? arg0->_id : 0;
+        ret_val = glIsProgram(id);
+    }
+    s.rval().setBoolean(ret_val == GL_TRUE);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsProgram)
@@ -1414,14 +1569,16 @@ static bool JSB_glIsRenderbuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
 
-    ret_val = glIsRenderbuffer((GLuint)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    GLboolean ret_val = GL_FALSE;
+
+    if (dynamic_cast<WebGLRenderbuffer*>(arg0))
+        ret_val = glIsRenderbuffer(arg0->_id);
+
+    s.rval().setBoolean(ret_val == GL_TRUE);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsRenderbuffer)
@@ -1433,14 +1590,16 @@ static bool JSB_glIsShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
-
-    ret_val = glIsShader((GLuint)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    GLboolean ret_val = GL_FALSE;
+    if (dynamic_cast<WebGLShader*>(arg0) != nullptr)
+    {
+        GLuint id = arg0 != nullptr ? arg0->_id : 0;
+        ret_val = glIsShader(id);
+    }
+    s.rval().setBoolean(ret_val == GL_TRUE);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsShader)
@@ -1452,14 +1611,17 @@ static bool JSB_glIsTexture(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLObject* arg0 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    GLboolean ret_val;
+    GLboolean ret_val = GL_FALSE;
 
-    ret_val = glIsTexture((GLuint)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    if (dynamic_cast<WebGLTexture*>(arg0))
+    {
+        GLuint textureId = arg0 != nullptr ? arg0->_id : 0;
+        ret_val = glIsTexture(textureId);
+    }
+    s.rval().setBoolean(ret_val == GL_TRUE);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsTexture)
@@ -1477,7 +1639,7 @@ static bool JSB_glLineWidth(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glLineWidth((GLfloat)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glLineWidth)
@@ -1489,13 +1651,11 @@ static bool JSB_glLinkProgram(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLProgram* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glLinkProgram((GLuint)arg0  ));
-    s.rval().setUndefined();
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glLinkProgram(id));
     return true;
 }
 SE_BIND_FUNC(JSB_glLinkProgram)
@@ -1530,7 +1690,7 @@ static bool JSB_glPixelStorei(se::State& s) {
     }
 
     JSB_GL_CHECK(glPixelStorei((GLenum)arg0 , (GLint)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glPixelStorei)
@@ -1549,7 +1709,7 @@ static bool JSB_glPolygonOffset(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glPolygonOffset((GLfloat)arg0 , (GLfloat)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glPolygonOffset)
@@ -1574,7 +1734,7 @@ static bool JSB_glReadPixels(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glReadPixels((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3 , (GLenum)arg4 , (GLenum)arg5 , (GLvoid*)arg6  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glReadPixels)
@@ -1586,7 +1746,7 @@ static bool JSB_glReleaseShaderCompiler(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     JSB_GL_CHECK(glReleaseShaderCompiler( ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glReleaseShaderCompiler)
@@ -1611,7 +1771,7 @@ static bool JSB_glRenderbufferStorage(se::State& s) {
     }
 
     JSB_GL_CHECK(glRenderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glRenderbufferStorage)
@@ -1630,7 +1790,7 @@ static bool JSB_glSampleCoverage(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glSampleCoverage((GLclampf)arg0 , (GLboolean)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glSampleCoverage)
@@ -1651,7 +1811,7 @@ static bool JSB_glScissor(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glScissor((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glScissor)
@@ -1671,7 +1831,7 @@ static bool JSB_glStencilFunc(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilFunc((GLenum)arg0 , (GLint)arg1 , (GLuint)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilFunc)
@@ -1692,7 +1852,7 @@ static bool JSB_glStencilFuncSeparate(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2 , (GLuint)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilFuncSeparate)
@@ -1710,7 +1870,7 @@ static bool JSB_glStencilMask(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilMask((GLuint)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilMask)
@@ -1729,7 +1889,7 @@ static bool JSB_glStencilMaskSeparate(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilMaskSeparate((GLenum)arg0 , (GLuint)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilMaskSeparate)
@@ -1749,7 +1909,7 @@ static bool JSB_glStencilOp(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilOp((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilOp)
@@ -1770,7 +1930,7 @@ static bool JSB_glStencilOpSeparate(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glStencilOpSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glStencilOpSeparate)
@@ -1823,12 +1983,13 @@ static bool JSB_glTexImage2D(se::State& s) {
                 byteLength = width * height * 4;
             else
                 byteLength = width * height * 2;
+            assert(count == byteLength);
             premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
         }
     }
 
     JSB_GL_CHECK(glTexImage2D((GLenum)target , (GLint)level , (GLint)internalformat , (GLsizei)width , (GLsizei)height , (GLint)border , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glTexImage2D)
@@ -1848,7 +2009,7 @@ static bool JSB_glTexParameterf(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glTexParameterf((GLenum)arg0 , (GLenum)arg1 , (GLfloat)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glTexParameterf)
@@ -1868,7 +2029,7 @@ static bool JSB_glTexParameteri(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glTexParameteri((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glTexParameteri)
@@ -1912,7 +2073,7 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     }
 
     JSB_GL_CHECK(glTexSubImage2D((GLenum)target , (GLint)level , (GLint)xoffset , (GLint)yoffset , (GLsizei)width , (GLsizei)height , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glTexSubImage2D)
@@ -1931,7 +2092,7 @@ static bool JSB_glUniform1f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform1f(arg0, arg1));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform1f)
@@ -1951,7 +2112,7 @@ static bool JSB_glUniform1fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform1fv((GLint)arg0 , (GLsizei)data.count() , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform1fv)
@@ -1970,7 +2131,7 @@ static bool JSB_glUniform1i(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform1i((GLint)arg0 , (GLint)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform1i)
@@ -1990,7 +2151,7 @@ static bool JSB_glUniform1iv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform1iv((GLint)arg0 , (GLsizei)data.count() , (GLint*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform1iv)
@@ -2010,7 +2171,7 @@ static bool JSB_glUniform2f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform2f(arg0 , arg1 , arg2));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform2f)
@@ -2030,7 +2191,7 @@ static bool JSB_glUniform2fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform2fv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLfloat*)data.data() ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform2fv)
@@ -2050,7 +2211,7 @@ static bool JSB_glUniform2i(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform2i((GLint)arg0 , (GLint)arg1 , (GLint)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform2i)
@@ -2070,7 +2231,7 @@ static bool JSB_glUniform2iv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform2iv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLint*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform2iv)
@@ -2091,7 +2252,7 @@ static bool JSB_glUniform3f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform3f(arg0 , arg1 , arg2 , arg3));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform3f)
@@ -2111,7 +2272,7 @@ static bool JSB_glUniform3fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform3fv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform3fv)
@@ -2132,7 +2293,7 @@ static bool JSB_glUniform3i(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform3i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform3i)
@@ -2152,7 +2313,7 @@ static bool JSB_glUniform3iv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform3iv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLint*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform3iv)
@@ -2174,7 +2335,7 @@ static bool JSB_glUniform4f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform4f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform4f)
@@ -2194,7 +2355,7 @@ static bool JSB_glUniform4fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform4fv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform4fv)
@@ -2216,7 +2377,7 @@ static bool JSB_glUniform4i(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform4i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform4i)
@@ -2236,7 +2397,7 @@ static bool JSB_glUniform4iv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniform4iv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLint*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniform4iv)
@@ -2257,7 +2418,7 @@ static bool JSB_glUniformMatrix2fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniformMatrix2fv(arg0, (GLsizei)(data.count()/4), (GLboolean)arg1 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniformMatrix2fv)
@@ -2278,7 +2439,7 @@ static bool JSB_glUniformMatrix3fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniformMatrix3fv(arg0, (GLsizei)(data.count()/9), (GLboolean)arg1 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniformMatrix3fv)
@@ -2299,7 +2460,7 @@ static bool JSB_glUniformMatrix4fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glUniformMatrix4fv(arg0, (GLsizei)(data.count()/16), (GLboolean)arg1 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glUniformMatrix4fv)
@@ -2311,13 +2472,11 @@ static bool JSB_glUseProgram(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLProgram* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glUseProgram((GLuint)arg0  ));
-    s.rval().setUndefined();
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glUseProgram(programId));
     return true;
 }
 SE_BIND_FUNC(JSB_glUseProgram)
@@ -2335,7 +2494,7 @@ static bool JSB_glValidateProgram(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glValidateProgram((GLuint)arg0  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glValidateProgram)
@@ -2354,7 +2513,7 @@ static bool JSB_glVertexAttrib1f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib1f((GLuint)arg0 , (GLfloat)arg1  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib1f)
@@ -2374,7 +2533,7 @@ static bool JSB_glVertexAttrib1fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib1fv((GLuint)arg0 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib1fv)
@@ -2394,7 +2553,7 @@ static bool JSB_glVertexAttrib2f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib2f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib2f)
@@ -2414,7 +2573,7 @@ static bool JSB_glVertexAttrib2fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib2fv((GLuint)arg0 , (GLfloat*)data.data()  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib2fv)
@@ -2435,7 +2594,7 @@ static bool JSB_glVertexAttrib3f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib3f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib3f)
@@ -2455,7 +2614,7 @@ static bool JSB_glVertexAttrib3fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib3fv((GLuint)arg0 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib3fv)
@@ -2477,7 +2636,7 @@ static bool JSB_glVertexAttrib4f(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib4f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib4f)
@@ -2497,7 +2656,7 @@ static bool JSB_glVertexAttrib4fv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttrib4fv((GLuint)arg0 , (GLfloat*)data.data()));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttrib4fv)
@@ -2520,7 +2679,7 @@ static bool JSB_glVertexAttribPointer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)arg5  ));
-    s.rval().setUndefined();
+
     return true;
 }
 SE_BIND_FUNC(JSB_glVertexAttribPointer)
@@ -2540,15 +2699,16 @@ static bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
-    s.rval().setUndefined();
+    SE_LOGD("JSB_glViewport: %d, %d, %d, %d\n", arg0, arg1, arg2, arg3);
+    JSB_GL_CHECK(glViewport((GLint)arg0 * 2 , (GLint)arg1 * 2, (GLsizei)arg2 *2 , (GLsizei)arg3 *2 ));
+
     return true;
 }
 SE_BIND_FUNC(JSB_glViewport)
 
 
 // Helper functions that link "glGenXXXs" (OpenGL ES 2.0 spec), with "gl.createXXX" (WebGL spec)
-static bool JSB_glGenTextures(se::State& s) {
+static bool JSB_glCreateTexture(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
@@ -2556,46 +2716,103 @@ static bool JSB_glGenTextures(se::State& s) {
     GLuint texture;
     JSB_GL_CHECK(glGenTextures(1, &texture));
 
-    s.rval().setUint32(texture);
+    auto obj = se::Object::createObjectWithClass(__jsb_WebGLTexture_class);
+    auto cobj = new (std::nothrow) WebGLTexture(texture);
+    obj->setPrivateData(cobj);
+    s.rval().setObject(obj);
     return true;
 }
-SE_BIND_FUNC(JSB_glGenTextures)
+SE_BIND_FUNC(JSB_glCreateTexture)
 
-static bool JSB_glGenBuffers(se::State& s) {
+static bool JSB_glTextureFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLTexture)", s.nativeThisObject());
+    WebGLTexture* cobj = (WebGLTexture*) s.nativeThisObject();
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glTextureFinalize)
+
+static bool JSB_glTextureGetID(se::State& s)
+{
+    WebGLTexture* cobj = (WebGLTexture*) s.nativeThisObject();
+    s.rval().setUint32(cobj->_id);
+    return true;
+}
+SE_BIND_PROP_GET(JSB_glTextureGetID)
+
+static bool JSB_glCreateBuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint buffer;
     JSB_GL_CHECK(glGenBuffers(1, &buffer));
-    s.rval().setUint32(buffer);
+
+    auto obj = se::Object::createObjectWithClass(__jsb_WebGLBuffer_class);
+    auto cobj = new (std::nothrow) WebGLBuffer(buffer);
+    obj->setPrivateData(cobj);
+    s.rval().setObject(obj);
     return true;
 }
-SE_BIND_FUNC(JSB_glGenBuffers)
+SE_BIND_FUNC(JSB_glCreateBuffer)
 
-static bool JSB_glGenRenderbuffers(se::State& s) {
+static bool JSB_glBufferFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLBuffer)", s.nativeThisObject());
+    WebGLBuffer* cobj = (WebGLBuffer*) s.nativeThisObject();
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glBufferFinalize)
+
+static bool JSB_glCreateRenderbuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint renderbuffers;
     JSB_GL_CHECK(glGenRenderbuffers(1, &renderbuffers));
-    s.rval().setUint32(renderbuffers);
+    auto obj = se::Object::createObjectWithClass(__jsb_WebGLRenderbuffer_class);
+    auto cobj = new (std::nothrow) WebGLRenderbuffer(renderbuffers);
+    obj->setPrivateData(cobj);
+    s.rval().setObject(obj);
     return true;
 }
-SE_BIND_FUNC(JSB_glGenRenderbuffers)
+SE_BIND_FUNC(JSB_glCreateRenderbuffer)
 
-static bool JSB_glGenFramebuffers(se::State& s) {
+static bool JSB_glRenderbufferFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLRenderBuffer)", s.nativeThisObject());
+    WebGLRenderbuffer* cobj = (WebGLRenderbuffer*) s.nativeThisObject();
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glRenderbufferFinalize)
+
+static bool JSB_glCreateFramebuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint framebuffers;
     JSB_GL_CHECK(glGenFramebuffers(1, &framebuffers));
-    s.rval().setUint32(framebuffers);
+    auto obj = se::Object::createObjectWithClass(__jsb_WebGLFramebuffer_class);
+    auto cobj = new (std::nothrow) WebGLFramebuffer(framebuffers);
+    obj->setPrivateData(cobj);
+    s.rval().setObject(obj);
     return true;
 }
-SE_BIND_FUNC(JSB_glGenFramebuffers)
+SE_BIND_FUNC(JSB_glCreateFramebuffer)
+
+static bool JSB_glFramebufferFinalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (WebGLFramebuffer)", s.nativeThisObject());
+    WebGLFramebuffer* cobj = (WebGLFramebuffer*) s.nativeThisObject();
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(JSB_glFramebufferFinalize)
 
 static bool JSB_glDeleteTextures(se::State& s) {
     const auto& args = s.args();
@@ -2603,74 +2820,63 @@ static bool JSB_glDeleteTextures(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLTexture* arg0 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glDeleteTextures(1, &arg0));
-
+    JSB_GL_CHECK(glDeleteTextures(1, &arg0->_id));
+    arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteTextures)
 
-static bool JSB_glDeleteBuffers(se::State& s) {
+static bool JSB_glDeleteBuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLBuffer* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glDeleteBuffers(1, &arg0));
-
+    GLuint bufferId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glDeleteBuffers(1, &bufferId));
+    arg0->_id = 0;
     return true;
 }
-SE_BIND_FUNC(JSB_glDeleteBuffers)
+SE_BIND_FUNC(JSB_glDeleteBuffer)
 
-static bool JSB_glDeleteRenderbuffers(se::State& s) {
+static bool JSB_glDeleteRenderbuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLRenderbuffer* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glDeleteRenderbuffers(1, &arg0));
-
+    GLuint renderBufferId = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glDeleteRenderbuffers(1, &renderBufferId));
+    arg0->_id = 0;
     return true;
 }
-SE_BIND_FUNC(JSB_glDeleteRenderbuffers)
+SE_BIND_FUNC(JSB_glDeleteRenderbuffer)
 
-static bool JSB_glDeleteFramebuffers(se::State& s) {
+static bool JSB_glDeleteFramebuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    if (args[0].isNullOrUndefined())
-    {
-        arg0 = __defaultFbo;
-    }
-    else
-    {
-        ok &= seval_to_uint32(args[0], &arg0 );
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-    }
-
-    JSB_GL_CHECK(glDeleteFramebuffers(1, &arg0));
-
+    WebGLFramebuffer* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint frameBufferId = arg0 != nullptr ? arg0->_id : __defaultFbo;
+    JSB_GL_CHECK(glDeleteFramebuffers(1, &frameBufferId));
+    arg0->_id = __defaultFbo;
     return true;
 }
-SE_BIND_FUNC(JSB_glDeleteFramebuffers)
+SE_BIND_FUNC(JSB_glDeleteFramebuffer)
 
 static bool JSB_glShaderSource(se::State& s) {
     const auto& args = s.args();
@@ -2678,11 +2884,14 @@ static bool JSB_glShaderSource(se::State& s) {
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0; std::string shaderSource;
+    WebGLShader* arg0;
+    std::string shaderSource;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0);
     ok &= seval_to_std_string(args[1], &shaderSource);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
     size_t firstLinePos = shaderSource.find("\n");
@@ -2699,26 +2908,28 @@ static bool JSB_glShaderSource(se::State& s) {
 #endif
 
     const GLchar* sources[] = { shaderSource.c_str() };
-    JSB_GL_CHECK(glShaderSource(arg0, 1, sources, nullptr));
+    JSB_GL_CHECK(glShaderSource(shaderId, 1, sources, nullptr));
 
     return true;
 }
 SE_BIND_FUNC(JSB_glShaderSource)
 
-static bool JSB_glGetShaderiv(se::State& s) {
+static bool JSB_glGetShaderParameter(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0, arg1;
+    WebGLShader* arg0;
+    uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_uint32(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLint ret = 0;
-    JSB_GL_CHECK(glGetShaderiv(arg0, arg1, &ret));
+    JSB_GL_CHECK(glGetShaderiv(shaderId, arg1, &ret));
 
     if (arg1 == GL_DELETE_STATUS || arg1 == GL_COMPILE_STATUS)
     {
@@ -2730,26 +2941,28 @@ static bool JSB_glGetShaderiv(se::State& s) {
     }
     return true;
 }
-SE_BIND_FUNC(JSB_glGetShaderiv)
+SE_BIND_FUNC(JSB_glGetShaderParameter)
 
-static bool JSB_glGetProgramiv(se::State& s) {
+static bool JSB_glGetProgramParameter(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0, arg1;
+    WebGLProgram* arg0;
+    uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLint ret;
-    JSB_GL_CHECK(glGetProgramiv(arg0, arg1, &ret));
+    JSB_GL_CHECK(glGetProgramiv(programId, arg1, &ret));
     s.rval().setInt32(ret);
     return true;
 }
-SE_BIND_FUNC(JSB_glGetProgramiv)
+SE_BIND_FUNC(JSB_glGetProgramParameter)
 
 static bool JSB_glGetProgramInfoLog(se::State& s) {
     const auto& args = s.args();
@@ -2757,16 +2970,15 @@ static bool JSB_glGetProgramInfoLog(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLProgram* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_INFO_LOG_LENGTH, &length));
+    JSB_GL_CHECK(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetProgramInfoLog(arg0, length, NULL, src));
-
+    JSB_GL_CHECK(glGetProgramInfoLog(programId, length, nullptr, src));
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
     return true;
@@ -2780,15 +2992,15 @@ static bool JSB_glGetShaderInfoLog(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLShader* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
-    JSB_GL_CHECK(glGetShaderiv(arg0, GL_INFO_LOG_LENGTH, &length));
+    JSB_GL_CHECK(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetShaderInfoLog(arg0, length, NULL, src));
+    JSB_GL_CHECK(glGetShaderInfoLog(shaderId, length, NULL, src));
 
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
@@ -2830,26 +3042,28 @@ static bool JSB_glGetActiveAttrib(se::State& s) {
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0, arg1;
+    WebGLProgram* arg0;
+    uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0);
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length));
+    JSB_GL_CHECK(glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length));
     GLchar* buffer = new (std::nothrow) GLchar[length];
     GLint size = -1;
     GLenum type = -1;
 
-    JSB_GL_CHECK(glGetActiveAttrib(arg0, arg1, length, NULL, &size, &type, buffer));
+    JSB_GL_CHECK(glGetActiveAttrib(programId, arg1, length, NULL, &size, &type, buffer));
 
-    se::HandleObject object(se::Object::createPlainObject());
+    se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
+    s.rval().setObject(object, true);
+
     object->setProperty("size", se::Value((int32_t)size));
     object->setProperty("type", se::Value((int32_t)type));
     object->setProperty("name", se::Value((char*)buffer));
-    s.rval().setObject(object.get());
-
     CC_SAFE_DELETE_ARRAY(buffer);
 
     return true;
@@ -2869,19 +3083,21 @@ static bool JSB_glGetActiveUniform(se::State& s) {
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0, arg1;
+    WebGLProgram* arg0;
+    uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
+    JSB_GL_CHECK(glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
     GLchar* buffer = new (std::nothrow) GLchar[length];
     GLint size = -1;
     GLenum type = -1;
 
-    JSB_GL_CHECK(glGetActiveUniform(arg0, arg1, length, NULL, &size, &type, buffer));
+    JSB_GL_CHECK(glGetActiveUniform(id, arg1, length, NULL, &size, &type, buffer));
 
     se::HandleObject object(se::Object::createPlainObject());
     object->setProperty("size", se::Value((int32_t)size));
@@ -2901,23 +3117,30 @@ static bool JSB_glGetAttachedShaders(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
+    WebGLProgram* arg0;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ATTACHED_SHADERS, &length));
+    JSB_GL_CHECK(glGetProgramiv(id, GL_ATTACHED_SHADERS, &length));
     GLuint* buffer = new (std::nothrow) GLuint[length];
     memset(buffer, 0, length * sizeof(GLuint));
     //Fix bug 2448, it seems that glGetAttachedShaders will crash if we send NULL to the third parameter (eg Windows), same as in lua binding
     GLsizei realShaderCount = 0;
-    JSB_GL_CHECK(glGetAttachedShaders(arg0, length, &realShaderCount, buffer));
+    JSB_GL_CHECK(glGetAttachedShaders(id, length, &realShaderCount, buffer));
 
     se::HandleObject jsobj(se::Object::createArrayObject(length));
-    for( int i=0; i<length; i++)
+
+    for (int i=0, index = 0; i<length; ++i)
     {
-        jsobj->setArrayElement(i, se::Value(buffer[i]));
+        auto iter = __shaders.find(buffer[i]);
+        if (iter != __shaders.end())
+        {
+            jsobj->setArrayElement(index, iter->second);
+            ++index;
+        }
     }
 
     s.rval().setObject(jsobj.get());
@@ -2993,18 +3216,21 @@ static bool JSB_glGetUniformfv(se::State& s) {
     SE_PRECONDITION2(argc == 2, false,"JSB_glGetUniformfv: Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0, arg1;
+    WebGLProgram* arg0;
+    uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    ok &= seval_to_native_ptr(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
 
     SE_PRECONDITION2(ok, false, "JSB_glGetUniformfv: Error processing arguments");
+    SE_PRECONDITION2(arg0 != nullptr, false, "WebGLProgram is null!");
 
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
     GLint activeUniforms;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_UNIFORMS, &activeUniforms));
+    JSB_GL_CHECK(glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &activeUniforms));
 
     GLsizei length;
-    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
+    JSB_GL_CHECK(glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
     GLchar* namebuffer = new (std::nothrow) GLchar[length+1];
     GLint size = -1;
     GLenum type = -1;
@@ -3012,8 +3238,8 @@ static bool JSB_glGetUniformfv(se::State& s) {
     bool isLocationFound = false;
     for (int i = 0; i  <  activeUniforms; ++i)
     {
-        JSB_GL_CHECK(glGetActiveUniform(arg0, i, length, NULL, &size, &type, namebuffer));
-        if(arg1 == glGetUniformLocation(arg0, namebuffer))
+        JSB_GL_CHECK(glGetActiveUniform(id, i, length, NULL, &size, &type, namebuffer));
+        if(arg1 == glGetUniformLocation(id, namebuffer))
         {
             isLocationFound = true;
             break;
@@ -3087,7 +3313,7 @@ static bool JSB_glGetUniformfv(se::State& s) {
     if( utype == GL_FLOAT)
     {
         GLfloat* param = new (std::nothrow) GLfloat[usize];
-        JSB_GL_CHECK(glGetUniformfv(arg0, arg1, param));
+        JSB_GL_CHECK(glGetUniformfv(id, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, param, usize * sizeof(GLfloat)));
         s.rval().setObject(obj);
@@ -3097,7 +3323,7 @@ static bool JSB_glGetUniformfv(se::State& s) {
     else if( utype == GL_INT )
     {
         GLint* param = new (std::nothrow) GLint[usize];
-        JSB_GL_CHECK(glGetUniformiv(arg0, arg1, param));
+        JSB_GL_CHECK(glGetUniformiv(id, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, param, usize * sizeof(GLint)));
         s.rval().setObject(obj);
@@ -3364,15 +3590,43 @@ bool JSB_register_opengl(se::Object* obj)
 {
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &__defaultFbo);
 
+    __jsb_WebGLTexture_class = se::Class::create("WebGLTexture", obj, nullptr, nullptr);
+    __jsb_WebGLTexture_class->defineFinalizeFunction(_SE(JSB_glTextureFinalize));
+    __jsb_WebGLTexture_class->defineProperty("_id", _SE(JSB_glTextureGetID), nullptr);
+    __jsb_WebGLTexture_class->install();
+
+    __jsb_WebGLProgram_class = se::Class::create("WebGLProgram", obj, nullptr, nullptr);
+    __jsb_WebGLProgram_class->defineFinalizeFunction(_SE(JSB_glProgramFinalize));
+    __jsb_WebGLProgram_class->install();
+
+    __jsb_WebGLBuffer_class = se::Class::create("WebGLBuffer", obj, nullptr, nullptr);
+    __jsb_WebGLBuffer_class->defineFinalizeFunction(_SE(JSB_glBufferFinalize));
+    __jsb_WebGLBuffer_class->install();
+
+    __jsb_WebGLRenderbuffer_class = se::Class::create("WebGLRenderbuffer", obj, nullptr, nullptr);
+    __jsb_WebGLRenderbuffer_class->defineFinalizeFunction(_SE(JSB_glRenderbufferFinalize));
+    __jsb_WebGLRenderbuffer_class->install();
+
+    __jsb_WebGLFramebuffer_class = se::Class::create("WebGLFramebuffer", obj, nullptr, nullptr);
+    __jsb_WebGLFramebuffer_class->defineFinalizeFunction(_SE(JSB_glFramebufferFinalize));
+    __jsb_WebGLFramebuffer_class->install();
+
+    __jsb_WebGLShader_class = se::Class::create("WebGLShader", obj, nullptr, nullptr);
+    __jsb_WebGLShader_class->defineFinalizeFunction(_SE(JSB_glShaderFinalize));
+    __jsb_WebGLShader_class->install();
+
+    __jsb_WebGLActiveInfo_class = se::Class::create("WebGLActiveInfo", obj, nullptr, nullptr);
+    __jsb_WebGLActiveInfo_class->install();
+
     // New WebGL functions, not present on OpenGL ES 2.0
     __glObj->defineFunction("getSupportedExtensions", _SE(JSB_glGetSupportedExtensions));
     __glObj->defineFunction("activeTexture", _SE(JSB_glActiveTexture));
-    __glObj->defineFunction("_attachShader", _SE(JSB_glAttachShader));
-    __glObj->defineFunction("_bindAttribLocation", _SE(JSB_glBindAttribLocation));
-    __glObj->defineFunction("_bindBuffer", _SE(JSB_glBindBuffer));
-    __glObj->defineFunction("_bindFramebuffer", _SE(JSB_glBindFramebuffer));
-    __glObj->defineFunction("_bindRenderbuffer", _SE(JSB_glBindRenderbuffer));
-    __glObj->defineFunction("_bindTexture", _SE(JSB_glBindTexture));
+    __glObj->defineFunction("attachShader", _SE(JSB_glAttachShader));
+    __glObj->defineFunction("bindAttribLocation", _SE(JSB_glBindAttribLocation));
+    __glObj->defineFunction("bindBuffer", _SE(JSB_glBindBuffer));
+    __glObj->defineFunction("bindFramebuffer", _SE(JSB_glBindFramebuffer));
+    __glObj->defineFunction("bindRenderbuffer", _SE(JSB_glBindRenderbuffer));
+    __glObj->defineFunction("bindTexture", _SE(JSB_glBindTexture));
     __glObj->defineFunction("blendColor", _SE(JSB_glBlendColor));
     __glObj->defineFunction("blendEquation", _SE(JSB_glBlendEquation));
     __glObj->defineFunction("blendEquationSeparate", _SE(JSB_glBlendEquationSeparate));
@@ -3386,20 +3640,20 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("clearDepth", _SE(JSB_glClearDepthf));
     __glObj->defineFunction("clearStencil", _SE(JSB_glClearStencil));
     __glObj->defineFunction("colorMask", _SE(JSB_glColorMask));
-    __glObj->defineFunction("_compileShader", _SE(JSB_glCompileShader));
+    __glObj->defineFunction("compileShader", _SE(JSB_glCompileShader));
     __glObj->defineFunction("compressedTexImage2D", _SE(JSB_glCompressedTexImage2D));
     __glObj->defineFunction("compressedTexSubImage2D", _SE(JSB_glCompressedTexSubImage2D));
     __glObj->defineFunction("copyTexImage2D", _SE(JSB_glCopyTexImage2D));
     __glObj->defineFunction("copyTexSubImage2D", _SE(JSB_glCopyTexSubImage2D));
-    __glObj->defineFunction("_createProgram", _SE(JSB_glCreateProgram));
-    __glObj->defineFunction("_createShader", _SE(JSB_glCreateShader));
+    __glObj->defineFunction("createProgram", _SE(JSB_glCreateProgram));
+    __glObj->defineFunction("createShader", _SE(JSB_glCreateShader));
     __glObj->defineFunction("cullFace", _SE(JSB_glCullFace));
-    __glObj->defineFunction("_deleteBuffer", _SE(JSB_glDeleteBuffers));
-    __glObj->defineFunction("_deleteFramebuffer", _SE(JSB_glDeleteFramebuffers));
-    __glObj->defineFunction("_deleteProgram", _SE(JSB_glDeleteProgram));
-    __glObj->defineFunction("_deleteRenderbuffer", _SE(JSB_glDeleteRenderbuffers));
-    __glObj->defineFunction("_deleteShader", _SE(JSB_glDeleteShader));
-    __glObj->defineFunction("_deleteTexture", _SE(JSB_glDeleteTextures));
+    __glObj->defineFunction("deleteBuffer", _SE(JSB_glDeleteBuffer));
+    __glObj->defineFunction("deleteFramebuffer", _SE(JSB_glDeleteFramebuffer));
+    __glObj->defineFunction("deleteProgram", _SE(JSB_glDeleteProgram));
+    __glObj->defineFunction("deleteRenderbuffer", _SE(JSB_glDeleteRenderbuffer));
+    __glObj->defineFunction("deleteShader", _SE(JSB_glDeleteShader));
+    __glObj->defineFunction("deleteTexture", _SE(JSB_glDeleteTextures));
     __glObj->defineFunction("depthFunc", _SE(JSB_glDepthFunc));
     __glObj->defineFunction("depthMask", _SE(JSB_glDepthMask));
     __glObj->defineFunction("depthRange", _SE(JSB_glDepthRangef));
@@ -3412,37 +3666,37 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("enableVertexAttribArray", _SE(JSB_glEnableVertexAttribArray));
     __glObj->defineFunction("finish", _SE(JSB_glFinish));
     __glObj->defineFunction("flush", _SE(JSB_glFlush));
-    __glObj->defineFunction("_framebufferRenderbuffer", _SE(JSB_glFramebufferRenderbuffer));
-    __glObj->defineFunction("_framebufferTexture2D", _SE(JSB_glFramebufferTexture2D));
+    __glObj->defineFunction("framebufferRenderbuffer", _SE(JSB_glFramebufferRenderbuffer));
+    __glObj->defineFunction("framebufferTexture2D", _SE(JSB_glFramebufferTexture2D));
     __glObj->defineFunction("frontFace", _SE(JSB_glFrontFace));
-    __glObj->defineFunction("_createBuffer", _SE(JSB_glGenBuffers));
-    __glObj->defineFunction("_createFramebuffer", _SE(JSB_glGenFramebuffers));
-    __glObj->defineFunction("_createRenderbuffer", _SE(JSB_glGenRenderbuffers));
-    __glObj->defineFunction("_createTexture", _SE(JSB_glGenTextures));
+    __glObj->defineFunction("createBuffer", _SE(JSB_glCreateBuffer));
+    __glObj->defineFunction("createFramebuffer", _SE(JSB_glCreateFramebuffer));
+    __glObj->defineFunction("createRenderbuffer", _SE(JSB_glCreateRenderbuffer));
+    __glObj->defineFunction("createTexture", _SE(JSB_glCreateTexture));
     __glObj->defineFunction("generateMipmap", _SE(JSB_glGenerateMipmap));
-    __glObj->defineFunction("_getActiveAttrib", _SE(JSB_glGetActiveAttrib));
-    __glObj->defineFunction("_getActiveUniform", _SE(JSB_glGetActiveUniform));
-    __glObj->defineFunction("_getAttachedShaders", _SE(JSB_glGetAttachedShaders));
-    __glObj->defineFunction("_getAttribLocation", _SE(JSB_glGetAttribLocation));
+    __glObj->defineFunction("getActiveAttrib", _SE(JSB_glGetActiveAttrib));
+    __glObj->defineFunction("getActiveUniform", _SE(JSB_glGetActiveUniform));
+    __glObj->defineFunction("getAttachedShaders", _SE(JSB_glGetAttachedShaders));
+    __glObj->defineFunction("getAttribLocation", _SE(JSB_glGetAttribLocation));
     __glObj->defineFunction("getError", _SE(JSB_glGetError));
-    __glObj->defineFunction("_getProgramInfoLog", _SE(JSB_glGetProgramInfoLog));
-    __glObj->defineFunction("_getProgramParameter", _SE(JSB_glGetProgramiv));
-    __glObj->defineFunction("_getShaderInfoLog", _SE(JSB_glGetShaderInfoLog));
-    __glObj->defineFunction("_getShaderSource", _SE(JSB_glGetShaderSource));
-    __glObj->defineFunction("_getShaderParameter", _SE(JSB_glGetShaderiv));
+    __glObj->defineFunction("getProgramInfoLog", _SE(JSB_glGetProgramInfoLog));
+    __glObj->defineFunction("getProgramParameter", _SE(JSB_glGetProgramParameter));
+    __glObj->defineFunction("getShaderInfoLog", _SE(JSB_glGetShaderInfoLog));
+    __glObj->defineFunction("getShaderSource", _SE(JSB_glGetShaderSource));
+    __glObj->defineFunction("getShaderParameter", _SE(JSB_glGetShaderParameter));
     __glObj->defineFunction("getTexParameter", _SE(JSB_glGetTexParameterfv));
-    __glObj->defineFunction("_getUniformLocation", _SE(JSB_glGetUniformLocation));
-    __glObj->defineFunction("_getUniform", _SE(JSB_glGetUniformfv));
+    __glObj->defineFunction("getUniformLocation", _SE(JSB_glGetUniformLocation));
+    __glObj->defineFunction("getUniform", _SE(JSB_glGetUniformfv));
     __glObj->defineFunction("hint", _SE(JSB_glHint));
     __glObj->defineFunction("isBuffer", _SE(JSB_glIsBuffer));
     __glObj->defineFunction("isEnabled", _SE(JSB_glIsEnabled));
-    __glObj->defineFunction("_isFramebuffer", _SE(JSB_glIsFramebuffer));
-    __glObj->defineFunction("_isProgram", _SE(JSB_glIsProgram));
-    __glObj->defineFunction("_isRenderbuffer", _SE(JSB_glIsRenderbuffer));
-    __glObj->defineFunction("_isShader", _SE(JSB_glIsShader));
-    __glObj->defineFunction("_isTexture", _SE(JSB_glIsTexture));
+    __glObj->defineFunction("isFramebuffer", _SE(JSB_glIsFramebuffer));
+    __glObj->defineFunction("isProgram", _SE(JSB_glIsProgram));
+    __glObj->defineFunction("isRenderbuffer", _SE(JSB_glIsRenderbuffer));
+    __glObj->defineFunction("isShader", _SE(JSB_glIsShader));
+    __glObj->defineFunction("isTexture", _SE(JSB_glIsTexture));
     __glObj->defineFunction("lineWidth", _SE(JSB_glLineWidth));
-    __glObj->defineFunction("_linkProgram", _SE(JSB_glLinkProgram));
+    __glObj->defineFunction("linkProgram", _SE(JSB_glLinkProgram));
     __glObj->defineFunction("pixelStorei", _SE(JSB_glPixelStorei));
     __glObj->defineFunction("polygonOffset", _SE(JSB_glPolygonOffset));
     __glObj->defineFunction("readPixels", _SE(JSB_glReadPixels));
@@ -3450,7 +3704,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("renderbufferStorage", _SE(JSB_glRenderbufferStorage));
     __glObj->defineFunction("sampleCoverage", _SE(JSB_glSampleCoverage));
     __glObj->defineFunction("scissor", _SE(JSB_glScissor));
-    __glObj->defineFunction("_shaderSource", _SE(JSB_glShaderSource));
+    __glObj->defineFunction("shaderSource", _SE(JSB_glShaderSource));
     __glObj->defineFunction("stencilFunc", _SE(JSB_glStencilFunc));
     __glObj->defineFunction("stencilFuncSeparate", _SE(JSB_glStencilFuncSeparate));
     __glObj->defineFunction("stencilMask", _SE(JSB_glStencilMask));
@@ -3480,7 +3734,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("uniformMatrix2fv", _SE(JSB_glUniformMatrix2fv));
     __glObj->defineFunction("uniformMatrix3fv", _SE(JSB_glUniformMatrix3fv));
     __glObj->defineFunction("uniformMatrix4fv", _SE(JSB_glUniformMatrix4fv));
-    __glObj->defineFunction("_useProgram", _SE(JSB_glUseProgram));
+    __glObj->defineFunction("useProgram", _SE(JSB_glUseProgram));
     __glObj->defineFunction("_validateProgram", _SE(JSB_glValidateProgram));
     __glObj->defineFunction("vertexAttrib1f", _SE(JSB_glVertexAttrib1f));
     __glObj->defineFunction("vertexAttrib1fv", _SE(JSB_glVertexAttrib1fv));
@@ -3494,6 +3748,10 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
     __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
     __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
+
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+        __shaders.clear();
+    });
 
     return true;
     
