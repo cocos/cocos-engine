@@ -10044,6 +10044,9 @@ var Device$2 = gfx.Device;
 var Model = renderer.Model;
 var InputAssembler = renderer.InputAssembler;
 
+// Add stage to renderer
+renderer.addStage('transparent');
+
 var renderEngine = {
   // core classes
   Device: Device$2,

@@ -13503,9 +13503,6 @@ var _a16_view = new Float32Array(16);
 var _a16_proj = new Float32Array(16);
 var _a16_viewProj = new Float32Array(16);
 
-// Add stage to renderer
-renderer.addStage('transparent');
-
 var ForwardRenderer = (function (superclass) {
   function ForwardRenderer (device, builtin) {
     superclass.call(this, device, builtin);
@@ -15057,6 +15054,9 @@ var Texture2D$4 = gfx.Texture2D;
 var Device$4 = gfx.Device;
 var Model$2 = renderer.Model;
 var InputAssembler$2 = renderer.InputAssembler;
+
+// Add stage to renderer
+renderer.addStage('transparent');
 
 var renderEngine = {
   // core classes
