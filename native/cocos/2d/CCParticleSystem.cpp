@@ -522,9 +522,6 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 }
 
                 _yCoordFlipped = dictionary.find("yCoordFlipped") == dictionary.end() ? 1 : dictionary.at("yCoordFlipped").asInt();
-
-                if( !this->_texture)
-                    CCLOGWARN("cocos2d: Warning: ParticleSystemQuad system without a texture");
             }
             ret = true;
         }
