@@ -2699,9 +2699,7 @@ static bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    SE_LOGD("JSB_glViewport: %d, %d, %d, %d\n", arg0, arg1, arg2, arg3);
-    JSB_GL_CHECK(glViewport((GLint)arg0 * 2 , (GLint)arg1 * 2, (GLsizei)arg2 *2 , (GLsizei)arg3 *2 ));
-
+    JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1, (GLsizei)arg2 , (GLsizei)arg3));
     return true;
 }
 SE_BIND_FUNC(JSB_glViewport)
