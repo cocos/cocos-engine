@@ -147,6 +147,7 @@ namespace {
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
     self.image = [[[NSImage alloc] initWithSize:NSMakeSize(width, height)] autorelease];
+    [self clear];
 }
 
 -(NSSize) measureText:(NSString*) text {
@@ -304,6 +305,17 @@ namespace {
     }
 }
 
+-(void) clear {
+    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+    uint8_t* buffer = nullptr;
+    buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
+    if (buffer)
+    {
+        memset(buffer, 0x00, textureSize);
+        _imageData.fastSet(buffer, textureSize);
+    }
+}
+
 @end
 
 NS_CC_BEGIN
@@ -344,6 +356,8 @@ void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
     [_impl recreateBufferWithWidth: __width height:__height];
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
