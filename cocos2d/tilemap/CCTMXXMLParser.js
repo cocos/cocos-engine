@@ -25,6 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/platform/CCSAXParser');
 require('../compression/ZipUtils');
 var Zlib = require('../compression/zlib.min');
 

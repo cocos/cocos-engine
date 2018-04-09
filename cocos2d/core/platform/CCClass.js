@@ -555,7 +555,7 @@ function getInitProps (attrs, propList) {
 }
 
 // simple test variable name
-var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+var IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 function compileProps (actualClass) {
     // init deferred properties
     var attrs = Attr.getClassAttrs(actualClass);

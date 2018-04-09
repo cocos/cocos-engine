@@ -37,11 +37,6 @@ exports.removed = function (audioEngine) {
 exports.deprecated = function (audioEngine) {
 
 	var musicId = -1;
-	var musicPath = 1;
-	var musicLoop = 1;
-	var musicVolume = 1;
-	var effectsVolume = 1;
-	var pauseIDCache = [];
 	js.get(audioEngine, 'rewindMusic', function () {
 		cc.warnID(1400, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
 		return function () {

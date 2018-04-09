@@ -172,7 +172,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
     },
 
     _initWithTileset: function(texture, tileset) {
-        if (!texture.isLoaded()) {
+        if (!texture.loaded) {
             texture.once('load', function () {
                 this._initWithTileset(texture, tileset);
             }, this);

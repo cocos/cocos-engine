@@ -208,16 +208,9 @@ var Texture2D = cc.Class({
          * @type {String}
          * @readonly
          */
+        // TODO - use nativeUrl directly
         this.url = "";
 
-        /**
-         * !#en
-         * Whether the texture is loaded or not
-         * !#zh
-         * 贴图是否已经成功加载
-         * @property loaded
-         * @type {Boolean}
-         */
         this.loaded = false;
         /**
          * !#en
@@ -300,12 +293,6 @@ var Texture2D = cc.Class({
     update(options) {
     },
 
-    /**
-     * Returns the texture's url.<br>
-     * The Texture object overrides the toString() method of the Object object; it does not inherit Object.prototype.toString(). For Texture objects, the toString() method returns a string representation of the object. JavaScript calls the toString() method automatically when a texture is to be represented as a text value or when a texture is referred to in a string concatenation.
-     * @method toString
-     * @return {String}
-     */
     toString () {
         return this.url || '';
     },
@@ -420,9 +407,7 @@ var Texture2D = cc.Class({
         // load image
         var self = this;
         cc.loader.load({
-            url: this.url,
-            // For image, we should skip loader otherwise it will load a new texture
-            skips: [ 'Loader' ],
+            url: this.url
         }, function (err, image) {
             if (image) {
                 if (CC_DEBUG && image instanceof cc.Texture2D) {
@@ -440,9 +425,12 @@ var Texture2D = cc.Class({
      * Check whether texture is loaded.
      * @method isLoaded
      * @returns {Boolean}
-     * @deprecated use loaded property instead
+     * @deprecated use `loaded` property instead
      */
     isLoaded: function () {
+        if (CC_DEBUG) {
+            cc.warn('Texture2D.isLoaded is deprecated, use `loaded` property instead please.');
+        }
         return this.loaded;
     },
 
@@ -1022,6 +1010,16 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
         };
     }
 });
+
+/**
+ * !#zh
+ * 当该资源加载成功后触发该事件
+ * !#en
+ * This event is emitted when the asset is loaded
+ *
+ * @event load
+ * @param {Event.EventCustom} event
+ */
 
 /**
  * Pixel format of the texture.

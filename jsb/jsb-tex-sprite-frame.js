@@ -108,13 +108,14 @@ cc.textureCache.removeTextureForKey = function (key) {
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
 cc.Texture2D.$super = cc.Asset;
 
+// polyfill static members
 [
     'WrapMode',
     'PixelFormat',
     'Filter',
     'extnames',
     'preventDeferredLoadDependents',
-    'preventPreloadNativeObject',
+    'preventPreloadNativeObject'
 ].forEach(function (key) {
     cc.Texture2D[key] = WebTexture[key];
 });
@@ -122,7 +123,18 @@ cc.Texture2D.$super = cc.Asset;
 prototype = cc.Texture2D.prototype;
 prototype._releaseTexture = prototype.releaseTexture;
 
+// polyfill prototype
 cc.js.addon(prototype, WebTexture.prototype);
+
+// polyfill inherited members
+[
+    '_setRawAsset',
+    'nativeUrl',
+    'toString'
+].forEach(function (inheritedProp) {
+    Object.defineProperty(prototype, inheritedProp, cc.js.getPropertyDescriptor(WebTexture.prototype, inheritedProp));
+});
+
 
 prototype._ctor = function () {
     cc.Asset.call(this);

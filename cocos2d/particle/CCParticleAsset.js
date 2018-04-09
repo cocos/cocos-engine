@@ -24,15 +24,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Asset = require('../core/assets/CCAsset');
+const Texture2D = require('../core/textures/CCTexture2D');
+
 /**
  * Class for particle asset handling.
  * @class ParticleAsset
- * @extends RawAsset
- *
+ * @extends Asset
  */
 var ParticleAsset = cc.Class({
     name: 'cc.ParticleAsset',
-    extends: cc.RawAsset,
+    extends: Asset,
+
+    properties: {
+        texture: {
+            default: null,
+            type: Texture2D
+        }
+    }
 });
 
 cc.ParticleAsset = module.exports = ParticleAsset;
