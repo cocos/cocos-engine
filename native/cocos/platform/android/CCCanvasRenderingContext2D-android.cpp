@@ -42,6 +42,7 @@ public:
         if (w < 1.0f || h < 1.0f)
             return;
         JniHelper::callObjectVoidMethod(_obj, _className, "recreateBuffer", w, h);
+        fillData();
     }
 
     void clearRect(float x, float y, float w, float h)
@@ -170,7 +171,7 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 {
     SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = new CanvasRenderingContext2DImpl();
-    _impl->recreateBuffer(width, height);
+    recreateBuffer();
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
@@ -183,6 +184,8 @@ void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
     _impl->recreateBuffer(__width, __height);
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
@@ -196,9 +199,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
     _impl->fillRect(x, y, width, height);
 
     if (_canvasBufferUpdatedCB != nullptr)
-    {
         _canvasBufferUpdatedCB(_impl->getDataRef());
-    }
 }
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
