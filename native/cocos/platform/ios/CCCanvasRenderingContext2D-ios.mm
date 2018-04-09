@@ -340,6 +340,8 @@ void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
     [_impl recreateBufferWithWidth: __width height:__height];
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
