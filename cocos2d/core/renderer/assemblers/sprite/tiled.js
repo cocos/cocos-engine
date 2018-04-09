@@ -139,7 +139,6 @@ module.exports = {
         let row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
         
-        node._updateWorldMatrix();
         let matrix = node._worldMatrix;
         let a = matrix.m00,
             b = matrix.m01,

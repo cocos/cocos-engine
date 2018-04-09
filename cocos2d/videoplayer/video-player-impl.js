@@ -366,7 +366,6 @@ let VideoPlayerImpl = cc.Class({
     updateMatrix (node) {
         if (!this._video || !this._visible) return;
 
-        node._updateWorldMatrix();
         var mat = node._worldMatrix;
         if (!this._forceUpdate &&
             this._m00 === mat.m00 && this._m01 === mat.m01 && this._m04 === mat.m04 && this._m05 === mat.m05 && this._m12 === mat.m12 && this._m13 === mat.m13 &&

@@ -291,8 +291,8 @@ let Camera = cc.Class({
     },
 
     onEnable () {
-        this.node.on('world-matrix-changed', this._onMatrixDirty, this);
         this._matrixDirty = true;
+        cc.director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
         
         if (game.renderType === game.RENDER_TYPE_WEBGL) {
             renderer.scene.addCamera(this._camera);
@@ -301,7 +301,7 @@ let Camera = cc.Class({
     },
 
     onDisable () {
-        this.node.off('world-matrix-changed', this._onMatrixDirty, this);
+        cc.director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
         if (game.renderType === game.RENDER_TYPE_WEBGL) {
             renderer.scene.removeCamera(this._camera);
@@ -432,17 +432,19 @@ let Camera = cc.Class({
         root = root || cc.director.getScene();
         if (!root) return null;
 
-        this.lateUpdate();
+        // force update node world matrix
+        this.node.getWorldMatrix(_mat4_temp_1);
+        this.afterDraw();
         renderer._walker.visit(root);
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 
-    lateUpdate: !CC_EDITOR && function () {
+    afterDraw: !CC_EDITOR && function () {
         let node = this.node;
-        node.getWorldMatrix(_mat4_temp_1);
         
-        if (!this._matrixDirty) return;
-        
+        if (!this._matrixDirty && !node._worldMatUpdated)
+            return;
+
         let camera = this._camera;
         let fov = Math.atan(Math.tan(this._fov/2) / this.zoomRatio)*2;
         camera.setFov(fov);
@@ -454,8 +456,8 @@ let Camera = cc.Class({
             height = targetTexture.height;
         }
 
-        _vec3_temp_1.x = _mat4_temp_1.m12;
-        _vec3_temp_1.y = _mat4_temp_1.m13;
+        _vec3_temp_1.x = node._worldMatrix.m12;
+        _vec3_temp_1.y = node._worldMatrix.m13;
         _vec3_temp_1.z = 0;
 
         node.z = height / 1.1566;

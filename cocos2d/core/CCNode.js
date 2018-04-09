@@ -35,6 +35,7 @@ const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
+const transformSys = require('./systems/transform');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -43,7 +44,6 @@ const POSITION_CHANGED = 'position-changed';
 const SIZE_CHANGED = 'size-changed';
 const ANCHOR_CHANGED = 'anchor-changed';
 const ROTATION_CHANGED = 'rotation-changed';
-const WORLD_MATRIX_CHANGED = 'world-matrix-changed';
 const SCALE_CHANGED = 'scale-changed';
 const CHILD_REORDER = 'child-reorder';
 
@@ -421,7 +421,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
-                        this._localMatDirty = true;
+                        transformSys.setNodeDirty(this);
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -464,7 +464,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
-                        this._localMatDirty = true;
+                        transformSys.setNodeDirty(this);
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -494,7 +494,7 @@ var Node = cc.Class({
                 if (value !== localPosition.z) {
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
-                        this._localMatDirty = true;
+                        transformSys.setNodeDirty(this);
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -524,7 +524,7 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
-                    this._localMatDirty = true;
+                    transformSys.setNodeDirty(this);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -557,7 +557,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
-                    this._localMatDirty = true;
+                    transformSys.setNodeDirty(this);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -590,7 +590,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
-                    this._localMatDirty = true;
+                    transformSys.setNodeDirty(this);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -625,7 +625,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
-                    this._localMatDirty = true;
+                    transformSys.setNodeDirty(this);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -651,7 +651,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
-                    this._localMatDirty = true;
+                    transformSys.setNodeDirty(this);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -676,7 +676,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
-                this._localMatDirty = true;
+                transformSys.setNodeDirty(this);
             }
         },
 
@@ -695,7 +695,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
-                this._localMatDirty = true;
+                transformSys.setNodeDirty(this);
             }
         },
 
@@ -908,8 +908,8 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
-        this._localMatDirty = true;
-        this._worldMatDirty = true;
+        this._localMatDirty = false;
+        this._worldMatDirty = false;
 
         this._cullingMask = 1 << this.groupIndex;
     },
@@ -983,6 +983,9 @@ var Node = cc.Class({
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // activate
+            // Force update transform
+            transformSys.setNodeDirty(this);
+            // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
             if (this._touchListener) {
@@ -1281,7 +1284,7 @@ var Node = cc.Class({
             testPt = cc.v2(point);
         }
 
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         math.vec2.transformMat4(testPt, testPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * this._contentSize.width;
@@ -1531,7 +1534,7 @@ var Node = cc.Class({
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
-        this._localMatDirty = true;
+        transformSys.setNodeDirty(this);
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1583,7 +1586,7 @@ var Node = cc.Class({
         if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
             this._scale.x = scaleX;
             this._scale.y = scaleY;
-            this._localMatDirty = true;
+            transformSys.setNodeDirty(this);
 
             var cache = this._hasListenerCache;
             if (cache && cache[SCALE_CHANGED]) {
@@ -1721,7 +1724,7 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this._localMatDirty = true;
+        transformSys.setNodeDirty(this);
         this.emit(ANCHOR_CHANGED);
     },
 
@@ -1789,7 +1792,7 @@ var Node = cc.Class({
             math.vec3.copy(this._position, pos);
         }
 
-        this._localMatDirty = true;
+        transformSys.setNodeDirty(this);
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1901,44 +1904,6 @@ var Node = cc.Class({
         }
     },
 
-    _calculWorldMatrix () {
-        // Avoid as much function call as possible
-        if (this._localMatDirty) {
-            this._updateLocalMatrix();
-        }
-        
-        // Assume parent world matrix is correct
-        if (this._parent) {
-            let parentMat = this._parent._worldMatrix;
-            math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        }
-        else {
-            math.mat4.copy(this._worldMatrix, this._matrix);
-        }
-        this._worldMatDirty = false;
-
-        this.emit(WORLD_MATRIX_CHANGED);
-
-        for (let i = 0, len = this._children.length; i < len; ++i) {
-            let child = this._children[i];
-            child._calculWorldMatrix();
-        }
-    },
-
-    _updateWorldMatrix () {
-        let curr = this;
-        let changedRoot = null;
-        while (curr) {
-            if (curr._localMatDirty || curr._worldMatDirty) {
-                changedRoot = curr;
-            }
-            curr = curr._parent;
-        }
-        if (changedRoot) {
-            changedRoot._calculWorldMatrix();
-        }
-    },
-
     /**
      * !#en
      * Get the local transform matrix (4x4), based on parent node coordinates
@@ -1967,7 +1932,7 @@ var Node = cc.Class({
      * node.getLocalMatrix(mat4);
      */
     getWorldMatrix (out) {
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         return math.mat4.copy(out, this._worldMatrix);
     },
 
@@ -1981,7 +1946,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpace(cc.v2(100, 100));
      */
     convertToNodeSpace (worldPoint) {
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         math.vec2.transformMat4(out, worldPoint, _mat4_temp);
@@ -2000,7 +1965,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpace(cc.v2(100, 100));
      */
     convertToWorldSpace (nodePoint) {
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         let out = new cc.Vec2(
             nodePoint.x - this._anchorPoint.x * this._contentSize.width,
             nodePoint.y - this._anchorPoint.y * this._contentSize.height
@@ -2022,7 +1987,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
     convertToNodeSpaceAR (worldPoint) {
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
@@ -2042,7 +2007,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
     convertToWorldSpaceAR (nodePoint) {
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         let out = new cc.Vec2();
         return math.vec2.transformMat4(out, nodePoint, this._worldMatrix);
     },
@@ -2116,7 +2081,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
@@ -2147,7 +2112,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         return AffineTrans.fromMat4(out, this._matrix);
     },
 
@@ -2190,7 +2155,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        this._updateWorldMatrix();
+        transformSys._updateWorldMatrix(this);
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
@@ -2259,7 +2224,7 @@ var Node = cc.Class({
      */
     getBoundingBoxToWorld () {
         if (this._parent) {
-            this._parent._updateWorldMatrix();
+            transformSys._updateWorldMatrix(this._parent);
             return this._getBoundingBoxTo(this._parent._worldMatrix);
         }
         else {
@@ -2398,9 +2363,6 @@ var Node = cc.Class({
     },
 
     onRestore: CC_EDITOR && function () {
-        this._localMatDirty = true;
-        this._worldMatDirty = true;
-
         this._onRestoreBase();
 
         var actionManager = cc.director.getActionManager();

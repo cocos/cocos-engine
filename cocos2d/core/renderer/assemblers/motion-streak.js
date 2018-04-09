@@ -104,7 +104,6 @@ var motionStreakAssembler = js.addon({
         let stroke = comp._stroke / 2;
 
         let node = comp.node;
-        node._updateWorldMatrix();
         let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
