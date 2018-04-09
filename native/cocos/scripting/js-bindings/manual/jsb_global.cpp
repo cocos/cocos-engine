@@ -89,11 +89,10 @@ void jsb_init_file_operation_delegate()
                     return;
                 }
                 
-                ZipFile* zip = ZipFile::createWithBuffer(data, dataLen);
-                if (zip) {
-                    ssize_t unpackedLen = 0;
-                    uint8_t* unpackedData = zip->getFileData("encrypt.js", &unpackedLen);
-                    
+                if (ZipUtils::isGZipBuffer(data,dataLen)) {
+                    uint8_t* unpackedData;
+                    ssize_t unpackedLen = ZipUtils::inflateMemory(data, dataLen,&unpackedData);
+
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                         return;
@@ -102,7 +101,6 @@ void jsb_init_file_operation_delegate()
                     readCallback(unpackedData, unpackedLen);
                     free(data);
                     free(unpackedData);
-                    delete zip;
                 }
                 else {
                     readCallback(data, dataLen);
@@ -131,11 +129,9 @@ void jsb_init_file_operation_delegate()
                     return "";
                 }
                 
-                ZipFile* zip = ZipFile::createWithBuffer(data, dataLen);
-                if (zip) {
-                    ssize_t unpackedLen = 0;
-                    uint8_t* unpackedData = zip->getFileData("encrypt.js", &unpackedLen);
-                    
+                if (ZipUtils::isGZipBuffer(data,dataLen)) {
+                    uint8_t* unpackedData;
+                    ssize_t unpackedLen = ZipUtils::inflateMemory(data, dataLen,&unpackedData);
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                         return "";
@@ -144,7 +140,6 @@ void jsb_init_file_operation_delegate()
                     std::string ret(reinterpret_cast<const char*>(unpackedData), unpackedLen);
                     free(unpackedData);
                     free(data);
-                    delete zip;
                     
                     return ret;
                 }
