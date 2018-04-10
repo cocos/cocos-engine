@@ -377,8 +377,8 @@ if (CC_DEBUG) {
                 "    set %s (value) {\n" +
                 "      ...\n" +
                 "    }",
-        "3656": "The default value of %s.%s must be an empty string. (changed since 1.8)",
-        "3657": "The value assigned to %s should be Texture2D object, not url string. Since 1.8,\n" +
+        "3656": "The default value of %s.%s must be an empty string. (changed since 1.10)",
+        "3657": "The value assigned to %s should be Texture2D object, not url string. Since 1.10`,\n" +
                 "you can declare a texture object directly in properties by using:\n" +
                 "{\n" +
                 "  default: null,\n" +
@@ -725,5 +725,6 @@ if (CC_DEBUG) {
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
+        "8401": "Since 1.10, `%s` accept cc.AudioClip instance directly, not a URL string. Please directly reference the AudioClip object in your script, or load cc.AudioClip by loader first. Don't use audio's URL anymore.",
     };
 }

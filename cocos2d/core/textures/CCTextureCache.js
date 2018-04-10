@@ -196,7 +196,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTexs = this._textures;
         var tex = locTexs[url];
         if (tex) {
-            if(tex.isLoaded()) {
+            if(tex.loaded) {
                 cb && cb.call(target, tex);
             }
             else {

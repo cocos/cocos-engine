@@ -147,20 +147,6 @@ sp.Skeleton = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
 
-        ///**
-        // * The url of atlas file.
-        // * @property {string} file
-        // */
-        //atlasFile: {
-        //    default: '',
-        //    url: cc.TextAsset,
-        //    notify: function () {
-        //        this.defaultSkin = '';
-        //        this.defaultAnimation = '';
-        //        this._applyAsset();
-        //    },
-        //},
-
         // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
         /**
          * !#en The name of default skin.
