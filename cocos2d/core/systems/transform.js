@@ -26,7 +26,7 @@
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
 
-module.exports = {
+let transformSys = {
     _dirtyNodes: [],
     _updatedNodes: [],
 
@@ -89,19 +89,21 @@ module.exports = {
         }
     },
 
+    _updateLevel (nodes) {
+        let node;
+        for (let i = 0, n = nodes.length; i < n; i++) {
+            node = nodes[i];
+            if (node._localMatDirty || node._worldMatDirty) {
+                this._calculWorldMatrix(node);
+            }
+        }
+        nodes.length = 0;
+    },
+
     update () {
         let levels = this._dirtyNodes;
         for (let i = 0, l = levels.length; i < l; i++) {
-            let nodes = levels[i];
-            if (nodes) {
-                for (let j = 0, n = nodes.length; j < n; j++) {
-                    let node = nodes[j];
-                    if (node._localMatDirty || node._worldMatDirty) {
-                        this._calculWorldMatrix(node);
-                    }
-                }
-                nodes.length = 0;
-            }
+            this._updateLevel(levels[i]);
         }
     },
 
@@ -112,3 +114,5 @@ module.exports = {
         this._updatedNodes.length = 0;
     }
 };
+
+module.exports = transformSys;

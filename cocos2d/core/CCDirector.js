@@ -30,6 +30,7 @@ const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const EventListeners = require('./event/event-listeners');
+const Obj = require('./platform/CCObject');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
 const transformSys = require('./systems/transform');
@@ -441,7 +442,7 @@ cc.Director.prototype = {
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
-        cc.Object._deferredDestroy();
+        Obj._deferredDestroy();
         CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
@@ -965,7 +966,7 @@ cc.Director.prototype = {
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
-                cc.Object._deferredDestroy();
+                Obj._deferredDestroy();
                 // Update transform for all dirty nodes
                 transformSys.update();
             }
