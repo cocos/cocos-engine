@@ -1918,6 +1918,9 @@ var Node = cc.Class({
         this._worldMatDirty = false;
 
         this.emit(WORLD_MATRIX_CHANGED);
+        if (this._renderComponent) {
+            this._renderComponent._onNodeWorldMatrixChanged();
+        }
 
         for (let i = 0, len = this._children.length; i < len; ++i) {
             let child = this._children[i];

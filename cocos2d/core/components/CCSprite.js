@@ -487,7 +487,6 @@ var Sprite = cc.Class({
 
         this.node.on('size-changed', this._onNodeSizeDirty, this);
         this.node.on('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.on('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     onDisable: function () {
@@ -495,7 +494,6 @@ var Sprite = cc.Class({
 
         this.node.off('size-changed', this._onNodeSizeDirty, this);
         this.node.off('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.off('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     _onNodeSizeDirty () {
@@ -504,7 +502,7 @@ var Sprite = cc.Class({
         }
     },
 
-    _onNodeMatrixDirty () {
+    _onNodeWorldMatrixChanged () {
         if (this._renderData) {
             this._renderData.worldMatDirty = true;
         }
