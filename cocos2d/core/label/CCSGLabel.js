@@ -491,13 +491,23 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _loadTTFFont: function(fontHandle) {
         var self = this;
-
-        var fontFamilyName = cc.CustomFontLoader._getFontFamily(fontHandle);
         var callback = function () {
             self._notifyLabelSkinDirty();
             self.emit('load');
         };
-        cc.CustomFontLoader.loadTTF(fontHandle, callback);
+
+        var fontFamilyName = "";
+        if (CC_WECHATGAME) {
+            fontFamilyName = wx.loadFont(fontHandle);        
+            //avoid the error in wechat devtool platform
+            if (!fontFamilyName) {
+                fontFamilyName = cc.CustomFontLoader._getFontFamily(fontHandle);
+            }
+            callback();
+        } else {
+            fontFamilyName = cc.CustomFontLoader._getFontFamily(fontHandle);
+            cc.CustomFontLoader.loadTTF(fontHandle, callback);
+        }
 
         return fontFamilyName;
     },

@@ -2497,6 +2497,15 @@ var Node = cc.Class({
 
         var sizeProvider = this._sizeProvider;
         if (sizeProvider) {
+            // sync status for records used in Timeline editor
+            var sgComponent = this.getComponent(cc._SGComponent);
+            if (sgComponent && sgComponent._sgNode === sizeProvider && !(sgComponent._objFlags & Flags.IsPreloadStarted)) {
+                sgComponent._removeSgNode();
+                this._sizeProvider = sizeProvider = null;
+            }
+        }
+
+        if (sizeProvider) {
             sizeProvider.setContentSize(this._contentSize);
             if (sizeProvider instanceof _ccsg.Node) {
                 sizeProvider.setAnchorPoint(this._anchorPoint);

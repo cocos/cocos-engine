@@ -350,6 +350,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this.scheduleUpdateWithPriority(1);
         _ccsg.Node.prototype.onEnter.call(this);
     },
+    
     /**
      * This is a hack function for performance, it's only available on Canvas mode. <br/>
      * It's very expensive to change color on Canvas mode, so if set it to true, particle system will ignore the changing color operation.
