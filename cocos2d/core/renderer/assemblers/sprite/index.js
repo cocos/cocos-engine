@@ -35,6 +35,7 @@ const slicedRenderUtil = require('./sliced');
 const tiledRenderUtil = require('./tiled');
 const radialFilledRenderUtil = require('./radial-filled');
 const barFilledRenderUtil = require('./bar-filled');
+const meshRenderUtil = require('./mesh');
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 let spriteAssembler = js.addon({
@@ -58,6 +59,9 @@ let spriteAssembler = js.addon({
                     util = barFilledRenderUtil;
                 }
                 break;
+            case SpriteType.MESH:
+                util = meshRenderUtil;
+                break;
         }
 
         return util;
@@ -65,7 +69,7 @@ let spriteAssembler = js.addon({
 
     updateRenderData (sprite) {
         let datas = sprite.__allocedDatas;
-        if (!sprite.spriteFrame) {
+        if (!sprite.spriteFrame || !sprite.getMaterial() || !sprite._renderData) {
             return datas;
         }
 

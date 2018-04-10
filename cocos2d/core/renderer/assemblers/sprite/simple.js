@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../components/CCSprite');
-
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
 
@@ -87,45 +85,43 @@ module.exports = js.addon({
     updateUVs (sprite) {
         let material = sprite.getMaterial();
         let renderData = sprite._renderData;
-        if (material && renderData) {
-            let data = renderData._data;
-            let texture = material.effect.getProperty('texture');
-            let texw = texture._width,
-                texh = texture._height;
-            let frame = sprite.spriteFrame;
-            let rect = frame._rect;
-            
-            if (frame._rotated) {
-                let l = texw === 0 ? 0 : rect.x / texw;
-                let r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-                let b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
-                let t = texh === 0 ? 0 : rect.y / texh;
-                data[0].u = l;
-                data[0].v = t;
-                data[1].u = l;
-                data[1].v = b;
-                data[2].u = r;
-                data[2].v = t;
-                data[3].u = r;
-                data[3].v = b;
-            }
-            else {
-                let l = texw === 0 ? 0 : rect.x / texw;
-                let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
-                let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
-                let t = texh === 0 ? 0 : rect.y / texh;
-                data[0].u = l;
-                data[0].v = b;
-                data[1].u = r;
-                data[1].v = b;
-                data[2].u = l;
-                data[2].v = t;
-                data[3].u = r;
-                data[3].v = t;
-            }
-            
-            renderData.uvDirty = false;
+        let data = renderData._data;
+        let texture = material.effect.getProperty('texture');
+        let texw = texture._width,
+            texh = texture._height;
+        let frame = sprite.spriteFrame;
+        let rect = frame._rect;
+        
+        if (frame._rotated) {
+            let l = texw === 0 ? 0 : rect.x / texw;
+            let r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
+            let b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            let t = texh === 0 ? 0 : rect.y / texh;
+            data[0].u = l;
+            data[0].v = t;
+            data[1].u = l;
+            data[1].v = b;
+            data[2].u = r;
+            data[2].v = t;
+            data[3].u = r;
+            data[3].v = b;
         }
+        else {
+            let l = texw === 0 ? 0 : rect.x / texw;
+            let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            let t = texh === 0 ? 0 : rect.y / texh;
+            data[0].u = l;
+            data[0].v = b;
+            data[1].u = r;
+            data[1].v = b;
+            data[2].u = l;
+            data[2].v = t;
+            data[3].u = r;
+            data[3].v = t;
+        }
+        
+        renderData.uvDirty = false;
     },
 
     updateWorldVerts (sprite) {
