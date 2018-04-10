@@ -34,117 +34,108 @@
 
 namespace {
 
+    const uint32_t GL_COMMAND_ACTIVE_TEXTURE = 0;
+    const uint32_t GL_COMMAND_ATTACH_SHADER = 1;
+    const uint32_t GL_COMMAND_BIND_ATTRIB_LOCATION = 2;
+    const uint32_t GL_COMMAND_BIND_BUFFER = 3;
+    const uint32_t GL_COMMAND_BIND_FRAME_BUFFER = 4;
+    const uint32_t GL_COMMAND_BIND_RENDER_BUFFER = 5;
+    const uint32_t GL_COMMAND_BIND_TEXTURE = 6;
+    const uint32_t GL_COMMAND_BLEND_COLOR = 7;
+    const uint32_t GL_COMMAND_BLEND_EQUATION = 8;
+    const uint32_t GL_COMMAND_BLEND_EQUATION_SEPARATE = 9;
+    const uint32_t GL_COMMAND_BLEND_FUNC = 10;
+    const uint32_t GL_COMMAND_BLEND_FUNC_SEPARATE = 11;
+    const uint32_t GL_COMMAND_BUFFER_DATA = 12;
+    const uint32_t GL_COMMAND_BUFFER_SUB_DATA = 13;
+    const uint32_t GL_COMMAND_CLEAR = 14;
+    const uint32_t GL_COMMAND_CLEAR_COLOR = 15;
+    const uint32_t GL_COMMAND_CLEAR_DEPTH = 16;
+    const uint32_t GL_COMMAND_CLEAR_STENCIL = 17;
+    const uint32_t GL_COMMAND_COLOR_MASK = 18;
+    const uint32_t GL_COMMAND_COMMIT = 19;
+    const uint32_t GL_COMMAND_COMPILE_SHADER = 20;
+    const uint32_t GL_COMMAND_COMPRESSED_TEX_IMAGE_2D = 21;
+    const uint32_t GL_COMMAND_COMPRESSED_TEX_SUB_IMAGE_2D = 22;
+    const uint32_t GL_COMMAND_COPY_TEX_IMAGE_2D = 23;
+    const uint32_t GL_COMMAND_COPY_TEX_SUB_IMAGE_2D = 24;
+    const uint32_t GL_COMMAND_CULL_FACE = 25;
+    const uint32_t GL_COMMAND_DELETE_BUFFER = 26;
+    const uint32_t GL_COMMAND_DELETE_FRAME_BUFFER = 27;
+    const uint32_t GL_COMMAND_DELETE_PROGRAM = 28;
+    const uint32_t GL_COMMAND_DELETE_RENDER_BUFFER = 29;
+    const uint32_t GL_COMMAND_DELETE_SHADER = 30;
+    const uint32_t GL_COMMAND_DELETE_TEXTURE = 31;
+    const uint32_t GL_COMMAND_DEPTH_FUNC = 32;
+    const uint32_t GL_COMMAND_DEPTH_MASK = 33;
+    const uint32_t GL_COMMAND_DEPTH_RANGE = 34;
+    const uint32_t GL_COMMAND_DETACH_SHADER = 35;
+    const uint32_t GL_COMMAND_DISABLE = 36;
+    const uint32_t GL_COMMAND_DISABLE_VERTEX_ATTRIB_ARRAY = 37;
+    const uint32_t GL_COMMAND_DRAW_ARRAYS = 38;
+    const uint32_t GL_COMMAND_DRAW_ELEMENTS = 39;
+    const uint32_t GL_COMMAND_ENABLE = 40;
+    const uint32_t GL_COMMAND_ENABLE_VERTEX_ATTRIB_ARRAY = 41;
+    const uint32_t GL_COMMAND_FINISH = 42;
+    const uint32_t GL_COMMAND_FLUSH = 43;
+    const uint32_t GL_COMMAND_FRAME_BUFFER_RENDER_BUFFER = 44;
+    const uint32_t GL_COMMAND_FRAME_BUFFER_TEXTURE_2D = 45;
+    const uint32_t GL_COMMAND_FRONT_FACE = 46;
+    const uint32_t GL_COMMAND_GENERATE_MIPMAP = 47;
+    const uint32_t GL_COMMAND_HINT = 48;
+    const uint32_t GL_COMMAND_LINE_WIDTH = 49;
+    const uint32_t GL_COMMAND_LINK_PROGRAM = 50;
+    const uint32_t GL_COMMAND_PIXEL_STOREI = 51;
+    const uint32_t GL_COMMAND_POLYGON_OFFSET = 52;
+    const uint32_t GL_COMMAND_RENDER_BUFFER_STORAGE = 53;
+    const uint32_t GL_COMMAND_SAMPLE_COVERAGE = 54;
+    const uint32_t GL_COMMAND_SCISSOR = 55;
+    const uint32_t GL_COMMAND_SHADER_SOURCE = 56;
+    const uint32_t GL_COMMAND_STENCIL_FUNC = 57;
+    const uint32_t GL_COMMAND_STENCIL_FUNC_SEPARATE = 58;
+    const uint32_t GL_COMMAND_STENCIL_MASK = 59;
+    const uint32_t GL_COMMAND_STENCIL_MASK_SEPARATE = 60;
+    const uint32_t GL_COMMAND_STENCIL_OP = 61;
+    const uint32_t GL_COMMAND_STENCIL_OP_SEPARATE = 62;
+    const uint32_t GL_COMMAND_TEX_IMAGE_2D = 63;
+    const uint32_t GL_COMMAND_TEX_PARAMETER_F = 64;
+    const uint32_t GL_COMMAND_TEX_PARAMETER_I = 65;
+    const uint32_t GL_COMMAND_TEX_SUB_IMAGE_2D = 66;
+    const uint32_t GL_COMMAND_UNIFORM_1F = 67;
+    const uint32_t GL_COMMAND_UNIFORM_1FV = 68;
+    const uint32_t GL_COMMAND_UNIFORM_1I = 69;
+    const uint32_t GL_COMMAND_UNIFORM_1IV = 70;
+    const uint32_t GL_COMMAND_UNIFORM_2F = 71;
+    const uint32_t GL_COMMAND_UNIFORM_2FV = 72;
+    const uint32_t GL_COMMAND_UNIFORM_2I = 73;
+    const uint32_t GL_COMMAND_UNIFORM_2IV = 74;
+    const uint32_t GL_COMMAND_UNIFORM_3F = 75;
+    const uint32_t GL_COMMAND_UNIFORM_3FV = 76;
+    const uint32_t GL_COMMAND_UNIFORM_3I = 77;
+    const uint32_t GL_COMMAND_UNIFORM_3IV = 78;
+    const uint32_t GL_COMMAND_UNIFORM_4F = 79;
+    const uint32_t GL_COMMAND_UNIFORM_4FV = 80;
+    const uint32_t GL_COMMAND_UNIFORM_4I = 81;
+    const uint32_t GL_COMMAND_UNIFORM_4IV = 82;
+    const uint32_t GL_COMMAND_UNIFORM_MATRIX_2FV = 83;
+    const uint32_t GL_COMMAND_UNIFORM_MATRIX_3FV = 84;
+    const uint32_t GL_COMMAND_UNIFORM_MATRIX_4FV = 85;
+    const uint32_t GL_COMMAND_USE_PROGRAM = 86;
+    const uint32_t GL_COMMAND_VALIDATE_PROGRAM = 87;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_1F = 88;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_2F = 89;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_3F = 90;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_4F = 91;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_1FV = 92;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_2FV = 93;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_3FV = 94;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_4FV = 95;
+    const uint32_t GL_COMMAND_VERTEX_ATTRIB_POINTER = 96;
+    const uint32_t GL_COMMAND_VIEW_PORT = 97;
+
     GLint __defaultFbo = 0;
 
-    class WebGLObject
-    {
-    public:
-        WebGLObject(GLuint id)
-        : _id(id)
-        {}
-
-        virtual ~WebGLObject()
-        {}
-
-        GLuint _id;
-    };
-
-    class WebGLTexture final : public WebGLObject
-    {
-    public:
-        WebGLTexture(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLTexture()
-        {
-            if (_id != 0)
-            {
-                SE_LOGD("Destroy WebGLTexture (%u) by GC\n", _id);
-                glDeleteTextures(1, &_id);
-            }
-        }
-    };
-
-    class WebGLBuffer final : public WebGLObject
-    {
-    public:
-        WebGLBuffer(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLBuffer()
-        {
-            if (_id != 0)
-            {
-                SE_LOGD("Destroy WebGLBuffer (%u) by GC\n", _id);
-                glDeleteBuffers(1, &_id);
-            }
-        }
-    };
-
-    class WebGLRenderbuffer final : public WebGLObject
-    {
-    public:
-        WebGLRenderbuffer(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLRenderbuffer()
-        {
-            if (_id != 0)
-            {
-                SE_LOGD("Destroy WebGLRenderbuffer (%u) by GC\n", _id);
-                glDeleteRenderbuffers(1, &_id);
-            }
-        }
-    };
-
-    class WebGLFramebuffer final : public WebGLObject
-    {
-    public:
-        WebGLFramebuffer(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLFramebuffer()
-        {
-            if (_id != __defaultFbo)
-            {
-                SE_LOGD("Destroy WebGLFramebuffer (%u) by GC\n", _id);
-                glDeleteFramebuffers(1, &_id);
-            }
-        }
-    };
-
-    class WebGLProgram final : public WebGLObject
-    {
-    public:
-        WebGLProgram(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLProgram()
-        {
-            if (_id != 0)
-            {
-                SE_LOGD("Destroy WebGLProgram (%u) by GC\n", _id);
-                glDeleteProgram(_id);
-            }
-        }
-    };
-
-    class WebGLShader final : public WebGLObject
-    {
-    public:
-        WebGLShader(GLuint id)
-        : WebGLObject(id)
-        {}
-        virtual ~WebGLShader()
-        {
-            if (_id != 0)
-            {
-                SE_LOGD("Destroy WebGLShader (%u) by GC\n", _id);
-                glDeleteShader(_id);
-            }
-        }
-    };
-
+    se::Class* __jsb_WebGLObject_class = nullptr;
     se::Class* __jsb_WebGLTexture_class = nullptr;
     se::Class* __jsb_WebGLBuffer_class = nullptr;
     se::Class* __jsb_WebGLRenderbuffer_class = nullptr;
@@ -156,8 +147,170 @@ namespace {
 
     std::unordered_map<GLuint, se::Value> __shaders;
 
+    class WebGLObject;
+
+    using WebGLObjectMap = std::unordered_map<GLuint, WebGLObject*>;
+    WebGLObjectMap __webglTextureMap;
+    WebGLObjectMap __webglBufferMap;
+    WebGLObjectMap __webglRenderbufferMap;
+    WebGLObjectMap __webglFramebufferMap;
+    WebGLObjectMap __webglProgramMap;
+    WebGLObjectMap __webglShaderMap;
+
     bool __unpackFlipY = false;
     bool __premultiplyAlpha = false;
+
+    class WebGLObject
+    {
+    public:
+        enum class Type {
+            TEXTURE,
+            BUFFER,
+            RENDER_BUFFER,
+            FRAME_BUFFER,
+            PROGRAM,
+            SHADER
+        };
+
+    protected:
+        WebGLObject(Type type, GLuint id)
+        : _type(type)
+        , _id(id)
+        {}
+
+    public:
+        virtual ~WebGLObject()
+        {}
+
+        GLuint _id;
+        Type _type;
+    };
+
+    void safeRemoveElementFromGLObjectMap(WebGLObjectMap& map, GLuint id)
+    {
+        auto iter = map.find(id);
+        if (iter != map.end()) {
+            if (iter->second->_type == WebGLObject::Type::FRAME_BUFFER)
+                iter->second->_id = __defaultFbo;
+            else
+                iter->second->_id = 0;
+            map.erase(iter);
+        }
+    }
+
+    class WebGLTexture final : public WebGLObject
+    {
+    public:
+        WebGLTexture(GLuint id)
+        : WebGLObject(Type::TEXTURE, id)
+        {
+            __webglTextureMap.emplace(id, this);
+        }
+        virtual ~WebGLTexture()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLTexture (%u) by GC\n", _id);
+                glDeleteTextures(1, &_id);
+                safeRemoveElementFromGLObjectMap(__webglTextureMap, _id);
+            }
+        }
+    };
+
+    class WebGLBuffer final : public WebGLObject
+    {
+    public:
+        WebGLBuffer(GLuint id)
+        : WebGLObject(Type::BUFFER, id)
+        {
+            __webglBufferMap.emplace(id, this);
+        }
+        virtual ~WebGLBuffer()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLBuffer (%u) by GC\n", _id);
+                glDeleteBuffers(1, &_id);
+                safeRemoveElementFromGLObjectMap(__webglBufferMap, _id);
+            }
+        }
+    };
+
+    class WebGLRenderbuffer final : public WebGLObject
+    {
+    public:
+        WebGLRenderbuffer(GLuint id)
+        : WebGLObject(Type::RENDER_BUFFER, id)
+        {
+            __webglRenderbufferMap.emplace(id, this);
+        }
+        virtual ~WebGLRenderbuffer()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLRenderbuffer (%u) by GC\n", _id);
+                glDeleteRenderbuffers(1, &_id);
+                safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, _id);
+            }
+        }
+    };
+
+    class WebGLFramebuffer final : public WebGLObject
+    {
+    public:
+        WebGLFramebuffer(GLuint id)
+        : WebGLObject(Type::FRAME_BUFFER, id)
+        {
+            __webglFramebufferMap.emplace(id, this);
+        }
+        virtual ~WebGLFramebuffer()
+        {
+            if (_id != __defaultFbo)
+            {
+                SE_LOGD("Destroy WebGLFramebuffer (%u) by GC\n", _id);
+                glDeleteFramebuffers(1, &_id);
+                safeRemoveElementFromGLObjectMap(__webglFramebufferMap, _id);
+            }
+        }
+    };
+
+    class WebGLProgram final : public WebGLObject
+    {
+    public:
+        WebGLProgram(GLuint id)
+        : WebGLObject(Type::PROGRAM, id)
+        {
+            __webglProgramMap.emplace(id, this);
+        }
+        virtual ~WebGLProgram()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLProgram (%u) by GC\n", _id);
+                glDeleteProgram(_id);
+                safeRemoveElementFromGLObjectMap(__webglProgramMap, _id);
+            }
+        }
+    };
+
+    class WebGLShader final : public WebGLObject
+    {
+    public:
+        WebGLShader(GLuint id)
+        : WebGLObject(Type::SHADER, id)
+        {
+            __webglShaderMap.emplace(id, this);
+        }
+        virtual ~WebGLShader()
+        {
+            if (_id != 0)
+            {
+                SE_LOGD("Destroy WebGLShader (%u) by GC\n", _id);
+                glDeleteShader(_id);
+                safeRemoveElementFromGLObjectMap(__webglShaderMap, _id);
+            }
+        }
+    };
 
     //FIXME:cjh: ONLY SUPPORT RGBA format now.
     void flipPixelsY(GLubyte *pixels, int bytesPerRow, int rows)
@@ -504,9 +657,12 @@ static bool JSB_glBindAttribLocation(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glBindAttribLocation)
 
+uint32_t __bindBufferCount = 0;
+
 // Arguments: GLenum, GLuint
 // Ret value: void
 static bool JSB_glBindBuffer(se::State& s) {
+    ++__bindBufferCount;
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
@@ -518,7 +674,6 @@ static bool JSB_glBindBuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint bufferId = arg1 != nullptr ? arg1->_id : 0;
     JSB_GL_CHECK(glBindBuffer((GLenum)arg0 , bufferId));
-
     return true;
 }
 SE_BIND_FUNC(JSB_glBindBuffer)
@@ -982,9 +1137,10 @@ static bool JSB_glCreateProgram(se::State& s) {
     GLuint id = glCreateProgram();
 
     auto obj = se::Object::createObjectWithClass(__jsb_WebGLProgram_class);
+    s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(id));
     auto cobj = new (std::nothrow) WebGLProgram(id);
     obj->setPrivateData(cobj);
-    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateProgram)
@@ -1013,9 +1169,9 @@ static bool JSB_glCreateShader(se::State& s) {
 
     se::Object* obj = se::Object::createObjectWithClass(__jsb_WebGLShader_class);
     s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(ret_val));
     WebGLShader* shader = new (std::nothrow) WebGLShader(ret_val);
     obj->setPrivateData(shader);
-
     __shaders.emplace(shader->_id, s.rval());
     return true;
 }
@@ -1064,6 +1220,7 @@ static bool JSB_glDeleteProgram(se::State& s) {
 
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteProgram(id));
+    safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
     arg0->_id = 0;
     return true;
 }
@@ -1086,6 +1243,8 @@ static bool JSB_glDeleteShader(se::State& s) {
     auto iter = __shaders.find(shaderId);
     if (iter != __shaders.end())
         __shaders.erase(iter);
+
+    safeRemoveElementFromGLObjectMap(__webglShaderMap, shaderId);
 
     return true;
 }
@@ -2699,6 +2858,7 @@ static bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+//    SE_LOGD("glViewport: %d, %d, %d, %d\n", arg0, arg1, arg2, arg3);
     JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1, (GLsizei)arg2 , (GLsizei)arg3));
     return true;
 }
@@ -2715,9 +2875,10 @@ static bool JSB_glCreateTexture(se::State& s) {
     JSB_GL_CHECK(glGenTextures(1, &texture));
 
     auto obj = se::Object::createObjectWithClass(__jsb_WebGLTexture_class);
+    s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(texture));
     auto cobj = new (std::nothrow) WebGLTexture(texture);
     obj->setPrivateData(cobj);
-    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateTexture)
@@ -2731,14 +2892,6 @@ static bool JSB_glTextureFinalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(JSB_glTextureFinalize)
 
-static bool JSB_glTextureGetID(se::State& s)
-{
-    WebGLTexture* cobj = (WebGLTexture*) s.nativeThisObject();
-    s.rval().setUint32(cobj->_id);
-    return true;
-}
-SE_BIND_PROP_GET(JSB_glTextureGetID)
-
 static bool JSB_glCreateBuffer(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
@@ -2748,9 +2901,10 @@ static bool JSB_glCreateBuffer(se::State& s) {
     JSB_GL_CHECK(glGenBuffers(1, &buffer));
 
     auto obj = se::Object::createObjectWithClass(__jsb_WebGLBuffer_class);
+    s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(buffer));
     auto cobj = new (std::nothrow) WebGLBuffer(buffer);
     obj->setPrivateData(cobj);
-    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateBuffer)
@@ -2769,12 +2923,13 @@ static bool JSB_glCreateRenderbuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
-    GLuint renderbuffers;
-    JSB_GL_CHECK(glGenRenderbuffers(1, &renderbuffers));
+    GLuint renderbuffer;
+    JSB_GL_CHECK(glGenRenderbuffers(1, &renderbuffer));
     auto obj = se::Object::createObjectWithClass(__jsb_WebGLRenderbuffer_class);
-    auto cobj = new (std::nothrow) WebGLRenderbuffer(renderbuffers);
+    s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(renderbuffer));
+    auto cobj = new (std::nothrow) WebGLRenderbuffer(renderbuffer);
     obj->setPrivateData(cobj);
-    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateRenderbuffer)
@@ -2793,12 +2948,13 @@ static bool JSB_glCreateFramebuffer(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
-    GLuint framebuffers;
-    JSB_GL_CHECK(glGenFramebuffers(1, &framebuffers));
+    GLuint framebuffer;
+    JSB_GL_CHECK(glGenFramebuffers(1, &framebuffer));
     auto obj = se::Object::createObjectWithClass(__jsb_WebGLFramebuffer_class);
-    auto cobj = new (std::nothrow) WebGLFramebuffer(framebuffers);
+    s.rval().setObject(obj, true);
+    obj->setProperty("_id", se::Value(framebuffer));
+    auto cobj = new (std::nothrow) WebGLFramebuffer(framebuffer);
     obj->setPrivateData(cobj);
-    s.rval().setObject(obj);
     return true;
 }
 SE_BIND_FUNC(JSB_glCreateFramebuffer)
@@ -2821,8 +2977,9 @@ static bool JSB_glDeleteTextures(se::State& s) {
     WebGLTexture* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    JSB_GL_CHECK(glDeleteTextures(1, &arg0->_id));
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glDeleteTextures(1, &id));
+    safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
     arg0->_id = 0;
     return true;
 }
@@ -2839,6 +2996,7 @@ static bool JSB_glDeleteBuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint bufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteBuffers(1, &bufferId));
+    safeRemoveElementFromGLObjectMap(__webglBufferMap, bufferId);
     arg0->_id = 0;
     return true;
 }
@@ -2855,6 +3013,7 @@ static bool JSB_glDeleteRenderbuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint renderBufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteRenderbuffers(1, &renderBufferId));
+    safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, renderBufferId);
     arg0->_id = 0;
     return true;
 }
@@ -2871,6 +3030,7 @@ static bool JSB_glDeleteFramebuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint frameBufferId = arg0 != nullptr ? arg0->_id : __defaultFbo;
     JSB_GL_CHECK(glDeleteFramebuffers(1, &frameBufferId));
+    safeRemoveElementFromGLObjectMap(__webglFramebufferMap, frameBufferId);
     arg0->_id = __defaultFbo;
     return true;
 }
@@ -3584,32 +3744,490 @@ static bool JSB_glGetShaderPrecisionFormat(se::State& s)
 }
 SE_BIND_FUNC(JSB_glGetShaderPrecisionFormat)
 
+static bool JSB_glFlushCommand(se::State& s) {
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
+
+    bool ok = false;
+    uint32_t floatValueCount = 0;
+    ok = seval_to_uint32(args[0], &floatValueCount);
+    SE_PRECONDITION2(ok, false, "arg0 isn't a number!");
+    GLsizei count = 0;
+    GLvoid* data = nullptr;
+    ok = JSB_get_arraybufferview_dataptr(args[1], &count, &data);
+    SE_PRECONDITION2(ok, false, "Convert arg1 as typed array failed!");
+    float* p = (float*)data;
+    float* end = p + floatValueCount;
+    int testindex = 0;
+    while (p < end) {
+        testindex++;
+        uint32_t commandID = (uint32_t)p[0];
+        if (commandID == GL_COMMAND_ACTIVE_TEXTURE) {
+            JSB_GL_CHECK(glActiveTexture((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_ATTACH_SHADER) {
+            JSB_GL_CHECK(glAttachShader((GLuint)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BIND_BUFFER) {
+            JSB_GL_CHECK(glBindBuffer((GLenum)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
+            JSB_GL_CHECK(glBindFramebuffer((GLenum)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BIND_RENDER_BUFFER) {
+            JSB_GL_CHECK(glBindRenderbuffer((GLenum)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BIND_TEXTURE) {
+            JSB_GL_CHECK(glBindTexture((GLenum)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BLEND_COLOR) {
+            JSB_GL_CHECK(glBlendColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_BLEND_EQUATION) {
+            JSB_GL_CHECK(glBlendEquation((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_BLEND_EQUATION_SEPARATE) {
+            JSB_GL_CHECK(glBlendEquationSeparate((GLenum)p[1], (GLenum)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BLEND_FUNC) {
+            JSB_GL_CHECK(glBlendFunc((GLenum)p[1], (GLenum)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_BLEND_FUNC_SEPARATE) {
+            JSB_GL_CHECK(glBlendFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_CLEAR) {
+            JSB_GL_CHECK(glClear((GLbitfield)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_CLEAR_COLOR) {
+            JSB_GL_CHECK(glClearColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_CLEAR_DEPTH) {
+            JSB_GL_CHECK(glClearDepthf(p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_CLEAR_STENCIL) {
+            JSB_GL_CHECK(glClearStencil((GLint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_COLOR_MASK) {
+            JSB_GL_CHECK(glColorMask((GLboolean)p[1], (GLboolean)p[2], (GLboolean)p[3], (GLboolean)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_COMPILE_SHADER) {
+            JSB_GL_CHECK(glCompileShader((GLuint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_COPY_TEX_IMAGE_2D) {
+            JSB_GL_CHECK(glCopyTexImage2D((GLenum)p[1], (GLint)p[2], (GLenum)p[3], (GLint)p[4], (GLint)p[5], (GLsizei)p[6], (GLsizei)p[7], (GLint)p[8]));
+            p += 9;
+        }
+        else if (commandID == GL_COMMAND_COPY_TEX_SUB_IMAGE_2D) {
+            JSB_GL_CHECK(glCopyTexSubImage2D((GLenum)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5], (GLint)p[6], (GLsizei)p[7], (GLsizei)p[8]));
+            p += 9;
+        }
+        else if (commandID == GL_COMMAND_CULL_FACE) {
+            JSB_GL_CHECK(glCullFace((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_BUFFER) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteBuffers(1, &id));
+            safeRemoveElementFromGLObjectMap(__webglBufferMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_FRAME_BUFFER) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteFramebuffers(1, &id));
+            safeRemoveElementFromGLObjectMap(__webglFramebufferMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_PROGRAM) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteProgram(id));
+            safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_RENDER_BUFFER) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteRenderbuffers(1, &id));
+            safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_SHADER) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteShader(id));
+            safeRemoveElementFromGLObjectMap(__webglShaderMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DELETE_TEXTURE) {
+            GLuint id = (GLuint)p[1];
+            JSB_GL_CHECK(glDeleteTextures(1, &id));
+            safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DEPTH_FUNC) {
+            JSB_GL_CHECK(glDepthFunc((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DEPTH_MASK) {
+            JSB_GL_CHECK(glDepthMask((GLboolean)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DEPTH_RANGE) {
+            JSB_GL_CHECK(glDepthRangef(p[1], p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_DETACH_SHADER) {
+            JSB_GL_CHECK(glDetachShader((GLuint)p[1], (GLuint) p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_DISABLE) {
+            JSB_GL_CHECK(glDisable((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DISABLE_VERTEX_ATTRIB_ARRAY) {
+            JSB_GL_CHECK(glDisableVertexAttribArray((GLuint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_DRAW_ARRAYS) {
+            JSB_GL_CHECK(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_DRAW_ELEMENTS) {
+            JSB_GL_CHECK(glDrawElements((GLenum)p[1], (GLsizei)p[2], (GLenum)p[3], (const GLvoid*)(intptr_t)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_ENABLE) {
+            JSB_GL_CHECK(glEnable((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_ENABLE_VERTEX_ATTRIB_ARRAY) {
+            JSB_GL_CHECK(glEnableVertexAttribArray((GLuint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_FINISH) {
+            JSB_GL_CHECK(glFinish());
+            p += 1;
+        }
+        else if (commandID == GL_COMMAND_FLUSH) {
+            JSB_GL_CHECK(glFlush());
+            p += 1;
+        }
+        else if (commandID == GL_COMMAND_FRAME_BUFFER_RENDER_BUFFER) {
+            JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_FRAME_BUFFER_TEXTURE_2D) {
+            JSB_GL_CHECK(glFramebufferTexture2D((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4], (GLint)p[5]));
+            p += 6;
+        }
+        else if (commandID == GL_COMMAND_FRONT_FACE) {
+            JSB_GL_CHECK(glFrontFace((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_GENERATE_MIPMAP) {
+            JSB_GL_CHECK(glGenerateMipmap((GLenum)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_HINT) {
+            JSB_GL_CHECK(glHint((GLenum)p[1], (GLenum)p[2]));;
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_LINE_WIDTH) {
+            JSB_GL_CHECK(glLineWidth(p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_LINK_PROGRAM) {
+            JSB_GL_CHECK(glLinkProgram((GLuint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_PIXEL_STOREI) {
+            GLenum arg0 = p[1];
+            GLint arg1 = (GLint)p[2];
+            if (arg0 == GL_UNPACK_FLIP_Y_WEBGL)
+            {
+                __unpackFlipY = arg1 == 0 ? false : true;
+                return true;
+            }
+            else if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
+            {
+                __premultiplyAlpha = arg1 == 0 ? false : true;
+                return true;
+            }
+            else if (arg0 == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
+            {
+                SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
+                return true;
+            }
+
+            JSB_GL_CHECK(glPixelStorei(arg0, arg1));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_POLYGON_OFFSET) {
+            JSB_GL_CHECK(glPolygonOffset(p[1], p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_RENDER_BUFFER_STORAGE) {
+            JSB_GL_CHECK(glRenderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_SAMPLE_COVERAGE) {
+            JSB_GL_CHECK(glSampleCoverage(p[1], (GLboolean)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_SCISSOR) {
+            JSB_GL_CHECK(glScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_FUNC) {
+            JSB_GL_CHECK(glStencilFunc((GLenum)p[1], (GLint)p[2], (GLuint)p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_FUNC_SEPARATE) {
+            JSB_GL_CHECK(glStencilFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLint)p[3], (GLuint)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_MASK) {
+            JSB_GL_CHECK(glStencilMask((GLuint)p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_MASK_SEPARATE) {
+            JSB_GL_CHECK(glStencilMaskSeparate((GLenum)p[1], (GLuint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_OP) {
+            JSB_GL_CHECK(glStencilOp((GLenum)p[1], (GLenum)p[2], (GLenum)p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_STENCIL_OP_SEPARATE) {
+            JSB_GL_CHECK(glStencilOpSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_TEX_PARAMETER_F) {
+            JSB_GL_CHECK(glTexParameterf((GLenum)p[1], (GLenum)p[2], p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_TEX_PARAMETER_I) {
+            JSB_GL_CHECK(glTexParameteri((GLenum)p[1], (GLenum)p[2], (GLint)p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_1F) {
+            JSB_GL_CHECK(glUniform1f((GLint)p[1], p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_2F) {
+            JSB_GL_CHECK(glUniform2f((GLint)p[1], p[2], p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_3F) {
+            JSB_GL_CHECK(glUniform3f((GLint)p[1], p[2], p[3], p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_4F) {
+            JSB_GL_CHECK(glUniform4f((GLint)p[1], p[2], p[3], p[4], p[5]));
+            p += 6;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_1I) {
+            JSB_GL_CHECK(glUniform1i((GLint)p[1], (GLint)p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_2I) {
+            JSB_GL_CHECK(glUniform2i((GLint)p[1], (GLint)p[2], (GLint)p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_3I) {
+            JSB_GL_CHECK(glUniform3i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_4I) {
+            JSB_GL_CHECK(glUniform4i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5]));
+            p += 6;
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_1FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glUniform1fv((GLint)p[1], elementCount, &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_2FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glUniform2fv((GLint)p[1], elementCount / 2, &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_3FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glUniform3fv((GLint)p[1], elementCount / 3, &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_4FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glUniform4fv((GLint)p[1], elementCount / 3, &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_1IV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            GLint* intBuf = (GLint*)malloc(elementCount);
+            for (GLsizei i = 0; i < elementCount; ++i)
+            {
+                intBuf[i] = p[3+i];
+            }
+            JSB_GL_CHECK(glUniform1iv((GLint)p[1], elementCount, intBuf));
+            free(intBuf);
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_2IV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            GLint* intBuf = (GLint*)malloc(elementCount);
+            for (GLsizei i = 0; i < elementCount; ++i)
+            {
+                intBuf[i] = p[3+i];
+            }
+            JSB_GL_CHECK(glUniform2iv((GLint)p[1], elementCount / 2, intBuf));
+            free(intBuf);
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_3IV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            GLint* intBuf = (GLint*)malloc(elementCount);
+            for (GLsizei i = 0; i < elementCount; ++i)
+            {
+                intBuf[i] = p[3+i];
+            }
+            JSB_GL_CHECK(glUniform3iv((GLint)p[1], elementCount / 3, intBuf));
+            free(intBuf);
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_4IV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            GLint* intBuf = (GLint*)malloc(elementCount);
+            for (GLsizei i = 0; i < elementCount; ++i)
+            {
+                intBuf[i] = p[3+i];
+            }
+            JSB_GL_CHECK(glUniform4iv((GLint)p[1], elementCount / 4, intBuf));
+            free(intBuf);
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_MATRIX_2FV) {
+            GLsizei elementCount = (GLsizei)p[3];
+            JSB_GL_CHECK(glUniformMatrix2fv((GLint)p[1], elementCount / 4, (GLboolean)p[2], &p[4]));
+            p += (elementCount + 4);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_MATRIX_3FV) {
+            GLsizei elementCount = (GLsizei)p[3];
+            JSB_GL_CHECK(glUniformMatrix3fv((GLint)p[1], elementCount / 9, (GLboolean)p[2], &p[4]));
+            p += (elementCount + 4);
+        }
+        else if (commandID == GL_COMMAND_UNIFORM_MATRIX_4FV) {
+            GLsizei elementCount = (GLsizei)p[3];
+            JSB_GL_CHECK(glUniformMatrix4fv((GLint)p[1], elementCount / 16, (GLboolean)p[2], &p[4]));
+            p += (elementCount + 4);
+        }
+        else if (commandID == GL_COMMAND_USE_PROGRAM) {
+            JSB_GL_CHECK(glUseProgram((GLuint) p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_VALIDATE_PROGRAM) {
+            JSB_GL_CHECK(glValidateProgram((GLuint) p[1]));
+            p += 2;
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1F) {
+            JSB_GL_CHECK(glVertexAttrib1f((GLuint)p[1], p[2]));
+            p += 3;
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2F) {
+            JSB_GL_CHECK(glVertexAttrib2f((GLuint)p[1], p[2], p[3]));
+            p += 4;
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3F) {
+            JSB_GL_CHECK(glVertexAttrib3f((GLuint)p[1], p[2], p[3], p[4]));
+            p += 5;
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4F) {
+            JSB_GL_CHECK(glVertexAttrib4f((GLuint)p[1], p[2], p[3], p[4], p[5]));
+            p += 6;
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glVertexAttrib1fv((GLint)p[1], &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glVertexAttrib2fv((GLint)p[1], &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glVertexAttrib3fv((GLint)p[1], &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4FV) {
+            GLsizei elementCount = (GLsizei)p[2];
+            JSB_GL_CHECK(glVertexAttrib4fv((GLint)p[1], &p[3]));
+            p += (elementCount + 3);
+        }
+        else if (commandID == GL_COMMAND_VERTEX_ATTRIB_POINTER) {
+            JSB_GL_CHECK(glVertexAttribPointer((GLuint)p[1], (GLint)p[2], (GLenum)p[3], (GLboolean)p[4], (GLsizei)p[5], (const GLvoid*)(GLintptr)p[6]));
+            p += 7;
+        }
+        else if (commandID == GL_COMMAND_VIEW_PORT) {
+            JSB_GL_CHECK(glViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            p += 5;
+        }
+        else {
+            assert(false);
+        }
+    }
+
+    return true;
+}
+SE_BIND_FUNC(JSB_glFlushCommand)
+
+
 bool JSB_register_opengl(se::Object* obj)
 {
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &__defaultFbo);
 
-    __jsb_WebGLTexture_class = se::Class::create("WebGLTexture", obj, nullptr, nullptr);
+    __jsb_WebGLObject_class = se::Class::create("WebGLObject", obj, nullptr, nullptr);
+    __jsb_WebGLObject_class->install();
+
+    se::Object* glObjectProto = __jsb_WebGLObject_class->getProto();
+
+    __jsb_WebGLTexture_class = se::Class::create("WebGLTexture", obj, glObjectProto, nullptr);
     __jsb_WebGLTexture_class->defineFinalizeFunction(_SE(JSB_glTextureFinalize));
-    __jsb_WebGLTexture_class->defineProperty("_id", _SE(JSB_glTextureGetID), nullptr);
     __jsb_WebGLTexture_class->install();
 
-    __jsb_WebGLProgram_class = se::Class::create("WebGLProgram", obj, nullptr, nullptr);
+    __jsb_WebGLProgram_class = se::Class::create("WebGLProgram", obj, glObjectProto, nullptr);
     __jsb_WebGLProgram_class->defineFinalizeFunction(_SE(JSB_glProgramFinalize));
     __jsb_WebGLProgram_class->install();
 
-    __jsb_WebGLBuffer_class = se::Class::create("WebGLBuffer", obj, nullptr, nullptr);
+    __jsb_WebGLBuffer_class = se::Class::create("WebGLBuffer", obj, glObjectProto, nullptr);
     __jsb_WebGLBuffer_class->defineFinalizeFunction(_SE(JSB_glBufferFinalize));
     __jsb_WebGLBuffer_class->install();
 
-    __jsb_WebGLRenderbuffer_class = se::Class::create("WebGLRenderbuffer", obj, nullptr, nullptr);
+    __jsb_WebGLRenderbuffer_class = se::Class::create("WebGLRenderbuffer", obj, glObjectProto, nullptr);
     __jsb_WebGLRenderbuffer_class->defineFinalizeFunction(_SE(JSB_glRenderbufferFinalize));
     __jsb_WebGLRenderbuffer_class->install();
 
-    __jsb_WebGLFramebuffer_class = se::Class::create("WebGLFramebuffer", obj, nullptr, nullptr);
+    __jsb_WebGLFramebuffer_class = se::Class::create("WebGLFramebuffer", obj, glObjectProto, nullptr);
     __jsb_WebGLFramebuffer_class->defineFinalizeFunction(_SE(JSB_glFramebufferFinalize));
     __jsb_WebGLFramebuffer_class->install();
 
-    __jsb_WebGLShader_class = se::Class::create("WebGLShader", obj, nullptr, nullptr);
+    __jsb_WebGLShader_class = se::Class::create("WebGLShader", obj, glObjectProto, nullptr);
     __jsb_WebGLShader_class->defineFinalizeFunction(_SE(JSB_glShaderFinalize));
     __jsb_WebGLShader_class->install();
 
@@ -3746,6 +4364,9 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
     __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
     __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
+
+    // NOT WEBGL standard functions
+    __glObj->defineFunction("flushCommand", _SE(JSB_glFlushCommand));
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
         __shaders.clear();
