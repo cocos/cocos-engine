@@ -370,8 +370,10 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    if (this._type === SpriteType.SIMPLE && this._renderData) {
+                    if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
+                        this._renderData) {
                         this._renderData.uvDirty = true;
+                        this._renderData.vertDirty = true;
                     }
                 }
             },
@@ -519,6 +521,7 @@ var Sprite = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.worldMatDirty = true;
+            this._renderData.material = this._material;
         }
     },
 
@@ -651,13 +654,18 @@ var Sprite = cc.Class({
         }
 
         var spriteFrame = this._spriteFrame;
-        if (spriteFrame && (!oldFrame || spriteFrame._texture !== oldFrame._texture)) {
-            if (spriteFrame.textureLoaded()) {
-                this._onTextureLoaded(null);
+        if (spriteFrame) {
+            if (!oldFrame || spriteFrame._texture !== oldFrame._texture) {
+                if (spriteFrame.textureLoaded()) {
+                    this._onTextureLoaded(null);
+                }
+                else {
+                    spriteFrame.once('load', this._onTextureLoaded, this);
+                    spriteFrame.ensureLoadTexture();
+                }
             }
             else {
-                spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
+                this._applySpriteSize();
             }
         }
 

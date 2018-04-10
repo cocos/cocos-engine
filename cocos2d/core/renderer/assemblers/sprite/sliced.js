@@ -43,45 +43,43 @@ module.exports = {
     updateUVs (sprite) {
         let material = sprite.getMaterial();
         let renderData = sprite._renderData;
-        if (material && renderData) {
-            let texture = material.effect.getProperty('texture');
-            let frame = sprite.spriteFrame;
-            let rect = frame._rect;
-            let atlasWidth = texture._width;
-            let atlasHeight = texture._height;
-        
-            // caculate texture coordinate
-            let leftWidth = frame.insetLeft;
-            let rightWidth = frame.insetRight;
-            let centerWidth = rect.width - leftWidth - rightWidth;
-            let topHeight = frame.insetTop;
-            let bottomHeight = frame.insetBottom;
-            let centerHeight = rect.height - topHeight - bottomHeight;
-        
-            // uv computation should take spritesheet into account.
-            let data = renderData._data;
-            if (frame._rotated) {
-                data[0].u = (rect.x) / atlasWidth;
-                data[0].v = (rect.y) / atlasHeight;
-                data[1].u = (bottomHeight + rect.x) / atlasWidth;
-                data[1].v = (leftWidth + rect.y) / atlasHeight;
-                data[2].u = (bottomHeight + centerHeight + rect.x) / atlasWidth;
-                data[2].v = (leftWidth + centerWidth + rect.y) / atlasHeight;
-                data[3].u = (rect.x + rect.height) / atlasWidth;
-                data[3].v = (rect.y + rect.width) / atlasHeight;
-            }
-            else {
-                data[0].u = (rect.x) / atlasWidth;
-                data[1].u = (leftWidth + rect.x) / atlasWidth;
-                data[2].u = (leftWidth + centerWidth + rect.x) / atlasWidth;
-                data[3].u = (rect.x + rect.width) / atlasWidth;
-                data[3].v = (rect.y) / atlasHeight;
-                data[2].v = (topHeight + rect.y) / atlasHeight;
-                data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
-                data[0].v = (rect.y + rect.height) / atlasHeight;
-            }
-            renderData.uvDirty = false;
+        let texture = material.effect.getProperty('texture');
+        let frame = sprite.spriteFrame;
+        let rect = frame._rect;
+        let atlasWidth = texture._width;
+        let atlasHeight = texture._height;
+    
+        // caculate texture coordinate
+        let leftWidth = frame.insetLeft;
+        let rightWidth = frame.insetRight;
+        let centerWidth = rect.width - leftWidth - rightWidth;
+        let topHeight = frame.insetTop;
+        let bottomHeight = frame.insetBottom;
+        let centerHeight = rect.height - topHeight - bottomHeight;
+    
+        // uv computation should take spritesheet into account.
+        let data = renderData._data;
+        if (frame._rotated) {
+            data[0].u = (rect.x) / atlasWidth;
+            data[0].v = (rect.y) / atlasHeight;
+            data[1].u = (bottomHeight + rect.x) / atlasWidth;
+            data[1].v = (leftWidth + rect.y) / atlasHeight;
+            data[2].u = (bottomHeight + centerHeight + rect.x) / atlasWidth;
+            data[2].v = (leftWidth + centerWidth + rect.y) / atlasHeight;
+            data[3].u = (rect.x + rect.height) / atlasWidth;
+            data[3].v = (rect.y + rect.width) / atlasHeight;
         }
+        else {
+            data[0].u = (rect.x) / atlasWidth;
+            data[1].u = (leftWidth + rect.x) / atlasWidth;
+            data[2].u = (leftWidth + centerWidth + rect.x) / atlasWidth;
+            data[3].u = (rect.x + rect.width) / atlasWidth;
+            data[3].v = (rect.y) / atlasHeight;
+            data[2].v = (topHeight + rect.y) / atlasHeight;
+            data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
+            data[0].v = (rect.y + rect.height) / atlasHeight;
+        }
+        renderData.uvDirty = false;
     },
     
     updateVerts (sprite) {
