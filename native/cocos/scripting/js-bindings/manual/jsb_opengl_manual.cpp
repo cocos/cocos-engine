@@ -3776,7 +3776,10 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
-            JSB_GL_CHECK(glBindFramebuffer((GLenum)p[1], (GLuint)p[2]));
+            GLuint fbo = (GLuint)p[2];
+            if (fbo == 0)
+                fbo = __defaultFbo;
+            JSB_GL_CHECK(glBindFramebuffer((GLenum)p[1], fbo));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_RENDER_BUFFER) {
