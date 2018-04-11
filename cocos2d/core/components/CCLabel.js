@@ -183,7 +183,7 @@ var Label = cc.Class({
     name: 'cc.Label',
     extends: RenderComponent,
 
-    ctor: function() {
+    ctor () {
         if (CC_EDITOR) {
             this._userDefinedFont = null;
         }
@@ -209,7 +209,8 @@ var Label = cc.Class({
             default: '',
             multiline: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
-            notify: function () {
+            notify (oldValue) {
+                if (this.string === oldValue) return;
                 this._updateRenderData();
             }
         },
@@ -223,7 +224,8 @@ var Label = cc.Class({
             default: HorizontalAlign.LEFT,
             type: HorizontalAlign,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
-            notify: function () {
+            notify  (oldValue) {
+                if (this.horizontalAlign === oldValue) return;
                 this._updateRenderData();
             },
             animatable: false
@@ -238,7 +240,8 @@ var Label = cc.Class({
             default: VerticalAlign.TOP,
             type: VerticalAlign,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
-            notify: function () {
+            notify (oldValue) {
+                if (this.verticalAlign === oldValue) return;
                 this._updateRenderData();
             },
             animatable: false
@@ -254,7 +257,7 @@ var Label = cc.Class({
             displayName: 'Actual Font Size',
             animatable: false,
             readonly: true,
-            get: function () {
+            get () {
                 return this._actualFontSize;
             }
         },
@@ -266,10 +269,12 @@ var Label = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
-            get: function(){
+            get () {
                 return this._fontSize;
             },
-            set: function(value){
+            set (value) {
+                if (this._fontSize === value) return;
+
                 this._fontSize = value;
                 this._updateRenderData();
             },
@@ -284,7 +289,8 @@ var Label = cc.Class({
         fontFamily: {
             default: "Arial",
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
-            notify: function () {
+            notify (oldValue) {
+                if (this.fontFamily === oldValue) return;
                 this._updateRenderData();
             },
             animatable: false
@@ -297,10 +303,11 @@ var Label = cc.Class({
          * @property {Number} lineHeight
          */
         lineHeight: {
-            get: function(){
+            get () {
                 return this._lineHeight;
             },
-            set: function(value){
+            set (value) {
+                if (this._lineHeight === value) return;
                 this._lineHeight = value;
                 this._updateRenderData();
             },
@@ -315,7 +322,8 @@ var Label = cc.Class({
             default: Overflow.NONE,
             type: Overflow,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.overflow',
-            notify: function () {
+            notify (oldValue) {
+                if (this.overflow === oldValue) return;
                 this._updateRenderData();
             },
             animatable: false
@@ -328,10 +336,12 @@ var Label = cc.Class({
          * @property {Boolean} enableWrapText
          */
         enableWrapText: {
-            get: function(){
+            get () {
                 return this._enableWrapText;
             },
-            set: function(value){
+            set (value) {
+                if (this._enableWrapText === value) return;
+
                 this._enableWrapText = value;
                 this._updateRenderData();
             },
@@ -348,10 +358,10 @@ var Label = cc.Class({
          * @property {Font} font
          */
         font: {
-            get: function () {
+            get () {
                 return this._N$file;
             },
-            set: function (value) {
+            set (value) {
                 if (this.font === value) return;
                 
                 //if delete the font, we should change isSystemFontUsed to true
@@ -399,10 +409,10 @@ var Label = cc.Class({
          * @property {Boolean} isSystemFontUsed
          */
         useSystemFont: {
-            get: function() {
+            get () {
                 return this._isSystemFontUsed;
             },
-            set: function(value) {
+            set (value) {
                 if (this._isSystemFontUsed === value) return;
                 
                 this.destroyRenderData(this._renderData);
@@ -437,10 +447,10 @@ var Label = cc.Class({
 
         _spacingX: 0,
         spacingX: {
-            get: function() {
+            get () {
                 return this._spacingX;
             },
-            set: function(value) {
+            set (value) {
                 this._spacingX = value;
                 this._updateRenderData();
             }
@@ -466,7 +476,7 @@ var Label = cc.Class({
         Overflow: Overflow,
     },
 
-    onEnable: function () {
+    onEnable () {
         this._super();
 
         this._updateAssembler();
@@ -498,7 +508,7 @@ var Label = cc.Class({
         }
     },
 
-    _activateMaterial: function () {
+    _activateMaterial () {
         if (this._material) return;
 
         this._resetAssemblerData();
@@ -534,7 +544,7 @@ var Label = cc.Class({
         this.setMaterial(material);
     },
 
-    _updateRenderData: function (force) {
+    _updateRenderData (force) {
         let renderData = this._renderData;
         if (renderData) {
             renderData.vertDirty = true;
@@ -547,15 +557,15 @@ var Label = cc.Class({
         }
     },
 
-    _enableBold: function (enabled) {
+    _enableBold (enabled) {
         this._isBold = !!enabled;
     },
 
-    _enableItalics: function (enabled) {
+    _enableItalics (enabled) {
         this._isItalic = !!enabled;
     },
 
-    _enableUnderline: function (enabled) {
+    _enableUnderline (enabled) {
         this._isUnderline = !!enabled;
     },
  });
