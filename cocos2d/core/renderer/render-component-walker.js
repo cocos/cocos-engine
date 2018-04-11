@@ -27,6 +27,7 @@ const macro = require('../platform/CCMacro');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
+const hierarchyChain = require('./utils/hierarchy-chain');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -97,9 +98,6 @@ var RenderComponentWalker = function (device, renderScene) {
     this._sortKey = 0;
 
     this._curCameraNode = null;
-
-    this._handleRender = this._handleRender.bind(this);
-    this._postHandleRender = this._postHandleRender.bind(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -136,31 +134,6 @@ RenderComponentWalker.prototype = {
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
-    },
-
-    _handleRender (node) {
-        if (node.groupIndex !== 0) {
-            this._curCameraNode = node;
-        }
-
-        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
-        node._cullingMask = 1 << group;
-
-        let comp = node._renderComponent;
-        if (comp) {
-            this.renderComp(comp, comp.constructor._assembler);
-        }
-    },
-
-    _postHandleRender (node) {
-        let comp = node._renderComponent;
-        if (comp && comp.constructor._postAssembler) {
-            this.renderComp(comp, comp.constructor._postAssembler);
-        }
-
-        if (this._curCameraNode === node) {
-            this._curCameraNode = null;
-        }
     },
 
     _flush (batchData) {
@@ -308,8 +281,34 @@ RenderComponentWalker.prototype = {
     visit (scene) {
         this.reset();
 
-        // Store all render components to _queue
-        scene.walk(this._handleRender, this._postHandleRender);
+        let entry = hierarchyChain.entry(scene);
+        while (entry) {
+            let comp = entry.comp;
+            let node = comp.node;
+            let assembler = null;
+
+            // Pre handle
+            if (!entry.post) {
+                if (node.groupIndex !== 0) {
+                    this._curCameraNode = node;
+                }
+
+                let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
+                node._cullingMask = 1 << group;
+
+                assembler = comp.constructor._assembler;
+            }
+            // Post handle
+            else {
+                if (this._curCameraNode === node) {
+                    this._curCameraNode = null;
+                }
+                assembler = comp.constructor._postAssembler;
+            }
+            this.renderComp(comp, assembler);
+
+            entry = entry.next;
+        }
         
         this._flush(_batchData);
     }

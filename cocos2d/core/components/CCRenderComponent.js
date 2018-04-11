@@ -26,6 +26,7 @@
 const Component = require('./CCComponent');
 const defaultVertexFormat = require('../renderer/vertex-format');
 const renderEngine = require('../renderer/render-engine');
+const hierarchyChain = require('../renderer/utils/hierarchy-chain');
 const RenderData = renderEngine.RenderData;
 
 /**
@@ -51,14 +52,28 @@ var RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
+        // Render component chain entries
+        this._chain = {
+            comp: this,
+            next: null
+        };
+        this._postChain = null;
     },
 
     onEnable () {
         this.node._renderComponent = this;
+        // When parent children order dirty, its children's render component will be rechained in sortAllChildren
+        if (!this.node.parent._reorderChildDirty) {
+            hierarchyChain.rebuildSelf(this.node);
+        }
     },
 
     onDisable () {
         this.node._renderComponent = null;
+        // When parent children order dirty, its children's render component will be rechained in sortAllChildren
+        if (!this.node.parent._reorderChildDirty) {
+            hierarchyChain.rebuildSelf(this.node);
+        }
     },
 
     onDestroy () {
