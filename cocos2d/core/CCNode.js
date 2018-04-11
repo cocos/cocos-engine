@@ -1007,6 +1007,10 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged (oldParent) {
+        if (oldParent) {
+            // Unchain from old parent
+            hierarchyChain.unchainSelf();
+        }
         this._updateOrderOfArrival();
         if (this._parent) {
             this._parent._delaySort();

@@ -284,10 +284,11 @@ RenderComponentWalker.prototype = {
         let entry = hierarchyChain.entry(scene);
         while (entry) {
             let comp = entry.comp;
+            let node = comp.node;
+            let assembler = null;
 
             // Pre handle
             if (!entry.post) {
-                let node = comp.node;
                 if (node.groupIndex !== 0) {
                     this._curCameraNode = node;
                 }
@@ -295,16 +296,16 @@ RenderComponentWalker.prototype = {
                 let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
                 node._cullingMask = 1 << group;
 
-                this.renderComp(comp, comp.constructor._assembler);
+                assembler = comp.constructor._assembler;
             }
             // Post handle
             else {
-                this.renderComp(comp, comp.constructor._postAssembler);
-
                 if (this._curCameraNode === node) {
                     this._curCameraNode = null;
                 }
+                assembler = comp.constructor._postAssembler;
             }
+            this.renderComp(comp, assembler);
 
             entry = entry.next;
         }

@@ -130,20 +130,30 @@ function findLast (node) {
 }
 
 module.exports = {
+    unchainSelf (node) {
+        let last = findLast(node);
+        if (last) {
+            // Chain previous node to the next node
+            let previous = findPrevious(node);
+            if (previous) {
+                previous.next = last.next;
+            }
+        }
+    },
+
     rebuildSelf (node) {
         let previous = findPrevious(node);
-        let next = findNext(node);
         let first = findFirst(node);
         // If first not exist, then no render component inside the current node
         if (first) {
+            let last = findLast(node);
             if (previous) {
+                last.next = previous.next;
                 previous.next = first;
             }
-            let last = findLast(node);
-            last.next = next;
-        }
-        else if (previous) {
-            previous.next = next;
+            else {
+                last.next = null;
+            }
         }
     },
 
