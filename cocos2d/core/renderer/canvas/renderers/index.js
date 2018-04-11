@@ -29,14 +29,18 @@ let Sprite = require('../../../components/CCSprite');
 let Label = require('../../../components/CCLabel');
 let Mask = require('../../../components/CCMask');
 let RichText = require('../../../components/CCRichText');
+let Graphics = require('../../../graphics/graphics');
+
 // the following should be placed into their own module folder
-// let Graphics = require('../../../graphics/graphics');
 // let ParticleSystem = require('../../../../particle/CCParticleSystem');
 // let TiledLayer = require('../../../../tilemap/CCTiledLayer');
 // let Skeleton = require('../../../../../extensions/spine/Skeleton');
 // let Armature = require('../../../../../extensions/dragonbones/ArmatureDisplay');
 
-let spriteRenderer = require('./sprite/');
+let spriteRenderer = require('./sprite');
+let labelRenderer = require('./label');
+let graphicsRenderer = require('./graphics');
+let maskRenderer = require('./mask');
 
 let map = {};
 let postMap = {};
@@ -48,13 +52,14 @@ function addRenderer (Component, handler, postHandler) {
         postMap[name] = postHandler;
     }
     Component._assembler = handler;
-    Component._postAssembler = handler;
+    Component._postAssembler = postHandler;
 }
 
 addRenderer(Sprite, spriteRenderer);
-addRenderer(Label, null);
-addRenderer(Mask, null);
+addRenderer(Label, labelRenderer);
+addRenderer(Mask, maskRenderer.beforeHandler, maskRenderer.afterHandler);
 addRenderer(RichText, null);
+addRenderer(Graphics, graphicsRenderer);
 
 module.exports = {
     map,

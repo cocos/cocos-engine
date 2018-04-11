@@ -2,7 +2,7 @@
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -13,7 +13,7 @@
 
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,5 +23,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCMotionStreak');
-require('./motion-streak-assembler');
+const ttf = require('./ttf');
+const bmfont = require('./bmfont');
+
+module.exports = {
+    getAssembler (comp) {
+        let assembler = ttf;
+        
+        if (comp.font instanceof cc.BitmapFont) {
+            assembler = bmfont;
+        }
+
+        return assembler;
+    },
+
+    createData (comp) {
+        return comp._assembler.createData(comp);
+    },
+
+    draw (ctx, comp) {
+        // Check whether need to render
+        if (!comp._texture) {
+            return 0;
+        }
+
+        let assembler = comp._assembler;
+        if (!assembler) return 0;
+        
+        assembler.update(comp);
+        return assembler.draw(ctx, comp);
+    }
+};

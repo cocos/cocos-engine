@@ -153,6 +153,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
          */
         this.insetRight = 0;
 
+        this.vertices = null;
+
         this._texture = null;
         this._textureFilename = '';
 
@@ -459,6 +461,18 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
+    _normalizeUV () {
+        let vertices = this.vertices;
+        let tw = this._texture.width;
+        let th = this._texture.height;
+        vertices.nu = [];
+        vertices.nv = [];
+        for (let i = 0; i < vertices.u.length; i++) {
+            vertices.nu[i] = vertices.u[i]/tw;
+            vertices.nv[i] = vertices.v[i]/th;
+        }
+    },
+
     // SERIALIZATION
 
     _serialize: CC_EDITOR && function (exporting) {
@@ -486,6 +500,18 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this.insetBottom !== 0) {
             capInsets = [this.insetLeft, this.insetTop, this.insetRight, this.insetBottom];
         }
+
+        let vertices;
+        if (this.vertices) {
+            vertices = {
+                triangles: this.vertices.triangles,
+                x: this.vertices.x,
+                y: this.vertices.y,
+                u: this.vertices.u,
+                v: this.vertices.v
+            };
+        }
+
         return {
             name: this._name,
             texture: uuid || undefined,
@@ -494,7 +520,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             offset: offset ? [offset.x, offset.y] : undefined,
             originalSize: size ? [size.width, size.height] : undefined,
             rotated: this._rotated ? 1 : undefined,
-            capInsets: capInsets
+            capInsets: capInsets,
+            vertices: vertices
         };
     },
 
@@ -522,6 +549,11 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._atlasUuid = data.atlas;
         }
 
+        if (data.vertices) {
+            this.vertices = data.vertices;
+            this.on('load', this._normalizeUV, this);
+        }
+
         // load texture via _textureSetter
         var textureUuid = data.texture;
         if (textureUuid) {
@@ -536,8 +568,6 @@ proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;
 
-if (!CC_JSB) {
-    cc.SpriteFrame = SpriteFrame;
-}
+cc.SpriteFrame = SpriteFrame;
 
 module.exports = SpriteFrame;

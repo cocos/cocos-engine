@@ -22,26 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { screenWidth, screenHeight, devicePixelRatio } = {screenWidth: window.innerWidth, screenHeight: window.innerHeight, devicePixelRatio: 1};//cjh wx.getSystemInfoSync()
-
-const innerWidth = screenWidth
-const innerHeight = screenHeight
-const screen = {
-  availWidth: innerWidth,
-  availHeight: innerHeight
+ 
+class DOMRect {
+	constructor(x, y, width, height) {
+		this.x = x ? x : 0;
+		this.y = y ? y : 0;
+		this.width = width ? width : 0;
+		this.height = height ? height : 0;
+		this.left = this.x;
+		this.top = this.y;
+		this.right = this.x + this.width;
+		this.bottom = this.y + this.height;
+	}
 }
-const performance = null//cjh wx.getPerformance()
-const ontouchstart = null
-const ontouchmove = null
-const ontouchend = null
 
-module.exports = {
-    innerWidth: innerWidth,
-    innerHeight: innerHeight,
-    devicePixelRatio: devicePixelRatio,
-    screen: screen,
-    performance: performance,
-    ontouchstart: ontouchstart,
-    ontouchmove: ontouchmove,
-    ontouchend: ontouchend
-};
+module.exports = DOMRect;

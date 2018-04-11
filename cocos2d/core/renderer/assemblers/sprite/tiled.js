@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../components/CCSprite');
-
 module.exports = {
     createData (sprite) {
         return sprite.requestRenderData();
@@ -35,7 +33,6 @@ module.exports = {
         if (!renderData.uvDirty && !renderData.vertDirty) return;
 
         let material = sprite.getMaterial();
-        if (!material || !renderData) return;
 
         let texture = material.effect.getProperty('texture');
         let texw = texture._width,

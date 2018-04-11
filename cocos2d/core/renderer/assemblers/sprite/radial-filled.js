@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../components/CCSprite');
 const simpleRenderUtil = require('./simple');
 
 const PI_2 = Math.PI * 2;

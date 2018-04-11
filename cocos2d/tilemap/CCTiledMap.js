@@ -428,6 +428,12 @@ let TiledMap = cc.Class({
             // refresh layer entities
             this._applyFile();
         }
+
+        this.node.on('anchor-changed', this._syncAnchorPoint, this);
+    },
+
+    onDisable () {
+        this.node.off('anchor-changed', this._syncAnchorPoint, this);
     },
 
     _applyFile () {
@@ -457,6 +463,13 @@ let TiledMap = cc.Class({
                 cc.logID(7213);
 
             this._buildWithMapInfo(mapInfo);
+        }
+    },
+
+    _syncAnchorPoint () {
+        let anchor = this.node.getAnchorPoint();
+        for (let i = 0, l = this._layers.length; i < l; i++) {
+            this._layers[i].node.setAnchorPoint(anchor);
         }
     },
     
@@ -491,7 +504,6 @@ let TiledMap = cc.Class({
                 if (!child) {
                     child = new cc.Node();
                     child.name = name;
-                    child.setAnchorPoint(0.5, 0.5);
                     
                     node.addChild(child);
                 }
@@ -509,8 +521,8 @@ let TiledMap = cc.Class({
                     layerInfo.ownTiles = false;
 
                     // update content size with the max size
-                    this.width = Math.max(this.width, child.width);
-                    this.height = Math.max(this.height, child.height);
+                    this.node.width = Math.max(this.node.width, child.width);
+                    this.node.height = Math.max(this.node.height, child.height);
 
                     layers.push(layer);
                 }
@@ -525,17 +537,8 @@ let TiledMap = cc.Class({
                 }
             }
         }
-    },
 
-    _parseLayer (layerInfo, mapInfo) {
-        let node = new cc.Node();
-        let layer = node.addComponent(cc.TiledLayer);
-        let tileset = this._tilesetForLayer(layerInfo, mapInfo);
-        // tell the layerinfo to release the ownership of the tiles map.
-        layer.init(tileset, layerInfo, mapInfo);
-        layerInfo.ownTiles = false;
-        
-        return node;
+        this._syncAnchorPoint();
     },
 
     _tilesetForLayer (layerInfo, mapInfo) {

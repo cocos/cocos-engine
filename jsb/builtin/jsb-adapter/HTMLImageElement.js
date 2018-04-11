@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
 const HTMLElement = require('./HTMLElement');
 const Event = require('./Event');
 
@@ -76,6 +77,18 @@ class HTMLImageElement extends HTMLElement {
 
     get src() {
         return this._src;
+    }
+
+    get clientWidth() {
+        return this.width;
+    }
+
+    get clientHeight() {
+        return this.height;
+    }
+
+    getBoundingClientRect() {
+        return new DOMRect(0, 0, this.width, this.height);
     }
 }
 

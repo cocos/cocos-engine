@@ -25,8 +25,6 @@
 
 const js = require('../../platform/js');
 const renderers = require('./renderers');
-const rendererMap = renderers.map;
-const postRendererMap = renderers.postMap;
 
 let RenderComponentWalker = function (device, defaultCamera) {
     this._device = device;
@@ -50,18 +48,18 @@ RenderComponentWalker.prototype = {
 
         let comp = node._renderComponent;
         let opacity = node.opacity;
-        let compName = js.getClassName(comp);
-        if (opacity && compName && rendererMap[compName]) {
-            this._render(comp, rendererMap[compName]);
+        let assembler = comp && comp.constructor._assembler;
+        if (opacity && assembler) {
+            this._render(comp, assembler);
         }
     },
 
     _postHandleRender (node) {
         let comp = node._renderComponent;
         let opacity = node.opacity;
-        let compName = js.getClassName(comp);
-        if (opacity && compName && postRendererMap[compName]) {
-            this._render(comp, postRendererMap[compName]);
+        let postAssembler = comp && comp.constructor._postAssembler;
+        if (opacity && postAssembler) {
+            this._render(comp, postAssembler);
         }
     },
 

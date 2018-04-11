@@ -22,10 +22,20 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
 function inject () {
     window.top = window.parent = window
 
+    window.ontouchstart = null;
+    window.ontouchmove = null;
+    window.ontouchend = null;
+    window.ontouchcancel = null;
+
+    window.pageXOffset = window.pageYOffset = window.clientTop = window.clientLeft = 0;
+
+    window.location = require('./location');
     window.document = require('./document');
+    window.Element = require('./Element');
     window.HTMLElement = require('./HTMLElement');
     window.HTMLCanvasElement = require('./HTMLCanvasElement');
     window.HTMLImageElement = require('./HTMLImageElement');
@@ -38,17 +48,29 @@ function inject () {
     window.Image = require('./Image');
     window.Audio = require('./Audio');
     window.FileReader = require('./FileReader');
-    window.location = require('./location');
     window.FontFace = require('./FontFace');
     window.FontFaceSet = require('./FontFaceSet');
     window.EventTarget = require('./EventTarget');
     window.Event = require('./Event');
     window.TouchEvent = require('./TouchEvent');
 
-    window.ontouchstart = null;
-    window.ontouchmove = null;
-    window.ontouchend = null;
-    window.ontouchcancel = null;
+    window.devicePixelRatio = 1.0;
+    window.screen = {
+        availTop: 0,
+        availLeft: 0,
+        availHeight: window.innerWidth,
+        availWidth: window.innerHeight,
+        colorDepth: 8,
+        pixelDepth: 8,
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        orientation: { //FIXME:cjh
+            type: 'portrait-primary' // portrait-primary, portrait-secondary, landscape-primary, landscape-secondary
+        }, 
+        onorientationchange: function(event) {}
+    };
 
     window.addEventListener = function(eventName, listener, options) {
         window.canvas.addEventListener(eventName, listener, options);
@@ -62,6 +84,15 @@ function inject () {
         window.canvas.dispatchEvent(event);
     }
 
+    window.getComputedStyle = function(element) {
+        return {
+           position: 'absolute',
+           left:     '0px',
+           top:      '0px',
+           height:   '0px'
+        };
+    }
+
     window._isInjected = true;
 }
 
@@ -69,11 +100,5 @@ if (!window._isInjected) {
     inject();
 }
 
-window.canvas.getContext = function(name) {
-    if (name === 'webgl' || name === 'experimental-webgl') {
-        return window.gl;
-    }
-    return null;
-};
 
 window.localStorage = sys.localStorage;

@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
 let { noop } = require('./util');
 
 // TODO 需要 wx.getSystemInfo 获取更详细信息
@@ -38,7 +39,9 @@ const navigator = {
     getCurrentPosition: noop,
     watchPosition: noop,
     clearWatch: noop
-  }
+  },
+
+  maxTouchPoints: 10 //FIXME: getting the number from OS.
 }
 
 module.exports = navigator;

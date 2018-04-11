@@ -26,6 +26,7 @@
 let SpriteType = require('../../../../components/CCSprite').Type;
 let simple = require('./simple');
 let sliced = require('./sliced');
+let tiled = require('./tiled');
 
 module.exports = {
     getAssembler: function (sprite) {
@@ -35,7 +36,7 @@ module.exports = {
             case SpriteType.SLICED:
                 return sliced;
             case SpriteType.TILED:
-                return null;
+                return tiled;
             case SpriteType.FILLED:
                 if (sprite._fillType === FillType.RADIAL) {
                     return null;
@@ -50,21 +51,6 @@ module.exports = {
         return sprite._assembler.createData(sprite);
     },
 
-    update (sprite) {
-        let renderData = sprite._renderData;
-        if (!renderData) {
-            return;
-        }
-        
-        if (renderData.uvDirty) {
-            sprite._assembler.updateUVs(sprite);
-        }
-
-        if (renderData.vertDirty) {
-            sprite._assembler.updateVerts(sprite);
-        }
-    },
-
     draw (ctx, sprite) {
         let node = sprite.node;
         // Check whether need to render
@@ -72,7 +58,7 @@ module.exports = {
             return 0;
         }
         // update
-        this.update(sprite);
+        sprite._assembler.update(sprite);
 
         return sprite._assembler.draw(ctx, sprite);
     }

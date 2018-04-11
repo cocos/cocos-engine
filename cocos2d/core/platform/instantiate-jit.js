@@ -162,7 +162,7 @@ function equalsToDefault (def, value) {
             (def.constructor === Object && value.constructor === Object)
         ) {
             try {
-                return JSON.stringify(def) === JSON.stringify(value);
+                return Array.isArray(def) && Array.isArray(value) && def.length === 0 && value.length === 0;
             }
             catch (e) {
             }

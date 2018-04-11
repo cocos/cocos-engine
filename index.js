@@ -26,6 +26,9 @@
 
 // PREDEFINE
 
+// window may be undefined when first load engine from editor
+var _global = typeof window === 'undefined' ? global : window;
+
 /**
  * !#en
  * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
@@ -34,7 +37,7 @@
  * @module cc
  * @main cc
  */
-cc = {};
+cc = _global.cc || {};
 
 require('./predefine');
 require('./CCDebugger');

@@ -36,7 +36,6 @@ else {
     require('./cocos2d/tilemap');
     require('./cocos2d/videoplayer/CCVideoPlayer');
     require('./cocos2d/webview/CCWebView');
-    require('./cocos2d/motion-streak');
     require('./cocos2d/core/components/CCStudioComponent');
     require('./extensions/ccpool/CCNodePool');
     require('./cocos2d/actions');

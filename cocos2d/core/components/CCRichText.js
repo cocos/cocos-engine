@@ -65,6 +65,9 @@ var pool = new js.Pool(function (node) {
     if (CC_DEV) {
         cc.assert(!node._parent, 'Recycling node\'s parent should be null!');
     }
+    if (!cc.isValid(node)) {
+        return false;
+    }
     if (node.getComponent(cc.LabelOutline)) {
         return false;
     }
