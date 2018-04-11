@@ -25,6 +25,7 @@
 
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const math = renderEngine.math;
+const transformSys = require('../../cocos2d/core/systems/transform');
 
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
@@ -354,7 +355,7 @@ dragonBones.CCSlot = cc.Class({
             let node = this._display.node;
             math.mat4.copy(node._matrix, t);
             node._localMatDirty = false;
-            node._worldMatDirty = true;
+            transformSys.setWorldDirty(node);
         }
 
         this._updateVertices();

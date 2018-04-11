@@ -52,7 +52,7 @@ module.exports = {
         if (vertDirty) {
             this.updateVerts(sprite);
         }
-        if (vertDirty || renderData.worldMatDirty) {
+        if (vertDirty || sprite.node._worldMatUpdated) {
             this.updateWorldVerts(sprite);
         }
     },
@@ -136,8 +136,6 @@ module.exports = {
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
         }
-
-        renderData.worldMatDirty = false;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {

@@ -17,7 +17,6 @@ let armatureAssembler = {
         ctx.save();
 
         let node = comp.node;
-        node._updateWorldMatrix();
         let matrix = node._worldMatrix;
 
         let texture = comp.dragonAtlasAsset.texture;

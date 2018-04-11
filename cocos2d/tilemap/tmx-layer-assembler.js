@@ -110,7 +110,7 @@ let tmxAssembler = js.addon({
         let appx = node._anchorPoint.x * node._contentSize.width,
             appy = node._anchorPoint.y * node._contentSize.height;
 
-        node.getWorldMatrix(_mat4_temp);
+        mat4.copy(_mat4_temp, node._worldMatrix);
         vec3.set(_vec3_temp, -appx, -appy, 0);
         mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 

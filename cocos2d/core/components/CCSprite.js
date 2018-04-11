@@ -487,7 +487,6 @@ var Sprite = cc.Class({
 
         this.node.on('size-changed', this._onNodeSizeDirty, this);
         this.node.on('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.on('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     onDisable: function () {
@@ -495,18 +494,11 @@ var Sprite = cc.Class({
 
         this.node.off('size-changed', this._onNodeSizeDirty, this);
         this.node.off('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.off('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     _onNodeSizeDirty () {
         if (this._renderData) {
             this._renderData.vertDirty = true;
-        }
-    },
-
-    _onNodeMatrixDirty () {
-        if (this._renderData) {
-            this._renderData.worldMatDirty = true;
         }
     },
 
@@ -520,7 +512,6 @@ var Sprite = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-            this._renderData.worldMatDirty = true;
             this._renderData.material = this._material;
         }
     },

@@ -30,8 +30,10 @@ const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const EventListeners = require('./event/event-listeners');
+const Obj = require('./platform/CCObject');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
+const transformSys = require('./systems/transform');
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -440,7 +442,7 @@ cc.Director.prototype = {
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
-        cc.Object._deferredDestroy();
+        Obj._deferredDestroy();
         CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
@@ -913,6 +915,7 @@ cc.Director.prototype = {
      * Run main loop of director
      */
     mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        // Update
         if (!this._paused) {
             this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
@@ -926,13 +929,19 @@ cc.Director.prototype = {
             this._compScheduler.lateUpdatePhase(deltaTime);
 
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
+
+            transformSys.update();
         }
 
-        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         // Render
+        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         renderer.render(this._scene);
-        this._totalFrames++;
+        
+        // After draw
         this.emit(cc.Director.EVENT_AFTER_DRAW);
+        transformSys.afterDraw();
+
+        this._totalFrames++;
 
     } : function () {
         if (this._purgeDirectorInNextLoop) {
@@ -943,6 +952,7 @@ cc.Director.prototype = {
             // calculate "global" dt
             this.calculateDeltaTime();
 
+            // Update
             if (!this._paused) {
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
                 // Call start for new added components
@@ -956,15 +966,21 @@ cc.Director.prototype = {
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
-                cc.Object._deferredDestroy();
+                Obj._deferredDestroy();
+                // Update transform for all dirty nodes
+                transformSys.update();
             }
-            this.emit(cc.Director.EVENT_BEFORE_DRAW);
+
             // Render
+            this.emit(cc.Director.EVENT_BEFORE_DRAW);
             renderer.render(this._scene);
-            this._totalFrames++;
+
+            // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
-            
+            transformSys.afterDraw();
+
             eventManager.frameUpdateListeners();
+            this._totalFrames++;
         }
     },
 

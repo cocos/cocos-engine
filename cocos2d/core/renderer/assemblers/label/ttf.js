@@ -56,7 +56,6 @@ module.exports = js.addon({
         let z = node._position.z;
         let color = cc.Color.WHITE._val;
         
-        node._updateWorldMatrix();
         let matrix = node._worldMatrix;
         let a = matrix.m00,
             b = matrix.m01,

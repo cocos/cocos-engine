@@ -42,10 +42,6 @@ RenderComponentWalker.prototype = {
     reset() {},
 
     _handleRender (node) {
-        if (node._localMatDirty) {
-            node._calculWorldMatrix();
-        }
-
         let comp = node._renderComponent;
         let opacity = node.opacity;
         let assembler = comp && comp.constructor._assembler;
