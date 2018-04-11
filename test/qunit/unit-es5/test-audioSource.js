@@ -1,34 +1,35 @@
 if (!isPhantomJS) {
-    largeModule('AudioScource');
+    var libPath = assetDir + '/library';
+    largeModule('AudioScource', {
+        setup: function () {
+            _resetGame();
+            AssetLibrary.init({libraryPath: libPath});
+        }
+    });
+
+    var AUDIO_UUID = '1258a1';
 
     asyncTest('basic test', function () {
-        var node = new cc.Node();
-        cc.director.getScene().addChild(node);
+        AssetLibrary.loadAsset(AUDIO_UUID, function (err, clip) {
+            var node = new cc.Node();
+            cc.director.getScene().addChild(node);
 
-        var audioSource = node.addComponent(cc.AudioSource);
+            var audioSource = node.addComponent(cc.AudioSource);
+            audioSource.clip = clip;
 
-        audioSource.clip = assetDir + "/background.mp3";
+            audioSource.play();
+            strictEqual(audioSource.isPlaying, true, 'audio scource play state true after play');
 
-        audioSource.play();
+            audioSource.volume = 0.5;
+            strictEqual(audioSource.audio._volume, 0.5, 'audio scource volume after play');
 
-        audioSource.audio.on('load', function () {
-            clearTimeout(timerId);
-            strictEqual(audioSource.isPlaying, true, 'audio scource play state true after preload');
+            audioSource.loop = true;
+            strictEqual(audioSource.audio._loop, true, 'audio scource loop after play');
+
+            audioSource.mute = true;
+            strictEqual(audioSource.audio._volume, 0, 'audio scource volume after mute');
+
             start();
         });
-
-        var timerId = setTimeout(function () {
-            ok(false, 'time out!');
-            start();
-        }, 10000);
-
-        //audioSource.volume = 0.5;
-        //strictEqual(audioSource.audio.volume, 0.5, 'audio scource volume true');
-
-        //audioSource.loop = true;
-        //strictEqual(audioSource.audio.loop, true, 'audio scource loop true');
-
-        //audioSource.mute = true;
-        //strictEqual(audioSource.audio.volume, 0, 'audio scource mute true');
     });
 }

@@ -425,5 +425,17 @@ var actionUpdate = {
 
 for (var key in actionUpdate) {
     var action = cc[key];
-    action.prototype.update = actionUpdate[key];
+    var prototype = action.prototype;
+    prototype.update = actionUpdate[key];
+
+    // polyfill to preserve chainable binding object
+    prototype.speed = function (speed) {
+        return new cc.Speed(this, speed);
+    };
+    prototype.repeat = function (times) {
+        return new cc.Repeat(this, times);
+    };
+    prototype.repeatForever = function () {
+        return new cc.RepeatForever(this);
+    };
 }

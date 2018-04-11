@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var eventManager = require('../event-manager');
+
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
 var BOT     = 1 << 2;
@@ -35,7 +37,7 @@ var VERTICAL = TOP | MID | BOT;
 
 var AlignMode = cc.Enum({
     ONCE: 0,
-    ON_WINDOW_RESIZED: 1,
+    ON_WINDOW_RESIZE: 1,
     ALWAYS: 2,
 });
 
@@ -299,7 +301,10 @@ function refreshScene () {
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
                     var node = widget.node;
-                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
+                    if (widget.alignMode !== AlignMode.ALWAYS &&
+                        animationState.animatedSinceLastFrame &&
+                        node.isChildOf(editingNode)
+                    ) {
                         // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
                     }
@@ -442,7 +447,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
 
-        if (CC_EDITOR) {
+        if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         }
         else if (!CC_JSB) {
@@ -450,11 +455,15 @@ var widgetManager = cc._widgetManager = module.exports = {
                 window.addEventListener('resize', this.onResized.bind(this));
             }
             else {
-                cc.eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
+                eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
             }
         }
         else {
-            cc.eventManager.addListener(this.onResized.bind(this), 1);
+            eventManager.addListener(cc.EventListener.create({
+                event: cc.EventListener.CUSTOM,
+                eventName: "window-resize",
+                callback: this.onResized.bind(this)
+            }), 1);
         }
     },
     add: function (widget) {
@@ -482,7 +491,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     refreshWidgetOnResized (node) {
         var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget) {
-            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZED) {
+            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                 widget.enabled = true;
             }
         }

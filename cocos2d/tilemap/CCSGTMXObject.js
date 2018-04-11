@@ -80,6 +80,7 @@ _ccsg.TMXObject = cc.Class({
      * !#en Get the property of object
      * !#zh 获取对象的属性
      * @method getProperty
+     * @param {String} propertyName
      * @return {Object}
      */
     getProperty: function (propName) {
@@ -171,7 +172,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
     },
 
     _initWithTileset: function(texture, tileset) {
-        if (!texture.isLoaded()) {
+        if (!texture.loaded) {
             texture.once('load', function () {
                 this._initWithTileset(texture, tileset);
             }, this);

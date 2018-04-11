@@ -73,7 +73,7 @@ proto.updateBlendFunc = function (blendFunc) {
 };
 
 proto._handleTextureForRotatedTexture = function (texture, rect, rotated, counterclockwise) {
-    if (rotated && texture.isLoaded()) {
+    if (rotated && texture.loaded) {
         texture = CanvasRenderCmd._createRotatedTexture(texture, rect, counterclockwise);
         rect.x = rect.y = 0;
         this._node._rect = cc.rect(0, 0, rect.width, rect.height);

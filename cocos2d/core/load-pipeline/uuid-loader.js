@@ -58,7 +58,6 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
             var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
-                // TODO - skip preloading native texture
                 var url = info.url;
                 obj[prop] = url;
                 dependKeys.push(url);
@@ -91,12 +90,10 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
             };
         }
 
-        // parse native
+        // load native object (Image/Audio) as depends
         if (asset._native && !asset.constructor.preventPreloadNativeObject) {
             depends.push({
                 url: asset.nativeUrl,
-                // For image, we should skip loader otherwise it will load a new texture
-                skips: [ 'Loader' ],
                 _owner: asset,
                 _ownerProp: '_nativeAsset',
             });
@@ -112,8 +109,9 @@ function loadDepends (pipeline, item, asset, depends, callback) {
     var dependKeys = item.dependKeys;
     pipeline.flowInDeps(item, depends, function (errors, items) {
         var item, missingAssetReporter;
-        for (var src in items.map) {
-            item = items.map[src];
+        var itemsMap = items.map;
+        for (var src in itemsMap) {
+            item = itemsMap[src];
             if (item.uuid && item.content) {
                 item.content._uuid = item.uuid;
             }
@@ -124,50 +122,50 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             var dependUrl = dep.url;
             var dependObj = dep._owner;
             var dependProp = dep._ownerProp;
-            item = items.map[dependUrl];
-            if (item) {
-                var thisOfLoadCallback = dep;
-                function loadCallback (item) {
-                    var value;
-                    if (this._stillUseUrl) {
-                        value = (item.content instanceof cc.Texture2D) ? item.content.nativeUrl : item.rawUrl
-                    }
-                    else {
-                        value = item.content;
-                    }
-                    this._owner[this._ownerProp] = value;
-                    if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
-                        dependKeys.push(item.id);
-                    }
+            item = itemsMap[dependUrl];
+            if (!item) {
+                continue;
+            }
+
+            var loadCallbackCtx = dep;
+            function loadCallback (item) {
+                var value = item.content;
+                if (this._stillUseUrl) {
+                    value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
                 }
-                if (item.complete || item.content) {
-                    if (item.error) {
-                        if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
-                            if (!missingAssetReporter) {
-                                var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
-                                missingAssetReporter = new MissingObjectReporter(asset);
-                            }
-                            missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                this._owner[this._ownerProp] = value;
+                if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                    dependKeys.push(item.id);
+                }
+            }
+
+            if (item.complete || item.content) {
+                if (item.error) {
+                    if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                        if (!missingAssetReporter) {
+                            var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                            missingAssetReporter = new MissingObjectReporter(asset);
                         }
-                        else {
-                            cc._throw(item.error);
-                        }
+                        missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
                     }
                     else {
-                        loadCallback.call(thisOfLoadCallback, item);
+                        cc._throw(item.error);
                     }
                 }
                 else {
-                    // item was removed from cache, but ready in pipeline actually
-                    var queue = LoadingItems.getQueue(item);
-                    // Hack to get a better behavior
-                    var list = queue._callbackTable[dependSrc];
-                    if (list) {
-                        list.unshift(loadCallback, thisOfLoadCallback);
-                    }
-                    else {
-                        queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);
-                    }
+                    loadCallback.call(loadCallbackCtx, item);
+                }
+            }
+            else {
+                // item was removed from cache, but ready in pipeline actually
+                var queue = LoadingItems.getQueue(item);
+                // Hack to get a better behavior
+                var list = queue._callbackTable[dependSrc];
+                if (list) {
+                    list.unshift(loadCallback, loadCallbackCtx);
+                }
+                else {
+                    queue.addListener(dependSrc, loadCallback, loadCallbackCtx);
                 }
             }
         }

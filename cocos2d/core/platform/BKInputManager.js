@@ -212,15 +212,6 @@ if (CC_QQPLAY) {
          * @return {Object}
          */
         getHTMLElementPosition: function (element) {
-            if (sys.platform === sys.WECHAT_GAME) {
-                return {
-                    left: 0,
-                    top: 0,
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                };
-            }
-
             var docElem = document.documentElement;
             var leftOffset = window.pageXOffset - docElem.clientLeft;
             var topOffset = window.pageYOffset - docElem.clientTop;
@@ -329,14 +320,9 @@ if (CC_QQPLAY) {
                     y: event.pageY
                 };
 
-            if (sys.platform === sys.WECHAT_GAME) {
-                pos.left = 0;
-                pos.top = 0;
-            }
-            else {
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-            }
+            pos.left -= document.body.scrollLeft;
+            pos.top -= document.body.scrollTop;
+
             return {
                 x: event.clientX,
                 y: event.clientY
@@ -360,8 +346,8 @@ if (CC_QQPLAY) {
 
                     var location = locView.convertToLocationInView(touch_event.x, touch_event.y, this._relatedPos);
                     location.y = cc.game.canvas.height - location.y;
-                    if (touch_event.identifier != null) {
-                        touch = new cc.Touch(location.x, location.y, touch_event.identifier);
+                    if (touch_event.id != null) {
+                        touch = new cc.Touch(location.x, location.y, touch_event.id);
                         //use Touch Pool
                         preLocation = this.getPreTouch(touch).getLocation();
                         touch._setPrevPoint(preLocation.x, preLocation.y);
@@ -381,8 +367,8 @@ if (CC_QQPLAY) {
 
         // bk game
         detectGesture: function () {
-            var touchArr = BK.TouchEvent.getTouchEvent();
-            if (!touchArr) {
+            var allTouchArr = BK.TouchEvent.getAllTouchEvent();
+            if (!allTouchArr) {
                 return;
             }
 
@@ -390,33 +376,41 @@ if (CC_QQPLAY) {
             var _touchMoveEvents = [];
             var _touchEndEvents = [];
 
-            for (var i = 0; i < touchArr.length; i++) {
-                var touch_event = touchArr[i];
-                //touch begin
-                if (touchArr[i].status === 2) {
-                    _touchBeginEvents.push(touch_event);
+            var touchArr = allTouchArr;
+            for(var i = 0; i < touchArr.length; i++) {
+                _touchBeginEvents.length = 0;
+                _touchMoveEvents.length = 0;
+                _touchEndEvents.length = 0;
+
+                for (var j = 0; j < touchArr[i].length; ++j) {
+
+                    var touch_event = touchArr[i][j];
+                    //touch begin
+                    if (touch_event.status === 2) {
+                        _touchBeginEvents.push(touch_event);
+                    }
+                    //touch moved
+                    else if (touch_event.status === 3) {
+                        _touchMoveEvents.push(touch_event);
+                    }
+                    //touch end
+                    else if (touch_event.status === 1) {
+                        _touchEndEvents.push(touch_event);
+                    }
                 }
-                //touch moved
-                else if (touchArr[i].status === 3) {
-                    _touchMoveEvents.push(touch_event);
+
+                if (_touchBeginEvents.length > 0) {
+                    this.handleTouchesBegin(this.getTouchesByEvent(_touchBeginEvents));
                 }
-                //touch end
-                else if (touchArr[i].status === 1) {
-                    _touchEndEvents.push(touch_event);
+                if (_touchMoveEvents.length > 0) {
+                    this.handleTouchesMove(this.getTouchesByEvent(_touchMoveEvents));
                 }
+                if (_touchEndEvents.length > 0) {
+                    this.handleTouchesEnd(this.getTouchesByEvent(_touchEndEvents));
+                }
+
             }
 
-            if (_touchBeginEvents.length > 0) {
-                this.handleTouchesBegin(this.getTouchesByEvent(_touchBeginEvents));
-            }
-            if (_touchMoveEvents.length > 0) {
-                this.handleTouchesMove(this.getTouchesByEvent(_touchMoveEvents));
-            }
-            if (_touchEndEvents.length > 0) {
-                this.handleTouchesEnd(this.getTouchesByEvent(_touchEndEvents));
-            }
-
-            BK.TouchEvent.updateTouchStatus();
         },
 
         /**
@@ -431,6 +425,7 @@ if (CC_QQPLAY) {
                 width: element.width,
                 height: element.height
             };
+            BK.Script.getTouchModeAll = 1;
         },
 
         _registerKeyboardEvent: function () {

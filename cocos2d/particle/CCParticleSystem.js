@@ -152,8 +152,8 @@ var properties = {
      * @default ""
      */
     _file: {
-        default: '',
-        url: cc.ParticleAsset
+        default: null,
+        type: cc.ParticleAsset
     },
     file: {
         get: function () {
@@ -175,7 +175,7 @@ var properties = {
             }
         },
         animatable: false,
-        url: cc.ParticleAsset,
+        type: cc.ParticleAsset,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
@@ -913,7 +913,7 @@ var ParticleSystem = cc.Class({
         var file = this._file;
         if (file) {
             var self = this;
-            cc.loader.load(file, function (err, content) {
+            cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
                     throw err || new Error(cc._getError(6029));
                 }
@@ -927,11 +927,11 @@ var ParticleSystem = cc.Class({
                 var active = sgNode.isActive();
 
                 if (CC_EDITOR) {
-                    sgNode._plistFile = file;
+                    sgNode._plistFile = file.nativeUrl;
                     sgNode.initWithDictionary(content, '');
                 }
                 else {
-                    sgNode.initWithFile(file);
+                    sgNode.initWithFile(file.nativeUrl);
                 }
 
                 // To avoid it export custom particle data textureImageData too large,
@@ -944,6 +944,9 @@ var ParticleSystem = cc.Class({
                         }
                         self.texture = texture;
                     });
+                }
+                else if (!content.textureImageData && file.texture) {
+                    sgNode.texture = file.texture;
                 }
 
                 // For custom data export

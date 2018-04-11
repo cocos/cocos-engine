@@ -1035,7 +1035,7 @@ var Node = cc.Class({
             for (; i < len; i++) {
                 sibling = siblings[i]._sgNode;
                 sibling._arrivalOrder = i;
-                eventManager._setDirtyForNode(sibling);
+                eventManager._setDirtyForNode(siblings[i]);
             }
             cc.renderer.childrenOrderDirty = true;
             parent._sgNode._reorderChildDirty = true;
@@ -1262,7 +1262,7 @@ var Node = cc.Class({
      * !#zh 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      * @method off
      * @param {String} type - A string representing the event type being removed.
-     * @param {Function} callback - The callback to remove.
+     * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
@@ -2496,6 +2496,15 @@ var Node = cc.Class({
         this._updateDummySgNode();
 
         var sizeProvider = this._sizeProvider;
+        if (sizeProvider) {
+            // sync status for records used in Timeline editor
+            var sgComponent = this.getComponent(cc._SGComponent);
+            if (sgComponent && sgComponent._sgNode === sizeProvider && !(sgComponent._objFlags & Flags.IsPreloadStarted)) {
+                sgComponent._removeSgNode();
+                this._sizeProvider = sizeProvider = null;
+            }
+        }
+
         if (sizeProvider) {
             sizeProvider.setContentSize(this._contentSize);
             if (sizeProvider instanceof _ccsg.Node) {

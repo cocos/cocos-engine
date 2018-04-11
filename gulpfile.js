@@ -133,15 +133,17 @@ gulp.task('test-no-build', function (done) {
 // global //
 ////////////
 
+gulp.task('clean-cache', function (done) {
+    Del(['./bin/.cache/*', '!./bin/.cache/dev/**'], done);
+});
+
 // fast build, only for develop
-gulp.task('build-dev', ['build-html5-preview', 'build-jsb-preview'], function (done) {
-    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js', './bin/.cache'], done);
+gulp.task('build-dev', ['clean-cache', 'build-html5-preview', 'build-jsb-preview'], function (done) {
+    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js'], done);
 });
 
 // only build preview for html5 since it will built by editor
-gulp.task('build', ['build-html5-preview', 'build-jsb'], function (done) {
-    Del(['./bin/.cache'], done);
-});
+gulp.task('build', ['clean-cache', 'build-html5-preview', 'build-jsb']);
 
 // default task
 gulp.task('default', ['build']);

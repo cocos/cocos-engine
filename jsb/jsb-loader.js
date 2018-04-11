@@ -37,7 +37,18 @@ function downloadScript (item, callback) {
 }
 
 function downloadAudio (item, callback) {
-    return item.url;
+    var loadByDeserializedAsset = item._owner instanceof cc.AudioClip;
+    if (loadByDeserializedAsset) {
+        return item.url;
+    }
+    else {
+        var audioClip = new cc.AudioClip();
+        // obtain user url through nativeUrl
+        audioClip._setRawAsset(item.rawUrl, false);
+        // obtain download url through _nativeAsset
+        audioClip._nativeAsset = item.url;
+        return audioClip;
+    }
 }
 
 cc.loader.addDownloadHandlers({
@@ -97,7 +108,8 @@ function loadImage (item, callback) {
         else if (isRemote) {
             jsb.loadRemoteImg(url, function(succeed, tex) {
                 if (succeed) {
-                    tex.url = url;
+                    tex.url = item.rawUrl;
+                    tex._setRawAsset(item.rawUrl, false);
                     callback && callback(null, tex);
                 }
                 else {
@@ -108,7 +120,8 @@ function loadImage (item, callback) {
         else {
             cc.textureCache._addImageAsync(url, function (tex) {
                 if (tex instanceof cc.Texture2D) {
-                    tex.url = url;
+                    tex.url = item.rawUrl;
+                    tex._setRawAsset(item.rawUrl, false);
                     callback && callback(null, tex);
                 }
                 else {

@@ -339,13 +339,18 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         }
     },
 
-    _createRenderCmd: function(){
+    _createRenderCmd: function () {
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
             return new _ccsg.ParticleSystem.CanvasRenderCmd(this);
         else
             return new _ccsg.ParticleSystem.WebGLRenderCmd(this);
     },
-
+    onEnter: function () {
+        // udpate after action in run!
+        this.scheduleUpdateWithPriority(1);
+        _ccsg.Node.prototype.onEnter.call(this);
+    },
+    
     /**
      * This is a hack function for performance, it's only available on Canvas mode. <br/>
      * It's very expensive to change color on Canvas mode, so if set it to true, particle system will ignore the changing color operation.
@@ -1154,7 +1159,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      * @return {Boolean}
      */
     initWithDictionary:function (dictionary, dirname) {
-        var ret = false;
         var buffer = null;
         var image = null;
         var locValueForKey = this._valueForKey;
@@ -1279,8 +1283,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
             // texture
             // Try to get the texture from the cache
             var textureName = locValueForKey("textureFileName", dictionary);
-            var imgPath = cc.path.changeBasename(this._plistFile, textureName);
-            var tex = cc.textureCache.getTextureForKey(imgPath);
+            var imgPath = textureName && cc.path.changeBasename(this._plistFile, textureName);
+            var tex = imgPath && cc.textureCache.getTextureForKey(imgPath);
 
             if (tex) {
                 this.setTexture(tex);
@@ -1288,10 +1292,13 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                 var textureData = locValueForKey("textureImageData", dictionary);
 
                 if (!textureData || textureData.length === 0) {
-                    tex = cc.textureCache.addImage(imgPath);
-                    if (!tex)
-                        return false;
-                    this.setTexture(tex);
+                    if (imgPath) {
+                        tex = cc.textureCache.addImage(imgPath);
+                        if (!tex)
+                            return false;
+                        this.setTexture(tex);
+                    }
+                    return true;
                 } else {
                     buffer = cc.Codec.unzipBase64AsArray(textureData, 1);
                     if (!buffer) {
@@ -1314,6 +1321,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                         tiffReader.parseTIFF(buffer,canvasObj);
                     }
 
+                    imgPath = imgPath || this._plistFile;
                     cc.textureCache.cacheImage(imgPath, canvasObj);
 
                     var addTexture = cc.textureCache.getTextureForKey(imgPath);
@@ -1322,9 +1330,9 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     this.setTexture(addTexture);
                 }
             }
-            ret = true;
+            return true;
         }
-        return ret;
+        return false;
     },
 
     /**
@@ -1365,8 +1373,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         //  colorModulate = YES;
         this.autoRemoveOnFinish = false;
 
-        // udpate after action in run!
-        this.scheduleUpdateWithPriority(1);
         this._renderCmd._initWithTotalParticles(numberOfParticles);
         return true;
     },

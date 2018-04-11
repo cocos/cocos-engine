@@ -39,7 +39,7 @@ _ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
     if (node._nuPoints <= 1)
         return;
 
-    if (node.texture && node.texture.isLoaded()) {
+    if (node.texture && node.texture.loaded) {
         ctx = ctx || cc._renderContext;
 
         // update the color

@@ -90,6 +90,17 @@ module.exports = {
         });
     },
 
+    _doPreload (packUuid, packJson) {
+        var unpacker = globalUnpackers[packUuid];
+        if (!unpacker) {
+            unpacker = globalUnpackers[packUuid] = new JsonUnpacker();
+        }
+        if (unpacker.state !== PackState.Loaded) {
+            unpacker.read(packIndices[packUuid], packJson);
+            unpacker.state = PackState.Loaded;
+        }
+    },
+
     _doLoadNewPack: function (uuid, packUuid, packedJson) {
         var unpackerData = globalUnpackers[packUuid];
         // double check cache after load
