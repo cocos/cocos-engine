@@ -139,10 +139,6 @@ RenderComponentWalker.prototype = {
     },
 
     _handleRender (node) {
-        if (node._localMatDirty) {
-            node._calculWorldMatrix();
-        }
-
         if (node.groupIndex !== 0) {
             this._curCameraNode = node;
         }

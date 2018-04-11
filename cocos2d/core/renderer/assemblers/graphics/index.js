@@ -49,7 +49,6 @@ const sin     = Math.sin;
 const atan2   = Math.atan2;
 const abs     = Math.abs;
 
-let _matrix = math.mat4.create();
 let _renderData = null;
 let _impl = null;
 let _curColor = 0;
@@ -95,9 +94,9 @@ let graphicsAssembler = js.addon({
             z = node._position.z;
         
         // vertex buffer
-        node.getWorldMatrix(_matrix);
-        let a = _matrix.m00, b = _matrix.m01, c = _matrix.m04, d = _matrix.m05,
-            tx = _matrix.m12, ty = _matrix.m13;
+        let matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
 
         let nodeColor = node.color,
             nodeR = nodeColor.r / 255,

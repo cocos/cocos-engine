@@ -40,7 +40,7 @@ module.exports = js.addon({
         if (vertDirty) {
             this.updateVerts(sprite);
         }
-        if (vertDirty || renderData.worldMatDirty) {
+        if (vertDirty || sprite.node._worldMatUpdated) {
             this.updateWorldVerts(sprite);
         }
     },
@@ -138,8 +138,6 @@ module.exports = js.addon({
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
         }
-
-        renderData.worldMatDirty = false;
     },
 
     updateVerts (sprite) {

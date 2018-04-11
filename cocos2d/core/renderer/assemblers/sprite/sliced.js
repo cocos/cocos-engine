@@ -170,8 +170,6 @@ module.exports = {
                 world.v = rowD.v;
             }
         }
-
-        renderData.worldMatDirty = false;
     },
 
     update: simpleRenderUtil.update

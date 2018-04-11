@@ -129,6 +129,14 @@ var BaseNode = cc.Class({
         _active: true,
 
         /**
+         * @property _level
+         * @type {Number}
+         * @default 0
+         * @private
+         */
+        _level: 0,
+
+        /**
          * @property _components
          * @type {Component[]}
          * @default []
@@ -353,6 +361,7 @@ var BaseNode = cc.Class({
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
+            this._level = value._level + 1;
             eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
