@@ -1751,6 +1751,10 @@ Load image ( %s ) failed
 
 Download Uuid: can not find type of raw asset[ %s ]: %s
 
+### 4932
+
+Since v1.10, for any atlas ("%s") in the "resources" directory, it is not possible to find the contained SpriteFrames via `loadRes`, `getRes` or `releaseRes`. Load the SpriteAtlas first and then use `spriteAtlas.getSpriteFrame(name)` instead please.
+
 ### 5000
 
 object already destroyed
