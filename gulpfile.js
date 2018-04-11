@@ -43,11 +43,11 @@ gulp.task('build-debug-infos', function () {
     Engine.buildDebugInfos();
 });
 
-gulp.task('build-html5-dev', ['build-debug-infos'], function (done) {
+gulp.task('build-html5-dev', ['clean-cache', 'build-debug-infos'], function (done) {
     Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', [],  done);
 });
 
-gulp.task('build-html5-min', ['build-debug-infos'], function (done) {
+gulp.task('build-html5-min', ['clean-cache', 'build-debug-infos'], function (done) {
     Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', [], done);
 });
 
@@ -61,13 +61,13 @@ gulp.task('build-html5-preview-dev', ['build-debug-infos'], function (done) {
 
 gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
 
-gulp.task('build-jsb-dev',  ['build-debug-infos'], function (done) {
+gulp.task('build-jsb-dev',  ['clean-cache', 'build-debug-infos'], function (done) {
     Engine.buildJsb([
         './jsb/index.js',
     ], './bin/jsb_polyfill.dev.js', [], done);
 });
 
-gulp.task('build-jsb-min',  ['build-debug-infos'], function (done) {
+gulp.task('build-jsb-min',  ['clean-cache', 'build-debug-infos'], function (done) {
     Engine.buildJsbMin([
         './jsb/index.js',
     ], './bin/jsb_polyfill.js', [], done);
