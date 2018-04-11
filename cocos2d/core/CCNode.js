@@ -1008,7 +1008,7 @@ var Node = cc.Class({
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
-        if (this._parent && this._parent._delaySort) {
+        if (this._parent) {
             this._parent._delaySort();
         }
         this._onHierarchyChangedBase(oldParent);

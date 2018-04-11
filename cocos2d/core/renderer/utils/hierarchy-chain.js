@@ -24,14 +24,14 @@
  ****************************************************************************/
 
 function findPrevious (node) {
-    let parent = node.parent;
+    let parent = node._parent;
     // reach root scene
     if (!parent) {
         return null;
     }
 
     // Find previous render component in siblings
-    let children = parent.children;
+    let children = parent._children;
     let index = children.indexOf(node);
     let previous = null, comp = null;
     for (let i = index - 1; i >= 0; i--) {
@@ -52,14 +52,14 @@ function findPrevious (node) {
 }
 
 function findNext (node) {
-    let parent = node.parent;
+    let parent = node._parent;
     // reach root scene
     if (!parent) {
         return null;
     }
 
     // Find next render component in siblings
-    let children = parent.children;
+    let children = parent._children;
     let index = children.indexOf(node);
     let next = null;
     for (let i = index + 1; i < children.length; i++) {
@@ -92,7 +92,7 @@ function findFirst (node) {
         return node._renderComponent._chain;
     }
 
-    let children = node.children;
+    let children = node._children;
     let first;
     for (let i = 0; i < children.length; i++) {
         let child = children[i];
@@ -118,7 +118,7 @@ function findLast (node) {
         return comp._postChain;
     }
 
-    let children = node.children;
+    let children = node._children;
     let last;
     for (let i = children.length - 1; i >= 0; i--) {
         last = findLast(children[i]);
@@ -150,7 +150,7 @@ module.exports = {
     rebuild (node) {
         let previous = node._renderComponent ? node._renderComponent._chain : findPrevious(node);
         // Rebuild for all children
-        let children = node.children;
+        let children = node._children;
         let curr, first;
         for (let i = 0; i < children.length; i++) {
             curr = children[i];
