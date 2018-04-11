@@ -40,6 +40,7 @@ Effect::Effect(const Vector<Technique*>& techniques,
 Effect::~Effect()
 {
 //    RENDERER_LOGD("Effect destruction: %p", this);
+    clear();
 }
 
 void Effect::clear()

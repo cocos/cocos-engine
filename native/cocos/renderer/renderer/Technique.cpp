@@ -359,7 +359,7 @@ uint32_t Technique::_genID = 0;
 
 Technique::Technique(const std::vector<std::string>& stages,
                      const std::vector<Parameter>& parameters,
-                     const Vector<Pass*>& passes,
+                     const std::vector<Pass>& passes,
                      int layer)
 : _id(_genID++)
 , _stageIDs(Config::getStageIDs(stages))
@@ -380,9 +380,9 @@ void Technique::setStages(const std::vector<std::string>& stages)
     _stageIDs = Config::getStageIDs(stages);
 }
 
-void Technique::setPass(int index, Pass* pass)
+void Technique::setPass(int index, const Pass& pass)
 {
-    _passes.replace(index, pass);
+    _passes[index] = pass;
 }
 
 RENDERER_END

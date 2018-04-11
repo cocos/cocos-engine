@@ -64,6 +64,8 @@ void ForwardRenderer::render(Scene* scene)
         BaseRenderer::render(view, scene);
         view->release();
     }
+    
+    scene->removeAllModels();
 }
 
 void ForwardRenderer::transparentStage(const View* view, const std::vector<StageItem>& items)

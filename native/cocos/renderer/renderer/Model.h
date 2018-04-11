@@ -50,7 +50,6 @@ class Model : public Ref
 {
 public:
     Model();
-    ~Model();
     
     inline uint32_t getInputAssemblerCount() const { return (uint32_t)_inputAssemblers.size(); }
     
@@ -74,6 +73,7 @@ public:
     inline void setNode(INode* node) { _node = node; }
 
 private:
+    ~Model();
     // Record world matrix instead of Node.
     INode* _node = nullptr;
     Mat4 _worldMatrix;

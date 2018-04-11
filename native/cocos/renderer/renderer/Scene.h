@@ -55,6 +55,7 @@ public:
     Model* getModel(uint32_t index);
     void addModel(Model* model);
     void removeModel(Model* model);
+    void removeAllModels() { _models.clear(); }
     inline const Vector<Model*>& getModels() const { return _models; }
     
     // light

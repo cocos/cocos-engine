@@ -36,6 +36,12 @@ Model::Model()
 Model::~Model()
 {
     RENDERER_LOGD("Model destruction %p", this);
+    delete _node;
+    _node = nullptr;
+    
+    _effects.clear();
+    _inputAssemblers.clear();
+    _defines.clear();
 }
 
 void Model::addInputAssembler(InputAssembler* ia)

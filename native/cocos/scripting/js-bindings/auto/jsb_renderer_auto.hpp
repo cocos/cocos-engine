@@ -13,25 +13,6 @@ SE_DECLARE_FUNC(js_renderer_ProgramLib_define);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
 
-extern se::Object* __jsb_cocos2d_renderer_Model_proto;
-extern se::Class* __jsb_cocos2d_renderer_Model_class;
-
-bool js_register_cocos2d_renderer_Model(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Model_getInputAssemblerCount);
-SE_DECLARE_FUNC(js_renderer_Model_getDrawItemCount);
-SE_DECLARE_FUNC(js_renderer_Model_getWorldMatrix);
-SE_DECLARE_FUNC(js_renderer_Model_isDynamicIA);
-SE_DECLARE_FUNC(js_renderer_Model_addEffect);
-SE_DECLARE_FUNC(js_renderer_Model_setWorldMatix);
-SE_DECLARE_FUNC(js_renderer_Model_clearEffects);
-SE_DECLARE_FUNC(js_renderer_Model_setDynamicIA);
-SE_DECLARE_FUNC(js_renderer_Model_getViewId);
-SE_DECLARE_FUNC(js_renderer_Model_clearInputAssemblers);
-SE_DECLARE_FUNC(js_renderer_Model_addInputAssembler);
-SE_DECLARE_FUNC(js_renderer_Model_setViewId);
-SE_DECLARE_FUNC(js_renderer_Model_Model);
-
 extern se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto;
 extern se::Class* __jsb_cocos2d_renderer_BaseRenderer_class;
 
@@ -85,29 +66,6 @@ SE_DECLARE_FUNC(js_renderer_Camera_setWorldMatrix);
 SE_DECLARE_FUNC(js_renderer_Camera_getNear);
 SE_DECLARE_FUNC(js_renderer_Camera_getClearFlags);
 SE_DECLARE_FUNC(js_renderer_Camera_Camera);
-
-extern se::Object* __jsb_cocos2d_renderer_Technique_proto;
-extern se::Class* __jsb_cocos2d_renderer_Technique_class;
-
-bool js_register_cocos2d_renderer_Technique(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Technique_getPasses);
-SE_DECLARE_FUNC(js_renderer_Technique_getStageIDs);
-SE_DECLARE_FUNC(js_renderer_Technique_setPass);
-SE_DECLARE_FUNC(js_renderer_Technique_setStages);
-SE_DECLARE_FUNC(js_renderer_Technique_getParameters);
-SE_DECLARE_FUNC(js_renderer_Technique_Technique);
-
-extern se::Object* __jsb_cocos2d_renderer_Effect_proto;
-extern se::Class* __jsb_cocos2d_renderer_Effect_class;
-
-bool js_register_cocos2d_renderer_Effect(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Effect_getDefineValue);
-SE_DECLARE_FUNC(js_renderer_Effect_clear);
-SE_DECLARE_FUNC(js_renderer_Effect_getTechnique);
-SE_DECLARE_FUNC(js_renderer_Effect_setDefineValue);
-SE_DECLARE_FUNC(js_renderer_Effect_Effect);
 
 extern se::Object* __jsb_cocos2d_renderer_InputAssembler_proto;
 extern se::Class* __jsb_cocos2d_renderer_InputAssembler_class;
@@ -169,20 +127,6 @@ SE_DECLARE_FUNC(js_renderer_Light_getShadowResolution);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowBias);
 SE_DECLARE_FUNC(js_renderer_Light_Light);
 
-extern se::Object* __jsb_cocos2d_renderer_Pass_proto;
-extern se::Class* __jsb_cocos2d_renderer_Pass_class;
-
-bool js_register_cocos2d_renderer_Pass(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Pass_getStencilTest);
-SE_DECLARE_FUNC(js_renderer_Pass_setStencilBack);
-SE_DECLARE_FUNC(js_renderer_Pass_setStencilTest);
-SE_DECLARE_FUNC(js_renderer_Pass_setCullMode);
-SE_DECLARE_FUNC(js_renderer_Pass_setBlend);
-SE_DECLARE_FUNC(js_renderer_Pass_setStencilFront);
-SE_DECLARE_FUNC(js_renderer_Pass_setDepth);
-SE_DECLARE_FUNC(js_renderer_Pass_Pass);
-
 extern se::Object* __jsb_cocos2d_renderer_Scene_proto;
 extern se::Class* __jsb_cocos2d_renderer_Scene_class;
 
@@ -193,16 +137,12 @@ SE_DECLARE_FUNC(js_renderer_Scene_getCameraCount);
 SE_DECLARE_FUNC(js_renderer_Scene_addCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_removeCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_getLightCount);
-SE_DECLARE_FUNC(js_renderer_Scene_getModel);
-SE_DECLARE_FUNC(js_renderer_Scene_removeModel);
-SE_DECLARE_FUNC(js_renderer_Scene_getModelCount);
 SE_DECLARE_FUNC(js_renderer_Scene_getCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_getLight);
 SE_DECLARE_FUNC(js_renderer_Scene_getCameras);
-SE_DECLARE_FUNC(js_renderer_Scene_getModels);
+SE_DECLARE_FUNC(js_renderer_Scene_removeAllModels);
 SE_DECLARE_FUNC(js_renderer_Scene_addView);
 SE_DECLARE_FUNC(js_renderer_Scene_setDebugCamera);
-SE_DECLARE_FUNC(js_renderer_Scene_addModel);
 SE_DECLARE_FUNC(js_renderer_Scene_removeView);
 SE_DECLARE_FUNC(js_renderer_Scene_addLight);
 SE_DECLARE_FUNC(js_renderer_Scene_removeLight);

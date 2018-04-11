@@ -31,7 +31,7 @@
 
 RENDERER_BEGIN
 
-class Pass : public Ref
+class Pass
 {
 public:
     Pass(const std::string& programName);

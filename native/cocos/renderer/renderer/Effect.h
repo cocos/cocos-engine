@@ -43,7 +43,7 @@ public:
            const std::unordered_map<std::string, Property>& properties,
            const std::vector<ValueMap>& defineTemplates);
 
-    virtual ~Effect();
+    ~Effect();
     
     void clear();
     
