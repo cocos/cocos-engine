@@ -36,6 +36,7 @@ const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
 const transformSys = require('./systems/transform');
+const hierarchyChain = require('./renderer/utils/hierarchy-chain');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -1006,6 +1007,10 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged (oldParent) {
+        this._updateOrderOfArrival();
+        if (this._parent && this._parent._delaySort) {
+            this._parent._delaySort();
+        }
         this._onHierarchyChangedBase(oldParent);
         cc._widgetManager._nodesOrderDirty = true;
     },
@@ -1077,6 +1082,8 @@ var Node = cc.Class({
             }
             eventManager.pauseTarget(this);
         }
+
+        hierarchyChain.rebuild(this);
 
         let children = this._children;
         for (let i = 0, len = children.length; i < len; i++) {
@@ -2288,14 +2295,12 @@ var Node = cc.Class({
         // invokes the parent setter
         child.parent = this;
 
-        child._updateOrderOfArrival();
         if (zIndex !== undefined) {
             child.zIndex = zIndex;
         }
         if (name !== undefined) {
             child.name = name;
         }
-        this._delaySort();
     },
 
     /**
@@ -2349,6 +2354,7 @@ var Node = cc.Class({
                     }
                     _children[j + 1] = child;
                 }
+                hierarchyChain.rebuild(this);
                 this.emit(CHILD_REORDER);
             }
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
