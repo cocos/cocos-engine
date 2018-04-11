@@ -59,7 +59,18 @@ renderer.CLEAR_COLOR = 1;
 renderer.CLEAR_DEPTH = 2;
 renderer.CLEAR_STENCIL = 4;
 
-renderer.addStage = renderer.Config.addStage;
+//renderer.addStage = renderer.Config.addStage;
+
+renderer.config = {
+	addStage: renderer.addStage,
+	// stageIDs: renderer.stageIDs,
+	stageIDs: renderer.stageIDs,
+	stageID: renderer.stageID
+};
+renderer.Effect = require('./Effect');
+renderer.Technique = require('./Technique');
+renderer.Pass = require('./Pass');
+renderer.Model = require('./Model');
 
 // ForwardRenderer adapter
 var _p;
@@ -74,11 +85,73 @@ _p = renderer.InputAssembler.prototype;
 _p._ctor = function(vb, ib, pt = gfx.PT_TRIANGLES) {
     this.init(vb, ib, pt);
 };
-
 cc.defineGetterSetter(_p, "_vertexBuffer", _p.getVertexBuffer, _p.setVertexBuffer);
 cc.defineGetterSetter(_p, "_indexBuffer", _p.getIndexBuffer, _p.setIndexBuffer);
 cc.defineGetterSetter(_p, "_primitiveType", _p.getPrimitiveType, _p.setPrimitiveType);
 cc.defineGetterSetter(_p, "_start", _p.getStart, _p.setStart);
 cc.defineGetterSetter(_p, "_count", _p.getCount, _p.setCount);
+
+// Scene
+_p = renderer.Scene.prototype;
+// _p.addModel = function(model) {
+// 	// var modelNative = new renderer.ModelNative();
+// 	// var effects = model._effects;
+// 	// var effectNatives = [];
+// 	// for (var i = 0, len = effects.length; i < len; ++i) {
+// 	// 	var effect = effects[i];
+// 	// 	var techniques = effect._techniques;
+// 	// 	var techniqueNatives = [];
+// 	// 	for (var j = 0, len1 = techniques.length; j < len1; ++j) {
+// 	// 		var technique = techniques[j];
+// 	// 		var passesNatives = [];
+// 	// 		var passes = technique.passes;
+// 	// 		for (var k =0, len2 = passes.length; k < len2; ++k) {
+// 	// 			var pass = passes[k];
+// 	// 			var passNative = new renderer.PassNative(pass._programName);
+// 	// 			passNative.setCullMode(pass._cullMode);
+// 	// 			passNative.setBlend(pass._blendEq,
+// 	// 				                pass._blendSrc,
+// 	// 				                pass._blendDst,
+// 	// 				                pass._blendAlphaEq,
+// 	// 				                pass._blendSrcAlpha,
+// 	// 				                pass._blendDstAlpha,
+// 	// 				                pass._blendColor);
+// 	// 			passNative.setDepth(pass._depthTest, pass._depthWrite, pass._depthFunc);
+// 	// 			passNative.setStencilFront(pass._stencilFuncFront,
+// 	// 				                       pass._stencilRefFront,
+// 	// 				                       pass._stencilMaskFront,
+// 	// 				                       pass._stencilFailOpFront,
+// 	// 				                       pass._stencilZFailOpFront,
+// 	// 				                       pass._stencilZPassOpFront,
+// 	// 				                       pass._stencilWriteMaskFront);
+// 	// 			passNative.setStencilBack(pass._stencilFuncBack,
+// 	// 				                      pass._stencilRefBack,
+// 	// 				                      pass._stencilMaskBack,
+// 	// 				                      pass._stencilFailOpBack,
+// 	// 				                      pass._stencilZFailOpBack,
+// 	// 				                      pass._stencilZPassOpBack,
+// 	// 				                      pass._stencilWriteMaskBack);
+// 	// 			passesNatives.push(passNative);
+// 	// 		}
+// 	// 		var techniqueNative = new renderer.TechniqueNative(technique._stages, technique._parameters, passesNatives, technique._layer);
+// 	// 		techniqueNatives.push(techniqueNative);
+// 	// 	}
+// 	// 	var effectNative = new renderer.EffectNative(techniqueNatives, effect._properties, effect._defines);
+// 	// 	modelNative.addEffect(effectNative);
+// 	// }
+
+// 	// modelNative.setDynamicIA(model._dynamicIA);
+// 	// modelNative.setViewId(model._viewID);
+// 	// modelNative.setNode(model._node);
+
+// 	// var inputAssemblers = model._inputAssemblers;
+// 	// for (var k = 0, len2 = inputAssemblers.length; k < len2; ++k) {
+// 	// 	modelNative.addInputAssembler(inputAssemblers[k]);
+// 	// }
+
+// 	// this.addModelNative(modelNative);
+// 	this.addModelNative(model);
+// };
+_p.removeModel = function() {}
 
 
