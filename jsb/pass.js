@@ -66,7 +66,13 @@ class Pass {
     this._blendDstAlpha = blendDstAlpha;
     this._blendColor = blendColor;
 
-    this._updateBinary();
+    this._binary[1] = this._blendEq;
+    this._binary[2] = this._blendSrc;
+    this._binary[3] = this._blendDst;
+    this._binary[4] = this._blendAlphaEq;
+    this._binary[5] = this._blendSrcAlpha;
+    this._binary[6] = this._blendDstAlpha;
+    this._binary[7] = this._blendColor;
   }
 
   setDepth(
@@ -78,7 +84,9 @@ class Pass {
     this._depthWrite = depthWrite;
     this._depthFunc = depthFunc;
 
-    this._updateBinary();
+    this._binary[8] = this._depthTest;
+    this._binary[9] = this._depthWrite;
+    this._binary[10] = this._depthFunc;
   }
 
   setStencilFront(
@@ -99,7 +107,13 @@ class Pass {
     this._stencilZPassOpFront = stencilZPassOp;
     this._stencilWriteMaskFront = stencilWriteMask;
 
-    this._updateBinary();
+    this._binary[11] = this._stencilFuncFront;
+    this._binary[12] = this._stencilRefFront;
+    this._binary[13] = this._stencilMaskFront;
+    this._binary[14] = this._stencilFailOpFront;
+    this._binary[15] = this._stencilZFailOpFront;
+    this._binary[16] = this._stencilZPassOpFront;
+    this._binary[17] = this._stencilWriteMaskFront;
   }
 
   setStencilBack(
@@ -120,7 +134,13 @@ class Pass {
     this._stencilZPassOpBack = stencilZPassOp;
     this._stencilWriteMaskBack = stencilWriteMask;
 
-    this._updateBinary();
+    this._binary[18] = this._stencilFuncBack;
+    this._binary[19] = this._stencilRefBack;
+    this._binary[20] = this._stencilMaskBack;
+    this._binary[21] = this._stencilFailOpBack;
+    this._binary[22] = this._stencilZFailOpBack;
+    this._binary[23] = this._stencilZPassOpBack;
+    this._binary[24] = this._stencilWriteMaskBack;
   }
 
   _updateBinary() {
