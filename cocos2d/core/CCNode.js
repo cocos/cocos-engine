@@ -1901,22 +1901,60 @@ var Node = cc.Class({
         if (this._localMatDirty) {
             // Update transform
             let t = this._matrix;
-            math.mat4.fromRTS(t, this._quat, this._position, this._scale);
+            //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
+            let hasRotation = this._rotationX || this._rotationY;
+            let hasSkew = this._skewX || this._skewY;
+            let sx = this._scale.x, sy = this._scale.y;
 
-            // skew
-            if (this._skewX || this._skewY) {
-                let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
-                let skx = Math.tan(this._skewX * ONE_DEGREE);
-                let sky = Math.tan(this._skewY * ONE_DEGREE);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                t.m00 = a + c * sky;
-                t.m01 = b + d * sky;
-                t.m04 = c + a * skx;
-                t.m05 = d + b * skx;
+            if (hasRotation || hasSkew) {
+                let a = 1, b = 0, c = 0, d = 1;
+                // position
+                t.m12 = this._position.x;
+                t.m13 = this._position.y;
+                // rotation
+                if (hasRotation) {
+                    let rotationRadiansX = this._rotationX * ONE_DEGREE;
+                    c = Math.sin(rotationRadiansX);
+                    d = Math.cos(rotationRadiansX);
+                    if (this._rotationY === this._rotationX) {
+                        a = d;
+                        b = -c;
+                    }
+                    else {
+                        let rotationRadiansY = this._rotationY * ONE_DEGREE;
+                        a = Math.cos(rotationRadiansY);
+                        b = -Math.sin(rotationRadiansY);
+                    }
+                }
+                // scale
+                t.m00 = a *= sx;
+                t.m01 = b *= sx;
+                t.m04 = c *= sy;
+                t.m05 = d *= sy;
+                // skew
+                if (hasSkew) {
+                    let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
+                    let skx = Math.tan(this._skewX * ONE_DEGREE);
+                    let sky = Math.tan(this._skewY * ONE_DEGREE);
+                    if (skx === Infinity)
+                        skx = 99999999;
+                    if (sky === Infinity)
+                        sky = 99999999;
+                    t.m00 = a + c * sky;
+                    t.m01 = b + d * sky;
+                    t.m04 = c + a * skx;
+                    t.m05 = d + b * skx;
+                }
             }
+            else {
+                t.m00 = sx;
+                t.m01 = 0;
+                t.m04 = 0;
+                t.m05 = sy;
+                t.m12 = this._position.x;
+                t.m13 = this._position.y;
+            }
+            
             this._localMatDirty = false;
             // Register dirty status of world matrix so that it can be recalculated
             this._worldMatDirty = true;
@@ -1931,8 +1969,15 @@ var Node = cc.Class({
         
         // Assume parent world matrix is correct
         if (this._parent) {
-            let parentMat = this._parent._worldMatrix;
-            math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+            let pt = this._parent._worldMatrix;
+            let wt = this._worldMatrix;
+            let t = this._matrix;
+            wt.m00  = t.m00  * pt.m00 + t.m01  * pt.m04;
+            wt.m01  = t.m00  * pt.m01 + t.m01  * pt.m05;
+            wt.m04  = t.m04  * pt.m00 + t.m05  * pt.m04;
+            wt.m05  = t.m04  * pt.m01 + t.m05  * pt.m05;
+            wt.m12 = t.m12 * pt.m00 + t.m13 * pt.m04 + pt.m12;
+            wt.m13 = t.m12 * pt.m01 + t.m13 * pt.m05 + pt.m13;
         }
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
@@ -1941,38 +1986,23 @@ var Node = cc.Class({
     },
 
     _updateWorldMatrix () {
-        let node = this;
         let n = -1;
         // Find root of world matrix changing
-        while (node) {
-            if (node._worldMatDirty) {
-                n++;
-                _parents[n] = node;
-            }
-            else {
-                break;
-            }
-            node = node._parent;
+        for (let node = this; node && node._worldMatDirty; node = node._parent) {
+            n++;
+            _parents[n] = node;
         }
-        if (n >= 0) {
-            _parents.length = n + 1;
-            // Update world matrix of all changed parents
-            for (let i = n; i >= 0; i--) {
-                _parents[i]._calculWorldMatrix();
-            }
+        // Update world matrix of all changed parents
+        for (let i = n; i >= 0; i--) {
+            _parents[i]._calculWorldMatrix();
+            _parents[i] = null;
         }
     },
 
     setLocalDirty () {
         if (!this._localMatDirty) {
             this._localMatDirty = true;
-            // Sync world mat dirty to sub tree
-            if (!this._worldMatDirty) {
-                this._worldMatDirty = true;
-                if (this._children.length > 0) {
-                    _syncWorldDirty(this._children);
-                }
-            }
+            this.setWorldDirty();
         }
     },
 
