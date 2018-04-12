@@ -149,7 +149,6 @@ SE_DECLARE_FUNC(js_renderer_Scene_getLightCount);
 SE_DECLARE_FUNC(js_renderer_Scene_getCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_getLight);
 SE_DECLARE_FUNC(js_renderer_Scene_getCameras);
-SE_DECLARE_FUNC(js_renderer_Scene_removeAllModels);
 SE_DECLARE_FUNC(js_renderer_Scene_addView);
 SE_DECLARE_FUNC(js_renderer_Scene_setDebugCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_removeView);

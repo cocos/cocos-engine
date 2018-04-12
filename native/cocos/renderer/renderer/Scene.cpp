@@ -74,12 +74,25 @@ Model* Scene::getModel(uint32_t index)
 
 void Scene::addModel(Model* model)
 {
-    _models.pushBack(model);
+    _models.push_back(model);
 }
 
 void Scene::removeModel(Model* model)
 {
-    _models.eraseObject(model);
+    auto iter = std::find(_models.begin(), _models.end(), model);
+    if (_models.end() != iter)
+    {
+        ModelPool::returnModel(model);
+        _models.erase(iter);
+    }
+}
+
+void Scene::removeModels()
+{
+    for (const auto& model : _models)
+        ModelPool::returnModel(model);
+    
+    _models.clear();
 }
 
 Light* Scene::getLight(uint32_t index)

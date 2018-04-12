@@ -1194,6 +1194,7 @@ static bool js_renderer_InputAssembler_constructor(se::State& s)
 {
     cocos2d::renderer::InputAssembler* cobj = new (std::nothrow) cocos2d::renderer::InputAssembler();
     s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_renderer_InputAssembler_constructor, __jsb_cocos2d_renderer_InputAssembler_class, js_cocos2d_renderer_InputAssembler_finalize)
@@ -1205,11 +1206,13 @@ static bool js_cocos2d_renderer_InputAssembler_finalize(se::State& s)
 {
 
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::InputAssembler)", s.nativeThisObject());
-    cocos2d::renderer::InputAssembler* cobj = (cocos2d::renderer::InputAssembler*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::renderer::InputAssembler* cobj = (cocos2d::renderer::InputAssembler*)s.nativeThisObject();
+        delete cobj;
+    }
 
     return true;
 }
@@ -2097,21 +2100,6 @@ static bool js_renderer_Scene_getCameras(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Scene_getCameras)
 
-static bool js_renderer_Scene_removeAllModels(se::State& s)
-{
-    cocos2d::renderer::Scene* cobj = (cocos2d::renderer::Scene*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Scene_removeAllModels : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->removeAllModels();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Scene_removeAllModels)
-
 static bool js_renderer_Scene_addView(se::State& s)
 {
     cocos2d::renderer::Scene* cobj = (cocos2d::renderer::Scene*)s.nativeThisObject();
@@ -2239,7 +2227,6 @@ bool js_register_renderer_Scene(se::Object* obj)
     cls->defineFunction("getCamera", _SE(js_renderer_Scene_getCamera));
     cls->defineFunction("getLight", _SE(js_renderer_Scene_getLight));
     cls->defineFunction("getCameras", _SE(js_renderer_Scene_getCameras));
-    cls->defineFunction("removeAllModels", _SE(js_renderer_Scene_removeAllModels));
     cls->defineFunction("addView", _SE(js_renderer_Scene_addView));
     cls->defineFunction("setDebugCamera", _SE(js_renderer_Scene_setDebugCamera));
     cls->defineFunction("removeView", _SE(js_renderer_Scene_removeView));

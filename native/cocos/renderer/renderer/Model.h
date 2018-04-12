@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include "base/CCVector.h"
 #include "base/CCValue.h"
 #include "math/Mat4.h"
@@ -46,7 +47,19 @@ struct DrawItem
     ValueMap* defines;
 };
 
-class Model : public Ref
+class Model;
+
+class ModelPool
+{
+public:
+    static Model* getOrCreateModel();
+    static void returnModel(Model*);
+    
+private:
+    static std::list<Model*> _pool;
+};
+
+class Model
 {
 public:
     Model();
@@ -73,7 +86,11 @@ public:
     inline void setNode(INode* node) { _node = node; }
 
 private:
+    friend class ModelPool;
+    
     ~Model();
+    void reset();
+    
     // Record world matrix instead of Node.
     INode* _node = nullptr;
     Mat4 _worldMatrix;

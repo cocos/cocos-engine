@@ -28,6 +28,35 @@
 
 RENDERER_BEGIN
 
+// Implementation of Model pool.
+
+std::list<Model*> ModelPool::_pool;
+
+Model* ModelPool::getOrCreateModel()
+{
+    Model* model = nullptr;
+    if (!_pool.empty())
+    {
+        model = ModelPool::_pool.back();
+        _pool.pop_back();
+    }
+    else
+    {
+        model = new Model();
+        ModelPool::_pool.push_front(model);
+    }
+
+    return model;
+}
+
+void ModelPool::returnModel(Model *model)
+{
+    model->reset();
+    ModelPool::_pool.push_front(model);
+}
+
+// Implementation of Model
+
 Model::Model()
 {
 //    RENDERER_LOGD("Model construction %p", this);
@@ -36,12 +65,7 @@ Model::Model()
 Model::~Model()
 {
     RENDERER_LOGD("Model destruction %p", this);
-    delete _node;
-    _node = nullptr;
-    
-    _effects.clear();
-    _inputAssemblers.clear();
-    _defines.clear();
+    reset();
 }
 
 void Model::addInputAssembler(InputAssembler* ia)
@@ -109,6 +133,21 @@ void Model::extractDrawItem(DrawItem& out, uint32_t index) const
     
     out.effect = const_cast<Effect*>(_effects.at(index));
     out.defines = out.effect->extractDefines(const_cast<ValueMap&>(_defines[index]));
+}
+
+void Model::reset()
+{
+    delete _node;
+    _node = nullptr;
+    
+    _effects.clear();
+    clearInputAssemblers();
+    _defines.clear();
+    
+    _dynamicIA = false;
+    _viewID = -1;
+    
+    _worldMatrix = Mat4::IDENTITY;
 }
 
 RENDERER_END

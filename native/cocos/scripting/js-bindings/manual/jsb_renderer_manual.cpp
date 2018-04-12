@@ -579,7 +579,7 @@ static bool js_renderer_Scene_addModel(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1)
     {
-        auto model = new cocos2d::renderer::Model();
+        auto model = cocos2d::renderer::ModelPool::getOrCreateModel();
         const se::Value& modelVal = args[0];
         const auto& modelObj = modelVal.toObject();
         addEffects2Model(model, modelVal);
@@ -602,30 +602,13 @@ static bool js_renderer_Scene_addModel(se::State& s)
         const auto& inputAssemblersObj = inputAssemblersVal.toObject();
         uint32_t inputAssemblersLength = 0;
         inputAssemblersObj->getArrayLength(&inputAssemblersLength);
+        se::Value inputAssemblerVal;
+        se::Object* inputAssemblerObj = nullptr;
         for (int i = 0; i < inputAssemblersLength; ++i)
         {
-            auto inputAssembler = new cocos2d::renderer::InputAssembler();
-            
-            se::Value inputAssemblerVal;
             inputAssemblersObj->getArrayElement(i, &inputAssemblerVal);
-            const auto& inputAssemblerObj = inputAssemblerVal.toObject();
-            
-            // vertex buffer
-            auto vertexBufferObj = getProperty(inputAssemblerObj, "_vertexBuffer").toObject();
-            auto vertexBuffer = static_cast<cocos2d::renderer::VertexBuffer*>(vertexBufferObj->getPrivateData());
-            
-            // index buffer
-            auto indexBufferObj = getProperty(inputAssemblerObj, "_indexBuffer").toObject();
-            auto indexBuffer = static_cast<cocos2d::renderer::IndexBuffer*>(indexBufferObj->getPrivateData());
-            
-            // primitive type
-            uint32_t primitiveType = getProperty(inputAssemblerObj, "_primitiveType").toUint32();
-            
-            inputAssembler->init(vertexBuffer,
-                                 indexBuffer,
-                                 static_cast<cocos2d::renderer::PrimitiveType>(primitiveType));
-            
-            model->addInputAssembler(inputAssembler);
+            inputAssemblerObj = inputAssemblerVal.toObject();
+            model->addInputAssembler(static_cast<cocos2d::renderer::InputAssembler*>(inputAssemblerObj->getPrivateData()));
         }
         
         cobj->addModel(model);
