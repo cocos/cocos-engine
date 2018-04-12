@@ -93,53 +93,6 @@ cc.defineGetterSetter(_p, "_count", _p.getCount, _p.setCount);
 
 // Scene
 _p = renderer.Scene.prototype;
-// _p.addModel = function(model) {
-// 	var effects = model._effects;
-//   var elementsOfPass = 25;
-// 	for (var i = 0, len = effects.length; i < len; ++i) {
-// 		var effect = effects[i];
-// 		var techniques = effect._techniques;
-// 		for (var j = 0, len1 = techniques.length; j < len1; ++j) {
-// 			var technique = techniques[j];
-//       var passesBinary = new Uint32Array(elementsOfPass * passes.length);
-// 			var passes = technique.passes;
-//       Uin32Array passBinary[25];
-// 			for (var k =0, len2 = passes.length; k < len2; ++k) {
-// 				var pass = passes[k];
-//         var offset = elementsOfPass * k;
-// 			// 	var passNative = new renderer.PassNative(pass._programName);
-// 			// 	passNative.setCullMode(pass._cullMode);
-// 			// 	passNative.setBlend(pass._blendEq,
-// 			// 		                pass._blendSrc,
-// 			// 		                pass._blendDst,
-// 			// 		                pass._blendAlphaEq,
-// 			// 		                pass._blendSrcAlpha,
-// 			// 		                pass._blendDstAlpha,
-// 			// 		                pass._blendColor);
-// 			// 	passNative.setDepth(pass._depthTest, pass._depthWrite, pass._depthFunc);
-// 			// 	passNative.setStencilFront(pass._stencilFuncFront,
-// 			// 		                       pass._stencilRefFront,
-// 			// 		                       pass._stencilMaskFront,
-// 			// 		                       pass._stencilFailOpFront,
-// 			// 		                       pass._stencilZFailOpFront,
-// 			// 		                       pass._stencilZPassOpFront,
-// 			// 		                       pass._stencilWriteMaskFront);
-// 			// 	passNative.setStencilBack(pass._stencilFuncBack,
-// 			// 		                      pass._stencilRefBack,
-// 			// 		                      pass._stencilMaskBack,
-// 			// 		                      pass._stencilFailOpBack,
-// 			// 		                      pass._stencilZFailOpBack,
-// 			// 		                      pass._stencilZPassOpBack,
-// 			// 		                      pass._stencilWriteMaskBack);
-// 			// 	passesNatives.push(passNative);
-// 			}
-// 		}
-
-// 	}
-
-	
-// 	this.addModelNative(model);
-// };
 _p.removeModel = function() {}
 
 
