@@ -35,7 +35,6 @@ const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
-const transformSys = require('./systems/transform');
 const hierarchyChain = require('./renderer/utils/hierarchy-chain');
 
 const Flags = cc.Object.Flags;
@@ -56,6 +55,7 @@ var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
+var _parents = [];
 var _globalOrderOfArrival = 1;
 
 /**
@@ -309,6 +309,16 @@ function _checkListeners (node, events) {
     return true;
 }
 
+function _syncWorldDirty (children) {
+    for (let i = 0, l = children.length; i < l; i++) {
+        let child = children[i];
+        child._worldMatDirty = true;
+        if (child._children.length > 0) {
+            _syncWorldDirty(child._children);
+        }
+    }
+}
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -422,7 +432,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
-                        transformSys.setNodeDirty(this);
+                        this.setLocalDirty();
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -465,7 +475,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
-                        transformSys.setNodeDirty(this);
+                        this.setLocalDirty();
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -495,7 +505,7 @@ var Node = cc.Class({
                 if (value !== localPosition.z) {
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
-                        transformSys.setNodeDirty(this);
+                        this.setLocalDirty();
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -525,7 +535,7 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
-                    transformSys.setNodeDirty(this);
+                    this.setLocalDirty();
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -558,7 +568,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
-                    transformSys.setNodeDirty(this);
+                    this.setLocalDirty();
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -591,7 +601,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
-                    transformSys.setNodeDirty(this);
+                    this.setLocalDirty();
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -626,7 +636,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
-                    transformSys.setNodeDirty(this);
+                    this.setLocalDirty();
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -652,7 +662,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
-                    transformSys.setNodeDirty(this);
+                    this.setLocalDirty();
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -677,7 +687,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
-                transformSys.setNodeDirty(this);
+                this.setLocalDirty();
             }
         },
 
@@ -696,7 +706,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
-                transformSys.setNodeDirty(this);
+                this.setLocalDirty();
             }
         },
 
@@ -911,6 +921,7 @@ var Node = cc.Class({
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = false;
         this._worldMatDirty = false;
+        this.setLocalDirty();
 
         this._cullingMask = 1 << this.groupIndex;
     },
@@ -984,8 +995,6 @@ var Node = cc.Class({
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // activate
-            // Force update transform
-            transformSys.setNodeDirty(this);
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
@@ -1291,7 +1300,7 @@ var Node = cc.Class({
             testPt = cc.v2(point);
         }
 
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         math.vec2.transformMat4(testPt, testPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * this._contentSize.width;
@@ -1541,7 +1550,7 @@ var Node = cc.Class({
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
-        transformSys.setNodeDirty(this);
+        this.setLocalDirty();
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1593,7 +1602,7 @@ var Node = cc.Class({
         if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
             this._scale.x = scaleX;
             this._scale.y = scaleY;
-            transformSys.setNodeDirty(this);
+            this.setLocalDirty();
 
             var cache = this._hasListenerCache;
             if (cache && cache[SCALE_CHANGED]) {
@@ -1731,7 +1740,7 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        transformSys.setNodeDirty(this);
+        this.setLocalDirty();
         this.emit(ANCHOR_CHANGED);
     },
 
@@ -1798,8 +1807,7 @@ var Node = cc.Class({
         else {
             math.vec3.copy(this._position, pos);
         }
-
-        transformSys.setNodeDirty(this);
+        this.setLocalDirty();
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1911,6 +1919,69 @@ var Node = cc.Class({
         }
     },
 
+    _calculWorldMatrix () {
+        // Avoid as much function call as possible
+        if (this._localMatDirty) {
+            this._updateLocalMatrix();
+        }
+        
+        // Assume parent world matrix is correct
+        if (this._parent) {
+            let parentMat = this._parent._worldMatrix;
+            math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        }
+        else {
+            math.mat4.copy(this._worldMatrix, this._matrix);
+        }
+        this._worldMatDirty = false;
+    },
+
+    _updateWorldMatrix () {
+        let node = this;
+        let n = -1;
+        // Find root of world matrix changing
+        while (node) {
+            if (node._worldMatDirty) {
+                n++;
+                _parents[n] = node;
+            }
+            else {
+                break;
+            }
+            node = node._parent;
+        }
+        if (n >= 0) {
+            _parents.length = n + 1;
+            // Update world matrix of all changed parents
+            for (let i = n; i >= 0; i--) {
+                _parents[i]._calculWorldMatrix();
+            }
+        }
+    },
+
+    setLocalDirty () {
+        if (!this._localMatDirty) {
+            this._localMatDirty = true;
+            // Sync world mat dirty to sub tree
+            if (!this._worldMatDirty) {
+                this._worldMatDirty = true;
+                if (this._children.length > 0) {
+                    _syncWorldDirty(this._children);
+                }
+            }
+        }
+    },
+
+    setWorldDirty () {
+        if (!this._worldMatDirty) {
+            this._worldMatDirty = true;
+            // Sync world mat dirty to sub tree
+            if (this._children.length > 0) {
+                _syncWorldDirty(this._children);
+            }
+        }
+    },
+
     /**
      * !#en
      * Get the local transform matrix (4x4), based on parent node coordinates
@@ -1939,7 +2010,7 @@ var Node = cc.Class({
      * node.getLocalMatrix(mat4);
      */
     getWorldMatrix (out) {
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         return math.mat4.copy(out, this._worldMatrix);
     },
 
@@ -1953,7 +2024,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpace(cc.v2(100, 100));
      */
     convertToNodeSpace (worldPoint) {
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         math.vec2.transformMat4(out, worldPoint, _mat4_temp);
@@ -1972,7 +2043,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpace(cc.v2(100, 100));
      */
     convertToWorldSpace (nodePoint) {
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         let out = new cc.Vec2(
             nodePoint.x - this._anchorPoint.x * this._contentSize.width,
             nodePoint.y - this._anchorPoint.y * this._contentSize.height
@@ -1994,7 +2065,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
     convertToNodeSpaceAR (worldPoint) {
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
@@ -2014,7 +2085,7 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
     convertToWorldSpaceAR (nodePoint) {
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         let out = new cc.Vec2();
         return math.vec2.transformMat4(out, nodePoint, this._worldMatrix);
     },
@@ -2088,7 +2159,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
@@ -2119,7 +2190,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         return AffineTrans.fromMat4(out, this._matrix);
     },
 
@@ -2162,7 +2233,7 @@ var Node = cc.Class({
         if (!out) {
             out = AffineTrans.identity();
         }
-        transformSys._updateWorldMatrix(this);
+        this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
@@ -2231,7 +2302,7 @@ var Node = cc.Class({
      */
     getBoundingBoxToWorld () {
         if (this._parent) {
-            transformSys._updateWorldMatrix(this._parent);
+            this._parent._updateWorldMatrix();
             return this._getBoundingBoxTo(this._parent._worldMatrix);
         }
         else {

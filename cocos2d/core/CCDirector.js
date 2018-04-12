@@ -33,7 +33,6 @@ const EventListeners = require('./event/event-listeners');
 const Obj = require('./platform/CCObject');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
-const transformSys = require('./systems/transform');
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -929,8 +928,6 @@ cc.Director.prototype = {
             this._compScheduler.lateUpdatePhase(deltaTime);
 
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
-
-            transformSys.update();
         }
 
         // Render
@@ -939,7 +936,6 @@ cc.Director.prototype = {
         
         // After draw
         this.emit(cc.Director.EVENT_AFTER_DRAW);
-        transformSys.afterDraw();
 
         this._totalFrames++;
 
@@ -967,8 +963,6 @@ cc.Director.prototype = {
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
                 Obj._deferredDestroy();
-                // Update transform for all dirty nodes
-                transformSys.update();
             }
 
             // Render
@@ -977,7 +971,6 @@ cc.Director.prototype = {
 
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
-            transformSys.afterDraw();
 
             eventManager.frameUpdateListeners();
             this._totalFrames++;

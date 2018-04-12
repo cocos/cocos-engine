@@ -43,6 +43,7 @@ const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
 var _batchData = {
     node: null,
+    worldMatUpdated: false,
     vfmt: null,
     material: null,
     data: null,
@@ -124,6 +125,7 @@ RenderComponentWalker.prototype = {
 
         // reset caches for handle render components
         _batchData.node = null;
+        _batchData.worldMatUpdated = false;
         _batchData.vfmt = null;
         _batchData.material = null;
         _batchData.data = null;
@@ -295,7 +297,6 @@ RenderComponentWalker.prototype = {
 
                 let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
                 node._cullingMask = 1 << group;
-
                 assembler = comp.constructor._assembler;
             }
             // Post handle
@@ -305,7 +306,12 @@ RenderComponentWalker.prototype = {
                 }
                 assembler = comp.constructor._postAssembler;
             }
+            if (node._worldMatDirty) {
+                node._updateWorldMatrix();
+                _batchData.worldMatUpdated = true;
+            }
             this.renderComp(comp, assembler);
+            _batchData.worldMatUpdated = false;
 
             entry = entry.next;
         }

@@ -67,13 +67,13 @@ let spriteAssembler = js.addon({
         return util;
     },
 
-    updateRenderData (sprite) {
+    updateRenderData (sprite, batchData) {
         let datas = sprite.__allocedDatas;
         if (!sprite.spriteFrame || !sprite.getMaterial() || !sprite._renderData) {
             return datas;
         }
 
-        sprite._assembler.update(sprite);
+        sprite._assembler.update(sprite, batchData);
 
         return datas;
     },
