@@ -599,6 +599,8 @@ static bool js_loadImage(se::State& s)
         }
         else
         {
+            if (0 == path.find("file://"))
+                path = path.substr(strlen("file://"));
             fullPath = FileUtils::getInstance()->fullPathForFilename(path);
             if (fullPath.empty())
             {

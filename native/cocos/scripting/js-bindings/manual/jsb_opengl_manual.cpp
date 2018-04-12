@@ -927,6 +927,8 @@ static bool JSB_glClear(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    //FIXME:cjh
+    arg0 = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
     JSB_GL_CHECK(glClear((GLbitfield)arg0  ));
 
     return true;
@@ -2129,7 +2131,7 @@ static bool JSB_glTexImage2D(se::State& s) {
         else
         {
             SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
-            return false;
+            return true;
         }
     }
 
@@ -2226,8 +2228,22 @@ static bool JSB_glTexSubImage2D(se::State& s) {
         }
         else
         {
-            SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
-            return false;
+            SE_LOGE("glTexSubImage2D: format: %d doesn't support upackFlipY!\n", format);
+            return true;
+        }
+    }
+
+    if (__premultiplyAlpha)
+    {
+        if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
+        {
+            int byteLength = 0;
+            if (format == GL_RGBA)
+                byteLength = width * height * 4;
+            else
+                byteLength = width * height * 2;
+            assert(count == byteLength);
+            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
         }
     }
 
