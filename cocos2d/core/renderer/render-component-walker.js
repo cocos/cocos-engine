@@ -280,11 +280,18 @@ RenderComponentWalker.prototype = {
         }
     },
 
+    _transform (node) {
+        if (node._worldMatDirty) {
+            node._updateWorldMatrix();
+            _batchData.worldMatUpdated = true;
+        }
+    },
+
     visit (scene) {
         this.reset();
 
         let entry = hierarchyChain.entry(scene);
-        while (entry) {
+        for (; entry; entry = entry.next) {
             let comp = entry.comp;
             let node = comp.node;
             let assembler = null;
@@ -306,14 +313,9 @@ RenderComponentWalker.prototype = {
                 }
                 assembler = comp.constructor._postAssembler;
             }
-            if (node._worldMatDirty) {
-                node._updateWorldMatrix();
-                _batchData.worldMatUpdated = true;
-            }
+            this._transform(node);
             this.renderComp(comp, assembler);
             _batchData.worldMatUpdated = false;
-
-            entry = entry.next;
         }
         
         this._flush(_batchData);
