@@ -9,6 +9,15 @@ class Effect {
     this._properties = properties;
     this._defines = defines;
 
+    var techniqueObjs = [];
+    var techniqueObj;
+    for (var i = 0, len = techniques.length; i < len; ++i) {
+      techniqueObj = techniques[i]._nativeObj; 
+      techniqueObjs.push(techniqueObj);
+    }
+
+    this._nativeObj = new renderer.EffectNative(techniqueObjs, properties, defines);
+
     // TODO: check if params is valid for current technique???
   }
 
@@ -37,6 +46,7 @@ class Effect {
   setProperty(name, value) {
     // TODO: check if params is valid for current technique???
     this._properties[name] = value;
+    this._nativeObj.setProperty(name, value);
   }
 
   getDefine(name) {
@@ -59,6 +69,8 @@ class Effect {
         return;
       }
     }
+
+    this._nativeObj.setDefine(name, value);
 
     console.warn(`Failed to set define ${name}, define not found.`);
   }

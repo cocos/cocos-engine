@@ -19,11 +19,16 @@ class Technique {
     this._layer = layer;
     this._stages = stages;
     // TODO: this._version = 'webgl' or 'webgl2' // ????
+
+    this._nativeObj = new renderer.TechniqueNative(stages, parameters, passes, layer);
+
   }
 
   setStages(stages) {
     this._stageIDs = config.stageIDs(stages);
     this._stages = stages;
+
+    this._nativeObj.setStages(stages);
   }
 
   // get passes() {
