@@ -1976,11 +1976,8 @@ var Node = cc.Class({
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
             // Sync world mat dirty to sub tree
-            if (!this._worldMatDirty) {
-                this._worldMatDirty = true;
-                if (this._children.length > 0) {
-                    _syncWorldDirty(this._children);
-                }
+            if (this._children.length > 0) {
+                _syncWorldDirty(this._children);
             }
         }
     },

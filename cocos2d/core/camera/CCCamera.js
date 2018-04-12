@@ -292,6 +292,7 @@ let Camera = cc.Class({
 
     onEnable () {
         this._matrixDirty = true;
+        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
         if (game.renderType === game.RENDER_TYPE_WEBGL) {
             renderer.scene.addCamera(this._camera);
         }
@@ -299,6 +300,7 @@ let Camera = cc.Class({
     },
 
     onDisable () {
+        cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
         if (game.renderType === game.RENDER_TYPE_WEBGL) {
             renderer.scene.removeCamera(this._camera);
         }
@@ -430,12 +432,12 @@ let Camera = cc.Class({
 
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
-        this.lateUpdate();
+        this.beforeDraw();
         renderer._walker.visit(root);
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 
-    lateUpdate: !CC_EDITOR && function () {
+    beforeDraw: !CC_EDITOR && function () {
         let node = this.node;
         
         if (!this._matrixDirty && !node._worldMatDirty)
