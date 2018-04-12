@@ -1,0 +1,11 @@
+version: 2
+jobs:
+   build:
+     docker:
+       - image: circleci/node
+     steps:
+       - dependecies
+       - pre:
+           - npm install -g gulp
+           - npm install gulp-qunit
+       
