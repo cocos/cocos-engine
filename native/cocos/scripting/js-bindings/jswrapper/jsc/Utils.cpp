@@ -82,7 +82,7 @@ namespace se {
             setter = JSObjectMakeFunctionWithCallback(__cx, nullptr, jsSetter);
         }
 
-        assert(getter != nullptr);
+        assert(getter != nullptr || setter != nullptr);
 
         if (getter != nullptr)
         {

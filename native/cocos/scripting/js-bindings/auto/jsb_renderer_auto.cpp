@@ -854,6 +854,98 @@ bool js_register_renderer_Camera(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_Effect_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_Effect_class = nullptr;
+
+static bool js_renderer_Effect_setDefineValue(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setDefineValue : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string arg0;
+        cocos2d::Value arg1;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_ccvalue(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_setDefineValue : Error processing arguments");
+        cobj->setDefineValue(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_setDefineValue)
+
+static bool js_renderer_Effect_clear(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
+
+static bool js_renderer_Effect_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::Vector<cocos2d::renderer::Technique *> arg0;
+    std::unordered_map<std::string, cocos2d::renderer::Technique::Parameter> arg1;
+    std::vector<std::unordered_map<std::string, cocos2d::Value>> arg2;
+    ok &= seval_to_Vector(args[0], &arg0);
+    ok &= seval_to_EffectProperty(args[1], &arg1);
+    ok &= seval_to_EffectDefineTemplate(args[2], &arg2);
+    SE_PRECONDITION2(ok, false, "js_renderer_Effect_constructor : Error processing arguments");
+    cocos2d::renderer::Effect* cobj = new (std::nothrow) cocos2d::renderer::Effect(arg0, arg1, arg2);
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_Effect_constructor, __jsb_cocos2d_renderer_Effect_class, js_cocos2d_renderer_Effect_finalize)
+
+
+
+
+static bool js_cocos2d_renderer_Effect_finalize(se::State& s)
+{
+
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Effect)", s.nativeThisObject());
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
+
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
+
+bool js_register_renderer_Effect(se::Object* obj)
+{
+    auto cls = se::Class::create("EffectNative", obj, nullptr, _SE(js_renderer_Effect_constructor));
+
+    cls->defineFunction("setDefineValue", _SE(js_renderer_Effect_setDefineValue));
+    cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Effect_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::Effect>(cls);
+
+    __jsb_cocos2d_renderer_Effect_proto = cls->getProto();
+    __jsb_cocos2d_renderer_Effect_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 se::Object* __jsb_cocos2d_renderer_InputAssembler_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_InputAssembler_class = nullptr;
 
@@ -2178,6 +2270,7 @@ bool register_all_renderer(se::Object* obj)
 
     js_register_renderer_ProgramLib(ns);
     js_register_renderer_Light(ns);
+    js_register_renderer_Effect(ns);
     js_register_renderer_Scene(ns);
     js_register_renderer_Camera(ns);
     js_register_renderer_BaseRenderer(ns);

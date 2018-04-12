@@ -881,6 +881,83 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
     return false;
 }
 
+bool seval_to_Pass(const se::Value& passVal, cocos2d::renderer::Pass& pass)
+{
+    se::Object* passObj = passVal.toObject();
+
+    // program name
+    se::Value programNameVal;
+    passObj->getProperty("_programName", &programNameVal);
+    pass.setProgramName(programNameVal.toString());
+    
+    se::Value binaryVal;
+    passObj->getProperty("_binary", &binaryVal);
+    uint8_t* data = nullptr;
+    size_t length = 0;
+    binaryVal.toObject()->getTypedArrayData(&data, &length);
+    uint32_t* binary32 = (uint32_t*)data;
+
+    // cull mode
+    pass.setCullMode(static_cast<cocos2d::renderer::CullMode>(*binary32));
+    
+    // blend
+    pass.setBlend(static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 1)),     // blendEq
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 2)), // blendSrc
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 3)), // blendDst
+                  static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 4)),     // blendAlphaEq
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 5)), // blendSrcAlpha
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 6)), // blendDstAlpha
+                  *(binary32 + 7));                                              // blend color
+    
+    // depth
+    pass.setDepth(*(binary32 + 8), // depth test
+                  *(binary32 + 9), // depth write
+                  static_cast<cocos2d::renderer::DepthFunc>(*(binary32 + 10))); // depth func
+    
+    // stencil front
+    pass.setStencilFront(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 11)),  // stencilFuncFront
+                         *(binary32 + 12),                                               // stencilRefFront
+                         *(binary32 + 13),                                               // stencilMaskFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 14)),    // stencilFailOpFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 15)),    // stencilZFailOpFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 16)),    // stencilZPassOpFront
+                         *(binary32 + 17));                                              // stencilWrtieMaskFront
+    
+    // stencil back
+    pass.setStencilBack(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 18)), // stencilFuncBack
+                        *(binary32 + 19),                                              // stencilRefBack
+                        *(binary32 + 20),                                              // stencilMaskBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 21)),   // stencilFailOpBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 22)),   // stencilZFailOpBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 23)),   // stencilZFailOpBack
+                        *(binary32 + 24));                                             // stencilWrtieMaskBack
+    
+    return true;
+}
+
+bool seval_to_std_vector_Pass(const se::Value& v, std::vector<cocos2d::renderer::Pass>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    uint32_t len = 0;
+    if (obj->getArrayLength(&len))
+    {
+        se::Value value;
+        cocos2d::renderer::Pass pt;
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            SE_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Pass(value, pt), false, ret->clear());
+            ret->push_back(std::move(pt));
+        }
+        return true;
+    }
+
+    ret->clear();
+    return false;
+}
+
 //bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret)
 //{
 //    assert(ret != nullptr);
