@@ -29,7 +29,7 @@ const FillType = Sprite.FillType;
 const simpleRenderUtil = require('./simple');
 
 module.exports = {
-    update (sprite) {
+    update (sprite, batchData) {
         let renderData = sprite._renderData;
         let uvDirty = renderData.uvDirty,
             vertDirty = renderData.vertDirty;
@@ -63,7 +63,7 @@ module.exports = {
         if (vertDirty) {
             this.updateVerts(sprite, fillStart, fillEnd);
         }
-        if (vertDirty || sprite.node._worldMatUpdated) {
+        if (vertDirty || batchData.worldMatUpdated) {
             this.updateWorldVerts(sprite);
         }
     },

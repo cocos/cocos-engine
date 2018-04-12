@@ -154,8 +154,9 @@ module.exports = {
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data,
-            matrix = node._worldMatrix;
+            data = renderData._data;
+        
+        let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         

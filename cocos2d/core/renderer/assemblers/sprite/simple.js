@@ -29,7 +29,7 @@ const assembler = require('../assembler');
 module.exports = js.addon({
     useModel: false,
 
-    update (sprite) {
+    update (sprite, batchData) {
         let renderData = sprite._renderData;
         
         if (renderData.uvDirty) {
@@ -40,7 +40,7 @@ module.exports = js.addon({
         if (vertDirty) {
             this.updateVerts(sprite);
         }
-        if (vertDirty || sprite.node._worldMatUpdated) {
+        if (vertDirty || batchData.worldMatUpdated) {
             this.updateWorldVerts(sprite);
         }
     },
@@ -127,8 +127,9 @@ module.exports = js.addon({
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data,
-            matrix = node._worldMatrix;
+            data = renderData._data;
+        
+        let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         
