@@ -1942,21 +1942,25 @@ var Node = cc.Class({
 
     _updateWorldMatrix () {
         let node = this;
+        let n = -1;
         // Find root of world matrix changing
         while (node) {
             if (node._worldMatDirty) {
-                _parents.push(node);
+                n++;
+                _parents[n] = node;
             }
             else {
                 break;
             }
             node = node._parent;
         }
-        // Update world matrix of all changed parents
-        for (let i = _parents.length - 1; i >= 0; i--) {
-            _parents[i]._calculWorldMatrix();
+        if (n >= 0) {
+            _parents.length = n + 1;
+            // Update world matrix of all changed parents
+            for (let i = n; i >= 0; i--) {
+                _parents[i]._calculWorldMatrix();
+            }
         }
-        _parents.length = 0;
     },
 
     setLocalDirty () {

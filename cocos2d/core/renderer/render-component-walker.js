@@ -125,6 +125,7 @@ RenderComponentWalker.prototype = {
 
         // reset caches for handle render components
         _batchData.node = null;
+        _batchData.worldMatUpdated = false;
         _batchData.vfmt = null;
         _batchData.material = null;
         _batchData.data = null;
