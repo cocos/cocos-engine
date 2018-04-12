@@ -24,20 +24,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PrefabHelper = require('./prefab-helper');
-var Flags = require('../platform/CCObject').Flags;
-var misc = require('./misc');
-var js = require('../platform/js');
-var IdGenerater = require('../platform/id-generater');
-var eventManager = require('../event-manager');
+const PrefabHelper = require('./prefab-helper');
+const Flags = require('../platform/CCObject').Flags;
+const misc = require('./misc');
+const js = require('../platform/js');
+const IdGenerater = require('../platform/id-generater');
+const eventManager = require('../event-manager');
+const hierarchyChain = require('../renderer/utils/hierarchy-chain');
 
-var Destroying = Flags.Destroying;
-var DontDestroy = Flags.DontDestroy;
-var Deactivating = Flags.Deactivating; 
+const Destroying = Flags.Destroying;
+const DontDestroy = Flags.DontDestroy;
+const Deactivating = Flags.Deactivating; 
 
-var CHILD_ADDED = 'child-added';
-var CHILD_REMOVED = 'child-removed';
-
+const CHILD_ADDED = 'child-added';
+const CHILD_REMOVED = 'child-removed';
 
 var idGenerater = new IdGenerater('Node');
 
@@ -352,6 +352,10 @@ var BaseNode = cc.Class({
         var oldParent = this._parent;
         if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
             cc.errorID(3821);
+        }
+        if (oldParent) {
+            // Unchain from old parent
+            hierarchyChain.unchainSelf(this);
         }
         this._parent = value || null;
 
