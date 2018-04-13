@@ -294,6 +294,9 @@ RenderComponentWalker.prototype = {
         for (; entry; entry = entry.next) {
             let comp = entry.comp;
             let node = comp.node;
+            if (!comp._enabled || !node._activeInHierarchy) {
+                continue;
+            }
             let assembler = null;
 
             // Pre handle

@@ -70,10 +70,6 @@ var RenderComponent = cc.Class({
 
     onDisable () {
         this.node._renderComponent = null;
-        // When parent children order dirty, its children's render component will be rechained in sortAllChildren
-        if (!this.node.parent._reorderChildDirty) {
-            hierarchyChain.rebuildSelf(this.node);
-        }
     },
 
     onDestroy () {
