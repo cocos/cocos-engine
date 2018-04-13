@@ -121,7 +121,7 @@ cc.Director = function () {
 
     // FPS
     this._totalFrames = 0;
-    this._lastUpdate = Date.now();
+    this._lastUpdate = performance.now();
     this._deltaTime = 0.0;
 
     // Scheduler for user registration update
@@ -135,7 +135,7 @@ cc.Director = function () {
 
     var self = this;
     cc.game.on(cc.game.EVENT_SHOW, function () {
-        self._lastUpdate = Date.now();
+        self._lastUpdate = performance.now();
     });
 };
 
@@ -143,7 +143,7 @@ cc.Director.prototype = {
     constructor: cc.Director,
     init: function () {
         this._totalFrames = 0;
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
@@ -212,7 +212,7 @@ cc.Director.prototype = {
      * calculates delta time since last time it was called
      */
     calculateDeltaTime: function () {
-        var now = Date.now();
+        var now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
         if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
@@ -674,7 +674,7 @@ cc.Director.prototype = {
             return;
         }
 
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
         if (!this._lastUpdate) {
             cc.logID(1200);
         }
@@ -900,7 +900,7 @@ cc.Director.prototype = {
      */
     startAnimation: function () {
         this.invalid = false;
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
     },
 
     /*
