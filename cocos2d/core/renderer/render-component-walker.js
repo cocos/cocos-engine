@@ -48,7 +48,9 @@ var _batchData = {
     material: null,
     data: null,
     vertexOffset: 0,
+    byteStart: 0,
     byteOffset: 0,
+    indiceStart: 0,
     indiceOffset: 0,
     cullingMask: 1,
     MAX_VERTEX: MAX_VERTEX,
@@ -60,32 +62,8 @@ var RenderComponentWalker = function (device, renderScene) {
     this._device = device;
     this._stencilMgr = StencilManager.sharedManager;
 
-    // Buffers
-    this._vData = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
-    this._uintVData = new Uint32Array(this._vData.buffer);
-    this._iData = new Uint16Array(MAX_INDICE);
     
     let defaultFormat = new gfx.VertexFormat([]);
-    this._vbPool = new RecyclePool(function () {
-        let vb = new gfx.VertexBuffer(
-            device,
-            defaultFormat,
-            gfx.USAGE_DYNAMIC,
-            null,
-            0
-        );
-        return vb;
-    }, 16);
-    this._ibPool = new RecyclePool(function () {
-        var ib = new gfx.IndexBuffer(
-            device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            null,
-            0
-        );
-        return ib;
-    }, 16);
     this._iaPool = new RecyclePool(function () {
         return new InputAssembler();
     }, 16);
@@ -93,7 +71,17 @@ var RenderComponentWalker = function (device, renderScene) {
     this._modelPool = new RecyclePool(() => {
         return new renderEngine.Model();
     }, 16);
-    
+
+
+    // buffers
+    this._vb = null;
+    this._ib = null;
+    this._buffersToDestroy = [];
+
+    this._maxVertexCount = MAX_VERTEX;
+    this._maxIndiceCount = MAX_INDICE;
+    this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
+
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
@@ -107,8 +95,6 @@ RenderComponentWalker.prototype = {
     reset() {
         // Reset pools
         this._iaPool.reset();
-        this._vbPool.reset();
-        this._ibPool.reset();
 
         // Reset scene
         let scene = this._renderScene;
@@ -130,7 +116,9 @@ RenderComponentWalker.prototype = {
         _batchData.material = null;
         _batchData.data = null;
         _batchData.vertexOffset = 0;
+        _batchData.byteStart = 0;
         _batchData.byteOffset = 0;
+        _batchData.indiceStart = 0;
         _batchData.indiceOffset = 0;
         _batchData.cullingMask = 1;
 
@@ -138,49 +126,70 @@ RenderComponentWalker.prototype = {
         this._stencilMgr.reset();
     },
 
-    _flush (batchData) {
-        let vfmt = batchData.vfmt,
-            material = batchData.material,
-            vertexByte = batchData.byteOffset,
-            cullingMask = batchData.cullingMask,
-            vertexCount = batchData.vertexOffset,
-            indiceCount = batchData.indiceOffset,
-            vDataSize = Math.min(bits.nextPow2(vertexByte), MAX_VERTEX_BYTES),
-            vertexsData = null,
-            indicesData = null;
+    _uploadData () {
+        // update vertext data
+        let vertexsData = new Float32Array(this._vData.buffer, 0, _batchData.byteOffset / 4);
+        let indicesData = new Uint16Array(this._iData.buffer, 0, _batchData.indiceOffset);
 
-        // Prepare data view for vb ib
-        if (material && vertexCount > 0 && indiceCount > 0) {
-            vertexsData = new Float32Array(this._vData.buffer, 0, vDataSize / 4);
-            indicesData = new Uint16Array(this._iData.buffer, 0, indiceCount);
+        let gl = this._device._gl;
+        let vb = this._vb;
+        vb.update(0, vertexsData);
+
+        let ib = this._ib;
+        ib.update(0, indicesData);
+    },
+
+    _reallocBuffer (vertexCount, indiceCount) {
+        _batchData.vertexOffset = 0;
+        _batchData.byteStart = 0;
+        _batchData.byteOffset = 0;
+        _batchData.indiceStart = 0;
+        _batchData.indiceOffset = 0;
+
+        if (this._vb) {
+            this._buffersToDestroy.push(this._vb);
         }
-        else {
+        if (this._ib) {
+            this._buffersToDestroy.push(this._ib);
+        }
+
+        this._vData = new Float32Array(vertexCount * FLOATS_PER_VERT);
+        this._uintVData = new Uint32Array(this._vData.buffer);
+        this._iData = new Uint16Array(indiceCount);
+
+        this._vb = new gfx.VertexBuffer(
+            this._device,
+            defaultVertexFormat,
+            gfx.USAGE_DYNAMIC,
+            this._vData.buffer,
+            vertexCount
+        );
+
+        this._ib = new gfx.IndexBuffer(
+            this._device,
+            gfx.INDEX_FMT_UINT16,
+            gfx.USAGE_STATIC,
+            this._iData.buffer,
+            indiceCount
+        );
+    },
+
+    _flush () {
+        let material = _batchData.material,
+            indiceStart = _batchData.indiceStart,
+            indiceOffset = _batchData.indiceOffset,
+            indiceCount = indiceOffset - indiceStart;
+        if (!material || indiceCount <= 0) {
             return;
         }
 
         let effect = material.effect;
 
-        // Generate vb, ib, ia
-        let device = this._device;
-        let vb = this._vbPool.add();
-        device._stats.vb -= vb._bytes;
-        vb._format = vfmt;
-        vb._numVertices = vertexCount;
-        vb._bytes = vDataSize;
-        vb.update(0, vertexsData);
-        device._stats.vb += vb._bytes;
-    
-        let ib = this._ibPool.add();
-        device._stats.ib -= ib._bytes;
-        ib._numIndices = indiceCount;
-        ib._bytes = BYTE_PER_INDEX * indiceCount;
-        ib.update(0, indicesData);
-        device._stats.ib += ib._bytes;
-    
+        // Generate ia
         let ia = this._iaPool.add();
-        ia._vertexBuffer = vb;
-        ia._indexBuffer = ib;
-        ia._start = 0;
+        ia._vertexBuffer = this._vb;
+        ia._indexBuffer = this._ib;
+        ia._start = indiceStart;
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
@@ -190,18 +199,21 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : cullingMask;
-        model.setNode(batchData.node);
+        model._cullingMask = CC_EDITOR ? 1 : _batchData.cullingMask;
+        model.setNode(_batchData.node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
         
         this._renderScene.addModel(model);
+           
+        _batchData.byteStart = _batchData.byteOffset;
+        _batchData.indiceStart = _batchData.indiceOffset;
     },
 
-    _flushIA (batchData) {
-        let material = batchData.material,
-            cullingMask = batchData.cullingMask,
-            iaRenderData = batchData.data;
+    _flushIA () {
+        let material = _batchData.material,
+            cullingMask = _batchData.cullingMask,
+            iaRenderData = _batchData.data;
 
         if (!iaRenderData.ia) {
             return;
@@ -215,7 +227,7 @@ RenderComponentWalker.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = CC_EDITOR ? 1 : cullingMask;
-        model.setNode(batchData.node);
+        model.setNode(_batchData.node);
         model.addEffect(effect);
         model.addInputAssembler(iaRenderData.ia);
         
@@ -247,35 +259,41 @@ RenderComponentWalker.prototype = {
                 continue;
             }
 
+            // need to realloc buffers
+            if ((_batchData.vertexOffset + data.vertexCount) > this._maxVertexCount ||
+                (_batchData.indiceOffset + data.indiceCount) > this._maxIndiceCount) {
+                this._uploadData();
+
+                this._maxVertexCount *= 2;
+                this._maxIndiceCount *= 2;
+                this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
+            }
+
             // Check ia data, each ia data should be packed into a separated model
             iaData = data.type === IARenderData.type;
 
             // breaking batch
             broken = iaData || 
                         !_batchData.material || _batchData.material._hash != material._hash || 
-                        _batchData.cullingMask !== cullingMask ||
-                        (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
-                        (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+                        _batchData.cullingMask !== cullingMask;
             if (broken) {
                 this._flush(_batchData);
+
                 _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                 _batchData.material = material;
                 _batchData.vfmt = comp._vertexFormat;
-                _batchData.vertexOffset = 0;
-                _batchData.byteOffset = 0;
-                _batchData.indiceOffset = 0;
                 _batchData.cullingMask = cullingMask;
             }
 
             _batchData.data = data;
             if (iaData) {
-                this._flushIA(_batchData);
+                this._flushIA();
             }
             else {
                 assembler.fillBuffers(comp, _batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
-                _batchData.vertexOffset += data.vertexCount;
                 _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
                 _batchData.indiceOffset += data.indiceCount;
+                _batchData.vertexOffset += data.vertexCount;
             }
         }
     },
@@ -289,6 +307,13 @@ RenderComponentWalker.prototype = {
 
     visit (scene) {
         this.reset();
+
+        if (this._buffersToDestroy.length !== 0) {
+            for (let i = 0, l = this._buffersToDestroy.length; i < l; i++) {
+                this._buffersToDestroy[i].destroy();
+            }
+            this._buffersToDestroy.length = 0;
+        }
 
         let entry = hierarchyChain.entry(scene);
         for (; entry; entry = entry.next) {
@@ -318,7 +343,8 @@ RenderComponentWalker.prototype = {
             _batchData.worldMatUpdated = false;
         }
         
-        this._flush(_batchData);
+        this._flush();
+        this._uploadData();
     }
 }
 
