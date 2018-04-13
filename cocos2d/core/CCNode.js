@@ -1904,9 +1904,6 @@ var Node = cc.Class({
 
             if (hasRotation || hasSkew) {
                 let a = 1, b = 0, c = 0, d = 1;
-                // position
-                t.m12 = this._position.x;
-                t.m13 = this._position.y;
                 // rotation
                 if (hasRotation) {
                     let rotationRadiansX = this._rotationX * ONE_DEGREE;
@@ -1947,9 +1944,10 @@ var Node = cc.Class({
                 t.m01 = 0;
                 t.m04 = 0;
                 t.m05 = sy;
-                t.m12 = this._position.x;
-                t.m13 = this._position.y;
             }
+            // position
+            t.m12 = this._position.x;
+            t.m13 = this._position.y;
             
             this._localMatDirty = false;
             // Register dirty status of world matrix so that it can be recalculated
