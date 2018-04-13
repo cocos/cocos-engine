@@ -2453,9 +2453,9 @@ var Node = cc.Class({
                     }
                     _children[j + 1] = child;
                 }
-                hierarchyChain.rebuild(this);
                 this.emit(CHILD_REORDER);
             }
+            hierarchyChain.rebuild(this);
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
     },
