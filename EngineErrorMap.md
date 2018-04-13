@@ -1857,6 +1857,7 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510

@@ -318,7 +318,6 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * @method property
  * @param {Object} [options] - an object with some property attributes
  * @param {Any} [options.type]
- * @param {Function} [options.url]
  * @param {Boolean|Function} [options.visible]
  * @param {String} [options.displayName]
  * @param {String} [options.tooltip]
@@ -417,7 +416,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     }
  * });
  * @typescript
- * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
+ * property(options?: {type?: any; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {
