@@ -173,5 +173,19 @@ module.exports = {
         }
     },
 
-    update: simpleRenderUtil.update
+    update (sprite, batchData) {
+        let renderData = sprite._renderData;
+        
+        if (renderData.uvDirty) {
+            this.updateUVs(sprite);
+        }
+
+        let vertDirty = renderData.vertDirty;
+        if (vertDirty) {
+            this.updateVerts(sprite);
+        }
+        if (vertDirty || batchData.worldMatUpdated) {
+            this.updateWorldVerts(sprite);
+        }
+    },
 };
