@@ -53,6 +53,7 @@ const ONE_DEGREE = Math.PI / 180;
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
+var _typedArray_temp = new Float32Array(16);
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
 var _parents = [];
@@ -919,6 +920,7 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
+        this._= new Float32Array(16);
         this._localMatDirty = false;
         this._worldMatDirty = false;
         this.setLocalDirty();
@@ -1877,6 +1879,31 @@ var Node = cc.Class({
         return out;
     },
 
+    _getWorldRT4Native() {
+        this.getWorldRT(_mat4_temp);
+        this._mat4ToArray(_typedArray_temp, _mat4_temp);
+        return _typedArray_temp;
+    },
+
+    _mat4ToArray(typedArray, mat4) {
+        typedArray[0] = mat4.m00;
+        typedArray[1] = mat4.m01;
+        typedArray[2] = mat4.m02;
+        typedArray[3] = mat4.m03;
+        typedArray[4] = mat4.m04;
+        typedArray[5] = mat4.m05;
+        typedArray[6] = mat4.m06;
+        typedArray[7] = mat4.m07;
+        typedArray[8] = mat4.m08;
+        typedArray[9] = mat4.m09;
+        typedArray[10] = mat4.m10;
+        typedArray[11] = mat4.m11;
+        typedArray[12] = mat4.m12;
+        typedArray[13] = mat4.m13;
+        typedArray[14] = mat4.m14;
+        typedArray[15] = mat4.m15;
+    },
+
     /**
      * !#en Set rotation by lookAt target point, normally used by Camera Node
      * !#zh 通过观察目标来设置 rotation，一般用于 Camera Node 上
@@ -2040,6 +2067,12 @@ var Node = cc.Class({
     getWorldMatrix (out) {
         this._updateWorldMatrix();
         return math.mat4.copy(out, this._worldMatrix);
+    },
+
+    _getWorldMatrix4Native() {
+        this._updateWorldMatrix();
+        this._mat4ToArray(_typedArray_temp, this._worldMatrix);
+        return _typedArray_temp;
     },
 
     /**
