@@ -160,6 +160,27 @@ namespace {
     bool __unpackFlipY = false;
     bool __premultiplyAlpha = false;
 
+    void WEBGL_framebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+    {
+        if (attachment == GL_DEPTH_STENCIL_ATTACHMENT)
+        {
+            glFramebufferRenderbuffer(target, GL_DEPTH_ATTACHMENT, renderbuffertarget, renderbuffer);
+            glFramebufferRenderbuffer(target, GL_STENCIL_ATTACHMENT, renderbuffertarget, renderbuffer);
+        }
+        else
+        {
+            glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+        }
+    }
+
+    void WEBGL_renderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+    {
+        if (internalformat == GL_DEPTH_STENCIL )
+            internalformat = GL_DEPTH24_STENCIL8;
+
+        glRenderbufferStorage(target, internalformat, width, height);
+    }
+
     class WebGLObject
     {
     public:
@@ -1491,15 +1512,7 @@ static bool JSB_glFramebufferRenderbuffer(se::State& s) {
     ok &= seval_to_native_ptr(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint renderBufferId = arg3 != nullptr ? arg3->_id : 0;
-    if( arg1 == GL_DEPTH_STENCIL_ATTACHMENT) {
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_DEPTH_ATTACHMENT, (GLenum)arg2 , renderBufferId));
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0, GL_STENCIL_ATTACHMENT, (GLenum)arg2 , renderBufferId));
-    }
-    else
-    {
-        JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , renderBufferId));
-    }
-
+    JSB_GL_CHECK(WEBGL_framebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , renderBufferId));
     return true;
 }
 SE_BIND_FUNC(JSB_glFramebufferRenderbuffer)
@@ -1927,11 +1940,7 @@ static bool JSB_glRenderbufferStorage(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if( arg1 == GL_DEPTH_STENCIL ) {
-        arg1 = GL_DEPTH24_STENCIL8;
-    }
-
-    JSB_GL_CHECK(glRenderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
+    JSB_GL_CHECK(WEBGL_renderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3));
 
     return true;
 }
@@ -2853,7 +2862,7 @@ static bool JSB_glVertexAttribPointer(se::State& s) {
     ok &= seval_to_int32(args[5], &arg5 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)arg5  ));
+    JSB_GL_CHECK(glVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)(intptr_t)arg5  ));
 
     return true;
 }
@@ -2874,7 +2883,6 @@ static bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-//    SE_LOGD("glViewport: %d, %d, %d, %d\n", arg0, arg1, arg2, arg3);
     JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1, (GLsizei)arg2 , (GLsizei)arg3));
     return true;
 }
@@ -3947,7 +3955,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 1;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_RENDER_BUFFER) {
-            JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
+            JSB_GL_CHECK(WEBGL_framebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_TEXTURE_2D) {
@@ -4001,7 +4009,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_RENDER_BUFFER_STORAGE) {
-            JSB_GL_CHECK(glRenderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK(WEBGL_renderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_SAMPLE_COVERAGE) {
