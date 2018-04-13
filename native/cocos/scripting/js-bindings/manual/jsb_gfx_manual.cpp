@@ -143,13 +143,11 @@ static bool js_gfx_DeviceGraphics_setUniform(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_DeviceGraphics_setUniform)
 
-static VertexFormat getVertexFormatFromValue(const se::Value& v)
+static VertexFormat* getVertexFormatFromValue(const se::Value& elementVal)
 {
     std::vector<VertexFormat::Info> formatInfos;
 
-    se::Object* vertexFmt = v.toObject();
-    se::Value elementVal;
-    if (vertexFmt->getProperty("_elements", &elementVal) && elementVal.isObject() && elementVal.toObject()->isArray())
+    if (elementVal.isObject() && elementVal.toObject()->isArray())
     {
         se::Object* fmtArr = elementVal.toObject();
         uint32_t length = 0;
@@ -178,8 +176,10 @@ static VertexFormat getVertexFormatFromValue(const se::Value& v)
             }
         }
     }
+    
+    auto vertexFormat = new VertexFormat(formatInfos);
 
-    return formatInfos;
+    return vertexFormat;
 }
 
 static bool js_gfx_VertexBuffer_init(se::State& s)
@@ -193,7 +193,7 @@ static bool js_gfx_VertexBuffer_init(se::State& s)
         cocos2d::renderer::DeviceGraphics* device;
         ok &= seval_to_native_ptr(args[0], &device);
 
-        VertexFormat format = getVertexFormatFromValue(args[1]);
+        VertexFormat* format = getVertexFormatFromValue(args[1]);
         Usage usage = (Usage) args[2].toUint16();
         uint8_t* data = nullptr;
         size_t dataByteLength = 0;
@@ -212,7 +212,8 @@ static bool js_gfx_VertexBuffer_init(se::State& s)
         ok = seval_to_uint32(args[4], &numVertices);
         assert(ok);
 
-        cobj->init(device, format, usage, data, dataByteLength, numVertices);
+        cobj->init(device, *format, usage, data, dataByteLength, numVertices);
+        delete format;
 
         se::Object* thisObj = s.thisObject();
         cobj->setFetchDataCallback([thisObj](size_t* bytes) ->uint8_t* {
@@ -288,9 +289,12 @@ static bool js_gfx_VertexBuffer_prop_setFormat(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        VertexFormat format = getVertexFormatFromValue(args[0]);
-        cobj->setFormat(std::move(format));
+    if (argc == 1)
+    {
+        se::Value formatVal;
+        args[0].toObject()->getProperty("_nativeObj", &formatVal);
+        auto format = static_cast<VertexFormat*>(formatVal.toObject()->getPrivateData());
+        cobj->setFormat(*format);
         return true;
     }
 
@@ -299,22 +303,22 @@ static bool js_gfx_VertexBuffer_prop_setFormat(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_VertexBuffer_prop_setFormat)
 
-static bool js_gfx_VertexBuffer_prop_getFormat(se::State& s)
-{
-    cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_VertexBuffer_prop_getFormat : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    assert(false); //FIXME:
-    if (argc == 0) {
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_VertexBuffer_prop_getFormat)
+//static bool js_gfx_VertexBuffer_prop_getFormat(se::State& s)
+//{
+//    cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
+//    SE_PRECONDITION2(cobj, false, "js_gfx_VertexBuffer_prop_getFormat : Invalid Native Object");
+//    const auto& args = s.args();
+//    size_t argc = args.size();
+//    CC_UNUSED bool ok = true;
+//    assert(false); //FIXME:
+//    if (argc == 0) {
+//        return true;
+//    }
+//
+//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+//    return false;
+//}
+//SE_BIND_PROP_GET(js_gfx_VertexBuffer_prop_getFormat)
 
 static bool js_gfx_VertexBuffer_prop_setUsage(se::State& s)
 {
@@ -793,8 +797,63 @@ static bool js_gfx_FrameBuffer_init(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_FrameBuffer_init)
 
+se::Object* __jsb_cocos2d_renderer_VertexFormat_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_VertexFormat_class = nullptr;
+
+static bool js_cocos2d_renderer_VertexFormat_finalize(se::State& s)
+{
+    cocos2d::renderer::VertexFormat* cobj = (cocos2d::renderer::VertexFormat*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_VertexFormat_getElement : Invalid Native Object");
+    delete cobj;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_VertexFormat_finalize)
+
+static bool js_gfx_VertexFormat_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (1 == argc)
+    {
+        auto vertexFormat = getVertexFormatFromValue(args[0]);
+        s.thisObject()->setPrivateData(vertexFormat);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_gfx_VertexFormat_constructor, __jsb_cocos2d_renderer_VertexFormat_class, js_cocos2d_renderer_VertexFormat_finalize)
+
+
+bool js_register_gfx_VertexFormat(se::Object* obj)
+{
+    auto cls = se::Class::create("VertexFormatNative", obj, nullptr, _SE(js_gfx_VertexFormat_constructor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_VertexFormat_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::VertexFormat>(cls);
+    
+    __jsb_cocos2d_renderer_VertexFormat_proto = cls->getProto();
+    __jsb_cocos2d_renderer_VertexFormat_class = cls;
+    
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool jsb_register_gfx_manual(se::Object* global)
 {
+    // Get the ns
+    se::Value nsVal;
+    if (!global->getProperty("gfx", &nsVal))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("gfx", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    
+    js_register_gfx_VertexFormat(ns);
+    
     __jsb_cocos2d_renderer_DeviceGraphics_proto->defineFunction("clear", _SE(js_gfx_DeviceGraphics_clear));
     __jsb_cocos2d_renderer_DeviceGraphics_proto->defineFunction("setUniform", _SE(js_gfx_DeviceGraphics_setUniform));
 

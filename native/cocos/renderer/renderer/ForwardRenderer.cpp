@@ -56,49 +56,28 @@ void ForwardRenderer::render(Scene* scene)
 {
     reset();
 
+    View view;
     const auto& cameras = scene->getCameras();
     for (auto camera : cameras)
     {
-        View* view = new View();
-        camera->extractView(*view, _width, _height);
+        camera->extractView(view, _width, _height);
         BaseRenderer::render(view, scene);
-        view->release();
     }
     
     scene->removeModels();
 }
 
-void ForwardRenderer::transparentStage(const View* view, const std::vector<StageItem>& items)
+void ForwardRenderer::transparentStage(const View& view, const std::vector<StageItem>& items)
 {
     // update uniforms
-    _device->setUniformMat4("view", view->matView);
-    _device->setUniformMat4("proj", view->matProj);
-    _device->setUniformMat4("viewProj", view->matViewProj);
+    _device->setUniformMat4("view", view.matView);
+    _device->setUniformMat4("proj", view.matProj);
+    _device->setUniformMat4("viewProj", view.matViewProj);
 
 //    RENDERER_LOGD("StageItem count: %d", (int)items.size());
     // draw it
     for (const auto& item : items)
-    {
-        // Update vertex buffer and index buffer
-//        InputAssembler* ia = item.ia;
-//        VertexBuffer* vb = ia->getVertexBuffer();
-//        size_t vertexDataBytes = 0;
-//        uint8_t* vertexData = vb->invokeFetchDataCallback(&vertexDataBytes);
-//        assert(vertexData != nullptr);
-//        assert(vertexDataBytes > 0);
-////        RENDERER_LOGD("vertexBuffer size: %d", (int)vertexDataBytes);
-//
-//        IndexBuffer* ib = ia->getIndexBuffer();
-//        size_t indexDataBytes = 0;
-//        uint8_t* indexData = ib->invokeFetchDataCallback(&indexDataBytes);
-//        assert(indexData != nullptr);
-//        assert(indexDataBytes > 0);
-////        RENDERER_LOGD("indexBuffer size: %d", (int)indexDataBytes);
-//
-//        vb->update(0, vertexData, vertexDataBytes);
-//        ib->update(0, indexData, indexDataBytes);
         draw(item);
-    }
 }
 
 RENDERER_END

@@ -78,22 +78,22 @@ void BaseRenderer::registerStage(const std::string& name, const StageCallback& c
 
 // protected functions
 
-void BaseRenderer::render(const View* view, const Scene* scene)
+void BaseRenderer::render(const View& view, const Scene* scene)
 {
     // setup framebuffer
-    _device->setFrameBuffer(view->frameBuffer);
+    _device->setFrameBuffer(view.frameBuffer);
     
     // setup viewport
-    _device->setViewport(view->rect.x,
-                         view->rect.y,
-                         view->rect.w,
-                         view->rect.h);
+    _device->setViewport(view.rect.x,
+                         view.rect.y,
+                         view.rect.w,
+                         view.rect.h);
     
     // setup clear
     Color4F clearColor;
-    if (ClearFlag::COLOR & view->clearFlags)
-        clearColor = view->color;
-    _device->clear(view->clearFlags, &clearColor, view->depth, view->stencil);
+    if (ClearFlag::COLOR & view.clearFlags)
+        clearColor = view.color;
+    _device->clear(view.clearFlags, &clearColor, view.depth, view.stencil);
     
     // get all draw items
     _drawItems.clear();
@@ -103,9 +103,9 @@ void BaseRenderer::render(const View* view, const Scene* scene)
     for (const auto& model : scene->getModels())
     {
         modelViewId = model->getViewId();
-        if (view->cullingByID)
+        if (view.cullingByID)
         {
-            if (modelViewId != view->id)
+            if (modelViewId != view.id)
                 continue;
         }
         else
@@ -126,7 +126,7 @@ void BaseRenderer::render(const View* view, const Scene* scene)
     _stageInfos.clear();
     StageItem stageItem;
     StageInfo stageInfo;
-    for (const auto& stage : view->stages)
+    for (const auto& stage : view.stages)
     {
         std::vector<StageItem> stageItems;
         for (const auto& item : _drawItems)

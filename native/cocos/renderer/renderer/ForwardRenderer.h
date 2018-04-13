@@ -37,7 +37,7 @@ public:
     void render(Scene* scene);
 
 private:
-    void transparentStage(const View* view, const std::vector<StageItem>& items);
+    void transparentStage(const View& view, const std::vector<StageItem>& items);
 
     int _width = 0;
     int _height = 0;
