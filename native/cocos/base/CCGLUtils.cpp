@@ -47,17 +47,17 @@ namespace {
 
 #endif // CC_ENABLE_GL_STATE_CACHE
 
-void ccActiveTexture(GLenum texture)
+//FIXME: need to consider invoking this after restarting game.
+void ccInvalidateStateCache()
 {
 #if CC_ENABLE_GL_STATE_CACHE
-    GLuint newTextureUnit = texture - GL_TEXTURE0;
-    if (__activeTextureUnit != newTextureUnit)
+    __currentArrayBufferId = -1;
+    __currentElementArrayBufferId = -1;
+    __activeTextureUnit = 0;
+    for (int i = 0; i < MAX_ACTIVE_TEXTURE; ++i)
     {
-        __activeTextureUnit = newTextureUnit;
-        glActiveTexture(texture);
-    }
-#else
-    glActiveTexture(texture);
+        __currentBoundTexture[i] = -1;
+    };
 #endif
 }
 
@@ -101,6 +101,32 @@ void ccBindBuffer(GLenum target, GLuint buffer)
 #endif
 }
 
+void ccDeleteBuffers(GLsizei n, const GLuint *buffers)
+{
+    for (GLsizei i = 0; i < n; ++i)
+    {
+        if (buffers[i] == __currentArrayBufferId)
+            __currentArrayBufferId = -1;
+        else if (buffers[i] == __currentElementArrayBufferId)
+            __currentElementArrayBufferId = -1;
+    }
+    glDeleteBuffers(n, buffers);
+}
+
+void ccActiveTexture(GLenum texture)
+{
+#if CC_ENABLE_GL_STATE_CACHE
+    GLuint newTextureUnit = texture - GL_TEXTURE0;
+    if (__activeTextureUnit != newTextureUnit)
+    {
+        __activeTextureUnit = newTextureUnit;
+        glActiveTexture(texture);
+    }
+#else
+    glActiveTexture(texture);
+#endif
+}
+
 void ccBindTexture(GLenum target, GLuint texture)
 {
 #if CC_ENABLE_GL_STATE_CACHE
@@ -124,6 +150,22 @@ void ccBindTexture(GLenum target, GLuint texture)
 #else
     glBindTexture(target, texture);
 #endif
+}
+
+void ccDeleteTextures(GLsizei n, const GLuint *textures)
+{
+#if CC_ENABLE_GL_STATE_CACHE
+    for (size_t i = 0; i < MAX_ACTIVE_TEXTURE; ++i)
+    {
+        for (GLsizei j = 0; j < n; ++j)
+        {
+            if (__currentBoundTexture[i] == textures[j])
+                __currentBoundTexture[i] = -1;
+        }
+    }
+#endif // CC_ENABLE_GL_STATE_CACHE
+
+    glDeleteTextures(n, textures);
 }
 
 NS_CC_END

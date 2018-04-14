@@ -256,7 +256,7 @@ namespace {
             if (_id != 0)
             {
                 SE_LOGD("Destroy WebGLTexture (%u) by GC\n", _id);
-                glDeleteTextures(1, &_id);
+                JSB_GL_CHECK_VOID(ccDeleteTextures(1, &_id));
                 safeRemoveElementFromGLObjectMap(__webglTextureMap, _id);
             }
         }
@@ -275,7 +275,7 @@ namespace {
             if (_id != 0)
             {
                 SE_LOGD("Destroy WebGLBuffer (%u) by GC\n", _id);
-                glDeleteBuffers(1, &_id);
+                JSB_GL_CHECK_VOID(ccDeleteBuffers(1, &_id));
                 safeRemoveElementFromGLObjectMap(__webglBufferMap, _id);
             }
         }
@@ -294,7 +294,7 @@ namespace {
             if (_id != 0)
             {
                 SE_LOGD("Destroy WebGLRenderbuffer (%u) by GC\n", _id);
-                glDeleteRenderbuffers(1, &_id);
+                JSB_GL_CHECK_VOID(glDeleteRenderbuffers(1, &_id));
                 safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, _id);
             }
         }
@@ -313,7 +313,7 @@ namespace {
             if (_id != __defaultFbo)
             {
                 SE_LOGD("Destroy WebGLFramebuffer (%u) by GC\n", _id);
-                glDeleteFramebuffers(1, &_id);
+                JSB_GL_CHECK_VOID(glDeleteFramebuffers(1, &_id));
                 safeRemoveElementFromGLObjectMap(__webglFramebufferMap, _id);
             }
         }
@@ -332,7 +332,7 @@ namespace {
             if (_id != 0)
             {
                 SE_LOGD("Destroy WebGLProgram (%u) by GC\n", _id);
-                glDeleteProgram(_id);
+                JSB_GL_CHECK_VOID(glDeleteProgram(_id));
                 safeRemoveElementFromGLObjectMap(__webglProgramMap, _id);
             }
         }
@@ -351,7 +351,7 @@ namespace {
             if (_id != 0)
             {
                 SE_LOGD("Destroy WebGLShader (%u) by GC\n", _id);
-                glDeleteShader(_id);
+                JSB_GL_CHECK_VOID(glDeleteShader(_id));
                 safeRemoveElementFromGLObjectMap(__webglShaderMap, _id);
             }
         }
@@ -3000,7 +3000,7 @@ static bool JSB_glDeleteTextures(se::State& s) {
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
-    JSB_GL_CHECK(glDeleteTextures(1, &id));
+    JSB_GL_CHECK(ccDeleteTextures(1, &id));
     safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
     arg0->_id = 0;
     return true;
@@ -3017,7 +3017,7 @@ static bool JSB_glDeleteBuffer(se::State& s) {
     ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint bufferId = arg0 != nullptr ? arg0->_id : 0;
-    JSB_GL_CHECK(glDeleteBuffers(1, &bufferId));
+    JSB_GL_CHECK(ccDeleteBuffers(1, &bufferId));
     safeRemoveElementFromGLObjectMap(__webglBufferMap, bufferId);
     arg0->_id = 0;
     return true;
@@ -3871,7 +3871,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_DELETE_BUFFER) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK_VOID(glDeleteBuffers(1, &id));
+            JSB_GL_CHECK_VOID(ccDeleteBuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglBufferMap, id);
             p += 2;
         }
@@ -3901,7 +3901,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_DELETE_TEXTURE) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK_VOID(glDeleteTextures(1, &id));
+            JSB_GL_CHECK_VOID(ccDeleteTextures(1, &id));
             safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
             p += 2;
         }

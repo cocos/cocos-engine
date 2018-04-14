@@ -24,13 +24,16 @@
  ****************************************************************************/
 
 #import "CCApplication.h"
-#import <UIKit/UIKit.h>
-#import "base/CCScheduler.h"
+
+#include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
+#include "base/CCGLUtils.h"
+#include "renderer/gfx/DeviceGraphics.h"
+#include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
+#include "scripting/js-bindings/event/EventDispatcher.h"
+
 #import "CCEAGLView-ios.h"
-#import "renderer/gfx/DeviceGraphics.h"
-#import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
-#import "scripting/js-bindings/event/EventDispatcher.h"
+#import <UIKit/UIKit.h>
 
 namespace
 {
@@ -118,6 +121,7 @@ namespace
 -(void) firstStart:(id) view
 {
     if ([view isReady]) {
+        ccInvalidateStateCache();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
 

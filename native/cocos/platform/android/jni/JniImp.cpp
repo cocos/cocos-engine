@@ -35,6 +35,7 @@
 #include "platform/android/CCFileUtils-android.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
+#include "base/CCGLUtils.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
@@ -128,6 +129,7 @@ extern "C"
 
     JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
     {
+        ccInvalidateStateCache();
         std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
         LOGD("CocosRenderer.nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
         g_width = w;

@@ -29,8 +29,13 @@
 
 NS_CC_BEGIN
 
-void ccActiveTexture(GLenum texture);
+void ccInvalidateStateCache();
+
 void ccBindBuffer(GLenum target, GLuint buffer);
+void ccDeleteBuffers(GLsizei n, const GLuint *buffers);
+
+void ccActiveTexture(GLenum texture);
 void ccBindTexture(GLenum target, GLuint texture);
+void ccDeleteTextures(GLsizei n, const GLuint *textures);
 
 NS_CC_END
