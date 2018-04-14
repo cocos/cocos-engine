@@ -69,7 +69,7 @@ let spriteAssembler = js.addon({
 
     updateRenderData (sprite, batchData) {
         let datas = sprite.__allocedDatas;
-        if (sprite.spriteFrame && sprite._material && sprite._renderData) {
+        if (sprite._spriteFrame && sprite._material && sprite._renderData) {
             sprite._assembler.update(sprite, batchData);
         }
 
