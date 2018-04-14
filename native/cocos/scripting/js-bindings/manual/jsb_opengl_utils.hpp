@@ -59,5 +59,6 @@
                 } while(false)
 #else
     #define JSB_GL_CHECK(_call)   _call
+    #define JSB_GL_CHECK_VOID(_call)   _call
     #define JSB_GL_CHECK_ERROR() 
 #endif // BRENDERER_CONFIG_DEBUG

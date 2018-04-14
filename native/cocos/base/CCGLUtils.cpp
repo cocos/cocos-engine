@@ -73,10 +73,10 @@ void ccBindBuffer(GLenum target, GLuint buffer)
             __currentArrayBufferId = buffer;
             glBindBuffer(target, buffer);
         }
-        else
-        {
-            printf("glBindBuffer(GL_ARRAY_BUFFER, %u) isn't needed!\n", buffer);
-        }
+//        else
+//        {
+//            printf("glBindBuffer(GL_ARRAY_BUFFER, %u) isn't needed!\n", buffer);
+//        }
     }
     else if (target == GL_ELEMENT_ARRAY_BUFFER)
     {
@@ -87,10 +87,10 @@ void ccBindBuffer(GLenum target, GLuint buffer)
             __currentElementArrayBufferId = buffer;
             glBindBuffer(target, buffer);
         }
-        else
-        {
-            printf("glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, %u) isn't needed!\n", buffer);
-        }
+//        else
+//        {
+//            printf("glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, %u) isn't needed!\n", buffer);
+//        }
     }
     else
     {
@@ -138,10 +138,10 @@ void ccBindTexture(GLenum target, GLuint texture)
             __currentBoundTexture[__activeTextureUnit] = texture;
             glBindTexture(target, texture);
         }
-        else
-        {
-            printf("glBindTexture(GL_TEXTURE_2D, %u) isn't needed!\n", texture);
-        }
+//        else
+//        {
+//            printf("glBindTexture(GL_TEXTURE_2D, %u) isn't needed!\n", texture);
+//        }
     }
     else
     {

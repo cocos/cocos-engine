@@ -121,7 +121,7 @@ namespace
 -(void) firstStart:(id) view
 {
     if ([view isReady]) {
-        ccInvalidateStateCache();
+        cocos2d::ccInvalidateStateCache();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
 
