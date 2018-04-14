@@ -277,9 +277,9 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-    assert(rect.origin.x == 0 && rect.origin.y == 0);
+//    assert(rect.origin.x == 0 && rect.origin.y == 0);
 //    NSLog(@"clearRect, image:%f, %f", _image.size.width, _image.size.height);
-    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
+//    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
 
     [_image lockFocus];
     [[NSColor clearColor] set];
@@ -378,7 +378,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-//    SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     if (_isBufferSizeDirty)

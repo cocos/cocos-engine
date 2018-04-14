@@ -29,8 +29,11 @@
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 #include "platform/CCGL.h"
+#include "cocos/base/CCGLUtils.h"
 
 #include <regex>
+
+using namespace cocos2d;
 
 namespace {
 
@@ -160,7 +163,7 @@ namespace {
     bool __unpackFlipY = false;
     bool __premultiplyAlpha = false;
 
-    void WEBGL_framebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+    inline void WEBGL_framebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
     {
         if (attachment == GL_DEPTH_STENCIL_ATTACHMENT)
         {
@@ -173,12 +176,33 @@ namespace {
         }
     }
 
-    void WEBGL_renderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+    inline void WEBGL_renderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
     {
         if (internalformat == GL_DEPTH_STENCIL )
             internalformat = GL_DEPTH24_STENCIL8;
 
         glRenderbufferStorage(target, internalformat, width, height);
+    }
+
+    inline void WEBGL_pixelStorei(GLenum pname, GLint param)
+    {
+        if (pname == GL_UNPACK_FLIP_Y_WEBGL)
+        {
+            __unpackFlipY = param == 0 ? false : true;
+            return;
+        }
+        else if (pname == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
+        {
+            __premultiplyAlpha = param == 0 ? false : true;
+            return;
+        }
+        else if (pname == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
+        {
+            SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
+            return;
+        }
+
+        glPixelStorei(pname, param);
     }
 
     class WebGLObject
@@ -628,7 +652,7 @@ static bool JSB_glActiveTexture(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glActiveTexture((GLenum)arg0));
+    JSB_GL_CHECK(ccActiveTexture((GLenum)arg0));
 
     return true;
 }
@@ -678,12 +702,7 @@ static bool JSB_glBindAttribLocation(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glBindAttribLocation)
 
-uint32_t __bindBufferCount = 0;
-
-// Arguments: GLenum, GLuint
-// Ret value: void
 static bool JSB_glBindBuffer(se::State& s) {
-    ++__bindBufferCount;
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
@@ -694,7 +713,7 @@ static bool JSB_glBindBuffer(se::State& s) {
     ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint bufferId = arg1 != nullptr ? arg1->_id : 0;
-    JSB_GL_CHECK(glBindBuffer((GLenum)arg0 , bufferId));
+    JSB_GL_CHECK(ccBindBuffer((GLenum)arg0 , bufferId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindBuffer)
@@ -752,8 +771,7 @@ static bool JSB_glBindTexture(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLuint textureId = arg1 != nullptr ? arg1->_id : 0;
-    JSB_GL_CHECK(glBindTexture((GLenum)arg0 , textureId));
-
+    JSB_GL_CHECK(ccBindTexture((GLenum)arg0 , textureId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindTexture)
@@ -1847,24 +1865,7 @@ static bool JSB_glPixelStorei(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if (arg0 == GL_UNPACK_FLIP_Y_WEBGL)
-    {
-        __unpackFlipY = arg1 == 0 ? false : true;
-        return true;
-    }
-    else if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
-    {
-        __premultiplyAlpha = arg1 == 0 ? false : true;
-        return true;
-    }
-    else if (arg0 == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
-    {
-        SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
-        return true;
-    }
-
-    JSB_GL_CHECK(glPixelStorei((GLenum)arg0 , (GLint)arg1  ));
-
+    JSB_GL_CHECK(WEBGL_pixelStorei((GLenum)arg0 , (GLint)arg1  ));
     return true;
 }
 SE_BIND_FUNC(JSB_glPixelStorei)
@@ -2197,9 +2198,7 @@ static bool JSB_glTexParameteri(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
     JSB_GL_CHECK(glTexParameteri((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2  ));
-
     return true;
 }
 SE_BIND_FUNC(JSB_glTexParameteri)
@@ -2672,13 +2671,12 @@ static bool JSB_glValidateProgram(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 1, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0;
-
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLProgram* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glValidateProgram((GLuint)arg0  ));
-
+    GLuint id = arg0 != nullptr ? arg0->_id : 0;
+    JSB_GL_CHECK(glValidateProgram(id));
     return true;
 }
 SE_BIND_FUNC(JSB_glValidateProgram)
@@ -3788,7 +3786,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         testindex++;
         uint32_t commandID = (uint32_t)p[0];
         if (commandID == GL_COMMAND_ACTIVE_TEXTURE) {
-            JSB_GL_CHECK(glActiveTexture((GLenum)p[1]));
+            JSB_GL_CHECK(ccActiveTexture((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ATTACH_SHADER) {
@@ -3796,7 +3794,8 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_BUFFER) {
-            JSB_GL_CHECK(glBindBuffer((GLenum)p[1], (GLuint)p[2]));
+            GLuint bufferId = (GLuint)p[2];
+            JSB_GL_CHECK(ccBindBuffer((GLenum)p[1], bufferId));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
@@ -3811,7 +3810,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_TEXTURE) {
-            JSB_GL_CHECK(glBindTexture((GLenum)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK(ccBindTexture((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_COLOR) {
@@ -3983,25 +3982,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 2;
         }
         else if (commandID == GL_COMMAND_PIXEL_STOREI) {
-            GLenum arg0 = p[1];
-            GLint arg1 = (GLint)p[2];
-            if (arg0 == GL_UNPACK_FLIP_Y_WEBGL)
-            {
-                __unpackFlipY = arg1 == 0 ? false : true;
-                return true;
-            }
-            else if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
-            {
-                __premultiplyAlpha = arg1 == 0 ? false : true;
-                return true;
-            }
-            else if (arg0 == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
-            {
-                SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
-                return true;
-            }
-
-            JSB_GL_CHECK(glPixelStorei(arg0, arg1));
+            JSB_GL_CHECK(WEBGL_pixelStorei((GLenum)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_POLYGON_OFFSET) {
@@ -4378,7 +4359,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("uniformMatrix3fv", _SE(JSB_glUniformMatrix3fv));
     __glObj->defineFunction("uniformMatrix4fv", _SE(JSB_glUniformMatrix4fv));
     __glObj->defineFunction("useProgram", _SE(JSB_glUseProgram));
-    __glObj->defineFunction("_validateProgram", _SE(JSB_glValidateProgram));
+    __glObj->defineFunction("validateProgram", _SE(JSB_glValidateProgram));
     __glObj->defineFunction("vertexAttrib1f", _SE(JSB_glVertexAttrib1f));
     __glObj->defineFunction("vertexAttrib1fv", _SE(JSB_glVertexAttrib1fv));
     __glObj->defineFunction("vertexAttrib2f", _SE(JSB_glVertexAttrib2f));

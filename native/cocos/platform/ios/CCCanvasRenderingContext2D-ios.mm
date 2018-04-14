@@ -285,7 +285,7 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-    assert(rect.origin.x == 0 && rect.origin.y == 0);
+//    assert(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
