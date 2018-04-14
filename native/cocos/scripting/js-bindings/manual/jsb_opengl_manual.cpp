@@ -4373,7 +4373,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
 
     // NOT WEBGL standard functions
-    __glObj->defineFunction("flushCommand", _SE(JSB_glFlushCommand));
+    __glObj->defineFunction("_flushCommands", _SE(JSB_glFlushCommand));
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
         __shaders.clear();
