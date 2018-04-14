@@ -27,11 +27,16 @@
 
 NS_CC_BEGIN
 
+// #undef CC_ENABLE_GL_STATE_CACHE
+// #define CC_ENABLE_GL_STATE_CACHE 0
+
+#if CC_ENABLE_GL_STATE_CACHE
+
 namespace {
     const int MAX_ACTIVE_TEXTURE = 16;
     GLuint __currentArrayBufferId = -1;
     GLuint __currentElementArrayBufferId = -1;
-    GLenum __activeTexture = -1;
+    GLuint __activeTextureUnit = 0;
     GLuint __currentBoundTexture[MAX_ACTIVE_TEXTURE] =  {
         (GLuint)-1,(GLuint)-1,(GLuint)-1,(GLuint)-1,
         (GLuint)-1,(GLuint)-1,(GLuint)-1,(GLuint)-1,
@@ -40,19 +45,29 @@ namespace {
     };
 }
 
+#endif // CC_ENABLE_GL_STATE_CACHE
+
 void ccActiveTexture(GLenum texture)
 {
-    if (__activeTexture != texture)
+#if CC_ENABLE_GL_STATE_CACHE
+    GLuint newTextureUnit = texture - GL_TEXTURE0;
+    if (__activeTextureUnit != newTextureUnit)
     {
-        __activeTexture = texture;
-        glActiveTexture(__activeTexture);
+        __activeTextureUnit = newTextureUnit;
+        glActiveTexture(texture);
     }
+#else
+    glActiveTexture(texture);
+#endif
 }
 
 void ccBindBuffer(GLenum target, GLuint buffer)
 {
+#if CC_ENABLE_GL_STATE_CACHE
     if (target == GL_ARRAY_BUFFER)
     {
+        if (buffer == 0)
+            return;
         if (__currentArrayBufferId != buffer)
         {
             __currentArrayBufferId = buffer;
@@ -65,6 +80,8 @@ void ccBindBuffer(GLenum target, GLuint buffer)
     }
     else if (target == GL_ELEMENT_ARRAY_BUFFER)
     {
+        if (buffer == 0)
+            return;
         if (__currentElementArrayBufferId != buffer)
         {
             __currentElementArrayBufferId = buffer;
@@ -79,17 +96,20 @@ void ccBindBuffer(GLenum target, GLuint buffer)
     {
         glBindBuffer(target, buffer);
     }
+#else
+    glBindBuffer(target, buffer);
+#endif
 }
 
 void ccBindTexture(GLenum target, GLuint texture)
 {
+#if CC_ENABLE_GL_STATE_CACHE
     if (target == GL_TEXTURE_2D)
     {
-        GLuint textureUnit = __activeTexture - GL_TEXTURE0;
-        CCASSERT(textureUnit < MAX_ACTIVE_TEXTURE, "textureUnit is too big");
-        if (__currentBoundTexture[textureUnit] != texture)
+        CCASSERT(__activeTextureUnit < MAX_ACTIVE_TEXTURE, "textureUnit is too big");
+        if (__currentBoundTexture[__activeTextureUnit] != texture)
         {
-            __currentBoundTexture[textureUnit] = texture;
+            __currentBoundTexture[__activeTextureUnit] = texture;
             glBindTexture(target, texture);
         }
         else
@@ -101,6 +121,9 @@ void ccBindTexture(GLenum target, GLuint texture)
     {
         glBindTexture(target, texture);
     }
+#else
+    glBindTexture(target, texture);
+#endif
 }
 
 NS_CC_END

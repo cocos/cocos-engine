@@ -3786,303 +3786,303 @@ static bool JSB_glFlushCommand(se::State& s) {
         testindex++;
         uint32_t commandID = (uint32_t)p[0];
         if (commandID == GL_COMMAND_ACTIVE_TEXTURE) {
-            JSB_GL_CHECK(ccActiveTexture((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(ccActiveTexture((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ATTACH_SHADER) {
-            JSB_GL_CHECK(glAttachShader((GLuint)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK_VOID(glAttachShader((GLuint)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_BUFFER) {
             GLuint bufferId = (GLuint)p[2];
-            JSB_GL_CHECK(ccBindBuffer((GLenum)p[1], bufferId));
+            JSB_GL_CHECK_VOID(ccBindBuffer((GLenum)p[1], bufferId));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
             GLuint fbo = (GLuint)p[2];
             if (fbo == 0)
                 fbo = __defaultFbo;
-            JSB_GL_CHECK(glBindFramebuffer((GLenum)p[1], fbo));
+            JSB_GL_CHECK_VOID(glBindFramebuffer((GLenum)p[1], fbo));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_RENDER_BUFFER) {
-            JSB_GL_CHECK(glBindRenderbuffer((GLenum)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK_VOID(glBindRenderbuffer((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_TEXTURE) {
-            JSB_GL_CHECK(ccBindTexture((GLenum)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK_VOID(ccBindTexture((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_COLOR) {
-            JSB_GL_CHECK(glBlendColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
+            JSB_GL_CHECK_VOID(glBlendColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_BLEND_EQUATION) {
-            JSB_GL_CHECK(glBlendEquation((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glBlendEquation((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_BLEND_EQUATION_SEPARATE) {
-            JSB_GL_CHECK(glBlendEquationSeparate((GLenum)p[1], (GLenum)p[2]));
+            JSB_GL_CHECK_VOID(glBlendEquationSeparate((GLenum)p[1], (GLenum)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_FUNC) {
-            JSB_GL_CHECK(glBlendFunc((GLenum)p[1], (GLenum)p[2]));
+            JSB_GL_CHECK_VOID(glBlendFunc((GLenum)p[1], (GLenum)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_FUNC_SEPARATE) {
-            JSB_GL_CHECK(glBlendFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
+            JSB_GL_CHECK_VOID(glBlendFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_CLEAR) {
-            JSB_GL_CHECK(glClear((GLbitfield)p[1]));
+            JSB_GL_CHECK_VOID(glClear((GLbitfield)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_CLEAR_COLOR) {
-            JSB_GL_CHECK(glClearColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
+            JSB_GL_CHECK_VOID(glClearColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_CLEAR_DEPTH) {
-            JSB_GL_CHECK(glClearDepthf(p[1]));
+            JSB_GL_CHECK_VOID(glClearDepthf(p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_CLEAR_STENCIL) {
-            JSB_GL_CHECK(glClearStencil((GLint)p[1]));
+            JSB_GL_CHECK_VOID(glClearStencil((GLint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_COLOR_MASK) {
-            JSB_GL_CHECK(glColorMask((GLboolean)p[1], (GLboolean)p[2], (GLboolean)p[3], (GLboolean)p[4]));
+            JSB_GL_CHECK_VOID(glColorMask((GLboolean)p[1], (GLboolean)p[2], (GLboolean)p[3], (GLboolean)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_COMPILE_SHADER) {
-            JSB_GL_CHECK(glCompileShader((GLuint)p[1]));
+            JSB_GL_CHECK_VOID(glCompileShader((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_COPY_TEX_IMAGE_2D) {
-            JSB_GL_CHECK(glCopyTexImage2D((GLenum)p[1], (GLint)p[2], (GLenum)p[3], (GLint)p[4], (GLint)p[5], (GLsizei)p[6], (GLsizei)p[7], (GLint)p[8]));
+            JSB_GL_CHECK_VOID(glCopyTexImage2D((GLenum)p[1], (GLint)p[2], (GLenum)p[3], (GLint)p[4], (GLint)p[5], (GLsizei)p[6], (GLsizei)p[7], (GLint)p[8]));
             p += 9;
         }
         else if (commandID == GL_COMMAND_COPY_TEX_SUB_IMAGE_2D) {
-            JSB_GL_CHECK(glCopyTexSubImage2D((GLenum)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5], (GLint)p[6], (GLsizei)p[7], (GLsizei)p[8]));
+            JSB_GL_CHECK_VOID(glCopyTexSubImage2D((GLenum)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5], (GLint)p[6], (GLsizei)p[7], (GLsizei)p[8]));
             p += 9;
         }
         else if (commandID == GL_COMMAND_CULL_FACE) {
-            JSB_GL_CHECK(glCullFace((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glCullFace((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_BUFFER) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteBuffers(1, &id));
+            JSB_GL_CHECK_VOID(glDeleteBuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglBufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_FRAME_BUFFER) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteFramebuffers(1, &id));
+            JSB_GL_CHECK_VOID(glDeleteFramebuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglFramebufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_PROGRAM) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteProgram(id));
+            JSB_GL_CHECK_VOID(glDeleteProgram(id));
             safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_RENDER_BUFFER) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteRenderbuffers(1, &id));
+            JSB_GL_CHECK_VOID(glDeleteRenderbuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_SHADER) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteShader(id));
+            JSB_GL_CHECK_VOID(glDeleteShader(id));
             safeRemoveElementFromGLObjectMap(__webglShaderMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_TEXTURE) {
             GLuint id = (GLuint)p[1];
-            JSB_GL_CHECK(glDeleteTextures(1, &id));
+            JSB_GL_CHECK_VOID(glDeleteTextures(1, &id));
             safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_FUNC) {
-            JSB_GL_CHECK(glDepthFunc((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glDepthFunc((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_MASK) {
-            JSB_GL_CHECK(glDepthMask((GLboolean)p[1]));
+            JSB_GL_CHECK_VOID(glDepthMask((GLboolean)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_RANGE) {
-            JSB_GL_CHECK(glDepthRangef(p[1], p[2]));
+            JSB_GL_CHECK_VOID(glDepthRangef(p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_DETACH_SHADER) {
-            JSB_GL_CHECK(glDetachShader((GLuint)p[1], (GLuint) p[2]));
+            JSB_GL_CHECK_VOID(glDetachShader((GLuint)p[1], (GLuint) p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_DISABLE) {
-            JSB_GL_CHECK(glDisable((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glDisable((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DISABLE_VERTEX_ATTRIB_ARRAY) {
-            JSB_GL_CHECK(glDisableVertexAttribArray((GLuint)p[1]));
+            JSB_GL_CHECK_VOID(glDisableVertexAttribArray((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DRAW_ARRAYS) {
-            JSB_GL_CHECK(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
+            JSB_GL_CHECK_VOID(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_DRAW_ELEMENTS) {
-            JSB_GL_CHECK(glDrawElements((GLenum)p[1], (GLsizei)p[2], (GLenum)p[3], (const GLvoid*)(intptr_t)p[4]));
+            JSB_GL_CHECK_VOID(glDrawElements((GLenum)p[1], (GLsizei)p[2], (GLenum)p[3], (const GLvoid*)(intptr_t)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_ENABLE) {
-            JSB_GL_CHECK(glEnable((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glEnable((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ENABLE_VERTEX_ATTRIB_ARRAY) {
-            JSB_GL_CHECK(glEnableVertexAttribArray((GLuint)p[1]));
+            JSB_GL_CHECK_VOID(glEnableVertexAttribArray((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_FINISH) {
-            JSB_GL_CHECK(glFinish());
+            JSB_GL_CHECK_VOID(glFinish());
             p += 1;
         }
         else if (commandID == GL_COMMAND_FLUSH) {
-            JSB_GL_CHECK(glFlush());
+            JSB_GL_CHECK_VOID(glFlush());
             p += 1;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_RENDER_BUFFER) {
-            JSB_GL_CHECK(WEBGL_framebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
+            JSB_GL_CHECK_VOID(WEBGL_framebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_TEXTURE_2D) {
-            JSB_GL_CHECK(glFramebufferTexture2D((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4], (GLint)p[5]));
+            JSB_GL_CHECK_VOID(glFramebufferTexture2D((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4], (GLint)p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_FRONT_FACE) {
-            JSB_GL_CHECK(glFrontFace((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glFrontFace((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_GENERATE_MIPMAP) {
-            JSB_GL_CHECK(glGenerateMipmap((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(glGenerateMipmap((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_HINT) {
-            JSB_GL_CHECK(glHint((GLenum)p[1], (GLenum)p[2]));;
+            JSB_GL_CHECK_VOID(glHint((GLenum)p[1], (GLenum)p[2]));;
             p += 3;
         }
         else if (commandID == GL_COMMAND_LINE_WIDTH) {
-            JSB_GL_CHECK(glLineWidth(p[1]));
+            JSB_GL_CHECK_VOID(glLineWidth(p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_LINK_PROGRAM) {
-            JSB_GL_CHECK(glLinkProgram((GLuint)p[1]));
+            JSB_GL_CHECK_VOID(glLinkProgram((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_PIXEL_STOREI) {
-            JSB_GL_CHECK(WEBGL_pixelStorei((GLenum)p[1], (GLint)p[2]));
+            JSB_GL_CHECK_VOID(WEBGL_pixelStorei((GLenum)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_POLYGON_OFFSET) {
-            JSB_GL_CHECK(glPolygonOffset(p[1], p[2]));
+            JSB_GL_CHECK_VOID(glPolygonOffset(p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_RENDER_BUFFER_STORAGE) {
-            JSB_GL_CHECK(WEBGL_renderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK_VOID(WEBGL_renderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_SAMPLE_COVERAGE) {
-            JSB_GL_CHECK(glSampleCoverage(p[1], (GLboolean)p[2]));
+            JSB_GL_CHECK_VOID(glSampleCoverage(p[1], (GLboolean)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_SCISSOR) {
-            JSB_GL_CHECK(glScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK_VOID(glScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_STENCIL_FUNC) {
-            JSB_GL_CHECK(glStencilFunc((GLenum)p[1], (GLint)p[2], (GLuint)p[3]));
+            JSB_GL_CHECK_VOID(glStencilFunc((GLenum)p[1], (GLint)p[2], (GLuint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_STENCIL_FUNC_SEPARATE) {
-            JSB_GL_CHECK(glStencilFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLint)p[3], (GLuint)p[4]));
+            JSB_GL_CHECK_VOID(glStencilFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLint)p[3], (GLuint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_STENCIL_MASK) {
-            JSB_GL_CHECK(glStencilMask((GLuint)p[1]));
+            JSB_GL_CHECK_VOID(glStencilMask((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_STENCIL_MASK_SEPARATE) {
-            JSB_GL_CHECK(glStencilMaskSeparate((GLenum)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK_VOID(glStencilMaskSeparate((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_STENCIL_OP) {
-            JSB_GL_CHECK(glStencilOp((GLenum)p[1], (GLenum)p[2], (GLenum)p[3]));
+            JSB_GL_CHECK_VOID(glStencilOp((GLenum)p[1], (GLenum)p[2], (GLenum)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_STENCIL_OP_SEPARATE) {
-            JSB_GL_CHECK(glStencilOpSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
+            JSB_GL_CHECK_VOID(glStencilOpSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_TEX_PARAMETER_F) {
-            JSB_GL_CHECK(glTexParameterf((GLenum)p[1], (GLenum)p[2], p[3]));
+            JSB_GL_CHECK_VOID(glTexParameterf((GLenum)p[1], (GLenum)p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_TEX_PARAMETER_I) {
-            JSB_GL_CHECK(glTexParameteri((GLenum)p[1], (GLenum)p[2], (GLint)p[3]));
+            JSB_GL_CHECK_VOID(glTexParameteri((GLenum)p[1], (GLenum)p[2], (GLint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1F) {
-            JSB_GL_CHECK(glUniform1f((GLint)p[1], p[2]));
+            JSB_GL_CHECK_VOID(glUniform1f((GLint)p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_UNIFORM_2F) {
-            JSB_GL_CHECK(glUniform2f((GLint)p[1], p[2], p[3]));
+            JSB_GL_CHECK_VOID(glUniform2f((GLint)p[1], p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_3F) {
-            JSB_GL_CHECK(glUniform3f((GLint)p[1], p[2], p[3], p[4]));
+            JSB_GL_CHECK_VOID(glUniform3f((GLint)p[1], p[2], p[3], p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_UNIFORM_4F) {
-            JSB_GL_CHECK(glUniform4f((GLint)p[1], p[2], p[3], p[4], p[5]));
+            JSB_GL_CHECK_VOID(glUniform4f((GLint)p[1], p[2], p[3], p[4], p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1I) {
-            JSB_GL_CHECK(glUniform1i((GLint)p[1], (GLint)p[2]));
+            JSB_GL_CHECK_VOID(glUniform1i((GLint)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_UNIFORM_2I) {
-            JSB_GL_CHECK(glUniform2i((GLint)p[1], (GLint)p[2], (GLint)p[3]));
+            JSB_GL_CHECK_VOID(glUniform2i((GLint)p[1], (GLint)p[2], (GLint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_3I) {
-            JSB_GL_CHECK(glUniform3i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4]));
+            JSB_GL_CHECK_VOID(glUniform3i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_UNIFORM_4I) {
-            JSB_GL_CHECK(glUniform4i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5]));
+            JSB_GL_CHECK_VOID(glUniform4i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glUniform1fv((GLint)p[1], elementCount, &p[3]));
+            JSB_GL_CHECK_VOID(glUniform1fv((GLint)p[1], elementCount, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_2FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glUniform2fv((GLint)p[1], elementCount / 2, &p[3]));
+            JSB_GL_CHECK_VOID(glUniform2fv((GLint)p[1], elementCount / 2, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_3FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glUniform3fv((GLint)p[1], elementCount / 3, &p[3]));
+            JSB_GL_CHECK_VOID(glUniform3fv((GLint)p[1], elementCount / 3, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_4FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glUniform4fv((GLint)p[1], elementCount / 3, &p[3]));
+            JSB_GL_CHECK_VOID(glUniform4fv((GLint)p[1], elementCount / 3, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_1IV) {
@@ -4092,7 +4092,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 intBuf[i] = p[3+i];
             }
-            JSB_GL_CHECK(glUniform1iv((GLint)p[1], elementCount, intBuf));
+            JSB_GL_CHECK_VOID(glUniform1iv((GLint)p[1], elementCount, intBuf));
             free(intBuf);
             p += (elementCount + 3);
         }
@@ -4103,7 +4103,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 intBuf[i] = p[3+i];
             }
-            JSB_GL_CHECK(glUniform2iv((GLint)p[1], elementCount / 2, intBuf));
+            JSB_GL_CHECK_VOID(glUniform2iv((GLint)p[1], elementCount / 2, intBuf));
             free(intBuf);
             p += (elementCount + 3);
         }
@@ -4114,7 +4114,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 intBuf[i] = p[3+i];
             }
-            JSB_GL_CHECK(glUniform3iv((GLint)p[1], elementCount / 3, intBuf));
+            JSB_GL_CHECK_VOID(glUniform3iv((GLint)p[1], elementCount / 3, intBuf));
             free(intBuf);
             p += (elementCount + 3);
         }
@@ -4125,75 +4125,75 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 intBuf[i] = p[3+i];
             }
-            JSB_GL_CHECK(glUniform4iv((GLint)p[1], elementCount / 4, intBuf));
+            JSB_GL_CHECK_VOID(glUniform4iv((GLint)p[1], elementCount / 4, intBuf));
             free(intBuf);
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_2FV) {
             GLsizei elementCount = (GLsizei)p[3];
-            JSB_GL_CHECK(glUniformMatrix2fv((GLint)p[1], elementCount / 4, (GLboolean)p[2], &p[4]));
+            JSB_GL_CHECK_VOID(glUniformMatrix2fv((GLint)p[1], elementCount / 4, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_3FV) {
             GLsizei elementCount = (GLsizei)p[3];
-            JSB_GL_CHECK(glUniformMatrix3fv((GLint)p[1], elementCount / 9, (GLboolean)p[2], &p[4]));
+            JSB_GL_CHECK_VOID(glUniformMatrix3fv((GLint)p[1], elementCount / 9, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_4FV) {
             GLsizei elementCount = (GLsizei)p[3];
-            JSB_GL_CHECK(glUniformMatrix4fv((GLint)p[1], elementCount / 16, (GLboolean)p[2], &p[4]));
+            JSB_GL_CHECK_VOID(glUniformMatrix4fv((GLint)p[1], elementCount / 16, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_USE_PROGRAM) {
-            JSB_GL_CHECK(glUseProgram((GLuint) p[1]));
+            JSB_GL_CHECK_VOID(glUseProgram((GLuint) p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_VALIDATE_PROGRAM) {
-            JSB_GL_CHECK(glValidateProgram((GLuint) p[1]));
+            JSB_GL_CHECK_VOID(glValidateProgram((GLuint) p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1F) {
-            JSB_GL_CHECK(glVertexAttrib1f((GLuint)p[1], p[2]));
+            JSB_GL_CHECK_VOID(glVertexAttrib1f((GLuint)p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2F) {
-            JSB_GL_CHECK(glVertexAttrib2f((GLuint)p[1], p[2], p[3]));
+            JSB_GL_CHECK_VOID(glVertexAttrib2f((GLuint)p[1], p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3F) {
-            JSB_GL_CHECK(glVertexAttrib3f((GLuint)p[1], p[2], p[3], p[4]));
+            JSB_GL_CHECK_VOID(glVertexAttrib3f((GLuint)p[1], p[2], p[3], p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4F) {
-            JSB_GL_CHECK(glVertexAttrib4f((GLuint)p[1], p[2], p[3], p[4], p[5]));
+            JSB_GL_CHECK_VOID(glVertexAttrib4f((GLuint)p[1], p[2], p[3], p[4], p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glVertexAttrib1fv((GLint)p[1], &p[3]));
+            JSB_GL_CHECK_VOID(glVertexAttrib1fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glVertexAttrib2fv((GLint)p[1], &p[3]));
+            JSB_GL_CHECK_VOID(glVertexAttrib2fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glVertexAttrib3fv((GLint)p[1], &p[3]));
+            JSB_GL_CHECK_VOID(glVertexAttrib3fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4FV) {
             GLsizei elementCount = (GLsizei)p[2];
-            JSB_GL_CHECK(glVertexAttrib4fv((GLint)p[1], &p[3]));
+            JSB_GL_CHECK_VOID(glVertexAttrib4fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_POINTER) {
-            JSB_GL_CHECK(glVertexAttribPointer((GLuint)p[1], (GLint)p[2], (GLenum)p[3], (GLboolean)p[4], (GLsizei)p[5], (const GLvoid*)(GLintptr)p[6]));
+            JSB_GL_CHECK_VOID(glVertexAttribPointer((GLuint)p[1], (GLint)p[2], (GLenum)p[3], (GLboolean)p[4], (GLsizei)p[5], (const GLvoid*)(GLintptr)p[6]));
             p += 7;
         }
         else if (commandID == GL_COMMAND_VIEW_PORT) {
-            JSB_GL_CHECK(glViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK_VOID(glViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else {
@@ -4204,7 +4204,6 @@ static bool JSB_glFlushCommand(se::State& s) {
     return true;
 }
 SE_BIND_FUNC(JSB_glFlushCommand)
-
 
 bool JSB_register_opengl(se::Object* obj)
 {
