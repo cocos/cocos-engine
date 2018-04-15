@@ -502,6 +502,7 @@ _ccsg.Label = _ccsg.Node.extend({
             //avoid the error in wechat devtool platform
             if (!fontFamilyName) {
                 fontFamilyName = cc.CustomFontLoader._getFontFamily(fontHandle);
+                cc.warn("TTF font is not supported on debugger, but it will be displayed correctly on mobile device.");
             }
             callback();
         } else {
