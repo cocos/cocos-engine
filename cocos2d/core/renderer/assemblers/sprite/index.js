@@ -27,6 +27,8 @@ const js = require('../../../platform/js');
 const assembler = require('../assembler');
 const Sprite = require('../../../components/CCSprite');
 const renderEngine = require('../../render-engine');
+const atlasPakcer = require('../../utils/atlas/atlas-packer');
+
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 
@@ -40,6 +42,10 @@ const meshRenderUtil = require('./mesh');
 // Inline all type switch to avoid jit deoptimization during inlined function change
 let spriteAssembler = js.addon({
     useModel: false,
+
+    checkPacker (comp) {
+        atlasPakcer.insertSpriteFrame(comp.spriteFrame);
+    },
 
     getAssembler (sprite) {
         let util = simpleRenderUtil;

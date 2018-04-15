@@ -28,6 +28,7 @@ const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
 const hierarchyChain = require('./utils/hierarchy-chain');
+
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -40,6 +41,8 @@ const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
+
+const AUTO_PACK_ATLAS = true;
 
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
@@ -258,6 +261,13 @@ RenderComponentWalker.prototype = {
             cullingMask = 1,
             broken = false,
             iaData = false;
+
+        if (AUTO_PACK_ATLAS && assembler.checkPacker) {
+            assembler.checkPacker(comp);
+        }
+        if (comp._activateMaterial) {
+            comp._activateMaterial();
+        }
 
         // Update render data
         datas = assembler.updateRenderData(comp, batchData);

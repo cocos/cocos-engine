@@ -383,7 +383,6 @@ var Label = cc.Class({
                 this._fontAtlas = null;
                 this._material = null;
                 this._updateAssembler();
-                this._activateMaterial();
                 this._updateRenderData();
             },
             type: cc.Font,
@@ -470,7 +469,6 @@ var Label = cc.Class({
         this._super();
 
         this._updateAssembler();
-        this._activateMaterial();
     },
 
     onDestroy () {
