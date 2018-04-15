@@ -352,9 +352,6 @@ RenderComponentWalker.prototype = {
                 }
                 assembler = comp.constructor._postAssembler;
             }
-            if (!assembler) {
-                continue;
-            }
 
             // Transform
             if (node._worldMatDirty) {
