@@ -29,43 +29,47 @@ const FillType = Sprite.FillType;
 const simpleRenderUtil = require('./simple');
 
 module.exports = {
-    update (sprite, batchData) {
+    useModel: false,
+    updateRenderData (sprite) {
         let renderData = sprite._renderData;
-        let uvDirty = renderData.uvDirty,
-            vertDirty = renderData.vertDirty;
+        if (renderData && sprite._material) {
+            let uvDirty = renderData.uvDirty,
+                vertDirty = renderData.vertDirty;
 
-        if (!uvDirty && !vertDirty) return;
+            if (!uvDirty && !vertDirty) return;
 
-        let fillStart = sprite._fillStart;
-        let fillRange = sprite._fillRange;
+            let fillStart = sprite._fillStart;
+            let fillRange = sprite._fillRange;
 
-        if (fillRange < 0) {
-            fillStart += fillRange;
-            fillRange = -fillRange;
+            if (fillRange < 0) {
+                fillStart += fillRange;
+                fillRange = -fillRange;
+            }
+
+            fillRange = fillStart + fillRange;
+
+            fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+            fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+
+            fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+            fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+            fillRange = fillRange - fillStart;
+            fillRange = fillRange < 0 ? 0 : fillRange;
+            
+            let fillEnd = fillStart + fillRange;
+            fillEnd = fillEnd > 1 ? 1 : fillEnd;
+
+            if (uvDirty) {
+                this.updateUVs(sprite, fillStart, fillEnd);
+            }
+            if (vertDirty) {
+                this.updateVerts(sprite, fillStart, fillEnd);
+            }
+            if (vertDirty || batchData.worldMatUpdated) {
+                this.updateWorldVerts(sprite);
+            }
         }
-
-        fillRange = fillStart + fillRange;
-
-        fillStart = fillStart > 1.0 ? 1.0 : fillStart;
-        fillStart = fillStart < 0.0 ? 0.0 : fillStart;
-
-        fillRange = fillRange > 1.0 ? 1.0 : fillRange;
-        fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-        fillRange = fillRange - fillStart;
-        fillRange = fillRange < 0 ? 0 : fillRange;
-        
-        let fillEnd = fillStart + fillRange;
-        fillEnd = fillEnd > 1 ? 1 : fillEnd;
-
-        if (uvDirty) {
-            this.updateUVs(sprite, fillStart, fillEnd);
-        }
-        if (vertDirty) {
-            this.updateVerts(sprite, fillStart, fillEnd);
-        }
-        if (vertDirty || batchData.worldMatUpdated) {
-            this.updateWorldVerts(sprite);
-        }
+        return sprite.__allocedDatas;
     },
 
     updateUVs (sprite, fillStart, fillEnd) {

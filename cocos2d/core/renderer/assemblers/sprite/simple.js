@@ -24,22 +24,22 @@
  ****************************************************************************/
 
 const js = require('../../../platform/js');
-const assembler = require('../assembler');
 
-module.exports = js.addon({
+module.exports = {
     useModel: false,
 
-    update (sprite, batchData) {
+    updateRenderData (sprite) {
         let renderData = sprite._renderData;
-        
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
-        }
+        if (renderData && sprite._material) {
+            if (renderData.uvDirty) {
+                this.updateUVs(sprite);
+            }
 
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
-            this.updateVerts(sprite);
+            if (renderData.vertDirty) {
+                this.updateVerts(sprite);
+            }
         }
+        return sprite.__allocedDatas;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -164,4 +164,4 @@ module.exports = js.addon({
 
         renderData.vertDirty = false;
     }
-}, assembler);
+};
