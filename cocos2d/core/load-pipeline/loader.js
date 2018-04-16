@@ -48,7 +48,7 @@ function loadJSON (item, callback) {
 }
 
 function loadImage (item, callback) {
-    var loadByDeserializedAsset = item._owner instanceof cc.Asset;
+    var loadByDeserializedAsset = cc.Class.isInstanceOf(item._owner, cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
@@ -72,7 +72,7 @@ function loadImage (item, callback) {
 // If audio is loaded by url directly, than this loader will wrap it into a new cc.AudioClip object.
 // If audio is loaded by deserialized AudioClip, than this loader will be skipped.
 function loadAudioAsAsset (item, callback) {
-    var loadByDeserializedAsset = item._owner instanceof cc.Asset;
+    var loadByDeserializedAsset = cc.Class.isInstanceOf(item._owner, cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
