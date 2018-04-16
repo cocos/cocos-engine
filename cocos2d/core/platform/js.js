@@ -269,11 +269,11 @@ var tmpGetSetDesc = {
  * @param {Object} obj
  * @param {String} prop
  * @param {Function} getter
- * @param {Function} setter
+ * @param {Function} [setter=null]
  * @param {Boolean} [enumerable=false]
  */
 js.getset = function (obj, prop, getter, setter, enumerable) {
-    if (typeof setter !== 'function') {
+    if (enumerable === undefined) {
         enumerable = setter;
         setter = undefined;
     }
@@ -897,7 +897,7 @@ js.array = {
  * constructor(size: number)
  */
 function Pool (cleanupFunc, size) {
-    if (typeof cleanupFunc === 'number') {
+    if (size === undefined) {
         size = cleanupFunc;
         cleanupFunc = null;
     }

@@ -1521,7 +1521,7 @@ var Node = cc.Class({
      */
     setPosition (newPosOrX, y) {
         var x;
-        if (typeof y === 'undefined') {
+        if (y === undefined) {
             x = newPosOrX.x;
             y = newPosOrX.y;
         }
@@ -1592,7 +1592,7 @@ var Node = cc.Class({
      * node.setScale(1, 1);
      */
     setScale (scaleX, scaleY) {
-        if (typeof scaleX === 'object') {
+        if (scaleY === undefined) {
             scaleY = scaleX.y;
             scaleX = scaleX.x;
         }
