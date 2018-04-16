@@ -344,5 +344,7 @@ module.exports = {
         for (let i = 0; i < count; i++) {
             ibuf[indiceOffset+i] = vertexId+i;
         }
-    }
+    },
+
+    packAtlas: simpleRenderUtil.packAtlas,
 };

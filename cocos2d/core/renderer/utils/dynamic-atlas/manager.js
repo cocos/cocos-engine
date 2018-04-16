@@ -9,9 +9,10 @@ let _textureHeight = 2048;
 let _maxFrameWidth = 512;
 let _maxFrameHeight = 512;
 
-module.exports = {
+let dynamicAtlasManager = {
+    enabled: true,
     insertSpriteFrame (spriteFrame) {
-        if (!spriteFrame || spriteFrame._oriInfo) return;
+        if (!this.enabled || !spriteFrame || spriteFrame._oriInfo) return;
 
         let rect = spriteFrame._rect;
         if (rect.width > _maxFrameWidth || rect.height > _maxFrameHeight) {
@@ -33,3 +34,5 @@ module.exports = {
         }
     }
 };
+
+module.exports = cc.dynamicAtlasManager = dynamicAtlasManager;

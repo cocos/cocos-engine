@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Sprite = require('../../../components/CCSprite');
-const atlasPakcer = require('../../utils/atlas/atlas-packer');
 
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
@@ -39,11 +38,6 @@ const meshRenderUtil = require('./mesh');
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 let spriteAssembler = {
-
-    checkPacker (comp) {
-        atlasPakcer.insertSpriteFrame(comp.spriteFrame);
-    },
-
     getAssembler (sprite) {
         let util = simpleRenderUtil;
         

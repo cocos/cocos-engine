@@ -42,8 +42,6 @@ const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
-const AUTO_PACK_ATLAS = true;
-
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
@@ -257,8 +255,8 @@ RenderComponentWalker.prototype = {
             broken = false,
             iaData = false;
 
-        if (AUTO_PACK_ATLAS && assembler.checkPacker) {
-            assembler.checkPacker(comp);
+        if (assembler.packAtlas) {
+            assembler.packAtlas(comp);
         }
         if (comp._activateMaterial) {
             comp._activateMaterial();

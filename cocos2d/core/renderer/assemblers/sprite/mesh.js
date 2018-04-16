@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const simpleRenderUtil = require('./simple');
+
 module.exports = {
     useModel: false,
 
@@ -168,5 +170,7 @@ module.exports = {
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }
-    }
+    },
+
+    packAtlas: simpleRenderUtil.packAtlas,
 };

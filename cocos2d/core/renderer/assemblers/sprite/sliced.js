@@ -192,4 +192,6 @@ module.exports = {
             }
         }
     },
+
+    packAtlas: simpleRenderUtil.packAtlas,
 };
