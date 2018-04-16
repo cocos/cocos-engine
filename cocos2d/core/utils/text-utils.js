@@ -259,7 +259,7 @@ var TextUtils = {
             checkWhile = 0;
 
             //Find the truncation point
-            while (width < maxWidth && checkWhile++ < checkCount) {
+            while (width <= maxWidth && checkWhile++ < checkCount) {
                 if (tmpText) {
                     var exec = this.label_wordRex.exec(tmpText);
                     pushNum = exec ? exec[0].length : 1;
@@ -302,7 +302,7 @@ var TextUtils = {
             }
 
             // The first line And do not wrap should not remove the space
-            if (wrappedWords.length === 0 && (sLine === '' && tmpText === '')) {
+            if (wrappedWords.length === 0) {
                 wrappedWords.push(sText);
             }
             else {

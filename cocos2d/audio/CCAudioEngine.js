@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 var Audio = require('./CCAudio');
+var AudioClip = require('../core/assets/CCAudioClip');
 var js = cc.js;
 
 var instanceId = 0;
@@ -38,25 +39,23 @@ var getAudioFromPath = function (path) {
     if (!list) {
         list = url2id[path] = [];
     }
-    var audio;
     if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
         var oldAudio = id2audio[oldId];
         oldAudio.stop();
     }
 
-    audio = new Audio(path);
+    var audio = new Audio();
     var callback = function () {
-        var id = this.instanceId;
-        delete id2audio[id];
-        var index = list.indexOf(id);
+        delete id2audio[this.id];
+        var index = list.indexOf(this.id);
         cc.js.array.fastRemoveAt(list, index);
     };
     audio.on('ended', callback);
     audio.on('stop', callback);
     id2audio[id] = audio;
 
-    audio.instanceId = id;
+    audio.id = id;
     list.push(id);
 
     return audio;
@@ -92,33 +91,47 @@ var audioEngine = {
      * !#en Play audio.
      * !#zh 播放音频
      * @method play
-     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {AudioClip} clip - The audio clip to play.
      * @param {Boolean} loop - Whether the music loop or not.
      * @param {Number} volume - Volume size.
      * @return {Number} audioId
      * @example
-     * var audioID = cc.audioEngine.play(path, false, 0.5);
+     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     *     var audioID = cc.audioEngine.play(clip, false, 0.5);
+     * });
      */
-    play: function (filePath, loop, volume/*, profile*/) {
-        if (CC_DEBUG && (typeof filePath !== 'string')) {
-            cc.errorID(8400);
-            return;
+    play: function (clip, loop, volume/*, profile*/) {
+        var path = clip;
+        var audio;
+        if (typeof clip === 'string') {
+            // backward compatibility since 1.10
+            cc.warnID(8401, 'cc.audioEngine');
+            path = clip;
+            // load clip
+            audio = getAudioFromPath(path);
+            AudioClip._loadByUrl(path, function (err, clip) {
+                if (clip) {
+                    audio.src = clip;
+                }
+            });
+        }
+        else {
+            if (!clip) {
+                return;
+            }
+            path = clip.nativeUrl;
+            audio = getAudioFromPath(path);
+            audio.src = clip;
         }
 
-        var audio = getAudioFromPath(filePath);
-        var callback = function () {
-            audio.setLoop(loop || false);
-            if (typeof volume != 'number' || isNaN(volume)) {
-                volume = 1;
-            }
-            audio.setVolume(volume);
-            audio.play();
-        };
-        audio.__callback = callback;
-        audio.on('load', callback);
-        audio.preload();
+        audio.setLoop(loop || false);
+        if (typeof volume !== 'number') {
+            volume = 1;
+        }
+        audio.setVolume(volume);
+        audio.play();
 
-        return audio.instanceId;
+        return audio.id;
     },
 
     /**
@@ -164,15 +177,9 @@ var audioEngine = {
      */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
-        if (!audio) return;
-        if (!audio._loaded) {
-            audio.once('load', function () {
-                if (audio.setVolume)
-                    audio.setVolume(volume);
-            });
-        }
-        if (audio.setVolume)
+        if (audio) {
             audio.setVolume(volume);
+        }
     },
 
     /**
@@ -186,9 +193,7 @@ var audioEngine = {
      */
     getVolume: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.getVolume)
-            return 1;
-        return audio.getVolume();
+        return audio ? audio.getVolume() : 1;
     },
 
     /**
@@ -203,17 +208,13 @@ var audioEngine = {
      */
     setCurrentTime: function (audioID, sec) {
         var audio = getAudioFromId(audioID);
-        if (!audio) return false;
-        if (!audio._loaded) {
-            audio.once('load', function () {
-                if (audio.setCurrentTime)
-                    audio.setCurrentTime(sec);
-            });
+        if (audio) {
+            audio.setCurrentTime(sec);
             return true;
         }
-        if (audio.setCurrentTime)
-            audio.setCurrentTime(sec);
-        return true;
+        else {
+            return false;
+        }
     },
 
     /**
@@ -227,9 +228,7 @@ var audioEngine = {
      */
     getCurrentTime: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.getCurrentTime)
-            return 0;
-        return audio.getCurrentTime();
+        return audio ? audio.getCurrentTime() : 0;
     },
 
     /**
@@ -243,9 +242,7 @@ var audioEngine = {
      */
     getDuration: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.getDuration)
-            return 0;
-        return audio.getDuration();
+        return audio ? audio.getDuration() : 0;
     },
 
     /**
@@ -259,9 +256,7 @@ var audioEngine = {
      */
     getState: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.getState)
-            return this.AudioState.ERROR;
-        return audio.getState();
+        return audio ? audio.getState() : this.AudioState.ERROR;
     },
 
     /**
@@ -293,10 +288,13 @@ var audioEngine = {
      */
     pause: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.pause)
+        if (audio) {
+            audio.pause();
+            return true;
+        }
+        else {
             return false;
-        audio.pause();
-        return true;
+        }
     },
 
     _pauseIDCache: [],
@@ -328,12 +326,13 @@ var audioEngine = {
      */
     resume: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.resume)
-            return false;
-        if (audio.getCurrentTime() === 0) {
-            audio.play();
-        } else {
-            audio.resume();
+        if (audio) {
+            if (audio.getCurrentTime() === 0) {
+                audio.play();
+            }
+            else {
+                audio.resume();
+            }
         }
     },
 
@@ -345,12 +344,13 @@ var audioEngine = {
      * cc.audioEngine.resumeAll();
      */
     resumeAll: function () {
-        while (this._pauseIDCache.length > 0) {
-            var id = this._pauseIDCache.pop();
+        for (var i = 0; i < this._pauseIDCache.length; ++i) {
+            var id = this._pauseIDCache[i];
             var audio = getAudioFromId(id);
-            if (audio && audio.resume)
+            if (audio)
                 audio.resume();
         }
+        this._pauseIDCache.length = 0;
     },
 
     /**
@@ -363,11 +363,13 @@ var audioEngine = {
      */
     stop: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.stop)
+        if (audio) {
+            audio.stop();
+            return true;
+        }
+        else {
             return false;
-        audio.off('load', audio.__callback);
-        audio.stop();
-        return true;
+        }
     },
 
     /**
@@ -380,9 +382,8 @@ var audioEngine = {
     stopAll: function () {
         for (var id in id2audio) {
             var audio = id2audio[id];
-            if (audio && audio.stop) {
+            if (audio) {
                 audio.stop();
-                audio.off('load', audio.__callback);
             }
         }
     },
@@ -415,11 +416,24 @@ var audioEngine = {
      * !#en Unload the preloaded audio from internal buffer.
      * !#zh 卸载预加载的音频。
      * @method uncache
-     * @param {String} filePath
+     * @param {AudioClip} clip
      * @example
      * cc.audioEngine.uncache(filePath);
      */
-    uncache: function (filePath) {
+    uncache: function (clip) {
+        var filePath = clip;
+        if (typeof clip === 'string') {
+            // backward compatibility since 1.10
+            cc.warnID(8401, 'cc.audioEngine');
+            filePath = clip;
+        }
+        else {
+            if (!clip) {
+                return;
+            }
+            filePath = clip.nativeUrl;
+        }
+
         var list = url2id[filePath];
         if (!list) return;
         while (list.length > 0) {
@@ -468,8 +482,13 @@ var audioEngine = {
      * @param {Function} [callback] - The callback of an audio.
      * @example
      * cc.audioEngine.preload(path);
+     * @deprecated `cc.audioEngine.preload` is deprecated, use `cc.loader.loadRes(url, cc.AudioClip)` instead please.
      */
     preload: function (filePath, callback) {
+        if (CC_DEBUG) {
+            cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.loader.loadRes(url, cc.AudioClip)` instead please.');
+        }
+
         cc.loader.load(filePath, callback && function (error) {
             if (!error) {
                 callback();
@@ -533,16 +552,18 @@ var audioEngine = {
      * !#en Play background music
      * !#zh 播放背景音乐
      * @method playMusic
-     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {AudioClip} clip - The audio clip to play.
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * var audioID = cc.audioEngine.playMusic(path, false);
+     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     *     var audioID = cc.audioEngine.playMusic(clip, false);
+     * });
      */
-    playMusic: function (filePath, loop) {
+    playMusic: function (clip, loop) {
         var music = this._music;
         this.stop(music.id);
-        music.id = this.play(filePath, loop, music.volume);
+        music.id = this.play(clip, loop, music.volume);
         music.loop = loop;
         return music.id;
     },
@@ -625,15 +646,16 @@ var audioEngine = {
      * !#en Play effect audio.
      * !#zh 播放音效
      * @method playEffect
-     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {AudioClip} clip - The audio clip to play.
      * @param {Boolean} loop - Whether the music loop or not.
      * @return {Number} audioId
      * @example
-     * var audioID = cc.audioEngine.playEffect(path, false);
+     * cc.loader.loadRes(url, cc.AudioClip, function (err, clip) {
+     *     var audioID = cc.audioEngine.playEffect(clip, false);
+     * });
      */
-    playEffect: function (filePath, loop) {
-        var effect = this._effect;
-        return this.play(filePath, loop || false, effect.volume);
+    playEffect: function (clip, loop) {
+        return this.play(clip, loop || false, this._effect.volume);
     },
 
     /**
@@ -645,8 +667,8 @@ var audioEngine = {
      * cc.audioEngine.setEffectsVolume(0.5);
      */
     setEffectsVolume: function (volume) {
+        var musicId = this._music.id;
         this._effect.volume = volume;
-        var id2audio = audioEngine._id2audio;
         for (var id in id2audio) {
             if (id === musicId) continue;
             audioEngine.setVolume(id, volume);
@@ -687,7 +709,6 @@ var audioEngine = {
     pauseAllEffects: function () {
         var musicId = this._music.id;
         var effect = this._effect;
-        var id2audio = this._id2audio;
         effect.pauseCache.length = 0;
 
         for (var id in id2audio) {
@@ -722,11 +743,10 @@ var audioEngine = {
      */
     resumeAllEffects: function () {
         var pauseIDCache = this._effect.pauseCache;
-        var id2audio = this._id2audio;
-        while (pauseIDCache.length > 0) {
-            var id = pauseIDCache.pop();
+        for (var i = 0; i < pauseIDCache.length; ++i) {
+            var id = pauseIDCache[i];
             var audio = id2audio[id];
-            if (audio && audio.resume)
+            if (audio)
                 audio.resume();
         }
     },
@@ -752,7 +772,6 @@ var audioEngine = {
      */
     stopAllEffects: function () {
         var musicId = this._music.id;
-        var id2audio = this._id2audio;
         for (var id in id2audio) {
             if (id === musicId) continue;
             var audio = id2audio[id];

@@ -27,6 +27,9 @@ const WHITE = (255<<16) + (255<<8) + 255;
 const MAX_CANVAS_COUNT = 32;
 
 function colorizedFrame (canvas, texture, color, sx, sy, sw, sh) {
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        return canvas;
+    }
     let image = texture._image;
 
     let ctx = canvas.getContext("2d");

@@ -87,6 +87,13 @@ cc.url = {
                 cc.errorID(7002, url);
             }
         }
+        else {
+            // backward compatibility since 1.10
+            var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, true);
+            if (uuid) {
+                return cc.AssetLibrary.getLibUrlNoExt(uuid) + cc.path.extname(url);
+            }
+        }
         
         return this._rawAssets + url;
     },

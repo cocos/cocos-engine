@@ -25,8 +25,6 @@
  ****************************************************************************/
 
 var sys = require('../platform/CCSys');
-var Pipeline = require('./pipeline');
-var audioEngine = require('../../audio/CCAudioEngine');
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
@@ -36,9 +34,8 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
-    if (sys.platform === sys.WECHAT_GAME) {
-        item.element = dom;
-        callback(null, item.url);
+    if (CC_WECHATGAME) {
+        callback(null, dom);
         return;
     }
 
@@ -57,14 +54,13 @@ function loadDomAudio (item, callback) {
     }, 8000);
     var success = function () {
         clearEvent();
-        item.element = dom;
-        callback(null, item.url);
+        callback(null, dom);
     };
     var failure = function () {
         clearEvent();
         var message = 'load audio failure - ' + item.url;
         cc.log(message);
-        callback(message, item.url);
+        callback(message);
     };
     dom.addEventListener("canplaythrough", success, false);
     dom.addEventListener("error", failure, false);
@@ -83,8 +79,7 @@ function loadWebAudio (item, callback) {
     request.onload = function () {
         context["decodeAudioData"](request.response, function(buffer){
             //success
-            item.buffer = buffer;
-            callback(null, item.id);
+            callback(null, buffer);
         }, function(){
             //error
             callback('decode error - ' + item.id, null);
@@ -103,15 +98,21 @@ function downloadAudio (item, callback) {
         return new Error(cc._getError(4927));
     }
 
-    item.content = item.url;
-
-    // If WebAudio is not supported, load using DOM mode
-    if (!__audioSupport.WEB_AUDIO || (item.urlParam && item.urlParam['useDom'])) {
-        loadDomAudio(item, callback);
+    var loader;
+    if (!__audioSupport.WEB_AUDIO) {
+        // If WebAudio is not supported, load using DOM mode
+        loader = loadDomAudio;
     }
     else {
-        loadWebAudio(item, callback);
+        var loadByDeserializedAudio = item._owner instanceof cc.AudioClip;
+        if (loadByDeserializedAudio) {
+            loader = (item._owner.loadMode === cc.AudioClip.LoadMode.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
+        }
+        else {
+            loader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
+        }
     }
+    loader(item, callback);
 }
 
 module.exports = downloadAudio;

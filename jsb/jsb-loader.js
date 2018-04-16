@@ -37,7 +37,18 @@ function downloadScript (item, callback) {
 }
 
 function downloadAudio (item, callback) {
-    return item.url;
+    var loadByDeserializedAsset = item._owner instanceof cc.AudioClip;
+    if (loadByDeserializedAsset) {
+        return item.url;
+    }
+    else {
+        var audioClip = new cc.AudioClip();
+        // obtain user url through nativeUrl
+        audioClip._setRawAsset(item.rawUrl, false);
+        // obtain download url through _nativeAsset
+        audioClip._nativeAsset = item.url;
+        return audioClip;
+    }
 }
 
 function downloadImage(item, callback) {

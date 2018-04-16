@@ -361,6 +361,13 @@ function initSys () {
      */
     sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
     /**
+     * BROWSER_TYPE_WECHAT_GAME_SUB
+     * @property {String} BROWSER_TYPE_WECHAT_GAME_SUB
+     * @readOnly
+     * @default "wechatgamesub"
+     */
+    sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+    /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
      * @readOnly
@@ -551,7 +558,13 @@ function initSys () {
         var version = /[\d\.]+/.exec(env.system);
         sys.osVersion = version[0];
         sys.osMainVersion = parseInt(sys.osVersion);
-        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        if (wx.getGroupCloudStorage && wx.getFriendCloudStorage) {
+            // wechagame subdomain
+            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+        }
+        else {
+            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        }
         sys.browserVersion = env.version;
 
         var w = env.windowWidth;

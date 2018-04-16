@@ -72,10 +72,10 @@ cc.path = /** @lends cc.path# */{
      * @method mainFileName
      * @param {String} fileName
      * @returns {String}
+     * @deprecated
      */
     mainFileName: function (fileName) {
         if (fileName) {
-
             var idx = fileName.lastIndexOf(".");
             if (idx !== -1)
                 return fileName.substring(0, idx);

@@ -50,6 +50,8 @@ var aliasifyConfig = {
     verbose: false
 };
 
+exports.buildDebugInfos = require('./buildDebugInfos');
+
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
@@ -94,6 +96,8 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
     });
+
+    bundler.ignore('../../DebugInfos.json');
 
     var Size = null;
     try {
@@ -252,6 +256,9 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
+
+    bundler.ignore('../../DebugInfos.json');
+
     bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())

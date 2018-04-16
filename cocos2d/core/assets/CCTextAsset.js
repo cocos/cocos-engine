@@ -29,11 +29,20 @@
  * !#zh 文本资源类。
  * @class TextAsset
  * @extends Asset
- *
  */
 var TextAsset = cc.Class({
     name: 'cc.TextAsset',
     extends: cc.Asset,
+    properties: {
+        /**
+         * @property {String} text - The text contents of the resource.
+         */
+        text: "",
+    },
+
+    toString () {
+        return this.text;
+    },
 });
 
-cc.TextAsset = TextAsset;
+module.exports = cc.TextAsset = TextAsset;

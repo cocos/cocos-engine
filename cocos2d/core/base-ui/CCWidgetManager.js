@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var eventManager = require('../event-manager');
+
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
 var BOT     = 1 << 2;
@@ -453,8 +455,15 @@ var widgetManager = cc._widgetManager = module.exports = {
                 window.addEventListener('resize', this.onResized.bind(this));
             }
             else {
-                cc.eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
+                eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
             }
+        }
+        else {
+            eventManager.addListener(cc.EventListener.create({
+                event: cc.EventListener.CUSTOM,
+                eventName: "window-resize",
+                callback: this.onResized.bind(this)
+            }), 1);
         }
     },
     add: function (widget) {

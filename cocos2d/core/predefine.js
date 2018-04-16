@@ -38,7 +38,6 @@ require('./CCDirector');
 require('./renderer');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./platform/CCSAXParser');
     require('./platform/CCView');
     require('./platform/CCScreen');
     require('./CCScheduler');

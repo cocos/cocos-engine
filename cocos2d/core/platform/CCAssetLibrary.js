@@ -299,7 +299,6 @@ var AssetLibrary = {
         resources.reset();
         var rawAssets = options.rawAssets;
         if (rawAssets) {
-            var RES_DIR = 'resources/';
             for (var mountPoint in rawAssets) {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
@@ -313,20 +312,11 @@ var AssetLibrary = {
                     }
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if (js.isChildClassOf(type, Asset)) {
-                            var ext = cc.path.extname(url);
-                            if (ext) {
-                                // trim base dir and extname
-                                url = url.slice(RES_DIR.length, - ext.length);
-                            }
-                            else {
-                                // trim base dir
-                                url = url.slice(RES_DIR.length);
-                            }
-                        }
-                        else {
-                            url = url.slice(RES_DIR.length);
+                    if (mountPoint === 'assets') {
+                        var ext = cc.path.extname(url);
+                        if (ext) {
+                            // trim base dir and extname
+                            url = url.slice(0, - ext.length);
                         }
                         var isSubAsset = info[2] === 1;
                         // register

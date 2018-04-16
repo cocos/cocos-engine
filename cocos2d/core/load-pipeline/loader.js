@@ -49,8 +49,14 @@ function loadJSON (item, callback) {
 }
 
 function loadImage (item, callback) {
+    var loadByDeserializedAsset = item._owner instanceof cc.Asset;
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
     var image = item.content;
-    if (sys.platform !== sys.WECHAT_GAME && sys.platform !== sys.QQ_PLAY && !(image instanceof Image)) {
+    if (!CC_WECHATGAME && !CC_QQPLAY && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 
@@ -59,9 +65,25 @@ function loadImage (item, callback) {
     var tex = item.texture || new Texture2D();
     tex._uuid = item.uuid;
     tex.url = rawUrl;
+    tex._setRawAsset(rawUrl, false);
     tex._nativeAsset = image;
     tex.initWithElement(item.content);
     return tex;
+}
+
+// If audio is loaded by url directly, than this loader will wrap it into a new cc.AudioClip object.
+// If audio is loaded by deserialized AudioClip, than this loader will be skipped.
+function loadAudioAsAsset (item, callback) {
+    var loadByDeserializedAsset = item._owner instanceof cc.Asset;
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
+    var audioClip = new cc.AudioClip();
+    audioClip._setRawAsset(item.rawUrl, false);
+    audioClip._nativeAsset = item.content;
+    return audioClip;
 }
 
 function loadPlist (item, callback) {
@@ -98,6 +120,12 @@ var defaultMap = {
     'tiff' : loadImage,
     'webp' : loadImage,
     'image' : loadImage,
+
+    // Audio
+    'mp3' : loadAudioAsAsset,
+    'ogg' : loadAudioAsAsset,
+    'wav' : loadAudioAsAsset,
+    'm4a' : loadAudioAsAsset,
 
     // json
     'json' : loadJSON,

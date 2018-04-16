@@ -146,7 +146,7 @@ var VideoPlayer = cc.Class({
 
         _clip: {
             default: null,
-            url: cc.RawAsset
+            type: cc.Asset
         },
         /**
          * !#en The local video full path.
@@ -164,7 +164,7 @@ var VideoPlayer = cc.Class({
                 this._clip = value;
                 this._updateVideoSource();
             },
-            url: cc.RawAsset
+            type: cc.Asset
         },
 
         /**
@@ -295,7 +295,7 @@ var VideoPlayer = cc.Class({
             impl.setURL(this.remoteURL);
         }
         else {
-            impl.setURL(this._clip || '');
+            impl.setURL(this._clip.nativeUrl || '');
         }
     },
 
