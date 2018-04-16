@@ -30,6 +30,8 @@
 #include "firefox/WebGLTexelConversions.h"
 #include "firefox/mozilla/CheckedInt.h"
 
+#include "base/CCGLUtils.h"
+
 using namespace mozilla;
 using namespace mozilla::webgl;
 
@@ -575,8 +577,8 @@ void Texture2D::update(const Options& options)
         genMipmap = false;
     }
 
-    GL_CHECK(glActiveTexture(GL_TEXTURE0));
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
+    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
     if (!options.images.empty()) {
         setMipmap(options.images, options.flipY, options.premultiplyAlpha);
     }
@@ -594,8 +596,8 @@ void Texture2D::updateSubImage(const SubImageOption& option)
 {
     const GLTextureFmt& glFmt = glTextureFmt(_format);
 
-    GL_CHECK(glActiveTexture(GL_TEXTURE0));
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
+    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
     setSubImage(glFmt, option);
     _device->restoreTexture(0);
 }
@@ -604,8 +606,8 @@ void Texture2D::updateImage(const ImageOption& option)
 {
     const GLTextureFmt& glFmt = glTextureFmt(_format);
 
-    GL_CHECK(glActiveTexture(GL_TEXTURE0));
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
+    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
     setImage(glFmt, option);
     _device->restoreTexture(0);
 }

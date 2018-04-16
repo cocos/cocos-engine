@@ -33,6 +33,7 @@
 #include "GFXUtils.h"
 
 #include "platform/CCPlatformConfig.h"
+#include "base/CCGLUtils.h"
 
 RENDERER_BEGIN
 
@@ -393,7 +394,7 @@ void DeviceGraphics::draw(size_t base, GLsizei count)
     auto nextIndexBuffer = _nextState.getIndexBuffer();
     if (_currentState.getIndexBuffer() != nextIndexBuffer)
     {
-        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nextIndexBuffer ? nextIndexBuffer->getHandle() : 0));
+        GL_CHECK(ccBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nextIndexBuffer ? nextIndexBuffer->getHandle() : 0));
     }
     
     //commit program
@@ -652,18 +653,18 @@ void DeviceGraphics::restoreTexture(uint32_t index)
     auto texture = _currentState.getTexture(index);
     if (texture)
     {
-        GL_CHECK(glBindTexture(texture->getTarget(), texture->getHandle()));
+        GL_CHECK(ccBindTexture(texture->getTarget(), texture->getHandle()));
     }
     else
     {
-        GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+        GL_CHECK(ccBindTexture(GL_TEXTURE_2D, 0));
     }
 }
 
 void DeviceGraphics::restoreIndexBuffer()
 {
     auto ib = _currentState.getIndexBuffer();
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib ? ib->getHandle(): 0));
+    GL_CHECK(ccBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib ? ib->getHandle(): 0));
 }
 
 void DeviceGraphics::commitBlendStates()
@@ -1033,7 +1034,7 @@ void DeviceGraphics::commitVertexBuffer()
             if (!vb)
                 continue;
             
-            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vb->getHandle()));
+            GL_CHECK(ccBindBuffer(GL_ARRAY_BUFFER, vb->getHandle()));
             
             auto vboffset = _nextState.getVertexBufferOffset(i);
             const auto& attributes = _nextState.getProgram()->getAttributes();
@@ -1090,8 +1091,8 @@ void DeviceGraphics::commitTextures()
             auto texture = nextTextureUnits[i];
             if (texture)
             {
-                GL_CHECK(glActiveTexture(GL_TEXTURE0 + i));
-                GL_CHECK(glBindTexture(texture->getTarget(),
+                GL_CHECK(ccActiveTexture(GL_TEXTURE0 + i));
+                GL_CHECK(ccBindTexture(texture->getTarget(),
                                        texture->getHandle()));
             }
         }

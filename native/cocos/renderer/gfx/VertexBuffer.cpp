@@ -24,6 +24,7 @@
 
 #include "VertexBuffer.h"
 #include "DeviceGraphics.h"
+#include "base/CCGLUtils.h"
 
 RENDERER_BEGIN
 
@@ -44,7 +45,7 @@ VertexBuffer::~VertexBuffer()
         return;
     }
 
-    glDeleteBuffers(1, &_glID);
+    ccDeleteBuffers(1, &_glID);
     //TODO:    _device._stats.ib -= _bytes;
 }
 
@@ -82,7 +83,7 @@ void VertexBuffer::update(uint32_t offset, const void* data, size_t dataByteLeng
     }
 
     GLenum glUsage = (GLenum)_usage;
-    glBindBuffer(GL_ARRAY_BUFFER, _glID);
+    ccBindBuffer(GL_ARRAY_BUFFER, _glID);
     if (!data)
     {
         glBufferData(GL_ARRAY_BUFFER, _bytes, nullptr, glUsage);
@@ -98,7 +99,7 @@ void VertexBuffer::update(uint32_t offset, const void* data, size_t dataByteLeng
             glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)dataByteLength, data, glUsage);
         }
     }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    ccBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 #if GFX_DEBUG > 0

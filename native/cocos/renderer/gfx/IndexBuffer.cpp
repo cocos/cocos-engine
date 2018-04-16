@@ -24,6 +24,7 @@
 
 #include "IndexBuffer.h"
 #include "DeviceGraphics.h"
+#include "base/CCGLUtils.h"
 
 RENDERER_BEGIN
 
@@ -44,7 +45,7 @@ IndexBuffer::~IndexBuffer()
         return;
     }
 
-    glDeleteBuffers(1, &_glID);
+    ccDeleteBuffers(1, &_glID);
     //TODO:    _device._stats.ib -= _bytes;
 }
 
@@ -97,7 +98,7 @@ void IndexBuffer::update(uint32_t offset, const void* data, size_t dataByteLengt
     }
 
     GLenum glUsage = (GLenum)_usage;
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _glID);
+    ccBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _glID);
     if (!data)
     {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _bytes, nullptr, glUsage);
