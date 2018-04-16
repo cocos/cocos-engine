@@ -10045,7 +10045,7 @@ var Model = renderer.Model;
 var InputAssembler = renderer.InputAssembler;
 
 // Add stage to renderer
-renderer.addStage('transparent');
+renderer.config.addStage('transparent');
 
 var renderEngine = {
   // core classes
