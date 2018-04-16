@@ -2124,38 +2124,43 @@ static bool JSB_glTexImage2D(se::State& s) {
     ok &= seval_to_int32(args[5], &border );
     ok &= seval_to_uint32(args[6], &format );
     ok &= seval_to_uint32(args[7], &type );
+
     GLsizei count;
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
+
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if (__unpackFlipY)
+    if (pixels != nullptr)
     {
-        if (format == GL_RGBA)
+        if (__unpackFlipY)
         {
-            flipPixelsY((GLubyte*)pixels, width * 4, height);
-        }
-        else if (format == GL_RGB)
-        {
-            flipPixelsY((GLubyte*)pixels, width * 3, height);
-        }
-        else
-        {
-            SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
-            return true;
-        }
-    }
-
-    if (__premultiplyAlpha)
-    {
-        if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
-        {
-            int byteLength = 0;
             if (format == GL_RGBA)
-                byteLength = width * height * 4;
+            {
+                flipPixelsY((GLubyte*)pixels, width * 4, height);
+            }
+            else if (format == GL_RGB)
+            {
+                flipPixelsY((GLubyte*)pixels, width * 3, height);
+            }
             else
-                byteLength = width * height * 2;
-            assert(count == byteLength);
-            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
+            {
+                SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
+                return true;
+            }
+        }
+
+        if (__premultiplyAlpha)
+        {
+            if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
+            {
+                int byteLength = 0;
+                if (format == GL_RGBA)
+                    byteLength = width * height * 4;
+                else
+                    byteLength = width * height * 2;
+                assert(count == byteLength);
+                premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
+            }
         }
     }
 
@@ -2224,34 +2229,37 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if (__unpackFlipY)
+    if (pixels != nullptr)
     {
-        if (format == GL_RGBA)
+        if (__unpackFlipY)
         {
-            flipPixelsY((GLubyte*)pixels, width * 4, height);
-        }
-        else if (format == GL_RGB)
-        {
-            flipPixelsY((GLubyte*)pixels, width * 3, height);
-        }
-        else
-        {
-            SE_LOGE("glTexSubImage2D: format: %d doesn't support upackFlipY!\n", format);
-            return true;
-        }
-    }
-
-    if (__premultiplyAlpha)
-    {
-        if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
-        {
-            int byteLength = 0;
             if (format == GL_RGBA)
-                byteLength = width * height * 4;
+            {
+                flipPixelsY((GLubyte*)pixels, width * 4, height);
+            }
+            else if (format == GL_RGB)
+            {
+                flipPixelsY((GLubyte*)pixels, width * 3, height);
+            }
             else
-                byteLength = width * height * 2;
-            assert(count == byteLength);
-            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
+            {
+                SE_LOGE("glTexSubImage2D: format: %d doesn't support upackFlipY!\n", format);
+                return true;
+            }
+        }
+
+        if (__premultiplyAlpha)
+        {
+            if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
+            {
+                int byteLength = 0;
+                if (format == GL_RGBA)
+                    byteLength = width * height * 4;
+                else
+                    byteLength = width * height * 2;
+                assert(count == byteLength);
+                premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
+            }
         }
     }
 
