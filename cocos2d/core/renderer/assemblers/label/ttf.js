@@ -28,6 +28,7 @@ const renderEngine = require('../../render-engine');
 
 const js = require('../../../platform/js');
 const ttfUtls = require('../../utils/label/ttf');
+const assembler = require('../assembler');
 
 module.exports = js.addon({
     createData (comp) {
@@ -49,7 +50,26 @@ module.exports = js.addon({
         return renderData;
     },
 
-    fillVertexBuffer (comp, off, vbuf, uintbuf) {
+    updateRenderData (comp) {
+        let datas = this.datas;
+        datas.length = 0;
+
+        if (!comp.string) {
+            return datas;
+        } 
+
+        let renderData = comp._renderData;
+        this.update(comp);
+
+        renderData.material = comp.getMaterial();
+        datas.push(renderData);
+        return datas;
+    },
+
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
+            indiceOffset = batchData.indiceOffset;
+
         let node = comp.node;
         let renderData = comp._renderData;
         let data = renderData._data;
@@ -68,23 +88,21 @@ module.exports = js.addon({
         let length = renderData.dataLength;
         for (let i = 0; i < length; i++) {
             vert = data[i];
-            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[off + 2] = z;
-            vbuf[off + 4] = vert.u;
-            vbuf[off + 5] = vert.v;
-            uintbuf[off + 3] = color;
-            off += 6;
+            vbuf[vertexOffset + 0] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset + 1] = vert.x * b + vert.y * d + ty;
+            vbuf[vertexOffset + 2] = z;
+            vbuf[vertexOffset + 4] = vert.u;
+            vbuf[vertexOffset + 5] = vert.v;
+            uintbuf[vertexOffset + 3] = color;
+            vertexOffset += 6;
         }
-    },
-    
-    fillIndexBuffer (comp, offset, vertexId, ibuf) {
-        ibuf[offset + 0] = vertexId;
-        ibuf[offset + 1] = vertexId + 1;
-        ibuf[offset + 2] = vertexId + 2;
-        ibuf[offset + 3] = vertexId + 1;
-        ibuf[offset + 4] = vertexId + 3;
-        ibuf[offset + 5] = vertexId + 2;
+
+        ibuf[indiceOffset + 0] = vertexId;
+        ibuf[indiceOffset + 1] = vertexId + 1;
+        ibuf[indiceOffset + 2] = vertexId + 2;
+        ibuf[indiceOffset + 3] = vertexId + 1;
+        ibuf[indiceOffset + 4] = vertexId + 3;
+        ibuf[indiceOffset + 5] = vertexId + 2;
     },
 
     _updateVerts (comp) {
@@ -106,4 +124,4 @@ module.exports = js.addon({
         data[3].x = width - appx;
         data[3].y = height - appy;
     }
-}, ttfUtls);
+}, ttfUtls, assembler);

@@ -23,14 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../platform/js');
-const assembler = require('../assembler');
 const Label = require('../../../components/CCLabel');
 const ttfAssembler = require('./ttf');
 const bmfontAssembler = require('./bmfont');
 
-var labelAssembler = js.addon({
-
+var labelAssembler = {
     getAssembler (comp) {
         let assembler = ttfAssembler;
         
@@ -41,40 +38,11 @@ var labelAssembler = js.addon({
         return assembler;
     },
 
-    updateRenderData (comp) {
-        this.datas.length = 0;
-
-        if (comp.string === undefined || 
-            comp.string === null || 
-            comp.string === "" ||
-            !comp._assembler) {
-            return this.datas;
-        } 
-
-        let renderData = comp._renderData;
-
-        // let size = comp.node._contentSize;
-        // let anchor = comp.node._anchorPoint;
-        // renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-
-        comp._assembler.update(comp);
-
-        renderData.material = comp.getMaterial();
-        this.datas.push(renderData);
-        return this.datas;
-    },
-
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let assembler = comp._assembler;
-        if (!assembler) return;
-
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-        
-        assembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
-        assembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
+    // Skip invalid labels (without own _assembler)
+    updateRenderData (label) {
+        return label.__allocedDatas;
     }
-}, assembler);
+};
 
 Label._assembler = labelAssembler;
 

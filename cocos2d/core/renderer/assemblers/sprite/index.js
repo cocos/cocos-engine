@@ -23,10 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../platform/js');
-const assembler = require('../assembler');
 const Sprite = require('../../../components/CCSprite');
-const renderEngine = require('../../render-engine');
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 
@@ -38,9 +35,7 @@ const barFilledRenderUtil = require('./bar-filled');
 const meshRenderUtil = require('./mesh');
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
-let spriteAssembler = js.addon({
-    useModel: false,
-
+let spriteAssembler = {
     getAssembler (sprite) {
         let util = simpleRenderUtil;
         
@@ -67,19 +62,11 @@ let spriteAssembler = js.addon({
         return util;
     },
 
-    updateRenderData (sprite, batchData) {
-        let datas = sprite.__allocedDatas;
-        if (sprite._spriteFrame && sprite._material && sprite._renderData) {
-            sprite._assembler.update(sprite, batchData);
-        }
-
-        return datas;
-    },
-
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        sprite._assembler.fillBuffers(sprite, batchData, vertexId, vbuf, uintbuf, ibuf);
+    // Skip invalid sprites (without own _assembler)
+    updateRenderData (sprite) {
+        return sprite.__allocedDatas;
     }
-}, assembler);
+};
 
 Sprite._assembler = spriteAssembler;
 

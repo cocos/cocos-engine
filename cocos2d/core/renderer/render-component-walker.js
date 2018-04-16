@@ -246,23 +246,16 @@ RenderComponentWalker.prototype = {
         this._renderScene.addModel(model);
     },
 
-    _commitComp (comp, assembler) {
-        if (!assembler) {
-            return;
-        }
-        
+    _commitComp (comp, assembler, cullingMask) {
         let batchData = this._batchData,
             material = null, 
             datas = null,
             data = null,
-            cullingMask = 1,
             broken = false,
             iaData = false;
 
         // Update render data
         datas = assembler.updateRenderData(comp, batchData);
-
-        cullingMask = comp.node._cullingMask;
 
         for (let id = 0; id < datas.length; id ++) {
             data = datas[id];
@@ -331,8 +324,9 @@ RenderComponentWalker.prototype = {
     visit (scene) {
         this.reset();
 
+        let batchData = this._batchData;
         let entry = this._findEntry(scene);
-        let comp, node, assembler, group;
+        let comp, node, assembler, group, cullingMask;
         for (; entry; entry = entry.next) {
             comp = entry.comp;
             node = comp.node;
@@ -349,7 +343,7 @@ RenderComponentWalker.prototype = {
 
                 group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
                 node._cullingMask = 1 << group;
-                assembler = comp.constructor._assembler;
+                assembler = comp._assembler || comp.constructor._assembler;
             }
             // Post handle
             else {
@@ -362,11 +356,12 @@ RenderComponentWalker.prototype = {
             // Transform
             if (node._worldMatDirty) {
                 node._updateWorldMatrix();
-                this._batchData.worldMatUpdated = true;
+                batchData.worldMatUpdated = true;
             }
 
             // Commit component render data
-            this._commitComp(comp, assembler);
+            cullingMask = node._cullingMask;
+            this._commitComp(comp, assembler, cullingMask);
             this._batchData.worldMatUpdated = false;
         }
         

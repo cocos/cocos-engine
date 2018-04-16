@@ -24,37 +24,41 @@
  ****************************************************************************/
 
 module.exports = {
+    useModel: false,
+
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
-    update (sprite, batchData) {
+    updateRenderData (sprite) {
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;
+        if (renderData && frame && sprite._material) {
+            let vertices = frame.vertices;
+            if (vertices) {
+                if (renderData.vertexCount !== vertices.x.length) {
+                    renderData.vertexCount = vertices.x.length;
+                    renderData.indiceCount = vertices.triangles.length;
+                    
+                    // 1 for world vertices, 2 for local vertices
+                    renderData.dataLength = renderData.vertexCount * 2;
 
-        let vertices = frame.vertices;
-        if (!vertices) return;
+                    renderData.uvDirty = renderData.vertDirty = true;
+                }
 
-        if (renderData.vertexCount !== vertices.x.length) {
-            renderData.vertexCount = vertices.x.length;
-            renderData.indiceCount = vertices.triangles.length;
-            
-            // 1 for world vertices, 2 for local vertices
-            renderData.dataLength = renderData.vertexCount * 2;
-
-            renderData.uvDirty = renderData.vertDirty = true;
+                if (renderData.uvDirty) {
+                    this.updateUVs(sprite);
+                }
+                let vertDirty = renderData.vertDirty;
+                if (vertDirty) {
+                    this.updateVerts(sprite);
+                }
+                if (vertDirty || batchData.worldMatUpdated) {
+                    this.updateWorldVerts(sprite);
+                }
+            }
         }
-
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
-        }
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
-            this.updateVerts(sprite);
-        }
-        if (vertDirty || batchData.worldMatUpdated) {
-            this.updateWorldVerts(sprite);
-        }
+        return sprite.__allocedDatas;
     },
 
     updateUVs (sprite) {

@@ -29,6 +29,8 @@ const FillType = Sprite.FillType;
 const simpleRenderUtil = require('./simple');
 
 module.exports = {
+    useModel: false,
+
     createData (sprite) {
         let renderData = sprite.requestRenderData();
         // 0-4 for local verts
@@ -38,6 +40,24 @@ module.exports = {
         renderData.vertexCount = 16;
         renderData.indiceCount = 54;
         return renderData;
+    },
+
+    updateRenderData (sprite) {
+        let renderData = sprite._renderData;
+        if (renderData && sprite._material) {
+            if (renderData.uvDirty) {
+                this.updateUVs(sprite);
+            }
+
+            let vertDirty = renderData.vertDirty;
+            if (vertDirty) {
+                this.updateVerts(sprite);
+            }
+            if (vertDirty || batchData.worldMatUpdated) {
+                this.updateWorldVerts(sprite);
+            }
+        }
+        return sprite.__allocedDatas;
     },
     
     updateUVs (sprite) {
@@ -170,22 +190,6 @@ module.exports = {
                 world.u = colD.u;
                 world.v = rowD.v;
             }
-        }
-    },
-
-    update (sprite, batchData) {
-        let renderData = sprite._renderData;
-        
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
-        }
-
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
-            this.updateVerts(sprite);
-        }
-        if (vertDirty || batchData.worldMatUpdated) {
-            this.updateWorldVerts(sprite);
         }
     },
 };
