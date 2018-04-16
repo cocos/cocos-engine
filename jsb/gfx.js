@@ -49,7 +49,7 @@ _p._ctor = function(device, options) {
 
 _p = gfx.VertexBuffer.prototype;
 _p._ctor = function(device, format, usage, data, numVertices) {
-    this.init(device, format, usage, data, numVertices);
+    this.init(device, format._nativeObj, usage, data, numVertices);
 };
 cc.defineGetterSetter(_p, "count", _p.getCount);
 

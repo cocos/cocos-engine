@@ -93,6 +93,32 @@ cc.defineGetterSetter(_p, "_count", _p.getCount, _p.setCount);
 
 // Scene
 _p = renderer.Scene.prototype;
+_p.addModel = function(model) {
+  // var args = [];
+  // args.push(model._dynamicIA);
+  // args.push(model._viewID);
+  // args.push(model._node);
+
+  // var inputAssemberls = model._inputAssemblers;
+  // args.push(inputAssemberls.length);
+  // for (var i = 0, len = inputAssemberls.length; i < len; ++i) {
+  //   args.push(inputAssemberls[i])
+  // }
+
+  // var effects = model._effects;
+  // args.push(effects.length);
+  // for (var i = 0, len = effects.length; i < len; ++i) {
+  //   args.push(effects[i]._nativeObj);
+  // }
+
+  // FIXME: should handle the situation that, the length input assemblers or effects is greater than 1
+  // this.addModelNative.apply(this, args);
+  this.addModelNative(model._dynamicIA,
+                      model._viewID,
+                      model._node,
+                      model._inputAssemblers[0],
+                      model._effects[0]._nativeObj);
+}
 _p.removeModel = function() {}
 
 

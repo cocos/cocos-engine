@@ -50,9 +50,9 @@ class Model {
     this._effects.push(effect);
 
     //
-    let defs = Object.create(null);
-    effect.extractDefines(defs);
-    this._defines.push(defs);
+    // let defs = Object.create(null);
+    // effect.extractDefines(defs);
+    // this._defines.push(defs);
   }
 
   clearEffects() {
