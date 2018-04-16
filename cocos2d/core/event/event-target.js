@@ -239,7 +239,7 @@ proto.hasEventListener = function (type, checkCapture) {
  */
 proto.on = function (type, callback, target, useCapture) {
     // Accept also patameters like: (type, callback, useCapture)
-    if (typeof target === 'boolean') {
+    if (useCapture === undefined) {
         useCapture = target;
         target = undefined;
     }
@@ -296,7 +296,7 @@ proto.on = function (type, callback, target, useCapture) {
  */
 proto.off = function (type, callback, target, useCapture) {
     // Accept also patameters like: (type, callback, useCapture)
-    if (typeof target === 'boolean') {
+    if (useCapture === undefined) {
         useCapture = target;
         target = undefined;
     }

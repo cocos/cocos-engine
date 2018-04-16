@@ -296,7 +296,7 @@ var _Deserializer = (function () {
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
     prototype._deserializeObjField = function (obj, jsonObj, propName, target, _stillUseUrl) {
         var id = jsonObj.__id__;
-        if (typeof id === 'undefined') {
+        if (id === undefined) {
             var uuid = jsonObj.__uuid__;
             if (uuid) {
                 //if (ENABLE_TARGET) {
@@ -413,7 +413,7 @@ var _Deserializer = (function () {
         for (var i = 0; i < fastDefinedProps.length; i++) {
             var propName = fastDefinedProps[i];
             var prop = serialized[propName];
-            if (typeof prop !== 'undefined' && serialized.hasOwnProperty(propName)) {
+            if (prop !== undefined && serialized.hasOwnProperty(propName)) {
                 if (typeof prop !== 'object') {
                     instance[propName] = prop;
                 }
@@ -612,7 +612,7 @@ var _Deserializer = (function () {
 
                 prop = d[propNameToRead];
 
-                if (typeof prop !== 'undefined') {
+                if (prop !== undefined) {
                     var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
                     // function undefined object(null) string boolean number
                     var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
