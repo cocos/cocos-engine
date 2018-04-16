@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const Asset = require('../core/assets/CCAsset');
-const Texture2D = require('../core/textures/CCTexture2D');
+const Texture2D = require('../core/assets/CCTexture2D');
 
 /**
  * Class for particle asset handling.

@@ -64,8 +64,8 @@ js.value(cc.RawAsset, 'isRawAssetType', function (ctor) {
     return js.isChildClassOf(ctor, cc.RawAsset) && !js.isChildClassOf(ctor, cc.Asset);
 });
 
-// TODO - DELME after 2.0
-JS.value(cc.RawAsset, 'wasRawAssetType', function (ctor) {
+ // TODO - DELME after 2.1
+js.value(cc.RawAsset, 'wasRawAssetType', function (ctor) {
     return ctor === cc.Texture2D ||
            ctor === cc.AudioClip ||
            ctor === cc.ParticleAsset ||

@@ -124,7 +124,7 @@ function checkUrl (val, className, propName, url) {
                     'sorry for the inconvenience. \uD83D\uDE30 )',
                     propName, className, propName, propName, propName, propName, propName);
         }
-        else if (cc.isChildClassOf(url, cc.Asset)) {
+        else if (js.isChildClassOf(url, cc.Asset)) {
             if (cc.RawAsset.wasRawAssetType(url)) {
                 if (!val._short) {
                     cc.warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +

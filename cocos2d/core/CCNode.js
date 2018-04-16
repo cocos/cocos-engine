@@ -1003,6 +1003,10 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged (oldParent) {
+        this._updateOrderOfArrival();
+        if (this._parent) {
+            this._parent._delaySort();
+        }
         this._onHierarchyChangedBase(oldParent);
         cc._widgetManager._nodesOrderDirty = true;
     },
@@ -2323,14 +2327,12 @@ var Node = cc.Class({
         // invokes the parent setter
         child.parent = this;
 
-        child._updateOrderOfArrival();
         if (zIndex !== undefined) {
             child.zIndex = zIndex;
         }
         if (name !== undefined) {
             child.name = name;
         }
-        this._delaySort();
     },
 
     /**

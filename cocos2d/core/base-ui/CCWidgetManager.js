@@ -450,7 +450,7 @@ var widgetManager = cc._widgetManager = module.exports = {
         if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         }
-        else {
+        else if (!CC_JSB) {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
             }

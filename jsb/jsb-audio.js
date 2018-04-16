@@ -217,8 +217,4 @@ cc.Audio = function (src) {
         audioEngine._preload(filePath, callback);
     };
 
-    var Module = require('../cocos2d/audio/deprecated');
-    Module.removed(audioEngine);
-    Module.deprecated(audioEngine);
-
 })(cc.Audio.prototype, jsb.AudioEngine);

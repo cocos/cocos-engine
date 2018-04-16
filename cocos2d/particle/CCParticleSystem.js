@@ -179,7 +179,7 @@ var properties = {
      */
     _file: {
         default: null,
-        type: cc.ParticleAsset
+        type: ParticleAsset
     },
     file: {
         get: function () {
@@ -201,7 +201,7 @@ var properties = {
             }
         },
         animatable: false,
-        type: cc.ParticleAsset,
+        type: ParticleAsset,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
@@ -1096,12 +1096,16 @@ var ParticleSystem = cc.Class({
                     return;
                 }
 
-                self._plistFile = file;
+                self._plistFile = file.nativeUrl;
                 if (self._custom) {
                     self._initTextureWithDictionary(content);
                 }
                 else {
                     self._initWithDictionary(content);
+                }
+
+                if (file.texture) {
+                    self.spriteFrame = new cc.SpriteFrame(file.texture);
                 }
             });
         }
@@ -1136,9 +1140,6 @@ var ParticleSystem = cc.Class({
                 if (!buffer) {
                     cc.logID(6010);
                     return false;
-                }
-                else if (!content.textureImageData && file.texture) {
-                    sgNode.texture = file.texture;
                 }
 
                 var imageFormat = getImageFormatByData(buffer);
@@ -1262,7 +1263,7 @@ var ParticleSystem = cc.Class({
             else {
                 this._rotationIsDir = false;
             }
-        } else if (this._emitterMode === _ccsg.ParticleSystem.Mode.RADIUS) {
+        } else if (this._emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
             this.startRadius = parseFloat(dict["maxRadius"] || 0);
             this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);

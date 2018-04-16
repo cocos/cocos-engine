@@ -66,10 +66,10 @@ proto.getUuid = function (path, type) {
                     }
                 }
                 // not found
-                if (CC_DEBUG && cc.isChildClassOf(type, cc.SpriteFrame)) {
+                if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame)) {
                     for (let i = 0; i < item.length; i++) {
                         let entry = item[i];
-                        if (cc.isChildClassOf(entry.type, cc.SpriteAtlas)) {
+                        if (js.isChildClassOf(entry.type, cc.SpriteAtlas)) {
                             // not support sprite frame in atlas
                             cc.errorID(4932, path);
                             break;
@@ -84,7 +84,7 @@ proto.getUuid = function (path, type) {
         else if (!type || js.isChildClassOf(item.type, type)) {
             return item.uuid;
         }
-        else if (CC_DEBUG && cc.isChildClassOf(type, cc.SpriteFrame) && cc.isChildClassOf(item.type, cc.SpriteAtlas)) {
+        else if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame) && js.isChildClassOf(item.type, cc.SpriteAtlas)) {
             // not support sprite frame in atlas
             cc.errorID(4932, path);
         }
@@ -131,7 +131,7 @@ proto.getUuidArray = function (path, type, out_urls) {
             }
         }
     }
-    if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && cc.isChildClassOf(type, cc.SpriteFrame)) {
+    if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && js.isChildClassOf(type, cc.SpriteFrame)) {
         // not support sprite frame in atlas
         cc.errorID(4932, _foundAtlasUrl);
     }
