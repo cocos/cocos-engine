@@ -179,6 +179,7 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
+    packAtlas: simpleRenderUtil.packAtlas,
     updateWorldVerts: simpleRenderUtil.updateWorldVerts,
     createData: simpleRenderUtil.createData,
     fillBuffers: simpleRenderUtil.fillBuffers
