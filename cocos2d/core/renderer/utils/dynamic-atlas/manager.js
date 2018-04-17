@@ -94,8 +94,8 @@ let dynamicAtlasManager = {
         if (!this.enabled || _atlasIndex === _maxAtlasCount ||
             !spriteFrame || spriteFrame._oriInfo) return;
         
-        let rect = spriteFrame._rect;
-        if (rect.width > _maxFrameSize || rect.height > _maxFrameSize) {
+        let texture = spriteFrame._texture;
+        if (texture.width > _maxFrameSize || texture.height > _maxFrameSize) {
             return;
         }
 
