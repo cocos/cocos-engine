@@ -210,6 +210,7 @@ var MotionStreak = cc.Class({
 
     onEnable: function () {
         this._super();
+        this._activateMaterial();
         this.reset();
     },
 
