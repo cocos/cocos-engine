@@ -273,7 +273,7 @@ var tmpGetSetDesc = {
  * @param {Boolean} [enumerable=false]
  */
 js.getset = function (obj, prop, getter, setter, enumerable) {
-    if (enumerable === undefined) {
+    if (typeof setter !== 'function') {
         enumerable = setter;
         setter = undefined;
     }
