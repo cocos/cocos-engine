@@ -66,7 +66,7 @@ module.exports = {
         this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
             this.device = window.device;
         }
