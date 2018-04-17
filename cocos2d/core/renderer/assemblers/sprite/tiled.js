@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const simpleRenderUtil = require('./simple');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
@@ -33,6 +33,9 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
+        dynamicAtlasManager.insertSpriteFrame(sprite.spriteFrame);
+        sprite._activateMaterial();
+
         let renderData = sprite._renderData;
         let material = sprite.getMaterial();
         if (renderData && material) {
@@ -209,6 +212,4 @@ module.exports = {
             vertexId += 4;
         }
     },
-
-    packAtlas: simpleRenderUtil.packAtlas,
 };

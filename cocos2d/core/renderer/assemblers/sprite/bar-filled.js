@@ -27,10 +27,14 @@ const Sprite = require('../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
 const simpleRenderUtil = require('./simple');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
     updateRenderData (sprite) {
+        dynamicAtlasManager.insertSpriteFrame(sprite.spriteFrame);
+        sprite._activateMaterial();
+
         let renderData = sprite._renderData;
         if (renderData && sprite._material) {
             let uvDirty = renderData.uvDirty,
@@ -179,7 +183,6 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
-    packAtlas: simpleRenderUtil.packAtlas,
     updateWorldVerts: simpleRenderUtil.updateWorldVerts,
     createData: simpleRenderUtil.createData,
     fillBuffers: simpleRenderUtil.fillBuffers

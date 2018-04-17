@@ -159,6 +159,7 @@ var MotionStreak = cc.Class({
             set: function (value) {
                 this._texture = value;
                 this._material = null;
+                this._activateMaterial();
             },
             type: cc.Texture2D,
             animatable: false,

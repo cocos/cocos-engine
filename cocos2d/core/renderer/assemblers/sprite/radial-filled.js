@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const simpleRenderUtil = require('./simple');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
 const PI_2 = Math.PI * 2;
 
@@ -43,6 +43,9 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
+        dynamicAtlasManager.insertSpriteFrame(sprite.spriteFrame);
+        sprite._activateMaterial();
+
         let renderData = sprite._renderData;
         let spriteFrame = sprite._spriteFrame;
         if (renderData && frame && sprite._material) {
@@ -345,6 +348,4 @@ module.exports = {
             ibuf[indiceOffset+i] = vertexId+i;
         }
     },
-
-    packAtlas: simpleRenderUtil.packAtlas,
 };

@@ -386,9 +386,8 @@ let TiledLayer = cc.Class({
      * tiledLayer.setTexture(texture);
      */
     setTexture (texture){
-        if (this._texture === texture) return;
         this._texture = texture;
-        this._material = null;
+        this._activateMaterial();
     },
 
     /**

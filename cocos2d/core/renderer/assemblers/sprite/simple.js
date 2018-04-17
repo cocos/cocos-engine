@@ -29,11 +29,10 @@ const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 module.exports = {
     useModel: false,
     
-    packAtlas (comp) {
-        dynamicAtlasManager.insertSpriteFrame(comp.spriteFrame);
-    },
-
     updateRenderData (sprite) {
+        dynamicAtlasManager.insertSpriteFrame(sprite.spriteFrame);
+        sprite._activateMaterial();
+
         let renderData = sprite._renderData;
         if (renderData && sprite._material) {
             if (renderData.uvDirty) {

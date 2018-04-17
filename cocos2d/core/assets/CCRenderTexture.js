@@ -57,6 +57,26 @@ let RenderTexture = cc.Class({
     },
 
     /**
+     * !#en Draw a texture to the specified position
+     * !#zh 将指定的图片渲染到指定的位置上
+     * @param {Texture2D} texture 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+    drawTextureAt (texture, x, y) {
+        if (!texture._image) return;
+
+        this._texture.updateSubImage({
+            x, y,
+            image: texture._image,
+            width: texture.width,
+            height: texture.height,
+            level: 0,
+            flipY: false
+        })
+    },
+
+    /**
      * !#en
      * Get pixels from render texture, the pixels data stores in a RGBA Uint8Array.
      * It will return a new (width * height * 4) length Uint8Array by default。
