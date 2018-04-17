@@ -2874,6 +2874,74 @@ static bool JSB_glVertexAttribPointer(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glVertexAttribPointer)
 
+// (index, pname)
+static bool JSB_glGetVertexAttrib(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
+    bool ok = true;
+    uint32_t index; uint32_t pname;
+
+    ok &= seval_to_uint32(args[0], &index );
+    ok &= seval_to_uint32(args[1], &pname );
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    if( pname == GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING ) {
+        GLint buffer;
+        JSB_GL_CHECK(glGetVertexAttribiv(index, pname, &buffer));
+        auto iter = __webglBufferMap.find(buffer);
+        if (iter != __webglBufferMap.end()) {
+            WebGLBuffer* obj = static_cast<WebGLBuffer*>(iter->second);
+            auto seObjIter = se::NativePtrToObjectMap::find(obj);
+            if (seObjIter != se::NativePtrToObjectMap::end()) {
+                s.rval().setObject(seObjIter->second);
+            }
+        }
+    }
+    else if( pname == GL_CURRENT_VERTEX_ATTRIB ) {
+        float vertexAttrib[4] = {0.0f};
+        JSB_GL_CHECK(glGetVertexAttribfv(index, pname, vertexAttrib));
+        se::Object* arr = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, vertexAttrib, sizeof(vertexAttrib));
+        s.rval().setObject(arr);
+    }
+    else {
+        GLint value;
+        JSB_GL_CHECK(glGetVertexAttribiv(index, pname, &value));
+
+        if (pname == GL_VERTEX_ATTRIB_ARRAY_ENABLED || pname == GL_VERTEX_ATTRIB_ARRAY_NORMALIZED) {
+            s.rval().setBoolean(value == 0 ? false : true);
+        }
+        else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE) {
+            s.rval().setNumber(value);
+        }
+    }
+    return true;
+}
+SE_BIND_FUNC(JSB_glGetVertexAttrib)
+
+// (index, pname)
+static bool JSB_glGetVertexAttribOffset(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
+    bool ok = true;
+    uint32_t index; uint32_t pname;
+
+    ok &= seval_to_uint32(args[0], &index );
+    ok &= seval_to_uint32(args[1], &pname );
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    if( pname == GL_VERTEX_ATTRIB_ARRAY_POINTER ) {
+        GLvoid* pointer;
+        JSB_GL_CHECK(glGetVertexAttribPointerv(index, pname, &pointer));
+        s.rval().setNumber((double)(intptr_t)pointer);
+    }
+    return true;
+}
+SE_BIND_FUNC(JSB_glGetVertexAttribOffset)
+
 // Arguments: GLint, GLint, GLsizei, GLsizei
 // Ret value: void
 static bool JSB_glViewport(se::State& s) {
@@ -4376,6 +4444,8 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("vertexAttrib4f", _SE(JSB_glVertexAttrib4f));
     __glObj->defineFunction("vertexAttrib4fv", _SE(JSB_glVertexAttrib4fv));
     __glObj->defineFunction("vertexAttribPointer", _SE(JSB_glVertexAttribPointer));
+    __glObj->defineFunction("getVertexAttrib", _SE(JSB_glGetVertexAttrib));
+    __glObj->defineFunction("getVertexAttribOffset", _SE(JSB_glGetVertexAttribOffset));
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
     __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
     __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
