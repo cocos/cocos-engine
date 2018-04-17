@@ -1984,19 +1984,19 @@ var Node = cc.Class({
             let ba=pt.m00, bb=pt.m01, bc=pt.m04, bd=pt.m05, btx=pt.m12, bty=pt.m13;
             if (bb !== 0 || bc !== 0) {
                 wt.m00 = aa * ba + ab * bc;
-				wt.m01 = aa * bb + ab * bd;
-				wt.m04 = ac * ba + ad * bc;
-				wt.m05 = ac * bb + ad * bd;
-				wt.m12 = ba * atx + bc * aty + btx;
-				wt.m13 = bb * atx + bd * aty + bty;
+                wt.m01 = aa * bb + ab * bd;
+                wt.m04 = ac * ba + ad * bc;
+                wt.m05 = ac * bb + ad * bd;
+                wt.m12 = ba * atx + bc * aty + btx;
+                wt.m13 = bb * atx + bd * aty + bty;
             }
             else {
                 wt.m00 = aa * ba;
-				wt.m01 = ab * bd;
-				wt.m04 = ac * ba;
-				wt.m05 = ad * bd;
-				wt.m12 = ba * atx + btx;
-				wt.m13 = bd * aty + bty;
+                wt.m01 = ab * bd;
+                wt.m04 = ac * ba;
+                wt.m05 = ad * bd;
+                wt.m12 = ba * atx + btx;
+                wt.m13 = bd * aty + bty;
             }
         }
         else {
