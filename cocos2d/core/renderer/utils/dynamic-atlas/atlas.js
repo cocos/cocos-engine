@@ -64,6 +64,10 @@ class Atlas {
 
         return true;
     }
+
+    destroy () {
+        this._texture.destroy();
+    }
 }
 
 module.exports = Atlas;
