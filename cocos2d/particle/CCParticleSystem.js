@@ -1268,7 +1268,7 @@ var ParticleSystem = cc.Class({
             this.startRadius = parseFloat(dict["maxRadius"] || 0);
             this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
             this.endRadius = parseFloat(dict["minRadius"] || 0);
-            this.endRadiusVar = 0;
+            this.endRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
             this.rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
             this.rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
         } else {
