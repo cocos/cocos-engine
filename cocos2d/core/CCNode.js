@@ -1600,7 +1600,7 @@ var Node = cc.Class({
      * node.setScale(1, 1);
      */
     setScale (scaleX, scaleY) {
-        if (scaleY === undefined) {
+        if (scaleX && typeof scaleX !== 'number') {
             scaleY = scaleX.y;
             scaleX = scaleX.x;
         }
