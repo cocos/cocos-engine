@@ -15056,7 +15056,13 @@ var Model$2 = renderer.Model;
 var InputAssembler$2 = renderer.InputAssembler;
 
 // Add stage to renderer
-renderer.config.addStage('transparent');
+if (renderer.config) {
+  // JSB adaptation
+  renderer.config.addStage('transparent');
+}
+else {
+  renderer.addStage('transparent');
+}
 
 var renderEngine = {
   // core classes
