@@ -311,7 +311,7 @@ var BaseNode = cc.Class({
      * @param {String} [name]
      */
     ctor (name) {
-        this._name = typeof name !== 'undefined' ? name : 'New Node';
+        this._name = name !== undefined ? name : 'New Node';
 
         this._activeInHierarchy = false;
         // Support for ActionManager and EventManager
