@@ -149,7 +149,7 @@ gulp.task('build', ['clean-cache', 'build-html5-preview', 'build-jsb']);
 gulp.task('default', ['build']);
 
 gulp.task('clean', function (done) {
-    Del(Path.join('./bin', '**/*'), done);
+    Del('./bin/**/*', done);
 });
 
 ////////////
