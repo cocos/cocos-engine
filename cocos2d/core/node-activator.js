@@ -250,7 +250,7 @@ var NodeActivator = cc.Class({
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
-                if (typeof comp.__preload === 'function') {
+                if (comp.__preload) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
                     }
@@ -285,7 +285,7 @@ var NodeActivator = cc.Class({
     } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
-            if (typeof comp.__preload === 'function') {
+            if (comp.__preload) {
                 if (preloadInvoker) {
                     preloadInvoker.add(comp);
                 }
@@ -337,7 +337,7 @@ var NodeActivator = cc.Class({
     },
 
     resetComp: CC_EDITOR && function (comp) {
-        if (typeof comp.resetInEditor === 'function') {
+        if (comp.resetInEditor) {
             callResetInTryCatch(comp);
         }
     }

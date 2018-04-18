@@ -121,8 +121,9 @@ function generateStats () {
         mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 }
     };
 
+    let now = performance.now();
     for (let id in _stats) {
-        _stats[id]._counter = new PerfCounter(id, _stats[id]);
+        _stats[id]._counter = new PerfCounter(id, _stats[id], now);
     }
 }
 
@@ -163,18 +164,20 @@ function generateNode () {
 function beforeUpdate () {
     generateNode();
 
-    _stats['frame']._counter.start();
-    _stats['logic']._counter.start();
+    let now = cc.director._lastUpdate;
+    _stats['frame']._counter.start(now);
+    _stats['logic']._counter.start(now);
 }
 
 function afterUpdate () {
+    let now = performance.now();
     if (cc.director.isPaused()) {
-        _stats['frame']._counter.start();
+        _stats['frame']._counter.start(now);
     }
     else {
-        _stats['logic']._counter.end();
+        _stats['logic']._counter.end(now);
     }
-    _stats['render']._counter.start();
+    _stats['render']._counter.start(now);
 }
 
 function updateLabel (stat) {
@@ -185,16 +188,17 @@ function updateLabel (stat) {
 }
 
 function afterDraw () {
-    _stats['render']._counter.end();
+    let now = performance.now();
+    _stats['render']._counter.end(now);
     _stats['draws']._counter.value = cc.renderer.drawCalls;
-    _stats['frame']._counter.end();
-    _stats['fps']._counter.frame();
+    _stats['frame']._counter.end(now);
+    _stats['fps']._counter.frame(now);
     
     let left = '';
     let right = '';
     for (let id in _stats) {
         let stat = _stats[id];
-        stat._counter.sample();
+        stat._counter.sample(now);
 
         left += stat.desc + '\n';
         right += stat._counter.human() + '\n';

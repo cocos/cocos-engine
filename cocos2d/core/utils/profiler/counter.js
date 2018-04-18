@@ -1,5 +1,5 @@
 class Counter {
-    constructor(id, opts) {
+    constructor(id, opts, now) {
       this._id = id;
       this._opts = opts || {};
   
@@ -8,15 +8,15 @@ class Counter {
       this._averageValue = 0;
       this._accumValue = 0;
       this._accumSamples = 0;
-      this._accumStart = window.performance.now();
+      this._accumStart = now;
     }
   
-    _average(v) {
+    _average(v, now) {
       if (this._opts.average) {
         this._accumValue += v;
         ++this._accumSamples;
   
-        let t = performance.now();
+        let t = now;
         if (t - this._accumStart >= this._opts.average) {
           this._averageValue = this._accumValue / this._accumSamples;
           this._accumValue = 0;
@@ -31,8 +31,8 @@ class Counter {
       this._value = v;
     }
   
-    sample() {
-      this._average(this._value);
+    sample(now) {
+      this._average(this._value, now);
     }
   
     human() {
