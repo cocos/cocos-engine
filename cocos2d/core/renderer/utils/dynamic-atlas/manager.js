@@ -5,7 +5,7 @@ let _atlasIndex = -1;
 
 let _maxAtlasCount = 5;
 let _textureSize = 2048;
-let _maxFrameSize = 512;
+let _maxFrameSize = 256;
 
 let _enabled = false;
 
@@ -92,7 +92,7 @@ let dynamicAtlasManager = {
     insertSpriteFrame (spriteFrame) {
         if (CC_EDITOR) return;
         if (!this.enabled || _atlasIndex === _maxAtlasCount ||
-            !spriteFrame || spriteFrame._oriInfo) return;
+            !spriteFrame || spriteFrame._original) return;
         
         let texture = spriteFrame._texture;
         if (texture.width > _maxFrameSize || texture.height > _maxFrameSize) {

@@ -33,14 +33,21 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        dynamicAtlasManager.insertSpriteFrame(sprite.spriteFrame);
-        sprite._activateMaterial();
+        let frame = sprite.spriteFrame;
+        
+        // 避免用户使用自定义 material 的情况下覆盖用户设置，不过这里还应该加一个 TODO，未来设计 material 的序列化和用户接口时，应该会有改动
+        if (!sprite._material && frame) {
+            // 尽可能避免函数调用的开销
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
+        }
 
         let renderData = sprite._renderData;
-        let material = sprite.getMaterial();
-        if (renderData && material) {
+        if (renderData) {
             if (renderData.uvDirty || renderData.vertDirty) {
-                let texture = material.effect.getProperty('texture');
+                let texture = frame._texture;
                 let texw = texture._width,
                     texh = texture._height;
                 let frame = sprite.spriteFrame;

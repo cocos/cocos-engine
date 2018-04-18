@@ -159,7 +159,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._textureFilename = '';
 
         // store original info before packed to dynamic atlas
-        this._oriInfo = null;
+        this._original = null;
 
         if (CC_EDITOR) {
             // Atlas asset uuid

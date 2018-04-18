@@ -4,7 +4,7 @@ class Atlas {
     constructor (width, height) {
         let texture = new cc.RenderTexture();
         texture.initWithSize(width, height);
-        texture.handleLoadedTexture();
+        texture.update();
         
         this._texture = texture;
 
@@ -60,10 +60,9 @@ class Atlas {
             this._x += width;
 
             this._dirty = true;
-            this._texture.handleLoadedTexture();
         }
 
-        spriteFrame._oriInfo = {
+        spriteFrame._original = {
             x: sx,
             y: sy,
             texture: spriteFrame._texture
@@ -78,7 +77,7 @@ class Atlas {
 
     update () {
         if (!this._dirty) return;
-        this._texture.handleLoadedTexture();
+        this._texture.update();
         this._dirty = false;
     }
 
@@ -90,11 +89,11 @@ class Atlas {
         let frames = this._innerSpriteFrames;
         for (let i = 0, l = frames.length; i < l; i++) {
             let frame = frames[i];
-            let oriInfo = frame._oriInfo;
+            let oriInfo = frame._original;
             frame._rect.x = oriInfo.x;
             frame._rect.y = oriInfo.y;
             frame._texture = oriInfo.texture;
-            frame._oriInfo = null;
+            frame._original = null;
         }
         this._innerSpriteFrames.length = 0;
         this._innerTextureInfos = {};
