@@ -102,7 +102,7 @@ var Transition = cc.Enum({
  *
  * // Add an event to the button.
  * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
- *      cc.log("This is a callback after the trigger event");
+ *     cc.log("This is a callback after the trigger event");
  * });
 
  * // You could also add a click event
