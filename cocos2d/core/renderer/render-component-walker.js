@@ -28,6 +28,8 @@ const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
 const hierarchyChain = require('./utils/hierarchy-chain');
+const atlasManager = require('./utils/dynamic-atlas/manager');
+
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -365,6 +367,7 @@ RenderComponentWalker.prototype = {
             this._batchData.worldMatUpdated = false;
         }
         
+        atlasManager.update();
         this._flush();
         this._uploadData();
     }

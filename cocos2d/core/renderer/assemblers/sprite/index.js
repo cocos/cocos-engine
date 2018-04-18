@@ -24,6 +24,8 @@
  ****************************************************************************/
 
 const Sprite = require('../../../components/CCSprite');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 
@@ -35,6 +37,7 @@ const barFilledRenderUtil = require('./bar-filled');
 const meshRenderUtil = require('./mesh');
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
+
 let spriteAssembler = {
     getAssembler (sprite) {
         let util = simpleRenderUtil;
