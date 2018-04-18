@@ -145,6 +145,21 @@ static bool js_gfx_IndexBuffer_setCount(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_IndexBuffer_setCount)
 
+static bool js_gfx_IndexBuffer_destroy(se::State& s)
+{
+    cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_IndexBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_IndexBuffer_destroy)
+
 static bool js_gfx_IndexBuffer_setUsage(se::State& s)
 {
     cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
@@ -255,6 +270,7 @@ bool js_register_gfx_IndexBuffer(se::Object* obj)
     cls->defineFunction("getUsage", _SE(js_gfx_IndexBuffer_getUsage));
     cls->defineFunction("setFormat", _SE(js_gfx_IndexBuffer_setFormat));
     cls->defineFunction("setCount", _SE(js_gfx_IndexBuffer_setCount));
+    cls->defineFunction("destroy", _SE(js_gfx_IndexBuffer_destroy));
     cls->defineFunction("setUsage", _SE(js_gfx_IndexBuffer_setUsage));
     cls->defineFunction("getCount", _SE(js_gfx_IndexBuffer_getCount));
     cls->defineFunction("setBytesPerIndex", _SE(js_gfx_IndexBuffer_setBytesPerIndex));
@@ -328,6 +344,21 @@ static bool js_gfx_VertexBuffer_setCount(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_VertexBuffer_setCount)
+
+static bool js_gfx_VertexBuffer_destroy(se::State& s)
+{
+    cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_VertexBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_VertexBuffer_destroy)
 
 static bool js_gfx_VertexBuffer_setUsage(se::State& s)
 {
@@ -419,6 +450,7 @@ bool js_register_gfx_VertexBuffer(se::Object* obj)
     cls->defineFunction("setBytes", _SE(js_gfx_VertexBuffer_setBytes));
     cls->defineFunction("getUsage", _SE(js_gfx_VertexBuffer_getUsage));
     cls->defineFunction("setCount", _SE(js_gfx_VertexBuffer_setCount));
+    cls->defineFunction("destroy", _SE(js_gfx_VertexBuffer_destroy));
     cls->defineFunction("setUsage", _SE(js_gfx_VertexBuffer_setUsage));
     cls->defineFunction("getCount", _SE(js_gfx_VertexBuffer_getCount));
     cls->defineFunction("getBytes", _SE(js_gfx_VertexBuffer_getBytes));

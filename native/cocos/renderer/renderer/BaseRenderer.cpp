@@ -39,7 +39,10 @@
 RENDERER_BEGIN
 
 BaseRenderer::BaseRenderer()
-{}
+{
+    _drawItems.reserve(100);
+    _stageInfos.reserve(10);
+}
 
 BaseRenderer::~BaseRenderer()
 {
@@ -126,16 +129,15 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     _stageInfos.clear();
     StageItem stageItem;
     StageInfo stageInfo;
+    std::vector<StageItem> stageItems;
     for (const auto& stage : view.stages)
     {
-        std::vector<StageItem> stageItems;
         for (const auto& item : _drawItems)
         {
             auto tech = item.effect->getTechnique(stage);
             if (tech)
             {
                 stageItem.model = item.model;
-                stageItem.node = item.node;
                 stageItem.ia = item.ia;
                 stageItem.effect = item.effect;
                 stageItem.defines = item.defines;
@@ -147,30 +149,28 @@ void BaseRenderer::render(const View& view, const Scene* scene)
         }
         
         stageInfo.stage = stage;
-        stageInfo.items = std::move(stageItems);
+        stageInfo.items = &stageItems;
         _stageInfos.push_back(std::move(stageInfo));
     }
     
     // render stages
+    std::unordered_map<std::string, StageCallback>::iterator foundIter;
     for (const auto& stageInfo : _stageInfos)
     {
-        if (_stage2fn.end() != _stage2fn.find(stageInfo.stage))
+        foundIter = _stage2fn.find(stageInfo.stage);
+        if (_stage2fn.end() != foundIter)
         {
-            auto& fn = _stage2fn.at(stageInfo.stage);
-            fn(view, stageInfo.items);
+            auto& fn = foundIter->second;
+            fn(view, *stageInfo.items);
         }
     }
 }
 
 void BaseRenderer::draw(const StageItem& item)
 {
-    //TODO: get world matrix of node
-//    const Mat4& worldMatrix =
-
-    Mat4 worldMatrix = item.node->getWorldMatrix();
-    //TODO: Mat4 worldMatrix = item.model->getWorldMatrix();
+    Mat4 worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4("model", worldMatrix.m);
-    
+
     //TODO: add Mat3
     worldMatrix.inverse();
     worldMatrix.transpose();
@@ -213,8 +213,10 @@ void BaseRenderer::draw(const StageItem& item)
                 }
                 
                 std::vector<int> slots;
+                slots.reserve(10);
                 for (int i = 0; i < param.getCount(); ++i)
                     slots.push_back(allocTextureUnit());
+                
                 _device->setTextureArray(param.getName(),
                                          std::move(prop->getTextureArray()),
                                          slots);
@@ -340,7 +342,7 @@ int BaseRenderer::allocTextureUnit()
     if (_usedTextureUnits >= maxTexureUnits)
         RENDERER_LOGW("Trying to use %d texture uints while this GPU only supports %d", _usedTextureUnits, maxTexureUnits);
     
-    return ++_usedTextureUnits;
+    return _usedTextureUnits++;
 }
 
 void BaseRenderer::reset()

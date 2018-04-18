@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "base/CCRef.h"
 #include "../Types.h"
 #include "../Macro.h"
 
@@ -33,11 +32,16 @@ RENDERER_BEGIN
 class VertexBuffer;
 class IndexBuffer;
 
-class InputAssembler : public Ref
+class InputAssembler
 {
 public:
     InputAssembler();
+    InputAssembler(const InputAssembler& o);
+    InputAssembler(InputAssembler&& o);
     ~InputAssembler();
+    
+    InputAssembler& operator=(const InputAssembler& o);
+    InputAssembler& operator=(InputAssembler&& o);
 
     bool init(VertexBuffer* vb,
               IndexBuffer* ib,

@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include "base/CCVector.h"
+#include "base/ccCArray.h"
 #include "../Macro.h"
 
 RENDERER_BEGIN

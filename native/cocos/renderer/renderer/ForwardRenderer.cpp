@@ -54,15 +54,11 @@ bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Templ
 
 void ForwardRenderer::render(Scene* scene)
 {
-    reset();
+//    reset();
 
-    View view;
     const auto& cameras = scene->getCameras();
     for (auto camera : cameras)
-    {
-        camera->extractView(view, _width, _height);
-        BaseRenderer::render(view, scene);
-    }
+        BaseRenderer::render(camera->extractView(_width, _height), scene);
     
     scene->removeModels();
 }

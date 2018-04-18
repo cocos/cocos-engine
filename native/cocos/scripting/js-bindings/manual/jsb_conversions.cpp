@@ -352,39 +352,14 @@ bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
     }
     else
     {
-        se::Value tmp;
-        obj->getProperty("m00", &tmp);
-        mat->m[0] = tmp.toFloat();
-        obj->getProperty("m01", &tmp);
-        mat->m[1] = tmp.toFloat();
-        obj->getProperty("m02", &tmp);
-        mat->m[2] = tmp.toFloat();
-        obj->getProperty("m03", &tmp);
-        mat->m[3] = tmp.toFloat();
-        obj->getProperty("m04", &tmp);
-        mat->m[4] = tmp.toFloat();
-        obj->getProperty("m05", &tmp);
-        mat->m[5] = tmp.toFloat();
-        obj->getProperty("m06", &tmp);
-        mat->m[6] = tmp.toFloat();
-        obj->getProperty("m07", &tmp);
-        mat->m[7] = tmp.toFloat();
-        obj->getProperty("m08", &tmp);
-        mat->m[8] = tmp.toFloat();
-        obj->getProperty("m09", &tmp);
-        mat->m[9] = tmp.toFloat();
-        obj->getProperty("m10", &tmp);
-        mat->m[10] = tmp.toFloat();
-        obj->getProperty("m11", &tmp);
-        mat->m[11] = tmp.toFloat();
-        obj->getProperty("m12", &tmp);
-        mat->m[12] = tmp.toFloat();
-        obj->getProperty("m13", &tmp);
-        mat->m[13] = tmp.toFloat();
-        obj->getProperty("m14", &tmp);
-        mat->m[14] = tmp.toFloat();
-        obj->getProperty("m15", &tmp);
-        mat->m[15] = tmp.toFloat();
+        // typed array
+        assert(obj->isTypedArray());
+        
+        size_t length = 0;
+        uint8_t* ptr = nullptr;
+        obj->getTypedArrayData(&ptr, &length);
+        
+        memcpy(mat->m, ptr, length);
     }
 
     return true;
@@ -1952,10 +1927,10 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
 
         if (obj->getProperty("type", &tmp))
         {
-            uint8_t v = 0;
-            ok = seval_to_uint8(tmp, &v);
+            uint8_t typeValue = 0;
+            ok = seval_to_uint8(tmp, &typeValue);
             SE_PRECONDITION2(ok, false, "Convert Parameter type failed!");
-            type = (cocos2d::renderer::Technique::Parameter::Type)v;
+            type = (cocos2d::renderer::Technique::Parameter::Type)typeValue;
         }
 
         if (obj->getProperty("size", &tmp))

@@ -34,6 +34,7 @@ RENDERER_BEGIN
 
 Scene::Scene()
 {
+    _models.reserve(500);
 }
 
 void Scene::reset()
@@ -91,7 +92,7 @@ void Scene::removeModels()
 {
     for (const auto& model : _models)
         ModelPool::returnModel(model);
-    
+
     _models.clear();
 }
 

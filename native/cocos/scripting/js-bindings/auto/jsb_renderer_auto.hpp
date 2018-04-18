@@ -28,7 +28,6 @@ extern se::Class* __jsb_cocos2d_renderer_ForwardRenderer_class;
 bool js_register_cocos2d_renderer_ForwardRenderer(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_ForwardRenderer_init);
-SE_DECLARE_FUNC(js_renderer_ForwardRenderer_render);
 SE_DECLARE_FUNC(js_renderer_ForwardRenderer_ForwardRenderer);
 
 extern se::Object* __jsb_cocos2d_renderer_View_proto;
@@ -75,25 +74,6 @@ bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_Effect_setDefineValue);
 SE_DECLARE_FUNC(js_renderer_Effect_clear);
 SE_DECLARE_FUNC(js_renderer_Effect_Effect);
-
-extern se::Object* __jsb_cocos2d_renderer_InputAssembler_proto;
-extern se::Class* __jsb_cocos2d_renderer_InputAssembler_class;
-
-bool js_register_cocos2d_renderer_InputAssembler(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_setVertexBuffer);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getStart);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_setStart);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_setPrimitiveType);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getPrimitiveCount);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_setCount);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_init);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getVertexBuffer);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getIndexBuffer);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getCount);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_getPrimitiveType);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_setIndexBuffer);
-SE_DECLARE_FUNC(js_renderer_InputAssembler_InputAssembler);
 
 extern se::Object* __jsb_cocos2d_renderer_Light_proto;
 extern se::Class* __jsb_cocos2d_renderer_Light_class;

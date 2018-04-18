@@ -35,6 +35,10 @@ Effect::Effect(const Vector<Technique*>& techniques,
 , _defineTemplates(defineTemplates)
 {
 //    RENDERER_LOGD("Effect construction: %p", this);
+    
+    for (const auto defineTemplate: _defineTemplates)
+        _cachedNameValues.emplace(defineTemplate.at("name").asString(),
+                                  defineTemplate.at("value"));
 }
 
 Effect::~Effect()
@@ -83,17 +87,18 @@ void Effect::setDefineValue(const std::string& name, const Value& value)
         if (name == def.at("name").asString())
         {
             def["value"] = value;
+            _cachedNameValues[name] = value;
             return;
         }
     }
 }
 
-ValueMap* Effect::extractDefines(ValueMap& out) const
+ValueMap* Effect::extractDefines()
 {
-    for (auto& def : _defineTemplates)
-        out[def.at("name").asString()] = def.at("value");
-    
-    return &out;
+//    for (auto& def : _defineTemplates)
+//        out.emplace(def.at("name").asString(), def.at("value"));
+
+    return &_cachedNameValues;
 }
 
 const Effect::Property& Effect::getProperty(const std::string& name) const

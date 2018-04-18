@@ -30,29 +30,31 @@ RENDERER_BEGIN
 
 // Implementation of Model pool.
 
-std::list<Model*> ModelPool::_pool;
+ccCArray* ModelPool::_pool = ccCArrayNew(500);
 
 Model* ModelPool::getOrCreateModel()
 {
     Model* model = nullptr;
-    if (!_pool.empty())
+    if (0 != _pool->num)
     {
-        model = ModelPool::_pool.back();
-        _pool.pop_back();
+        model = static_cast<Model*>(ModelPool::_pool->arr[ModelPool::_pool->num - 1]);
+        ccCArrayRemoveValueAtIndex(ModelPool::_pool, ModelPool::_pool->num - 1);
     }
     else
-    {
         model = new Model();
-        ModelPool::_pool.push_front(model);
-    }
 
     return model;
 }
 
 void ModelPool::returnModel(Model *model)
 {
-    model->reset();
-    ModelPool::_pool.push_front(model);
+    if (ModelPool::_pool->num < ModelPool::_pool->max)
+    {
+        model->reset();
+        ccCArrayAppendValue(ModelPool::_pool, model);
+    }
+    else
+        delete model;
 }
 
 // Implementation of Model
@@ -60,20 +62,21 @@ void ModelPool::returnModel(Model *model)
 Model::Model()
 {
 //    RENDERER_LOGD("Model construction %p", this);
+    
+    _inputAssemblers.reserve(500);
 }
 
 Model::~Model()
 {
     RENDERER_LOGD("Model destruction %p", this);
     reset();
+    
+    ccCArrayFree(_effects);
 }
 
-void Model::addInputAssembler(InputAssembler* ia)
+void Model::addInputAssembler(const InputAssembler& ia)
 {
-    if (_inputAssemblers.contains(ia))
-        return;
-    
-    _inputAssemblers.pushBack(ia);
+    _inputAssemblers.push_back(std::move(ia));
 }
 
 void Model::clearInputAssemblers()
@@ -83,19 +86,17 @@ void Model::clearInputAssemblers()
 
 void Model::addEffect(Effect* effect)
 {
-    if (_effects.contains(effect))
+    if (ccCArrayContainsValue(_effects, effect))
         return;
     
-    _effects.pushBack(effect);
+    ccCArrayAppendValue(_effects, effect);
     
-    ValueMap defs;
-    effect->extractDefines(defs);
-    _defines.push_back(std::move(defs));
+    _defines.push_back(effect->extractDefines());
 }
 
 void Model::clearEffects()
 {
-    _effects.clear();
+    ccCArrayRemoveAllValues(_effects);
     _defines.clear();
 }
 
@@ -104,50 +105,34 @@ void Model::extractDrawItem(DrawItem& out, uint32_t index) const
     if (_dynamicIA)
     {
         out.model = const_cast<Model*>(this);
-        out.node = _node;
         out.ia = nullptr;
-        out.effect = _effects.at(0);
-        out.defines = out.effect->extractDefines(const_cast<ValueMap&>(_defines[0]));
+        out.effect = static_cast<Effect*>(_effects->arr[0]);
+        out.defines = out.effect->extractDefines();
         
         return;
     }
     
     if (index >= _inputAssemblers.size())
-    {
-        out.model = nullptr;
-        out.node = nullptr;
-        out.ia = nullptr;
-        out.effect = nullptr;
-        out.defines = nullptr;
-        
         return;
-    }
     
     out.model = const_cast<Model*>(this);
-    out.node = _node;
-    out.ia = _inputAssemblers.at(index);
+    out.ia = const_cast<InputAssembler*>(&(_inputAssemblers[index]));
     
-    auto effectsSize = _effects.size();
+    auto effectsSize = _effects->num;
     if (index >= effectsSize)
         index = (uint32_t)(effectsSize - 1);
     
-    out.effect = const_cast<Effect*>(_effects.at(index));
-    out.defines = out.effect->extractDefines(const_cast<ValueMap&>(_defines[index]));
+    out.effect = static_cast<Effect*>(_effects->arr[index]);
+
+    out.defines = out.effect->extractDefines();
 }
 
 void Model::reset()
 {
-    delete _node;
-    _node = nullptr;
+    ccCArrayRemoveAllValues(_effects);
+    _inputAssemblers.clear();
     
-    _effects.clear();
-    clearInputAssemblers();
     _defines.clear();
-    
-    _dynamicIA = false;
-    _viewID = -1;
-    
-    _worldMatrix = Mat4::IDENTITY;
 }
 
 RENDERER_END

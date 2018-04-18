@@ -38,14 +38,7 @@ IndexBuffer::IndexBuffer()
 
 IndexBuffer::~IndexBuffer()
 {
-    if (_glID == 0)
-    {
-        RENDERER_LOGE("The index buffer is invalid!");
-        return;
-    }
-
-    glDeleteBuffers(1, &_glID);
-    //TODO:    _device._stats.ib -= _bytes;
+    destroy();
 }
 
 bool IndexBuffer::init(DeviceGraphics* device, IndexFormat format, Usage usage, const void* data, size_t dataByteLength, uint32_t numIndices)
@@ -114,6 +107,16 @@ void IndexBuffer::update(uint32_t offset, const void* data, size_t dataByteLengt
         }
     }
     _device->restoreIndexBuffer();
+}
+
+void IndexBuffer::destroy()
+{
+    if (_glID == 0)
+        return;
+    
+    glDeleteBuffers(1, &_glID);
+    //TODO:    _device._stats.ib -= _bytes;
+    _glID = 0;
 }
 
 RENDERER_END

@@ -53,31 +53,6 @@ static bool js_renderer_Camera_getRect(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Camera_getRect)
 
-static bool js_renderer_Camera_extractView(se::State& s)
-{
-    cocos2d::renderer::Camera* cobj = (cocos2d::renderer::Camera*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Camera_extractView : Invalid Native Object");
-    auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        cocos2d::renderer::View* view = nullptr;
-        ok = seval_to_native_ptr(args[0], &view);
-        SE_PRECONDITION2(ok, false, "Convert arg0 failed!");
-        int32_t width = 0;
-        ok = seval_to_int32(args[1], &width);
-        SE_PRECONDITION2(ok, false, "Convert arg1 failed!");
-        int32_t height = 0;
-        ok = seval_to_int32(args[2], &height);
-        SE_PRECONDITION2(ok, false, "Convert arg2 failed!");
-        cobj->extractView(*view, width, height);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Camera_extractView)
-
 static bool js_renderer_Camera_screenToWorld(se::State& s)
 {
     cocos2d::renderer::Camera* cobj = (cocos2d::renderer::Camera*)s.nativeThisObject();
@@ -140,48 +115,6 @@ static bool js_renderer_Camera_worldToScreen(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Camera_worldToScreen)
 
-static void fillObjectWithValueMap(const cocos2d::ValueMap& v, se::Object* obj)
-{
-    bool ok = true;
-    for (const auto& e : v)
-    {
-        const std::string& key = e.first;
-        const cocos2d::Value& value = e.second;
-
-        if (key.empty())
-            continue;
-
-        se::Value tmp;
-        if (!ccvalue_to_seval(value, &tmp))
-        {
-            ok = false;
-            break;
-        }
-
-        obj->setProperty(key.c_str(), tmp);
-    }
-}
-
-static bool js_renderer_Effect_extractDefines(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_extractDefines : Invalid Native Object");
-    auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        se::Object* out = args[0].toObject();
-        cocos2d::ValueMap valueMap;
-        cobj->extractDefines(valueMap);
-        fillObjectWithValueMap(valueMap, out);
-        s.rval().setObject(out);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_extractDefines)
-
 static bool js_renderer_Effect_setProperty(se::State& s)
 {
     cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
@@ -221,79 +154,15 @@ static bool js_renderer_Effect_setProperty(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Effect_setProperty)
 
-//static bool js_renderer_Effect_prop_getDefines(se::State& s)
-//{
-//    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-//    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setProperty : Invalid Native Object");
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc == 0)
-//    {
-//        std_vector_EffectDefine_to_seval(cobj->getDefines(), &s.rval());
-//        return true;
-//    }
-//
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-//    return false;
-//}
-//SE_BIND_PROP_GET(js_renderer_Effect_prop_getDefines);
-
-//static bool js_renderer_Effect_prop_getTechniques(se::State& s)
-//{
-//    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-//    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setProperty : Invalid Native Object");
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc == 0)
-//    {
-//        Vector_to_seval(cobj->getTechniques(), &s.rval());
-//        return true;
-//    }
-//    
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-//    return false;
-//}
-//SE_BIND_PROP_GET(js_renderer_Effect_prop_getTechniques);
-//
-//static bool js_renderer_Effect_prop_getProperties(se::State& s)
-//{
-//    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-//    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setProperty : Invalid Native Object");
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    if (argc == 0)
-//    {
-//        std_unorderedmap_string_EffectProperty_to_seval(cobj->getProperties(), &s.rval());
-//        return true;
-//    }
-//    
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-//    return false;
-//}
-//SE_BIND_PROP_GET(js_renderer_Effect_prop_getProperties);
-//
-//static bool js_renderer_Effect_getProperty(se::State& s)
-//{
-//    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-//    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getProperty : Invalid Native Object");
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc == 1) {
-//        std::string arg0;
-//        ok &= seval_to_std_string(args[0], &arg0);
-//        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-//        const cocos2d::renderer::Technique::Parameter& result = cobj->getProperty(arg0);
-//        ok &= EffectProperty_to_seval(result, &s.rval());
-//        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-//        return true;
-//    }
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-//    return false;
-//}
-//SE_BIND_FUNC(js_renderer_Effect_getProperty)
+static bool js_renderer_Effect_self(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_setProperty : Invalid Native Object");
+    auto addr = (unsigned long)cobj;
+    s.rval().setNumber(addr);
+    return true;
+}
+SE_BIND_FUNC(js_renderer_Effect_self);
 
 static bool js_renderer_Light_extractView(se::State& s)
 {
@@ -428,14 +297,11 @@ public:
     {
         Mat4 worldMatrix;
         se::Value func;
-        if (_jsNode.toObject()->getProperty("getWorldMatrix", &func))
+        if (_jsNode.toObject()->getProperty("_getWorldMatrix4Native", &func))
         {
             se::Value ret;
-            se::ValueArray args;
-            se::HandleObject obj(se::Object::createPlainObject());
-            args.push_back(se::Value(obj));
-            func.toObject()->call(args, _jsNode.toObject(), &ret);
-            seval_to_Mat4(se::Value(obj), &worldMatrix);
+            func.toObject()->call(se::EmptyValueArray, _jsNode.toObject(), &ret);
+            seval_to_Mat4(ret, &worldMatrix);
         }
         return worldMatrix;
     }
@@ -444,13 +310,10 @@ public:
     {
         Mat4 worldRT;
         se::Value func;
-        if (_jsNode.toObject()->getProperty("getWorldRT", &func))
+        if (_jsNode.toObject()->getProperty("_getWorldRT4Native", &func))
         {
             se::Value ret;
-            se::ValueArray args;
-            se::HandleObject obj(se::Object::createPlainObject());
-            args.push_back(se::Value(obj));
-            func.toObject()->call(args, _jsNode.toObject(), &ret);
+            func.toObject()->call(se::EmptyValueArray, _jsNode.toObject(), &ret);
             seval_to_Mat4(ret, &worldRT);
         }
         return worldRT;
@@ -542,82 +405,73 @@ static bool js_register_renderer_Config(se::Object* obj)
     return true;
 }
 
-namespace
+static bool js_renderer_ForwardRenderer_render(se::State& s)
 {
-    se::Value getProperty(se::Object* obj, const std::string& propertyName)
-    {
-        se::Value propVal;
-        obj->getProperty(propertyName.c_str(), &propVal);
-        return propVal;
-    }
-    
-    void addEffects2Model(cocos2d::renderer::Model* model, const se::Value& modelVal)
-    {
-        // create effects
-        se::Value effectsVal;
-        modelVal.toObject()->getProperty("_effects", &effectsVal);
-        const auto& effectsObj = effectsVal.toObject();
-        uint32_t effectsLength = 0;
-        effectsObj->getArrayLength(&effectsLength);
-        se::Value effectVal;
-        se::Value nativeObjVal;
-        for (uint32_t i = 0; i < effectsLength; ++i)
-        {
-            effectsObj->getArrayElement(i, &effectVal);
-            effectVal.toObject()->getProperty("_nativeObj", &nativeObjVal);
-            model->addEffect(static_cast<cocos2d::renderer::Effect*>(nativeObjVal.toObject()->getPrivateData()));
-        }
-    }
-}
-
-static bool js_renderer_Scene_addModel(se::State& s)
-{
-    cocos2d::renderer::Scene* cobj = (cocos2d::renderer::Scene*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Scene_addModel : Invalid Native Object");
+    cocos2d::renderer::ForwardRenderer* cobj = (cocos2d::renderer::ForwardRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_ForwardRenderer_render : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1)
-    {
-        auto model = cocos2d::renderer::ModelPool::getOrCreateModel();
-        const se::Value& modelVal = args[0];
-        const auto& modelObj = modelVal.toObject();
-        addEffects2Model(model, modelVal);
+    if (argc == 2) {
+        cocos2d::renderer::Scene* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_ForwardRenderer_render : Error processing arguments");
         
-        // dynamicIA
-        bool isDynamicIA = getProperty(modelObj, "_dynamicIA").toBoolean();
-        model->setDynamicIA(isDynamicIA);
+        uint8_t* ptr = nullptr;
+        size_t length = 0;
+        args[1].toObject()->getTypedArrayData(&ptr, &length);
+        double* realPtr = (double*)ptr;
         
-        // node
-        auto node = getProperty(modelObj, "_node");
-        model->setNode(new JSNode(node));
-        
-        // view id
-        int32_t viewID = getProperty(modelObj, "_viewID").toInt32();
-        model->setViewId(viewID);
-        
-        // input assemblers
-        se::Value inputAssemblersVal;
-        modelObj->getProperty("_inputAssemblers", &inputAssemblersVal);
-        const auto& inputAssemblersObj = inputAssemblersVal.toObject();
-        uint32_t inputAssemblersLength = 0;
-        inputAssemblersObj->getArrayLength(&inputAssemblersLength);
-        se::Value inputAssemblerVal;
-        se::Object* inputAssemblerObj = nullptr;
-        for (int i = 0; i < inputAssemblersLength; ++i)
+        int numOfModels = (int)*realPtr++;
+        cocos2d::Mat4 worldMatrix;
+        cocos2d::renderer::InputAssembler ia;
+        for (size_t i = 0; i < numOfModels; ++i)
         {
-            inputAssemblersObj->getArrayElement(i, &inputAssemblerVal);
-            inputAssemblerObj = inputAssemblerVal.toObject();
-            model->addInputAssembler(static_cast<cocos2d::renderer::InputAssembler*>(inputAssemblerObj->getPrivateData()));
+            auto model = cocos2d::renderer::ModelPool::getOrCreateModel();
+            model->setDynamicIA((bool)*realPtr++);
+            model->setViewId((int)*realPtr++);
+            
+            // because the data is 64 bits but the data type of Mat4 is float, so can not memcpy
+            worldMatrix.m[0] = *realPtr++;
+            worldMatrix.m[1] = *realPtr++;
+            worldMatrix.m[2] = *realPtr++;
+            worldMatrix.m[3] = *realPtr++;
+            worldMatrix.m[4] = *realPtr++;
+            worldMatrix.m[5] = *realPtr++;
+            worldMatrix.m[6] = *realPtr++;
+            worldMatrix.m[7] = *realPtr++;
+            worldMatrix.m[8] = *realPtr++;
+            worldMatrix.m[9] = *realPtr++;
+            worldMatrix.m[10] = *realPtr++;
+            worldMatrix.m[11] = *realPtr++;
+            worldMatrix.m[12] = *realPtr++;
+            worldMatrix.m[13] = *realPtr++;
+            worldMatrix.m[14] = *realPtr++;
+            worldMatrix.m[15] = *realPtr++;
+            
+            // ia
+            unsigned long addr = (unsigned long)(*realPtr++);
+            ia.setVertexBuffer(reinterpret_cast<cocos2d::renderer::VertexBuffer*>(addr));
+            addr = (unsigned long)(*realPtr++);
+            ia.setIndexBuffer(reinterpret_cast<cocos2d::renderer::IndexBuffer*>(addr));
+            ia.setStart(*realPtr++);
+            ia.setCount(*realPtr++);
+            model->addInputAssembler(ia);
+            
+            // effect
+            addr = (unsigned long)(*realPtr++);
+            model->addEffect(reinterpret_cast<cocos2d::renderer::Effect*>(addr));
+            
+            arg0->addModel(model);
         }
         
-        cobj->addModel(model);
+        cobj->render(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_renderer_Scene_addModel)
+SE_BIND_FUNC(js_renderer_ForwardRenderer_render);
 
 se::Object* __jsb_cocos2d_renderer_Technique_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_Technique_class = nullptr;
@@ -728,19 +582,15 @@ bool jsb_register_renderer_manual(se::Object* global)
     js_register_renderer_Technique(ns);
     
     // Camera
-    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getColor", _SE(js_renderer_Camera_getColor));
-    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getRect", _SE(js_renderer_Camera_getRect));
-    __jsb_cocos2d_renderer_Camera_proto->defineFunction("extractView", _SE(js_renderer_Camera_extractView));
-    __jsb_cocos2d_renderer_Camera_proto->defineFunction("screenToWorld", _SE(js_renderer_Camera_screenToWorld));
-    __jsb_cocos2d_renderer_Camera_proto->defineFunction("worldToScreen", _SE(js_renderer_Camera_worldToScreen));
+//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getColor", _SE(js_renderer_Camera_getColor));
+//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getRect", _SE(js_renderer_Camera_getRect));
+//   __jsb_cocos2d_renderer_Camera_proto->defineFunction("extractView", _SE(js_renderer_Camera_extractView));
+//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("screenToWorld", _SE(js_renderer_Camera_screenToWorld));
+//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("worldToScreen", _SE(js_renderer_Camera_worldToScreen));
 
     // Effect
-//    __jsb_cocos2d_renderer_Effect_proto->defineFunction("extractDefines", _SE(js_renderer_Effect_extractDefines));
-//    __jsb_cocos2d_renderer_Effect_proto->defineFunction("getProperty", _SE(js_renderer_Effect_getProperty));
     __jsb_cocos2d_renderer_Effect_proto->defineFunction("setProperty", _SE(js_renderer_Effect_setProperty));
-//    __jsb_cocos2d_renderer_Effect_proto->defineProperty("_defines", _SE(js_renderer_Effect_prop_getDefines), nullptr);
-//    __jsb_cocos2d_renderer_Effect_proto->defineProperty("_techniques", _SE(js_renderer_Effect_prop_getTechniques), nullptr);
-//    __jsb_cocos2d_renderer_Effect_proto->defineProperty("_properties", _SE(js_renderer_Effect_prop_getProperties), nullptr);
+    __jsb_cocos2d_renderer_Effect_proto->defineFunction("self", _SE(js_renderer_Effect_self));
 
     // Light
     __jsb_cocos2d_renderer_Light_proto->defineFunction("extractView", _SE(js_renderer_Light_extractView));
@@ -756,19 +606,17 @@ bool jsb_register_renderer_manual(se::Object* global)
     rendererVal.toObject()->defineFunction("stageIDs", _SE(js_renderer_getStageIDs));
     rendererVal.toObject()->defineFunction("stageID", _SE(js_renderer_getStageID));
 
-
     // Camera
     __jsb_cocos2d_renderer_Camera_proto->defineFunction("setNode", _SE(js_renderer_Camera_setNode));
-
-    // Model
-    // __jsb_cocos2d_renderer_Model_proto->defineFunction("setNode", _SE(js_renderer_Model_setNode));
 
     // BaseRenderer
     __jsb_cocos2d_renderer_BaseRenderer_proto->defineProperty("_programLib", _SE(js_renderer_BaseRenderer_prop_getProgramLib), nullptr);
 
-
     // Scene
-    __jsb_cocos2d_renderer_Scene_proto->defineFunction("addModel", _SE(js_renderer_Scene_addModel));
+//    __jsb_cocos2d_renderer_Scene_proto->defineFunction("addModelNative", _SE(js_renderer_Scene_addModel));
+    
+    // ForwardRenderer
+    __jsb_cocos2d_renderer_ForwardRenderer_proto->defineFunction("renderNative", _SE(js_renderer_ForwardRenderer_render));
 
     return true;
 }

@@ -481,6 +481,7 @@ namespace se {
         }
         size_t argc = 0;
         std::vector<v8::Local<v8::Value>> argv;
+        argv.reserve(10);
         argc = args.size();
         internal::seToJsArgs(__isolate, args, &argv);
 
