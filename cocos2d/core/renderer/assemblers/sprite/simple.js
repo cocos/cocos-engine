@@ -86,8 +86,6 @@ module.exports = {
 
     createData (sprite) {
         let renderData = sprite.requestRenderData();
-        // 0-4 for world verts
-        // 5-8 for local verts
         renderData.dataLength = 4;
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;

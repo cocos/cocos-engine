@@ -26,7 +26,6 @@
 const Sprite = require('../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const simpleRenderUtil = require('./simple');
 const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
 module.exports = {
@@ -191,7 +190,56 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
-    updateWorldVerts: simpleRenderUtil.updateWorldVerts,
-    createData: simpleRenderUtil.createData,
-    fillBuffers: simpleRenderUtil.fillBuffers
+    createData (sprite) {
+        let renderData = sprite.requestRenderData();
+        // 0-4 for world verts
+        // 5-8 for local verts
+        renderData.dataLength = 8;
+        renderData.vertexCount = 4;
+        renderData.indiceCount = 6;
+        return renderData;
+    },
+
+    updateWorldVerts (sprite) {
+        let node = sprite.node,
+            data = sprite._renderData._data;
+        
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        
+        for (let i = 0; i < 4; i++) {
+            let local = data[i+4];
+            let world = data[i];
+            world.x = local.x * a + local.y * c + tx;
+            world.y = local.x * b + local.y * d + ty;
+        }
+    },
+
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
+            indiceOffset = batchData.indiceOffset;
+
+        let data = sprite._renderData._data;
+        let node = sprite.node;
+        let z = node._position.z;
+        let color = node._color._val;
+    
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset ++] = vert.x;
+            vbuf[vertexOffset ++] = vert.y;
+            vbuf[vertexOffset ++] = z;
+            uintbuf[vertexOffset ++] = color;
+            vbuf[vertexOffset ++] = vert.u;
+            vbuf[vertexOffset ++] = vert.v;
+        }
+
+        ibuf[indiceOffset ++] = vertexId;
+        ibuf[indiceOffset ++] = vertexId + 1;
+        ibuf[indiceOffset ++] = vertexId + 2;
+        ibuf[indiceOffset ++] = vertexId + 1;
+        ibuf[indiceOffset ++] = vertexId + 3;
+        ibuf[indiceOffset ++] = vertexId + 2;
+    }
 };

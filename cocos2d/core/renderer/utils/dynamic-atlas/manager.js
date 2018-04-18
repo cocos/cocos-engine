@@ -162,6 +162,9 @@ let dynamicAtlasManager = {
                 layout.type = cc.Layout.Type.VERTICAL;
                 layout.resizeMode = cc.Layout.ResizeMode.CONTAINER;
                 content.parent = _debugNode;
+                content.width = _textureSize;
+                content.anchorY = 1;
+                content.x = _textureSize;
 
                 scroll.content = content;
 
@@ -174,10 +177,10 @@ let dynamicAtlasManager = {
 
                     let sprite = node.addComponent(cc.Sprite)
                     sprite.spriteFrame = spriteFrame;
-                    sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+                    // sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
 
-                    node.width = height;
-                    node.height = height;
+                    // node.width = height;
+                    // node.height = height;
 
                     node.parent = content;
                 }
