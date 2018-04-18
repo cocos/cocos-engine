@@ -163,6 +163,8 @@ let dynamicAtlasManager = {
                 layout.resizeMode = cc.Layout.ResizeMode.CONTAINER;
                 content.parent = _debugNode;
 
+                scroll.content = content;
+
                 for (let i = 0; i <= _atlasIndex; i++) {
                     let node = new cc.Node('ATLAS');
                     

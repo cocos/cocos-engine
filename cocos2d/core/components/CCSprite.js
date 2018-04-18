@@ -464,6 +464,7 @@ var Sprite = cc.Class({
      * @param state {Sprite.State} NORMAL or GRAY State.
      */
     setState: function (state) {
+        if (this._state === state) return;
         this._state = state;
         this._material = null;
     },
