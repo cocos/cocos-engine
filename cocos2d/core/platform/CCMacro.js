@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 const js = require('./js');
+const polyfill3d = require('../utils/polyfill-3d');
 
 /**
  * Predefined constants
@@ -338,6 +339,17 @@ cc.macro = {
      */
     ENABLE_CULLING: false,
 };
+
+js.getset(cc.macro, 'ENABLE_3D', function () {
+    return polyfill3d.enabled;
+}, function (enabled) {
+    if (enabled) {
+        polyfill3d.enable();
+    }
+    else {
+        polyfill3d.disable();
+    }
+})
 
 /**
  * !#en Key map for keyboard event

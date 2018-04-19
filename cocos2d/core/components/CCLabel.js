@@ -479,6 +479,11 @@ var Label = cc.Class({
     onEnable () {
         this._super();
 
+        // TODO: Hack for barbarians
+        if (!this.font && !this._isSystemFontUsed) {
+            this.useSystemFont = true;
+        }
+
         this._updateAssembler();
         this._activateMaterial();
     },

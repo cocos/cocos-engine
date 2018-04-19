@@ -62,15 +62,27 @@ gulp.task('build-html5-preview-dev', ['build-debug-infos'], function (done) {
 gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
 
 gulp.task('build-jsb-dev',  ['clean-cache', 'build-debug-infos'], function (done) {
+    var args = process.argv.slice(3); // strip task name
+    var opts = {};
+    if (args.indexOf('--native-renderer') !== -1) {
+        opts.nativeRenderer = true;
+    }
+
     Engine.buildJsb([
         './jsb/index.js',
-    ], './bin/jsb_polyfill.dev.js', [], done);
+    ], './bin/jsb_polyfill.dev.js', [], opts, done);
 });
 
 gulp.task('build-jsb-min',  ['clean-cache', 'build-debug-infos'], function (done) {
+    var args = process.argv.slice(3); // strip task name
+    var opts = {};
+    if (args.indexOf('--native-renderer') !== -1) {
+        opts.nativeRenderer = true;
+    }
+    
     Engine.buildJsbMin([
         './jsb/index.js',
-    ], './bin/jsb_polyfill.js', [], done);
+    ], './bin/jsb_polyfill.js', [], opts, done);
 });
 
 gulp.task('build-jsb-preview', ['build-debug-infos'], function (done) {
