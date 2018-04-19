@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
+const utils = require('./utils');
+
 // projection
 renderer.PROJ_PERSPECTIVE = 0;
 renderer.PROJ_ORTHO = 1;
@@ -82,7 +84,7 @@ var fillModelData = function() {
     model = models[i];
     modlesData[index++] = model._dynamicIA;
     modlesData[index++] = model._viewID;
-    worldMatrix = model._node._getWorldRT4Native();
+    worldMatrix = utils.getWorldRTInAB(model._node);
     modlesData.set(worldMatrix, index);
     index += 16;
 
@@ -103,7 +105,7 @@ var _p;
 
 _p = renderer.ForwardRenderer.prototype;
 _p._ctor = function(device, builtin) {
-    this.init(device, builtin.programTemplates, builtin.defaultTexture, canvas.width, canvas.height);
+  this.init(device, builtin.programTemplates, builtin.defaultTexture, canvas.width, canvas.height);
 };
 _p.render = function(scene) {
   fillModelData();
