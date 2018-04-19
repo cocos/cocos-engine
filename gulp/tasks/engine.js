@@ -214,7 +214,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var opts = {};
-    if (opt_macroFlags.nativeRenderer) {
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
         opts.aliasifyConfig = aliasifyConfig;
     }
     var bundler = createBundler(sourceFile, opts);
@@ -248,7 +248,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outDir = Path.dirname(outputFile);
 
     var opts = {};
-    if (opt_macroFlags.nativeRenderer) {
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
         opts.aliasifyConfig = aliasifyConfig;
     }
     var bundler = createBundler(sourceFile, opts);
