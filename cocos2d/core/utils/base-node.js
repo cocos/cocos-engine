@@ -24,20 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PrefabHelper = require('./prefab-helper');
-var Flags = require('../platform/CCObject').Flags;
-var misc = require('./misc');
-var js = require('../platform/js');
-var IdGenerater = require('../platform/id-generater');
-var eventManager = require('../event-manager');
+const PrefabHelper = require('./prefab-helper');
+const Flags = require('../platform/CCObject').Flags;
+const misc = require('./misc');
+const js = require('../platform/js');
+const IdGenerater = require('../platform/id-generater');
+const eventManager = require('../event-manager');
 
-var Destroying = Flags.Destroying;
-var DontDestroy = Flags.DontDestroy;
-var Deactivating = Flags.Deactivating; 
+const Destroying = Flags.Destroying;
+const DontDestroy = Flags.DontDestroy;
+const Deactivating = Flags.Deactivating; 
 
-var CHILD_ADDED = 'child-added';
-var CHILD_REMOVED = 'child-removed';
-
+const CHILD_ADDED = 'child-added';
+const CHILD_REMOVED = 'child-removed';
 
 var idGenerater = new IdGenerater('Node');
 
@@ -147,6 +146,14 @@ var BaseNode = cc.Class({
         _children: [],
 
         _active: true,
+
+        /**
+         * @property _level
+         * @type {Number}
+         * @default 0
+         * @private
+         */
+        _level: 0,
 
         /**
          * @property _components
@@ -323,7 +330,7 @@ var BaseNode = cc.Class({
      * @param {String} [name]
      */
     ctor (name) {
-        this._name = typeof name !== 'undefined' ? name : 'New Node';
+        this._name = name !== undefined ? name : 'New Node';
 
         this._activeInHierarchy = false;
         // Support for ActionManager and EventManager
@@ -373,6 +380,7 @@ var BaseNode = cc.Class({
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
+            this._level = value._level + 1;
             eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit(CHILD_ADDED, this);

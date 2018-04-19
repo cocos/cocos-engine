@@ -23,11 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const simpleRenderUtil = require('./simple');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
 const PI_2 = Math.PI * 2;
 
 module.exports = {
+    useModel: false,
+
     _vertPos: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
     _vertices: [0, 0, 0, 0],
     _uvs: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -40,100 +42,114 @@ module.exports = {
         return sprite.requestRenderData();
     },
 
-    update (sprite) {
-        let renderData = sprite._renderData;
-        if (!renderData.vertDirty && !renderData.uvDirty) return;
-
-        let data = renderData._data;
-        let spriteFrame = sprite._spriteFrame;
-
-        let fillStart = sprite._fillStart;
-        let fillRange = sprite._fillRange;
-        if (fillRange < 0) {
-            fillStart += fillRange;
-            fillRange = -fillRange;
+    updateRenderData (sprite) {
+        let frame = sprite.spriteFrame;
+        
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (!sprite._material && frame) {
+            // Avoid as much function call as possible
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
         }
 
-        //do round fill start [0,1), include 0, exclude 1
-        while (fillStart >= 1.0) fillStart -= 1.0;
-        while (fillStart < 0.0) fillStart += 1.0;
+        let renderData = sprite._renderData;
+        if (renderData && frame) {
+            if (renderData.vertDirty || renderData.uvDirty) {
+                let data = renderData._data;
 
-        fillStart *= PI_2;
-        fillRange *= PI_2;
-        let fillEnd = fillStart + fillRange;
+                let fillStart = sprite._fillStart;
+                let fillRange = sprite._fillRange;
+                if (fillRange < 0) {
+                    fillStart += fillRange;
+                    fillRange = -fillRange;
+                }
 
-        //build vertices
-        this._calculateVertices(sprite);
-        //build uvs
-        this._calculateUVs(spriteFrame);
+                //do round fill start [0,1), include 0, exclude 1
+                while (fillStart >= 1.0) fillStart -= 1.0;
+                while (fillStart < 0.0) fillStart += 1.0;
 
-        let center = this._center;
+                fillStart *= PI_2;
+                fillRange *= PI_2;
+                let fillEnd = fillStart + fillRange;
 
-        let vertPos = this._vertPos,
-            vertices = this._vertices;
+                //build vertices
+                this._calculateVertices(sprite);
+                //build uvs
+                this._calculateUVs(frame);
 
-        let triangles = this._triangles;
+                let center = this._center;
 
-        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart, this._intersectPoint_1);
-        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart + fillRange, this._intersectPoint_2);
+                let vertPos = this._vertPos,
+                    vertices = this._vertices;
 
-        let offset = 0;
-        for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-            let triangle = triangles[triangleIndex];
-            if (!triangle) {
-                continue;
-            }
-            //all in
-            if (fillRange >= PI_2) {
-                renderData.dataLength = offset + 3;
-                this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
-                offset += 3;
-                continue;
-            }
-            //test against
-            let startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
-            let endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
-            if(endAngle < startAngle) endAngle += PI_2;
-            startAngle -= PI_2;
-            endAngle -= PI_2;
-            //testing
-            for(let testIndex = 0; testIndex < 3; ++testIndex) {
-                if(startAngle >= fillEnd) {
-                    //all out
-                } else if (startAngle >= fillStart) {
-                    renderData.dataLength = offset + 3;
-                    if(endAngle >= fillEnd) {
-                        //startAngle to fillEnd
-                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
-                    } else {
-                        //startAngle to endAngle
-                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                let triangles = this._triangles;
+
+                this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart, this._intersectPoint_1);
+                this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart + fillRange, this._intersectPoint_2);
+
+                let offset = 0;
+                for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+                    let triangle = triangles[triangleIndex];
+                    if (!triangle) {
+                        continue;
                     }
-                    offset += 3;
-                } else {
-                    //startAngle < fillStart
-                    if(endAngle <= fillStart) {
-                        //all out
-                    } else if(endAngle <= fillEnd) {
+                    //all in
+                    if (fillRange >= PI_2) {
                         renderData.dataLength = offset + 3;
-                        //fillStart to endAngle
-                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
+                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
                         offset += 3;
-                    } else {
-                        renderData.dataLength = offset + 3;
-                        //fillStart to fillEnd
-                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
-                        offset += 3;
+                        continue;
+                    }
+                    //test against
+                    let startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
+                    let endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
+                    if(endAngle < startAngle) endAngle += PI_2;
+                    startAngle -= PI_2;
+                    endAngle -= PI_2;
+                    //testing
+                    for(let testIndex = 0; testIndex < 3; ++testIndex) {
+                        if(startAngle >= fillEnd) {
+                            //all out
+                        } else if (startAngle >= fillStart) {
+                            renderData.dataLength = offset + 3;
+                            if(endAngle >= fillEnd) {
+                                //startAngle to fillEnd
+                                this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
+                            } else {
+                                //startAngle to endAngle
+                                this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                            }
+                            offset += 3;
+                        } else {
+                            //startAngle < fillStart
+                            if(endAngle <= fillStart) {
+                                //all out
+                            } else if(endAngle <= fillEnd) {
+                                renderData.dataLength = offset + 3;
+                                //fillStart to endAngle
+                                this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
+                                offset += 3;
+                            } else {
+                                renderData.dataLength = offset + 3;
+                                //fillStart to fillEnd
+                                this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                                offset += 3;
+                            }
+                        }
+                        //add 2 * PI
+                        startAngle += PI_2;
+                        endAngle += PI_2;
                     }
                 }
-                //add 2 * PI
-                startAngle += PI_2;
-                endAngle += PI_2;
+
+                renderData.indiceCount = renderData.vertexCount = offset;
+                renderData.vertDirty = renderData.uvDirty = false;
             }
         }
-
-        renderData.indiceCount = renderData.vertexCount = offset;
-        renderData.vertDirty = renderData.uvDirty = false;
+        return sprite.__allocedDatas;
     },
 
     _getVertAngle: function(start, end) {
@@ -339,5 +355,5 @@ module.exports = {
         for (let i = 0; i < count; i++) {
             ibuf[indiceOffset+i] = vertexId+i;
         }
-    }
+    },
 };

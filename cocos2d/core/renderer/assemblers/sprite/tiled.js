@@ -23,101 +23,117 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+
 module.exports = {
+    useModel: false,
+
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
-    update (sprite) {
-        let renderData = sprite._renderData;
-        if (!renderData.uvDirty && !renderData.vertDirty) return;
-
-        let material = sprite.getMaterial();
-
-        let texture = material.effect.getProperty('texture');
-        let texw = texture._width,
-            texh = texture._height;
+    updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        let rect = frame._rect;
-
-        let node = sprite.node,
-            contentWidth = Math.abs(node.width),
-            contentHeight = Math.abs(node.height),
-            appx = node.anchorX * contentWidth,
-            appy = node.anchorY * contentHeight;
-
-        let rectWidth = rect.width;
-        let rectHeight = rect.height;
-        let hRepeat = contentWidth / rectWidth;
-        let vRepeat = contentHeight / rectHeight;
-        let row = Math.ceil(vRepeat), 
-            col = Math.ceil(hRepeat);
-
-        let data = renderData._data;
-        renderData.dataLength = Math.max(8, row+1, col+1);
-
-        let l, b, r, t;
-        if (!frame._rotated) {
-            l = (rect.x) / texw;
-            r = (rect.x + rectWidth) / texw;
-            b = (rect.y + rectHeight) / texh;
-            t = (rect.y) / texh;
-
-            data[0].u = l;
-            data[0].v = b;
-            data[1].u = r;
-            data[1].v = b;
-            data[2].u = l;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = t;
-            
-            data[4].u = l;
-            data[4].v = b;
-            data[5].u = l + (r-l) * Math.min(1, hRepeat - col + 1);
-            data[5].v = b;
-            data[6].u = l;
-            data[6].v = b + (t-b) * Math.min(1, vRepeat - row + 1);
-            data[7].u = data[5].u;
-            data[7].v = data[6].v;
-        } else {
-            l = (rect.x) / texw;
-            r = (rect.x + rectHeight) / texw;
-            b = (rect.y + rectWidth) / texh;
-            t = (rect.y) / texh;
-
-            data[0].u = l;
-            data[0].v = t;
-            data[1].u = l;
-            data[1].v = b;
-            data[2].u = r;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = b;
-
-            data[4].u = l;
-            data[4].v = t;
-            data[5].u = l;
-            data[5].v = t + (b - t) * Math.min(1, vRepeat - col + 1);
-            data[6].u = l + (r - l) * Math.min(1, hRepeat - row + 1);
-            data[6].v = t;
-            data[7].u = data[5].u;
-            data[7].v = data[6].v;
-        }
-
-        for (let i = 0; i <= col; ++i) {
-            data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
-        }
-
-        for (let i = 0; i <= row; ++i) {
-            data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
-        }
         
-        // update data property
-        renderData.vertexCount = row * col * 4;
-        renderData.indiceCount = row * col * 6;
-        renderData.uvDirty = false;
-        renderData.vertDirty = false;
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (!sprite._material && frame) {
+            // Avoid as much function call as possible
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
+        }
+
+        let renderData = sprite._renderData;
+        if (renderData && frame) {
+            if (renderData.uvDirty || renderData.vertDirty) {
+                let texture = frame._texture;
+                let texw = texture._width,
+                    texh = texture._height;
+                let rect = frame._rect;
+
+                let node = sprite.node,
+                    contentWidth = Math.abs(node.width),
+                    contentHeight = Math.abs(node.height),
+                    appx = node.anchorX * contentWidth,
+                    appy = node.anchorY * contentHeight;
+
+                let rectWidth = rect.width;
+                let rectHeight = rect.height;
+                let hRepeat = contentWidth / rectWidth;
+                let vRepeat = contentHeight / rectHeight;
+                let row = Math.ceil(vRepeat), 
+                    col = Math.ceil(hRepeat);
+
+                let data = renderData._data;
+                renderData.dataLength = Math.max(8, row+1, col+1);
+
+                let l, b, r, t;
+                if (!frame._rotated) {
+                    l = (rect.x) / texw;
+                    r = (rect.x + rectWidth) / texw;
+                    b = (rect.y + rectHeight) / texh;
+                    t = (rect.y) / texh;
+
+                    data[0].u = l;
+                    data[0].v = b;
+                    data[1].u = r;
+                    data[1].v = b;
+                    data[2].u = l;
+                    data[2].v = t;
+                    data[3].u = r;
+                    data[3].v = t;
+                    
+                    data[4].u = l;
+                    data[4].v = b;
+                    data[5].u = l + (r-l) * Math.min(1, hRepeat - col + 1);
+                    data[5].v = b;
+                    data[6].u = l;
+                    data[6].v = b + (t-b) * Math.min(1, vRepeat - row + 1);
+                    data[7].u = data[5].u;
+                    data[7].v = data[6].v;
+                } else {
+                    l = (rect.x) / texw;
+                    r = (rect.x + rectHeight) / texw;
+                    b = (rect.y + rectWidth) / texh;
+                    t = (rect.y) / texh;
+
+                    data[0].u = l;
+                    data[0].v = t;
+                    data[1].u = l;
+                    data[1].v = b;
+                    data[2].u = r;
+                    data[2].v = t;
+                    data[3].u = r;
+                    data[3].v = b;
+
+                    data[4].u = l;
+                    data[4].v = t;
+                    data[5].u = l;
+                    data[5].v = t + (b - t) * Math.min(1, vRepeat - col + 1);
+                    data[6].u = l + (r - l) * Math.min(1, hRepeat - row + 1);
+                    data[6].v = t;
+                    data[7].u = data[5].u;
+                    data[7].v = data[6].v;
+                }
+
+                for (let i = 0; i <= col; ++i) {
+                    data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
+                }
+
+                for (let i = 0; i <= row; ++i) {
+                    data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
+                }
+                
+                // update data property
+                renderData.vertexCount = row * col * 4;
+                renderData.indiceCount = row * col * 6;
+                renderData.uvDirty = false;
+                renderData.vertDirty = false;
+            }
+        }
+        return sprite.__allocedDatas;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -139,14 +155,9 @@ module.exports = {
         let row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
         
-        node._updateWorldMatrix();
         let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
 
         let x, x1, y, y1, lastx, lasty;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
@@ -203,5 +214,5 @@ module.exports = {
             ibuf[indiceOffset++] = vertexId+2;
             vertexId += 4;
         }
-    }
+    },
 };

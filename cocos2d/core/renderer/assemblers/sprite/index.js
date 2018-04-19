@@ -23,10 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../platform/js');
-const assembler = require('../assembler');
 const Sprite = require('../../../components/CCSprite');
-const renderEngine = require('../../render-engine');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 
@@ -38,9 +37,8 @@ const barFilledRenderUtil = require('./bar-filled');
 const meshRenderUtil = require('./mesh');
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
-let spriteAssembler = js.addon({
-    useModel: false,
 
+let spriteAssembler = {
     getAssembler (sprite) {
         let util = simpleRenderUtil;
         
@@ -67,21 +65,11 @@ let spriteAssembler = js.addon({
         return util;
     },
 
+    // Skip invalid sprites (without own _assembler)
     updateRenderData (sprite) {
-        let datas = sprite.__allocedDatas;
-        if (!sprite.spriteFrame || !sprite.getMaterial() || !sprite._renderData) {
-            return datas;
-        }
-
-        sprite._assembler.update(sprite);
-
-        return datas;
-    },
-
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        sprite._assembler.fillBuffers(sprite, batchData, vertexId, vbuf, uintbuf, ibuf);
+        return sprite.__allocedDatas;
     }
-}, assembler);
+};
 
 Sprite._assembler = spriteAssembler;
 

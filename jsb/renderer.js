@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
+const utils = require('./utils');
+
 // projection
 renderer.PROJ_PERSPECTIVE = 0;
 renderer.PROJ_ORTHO = 1;
@@ -58,27 +60,65 @@ renderer.PARAM_TEXTURE_CUBE = 14;
 renderer.CLEAR_COLOR = 1;
 renderer.CLEAR_DEPTH = 2;
 renderer.CLEAR_STENCIL = 4;
+renderer.InputAssembler = require('./input-assembler');
+renderer.config = require('./config');
+renderer.Effect = require('./Effect');
+renderer.Technique = require('./Technique');
+renderer.Pass = require('./Pass');
+renderer.Model = require('./Model');
 
-renderer.addStage = renderer.Config.addStage;
+var models = [];
+var sizeOfModel = 23;
+// length + 500 modles(8 for each model)
+var modlesData = new Float64Array(1 + 500*sizeOfModel);
+var fillModelData = function() {
+  if (models.length > 500)
+    modlesData = new FloatArray64(1 + models.length*sizeOfModel);
+
+  modlesData[0] = models.length;
+  var index = 1;
+  var model;
+  var worldMatrix;
+  var ia;
+  for (var i = 0, len = models.length; i < len; ++i) {
+    model = models[i];
+    modlesData[index++] = model._dynamicIA;
+    modlesData[index++] = model._viewID;
+    worldMatrix = utils.getWorldRTInAB(model._node);
+    modlesData.set(worldMatrix, index);
+    index += 16;
+
+    // ia
+    ia = model._inputAssemblers[0];
+    modlesData[index++] = ia._vertexBuffer._nativePtr;
+    modlesData[index++] = ia._indexBuffer._nativePtr;
+    modlesData[index++] = ia._start;
+    modlesData[index++] = ia._count;
+
+    // effect
+    modlesData[index++] = model._effects[0]._nativePtr;
+  }
+}
 
 // ForwardRenderer adapter
 var _p;
 
 _p = renderer.ForwardRenderer.prototype;
 _p._ctor = function(device, builtin) {
-    this.init(device, builtin.programTemplates, builtin.defaultTexture, canvas.width, canvas.height);
+  this.init(device, builtin.programTemplates, builtin.defaultTexture, canvas.width, canvas.height);
 };
+_p.render = function(scene) {
+  fillModelData();
+  this.renderNative(scene, modlesData);
 
-// InputAssembler adapter
-_p = renderer.InputAssembler.prototype;
-_p._ctor = function(vb, ib, pt = gfx.PT_TRIANGLES) {
-    this.init(vb, ib, pt);
-};
+  models.length = 0;
+}
 
-cc.defineGetterSetter(_p, "_vertexBuffer", _p.getVertexBuffer, _p.setVertexBuffer);
-cc.defineGetterSetter(_p, "_indexBuffer", _p.getIndexBuffer, _p.setIndexBuffer);
-cc.defineGetterSetter(_p, "_primitiveType", _p.getPrimitiveType, _p.setPrimitiveType);
-cc.defineGetterSetter(_p, "_start", _p.getStart, _p.setStart);
-cc.defineGetterSetter(_p, "_count", _p.getCount, _p.setCount);
+// Scene 
+_p = renderer.Scene.prototype;
+_p.addModel = function(model) {
+  models.push(model); 
+}
+_p.removeModel = function() {}
 
 

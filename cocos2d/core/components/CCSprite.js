@@ -464,9 +464,9 @@ var Sprite = cc.Class({
      * @param state {Sprite.State} NORMAL or GRAY State.
      */
     setState: function (state) {
+        if (this._state === state) return;
         this._state = state;
         this._material = null;
-        this._activateMaterial();
     },
 
     /**
@@ -483,11 +483,8 @@ var Sprite = cc.Class({
         
         this._updateAssembler();
 
-        this._activateMaterial();
-
         this.node.on('size-changed', this._onNodeSizeDirty, this);
         this.node.on('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.on('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     onDisable: function () {
@@ -495,18 +492,11 @@ var Sprite = cc.Class({
 
         this.node.off('size-changed', this._onNodeSizeDirty, this);
         this.node.off('anchor-changed', this._onNodeSizeDirty, this);
-        this.node.off('world-matrix-changed', this._onNodeMatrixDirty, this);
     },
 
     _onNodeSizeDirty () {
         if (this._renderData) {
             this._renderData.vertDirty = true;
-        }
-    },
-
-    _onNodeMatrixDirty () {
-        if (this._renderData) {
-            this._renderData.worldMatDirty = true;
         }
     },
 
@@ -520,46 +510,50 @@ var Sprite = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-            this._renderData.worldMatDirty = true;
             this._renderData.material = this._material;
         }
     },
 
     _activateMaterial: function () {
+        if (this._material) return;
+
+        let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet
-        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
             return;
         }
 
         // Get material
-        if (!this._material) {
-            let texture = this._spriteFrame.getTexture();
-            let url = texture.url;
-            let key = url;
-            if (this._state === State.GRAY) {
-                key = url + ':gray';
-            }
-            if (this._state === State.GRAY) {
-                this._material = new GraySpriteMaterial();
-            }
-            else {
-                this._material = new SpriteMaterial();
-            }
-            // TODO: old texture in material have been released by loader
-            this._material.texture = texture;
+        let texture = spriteFrame.getTexture();
+        let url = texture.url;
+        let key = url;
+        if (this._state === State.GRAY) {
+            key = url + ':gray';
         }
+
+        let material;
+        if (this._state === State.GRAY) {
+            material = new GraySpriteMaterial();
+        }
+        else {
+            material = new SpriteMaterial();
+        }
+        // TODO: old texture in material have been released by loader
+        material.texture = texture;
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
             // Update hash inside
             this._updateBlendFunc();
         }
         else {
-            this._material.updateHash();
+            material.updateHash();
         }
 
         if (this._renderData) {
-            this._renderData.material = this._material;
+            this._renderData.material = material;
         }
+
+        this._material = material;
     },
     
     _updateBlendFunc: function () {
@@ -641,10 +635,7 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
-        // Reactivate material
-        if (this.enabledInHierarchy) {
-            this._activateMaterial();
-        }
+
         this._applySpriteSize();
     },
 

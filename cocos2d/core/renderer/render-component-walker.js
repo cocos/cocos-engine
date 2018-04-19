@@ -27,6 +27,8 @@ const macro = require('../platform/CCMacro');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
+const atlasManager = require('./utils/dynamic-atlas/manager');
+
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -40,50 +42,28 @@ const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
-var _batchData = {
-    node: null,
-    vfmt: null,
-    material: null,
-    data: null,
-    vertexOffset: 0,
-    byteOffset: 0,
-    indiceOffset: 0,
-    cullingMask: 1,
-    MAX_VERTEX: MAX_VERTEX,
-    MAX_INDICE: MAX_INDICE
-};
-
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
     this._stencilMgr = StencilManager.sharedManager;
 
-    // Buffers
-    this._vData = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
-    this._uintVData = new Uint32Array(this._vData.buffer);
-    this._iData = new Uint16Array(MAX_INDICE);
-    
+    this._batchData = {
+        node: null,
+        worldMatUpdated: false,
+        vfmt: null,
+        material: null,
+        data: null,
+        vertexOffset: 0,
+        byteStart: 0,
+        byteOffset: 0,
+        indiceStart: 0,
+        indiceOffset: 0,
+        cullingMask: 1,
+        MAX_VERTEX: MAX_VERTEX,
+        MAX_INDICE: MAX_INDICE
+    };
+
     let defaultFormat = new gfx.VertexFormat([]);
-    this._vbPool = new RecyclePool(function () {
-        let vb = new gfx.VertexBuffer(
-            device,
-            defaultFormat,
-            gfx.USAGE_DYNAMIC,
-            null,
-            0
-        );
-        return vb;
-    }, 16);
-    this._ibPool = new RecyclePool(function () {
-        var ib = new gfx.IndexBuffer(
-            device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            null,
-            0
-        );
-        return ib;
-    }, 16);
     this._iaPool = new RecyclePool(function () {
         return new InputAssembler();
     }, 16);
@@ -91,15 +71,21 @@ var RenderComponentWalker = function (device, renderScene) {
     this._modelPool = new RecyclePool(() => {
         return new renderEngine.Model();
     }, 16);
-    
+
+    // buffers
+    this._vb = null;
+    this._ib = null;
+    this._buffersToDestroy = [];
+
+    this._maxVertexCount = MAX_VERTEX;
+    this._maxIndiceCount = MAX_INDICE;
+    this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
+
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
 
     this._curCameraNode = null;
-
-    this._handleRender = this._handleRender.bind(this);
-    this._postHandleRender = this._postHandleRender.bind(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -108,8 +94,6 @@ RenderComponentWalker.prototype = {
     reset() {
         // Reset pools
         this._iaPool.reset();
-        this._vbPool.reset();
-        this._ibPool.reset();
 
         // Reset scene
         let scene = this._renderScene;
@@ -124,92 +108,98 @@ RenderComponentWalker.prototype = {
         models.length = 0;
         this._sortKey = 0;
 
+        // Reset useless buffers
+        if (this._buffersToDestroy.length !== 0) {
+            for (let i = 0, l = this._buffersToDestroy.length; i < l; i++) {
+                this._buffersToDestroy[i].destroy();
+            }
+            this._buffersToDestroy.length = 0;
+        }
+
         // reset caches for handle render components
-        _batchData.node = null;
-        _batchData.vfmt = null;
-        _batchData.material = null;
-        _batchData.data = null;
-        _batchData.vertexOffset = 0;
-        _batchData.byteOffset = 0;
-        _batchData.indiceOffset = 0;
-        _batchData.cullingMask = 1;
+        let batchData = this._batchData;
+        batchData.node = null;
+        batchData.worldMatUpdated = false;
+        batchData.vfmt = null;
+        batchData.material = null;
+        batchData.data = null;
+        batchData.vertexOffset = 0;
+        batchData.byteStart = 0;
+        batchData.byteOffset = 0;
+        batchData.indiceStart = 0;
+        batchData.indiceOffset = 0;
+        batchData.cullingMask = 1;
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
     },
 
-    _handleRender (node) {
-        if (node._localMatDirty) {
-            node._calculWorldMatrix();
-        }
+    _uploadData () {
+        // update vertext data
+        let vertexsData = new Float32Array(this._vData.buffer, 0, this._batchData.byteOffset / 4);
+        let indicesData = new Uint16Array(this._iData.buffer, 0, this._batchData.indiceOffset);
 
-        if (node.groupIndex !== 0) {
-            this._curCameraNode = node;
-        }
+        let gl = this._device._gl;
+        let vb = this._vb;
+        vb.update(0, vertexsData);
 
-        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
-        node._cullingMask = 1 << group;
-
-        let comp = node._renderComponent;
-        if (comp) {
-            this.renderComp(comp, comp.constructor._assembler);
-        }
+        let ib = this._ib;
+        ib.update(0, indicesData);
     },
 
-    _postHandleRender (node) {
-        let comp = node._renderComponent;
-        if (comp && comp.constructor._postAssembler) {
-            this.renderComp(comp, comp.constructor._postAssembler);
+    _reallocBuffer (vertexCount, indiceCount) {
+        let batchData = this._batchData;
+        batchData.vertexOffset = 0;
+        batchData.byteStart = 0;
+        batchData.byteOffset = 0;
+        batchData.indiceStart = 0;
+        batchData.indiceOffset = 0;
+
+        if (this._vb) {
+            this._buffersToDestroy.push(this._vb);
+        }
+        if (this._ib) {
+            this._buffersToDestroy.push(this._ib);
         }
 
-        if (this._curCameraNode === node) {
-            this._curCameraNode = null;
-        }
+        this._vData = new Float32Array(vertexCount * FLOATS_PER_VERT);
+        this._uintVData = new Uint32Array(this._vData.buffer);
+        this._iData = new Uint16Array(indiceCount);
+
+        this._vb = new gfx.VertexBuffer(
+            this._device,
+            defaultVertexFormat,
+            gfx.USAGE_DYNAMIC,
+            this._vData.buffer,
+            vertexCount
+        );
+
+        this._ib = new gfx.IndexBuffer(
+            this._device,
+            gfx.INDEX_FMT_UINT16,
+            gfx.USAGE_STATIC,
+            this._iData.buffer,
+            indiceCount
+        );
     },
 
-    _flush (batchData) {
-        let vfmt = batchData.vfmt,
+    _flush () {
+        let batchData = this._batchData,
             material = batchData.material,
-            vertexByte = batchData.byteOffset,
-            cullingMask = batchData.cullingMask,
-            vertexCount = batchData.vertexOffset,
-            indiceCount = batchData.indiceOffset,
-            vDataSize = Math.min(bits.nextPow2(vertexByte), MAX_VERTEX_BYTES),
-            vertexsData = null,
-            indicesData = null;
-
-        // Prepare data view for vb ib
-        if (material && vertexCount > 0 && indiceCount > 0) {
-            vertexsData = new Float32Array(this._vData.buffer, 0, vDataSize / 4);
-            indicesData = new Uint16Array(this._iData.buffer, 0, indiceCount);
-        }
-        else {
+            indiceStart = batchData.indiceStart,
+            indiceOffset = batchData.indiceOffset,
+            indiceCount = indiceOffset - indiceStart;
+        if (!material || indiceCount <= 0) {
             return;
         }
 
         let effect = material.effect;
 
-        // Generate vb, ib, ia
-        let device = this._device;
-        let vb = this._vbPool.add();
-        device._stats.vb -= vb._bytes;
-        vb._format = vfmt;
-        vb._numVertices = vertexCount;
-        vb._bytes = vDataSize;
-        vb.update(0, vertexsData);
-        device._stats.vb += vb._bytes;
-    
-        let ib = this._ibPool.add();
-        device._stats.ib -= ib._bytes;
-        ib._numIndices = indiceCount;
-        ib._bytes = BYTE_PER_INDEX * indiceCount;
-        ib.update(0, indicesData);
-        device._stats.ib += ib._bytes;
-    
+        // Generate ia
         let ia = this._iaPool.add();
-        ia._vertexBuffer = vb;
-        ia._indexBuffer = ib;
-        ia._start = 0;
+        ia._vertexBuffer = this._vb;
+        ia._indexBuffer = this._ib;
+        ia._start = indiceStart;
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
@@ -219,16 +209,20 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : cullingMask;
+        model._cullingMask = CC_EDITOR ? 1 : batchData.cullingMask;
         model.setNode(batchData.node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
         
         this._renderScene.addModel(model);
+           
+        batchData.byteStart = batchData.byteOffset;
+        batchData.indiceStart = batchData.indiceOffset;
     },
 
-    _flushIA (batchData) {
-        let material = batchData.material,
+    _flushIA () {
+        let batchData = this._batchData,
+            material = batchData.material,
             cullingMask = batchData.cullingMask,
             iaRenderData = batchData.data;
 
@@ -251,22 +245,16 @@ RenderComponentWalker.prototype = {
         this._renderScene.addModel(model);
     },
 
-    renderComp (comp, assembler) {
-        if (!assembler) {
-            return;
-        }
-        
-        let material = null, 
+    _commitComp (comp, assembler, cullingMask) {
+        let batchData = this._batchData,
+            material = null, 
             datas = null,
             data = null,
-            cullingMask = 1,
             broken = false,
             iaData = false;
 
         // Update render data
-        datas = assembler.updateRenderData(comp, _batchData);
-
-        cullingMask = comp.node._cullingMask;
+        datas = assembler.updateRenderData(comp, batchData);
 
         for (let id = 0; id < datas.length; id ++) {
             data = datas[id];
@@ -276,46 +264,118 @@ RenderComponentWalker.prototype = {
                 continue;
             }
 
+            // need to realloc buffers
+            if ((batchData.vertexOffset + data.vertexCount) > this._maxVertexCount ||
+                (batchData.indiceOffset + data.indiceCount) > this._maxIndiceCount) {
+                this._uploadData();
+
+                this._maxVertexCount *= 2;
+                this._maxIndiceCount *= 2;
+                this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
+            }
+
             // Check ia data, each ia data should be packed into a separated model
             iaData = data.type === IARenderData.type;
 
             // breaking batch
             broken = iaData || 
-                        !_batchData.material || _batchData.material._hash != material._hash || 
-                        _batchData.cullingMask !== cullingMask ||
-                        (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
-                        (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+                        !batchData.material || batchData.material._hash != material._hash || 
+                        batchData.cullingMask !== cullingMask;
             if (broken) {
-                this._flush(_batchData);
-                _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
-                _batchData.material = material;
-                _batchData.vfmt = comp._vertexFormat;
-                _batchData.vertexOffset = 0;
-                _batchData.byteOffset = 0;
-                _batchData.indiceOffset = 0;
-                _batchData.cullingMask = cullingMask;
+                this._flush(batchData);
+
+                batchData.node = assembler.useModel ? comp.node : this._dummyNode;
+                batchData.material = material;
+                batchData.vfmt = comp._vertexFormat;
+                batchData.cullingMask = cullingMask;
             }
 
-            _batchData.data = data;
+            batchData.data = data;
             if (iaData) {
-                this._flushIA(_batchData);
+                this._flushIA();
             }
             else {
-                assembler.fillBuffers(comp, _batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
-                _batchData.vertexOffset += data.vertexCount;
-                _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
-                _batchData.indiceOffset += data.indiceCount;
+                assembler.fillBuffers(comp, batchData, batchData.vertexOffset, this._vData, this._uintVData, this._iData);
+                batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
+                batchData.indiceOffset += data.indiceCount;
+                batchData.vertexOffset += data.vertexCount;
             }
+        }
+    },
+
+    _findEntry (node) {
+        if (node._renderComponent) {
+            return node._renderComponent._chain;
+        }
+    
+        let children = node._children;
+        let first;
+        for (let i = 0; i < children.length; i++) {
+            let child = children[i];
+            first = this._findEntry(child);
+            if (first) {
+                return first;
+            }
+        }
+        return null;
+    },
+
+    _visitNode (node) {
+        if (!node._activeInHierarchy) {
+            return;
+        }
+
+        let batchData = this._batchData;
+        // Transform
+        if (node._worldMatDirty) {
+            node._updateWorldMatrix();
+            batchData.worldMatUpdated = true;
+        }
+
+        // Culling mask
+        if (node.groupIndex !== 0) {
+            this._curCameraNode = node;
+        }
+        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
+        let cullingMask = node._cullingMask = 1 << group;
+        
+        // Render self
+        let comp = node._renderComponent;
+        let needDraw = !!(comp && comp._enabled);
+        if (needDraw) {
+            let assembler = comp._assembler || comp.constructor._assembler;
+            this._commitComp(comp, assembler, cullingMask);
+        }
+        // Reset worldMatUpdated
+        batchData.worldMatUpdated = false;
+
+        // Render children
+        let children = node._children;
+        for (let i = 0, l = children.length; i < l; i++) {
+            this._visitNode(children[i]);
+        }
+
+        // Post render
+        if (needDraw && comp.constructor._postAssembler) {
+            this._commitComp(comp, comp.constructor._postAssembler, cullingMask);
+        }
+
+        // Reset current camera node
+        if (this._curCameraNode === node) {
+            this._curCameraNode = null;
         }
     },
 
     visit (scene) {
         this.reset();
 
-        // Store all render components to _queue
-        scene.walk(this._handleRender, this._postHandleRender);
+        for (let i = 0, l = scene._children.length; i < l; i++) {
+            this._visitNode(scene._children[i]);
+        }
         
-        this._flush(_batchData);
+        atlasManager.update();
+        this._flush();
+        this._uploadData();
     }
 }
 

@@ -23,38 +23,55 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-module.exports = {
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+
+ module.exports = {
+    useModel: false,
+
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
-    update (sprite) {
-        let renderData = sprite._renderData;
+    updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-
-        let vertices = frame.vertices;
-        if (!vertices) return;
-
-        if (renderData.vertexCount !== vertices.x.length) {
-            renderData.vertexCount = vertices.x.length;
-            renderData.indiceCount = vertices.triangles.length;
-            
-            // 1 for world vertices, 2 for local vertices
-            renderData.dataLength = renderData.vertexCount * 2;
-
-            renderData.uvDirty = renderData.vertDirty = true;
+        
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (!sprite._material && frame) {
+            // Avoid as much function call as possible
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
         }
 
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
+        let renderData = sprite._renderData;
+        if (renderData && frame) {
+            let vertices = frame.vertices;
+            if (vertices) {
+                if (renderData.vertexCount !== vertices.x.length) {
+                    renderData.vertexCount = vertices.x.length;
+                    renderData.indiceCount = vertices.triangles.length;
+                    
+                    // 1 for world vertices, 2 for local vertices
+                    renderData.dataLength = renderData.vertexCount * 2;
+
+                    renderData.uvDirty = renderData.vertDirty = true;
+                }
+
+                if (renderData.uvDirty) {
+                    this.updateUVs(sprite);
+                }
+                let vertDirty = renderData.vertDirty;
+                if (vertDirty) {
+                    this.updateVerts(sprite);
+                }
+                if (vertDirty || batchData.worldMatUpdated) {
+                    this.updateWorldVerts(sprite);
+                }
+            }
         }
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
-            this.updateVerts(sprite);
-        }
-        if (vertDirty || renderData.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
+        return sprite.__allocedDatas;
     },
 
     updateUVs (sprite) {
@@ -125,8 +142,8 @@ module.exports = {
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data,
-            matrix = node._worldMatrix;
+            data = renderData._data;
+        let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         
@@ -136,8 +153,6 @@ module.exports = {
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
         }
-
-        renderData.worldMatDirty = false;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -166,5 +181,5 @@ module.exports = {
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }
-    }
+    },
 };

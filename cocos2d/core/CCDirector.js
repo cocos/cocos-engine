@@ -30,6 +30,7 @@ const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const EventListeners = require('./event/event-listeners');
+const Obj = require('./platform/CCObject');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
 
@@ -120,7 +121,7 @@ cc.Director = function () {
 
     // FPS
     this._totalFrames = 0;
-    this._lastUpdate = Date.now();
+    this._lastUpdate = performance.now();
     this._deltaTime = 0.0;
 
     // Scheduler for user registration update
@@ -134,7 +135,7 @@ cc.Director = function () {
 
     var self = this;
     cc.game.on(cc.game.EVENT_SHOW, function () {
-        self._lastUpdate = Date.now();
+        self._lastUpdate = performance.now();
     });
 };
 
@@ -142,7 +143,7 @@ cc.Director.prototype = {
     constructor: cc.Director,
     init: function () {
         this._totalFrames = 0;
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
@@ -211,7 +212,7 @@ cc.Director.prototype = {
      * calculates delta time since last time it was called
      */
     calculateDeltaTime: function () {
-        var now = Date.now();
+        var now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
         if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
@@ -440,7 +441,7 @@ cc.Director.prototype = {
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
-        cc.Object._deferredDestroy();
+        Obj._deferredDestroy();
         CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
@@ -673,7 +674,7 @@ cc.Director.prototype = {
             return;
         }
 
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
         if (!this._lastUpdate) {
             cc.logID(1200);
         }
@@ -899,7 +900,7 @@ cc.Director.prototype = {
      */
     startAnimation: function () {
         this.invalid = false;
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
     },
 
     /*
@@ -913,6 +914,7 @@ cc.Director.prototype = {
      * Run main loop of director
      */
     mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        // Update
         if (!this._paused) {
             this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
@@ -928,11 +930,14 @@ cc.Director.prototype = {
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
-        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         // Render
+        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         renderer.render(this._scene);
-        this._totalFrames++;
+        
+        // After draw
         this.emit(cc.Director.EVENT_AFTER_DRAW);
+
+        this._totalFrames++;
 
     } : function () {
         if (this._purgeDirectorInNextLoop) {
@@ -943,6 +948,7 @@ cc.Director.prototype = {
             // calculate "global" dt
             this.calculateDeltaTime();
 
+            // Update
             if (!this._paused) {
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
                 // Call start for new added components
@@ -956,15 +962,18 @@ cc.Director.prototype = {
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
-                cc.Object._deferredDestroy();
+                Obj._deferredDestroy();
             }
-            this.emit(cc.Director.EVENT_BEFORE_DRAW);
+
             // Render
+            this.emit(cc.Director.EVENT_BEFORE_DRAW);
             renderer.render(this._scene);
-            this._totalFrames++;
+
+            // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
-            
+
             eventManager.frameUpdateListeners();
+            this._totalFrames++;
         }
     },
 

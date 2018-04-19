@@ -72,6 +72,8 @@ class VertexFormat {
       let el = this._elements[i];
       el.stride = this._bytes;
     }
+
+    this._nativeObj = new gfx.VertexFormatNative(this._elements);
   }
 
   /**

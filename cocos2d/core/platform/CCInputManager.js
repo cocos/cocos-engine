@@ -232,7 +232,7 @@ var inputManager = {
         var docElem = document.documentElement;
         var leftOffset = window.pageXOffset - docElem.clientLeft;
         var topOffset = window.pageYOffset - docElem.clientTop;
-        if (typeof element.getBoundingClientRect === 'function') {
+        if (element.getBoundingClientRect) {
             var box = element.getBoundingClientRect();
             return {
                 left: box.left + leftOffset,

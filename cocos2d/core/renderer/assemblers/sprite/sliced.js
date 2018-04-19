@@ -24,11 +24,12 @@
  ****************************************************************************/
 
 const Sprite = require('../../../components/CCSprite');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 const FillType = Sprite.FillType;
 
-const simpleRenderUtil = require('./simple');
-
 module.exports = {
+    useModel: false,
+
     createData (sprite) {
         let renderData = sprite.requestRenderData();
         // 0-4 for local verts
@@ -38,6 +39,36 @@ module.exports = {
         renderData.vertexCount = 16;
         renderData.indiceCount = 54;
         return renderData;
+    },
+
+    updateRenderData (sprite, batchData) {
+        let frame = sprite.spriteFrame;
+        
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (!sprite._material && frame) {
+            // Avoid as much function call as possible
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
+        }
+
+        let renderData = sprite._renderData;
+        if (renderData && frame) {
+            if (renderData.uvDirty) {
+                this.updateUVs(sprite);
+            }
+
+            let vertDirty = renderData.vertDirty;
+            if (vertDirty) {
+                this.updateVerts(sprite);
+            }
+            if (vertDirty || batchData.worldMatUpdated) {
+                this.updateWorldVerts(sprite);
+            }
+        }
+        return sprite.__allocedDatas;
     },
     
     updateUVs (sprite) {
@@ -79,6 +110,17 @@ module.exports = {
             data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
             data[0].v = (rect.y + rect.height) / atlasHeight;
         }
+
+        for (let row = 0; row < 4; ++row) {
+            let rowD = data[row];
+            for (let col = 0; col < 4; ++col) {
+                let colD = data[col];
+                let world = data[4 + row*4 + col];
+                world.u = colD.u;
+                world.v = rowD.v;
+            }
+        }
+
         renderData.uvDirty = false;
     },
     
@@ -137,7 +179,7 @@ module.exports = {
             uintbuf[vertexOffset + 3] = color;
             vertexOffset += 6;
         }
-        
+
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
                 let start = vertexId + r*4 + c;
@@ -153,10 +195,10 @@ module.exports = {
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            renderData = sprite._renderData,
-            data = renderData._data,
-            matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            data = sprite._renderData._data;
+        
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         
         for (let row = 0; row < 4; ++row) {
@@ -166,13 +208,7 @@ module.exports = {
                 let world = data[4 + row*4 + col];
                 world.x = colD.x*a + rowD.y*c + tx;
                 world.y = colD.x*b + rowD.y*d + ty;
-                world.u = colD.u;
-                world.v = rowD.v;
             }
         }
-
-        renderData.worldMatDirty = false;
     },
-
-    update: simpleRenderUtil.update
 };

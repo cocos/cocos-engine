@@ -42,10 +42,6 @@ RenderComponentWalker.prototype = {
     reset() {},
 
     _handleRender (node) {
-        if (node._localMatDirty) {
-            node._calculWorldMatrix();
-        }
-
         let comp = node._renderComponent;
         let opacity = node.opacity;
         let assembler = comp && comp.constructor._assembler;
@@ -67,6 +63,10 @@ RenderComponentWalker.prototype = {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
+        let node = comp.node;
+        if (node._worldMatDirty) {
+            node._updateWorldMatrix();
+        }
         let drawCall = renderer.draw(ctx, comp);
         this._device._stats.drawcalls += drawCall;
     },

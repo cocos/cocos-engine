@@ -28,390 +28,11 @@
  */
 
 require('./jsb_opengl_constants');
-window.gl = window.gl || {};
+
+const gl = __gl;
 
 gl.drawingBufferWidth = window.innerWidth;
 gl.drawingBufferHeight = window.innerHeight;
-
-//
-// Create functions
-//
-gl.createTexture = function() {
-    // Returns a "WebGLTexture" object
-    var ret = gl._createTexture();
-    return { texture_id:ret };
-};
-
-gl.createBuffer = function() {
-    // Returns a "WebGLBuffer" object
-    var ret = gl._createBuffer();
-    return { buffer_id:ret };
-};
-
-gl.createRenderbuffer = function() {
-    // Returns a "WebGLRenderBuffer" object
-    var ret = gl._createRenderbuffer();
-    return { renderbuffer_id:ret};
-};
-
-gl.createFramebuffer = function() {
-    // Returns a "WebGLFramebuffer" object
-    var ret = gl._createFramebuffer();
-    return {framebuffer_id:ret};
-};
-
-gl.createProgram = function() {
-    // Returns a "WebGLProgram" object
-    var ret = gl._createProgram();
-    return {program_id:ret};
-};
-
-gl.createShader = function(shaderType) {
-    // Returns a "WebGLShader" object
-    var ret = gl._createShader(shaderType);
-    return {shader_id:ret};
-};
-
-//
-// Delete Functions
-//
-gl.deleteTexture = function(texture) {
-    var texture_id = texture.texture_id;
-    // Accept numbers too. eg: gl.deleteTexture(0)
-    if (typeof texture === 'number')
-        texture_id = texture;
-
-    gl._deleteTexture(texture_id);
-};
-
-gl.deleteBuffer = function(buffer) {
-    var buffer_id = buffer.buffer_id;
-    // Accept numbers too. eg: gl.deleteBuffer(0)
-    if( typeof buffer === 'number' )
-        buffer_id = buffer;
-
-    gl._deleteBuffer(buffer_id);
-};
-
-gl.deleteRenderbuffer = function(buffer) {
-    var buffer_id = buffer.renderbuffer_id;
-    // Accept numbers too. eg: gl.deleteRenderbuffer(0)
-    if (typeof buffer === 'number')
-        buffer_id = buffer;
-
-    gl._deleteRenderbuffer(renderbuffer_id);
-};
-
-gl.deleteFramebuffer = function(buffer) {
-    var buffer_id;
-    if (buffer)
-        buffer_id = buffer.framebuffer_id;
-    else
-        buffer_id = null;
-    gl._deleteFramebuffer(buffer_id);
-};
-
-gl.deleteProgram = function(program) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.deleteShader(0)
-    if (typeof program === 'number')
-        program_id = program;
-
-    gl._deleteProgram(program_id);
-};
-
-gl.deleteShader = function(shader) {
-    var shader_id = shader.shader_id;
-    // Accept numbers too. eg: gl.deleteShader(0)
-    if (typeof shader === 'number')
-        shader_id = shader;
-
-    gl._deleteShader(shader_id);
-};
-
-//
-// Bind Related
-//
-// void bindTexture(GLenum target, WebGLTexture? texture);
-gl.bindTexture = function(target, texture) {
-
-    var texture_id;
-    // Accept numbers too. eg: gl.bindTexture(0)
-    if (typeof texture === 'number')
-        texture_id = texture;
-    else if( texture === null )
-        texture_id = 0;
-    else
-        texture_id = texture.texture_id;
-
-    gl._bindTexture( target, texture_id );
-};
-
-// void bindBuffer(GLenum target, WebGLBuffer? buffer);
-gl.bindBuffer = function(target, buffer) {
-    var buffer_id;
-    // Accept numbers too. eg: gl.bindBuffer(0)
-    if (typeof buffer === 'number')
-        buffer_id = buffer;
-    else if (buffer === null)
-        buffer_id = 0;
-    else
-        buffer_id = buffer.buffer_id;
-
-    gl._bindBuffer(target, buffer_id);
-};
-
-// void bindRenderbuffer(GLenum target, WebGLRenderbuffer? renderbuffer);
-gl.bindRenderbuffer = function(target, buffer) {
-    var buffer_id;
-
-    // Accept numbers too. eg: gl.bindRenderbuffer(0)
-    if (typeof buffer === 'number')
-        buffer_id = buffer;
-    else if (buffer === null)
-        buffer_id = 0;
-    else
-        buffer_id = buffer.renderbuffer_id;
-
-    gl._bindRenderbuffer(target, buffer_id);
-};
-
-// void bindFramebuffer(GLenum target, WebGLFramebuffer? framebuffer);
-gl.bindFramebuffer = function(target, buffer) {
-    var buffer_id;
-
-    // Accept numbers too. eg: gl.bindFramebuffer(0)
-    if (typeof buffer === 'number')
-        buffer_id = buffer;
-    else if( buffer === null )
-        buffer_id = null;
-    else
-        buffer_id = buffer.framebuffer_id;
-
-    gl._bindFramebuffer(target, buffer_id);
-};
-
-gl.framebufferRenderbuffer = function(target, attachment, renderbuffertarget, renderbuffer) {
-    gl._framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer.renderbuffer_id);
-};
-
-gl.framebufferTexture2D = function(target, attachment, textarget, texture, level) {
-    gl._framebufferTexture2D(target, attachment, textarget, texture.texture_id, level);
-};
-
-gl.isFramebuffer = function(buffer) {
-    if (buffer && buffer.framebuffer_id) {
-        return gl._isFramebuffer(buffer.framebuffer_id);
-    }
-    return false;
-};
-
-gl.isProgram = function(program) {
-    if (program && program.program_id) {
-        return gl._isProgram(program.program_id);
-    }
-    return false;
-};
-
-gl.isRenderbuffer = function(buffer) {
-    if (buffer && buffer.renderbuffer_id) {
-        return gl._isRenderbuffer(buffer.renderbuffer_id);
-    }
-    return false;
-};
-
-gl.isShader = function(shader) {
-    if (shader && shader.shader_id) {
-        return gl._isShader(shader.shader_id);
-    }
-    return false;
-};
-
-gl.isTexture = function(texture) {
-    if (texture && texture.texture_id) {
-        return gl._isTexture(texture.texture_id);
-    }
-    return false;
-};
-
-//
-// Uniform related
-//
-// any getUniform(WebGLProgram? program, WebGLUniformLocation? location);
-gl.getUniform = function(program, location) {
-    var program_id;
-    var location_id;
-
-    // Accept numbers too. eg: gl.bindFramebuffer(0)
-    if (typeof program === 'number')
-        program_id = program;
-    else
-        program_id = program.program_id;
-
-    if (typeof location === 'number')
-        location_id = location;
-    else
-        location_id = location.location_id;
-
-    return gl._getUniform(program_id, location_id);
-};
-
-// gl.uniformMatrix2fv = function(location, bool, matrix) {
-//  gl._uniformMatrix2fv(program.program_id, bool, matrix);
-// };
-
-// gl.uniformMatrix3fv = function(program, bool, matrix) {
-//  gl._uniformMatrix3fv(program.program_id, bool, matrix);
-// };
-
-// gl.uniformMatrix4fv = function(program, bool, matrix) {
-//  gl._uniformMatrix4fv(program.program_id, bool, matrix);
-// };
-
-
-//
-// Shader related
-//
-// void compileShader(WebGLShader? shader);
-gl.compileShader = function(shader) {
-    gl._compileShader( shader.shader_id);
-};
-
-// void shaderSource(WebGLShader? shader, DOMString source);
-gl.shaderSource = function(shader, source) {
-    gl._shaderSource(shader.shader_id, source);
-};
-
-// any getShaderParameter(WebGLShader? shader, GLenum pname);
-gl.getShaderParameter = function(shader, e) {
-    return gl._getShaderParameter(shader.shader_id,e);
-};
-
-// DOMString? getShaderInfoLog(WebGLShader? shader);
-gl.getShaderInfoLog = function(shader) {
-    return gl._getShaderInfoLog(shader.shader_id);
-};
-
-// DOMString gl.getShaderSource(shader);
-gl.getShaderSource = function(shader) {
-    return gl._getShaderSource(shader.shader_id);
-};
-
-//
-// program related
-//
-// void attachShader(WebGLProgram? program, WebGLShader? shader);
-gl.attachShader = function(program, shader) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.attachShader(17)
-    if( typeof program === 'number' )
-        program_id = program;
-
-    gl._attachShader(program_id, shader.shader_id);
-};
-
-// void linkProgram(WebGLProgram? program);
-gl.linkProgram = function(program) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.linkProgram(17)
-    if( typeof program === 'number' )
-        program_id = program;
-
-    gl._linkProgram(program_id);
-};
-
-gl.bindAttribLocation = function(program, index, name) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.linkProgram(17)
-    if( typeof program === 'number' )
-        program_id = program;
-
-    gl._bindAttribLocation(program_id, index, name);
-};
-
-// any getProgramParameter(WebGLProgram? program, GLenum pname);
-gl.getProgramParameter = function(program, e) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getProgramParameter(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getProgramParameter(program_id, e);
-};
-
-gl.getProgramInfoLog = function(program) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getProgramParameter(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getProgramInfoLog(program_id);
-};
-
-// void useProgram(WebGLProgram? program);
-gl.useProgram = function(program) {
-    var program_id;
-    // Accept numbers too. eg: gl.useProgram(17)
-    if (typeof program === 'number')
-        program_id = program;
-    else
-        program_id = program.program_id;
-
-    gl._useProgram (program_id);
-};
-
-
-// [WebGLHandlesContextLoss] GLint getAttribLocation(WebGLProgram? program, DOMString name);
-gl.getAttribLocation = function(program, name) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getAttribLocation(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getAttribLocation(program_id, name);
-};
-
-// WebGLUniformLocation? getUniformLocation(WebGLProgram? program, DOMString name);
-gl.getUniformLocation = function(program, name) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getUniformLocation(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    // XXX: it should return an object, not an integer
-    return gl._getUniformLocation(program_id,name);
-};
-
-
-// WebGLActiveInfo? getActiveAttrib(WebGLProgram? program, GLuint index);
-gl.getActiveAttrib = function(program, index) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getActiveAttrib(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getActiveAttrib(program_id, index);
-};
-
-// WebGLActiveInfo? getActiveUniform(WebGLProgram? program, GLuint index);
-gl.getActiveUniform = function(program, index) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getActiveUniform(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getActiveUniform(program_id, index);
-};
-
-// sequence<WebGLShader>? getAttachedShaders(WebGLProgram? program);
-gl.getAttachedShaders = function(program) {
-    var program_id = program.program_id;
-    // Accept numbers too. eg: gl.getAttachedShaders(17)
-    if (typeof program === 'number')
-        program_id = program;
-
-    return gl._getAttachedShaders(program_id);
-};
 
 //
 // Extensions
@@ -447,24 +68,23 @@ void gl.texImage2D(target, level, internalformat, format, type, ImageBitmap? pix
 gl.texImage2D = function(target, level, internalformat, width, height, border, format, type, pixels) {
     let argCount = arguments.length;
     if (argCount == 6) {
+        
         var image = border;
         type = height;
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            // console.log(`==> texImage2D HTMLImageElement internalformat: ${image._glInternalFormat}, format: ${image._glFormat}, image: w:${image.width}, h:${image.height}, dataLen:${image._data.length}`);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
-       
             _glTexImage2D(target, level, image._glInternalFormat, image.width, image.height, 0, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
-            // console.log(`==> texImage2D HTMLCanvasElement internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);//, dataLen:${image._data.length}`);
+            var data = null;
             if (image._data) {
-                _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data._data);
+                data = image._data._data;
             }
+            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, data);
         }
         else if (image instanceof ImageData) {
-            // console.log(`==> texImage2D ImageData internalformat: ${internalformat}, format: ${format}, image: w:${image.width}, h:${image.height}`);
             _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data);
         }
         else {
@@ -473,7 +93,8 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
     }
     else if (argCount == 9) {
         _glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
-    } else {
+    }
+    else {
         console.error("gl.texImage2D: invalid argument count!");
     }
 }
@@ -496,15 +117,16 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
         type = height;
         format = width;
 
-        //TODO: ImageData
         if (image instanceof HTMLImageElement) {
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
+            var data = null;
             if (image._data) {
-                _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data._data);
+                data = image._data._data;
             }
+            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, data);
         }
         else if (image instanceof ImageData) {
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data);
@@ -515,7 +137,8 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
     }
     else if (argCount == 9) {
         _glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
-    } else {
+    }
+    else {
         console.error((new Error("gl.texImage2D: invalid argument count!").stack));
     }
 }

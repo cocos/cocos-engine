@@ -504,7 +504,6 @@ var Label = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-            this._renderData.worldMatDirty = true;
         }
     },
 

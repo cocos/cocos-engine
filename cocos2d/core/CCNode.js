@@ -43,7 +43,6 @@ const POSITION_CHANGED = 'position-changed';
 const SIZE_CHANGED = 'size-changed';
 const ANCHOR_CHANGED = 'anchor-changed';
 const ROTATION_CHANGED = 'rotation-changed';
-const WORLD_MATRIX_CHANGED = 'world-matrix-changed';
 const SCALE_CHANGED = 'scale-changed';
 const CHILD_REORDER = 'child-reorder';
 
@@ -55,7 +54,16 @@ var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
+var _parents = [];
 var _globalOrderOfArrival = 1;
+
+const POSITION_DIRTY_FLAG = 1 << 0;
+const SCALE_DIRTY_FLAG = 1 << 1;
+const ROTATION_DIRTY_FLAG = 1 << 2;
+const SKEW_DIRTY_FLAG = 1 << 3;
+// rotation transform dirty
+const RT_DIRTY_FLAG = SCALE_DIRTY_FLAG | ROTATION_DIRTY_FLAG | SKEW_DIRTY_FLAG;
+const ALL_DIRTY_FLAG = 0xffff;
 
 /**
  * !#en The event type supported by Node
@@ -308,6 +316,16 @@ function _checkListeners (node, events) {
     return true;
 }
 
+function _syncWorldDirty (children) {
+    for (let i = 0, l = children.length; i < l; i++) {
+        let child = children[i];
+        child._worldMatDirty = true;
+        if (child._children.length > 0) {
+            _syncWorldDirty(child._children);
+        }
+    }
+}
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -421,7 +439,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
-                        this._localMatDirty = true;
+                        this.setLocalDirty(POSITION_DIRTY_FLAG);
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -464,7 +482,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
-                        this._localMatDirty = true;
+                        this.setLocalDirty(POSITION_DIRTY_FLAG);
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -494,7 +512,7 @@ var Node = cc.Class({
                 if (value !== localPosition.z) {
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
-                        this._localMatDirty = true;
+                        this.setLocalDirty(POSITION_DIRTY_FLAG);
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -524,7 +542,7 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
-                    this._localMatDirty = true;
+                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -557,7 +575,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
-                    this._localMatDirty = true;
+                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -590,7 +608,7 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
-                    this._localMatDirty = true;
+                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -625,7 +643,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
-                    this._localMatDirty = true;
+                    this.setLocalDirty(SCALE_DIRTY_FLAG);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -651,7 +669,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
-                    this._localMatDirty = true;
+                    this.setLocalDirty(SCALE_DIRTY_FLAG);
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -676,7 +694,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
-                this._localMatDirty = true;
+                this.setLocalDirty(SKEW_DIRTY_FLAG);
             }
         },
 
@@ -695,7 +713,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
-                this._localMatDirty = true;
+                this.setLocalDirty(SKEW_DIRTY_FLAG);
             }
         },
 
@@ -908,8 +926,9 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
-        this._localMatDirty = true;
-        this._worldMatDirty = true;
+        this._localMatDirty = 0;
+        this._worldMatDirty = false;
+        this.setLocalDirty(ALL_DIRTY_FLAG);
 
         this._cullingMask = 1 << this.groupIndex;
     },
@@ -983,6 +1002,7 @@ var Node = cc.Class({
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // activate
+            // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
             if (this._touchListener) {
@@ -1506,7 +1526,7 @@ var Node = cc.Class({
      */
     setPosition (newPosOrX, y) {
         var x;
-        if (typeof y === 'undefined') {
+        if (y === undefined) {
             x = newPosOrX.x;
             y = newPosOrX.y;
         }
@@ -1535,7 +1555,7 @@ var Node = cc.Class({
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
-        this._localMatDirty = true;
+        this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1577,7 +1597,7 @@ var Node = cc.Class({
      * node.setScale(1, 1);
      */
     setScale (scaleX, scaleY) {
-        if (typeof scaleX === 'object') {
+        if (scaleX && typeof scaleX !== 'number') {
             scaleY = scaleX.y;
             scaleX = scaleX.x;
         }
@@ -1587,7 +1607,7 @@ var Node = cc.Class({
         if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
             this._scale.x = scaleX;
             this._scale.y = scaleY;
-            this._localMatDirty = true;
+            this.setLocalDirty(SCALE_DIRTY_FLAG);
 
             var cache = this._hasListenerCache;
             if (cache && cache[SCALE_CHANGED]) {
@@ -1725,7 +1745,7 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this._localMatDirty = true;
+        this.setLocalDirty(POSITION_DIRTY_FLAG);
         this.emit(ANCHOR_CHANGED);
     },
 
@@ -1792,8 +1812,7 @@ var Node = cc.Class({
         else {
             math.vec3.copy(this._position, pos);
         }
-
-        this._localMatDirty = true;
+        this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1880,29 +1899,70 @@ var Node = cc.Class({
     },
 
     _updateLocalMatrix () {
-        if (this._localMatDirty) {
-            // Update transform
-            let t = this._matrix;
-            math.mat4.fromRTS(t, this._quat, this._position, this._scale);
+        let dirtyFlag = this._localMatDirty;
+        if (!dirtyFlag) return;
 
-            // skew
-            if (this._skewX || this._skewY) {
-                let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
-                let skx = Math.tan(this._skewX * ONE_DEGREE);
-                let sky = Math.tan(this._skewY * ONE_DEGREE);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                t.m00 = a + c * sky;
-                t.m01 = b + d * sky;
-                t.m04 = c + a * skx;
-                t.m05 = d + b * skx;
+        // Update transform
+        let t = this._matrix;
+        //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
+
+        if (dirtyFlag & RT_DIRTY_FLAG) {
+            let hasRotation = this._rotationX || this._rotationY;
+            let hasSkew = this._skewX || this._skewY;
+            let sx = this._scale.x, sy = this._scale.y;
+
+            if (hasRotation || hasSkew) {
+                let a = 1, b = 0, c = 0, d = 1;
+                // rotation
+                if (hasRotation) {
+                    let rotationRadiansX = this._rotationX * ONE_DEGREE;
+                    c = Math.sin(rotationRadiansX);
+                    d = Math.cos(rotationRadiansX);
+                    if (this._rotationY === this._rotationX) {
+                        a = d;
+                        b = -c;
+                    }
+                    else {
+                        let rotationRadiansY = this._rotationY * ONE_DEGREE;
+                        a = Math.cos(rotationRadiansY);
+                        b = -Math.sin(rotationRadiansY);
+                    }
+                }
+                // scale
+                t.m00 = a *= sx;
+                t.m01 = b *= sx;
+                t.m04 = c *= sy;
+                t.m05 = d *= sy;
+                // skew
+                if (hasSkew) {
+                    let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
+                    let skx = Math.tan(this._skewX * ONE_DEGREE);
+                    let sky = Math.tan(this._skewY * ONE_DEGREE);
+                    if (skx === Infinity)
+                        skx = 99999999;
+                    if (sky === Infinity)
+                        sky = 99999999;
+                    t.m00 = a + c * sky;
+                    t.m01 = b + d * sky;
+                    t.m04 = c + a * skx;
+                    t.m05 = d + b * skx;
+                }
             }
-            this._localMatDirty = false;
-            // Register dirty status of world matrix so that it can be recalculated
-            this._worldMatDirty = true;
+            else {
+                t.m00 = sx;
+                t.m01 = 0;
+                t.m04 = 0;
+                t.m05 = sy;
+            }
         }
+
+        // position
+        t.m12 = this._position.x;
+        t.m13 = this._position.y;
+        
+        this._localMatDirty = 0;
+        // Register dirty status of world matrix so that it can be recalculated
+        this._worldMatDirty = true;
     },
 
     _calculWorldMatrix () {
@@ -1912,34 +1972,64 @@ var Node = cc.Class({
         }
         
         // Assume parent world matrix is correct
-        if (this._parent) {
-            let parentMat = this._parent._worldMatrix;
-            math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        let parent = this._parent;
+        if (parent) {
+            let pt = parent._worldMatrix;
+            let t = this._matrix;
+            let wt = this._worldMatrix;
+            let aa=t.m00, ab=t.m01, ac=t.m04, ad=t.m05, atx=t.m12, aty=t.m13;
+            let ba=pt.m00, bb=pt.m01, bc=pt.m04, bd=pt.m05, btx=pt.m12, bty=pt.m13;
+            if (bb !== 0 || bc !== 0) {
+                wt.m00 = aa * ba + ab * bc;
+                wt.m01 = aa * bb + ab * bd;
+                wt.m04 = ac * ba + ad * bc;
+                wt.m05 = ac * bb + ad * bd;
+                wt.m12 = ba * atx + bc * aty + btx;
+                wt.m13 = bb * atx + bd * aty + bty;
+            }
+            else {
+                wt.m00 = aa * ba;
+                wt.m01 = ab * bd;
+                wt.m04 = ac * ba;
+                wt.m05 = ad * bd;
+                wt.m12 = ba * atx + btx;
+                wt.m13 = bd * aty + bty;
+            }
         }
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
-
-        this.emit(WORLD_MATRIX_CHANGED);
-
-        for (let i = 0, len = this._children.length; i < len; ++i) {
-            let child = this._children[i];
-            child._calculWorldMatrix();
-        }
     },
 
     _updateWorldMatrix () {
-        let curr = this;
-        let changedRoot = null;
-        while (curr) {
-            if (curr._localMatDirty || curr._worldMatDirty) {
-                changedRoot = curr;
-            }
-            curr = curr._parent;
+        let n = -1;
+        // Find root of world matrix changing
+        for (let node = this; node && node._worldMatDirty; node = node._parent) {
+            n++;
+            _parents[n] = node;
         }
-        if (changedRoot) {
-            changedRoot._calculWorldMatrix();
+        // Update world matrix of all changed parents
+        for (let i = n; i >= 0; i--) {
+            _parents[i]._calculWorldMatrix();
+            _parents[i] = null;
+        }
+    },
+
+    setLocalDirty (flag) {
+        if (!this._localMatDirty) {
+            this.setWorldDirty();
+        }
+        this._localMatDirty = this._localMatDirty | flag;
+    },
+
+    setWorldDirty () {
+        if (!this._worldMatDirty) {
+            this._worldMatDirty = true;
+            // Sync world mat dirty to sub tree
+            if (this._children.length > 0) {
+                _syncWorldDirty(this._children);
+            }
         }
     },
 
@@ -2400,9 +2490,6 @@ var Node = cc.Class({
     },
 
     onRestore: CC_EDITOR && function () {
-        this._localMatDirty = true;
-        this._worldMatDirty = true;
-
         this._onRestoreBase();
 
         var actionManager = cc.director.getActionManager();

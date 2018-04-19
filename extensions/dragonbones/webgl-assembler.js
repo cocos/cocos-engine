@@ -99,8 +99,7 @@ let armatureAssembler = js.addon({
 
         let node = comp.node;
         _z = node._position.z;
-        
-        node._updateWorldMatrix();
+
         _worldMatrix = node._worldMatrix;
         _a = _worldMatrix.m00; _b = _worldMatrix.m01; _c = _worldMatrix.m04; _d = _worldMatrix.m05;
         _tx = _worldMatrix.m12; _ty = _worldMatrix.m13;

@@ -24,25 +24,35 @@
  ****************************************************************************/
 
 const js = require('../../../platform/js');
-const assembler = require('../assembler');
+const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
 
-module.exports = js.addon({
+module.exports = {
     useModel: false,
-
-    update (sprite) {
-        let renderData = sprite._renderData;
+    
+    updateRenderData (sprite) {
+        let frame = sprite._spriteFrame;
         
-        if (renderData.uvDirty) {
-            this.updateUVs(sprite);
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (!sprite._material && frame) {
+            // Avoid as much function call as possible
+            if (!frame._original) {
+                dynamicAtlasManager.insertSpriteFrame(frame);
+            }
+            sprite._activateMaterial();
         }
 
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
-            this.updateVerts(sprite);
+        let renderData = sprite._renderData;
+        if (renderData && frame) {
+            if (renderData.uvDirty) {
+                this.updateUVs(sprite);
+            }
+
+            if (renderData.vertDirty) {
+                this.updateVerts(sprite);
+            }
         }
-        if (vertDirty || renderData.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
+        return sprite.__allocedDatas;
     },
 
     fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -53,11 +63,14 @@ module.exports = js.addon({
         let node = sprite.node;
         let z = node._position.z;
         let color = node._color._val;
+        let matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
     
         for (let i = 0; i < 4; i++) {
             let vert = data[i];
-            vbuf[vertexOffset ++] = vert.x;
-            vbuf[vertexOffset ++] = vert.y;
+            vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset ++] = z;
             uintbuf[vertexOffset ++] = color;
             vbuf[vertexOffset ++] = vert.u;
@@ -74,9 +87,7 @@ module.exports = js.addon({
 
     createData (sprite) {
         let renderData = sprite.requestRenderData();
-        // 0-4 for world verts
-        // 5-8 for local verts
-        renderData.dataLength = 8;
+        renderData.dataLength = 4;
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
         return renderData;
@@ -124,24 +135,6 @@ module.exports = js.addon({
         renderData.uvDirty = false;
     },
 
-    updateWorldVerts (sprite) {
-        let node = sprite.node,
-            renderData = sprite._renderData,
-            data = renderData._data,
-            matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-        
-        for (let i = 0; i < 4; i++) {
-            let local = data[i+4];
-            let world = data[i];
-            world.x = local.x * a + local.y * c + tx;
-            world.y = local.x * b + local.y * d + ty;
-        }
-
-        renderData.worldMatDirty = false;
-    },
-
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             node = sprite.node,
@@ -171,15 +164,15 @@ module.exports = js.addon({
             t = ch + trimTop * scaleY - appy;
         }
         
-        data[4].x = l;
-        data[4].y = b;
-        data[5].x = r;
-        data[5].y = b;
-        data[6].x = l;
-        data[6].y = t;
-        data[7].x = r;
-        data[7].y = t;
+        data[0].x = l;
+        data[0].y = b;
+        data[1].x = r;
+        data[1].y = b;
+        data[2].x = l;
+        data[2].y = t;
+        data[3].x = r;
+        data[3].y = t;
 
         renderData.vertDirty = false;
     }
-}, assembler);
+};

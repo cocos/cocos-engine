@@ -51,6 +51,12 @@ var RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
+        // Render component chain entries
+        this._chain = {
+            comp: this,
+            next: null
+        };
+        this._postChain = null;
     },
 
     onEnable () {

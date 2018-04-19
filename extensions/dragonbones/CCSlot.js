@@ -354,7 +354,7 @@ dragonBones.CCSlot = cc.Class({
             let node = this._display.node;
             math.mat4.copy(node._matrix, t);
             node._localMatDirty = false;
-            node._worldMatDirty = true;
+            node.setWorldDirty();
         }
 
         this._updateVertices();

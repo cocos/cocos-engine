@@ -24,10 +24,11 @@
  ****************************************************************************/
 
 window.CC_JSB = true;
-window.CC_WECHATGAME = true;
+window.CC_WECHATGAME = true; //FIXME: remove CC_WECHATGAME
 
 // Simulate wechat game API:
 
+//FIXME: remove wx
 window.wx = {
     getSystemInfoSync() {
         return {
@@ -48,30 +49,61 @@ window.wx = {
     }
 }
 
-let oldRequestFrameCallback = null;
-let requestAnimationFrameID = 0;
-let requestAnimationFrameCallbacks = {};
+window.CanvasRenderingContext2D = cc.CanvasRenderingContext2D;
+delete cc.CanvasRenderingContext2D;
+
+const { btoa, atob } = require('./base64/base64.min');
+window.btoa = btoa;
+window.atob = atob;
+const { Blob, URL } = require('./Blob');
+window.Blob = Blob;
+window.URL = URL;
+window.DOMParser = require('./xmldom/dom-parser').DOMParser;
+
+require('./jsb_prepare');
+require('./jsb_opengl');
+require('./jsb-adapter');
+require('./jsb_audioengine');
+
+let _oldRequestFrameCallback = null;
+let _requestAnimationFrameID = 0;
+let _requestAnimationFrameCallbacks = {};
+let _firstTick = true;
 
 window.requestAnimationFrame = function(cb) {
-    let id = ++requestAnimationFrameID;
-    requestAnimationFrameCallbacks[id] = cb;
+    let id = ++_requestAnimationFrameID;
+    _requestAnimationFrameCallbacks[id] = cb;
     return id;
 };
 
 window.cancelAnimationFrame = function(id) {
-    delete requestAnimationFrameCallbacks[id];
+    delete _requestAnimationFrameCallbacks[id];
+};
+
+const {disableBatchGLCommandsToNative, flushCommands} = require('./glOptMode');
+window.optConfig = {
+    disableBatchGLCommandsToNative: disableBatchGLCommandsToNative
 };
 
 function tick(nowMilliSeconds) {
-    fireTimeout(nowMilliSeconds);
-
-    for (let id in requestAnimationFrameCallbacks) {
-        oldRequestFrameCallback = requestAnimationFrameCallbacks[id];
-        if (oldRequestFrameCallback) {
-            delete requestAnimationFrameCallbacks[id];
-            oldRequestFrameCallback(nowMilliSeconds);
+    if (_firstTick) {
+        _firstTick = false;
+        if (window.onload) {
+            var event = new Event('load');
+            event._target = window;
+            window.onload(event);
         }
     }
+    fireTimeout(nowMilliSeconds);
+
+    for (let id in _requestAnimationFrameCallbacks) {
+        _oldRequestFrameCallback = _requestAnimationFrameCallbacks[id];
+        if (_oldRequestFrameCallback) {
+            delete _requestAnimationFrameCallbacks[id];
+            _oldRequestFrameCallback(nowMilliSeconds);
+        }
+    }
+    flushCommands();
 }
 
 let _timeoutIDIndex = 0;
@@ -159,22 +191,7 @@ jsb.fileUtils = cc.fileUtils;
 delete cc.FileUtils;
 delete cc.fileUtils;
 
-window.CanvasRenderingContext2D = cc.CanvasRenderingContext2D;
-delete cc.CanvasRenderingContext2D;
-
 jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
-
-require('./jsb_prepare');
-require('./jsb_opengl');
-const { btoa, atob } = require('./base64/base64.min');
-window.btoa = btoa;
-window.atob = atob;
-const { Blob, URL } = require('./Blob');
-window.Blob = Blob;
-window.URL = URL;
-window.DOMParser = require('./xmldom/dom-parser').DOMParser;
-require('./jsb-adapter');
-require('./jsb_audioengine');
 
 /**
  * @type {Object}
