@@ -966,10 +966,7 @@ static bool JSB_glClear(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    //FIXME:cjh
-    arg0 = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-    JSB_GL_CHECK(glClear((GLbitfield)arg0  ));
-
+    JSB_GL_CHECK(glClear((GLbitfield)arg0));
     return true;
 }
 SE_BIND_FUNC(JSB_glClear)
