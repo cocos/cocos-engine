@@ -419,7 +419,7 @@ static bool register_canvas_context2d(se::Object* obj)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, strokeStyle)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, globalCompositeOperation)
 
-    __jsb_cocos2d_CanvasRenderingContext2D_proto->defineFunction("setCanvasBufferUpdatedCallback", _SE(js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    __jsb_cocos2d_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
 
     se::ScriptEngine::getInstance()->clearException();
 

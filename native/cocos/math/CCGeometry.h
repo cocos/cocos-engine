@@ -28,7 +28,6 @@ THE SOFTWARE.
 #define __MATH_CCGEOMETRY_H__
 
 #include "base/ccMacros.h"
-#include "base/ccMacros.h"
 #include "math/CCMath.h"
 
 /**

@@ -39,12 +39,14 @@ SE_BIND_CTOR(js_gfx_GraphicsHandle_constructor, __jsb_cocos2d_renderer_GraphicsH
 
 static bool js_cocos2d_renderer_GraphicsHandle_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::GraphicsHandle)", s.nativeThisObject());
     cocos2d::renderer::GraphicsHandle* cobj = (cocos2d::renderer::GraphicsHandle*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_GraphicsHandle_finalize)
@@ -143,6 +145,21 @@ static bool js_gfx_IndexBuffer_setCount(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_IndexBuffer_setCount)
 
+static bool js_gfx_IndexBuffer_destroy(se::State& s)
+{
+    cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_IndexBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_IndexBuffer_destroy)
+
 static bool js_gfx_IndexBuffer_setUsage(se::State& s)
 {
     cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
@@ -233,12 +250,14 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_IndexBuffer_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::IndexBuffer)", s.nativeThisObject());
     cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_IndexBuffer_finalize)
@@ -251,6 +270,7 @@ bool js_register_gfx_IndexBuffer(se::Object* obj)
     cls->defineFunction("getUsage", _SE(js_gfx_IndexBuffer_getUsage));
     cls->defineFunction("setFormat", _SE(js_gfx_IndexBuffer_setFormat));
     cls->defineFunction("setCount", _SE(js_gfx_IndexBuffer_setCount));
+    cls->defineFunction("destroy", _SE(js_gfx_IndexBuffer_destroy));
     cls->defineFunction("setUsage", _SE(js_gfx_IndexBuffer_setUsage));
     cls->defineFunction("getCount", _SE(js_gfx_IndexBuffer_getCount));
     cls->defineFunction("setBytesPerIndex", _SE(js_gfx_IndexBuffer_setBytesPerIndex));
@@ -325,6 +345,21 @@ static bool js_gfx_VertexBuffer_setCount(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_VertexBuffer_setCount)
 
+static bool js_gfx_VertexBuffer_destroy(se::State& s)
+{
+    cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_VertexBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_VertexBuffer_destroy)
+
 static bool js_gfx_VertexBuffer_setUsage(se::State& s)
 {
     cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
@@ -396,12 +431,14 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_VertexBuffer_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::VertexBuffer)", s.nativeThisObject());
     cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_VertexBuffer_finalize)
@@ -413,6 +450,7 @@ bool js_register_gfx_VertexBuffer(se::Object* obj)
     cls->defineFunction("setBytes", _SE(js_gfx_VertexBuffer_setBytes));
     cls->defineFunction("getUsage", _SE(js_gfx_VertexBuffer_getUsage));
     cls->defineFunction("setCount", _SE(js_gfx_VertexBuffer_setCount));
+    cls->defineFunction("destroy", _SE(js_gfx_VertexBuffer_destroy));
     cls->defineFunction("setUsage", _SE(js_gfx_VertexBuffer_setUsage));
     cls->defineFunction("getCount", _SE(js_gfx_VertexBuffer_getCount));
     cls->defineFunction("getBytes", _SE(js_gfx_VertexBuffer_getBytes));
@@ -1167,12 +1205,6 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_FrameBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::FrameBuffer)", s.nativeThisObject());
-    cocos2d::renderer::FrameBuffer* cobj = (cocos2d::renderer::FrameBuffer*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_FrameBuffer_finalize)
@@ -1200,12 +1232,14 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_RenderTarget_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderTarget)", s.nativeThisObject());
     cocos2d::renderer::RenderTarget* cobj = (cocos2d::renderer::RenderTarget*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderTarget_finalize)
@@ -1298,12 +1332,14 @@ extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
 static bool js_cocos2d_renderer_RenderBuffer_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderBuffer)", s.nativeThisObject());
     cocos2d::renderer::RenderBuffer* cobj = (cocos2d::renderer::RenderBuffer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderBuffer_finalize)
@@ -1387,12 +1423,6 @@ extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
 static bool js_cocos2d_renderer_Texture_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture)", s.nativeThisObject());
-    cocos2d::renderer::Texture* cobj = (cocos2d::renderer::Texture*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture_finalize)
@@ -1460,25 +1490,6 @@ static bool js_gfx_Texture2D_init(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Texture2D_init)
 
-static bool js_gfx_Texture2D_updateSubImage(se::State& s)
-{
-    cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture2D_updateSubImage : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::renderer::Texture::SubImageOption arg0;
-        ok &= seval_to_TextureSubImageOption(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture2D_updateSubImage : Error processing arguments");
-        cobj->updateSubImage(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Texture2D_updateSubImage)
-
 static bool js_gfx_Texture2D_update(se::State& s)
 {
     cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
@@ -1497,6 +1508,25 @@ static bool js_gfx_Texture2D_update(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_Texture2D_update)
+
+static bool js_gfx_Texture2D_updateSubImage(se::State& s)
+{
+    cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture2D_updateSubImage : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::Texture::SubImageOption arg0;
+        ok &= seval_to_TextureSubImageOption(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture2D_updateSubImage : Error processing arguments");
+        cobj->updateSubImage(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture2D_updateSubImage)
 
 static bool js_gfx_Texture2D_create(se::State& s)
 {
@@ -1537,12 +1567,14 @@ extern se::Object* __jsb_cocos2d_renderer_Texture_proto;
 
 static bool js_cocos2d_renderer_Texture2D_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture2D)", s.nativeThisObject());
     cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture2D_finalize)
@@ -1553,8 +1585,8 @@ bool js_register_gfx_Texture2D(se::Object* obj)
 
     cls->defineFunction("updateImage", _SE(js_gfx_Texture2D_updateImage));
     cls->defineFunction("init", _SE(js_gfx_Texture2D_init));
+    cls->defineFunction("updateBinding", _SE(js_gfx_Texture2D_update));
     cls->defineFunction("updateSubImage", _SE(js_gfx_Texture2D_updateSubImage));
-    cls->defineFunction("update", _SE(js_gfx_Texture2D_update));
     cls->defineStaticFunction("create", _SE(js_gfx_Texture2D_create));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Texture2D_finalize));
     cls->install();
@@ -1644,12 +1676,14 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_Program_finalize(se::State& s)
 {
+
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Program)", s.nativeThisObject());
     cocos2d::renderer::Program* cobj = (cocos2d::renderer::Program*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
     else
         cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Program_finalize)

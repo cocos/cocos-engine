@@ -39,7 +39,10 @@
 RENDERER_BEGIN
 
 BaseRenderer::BaseRenderer()
-{}
+{
+    _drawItems.reserve(100);
+    _stageInfos.reserve(10);
+}
 
 BaseRenderer::~BaseRenderer()
 {
@@ -78,22 +81,22 @@ void BaseRenderer::registerStage(const std::string& name, const StageCallback& c
 
 // protected functions
 
-void BaseRenderer::render(const View* view, const Scene* scene)
+void BaseRenderer::render(const View& view, const Scene* scene)
 {
     // setup framebuffer
-    _device->setFrameBuffer(view->frameBuffer);
+    _device->setFrameBuffer(view.frameBuffer);
     
     // setup viewport
-    _device->setViewport(view->rect.x,
-                         view->rect.y,
-                         view->rect.w,
-                         view->rect.h);
+    _device->setViewport(view.rect.x,
+                         view.rect.y,
+                         view.rect.w,
+                         view.rect.h);
     
     // setup clear
     Color4F clearColor;
-    if (ClearFlag::COLOR & view->clearFlags)
-        clearColor = view->color;
-    _device->clear(view->clearFlags, &clearColor, view->depth, view->stencil);
+    if (ClearFlag::COLOR & view.clearFlags)
+        clearColor = view.color;
+    _device->clear(view.clearFlags, &clearColor, view.depth, view.stencil);
     
     // get all draw items
     _drawItems.clear();
@@ -103,9 +106,9 @@ void BaseRenderer::render(const View* view, const Scene* scene)
     for (const auto& model : scene->getModels())
     {
         modelViewId = model->getViewId();
-        if (view->cullingByID)
+        if (view.cullingByID)
         {
-            if (modelViewId != view->id)
+            if (modelViewId != view.id)
                 continue;
         }
         else
@@ -126,16 +129,15 @@ void BaseRenderer::render(const View* view, const Scene* scene)
     _stageInfos.clear();
     StageItem stageItem;
     StageInfo stageInfo;
-    for (const auto& stage : view->stages)
+    std::vector<StageItem> stageItems;
+    for (const auto& stage : view.stages)
     {
-        std::vector<StageItem> stageItems;
         for (const auto& item : _drawItems)
         {
             auto tech = item.effect->getTechnique(stage);
             if (tech)
             {
                 stageItem.model = item.model;
-                stageItem.node = item.node;
                 stageItem.ia = item.ia;
                 stageItem.effect = item.effect;
                 stageItem.defines = item.defines;
@@ -147,30 +149,28 @@ void BaseRenderer::render(const View* view, const Scene* scene)
         }
         
         stageInfo.stage = stage;
-        stageInfo.items = std::move(stageItems);
+        stageInfo.items = &stageItems;
         _stageInfos.push_back(std::move(stageInfo));
     }
     
     // render stages
+    std::unordered_map<std::string, StageCallback>::iterator foundIter;
     for (const auto& stageInfo : _stageInfos)
     {
-        if (_stage2fn.end() != _stage2fn.find(stageInfo.stage))
+        foundIter = _stage2fn.find(stageInfo.stage);
+        if (_stage2fn.end() != foundIter)
         {
-            auto& fn = _stage2fn.at(stageInfo.stage);
-            fn(view, stageInfo.items);
+            auto& fn = foundIter->second;
+            fn(view, *stageInfo.items);
         }
     }
 }
 
 void BaseRenderer::draw(const StageItem& item)
 {
-    //TODO: get world matrix of node
-//    const Mat4& worldMatrix =
-
-    Mat4 worldMatrix = item.node->getWorldMatrix();
-    //TODO: Mat4 worldMatrix = item.model->getWorldMatrix();
+    Mat4 worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4("model", worldMatrix.m);
-    
+
     //TODO: add Mat3
     worldMatrix.inverse();
     worldMatrix.transpose();
@@ -213,8 +213,10 @@ void BaseRenderer::draw(const StageItem& item)
                 }
                 
                 std::vector<int> slots;
+                slots.reserve(10);
                 for (int i = 0; i < param.getCount(); ++i)
                     slots.push_back(allocTextureUnit());
+                
                 _device->setTextureArray(param.getName(),
                                          std::move(prop->getTextureArray()),
                                          slots);
@@ -268,55 +270,55 @@ void BaseRenderer::draw(const StageItem& item)
             _device->setPrimitiveType(ia->_primitiveType);
             
             // set program
-            auto program = _programLib->getProgram(pass->_programName, *(item.defines));
+            auto program = _programLib->getProgram(pass._programName, *(item.defines));
             _device->setProgram(program);
             
             // cull mode
-            _device->setCullMode(pass->_cullMode);
+            _device->setCullMode(pass._cullMode);
             
             // blend
-            if (pass->_blend)
+            if (pass._blend)
             {
                 _device->enableBlend();
-                _device->setBlendFuncSeparate(pass->_blendSrc,
-                                              pass->_blendDst,
-                                              pass->_blendSrcAlpha,
-                                              pass->_blendDstAlpha);
-                _device->setBlendEquationSeparate(pass->_blendEq, pass->_blendAlphaEq);
-                _device->setBlendColor(pass->_blendColor);
+                _device->setBlendFuncSeparate(pass._blendSrc,
+                                              pass._blendDst,
+                                              pass._blendSrcAlpha,
+                                              pass._blendDstAlpha);
+                _device->setBlendEquationSeparate(pass._blendEq, pass._blendAlphaEq);
+                _device->setBlendColor(pass._blendColor);
             }
             
             // depth test & write
-            if (pass->_depthTest)
+            if (pass._depthTest)
             {
                 _device->enableDepthTest();
-                _device->setDepthFunc(pass->_depthFunc);
+                _device->setDepthFunc(pass._depthFunc);
             }
-            if (pass->_depthWrite)
+            if (pass._depthWrite)
                 _device->enableDepthWrite();
             
             // setencil
-            if (pass->_stencilTest)
+            if (pass._stencilTest)
             {
                 _device->enableStencilTest();
                 
                 // front
-                _device->setStencilFuncFront(pass->_stencilFuncFront,
-                                             pass->_stencilRefFront,
-                                             pass->_stencilMaskFront);
-                _device->setStencilOpFront(pass->_stencilFailOpFront,
-                                           pass->_stencilZFailOpFront,
-                                           pass->_stencilZPassOpFront,
-                                           pass->_stencilWriteMaskFront);
+                _device->setStencilFuncFront(pass._stencilFuncFront,
+                                             pass._stencilRefFront,
+                                             pass._stencilMaskFront);
+                _device->setStencilOpFront(pass._stencilFailOpFront,
+                                           pass._stencilZFailOpFront,
+                                           pass._stencilZPassOpFront,
+                                           pass._stencilWriteMaskFront);
                 
                 // back
-                _device->setStencilFuncBack(pass->_stencilFuncBack,
-                                            pass->_stencilRefBack,
-                                            pass->_stencilMaskBack);
-                _device->setStencilOpBack(pass->_stencilFailOpBack,
-                                          pass->_stencilZFailOpBack,
-                                          pass->_stencilZPassOpBack,
-                                          pass->_stencilWriteMaskBack);
+                _device->setStencilFuncBack(pass._stencilFuncBack,
+                                            pass._stencilRefBack,
+                                            pass._stencilMaskBack);
+                _device->setStencilOpBack(pass._stencilFailOpBack,
+                                          pass._stencilZFailOpBack,
+                                          pass._stencilZPassOpBack,
+                                          pass._stencilWriteMaskBack);
             }
             
             // draw pass
@@ -340,7 +342,7 @@ int BaseRenderer::allocTextureUnit()
     if (_usedTextureUnits >= maxTexureUnits)
         RENDERER_LOGW("Trying to use %d texture uints while this GPU only supports %d", _usedTextureUnits, maxTexureUnits);
     
-    return ++_usedTextureUnits;
+    return _usedTextureUnits++;
 }
 
 void BaseRenderer::reset()

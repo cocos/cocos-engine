@@ -147,6 +147,7 @@ namespace {
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
     self.image = [[[NSImage alloc] initWithSize:NSMakeSize(width, height)] autorelease];
+    [self clear];
 }
 
 -(NSSize) measureText:(NSString*) text {
@@ -276,9 +277,9 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-    assert(rect.origin.x == 0 && rect.origin.y == 0);
+//    assert(rect.origin.x == 0 && rect.origin.y == 0);
 //    NSLog(@"clearRect, image:%f, %f", _image.size.width, _image.size.height);
-    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
+//    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
 
     [_image lockFocus];
     [[NSColor clearColor] set];
@@ -301,6 +302,17 @@ namespace {
         uint8_t g = _fillStyle.g * 255.0f;
         uint8_t b = _fillStyle.b * 255.0f;
         fillRectWithColor(buffer, (uint32_t)_image.size.width, (uint32_t)_image.size.height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
+    }
+}
+
+-(void) clear {
+    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+    uint8_t* buffer = nullptr;
+    buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
+    if (buffer)
+    {
+        memset(buffer, 0x00, textureSize);
+        _imageData.fastSet(buffer, textureSize);
     }
 }
 
@@ -344,6 +356,8 @@ void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
     [_impl recreateBufferWithWidth: __width height:__height];
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
@@ -364,7 +378,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-//    SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     if (_isBufferSizeDirty)

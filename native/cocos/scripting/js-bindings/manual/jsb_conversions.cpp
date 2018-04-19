@@ -8,6 +8,7 @@
 
 #include "jsb_conversions.hpp"
 #include <sstream>
+#include <regex>
 
 // seval to native
 
@@ -351,39 +352,14 @@ bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
     }
     else
     {
-        se::Value tmp;
-        obj->getProperty("m00", &tmp);
-        mat->m[0] = tmp.toFloat();
-        obj->getProperty("m01", &tmp);
-        mat->m[1] = tmp.toFloat();
-        obj->getProperty("m02", &tmp);
-        mat->m[2] = tmp.toFloat();
-        obj->getProperty("m03", &tmp);
-        mat->m[3] = tmp.toFloat();
-        obj->getProperty("m04", &tmp);
-        mat->m[4] = tmp.toFloat();
-        obj->getProperty("m05", &tmp);
-        mat->m[5] = tmp.toFloat();
-        obj->getProperty("m06", &tmp);
-        mat->m[6] = tmp.toFloat();
-        obj->getProperty("m07", &tmp);
-        mat->m[7] = tmp.toFloat();
-        obj->getProperty("m08", &tmp);
-        mat->m[8] = tmp.toFloat();
-        obj->getProperty("m09", &tmp);
-        mat->m[9] = tmp.toFloat();
-        obj->getProperty("m10", &tmp);
-        mat->m[10] = tmp.toFloat();
-        obj->getProperty("m11", &tmp);
-        mat->m[11] = tmp.toFloat();
-        obj->getProperty("m12", &tmp);
-        mat->m[12] = tmp.toFloat();
-        obj->getProperty("m13", &tmp);
-        mat->m[13] = tmp.toFloat();
-        obj->getProperty("m14", &tmp);
-        mat->m[14] = tmp.toFloat();
-        obj->getProperty("m15", &tmp);
-        mat->m[15] = tmp.toFloat();
+        // typed array
+        assert(obj->isTypedArray());
+        
+        size_t length = 0;
+        uint8_t* ptr = nullptr;
+        obj->getTypedArrayData(&ptr, &length);
+        
+        memcpy(mat->m, ptr, length);
     }
 
     return true;
@@ -872,6 +848,83 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
         {
             SE_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Vec2(value, &pt), false, ret->clear());
             ret->push_back(pt);
+        }
+        return true;
+    }
+
+    ret->clear();
+    return false;
+}
+
+bool seval_to_Pass(const se::Value& passVal, cocos2d::renderer::Pass& pass)
+{
+    se::Object* passObj = passVal.toObject();
+
+    // program name
+    se::Value programNameVal;
+    passObj->getProperty("_programName", &programNameVal);
+    pass.setProgramName(programNameVal.toString());
+    
+    se::Value binaryVal;
+    passObj->getProperty("_binary", &binaryVal);
+    uint8_t* data = nullptr;
+    size_t length = 0;
+    binaryVal.toObject()->getTypedArrayData(&data, &length);
+    uint32_t* binary32 = (uint32_t*)data;
+
+    // cull mode
+    pass.setCullMode(static_cast<cocos2d::renderer::CullMode>(*binary32));
+    
+    // blend
+    pass.setBlend(static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 1)),     // blendEq
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 2)), // blendSrc
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 3)), // blendDst
+                  static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 4)),     // blendAlphaEq
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 5)), // blendSrcAlpha
+                  static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 6)), // blendDstAlpha
+                  *(binary32 + 7));                                              // blend color
+    
+    // depth
+    pass.setDepth(*(binary32 + 8), // depth test
+                  *(binary32 + 9), // depth write
+                  static_cast<cocos2d::renderer::DepthFunc>(*(binary32 + 10))); // depth func
+    
+    // stencil front
+    pass.setStencilFront(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 11)),  // stencilFuncFront
+                         *(binary32 + 12),                                               // stencilRefFront
+                         *(binary32 + 13),                                               // stencilMaskFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 14)),    // stencilFailOpFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 15)),    // stencilZFailOpFront
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 16)),    // stencilZPassOpFront
+                         *(binary32 + 17));                                              // stencilWrtieMaskFront
+    
+    // stencil back
+    pass.setStencilBack(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 18)), // stencilFuncBack
+                        *(binary32 + 19),                                              // stencilRefBack
+                        *(binary32 + 20),                                              // stencilMaskBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 21)),   // stencilFailOpBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 22)),   // stencilZFailOpBack
+                        static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 23)),   // stencilZFailOpBack
+                        *(binary32 + 24));                                             // stencilWrtieMaskBack
+    
+    return true;
+}
+
+bool seval_to_std_vector_Pass(const se::Value& v, std::vector<cocos2d::renderer::Pass>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    uint32_t len = 0;
+    if (obj->getArrayLength(&len))
+    {
+        se::Value value;
+        cocos2d::renderer::Pass pt;
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            SE_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Pass(value, pt), false, ret->clear());
+            ret->push_back(std::move(pt));
         }
         return true;
     }
@@ -1874,10 +1927,10 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
 
         if (obj->getProperty("type", &tmp))
         {
-            uint8_t v = 0;
-            ok = seval_to_uint8(tmp, &v);
+            uint8_t typeValue = 0;
+            ok = seval_to_uint8(tmp, &typeValue);
             SE_PRECONDITION2(ok, false, "Convert Parameter type failed!");
-            type = (cocos2d::renderer::Technique::Parameter::Type)v;
+            type = (cocos2d::renderer::Technique::Parameter::Type)typeValue;
         }
 
         if (obj->getProperty("size", &tmp))
@@ -2038,6 +2091,17 @@ bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<coco
     return true;
 }
 
+namespace
+{
+    void adjustShaderSource(std::string& shaderSource)
+    {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+        shaderSource = std::regex_replace(shaderSource, std::regex("precision\\s+(lowp|mediump|highp)\\s+float\\s*?;"), "");
+        shaderSource = std::regex_replace(shaderSource, std::regex("\\s(lowp|mediump|highp)\\s"), " ");
+#endif
+    }
+}
+
 bool seval_to_ProgramLib_Template(const se::Value& v, cocos2d::renderer::ProgramLib::Template* ret)
 {
     assert(ret != nullptr);
@@ -2063,12 +2127,14 @@ bool seval_to_ProgramLib_Template(const se::Value& v, cocos2d::renderer::Program
     {
         ok = seval_to_std_string(tmp, &ret->vert);
         SE_PRECONDITION2(ok, false, "Convert vert failed!");
+        adjustShaderSource(ret->vert);
     }
 
     if (obj->getProperty("frag", &tmp))
     {
         ok = seval_to_std_string(tmp, &ret->frag);
         SE_PRECONDITION2(ok, false, "Convert frag failed!");
+        adjustShaderSource(ret->frag);
     }
 
     if (obj->getProperty("defines", &tmp))
@@ -2572,6 +2638,204 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
     return ok;
 }
 
+namespace
+{
+    enum class DataType
+    {
+        INT,
+        FLOAT
+    };
+    
+    void toVec2(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec2 vec2;
+        if (DataType::INT == type)
+        {
+            vec2.x = *intptr;
+            vec2.y = *(intptr + 1);
+        }
+        else
+        {
+            vec2.x = *floatptr;
+            vec2.y = *(floatptr + 1);
+        }
+        
+        Vec2_to_seval(vec2, ret);
+    }
+    
+    void toVec3(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec3 vec3;
+        if (DataType::INT == type)
+        {
+            vec3.x = *intptr;
+            vec3.y = *(intptr + 1);
+            vec3.z = *(intptr + 2);
+        }
+        else
+        {
+            vec3.x = *floatptr;
+            vec3.y = *(floatptr + 1);
+            vec3.z = *(floatptr + 2);
+        }
+        
+        Vec3_to_seval(vec3, ret);
+    }
+    
+    void toVec4(void* data, DataType type, se::Value* ret)
+    {
+        int32_t* intptr = (int32_t*)data;
+        float* floatptr = (float*)data;
+        cocos2d::Vec4 vec4;
+        if (DataType::INT == type)
+        {
+            vec4.x = *intptr;
+            vec4.y = *(intptr + 1);
+            vec4.z = *(intptr + 2);
+            vec4.w = *(intptr + 3);
+        }
+        else
+        {
+            vec4.x = *floatptr;
+            vec4.y = *(floatptr + 1);
+            vec4.z = *(floatptr + 2);
+            vec4.w = *(floatptr + 3);
+        }
+        
+        Vec4_to_seval(vec4, ret);
+    }
+    
+    void toMat(float* data, int num, se::Value* ret)
+    {
+        se::HandleObject obj(se::Object::createPlainObject());
+        
+        char propName[4] = {0};
+        for (int i  = 0; i < num; ++i)
+        {
+            if (i < 10)
+                snprintf(propName, 3, "m0%d", i);
+            else
+                snprintf(propName, 3, "m%d", i);
+            
+            obj->setProperty(propName, se::Value(*(data + i)));
+        }
+        ret->setObject(obj);
+    }
+}
+
+
+bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    
+    auto type = v.getType();
+    if (type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D || type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE)
+    {
+        auto count = v.getCount();
+        if (0 == count)
+        {
+            *ret = se::Value::Null;
+        }
+        else if (1 == count)
+        {
+            se::Value val;
+            native_ptr_to_seval<cocos2d::renderer::Texture>(v.getTexture(), &val);
+            *ret = val;
+        }
+        else
+        {
+            auto texArray = v.getTextureArray();
+            se::HandleObject arr(se::Object::createArrayObject(count));
+            for (uint8_t i = 0; i < count; ++i)
+            {
+                se::Value val;
+                native_ptr_to_seval<cocos2d::renderer::Texture>(texArray[0], &val);
+                arr->setArrayElement(i, val);
+            }
+            ret->setObject(arr);
+        }
+    }
+    else
+    {
+        void* data = v.getValue();
+
+        switch (type) {
+            case cocos2d::renderer::Technique::Parameter::Type::INT:
+                ret->setInt32(*((int32_t*)data));
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT2:
+                toVec2(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT3:
+                toVec3(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::INT4:
+                toVec4(data, DataType::INT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT:
+                ret->setFloat(*((float*)data));
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT2:
+                toVec2(data, DataType::FLOAT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT3:
+                toVec3(data, DataType::FLOAT, ret);
+            case cocos2d::renderer::Technique::Parameter::Type::FLOAT4:
+                toVec4(data, DataType::FLOAT, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT2:
+                toMat((float*)data, 4, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT3:
+                toMat((float*)data, 9, ret);
+                break;
+            case cocos2d::renderer::Technique::Parameter::Type::MAT4:
+                toMat((float*)data, 16, ret);
+                break;
+            default:
+                assert(false);
+                break;
+        }
+    }
+    
+    return true;
+}
+
+bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    
+    se::HandleObject obj(se::Object::createPlainObject());
+    bool ok = true;
+    for (const auto& e : v)
+    {
+        const std::string& key = e.first;
+        const cocos2d::renderer::Effect::Property& value = e.second;
+        
+        if (key.empty())
+            continue;
+        
+        se::Value tmp;
+        if (!EffectProperty_to_seval(value, &tmp))
+        {
+            ok = false;
+            ret->setUndefined();
+            break;
+        }
+        
+        obj->setProperty(key.c_str(), tmp);
+    }
+    
+    if (ok)
+        ret->setObject(obj);
+    
+    return ok;
+}
+
 //FIXME: why v has to be a pointer?
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret)
 //{
@@ -2704,9 +2968,15 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
 {
     assert(ret != nullptr);
-    assert(!v.isNull());
-    se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
-    ret->setObject(obj);
+    if (v.isNull())
+    {
+        ret->setNull();
+    }
+    else
+    {
+        se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
+        ret->setObject(obj);
+    }
     return true;
 }
 
@@ -3099,165 +3369,23 @@ bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* 
     return true;
 }
 
-namespace
-{
-    enum class DataType
-    {
-        INT,
-        FLOAT
-    };
-    
-    void toVec2(void* data, DataType type, se::Value* ret)
-    {
-        int32_t* intptr = (int32_t*)data;
-        float* floatptr = (float*)data;
-        cocos2d::Vec2 vec2;
-        if (DataType::INT == type)
-        {
-            vec2.x = *intptr;
-            vec2.y = *(intptr + 1);
-        }
-        else
-        {
-            vec2.x = *floatptr;
-            vec2.y = *(floatptr + 1);
-        }
-        
-        Vec2_to_seval(vec2, ret);
-    }
-    
-    void toVec3(void* data, DataType type, se::Value* ret)
-    {
-        int32_t* intptr = (int32_t*)data;
-        float* floatptr = (float*)data;
-        cocos2d::Vec3 vec3;
-        if (DataType::INT == type)
-        {
-            vec3.x = *intptr;
-            vec3.y = *(intptr + 1);
-            vec3.z = *(intptr + 2);
-        }
-        else
-        {
-            vec3.x = *floatptr;
-            vec3.y = *(floatptr + 1);
-            vec3.z = *(floatptr + 2);
-        }
-        
-        Vec3_to_seval(vec3, ret);
-    }
-    
-    void toVec4(void* data, DataType type, se::Value* ret)
-    {
-        int32_t* intptr = (int32_t*)data;
-        float* floatptr = (float*)data;
-        cocos2d::Vec4 vec4;
-        if (DataType::INT == type)
-        {
-            vec4.x = *intptr;
-            vec4.y = *(intptr + 1);
-            vec4.z = *(intptr + 2);
-            vec4.w = *(intptr + 3);
-        }
-        else
-        {
-            vec4.x = *floatptr;
-            vec4.y = *(floatptr + 1);
-            vec4.z = *(floatptr + 2);
-            vec4.w = *(floatptr + 3);
-        }
-        
-        Vec4_to_seval(vec4, ret);
-    }
-    
-    void toMat(float* data, int num, se::Value* ret)
-    {
-        se::HandleObject obj(se::Object::createPlainObject());
-        
-        char propName[4] = {0};
-        for (int i  = 0; i < num; ++i)
-        {
-            if (i < 10)
-                snprintf(propName, 3, "m0%d", i);
-            else
-                snprintf(propName, 3, "m%d", i);
-            
-            obj->setProperty(propName, se::Value(*(data + i)));
-        }
-        ret->setObject(obj);
-    }
-}
-
 bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret)
 {
     assert(ret != nullptr);
 
+    // type
+    se::Object* param = se::Object::createPlainObject();
+    se::Value typeVal;
     auto type = v.getType();
-    if (type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D || type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE)
-    {
-        auto count = v.getCount();
-        if (count > 1)
-        {
-            auto texArray = v.getTextureArray();
-            se::HandleObject arr(se::Object::createArrayObject(count));
-            for (uint8_t i = 0; i < count; ++i)
-            {
-                se::Value val;
-                native_ptr_to_seval<cocos2d::renderer::Texture>(texArray[0], &val);
-                arr->setArrayElement(i, val);
-            }
-            ret->setObject(arr);
-        }
-        else
-        {
-            se::Value val;
-            native_ptr_to_seval<cocos2d::renderer::Texture>(v.getTexture(), &val);
-            *ret = val;
-        }
-    }
-    else
-    {
-        void* data = v.getValue();
-        
-        switch (type) {
-            case cocos2d::renderer::Technique::Parameter::Type::INT:
-                ret->setInt32(*((int32_t*)data));
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::INT2:
-                toVec2(data, DataType::INT, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::INT3:
-                toVec3(data, DataType::INT, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::INT4:
-                toVec4(data, DataType::INT, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::FLOAT:
-                ret->setFloat(*((float*)data));
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::FLOAT2:
-                toVec2(data, DataType::FLOAT, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::FLOAT3:
-                toVec3(data, DataType::FLOAT, ret);
-            case cocos2d::renderer::Technique::Parameter::Type::FLOAT4:
-                toVec4(data, DataType::FLOAT, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::MAT2:
-                toMat((float*)data, 4, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::MAT3:
-                toMat((float*)data, 9, ret);
-                break;
-            case cocos2d::renderer::Technique::Parameter::Type::MAT4:
-                toMat((float*)data, 16, ret);
-                break;
-            default:
-                assert(false);
-                break;
-        }
-    }
-
+    int32_to_seval((int32_t)type, &typeVal);
+    param->setProperty("type", typeVal);
+    
+    // name
+    se::Value nameVal;
+    std_string_to_seval(v.getName(), &nameVal);
+    param->setProperty("name", nameVal);
+    
+    ret->setObject(param);
     return true;
 }
 
@@ -3270,13 +3398,30 @@ bool std_vector_TechniqueParameter_to_seval(const std::vector<cocos2d::renderer:
     uint32_t i = 0;
     for (const auto& param : v)
     {
-        se::Value out;
-        if (TechniqueParameter_to_seval(param, &out))
-        {
-            arr->setArrayElement(i, out);
-            ++i;
-        }
+        se::Value out = se::Value::Null;
+        TechniqueParameter_to_seval(param, &out);
+        arr->setArrayElement(i, out);
+        ++i;
     }
+    return true;
+}
+
+bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    se::HandleObject arr(se::Object::createArrayObject(v.size()));
+    ret->setObject(arr);
+    
+    uint32_t i  = 0;
+    for (const auto&valueMap : v)
+    {
+        se::Value out = se::Value::Null;
+        ccvaluemap_to_seval(valueMap, &out);
+        arr->setArrayElement(i, out);
+        
+        ++i;
+    }
+    
     return true;
 }
 

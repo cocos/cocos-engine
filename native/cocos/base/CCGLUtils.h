@@ -24,23 +24,18 @@
 
 #pragma once
 
-#include "BaseRenderer.h"
+#include "base/ccMacros.h"
+#include "platform/CCGL.h"
 
-RENDERER_BEGIN
+NS_CC_BEGIN
 
-class ForwardRenderer final : public BaseRenderer
-{
-public:
-    ForwardRenderer();
+void ccInvalidateStateCache();
 
-    bool init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture, int width, int height);
-    void render(Scene* scene);
+void ccBindBuffer(GLenum target, GLuint buffer);
+void ccDeleteBuffers(GLsizei n, const GLuint *buffers);
 
-private:
-    void transparentStage(const View& view, const std::vector<StageItem>& items);
+void ccActiveTexture(GLenum texture);
+void ccBindTexture(GLenum target, GLuint texture);
+void ccDeleteTextures(GLsizei n, const GLuint *textures);
 
-    int _width = 0;
-    int _height = 0;
-};
-
-RENDERER_END
+NS_CC_END

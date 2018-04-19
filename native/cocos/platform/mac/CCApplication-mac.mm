@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
+#include "base/CCGLUtils.h"
 #import "platform/CCApplication.h"
 #import "platform/desktop/CCGLView-desktop.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
@@ -67,9 +68,8 @@ Application::Application(const std::string& name)
     _scheduler = new Scheduler();
     
     createView(name);
-
-    //TODO: Runtime doesn't need renderer stuff temporarily.
-//    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
+    
+    renderer::DeviceGraphics::setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
@@ -91,6 +91,8 @@ Application::~Application()
 
 void Application::start()
 {
+    ccInvalidateStateCache();
+
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
     
@@ -207,8 +209,8 @@ void Application::onCreateView(int&x, int& y, int& width, int& height, PixelForm
 {
     x = 0;
     y = 0;
-    width = 960;
-    height = 640;
+    width = 640;
+    height = 960;
     
     pixelformat = PixelFormat::RGBA8;
     depthFormat = DepthFormat::DEPTH24_STENCIL8;

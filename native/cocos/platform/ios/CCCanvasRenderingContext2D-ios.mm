@@ -25,8 +25,8 @@ enum class CanvasTextBaseline {
 namespace {
     void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
     {
-        assert(x + width <= totalWidth);
-        assert(y + height <=  totalHeight);
+        if ((x + width) > totalWidth || (y + height) > totalHeight)
+            return;
 
         uint32_t y0 = totalHeight - (y + height);
         uint32_t y1 = totalHeight - y;
@@ -198,7 +198,7 @@ namespace {
 
 -(CGPoint) convertDrawPoint:(CGPoint) point text:(NSString*) text {
     CGSize textSize = [self measureText:text];
-    NSLog(@"textSize: %f, %f", textSize.width, textSize.height);
+//    NSLog(@"textSize: %f, %f", textSize.width, textSize.height);
 
     if (_textAlign == CanvasTextAlign::CENTER)
     {
@@ -285,7 +285,7 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-    assert(rect.origin.x == 0 && rect.origin.y == 0);
+//    assert(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
@@ -325,14 +325,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
+//    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
     [_impl recreateBufferWithWidth:width height:height];
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
+//    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     [_impl release];
 }
 
@@ -340,11 +340,13 @@ void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
     [_impl recreateBufferWithWidth: __width height:__height];
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
-    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+//    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     [_impl clearRect:CGRectMake(x, y, width, height)];
 }
 
@@ -360,7 +362,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-    SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     if (_isBufferSizeDirty)
@@ -373,7 +375,7 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
 {
-    SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     if (_isBufferSizeDirty)
@@ -385,7 +387,7 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
 {
-    SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
+//    SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
     CGSize size = [_impl measureText: [NSString stringWithUTF8String:text.c_str()]];
     return cocos2d::Size(size.width, size.height);
 }
@@ -437,7 +439,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
 
 void CanvasRenderingContext2D::set__width(float width)
 {
-    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
+//    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     __width = width;
     _isBufferSizeDirty = true;
     recreateBuffer();
@@ -445,7 +447,7 @@ void CanvasRenderingContext2D::set__width(float width)
 
 void CanvasRenderingContext2D::set__height(float height)
 {
-    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
+//    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     __height = height;
     _isBufferSizeDirty = true;
     recreateBuffer();
@@ -488,7 +490,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
 
 void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 {
-    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
+//    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left")
     {
         _impl.textAlign = CanvasTextAlign::LEFT;
@@ -509,7 +511,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 
 void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
 {
-    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
+//    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top")
     {
         _impl.textBaseLine = CanvasTextBaseline::TOP;
@@ -532,7 +534,7 @@ void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
 {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
     [_impl setFillStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
-    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
+//    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)

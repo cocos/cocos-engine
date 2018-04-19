@@ -37,10 +37,19 @@
                     } \
                 } while(false)
 
+#define _JSB_GL_CHECK_VOID(_call) \
+                do { \
+                    _call; \
+                    GLenum gl_err = glGetError(); \
+                    if (0 != gl_err) { \
+                        SE_REPORT_ERROR(#_call "; GL error 0x%x: %s", gl_err, glEnumName(gl_err)); \
+                    } \
+                } while(false)
 
 #if COCOS2D_DEBUG > 0
-#   define JSB_GL_CHECK(_call)   _JSB_GL_CHECK(_call)
-#   define JSB_GL_CHECK_ERROR() \
+    #define JSB_GL_CHECK(_call)   _JSB_GL_CHECK(_call)
+    #define JSB_GL_CHECK_VOID(_call)   _JSB_GL_CHECK_VOID(_call)
+    #define JSB_GL_CHECK_ERROR() \
                 do { \
                     GLenum gl_err = glGetError(); \
                     if (0 != gl_err) { \
@@ -49,6 +58,7 @@
                     } \
                 } while(false)
 #else
-#   define JSB_GL_CHECK(_call)   _call
-#   define JSB_GL_CHECK_ERROR() 
+    #define JSB_GL_CHECK(_call)   _call
+    #define JSB_GL_CHECK_VOID(_call)   _call
+    #define JSB_GL_CHECK_ERROR() 
 #endif // BRENDERER_CONFIG_DEBUG

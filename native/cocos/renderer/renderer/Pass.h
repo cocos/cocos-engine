@@ -31,11 +31,12 @@
 
 RENDERER_BEGIN
 
-class Pass : public Ref
+class Pass
 {
 public:
     Pass(const std::string& programName);
-    virtual ~Pass();
+    Pass() {}
+    ~Pass();
     
     void setCullMode(CullMode cullMode);
     void setBlend(BlendOp blendEq = BlendOp::ADD,
@@ -64,6 +65,7 @@ public:
                         uint8_t stencilWriteMask = 0xff);
     inline void setStencilTest(bool value) { _stencilTest = value; }
     inline bool getStencilTest() const { return _stencilTest; }
+    inline void setProgramName(const std::string& programName) { _programName = programName; }
     
 private:
     friend class BaseRenderer;

@@ -57,7 +57,7 @@ public:
         Technique* technique = nullptr;
         int sortKey = -1;
     };
-    typedef std::function<void(const View*, const std::vector<StageItem>&)> StageCallback;
+    typedef std::function<void(const View&, const std::vector<StageItem>&)> StageCallback;
 
     BaseRenderer();
     
@@ -69,12 +69,12 @@ public:
     ProgramLib* getProgramLib() const { return _programLib; }
     
 protected:
-    void render(const View*, const Scene* scene);
+    void render(const View&, const Scene* scene);
     void draw(const StageItem& item);
     
     struct StageInfo
     {
-        std::vector<StageItem> items;
+        std::vector<StageItem>* items;
         std::string stage = "";
     };
     

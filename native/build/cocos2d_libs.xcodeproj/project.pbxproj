@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A14FD912080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
+		1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
+		1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A14FD902080B4E300E10ABE /* CCGLUtils.h */; };
+		1A14FD942080B4E300E10ABE /* CCGLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A14FD902080B4E300E10ABE /* CCGLUtils.h */; };
 		1A28FF4D1F20AFAB007A1D9D /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */; };
 		1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */; };
 		1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -1016,6 +1020,8 @@
 /* Begin PBXFileReference section */
 		1551A33F158F2AB200E66CFE /* libcocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1551A342158F2AB200E66CFE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CCGLUtils.cpp; sourceTree = "<group>"; };
+		1A14FD902080B4E300E10ABE /* CCGLUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCGLUtils.h; sourceTree = "<group>"; };
 		1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRDelegateController.h; sourceTree = "<group>"; };
 		1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
 		1A28FF221F20AFAB007A1D9D /* SRIOConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumer.h; sourceTree = "<group>"; };
@@ -2264,6 +2270,8 @@
 				46FDDB43202ADDCE00931238 /* CCValue.cpp */,
 				46FDDB44202ADDCE00931238 /* firePngData.h */,
 				46FDDB45202ADDCE00931238 /* ccCArray.h */,
+				1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */,
+				1A14FD902080B4E300E10ABE /* CCGLUtils.h */,
 			);
 			name = base;
 			path = ../cocos/base;
@@ -2981,6 +2989,7 @@
 				1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
 				469301CF203FC696004A3D6C /* CCConfiguration.h in Headers */,
+				1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */,
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
 				ED30577F1BEC76C90083C3ED /* ioapi_mem.h in Headers */,
 				4617864B20522469008256E1 /* HttpCookie.h in Headers */,
@@ -3209,6 +3218,7 @@
 				46FDDC30202AEAC500931238 /* Assertions.h in Headers */,
 				4617862620522469008256E1 /* CCDownloader.h in Headers */,
 				46FDDBD2202ADDCE00931238 /* ccUTF8.h in Headers */,
+				1A14FD942080B4E300E10ABE /* CCGLUtils.h in Headers */,
 				46FDDC2A202AEAC500931238 /* Casting.h in Headers */,
 				50ABBD5F1925AB0000A911A9 /* Vec3.h in Headers */,
 				46FDDC02202ADDCE00931238 /* ccCArray.h in Headers */,
@@ -3395,6 +3405,7 @@
 				BA68D78D1D62F4A500B7A3F9 /* sweep.cc in Sources */,
 				4693042E2046AE06004A3D6C /* jsb_helper.cpp in Sources */,
 				1A52DB31205BCD9200350EE3 /* inspector_agent.cc in Sources */,
+				1A14FD912080B4E300E10ABE /* CCGLUtils.cpp in Sources */,
 				469303A02046AE05004A3D6C /* ScriptEngine.mm in Sources */,
 				46FDDAB5202ACC6A00931238 /* Program.cpp in Sources */,
 				46FDDBF9202ADDCE00931238 /* etc1.cpp in Sources */,
@@ -3646,6 +3657,7 @@
 				469304092046AE06004A3D6C /* jsb_global.cpp in Sources */,
 				46FDDA70202ACC6A00931238 /* Pass.cpp in Sources */,
 				1A52DB7A205BCDD000350EE3 /* ScriptEngine.cpp in Sources */,
+				1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */,
 				46FDDBBA202ADDCE00931238 /* CCNS.cpp in Sources */,
 				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
 				46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */,
@@ -3883,6 +3895,7 @@
 					"\"$(SRCROOT)/../external/mac/libs\"",
 				);
 				MACH_O_TYPE = staticlib;
+				OTHER_CFLAGS = "-DCC_NEW_RENDERER";
 				OTHER_LDFLAGS = "-llibsql3";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/mac/include $(SRCROOT)/../external/sources $(SRCROOT)/../external/mac/include/freetype $(SRCROOT)/../external/mac/include/spidermonkey $(SRCROOT)/../external/mac/include/chakracore $(SRCROOT)/../external/mac/include/v8";
 			};
@@ -3932,6 +3945,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DCC_NEW_RENDERER";
 				OTHER_LDFLAGS = "-llibsql3";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

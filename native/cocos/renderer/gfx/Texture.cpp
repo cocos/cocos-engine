@@ -24,6 +24,7 @@
 
 #include "Texture.h"
 #include "platform/CCPlatformConfig.h"
+#include "base/CCGLUtils.h"
 
 namespace {
 
@@ -196,7 +197,7 @@ Texture::~Texture()
         return;
     }
 
-    glDeleteTextures(1, &_glID);
+    ccDeleteTextures(1, &_glID);
 
     //TODO:    this._device._stats.tex -= this.bytes;
 }

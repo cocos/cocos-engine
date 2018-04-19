@@ -557,6 +557,16 @@ Camera : function (
 renderer.Technique = {
 
 /**
+ * @method getPasses
+ * @return {Array}
+ */
+getPasses : function (
+)
+{
+    return new Array();
+},
+
+/**
  * @method getStageIDs
  * @return {unsigned int}
  */
@@ -586,16 +596,6 @@ setStages : function (
 array 
 )
 {
-},
-
-/**
- * @method getPasses
- * @return {Array}
- */
-getPasses : function (
-)
-{
-    return new Array();
 },
 
 /**
@@ -642,18 +642,6 @@ str
 )
 {
     return cc.Value;
-},
-
-/**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.renderer::Technique::Parameter}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.renderer::Technique::Parameter;
 },
 
 /**

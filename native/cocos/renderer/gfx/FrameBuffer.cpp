@@ -24,6 +24,7 @@
 
 #include "FrameBuffer.h"
 #include "RenderTarget.h"
+#include "base/CCGLUtils.h"
 
 RENDERER_BEGIN
 
@@ -51,7 +52,7 @@ FrameBuffer::~FrameBuffer()
         return;
     }
 
-    glDeleteBuffers(1, &_glID);
+    ccDeleteBuffers(1, &_glID);
     //TODO:    _device._stats.ib -= _bytes;
 }
 

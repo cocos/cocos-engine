@@ -32,10 +32,54 @@ InputAssembler::InputAssembler()
 {
 }
 
+InputAssembler::InputAssembler(const InputAssembler& o)
+{
+    *this = o;
+}
+
+InputAssembler::InputAssembler(InputAssembler&& o)
+{
+    *this = std::move(o);
+}
+
 InputAssembler::~InputAssembler()
 {
     RENDERER_SAFE_RELEASE(_vertexBuffer);
     RENDERER_SAFE_RELEASE(_indexBuffer);
+}
+
+InputAssembler& InputAssembler::operator=(const InputAssembler& o)
+{
+    CC_SAFE_RELEASE(_vertexBuffer);
+    CC_SAFE_RELEASE(_indexBuffer);
+    
+    _vertexBuffer = o._vertexBuffer;
+    _indexBuffer = o._indexBuffer;
+    _start = o._start;
+    _count = o._count;
+    _primitiveType = o._primitiveType;
+    
+    CC_SAFE_RETAIN(_vertexBuffer);
+    CC_SAFE_RETAIN(_indexBuffer);
+    
+    return *this;
+}
+
+InputAssembler& InputAssembler::operator=(InputAssembler&& o)
+{
+    CC_SAFE_RELEASE(_vertexBuffer);
+    CC_SAFE_RELEASE(_indexBuffer);
+    
+    _vertexBuffer = o._vertexBuffer;
+    _indexBuffer = o._indexBuffer;
+    _start = o._start;
+    _count = o._count;
+    _primitiveType = o._primitiveType;
+    
+    o._indexBuffer = nullptr;
+    o._vertexBuffer = nullptr;
+    
+    return *this;
 }
 
 bool InputAssembler::init(VertexBuffer* vb,

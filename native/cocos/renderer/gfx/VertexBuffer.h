@@ -37,20 +37,20 @@ class DeviceGraphics;
 class VertexBuffer final : public GraphicsHandle
 {
 public:
-    RENDERER_DEFINE_CREATE_METHOD_6(VertexBuffer, init,  DeviceGraphics*, const VertexFormat&, Usage, const void*, size_t, uint32_t)
+    RENDERER_DEFINE_CREATE_METHOD_6(VertexBuffer, init,  DeviceGraphics*, VertexFormat*, Usage, const void*, size_t, uint32_t)
 
     VertexBuffer();
     virtual ~VertexBuffer();
 
-    bool init(DeviceGraphics* device, const VertexFormat& format, Usage usage, const void* data, size_t dataByteLength, uint32_t numVertices);
+    bool init(DeviceGraphics* device, VertexFormat* format, Usage usage, const void* data, size_t dataByteLength, uint32_t numVertices);
     void update(uint32_t offset, const void* data, size_t dataByteLength);
 
     inline uint32_t getCount() const { return _numVertices; }
     inline void setCount(uint32_t numVertices) { _numVertices = numVertices; }
 
-    inline const VertexFormat& getFormat() const { return _format; };
-    inline void setFormat(VertexFormat&& format) { _format = std::move(format); }
-    inline void setFormat(const VertexFormat& format) { _format = format; }
+    inline const VertexFormat& getFormat() const { return *_format; }
+//    inline void setFormat(VertexFormat&& format) { _format = std::move(format); }
+    void setFormat(VertexFormat* format);
 
     inline Usage getUsage() const { return _usage; }
     inline void setUsage(Usage usage) { _usage = usage; }
@@ -68,10 +68,12 @@ public:
         }
         return _fetchDataCallback(bytes);
     }
+    
+    void destroy();
 
 private:
     DeviceGraphics* _device;
-    VertexFormat _format;
+    VertexFormat* _format;
     Usage _usage;
     uint32_t _numVertices;
     uint32_t _bytes;

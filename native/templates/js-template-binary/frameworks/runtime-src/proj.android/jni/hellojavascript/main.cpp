@@ -41,7 +41,7 @@ using namespace cocos2d;
 using namespace anysdk::framework;
 #endif
 
-void cocos_android_app_init (JNIEnv* env) {
+Application* cocos_android_app_init (JNIEnv* env) {
     LOGD("cocos_android_app_init");
     AppDelegate *pAppDelegate = new AppDelegate();
 #if PACKAGE_AS
@@ -49,6 +49,7 @@ void cocos_android_app_init (JNIEnv* env) {
     env->GetJavaVM(&vm);
     PluginJniHelper::setJavaVM(vm);
 #endif
+    return pAppDelegate;
 }
 
 

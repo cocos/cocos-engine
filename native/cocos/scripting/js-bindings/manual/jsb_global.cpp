@@ -599,6 +599,8 @@ static bool js_loadImage(se::State& s)
         }
         else
         {
+            if (0 == path.find("file://"))
+                path = path.substr(strlen("file://"));
             fullPath = FileUtils::getInstance()->fullPathForFilename(path);
             if (fullPath.empty())
             {
@@ -764,7 +766,13 @@ bool jsb_register_global_variables(se::Object* global)
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
     getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
-    getOrCreatePlainObject_r("gl", global, &__glObj);
+
+    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
+    glContextCls->install();
+
+    SAFE_DEC_REF(__glObj);
+    __glObj = se::Object::createObjectWithClass(glContextCls);
+    global->setProperty("__gl", se::Value(__glObj));
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
