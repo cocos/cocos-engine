@@ -103,6 +103,7 @@ void ccBindBuffer(GLenum target, GLuint buffer)
 
 void ccDeleteBuffers(GLsizei n, const GLuint *buffers)
 {
+#if CC_ENABLE_GL_STATE_CACHE
     for (GLsizei i = 0; i < n; ++i)
     {
         if (buffers[i] == __currentArrayBufferId)
@@ -110,6 +111,7 @@ void ccDeleteBuffers(GLsizei n, const GLuint *buffers)
         else if (buffers[i] == __currentElementArrayBufferId)
             __currentElementArrayBufferId = -1;
     }
+#endif
     glDeleteBuffers(n, buffers);
 }
 
