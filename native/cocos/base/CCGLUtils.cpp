@@ -27,6 +27,7 @@
 
 NS_CC_BEGIN
 
+//FIXME: Consider to use variable to enable/disable cache state since using macro will not be able to close it if there're serious bugs.
 // #undef CC_ENABLE_GL_STATE_CACHE
 // #define CC_ENABLE_GL_STATE_CACHE 0
 
