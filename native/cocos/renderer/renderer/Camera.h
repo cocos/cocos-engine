@@ -67,34 +67,34 @@ public:
     inline void setFar(float far) { _far = far; }
     
     inline void getColor(Color4F& out) const { out = _color; }
-    inline void setColor(float r, float g, float b, float a) { _color.set(r, g, b, a); }
+    void setColor(float r, float g, float b, float a);
     
     inline float getDepth() const { return _depth; }
-    inline void setDepth(float depth) { _depth = depth; }
+    void setDepth(float depth);
     
     inline int getStencil() const { return _stencil; }
-    inline void setStencil(int stencil) { _stencil = stencil; }
+    void setStencil(int stencil);
     
     inline uint8_t getClearFlags() const { return _clearFlags; }
-    inline void setClearFlags(uint8_t flags ) { _clearFlags = flags; }
+    void setClearFlags(uint8_t flags );
     
     inline Rect* getRect(Rect& out) const { out = _rect; return &out; }
-    inline void setRect(float x, float y, float w, float h) { _rect.set(x, y, w, h); }
+    void setRect(float x, float y, float w, float h);
     
     inline const std::vector<std::string>& getStages() const { return _stages; }
-    inline void setStages(const std::vector<std::string>& stages) { _stages = stages; }
+    void setStages(const std::vector<std::string>& stages);
     
     inline FrameBuffer* getFrameBuffer() const { return _framebuffer; }
     void setFrameBuffer(FrameBuffer* framebuffer);
     
     void setWorldMatrix(const Mat4& worldMatrix);
     
-    void extractView(View& out, int width, int height) const;
+    const View& extractView(int width, int height);
     
     Vec3& screenToWorld(Vec3& out, const Vec3& screenPos, int width, int height) const;
     Vec3& worldToScreen(Vec3& out, const Vec3& worldPos, int width, int height) const;
 
-    inline void setNode(INode* node) { _node = node; }
+    void setNode(INode* node);
     inline INode* getNode() const { return _node; }
     
 private:
@@ -122,6 +122,8 @@ private:
     
     Mat4 _worldRTInv;
     Vec3 _worldPos;
+    
+    View _cachedView;
 };
 
 RENDERER_END

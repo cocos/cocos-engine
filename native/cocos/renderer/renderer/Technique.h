@@ -109,16 +109,16 @@ public:
     
     Technique(const std::vector<std::string>& stages,
               const std::vector<Parameter>& parameters,
-              const Vector<Pass*>& passes,
+              const std::vector<Pass>& passes,
               int layer = 0);
 
-    virtual ~Technique();
+    ~Technique();
     
     void setStages(const std::vector<std::string>& stages);
-    void setPass(int index, Pass* pass);
+    void setPass(int index, const Pass& pass);
 
     const std::vector<Parameter>& getParameters() const { return _parameters; }
-    const Vector<Pass*>& getPasses() const { return _passes; }
+    const std::vector<Pass>& getPasses() const { return _passes; }
     uint32_t getStageIDs() const { return _stageIDs; }
     
 private:
@@ -128,7 +128,7 @@ private:
     uint32_t _stageIDs = 0;
     int _layer = 0;
     std::vector<Parameter> _parameters;
-    Vector<Pass*> _passes;
+    std::vector<Pass> _passes;
 };
 
 RENDERER_END

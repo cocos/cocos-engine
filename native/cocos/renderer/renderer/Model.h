@@ -25,8 +25,10 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include "base/CCVector.h"
 #include "base/CCValue.h"
+#include "base/ccCArray.h"
 #include "math/Mat4.h"
 #include "../Macro.h"
 
@@ -39,14 +41,25 @@ class INode;
 
 struct DrawItem
 {
-    INode* node = nullptr;
     Model* model = nullptr;
     InputAssembler* ia = nullptr;
     Effect* effect = nullptr;
-    ValueMap* defines;
+    ValueMap* defines = nullptr;
 };
 
-class Model : public Ref
+class Model;
+
+class ModelPool
+{
+public:
+    static Model* getOrCreateModel();
+    static void returnModel(Model*);
+    
+private:
+    static ccCArray* _pool;;
+};
+
+class Model
 {
 public:
     Model();
@@ -58,28 +71,27 @@ public:
     inline void setDynamicIA(bool value) { _dynamicIA =  value; }
     
     inline uint32_t getDrawItemCount() const { return _dynamicIA ? 1 :  (uint32_t)_inputAssemblers.size(); }
-    inline void setWorldMatix(const Mat4& matrix) { _worldMatrix = matrix; }
+    inline void setWorldMatix(const Mat4& matrix) { _worldMatrix = std::move(matrix); }
     inline const Mat4& getWorldMatrix() const { return _worldMatrix; }
     
     inline void setViewId(int val) { _viewID = val; }
     inline int getViewId() const { return _viewID; }
     
-    void addInputAssembler(InputAssembler* ia);
+    void addInputAssembler(const InputAssembler& ia);
     void clearInputAssemblers();
     void addEffect(Effect* effect);
     void clearEffects();
     void extractDrawItem(DrawItem& out, uint32_t index) const;
 
-    inline INode* getNode() const { return _node; }
-    inline void setNode(INode* node) { _node = node; }
-
 private:
-    // Record world matrix instead of Node.
-    INode* _node = nullptr;
+    friend class ModelPool;
+    void reset();
+    
     Mat4 _worldMatrix;
-    Vector<Effect*> _effects;
-    Vector<InputAssembler*> _inputAssemblers;
-    std::vector<ValueMap> _defines;
+    ccCArray* _effects = ccCArrayNew(2);
+    
+    std::vector<InputAssembler> _inputAssemblers;
+    std::vector<ValueMap*> _defines;
     bool _dynamicIA = false;
     int _viewID = -1;
 };

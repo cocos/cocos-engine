@@ -3895,6 +3895,7 @@
 					"\"$(SRCROOT)/../external/mac/libs\"",
 				);
 				MACH_O_TYPE = staticlib;
+				OTHER_CFLAGS = "-DCC_NEW_RENDERER";
 				OTHER_LDFLAGS = "-llibsql3";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/mac/include $(SRCROOT)/../external/sources $(SRCROOT)/../external/mac/include/freetype $(SRCROOT)/../external/mac/include/spidermonkey $(SRCROOT)/../external/mac/include/chakracore $(SRCROOT)/../external/mac/include/v8";
 			};
@@ -3944,6 +3945,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DCC_NEW_RENDERER";
 				OTHER_LDFLAGS = "-llibsql3";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

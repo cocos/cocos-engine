@@ -69,6 +69,8 @@ public:
         return _fetchDataCallback(bytes);
     }
     
+    void destroy();
+    
 private:
     DeviceGraphics* _device;
     IndexFormat _format;

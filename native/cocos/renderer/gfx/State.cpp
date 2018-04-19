@@ -83,6 +83,8 @@ State::State()
 State::State(const State& o)
 {
     *this = o;
+    
+    _textureUnits.reserve(10);
 }
 
 State::State(State&& o)

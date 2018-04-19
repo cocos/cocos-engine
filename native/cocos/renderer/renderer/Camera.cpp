@@ -29,7 +29,12 @@
 RENDERER_BEGIN
 
 Camera::Camera()
-{}
+{
+    _cachedView.color = _color;
+    _cachedView.depth = _depth;
+    _cachedView.clearFlags = _clearFlags;
+    _cachedView.stencil = _stencil;
+}
 
 Camera::~Camera()
 {
@@ -41,6 +46,8 @@ void Camera::setFrameBuffer(FrameBuffer* framebuffer)
     RENDERER_SAFE_RELEASE(_framebuffer);
     _framebuffer = framebuffer;
     RENDERER_SAFE_RETAIN(_framebuffer);
+    
+    _cachedView.frameBuffer = _framebuffer;
 }
 
 void Camera::setWorldMatrix(const Mat4& worldMatrix)
@@ -53,43 +60,78 @@ void Camera::setWorldMatrix(const Mat4& worldMatrix)
     _worldRTInv.inverse();
 }
 
-void Camera::extractView(View& out, int width, int height) const
+void Camera::setColor(float r, float g, float b, float a)
 {
+    _color.set(r, g, b, a);
+    _cachedView.color = _color;
+}
+
+void Camera::setDepth(float depth)
+{
+    _depth = depth;
+    _cachedView.depth = _depth;
+}
+
+void Camera::setStencil(int stencil)
+{
+    _stencil = stencil;
+    _cachedView.stencil = _stencil;
+}
+
+void Camera::setClearFlags(uint8_t flags )
+{
+    _clearFlags = flags;
+    _cachedView.clearFlags = _clearFlags;
+}
+
+void Camera::setRect(float x, float y, float w, float h)
+{
+    _rect.set(x, y, w, h);
+}
+
+void Camera::setStages(const std::vector<std::string>& stages)
+{
+    _stages = stages;
+    _cachedView.stages = _stages;
+}
+
+
+void Camera::setNode(INode* node)
+{
+    _node = node;
+}
+
+const View& Camera::extractView( int width, int height)
+{
+    // can optimize it if node's position is not changed
+    
     // rect
-    out.rect.set(_rect.x * width,
+    _cachedView.rect.set(_rect.x * width,
                  _rect.y * height,
                  _rect.w * width,
                  _rect.h * height);
-    
-    // clear options
-    out.color = _color;
-    out.depth = _depth;
-    out.stencil = _stencil;
-    out.clearFlags = _clearFlags;
-    
-    // stage & framebuffer
-    out.stages = _stages;
-    out.frameBuffer = _framebuffer;
-    
+
     // view matrix
-    //TODO: 
-    const_cast<Camera*>(this)->_worldRTInv.set(_node->getWorldRT());
-    out.matView = _worldRTInv.getInversed();
-    
+    //TODO:
+    _worldRTInv.set(_node->getWorldRT());
+    _cachedView.matView.set(_worldRTInv.getInversed());
+
     // projecton matrix
     float aspect = (float)width / height;
     if (ProjectionType::PERSPECTIVE == _projection)
-        Mat4::createPerspective(_fov / 3.1415926 * 180, aspect, _near, _far, &out.matProj);
+        Mat4::createPerspective(_fov / 3.1415926 * 180, aspect, _near, _far, &_cachedView.matProj);
     else
     {
         float x = _orthoHeight * aspect;
         float y = _orthoHeight;
-        Mat4::createOrthographic(-x, x, -y, y, &out.matProj);
+        Mat4::createOrthographic(-x, x, -y, y, &_cachedView.matProj);
     }
-    
+
     // view projection
-    Mat4::multiply(out.matProj, out.matView, &out.matViewProj);
-    out.matInvViewPorj = out.matViewProj.getInversed();
+    Mat4::multiply(_cachedView.matProj, _cachedView.matView, &_cachedView.matViewProj);
+    _cachedView.matInvViewPorj.set(_cachedView.matViewProj.getInversed());
+    
+    return _cachedView;
 }
 
 Vec3& Camera::screenToWorld(Vec3& out, const Vec3& screenPos, int width, int height) const

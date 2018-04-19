@@ -68,9 +68,8 @@ Application::Application(const std::string& name)
     _scheduler = new Scheduler();
     
     createView(name);
-
-    //TODO: Runtime doesn't need renderer stuff temporarily.
-//    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
+    
+    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }

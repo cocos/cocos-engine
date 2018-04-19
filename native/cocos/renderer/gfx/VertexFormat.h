@@ -24,15 +24,16 @@
 
 #pragma once
 
-#include "../Types.h"
-
 #include <string>
 #include <vector>
 #include <unordered_map>
 
+#include "base/CCRef.h"
+#include "../Types.h"
+
 RENDERER_BEGIN
 
-class VertexFormat
+class VertexFormat : public Ref
 {
 public:
     struct Info

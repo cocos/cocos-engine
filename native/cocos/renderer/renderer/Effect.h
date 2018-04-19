@@ -43,23 +43,26 @@ public:
            const std::unordered_map<std::string, Property>& properties,
            const std::vector<ValueMap>& defineTemplates);
 
-    virtual ~Effect();
+    ~Effect();
     
     void clear();
     
     Technique* getTechnique(const std::string& stage) const;
     const Vector<Technique*>& getTechniques() const { return _techniques; }
-    
     Value getDefineValue(const std::string& name) const;
+    const std::vector<ValueMap>& getDefines() const { return _defineTemplates; }
     void setDefineValue(const std::string& name, const Value& value);
-    ValueMap* extractDefines(ValueMap& out) const;
+    ValueMap* extractDefines();
     
     const Property& getProperty(const std::string& name) const;
     void setProperty(const std::string& name, const Property& property);
     
+    const std::unordered_map<std::string, Property>& getProperties() const { return _properties; }
+    
 private:
     Vector<Technique*> _techniques;
     std::vector<ValueMap> _defineTemplates;
+    ValueMap _cachedNameValues;
     std::unordered_map<std::string, Property> _properties;
 };
 

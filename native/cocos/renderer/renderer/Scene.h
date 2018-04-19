@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include "base/CCVector.h"
+#include "base/ccCArray.h"
 #include "../Macro.h"
 
 RENDERER_BEGIN
@@ -55,7 +56,8 @@ public:
     Model* getModel(uint32_t index);
     void addModel(Model* model);
     void removeModel(Model* model);
-    inline const Vector<Model*>& getModels() const { return _models; }
+    void removeModels();
+    inline const std::vector<Model*>& getModels() const { return _models; }
     
     // light
     inline uint32_t getLightCount() const { return (uint32_t)_lights.size(); }
@@ -71,7 +73,7 @@ private:
     //TODO: optimize speed.
     Vector<Camera*> _cameras;
     Vector<Light*> _lights;
-    Vector<Model*> _models;
+    std::vector<Model*> _models;
     Vector<View*> _views;
     Camera* _debugCamera = nullptr;
 };

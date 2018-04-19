@@ -51,6 +51,7 @@
         v8::HandleScope _hs(_isolate); \
         SE_UNUSED unsigned argc = (unsigned)_v8args.Length(); \
         se::ValueArray args; \
+        args.reserve(10); \
         se::internal::jsToSeArgs(_v8args, &args); \
         void* nativeThisObject = se::internal::getPrivate(_isolate, _v8args.This()); \
         se::State state(nativeThisObject, args); \
@@ -87,6 +88,7 @@
         v8::HandleScope _hs(_isolate); \
         bool ret = true; \
         se::ValueArray args; \
+        args.reserve(10); \
         se::internal::jsToSeArgs(_v8args, &args); \
         se::Object* thisObject = se::Object::_createJSObject(cls, _v8args.This()); \
         thisObject->_setFinalizeCallback(_SE(finalizeCb)); \
@@ -130,6 +132,7 @@
         se::Value data; \
         se::internal::jsToSeValue(_isolate, _value, &data); \
         se::ValueArray args; \
+        args.reserve(10); \
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \

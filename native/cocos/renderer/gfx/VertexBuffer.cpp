@@ -39,25 +39,19 @@ VertexBuffer::VertexBuffer()
 
 VertexBuffer::~VertexBuffer()
 {
-    if (_glID == 0)
-    {
-        RENDERER_LOGE("The vertex buffer is invalid!");
-        return;
-    }
-
-    ccDeleteBuffers(1, &_glID);
-    //TODO:    _device._stats.ib -= _bytes;
+    destroy();
 }
 
-bool VertexBuffer::init(DeviceGraphics* device, const VertexFormat& format, Usage usage, const void* data, size_t dataByteLength, uint32_t numVertices)
+bool VertexBuffer::init(DeviceGraphics* device, VertexFormat* format, Usage usage, const void* data, size_t dataByteLength, uint32_t numVertices)
 {
     _device = device;
     _format = format;
+    CC_SAFE_RETAIN(_format);
     _usage = usage;
     _numVertices = numVertices;
 
     // calculate bytes
-    _bytes = _format._bytes * numVertices;
+    _bytes = _format->_bytes * numVertices;
 
     // update
     glGenBuffers(1, &_glID);
@@ -67,6 +61,17 @@ bool VertexBuffer::init(DeviceGraphics* device, const VertexFormat& format, Usag
     //TODO:    device._stats.ib += _bytes;
 
     return true;
+}
+
+void VertexBuffer::setFormat(VertexFormat* format)
+{
+    if (_format == format)
+        return;
+    
+    CC_SAFE_RELEASE(_format);
+    _format = format;
+    CC_SAFE_RETAIN(_format);
+    
 }
 
 void VertexBuffer::update(uint32_t offset, const void* data, size_t dataByteLength)
@@ -100,6 +105,19 @@ void VertexBuffer::update(uint32_t offset, const void* data, size_t dataByteLeng
         }
     }
     ccBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void VertexBuffer::destroy()
+{
+    if (_glID == 0)
+        return;
+    
+    CC_SAFE_RELEASE_NULL(_format);
+    
+    ccDeleteBuffers(1, &_glID);
+    //TODO:    _device._stats.ib -= _bytes;
+    
+    _glID = 0;
 }
 
 #if GFX_DEBUG > 0

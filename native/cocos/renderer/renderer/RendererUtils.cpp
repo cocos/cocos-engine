@@ -70,9 +70,10 @@ InputAssembler* createIA(DeviceGraphics* device, const IAData& data)
     if (!data.uvs.empty())
         vfmt.push_back({ ATTRIB_NAME_UV0, AttribType::FLOAT32, 2});
 
-    VertexFormat fmt(vfmt);
+    VertexFormat* fmt = new VertexFormat(vfmt);
     auto vb = new VertexBuffer();
     vb->init(device, fmt, Usage::STATIC, verts.data(), verts.size() * sizeof(float), (uint32_t)vcount);
+    fmt->release();
 
     IndexBuffer* ib = nullptr;
 
