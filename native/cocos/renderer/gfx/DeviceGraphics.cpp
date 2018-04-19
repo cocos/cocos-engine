@@ -55,6 +55,8 @@ namespace
     }
 } // namespace {
 
+int DeviceGraphics::_scaleFactor = 1.0f;
+
 DeviceGraphics* DeviceGraphics::getInstance()
 {
     static DeviceGraphics* __instance = nullptr;

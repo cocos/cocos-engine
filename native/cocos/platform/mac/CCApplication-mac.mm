@@ -69,7 +69,7 @@ Application::Application(const std::string& name)
     
     createView(name);
     
-    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
+    renderer::DeviceGraphics::setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }

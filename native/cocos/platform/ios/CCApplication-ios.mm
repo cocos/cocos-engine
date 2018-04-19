@@ -191,8 +191,6 @@ Application::Application(const std::string& name)
 
     createView(name);
     
-    renderer::DeviceGraphics::getInstance();
-
     se::ScriptEngine::getInstance();
     EventDispatcher::init();
     
