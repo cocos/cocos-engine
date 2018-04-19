@@ -35,9 +35,10 @@ const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
         
-        // 避免用户使用自定义 material 的情况下覆盖用户设置，不过这里还应该加一个 TODO，未来设计 material 的序列化和用户接口时，应该会有改动
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
         if (!sprite._material && frame) {
-            // 尽可能避免函数调用的开销
+            // Avoid as much function call as possible
             if (!frame._original) {
                 dynamicAtlasManager.insertSpriteFrame(frame);
             }
