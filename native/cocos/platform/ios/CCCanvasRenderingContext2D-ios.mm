@@ -25,8 +25,8 @@ enum class CanvasTextBaseline {
 namespace {
     void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
     {
-        assert(x + width <= totalWidth);
-        assert(y + height <=  totalHeight);
+        if ((x + width) > totalWidth || (y + height) > totalHeight)
+            return;
 
         uint32_t y0 = totalHeight - (y + height);
         uint32_t y1 = totalHeight - y;
