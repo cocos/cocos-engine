@@ -45,12 +45,11 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (renderData) {
+        if (renderData && frame) {
             if (renderData.uvDirty || renderData.vertDirty) {
                 let texture = frame._texture;
                 let texw = texture._width,
                     texh = texture._height;
-                let frame = sprite.spriteFrame;
                 let rect = frame._rect;
 
                 let node = sprite.node,
@@ -156,12 +155,8 @@ module.exports = {
             col = Math.ceil(hRepeat);
         
         let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
 
         let x, x1, y, y1, lastx, lasty;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {

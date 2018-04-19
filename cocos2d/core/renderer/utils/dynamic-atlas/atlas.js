@@ -89,6 +89,9 @@ class Atlas {
         let frames = this._innerSpriteFrames;
         for (let i = 0, l = frames.length; i < l; i++) {
             let frame = frames[i];
+            if (!frame.isValid) {
+                continue;
+            }
             let oriInfo = frame._original;
             frame._rect.x = oriInfo.x;
             frame._rect.y = oriInfo.y;

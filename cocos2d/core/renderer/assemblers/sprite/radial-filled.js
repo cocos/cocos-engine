@@ -77,7 +77,7 @@ module.exports = {
                 //build vertices
                 this._calculateVertices(sprite);
                 //build uvs
-                this._calculateUVs(spriteFrame);
+                this._calculateUVs(frame);
 
                 let center = this._center;
 

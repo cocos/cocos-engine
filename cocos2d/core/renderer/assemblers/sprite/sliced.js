@@ -54,7 +54,7 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (renderData) {
+        if (renderData && frame) {
             if (renderData.uvDirty) {
                 this.updateUVs(sprite);
             }
@@ -109,6 +109,17 @@ module.exports = {
             data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
             data[0].v = (rect.y + rect.height) / atlasHeight;
         }
+
+        for (let row = 0; row < 4; ++row) {
+            let rowD = data[row];
+            for (let col = 0; col < 4; ++col) {
+                let colD = data[col];
+                let world = data[4 + row*4 + col];
+                world.u = colD.u;
+                world.v = rowD.v;
+            }
+        }
+
         renderData.uvDirty = false;
     },
     
@@ -167,7 +178,7 @@ module.exports = {
             uintbuf[vertexOffset + 3] = color;
             vertexOffset += 6;
         }
-        
+
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
                 let start = vertexId + r*4 + c;
@@ -183,11 +194,10 @@ module.exports = {
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            renderData = sprite._renderData,
-            data = renderData._data;
+            data = sprite._renderData._data;
         
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         
         for (let row = 0; row < 4; ++row) {
@@ -197,8 +207,6 @@ module.exports = {
                 let world = data[4 + row*4 + col];
                 world.x = colD.x*a + rowD.y*c + tx;
                 world.y = colD.x*b + rowD.y*d + ty;
-                world.u = colD.u;
-                world.v = rowD.v;
             }
         }
     },
