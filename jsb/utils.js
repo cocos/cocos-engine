@@ -26,7 +26,7 @@
 'use strict';
 
 let _typedArray_temp = new Float32Array(16);
-var _mat4_temp = cc.vmath.mat4.create();
+var _mat4_temp = null;
 
 function _mat4ToArray(typedArray, mat4) {
     typedArray[0] = mat4.m00;
@@ -48,6 +48,9 @@ function _mat4ToArray(typedArray, mat4) {
 }
 
 function getWorldRTInAB (node) {
+    if (!_mat4_temp) {
+        _mat4_temp = cc.vmath.mat4.create();
+    }
     node.getWorldRT(_mat4_temp);
     _mat4ToArray(_typedArray_temp, _mat4_temp);
     return _typedArray_temp;
