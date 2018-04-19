@@ -22,8 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./gfx');
-require('./renderer');
+
+if (CC_NATIVERENDERER) {
+    require('./gfx');
+    require('./renderer');
+}
 require('../index')
 require('./jsb-audio')
 require('./jsb-loader')
