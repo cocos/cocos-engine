@@ -25,6 +25,7 @@
  
 const HTMLElement = require('./HTMLElement');
 const Event = require('./Event');
+const gl = window.__gl;
 
 class HTMLImageElement extends HTMLElement {
     constructor(width, height) {
@@ -32,7 +33,6 @@ class HTMLImageElement extends HTMLElement {
         this.width = width;
         this.height = height;
         this._data = null;
-        this.onload = null;
         this._src = null;
         this.complete = false;
         this._glFormat = this._glInternalFormat = gl.RGBA;
@@ -67,11 +67,8 @@ class HTMLImageElement extends HTMLElement {
 
             this.complete = true;
 
-            this.dispatchEvent(new Event('load'));
-
-            if (this.onload) {
-                this.onload();
-            }
+            var event = new Event('load');
+            this.dispatchEvent(event);
         });
     }
 

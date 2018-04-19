@@ -218,8 +218,8 @@ class HTMLCanvasElement extends HTMLElement {
 
         this.top = 0;
         this.left = 0;
-        this._width = width ? width : window.innerWidth;
-        this._height = height ? height : window.innerHeight;
+        this._width = width ? Math.ceil(width) : 1;
+        this._height = height ? Math.ceil(height) : 1;
         this._context2D = null;
         this._data = null;
     }
@@ -227,15 +227,14 @@ class HTMLCanvasElement extends HTMLElement {
     //TODO: implement opts.
     getContext(name, opts) {
         var self = this;
-        console.log(`==> Canvas getContext(${name})`);
+        // console.log(`==> Canvas getContext(${name})`);
         if (name === 'webgl' || name === 'experimental-webgl') {
-            return window.gl;
+            return window.__gl;
         } else if (name === '2d') {
             if (!this._context2D) {
                 this._context2D = new CanvasRenderingContext2D(this._width, this._height);
                 this._context2D._canvas = this;
-                this._context2D.setCanvasBufferUpdatedCallback(function(data) {
-                    console.log('setCanvasBufferUpdatedCallback: dataLen: ' + data.length);
+                this._context2D._setCanvasBufferUpdatedCallback(function(data) {
                     self._data = new ImageData(data, self._width, self._height);
                 });
             }
@@ -251,7 +250,8 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     set width(width) {
-        console.log(`==> HTMLCanvasElement.width = ${width}`);
+        width = Math.ceil(width);
+        // console.log(`==> HTMLCanvasElement.width = ${width}`);
         if (this._width !== width) {
             this._width = width;
             if (this._context2D) {
@@ -265,7 +265,8 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     set height(height) {
-        console.log(`==> HTMLCanvasElement.height = ${height}`);
+        height = Math.ceil(height);
+        // console.log(`==> HTMLCanvasElement.height = ${height}`);
         if (this._height !== height) {
             this._height = height;
             if (this._context2D) {
@@ -340,7 +341,7 @@ function touchEventHandlerFactory(type) {
         const touchEvent = new TouchEvent(type)
 
         touchEvent.touches = touches;
-        // touchEvent.targetTouches = Array.prototype.slice.call(event.touches)
+        touchEvent.targetTouches = Array.prototype.slice.call(touchEvent.touches)
         touchEvent.changedTouches = touches;//event.changedTouches
         // touchEvent.timeStamp = event.timeStamp
 
