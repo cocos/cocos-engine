@@ -49,13 +49,15 @@ _p._ctor = function(device, options) {
 
 _p = gfx.VertexBuffer.prototype;
 _p._ctor = function(device, format, usage, data, numVertices) {
-    this.init(device, format, usage, data, numVertices);
+    this.init(device, format._nativeObj, usage, data, numVertices);
+    this._nativePtr = this.self();
 };
 cc.defineGetterSetter(_p, "count", _p.getCount);
 
 _p = gfx.IndexBuffer.prototype;
 _p._ctor = function(device, format, usage, data, numIndices) {
     this.init(device, format, usage, data, numIndices);
+    this._nativePtr = this.self();
 };
 cc.defineGetterSetter(_p, "count", _p.getCount);
 
