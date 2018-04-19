@@ -152,15 +152,29 @@ EventTarget.prototype = {
             throw new TypeError("\"event.type\" should be a string.")
         }
 
+        const eventName = event.type
+        var onFunc = this['on' + eventName];
+        if (onFunc && typeof onFunc === 'function') {
+            event._target = event._currentTarget = this;
+            onFunc.call(this, event);
+            event._target = event._currentTarget = null
+            event._eventPhase = 0
+            event._passiveListener = null
+
+            if (event.defaultPrevented)
+                return false;
+        }
+
         // If listeners aren't registered, terminate.
         const listeners = this._listeners
-        const eventName = event.type
+        
         let node = listeners.get(eventName)
         if (!node) {
             return true
         }
 
         event._target = event._currentTarget = this;
+
         // This doesn't process capturing phase and bubbling phase.
         // This isn't participating in a tree.
         let prev = null
@@ -185,9 +199,6 @@ EventTarget.prototype = {
             event._passiveListener = node.passive ? node.listener : null
             if (typeof node.listener === "function") {
                 node.listener.call(this, event)
-            }
-            else if (node.listenerType !== ATTRIBUTE && typeof node.listener.handleEvent === "function") {
-                node.listener.handleEvent(event)
             }
 
             // Break if `event.stopImmediatePropagation` was called.

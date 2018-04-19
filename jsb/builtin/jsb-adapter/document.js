@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-let HTMLElement = require('./HTMLElement');
-let Image = require('./Image');
-let Audio = require('./Audio');
-let HTMLCanvasElement = require('./HTMLCanvasElement');
-let Node = require('./Node');
-let FontFaceSet = require('./FontFaceSet')
+const HTMLElement = require('./HTMLElement');
+const Image = require('./Image');
+const Audio = require('./Audio');
+const HTMLCanvasElement = require('./HTMLCanvasElement');
+const HTMLVideoElement = require('./HTMLVideoElement');
+const Node = require('./Node');
+const FontFaceSet = require('./FontFaceSet')
 
 class Document extends Node {
 
@@ -61,21 +62,17 @@ class Document extends Node {
     } else if (tagName === 'img') {
       return new Image()
     } else if (tagName === 'video') {
-        return {
-            canPlayType: () => {
-                return false;
-            }
-        };
+      return new HTMLVideoElement();
     }
 
     return new HTMLElement(tagName)
   }
 
   getElementById(id) {
-    if (id === window.canvas.id) {
+    if (id === window.canvas.id || id === 'canvas') {
       return window.canvas
     }
-    return null
+    return new HTMLElement(id);
   }
 
   getElementsByTagName(tagName) {
@@ -86,7 +83,7 @@ class Document extends Node {
     } else if (tagName === 'canvas') {
       return [window.canvas]
     }
-    return []
+    return [new HTMLElement(tagName)]
   }
 
   getElementsByName(tagName) {
@@ -97,7 +94,7 @@ class Document extends Node {
     } else if (tagName === 'canvas') {
       return [window.canvas]
     }
-    return []
+    return [new HTMLElement(tagName)]
   }
 
   querySelector(query) {
@@ -110,7 +107,7 @@ class Document extends Node {
     } else if (query === `#${window.canvas.id}`) {
       return window.canvas
     }
-    return null
+    return new HTMLElement(query);
   }
 
   querySelectorAll(query) {
@@ -121,7 +118,7 @@ class Document extends Node {
     } else if (query === 'canvas') {
       return [window.canvas]
     }
-    return []
+    return [new HTMLElement(query)];
   }
 
   createTextNode() {

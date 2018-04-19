@@ -37,7 +37,7 @@ class Event {
 
     constructor(type, eventInit) {
         this._type = type
-        this._eventTarget = null
+        this._target = null
         this._eventPhase = 2
         this._currentTarget = null
         this._canceled = false
@@ -59,7 +59,7 @@ class Event {
      * @type {EventTarget}
      */
     get target() {
-        return this._eventTarget
+        return this._target
     }
 
     /**
