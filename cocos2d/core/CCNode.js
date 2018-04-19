@@ -35,7 +35,6 @@ const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
-const hierarchyChain = require('./renderer/utils/hierarchy-chain');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -1099,8 +1098,6 @@ var Node = cc.Class({
             }
             eventManager.pauseTarget(this);
         }
-
-        hierarchyChain.rebuild(this);
 
         let children = this._children;
         for (let i = 0, len = children.length; i < len; i++) {
@@ -2481,7 +2478,6 @@ var Node = cc.Class({
                 }
                 this.emit(CHILD_REORDER);
             }
-            hierarchyChain.rebuild(this);
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
     },

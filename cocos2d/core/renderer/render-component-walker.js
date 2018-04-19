@@ -27,7 +27,6 @@ const macro = require('../platform/CCMacro');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
-const hierarchyChain = require('./utils/hierarchy-chain');
 const atlasManager = require('./utils/dynamic-atlas/manager');
 
 const gfx = renderEngine.gfx;
@@ -64,7 +63,6 @@ var RenderComponentWalker = function (device, renderScene) {
         MAX_INDICE: MAX_INDICE
     };
 
-    
     let defaultFormat = new gfx.VertexFormat([]);
     this._iaPool = new RecyclePool(function () {
         return new InputAssembler();
@@ -73,7 +71,6 @@ var RenderComponentWalker = function (device, renderScene) {
     this._modelPool = new RecyclePool(() => {
         return new renderEngine.Model();
     }, 16);
-
 
     // buffers
     this._vb = null;
@@ -323,48 +320,57 @@ RenderComponentWalker.prototype = {
         return null;
     },
 
+    _visitNode (node) {
+        if (!node._activeInHierarchy) {
+            return;
+        }
+
+        let batchData = this._batchData;
+        // Transform
+        if (node._worldMatDirty) {
+            node._updateWorldMatrix();
+            batchData.worldMatUpdated = true;
+        }
+
+        // Culling mask
+        if (node.groupIndex !== 0) {
+            this._curCameraNode = node;
+        }
+        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
+        let cullingMask = node._cullingMask = 1 << group;
+        
+        // Render self
+        let comp = node._renderComponent;
+        let needDraw = !!(comp && comp._enabled);
+        if (needDraw) {
+            let assembler = comp._assembler || comp.constructor._assembler;
+            this._commitComp(comp, assembler, cullingMask);
+        }
+        // Reset worldMatUpdated
+        batchData.worldMatUpdated = false;
+
+        // Render children
+        let children = node._children;
+        for (let i = 0, l = children.length; i < l; i++) {
+            this._visitNode(children[i]);
+        }
+
+        // Post render
+        if (needDraw && comp.constructor._postAssembler) {
+            this._commitComp(comp, comp.constructor._postAssembler, cullingMask);
+        }
+
+        // Reset current camera node
+        if (this._curCameraNode === node) {
+            this._curCameraNode = null;
+        }
+    },
+
     visit (scene) {
         this.reset();
 
-        let batchData = this._batchData;
-        let entry = this._findEntry(scene);
-        let comp, node, assembler, group, cullingMask;
-        for (; entry; entry = entry.next) {
-            comp = entry.comp;
-            node = comp.node;
-            if (!comp._enabled || !node._activeInHierarchy) {
-                continue;
-            }
-            assembler = null;
-
-            // Pre handle
-            if (!entry.post) {
-                if (node.groupIndex !== 0) {
-                    this._curCameraNode = node;
-                }
-
-                group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
-                node._cullingMask = 1 << group;
-                assembler = comp._assembler || comp.constructor._assembler;
-            }
-            // Post handle
-            else {
-                if (this._curCameraNode === node) {
-                    this._curCameraNode = null;
-                }
-                assembler = comp.constructor._postAssembler;
-            }
-
-            // Transform
-            if (node._worldMatDirty) {
-                node._updateWorldMatrix();
-                batchData.worldMatUpdated = true;
-            }
-
-            // Commit component render data
-            cullingMask = node._cullingMask;
-            this._commitComp(comp, assembler, cullingMask);
-            this._batchData.worldMatUpdated = false;
+        for (let i = 0, l = scene._children.length; i < l; i++) {
+            this._visitNode(scene._children[i]);
         }
         
         atlasManager.update();

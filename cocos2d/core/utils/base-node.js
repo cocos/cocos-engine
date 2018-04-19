@@ -30,7 +30,6 @@ const misc = require('./misc');
 const js = require('../platform/js');
 const IdGenerater = require('../platform/id-generater');
 const eventManager = require('../event-manager');
-const hierarchyChain = require('../renderer/utils/hierarchy-chain');
 
 const Destroying = Flags.Destroying;
 const DontDestroy = Flags.DontDestroy;
@@ -352,10 +351,6 @@ var BaseNode = cc.Class({
         var oldParent = this._parent;
         if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
             cc.errorID(3821);
-        }
-        if (oldParent) {
-            // Unchain from old parent
-            hierarchyChain.unchainSelf(this);
         }
         this._parent = value || null;
 
