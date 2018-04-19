@@ -39,37 +39,49 @@ const Watch = require('./gulp/tasks/watch');
 // engine //
 /////////////
 
-gulp.task('build-html5-dev', function (done) {
+gulp.task('build-html5-dev', ['clean-cache'], function (done) {
     Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', [],  done);
 });
 
-gulp.task('build-html5-min', function (done) {
+gulp.task('build-html5-min', ['clean-cache'], function (done) {
     Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', [], done);
 });
 
-gulp.task('build-html5-preview',  function (done) {
+gulp.task('build-html5-preview',  [], function (done) {
     Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
 });
 
-gulp.task('build-html5-preview-dev', function (done) {
+gulp.task('build-html5-preview-dev', [], function (done) {
     Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done, true);
 });
 
 gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
 
-gulp.task('build-jsb-dev', function (done) {
+gulp.task('build-jsb-dev',  ['clean-cache'], function (done) {
+    var args = process.argv.slice(3); // strip task name
+    var opts = {};
+    if (args.indexOf('--native-renderer') !== -1) {
+        opts.nativeRenderer = true;
+    }
+    
     Engine.buildJsb([
         './jsb/index.js',
-    ], './bin/jsb_polyfill.dev.js', [], done);
+    ], './bin/jsb_polyfill.dev.js', [], opts, done);
 });
 
-gulp.task('build-jsb-min', function (done) {
+gulp.task('build-jsb-min',  ['clean-cache'], function (done) {
+    var args = process.argv.slice(3); // strip task name
+    var opts = {};
+    if (args.indexOf('--native-renderer') !== -1) {
+        opts.nativeRenderer = true;
+    }
+    
     Engine.buildJsbMin([
         './jsb/index.js',
     ], './bin/jsb_polyfill.js', [], done);
 });
 
-gulp.task('build-jsb-preview',  function (done) {
+gulp.task('build-jsb-preview', [], function (done) {
     Engine.buildJsbPreview([
         './jsb/index.js',
     ], './bin/jsb_polyfill-for-preview.js', [], done);
@@ -129,22 +141,23 @@ gulp.task('test-no-build', function (done) {
 // global //
 ////////////
 
+gulp.task('clean-cache', function (done) {
+    Del(['./bin/.cache/*', '!./bin/.cache/dev/**'], done);
+});
+
 // fast build, only for develop
-gulp.task('build-dev', ['build-html5-preview', 'build-jsb-preview'], function (done) {
-    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js', 
-         './bin/.cache/**/*', '!./bin/.cache/dev', '!./bin/.cache/dev/**/*'], done);
+gulp.task('build-dev', ['clean-cache', 'build-html5-preview', 'build-jsb-preview'], function (done) {
+    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js'], done);
 });
 
 // only build preview for html5 since it will built by editor
-gulp.task('build', ['build-html5-preview', 'build-jsb'], function (done) {
-    Del(['./bin/.cache/**/*', '!./bin/.cache/dev', '!./bin/.cache/dev/**/*'], done);
-});
+gulp.task('build', ['clean-cache', 'build-html5-preview', 'build-jsb']);
 
 // default task
 gulp.task('default', ['build']);
 
 gulp.task('clean', function (done) {
-    Del(Path.join('./bin', '**/*'), done);
+    Del('./bin/**/*', done);
 });
 
 ////////////
