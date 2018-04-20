@@ -10,6 +10,10 @@
 #include "base/CCThreadPool.h"
 #include "platform/CCApplication.h"
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#include "platform/android/jni/JniImp.h"
+#endif
+
 #include <regex>
 
 using namespace cocos2d;
@@ -708,6 +712,32 @@ static bool js_loadImage(se::State& s)
 }
 SE_BIND_FUNC(js_loadImage)
 
+static bool js_setDebugViewText(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        int32_t index;
+        ok = seval_to_int32(args[0], &index);
+        SE_PRECONDITION2(ok, false, "Convert arg0 index failed!");
+
+        std::string text;
+        ok = seval_to_std_string(args[1], &text);
+        SE_PRECONDITION2(ok, false, "Convert arg1 text failed!");
+
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+        setGameInfoDebugViewTextJNI(index, text);
+#endif
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_setDebugViewText)
+
 static bool js_getTextTextureInfo(se::State& s)
 {
     const auto& args = s.args();
@@ -778,6 +808,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
+    __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));

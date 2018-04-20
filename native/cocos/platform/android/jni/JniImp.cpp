@@ -475,3 +475,8 @@ void setAnimationIntervalJNI(float interval)
 {
     JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setAnimationInterval", interval);
 }
+
+void setGameInfoDebugViewTextJNI(int index, const std::string& text)
+{
+    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setGameInfoDebugViewText", index, text);
+}

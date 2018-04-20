@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
@@ -42,10 +43,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.cocos.analytics.CAAgent;
 
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
+
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -421,11 +426,76 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         // ...add to FrameLayout
         mFrameLayout.addView(this.mGLSurfaceView);
 
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        mFrameLayout.addView(linearLayout);
+
+        LinearLayout.LayoutParams linearLayoutParam = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        linearLayoutParam.setMargins(30, 0, 0, 0);
+
+        TextView fpsView = new TextView(this);
+        fpsView.setBackgroundColor(Color.RED);
+        linearLayout.addView(fpsView, linearLayoutParam);
+
+        TextView gameInfoView0 = new TextView(this);
+        gameInfoView0.setBackgroundColor(Color.GREEN);
+        linearLayout.addView(gameInfoView0, linearLayoutParam);
+
+        TextView gameInfoView1 = new TextView(this);
+        gameInfoView1.setBackgroundColor(Color.BLUE);
+        linearLayout.addView(gameInfoView1, linearLayoutParam);
+
+        TextView gameInfoView2 = new TextView(this);
+        gameInfoView2.setBackgroundColor(Color.MAGENTA);
+        linearLayout.addView(gameInfoView2, linearLayoutParam);
+
         // Switch to supported OpenGL (ARGB888) mode on emulator
         if (isAndroidEmulator())
            this.mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 
-        this.mGLSurfaceView.setCocos2dxRenderer(new Cocos2dxRenderer());
+        Cocos2dxRenderer renderer = new Cocos2dxRenderer();
+        renderer.setOnGameInfoUpdatedListener(new Cocos2dxRenderer.OnGameInfoUpdatedListener() {
+            @Override
+            public void onFPSUpdated(float fps) {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fpsView.setText("FPS: " + String.format(Locale.ENGLISH, "%.1f", fps));
+                    }
+                });
+            }
+
+            @Override
+            public void onGameInfoUpdated_0(final String text) {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        gameInfoView0.setText(text);
+                    }
+                });
+            }
+
+            @Override
+            public void onGameInfoUpdated_1(String text) {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        gameInfoView1.setText(text);
+                    }
+                });
+            }
+
+            @Override
+            public void onGameInfoUpdated_2(String text) {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        gameInfoView2.setText(text);
+                    }
+                });
+            }
+        });
+        this.mGLSurfaceView.setCocos2dxRenderer(renderer);
         this.mGLSurfaceView.setCocos2dxEditText(edittext);
 
         // Set framelayout as the content view
