@@ -216,10 +216,7 @@ static bool js_cocos2d_renderer_BaseRenderer_finalize(se::State& s)
 
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::BaseRenderer)", s.nativeThisObject());
     cocos2d::renderer::BaseRenderer* cobj = (cocos2d::renderer::BaseRenderer*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
+    cobj->release();
 
     return true;
 }
@@ -788,10 +785,7 @@ static bool js_cocos2d_renderer_Camera_finalize(se::State& s)
 
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Camera)", s.nativeThisObject());
     cocos2d::renderer::Camera* cobj = (cocos2d::renderer::Camera*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
+    cobj->release();
 
     return true;
 }
@@ -900,10 +894,7 @@ static bool js_cocos2d_renderer_Effect_finalize(se::State& s)
 
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Effect)", s.nativeThisObject());
     cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
+    cobj->release();
 
     return true;
 }

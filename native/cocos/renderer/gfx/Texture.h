@@ -167,42 +167,27 @@ public:
 
     struct SubImageOption
     {
-        SubImageOption()
-        : anisotropy(1)
-        , level(0)
-        , x(0)
-        , y(0)
-        , width(4)
-        , height(4)
-        , wrapS(WrapMode::REPEAT)
-        , wrapT(WrapMode::REPEAT)
-        , minFilter(Filter::LINEAR)
-        , magFilter(Filter::LINEAR)
-        , mipFilter(Filter::LINEAR)
-        , format(Format::RGBA8)
-        , hasMipmap(false)
-        , flipY(true)
-        , premultiplyAlpha(false)
+        SubImageOption(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t level, bool flipY, bool premultiplyAlpha)
+        : x(x)
+        , y(y)
+        , width(width)
+        , height(height)
+        , level(level)
+        , flipY(flipY)
+        , premultiplyAlpha(premultiplyAlpha)
         {}
-
-        cocos2d::Data image;
-        int32_t anisotropy;
-        int32_t level;
-        uint16_t x;
-        uint16_t y;
-        uint16_t width;
-        uint16_t height;
-
-        WrapMode wrapS;
-        WrapMode wrapT;
-
-        Filter minFilter;
-        Filter magFilter;
-        Filter mipFilter;
-        Format format;
-        bool hasMipmap;
-        bool flipY;
-        bool premultiplyAlpha;
+        
+        SubImageOption() {}
+        
+        uint16_t x = 0;
+        uint16_t y = 0;
+        uint16_t width = 0;
+        uint16_t height = 0;
+        uint16_t imageDataLength = 0;
+        uint8_t* imageData = nullptr;
+        uint8_t level = 0;
+        bool flipY = false;
+        bool premultiplyAlpha = false;
     };
 
     inline GLuint getTarget() const { return _target; }

@@ -297,7 +297,7 @@ public:
     {
         Mat4 worldMatrix;
         se::Value func;
-        if (_jsNode.toObject()->getProperty("_getWorldMatrix4Native", &func))
+        if (_jsNode.toObject()->getProperty("getWorldMatrixInAB", &func))
         {
             se::Value ret;
             func.toObject()->call(se::EmptyValueArray, _jsNode.toObject(), &ret);
@@ -310,7 +310,7 @@ public:
     {
         Mat4 worldRT;
         se::Value func;
-        if (_jsNode.toObject()->getProperty("_getWorldRT4Native", &func))
+        if (_jsNode.toObject()->getProperty("getWorldRTInAB", &func))
         {
             se::Value ret;
             func.toObject()->call(se::EmptyValueArray, _jsNode.toObject(), &ret);

@@ -378,7 +378,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     if (_isBufferSizeDirty)

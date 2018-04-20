@@ -897,7 +897,6 @@ bool jsb_register_gfx_manual(se::Object* global)
     __jsb_cocos2d_renderer_IndexBuffer_proto->defineProperty("_numIndices", _SE(js_gfx_IndexBuffer_prop_getNumIndices), _SE(js_gfx_IndexBuffer_prop_setNumIndices));
     __jsb_cocos2d_renderer_IndexBuffer_proto->defineFunction("self", _SE(js_gfx_IndexBuffer_self));
 
-    __jsb_cocos2d_renderer_Texture2D_proto->defineFunction("init", _SE(js_gfx_Texture2D_init));
     __jsb_cocos2d_renderer_FrameBuffer_proto->defineFunction("init", _SE(js_gfx_FrameBuffer_init));
 
     se::ScriptEngine::getInstance()->clearException();

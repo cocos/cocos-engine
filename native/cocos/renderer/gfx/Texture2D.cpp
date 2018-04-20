@@ -616,8 +616,6 @@ void Texture2D::updateImage(const ImageOption& option)
 
 void Texture2D::setSubImage(const GLTextureFmt& glFmt, const SubImageOption& option)
 {
-    const auto& img = option.image;
-
     //Set the row align only when mipmapsNum == 1 and the data is uncompressed
     GLint aligment = 1;
     if (!_hasMipmap && !_compressed && glFmt.bpp > 0)
@@ -653,11 +651,11 @@ void Texture2D::setSubImage(const GLTextureFmt& glFmt, const SubImageOption& opt
 
     if (_compressed)
     {
-        DoCompressedTexSubImage(GL_TEXTURE_2D, option.level, option.x, option.y, 0, glFmt.internalFormat, option.width, option.height, 1, (GLsizei)img.getSize(), img.getBytes());
+        DoCompressedTexSubImage(GL_TEXTURE_2D, option.level, option.x, option.y, 0, glFmt.internalFormat, option.width, option.height, 1, (GLsizei)option.imageDataLength, option.imageData);
     }
     else
     {
-        TexOrSubImage(true, "Texture2D::setSubImage", img.getBytes(), img.getSize(), GL_TEXTURE_2D, option.level, &dui, 0, 0, 0, srcPI, dstPI, option.width, option.height, aligment, 1, option.flipY, option.premultiplyAlpha);
+        TexOrSubImage(true, "Texture2D::setSubImage", option.imageData, option.imageDataLength, GL_TEXTURE_2D, option.level, &dui, 0, 0, 0, srcPI, dstPI, option.width, option.height, aligment, 1, option.flipY, option.premultiplyAlpha);
     }
 }
 

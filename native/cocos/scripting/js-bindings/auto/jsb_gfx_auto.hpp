@@ -116,8 +116,8 @@ bool js_register_cocos2d_renderer_Texture2D(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_Texture2D_updateImage);
 SE_DECLARE_FUNC(js_gfx_Texture2D_init);
-SE_DECLARE_FUNC(js_gfx_Texture2D_update);
 SE_DECLARE_FUNC(js_gfx_Texture2D_updateSubImage);
+SE_DECLARE_FUNC(js_gfx_Texture2D_update);
 SE_DECLARE_FUNC(js_gfx_Texture2D_create);
 SE_DECLARE_FUNC(js_gfx_Texture2D_Texture2D);
 
