@@ -92,8 +92,9 @@ class EventTarget {
         if (node === undefined) {
             listeners.set(eventName, newNode)
             if (__touchEventNames.indexOf(eventName) > -1) {
+                if (this._touchListenerCount === 0)
+                    __listenTouchEventMap[this._targetID] = this;
                 ++this._touchListenerCount;
-                __listenTouchEventMap[this._targetID] = this;
             }
             return true
         }
@@ -112,9 +113,8 @@ class EventTarget {
         // Add it.
         prev.next = newNode
         if (__touchEventNames.indexOf(eventName) > -1) {
-            if (this._touchListenerCount === 0) {
+            if (this._touchListenerCount === 0)
                 __listenTouchEventMap[this._targetID] = this;
-            }
             ++this._touchListenerCount;
         }
         return true
