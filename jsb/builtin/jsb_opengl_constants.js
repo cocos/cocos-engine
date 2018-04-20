@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const gl = __gl;
+const gl = __ccgl;
 
 gl.GCCSO_SHADER_BINARY_FJ	= 0x9260;
 gl._3DC_XY_AMD	= 0x87fa;

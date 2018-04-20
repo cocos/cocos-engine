@@ -35,6 +35,7 @@ class Document extends Node {
 
   constructor() {
     super()
+
     this.readyState = 'complete'
     this.visibilityState = 'visible'
     this.documentElement = window
@@ -69,8 +70,8 @@ class Document extends Node {
   }
 
   getElementById(id) {
-    if (id === window.canvas.id || id === 'canvas') {
-      return window.canvas
+    if (id === window.__cccanvas.id || id === 'canvas') {
+      return window.__cccanvas
     }
     return new HTMLElement(id);
   }
@@ -81,7 +82,7 @@ class Document extends Node {
     } else if (tagName === 'body') {
       return [document.body]
     } else if (tagName === 'canvas') {
-      return [window.canvas]
+      return [window.__cccanvas]
     }
     return [new HTMLElement(tagName)]
   }
@@ -92,7 +93,7 @@ class Document extends Node {
     } else if (tagName === 'body') {
       return [document.body]
     } else if (tagName === 'canvas') {
-      return [window.canvas]
+      return [window.__cccanvas]
     }
     return [new HTMLElement(tagName)]
   }
@@ -103,9 +104,9 @@ class Document extends Node {
     } else if (query === 'body') {
       return document.body
     } else if (query === 'canvas') {
-      return window.canvas
-    } else if (query === `#${window.canvas.id}`) {
-      return window.canvas
+      return window.__cccanvas
+    } else if (query === `#${window.__cccanvas.id}`) {
+      return window.__cccanvas
     }
     return new HTMLElement(query);
   }
@@ -116,7 +117,7 @@ class Document extends Node {
     } else if (query === 'body') {
       return [document.body]
     } else if (query === 'canvas') {
-      return [window.canvas]
+      return [window.__cccanvas]
     }
     return [new HTMLElement(query)];
   }

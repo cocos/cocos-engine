@@ -27,7 +27,7 @@ let {enums, glTextureFmt} = require("./enums");
 let VertexFormat = require("./vertex-format-jsb");
 
 window.device = gfx.Device.getInstance();
-window.device._gl = window.__gl;
+window.device._gl = window.__ccgl;
 
 //FIXME:
 window.device._stats = { vb: 0 };
@@ -94,26 +94,7 @@ _p.destroy = function() {
 };
 _p.update = function(options) {
     convertImages(options.images);
-    this.updateNative(options);
-};
-var image
-_p.updateSubImage = function(option) {
-    var optionData = new Uint16Array(8 + ((option.image._data.length+1) / 2));
-    var images = [option.image];
-    convertImages([option.image]);
-    optionData[0] = option.x;
-    optionData[1] = option.y;
-    optionData[2] = option.width;
-    optionData[3] = option.height;
-    optionData[4] = option.level;
-    optionData[5] = option.flipY;
-    optionData[6] = false;
-    optionData[7] = images[0].length;
-
-    var imageData = new Uint8Array(optionData.buffer);
-    imageData.set(images[0], 16);
-
-    this.updateSubImageNative(optionData);
+    this.updateBinding(options);
 };
 cc.defineGetterSetter(_p, "_width", _p.getWidth);
 cc.defineGetterSetter(_p, "_height", _p.getHeight);
