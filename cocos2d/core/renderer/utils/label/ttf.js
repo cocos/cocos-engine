@@ -106,11 +106,21 @@ module.exports = {
             if (!_comp.font) return false;
 
             let url = _comp.font.nativeUrl;
-            _fontFamily = CustomFontLoader._getFontFamily(url);
-            let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
-            if (!fontDescriptor || !fontDescriptor.isLoaded()) {
-                CustomFontLoader.loadTTF(url);
-                return false;
+            if (CC_WECHATGAME) {
+                _fontFamily = wx.loadFont(url);
+                //avoid the error in wechat devtool platform
+                if (!_fontFamily) {
+                    _fontFamily = CustomFontLoader._getFontFamily(url);
+                    cc.warn("TTF font is not supported on debugger, but it will be displayed correctly on mobile device.");
+                }
+            }
+            else {
+                _fontFamily = CustomFontLoader._getFontFamily(url);
+                let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
+                if (!fontDescriptor || !fontDescriptor.isLoaded()) {
+                    CustomFontLoader.loadTTF(url);
+                    return false;
+                }
             }
         }
         else {

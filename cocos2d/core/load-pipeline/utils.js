@@ -41,7 +41,7 @@ module.exports = {
     //},
     urlAppendTimestamp: function (url) {
         if (cc.game.config['noCache'] && typeof url === 'string') {
-            if(_noCacheRex.test(url))
+            if (_noCacheRex.test(url))
                 url += '&_t=' + (new Date() - 0);
             else
                 url += '?_t=' + (new Date() - 0);

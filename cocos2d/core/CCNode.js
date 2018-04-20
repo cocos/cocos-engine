@@ -1211,7 +1211,7 @@ var Node = cc.Class({
      * !#zh 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      * @method off
      * @param {String} type - A string representing the event type being removed.
-     * @param {Function} callback - The callback to remove.
+     * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,

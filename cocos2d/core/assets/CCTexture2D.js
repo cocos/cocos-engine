@@ -255,6 +255,7 @@ var Texture2D = cc.Class({
          * @type {String}
          * @readonly
          */
+        // TODO - use nativeUrl directly
         this.url = "";
 
         /**
@@ -301,6 +302,10 @@ var Texture2D = cc.Class({
 
     getId () {
         return this.__instanceId;
+    },
+
+    toString () {
+        return this.url || '';
     },
 
     /**
@@ -673,5 +678,15 @@ var Texture2D = cc.Class({
         }
     }
 });
+
+/**
+ * !#zh
+ * 当该资源加载成功后触发该事件
+ * !#en
+ * This event is emitted when the asset is loaded
+ *
+ * @event load
+ * @param {Event.EventCustom} event
+ */
 
 cc.Texture2D = module.exports = Texture2D;

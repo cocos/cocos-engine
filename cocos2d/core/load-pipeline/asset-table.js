@@ -65,6 +65,17 @@ proto.getUuid = function (path, type) {
                         return entry.uuid;
                     }
                 }
+                // not found
+                if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame)) {
+                    for (let i = 0; i < item.length; i++) {
+                        let entry = item[i];
+                        if (js.isChildClassOf(entry.type, cc.SpriteAtlas)) {
+                            // not support sprite frame in atlas
+                            cc.errorID(4932, path);
+                            break;
+                        }
+                    }
+                }
             }
             else {
                 return item[0].uuid;
@@ -72,6 +83,10 @@ proto.getUuid = function (path, type) {
         }
         else if (!type || js.isChildClassOf(item.type, type)) {
             return item.uuid;
+        }
+        else if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame) && js.isChildClassOf(item.type, cc.SpriteAtlas)) {
+            // not support sprite frame in atlas
+            cc.errorID(4932, path);
         }
     }
     return '';
@@ -85,6 +100,7 @@ proto.getUuidArray = function (path, type, out_urls) {
     var path2uuid = this._pathToUuid;
     var uuids = [];
     var isChildClassOf = js.isChildClassOf;
+    var _foundAtlasUrl;
     for (var p in path2uuid) {
         if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
             var item = path2uuid[p];
@@ -97,6 +113,9 @@ proto.getUuidArray = function (path, type, out_urls) {
                             out_urls.push(p);
                         }
                     }
+                    else if (CC_DEBUG && entry.type === cc.SpriteAtlas) {
+                        _foundAtlasUrl = p;
+                    }
                 }
             }
             else {
@@ -106,8 +125,15 @@ proto.getUuidArray = function (path, type, out_urls) {
                         out_urls.push(p);
                     }
                 }
+                else if (CC_DEBUG && item.type === cc.SpriteAtlas) {
+                    _foundAtlasUrl = p;
+                }
             }
         }
+    }
+    if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && js.isChildClassOf(type, cc.SpriteFrame)) {
+        // not support sprite frame in atlas
+        cc.errorID(4932, _foundAtlasUrl);
     }
     return uuids;
 };

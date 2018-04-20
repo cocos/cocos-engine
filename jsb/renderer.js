@@ -84,7 +84,7 @@ var fillModelData = function() {
     model = models[i];
     modlesData[index++] = model._dynamicIA;
     modlesData[index++] = model._viewID;
-    worldMatrix = utils.getWorldRTInAB(model._node);
+    worldMatrix = model._node.getWorldRTInAB();
     modlesData.set(worldMatrix, index);
     index += 16;
 

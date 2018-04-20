@@ -251,7 +251,7 @@ let Graphics = cc.Class({
      * @param {Number} [r] The arc's radius.
      * @param {Number} [startAngle] The angle at which the arc starts, measured clockwise from the positive x axis and expressed in radians.
      * @param {Number} [endAngle] The angle at which the arc ends, measured clockwise from the positive x axis and expressed in radians.
-     * @param {Number} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
+     * @param {Boolean} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
      */
     arc (cx, cy, r, startAngle, endAngle, counterclockwise) {
         this._impl.arc(cx, cy, r, startAngle, endAngle, counterclockwise);

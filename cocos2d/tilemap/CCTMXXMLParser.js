@@ -28,6 +28,7 @@
 var codec = require('../compression/ZipUtils');
 var zlib = require('../compression/zlib.min');
 var js = require('../core/platform/js');
+require('../core/platform/CCSAXParser');
 
 function uint8ArrayToUint32Array (uint8Arr) {
     if(uint8Arr.length % 4 !== 0)

@@ -178,8 +178,8 @@ var properties = {
      * @default ""
      */
     _file: {
-        default: '',
-        url: ParticleAsset
+        default: null,
+        type: ParticleAsset
     },
     file: {
         get: function () {
@@ -201,7 +201,7 @@ var properties = {
             }
         },
         animatable: false,
-        url: ParticleAsset,
+        type: ParticleAsset,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
@@ -1088,7 +1088,7 @@ var ParticleSystem = cc.Class({
         var file = this._file;
         if (file) {
             var self = this;
-            cc.loader.load(file, function (err, content) {
+            cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
                     throw err || new Error(cc._getError(6029));
                 }
@@ -1096,12 +1096,16 @@ var ParticleSystem = cc.Class({
                     return;
                 }
 
-                self._plistFile = file;
+                self._plistFile = file.nativeUrl;
                 if (self._custom) {
                     self._initTextureWithDictionary(content);
                 }
                 else {
                     self._initWithDictionary(content);
+                }
+
+                if (file.texture) {
+                    self.spriteFrame = new cc.SpriteFrame(file.texture);
                 }
             });
         }
@@ -1259,12 +1263,12 @@ var ParticleSystem = cc.Class({
             else {
                 this._rotationIsDir = false;
             }
-        } else if (this._emitterMode === _ccsg.ParticleSystem.Mode.RADIUS) {
+        } else if (this._emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
             this.startRadius = parseFloat(dict["maxRadius"] || 0);
             this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
             this.endRadius = parseFloat(dict["minRadius"] || 0);
-            this.endRadiusVar = 0;
+            this.endRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
             this.rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
             this.rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
         } else {

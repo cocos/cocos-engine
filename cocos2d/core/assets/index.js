@@ -38,3 +38,4 @@ require('./CCTTFFont');
 require('./CCSpriteAtlas');
 require('./CCBitmapFont');
 require('./CCLabelAtlas');
+require('./CCTextAsset');

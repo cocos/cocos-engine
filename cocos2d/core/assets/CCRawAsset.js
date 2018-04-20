@@ -30,13 +30,8 @@ var js = require('../platform/js');
 /**
  * !#en
  * The base class for registering asset types.
- *
- * You may want to override:
- * - createNode (static)
  * !#zh
- * 注册用的资源基类。<br/>
- * 你可能要重写：<br/>
- * - createNode (static)
+ * 注册用的资源基类。
  *
  * @class RawAsset
  * @extends Object
@@ -56,24 +51,6 @@ cc.RawAsset = cc.Class({
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
     },
-
-    statics: {
-        /**
-         * !#en
-         * Create a new node in the scene.<br/>
-         * If this type of asset dont have its corresponding node type, this method should be null.
-         * !#zh
-         * 在场景中创建一个新节点。<br/>
-         * 如果这类资源没有相应的节点类型，该方法应该是空的。
-         * @method createNodeByInfo
-         * @param {Object} Info
-         * @param {Function} callback
-         * @param {String} callback.error - null or the error info
-         * @param {Object} callback.node - the created node or null
-         * @static
-         */
-        createNodeByInfo: null,
-    }
 });
 
 /**
@@ -87,9 +64,12 @@ js.value(cc.RawAsset, 'isRawAssetType', function (ctor) {
     return js.isChildClassOf(ctor, cc.RawAsset) && !js.isChildClassOf(ctor, cc.Asset);
 });
 
-// TODO - DELME after 2.0
+ // TODO - DELME after 2.1
 js.value(cc.RawAsset, 'wasRawAssetType', function (ctor) {
-    return ctor === cc.Texture2D;
+    return ctor === cc.Texture2D ||
+           ctor === cc.AudioClip ||
+           ctor === cc.ParticleAsset ||
+           ctor === cc.Asset;           // since 1.10, all raw asset will import as cc.Asset
 });
 
 module.exports = cc.RawAsset;

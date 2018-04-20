@@ -23,5 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('./CCParticleAsset');
 require('./CCParticleSystem');
 require('./particle-system-assembler');

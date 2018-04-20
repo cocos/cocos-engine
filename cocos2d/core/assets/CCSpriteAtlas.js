@@ -29,7 +29,6 @@
  * !#zh 精灵图集资源类。
  * @class SpriteAtlas
  * @extends Asset
- *
  */
 var SpriteAtlas = cc.Class({
     name: 'cc.SpriteAtlas',

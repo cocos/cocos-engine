@@ -269,7 +269,7 @@ proto.mulSelf = function (num) {
 
 /**
  * !#en Multiplies by a number, and returns the new result.
- * !#zh 缩放当前向量，并返回新结果。
+ * !#zh 缩放向量，并返回新结果。
  * @method mul
  * @param {number} num
  * @param {Vec2} [out] - optional, the receiving vector
