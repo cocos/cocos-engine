@@ -701,10 +701,13 @@ var game = {
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = wx.getSharedCanvas();
             }
+            else if (JSB) {
+                localCanvas = window.__cccanvas;
+            }
             else {
                 localCanvas = canvas;
             }
-            this.canvas = cc._canvas = localCanvas;
+            this.canvas = localCanvas;
         }
         else if (isQQPlay) {
             this.container = cc.container = document.createElement("DIV");
