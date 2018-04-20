@@ -655,7 +655,7 @@ void Texture2D::setSubImage(const GLTextureFmt& glFmt, const SubImageOption& opt
     }
     else
     {
-        TexOrSubImage(true, "Texture2D::setSubImage", option.imageData, option.imageDataLength, GL_TEXTURE_2D, option.level, &dui, 0, 0, 0, srcPI, dstPI, option.width, option.height, aligment, 1, option.flipY, option.premultiplyAlpha);
+        TexOrSubImage(true, "Texture2D::setSubImage", option.imageData, option.imageDataLength, GL_TEXTURE_2D, option.level, &dui, option.x, option.y, 0, srcPI, dstPI, option.width, option.height, aligment, 1, option.flipY, option.premultiplyAlpha);
     }
 }
 
