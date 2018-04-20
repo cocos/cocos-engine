@@ -50,14 +50,14 @@ function _mat4ToArray(typedArray, mat4) {
     typedArray[15] = mat4.m15;
 }
 
-Node.prototype.getWorldRTInAB = function (node) {
-    node.getWorldRT(_mat4_temp);
+Node.prototype.getWorldRTInAB = function () {
+    this.getWorldRT(_mat4_temp);
     _mat4ToArray(_typedArray_temp, _mat4_temp);
     return _typedArray_temp;
 };
 
-Node.prototype.getWorldMatrixInAB = function (node) {
-    node._updateWorldMatrix();
-    _mat4ToArray(_typedArray_temp, node._worldMatrix);
+Node.prototype.getWorldMatrixInAB = function () {
+    this._updateWorldMatrix();
+    _mat4ToArray(_typedArray_temp, this._worldMatrix);
     return _typedArray_temp;
 };

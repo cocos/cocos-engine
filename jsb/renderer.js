@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('./utils');
-
 // projection
 renderer.PROJ_PERSPECTIVE = 0;
 renderer.PROJ_ORTHO = 1;
