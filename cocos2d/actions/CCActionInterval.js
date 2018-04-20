@@ -263,6 +263,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         }
         this._repeatMethod = true;//Compatible with repeat class, Discard after can be deleted
         this._timesForRepeat *= times;
+        this._duration *= times;
         return this;
     },
 
