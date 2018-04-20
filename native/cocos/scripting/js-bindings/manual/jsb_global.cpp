@@ -644,7 +644,8 @@ static bool js_loadImage(se::State& s)
                     //FIX ME: How to handle other formats?
                     if (Image::PixelFormat::RGB888 == img->getRenderFormat())
                     {
-                        unsigned char convertedData[img->getWidth() * img->getHeight() * 4];
+                        size_t imageBytes = img->getWidth() * img->getHeight() * 4;
+                        unsigned char* convertedData = (unsigned char*)malloc(imageBytes);
                         auto dataT = data.getBytes();
                         for (size_t i = 0, len = data.getSize() / 3; i < len; ++i)
                         {
@@ -653,12 +654,12 @@ static bool js_loadImage(se::State& s)
                             convertedData[i * 4 + 2] = *dataT++;
                             convertedData[i * 4 + 3] = 255;
                         }
-                        data.copy(convertedData, sizeof(convertedData));
+                        data.copy(convertedData, imageBytes);
+                        free(convertedData);
                     }
 
                     se::Value dataVal;
                     Data_to_seval(data, &dataVal);
-                    SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(img->getWidth()));
                     retObj->setProperty("height", se::Value(img->getHeight()));
