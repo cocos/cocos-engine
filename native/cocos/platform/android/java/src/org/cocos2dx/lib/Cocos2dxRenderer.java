@@ -34,6 +34,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     // ===========================================================
     // Constants
     // ===========================================================
+    private final static String TAG = "Cocos2dxRenderer";
 
     private final static long NANOSECONDSPERSECOND = 1000000000L;
     private final static long NANOSECONDSPERMICROSECOND = 1000000;
@@ -49,6 +50,8 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private int mScreenHeight;
     private boolean mNativeInitCompleted = false;
     private String mDefaultResourcePath = "";
+    private long mOldNanoTime = 0;
+    private long mFrameCount = 0;
 
     // ===========================================================
     // Constructors
@@ -90,6 +93,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 GL10, final EGLConfig EGLConfig) {
         Cocos2dxRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight, mDefaultResourcePath);
+        mOldNanoTime = System.nanoTime();
         this.mLastTickInNanoSeconds = System.nanoTime();
         mNativeInitCompleted = true;
         if (mGameEngineInitializedListener != null) {
@@ -109,13 +113,23 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(final GL10 gl) {
+        /////////////////////////////////////////////////////////////////////
+        //FIXME: show FPS in Android Text control rather than outputing log.
+        ++mFrameCount;
+        long nowFpsTime = System.nanoTime();
+        long fpsTimeInterval = nowFpsTime - mOldNanoTime;
+        if (fpsTimeInterval > 1000000000L) {
+            double frameRate = 1000000000.0 * mFrameCount / fpsTimeInterval;
+            Log.d(TAG, "FPS:" + String.format("%.1f", frameRate));
+            mFrameCount = 0;
+            mOldNanoTime = System.nanoTime();
+        }
+        /////////////////////////////////////////////////////////////////////
         /*
          * No need to use algorithm in default(60 FPS) situation,
          * since onDrawFrame() was called by system 60 times per second by default.
          */
         if (sAnimationInterval <= 1.0 / 60 * Cocos2dxRenderer.NANOSECONDSPERSECOND) {
-
-
             Cocos2dxRenderer.nativeRender();
         } else {
             final long now = System.nanoTime();

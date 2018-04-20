@@ -772,7 +772,7 @@ bool jsb_register_global_variables(se::Object* global)
 
     SAFE_DEC_REF(__glObj);
     __glObj = se::Object::createObjectWithClass(glContextCls);
-    global->setProperty("__gl", se::Value(__glObj));
+    global->setProperty("__ccgl", se::Value(__glObj));
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));

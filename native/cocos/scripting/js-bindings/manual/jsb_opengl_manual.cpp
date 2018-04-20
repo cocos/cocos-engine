@@ -3230,10 +3230,18 @@ static bool JSB_glGetProgramInfoLog(se::State& s) {
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length));
-    GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetProgramInfoLog(programId, length, nullptr, src));
-    s.rval().setString(src);
-    CC_SAFE_DELETE_ARRAY(src);
+
+    if (length > 0)
+    {
+        GLchar* src = new (std::nothrow) GLchar[length];
+        JSB_GL_CHECK(glGetProgramInfoLog(programId, length, nullptr, src));
+        s.rval().setString(src);
+        CC_SAFE_DELETE_ARRAY(src);
+    }
+    else
+    {
+        s.rval().setString("");
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetProgramInfoLog)
@@ -3252,11 +3260,19 @@ static bool JSB_glGetShaderInfoLog(se::State& s) {
 
     GLsizei length;
     JSB_GL_CHECK(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length));
-    GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetShaderInfoLog(shaderId, length, NULL, src));
 
-    s.rval().setString(src);
-    CC_SAFE_DELETE_ARRAY(src);
+    if (length > 0)
+    {
+        GLchar* src = new (std::nothrow) GLchar[length];
+        JSB_GL_CHECK(glGetShaderInfoLog(shaderId, length, NULL, src));
+
+        s.rval().setString(src);
+        CC_SAFE_DELETE_ARRAY(src);
+    }
+    else
+    {
+        s.rval().setString("");
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetShaderInfoLog)
