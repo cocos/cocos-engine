@@ -29,7 +29,7 @@
 
 require('./jsb_opengl_constants');
 
-const gl = __ccgl;
+var gl = __ccgl;
 
 gl.drawingBufferWidth = window.innerWidth;
 gl.drawingBufferHeight = window.innerHeight;
@@ -50,11 +50,12 @@ gl.getExtension = function(extension) {
     return null;
 };
 
-let HTMLCanvasElement = require('./jsb-adapter/HTMLCanvasElement');
-let HTMLImageElement = require('./jsb-adapter/HTMLImageElement');
-let ImageData = require('./jsb-adapter/ImageData');
+const HTMLCanvasElement = require('./jsb-adapter/HTMLCanvasElement');
+const HTMLImageElement = require('./jsb-adapter/HTMLImageElement');
+const ImageData = require('./jsb-adapter/ImageData');
 
-let _glTexImage2D = gl.texImage2D;
+const _glPixelStorei = gl.pixelStorei;
+const _glTexImage2D = gl.texImage2D;
 
 /*
 // WebGL1:
@@ -74,7 +75,7 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            gl.pixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
+            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
             _glTexImage2D(target, level, image._glInternalFormat, image.width, image.height, 0, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
@@ -100,7 +101,7 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
 }
 
 
-let _glTexSubImage2D = gl.texSubImage2D;
+const _glTexSubImage2D = gl.texSubImage2D;
 /*
  // WebGL 1:
  void gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, ArrayBufferView? pixels);
@@ -118,7 +119,7 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            gl.pixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
+            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, image._glFormat, image._glType, image._data);
         }
         else if (image instanceof HTMLCanvasElement) {
