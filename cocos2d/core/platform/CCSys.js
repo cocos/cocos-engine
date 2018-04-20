@@ -588,6 +588,9 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
+
+        // Adaptation
+        wx.getOpenDataContext = function () {return {canvas: null};}
     }
     else if (CC_WECHATGAME) {
         var env = wx.getSystemInfoSync();
