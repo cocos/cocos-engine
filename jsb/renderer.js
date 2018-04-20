@@ -66,35 +66,45 @@ renderer.Pass = require('./Pass');
 renderer.Model = require('./Model');
 
 var models = [];
-var sizeOfModel = 23;
+var sizeOfModel = 13;
+var lengthOfCachedModels = 500;
 // length + 500 modles(8 for each model)
-var modlesData = new Float64Array(1 + 500*sizeOfModel);
+var modelsData = new Float64Array(1 + lengthOfCachedModels*sizeOfModel);
+var modelsData32 = new Float32Array(modelsData.buffer);
 var fillModelData = function() {
-  if (models.length > 500)
-    modlesData = new FloatArray64(1 + models.length*sizeOfModel);
+  if (models.length > lengthOfCachedModels) {
+    modelsData = new Floa64Array(1 + models.length*sizeOfModel);
+    lengthOfCachedModels = models.length;
+    modelsData32 = new Float32Array(modelsData.buffer);
+  }
 
-  modlesData[0] = models.length;
-  var index = 1;
+  modelsData[0] = models.length;
+  var index64 = 1;
+  var index32 = 2;
   var model;
   var worldMatrix;
   var ia;
   for (var i = 0, len = models.length; i < len; ++i) {
     model = models[i];
-    modlesData[index++] = model._dynamicIA;
-    modlesData[index++] = model._viewID;
-    worldMatrix = model._node.getWorldRTInAB();
-    modlesData.set(worldMatrix, index);
-    index += 16;
 
-    // ia
     ia = model._inputAssemblers[0];
-    modlesData[index++] = ia._vertexBuffer._nativePtr;
-    modlesData[index++] = ia._indexBuffer._nativePtr;
-    modlesData[index++] = ia._start;
-    modlesData[index++] = ia._count;
 
-    // effect
-    modlesData[index++] = model._effects[0]._nativePtr;
+    // 3 elements of 64 bits data
+    modelsData[index64++] = model._effects[0]._nativePtr;
+    modelsData[index64++] = ia._vertexBuffer._nativePtr;
+    modelsData[index64++] = ia._indexBuffer._nativePtr;
+
+    index32 += 6; 
+    modelsData32[index32++] = model._dynamicIA;
+    modelsData32[index32++] = model._viewID;
+    worldMatrix = model._node.getWorldRTInAB();
+    modelsData32.set(worldMatrix, index32);
+    index32 += 16;
+
+    modelsData32[index32++] = ia._start;
+    modelsData32[index32++] = ia._count;
+
+    index64 += 10;
   }
 }
 
@@ -107,7 +117,7 @@ _p._ctor = function(device, builtin) {
 };
 _p.render = function(scene) {
   fillModelData();
-  this.renderNative(scene, modlesData);
+  this.renderNative(scene, modelsData);
 
   models.length = 0;
 }
