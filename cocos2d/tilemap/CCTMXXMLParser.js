@@ -260,7 +260,8 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     _tilesets:null,
     // tile properties
     _tileProperties:null,
-    _resources: "",  // used to load relative tsx
+    _tsxFileNames: [cc.String],
+    _tsxFiles: [cc.TextAsset],
 
     // map of textures indexed by name
     _textures: null,
@@ -274,10 +275,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Creates a TMX Format with a tmx file or content string                           <br/>
      * Constructor of cc.TMXMapInfo
      * @param {String} tmxFile content string
-     * @param {String} resourcePath
+     * @param {String} tsxFileNames
+     * @param {String} tsxFiles
      * @param {Object} textures
      */
-    ctor: function (tmxFile, resourcePath, textures) {
+    ctor: function (tmxFile, tsxFileNames, tsxFiles, textures) {
         cc.SAXParser.prototype.ctor.apply(this);
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
@@ -288,7 +290,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this.properties = [];
         this._tileProperties = {};
 
-        this.initWithXML(tmxFile, resourcePath, textures);
+        this.initWithXML(tmxFile, tsxFileNames, tsxFiles, textures);
     },
     /**
      * Gets Map orientation.
@@ -551,17 +553,20 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     /**
      * initializes a TMX format with an XML string and a TMX resource path
      * @param {String} tmxString
-     * @param {String} resourcePath
+     * @param {String} tsxFileNames
+     * @param {String} tsxFiles
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML:function (tmxString, resourcePath, textures) {
+    initWithXML:function (tmxString, tsxFileNames, tsxFiles, textures) {
 
         this._tilesets.length = 0;
         this._layers.length = 0;
 
-        if (resourcePath)
-            this._resources = resourcePath;
+        if (tsxFileNames)
+            this._tsxFileNames = tsxFileNames;
+        if (tsxFiles)
+            this._tsxFiles = tsxFiles;
         this._textures = textures;
 
         this._objectGroups.length = 0;
@@ -584,13 +589,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLFile:function (tmxFile, isXmlString, tilesetFirstGid) {
-        isXmlString = isXmlString || false;
-	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
-        if (!xmlStr) {
-            cc.errorID(7220, tmxFile);
-        }
-
+    parseXMLFile:function (xmlStr, tilesetFirstGid) {
         var mapXML = this._parseXML(xmlStr);
         var i, j;
 
@@ -668,8 +667,9 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             var tsxName = selTileset.getAttribute('source');
             if (tsxName) {
                 var currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
-                var tsxPath = isXmlString ? cc.path.join(this._resources, tsxName) : cc.path.changeBasename(tmxFile, tsxName);
-                this.parseXMLFile(tsxPath, false, currentFirstGID);
+                var index = this._tsxFileNames.indexOf(tsxName);
+                var tsxFile = this._tsxFiles[index];
+                this.parseXMLFile(tsxFile.text, currentFirstGID);
             } else {
                 var tileset = new cc.TMXTilesetInfo();
                 tileset.name = selTileset.getAttribute('name') || "";
@@ -962,7 +962,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * @return {Boolean}
      */
     parseXMLString:function (xmlString) {
-        return this.parseXMLFile(xmlString, true);
+        return this.parseXMLFile(xmlString);
     },
 
     /**

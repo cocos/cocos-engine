@@ -125,7 +125,16 @@ class TiledMapMeta extends CustomAssetMeta {
       return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
     asset.textureNames = this._textures.map(p => Path.basename(p));
-    asset.tsxFiles = this._tsxFiles.map(p => db.fspathToUrl(p));
+    asset.tsxFiles = this._tsxFiles.map(p =>{
+        var tsxFileName = Path.basename(p);
+        asset.tsxFileNames.push(tsxFileName);
+
+        var uuid = db.fspathToUuid(p);
+        if (uuid) {
+            return Editor.serialize.asAsset(uuid);
+        }
+        return null;
+    });
     db.saveAssetToLibrary(this.uuid, asset);
     cb();
   }

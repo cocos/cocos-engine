@@ -844,16 +844,6 @@ var TiledMap = cc.Class({
         var file = this._tmxFile;
         var self = this;
         if (file) {
-            var resPath = cc.url._rawAssets + file.tmxFolderPath;
-            resPath = cc.path.stripSep(resPath);
-
-            if (CC_EDITOR && cc.sys.os === cc.sys.OS_WINDOWS) {
-                // In windows editor, the key of loaded textures are using '/'.
-                // But the value of cc.url._rawAssets is using '\'
-                // So, here should change the separater.
-                resPath = resPath.replace(/\\/g, '/');
-            }
-
             var texValues = file.textures;
             var texKeys = file.textureNames;
             var textures = {};
@@ -861,7 +851,7 @@ var TiledMap = cc.Class({
                 textures[texKeys[i]] = texValues[i];
             }
 
-            var ret = sgNode.initWithXML(file.tmxXmlStr, resPath, textures);
+            var ret = sgNode.initWithXML(file.tmxXmlStr, file.tsxFileNames, file.tsxFiles, textures);
             if (ret) {
                 // Asset is changed, the layers are recreated.
                 // The layers of pre asset should be cleaned.
