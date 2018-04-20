@@ -94,7 +94,28 @@ _p.destroy = function() {
 };
 _p.update = function(options) {
     convertImages(options.images);
-    this.updateBinding(options);
+    this.updateNative(options);
+};
+_p.updateSubImage = function(option) {
+    var images = [option.image];
+    convertImages(images);
+    var data = new Uint16Array(8 + 
+                               (images[0].length + 1) / 2);
+
+    data[0] = option.x;
+    data[1] = option.y;
+    data[2] = option.width;
+    data[3] = option.height;
+    data[4] = option.level;
+    data[5] = option.flipY;
+    data[6] = false;
+
+    
+    data[7] = images[0].length;
+    var imageData = new Uint8Array(data.buffer);
+    imageData.set(images[0], 16);
+
+    this.updateSubImageNative(data);
 };
 cc.defineGetterSetter(_p, "_width", _p.getWidth);
 cc.defineGetterSetter(_p, "_height", _p.getHeight);
