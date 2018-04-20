@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
  
+var __targetID = 0;
+var __listenTouchEventMap = {};
+
+const __touchEventNames = ['touchstart', 'touchmove', 'touchend', 'touchcancel'];
+
+
 // Listener types
 const CAPTURE = 1
 const BUBBLE = 2
@@ -47,12 +53,13 @@ function isObject(x) {
  * 
  *     class A extends EventTarget {}
  */
-function EventTarget() {
-    this._listeners = new Map();
-}
+class EventTarget {
+    constructor() {
+        this._targetID = ++__targetID;
+        this._touchListenerCount = 0;
+        this._listeners = new Map();
+    }
 
-// Should be enumerable, but class methods are not enumerable.
-EventTarget.prototype = {
     /**
      * Add a given listener to this event target.
      * @param {string} eventName The event name to add.
@@ -84,6 +91,11 @@ EventTarget.prototype = {
         let node = listeners.get(eventName)
         if (node === undefined) {
             listeners.set(eventName, newNode)
+            if (__touchEventNames.indexOf(eventName) > -1) {
+                if (this._touchListenerCount === 0)
+                    __listenTouchEventMap[this._targetID] = this;
+                ++this._touchListenerCount;
+            }
             return true
         }
 
@@ -100,8 +112,13 @@ EventTarget.prototype = {
 
         // Add it.
         prev.next = newNode
+        if (__touchEventNames.indexOf(eventName) > -1) {
+            if (this._touchListenerCount === 0)
+                __listenTouchEventMap[this._targetID] = this;
+            ++this._touchListenerCount;
+        }
         return true
-    },
+    }
 
     /**
      * Remove a given listener from this event target.
@@ -132,6 +149,13 @@ EventTarget.prototype = {
                 else {
                     listeners.delete(eventName)
                 }
+
+                if (__touchEventNames.indexOf(eventName) > -1) {
+                    --this._touchListenerCount;
+                    if (this._touchListenerCount <= 0)
+                        delete __listenTouchEventMap[this._targetID];
+                }
+
                 return true
             }
 
@@ -140,7 +164,7 @@ EventTarget.prototype = {
         }
 
         return false
-    },
+    }
 
     /**
      * Dispatch a given event.
@@ -213,16 +237,28 @@ EventTarget.prototype = {
         event._passiveListener = null
 
         return !event.defaultPrevented
-    },
+    }
 }
 
-// `constructor` is not enumerable.
-Object.defineProperty(EventTarget.prototype, "constructor", { value: EventTarget, configurable: true, writable: true })
+function touchEventHandlerFactory(type) {
+    return (touches) => {
+        const touchEvent = new TouchEvent(type)
 
-// Ensure `eventTarget instanceof window.EventTarget` is `true`.
-if (typeof window !== "undefined" && typeof window.EventTarget !== "undefined") {
-    Object.setPrototypeOf(EventTarget.prototype, window.EventTarget.prototype)
+        touchEvent.touches = touches;
+        touchEvent.targetTouches = Array.prototype.slice.call(touchEvent.touches)
+        touchEvent.changedTouches = touches;//event.changedTouches
+        // touchEvent.timeStamp = event.timeStamp
+
+        for (let key in __listenTouchEventMap) {
+            __listenTouchEventMap[key].dispatchEvent(touchEvent);
+        }
+    }
 }
+
+jsb.onTouchStart = touchEventHandlerFactory('touchstart');
+jsb.onTouchMove = touchEventHandlerFactory('touchmove');
+jsb.onTouchEnd = touchEventHandlerFactory('touchend');
+jsb.onTouchCancel = touchEventHandlerFactory('touchcancel');
 
 // export { defineEventAttribute, EventTarget }
 // export default EventTarget
