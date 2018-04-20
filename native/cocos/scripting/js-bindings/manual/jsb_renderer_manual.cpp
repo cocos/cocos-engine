@@ -420,49 +420,40 @@ static bool js_renderer_ForwardRenderer_render(se::State& s)
         uint8_t* ptr = nullptr;
         size_t length = 0;
         args[1].toObject()->getTypedArrayData(&ptr, &length);
-        double* realPtr = (double*)ptr;
+        double* doublePtr = (double*)ptr;
+        float* floatPtr = (float*)ptr;
         
-        int numOfModels = (int)*realPtr++;
+        int numOfModels = (int)*doublePtr++;
+        floatPtr += 2;
         cocos2d::Mat4 worldMatrix;
         cocos2d::renderer::InputAssembler ia;
         for (size_t i = 0; i < numOfModels; ++i)
         {
             auto model = cocos2d::renderer::ModelPool::getOrCreateModel();
-            model->setDynamicIA((bool)*realPtr++);
-            model->setViewId((int)*realPtr++);
             
-            // because the data is 64 bits but the data type of Mat4 is float, so can not memcpy
-            worldMatrix.m[0] = *realPtr++;
-            worldMatrix.m[1] = *realPtr++;
-            worldMatrix.m[2] = *realPtr++;
-            worldMatrix.m[3] = *realPtr++;
-            worldMatrix.m[4] = *realPtr++;
-            worldMatrix.m[5] = *realPtr++;
-            worldMatrix.m[6] = *realPtr++;
-            worldMatrix.m[7] = *realPtr++;
-            worldMatrix.m[8] = *realPtr++;
-            worldMatrix.m[9] = *realPtr++;
-            worldMatrix.m[10] = *realPtr++;
-            worldMatrix.m[11] = *realPtr++;
-            worldMatrix.m[12] = *realPtr++;
-            worldMatrix.m[13] = *realPtr++;
-            worldMatrix.m[14] = *realPtr++;
-            worldMatrix.m[15] = *realPtr++;
-            
-            // ia
-            unsigned long addr = (unsigned long)(*realPtr++);
+            unsigned long addr = (unsigned long)(*doublePtr++);
+            model->addEffect(reinterpret_cast<cocos2d::renderer::Effect*>(addr));
+            addr = (unsigned long)(*doublePtr++);
             ia.setVertexBuffer(reinterpret_cast<cocos2d::renderer::VertexBuffer*>(addr));
-            addr = (unsigned long)(*realPtr++);
+            addr = (unsigned long)(*doublePtr++);
             ia.setIndexBuffer(reinterpret_cast<cocos2d::renderer::IndexBuffer*>(addr));
-            ia.setStart(*realPtr++);
-            ia.setCount(*realPtr++);
+            
+            floatPtr += 6;
+            
+            model->setDynamicIA((bool)*floatPtr++);
+            model->setViewId((int)*floatPtr++);
+            
+            memcpy(worldMatrix.m, floatPtr, 16);
+            model->setWorldMatix(worldMatrix);
+            floatPtr += 16;
+            
+            ia.setStart(*floatPtr++);
+            ia.setCount(*floatPtr++);
             model->addInputAssembler(ia);
             
-            // effect
-            addr = (unsigned long)(*realPtr++);
-            model->addEffect(reinterpret_cast<cocos2d::renderer::Effect*>(addr));
-            
             arg0->addModel(model);
+            
+            doublePtr += 10;
         }
         
         cobj->render(arg0);
