@@ -50,8 +50,6 @@ import com.cocos.analytics.CAAgent;
 
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
 
-import java.util.Locale;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
@@ -460,7 +458,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        fpsView.setText("FPS: " + String.format(Locale.ENGLISH, "%.1f", fps));
+                        fpsView.setText("FPS: " + (int)Math.ceil(fps));
                     }
                 });
             }

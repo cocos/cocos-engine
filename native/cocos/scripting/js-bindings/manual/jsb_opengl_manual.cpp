@@ -3478,6 +3478,61 @@ static bool JSB_glGetTexParameterfv(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glGetTexParameterfv)
 
+// GLenum target, GLenum attachment, GLenum pname
+static bool JSB_glGetFramebufferAttachmentParameter(se::State& s) {
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2(argc == 3, false,"JSB_glGetFramebufferAttachmentParameter: Invalid number of arguments" );
+
+    bool ok = true;
+    uint32_t target, attachment, pname;
+
+    ok &= seval_to_uint32(args[0], &target );
+    ok &= seval_to_uint32(args[1], &attachment );
+    ok &= seval_to_uint32(args[2], &pname );
+
+    SE_PRECONDITION2(ok, false, "JSB_glGetFramebufferAttachmentParameter: Error processing arguments");
+
+    GLint param = 0;
+    JSB_GL_CHECK(glGetFramebufferAttachmentParameteriv(target, attachment, pname, &param));
+
+    if( pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ) {
+        GLint ptype;
+        glGetFramebufferAttachmentParameteriv(target, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &ptype);
+
+        if( ptype == GL_RENDERBUFFER ) {
+            auto iter = __webglRenderbufferMap.find(param);
+            if (iter != __webglRenderbufferMap.end()) {
+                auto objIter = se::NativePtrToObjectMap::find(iter->second);
+                if (objIter != se::NativePtrToObjectMap::end()) {
+                    s.rval().setObject(objIter->second);
+                }
+                else {
+                    s.rval().setNull();
+                }
+                return true;
+            }
+        }
+        else if( ptype == GL_TEXTURE ) {
+            auto iter = __webglTextureMap.find(param);
+            if (iter != __webglTextureMap.end()) {
+                auto objIter = se::NativePtrToObjectMap::find(iter->second);
+                if (objIter != se::NativePtrToObjectMap::end()) {
+                    s.rval().setObject(objIter->second);
+                }
+                else {
+                    s.rval().setNull();
+                }
+                return true;
+            }
+        }
+    }
+
+    s.rval().setInt32(param);
+    return true;
+}
+SE_BIND_FUNC(JSB_glGetFramebufferAttachmentParameter)
+
 // any getUniform(WebGLProgram? program, WebGLUniformLocation? location);
 static bool JSB_glGetUniformfv(se::State& s) {
     const auto& args = s.args();
@@ -4176,7 +4231,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_UNIFORM_1IV) {
             GLsizei elementCount = (GLsizei)p[2];
-            GLint* intBuf = (GLint*)malloc(elementCount);
+            GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
             {
                 intBuf[i] = p[3+i];
@@ -4187,7 +4242,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_UNIFORM_2IV) {
             GLsizei elementCount = (GLsizei)p[2];
-            GLint* intBuf = (GLint*)malloc(elementCount);
+            GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
             {
                 intBuf[i] = p[3+i];
@@ -4198,7 +4253,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_UNIFORM_3IV) {
             GLsizei elementCount = (GLsizei)p[2];
-            GLint* intBuf = (GLint*)malloc(elementCount);
+            GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
             {
                 intBuf[i] = p[3+i];
@@ -4209,7 +4264,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_UNIFORM_4IV) {
             GLsizei elementCount = (GLsizei)p[2];
-            GLint* intBuf = (GLint*)malloc(elementCount);
+            GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
             {
                 intBuf[i] = p[3+i];
@@ -4397,6 +4452,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("getShaderSource", _SE(JSB_glGetShaderSource));
     __glObj->defineFunction("getShaderParameter", _SE(JSB_glGetShaderParameter));
     __glObj->defineFunction("getTexParameter", _SE(JSB_glGetTexParameterfv));
+    __glObj->defineFunction("getFramebufferAttachmentParameter", _SE(JSB_glGetFramebufferAttachmentParameter));
     __glObj->defineFunction("getUniformLocation", _SE(JSB_glGetUniformLocation));
     __glObj->defineFunction("getUniform", _SE(JSB_glGetUniformfv));
     __glObj->defineFunction("hint", _SE(JSB_glHint));
