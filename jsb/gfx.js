@@ -27,7 +27,7 @@ let {enums, glTextureFmt} = require("./enums");
 let VertexFormat = require("./vertex-format-jsb");
 
 window.device = gfx.Device.getInstance();
-window.device._gl = window.gl;
+window.device._gl = window.__ccgl;
 
 //FIXME:
 window.device._stats = { vb: 0 };

@@ -42,7 +42,7 @@ class HTMLElement extends Element {
     this.insertBefore = noop
 
     this.innerHTML = ''
-    this.parentElement = window.canvas
+    this.parentElement = window.__cccanvas
   }
 
   setAttribute(name, value) {

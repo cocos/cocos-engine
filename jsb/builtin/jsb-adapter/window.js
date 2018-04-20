@@ -32,6 +32,8 @@ function inject () {
     window.ontouchcancel = null;
 
     window.pageXOffset = window.pageYOffset = window.clientTop = window.clientLeft = 0;
+    window.outerWidth = window.innerWidth;
+    window.outerHeight = window.innerHeight;
 
     window.location = require('./location');
     window.document = require('./document');
@@ -42,8 +44,8 @@ function inject () {
     window.HTMLMediaElement = require('./HTMLMediaElement');
     window.HTMLAudioElement = require('./HTMLAudioElement');
     window.HTMLVideoElement = require('./HTMLVideoElement');
-    window.canvas = new HTMLCanvasElement();
-    window.__gl.canvas = window.canvas;
+    window.__cccanvas = new HTMLCanvasElement();
+    window.__ccgl.canvas = window.__cccanvas;
     window.navigator = require('./navigator');
     window.Image = require('./Image');
     window.Audio = require('./Audio');
@@ -73,15 +75,15 @@ function inject () {
     };
 
     window.addEventListener = function(eventName, listener, options) {
-        window.canvas.addEventListener(eventName, listener, options);
+        window.__cccanvas.addEventListener(eventName, listener, options);
     };
 
     window.removeEventListener = function(eventName, listener, options) {
-        window.canvas.removeEventListener(eventName, listener, options);
+        window.__cccanvas.removeEventListener(eventName, listener, options);
     };
 
     window.dispatchEvent = function(event) {
-        window.canvas.dispatchEvent(event);
+        window.__cccanvas.dispatchEvent(event);
     };
 
     window.getComputedStyle = function(element) {

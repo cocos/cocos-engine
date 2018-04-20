@@ -25,7 +25,7 @@
  
 const HTMLElement = require('./HTMLElement');
 const Event = require('./Event');
-const gl = window.__gl;
+const gl = window.__ccgl;
 
 class HTMLImageElement extends HTMLElement {
     constructor(width, height) {

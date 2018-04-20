@@ -29,7 +29,7 @@
 
 require('./jsb_opengl_constants');
 
-const gl = __gl;
+const gl = __ccgl;
 
 gl.drawingBufferWidth = window.innerWidth;
 gl.drawingBufferHeight = window.innerHeight;
@@ -147,7 +147,7 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
 gl.getContextAttributes = function() {
     return {
       alpha: true, 
-      antialias: true, 
+      antialias: false, 
       depth: true, 
       failIfMajorPerformanceCaveat: false, 
       premultipliedAlpha: true, 
