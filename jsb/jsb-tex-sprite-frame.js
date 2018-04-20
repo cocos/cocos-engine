@@ -197,7 +197,6 @@ cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
 cc.SpriteFrame.$super = cc.Asset;
 
 prototype = cc.SpriteFrame.prototype;
-prototype._setTexture = prototype.setTexture;
 
 cc.js.mixin(prototype, cc.EventTarget.prototype);
 
@@ -211,6 +210,18 @@ prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
     if (filename !== undefined) {
         this.initWithTexture(filename, rect, rotated, offset, originalSize);
     }
+};
+
+prototype._getTexture = prototype.getTexture;
+prototype.getTexture = function () {
+    var tex = this._getTexture();
+    this._texture = tex;
+    return tex;
+};
+prototype.__setTexture = prototype.setTexture;
+prototype._setTexture = function (tex) {
+    this.__setTexture(tex);
+    this._texture = tex;
 };
 
 prototype.textureLoaded = function () {
@@ -331,13 +342,6 @@ prototype._checkRect = function (texture) {
     if (maxY > texture.getPixelHeight()) {
         cc.errorID(3400, texture.url);
     }
-};
-
-prototype._getTexture = prototype.getTexture;
-prototype.getTexture = function () {
-    var tex = this._getTexture();
-    this._texture = tex;
-    return tex;
 };
 
 prototype._clone = prototype.clone;
