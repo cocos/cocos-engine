@@ -342,8 +342,21 @@ cc.Sequence = cc.ActionInterval.extend({
     initWithTwoActions:function (actionOne, actionTwo) {
         if(!actionOne || !actionTwo)
             throw new Error("cc.Sequence.initWithTwoActions(): arguments must all be non nil");
-
-        var d = actionOne._duration + actionTwo._duration;
+            var durationOne, durationTwo;
+            if(actionOne._repeatMethod){
+                durationOne = actionOne._duration * actionOne._timesForRepeat;
+            }
+            else {
+                durationOne = actionOne._duration;
+            }
+    
+            if(actionTwo._repeatMethod){
+                durationTwo = actionTwo._duration * actionTwo._timesForRepeat;
+            }
+            else {
+                durationTwo = actionTwo._duration;
+            }
+        var d = durationOne + durationTwo;
         this.initWithDuration(d);
 
         this._actions[0] = actionOne;
@@ -360,7 +373,12 @@ cc.Sequence = cc.ActionInterval.extend({
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._split = this._actions[0]._duration / this._duration;
+        if (this._actions[0]._repeatMethod) {
+            this._split = this._actions[0]._duration * this._actions[0]._timesForRepeat / this._duration;
+        }
+        else {
+            this._split = this._actions[0]._duration / this._duration;
+        }
         this._last = -1;
     },
 
