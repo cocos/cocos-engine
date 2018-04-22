@@ -532,29 +532,31 @@ var Layout = cc.Class({
             }
             //for resizing children
             if (this._resize === ResizeMode.CHILDREN) {
-                child.width = newChildWidth;
+                child.width = newChildWidth / child.scaleX;
                 if (this.type === Type.GRID) {
-                    child.height = this.cellSize.height;
+                    child.height = this.cellSize.height / child.scaleY;
                 }
             }
 
             var anchorX = child.anchorX;
+            var childBoundingBoxWidth = child.width * child.scaleX;
+            var childBoundingBoxHeight = child.height * child.scaleY;
 
             if (secondMaxHeight > tempMaxHeight) {
                 tempMaxHeight = secondMaxHeight;
             }
 
-            if (child.height >= tempMaxHeight) {
+            if (childBoundingBoxHeight >= tempMaxHeight) {
                 secondMaxHeight = tempMaxHeight;
-                tempMaxHeight = child.height;
+                tempMaxHeight = childBoundingBoxHeight;
                 maxHeightChildAnchorY = child.getAnchorPoint().y;
             }
 
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 anchorX = 1 - child.anchorX;
             }
-            nextX = nextX + sign * anchorX * child.width + sign * this.spacingX;
-            var rightBoundaryOfChild = sign * (1 - anchorX) * child.width;
+            nextX = nextX + sign * anchorX * childBoundingBoxWidth + sign * this.spacingX;
+            var rightBoundaryOfChild = sign * (1 - anchorX) * childBoundingBoxWidth;
 
             if (rowBreak) {
                 var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this.paddingRight : this.paddingLeft);
@@ -563,7 +565,7 @@ var Layout = cc.Class({
 
                 if (leftToRightRowBreak || rightToLeftRowBreak) {
 
-                    if (child.height >= tempMaxHeight) {
+                    if (childBoundingBoxHeight >= tempMaxHeight) {
                         if (secondMaxHeight === 0) {
                             secondMaxHeight = tempMaxHeight;
                         }
@@ -572,16 +574,16 @@ var Layout = cc.Class({
                     }
                     else {
                         rowMaxHeight += tempMaxHeight;
-                        secondMaxHeight = child.height;
+                        secondMaxHeight = childBoundingBoxHeight;
                         tempMaxHeight = 0;
                     }
-                    nextX = leftBoundaryOfLayout + sign * (paddingX  + anchorX * child.width);
+                    nextX = leftBoundaryOfLayout + sign * (paddingX  + anchorX * childBoundingBoxWidth);
                     row++;
                 }
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
+            if(baseWidth >= (childBoundingBoxWidth + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
                     child.setPosition(cc.v2(nextX, finalPositionY));
                 }
@@ -589,7 +591,7 @@ var Layout = cc.Class({
 
             var signX = 1;
             var tempFinalPositionY;
-            var topMarign = (tempMaxHeight === 0) ? child.height : tempMaxHeight;
+            var topMarign = (tempMaxHeight === 0) ? childBoundingBoxHeight : tempMaxHeight;
 
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
@@ -622,7 +624,7 @@ var Layout = cc.Class({
                     return;
                 }
                 activeChildCount++;
-                newHeight += child.height;
+                newHeight += child.height * child.scaleY;
             });
 
             newHeight += (activeChildCount - 1) * this.spacingY + this.paddingBottom + this.paddingTop;
@@ -666,29 +668,31 @@ var Layout = cc.Class({
 
             //for resizing children
             if (this.resizeMode === ResizeMode.CHILDREN) {
-                child.height = newChildHeight;
+                child.height = newChildHeight / child.scaleY;
                 if (this.type === Type.GRID) {
-                    child.width = this.cellSize.width;
+                    child.width = this.cellSize.width / child.scaleX;
                 }
             }
 
             var anchorY = child.anchorY;
+            var childBoundingBoxWidth = child.width * child.scaleX;
+            var childBoundingBoxHeight = child.height * child.scaleY;
 
             if (secondMaxWidth > tempMaxWidth) {
                 tempMaxWidth = secondMaxWidth;
             }
 
-            if (child.width >= tempMaxWidth) {
+            if (childBoundingBoxWidth >= tempMaxWidth) {
                 secondMaxWidth = tempMaxWidth;
-                tempMaxWidth = child.width;
+                tempMaxWidth = childBoundingBoxWidth;
                 maxWidthChildAnchorX = child.getAnchorPoint().x;
             }
 
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 anchorY = 1 - child.anchorY;
             }
-            nextY = nextY + sign * anchorY * child.height + sign * this.spacingY;
-            var topBoundaryOfChild = sign * (1 - anchorY) * child.height;
+            nextY = nextY + sign * anchorY * childBoundingBoxHeight + sign * this.spacingY;
+            var topBoundaryOfChild = sign * (1 - anchorY) * childBoundingBoxHeight;
 
             if (columnBreak) {
                 var columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this.paddingTop : this.paddingBottom);
@@ -696,7 +700,7 @@ var Layout = cc.Class({
                 var topToBottomColumnBreak = this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
 
                 if (bottomToTopColumnBreak || topToBottomColumnBreak) {
-                    if (child.width >= tempMaxWidth) {
+                    if (childBoundingBoxWidth >= tempMaxWidth) {
                         if (secondMaxWidth === 0) {
                             secondMaxWidth = tempMaxWidth;
                         }
@@ -705,16 +709,16 @@ var Layout = cc.Class({
                     }
                     else {
                         columnMaxWidth += tempMaxWidth;
-                        secondMaxWidth = child.width;
+                        secondMaxWidth = childBoundingBoxWidth;
                         tempMaxWidth = 0;
                     }
-                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * child.height);
+                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * childBoundingBoxHeight);
                     column++;
                 }
             }
 
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
-            if (baseHeight >= (child.height + (this.paddingTop + this.paddingBottom))) {
+            if (baseHeight >= (childBoundingBoxHeight + (this.paddingTop + this.paddingBottom))) {
                 if (applyChildren) {
                     child.setPosition(cc.v2(finalPositionX, nextY));
                 }
@@ -723,7 +727,7 @@ var Layout = cc.Class({
             var signX = 1;
             var tempFinalPositionX;
             //when the item is the last column break item, the tempMaxWidth will be 0.
-            var rightMarign = (tempMaxWidth === 0) ? child.width : tempMaxWidth;
+            var rightMarign = (tempMaxWidth === 0) ? childBoundingBoxWidth : tempMaxWidth;
 
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
@@ -799,7 +803,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionY = function(child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + paddingY + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height *child.scaleY + paddingY + row * this.spacingY);
         }.bind(this);
 
 
@@ -840,7 +844,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionX = function(child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + paddingX + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * child.scaleX + paddingX + column * this.spacingX);
         }.bind(this);
 
         var newWidth = 0;
@@ -889,7 +893,7 @@ var Layout = cc.Class({
                     return;
                 }
                 activeChildCount++;
-                newWidth += child.width;
+                newWidth += child.width * child.scaleX;
             });
             newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
         }
