@@ -39,13 +39,6 @@ const Event = require('./event/event');
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
 
-const POSITION_CHANGED = 'position-changed';
-const SIZE_CHANGED = 'size-changed';
-const ANCHOR_CHANGED = 'anchor-changed';
-const ROTATION_CHANGED = 'rotation-changed';
-const SCALE_CHANGED = 'scale-changed';
-const CHILD_REORDER = 'child-reorder';
-
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
@@ -54,8 +47,19 @@ var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
-var _parents = [];
 var _globalOrderOfArrival = 1;
+
+const POSITION_CHANGED = 'position-changed';
+const SCALE_CHANGED = 'scale-changed';
+const ROTATION_CHANGED = 'rotation-changed';
+const SIZE_CHANGED = 'size-changed';
+const ANCHOR_CHANGED = 'anchor-changed';
+const CHILD_REORDER = 'child-reorder';
+const POSITION_ON = 1 << 0;
+const SCALE_ON = 1 << 1;
+const ROTATION_ON = 1 << 2;
+const SIZE_ON = 1 << 3;
+const ANCHOR_ON = 1 << 4;
 
 const POSITION_DIRTY_FLAG = 1 << 0;
 const SCALE_DIRTY_FLAG = 1 << 1;
@@ -432,8 +436,7 @@ var Node = cc.Class({
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
                         
                         // fast check event
-                        var cache = this._hasListenerCache;
-                        if (cache && cache[POSITION_CHANGED]) {
+                        if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
@@ -475,8 +478,7 @@ var Node = cc.Class({
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
 
                         // fast check event
-                        var cache = this._hasListenerCache;
-                        if (cache && cache[POSITION_CHANGED]) {
+                        if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
@@ -540,8 +542,7 @@ var Node = cc.Class({
                     math.quat.fromEuler(this._quat, 0, 0, -value);
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
+                    if (this._eventMask & ROTATION_ON) {
                         this.emit(ROTATION_CHANGED);
                     }
                 }
@@ -573,8 +574,7 @@ var Node = cc.Class({
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
+                    if (this._eventMask & ROTATION_ON) {
                         this.emit(ROTATION_CHANGED);
                     }
                 }
@@ -606,8 +606,7 @@ var Node = cc.Class({
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
+                    if (this._eventMask & ROTATION_ON) {
                         this.emit(ROTATION_CHANGED);
                     }
                 }
@@ -641,8 +640,7 @@ var Node = cc.Class({
                     this._scale.x = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[SCALE_CHANGED]) {
+                    if (this._eventMask & SCALE_ON) {
                         this.emit(SCALE_CHANGED);
                     }
                 }
@@ -667,8 +665,7 @@ var Node = cc.Class({
                     this._scale.y = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[SCALE_CHANGED]) {
+                    if (this._eventMask & SCALE_ON) {
                         this.emit(SCALE_CHANGED);
                     }
                 }
@@ -771,7 +768,9 @@ var Node = cc.Class({
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.x !== value) {
                     anchorPoint.x = value;
-                    this.emit(ANCHOR_CHANGED);
+                    if (this._eventMask & ANCHOR_ON) {
+                        this.emit(ANCHOR_CHANGED);
+                    }
                 }
             },
         },
@@ -792,7 +791,9 @@ var Node = cc.Class({
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.y !== value) {
                     anchorPoint.y = value;
-                    this.emit(ANCHOR_CHANGED);
+                    if (this._eventMask & ANCHOR_ON) {
+                        this.emit(ANCHOR_CHANGED);
+                    }
                 }
             },
         },
@@ -815,11 +816,13 @@ var Node = cc.Class({
                         var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
                     this._contentSize.width = value;
-                    if (CC_EDITOR) {
-                        this.emit(SIZE_CHANGED, clone);
-                    }
-                    else {
-                        this.emit(SIZE_CHANGED);
+                    if (this._eventMask & SIZE_ON) {
+                        if (CC_EDITOR) {
+                            this.emit(SIZE_CHANGED, clone);
+                        }
+                        else {
+                            this.emit(SIZE_CHANGED);
+                        }
                     }
                 }
             },
@@ -843,11 +846,13 @@ var Node = cc.Class({
                         var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
                     this._contentSize.height = value;
-                    if (CC_EDITOR) {
-                        this.emit(SIZE_CHANGED, clone);
-                    }
-                    else {
-                        this.emit(SIZE_CHANGED);
+                    if (this._eventMask & SIZE_ON) {
+                        if (CC_EDITOR) {
+                            this.emit(SIZE_CHANGED, clone);
+                        }
+                        else {
+                            this.emit(SIZE_CHANGED);
+                        }
                     }
                 }
             },
@@ -926,6 +931,7 @@ var Node = cc.Class({
         this._worldMatDirty = true;
         this._worldMatUpdated = false;
 
+        this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
     },
 
@@ -1156,7 +1162,7 @@ var Node = cc.Class({
      * node.on("anchor-changed", callback, this);
      */
     on (type, callback, target, useCapture) {
-        var newAdded = false;
+        let newAdded = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1197,6 +1203,24 @@ var Node = cc.Class({
             }, this, 0, 0, 0, false);
         }
 
+        switch (type) {
+            case POSITION_CHANGED:
+            this._eventMask |= POSITION_ON;
+            break;
+            case SCALE_CHANGED:
+            this._eventMask |= SCALE_ON;
+            break;
+            case ROTATION_CHANGED:
+            this._eventMask |= ROTATION_ON;
+            break;
+            case SIZE_CHANGED:
+            this._eventMask |= SIZE_ON;
+            break;
+            case ANCHOR_CHANGED:
+            this._eventMask |= ANCHOR_ON;
+            break;
+        }
+
         return this._EventTargetOn(type, callback, target, useCapture);
     },
 
@@ -1231,6 +1255,28 @@ var Node = cc.Class({
             if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
                 eventManager.removeListener(this._mouseListener);
                 this._mouseListener = null;
+            }
+        }
+
+        var cache = this._hasListenerCache;
+        // All listener removed
+        if (cache && !cache[type]) {
+            switch (type) {
+                case POSITION_CHANGED:
+                this._eventMask &= ~POSITION_ON;
+                break;
+                case SCALE_CHANGED:
+                this._eventMask &= ~SCALE_ON;
+                break;
+                case ROTATION_CHANGED:
+                this._eventMask &= ~ROTATION_ON;
+                break;
+                case SIZE_CHANGED:
+                this._eventMask &= ~SIZE_ON;
+                break;
+                case ANCHOR_CHANGED:
+                this._eventMask &= ~ANCHOR_ON;
+                break;
             }
         }
     },
@@ -1553,8 +1599,7 @@ var Node = cc.Class({
         this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event
-        var cache = this._hasListenerCache;
-        if (cache && cache[POSITION_CHANGED]) {
+        if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
                 this.emit(POSITION_CHANGED, oldPosition);
@@ -1604,8 +1649,7 @@ var Node = cc.Class({
             this._scale.y = y;
             this.setLocalDirty(SCALE_DIRTY_FLAG);
 
-            var cache = this._hasListenerCache;
-            if (cache && cache[SCALE_CHANGED]) {
+            if (this._eventMask & SCALE_ON) {
                 this.emit(SCALE_CHANGED);
             }
         }
@@ -1673,11 +1717,13 @@ var Node = cc.Class({
             locContentSize.width = size;
             locContentSize.height = height;
         }
-        if (CC_EDITOR) {
-            this.emit(SIZE_CHANGED, clone);
-        }
-        else {
-            this.emit(SIZE_CHANGED);
+        if (this._eventMask & SIZE_ON) {
+            if (CC_EDITOR) {
+                this.emit(SIZE_CHANGED, clone);
+            }
+            else {
+                this.emit(SIZE_CHANGED);
+            }
         }
     },
 
@@ -1810,8 +1856,7 @@ var Node = cc.Class({
         this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event
-        var cache = this._hasListenerCache;
-        if (cache && cache[POSITION_CHANGED]) {
+        if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
                 this.emit(POSITION_CHANGED, oldPosition);
