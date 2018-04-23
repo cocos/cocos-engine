@@ -48,7 +48,9 @@ module.exports = {
             let uvDirty = renderData.uvDirty,
                 vertDirty = renderData.vertDirty;
 
-            if (!uvDirty && !vertDirty) return;
+            if (!uvDirty && !vertDirty) {
+                return sprite.__allocedDatas;
+            }
 
             let fillStart = sprite._fillStart;
             let fillRange = sprite._fillRange;

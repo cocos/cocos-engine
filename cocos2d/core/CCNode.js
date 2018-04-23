@@ -316,16 +316,6 @@ function _checkListeners (node, events) {
     return true;
 }
 
-function _syncWorldDirty (children) {
-    for (let i = 0, l = children.length; i < l; i++) {
-        let child = children[i];
-        child._worldMatDirty = true;
-        if (child._children.length > 0) {
-            _syncWorldDirty(child._children);
-        }
-    }
-}
-
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -2003,33 +1993,34 @@ var Node = cc.Class({
     },
 
     _updateWorldMatrix () {
-        let n = -1;
-        // Find root of world matrix changing
-        for (let node = this; node && node._worldMatDirty; node = node._parent) {
-            n++;
-            _parents[n] = node;
+        let dirty = false;
+        if (this.parent) {
+            dirty = this.parent._updateWorldMatrix();
         }
-        // Update world matrix of all changed parents
-        for (let i = n; i >= 0; i--) {
-            _parents[i]._calculWorldMatrix();
-            _parents[i] = null;
+        if (this._worldMatDirty) {
+            dirty = true;
         }
+        if (dirty) {
+            this._calculWorldMatrix();
+            // Sync dirty to children
+            let children = this._children;
+            for (let i = 0, l = children.length; i < l; i++) {
+                children[i]._worldMatDirty = true;
+            }
+        }
+        return dirty;
     },
 
     setLocalDirty (flag) {
-        if (!this._localMatDirty) {
-            this.setWorldDirty();
-        }
         this._localMatDirty = this._localMatDirty | flag;
+        if (!this._worldMatDirty) {
+            this._worldMatDirty = true;
+        }
     },
 
     setWorldDirty () {
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
-            // Sync world mat dirty to sub tree
-            if (this._children.length > 0) {
-                _syncWorldDirty(this._children);
-            }
         }
     },
 
