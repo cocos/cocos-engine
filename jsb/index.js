@@ -26,6 +26,7 @@
 if (CC_NATIVERENDERER) {
     require('./gfx');
     require('./renderer');
+    jsb.enableNativeRenderer();
 }
 require('../index');
 require('./jsb-node');

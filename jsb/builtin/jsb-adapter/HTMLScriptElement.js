@@ -23,11 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-const HTMLAudioElement = require('./HTMLAudioElement');
+const HTMLElement = require('./HTMLElement');
+const Event = require('./Event');
 
-function Audio(url) {
-    return new HTMLAudioElement(url);
+class HTMLScriptElement extends HTMLElement {
+    constructor(width, height) {
+        super('script')
+
+    }
+
+    set src(url) {
+    	setTimeout(()=>{
+    		require(url);
+    		this.dispatchEvent(new Event('load'));
+    	}, 0);
+    }
 }
 
-module.exports = Audio;
-
+module.exports = HTMLScriptElement;

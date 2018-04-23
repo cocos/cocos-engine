@@ -56,14 +56,14 @@ class HTMLImageElement extends HTMLElement {
 
             this._alignment = 1;
             // Set the row align only when mipmapsNum == 1 and the data is uncompressed
-            if (this._numberOfMipmaps == 1 && !this._compressed) {
-                let bytesPerRow = this.width * this._bpp / 8;
+            if ((this._numberOfMipmaps == 0 || this._numberOfMipmaps == 1) && !this._compressed) {
+                const bytesPerRow = this.width * this._bpp / 8;
                 if (bytesPerRow % 8 == 0)
-                    _alignment = 8;
+                    this._alignment = 8;
                 else if (bytesPerRow % 4 == 0)
-                    _alignment = 4;
+                    this._alignment = 4;
                 else if (bytesPerRow % 2 == 0)
-                    _alignment = 2;
+                    this._alignment = 2;
             }
 
             this.complete = true;

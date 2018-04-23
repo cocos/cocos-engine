@@ -249,8 +249,14 @@ function touchEventHandlerFactory(type) {
         touchEvent.changedTouches = touches;//event.changedTouches
         // touchEvent.timeStamp = event.timeStamp
 
+        var i = 0, touchCount = touches.length;
+        var target;
         for (let key in __listenTouchEventMap) {
-            __listenTouchEventMap[key].dispatchEvent(touchEvent);
+            target = __listenTouchEventMap[key];
+            for (i = 0; i < touchCount; ++i) {
+                touches[i].target = target;
+            }
+            target.dispatchEvent(touchEvent);
         }
     }
 }

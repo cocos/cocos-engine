@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-let EventTarget = require('./EventTarget')
-let Event = require('./Event')
+const EventTarget = require('./EventTarget')
+const Event = require('./Event')
 
 class FontFaceSet extends EventTarget {
     constructor() {

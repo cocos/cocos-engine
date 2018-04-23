@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-let HTMLMediaElement = require('./HTMLMediaElement');
+const HTMLMediaElement = require('./HTMLMediaElement');
 
 class HTMLVideoElement extends HTMLMediaElement {
   constructor() {
