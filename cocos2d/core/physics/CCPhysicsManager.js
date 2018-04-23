@@ -43,8 +43,6 @@ var b2_vec2_tmp2 = new b2.Vec2();
 
 var vec2_tmp = cc.v2();
 
-let array_tmp = [];
-
 /**
  * !#en
  * Physics manager uses box2d as the inner physics system, and hide most box2d implement details(creating rigidbody, synchronize rigidbody info to node).
@@ -475,8 +473,8 @@ var PhysicsManager = cc.Class({
                 angle = convertToNodeRotation( node.parent, angle );
             }
 
-            let tempCache = node._hasListenerCache;
-            node._hasListenerCache = array_tmp;
+            let tempMask = node._eventMask;
+            node._eventMask = 0;
 
             // sync position
             node.position = vec2_tmp;
@@ -484,7 +482,7 @@ var PhysicsManager = cc.Class({
             // sync rotation
             node.rotation = angle;
 
-            node._hasListenerCache = tempCache;
+            node._eventMask = tempMask;
             
             if (body.type === BodyType.Animated) {
                 body.resetVelocity();
