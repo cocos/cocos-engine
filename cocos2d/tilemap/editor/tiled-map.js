@@ -47,7 +47,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     for (var i = 0, n = images.length; i < n ; i++) {
       var imageCfg = images[i].getAttribute('source');
       if (imageCfg) {
-        var imgPath = Path.normalize(Path.join(Path.dirname(sourcePath), imageCfg));
+        var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
         textures.push(imgPath);
       }
     }
@@ -59,7 +59,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     var tileset = tilesetElements[i];
     var sourceTSX = tileset.getAttribute('source');
     if (sourceTSX) {
-      var tsxPath = Path.normalize(Path.join(Path.dirname(tmxFile), sourceTSX));
+      var tsxPath = Path.join(Path.dirname(tmxFile), sourceTSX);
 
       if (Fs.existsSync(tsxPath)) {
         tsxFiles.push(sourceTSX);
@@ -124,13 +124,13 @@ class TiledMapMeta extends CustomAssetMeta {
     });
     asset.textureNames = this._textures.map(p => Path.basename(p));
     asset.tsxFiles = this._tsxFiles.map(p => {
-        var tsxPath = Path.normalize(Path.join(Path.dirname(fspath), p));
+        var tsxPath = Path.join(Path.dirname(fspath), p);
         var uuid = db.fspathToUuid(tsxPath);
         if (uuid) {
             asset.tsxFileNames.push(p);
             return Editor.serialize.asAsset(uuid);
         } else {
-            cc.error(`Can not find file ${tsxPath}`);
+            Editor.error(`Can not find file ${tsxPath}`);
             asset.tsxFileNames.push('');
         }
         return null;
