@@ -56,9 +56,6 @@ cc.loader.addDownloadHandlers({
     'js' : downloadScript,
     'jsc' : downloadScript,
 
-    //json
-    'json': loadText,
-
     // Images
     'png' : loadImage,
     'jpg' : loadImage,
@@ -86,22 +83,15 @@ cc.loader.addDownloadHandlers({
     'ttc' : empty,
 });
 
-//fixme:要设置到setting.js里面
-let isAndroidInstant = true;
-let serverPath = "http://192.168.54.67:7456/";
+
 function loadImage (item, callback) {
     var url = item.url;
     var isRemote = jsb.urlRegExp.test(url);
-    var downloadPath = jsb.fileUtils.getWritablePath() + url;
-    if (isAndroidInstant) {
-        isRemote = !jsb.fileUtils.isFileExist(url) && !jsb.fileUtils.isFileExist(downloadPath);
-    }
-
     var loadByDeserializedTexture = item._owner instanceof cc.Texture2D;
     if (loadByDeserializedTexture) {
         // load Image
         var loader = isRemote ? jsb.initRemoteImg : jsb.initTextureAsync;
-        loader(item._owner, isAndroidInstant && isRemote ? serverPath + url : url, function(succeed) {
+        loader(item._owner, url, function(succeed) {
             if (succeed) {
                 callback && callback(null);
             }
@@ -116,7 +106,7 @@ function loadImage (item, callback) {
             return cachedTex;
         }
         else if (isRemote) {
-            jsb.loadRemoteImg(isAndroidInstant ? url : serverPath + url, function(succeed, tex) {
+            jsb.loadRemoteImg(url, function(succeed, tex) {
                 if (succeed) {
                     tex.url = item.rawUrl;
                     tex._setRawAsset(item.rawUrl, false);
@@ -140,57 +130,6 @@ function loadImage (item, callback) {
             });
         }
     }
-}
-
-
-let textDownloader = new jsb.Downloader({
-    countOfMaxProcessingTasks: 32,
-    timeoutInSeconds: 60,
-    tempFileNameSuffix: 'game'
-});
-let downloaderCbMap = {};
-
-textDownloader.setOnTaskError((function (task, errCode, errorCodeInternal, errorStr) {
-    let cb = downloaderCbMap[task.requestURL];
-    cb && cb({
-        errorCode: errCode
-    });
-    delete downloaderCbMap[task.requestURL];
-}));
-
-textDownloader.setOnFileTaskSuccess((function (task) {
-    var cb = downloaderCbMap[task.requestURL];
-    if (cb) {
-        var str = jsb.fileUtils.getStringFromFile(task.storagePath);
-        console.log("str is ", str);
-        str ? cb(null, str) : cb({
-                errorMessage: "file not found"
-            });
-        delete downloaderCbMap[task.requestURL];
-    }
-}));
-
-function loadText(item, callback) {
-    let url = item.url;
-
-    let remotePath = jsb.fileUtils.getWritablePath() + url;
-    if (jsb.fileUtils.isFileExist(url)) {
-        var result = jsb.fileUtils.getStringFromFile(url);
-        if (typeof result === 'string' && result) {
-            return result;
-        }
-    }
-
-    if (jsb.fileUtils.isFileExist(remotePath)) {
-        var result = jsb.fileUtils.getStringFromFile(remotePath);
-        if (typeof result === 'string' && result) {
-            return result;
-        }
-    }
-
-    let remoteUrl = serverPath + url;
-    downloaderCbMap[remoteUrl] = callback;
-    textDownloader.createDownloadFileTask(remoteUrl, remotePath, item.uuid);
 }
 
 cc.loader.addLoadHandlers({
