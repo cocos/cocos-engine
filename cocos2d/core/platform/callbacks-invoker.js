@@ -124,12 +124,18 @@ proto.has = function (key, callback, target) {
     // check any valid callback
     var callbacks = list.callbacks;
     if (!callback) {
-        for (let i = 0; i < callbacks.length; i++) {
-            if (callbacks[i]) {
-                return true;
+        // Make sure no cancelled callbacks
+        if (list.isInvoking) {
+            for (let i = 0; i < callbacks.length; i++) {
+                if (callbacks[i]) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        else {
+            return true;
+        }
     }
 
     target = target || null;
