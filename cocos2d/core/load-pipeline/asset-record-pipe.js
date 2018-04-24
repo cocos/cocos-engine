@@ -89,7 +89,6 @@ AssetRecordPipe.prototype.screenShot = function () {
             current_scene.getChildByName("Canvas")._sgNode.visit();
             render.end();
             recordInfo.screenshot = name;
-            console.log("name is ", name);
 
             render.saveToPath(`${CC_SIMULATOR_RECORD_PATH}/${name}`, cc.ImageFormat.JPG, true, function (err, data) {
                 // cc.log("capture screen successfully!",err,data);
