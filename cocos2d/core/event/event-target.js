@@ -442,6 +442,7 @@ proto.emit = function (message, detail) {
     if (bubblingListeners && (flag & BUBBLING_FLAG) && !event._propagationImmediateStopped) {
         bubblingListeners.invoke(event);
     }
+    event.detail = null;
     cc.Event.EventCustom.put(event);
 };
 
