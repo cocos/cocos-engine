@@ -372,6 +372,11 @@ RenderComponentWalker.prototype = {
     visit (scene) {
         this.reset();
 
+        // Transform scene
+        if (scene._worldMatDirty) {
+            scene._updateWorldMatrix();
+            this._batchData.worldMatUpdated = true;
+        }
         for (let i = 0, l = scene._children.length; i < l; i++) {
             this._visitNode(scene._children[i]);
         }

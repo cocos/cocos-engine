@@ -1993,14 +1993,10 @@ var Node = cc.Class({
     },
 
     _updateWorldMatrix () {
-        let dirty = false;
         if (this.parent) {
-            dirty = this.parent._updateWorldMatrix();
+            this.parent._updateWorldMatrix();
         }
         if (this._worldMatDirty) {
-            dirty = true;
-        }
-        if (dirty) {
             this._calculWorldMatrix();
             // Sync dirty to children
             let children = this._children;
@@ -2008,7 +2004,6 @@ var Node = cc.Class({
                 children[i]._worldMatDirty = true;
             }
         }
-        return dirty;
     },
 
     setLocalDirty (flag) {
