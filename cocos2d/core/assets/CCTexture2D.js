@@ -376,7 +376,9 @@ var Texture2D = cc.Class({
                 options.images.push(options.image);
             }
 
-            this._texture.update(options);
+            if (options.images.length > 0) {
+                this._texture.update(options);
+            }
         }
     },
 
@@ -643,10 +645,10 @@ var Texture2D = cc.Class({
     // SERIALIZATION
 
     _serialize: (CC_EDITOR || CC_TEST) && function () {
-        var extId = "";
+        let extId = "";
         if (this._native) {
             // encode extname
-            var ext = cc.path.extname(this._native);
+            let ext = cc.path.extname(this._native);
             if (ext) {
                 extId = Texture2D.extnames.indexOf(ext);
                 if (extId < 0) {
@@ -654,7 +656,8 @@ var Texture2D = cc.Class({
                 }
             }
         }
-        return "" + extId;
+        let asset = "" + extId + "," + this._minFilter + "," + this._magFilter + "," + this._wrapS + "," + this._wrapT;
+        return asset;
     },
 
     _deserialize: function (data, handle) {
@@ -675,6 +678,14 @@ var Texture2D = cc.Class({
                 var url = this.nativeUrl;
                 this.url = url;
             }
+        }
+        if (fields.length >= 5) {
+            // decode filters
+            this._minFilter = parseInt(fields[1]);
+            this._magFilter = parseInt(fields[2]);
+            // decode wraps
+            this._wrapS = parseInt(fields[3]);
+            this._wrapT = parseInt(fields[4]);
         }
     }
 });
