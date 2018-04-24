@@ -1163,6 +1163,7 @@ var Node = cc.Class({
      */
     on (type, callback, target, useCapture) {
         let newAdded = false;
+        let forDispatch = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1178,6 +1179,7 @@ var Node = cc.Class({
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
+            forDispatch = true;
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
             if (!this._mouseListener) {
@@ -1194,6 +1196,7 @@ var Node = cc.Class({
                 eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
+            forDispatch = true;
         }
         if (newAdded && !this._activeInHierarchy) {
             cc.director.getScheduler().schedule(function () {
@@ -1203,25 +1206,29 @@ var Node = cc.Class({
             }, this, 0, 0, 0, false);
         }
 
-        switch (type) {
-            case POSITION_CHANGED:
-            this._eventMask |= POSITION_ON;
-            break;
-            case SCALE_CHANGED:
-            this._eventMask |= SCALE_ON;
-            break;
-            case ROTATION_CHANGED:
-            this._eventMask |= ROTATION_ON;
-            break;
-            case SIZE_CHANGED:
-            this._eventMask |= SIZE_ON;
-            break;
-            case ANCHOR_CHANGED:
-            this._eventMask |= ANCHOR_ON;
-            break;
+        if (forDispatch) {
+            return this.onDispatch(type, callback, target, useCapture);
         }
-
-        return this._EventTargetOn(type, callback, target, useCapture);
+        else {
+            switch (type) {
+                case POSITION_CHANGED:
+                this._eventMask |= POSITION_ON;
+                break;
+                case SCALE_CHANGED:
+                this._eventMask |= SCALE_ON;
+                break;
+                case ROTATION_CHANGED:
+                this._eventMask |= ROTATION_ON;
+                break;
+                case SIZE_CHANGED:
+                this._eventMask |= SIZE_ON;
+                break;
+                case ANCHOR_CHANGED:
+                this._eventMask |= ANCHOR_ON;
+                break;
+            }
+            return this._EventTargetOn(type, callback, target);
+        }
     },
 
     /**
@@ -1243,40 +1250,47 @@ var Node = cc.Class({
      * node.off("anchor-changed", callback, this);
      */
     off (type, callback, target, useCapture) {
-        this._EventTargetOff(type, callback, target, useCapture);
-
+        let forDispatch = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (this._touchListener && !_checkListeners(this, _touchEvents)) {
                 eventManager.removeListener(this._touchListener);
                 this._touchListener = null;
             }
+            forDispatch = true;
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
             if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
                 eventManager.removeListener(this._mouseListener);
                 this._mouseListener = null;
             }
+            forDispatch = true;
         }
+        if (forDispatch) {
+            this.offDispatch(type, callback, target, useCapture);
+        }
+        else {
+            this._EventTargetOff(type, callback, target);
 
-        var cache = this._hasListenerCache;
-        // All listener removed
-        if (cache && !cache[type]) {
-            switch (type) {
-                case POSITION_CHANGED:
-                this._eventMask &= ~POSITION_ON;
-                break;
-                case SCALE_CHANGED:
-                this._eventMask &= ~SCALE_ON;
-                break;
-                case ROTATION_CHANGED:
-                this._eventMask &= ~ROTATION_ON;
-                break;
-                case SIZE_CHANGED:
-                this._eventMask &= ~SIZE_ON;
-                break;
-                case ANCHOR_CHANGED:
-                this._eventMask &= ~ANCHOR_ON;
-                break;
+            var hasListeners = this._bubblingListeners && this._bubblingListeners.has(type);
+            // All listener removed
+            if (!hasListeners) {
+                switch (type) {
+                    case POSITION_CHANGED:
+                    this._eventMask &= ~POSITION_ON;
+                    break;
+                    case SCALE_CHANGED:
+                    this._eventMask &= ~SCALE_ON;
+                    break;
+                    case ROTATION_CHANGED:
+                    this._eventMask &= ~ROTATION_ON;
+                    break;
+                    case SIZE_CHANGED:
+                    this._eventMask &= ~SIZE_ON;
+                    break;
+                    case ANCHOR_CHANGED:
+                    this._eventMask &= ~ANCHOR_ON;
+                    break;
+                }
             }
         }
     },
@@ -1299,6 +1313,25 @@ var Node = cc.Class({
         if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
             eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
+        }
+        // Check for event mask reset
+        let listeners = this._bubblingListeners;
+        if (listeners) {
+            if ((this._eventMask & POSITION_ON) && !listeners.has(POSITION_CHANGED)) {
+                this._eventMask &= ~POSITION_ON;
+            }
+            if ((this._eventMask & SCALE_ON) && !listeners.has(SCALE_CHANGED)) {
+                this._eventMask &= ~SCALE_ON;
+            }
+            if ((this._eventMask & ROTATION_ON) && !listeners.has(ROTATION_CHANGED)) {
+                this._eventMask &= ~ROTATION_ON;
+            }
+            if ((this._eventMask & SIZE_ON) && !listeners.has(SIZE_CHANGED)) {
+                this._eventMask &= ~SIZE_ON;
+            }
+            if ((this._eventMask & ANCHOR_ON) && !listeners.has(ANCHOR_CHANGED)) {
+                this._eventMask &= ~ANCHOR_ON;
+            }
         }
     },
 
@@ -1383,7 +1416,7 @@ var Node = cc.Class({
     _getCapturingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent.hasEventListener(type, true)) {
+            if (parent._capturingListeners && parent._capturingListeners.has(type)) {
                 array.push(parent);
             }
             parent = parent.parent;
@@ -1394,7 +1427,7 @@ var Node = cc.Class({
     _getBubblingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent.hasEventListener(type)) {
+            if (parent._bubblingListeners && parent._bubblingListeners.has(type)) {
                 array.push(parent);
             }
             parent = parent.parent;
@@ -1787,7 +1820,9 @@ var Node = cc.Class({
             locAnchorPoint.y = y;
         }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
-        this.emit(ANCHOR_CHANGED);
+        if (this._eventMask & ANCHOR_ON) {
+            this.emit(ANCHOR_CHANGED);
+        }
     },
 
     /*

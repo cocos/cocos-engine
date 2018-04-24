@@ -983,14 +983,12 @@ cc.Director.prototype = {
             listeners = this._bubblingListeners = new EventListeners();
         }
         listeners.add(type, callback, target);
-        this._addEventFlag(type, listeners, false);
     },
 
     __fastOff: function (type, callback, target) {
         var listeners = this._bubblingListeners;
         if (listeners) {
             listeners.remove(type, callback, target);
-            this._purgeEventFlag(type, listeners, false);
         }
     },
 };
