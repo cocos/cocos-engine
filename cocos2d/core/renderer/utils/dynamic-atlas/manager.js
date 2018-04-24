@@ -5,6 +5,8 @@ let _atlasIndex = -1;
 
 let _maxAtlasCount = 5;
 let _textureSize = 2048;
+// Smaller frame is more likely to be affected by linear filter
+let _minFrameSize = 8;
 let _maxFrameSize = 512;
 
 let _enabled = true;
@@ -95,7 +97,10 @@ let dynamicAtlasManager = {
             !spriteFrame || spriteFrame._original) return;
         
         let texture = spriteFrame._texture;
-        if (texture.width > _maxFrameSize || texture.height > _maxFrameSize) {
+        let w = texture.width, h = texture.height;
+        let min = texture._minFilter, mag = texture._magFilter;
+        let LINEAR = cc.Texture2D.Filter.LINEAR;
+        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize || (min & mag) !== LINEAR) {
             return;
         }
 
