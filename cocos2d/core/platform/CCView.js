@@ -1080,7 +1080,7 @@ cc.ContainerStrategy = cc.Class({
         locCanvas.height = h * devicePixelRatio;
 
         // set sharedCanvas size
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME && wx.getOpenDataContext) {
             var openDataContext = wx.getOpenDataContext();
             var sharedCanvas = openDataContext.canvas;
             if (sharedCanvas) {
