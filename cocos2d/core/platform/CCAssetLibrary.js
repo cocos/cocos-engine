@@ -31,6 +31,7 @@ var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
 var MD5Pipe = require('../load-pipeline/md5-pipe');
+var AssetRecord = require('../load-pipeline/asset-record-pipe');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -286,10 +287,17 @@ var AssetLibrary = {
         _rawAssetsBase = options.rawAssetsBase;
 
         var md5AssetsMap = options.md5AssetsMap;
+
         if (md5AssetsMap) {
             var md5Pipe = new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
             cc.loader.md5Pipe = md5Pipe;
+        }
+
+        if (typeof(CC_SIMULATOR_RECORD_MODE) != "undefined" && CC_SIMULATOR_RECORD_MODE) {
+            var recordPipe = new AssetRecord(_libraryBase, _rawAssetsBase);
+            cc.loader.appendPipe(recordPipe);
+            cc.loader.recordPipe = recordPipe;
         }
 
         // init raw assets
