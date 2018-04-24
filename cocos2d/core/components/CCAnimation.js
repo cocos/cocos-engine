@@ -535,7 +535,7 @@ var Animation = cc.Class({
     on: function (type, callback, target, useCapture) {
         this._init();
 
-        var ret = cc.EventTarget.prototype.on.call(this, type, callback, target, useCapture);
+        var ret = this._EventTargetOn(type, callback, target, useCapture);
 
         var array = this._animator._anims.array;
         for (var i = 0; i < array.length; ++i) {
@@ -567,7 +567,7 @@ var Animation = cc.Class({
     off: function (type, callback, target, useCapture) {
         this._init();
 
-        cc.EventTarget.prototype.off.call(this, type, callback, target, useCapture);
+        this._EventTargetOff(type, callback, target, useCapture);
 
         var nameToState = this._nameToState;
         for (var name in nameToState) {

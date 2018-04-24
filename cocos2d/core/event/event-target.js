@@ -488,6 +488,7 @@ proto.emit = function (type, detail) {
 
         bubblingListeners.invoke(event);
         
+        event.detail = null;
         cc.Event.EventCustom.put(event);
     }
 };
