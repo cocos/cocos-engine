@@ -612,50 +612,6 @@
 		46FDDC00202ADDCE00931238 /* firePngData.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB44202ADDCE00931238 /* firePngData.h */; };
 		46FDDC01202ADDCE00931238 /* ccCArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB45202ADDCE00931238 /* ccCArray.h */; };
 		46FDDC02202ADDCE00931238 /* ccCArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB45202ADDCE00931238 /* ccCArray.h */; };
-		46FDDC25202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC0E202AEAC500931238 /* WebGLTexelConversions.cpp */; };
-		46FDDC26202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC0E202AEAC500931238 /* WebGLTexelConversions.cpp */; };
-		46FDDC27202AEAC500931238 /* WebGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC0F202AEAC500931238 /* WebGLTypes.h */; };
-		46FDDC28202AEAC500931238 /* WebGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC0F202AEAC500931238 /* WebGLTypes.h */; };
-		46FDDC29202AEAC500931238 /* Casting.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC11202AEAC500931238 /* Casting.h */; };
-		46FDDC2A202AEAC500931238 /* Casting.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC11202AEAC500931238 /* Casting.h */; };
-		46FDDC2B202AEAC500931238 /* UniquePtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC12202AEAC500931238 /* UniquePtr.h */; };
-		46FDDC2C202AEAC500931238 /* UniquePtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC12202AEAC500931238 /* UniquePtr.h */; };
-		46FDDC2D202AEAC500931238 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC13202AEAC500931238 /* Compiler.h */; };
-		46FDDC2E202AEAC500931238 /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC13202AEAC500931238 /* Compiler.h */; };
-		46FDDC2F202AEAC500931238 /* Assertions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC14202AEAC500931238 /* Assertions.h */; };
-		46FDDC30202AEAC500931238 /* Assertions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC14202AEAC500931238 /* Assertions.h */; };
-		46FDDC31202AEAC500931238 /* TypeTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC15202AEAC500931238 /* TypeTraits.h */; };
-		46FDDC32202AEAC500931238 /* TypeTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC15202AEAC500931238 /* TypeTraits.h */; };
-		46FDDC33202AEAC500931238 /* Types.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC16202AEAC500931238 /* Types.h */; };
-		46FDDC34202AEAC500931238 /* Types.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC16202AEAC500931238 /* Types.h */; };
-		46FDDC35202AEAC500931238 /* IntegerTypeTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC17202AEAC500931238 /* IntegerTypeTraits.h */; };
-		46FDDC36202AEAC500931238 /* IntegerTypeTraits.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC17202AEAC500931238 /* IntegerTypeTraits.h */; };
-		46FDDC37202AEAC500931238 /* Assertions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC18202AEAC500931238 /* Assertions.cpp */; };
-		46FDDC38202AEAC500931238 /* Assertions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC18202AEAC500931238 /* Assertions.cpp */; };
-		46FDDC39202AEAC500931238 /* Attributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC19202AEAC500931238 /* Attributes.h */; };
-		46FDDC3A202AEAC500931238 /* Attributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC19202AEAC500931238 /* Attributes.h */; };
-		46FDDC3B202AEAC500931238 /* MacroArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1A202AEAC500931238 /* MacroArgs.h */; };
-		46FDDC3C202AEAC500931238 /* MacroArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1A202AEAC500931238 /* MacroArgs.h */; };
-		46FDDC3D202AEAC500931238 /* CheckedInt.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1B202AEAC500931238 /* CheckedInt.h */; };
-		46FDDC3E202AEAC500931238 /* CheckedInt.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1B202AEAC500931238 /* CheckedInt.h */; };
-		46FDDC3F202AEAC500931238 /* Likely.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1C202AEAC500931238 /* Likely.h */; };
-		46FDDC40202AEAC500931238 /* Likely.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1C202AEAC500931238 /* Likely.h */; };
-		46FDDC41202AEAC500931238 /* Atomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1D202AEAC500931238 /* Atomics.h */; };
-		46FDDC42202AEAC500931238 /* Atomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1D202AEAC500931238 /* Atomics.h */; };
-		46FDDC43202AEAC500931238 /* Pair.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1E202AEAC500931238 /* Pair.h */; };
-		46FDDC44202AEAC500931238 /* Pair.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1E202AEAC500931238 /* Pair.h */; };
-		46FDDC45202AEAC500931238 /* Move.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1F202AEAC500931238 /* Move.h */; };
-		46FDDC46202AEAC500931238 /* Move.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC1F202AEAC500931238 /* Move.h */; };
-		46FDDC47202AEAC500931238 /* StaticAnalysisFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC20202AEAC500931238 /* StaticAnalysisFunctions.h */; };
-		46FDDC48202AEAC500931238 /* StaticAnalysisFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC20202AEAC500931238 /* StaticAnalysisFunctions.h */; };
-		46FDDC49202AEAC500931238 /* WebGLFormats.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC21202AEAC500931238 /* WebGLFormats.h */; };
-		46FDDC4A202AEAC500931238 /* WebGLFormats.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC21202AEAC500931238 /* WebGLFormats.h */; };
-		46FDDC4B202AEAC500931238 /* GLConsts.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC22202AEAC500931238 /* GLConsts.h */; };
-		46FDDC4C202AEAC500931238 /* GLConsts.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC22202AEAC500931238 /* GLConsts.h */; };
-		46FDDC4D202AEAC500931238 /* WebGLTexelConversions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC23202AEAC500931238 /* WebGLTexelConversions.h */; };
-		46FDDC4E202AEAC500931238 /* WebGLTexelConversions.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC23202AEAC500931238 /* WebGLTexelConversions.h */; };
-		46FDDC4F202AEAC500931238 /* WebGLFormats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC24202AEAC500931238 /* WebGLFormats.cpp */; };
-		46FDDC50202AEAC500931238 /* WebGLFormats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC24202AEAC500931238 /* WebGLFormats.cpp */; };
 		46FDDC63202D502F00931238 /* CCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC62202D502E00931238 /* CCApplication.h */; };
 		46FDDC64202D502F00931238 /* CCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC62202D502E00931238 /* CCApplication.h */; };
 		46FDDC66202D504E00931238 /* CCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC65202D504D00931238 /* CCApplication.h */; };
@@ -1354,28 +1310,6 @@
 		46FDDB43202ADDCE00931238 /* CCValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCValue.cpp; sourceTree = "<group>"; };
 		46FDDB44202ADDCE00931238 /* firePngData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = firePngData.h; sourceTree = "<group>"; };
 		46FDDB45202ADDCE00931238 /* ccCArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccCArray.h; sourceTree = "<group>"; };
-		46FDDC0E202AEAC500931238 /* WebGLTexelConversions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebGLTexelConversions.cpp; sourceTree = "<group>"; };
-		46FDDC0F202AEAC500931238 /* WebGLTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebGLTypes.h; sourceTree = "<group>"; };
-		46FDDC11202AEAC500931238 /* Casting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Casting.h; sourceTree = "<group>"; };
-		46FDDC12202AEAC500931238 /* UniquePtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniquePtr.h; sourceTree = "<group>"; };
-		46FDDC13202AEAC500931238 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
-		46FDDC14202AEAC500931238 /* Assertions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Assertions.h; sourceTree = "<group>"; };
-		46FDDC15202AEAC500931238 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeTraits.h; sourceTree = "<group>"; };
-		46FDDC16202AEAC500931238 /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
-		46FDDC17202AEAC500931238 /* IntegerTypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerTypeTraits.h; sourceTree = "<group>"; };
-		46FDDC18202AEAC500931238 /* Assertions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Assertions.cpp; sourceTree = "<group>"; };
-		46FDDC19202AEAC500931238 /* Attributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Attributes.h; sourceTree = "<group>"; };
-		46FDDC1A202AEAC500931238 /* MacroArgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacroArgs.h; sourceTree = "<group>"; };
-		46FDDC1B202AEAC500931238 /* CheckedInt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckedInt.h; sourceTree = "<group>"; };
-		46FDDC1C202AEAC500931238 /* Likely.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Likely.h; sourceTree = "<group>"; };
-		46FDDC1D202AEAC500931238 /* Atomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Atomics.h; sourceTree = "<group>"; };
-		46FDDC1E202AEAC500931238 /* Pair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pair.h; sourceTree = "<group>"; };
-		46FDDC1F202AEAC500931238 /* Move.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Move.h; sourceTree = "<group>"; };
-		46FDDC20202AEAC500931238 /* StaticAnalysisFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAnalysisFunctions.h; sourceTree = "<group>"; };
-		46FDDC21202AEAC500931238 /* WebGLFormats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebGLFormats.h; sourceTree = "<group>"; };
-		46FDDC22202AEAC500931238 /* GLConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLConsts.h; sourceTree = "<group>"; };
-		46FDDC23202AEAC500931238 /* WebGLTexelConversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebGLTexelConversions.h; sourceTree = "<group>"; };
-		46FDDC24202AEAC500931238 /* WebGLFormats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebGLFormats.cpp; sourceTree = "<group>"; };
 		46FDDC62202D502E00931238 /* CCApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCApplication.h; path = ../CCApplication.h; sourceTree = "<group>"; };
 		46FDDC65202D504D00931238 /* CCApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCApplication.h; sourceTree = "<group>"; };
 		46FDDC68202D733700931238 /* CCApplication-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-ios.mm"; sourceTree = "<group>"; };
@@ -1892,7 +1826,6 @@
 		1A57033E180BD0490088DEC7 /* external */ = {
 			isa = PBXGroup;
 			children = (
-				46FDDC0D202AEAC500931238 /* firefox */,
 				4DC57D1E1F7A58B5005B6546 /* xxtea */,
 				1A28FF1C1F20AFAB007A1D9D /* SocketRocket */,
 				4DED476A1DFFA4AF0070C5C4 /* Box2D */,
@@ -2275,44 +2208,6 @@
 			);
 			name = base;
 			path = ../cocos/base;
-			sourceTree = "<group>";
-		};
-		46FDDC0D202AEAC500931238 /* firefox */ = {
-			isa = PBXGroup;
-			children = (
-				46FDDC0E202AEAC500931238 /* WebGLTexelConversions.cpp */,
-				46FDDC0F202AEAC500931238 /* WebGLTypes.h */,
-				46FDDC10202AEAC500931238 /* mozilla */,
-				46FDDC21202AEAC500931238 /* WebGLFormats.h */,
-				46FDDC22202AEAC500931238 /* GLConsts.h */,
-				46FDDC23202AEAC500931238 /* WebGLTexelConversions.h */,
-				46FDDC24202AEAC500931238 /* WebGLFormats.cpp */,
-			);
-			name = firefox;
-			path = ../external/sources/firefox;
-			sourceTree = "<group>";
-		};
-		46FDDC10202AEAC500931238 /* mozilla */ = {
-			isa = PBXGroup;
-			children = (
-				46FDDC11202AEAC500931238 /* Casting.h */,
-				46FDDC12202AEAC500931238 /* UniquePtr.h */,
-				46FDDC13202AEAC500931238 /* Compiler.h */,
-				46FDDC14202AEAC500931238 /* Assertions.h */,
-				46FDDC15202AEAC500931238 /* TypeTraits.h */,
-				46FDDC16202AEAC500931238 /* Types.h */,
-				46FDDC17202AEAC500931238 /* IntegerTypeTraits.h */,
-				46FDDC18202AEAC500931238 /* Assertions.cpp */,
-				46FDDC19202AEAC500931238 /* Attributes.h */,
-				46FDDC1A202AEAC500931238 /* MacroArgs.h */,
-				46FDDC1B202AEAC500931238 /* CheckedInt.h */,
-				46FDDC1C202AEAC500931238 /* Likely.h */,
-				46FDDC1D202AEAC500931238 /* Atomics.h */,
-				46FDDC1E202AEAC500931238 /* Pair.h */,
-				46FDDC1F202AEAC500931238 /* Move.h */,
-				46FDDC20202AEAC500931238 /* StaticAnalysisFunctions.h */,
-			);
-			path = mozilla;
 			sourceTree = "<group>";
 		};
 		4DC57D1E1F7A58B5005B6546 /* xxtea */ = {
@@ -2709,7 +2604,6 @@
 				46FDDAA7202ACC6A00931238 /* ForwardRenderer.h in Headers */,
 				4DED48101DFFA4AF0070C5C4 /* b2Settings.h in Headers */,
 				4DED486A1DFFA4AF0070C5C4 /* b2MotorJoint.h in Headers */,
-				46FDDC41202AEAC500931238 /* Atomics.h in Headers */,
 				46FDDBC3202ADDCE00931238 /* ccConfig.h in Headers */,
 				46FDDA77202ACC6A00931238 /* Light.h in Headers */,
 				1A28FF5D1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
@@ -2739,7 +2633,6 @@
 				4617863D20522469008256E1 /* HttpResponse.h in Headers */,
 				1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				1A29D77D2056667800168D9A /* csscolorparser.hpp in Headers */,
-				46FDDC2B202AEAC500931238 /* UniquePtr.h in Headers */,
 				BA68D7831D62F4A500B7A3F9 /* poly2tri.h in Headers */,
 				4693038A2046AE05004A3D6C /* State.hpp in Headers */,
 				4617862320522469008256E1 /* CCIDownloaderImpl.h in Headers */,
@@ -2747,7 +2640,6 @@
 				ED3057811BEC76C90083C3ED /* ioapi.h in Headers */,
 				4DED487A1DFFA4AF0070C5C4 /* b2RevoluteJoint.h in Headers */,
 				469303642046AE05004A3D6C /* RefCounter.hpp in Headers */,
-				46FDDC4B202AEAC500931238 /* GLConsts.h in Headers */,
 				4DED487E1DFFA4AF0070C5C4 /* b2RopeJoint.h in Headers */,
 				46FDDA73202ACC6A00931238 /* ProgramLib.h in Headers */,
 				1A28FF751F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
@@ -2765,12 +2657,10 @@
 				4DED47F01DFFA4AF0070C5C4 /* b2ChainShape.h in Headers */,
 				46FDDA97202ACC6A00931238 /* Model.h in Headers */,
 				50ABBD4A1925AB0000A911A9 /* Mat4.h in Headers */,
-				46FDDC3B202AEAC500931238 /* MacroArgs.h in Headers */,
 				1A52DB38205BCD9200350EE3 /* ScriptEngine.hpp in Headers */,
 				1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */,
 				1A52DB64205BCDC700350EE3 /* ScriptEngine.hpp in Headers */,
 				46FDDA83202ACC6A00931238 /* Technique.h in Headers */,
-				46FDDC43202AEAC500931238 /* Pair.h in Headers */,
 				1A52DB63205BCDC700350EE3 /* Object.hpp in Headers */,
 				4DED480C1DFFA4AF0070C5C4 /* b2Math.h in Headers */,
 				469303802046AE05004A3D6C /* config.hpp in Headers */,
@@ -2783,14 +2673,11 @@
 				461786532052301A008256E1 /* CCScheduler.h in Headers */,
 				46FDDB4D202ADDCE00931238 /* pvr.h in Headers */,
 				4DED48061DFFA4AF0070C5C4 /* b2Draw.h in Headers */,
-				46FDDC45202AEAC500931238 /* Move.h in Headers */,
 				4DED48721DFFA4AF0070C5C4 /* b2PrismaticJoint.h in Headers */,
 				4617863920522469008256E1 /* CCDownloaderImpl-apple.h in Headers */,
-				46FDDC2F202AEAC500931238 /* Assertions.h in Headers */,
 				1A52DB73205BCDC700350EE3 /* Base.h in Headers */,
 				1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				461786632052607E008256E1 /* jsb_socketio.hpp in Headers */,
-				46FDDC2D202AEAC500931238 /* Compiler.h in Headers */,
 				1A52DB2A205BCD9200350EE3 /* inspector_io.h in Headers */,
 				46FDDBDD202ADDCE00931238 /* TGAlib.h in Headers */,
 				BAEA45551E279D5C00FA219F /* tinydir.h in Headers */,
@@ -2803,17 +2690,14 @@
 				46FDDB53202ADDCE00931238 /* utlist.h in Headers */,
 				4DED47F41DFFA4AF0070C5C4 /* b2CircleShape.h in Headers */,
 				46FDDB5D202ADDCE00931238 /* ccMacros.h in Headers */,
-				46FDDC27202AEAC500931238 /* WebGLTypes.h in Headers */,
 				1A29D76B205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
 				4DED48321DFFA4AF0070C5C4 /* b2WorldCallbacks.h in Headers */,
 				1A52DB3D205BCD9200350EE3 /* SeApi.h in Headers */,
-				46FDDC47202AEAC500931238 /* StaticAnalysisFunctions.h in Headers */,
 				46FDDABD202ACC6A00931238 /* DeviceGraphics.h in Headers */,
 				469303982046AE05004A3D6C /* HelperMacros.h in Headers */,
 				4DED47E01DFFA4AF0070C5C4 /* b2Collision.h in Headers */,
 				4DED482E1DFFA4AF0070C5C4 /* b2World.h in Headers */,
 				46FDDC01202ADDCE00931238 /* ccCArray.h in Headers */,
-				46FDDC39202AEAC500931238 /* Attributes.h in Headers */,
 				4DED48141DFFA4AF0070C5C4 /* b2StackAllocator.h in Headers */,
 				469304102046AE06004A3D6C /* jsb_helper.hpp in Headers */,
 				50643BDB19BFAF4400EF68ED /* CCStdC.h in Headers */,
@@ -2826,7 +2710,6 @@
 				1A52DAF6205BB81400350EE3 /* CCThreadPool.h in Headers */,
 				1AAAC8E9205CB6E9005321B9 /* AudioMacros.h in Headers */,
 				1AAAC8EF205CB6E9005321B9 /* AudioEngine-inl.h in Headers */,
-				46FDDC29202AEAC500931238 /* Casting.h in Headers */,
 				4DED48361DFFA4AF0070C5C4 /* b2ChainAndCircleContact.h in Headers */,
 				46FDDB83202ADDCE00931238 /* ccRandom.h in Headers */,
 				294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
@@ -2842,7 +2725,6 @@
 				46FDDA7F202ACC6A00931238 /* Renderer.h in Headers */,
 				46FDDAA1202ACC6A00931238 /* InputAssembler.h in Headers */,
 				46FDDA91202ACC6A00931238 /* Pass.h in Headers */,
-				46FDDC35202AEAC500931238 /* IntegerTypeTraits.h in Headers */,
 				46FDDAC7202ACC6A00931238 /* GFX.h in Headers */,
 				1A52DB3A205BCD9200350EE3 /* util.h in Headers */,
 				46FDDC63202D502F00931238 /* CCApplication.h in Headers */,
@@ -2869,7 +2751,6 @@
 				1AAAC8ED205CB6E9005321B9 /* AudioCache.h in Headers */,
 				46FDDBBB202ADDCE00931238 /* CCRefPtr.h in Headers */,
 				46FDDADB202ACC6A00931238 /* State.h in Headers */,
-				46FDDC33202AEAC500931238 /* Types.h in Headers */,
 				1A52DB22205BCD9200350EE3 /* env.h in Headers */,
 				1A29D771205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				1A52DB2C205BCD9200350EE3 /* node_mutex.h in Headers */,
@@ -2914,12 +2795,10 @@
 				4DED483A1DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.h in Headers */,
 				4DED48561DFFA4AF0070C5C4 /* b2PolygonContact.h in Headers */,
 				1A28FF791F20AFAB007A1D9D /* SRLog.h in Headers */,
-				46FDDC31202AEAC500931238 /* TypeTraits.h in Headers */,
 				469303AE2046AE05004A3D6C /* Base.h in Headers */,
 				46FDDB6D202ADDCE00931238 /* etc1.h in Headers */,
 				46FDDBB7202ADDCE00931238 /* ccUtils.h in Headers */,
 				46FDDB6B202ADDCE00931238 /* base64.h in Headers */,
-				46FDDC3F202AEAC500931238 /* Likely.h in Headers */,
 				1A52DB33205BCD9200350EE3 /* node.h in Headers */,
 				1A52DB45205BCD9200350EE3 /* Base.h in Headers */,
 				4DED484A1DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.h in Headers */,
@@ -2956,7 +2835,6 @@
 				46FDDACD202ACC6A00931238 /* GraphicsHandle.h in Headers */,
 				4DED47D21DFFA4AF0070C5C4 /* Box2D.h in Headers */,
 				ED3057921BEC77770083C3ED /* edtaa3func.h in Headers */,
-				46FDDC4D202AEAC500931238 /* WebGLTexelConversions.h in Headers */,
 				46FDDBCB202ADDCE00931238 /* ZipUtils.h in Headers */,
 				50ABBFFD1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
 				46FDDA8F202ACC6A00931238 /* BaseRenderer.h in Headers */,
@@ -2969,7 +2847,6 @@
 				46FDDB9F202ADDCE00931238 /* CCVector.h in Headers */,
 				50ABBD5E1925AB0000A911A9 /* Vec3.h in Headers */,
 				4617863120522469008256E1 /* SocketIO.h in Headers */,
-				46FDDC49202AEAC500931238 /* WebGLFormats.h in Headers */,
 				46FDDBD1202ADDCE00931238 /* ccUTF8.h in Headers */,
 				4693045A2046AE06004A3D6C /* EventDispatcher.h in Headers */,
 				1AAAC8F3205CB6E9005321B9 /* AudioEngine.h in Headers */,
@@ -2978,7 +2855,6 @@
 				1A52DB42205BCD9200350EE3 /* Utils.hpp in Headers */,
 				50ABC00B1926664800A911A9 /* CCDevice.h in Headers */,
 				46FDDB89202ADDCE00931238 /* CCRef.h in Headers */,
-				46FDDC3D202AEAC500931238 /* CheckedInt.h in Headers */,
 				4DED47E41DFFA4AF0070C5C4 /* b2Distance.h in Headers */,
 				1A52DB29205BCD9200350EE3 /* base64.h in Headers */,
 				46FDDBE9202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
@@ -3012,7 +2888,6 @@
 				469303832046AE05004A3D6C /* Value.hpp in Headers */,
 				1A28FF961F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				BA68D7841D62F4A500B7A3F9 /* poly2tri.h in Headers */,
-				46FDDC36202AEAC500931238 /* IntegerTypeTraits.h in Headers */,
 				4617864620522469008256E1 /* HttpAsynConnection-apple.h in Headers */,
 				46FDDAA8202ACC6A00931238 /* ForwardRenderer.h in Headers */,
 				1A29D79B205666F500168D9A /* jsb_opengl_utils.hpp in Headers */,
@@ -3024,11 +2899,9 @@
 				46FDDA84202ACC6A00931238 /* Technique.h in Headers */,
 				BA68D7801D62F4A500B7A3F9 /* shapes.h in Headers */,
 				1A29D76C205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
-				46FDDC3E202AEAC500931238 /* CheckedInt.h in Headers */,
 				46FDDBB8202ADDCE00931238 /* ccUtils.h in Headers */,
 				50643BE319BFCF1800EF68ED /* CCPlatformConfig.h in Headers */,
 				46FDDA92202ACC6A00931238 /* Pass.h in Headers */,
-				46FDDC48202AEAC500931238 /* StaticAnalysisFunctions.h in Headers */,
 				46FDDB4E202ADDCE00931238 /* pvr.h in Headers */,
 				4DED48331DFFA4AF0070C5C4 /* b2WorldCallbacks.h in Headers */,
 				BA68D7881D62F4A500B7A3F9 /* advancing_front.h in Headers */,
@@ -3039,7 +2912,6 @@
 				294D7D9B1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
 				46178650205224DA008256E1 /* CCDownloaderImpl-apple.h in Headers */,
 				46FDDAA6202ACC6A00931238 /* Scene.h in Headers */,
-				46FDDC4A202AEAC500931238 /* WebGLFormats.h in Headers */,
 				4DED486F1DFFA4AF0070C5C4 /* b2MouseJoint.h in Headers */,
 				1A586C4A2064C97800B47573 /* EJConvert.h in Headers */,
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
@@ -3056,7 +2928,6 @@
 				4DED48191DFFA4AF0070C5C4 /* b2Timer.h in Headers */,
 				4DED487B1DFFA4AF0070C5C4 /* b2RevoluteJoint.h in Headers */,
 				1A586C442064C90500B47573 /* EJConvertTypedArray.h in Headers */,
-				46FDDC44202AEAC500931238 /* Pair.h in Headers */,
 				BA68D7941D62F4A500B7A3F9 /* sweep_context.h in Headers */,
 				46FDDA82202ACC6A00931238 /* RendererUtils.h in Headers */,
 				1A9F0F9A1F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
@@ -3065,7 +2936,6 @@
 				46FDDA9C202ACC6A00931238 /* Effect.h in Headers */,
 				503DD8E61926736A00CD74DD /* CCEAGLView-ios.h in Headers */,
 				46FDDAC8202ACC6A00931238 /* GFX.h in Headers */,
-				46FDDC3A202AEAC500931238 /* Attributes.h in Headers */,
 				469303972046AE05004A3D6C /* Class.hpp in Headers */,
 				46FDDA98202ACC6A00931238 /* Model.h in Headers */,
 				4DED482F1DFFA4AF0070C5C4 /* b2World.h in Headers */,
@@ -3081,7 +2951,6 @@
 				4DED48471DFFA4AF0070C5C4 /* b2ContactSolver.h in Headers */,
 				50ABBD3F1925AB0000A911A9 /* CCGeometry.h in Headers */,
 				4693039D2046AE05004A3D6C /* PlatformUtils.h in Headers */,
-				46FDDC2C202AEAC500931238 /* UniquePtr.h in Headers */,
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				50ABBFFE1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
@@ -3115,7 +2984,6 @@
 				4DED483B1DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.h in Headers */,
 				4DED48071DFFA4AF0070C5C4 /* b2Draw.h in Headers */,
 				4DED484F1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.h in Headers */,
-				46FDDC34202AEAC500931238 /* Types.h in Headers */,
 				4DED486B1DFFA4AF0070C5C4 /* b2MotorJoint.h in Headers */,
 				46FDDA74202ACC6A00931238 /* ProgramLib.h in Headers */,
 				46FDDAD0202ACC6A00931238 /* RenderBuffer.h in Headers */,
@@ -3133,7 +3001,6 @@
 				4DED47D31DFFA4AF0070C5C4 /* Box2D.h in Headers */,
 				46FDDBCC202ADDCE00931238 /* ZipUtils.h in Headers */,
 				46FDDB50202ADDCE00931238 /* CCValue.h in Headers */,
-				46FDDC46202AEAC500931238 /* Move.h in Headers */,
 				46FDDADA202ACC6A00931238 /* Program.h in Headers */,
 				46FDDAC4202ACC6A00931238 /* FrameBuffer.h in Headers */,
 				46FDDAD2202ACC6A00931238 /* Texture.h in Headers */,
@@ -3141,7 +3008,6 @@
 				1AAAC8EE205CB6E9005321B9 /* AudioCache.h in Headers */,
 				1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */,
 				4DED48631DFFA4AF0070C5C4 /* b2GearJoint.h in Headers */,
-				46FDDC2E202AEAC500931238 /* Compiler.h in Headers */,
 				50ABBD431925AB0000A911A9 /* CCMathBase.h in Headers */,
 				46FDDBDE202ADDCE00931238 /* TGAlib.h in Headers */,
 				469303812046AE05004A3D6C /* config.hpp in Headers */,
@@ -3154,7 +3020,6 @@
 				4DED47FD1DFFA4AF0070C5C4 /* b2PolygonShape.h in Headers */,
 				4693038B2046AE05004A3D6C /* State.hpp in Headers */,
 				46FDDADC202ACC6A00931238 /* State.h in Headers */,
-				46FDDC42202AEAC500931238 /* Atomics.h in Headers */,
 				46FDDB8A202ADDCE00931238 /* CCRef.h in Headers */,
 				4DED47D71DFFA4AF0070C5C4 /* b2BroadPhase.h in Headers */,
 				4DED485F1DFFA4AF0070C5C4 /* b2FrictionJoint.h in Headers */,
@@ -3184,7 +3049,6 @@
 				4DED48091DFFA4AF0070C5C4 /* b2GrowableStack.h in Headers */,
 				4DED487F1DFFA4AF0070C5C4 /* b2RopeJoint.h in Headers */,
 				50ABBD4B1925AB0000A911A9 /* Mat4.h in Headers */,
-				46FDDC28202AEAC500931238 /* WebGLTypes.h in Headers */,
 				50ABBD531925AB0000A911A9 /* Quaternion.h in Headers */,
 				46FDDBE8202ADDCE00931238 /* CCNS.h in Headers */,
 				4617863E20522469008256E1 /* HttpResponse.h in Headers */,
@@ -3195,7 +3059,6 @@
 				46FDDA7C202ACC6A00931238 /* Camera.h in Headers */,
 				4DED48151DFFA4AF0070C5C4 /* b2StackAllocator.h in Headers */,
 				4617862420522469008256E1 /* CCIDownloaderImpl.h in Headers */,
-				46FDDC4C202AEAC500931238 /* GLConsts.h in Headers */,
 				5027253B190BF1B900AAF4ED /* cocos2d.h in Headers */,
 				BA68D79B1D62F4B700B7A3F9 /* clipper.hpp in Headers */,
 				4DED48111DFFA4AF0070C5C4 /* b2Settings.h in Headers */,
@@ -3205,21 +3068,16 @@
 				1A29D772205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				1A29D789205666B200168D9A /* LocalStorage.h in Headers */,
 				46FDDC67202D504E00931238 /* CCApplication.h in Headers */,
-				46FDDC32202AEAC500931238 /* TypeTraits.h in Headers */,
-				46FDDC40202AEAC500931238 /* Likely.h in Headers */,
 				50ABBD4F1925AB0000A911A9 /* MathUtil.h in Headers */,
 				1A28FF561F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				1A28FF7E1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				46FDDA76202ACC6A00931238 /* Config.h in Headers */,
 				50643BD519BFAECF00EF68ED /* CCGL.h in Headers */,
 				46FDDB84202ADDCE00931238 /* ccRandom.h in Headers */,
-				46FDDC4E202AEAC500931238 /* WebGLTexelConversions.h in Headers */,
 				1AAAC8EA205CB6E9005321B9 /* AudioMacros.h in Headers */,
-				46FDDC30202AEAC500931238 /* Assertions.h in Headers */,
 				4617862620522469008256E1 /* CCDownloader.h in Headers */,
 				46FDDBD2202ADDCE00931238 /* ccUTF8.h in Headers */,
 				1A14FD942080B4E300E10ABE /* CCGLUtils.h in Headers */,
-				46FDDC2A202AEAC500931238 /* Casting.h in Headers */,
 				50ABBD5F1925AB0000A911A9 /* Vec3.h in Headers */,
 				46FDDC02202ADDCE00931238 /* ccCArray.h in Headers */,
 				1A29D79F205666F500168D9A /* jsb_opengl_manual.hpp in Headers */,
@@ -3255,7 +3113,6 @@
 				1A28FF5A1F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
 				1A28FF861F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */,
 				4617863820522469008256E1 /* HttpClient.h in Headers */,
-				46FDDC3C202AEAC500931238 /* MacroArgs.h in Headers */,
 				4DED48291DFFA4AF0070C5C4 /* b2Island.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3336,7 +3193,6 @@
 				4693042C2046AE06004A3D6C /* jsb_renderer_manual.cpp in Sources */,
 				1AAAC8E3205CB6E9005321B9 /* AudioDecoder.mm in Sources */,
 				1A52DB66205BCDC700350EE3 /* Class.cpp in Sources */,
-				46FDDC37202AEAC500931238 /* Assertions.cpp in Sources */,
 				1A28FF7F1F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				4DED48381DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.cpp in Sources */,
 				469303942046AE05004A3D6C /* RefCounter.cpp in Sources */,
@@ -3355,7 +3211,6 @@
 				4DED47EA1DFFA4AF0070C5C4 /* b2TimeOfImpact.cpp in Sources */,
 				46FDDAA3202ACC6A00931238 /* InputAssembler.cpp in Sources */,
 				4DED48581DFFA4AF0070C5C4 /* b2DistanceJoint.cpp in Sources */,
-				46FDDC25202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */,
 				1AAAC8EB205CB6E9005321B9 /* AudioCache.mm in Sources */,
 				1A52DB61205BCDC700350EE3 /* Object.cpp in Sources */,
 				1A52DB44205BCD9200350EE3 /* env.cc in Sources */,
@@ -3413,7 +3268,6 @@
 				46FDDA99202ACC6A00931238 /* Model.cpp in Sources */,
 				4693038E2046AE05004A3D6C /* Value.cpp in Sources */,
 				1A52DB39205BCD9200350EE3 /* inspector_io.cc in Sources */,
-				46FDDC4F202AEAC500931238 /* WebGLFormats.cpp in Sources */,
 				46FDDA89202ACC6A00931238 /* Effect.cpp in Sources */,
 				4DED48161DFFA4AF0070C5C4 /* b2Timer.cpp in Sources */,
 				4DED47E61DFFA4AF0070C5C4 /* b2DynamicTree.cpp in Sources */,
@@ -3571,7 +3425,6 @@
 				1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
 				469303852046AE05004A3D6C /* MappingUtils.cpp in Sources */,
-				46FDDC50202AEAC500931238 /* WebGLFormats.cpp in Sources */,
 				46FDDBA4202ADDCE00931238 /* pvr.cpp in Sources */,
 				4DED47DD1DFFA4AF0070C5C4 /* b2CollidePolygon.cpp in Sources */,
 				46FDDAB6202ACC6A00931238 /* Program.cpp in Sources */,
@@ -3670,7 +3523,6 @@
 				46FDDACA202ACC6A00931238 /* RenderBuffer.cpp in Sources */,
 				4DED484D1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.cpp in Sources */,
 				1A52DB78205BCDD000350EE3 /* Object.cpp in Sources */,
-				46FDDC26202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */,
 				46FDDB4C202ADDCE00931238 /* ccFPSImages.c in Sources */,
 				469303A72046AE05004A3D6C /* PlatformUtils.mm in Sources */,
 				46FDDAD4202ACC6A00931238 /* Texture2D.cpp in Sources */,
@@ -3723,7 +3575,6 @@
 				4617864F205224D6008256E1 /* HttpAsynConnection-apple.m in Sources */,
 				50ABBD391925AB0000A911A9 /* CCAffineTransform.cpp in Sources */,
 				4DED480F1DFFA4AF0070C5C4 /* b2Settings.cpp in Sources */,
-				46FDDC38202AEAC500931238 /* Assertions.cpp in Sources */,
 				1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				503DD8E71926736A00CD74DD /* CCEAGLView-ios.mm in Sources */,
 				1A29D785205666B200168D9A /* LocalStorage.cpp in Sources */,

@@ -40,136 +40,9 @@ namespace {
         { GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR },
     };
 
-#ifndef GL_COMPRESSED_RGB_ETC1_WEBGL
-#define GL_COMPRESSED_RGB_ETC1_WEBGL 0x8D64
-#endif
-
-#ifndef GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG
-#define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
-#endif
-
-#ifndef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
-#define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
-#define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
-#define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
-#endif
-
-#ifndef GL_HALF_FLOAT_OES
-#define GL_HALF_FLOAT_OES 0x8D61
-#endif
-
-#ifndef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
-#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT 0x83F0   // ext.COMPRESSED_RGB_S3TC_DXT1_EXT
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1  // ext.COMPRESSED_RGBA_S3TC_DXT1_EXT
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2  // ext.COMPRESSED_RGBA_S3TC_DXT3_EXT
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3  // ext.COMPRESSED_RGBA_S3TC_DXT5_EXT
-#endif
-
 } // namespace {
 
 RENDERER_BEGIN
-
-Texture::GLTextureFmt Texture::_textureFmt[] = {
-    // TEXTURE_FMT_RGB_DXT1: 0
-    { GL_RGB, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, 0, 3 },
-
-    // TEXTURE_FMT_RGBA_DXT1: 1
-    { GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, 0, 4 },
-
-    // TEXTURE_FMT_RGBA_DXT3: 2
-    { GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, 0, 8 },
-
-    // TEXTURE_FMT_RGBA_DXT5: 3
-    { GL_RGBA, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, 0, 8 },
-
-    // TEXTURE_FMT_RGB_ETC1: 4
-    { GL_RGB, GL_COMPRESSED_RGB_ETC1_WEBGL, 0, 0 },
-
-    // TEXTURE_FMT_RGB_PVRTC_2BPPV1: 5
-    { GL_RGB, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, 0, 0 },
-
-    // TEXTURE_FMT_RGBA_PVRTC_2BPPV1: 6
-    { GL_RGBA, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, 0, 0 },
-
-    // TEXTURE_FMT_RGB_PVRTC_4BPPV1: 7
-    { GL_RGB, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, 0, 0 },
-
-    // TEXTURE_FMT_RGBA_PVRTC_4BPPV1: 8
-    { GL_RGBA, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, 0, 0 },
-
-    // TEXTURE_FMT_A8: 9
-    { GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE, 8 },
-
-    // TEXTURE_FMT_L8: 10
-    { GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE, 8 },
-
-    // TEXTURE_FMT_L8_A8: 11
-    { GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 16 },
-
-    // TEXTURE_FMT_R5_G6_B5: 12
-    { GL_RGB, GL_RGB, GL_UNSIGNED_SHORT_5_6_5,  16 },
-
-    // TEXTURE_FMT_R5_G5_B5_A1: 13
-    { GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 16 },
-
-    // TEXTURE_FMT_R4_G4_B4_A4: 14
-    { GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, 16 },
-
-    // TEXTURE_FMT_RGB8: 15
-    { GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, 24 },
-
-    // TEXTURE_FMT_RGBA8: 16
-    { GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, 32 },
-
-    // TEXTURE_FMT_RGB16F: 17
-    { GL_RGB, GL_RGB, GL_HALF_FLOAT_OES, 0 },
-
-    // TEXTURE_FMT_RGBA16F: 18
-    { GL_RGBA, GL_RGBA, GL_HALF_FLOAT_OES, 0 },
-
-    // TEXTURE_FMT_RGB32F: 19
-    { GL_RGB, GL_RGB, GL_FLOAT, 96},
-
-    // TEXTURE_FMT_RGBA32F: 20
-    { GL_RGBA, GL_RGBA, GL_FLOAT, 128 },
-
-    // TEXTURE_FMT_R32F: 21
-    { 0, 0, 0, 0 },
-
-    // TEXTURE_FMT_111110F: 22
-    { 0, 0, 0, 0 },
-
-    // TEXTURE_FMT_SRGB: 23
-    { 0, 0, 0, 0 },
-
-    // TEXTURE_FMT_SRGBA: 24
-    { 0, 0, 0, 0 },
-    
-    // TEXTURE_FMT_D16: 25
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    { GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 32 },
-#else
-    { GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT, 16 },
-#endif
-
-    // TEXTURE_FMT_D24S8: 25
-    { 0, 0, 0, 0 },
-};
 
 Texture::Texture()
 : _device(nullptr)
@@ -182,7 +55,6 @@ Texture::Texture()
 , _minFilter(Filter::LINEAR)
 , _magFilter(Filter::LINEAR)
 , _mipFilter(Filter::LINEAR)
-, _format(Format::RGBA8)
 , _hasMipmap(false)
 , _compressed(false)
 {
@@ -218,7 +90,6 @@ bool Texture::init(DeviceGraphics* device)
     _wrapT = WrapMode::REPEAT;
     // wrapR available in webgl2
     // _wrapR = WrapMode::REPEAT;
-    _format = Format::RGBA8;
 
     _target = -1;
     return true;
@@ -245,16 +116,6 @@ GLenum Texture::glFilter(Filter filter, Filter mipFilter/* = TextureFilter::NONE
     else if (mipFilter == Filter::LINEAR)
         ret = p.mip;
     return ret;
-}
-
-const Texture::GLTextureFmt& Texture::glTextureFmt(Format fmt)
-{
-    if (fmt < Format::BEGIN || fmt > Format::END)
-    {
-        return _textureFmt[(uint8_t)Format::RGBA8];
-    }
-
-    return _textureFmt[(uint8_t)fmt];
 }
 
 RENDERER_END

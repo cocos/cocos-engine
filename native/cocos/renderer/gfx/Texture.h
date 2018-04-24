@@ -94,75 +94,45 @@ public:
         END = 25
     //
     };
+    
+    struct Image
+    {
+        uint8_t* data = nullptr;
+        size_t length = 0;
+    };
 
     struct Options
     {
-        Options()
-        : anisotropy(1)
-        , width(4)
-        , height(4)
-        , wrapS(WrapMode::REPEAT)
-        , wrapT(WrapMode::REPEAT)
-        , minFilter(Filter::LINEAR)
-        , magFilter(Filter::LINEAR)
-        , mipFilter(Filter::LINEAR)
-        , format(Format::RGBA8)
-        , hasMipmap(false)
-        , flipY(true) // TODO: Default flipY value should be false ? If it's true, it will waste some CPU resource for re-format data.
-        , premultiplyAlpha(false)
-        {}
-
-        std::vector<cocos2d::Data> images;
-        int32_t anisotropy;
-        uint16_t width;
-        uint16_t height;
-
-        WrapMode wrapS;
-        WrapMode wrapT;
-
-        Filter minFilter;
-        Filter magFilter;
-        Filter mipFilter;
-        Format format;
-        bool hasMipmap;
-        bool flipY;
-        bool premultiplyAlpha;
+        std::vector<Image> images;
+        int32_t anisotropy = 1;
+        GLenum glInternalFormat = GL_RGBA;
+        GLenum glFormat = GL_RGB;
+        GLenum glType = GL_UNSIGNED_BYTE;
+        uint16_t width = 4;
+        uint16_t height = 4;
+        uint8_t bpp = 0;
+        
+        WrapMode wrapS = WrapMode::REPEAT;
+        WrapMode wrapT = WrapMode::REPEAT;
+        Filter minFilter = Filter::LINEAR;
+        Filter magFilter = Filter::LINEAR;
+        Filter mipFilter = Filter::LINEAR;
+        
+        bool hasMipmap = false;
+        bool flipY = true;
+        bool premultiplyAlpha = false;
+        bool compressed = false;
     };
 
     struct ImageOption
     {
-        ImageOption()
-        : anisotropy(1)
-        , level(0)
-        , width(4)
-        , height(4)
-        , wrapS(WrapMode::REPEAT)
-        , wrapT(WrapMode::REPEAT)
-        , minFilter(Filter::LINEAR)
-        , magFilter(Filter::LINEAR)
-        , mipFilter(Filter::LINEAR)
-        , format(Format::RGBA8)
-        , hasMipmap(false)
-        , flipY(true)
-        , premultiplyAlpha(false)
-        {}
+        Image image;
+        int32_t level = 0;
+        uint16_t width = 4;
+        uint16_t height = 4;
 
-        cocos2d::Data image;
-        int32_t anisotropy;
-        int32_t level;
-        uint16_t width;
-        uint16_t height;
-
-        WrapMode wrapS;
-        WrapMode wrapT;
-
-        Filter minFilter;
-        Filter magFilter;
-        Filter mipFilter;
-        Format format;
-        bool hasMipmap;
-        bool flipY;
-        bool premultiplyAlpha;
+        bool flipY = false;
+        bool premultiplyAlpha = false;
     };
 
     struct SubImageOption
@@ -195,16 +165,8 @@ public:
     inline uint16_t getHeight() const { return _height; }
 
 protected:
-    struct GLTextureFmt
-    {
-        GLenum format;
-        GLenum internalFormat;
-        GLenum pixelType;
-        uint8_t bpp;
-    };
     
     static GLenum glFilter(Filter filter, Filter mipFilter = Filter::NONE);
-    static const GLTextureFmt& glTextureFmt(Format fmt);
     
     static bool isPow2(int32_t v) {
         return !(v & (v - 1)) && (!!v);
@@ -214,8 +176,6 @@ protected:
     virtual ~Texture();
 
     bool init(DeviceGraphics* device);
-    
-    static GLTextureFmt _textureFmt[];
 
     DeviceGraphics* _device;
     GLint _anisotropy;
@@ -225,11 +185,14 @@ protected:
     WrapMode _wrapT;
     uint16_t _width;
     uint16_t _height;
+    uint8_t _bpp = 0;
 
     Filter _minFilter;
     Filter _magFilter;
     Filter _mipFilter;
-    Format _format;
+    GLenum _glInternalFormat;
+    GLenum _glFormat;
+    GLenum _glType;
 
     bool _hasMipmap;
     bool _compressed;

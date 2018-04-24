@@ -118,7 +118,6 @@ SE_DECLARE_FUNC(js_gfx_Texture2D_updateImage);
 SE_DECLARE_FUNC(js_gfx_Texture2D_init);
 SE_DECLARE_FUNC(js_gfx_Texture2D_updateSubImage);
 SE_DECLARE_FUNC(js_gfx_Texture2D_update);
-SE_DECLARE_FUNC(js_gfx_Texture2D_create);
 SE_DECLARE_FUNC(js_gfx_Texture2D_Texture2D);
 
 extern se::Object* __jsb_cocos2d_renderer_Program_proto;

@@ -1511,29 +1511,6 @@ static bool js_gfx_Texture2D_update(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Texture2D_update)
 
-static bool js_gfx_Texture2D_create(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        cocos2d::renderer::DeviceGraphics* arg0 = nullptr;
-        cocos2d::renderer::Texture::Options arg1;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_TextureOptions(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture2D_create : Error processing arguments");
-        auto result = cocos2d::renderer::Texture2D::create(arg0, arg1);
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_renderer_Texture2D_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Texture2D_create)
-
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Texture2D_finalize)
 
 static bool js_gfx_Texture2D_constructor(se::State& s)
@@ -1567,7 +1544,6 @@ bool js_register_gfx_Texture2D(se::Object* obj)
     cls->defineFunction("init", _SE(js_gfx_Texture2D_init));
     cls->defineFunction("updateSubImageNative", _SE(js_gfx_Texture2D_updateSubImage));
     cls->defineFunction("updateNative", _SE(js_gfx_Texture2D_update));
-    cls->defineStaticFunction("create", _SE(js_gfx_Texture2D_create));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Texture2D_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Texture2D>(cls);

@@ -197,7 +197,7 @@ void Light::generateShadowMap(DeviceGraphics* device)
     Texture2D::Options options;
     options.width = _shadowResolution;
     options.height = _shadowResolution;
-    options.format = Texture2D::Format::RGBA8;
+//    options.format = Texture2D::Format::RGBA8;
     options.wrapS = Texture2D::WrapMode::CLAMP;
     options.wrapT = Texture2D::WrapMode::CLAMP;
     _shadowMap->init(device, options);

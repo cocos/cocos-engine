@@ -397,7 +397,7 @@ Image::PixelFormat getDevicePixelFormat(Image::PixelFormat format)
 //////////////////////////////////////////////////////////////////////////
 // Implement Image
 //////////////////////////////////////////////////////////////////////////
-bool Image::PNG_PREMULTIPLIED_ALPHA_ENABLED = true;
+bool Image::PNG_PREMULTIPLIED_ALPHA_ENABLED = false;
 
 Image::Image()
 : _data(nullptr)
@@ -923,7 +923,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         // premultiplied alpha for RGBA8888
         if (PNG_PREMULTIPLIED_ALPHA_ENABLED && color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         {
-            //premultipliedAlpha();
+            premultipliedAlpha();
         }
         else
         {

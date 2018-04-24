@@ -1454,16 +1454,13 @@ bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Opt
                 {
                     if (imageVal.isObject() && imageVal.toObject()->isTypedArray())
                     {
-                        uint8_t* data = nullptr;
-                        size_t bytes = 0;
-                        cocos2d::Data imgData;
-                        imageVal.toObject()->getTypedArrayData(&data, &bytes);
-                        imgData.copy((unsigned char*)data, bytes);
-                        ret->images.push_back(std::move(imgData));
+                        cocos2d::renderer::Texture::Image img;
+                        imageVal.toObject()->getTypedArrayData(&img.data, &img.length);
+                        ret->images.push_back(img);
                     }
                     else if (imageVal.isNull())
                     {
-//                        ret->images.push_back(cocos2d::Data());
+                        ret->images.push_back(cocos2d::renderer::Texture::Image());
                     }
                     else
                     {
@@ -1491,9 +1488,19 @@ bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Opt
         seval_to_uint16(tmp, &ret->height);
     }
 
-    if (obj->getProperty("format", &tmp))
+    if (obj->getProperty("glInternalFormat", &tmp))
     {
-        seval_to_uint8(tmp, (uint8_t*)&ret->format);
+        seval_to_uint32(tmp, &ret->glInternalFormat);
+    }
+    
+    if (obj->getProperty("glFormat", &tmp))
+    {
+        seval_to_uint32(tmp, &ret->glFormat);
+    }
+    
+    if (obj->getProperty("glType", &tmp))
+    {
+        seval_to_uint32(tmp, &ret->glType);
     }
 
     if (obj->getProperty("anisotropy", &tmp))
@@ -1535,6 +1542,11 @@ bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Opt
     {
         seval_to_boolean(tmp, &ret->premultiplyAlpha);
     }
+    
+    if (obj->getProperty("compressed", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->compressed);
+    }
 
     return true;
 }
@@ -1573,17 +1585,12 @@ bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture:
     se::Value imageVal;
     if (obj->getProperty("image", &imageVal) && imageVal.isObject() && imageVal.toObject()->isTypedArray())
     {
-        uint8_t* imgData = nullptr;
-        size_t imgDataLen = 0;
-        imageVal.toObject()->getTypedArrayData(&imgData, &imgDataLen);
-        ret->image.copy(imgData, imgDataLen);
+        cocos2d::renderer::Texture::Image img;
+        imageVal.toObject()->getTypedArrayData(&img.data, &img.length);
+        ret->image = img;
     }
 
     se::Value tmp;
-    if (obj->getProperty("mipmap", &tmp))
-    {
-        seval_to_boolean(tmp, &ret->hasMipmap);
-    }
 
     if (obj->getProperty("width", &tmp))
     {
@@ -1598,41 +1605,6 @@ bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture:
     if (obj->getProperty("height", &tmp))
     {
         seval_to_uint16(tmp, &ret->height);
-    }
-
-    if (obj->getProperty("format", &tmp))
-    {
-        seval_to_uint8(tmp, (uint8_t*)&ret->format);
-    }
-
-    if (obj->getProperty("anisotropy", &tmp))
-    {
-        seval_to_int32(tmp, &ret->anisotropy);
-    }
-
-    if (obj->getProperty("minFilter", &tmp))
-    {
-        seval_to_int8(tmp, (int8_t*)&ret->minFilter);
-    }
-
-    if (obj->getProperty("magFilter", &tmp))
-    {
-        seval_to_int8(tmp, (int8_t*)&ret->magFilter);
-    }
-
-    if (obj->getProperty("mipFilter", &tmp))
-    {
-        seval_to_int8(tmp, (int8_t*)&ret->mipFilter);
-    }
-
-    if (obj->getProperty("wrapS", &tmp))
-    {
-        seval_to_uint16(tmp, (uint16_t*)&ret->wrapS);
-    }
-
-    if (obj->getProperty("wrapT", &tmp))
-    {
-        seval_to_uint16(tmp, (uint16_t*)&ret->wrapT);
     }
 
     if (obj->getProperty("flipY", &tmp))

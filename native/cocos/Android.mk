@@ -121,9 +121,6 @@ scripting/js-bindings/jswrapper/v8/node_debug_options.cc \
 scripting/js-bindings/jswrapper/v8/util.cc \
 scripting/js-bindings/jswrapper/v8/http_parser.c \
 scripting/js-bindings/event/EventDispatcher.cpp \
-../external/sources/firefox/WebGLFormats.cpp \
-../external/sources/firefox/WebGLTexelConversions.cpp \
-../external/sources/firefox/mozilla/Assertions.cpp \
 ../external/sources/xxtea/xxtea.cpp \
 ../external/sources/tinyxml2/tinyxml2.cpp \
 ../external/sources/unzip/ioapi_mem.cpp \
@@ -139,7 +136,6 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
                     $(LOCAL_PATH)/../external/sources \
-                    $(LOCAL_PATH)/../external/sources/firefox \
                     $(LOCAL_PATH)/renderer \
                     $(LOCAL_PATH)/scripting/js-bindings/manual \
                     $(LOCAL_PATH)/scripting/js-bindings/manual/platform/android \

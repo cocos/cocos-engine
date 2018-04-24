@@ -638,42 +638,6 @@ static bool js_loadImage(se::State& s)
                     se::HandleObject retObj(se::Object::createPlainObject());
                     Data data;
                     data.copy(img->getData(), img->getDataLen());
-
-#ifdef CC_NEW_RENDERER
-                    // Convert to RGBA8888 because Web engine only supports it.
-                    //FIX ME: How to handle other formats?
-                    if (Image::PixelFormat::RGB888 == img->getRenderFormat())
-                    {
-                        size_t imageBytes = img->getWidth() * img->getHeight() * 4;
-                        unsigned char* convertedData = (unsigned char*)malloc(imageBytes);
-                        auto dataT = data.getBytes();
-                        for (size_t i = 0, len = data.getSize() / 3; i < len; ++i)
-                        {
-                            convertedData[i * 4] = *dataT++;
-                            convertedData[i * 4 + 1] = *dataT++;
-                            convertedData[i * 4 + 2] = *dataT++;
-                            convertedData[i * 4 + 3] = 255;
-                        }
-                        data.copy(convertedData, imageBytes);
-                        free(convertedData);
-                    }
-
-                    se::Value dataVal;
-                    Data_to_seval(data, &dataVal);
-                    retObj->setProperty("data", dataVal);
-                    retObj->setProperty("width", se::Value(img->getWidth()));
-                    retObj->setProperty("height", se::Value(img->getHeight()));
-                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
-                    retObj->setProperty("bpp", se::Value(32));
-                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
-                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
-                    retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
-
-                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
-                    retObj->setProperty("glFormat", se::Value(GL_RGBA));
-                    retObj->setProperty("glInternalFormat", se::Value(GL_RGBA));
-                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
-#else
                     se::Value dataVal;
                     Data_to_seval(data, &dataVal);
                     retObj->setProperty("data", dataVal);
@@ -689,8 +653,6 @@ static bool js_loadImage(se::State& s)
                     retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
                     retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
                     retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
-#endif
-
                     se::ValueArray seArgs;
                     seArgs.push_back(se::Value(retObj));
                     callbackVal.toObject()->call(seArgs, nullptr);
