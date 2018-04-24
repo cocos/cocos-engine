@@ -916,9 +916,9 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
-        this._localMatDirty = 0;
-        this._worldMatDirty = false;
-        this.setLocalDirty(ALL_DIRTY_FLAG);
+        this._localMatDirty = ALL_DIRTY_FLAG;
+        this._worldMatDirty = true;
+        this._worldMatUpdated = false;
 
         this._cullingMask = 1 << this.groupIndex;
     },
@@ -1990,11 +1990,12 @@ var Node = cc.Class({
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
+        this._worldMatUpdated = true;
     },
 
     _updateWorldMatrix () {
-        if (this.parent) {
-            this.parent._updateWorldMatrix();
+        if (this._parent) {
+            this._parent._updateWorldMatrix();
         }
         if (this._worldMatDirty) {
             this._calculWorldMatrix();
@@ -2010,12 +2011,14 @@ var Node = cc.Class({
         this._localMatDirty = this._localMatDirty | flag;
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
+            this._worldMatUpdated = false;
         }
     },
 
     setWorldDirty () {
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
+            this._worldMatUpdated = false;
         }
     },
 

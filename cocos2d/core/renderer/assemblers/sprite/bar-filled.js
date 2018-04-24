@@ -79,7 +79,7 @@ module.exports = {
             if (vertDirty) {
                 this.updateVerts(sprite, fillStart, fillEnd);
             }
-            if (vertDirty || batchData.worldMatUpdated) {
+            if (vertDirty || sprite.node._worldMatUpdated) {
                 this.updateWorldVerts(sprite);
             }
         }
