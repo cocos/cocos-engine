@@ -52,6 +52,7 @@ class HTMLImageElement extends HTMLElement {
             this._numberOfMipmaps = info.numberOfMipmaps;
             this._compressed = info.compressed;
             this._bpp = info.bpp;
+            this._premultiplyAlpha = info.premultiplyAlpha;
 
             this._alignment = 1;
             // Set the row align only when mipmapsNum == 1 and the data is uncompressed
