@@ -154,6 +154,7 @@ function AnimationState (clip, name) {
      */
     this.time = 0;
 
+    this._lastframeEventOn = false;
 
     this._emit = this.emit;
     this.emit = function () {
@@ -170,10 +171,25 @@ var proto = AnimationState.prototype;
 
 cc.js.mixin(proto, cc.EventTarget.prototype);
 
+proto.on = function (type, callback, target, useCapture) {
+    if (type === 'lastframe') {
+        this._lastframeEventOn = true;
+    }
+    return this._EventTargetOn(type, callback, target, useCapture);
+};
+
+proto.off = function () {
+    if (type === 'lastframe') {
+        if (!this.hasEventListener(type)) {
+            this._lastframeEventOn = false;
+        }
+    }
+    return this._EventTargetOff(type, callback, target, useCapture);
+};
+
 proto._setListeners = function (target) {
     this._capturingListeners = target ? target._capturingListeners : null;
     this._bubblingListeners = target ? target._bubblingListeners : null;
-    this._hasListenerCache = target ? target._hasListenerCache : null;
 };
 
 proto.onPlay = function () {
@@ -229,8 +245,7 @@ function process () {
     // sample
     var info = this.sample();
 
-    var cache = this._hasListenerCache;
-    if (cache && cache['lastframe']) {
+    if (this._lastframeEventOn) {
         var lastInfo;
         if (!this._lastWrappedInfo) {
             lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
@@ -272,8 +287,7 @@ function simpleProcess () {
         curve.sample(time, ratio, this);
     }
 
-    var cache = this._hasListenerCache;
-    if (cache && cache['lastframe']) {
+    if (this._lastframeEventOn) {
         if (this._lastIterations === undefined) {
             this._lastIterations = ratio;
         }
