@@ -66,7 +66,7 @@ const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
                 if (vertDirty) {
                     this.updateVerts(sprite);
                 }
-                if (vertDirty || batchData.worldMatUpdated) {
+                if (vertDirty || sprite.node._worldMatUpdated) {
                     this.updateWorldVerts(sprite);
                 }
             }
