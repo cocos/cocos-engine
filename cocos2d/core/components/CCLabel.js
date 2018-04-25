@@ -202,7 +202,7 @@ var Label = cc.Class({
         _useOriginalSize: true,
         
         /**
-         * !#e n Content string of label.
+         * !#en Content string of label.
          * !#zh 标签显示的文本内容。
          * @property {String} string
          */
