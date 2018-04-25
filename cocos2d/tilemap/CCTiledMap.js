@@ -851,7 +851,16 @@ var TiledMap = cc.Class({
                 textures[texKeys[i]] = texValues[i];
             }
 
-            var ret = sgNode.initWithXML(file.tmxXmlStr, file.tsxFileNames, file.tsxFiles, textures);
+            var tsxFileNames = file.tsxFileNames;
+            var tsxFiles = file.tsxFiles;
+            var tsxMap = {};
+            for (let i = 0; i < tsxFileNames.length; ++i) {
+                if (tsxFileNames[i].length > 0) {
+                    tsxMap[tsxFileNames[i]] = tsxFiles[i].text;
+                }
+            }
+
+            var ret = sgNode.initWithXML(file.tmxXmlStr, tsxMap, textures);
             if (ret) {
                 // Asset is changed, the layers are recreated.
                 // The layers of pre asset should be cleaned.
