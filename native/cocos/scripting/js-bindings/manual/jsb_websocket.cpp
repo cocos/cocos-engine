@@ -451,26 +451,18 @@ SE_BIND_FUNC(WebSocket_send)
 
 static bool WebSocket_close(se::State& s)
 {
-    const auto& args = s.args();
-    int argc = (int)args.size();
-
-    if (argc == 0)
-    {
-        WebSocket* cobj = (WebSocket*)s.nativeThisObject();
-        cobj->closeAsync();
-        // Attach current WebSocket instance to global object to prevent WebSocket instance
-        // being garbage collected after "ws.close(); ws = null;"
-        // There is a state that current WebSocket JS instance is being garbaged but its finalize
-        // callback has not be invoked. Then in "JSB_WebSocketDelegate::onClose", se::Object is
-        // still be able to be found and while invoking JS 'onclose' method, crash will happen since
-        // JS instance is invalid and is going to be collected. This bug is easiler reproduced on iOS
-        // because JavaScriptCore is more GC sensitive.
-        // Please note that we need to detach it from global object in "JSB_WebSocketDelegate::onClose".
-        se::ScriptEngine::getInstance()->getGlobalObject()->attachObject(s.thisObject());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc);
-    return false;
+    WebSocket* cobj = (WebSocket*)s.nativeThisObject();
+    cobj->closeAsync();
+    // Attach current WebSocket instance to global object to prevent WebSocket instance
+    // being garbage collected after "ws.close(); ws = null;"
+    // There is a state that current WebSocket JS instance is being garbaged but its finalize
+    // callback has not be invoked. Then in "JSB_WebSocketDelegate::onClose", se::Object is
+    // still be able to be found and while invoking JS 'onclose' method, crash will happen since
+    // JS instance is invalid and is going to be collected. This bug is easiler reproduced on iOS
+    // because JavaScriptCore is more GC sensitive.
+    // Please note that we need to detach it from global object in "JSB_WebSocketDelegate::onClose".
+    se::ScriptEngine::getInstance()->getGlobalObject()->attachObject(s.thisObject());
+    return true;
 }
 SE_BIND_FUNC(WebSocket_close)
 
