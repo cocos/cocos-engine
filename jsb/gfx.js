@@ -25,6 +25,7 @@
  
 let {enums, glTextureFmt} = require("./enums");
 let VertexFormat = require("./vertex-format-jsb");
+const gl = window.__ccgl;
 
 window.device = gfx.Device.getInstance();
 window.device._gl = window.__ccgl;
@@ -85,15 +86,45 @@ function convertImages(images) {
     }
 }
 
+function convertOptions(options) {    
+    if (options.images && options.images[0] instanceof HTMLImageElement) {
+        var image = options.images[0];
+        options.glInternalFormat = image._glInternalFormat;
+        options.glFormat = image._glFormat;
+        options.glType = image._glType;
+        options.bpp = image._bpp;
+        options.compressed = image._compressed
+        options.premultiplyAlpha = image._premultiplyAlpha;
+    }
+    else if (options.images && options.images[0] instanceof HTMLCanvasElement) {
+        options.glInternalFormat = gl.RGBA;
+        options.glFormat = gl.RGBA;
+        options.glType = gl.UNSIGNED_BYTE;
+        options.bpp = 32;
+        options.compressed = false;
+    }
+    else {
+        var gltf = glTextureFmt(options.format);
+        options.glInternalFormat = gltf.internalFormat;
+        options.glFormat = gltf.format;
+        options.glType = gltf.pixelType;
+        options.bpp = gltf.bpp;
+        options.compressed = options.glFormat >= enums.TEXTURE_FMT_RGB_DXT1 &&
+                             options.gltf <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1;
+    }
+
+    convertImages(options.images);
+}
+
 _p = gfx.Texture2D.prototype;
 _p._ctor = function(device, options) {
-    convertImages(options.images);
+    convertOptions(options);
     this.init(device, options);
 };
 _p.destroy = function() { 
 };
 _p.update = function(options) {
-    convertImages(options.images);
+    convertOptions(options);
     this.updateNative(options);
 };
 _p.updateSubImage = function(option) {

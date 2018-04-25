@@ -326,10 +326,15 @@ RenderComponentWalker.prototype = {
         }
 
         let batchData = this._batchData;
+        let dirtyBySelf = false;
         // Transform
-        if (node._worldMatDirty) {
-            node._updateWorldMatrix();
+        if (node._worldMatDirty && !batchData.worldMatUpdated) {
             batchData.worldMatUpdated = true;
+            dirtyBySelf = true;
+        }
+        // Parent world mat dirty will be registered in worldMatUpdated, so children will be updated too
+        if (batchData.worldMatUpdated) {
+            node._calculWorldMatrix();
         }
 
         // Culling mask
@@ -346,8 +351,6 @@ RenderComponentWalker.prototype = {
             let assembler = comp._assembler || comp.constructor._assembler;
             this._commitComp(comp, assembler, cullingMask);
         }
-        // Reset worldMatUpdated
-        batchData.worldMatUpdated = false;
 
         // Render children
         let children = node._children;
@@ -360,6 +363,11 @@ RenderComponentWalker.prototype = {
             this._commitComp(comp, comp.constructor._postAssembler, cullingMask);
         }
 
+        // Reset worldMatUpdated
+        node._worldMatUpdated = false;
+        if (dirtyBySelf) {
+            batchData.worldMatUpdated = false;
+        }
         // Reset current camera node
         if (this._curCameraNode === node) {
             this._curCameraNode = null;
@@ -369,6 +377,11 @@ RenderComponentWalker.prototype = {
     visit (scene) {
         this.reset();
 
+        // Transform scene
+        if (scene._worldMatDirty) {
+            scene._updateWorldMatrix();
+            this._batchData.worldMatUpdated = true;
+        }
         for (let i = 0, l = scene._children.length; i < l; i++) {
             this._visitNode(scene._children[i]);
         }

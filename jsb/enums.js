@@ -22,135 +22,99 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const GL_NEAREST = 9728;                // gl.NEAREST
-const GL_LINEAR = 9729;                 // gl.LINEAR
-const GL_NEAREST_MIPMAP_NEAREST = 9984; // gl.NEAREST_MIPMAP_NEAREST
-const GL_LINEAR_MIPMAP_NEAREST = 9985;  // gl.LINEAR_MIPMAP_NEAREST
-const GL_NEAREST_MIPMAP_LINEAR = 9986;  // gl.NEAREST_MIPMAP_LINEAR
-const GL_LINEAR_MIPMAP_LINEAR = 9987;   // gl.LINEAR_MIPMAP_LINEAR
 
-// const GL_BYTE = 5120;                  // gl.BYTE
-const GL_UNSIGNED_BYTE = 5121;            // gl.UNSIGNED_BYTE
-// const GL_SHORT = 5122;                 // gl.SHORT
-const GL_UNSIGNED_SHORT = 5123;           // gl.UNSIGNED_SHORT
-const GL_UNSIGNED_INT = 5125;             // gl.UNSIGNED_INT
-const GL_FLOAT = 5126;                    // gl.FLOAT
-const GL_UNSIGNED_SHORT_5_6_5 = 33635;    // gl.UNSIGNED_SHORT_5_6_5
-const GL_UNSIGNED_SHORT_4_4_4_4 = 32819;  // gl.UNSIGNED_SHORT_4_4_4_4
-const GL_UNSIGNED_SHORT_5_5_5_1 = 32820;  // gl.UNSIGNED_SHORT_5_5_5_1
-const GL_HALF_FLOAT_OES = 36193;          // gl.HALF_FLOAT_OES
-
-const GL_DEPTH_COMPONENT = 6402; // gl.DEPTH_COMPONENT
-const GL_DEPTH_COMPONENT16 = 0x81A5;
-const GL_DEPTH_COMPONENT24 = 0x81A6;
-
-const GL_ALPHA = 6406;            // gl.ALPHA
-const GL_RGB = 6407;              // gl.RGB
-const GL_RGBA = 6408;             // gl.RGBA
-const GL_LUMINANCE = 6409;        // gl.LUMINANCE
-const GL_LUMINANCE_ALPHA = 6410;  // gl.LUMINANCE_ALPHA
-
-const GL_COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0;   // ext.COMPRESSED_RGB_S3TC_DXT1_EXT
-const GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;  // ext.COMPRESSED_RGBA_S3TC_DXT1_EXT
-const GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;  // ext.COMPRESSED_RGBA_S3TC_DXT3_EXT
-const GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;  // ext.COMPRESSED_RGBA_S3TC_DXT5_EXT
-
-const GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG = 0x8C00;  // ext.COMPRESSED_RGB_PVRTC_4BPPV1_IMG
-const GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG = 0x8C01;  // ext.COMPRESSED_RGB_PVRTC_2BPPV1_IMG
-const GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG = 0x8C02; // ext.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
-const GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03; // ext.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
-
-const GL_COMPRESSED_RGB_ETC1_WEBGL = 0x8D64; // ext.COMPRESSED_RGB_ETC1_WEBGL
+const gl = window.__ccgl;
 
 const _filterGL = [
-  [ GL_NEAREST,  GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR ],
-  [ GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR ],
+  [ gl.GL_NEAREST,  gl.GL_NEAREST_MIPMAP_NEAREST, gl.GL_NEAREST_MIPMAP_LINEAR ],
+  [ gl.GL_LINEAR,  gl.GL_LINEAR_MIPMAP_NEAREST, gl.GL_LINEAR_MIPMAP_LINEAR ],
 ];
 
 const _textureFmtGL = [
   // TEXTURE_FMT_RGB_DXT1: 0
-  { format: GL_RGB, internalFormat: GL_COMPRESSED_RGB_S3TC_DXT1_EXT, pixelType: null },
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_S3TC_DXT1_EXT, pixelType: 0,  bpp: 3 },
 
   // TEXTURE_FMT_RGBA_DXT1: 1
-  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, pixelType: null },
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT1_EXT, pixelType: 0, bpp: 4 },
 
   // TEXTURE_FMT_RGBA_DXT3: 2
-  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, pixelType: null },
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT3_EXT, pixelType: 0, bpp: 8 },
 
   // TEXTURE_FMT_RGBA_DXT5: 3
-  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, pixelType: null },
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT5_EXT, pixelType: 0, bpp: 8 },
 
   // TEXTURE_FMT_RGB_ETC1: 4
-  { format: GL_RGB, internalFormat: GL_COMPRESSED_RGB_ETC1_WEBGL, pixelType: null },
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_ETC1_WEBGL, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_RGB_PVRTC_2BPPV1: 5
-  { format: GL_RGB, internalFormat: GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, pixelType: null },
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_PVRTC_2BPPV1_IMG, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_RGBA_PVRTC_2BPPV1: 6
-  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, pixelType: null },
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, pixelType: 0, bpp:0 },
 
   // TEXTURE_FMT_RGB_PVRTC_4BPPV1: 7
-  { format: GL_RGB, internalFormat: GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, pixelType: null },
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_PVRTC_4BPPV1_IMG, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_RGBA_PVRTC_4BPPV1: 8
-  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, pixelType: null },
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, pixelType: null },
 
   // TEXTURE_FMT_A8: 9
-  { format: GL_ALPHA, internalFormat: GL_ALPHA, pixelType: GL_UNSIGNED_BYTE },
+  { format: gl.ALPHA, internalFormat: gl.ALPHA, pixelType: gl.UNSIGNED_BYTE, bpp: 8 },
 
   // TEXTURE_FMT_L8: 10
-  { format: GL_LUMINANCE, internalFormat: GL_LUMINANCE, pixelType: GL_UNSIGNED_BYTE },
+  { format: gl.LUMINANCE, internalFormat: gl.LUMINANCE, pixelType: gl.UNSIGNED_BYTE, bpp: 8 },
 
   // TEXTURE_FMT_L8_A8: 11
-  { format: GL_LUMINANCE_ALPHA, internalFormat: GL_LUMINANCE_ALPHA, pixelType: GL_UNSIGNED_BYTE },
+  { format: gl.LUMINANCE_ALPHA, internalFormat: gl.LUMINANCE_ALPHA, pixelType: gl.UNSIGNED_BYTE, bpp: 16 },
 
   // TEXTURE_FMT_R5_G6_B5: 12
-  { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_UNSIGNED_SHORT_5_6_5 },
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.UNSIGNED_SHORT_5_6_5, bpp: 16 },
 
   // TEXTURE_FMT_R5_G5_B5_A1: 13
-  { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_SHORT_5_5_5_1 },
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_SHORT_5_5_5_1, bpp: 16 },
 
   // TEXTURE_FMT_R4_G4_B4_A4: 14
-  { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_SHORT_4_4_4_4 },
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_SHORT_4_4_4_4, bpp: 16 },
 
   // TEXTURE_FMT_RGB8: 15
-  { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_UNSIGNED_BYTE },
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.UNSIGNED_BYTE, bpp: 24 },
 
   // TEXTURE_FMT_RGBA8: 16
-  { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_BYTE },
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_BYTE, bpp: 32 },
 
   // TEXTURE_FMT_RGB16F: 17
-  { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_HALF_FLOAT_OES },
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.HALF_FLOAT_OES, bpp: 0 },
 
   // TEXTURE_FMT_RGBA16F: 18
-  { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_HALF_FLOAT_OES },
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.HALF_FLOAT_OES, bpp: 0 },
 
   // TEXTURE_FMT_RGB32F: 19
-  { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_FLOAT },
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.FLOAT, bpp: 96 },
 
   // TEXTURE_FMT_RGBA32F: 20
-  { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_FLOAT },
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.FLOAT, bpp: 128 },
 
   // TEXTURE_FMT_R32F: 21
-  { format: null, internalFormat: null, pixelType: null },
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_111110F: 22
-  { format: null, internalFormat: null, pixelType: null },
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_SRGB: 23
-  { format: null, internalFormat: null, pixelType: null },
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_SRGBA: 24
-  { format: null, internalFormat: null, pixelType: null },
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
 
   // TEXTURE_FMT_D16: 25
-  { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT16, pixelType: GL_UNSIGNED_SHORT },
+  // TODO: fix it on android
+  { format: gl.DEPTH_COMPONENT, internalFormat: gl.DEPTH_COMPONENT16, pixelType: gl.UNSIGNED_SHORT },
 
   // TEXTURE_FMT_D24: 26
-  { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT24, pixelType: GL_FLOAT },
+  // { format: gl.DEPTH_COMPONENT, internalFormat: gl.DEPTH_COMPONENT24, pixelType: gl.FLOAT },
 
   // TEXTURE_FMT_D24S8: 27
-  { format: null, internalFormat: null, pixelType: null },
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
 ];
 
 /**

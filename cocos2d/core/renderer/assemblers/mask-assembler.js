@@ -95,7 +95,7 @@ let maskFrontAssembler = js.addon({
                 datas = mask._renderDatas;
                 datas.length = 0;
                 renderData.dataLength = 4;
-                spriteAssembler.update(mask);
+                spriteAssembler.updateRenderData(mask);
                 renderData.material = mask.getMaterial();
                 datas.push(renderData);
             }
