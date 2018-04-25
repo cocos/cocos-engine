@@ -242,8 +242,8 @@ var MotionStreak = cc.Class({
      * !#zh 删除当前所有的拖尾片段。
      * @method reset
      * @example
-     * // stop particle system.
-     * myParticleSystem.stopSystem();
+     * // Remove all living segments of the ribbon.
+     * myMotionStreak.reset();
      */
     reset: function () {
         this._motionStreak.reset();
