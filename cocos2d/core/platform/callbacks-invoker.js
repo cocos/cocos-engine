@@ -134,7 +134,7 @@ proto.has = function (key, callback, target) {
             return false;
         }
         else {
-            return true;
+            return callbacks.length > 0;
         }
     }
 
