@@ -200,19 +200,30 @@ var Label = cc.Class({
 
     properties: {
         _useOriginalSize: true,
+        
         /**
          * !#en Content string of label.
          * !#zh 标签显示的文本内容。
          * @property {String} string
          */
-        string: {
+        _string: {
             default: '',
+            formerlySerializedAs: '_N$string',
+        },
+        string: {
+            get () {
+                return this._string;
+            },
+            set (value) {
+                let oldValue = this._string;
+                this._string = value.toString();
+
+                if (this.string !== oldValue) {
+                    this._updateRenderData();
+                }
+            },
             multiline: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
-            notify (oldValue) {
-                if (this.string === oldValue) return;
-                this._updateRenderData();
-            }
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.string'
         },
 
         /**

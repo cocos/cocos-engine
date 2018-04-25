@@ -593,12 +593,13 @@ module.exports = {
         
         let texture = _spriteFrame._texture;
 
+        let node = _comp.node;
         let renderData = _comp._renderData;
         renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
 
         let contentSize = _contentSize,
-            appx = renderData._pivotX * contentSize.width,
-            appy = renderData._pivotY * contentSize.height;
+            appx = node._anchorPoint.x * contentSize.width,
+            appy = node._anchorPoint.y * contentSize.height;
         
         let ret = true;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
