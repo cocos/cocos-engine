@@ -726,7 +726,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             mipmap: undefined,
             image: undefined,
             premultiplyAlpha: undefined
-        }
+        };
         function _getSharedOptions () {
             for (var key in _sharedOpts) {
                 _sharedOpts[key] = undefined;
