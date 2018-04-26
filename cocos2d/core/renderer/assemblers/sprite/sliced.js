@@ -166,7 +166,7 @@ module.exports = {
             z = node._position.z,
             color = node._color._val;
 
-        let buffer = renderer.getMeshBuffer(),
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
@@ -176,7 +176,7 @@ module.exports = {
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
             
-        buffer.request(vertexCount, renderData.indiceCount, 24*vertexCount);
+        buffer.request(vertexCount, renderData.indiceCount);
 
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];

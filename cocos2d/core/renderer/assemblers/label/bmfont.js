@@ -39,25 +39,26 @@ module.exports = js.addon({
     updateRenderData: ttfAssembler.updateRenderData,
 
     fillBuffers (comp, renderer) {
-        let node = comp.node;
-        let renderData = comp._renderData;
-        let data = renderData._data;
-        // let z = node._position.z;
-        let color = node.color._val;
+        let node = comp.node,
+            renderData = comp._renderData,
+            data = renderData._data,
+        //  z = node._position.z,
+            color = node.color._val;
         
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        let length = renderData.vertexCount;
         
-        let buffer = renderer.getQuadBuffer();
-        let vertexOffset = buffer.byteOffset >> 2;
-        let vbuf = buffer._vData;
-        let uintbuf = buffer._uintVData;
-        buffer.request(length, renderData.indiceCount, 24*length);
+        let buffer = renderer._quadBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+        
+        let vertexCount = renderData.vertexCount;
+        buffer.request(vertexCount, renderData.indiceCount);
 
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < vertexCount; i++) {
             let vert = data[i];
             vbuf[vertexOffset] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset+1] = vert.x * b + vert.y * d + ty;

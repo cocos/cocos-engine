@@ -1,18 +1,20 @@
-const defaultVertexFormat = require('../vertex-format');
 const renderEngine = require('../render-engine');
 const gfx = renderEngine.gfx;
 
 class MeshBuffer {
-    constructor (renderer) {
+    constructor (renderer, vertexFormat) {
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
         this.indiceOffset = 0;
         this.vertexOffset = 0;
 
+        this._vertexFormat = vertexFormat;
+        this._vertexBytes = this._vertexFormat._bytes;
+
         this._vb = new gfx.VertexBuffer(
             renderer._device,
-            defaultVertexFormat,
+            vertexFormat,
             gfx.USAGE_DYNAMIC,
             [],
             0
@@ -50,8 +52,13 @@ class MeshBuffer {
         ib.update(0, indicesData);
     }
 
-    request (vertexCount, indiceCount, bytes) {
-        let byteOffset = this.byteOffset + bytes;
+    request (vertexCount, indiceCount) {
+        if (this._renderer._buffer !== this) {
+            this._renderer._flush();
+            this._renderer._buffer = this;
+        }
+
+        let byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
         let byteLength = this._vData.byteLength;
         if (byteOffset > byteLength) {
             while (byteLength < byteOffset) {

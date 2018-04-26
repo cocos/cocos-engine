@@ -56,19 +56,20 @@ module.exports = {
     },
 
     fillBuffers (sprite, renderer) {
-        let data = sprite._renderData._data;
-        let node = sprite.node;
-        // let z = node._position.z;
-        let color = node._color._val;
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+        let data = sprite._renderData._data,
+            node = sprite.node,
+        //  z = node._position.z,
+            color = node._color._val,
+            matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer.getQuadBuffer();
-        let vertexOffset = buffer.byteOffset >> 2;
-        let vbuf = buffer._vData;
-        let uintbuf = buffer._uintVData;
-        buffer.request(4, 6, 96/* 24 * 4*/);
+        let buffer = renderer._quadBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+
+        buffer.request(4, 6);
 
         // vertex
         for (let i = 0; i < 4; i++) {

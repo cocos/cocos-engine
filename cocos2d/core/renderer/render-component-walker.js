@@ -45,6 +45,8 @@ const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
+let _buffers = {};
+
 const empty_material = new renderEngine.Material();
 empty_material.updateHash();
 
@@ -67,8 +69,8 @@ var RenderComponentWalker = function (device, renderScene) {
     }, 16);
 
     // buffers
-    this._meshBuffer = new MeshBuffer(this);
-    this._quadBuffer = new QuadBuffer(this);
+    this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
+    this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
     this._buffer = this._quadBuffer;
 
     this._batchedModels = [];
@@ -100,8 +102,9 @@ RenderComponentWalker.prototype = {
         models.length = 0;
         this._sortKey = 0;
 
-        this._quadBuffer.reset();
-        this._meshBuffer.reset();
+        for (let key in _buffers) {
+            _buffers[key].reset();
+        }
 
         // reset caches for handle render components
         this.node = null;
@@ -195,24 +198,31 @@ RenderComponentWalker.prototype = {
         
         atlasManager.update();
         this._flush();
-        this._quadBuffer.uploadData();
-        this._meshBuffer.uploadData();
+
+        for (let key in _buffers) {
+            _buffers[key].uploadData();
+        }
     },
 
-    getMeshBuffer () {
-        if (this._buffer !== this._meshBuffer) {
-            this._flush();
-            this._buffer = this._meshBuffer;
-        }
-        return this._buffer;
-    },
+    getBuffer (type, vertextFormat) {
+        let key = type + vertextFormat.name;
+        let buffer = _buffers[key];
+        if (!buffer) {
+            if (type === 'mesh') {
+                buffer = new MeshBuffer(this, vertextFormat);
+            }
+            else if (type === 'quad') {
+                buffer = new QuadBuffer(this, vertextFormat);
+            }
+            else {
+                cc.error(`Not support buffer type [${type}]`);
+                return null;
+            }
 
-    getQuadBuffer () {
-        if (this._buffer !== this._quadBuffer) {
-            this._flush();
-            this._buffer = this._quadBuffer;
+            _buffers[key] = buffer;
         }
-        return this._buffer;
+
+        return buffer;
     }
 }
 
