@@ -25,7 +25,7 @@
 
 const Node = require('../CCNode');
 const EventType = Node.EventType;
-const DirtyFlag = Node.LocalDirtyFlag;
+const DirtyFlag = Node._LocalDirtyFlag;
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
 
@@ -213,7 +213,7 @@ function setScale (x, y, z) {
     }
 }
 
-cc.polyfill3D = module.exports = {
+cc._polyfill3D = module.exports = {
     enabled: false,
     enable () {
         let proto = cc.Node.prototype;

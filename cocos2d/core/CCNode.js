@@ -62,10 +62,9 @@ const ANCHOR_ON = 1 << 4;
 /**
  * !#en Node's local dirty properties flag
  * !#zh Node 的本地属性 dirty 状态位
- * @class Node.LocalDirtyFlag
- * @constructor	
- * @param {String} name
+ * @enum Node._LocalDirtyFlag
  * @static
+ * @private
  * @namespace Node
  */
 var LocalDirtyFlag = cc.Enum({
@@ -116,9 +115,7 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @class Node.EventType
- * @constructor	
- * @param {String} name
+ * @enum Node.EventType
  * @static
  * @namespace Node
  */
@@ -1118,7 +1115,7 @@ var Node = cc.Class({
 
     statics: {
         EventType,
-        LocalDirtyFlag,
+        _LocalDirtyFlag,
         // is node but not scene
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
@@ -2922,6 +2919,39 @@ var Node = cc.Class({
         }
     },
 });
+
+/**
+ * @event position-changed
+ * @param {Event.EventCustom} event
+ * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
+ */
+/**
+ * @event size-changed
+ * @param {Event.EventCustom} event
+ * @param {Size} event.detail - The old size, but this parameter is only available in editor!
+ */
+/**
+ * @event anchor-changed
+ * @param {Event.EventCustom} event
+ */
+/**
+ * @event child-added
+ * @param {Event.EventCustom} event
+ * @param {Node} event.detail - child
+ */
+/**
+ * @event child-removed
+ * @param {Event.EventCustom} event
+ * @param {Node} event.detail - child
+ */
+/**
+ * @event child-reorder
+ * @param {Event.EventCustom} event
+ */
+/**
+ * @event group-changed
+ * @param {Event.EventCustom} event
+ */
 
 // Deprecated APIs
 

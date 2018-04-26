@@ -90,7 +90,7 @@ proto.hasEventListener = proto.has;
  * on(type: string, callback: (event: Event.EventCustom) => void, target?: any): (event: Event.EventCustom) => void
  * on<T>(type: string, callback: (event: T) => void, target?: any): (event: T) => void
  * @example
- * node.on('fire', function (event) {
+ * eventTarget.on('fire', function (event) {
  *     cc.log("fire in the hole");
  * }, node);
  */
@@ -122,13 +122,13 @@ proto.on = function (type, callback, target) {
  * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
  * @example
  * // register fire eventListener
- * var callback = node.on('fire', function (event) {
+ * var callback = eventTarget.on('fire', function (event) {
  *     cc.log("fire in the hole");
  * }, target);
  * // remove fire event listener
- * node.off('fire', callback, target);
+ * eventTarget.off('fire', callback, target);
  * // remove all fire event listeners
- * node.off('fire');
+ * eventTarget.off('fire');
  */
 proto.off = function (type, callback, target) {
     if (!callback) {
@@ -170,8 +170,8 @@ proto.targetOff = proto.removeAll;
  * @param {Event} callback.event event
  * @param {Object} [target] - The target (this object) to invoke the callback, can be null
  * @example
- * node.once(cc.Node.EventType.TOUCH_END, function (event) {
- *     cc.log("this is callback");
+ * eventTarget.once('fire', function (event) {
+ *     cc.log("this is the callback and will be invoked only once");
  * }, node);
  */
 proto.once = function (type, callback, target) {

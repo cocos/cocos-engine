@@ -340,13 +340,13 @@ cc.macro = {
 };
 
 js.getset(cc.macro, 'ENABLE_3D', function () {
-    return cc.polyfill3D.enabled;
+    return cc._polyfill3D.enabled;
 }, function (enabled) {
     if (enabled) {
-        cc.polyfill3D.enable();
+        cc._polyfill3D.enable();
     }
     else {
-        cc.polyfill3D.disable();
+        cc._polyfill3D.disable();
     }
 })
 
