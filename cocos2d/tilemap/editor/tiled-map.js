@@ -47,7 +47,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     for (var i = 0, n = images.length; i < n ; i++) {
       var imageCfg = images[i].getAttribute('source');
       if (imageCfg) {
-        var imgPath = Path.normalize(Path.join(Path.dirname(sourcePath), imageCfg));
+        var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
         textures.push(imgPath);
       }
     }
@@ -59,10 +59,10 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     var tileset = tilesetElements[i];
     var sourceTSX = tileset.getAttribute('source');
     if (sourceTSX) {
-      var tsxPath = Path.normalize(Path.join(Path.dirname(tmxFile), sourceTSX));
+      var tsxPath = Path.join(Path.dirname(tmxFile), sourceTSX);
 
       if (Fs.existsSync(tsxPath)) {
-        tsxFiles.push(tsxPath);
+        tsxFiles.push(sourceTSX);
         var tsxContent = Fs.readFileSync(tsxPath, 'utf-8');
         var tsxDoc = new DOMParser().parseFromString(tsxContent);
         if (tsxDoc) {
@@ -118,14 +118,23 @@ class TiledMapMeta extends CustomAssetMeta {
     var asset = new cc.TiledMapAsset();
     asset.name = Path.basenameNoExt(fspath);
     asset.tmxXmlStr = this._tmxData;
-    asset.tmxFolderPath = Path.relative(AssetRootUrl, Url.dirname(db.fspathToUrl(fspath)));
-    asset.tmxFolderPath = asset.tmxFolderPath.replace(/\\/g, '/');
     asset.textures = this._textures.map(p => {
       var uuid = db.fspathToUuid(p);
       return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
     asset.textureNames = this._textures.map(p => Path.basename(p));
-    asset.tsxFiles = this._tsxFiles.map(p => db.fspathToUrl(p));
+    asset.tsxFiles = this._tsxFiles.map(p => {
+        var tsxPath = Path.join(Path.dirname(fspath), p);
+        var uuid = db.fspathToUuid(tsxPath);
+        if (uuid) {
+            asset.tsxFileNames.push(p);
+            return Editor.serialize.asAsset(uuid);
+        } else {
+            Editor.error(`Can not find file ${tsxPath}`);
+            asset.tsxFileNames.push('');
+        }
+        return null;
+    });
     db.saveAssetToLibrary(this.uuid, asset);
     cb();
   }
