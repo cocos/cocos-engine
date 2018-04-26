@@ -187,7 +187,7 @@ var Sprite = cc.Class({
          * !#en The sprite render type.
          * !#zh 精灵渲染类型
          * @property type
-         * @type {Sprite.SpriteType}
+         * @type {Sprite.Type}
          * @example
          * sprite.type = cc.Sprite.Type.SIMPLE;
          */
@@ -208,7 +208,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillType
          * @type {Sprite.FillType}
          * @example
@@ -230,7 +230,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充中心点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充中心点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillCenter
          * @type {Vec2}
          * @example
@@ -251,7 +251,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充起始点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillStart
          * @type {Number}
          * @example
@@ -273,7 +273,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充范围，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillRange
          * @type {Number}
          * @example
