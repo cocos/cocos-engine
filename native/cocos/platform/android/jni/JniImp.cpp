@@ -58,6 +58,7 @@ extern uint32_t __jsbInvocationCount;
 namespace
 {	
     bool __isOpenDebugView = false;
+    bool __isGLOptModeEnabled = true;
 //	std::unordered_map<int, cocos2d::EventKeyboard::KeyCode> g_keyCodeMap =
 //	{
 //        { KEYCODE_BACK , cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE },
@@ -519,5 +520,18 @@ void openDebugViewJNI()
         LOGD("openDebugViewJNI ...");
         __isOpenDebugView = true;
         JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "openDebugView");
+        if (!__isGLOptModeEnabled)
+        {
+            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
+        }
+    }
+}
+
+void disableBatchGLCommandsToNativeJNI()
+{
+    __isGLOptModeEnabled = false;
+    if (__isOpenDebugView)
+    {
+        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
     }
 }
