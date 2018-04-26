@@ -564,6 +564,7 @@ var Label = cc.Class({
         if (renderData) {
             renderData.vertDirty = true;
             renderData.uvDirty = true;
+            this.updateRenderDataFlag();
         }
 
         if (CC_EDITOR || force) {

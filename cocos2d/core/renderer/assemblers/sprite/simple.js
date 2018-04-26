@@ -55,10 +55,7 @@ module.exports = {
         return sprite.__allocedDatas;
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
+    fillBuffers (sprite, renderer) {
         let data = sprite._renderData._data;
         let node = sprite.node;
         let z = node._position.z;
@@ -67,22 +64,23 @@ module.exports = {
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
+        let buffer = renderer.getQuadBuffer();
+        let vertexOffset = buffer.byteOffset >> 2;
+        let vbuf = buffer._vData;
+        let uintbuf = buffer._uintVData;
+        buffer.request(4, 6, 96/* 24 * 4*/);
+
+        // vertex
         for (let i = 0; i < 4; i++) {
             let vert = data[i];
-            vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset ++] = z;
-            uintbuf[vertexOffset ++] = color;
-            vbuf[vertexOffset ++] = vert.u;
-            vbuf[vertexOffset ++] = vert.v;
+            vbuf[vertexOffset] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset+1] = vert.x * b + vert.y * d + ty;
+            // vbuf[vertexOffset ++] = z;
+            uintbuf[vertexOffset+3] = color;
+            vbuf[vertexOffset+4] = vert.u;
+            vbuf[vertexOffset+5] = vert.v;
+            vertexOffset += 6;
         }
-
-        ibuf[indiceOffset ++] = vertexId;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 2;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 3;
-        ibuf[indiceOffset ++] = vertexId + 2;
     },
 
     createData (sprite) {

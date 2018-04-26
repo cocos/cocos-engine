@@ -35,6 +35,7 @@ const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
+const RenderFlow = require('./renderer/render-flow');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -1099,6 +1100,10 @@ var Node = cc.Class({
         for (let i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
         }
+
+        if (children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
+        }
     },
 
     // the same as _onBatchCreated but untouch prefab
@@ -1116,6 +1121,10 @@ var Node = cc.Class({
         var children = this._children;
         for (var i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchRestored();
+        }
+
+        if (children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
     },
 
@@ -2014,16 +2023,15 @@ var Node = cc.Class({
 
     setLocalDirty (flag) {
         this._localMatDirty = this._localMatDirty | flag;
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
-            this._worldMatUpdated = false;
         }
     },
 
     setWorldDirty () {
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
-            this._worldMatUpdated = false;
         }
     },
 
