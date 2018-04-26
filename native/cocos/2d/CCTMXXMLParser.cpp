@@ -137,8 +137,21 @@ TMXMapInfo * TMXMapInfo::createWithXML(const std::string& tmxString, const std::
     return nullptr;
 }
 
-void TMXMapInfo::internalInit(const std::string& tmxFileName, const std::string& resourcePath,
-                              const TMXMapInfo::TextureMap* textures)
+TMXMapInfo * TMXMapInfo::createWithXML(const std::string& tmxString, const TsxFileMap* tsxFileMap, 
+                                       const TextureMap* textures)
+{
+    TMXMapInfo *ret = new (std::nothrow) TMXMapInfo();
+    if (ret->initWithXML(tmxString, tsxFileMap, textures))
+    {
+	    ret->autorelease();
+	    return ret;
+    }
+    CC_SAFE_DELETE(ret);
+    return nullptr;
+}
+
+void TMXMapInfo::internalInit(const std::string& tmxFileName, const std::string& resourcePath, 
+                              const TsxFileMap* tsxFileMap, const TextureMap* textures)
 {
     if (!tmxFileName.empty())
     {
@@ -149,6 +162,8 @@ void TMXMapInfo::internalInit(const std::string& tmxFileName, const std::string&
     {
         _resources = resourcePath;
     }
+
+    _preloadedTsxFiles = tsxFileMap;
 
     _preloadedTextures = textures;
 
@@ -165,13 +180,20 @@ void TMXMapInfo::internalInit(const std::string& tmxFileName, const std::string&
 bool TMXMapInfo::initWithXML(const std::string& tmxString, const std::string& resourcePath,
                              const TMXMapInfo::TextureMap* textures)
 {
-    internalInit("", resourcePath, textures);
+    internalInit("", resourcePath, nullptr, textures);
+    return parseXMLString(tmxString);
+}
+
+bool TMXMapInfo::initWithXML(const std::string& tmxString, const TsxFileMap* tsxFileMap, 
+                             const TextureMap* textures)
+{
+    internalInit("", "", tsxFileMap, textures);
     return parseXMLString(tmxString);
 }
 
 bool TMXMapInfo::initWithTMXFile(const std::string& tmxFile)
 {
-    internalInit(tmxFile, "", nullptr);
+    internalInit(tmxFile, "", nullptr, nullptr);
     return parseXMLFile(_TMXFileName);
 }
 
@@ -305,18 +327,6 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         if (externalTilesetFilename != "")
         {
             _externalTilesetFilename = externalTilesetFilename;
-            // Tileset file will be relative to the map file. So we need to convert it to an absolute path
-            if (_TMXFileName.find_last_of("/") != string::npos)
-            {
-                string dir = _TMXFileName.substr(0, _TMXFileName.find_last_of("/") + 1);
-                externalTilesetFilename = dir + externalTilesetFilename;
-            }
-            else
-            {
-                externalTilesetFilename = _resources + "/" + externalTilesetFilename;
-            }
-            externalTilesetFilename = FileUtils::getInstance()->fullPathForFilename(externalTilesetFilename);
-
             _currentFirstGID = attributeDict["firstgid"].asInt();
             if (_currentFirstGID < 0)
             {
@@ -324,7 +334,26 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
             }
             _recordFirstGID = false;
 
-            tmxMapInfo->parseXMLFile(externalTilesetFilename);
+            auto it = _preloadedTsxFiles->find(externalTilesetFilename);
+            if (it != _preloadedTsxFiles->end()) {
+	            tmxMapInfo->parseXMLString(it->second);
+            }
+            else 
+            {
+                // Tileset file will be relative to the map file. So we need to convert it to an absolute path
+                if (_TMXFileName.find_last_of("/") != std::string::npos)
+                {
+                    string dir = _TMXFileName.substr(0, _TMXFileName.find_last_of("/") + 1);
+                    externalTilesetFilename = dir + externalTilesetFilename;
+                }
+                else
+                {
+                    externalTilesetFilename = _resources + "/" + externalTilesetFilename;
+                }
+                externalTilesetFilename = FileUtils::getInstance()->fullPathForFilename(externalTilesetFilename);
+
+                tmxMapInfo->parseXMLFile(externalTilesetFilename);
+            }
         }
         else
         {
