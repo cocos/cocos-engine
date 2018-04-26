@@ -427,7 +427,7 @@ for (var key in actionUpdate) {
     var prototype = action.prototype;
     prototype.update = actionUpdate[key];
 
-    // polyfill to preserve chainable binding object
+    // polyfill to preserve chainable binding object (no need to polyfill easing)
     prototype.speed = function (speed) {
         return new cc.Speed(this, speed);
     };

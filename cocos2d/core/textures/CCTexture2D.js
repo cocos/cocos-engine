@@ -726,7 +726,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             mipmap: undefined,
             image: undefined,
             premultiplyAlpha: undefined
-        }
+        };
         function _getSharedOptions () {
             for (var key in _sharedOpts) {
                 _sharedOpts[key] = undefined;
@@ -803,7 +803,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             var gl = this._gl;
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
             if (
-                sys.platform === sys.WECHAT_GAME ||
+                (sys.platform === sys.WECHAT_GAME && !(img instanceof Uint8Array)) ||
                 sys.platform === sys.QQ_PLAY ||
                 img instanceof HTMLCanvasElement ||
                 img instanceof HTMLImageElement ||
