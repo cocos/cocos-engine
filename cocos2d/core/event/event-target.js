@@ -23,9 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var EventListeners = require('./event-listeners');
+
+const js = require('../platform/js');
+const EventListeners = require('./event-listeners');
 require('./event');
-var js = cc.js;
+
 var fastRemove = js.array.fastRemove;
 
 /**
@@ -55,34 +57,20 @@ var fastRemove = js.array.fastRemove;
  * @class EventTarget
  */
 function EventTarget () {
-    /*
-     * @property _capturingListeners
-     * @type {EventListeners}
-     * @default null
-     * @private
-     */
-    this._capturingListeners = null;
-
-    /*
-     * @property _bubblingListeners
-     * @type {EventListeners}
-     * @default null
-     * @private
-     */
-    this._bubblingListeners = null;
+    EventListeners.call(this);
 }
+js.extend(EventTarget, EventListeners);
 
 var proto = EventTarget.prototype;
 
 /**
  * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
  * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
+ * @method hasEventListener
  * @param {String} type - The type of event.
  * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
  */
-proto.hasEventListener = function (type) {
-    return this._bubblingListeners && this._bubblingListeners.has(type);
-};
+proto.hasEventListener = proto.has;
 
 /**
  * !#en
@@ -112,15 +100,12 @@ proto.on = function (type, callback, target) {
         return;
     }
 
-    let listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
-
-    if ( !listeners.has(type, callback, target) ) {
-        listeners.add(type, callback, target);
+    if ( !this.has(type, callback, target) ) {
+        this.add(type, callback, target);
 
         if (target && target.__eventTargets)
             target.__eventTargets.push(this);
     }
-
     return callback;
 };
 
@@ -146,16 +131,11 @@ proto.on = function (type, callback, target) {
  * node.off('fire');
  */
 proto.off = function (type, callback, target) {
-    var listeners = this._bubblingListeners;
-    if (!listeners) {
-        return;
-    }
-
     if (!callback) {
-        listeners.removeAll(type);
+        this.removeAll(type);
     }
     else {
-        listeners.remove(type, callback, target);
+        this.remove(type, callback, target);
 
         if (target && target.__eventTargets) {
             fastRemove(target.__eventTargets, this);
@@ -174,14 +154,7 @@ proto.off = function (type, callback, target) {
  * @method targetOff
  * @param {Object} target - The target to be searched for all related listeners
  */
-proto.targetOff = function (target) {
-    if (this._capturingListeners) {
-        this._capturingListeners.removeAll(target);
-    }
-    if (this._bubblingListeners) {
-        this._bubblingListeners.removeAll(target);
-    }
-};
+proto.targetOff = proto.removeAll;
 
 /**
  * !#en
@@ -203,21 +176,16 @@ proto.targetOff = function (target) {
  */
 proto.once = function (type, callback, target) {
     var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-    var listeners = this._bubblingListeners;
-    var hasOnceListener = listeners && listeners.has(eventType_hasOnceListener, callback, target);
+    var hasOnceListener = this.has(eventType_hasOnceListener, callback, target);
     if (!hasOnceListener) {
         var self = this;
         var onceWrapper = function (event) {
             self.off(type, onceWrapper, target);
-            listeners.remove(eventType_hasOnceListener, callback, target);
+            self.remove(eventType_hasOnceListener, callback, target);
             callback.call(this, event);
         };
         this.on(type, onceWrapper, target);
-        if (!listeners) {
-            // obtain new created listeners
-            listeners = this._bubblingListeners;
-        }
-        listeners.add(eventType_hasOnceListener, callback, target);
+        this.add(eventType_hasOnceListener, callback, target);
     }
 };
 
@@ -237,15 +205,14 @@ proto.emit = function (type, detail) {
         cc.errorID(6801);
         return;
     }
-    var bubblingListeners = this._bubblingListeners;
-    if (bubblingListeners && bubblingListeners.has(type)) {
+    if (this.has(type)) {
         var event = cc.Event.EventCustom.get(type);
         event.detail = detail;
         // Event.AT_TARGET
         event.eventPhase = 2;
         event.target = event.currentTarget = this;
 
-        bubblingListeners.invoke(event);
+        this.invoke(event);
         
         event.detail = null;
         cc.Event.EventCustom.put(event);
@@ -262,23 +229,9 @@ proto.emit = function (type, detail) {
  * @param {Event} event
  */
 proto.dispatchEvent = function (event) {
-    var bubblingListeners = this._bubblingListeners;
-    if (bubblingListeners && bubblingListeners.has(event.type)) {
-        bubblingListeners.invoke(event);
+    if (this.has(event.type)) {
+        this.invoke(event);
     }
-};
-
-/*
- * Get whether the target is active for events.
- * The name is for avoiding conflict with user defined functions.
- *
- * Subclasses can override this method to make event target active or inactive.
- * @method _isTargetActive
- * @param {String} type - the event type
- * @return {Boolean} - A boolean value indicates the event target is active or not
- */
-proto._isTargetActive = function (type) {
-    return true;
 };
 
 // Improve performance of function call (avoid using EventTarget.prototype.on.call)

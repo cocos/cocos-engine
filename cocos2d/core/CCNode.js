@@ -36,7 +36,7 @@ const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const js = require('./platform/js');
 const Event = require('./event/event');
-const EventListeners = require('./event/event-listeners');
+const EventTarget = require('./event/event-target');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -453,7 +453,7 @@ function _doDispatchEvent (owner, event) {
     event.eventPhase = 1;
     for (i = _cachedArray.length - 1; i >= 0; --i) {
         target = _cachedArray[i];
-        if (target._isTargetActive(event.type) && target._capturingListeners) {
+        if (target._capturingListeners) {
             event.currentTarget = target;
             // fire event
             target._capturingListeners.invoke(event, _cachedArray);
@@ -468,16 +468,13 @@ function _doDispatchEvent (owner, event) {
 
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
-    if (owner._isTargetActive(event.type)) {
-        // Event.AT_TARGET
-        event.eventPhase = 2;
-        event.currentTarget = owner;
-        if (owner._capturingListeners) {
-            owner._capturingListeners.invoke(event);
-        }
-        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
-            owner._bubblingListeners.invoke(event);
-        }
+    event.eventPhase = 2;
+    event.currentTarget = owner;
+    if (owner._capturingListeners) {
+        owner._capturingListeners.invoke(event);
+    }
+    if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+        owner._bubblingListeners.invoke(event);
     }
 
     if (!event._propagationStopped && event.bubbles) {
@@ -487,7 +484,7 @@ function _doDispatchEvent (owner, event) {
         event.eventPhase = 3;
         for (i = 0; i < _cachedArray.length; ++i) {
             target = _cachedArray[i];
-            if (target._isTargetActive(event.type) && target._bubblingListeners) {
+            if (target._bubblingListeners) {
                 event.currentTarget = target;
                 // fire event
                 target._bubblingListeners.invoke(event);
@@ -505,10 +502,9 @@ function _doDispatchEvent (owner, event) {
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
- * Node also inherits from {{#crossLink "EventTarget"}}Event Target{{/crossLink}}, it permits Node to dispatch events.
  * For events supported by Node, please refer to {{#crossLink "Node.EventType"}}{{/crossLink}}
  * !#zh
- * Cocos Creator 场景中的所有节点类。节点也继承了 {{#crossLink "EventTarget"}}EventTarget{{/crossLink}}，它允许节点发送事件。<br/>
+ * Cocos Creator 场景中的所有节点类。<br/>
  * 支持的节点事件，请参阅 {{#crossLink "Node.EventType"}}{{/crossLink}}。
  * @class Node
  * @extends _BaseNode
@@ -1097,6 +1093,9 @@ var Node = cc.Class({
         this._widget = null;
         // fast render component access
         this._renderComponent = null;
+        // Event listeners
+        this._capturingListeners = null;
+        this._bubblingListeners = null;
         // Touch event listener
         this._touchListener = null;
         // Mouse event listener
@@ -1422,7 +1421,10 @@ var Node = cc.Class({
                 this._eventMask |= ANCHOR_ON;
                 break;
             }
-            return this._EventTargetOn(type, callback, target);
+            if (!this._bubblingListeners) {
+                this._bubblingListeners = new EventTarget();
+            }
+            return this._bubblingListeners.on(type, callback, target);
         }
     },
 
@@ -1440,13 +1442,13 @@ var Node = cc.Class({
 
         var listeners = null;
         if (useCapture) {
-            listeners = this._capturingListeners = this._capturingListeners || new EventListeners();
+            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
         }
         else {
-            listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        if ( ! listeners.has(type, callback, target) ) {
+        if ( !listeners.has(type, callback, target) ) {
             listeners.add(type, callback, target);
 
             if (target && target.__eventTargets)
@@ -1513,10 +1515,10 @@ var Node = cc.Class({
         if (forDispatch) {
             this._offDispatch(type, callback, target, useCapture);
         }
-        else {
-            this._EventTargetOff(type, callback, target);
+        else if (this._bubblingListeners) {
+            this._bubblingListeners.off(type, callback, target);
 
-            var hasListeners = this._bubblingListeners && this._bubblingListeners.has(type);
+            var hasListeners = this._bubblingListeners.has(type);
             // All listener removed
             if (!hasListeners) {
                 switch (type) {
@@ -1573,19 +1575,11 @@ var Node = cc.Class({
      * node.targetOff(target);
      */
     targetOff (target) {
-        this._EventTargetTargetOff(target);
-
-        if (this._touchListener && !_checkListeners(this, _touchEvents)) {
-            eventManager.removeListener(this._touchListener);
-            this._touchListener = null;
-        }
-        if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
-            eventManager.removeListener(this._mouseListener);
-            this._mouseListener = null;
-        }
-        // Check for event mask reset
         let listeners = this._bubblingListeners;
         if (listeners) {
+            listeners.targetOff(target);
+
+            // Check for event mask reset
             if ((this._eventMask & POSITION_ON) && !listeners.has(EventType.POSITION_CHANGED)) {
                 this._eventMask &= ~POSITION_ON;
             }
@@ -1601,6 +1595,53 @@ var Node = cc.Class({
             if ((this._eventMask & ANCHOR_ON) && !listeners.has(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
             }
+        }
+        if (this._capturingListeners) {
+            this._capturingListeners.targetOff(target);
+        }
+
+        if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+            eventManager.removeListener(this._touchListener);
+            this._touchListener = null;
+        }
+        if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+            eventManager.removeListener(this._mouseListener);
+            this._mouseListener = null;
+        }
+    },
+
+    /**
+     * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
+     * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
+     * @method hasEventListener
+     * @param {String} type - The type of event.
+     * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
+     */
+    hasEventListener (type) {
+        let has = false;
+        if (this._bubblingListeners) {
+            has = this._bubblingListeners.has(type);
+        }
+        if (!has && this._capturingListeners) {
+            has = this._capturingListeners.has(type);
+        }
+        return has;
+    },
+
+    /**
+     * !#en
+     * Send an event to this object directly.
+     * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     * !#zh
+     * 通过事件名和 detail 发送自定义事件
+     *
+     * @method emit
+     * @param {String} type - event type
+     * @param {*} [detail] - whatever argument the message needs
+     */
+    emit (type, detail) {
+        if (this._bubblingListeners) {
+            this._bubblingListeners.emit(type, detail);
         }
     },
 
