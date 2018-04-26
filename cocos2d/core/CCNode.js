@@ -508,6 +508,12 @@ var Node = cc.Class({
                         cc.error(ERR_INVALID_NUMBER, 'new z');
                     }
                 }
+
+                // fast check event
+                var cache = this._hasListenerCache;
+                if (cache && cache[POSITION_CHANGED]) {
+                    this.emit(POSITION_CHANGED);
+                }
             },
         },
 
@@ -1113,7 +1119,7 @@ var Node = cc.Class({
         }
     },
 
-    // EVENTS
+    // EVENT TARGET
 
     /**
      * !#en
@@ -1532,7 +1538,6 @@ var Node = cc.Class({
         if (CC_EDITOR) {
             var oldPosition = new cc.Vec2(locPosition);
         }
-
         if (!CC_EDITOR || isFinite(x)) {
             locPosition.x = x;
         }
@@ -1542,7 +1547,7 @@ var Node = cc.Class({
         if (!CC_EDITOR || isFinite(y)) {
             locPosition.y = y;
         }
-        else {
+        else {	
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
@@ -1584,19 +1589,19 @@ var Node = cc.Class({
      * @param {Number} [scaleY]
      * @example
      * node.setScale(cc.v2(1, 1));
-     * node.setScale(1, 1);
+     * node.setScale(1);
      */
-    setScale (scaleX, scaleY) {
-        if (scaleX && typeof scaleX !== 'number') {
-            scaleY = scaleX.y;
-            scaleX = scaleX.x;
+    setScale (x, y) {
+        if (x && typeof x !== 'number') {
+            y = x.y;
+            x = x.x;
         }
-        else {
-            scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
+        else if (y === undefined) {
+            y = x;
         }
-        if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
-            this._scale.x = scaleX;
-            this._scale.y = scaleY;
+        if (this._scale.x !== x || this._scale.y !== y) {
+            this._scale.x = x;
+            this._scale.y = y;
             this.setLocalDirty(SCALE_DIRTY_FLAG);
 
             var cache = this._hasListenerCache;
