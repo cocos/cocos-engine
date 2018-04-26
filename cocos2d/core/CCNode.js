@@ -508,6 +508,12 @@ var Node = cc.Class({
                         cc.error(ERR_INVALID_NUMBER, 'new z');
                     }
                 }
+
+                // fast check event
+                var cache = this._hasListenerCache;
+                if (cache && cache[POSITION_CHANGED]) {
+                    this.emit(POSITION_CHANGED);
+                }
             },
         },
 
@@ -1496,7 +1502,7 @@ var Node = cc.Class({
      * cc.log("Node Position: " + node.getPosition());
      */
     getPosition () {
-        return new cc.Vec3(this._position);
+        return new cc.Vec2(this._position);
     },
 
     /**
@@ -1570,7 +1576,7 @@ var Node = cc.Class({
      * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
      * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
      * @method setScale
-     * @param {Number|Vec3} scaleX - scaleX or scale
+     * @param {Number|Vec2} scaleX - scaleX or scale
      * @param {Number} [scaleY]
      * @example
      * node.setScale(cc.v2(1, 1));

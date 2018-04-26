@@ -26,10 +26,16 @@
 
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
-const misc = require('../utils/misc');
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
+
+const POSITION_CHANGED = 'position-changed';
+const ROTATION_CHANGED = 'rotation-changed';
+const SCALE_CHANGED = 'scale-changed';
+const POSITION_DIRTY_FLAG = 1 << 0;
+const SCALE_DIRTY_FLAG = 1 << 1;
+const ROTATION_DIRTY_FLAG = 1 << 2;
 
 let _updateLocalMatrix2d = null;
 let _calculWorldMatrix2d = null;
@@ -108,7 +114,7 @@ function setPosition (newPosOrX, y, z) {
     if (y === undefined) {
         x = newPosOrX.x;
         y = newPosOrX.y;
-        y = newPosOrX.y;
+        z = newPosOrX.z;
     }
     else {
         x = newPosOrX;
@@ -125,11 +131,12 @@ function setPosition (newPosOrX, y, z) {
 
     pos.x = x;
     pos.y = y;
-    pos.z = z;
+    pos.z = z || 0;
     this.setLocalDirty(POSITION_DIRTY_FLAG);
 
     // fast check event
-    if (this._eventMask & POSITION_ON) {
+    var cache = this._hasListenerCache;
+    if (cache && cache[POSITION_CHANGED]) {
         // send event
         if (CC_EDITOR) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -143,25 +150,26 @@ function setPosition (newPosOrX, y, z) {
 /**
  * !#en Get rotation of node (in quaternion).
  * !#zh 获取该节点的 quaternion 旋转角度。
- * @method setRotation
+ * @method getQuat
  * @return {cc.Quat} Quaternion object represents the rotation
  */
-function getRotation () {
+function getQuat () {
     return math.quat.clone(this._quat);
 }
 
 /**
  * !#en Set rotation of node (in quaternion).
  * !#zh 设置该节点的 quaternion 旋转角度。
- * @method setRotation
+ * @method setQuat
  * @param {cc.Quat} quat Quaternion object represents the rotation
  */
-function setRotation (quat) {
+function setQuat (quat) {
     if (!this._quat.equals(value)) {
         math.quat.copy(this._quat, value);
         this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
-        if (this._eventMask & ROTATION_ON) {
+        var cache = this._hasListenerCache;
+        if (cache && cache[ROTATION_CHANGED]) {
             this.emit(ROTATION_CHANGED);
         }
     }
@@ -182,9 +190,9 @@ function getScale () {
  * !#en Sets the scale of three axis in local coordinates of the node.
  * !#zh 设置节点在本地坐标系中三个坐标轴上的缩放比例。
  * @method setScale
- * @param {Number|Vec3} scaleX - scaleX or scale
- * @param {Number} [scaleY]
- * @param {Number} [scaleZ]
+ * @param {Number|Vec3} x - scaleX or scale object
+ * @param {Number} [y]
+ * @param {Number} [z]
  * @example
  * node.setScale(cc.v2(2, 2, 2));
  * node.setScale(2);
@@ -192,7 +200,7 @@ function getScale () {
 function setScale (x, y, z) {
     if (x && typeof x !== 'number') {
         y = x.y;
-        z = x.z;
+        z = x.z || 1;
         x = x.x;
     }
     else if (x !== undefined && y === undefined) {
@@ -207,7 +215,8 @@ function setScale (x, y, z) {
         this._scale.y = y;
         this.setLocalDirty(SCALE_DIRTY_FLAG);
 
-        if (this._eventMask & SCALE_ON) {
+        var cache = this._hasListenerCache;
+        if (cache && cache[SCALE_CHANGED]) {
             this.emit(SCALE_CHANGED);
         }
     }
@@ -227,11 +236,11 @@ module.exports = {
 
             proto.getPosition = getPosition;
             proto.setPosition = setPosition;
-            proto.getRotation = getRotation;
-            proto.setRotation = setRotation;
             proto.getScale = getScale;
             proto.setScale = setScale;
-            misc.propertyDefine(cc.Node, ['position', 'rotation', 'scale']);
+            cc.js.getset(proto, 'position', getPosition, setPosition);
+            cc.js.getset(proto, 'quat', getQuat, setQuat);
+            cc.js.getset(proto, 'scale', getScale, setScale);
             this.enabled = true;
         }
     },
