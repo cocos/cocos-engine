@@ -136,7 +136,6 @@ function findChildComponents(children, constructor, components) {
 var BaseNode = cc.Class({
     name: 'cc._BaseNode',
     extends: cc.Object,
-    mixins: [cc.EventTarget],
 
     properties: {
 
@@ -383,7 +382,7 @@ var BaseNode = cc.Class({
             this._level = value._level + 1;
             eventManager._setDirtyForNode(this);
             value._children.push(this);
-            value.emit(CHILD_ADDED, this);
+            value.emit && value.emit(CHILD_ADDED, this);
         }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
@@ -392,7 +391,7 @@ var BaseNode = cc.Class({
                     return cc.errorID(1633);
                 }
                 oldParent._children.splice(removeAt, 1);
-                oldParent.emit(CHILD_REMOVED, this);
+                oldParent.emit && oldParent.emit(CHILD_REMOVED, this);
                 this._onHierarchyChanged(oldParent);
             }
         }
@@ -736,11 +735,6 @@ var BaseNode = cc.Class({
         for (var i = children.length - 1; i >= 0; i--) {
             var node = children[i];
             if (node) {
-                //if (this._running) {
-                //    node.onExitTransitionDidStart();
-                //    node.onExit();
-                //}
-
                 // If you don't do cleanup, the node's actions will not get removed and the
                 if (cleanup)
                     node.cleanup();
@@ -1284,7 +1278,7 @@ var BaseNode = cc.Class({
             if (parent) {
                 var childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
-                parent.emit('child-removed', this);
+                parent.emit && parent.emit('child-removed', this);
             }
         }
 

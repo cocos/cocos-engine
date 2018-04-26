@@ -978,20 +978,11 @@ cc.Director.prototype = {
     },
 
     __fastOn: function (type, callback, target) {
-        var listeners = this._bubblingListeners;
-        if (!listeners) {
-            listeners = this._bubblingListeners = new EventListeners();
-        }
-        listeners.add(type, callback, target);
-        this._addEventFlag(type, listeners, false);
+        this.add(type, callback, target);
     },
 
     __fastOff: function (type, callback, target) {
-        var listeners = this._bubblingListeners;
-        if (listeners) {
-            listeners.remove(type, callback, target);
-            this._purgeEventFlag(type, listeners, false);
-        }
+        this.remove(type, callback, target);
     },
 };
 

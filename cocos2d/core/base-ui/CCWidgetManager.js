@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var eventManager = require('../event-manager');
+var Event = require('../CCNode').EventType;
 
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
@@ -470,16 +471,16 @@ var widgetManager = cc._widgetManager = module.exports = {
         widget.node._widget = widget;
         this._nodesOrderDirty = true;
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.on('position-changed', adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.on('size-changed', adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.on(Event.POSITION_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.on(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     remove: function (widget) {
         widget.node._widget = null;
         this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.off(Event.POSITION_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.off(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     onResized () {

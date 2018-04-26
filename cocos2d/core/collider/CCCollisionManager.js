@@ -25,6 +25,7 @@
 
 const Contact = require('./CCContact');
 const CollisionType = Contact.CollisionType;
+const NodeEvent = require('../CCNode').EventType;
 
 const math = cc.vmath;
 
@@ -361,7 +362,7 @@ let CollisionManager = cc.Class({
             this.initCollider(collider);
         }
 
-        collider.node.on('group-changed', this.onNodeGroupChanged, this);
+        collider.node.on(NodeEvent.GROUP_CHANGED, this.onNodeGroupChanged, this);
     },
 
     removeCollider: function (collider) {
@@ -382,7 +383,7 @@ let CollisionManager = cc.Class({
                 }
             }
 
-            collider.node.off('group-changed', this.onNodeGroupChanged, this);
+            collider.node.off(NodeEvent.GROUP_CHANGED, this.onNodeGroupChanged, this);
         }
         else {
             cc.errorID(6600);

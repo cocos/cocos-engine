@@ -429,11 +429,11 @@ let TiledMap = cc.Class({
             this._applyFile();
         }
 
-        this.node.on('anchor-changed', this._syncAnchorPoint, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
     onDisable () {
-        this.node.off('anchor-changed', this._syncAnchorPoint, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
     _applyFile () {

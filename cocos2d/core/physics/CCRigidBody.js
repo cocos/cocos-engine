@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const NodeEvent = require('../CCNode').EventType;
 var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
@@ -826,16 +827,16 @@ var RigidBody = cc.Class({
 
     _registerNodeEvents: function () {
         var node = this.node;
-        node.on('position-changed', this._onNodePositionChanged, this);
-        node.on('rotation-changed', this._onNodeRotationChanged, this);
-        node.on('scale-changed', this._onNodeScaleChanged, this);
+        node.on(NodeEvent.POSITION_CHANGED, this._onNodePositionChanged, this);
+        node.on(NodeEvent.ROTATION_CHANGED, this._onNodeRotationChanged, this);
+        node.on(NodeEvent.SCALE_CHANGED, this._onNodeScaleChanged, this);
     },
 
     _unregisterNodeEvents: function () {
         var node = this.node;
-        node.off('position-changed', this._onNodePositionChanged, this);
-        node.off('rotation-changed', this._onNodeRotationChanged, this);
-        node.off('scale-changed', this._onNodeScaleChanged, this);
+        node.off(NodeEvent.POSITION_CHANGED, this._onNodePositionChanged, this);
+        node.off(NodeEvent.ROTATION_CHANGED, this._onNodeRotationChanged, this);
+        node.off(NodeEvent.SCALE_CHANGED, this._onNodeScaleChanged, this);
     },
 
     _onNodePositionChanged: function () {

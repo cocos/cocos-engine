@@ -51,7 +51,6 @@ var WrapModeMask = Types.WrapModeMask;
  */
 function AnimationState (clip, name) {
     Playable.call(this);
-    cc.EventTarget.call(this);
     
     // Mark whether the current frame is played.
     // When set new time to animation state, we should ensure the frame at the specified time being played at next update.
@@ -154,8 +153,9 @@ function AnimationState (clip, name) {
      */
     this.time = 0;
 
-
-    this._emit = this.emit;
+    // Animation as event target
+    this._taget = null;
+    this._lastframeEventOn = false;
     this.emit = function () {
         var args = new Array(arguments.length);
         for (var i = 0, l = args.length; i < l; i++) {
@@ -170,10 +170,37 @@ var proto = AnimationState.prototype;
 
 cc.js.mixin(proto, cc.EventTarget.prototype);
 
+proto._emit = function (type, detail) {
+    if (this._target) {
+        this._target.emit(type, detail);
+    }
+};
+
+proto.on = function (type, callback, target, useCapture) {
+    if (this._target) {
+        if (type === 'lastframe') {
+            this._lastframeEventOn = true;
+        }
+        return this._target.on(type, callback, target, useCapture);
+    }
+    else {
+        return null;
+    }
+};
+
+proto.off = function () {
+    if (this._target) {
+        if (type === 'lastframe') {
+            if (!this.hasEventListener(type)) {
+                this._lastframeEventOn = false;
+            }
+        }
+        this._target.off(type, callback, target, useCapture);
+    }
+};
+
 proto._setListeners = function (target) {
-    this._capturingListeners = target ? target._capturingListeners : null;
-    this._bubblingListeners = target ? target._bubblingListeners : null;
-    this._hasListenerCache = target ? target._hasListenerCache : null;
+    this._target = target;
 };
 
 proto.onPlay = function () {
@@ -229,8 +256,7 @@ function process () {
     // sample
     var info = this.sample();
 
-    var cache = this._hasListenerCache;
-    if (cache && cache['lastframe']) {
+    if (this._lastframeEventOn) {
         var lastInfo;
         if (!this._lastWrappedInfo) {
             lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
@@ -272,8 +298,7 @@ function simpleProcess () {
         curve.sample(time, ratio, this);
     }
 
-    var cache = this._hasListenerCache;
-    if (cache && cache['lastframe']) {
+    if (this._lastframeEventOn) {
         if (this._lastIterations === undefined) {
             this._lastIterations = ratio;
         }

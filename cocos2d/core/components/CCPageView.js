@@ -224,7 +224,7 @@ var PageView = cc.Class({
     },
 
     __preload: function () {
-        this.node.on('size-changed', this._updateAllPagesSize, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     },
 
     onEnable: function () {
@@ -249,7 +249,7 @@ var PageView = cc.Class({
     },
 
     onDestroy: function() {
-        this.node.off('size-changed', this._updateAllPagesSize, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     },
 
     /**

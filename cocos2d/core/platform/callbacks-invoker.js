@@ -109,13 +109,13 @@ proto.add = function (key, callback, target) {
 /**
  * Check if the specified key has any registered callback. If a callback is also specified,
  * it will only return true if the callback is registered.
- * @method has
+ * @method hasEventListener
  * @param {String} key
  * @param {Function} [callback]
  * @param {Object} [target]
  * @return {Boolean}
  */
-proto.has = function (key, callback, target) {
+proto.hasEventListener = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (!list) {
         return false;
@@ -124,12 +124,18 @@ proto.has = function (key, callback, target) {
     // check any valid callback
     var callbacks = list.callbacks;
     if (!callback) {
-        for (let i = 0; i < callbacks.length; i++) {
-            if (callbacks[i]) {
-                return true;
+        // Make sure no cancelled callbacks
+        if (list.isInvoking) {
+            for (let i = 0; i < callbacks.length; i++) {
+                if (callbacks[i]) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        else {
+            return callbacks.length > 0;
+        }
     }
 
     target = target || null;

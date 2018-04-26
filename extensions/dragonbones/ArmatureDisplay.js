@@ -564,7 +564,7 @@ let ArmatureDisplay = cc.Class({
     },
 
     hasDBEventListener (type) {
-        return this.hasEventListener(type, false);
+        return this.hasEventListener(type);
     },
 
     addDBEventListener (type, listener, target) {

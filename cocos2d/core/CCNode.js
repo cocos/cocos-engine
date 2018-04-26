@@ -34,17 +34,12 @@ const math = renderEngine.math;
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
+const js = require('./platform/js');
 const Event = require('./event/event');
+const EventTarget = require('./event/event-target');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
-
-const POSITION_CHANGED = 'position-changed';
-const SIZE_CHANGED = 'size-changed';
-const ANCHOR_CHANGED = 'anchor-changed';
-const ROTATION_CHANGED = 'rotation-changed';
-const SCALE_CHANGED = 'scale-changed';
-const CHILD_REORDER = 'child-reorder';
 
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
@@ -54,23 +49,73 @@ var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
-var _parents = [];
 var _globalOrderOfArrival = 1;
+var _cachedArray = new Array(16);
+_cachedArray.length = 0;
 
-const POSITION_DIRTY_FLAG = 1 << 0;
-const SCALE_DIRTY_FLAG = 1 << 1;
-const ROTATION_DIRTY_FLAG = 1 << 2;
-const SKEW_DIRTY_FLAG = 1 << 3;
-// rotation transform dirty
-const RT_DIRTY_FLAG = SCALE_DIRTY_FLAG | ROTATION_DIRTY_FLAG | SKEW_DIRTY_FLAG;
-const ALL_DIRTY_FLAG = 0xffff;
+const POSITION_ON = 1 << 0;
+const SCALE_ON = 1 << 1;
+const ROTATION_ON = 1 << 2;
+const SIZE_ON = 1 << 3;
+const ANCHOR_ON = 1 << 4;
+
+/**
+ * !#en Node's local dirty properties flag
+ * !#zh Node 的本地属性 dirty 状态位
+ * @enum Node._LocalDirtyFlag
+ * @static
+ * @private
+ * @namespace Node
+ */
+var LocalDirtyFlag = cc.Enum({
+    /**
+     * !#en Flag for position dirty
+     * !#zh 位置 dirty 的标记位
+     * @property {Number} POSITION
+     * @static
+     */
+    POSITION: 1 << 0,
+    /**
+     * !#en Flag for scale dirty
+     * !#zh 缩放 dirty 的标记位
+     * @property {Number} SCALE
+     * @static
+     */
+    SCALE: 1 << 1,
+    /**
+     * !#en Flag for rotation dirty
+     * !#zh 旋转 dirty 的标记位
+     * @property {Number} ROTATION
+     * @static
+     */
+    ROTATION: 1 << 2,
+    /**
+     * !#en Flag for skew dirty
+     * !#zh skew dirty 的标记位
+     * @property {Number} SKEW
+     * @static
+     */
+    SKEW: 1 << 3,
+    /**
+     * !#en Flag for position or rotation dirty
+     * !#zh 旋转或位置 dirty 的标记位
+     * @property {Number} RT
+     * @static
+     */
+    RT: 1 << 0 | 1 << 1 | 1 << 2,
+    /**
+     * !#en Flag for all dirty properties
+     * !#zh 覆盖所有 dirty 状态的标记位
+     * @property {Number} ALL
+     * @static
+     */
+    ALL: 0xffff,
+});
 
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @class Node.EventType
- * @constructor	
- * @param {String} name
+ * @enum Node.EventType
  * @static
  * @namespace Node
  */
@@ -146,6 +191,85 @@ var EventType = cc.Enum({
      * @static
      */
     MOUSE_WHEEL: 'mousewheel',
+
+    /**
+     * !#en The event type for position change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点位置改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} POSITION_CHANGED
+     * @static
+     */
+    POSITION_CHANGED: 'position-changed',
+    /**
+     * !#en The event type for rotation change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点旋转改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} ROTATION_CHANGED
+     * @static
+     */
+    ROTATION_CHANGED: 'rotation-changed',
+    /**
+     * !#en The event type for scale change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点缩放改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} SCALE_CHANGED
+     * @static
+     */
+    SCALE_CHANGED: 'scale-changed',
+    /**
+     * !#en The event type for size change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点尺寸改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} SIZE_CHANGED
+     * @static
+     */
+    SIZE_CHANGED: 'size-changed',
+    /**
+     * !#en The event type for anchor point change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点锚点改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} ANCHOR_CHANGED
+     * @static
+     */
+    ANCHOR_CHANGED: 'anchor-changed',
+    /**
+     * !#en The event type for new child added events.
+     * !#zh 当新的子节点被添加时触发的事件。
+     * @property {String} CHILD_ADDED
+     * @static
+     */
+    CHILD_ADDED: 'child-added',
+    /**
+     * !#en The event type for child removed events.
+     * !#zh 当子节点被移除时触发的事件。
+     * @property {String} CHILD_REMOVED
+     * @static
+     */
+    CHILD_REMOVED: 'child-removed',
+    /**
+     * !#en The event type for children reorder events.
+     * !#zh 当子节点顺序改变时触发的事件。
+     * @property {String} CHILD_REORDER
+     * @static
+     */
+    CHILD_REORDER: 'child-reorder',
+    /**
+     * !#en The event type for node group changed events.
+     * !#zh 当节点归属群组发生变化时触发的事件。
+     * @property {String} GROUP_CHANGED
+     * @static
+     */
+    GROUP_CHANGED: 'group-changed',
 });
 
 var _touchEvents = [
@@ -290,7 +414,6 @@ function _searchMaskInParent (node) {
             }
         }
     }
-
     return null;
 }
 
@@ -299,14 +422,14 @@ function _checkListeners (node, events) {
         var i = 0;
         if (node._bubblingListeners) {
             for (; i < events.length; ++i) {
-                if (node._bubblingListeners.has(events[i])) {
+                if (node._bubblingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node._capturingListeners) {
             for (; i < events.length; ++i) {
-                if (node._capturingListeners.has(events[i])) {
+                if (node._capturingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
@@ -316,13 +439,69 @@ function _checkListeners (node, events) {
     return true;
 }
 
+function _doDispatchEvent (owner, event) {
+    var target, i;
+    event.target = owner;
+
+    // Event.CAPTURING_PHASE
+    _cachedArray.length = 0;
+    owner._getCapturingTargets(event.type, _cachedArray);
+    // capturing
+    event.eventPhase = 1;
+    for (i = _cachedArray.length - 1; i >= 0; --i) {
+        target = _cachedArray[i];
+        if (target._capturingListeners) {
+            event.currentTarget = target;
+            // fire event
+            target._capturingListeners.invoke(event, _cachedArray);
+            // check if propagation stopped
+            if (event._propagationStopped) {
+                _cachedArray.length = 0;
+                return;
+            }
+        }
+    }
+    _cachedArray.length = 0;
+
+    // Event.AT_TARGET
+    // checks if destroyed in capturing callbacks
+    event.eventPhase = 2;
+    event.currentTarget = owner;
+    if (owner._capturingListeners) {
+        owner._capturingListeners.invoke(event);
+    }
+    if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+        owner._bubblingListeners.invoke(event);
+    }
+
+    if (!event._propagationStopped && event.bubbles) {
+        // Event.BUBBLING_PHASE
+        owner._getBubblingTargets(event.type, _cachedArray);
+        // propagate
+        event.eventPhase = 3;
+        for (i = 0; i < _cachedArray.length; ++i) {
+            target = _cachedArray[i];
+            if (target._bubblingListeners) {
+                event.currentTarget = target;
+                // fire event
+                target._bubblingListeners.invoke(event);
+                // check if propagation stopped
+                if (event._propagationStopped) {
+                    _cachedArray.length = 0;
+                    return;
+                }
+            }
+        }
+    }
+    _cachedArray.length = 0;
+};
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
- * Node also inherits from {{#crossLink "EventTarget"}}Event Target{{/crossLink}}, it permits Node to dispatch events.
  * For events supported by Node, please refer to {{#crossLink "Node.EventType"}}{{/crossLink}}
  * !#zh
- * Cocos Creator 场景中的所有节点类。节点也继承了 {{#crossLink "EventTarget"}}EventTarget{{/crossLink}}，它允许节点发送事件。<br/>
+ * Cocos Creator 场景中的所有节点类。<br/>
  * 支持的节点事件，请参阅 {{#crossLink "Node.EventType"}}{{/crossLink}}。
  * @class Node
  * @extends _BaseNode
@@ -393,7 +572,7 @@ var Node = cc.Class({
 
             set (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                this.emit('group-changed');
+                this.emit(EventType.GROUP_CHANGED);
             }
         },
 
@@ -429,17 +608,16 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
                         
                         // fast check event
-                        var cache = this._hasListenerCache;
-                        if (cache && cache[POSITION_CHANGED]) {
+                        if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
                             }
                             else {
-                                this.emit(POSITION_CHANGED);
+                                this.emit(EventType.POSITION_CHANGED);
                             }
                         }
                     }
@@ -472,17 +650,16 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
                         // fast check event
-                        var cache = this._hasListenerCache;
-                        if (cache && cache[POSITION_CHANGED]) {
+                        if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
                             }
                             else {
-                                this.emit(POSITION_CHANGED);
+                                this.emit(EventType.POSITION_CHANGED);
                             }
                         }
                     }
@@ -502,7 +679,7 @@ var Node = cc.Class({
                 if (value !== localPosition.z) {
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -538,11 +715,10 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
-                        this.emit(ROTATION_CHANGED);
+                    if (this._eventMask & ROTATION_ON) {
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             }
@@ -571,11 +747,10 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
-                        this.emit(ROTATION_CHANGED);
+                    if (this._eventMask & ROTATION_ON) {
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             },
@@ -604,11 +779,10 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[ROTATION_CHANGED]) {
-                        this.emit(ROTATION_CHANGED);
+                    if (this._eventMask & ROTATION_ON) {
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             },
@@ -639,11 +813,10 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
-                    this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.SCALE);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[SCALE_CHANGED]) {
-                        this.emit(SCALE_CHANGED);
+                    if (this._eventMask & SCALE_ON) {
+                        this.emit(EventType.SCALE_CHANGED);
                     }
                 }
             },
@@ -665,11 +838,10 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
-                    this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.SCALE);
 
-                    var cache = this._hasListenerCache;
-                    if (cache && cache[SCALE_CHANGED]) {
-                        this.emit(SCALE_CHANGED);
+                    if (this._eventMask & SCALE_ON) {
+                        this.emit(EventType.SCALE_CHANGED);
                     }
                 }
             },
@@ -690,7 +862,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
-                this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
 
@@ -709,7 +881,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
-                this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
 
@@ -771,7 +943,9 @@ var Node = cc.Class({
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.x !== value) {
                     anchorPoint.x = value;
-                    this.emit(ANCHOR_CHANGED);
+                    if (this._eventMask & ANCHOR_ON) {
+                        this.emit(EventType.ANCHOR_CHANGED);
+                    }
                 }
             },
         },
@@ -792,7 +966,9 @@ var Node = cc.Class({
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.y !== value) {
                     anchorPoint.y = value;
-                    this.emit(ANCHOR_CHANGED);
+                    if (this._eventMask & ANCHOR_ON) {
+                        this.emit(EventType.ANCHOR_CHANGED);
+                    }
                 }
             },
         },
@@ -815,11 +991,13 @@ var Node = cc.Class({
                         var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
                     this._contentSize.width = value;
-                    if (CC_EDITOR) {
-                        this.emit(SIZE_CHANGED, clone);
-                    }
-                    else {
-                        this.emit(SIZE_CHANGED);
+                    if (this._eventMask & SIZE_ON) {
+                        if (CC_EDITOR) {
+                            this.emit(EventType.SIZE_CHANGED, clone);
+                        }
+                        else {
+                            this.emit(EventType.SIZE_CHANGED);
+                        }
                     }
                 }
             },
@@ -843,11 +1021,13 @@ var Node = cc.Class({
                         var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
                     this._contentSize.height = value;
-                    if (CC_EDITOR) {
-                        this.emit(SIZE_CHANGED, clone);
-                    }
-                    else {
-                        this.emit(SIZE_CHANGED);
+                    if (this._eventMask & SIZE_ON) {
+                        if (CC_EDITOR) {
+                            this.emit(EventType.SIZE_CHANGED, clone);
+                        }
+                        else {
+                            this.emit(EventType.SIZE_CHANGED);
+                        }
                     }
                 }
             },
@@ -910,6 +1090,9 @@ var Node = cc.Class({
         this._widget = null;
         // fast render component access
         this._renderComponent = null;
+        // Event listeners
+        this._capturingListeners = null;
+        this._bubblingListeners = null;
         // Touch event listener
         this._touchListener = null;
         // Mouse event listener
@@ -922,14 +1105,17 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
-        this._localMatDirty = ALL_DIRTY_FLAG;
+        this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
         this._worldMatUpdated = false;
 
+        this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
     },
 
     statics: {
+        EventType,
+        _LocalDirtyFlag,
         // is node but not scene
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
@@ -1124,17 +1310,28 @@ var Node = cc.Class({
     /**
      * !#en
      * Register a callback of a specific event type on Node.<br/>
-     * Use this method to register touch or mouse event permit propagation based on scene graph,
-     * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.<br/>
-     * It's the recommended way to register touch/mouse event for Node,
-     * please do not use cc.eventManager directly for Node.
+     * Use this method to register touch or mouse event permit propagation based on scene graph,<br/>
+     * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:<br/>
+     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target<br/>
+     * 2. At target phase: dispatch to the listeners of the real target<br/>
+     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root<br/>
+     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
+     * It's the recommended way to register touch/mouse event for Node,<br/>
+     * please do not use cc.eventManager directly for Node.<br/>
+     * You can also register custom event and use emit to dispatch custom event on Node.<br/>
+     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
      * !#zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
+     * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
+     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
+     * 2. 目标阶段：派发给目标节点的监听器。<br/>
+     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
+     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * @method on
      * @param {String} type - A string representing the event type to listen for.<br>
-     *                        See {{#crossLink "Node/position-changed:event"}}Node Events{{/crossLink}} for all builtin events.
+     *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.event event
@@ -1153,10 +1350,11 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
-     * node.on("anchor-changed", callback, this);
+     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     on (type, callback, target, useCapture) {
-        var newAdded = false;
+        let newAdded = false;
+        let forDispatch = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1172,6 +1370,7 @@ var Node = cc.Class({
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
+            forDispatch = true;
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
             if (!this._mouseListener) {
@@ -1188,6 +1387,7 @@ var Node = cc.Class({
                 eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
+            forDispatch = true;
         }
         if (newAdded && !this._activeInHierarchy) {
             cc.director.getScheduler().schedule(function () {
@@ -1197,7 +1397,82 @@ var Node = cc.Class({
             }, this, 0, 0, 0, false);
         }
 
-        return this._EventTargetOn(type, callback, target, useCapture);
+        if (forDispatch) {
+            return this._onDispatch(type, callback, target, useCapture);
+        }
+        else {
+            switch (type) {
+                case EventType.POSITION_CHANGED:
+                this._eventMask |= POSITION_ON;
+                break;
+                case EventType.SCALE_CHANGED:
+                this._eventMask |= SCALE_ON;
+                break;
+                case EventType.ROTATION_CHANGED:
+                this._eventMask |= ROTATION_ON;
+                break;
+                case EventType.SIZE_CHANGED:
+                this._eventMask |= SIZE_ON;
+                break;
+                case EventType.ANCHOR_CHANGED:
+                this._eventMask |= ANCHOR_ON;
+                break;
+            }
+            if (!this._bubblingListeners) {
+                this._bubblingListeners = new EventTarget();
+            }
+            return this._bubblingListeners.on(type, callback, target);
+        }
+    },
+
+    _onDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        }
+        else useCapture = !!useCapture;
+        if (!callback) {
+            cc.errorID(6800);
+            return;
+        }
+
+        var listeners = null;
+        if (useCapture) {
+            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+        }
+        else {
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+        }
+
+        if ( !listeners.hasEventListener(type, callback, target) ) {
+            listeners.add(type, callback, target);
+
+            if (target && target.__eventTargets)
+                target.__eventTargets.push(this);
+        }
+
+        return callback;
+    },
+
+     _onceDispatch (type, callback, target, useCapture) {
+        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+        var hasOnceListener = listeners && listeners.hasEventListener(eventType_hasOnceListener, callback, target);
+        if (!hasOnceListener) {
+            var self = this;
+            var onceWrapper = function (event) {
+                self._offDispatch(type, onceWrapper, target, useCapture);
+                listeners.remove(eventType_hasOnceListener, callback, target);
+                callback.call(this, event);
+            };
+            this._onDispatch(type, onceWrapper, target, useCapture);
+            if (!listeners) {
+                // obtain new created listeners
+                listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+            }
+            listeners.add(eventType_hasOnceListener, callback, target);
+        }
     },
 
     /**
@@ -1216,22 +1491,75 @@ var Node = cc.Class({
      * @example
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.off("anchor-changed", callback, this);
+     * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     off (type, callback, target, useCapture) {
-        this._EventTargetOff(type, callback, target, useCapture);
-
+        let forDispatch = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (this._touchListener && !_checkListeners(this, _touchEvents)) {
                 eventManager.removeListener(this._touchListener);
                 this._touchListener = null;
             }
+            forDispatch = true;
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
             if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
                 eventManager.removeListener(this._mouseListener);
                 this._mouseListener = null;
             }
+            forDispatch = true;
+        }
+        if (forDispatch) {
+            this._offDispatch(type, callback, target, useCapture);
+        }
+        else if (this._bubblingListeners) {
+            this._bubblingListeners.off(type, callback, target);
+
+            var hasListeners = this._bubblingListeners.hasEventListener(type);
+            // All listener removed
+            if (!hasListeners) {
+                switch (type) {
+                    case EventType.POSITION_CHANGED:
+                    this._eventMask &= ~POSITION_ON;
+                    break;
+                    case EventType.SCALE_CHANGED:
+                    this._eventMask &= ~SCALE_ON;
+                    break;
+                    case EventType.ROTATION_CHANGED:
+                    this._eventMask &= ~ROTATION_ON;
+                    break;
+                    case EventType.SIZE_CHANGED:
+                    this._eventMask &= ~SIZE_ON;
+                    break;
+                    case EventType.ANCHOR_CHANGED:
+                    this._eventMask &= ~ANCHOR_ON;
+                    break;
+                }
+            }
+        }
+    },
+
+    _offDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        }
+        else useCapture = !!useCapture;
+        if (!callback) {
+            this._capturingListeners && this._capturingListeners.removeAll(type);
+            this._bubblingListeners && this._bubblingListeners.removeAll(type);
+        }
+        else {
+            var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+            if (listeners) {
+                listeners.remove(type, callback, target);
+    
+                if (target && target.__eventTargets) {
+                    js.array.fastRemove(target.__eventTargets, this);
+                }
+            }
+            
         }
     },
 
@@ -1244,7 +1572,30 @@ var Node = cc.Class({
      * node.targetOff(target);
      */
     targetOff (target) {
-        this._EventTargetTargetOff(target);
+        let listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.targetOff(target);
+
+            // Check for event mask reset
+            if ((this._eventMask & POSITION_ON) && !listeners.hasEventListener(EventType.POSITION_CHANGED)) {
+                this._eventMask &= ~POSITION_ON;
+            }
+            if ((this._eventMask & SCALE_ON) && !listeners.hasEventListener(EventType.SCALE_CHANGED)) {
+                this._eventMask &= ~SCALE_ON;
+            }
+            if ((this._eventMask & ROTATION_ON) && !listeners.hasEventListener(EventType.ROTATION_CHANGED)) {
+                this._eventMask &= ~ROTATION_ON;
+            }
+            if ((this._eventMask & SIZE_ON) && !listeners.hasEventListener(EventType.SIZE_CHANGED)) {
+                this._eventMask &= ~SIZE_ON;
+            }
+            if ((this._eventMask & ANCHOR_ON) && !listeners.hasEventListener(EventType.ANCHOR_CHANGED)) {
+                this._eventMask &= ~ANCHOR_ON;
+            }
+        }
+        if (this._capturingListeners) {
+            this._capturingListeners.targetOff(target);
+        }
 
         if (this._touchListener && !_checkListeners(this, _touchEvents)) {
             eventManager.removeListener(this._touchListener);
@@ -1254,6 +1605,55 @@ var Node = cc.Class({
             eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
         }
+    },
+
+    /**
+     * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
+     * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
+     * @method hasEventListener
+     * @param {String} type - The type of event.
+     * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
+     */
+    hasEventListener (type) {
+        let has = false;
+        if (this._bubblingListeners) {
+            has = this._bubblingListeners.hasEventListener(type);
+        }
+        if (!has && this._capturingListeners) {
+            has = this._capturingListeners.hasEventListener(type);
+        }
+        return has;
+    },
+
+    /**
+     * !#en
+     * Send an event to this object directly.
+     * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     * !#zh
+     * 通过事件名和 detail 发送自定义事件
+     *
+     * @method emit
+     * @param {String} type - event type
+     * @param {*} [detail] - whatever argument the message needs
+     */
+    emit (type, detail) {
+        if (this._bubblingListeners) {
+            this._bubblingListeners.emit(type, detail);
+        }
+    },
+
+    /**
+     * !#en
+     * Dispatches an event into the event flow.
+     * The event target is the EventTarget object upon which the dispatchEvent() method is called.
+     * !#zh 分发事件到事件流中。
+     *
+     * @method dispatchEvent
+     * @param {Event} event - The Event object that is dispatched into the event flow
+     */
+    dispatchEvent (event) {
+        _doDispatchEvent(this, event);
+        _cachedArray.length = 0;
     },
 
     /**
@@ -1333,22 +1733,43 @@ var Node = cc.Class({
         }
     },
 
-    // Store all capturing parents that are listening to the same event in the array
+    /**
+     * Get all the targets listening to the supplied type of event in the target's capturing phase.
+     * The capturing phase comprises the journey from the root to the last node BEFORE the event target's node.
+     * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
+     *
+     * Subclasses can override this method to make event propagable.
+     * @method _getCapturingTargets
+     * @private
+     * @param {String} type - the event type
+     * @param {Array} array - the array to receive targets
+     * @example {@link utils/api/engine/docs/cocos2d/core/event/_getCapturingTargets.js}
+     */
     _getCapturingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent.hasEventListener(type, true)) {
+            if (parent._capturingListeners && parent._capturingListeners.hasEventListener(type)) {
                 array.push(parent);
             }
             parent = parent.parent;
         }
     },
-
-    // Store all bubbling parents that are listening to the same event in the array
+    
+    /**
+     * Get all the targets listening to the supplied type of event in the target's bubbling phase.
+     * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
+     * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
+     *
+     * Subclasses can override this method to make event propagable.
+     * @method _getBubblingTargets
+     * @private
+     * @param {String} type - the event type
+     * @param {Array} array - the array to receive targets
+     */
     _getBubblingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent.hasEventListener(type)) {
+            if (parent._bubblingListeners && parent._bubblingListeners.hasEventListener(type)) {
                 array.push(parent);
             }
             parent = parent.parent;
@@ -1550,17 +1971,16 @@ var Node = cc.Class({
         else {	
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
-        var cache = this._hasListenerCache;
-        if (cache && cache[POSITION_CHANGED]) {
+        if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
+                this.emit(EventType.POSITION_CHANGED, oldPosition);
             }
             else {
-                this.emit(POSITION_CHANGED);
+                this.emit(EventType.POSITION_CHANGED);
             }
         }
     },
@@ -1602,11 +2022,10 @@ var Node = cc.Class({
         if (this._scale.x !== x || this._scale.y !== y) {
             this._scale.x = x;
             this._scale.y = y;
-            this.setLocalDirty(SCALE_DIRTY_FLAG);
+            this.setLocalDirty(LocalDirtyFlag.SCALE);
 
-            var cache = this._hasListenerCache;
-            if (cache && cache[SCALE_CHANGED]) {
-                this.emit(SCALE_CHANGED);
+            if (this._eventMask & SCALE_ON) {
+                this.emit(EventType.SCALE_CHANGED);
             }
         }
     },
@@ -1673,11 +2092,13 @@ var Node = cc.Class({
             locContentSize.width = size;
             locContentSize.height = height;
         }
-        if (CC_EDITOR) {
-            this.emit(SIZE_CHANGED, clone);
-        }
-        else {
-            this.emit(SIZE_CHANGED);
+        if (this._eventMask & SIZE_ON) {
+            if (CC_EDITOR) {
+                this.emit(EventType.SIZE_CHANGED, clone);
+            }
+            else {
+                this.emit(EventType.SIZE_CHANGED);
+            }
         }
     },
 
@@ -1740,8 +2161,10 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
-        this.emit(ANCHOR_CHANGED);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
+        if (this._eventMask & ANCHOR_ON) {
+            this.emit(EventType.ANCHOR_CHANGED);
+        }
     },
 
     /*
@@ -1807,17 +2230,16 @@ var Node = cc.Class({
         else {
             math.vec3.copy(this._position, pos);
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
-        var cache = this._hasListenerCache;
-        if (cache && cache[POSITION_CHANGED]) {
+        if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
+                this.emit(EventType.POSITION_CHANGED, oldPosition);
             }
             else {
-                this.emit(POSITION_CHANGED);
+                this.emit(EventType.POSITION_CHANGED);
             }
         }
     },
@@ -1901,7 +2323,7 @@ var Node = cc.Class({
         let t = this._matrix;
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
-        if (dirtyFlag & RT_DIRTY_FLAG) {
+        if (dirtyFlag & LocalDirtyFlag.RT) {
             let hasRotation = this._rotationX || this._rotationY;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
@@ -2470,7 +2892,7 @@ var Node = cc.Class({
                     }
                     _children[j + 1] = child;
                 }
-                this.emit(CHILD_REORDER);
+                this.emit(EventType.CHILD_REORDER);
             }
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
@@ -2614,7 +3036,5 @@ var Node = cc.Class({
 
 var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
 misc.propertyDefine(Node, SameNameGetSets);
-
-Node.EventType = EventType;
 
 cc.Node = module.exports = Node;

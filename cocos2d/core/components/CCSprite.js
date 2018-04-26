@@ -26,6 +26,7 @@
 
 const misc = require('../utils/misc');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
+const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
@@ -483,15 +484,15 @@ var Sprite = cc.Class({
         
         this._updateAssembler();
 
-        this.node.on('size-changed', this._onNodeSizeDirty, this);
-        this.node.on('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     },
 
     onDisable: function () {
         this._super();
 
-        this.node.off('size-changed', this._onNodeSizeDirty, this);
-        this.node.off('anchor-changed', this._onNodeSizeDirty, this);
+        this.node.off(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     },
 
     _onNodeSizeDirty () {
@@ -694,13 +695,13 @@ if (CC_EDITOR) {
     Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
     Sprite.prototype.__preload = function () {
         if (this.__superPreload) this.__superPreload();
-        this.node.on('size-changed', this._resized, this);
+        this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
     };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
         if (this.__superOnDestroy) this.__superOnDestroy();
-        this.node.off('size-changed', this._resized, this);
+        this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
     };
 }
 
