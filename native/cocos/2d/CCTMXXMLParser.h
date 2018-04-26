@@ -217,11 +217,15 @@ class CC_DLL TMXMapInfo : public Ref, public SAXDelegator
 {
 public:
     typedef cocos2d::Map<std::string, Texture2D*> TextureMap;
+    typedef cocos2d::Map<std::string, std::string> TsxFileMap;
 
     /** creates a TMX Format with a tmx file */
     static TMXMapInfo * create(const std::string& tmxFile);
     /** creates a TMX Format with an XML string and a TMX resource path and an optional texture map */
     static TMXMapInfo * createWithXML(const std::string& tmxString, const std::string& resourcePath,
+                                      const TextureMap* textures = nullptr);
+    /** creates a TMX Format with an XML string and a tsxFile map and an optional texture map */
+    static TMXMapInfo * createWithXML(const std::string& tmxString, const TsxFileMap* tsxFileMap,
                                       const TextureMap* textures = nullptr);
 
     /**
@@ -238,6 +242,9 @@ public:
     bool initWithTMXFile(const std::string& tmxFile);
     /** initializes a TMX format with an XML string and a TMX resource path and an optional texture map */
     bool initWithXML(const std::string& tmxString, const std::string& resourcePath,
+                     const TextureMap* textures = nullptr);
+    /** initializes a TMX format with an XML string and a tsxFile map and an optional texture map */
+    bool initWithXML(const std::string& tmxString, const TsxFileMap* tsxFileMap,
                      const TextureMap* textures = nullptr);
     /** initializes parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file */
     bool parseXMLFile(const std::string& xmlFilename);
@@ -348,8 +355,8 @@ public:
     inline const std::string& getExternalTilesetFileName() const { return _externalTilesetFilename; }
 
 protected:
-    void internalInit(const std::string& tmxFileName, const std::string& resourcePath,
-                      const TextureMap* textures);
+    void internalInit(const std::string& tmxFileName, const std::string& resourcePath, 
+                      const TsxFileMap* tsxFileMap, const TextureMap* textures);
 
     /// map orientation
     int    _orientation;
@@ -388,6 +395,8 @@ protected:
     std::string _TMXFileName;
     // tmx resource path
     std::string _resources;
+    // map of preloaded tsxFiles indexed by externalTilesetFilename
+    const TsxFileMap* _preloadedTsxFiles;
     // map of preloaded textures indexed by name
     const TextureMap* _preloadedTextures;
     //! current string

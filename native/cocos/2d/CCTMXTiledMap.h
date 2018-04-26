@@ -284,8 +284,8 @@ CC_CONSTRUCTOR_ACCESS:
     /** initializes a TMX Tiled Map with a TMX formatted XML string and a path to TMX resources */
     bool initWithXML(const std::string& tmxString, const std::string& resourcePath);
     
-    /** initializes a TMX Tiled Map with a TMX formatted XML string and a path to TMX resources and a texture map */
-    bool initWithXML(const std::string& tmxString, const std::string& resourcePath,
+    /** initializes a TMX Tiled Map with a TMX formatted XML string and a tsxFile map and a texture map */
+    bool initWithXML(const std::string& tmxString, const cocos2d::Map<std::string, std::string>& tsxFileMap,
                      const cocos2d::Map<std::string, Texture2D*>& textures);
 
 protected:
