@@ -1095,8 +1095,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
 
         // set sharedCanvas size
         if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
-            var openDataContext = wx.getOpenDataContext();
-            var sharedCanvas = openDataContext.canvas;
+            var sharedCanvas = wx.getSharedCanvas && wx.getSharedCanvas();
             if (sharedCanvas) {
                 sharedCanvas.width = locCanvas.width;
                 sharedCanvas.height = locCanvas.height;
