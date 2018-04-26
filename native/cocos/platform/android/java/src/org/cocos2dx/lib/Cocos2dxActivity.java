@@ -78,6 +78,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     private LinearLayout mLinearLayoutForDebugView;
     private TextView mFPSTextView;
     private TextView mJSBInvocationTextView;
+    private TextView mGLOptModeTextView;
     private TextView mGameInfoTextView_0;
     private TextView mGameInfoTextView_1;
     private TextView mGameInfoTextView_2;
@@ -492,24 +493,42 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
                         mJSBInvocationTextView.setTextColor(Color.WHITE);
                         mLinearLayoutForDebugView.addView(mJSBInvocationTextView, linearLayoutParam);
 
+                        mGLOptModeTextView = new TextView(Cocos2dxActivity.this);
+                        mGLOptModeTextView.setBackgroundColor(Color.BLUE);
+                        mGLOptModeTextView.setTextColor(Color.WHITE);
+                        mGLOptModeTextView.setText("GL Opt: Enabled");
+                        mLinearLayoutForDebugView.addView(mGLOptModeTextView, linearLayoutParam);
+
                         mGameInfoTextView_0 = new TextView(Cocos2dxActivity.this);
-                        mGameInfoTextView_0.setBackgroundColor(Color.BLUE);
+                        mGameInfoTextView_0.setBackgroundColor(Color.RED);
                         mGameInfoTextView_0.setTextColor(Color.WHITE);
                         mLinearLayoutForDebugView.addView(mGameInfoTextView_0, linearLayoutParam);
 
                         mGameInfoTextView_1 = new TextView(Cocos2dxActivity.this);
-                        mGameInfoTextView_1.setBackgroundColor(Color.MAGENTA);
+                        mGameInfoTextView_1.setBackgroundColor(Color.GREEN);
                         mGameInfoTextView_1.setTextColor(Color.WHITE);
                         mLinearLayoutForDebugView.addView(mGameInfoTextView_1, linearLayoutParam);
 
                         mGameInfoTextView_2 = new TextView(Cocos2dxActivity.this);
-                        mGameInfoTextView_2.setBackgroundColor(Color.RED);
+                        mGameInfoTextView_2.setBackgroundColor(Color.BLUE);
                         mGameInfoTextView_2.setTextColor(Color.WHITE);
                         mLinearLayoutForDebugView.addView(mGameInfoTextView_2, linearLayoutParam);
                     }
                 });
 
                 renderer.showFPS();
+            }
+
+            @Override
+            public void onDisableBatchGLCommandsToNative() {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mGLOptModeTextView != null) {
+                            mGLOptModeTextView.setText("GL Opt: Disabled");
+                        }
+                    }
+                });
             }
 
             @Override

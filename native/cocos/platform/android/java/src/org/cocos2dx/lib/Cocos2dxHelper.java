@@ -740,10 +740,17 @@ public class Cocos2dxHelper {
         }
     }
 
+    private static void disableBatchGLCommandsToNative() {
+        if (sOnGameInfoUpdatedListener != null) {
+            sOnGameInfoUpdatedListener.onDisableBatchGLCommandsToNative();
+        }
+    }
+
     public interface OnGameInfoUpdatedListener {
         void onFPSUpdated(float fps);
         void onJSBInvocationCountUpdated(int count);
         void onOpenDebugView();
+        void onDisableBatchGLCommandsToNative();
         void onGameInfoUpdated_0(String text);
         void onGameInfoUpdated_1(String text);
         void onGameInfoUpdated_2(String text);
