@@ -34,7 +34,9 @@ const math = renderEngine.math;
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
+const js = require('./platform/js');
 const Event = require('./event/event');
+const EventListeners = require('./event/event-listeners');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -48,6 +50,8 @@ var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
 var _globalOrderOfArrival = 1;
+var _cachedArray = new Array(16);
+_cachedArray.length = 0;
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
@@ -413,7 +417,6 @@ function _searchMaskInParent (node) {
             }
         }
     }
-
     return null;
 }
 
@@ -438,6 +441,66 @@ function _checkListeners (node, events) {
     }
     return true;
 }
+
+function _doDispatchEvent (owner, event) {
+    var target, i;
+    event.target = owner;
+
+    // Event.CAPTURING_PHASE
+    _cachedArray.length = 0;
+    owner._getCapturingTargets(event.type, _cachedArray);
+    // capturing
+    event.eventPhase = 1;
+    for (i = _cachedArray.length - 1; i >= 0; --i) {
+        target = _cachedArray[i];
+        if (target._isTargetActive(event.type) && target._capturingListeners) {
+            event.currentTarget = target;
+            // fire event
+            target._capturingListeners.invoke(event, _cachedArray);
+            // check if propagation stopped
+            if (event._propagationStopped) {
+                _cachedArray.length = 0;
+                return;
+            }
+        }
+    }
+    _cachedArray.length = 0;
+
+    // Event.AT_TARGET
+    // checks if destroyed in capturing callbacks
+    if (owner._isTargetActive(event.type)) {
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = owner;
+        if (owner._capturingListeners) {
+            owner._capturingListeners.invoke(event);
+        }
+        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+            owner._bubblingListeners.invoke(event);
+        }
+    }
+
+    if (!event._propagationStopped && event.bubbles) {
+        // Event.BUBBLING_PHASE
+        owner._getBubblingTargets(event.type, _cachedArray);
+        // propagate
+        event.eventPhase = 3;
+        for (i = 0; i < _cachedArray.length; ++i) {
+            target = _cachedArray[i];
+            if (target._isTargetActive(event.type) && target._bubblingListeners) {
+                event.currentTarget = target;
+                // fire event
+                target._bubblingListeners.invoke(event);
+                // check if propagation stopped
+                if (event._propagationStopped) {
+                    _cachedArray.length = 0;
+                    return;
+                }
+            }
+        }
+    }
+    _cachedArray.length = 0;
+};
 
 /**
  * !#en
@@ -1251,14 +1314,25 @@ var Node = cc.Class({
     /**
      * !#en
      * Register a callback of a specific event type on Node.<br/>
-     * Use this method to register touch or mouse event permit propagation based on scene graph,
-     * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.<br/>
-     * It's the recommended way to register touch/mouse event for Node,
-     * please do not use cc.eventManager directly for Node.
+     * Use this method to register touch or mouse event permit propagation based on scene graph,<br/>
+     * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:<br/>
+     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target<br/>
+     * 2. At target phase: dispatch to the listeners of the real target<br/>
+     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root<br/>
+     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
+     * It's the recommended way to register touch/mouse event for Node,<br/>
+     * please do not use cc.eventManager directly for Node.<br/>
+     * You can also register custom event and use emit to dispatch custom event on Node.<br/>
+     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
      * !#zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
+     * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
+     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
+     * 2. 目标阶段：派发给目标节点的监听器。<br/>
+     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
+     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * @method on
      * @param {String} type - A string representing the event type to listen for.<br>
      *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
@@ -1328,7 +1402,7 @@ var Node = cc.Class({
         }
 
         if (forDispatch) {
-            return this.onDispatch(type, callback, target, useCapture);
+            return this._onDispatch(type, callback, target, useCapture);
         }
         else {
             switch (type) {
@@ -1349,6 +1423,56 @@ var Node = cc.Class({
                 break;
             }
             return this._EventTargetOn(type, callback, target);
+        }
+    },
+
+    _onDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        }
+        else useCapture = !!useCapture;
+        if (!callback) {
+            cc.errorID(6800);
+            return;
+        }
+
+        var listeners = null;
+        if (useCapture) {
+            listeners = this._capturingListeners = this._capturingListeners || new EventListeners();
+        }
+        else {
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
+        }
+
+        if ( ! listeners.has(type, callback, target) ) {
+            listeners.add(type, callback, target);
+
+            if (target && target.__eventTargets)
+                target.__eventTargets.push(this);
+        }
+
+        return callback;
+    },
+
+     _onceDispatch (type, callback, target, useCapture) {
+        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+        var hasOnceListener = listeners && listeners.has(eventType_hasOnceListener, callback, target);
+        if (!hasOnceListener) {
+            var self = this;
+            var onceWrapper = function (event) {
+                self._offDispatch(type, onceWrapper, target, useCapture);
+                listeners.remove(eventType_hasOnceListener, callback, target);
+                callback.call(this, event);
+            };
+            this._onDispatch(type, onceWrapper, target, useCapture);
+            if (!listeners) {
+                // obtain new created listeners
+                listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+            }
+            listeners.add(eventType_hasOnceListener, callback, target);
         }
     },
 
@@ -1387,7 +1511,7 @@ var Node = cc.Class({
             forDispatch = true;
         }
         if (forDispatch) {
-            this.offDispatch(type, callback, target, useCapture);
+            this._offDispatch(type, callback, target, useCapture);
         }
         else {
             this._EventTargetOff(type, callback, target);
@@ -1413,6 +1537,30 @@ var Node = cc.Class({
                     break;
                 }
             }
+        }
+    },
+
+    _offDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        }
+        else useCapture = !!useCapture;
+        if (!callback) {
+            this._capturingListeners && this._capturingListeners.removeAll(type);
+            this._bubblingListeners && this._bubblingListeners.removeAll(type);
+        }
+        else {
+            var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+            if (listeners) {
+                listeners.remove(type, callback, target);
+    
+                if (target && target.__eventTargets) {
+                    js.array.fastRemove(target.__eventTargets, this);
+                }
+            }
+            
         }
     },
 
@@ -1454,6 +1602,20 @@ var Node = cc.Class({
                 this._eventMask &= ~ANCHOR_ON;
             }
         }
+    },
+
+    /**
+     * !#en
+     * Dispatches an event into the event flow.
+     * The event target is the EventTarget object upon which the dispatchEvent() method is called.
+     * !#zh 分发事件到事件流中。
+     *
+     * @method dispatchEvent
+     * @param {Event} event - The Event object that is dispatched into the event flow
+     */
+    dispatchEvent (event) {
+        _doDispatchEvent(this, event);
+        _cachedArray.length = 0;
     },
 
     /**
@@ -1533,7 +1695,18 @@ var Node = cc.Class({
         }
     },
 
-    // Store all capturing parents that are listening to the same event in the array
+    /**
+     * Get all the targets listening to the supplied type of event in the target's capturing phase.
+     * The capturing phase comprises the journey from the root to the last node BEFORE the event target's node.
+     * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
+     *
+     * Subclasses can override this method to make event propagable.
+     * @method _getCapturingTargets
+     * @private
+     * @param {String} type - the event type
+     * @param {Array} array - the array to receive targets
+     * @example {@link utils/api/engine/docs/cocos2d/core/event/_getCapturingTargets.js}
+     */
     _getCapturingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
@@ -1543,8 +1716,18 @@ var Node = cc.Class({
             parent = parent.parent;
         }
     },
-
-    // Store all bubbling parents that are listening to the same event in the array
+    
+    /**
+     * Get all the targets listening to the supplied type of event in the target's bubbling phase.
+     * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
+     * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
+     *
+     * Subclasses can override this method to make event propagable.
+     * @method _getBubblingTargets
+     * @private
+     * @param {String} type - the event type
+     * @param {Array} array - the array to receive targets
+     */
     _getBubblingTargets (type, array) {
         var parent = this.parent;
         while (parent) {

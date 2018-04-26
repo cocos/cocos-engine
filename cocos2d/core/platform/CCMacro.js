@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 const js = require('./js');
-const polyfill3d = require('../utils/polyfill-3d');
 
 /**
  * Predefined constants
@@ -341,13 +340,13 @@ cc.macro = {
 };
 
 js.getset(cc.macro, 'ENABLE_3D', function () {
-    return polyfill3d.enabled;
+    return cc.polyfill3D.enabled;
 }, function (enabled) {
     if (enabled) {
-        polyfill3d.enable();
+        cc.polyfill3D.enable();
     }
     else {
-        polyfill3d.disable();
+        cc.polyfill3D.disable();
     }
 })
 

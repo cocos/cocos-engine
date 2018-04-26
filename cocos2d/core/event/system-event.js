@@ -101,8 +101,8 @@ var SystemEvent = cc.Class({
         inputManger.setAccelerometerInterval(interval);
     },
 
-    on: function (type, callback, target, useCapture) {
-        this._super(type, callback, target, useCapture);
+    on: function (type, callback, target) {
+        this._super(type, callback, target);
 
         // Keyboard
         if (type === EventType.KEY_DOWN || type === EventType.KEY_UP) {
@@ -146,8 +146,8 @@ var SystemEvent = cc.Class({
     },
 
 
-    off: function (type, callback, target, useCapture) {
-        this._super(type, callback, target, useCapture);
+    off: function (type, callback, target) {
+        this._super(type, callback, target);
 
         // Keyboard
         if (keyboardListener && (type === EventType.KEY_DOWN || type === EventType.KEY_UP)) {

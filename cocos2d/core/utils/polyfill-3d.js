@@ -23,6 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Node = require('../CCNode');
+const EventType = Node.EventType;
+const DirtyFlag = Node.LocalDirtyFlag;
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
 
@@ -128,11 +131,11 @@ function setPosition (newPosOrX, y, z) {
     pos.x = x;
     pos.y = y;
     pos.z = z || 0;
-    this.setLocalDirty(POSITION_DIRTY_FLAG);
+    this.setLocalDirty(DirtyFlag.POSITION);
 
     // fast check event
     if (this._eventMask & POSITION_ON) {
-        this.emit(cc.Node.EventType.POSITION_CHANGED);
+        this.emit(EventType.POSITION_CHANGED);
     }
 }
 
@@ -155,10 +158,10 @@ function getQuat () {
 function setQuat (quat) {
     if (!this._quat.equals(value)) {
         math.quat.copy(this._quat, value);
-        this.setLocalDirty(ROTATION_DIRTY_FLAG);
+        this.setLocalDirty(DirtyFlag.ROTATION);
 
         if (this._eventMask & ROTATION_ON) {
-            this.emit(cc.Node.EventType.ROTATION_CHANGED);
+            this.emit(EventType.ROTATION_CHANGED);
         }
     }
 }
@@ -201,16 +204,16 @@ function setScale (x, y, z) {
     if (this._scale.x !== x || this._scale.y !== y) {
         this._scale.x = x;
         this._scale.y = y;
-        this.setLocalDirty(SCALE_DIRTY_FLAG);
+        this.setLocalDirty(DirtyFlag.SCALE);
 
         var cache = this._hasListenerCache;
         if (this._eventMask & SCALE_ON) {
-            this.emit(cc.Node.EventType.SCALE_CHANGED);
+            this.emit(EventType.SCALE_CHANGED);
         }
     }
 }
 
-module.exports = {
+cc.polyfill3D = module.exports = {
     enabled: false,
     enable () {
         let proto = cc.Node.prototype;

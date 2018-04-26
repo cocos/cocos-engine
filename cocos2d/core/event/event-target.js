@@ -28,72 +28,6 @@ require('./event');
 var js = cc.js;
 var fastRemove = js.array.fastRemove;
 
-var cachedArray = new Array(16);
-cachedArray.length = 0;
-
-var CAPTURING_FLAG = 1 << 1;
-var BUBBLING_FLAG = 1 << 2;
-
-var _doDispatchEvent = function (owner, event) {
-    var target, i;
-    event.target = owner;
-
-    // Event.CAPTURING_PHASE
-    cachedArray.length = 0;
-    owner._getCapturingTargets(event.type, cachedArray);
-    // capturing
-    event.eventPhase = 1;
-    for (i = cachedArray.length - 1; i >= 0; --i) {
-        target = cachedArray[i];
-        if (target._isTargetActive(event.type) && target._capturingListeners) {
-            event.currentTarget = target;
-            // fire event
-            target._capturingListeners.invoke(event, cachedArray);
-            // check if propagation stopped
-            if (event._propagationStopped) {
-                cachedArray.length = 0;
-                return;
-            }
-        }
-    }
-    cachedArray.length = 0;
-
-    // Event.AT_TARGET
-    // checks if destroyed in capturing callbacks
-    if (owner._isTargetActive(event.type)) {
-        // Event.AT_TARGET
-        event.eventPhase = 2;
-        event.currentTarget = owner;
-        if (owner._capturingListeners) {
-            owner._capturingListeners.invoke(event);
-        }
-        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
-            owner._bubblingListeners.invoke(event);
-        }
-    }
-
-    if (!event._propagationStopped && event.bubbles) {
-        // Event.BUBBLING_PHASE
-        owner._getBubblingTargets(event.type, cachedArray);
-        // propagate
-        event.eventPhase = 3;
-        for (i = 0; i < cachedArray.length; ++i) {
-            target = cachedArray[i];
-            if (target._isTargetActive(event.type) && target._bubblingListeners) {
-                event.currentTarget = target;
-                // fire event
-                target._bubblingListeners.invoke(event);
-                // check if propagation stopped
-                if (event._propagationStopped) {
-                    cachedArray.length = 0;
-                    return;
-                }
-            }
-        }
-    }
-    cachedArray.length = 0;
-};
-
 /**
  * !#en
  * EventTarget is an object to which an event is dispatched when something has occurred.
@@ -147,7 +81,7 @@ var proto = EventTarget.prototype;
  * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
  */
 proto.hasEventListener = function (type) {
-    return this._bubblingListeners.has(type) || this._capturingListeners.has(type);
+    return this._bubblingListeners && this._bubblingListeners.has(type);
 };
 
 /**
@@ -181,73 +115,6 @@ proto.on = function (type, callback, target) {
     let listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
 
     if ( !listeners.has(type, callback, target) ) {
-        listeners.add(type, callback, target);
-
-        if (target && target.__eventTargets)
-            target.__eventTargets.push(this);
-    }
-
-    return callback;
-};
-
-/**
- * !#en
- * Register an callback of a event type for dispatching on the EventTarget.
- * The difference between on and onDispatch is onDispatch event can be dispatched to a tree hierarchy, while on is emitted to a simple list.
- * This kind of event should be triggered with dispatchEvent, the dispatch process has three steps:
- * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target
- * 2. At target phase: dispatch to the listeners of the real target
- * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root
- * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.
- * !#zh
- * 注册事件目标的捕获／冒泡派发事件类型回调。
- * onDispatch 和 on 的区别在于 onDispatch 可以用来做捕获和冒泡事件派发，而 on 只会简单得调用监听器列表中的回调。
- * onDispatch 注册的事件应该被 dispatchEvent 方法触发，触发的过程包含三个阶段：
- * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。
- * 2. 目标阶段：派发给目标节点的监听器。
- * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。
- * 在派发过程的任何时候，派发都可能被 `event.stopPropagation()` 或 `event.stopPropagationImmidiate()` 打断。
- *
- * @method onDispatch
- * @param {String} type - A string representing the event type to listen for.
- * @param {Function} callback - The callback that will be invoked when the event is dispatched.
- *                              The callback is ignored if it is a duplicate (the callbacks are unique).
- * @param {Event} callback.event event
- * @param {Object} [target] - The target (this object) to invoke the callback, can be null
- * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
- *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
- *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
- *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
- * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
- * @typescript
- * onDispatch(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
- * onDispatch<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
- * @example
- * node.onDispatch(cc.Node.EventType.TOUCH_START, function (event) {
- *     cc.log("touch started");
- * }, node, false);
- */
-proto.onDispatch = function (type, callback, target, useCapture) {
-    // Accept also patameters like: (type, callback, useCapture)
-    if (typeof target === 'boolean') {
-        useCapture = target;
-        target = undefined;
-    }
-    else useCapture = !!useCapture;
-    if (!callback) {
-        cc.errorID(6800);
-        return;
-    }
-
-    var listeners = null;
-    if (useCapture) {
-        listeners = this._capturingListeners = this._capturingListeners || new EventListeners();
-    }
-    else {
-        listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
-    }
-
-    if ( ! listeners.has(type, callback, target) ) {
         listeners.add(type, callback, target);
 
         if (target && target.__eventTargets)
@@ -293,55 +160,6 @@ proto.off = function (type, callback, target) {
         if (target && target.__eventTargets) {
             fastRemove(target.__eventTargets, this);
         }
-    }
-};
-
-/**
- * !#en
- * Removes the listeners for dispatching previously registered with the same type, callback, target and or useCapture,
- * if only type is passed as parameter, all listeners registered with that type will be removed.
- * !#zh
- * 删除之前用同类型，回调，目标或 useCapture 注册的捕获／冒泡派发事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
- *
- * @method offDispatch
- * @param {String} type - A string representing the event type being removed.
- * @param {Function} [callback] - The callback to remove.
- * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
- * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
- *                              If not specified, useCapture defaults to false. If a callback was registered twice,
- *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
- *                              does not affect a non-capturing version of the same listener, and vice versa.
- * @example
- * // register touchEnd eventListener
- * var touchEnd = node.on(cc.Node.EventType.TOUCH_END, function (event) {
- *     cc.log("this is callback");
- * }, node, true);
- * // remove touch end event listener
- * node.off(cc.Node.EventType.TOUCH_END, touchEnd, node, true);
- * // remove all touch end event listeners
- * node.off(cc.Node.EventType.TOUCH_END);
- */
-proto.offDispatch = function (type, callback, target, useCapture) {
-    // Accept also patameters like: (type, callback, useCapture)
-    if (typeof target === 'boolean') {
-        useCapture = target;
-        target = undefined;
-    }
-    else useCapture = !!useCapture;
-    if (!callback) {
-        this._capturingListeners && this._capturingListeners.removeAll(type);
-        this._bubblingListeners && this._bubblingListeners.removeAll(type);
-    }
-    else {
-        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-        if (listeners) {
-            listeners.remove(type, callback, target);
-
-            if (target && target.__eventTargets) {
-                fastRemove(target.__eventTargets, this);
-            }
-        }
-        
     }
 };
 
@@ -405,69 +223,10 @@ proto.once = function (type, callback, target) {
 
 /**
  * !#en
- * Register an callback of a specific event type for dispatching on the EventTarget,
- * the callback will remove itself after the first time it is triggered.
- * !#zh
- * 注册事件目标的捕获／冒泡派发事件类型回调，回调会在第一时间被触发后删除自身。
- *
- * @method onceDispatch
- * @param {String} type - A string representing the event type to listen for.
- * @param {Function} callback - The callback that will be invoked when the event is dispatched.
- *                              The callback is ignored if it is a duplicate (the callbacks are unique).
- * @param {Event} callback.event event
- * @param {Object} [target] - The target (this object) to invoke the callback, can be null
- * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
- *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
- *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
- *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
- * @typescript
- * onceDispatch(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
- * onceDispatch<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
- * @example
- * node.once(cc.Node.EventType.TOUCH_END, function (event) {
- *     cc.log("this is callback");
- * }, node);
- */
-proto.onceDispatch = function (type, callback, target, useCapture) {
-    var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-    var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-    var hasOnceListener = listeners && listeners.has(eventType_hasOnceListener, callback, target);
-    if (!hasOnceListener) {
-        var self = this;
-        var onceWrapper = function (event) {
-            self.offDispatch(type, onceWrapper, target, useCapture);
-            listeners.remove(eventType_hasOnceListener, callback, target);
-            callback.call(this, event);
-        };
-        this.onDispatch(type, onceWrapper, target, useCapture);
-        if (!listeners) {
-            // obtain new created listeners
-            listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-        }
-        listeners.add(eventType_hasOnceListener, callback, target);
-    }
-};
-
-/**
- * !#en
- * Dispatches an event into the event flow.
- * The event target is the EventTarget object upon which the dispatchEvent() method is called.
- * !#zh 分发事件到事件流中。
- *
- * @method dispatchEvent
- * @param {Event} event - The Event object that is dispatched into the event flow
- */
-proto.dispatchEvent = function (event) {
-    _doDispatchEvent(this, event);
-    cachedArray.length = 0;
-};
-
-/**
- * !#en
- * Send an event to this object directly, this method will not propagate the event to any other objects.
+ * Send an event to this object directly.
  * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
  * !#zh
- * 该对象直接发送事件， 这种方法不会对事件传播到任何其他对象。
+ * 通过事件名和 detail 发送自定义事件
  *
  * @method emit
  * @param {String} type - event type
@@ -493,6 +252,22 @@ proto.emit = function (type, detail) {
     }
 };
 
+/**
+ * !#en
+ * Send an event with the event object.
+ * !#zh
+ * 通过事件对象派发事件
+ *
+ * @method dispatchEvent
+ * @param {Event} event
+ */
+proto.dispatchEvent = function (event) {
+    var bubblingListeners = this._bubblingListeners;
+    if (bubblingListeners && bubblingListeners.has(event.type)) {
+        bubblingListeners.invoke(event);
+    }
+};
+
 /*
  * Get whether the target is active for events.
  * The name is for avoiding conflict with user defined functions.
@@ -504,35 +279,6 @@ proto.emit = function (type, detail) {
  */
 proto._isTargetActive = function (type) {
     return true;
-};
-
-/*
- * Get all the targets listening to the supplied type of event in the target's capturing phase.
- * The capturing phase comprises the journey from the root to the last node BEFORE the event target's node.
- * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
- *
- * Subclasses can override this method to make event propagable.
- * @method _getCapturingTargets
- * @param {String} type - the event type
- * @param {Array} array - the array to receive targets
- * @example {@link utils/api/engine/docs/cocos2d/core/event/_getCapturingTargets.js}
- */
-proto._getCapturingTargets = function (type, array) {
-
-};
-
-/*
- * Get all the targets listening to the supplied type of event in the target's bubbling phase.
- * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
- * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
- *
- * Subclasses can override this method to make event propagable.
- * @method _getBubblingTargets
- * @param {String} type - the event type
- * @param {Array} array - the array to receive targets
- */
-proto._getBubblingTargets = function (type, array) {
-
 };
 
 // Improve performance of function call (avoid using EventTarget.prototype.on.call)
