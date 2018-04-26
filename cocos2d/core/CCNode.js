@@ -1113,7 +1113,7 @@ var Node = cc.Class({
         }
     },
 
-    // EVENTS
+    // EVENT TARGET
 
     /**
      * !#en
@@ -1496,7 +1496,7 @@ var Node = cc.Class({
      * cc.log("Node Position: " + node.getPosition());
      */
     getPosition () {
-        return new cc.Vec2(this._position);
+        return new cc.Vec3(this._position);
     },
 
     /**
@@ -1533,18 +1533,8 @@ var Node = cc.Class({
             var oldPosition = new cc.Vec2(locPosition);
         }
 
-        if (!CC_EDITOR || isFinite(x)) {
-            locPosition.x = x;
-        }
-        else {
-            return cc.error(ERR_INVALID_NUMBER, 'x of new position');
-        }
-        if (!CC_EDITOR || isFinite(y)) {
-            locPosition.y = y;
-        }
-        else {
-            return cc.error(ERR_INVALID_NUMBER, 'y of new position');
-        }
+        locPosition.x = x;
+        locPosition.y = y;
         this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event
@@ -1580,23 +1570,23 @@ var Node = cc.Class({
      * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
      * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
      * @method setScale
-     * @param {Number|Vec2} scaleX - scaleX or scale
+     * @param {Number|Vec3} scaleX - scaleX or scale
      * @param {Number} [scaleY]
      * @example
      * node.setScale(cc.v2(1, 1));
-     * node.setScale(1, 1);
+     * node.setScale(1);
      */
-    setScale (scaleX, scaleY) {
-        if (scaleX && typeof scaleX !== 'number') {
-            scaleY = scaleX.y;
-            scaleX = scaleX.x;
+    setScale (x, y) {
+        if (x && typeof x !== 'number') {
+            y = x.y;
+            x = x.x;
         }
-        else {
-            scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
+        else if (y === undefined) {
+            y = x;
         }
-        if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
-            this._scale.x = scaleX;
-            this._scale.y = scaleY;
+        if (this._scale.x !== x || this._scale.y !== y) {
+            this._scale.x = x;
+            this._scale.y = y;
             this.setLocalDirty(SCALE_DIRTY_FLAG);
 
             var cache = this._hasListenerCache;

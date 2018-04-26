@@ -26,6 +26,7 @@
 
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
+const misc = require('../utils/misc');
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
@@ -75,16 +76,162 @@ function _calculWorldMatrix3d () {
     this._worldMatDirty = false;
 }
 
+
+    
+/**
+ * !#en Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
+ * !#zh 获取节点在父节点坐标系中的位置（x, y, z）。
+ * @method getPosition
+ * @return {Vec3} The position (x, y, z) of the node in its parent's coordinates
+ */
+function getPosition () {
+    return new cc.Vec3(this._position);
+}
+
+/**
+ * !#en
+ * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
+ * Usually we use cc.v3(x, y, z) to compose cc.Vec3 object.<br/>
+ * and Passing two numbers (x, y, z) is more efficient than passing cc.Vec3 object.
+ * !#zh
+ * 设置节点在父节点坐标系中的位置。<br/>
+ * 可以通过两种方式设置坐标点：<br/>
+ * 1. 传入 3 个数值 x, y, z。<br/>
+ * 2. 传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
+ * @method setPosition
+ * @param {Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
+ * @param {Number} [y] - Y coordinate for position
+ * @param {Number} [z] - Z coordinate for position
+ */
+function setPosition (newPosOrX, y, z) {
+    var x;
+    if (y === undefined) {
+        x = newPosOrX.x;
+        y = newPosOrX.y;
+        y = newPosOrX.y;
+    }
+    else {
+        x = newPosOrX;
+    }
+
+    var pos = this._position;
+    if (pos.x === x && pos.y === y && pos.z === z) {
+        return;
+    }
+
+    if (CC_EDITOR) {
+        var oldPosition = new cc.Vec3(pos);
+    }
+
+    pos.x = x;
+    pos.y = y;
+    pos.z = z;
+    this.setLocalDirty(POSITION_DIRTY_FLAG);
+
+    // fast check event
+    if (this._eventMask & POSITION_ON) {
+        // send event
+        if (CC_EDITOR) {
+            this.emit(POSITION_CHANGED, oldPosition);
+        }
+        else {
+            this.emit(POSITION_CHANGED);
+        }
+    }
+}
+
+/**
+ * !#en Get rotation of node (in quaternion).
+ * !#zh 获取该节点的 quaternion 旋转角度。
+ * @method setRotation
+ * @return {cc.Quat} Quaternion object represents the rotation
+ */
+function getRotation () {
+    return math.quat.clone(this._quat);
+}
+
+/**
+ * !#en Set rotation of node (in quaternion).
+ * !#zh 设置该节点的 quaternion 旋转角度。
+ * @method setRotation
+ * @param {cc.Quat} quat Quaternion object represents the rotation
+ */
+function setRotation (quat) {
+    if (!this._quat.equals(value)) {
+        math.quat.copy(this._quat, value);
+        this.setLocalDirty(ROTATION_DIRTY_FLAG);
+
+        if (this._eventMask & ROTATION_ON) {
+            this.emit(ROTATION_CHANGED);
+        }
+    }
+}
+
+/**
+ * !#en
+ * Returns the scale of the node.
+ * !#zh 获取节点的缩放。
+ * @method getScale
+ * @return {cc.Vec3} The scale factor
+ */
+function getScale () {
+    return cc.v3(this._scale);
+}
+
+/**
+ * !#en Sets the scale of three axis in local coordinates of the node.
+ * !#zh 设置节点在本地坐标系中三个坐标轴上的缩放比例。
+ * @method setScale
+ * @param {Number|Vec3} scaleX - scaleX or scale
+ * @param {Number} [scaleY]
+ * @param {Number} [scaleZ]
+ * @example
+ * node.setScale(cc.v2(2, 2, 2));
+ * node.setScale(2);
+ */
+function setScale (x, y, z) {
+    if (x && typeof x !== 'number') {
+        y = x.y;
+        z = x.z;
+        x = x.x;
+    }
+    else if (x !== undefined && y === undefined) {
+        y = x;
+        z = x;
+    }
+    else {
+        return;
+    }
+    if (this._scale.x !== x || this._scale.y !== y) {
+        this._scale.x = x;
+        this._scale.y = y;
+        this.setLocalDirty(SCALE_DIRTY_FLAG);
+
+        if (this._eventMask & SCALE_ON) {
+            this.emit(SCALE_CHANGED);
+        }
+    }
+}
+
 module.exports = {
     enabled: false,
     enable () {
+        let proto = cc.Node.prototype;
         if (!_updateLocalMatrix2d) {
-            _updateLocalMatrix2d = cc.Node.prototype._updateLocalMatrix;
-            _calculWorldMatrix2d = cc.Node.prototype._calculWorldMatrix;
+            _updateLocalMatrix2d = proto._updateLocalMatrix;
+            _calculWorldMatrix2d = proto._calculWorldMatrix;
         }
         if (!this.enabled) {
-            cc.Node.prototype._updateLocalMatrix = _updateLocalMatrix3d;
-            cc.Node.prototype._calculWorldMatrix = _calculWorldMatrix3d;
+            proto._updateLocalMatrix = _updateLocalMatrix3d;
+            proto._calculWorldMatrix = _calculWorldMatrix3d;
+
+            proto.getPosition = getPosition;
+            proto.setPosition = setPosition;
+            proto.getRotation = getRotation;
+            proto.setRotation = setRotation;
+            proto.getScale = getScale;
+            proto.setScale = setScale;
+            misc.propertyDefine(cc.Node, ['position', 'rotation', 'scale']);
             this.enabled = true;
         }
     },
