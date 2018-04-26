@@ -1538,9 +1538,18 @@ var Node = cc.Class({
         if (CC_EDITOR) {
             var oldPosition = new cc.Vec2(locPosition);
         }
-
-        locPosition.x = x;
-        locPosition.y = y;
+        if (!CC_EDITOR || isFinite(x)) {
+            locPosition.x = x;
+        }
+        else {
+            return cc.error(ERR_INVALID_NUMBER, 'x of new position');
+        }
+        if (!CC_EDITOR || isFinite(y)) {
+            locPosition.y = y;
+        }
+        else {	
+            return cc.error(ERR_INVALID_NUMBER, 'y of new position');
+        }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
 
         // fast check event

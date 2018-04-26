@@ -261,7 +261,6 @@ var tmpGetSetDesc = {
     get: null,
     set: null,
     enumerable: false,
-    configurable: true,
 };
 
 /**

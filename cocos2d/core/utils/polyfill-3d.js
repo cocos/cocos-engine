@@ -238,9 +238,6 @@ module.exports = {
             proto.setPosition = setPosition;
             proto.getScale = getScale;
             proto.setScale = setScale;
-            cc.js.getset(proto, 'position', getPosition, setPosition);
-            cc.js.getset(proto, 'quat', getQuat, setQuat);
-            cc.js.getset(proto, 'scale', getScale, setScale);
             this.enabled = true;
         }
     },
