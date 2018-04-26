@@ -183,7 +183,7 @@ module.exports = {
 
             vbuf[vertexOffset] = vert.x;
             vbuf[vertexOffset + 1] = vert.y;
-            vbuf[vertexOffset + 2] = z;
+            // vbuf[vertexOffset + 2] = z;
             vbuf[vertexOffset + 4] = vert.u;
             vbuf[vertexOffset + 5] = vert.v;
             uintbuf[vertexOffset + 3] = color;

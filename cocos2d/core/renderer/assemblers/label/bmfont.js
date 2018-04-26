@@ -42,7 +42,7 @@ module.exports = js.addon({
         let node = comp.node;
         let renderData = comp._renderData;
         let data = renderData._data;
-        let z = node._position.z;
+        // let z = node._position.z;
         let color = node.color._val;
         
         let matrix = node._worldMatrix;
@@ -61,7 +61,7 @@ module.exports = js.addon({
             let vert = data[i];
             vbuf[vertexOffset] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset+1] = vert.x * b + vert.y * d + ty;
-            // vbuf[vertexOffset + 2] = z;
+            // vbuf[vertexOffset+2] = z;
             uintbuf[vertexOffset+3] = color;
             vbuf[vertexOffset+4] = vert.u;
             vbuf[vertexOffset+5] = vert.v;
