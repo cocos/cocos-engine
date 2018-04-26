@@ -53,8 +53,11 @@
 
 using namespace cocos2d;
 
+extern uint32_t __jsbInvocationCount;
+
 namespace
 {	
+    bool __isOpenDebugView = false;
 //	std::unordered_map<int, cocos2d::EventKeyboard::KeyCode> g_keyCodeMap =
 //	{
 //        { KEYCODE_BACK , cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE },
@@ -166,6 +169,9 @@ extern "C"
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
         static float dt = 0.f;
+        static float dtSum = 0.f;
+        static uint32_t jsbInvocationTotalCount = 0;
+        static uint32_t jsbInvocationTotalFrames = 0;
 
         g_app->getScheduler()->update(dt);
         EventDispatcher::dispatchTickEvent(dt);
@@ -175,6 +181,22 @@ extern "C"
         dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
 
         prevTime = std::chrono::steady_clock::now();
+
+        if (__isOpenDebugView)
+        {
+            dtSum += dt;
+            ++jsbInvocationTotalFrames;
+            jsbInvocationTotalCount += __jsbInvocationCount;
+
+            if (dtSum > 1.0f)
+            {
+                dtSum = 0.0f;
+                setJSBInvocationCountJNI(jsbInvocationTotalCount / jsbInvocationTotalFrames);
+                jsbInvocationTotalCount = 0;
+                jsbInvocationTotalFrames = 0;
+            }
+        }
+        __jsbInvocationCount = 0;
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnPause()
@@ -478,5 +500,24 @@ void setAnimationIntervalJNI(float interval)
 
 void setGameInfoDebugViewTextJNI(int index, const std::string& text)
 {
-    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setGameInfoDebugViewText", index, text);
+    if (!__isOpenDebugView)
+        return;
+    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setGameInfoDebugViewText", index, text);
+}
+
+void setJSBInvocationCountJNI(int count)
+{
+    if (!__isOpenDebugView)
+        return;
+    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setJSBInvocationCount", count);
+}
+
+void openDebugViewJNI()
+{
+    if (!__isOpenDebugView)
+    {
+        LOGD("openDebugViewJNI ...");
+        __isOpenDebugView = true;
+        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "openDebugView");
+    }
 }

@@ -52,6 +52,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private int mScreenWidth;
     private int mScreenHeight;
     private boolean mNativeInitCompleted = false;
+    private boolean mNeedShowFPS = false;
     private String mDefaultResourcePath = "";
     private long mOldNanoTime = 0;
     private long mFrameCount = 0;
@@ -68,10 +69,6 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         Cocos2dxRenderer.sAnimationInterval = (long) (animationInterval * Cocos2dxRenderer.NANOSECONDSPERSECOND);
     }
 
-    Cocos2dxRenderer() {
-        sRenderer = new WeakReference<>(this);
-    }
-
     public void setScreenWidthAndHeight(final int surfaceWidth, final int surfaceHeight) {
         this.mScreenWidth = surfaceWidth;
         this.mScreenHeight = surfaceHeight;
@@ -83,31 +80,8 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         mDefaultResourcePath = path;
     }
 
-    private static void setGameInfoDebugViewText(int index, String text) {
-        if (sRenderer != null && sRenderer.get().mOnGameInfoUpdatedListener != null) {
-            if (index == 0) {
-                sRenderer.get().mOnGameInfoUpdatedListener.onGameInfoUpdated_0(text);
-            }
-            else if (index == 1) {
-                sRenderer.get().mOnGameInfoUpdatedListener.onGameInfoUpdated_1(text);
-            }
-            else if (index == 2) {
-                sRenderer.get().mOnGameInfoUpdatedListener.onGameInfoUpdated_2(text);
-            }
-        }
-    }
-
-    public interface OnGameInfoUpdatedListener {
-        void onFPSUpdated(float fps);
-        void onGameInfoUpdated_0(String text);
-        void onGameInfoUpdated_1(String text);
-        void onGameInfoUpdated_2(String text);
-    }
-
-    private OnGameInfoUpdatedListener mOnGameInfoUpdatedListener;
-
-    public void setOnGameInfoUpdatedListener(OnGameInfoUpdatedListener listener) {
-        mOnGameInfoUpdatedListener = listener;
+    public void showFPS() {
+        mNeedShowFPS = true;
     }
 
     public interface OnGameEngineInitializedListener {
@@ -147,21 +121,23 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(final GL10 gl) {
-        /////////////////////////////////////////////////////////////////////
-        //FIXME: show FPS in Android Text control rather than outputing log.
-        ++mFrameCount;
-        long nowFpsTime = System.nanoTime();
-        long fpsTimeInterval = nowFpsTime - mOldNanoTime;
-        if (fpsTimeInterval > 1000000000L) {
-            double frameRate = 1000000000.0 * mFrameCount / fpsTimeInterval;
-            if (mOnGameInfoUpdatedListener != null) {
-                mOnGameInfoUpdatedListener.onFPSUpdated((float) frameRate);
+        if (mNeedShowFPS) {
+            /////////////////////////////////////////////////////////////////////
+            //FIXME: show FPS in Android Text control rather than outputing log.
+            ++mFrameCount;
+            long nowFpsTime = System.nanoTime();
+            long fpsTimeInterval = nowFpsTime - mOldNanoTime;
+            if (fpsTimeInterval > 1000000000L) {
+                double frameRate = 1000000000.0 * mFrameCount / fpsTimeInterval;
+                Cocos2dxHelper.OnGameInfoUpdatedListener listener = Cocos2dxHelper.getOnGameInfoUpdatedListener();
+                if (listener != null) {
+                    listener.onFPSUpdated((float) frameRate);
+                }
+                mFrameCount = 0;
+                mOldNanoTime = System.nanoTime();
             }
-            Log.d(TAG, "FPS:" + String.format("%.1f", frameRate));
-            mFrameCount = 0;
-            mOldNanoTime = System.nanoTime();
+            /////////////////////////////////////////////////////////////////////
         }
-        /////////////////////////////////////////////////////////////////////
         /*
          * No need to use algorithm in default(60 FPS) situation,
          * since onDrawFrame() was called by system 60 times per second by default.

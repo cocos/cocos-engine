@@ -713,7 +713,52 @@ public class Cocos2dxHelper {
 
         return null;
     }
-    
+
+    private static void setGameInfoDebugViewText(int index, String text) {
+        if (sOnGameInfoUpdatedListener != null) {
+            if (index == 0) {
+                sOnGameInfoUpdatedListener.onGameInfoUpdated_0(text);
+            }
+            else if (index == 1) {
+                sOnGameInfoUpdatedListener.onGameInfoUpdated_1(text);
+            }
+            else if (index == 2) {
+                sOnGameInfoUpdatedListener.onGameInfoUpdated_2(text);
+            }
+        }
+    }
+
+    private static void setJSBInvocationCount(int count) {
+        if (sOnGameInfoUpdatedListener != null) {
+            sOnGameInfoUpdatedListener.onJSBInvocationCountUpdated(count);
+        }
+    }
+
+    private static void openDebugView() {
+        if (sOnGameInfoUpdatedListener != null) {
+            sOnGameInfoUpdatedListener.onOpenDebugView();
+        }
+    }
+
+    public interface OnGameInfoUpdatedListener {
+        void onFPSUpdated(float fps);
+        void onJSBInvocationCountUpdated(int count);
+        void onOpenDebugView();
+        void onGameInfoUpdated_0(String text);
+        void onGameInfoUpdated_1(String text);
+        void onGameInfoUpdated_2(String text);
+    }
+
+    private static OnGameInfoUpdatedListener sOnGameInfoUpdatedListener;
+
+    public static void setOnGameInfoUpdatedListener(OnGameInfoUpdatedListener listener) {
+        sOnGameInfoUpdatedListener = listener;
+    }
+
+    public static OnGameInfoUpdatedListener getOnGameInfoUpdatedListener() {
+        return sOnGameInfoUpdatedListener;
+    }
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================

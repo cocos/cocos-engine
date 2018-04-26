@@ -43,3 +43,5 @@ extern std::string getCurrentLanguageJNI();
 extern bool openURLJNI(const std::string& url);
 extern void setAnimationIntervalJNI(float interval);
 extern void setGameInfoDebugViewTextJNI(int index, const std::string& text);
+extern void setJSBInvocationCountJNI(int count);
+extern void openDebugViewJNI();

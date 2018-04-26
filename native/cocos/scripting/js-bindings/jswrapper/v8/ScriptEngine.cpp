@@ -38,6 +38,8 @@
 #include "node.h"
 #endif
 
+uint32_t __jsbInvocationCount = 0;
+
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
 

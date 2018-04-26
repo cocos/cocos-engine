@@ -74,6 +74,15 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     private Cocos2dxEditBoxHelper mEditBoxHelper = null;
     private boolean hasFocus = false;
 
+    // DEBUG VIEW BEGIN
+    private LinearLayout mLinearLayoutForDebugView;
+    private TextView mFPSTextView;
+    private TextView mJSBInvocationTextView;
+    private TextView mGameInfoTextView_0;
+    private TextView mGameInfoTextView_1;
+    private TextView mGameInfoTextView_2;
+    // DEBUG VIEW END
+
     public Cocos2dxGLSurfaceView getGLSurfaceView(){
         return  mGLSurfaceView;
     }
@@ -397,6 +406,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     // ===========================================================
     // Methods
     // ===========================================================
+
     public void init() {
         
         // FrameLayout
@@ -424,75 +434,126 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         // ...add to FrameLayout
         mFrameLayout.addView(this.mGLSurfaceView);
 
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        mFrameLayout.addView(linearLayout);
+        // Switch to supported OpenGL (ARGB888) mode on emulator
+        if (isAndroidEmulator())
+            this.mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 
         LinearLayout.LayoutParams linearLayoutParam = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         linearLayoutParam.setMargins(30, 0, 0, 0);
 
-        TextView fpsView = new TextView(this);
-        fpsView.setBackgroundColor(Color.RED);
-        linearLayout.addView(fpsView, linearLayoutParam);
-
-        TextView gameInfoView0 = new TextView(this);
-        gameInfoView0.setBackgroundColor(Color.GREEN);
-        linearLayout.addView(gameInfoView0, linearLayoutParam);
-
-        TextView gameInfoView1 = new TextView(this);
-        gameInfoView1.setBackgroundColor(Color.BLUE);
-        linearLayout.addView(gameInfoView1, linearLayoutParam);
-
-        TextView gameInfoView2 = new TextView(this);
-        gameInfoView2.setBackgroundColor(Color.MAGENTA);
-        linearLayout.addView(gameInfoView2, linearLayoutParam);
-
-        // Switch to supported OpenGL (ARGB888) mode on emulator
-        if (isAndroidEmulator())
-           this.mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-
         Cocos2dxRenderer renderer = new Cocos2dxRenderer();
-        renderer.setOnGameInfoUpdatedListener(new Cocos2dxRenderer.OnGameInfoUpdatedListener() {
+
+        Cocos2dxHelper.setOnGameInfoUpdatedListener(new Cocos2dxHelper.OnGameInfoUpdatedListener() {
             @Override
             public void onFPSUpdated(float fps) {
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        fpsView.setText("FPS: " + (int)Math.ceil(fps));
+                        if (mFPSTextView != null) {
+                            mFPSTextView.setText("FPS: " + (int)Math.ceil(fps));
+                        }
                     }
                 });
             }
 
             @Override
-            public void onGameInfoUpdated_0(final String text) {
+            public void onJSBInvocationCountUpdated(int count) {
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        gameInfoView0.setText(text);
+                        if (mJSBInvocationTextView != null) {
+                            mJSBInvocationTextView.setText("JSB: " + count);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onOpenDebugView() {
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mLinearLayoutForDebugView != null || mFrameLayout == null) {
+                            Log.e(TAG, "onOpenDebugView: failed!");
+                            return;
+                        }
+
+                        mLinearLayoutForDebugView = new LinearLayout(Cocos2dxActivity.this);
+                        mLinearLayoutForDebugView.setOrientation(LinearLayout.VERTICAL);
+                        mFrameLayout.addView(mLinearLayoutForDebugView);
+
+                        mFPSTextView = new TextView(Cocos2dxActivity.this);
+                        mFPSTextView.setBackgroundColor(Color.RED);
+                        mFPSTextView.setTextColor(Color.WHITE);
+                        mLinearLayoutForDebugView.addView(mFPSTextView, linearLayoutParam);
+
+                        mJSBInvocationTextView = new TextView(Cocos2dxActivity.this);
+                        mJSBInvocationTextView.setBackgroundColor(Color.GREEN);
+                        mJSBInvocationTextView.setTextColor(Color.WHITE);
+                        mLinearLayoutForDebugView.addView(mJSBInvocationTextView, linearLayoutParam);
+
+                        mGameInfoTextView_0 = new TextView(Cocos2dxActivity.this);
+                        mGameInfoTextView_0.setBackgroundColor(Color.BLUE);
+                        mGameInfoTextView_0.setTextColor(Color.WHITE);
+                        mLinearLayoutForDebugView.addView(mGameInfoTextView_0, linearLayoutParam);
+
+                        mGameInfoTextView_1 = new TextView(Cocos2dxActivity.this);
+                        mGameInfoTextView_1.setBackgroundColor(Color.MAGENTA);
+                        mGameInfoTextView_1.setTextColor(Color.WHITE);
+                        mLinearLayoutForDebugView.addView(mGameInfoTextView_1, linearLayoutParam);
+
+                        mGameInfoTextView_2 = new TextView(Cocos2dxActivity.this);
+                        mGameInfoTextView_2.setBackgroundColor(Color.RED);
+                        mGameInfoTextView_2.setTextColor(Color.WHITE);
+                        mLinearLayoutForDebugView.addView(mGameInfoTextView_2, linearLayoutParam);
+                    }
+                });
+
+                renderer.showFPS();
+            }
+
+            @Override
+            public void onGameInfoUpdated_0(final String text) {
+
+                Cocos2dxActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mGameInfoTextView_0 != null) {
+                            mGameInfoTextView_0.setText(text);
+                        }
                     }
                 });
             }
 
             @Override
             public void onGameInfoUpdated_1(String text) {
+                if (mLinearLayoutForDebugView != null)
+                    return;
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        gameInfoView1.setText(text);
+                        if (mGameInfoTextView_1 != null) {
+                            mGameInfoTextView_1.setText(text);
+                        }
                     }
                 });
             }
 
             @Override
             public void onGameInfoUpdated_2(String text) {
+                if (mLinearLayoutForDebugView != null)
+                    return;
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        gameInfoView2.setText(text);
+                        if (mGameInfoTextView_2 != null) {
+                            mGameInfoTextView_2.setText(text);
+                        }
                     }
                 });
             }
         });
+
         this.mGLSurfaceView.setCocos2dxRenderer(renderer);
         this.mGLSurfaceView.setCocos2dxEditText(edittext);
 

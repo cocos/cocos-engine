@@ -28,6 +28,8 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+extern uint32_t __jsbInvocationCount;
+
 #ifdef __GNUC__
 #define SE_UNUSED __attribute__ ((unused))
 #else
@@ -46,6 +48,7 @@
 #define SE_BIND_FUNC(funcName) \
     void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         v8::Isolate* _isolate = _v8args.GetIsolate(); \
         v8::HandleScope _hs(_isolate); \
@@ -84,6 +87,7 @@
 #define SE_BIND_CTOR(funcName, cls, finalizeCb) \
     void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) \
     { \
+        ++__jsbInvocationCount; \
         v8::Isolate* _isolate = _v8args.GetIsolate(); \
         v8::HandleScope _hs(_isolate); \
         bool ret = true; \
@@ -109,6 +113,7 @@
 #define SE_BIND_PROP_GET(funcName) \
     void funcName##Registry(v8::Local<v8::Name> _property, const v8::PropertyCallbackInfo<v8::Value>& _v8args) \
     { \
+        ++__jsbInvocationCount; \
         v8::Isolate* _isolate = _v8args.GetIsolate(); \
         v8::HandleScope _hs(_isolate); \
         bool ret = true; \
@@ -125,6 +130,7 @@
 #define SE_BIND_PROP_SET(funcName) \
     void funcName##Registry(v8::Local<v8::Name> _property, v8::Local<v8::Value> _value, const v8::PropertyCallbackInfo<void>& _v8args) \
     { \
+        ++__jsbInvocationCount; \
         v8::Isolate* _isolate = _v8args.GetIsolate(); \
         v8::HandleScope _hs(_isolate); \
         bool ret = true; \

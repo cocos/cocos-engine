@@ -701,6 +701,15 @@ static bool js_setDebugViewText(se::State& s)
 }
 SE_BIND_FUNC(js_setDebugViewText)
 
+static bool js_openDebugView(se::State& s)
+{
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+    openDebugViewJNI();
+#endif
+    return true;
+}
+SE_BIND_FUNC(js_openDebugView)
+
 static bool js_getTextTextureInfo(se::State& s)
 {
     const auto& args = s.args();
@@ -772,6 +781,7 @@ bool jsb_register_global_variables(se::Object* global)
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
     __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
+    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
