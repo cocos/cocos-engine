@@ -133,6 +133,7 @@ function disableBatchGLCommandsToNative() {
         __ccgl[k] = _gl[k];
     }
     console.log('Disable batch GL commands optimization！');
+    jsb.disableBatchGLCommandsToNative();
 }
 
 function flushCommands() {
