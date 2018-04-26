@@ -28,6 +28,9 @@ const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
 const atlasManager = require('./utils/dynamic-atlas/manager');
+const RenderFlow = require('./render-flow');
+const QuadBuffer = require('./webgl/quad-buffer');
+const MeshBuffer = require('./webgl/mesh-buffer');
 
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
@@ -42,26 +45,17 @@ const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
 const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
 const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
+const empty_material = new renderEngine.Material();
+empty_material.updateHash();
+
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
     this._stencilMgr = StencilManager.sharedManager;
 
-    this._batchData = {
-        node: null,
-        worldMatUpdated: false,
-        vfmt: null,
-        material: null,
-        data: null,
-        vertexOffset: 0,
-        byteStart: 0,
-        byteOffset: 0,
-        indiceStart: 0,
-        indiceOffset: 0,
-        cullingMask: 1,
-        MAX_VERTEX: MAX_VERTEX,
-        MAX_INDICE: MAX_INDICE
-    };
+    this.node = null;
+    this.material = empty_material;
+    this.cullingMask = 1;
 
     let defaultFormat = new gfx.VertexFormat([]);
     this._iaPool = new RecyclePool(function () {
@@ -73,19 +67,17 @@ var RenderComponentWalker = function (device, renderScene) {
     }, 16);
 
     // buffers
-    this._vb = null;
-    this._ib = null;
-    this._buffersToDestroy = [];
-
-    this._maxVertexCount = MAX_VERTEX;
-    this._maxIndiceCount = MAX_INDICE;
-    this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
+    this._meshBuffer = new MeshBuffer(this);
+    this._quadBuffer = new QuadBuffer(this);
+    this._buffer = this._quadBuffer;
 
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
 
-    this._curCameraNode = null;
+    this.worldMatDirty = 0;
+
+    RenderFlow.init(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -108,86 +100,25 @@ RenderComponentWalker.prototype = {
         models.length = 0;
         this._sortKey = 0;
 
-        // Reset useless buffers
-        if (this._buffersToDestroy.length !== 0) {
-            for (let i = 0, l = this._buffersToDestroy.length; i < l; i++) {
-                this._buffersToDestroy[i].destroy();
-            }
-            this._buffersToDestroy.length = 0;
-        }
+        this._quadBuffer.reset();
+        this._meshBuffer.reset();
 
         // reset caches for handle render components
-        let batchData = this._batchData;
-        batchData.node = null;
-        batchData.worldMatUpdated = false;
-        batchData.vfmt = null;
-        batchData.material = null;
-        batchData.data = null;
-        batchData.vertexOffset = 0;
-        batchData.byteStart = 0;
-        batchData.byteOffset = 0;
-        batchData.indiceStart = 0;
-        batchData.indiceOffset = 0;
-        batchData.cullingMask = 1;
+        this.node = null;
+        this.material = empty_material;
+        this.cullingMask = 1;
+
+        this.worldMatDirty = 0;
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
     },
 
-    _uploadData () {
-        // update vertext data
-        let vertexsData = new Float32Array(this._vData.buffer, 0, this._batchData.byteOffset / 4);
-        let indicesData = new Uint16Array(this._iData.buffer, 0, this._batchData.indiceOffset);
-
-        let gl = this._device._gl;
-        let vb = this._vb;
-        vb.update(0, vertexsData);
-
-        let ib = this._ib;
-        ib.update(0, indicesData);
-    },
-
-    _reallocBuffer (vertexCount, indiceCount) {
-        let batchData = this._batchData;
-        batchData.vertexOffset = 0;
-        batchData.byteStart = 0;
-        batchData.byteOffset = 0;
-        batchData.indiceStart = 0;
-        batchData.indiceOffset = 0;
-
-        if (this._vb) {
-            this._buffersToDestroy.push(this._vb);
-        }
-        if (this._ib) {
-            this._buffersToDestroy.push(this._ib);
-        }
-
-        this._vData = new Float32Array(vertexCount * FLOATS_PER_VERT);
-        this._uintVData = new Uint32Array(this._vData.buffer);
-        this._iData = new Uint16Array(indiceCount);
-
-        this._vb = new gfx.VertexBuffer(
-            this._device,
-            defaultVertexFormat,
-            gfx.USAGE_DYNAMIC,
-            this._vData.buffer,
-            vertexCount
-        );
-
-        this._ib = new gfx.IndexBuffer(
-            this._device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            this._iData.buffer,
-            indiceCount
-        );
-    },
-
     _flush () {
-        let batchData = this._batchData,
-            material = batchData.material,
-            indiceStart = batchData.indiceStart,
-            indiceOffset = batchData.indiceOffset,
+        let material = this.material,
+            buffer = this._buffer,
+            indiceStart = buffer.indiceStart,
+            indiceOffset = buffer.indiceOffset,
             indiceCount = indiceOffset - indiceStart;
         if (!material || indiceCount <= 0) {
             return;
@@ -197,8 +128,8 @@ RenderComponentWalker.prototype = {
 
         // Generate ia
         let ia = this._iaPool.add();
-        ia._vertexBuffer = this._vb;
-        ia._indexBuffer = this._ib;
+        ia._vertexBuffer = buffer._vb;
+        ia._indexBuffer = buffer._ib;
         ia._start = indiceStart;
         ia._count = indiceCount;
 
@@ -209,22 +140,20 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : batchData.cullingMask;
-        model.setNode(batchData.node);
+        model._cullingMask = CC_EDITOR ? 1 : this.cullingMask;
+        model.setNode(this.node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
         
         this._renderScene.addModel(model);
            
-        batchData.byteStart = batchData.byteOffset;
-        batchData.indiceStart = batchData.indiceOffset;
+        buffer.byteStart = buffer.byteOffset;
+        buffer.indiceStart = buffer.indiceOffset;
     },
 
     _flushIA () {
-        let batchData = this._batchData,
-            material = batchData.material,
-            cullingMask = batchData.cullingMask,
-            iaRenderData = batchData.data;
+        let material = this.material,
+            iaRenderData = this.data;
 
         if (!iaRenderData.ia) {
             return;
@@ -237,8 +166,8 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : cullingMask;
-        model.setNode(batchData.node);
+        model._cullingMask = CC_EDITOR ? 1 : this.cullingMask;
+        model.setNode(this.node);
         model.addEffect(effect);
         model.addInputAssembler(iaRenderData.ia);
         
@@ -246,149 +175,44 @@ RenderComponentWalker.prototype = {
     },
 
     _commitComp (comp, assembler, cullingMask) {
-        let batchData = this._batchData,
-            material = null, 
-            datas = null,
-            data = null,
-            broken = false,
-            iaData = false;
-
-        // Update render data
-        datas = assembler.updateRenderData(comp, batchData);
-
-        for (let id = 0; id < datas.length; id ++) {
-            data = datas[id];
-            material = data.material;
-            // Nothing can be rendered without material
-            if (!material) {
-                continue;
-            }
-
-            // need to realloc buffers
-            if ((batchData.vertexOffset + data.vertexCount) > this._maxVertexCount ||
-                (batchData.indiceOffset + data.indiceCount) > this._maxIndiceCount) {
-                this._uploadData();
-
-                this._maxVertexCount *= 2;
-                this._maxIndiceCount *= 2;
-                this._reallocBuffer(this._maxVertexCount, this._maxIndiceCount);
-            }
-
-            // Check ia data, each ia data should be packed into a separated model
-            iaData = data.type === IARenderData.type;
-
-            // breaking batch
-            broken = iaData || 
-                        !batchData.material || batchData.material._hash != material._hash || 
-                        batchData.cullingMask !== cullingMask;
-            if (broken) {
-                this._flush(batchData);
-
-                batchData.node = assembler.useModel ? comp.node : this._dummyNode;
-                batchData.material = material;
-                batchData.vfmt = comp._vertexFormat;
-                batchData.cullingMask = cullingMask;
-            }
-
-            batchData.data = data;
-            if (iaData) {
-                this._flushIA();
-            }
-            else {
-                assembler.fillBuffers(comp, batchData, batchData.vertexOffset, this._vData, this._uintVData, this._iData);
-                batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
-                batchData.indiceOffset += data.indiceCount;
-                batchData.vertexOffset += data.vertexCount;
-            }
-        }
-    },
-
-    _findEntry (node) {
-        if (node._renderComponent) {
-            return node._renderComponent._chain;
+        if (this.material._hash != comp._material._hash || 
+            this.cullingMask !== cullingMask) {
+            this._flush();
+    
+            this.node = assembler.useModel ? node : this._dummyNode;
+            this.material = comp._material;
+            this.vfmt = comp._vertexFormat;
+            this.cullingMask = cullingMask;
         }
     
-        let children = node._children;
-        let first;
-        for (let i = 0; i < children.length; i++) {
-            let child = children[i];
-            first = this._findEntry(child);
-            if (first) {
-                return first;
-            }
-        }
-        return null;
-    },
-
-    _visitNode (node) {
-        if (!node._activeInHierarchy) {
-            return;
-        }
-
-        let batchData = this._batchData;
-        let dirtyBySelf = false;
-        // Transform
-        if (node._worldMatDirty && !batchData.worldMatUpdated) {
-            batchData.worldMatUpdated = true;
-            dirtyBySelf = true;
-        }
-        // Parent world mat dirty will be registered in worldMatUpdated, so children will be updated too
-        if (batchData.worldMatUpdated) {
-            node._calculWorldMatrix();
-        }
-
-        // Culling mask
-        if (node.groupIndex !== 0) {
-            this._curCameraNode = node;
-        }
-        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
-        let cullingMask = node._cullingMask = 1 << group;
-        
-        // Render self
-        let comp = node._renderComponent;
-        let needDraw = !!(comp && comp._enabled);
-        if (needDraw) {
-            let assembler = comp._assembler || comp.constructor._assembler;
-            this._commitComp(comp, assembler, cullingMask);
-        }
-
-        // Render children
-        let children = node._children;
-        for (let i = 0, l = children.length; i < l; i++) {
-            this._visitNode(children[i]);
-        }
-
-        // Post render
-        if (needDraw && comp.constructor._postAssembler) {
-            this._commitComp(comp, comp.constructor._postAssembler, cullingMask);
-        }
-
-        // Reset worldMatUpdated
-        node._worldMatUpdated = false;
-        if (dirtyBySelf) {
-            batchData.worldMatUpdated = false;
-        }
-        // Reset current camera node
-        if (this._curCameraNode === node) {
-            this._curCameraNode = null;
-        }
+        assembler.fillBuffers(comp, this);
     },
 
     visit (scene) {
         this.reset();
 
-        // Transform scene
-        if (scene._worldMatDirty) {
-            scene._updateWorldMatrix();
-            this._batchData.worldMatUpdated = true;
-        }
-        for (let i = 0, l = scene._children.length; i < l; i++) {
-            this._visitNode(scene._children[i]);
-        }
+        RenderFlow.render(scene);
         
         atlasManager.update();
         this._flush();
-        this._uploadData();
+        this._quadBuffer.uploadData();
+        this._meshBuffer.uploadData();
+    },
+
+    getMeshBuffer () {
+        if (this._buffer !== this._meshBuffer) {
+            this._flush();
+            this._buffer = this._meshBuffer;
+        }
+        return this._buffer;
+    },
+
+    getQuadBuffer () {
+        if (this._buffer !== this._quadBuffer) {
+            this._flush();
+            this._buffer = this._quadBuffer;
+        }
+        return this._buffer;
     }
 }
 

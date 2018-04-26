@@ -159,15 +159,25 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
+    fillBuffers (sprite, renderer) {
+        let renderData = sprite._renderData,
+            data = renderData._data,
+            node = sprite.node,
+            z = node._position.z,
+            color = node._color._val;
 
-        let node = sprite.node;
-        let z = node._position.z;
-        let color = node._color._val;
+        let buffer = renderer.getMeshBuffer(),
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
+            vertexCount = renderData.vertexCount;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+            
+        buffer.request(vertexCount, renderData.indiceCount, 24*vertexCount);
 
-        let data = sprite._renderData._data;
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];
 
