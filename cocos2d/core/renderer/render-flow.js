@@ -61,7 +61,12 @@ function mul (out, a, b) {
 _proto._worldTransform = function (node) {
     _walker.worldMatDirty ++;
 
-    mul(node._worldMatrix, node._matrix, node._parent._worldMatrix);
+    let t = node._matrix;
+    let position = node._position;
+    t.m12 = position.x;
+    t.m13 = position.y;
+
+    mul(node._worldMatrix, t, node._parent._worldMatrix);
     node._renderFlag &= ~WORLD_TRANSFORM;
     this._next._func(node);
 
@@ -70,15 +75,15 @@ _proto._worldTransform = function (node) {
 
 _proto._updateRenderData = function (node) {
     let comp = node._renderComponent;
-    (comp._assembler || comp.constructor._assembler).updateRenderData(comp, _walker._batchData);
-    comp.constructor._postAssembler && comp.constructor._postAssembler.updateRenderData(comp, _walker._batchData);
+    comp._assembler.updateRenderData(comp);
+    comp.constructor._postAssembler && comp.constructor._postAssembler.updateRenderData(comp);
     node._renderFlag &= ~UPDATE_RENDER_DATA;
     this._next._func(node);
 }
 
 _proto._render = function (node) {
     let comp = node._renderComponent;
-    _walker._commitComp(comp, comp._assembler || comp.constructor._assembler, node._cullingMask);
+    _walker._commitComp(comp, comp._assembler, node._cullingMask);
     this._next._func(node);
 }
 

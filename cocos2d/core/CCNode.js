@@ -431,6 +431,7 @@ var Node = cc.Class({
 
                         localPosition.x = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -474,6 +475,7 @@ var Node = cc.Class({
 
                         localPosition.y = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -504,6 +506,7 @@ var Node = cc.Class({
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -540,6 +543,7 @@ var Node = cc.Class({
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -573,6 +577,7 @@ var Node = cc.Class({
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -606,6 +611,7 @@ var Node = cc.Class({
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -641,6 +647,8 @@ var Node = cc.Class({
                 if (this._scale.x !== value) {
                     this._scale.x = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -667,6 +675,7 @@ var Node = cc.Class({
                 if (this._scale.y !== value) {
                     this._scale.y = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -692,6 +701,7 @@ var Node = cc.Class({
             set (value) {
                 this._skewX = value;
                 this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -711,6 +721,7 @@ var Node = cc.Class({
             set (value) {
                 this._skewY = value;
                 this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -1560,6 +1571,7 @@ var Node = cc.Class({
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -2023,7 +2035,6 @@ var Node = cc.Class({
 
     setLocalDirty (flag) {
         this._localMatDirty = this._localMatDirty | flag;
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (!this._worldMatDirty) {
             this._worldMatDirty = true;
         }
