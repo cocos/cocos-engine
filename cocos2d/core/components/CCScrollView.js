@@ -194,6 +194,11 @@ var ScrollView = cc.Class({
     },
 
     properties: {
+        _scaleDirty: {
+            default: false,
+            serializable: false,
+        },
+
         /**
          * !#en This is a reference to the UI element to be scrolled.
          * !#zh 可滚动展示内容的节点。
@@ -1526,11 +1531,12 @@ var ScrollView = cc.Class({
     onDisable: function () {
         if (!CC_EDITOR) {
             this._unregisterEvent();
+            cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateScrollView, this);
             this.node.off('size-changed', this._calculateBoundary, this);
-            this.node.off('scale-changed', this._calculateBoundary, this);
+            this.node.off('scale-changed', this._doScaleDirty, this);
             if(this.content) {
                 this.content.off('size-changed', this._calculateBoundary, this);
-                this.content.off('scale-changed', this._calculateBoundary, this);
+                this.content.off('scale-changed', this._doScaleDirty, this);
             }
         }
         this._hideScrollbar();
@@ -1540,14 +1546,26 @@ var ScrollView = cc.Class({
     onEnable: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
+            cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateScrollView, this);
             this.node.on('size-changed', this._calculateBoundary, this);
-            this.node.on('scale-changed', this._calculateBoundary, this);
+            this.node.on('scale-changed', this._doScaleDirty, this);
             if(this.content) {
                 this.content.on('size-changed', this._calculateBoundary, this);
-                this.content.on('scale-changed', this._calculateBoundary, this);
+                this.content.on('scale-changed', this._doScaleDirty, this);
             }
         }
         this._showScrollbar();
+    },
+
+    _doScaleDirty : function () {
+        this._scaleDirty = true;
+    },
+
+    _updateScrollView: function () {
+        if (this._scaleDirty) {
+            this._calculateBoundary();
+            this._scaleDirty = false;
+        }
     },
 
     update: function(dt) {
