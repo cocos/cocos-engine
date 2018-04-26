@@ -422,14 +422,14 @@ function _checkListeners (node, events) {
         var i = 0;
         if (node._bubblingListeners) {
             for (; i < events.length; ++i) {
-                if (node._bubblingListeners.has(events[i])) {
+                if (node._bubblingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
         }
         if (node._capturingListeners) {
             for (; i < events.length; ++i) {
-                if (node._capturingListeners.has(events[i])) {
+                if (node._capturingListeners.hasEventListener(events[i])) {
                     return true;
                 }
             }
@@ -1445,7 +1445,7 @@ var Node = cc.Class({
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        if ( !listeners.has(type, callback, target) ) {
+        if ( !listeners.hasEventListener(type, callback, target) ) {
             listeners.add(type, callback, target);
 
             if (target && target.__eventTargets)
@@ -1458,7 +1458,7 @@ var Node = cc.Class({
      _onceDispatch (type, callback, target, useCapture) {
         var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
         var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-        var hasOnceListener = listeners && listeners.has(eventType_hasOnceListener, callback, target);
+        var hasOnceListener = listeners && listeners.hasEventListener(eventType_hasOnceListener, callback, target);
         if (!hasOnceListener) {
             var self = this;
             var onceWrapper = function (event) {
@@ -1515,7 +1515,7 @@ var Node = cc.Class({
         else if (this._bubblingListeners) {
             this._bubblingListeners.off(type, callback, target);
 
-            var hasListeners = this._bubblingListeners.has(type);
+            var hasListeners = this._bubblingListeners.hasEventListener(type);
             // All listener removed
             if (!hasListeners) {
                 switch (type) {
@@ -1577,19 +1577,19 @@ var Node = cc.Class({
             listeners.targetOff(target);
 
             // Check for event mask reset
-            if ((this._eventMask & POSITION_ON) && !listeners.has(EventType.POSITION_CHANGED)) {
+            if ((this._eventMask & POSITION_ON) && !listeners.hasEventListener(EventType.POSITION_CHANGED)) {
                 this._eventMask &= ~POSITION_ON;
             }
-            if ((this._eventMask & SCALE_ON) && !listeners.has(EventType.SCALE_CHANGED)) {
+            if ((this._eventMask & SCALE_ON) && !listeners.hasEventListener(EventType.SCALE_CHANGED)) {
                 this._eventMask &= ~SCALE_ON;
             }
-            if ((this._eventMask & ROTATION_ON) && !listeners.has(EventType.ROTATION_CHANGED)) {
+            if ((this._eventMask & ROTATION_ON) && !listeners.hasEventListener(EventType.ROTATION_CHANGED)) {
                 this._eventMask &= ~ROTATION_ON;
             }
-            if ((this._eventMask & SIZE_ON) && !listeners.has(EventType.SIZE_CHANGED)) {
+            if ((this._eventMask & SIZE_ON) && !listeners.hasEventListener(EventType.SIZE_CHANGED)) {
                 this._eventMask &= ~SIZE_ON;
             }
-            if ((this._eventMask & ANCHOR_ON) && !listeners.has(EventType.ANCHOR_CHANGED)) {
+            if ((this._eventMask & ANCHOR_ON) && !listeners.hasEventListener(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
             }
         }
@@ -1617,10 +1617,10 @@ var Node = cc.Class({
     hasEventListener (type) {
         let has = false;
         if (this._bubblingListeners) {
-            has = this._bubblingListeners.has(type);
+            has = this._bubblingListeners.hasEventListener(type);
         }
         if (!has && this._capturingListeners) {
-            has = this._capturingListeners.has(type);
+            has = this._capturingListeners.hasEventListener(type);
         }
         return has;
     },
@@ -1748,7 +1748,7 @@ var Node = cc.Class({
     _getCapturingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent._capturingListeners && parent._capturingListeners.has(type)) {
+            if (parent._capturingListeners && parent._capturingListeners.hasEventListener(type)) {
                 array.push(parent);
             }
             parent = parent.parent;
@@ -1769,7 +1769,7 @@ var Node = cc.Class({
     _getBubblingTargets (type, array) {
         var parent = this.parent;
         while (parent) {
-            if (parent._bubblingListeners && parent._bubblingListeners.has(type)) {
+            if (parent._bubblingListeners && parent._bubblingListeners.hasEventListener(type)) {
                 array.push(parent);
             }
             parent = parent.parent;

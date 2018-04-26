@@ -70,7 +70,6 @@ var proto = EventTarget.prototype;
  * @param {String} type - The type of event.
  * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
  */
-proto.hasEventListener = proto.has;
 
 /**
  * !#en
@@ -100,7 +99,7 @@ proto.on = function (type, callback, target) {
         return;
     }
 
-    if ( !this.has(type, callback, target) ) {
+    if ( !this.hasEventListener(type, callback, target) ) {
         this.add(type, callback, target);
 
         if (target && target.__eventTargets)
@@ -176,7 +175,7 @@ proto.targetOff = proto.removeAll;
  */
 proto.once = function (type, callback, target) {
     var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-    var hasOnceListener = this.has(eventType_hasOnceListener, callback, target);
+    var hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
     if (!hasOnceListener) {
         var self = this;
         var onceWrapper = function (event) {
@@ -205,7 +204,7 @@ proto.emit = function (type, detail) {
         cc.errorID(6801);
         return;
     }
-    if (this.has(type)) {
+    if (this.hasEventListener(type)) {
         var event = cc.Event.EventCustom.get(type);
         event.detail = detail;
         // Event.AT_TARGET
@@ -229,7 +228,7 @@ proto.emit = function (type, detail) {
  * @param {Event} event
  */
 proto.dispatchEvent = function (event) {
-    if (this.has(event.type)) {
+    if (this.hasEventListener(event.type)) {
         this.invoke(event);
     }
 };
