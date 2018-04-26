@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const NodeEvent = require('../CCNode').EventType;
 
 /**
  * !#en Enum for Layout type
@@ -436,30 +437,30 @@ var Layout = cc.Class({
 
     _addEventListeners: function () {
         cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
-        this.node.on('size-changed', this._resized, this);
-        this.node.on('anchor-changed', this._doLayoutDirty, this);
-        this.node.on('child-added', this._childAdded, this);
-        this.node.on('child-removed', this._childRemoved, this);
-        this.node.on('child-reorder', this._doLayoutDirty, this);
+        this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
+        this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
+        this.node.on(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
+        this.node.on(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
         this._addChildrenEventListeners();
     },
 
     _removeEventListeners: function () {
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
-        this.node.off('size-changed', this._resized, this);
-        this.node.off('anchor-changed', this._doLayoutDirty, this);
-        this.node.off('child-added', this._childAdded, this);
-        this.node.off('child-removed', this._childRemoved, this);
-        this.node.off('child-reorder', this._doLayoutDirty, this);
+        this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
+        this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        this.node.off(NodeEvent.CHILD_ADDED, this._childAdded, this);
+        this.node.off(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
+        this.node.off(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
         this._removeChildrenEventListeners();
     },
 
     _addChildrenEventListeners: function() {
         var children = this.node.children;
         children.forEach(function (child) {
-            child.on('size-changed', this._doLayoutDirty, this);
-            child.on('position-changed', this._doLayoutDirty, this);
-            child.on('anchor-changed', this._doLayoutDirty, this);
+            child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
@@ -467,18 +468,18 @@ var Layout = cc.Class({
     _removeChildrenEventListeners: function () {
         var children = this.node.children;
         children.forEach(function (child) {
-            child.off('size-changed', this._doLayoutDirty, this);
-            child.off('position-changed', this._doLayoutDirty, this);
-            child.off('anchor-changed', this._doLayoutDirty, this);
+            child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
     _childAdded: function(event) {
         var child = event.detail;
-        child.on('size-changed', this._doLayoutDirty, this);
-        child.on('position-changed', this._doLayoutDirty, this);
-        child.on('anchor-changed', this._doLayoutDirty, this);
+        child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();
@@ -486,9 +487,9 @@ var Layout = cc.Class({
 
     _childRemoved: function(event) {
         var child = event.detail;
-        child.off('size-changed', this._doLayoutDirty, this);
-        child.off('position-changed', this._doLayoutDirty, this);
-        child.off('anchor-changed', this._doLayoutDirty, this);
+        child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();

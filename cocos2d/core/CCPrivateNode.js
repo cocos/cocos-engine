@@ -29,7 +29,6 @@ const Node = require('./CCNode');
 const renderEngine = require('./renderer/render-engine');
 const math = renderEngine.math;
 
-const ANCHOR_CHANGED = 'anchor-changed';
 const ONE_DEGREE = Math.PI / 180;
 
 let _vec3_temp = math.vec3.create();
@@ -98,10 +97,10 @@ let PrivateNode = cc.Class({
         this._super(value);
         if (oldParent !== value) {
             if (oldParent) {
-                oldParent.off(ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
+                oldParent.off(Node.EventType.ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
             }
             if (value) {
-                value.on(ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
+                value.on(Node.EventType.ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
             }
         }
     },

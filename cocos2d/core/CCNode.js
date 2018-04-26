@@ -49,25 +49,65 @@ var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
 var _globalOrderOfArrival = 1;
 
-const POSITION_CHANGED = 'position-changed';
-const SCALE_CHANGED = 'scale-changed';
-const ROTATION_CHANGED = 'rotation-changed';
-const SIZE_CHANGED = 'size-changed';
-const ANCHOR_CHANGED = 'anchor-changed';
-const CHILD_REORDER = 'child-reorder';
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 
-const POSITION_DIRTY_FLAG = 1 << 0;
-const SCALE_DIRTY_FLAG = 1 << 1;
-const ROTATION_DIRTY_FLAG = 1 << 2;
-const SKEW_DIRTY_FLAG = 1 << 3;
-// rotation transform dirty
-const RT_DIRTY_FLAG = SCALE_DIRTY_FLAG | ROTATION_DIRTY_FLAG | SKEW_DIRTY_FLAG;
-const ALL_DIRTY_FLAG = 0xffff;
+/**
+ * !#en Node's local dirty properties flag
+ * !#zh Node 的本地属性 dirty 状态位
+ * @class Node.LocalDirtyFlag
+ * @constructor	
+ * @param {String} name
+ * @static
+ * @namespace Node
+ */
+var LocalDirtyFlag = cc.Enum({
+    /**
+     * !#en Flag for position dirty
+     * !#zh 位置 dirty 的标记位
+     * @property {Number} POSITION
+     * @static
+     */
+    POSITION: 1 << 0,
+    /**
+     * !#en Flag for scale dirty
+     * !#zh 缩放 dirty 的标记位
+     * @property {Number} SCALE
+     * @static
+     */
+    SCALE: 1 << 1,
+    /**
+     * !#en Flag for rotation dirty
+     * !#zh 旋转 dirty 的标记位
+     * @property {Number} ROTATION
+     * @static
+     */
+    ROTATION: 1 << 2,
+    /**
+     * !#en Flag for skew dirty
+     * !#zh skew dirty 的标记位
+     * @property {Number} SKEW
+     * @static
+     */
+    SKEW: 1 << 3,
+    /**
+     * !#en Flag for position or rotation dirty
+     * !#zh 旋转或位置 dirty 的标记位
+     * @property {Number} RT
+     * @static
+     */
+    RT: 1 << 0 | 1 << 1 | 1 << 2,
+    /**
+     * !#en Flag for all dirty properties
+     * !#zh 覆盖所有 dirty 状态的标记位
+     * @property {Number} ALL
+     * @static
+     */
+    ALL: 0xffff,
+});
 
 /**
  * !#en The event type supported by Node
@@ -150,6 +190,85 @@ var EventType = cc.Enum({
      * @static
      */
     MOUSE_WHEEL: 'mousewheel',
+
+    /**
+     * !#en The event type for position change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点位置改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} POSITION_CHANGED
+     * @static
+     */
+    POSITION_CHANGED: 'position-changed',
+    /**
+     * !#en The event type for rotation change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点旋转改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} ROTATION_CHANGED
+     * @static
+     */
+    ROTATION_CHANGED: 'rotation-changed',
+    /**
+     * !#en The event type for scale change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点缩放改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} SCALE_CHANGED
+     * @static
+     */
+    SCALE_CHANGED: 'scale-changed',
+    /**
+     * !#en The event type for size change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点尺寸改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} SIZE_CHANGED
+     * @static
+     */
+    SIZE_CHANGED: 'size-changed',
+    /**
+     * !#en The event type for anchor point change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点锚点改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} ANCHOR_CHANGED
+     * @static
+     */
+    ANCHOR_CHANGED: 'anchor-changed',
+    /**
+     * !#en The event type for new child added events.
+     * !#zh 当新的子节点被添加时触发的事件。
+     * @property {String} CHILD_ADDED
+     * @static
+     */
+    CHILD_ADDED: 'child-added',
+    /**
+     * !#en The event type for child removed events.
+     * !#zh 当子节点被移除时触发的事件。
+     * @property {String} CHILD_REMOVED
+     * @static
+     */
+    CHILD_REMOVED: 'child-removed',
+    /**
+     * !#en The event type for children reorder events.
+     * !#zh 当子节点顺序改变时触发的事件。
+     * @property {String} CHILD_REORDER
+     * @static
+     */
+    CHILD_REORDER: 'child-reorder',
+    /**
+     * !#en The event type for node group changed events.
+     * !#zh 当节点归属群组发生变化时触发的事件。
+     * @property {String} GROUP_CHANGED
+     * @static
+     */
+    GROUP_CHANGED: 'group-changed',
 });
 
 var _touchEvents = [
@@ -397,7 +516,7 @@ var Node = cc.Class({
 
             set (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                this.emit('group-changed');
+                this.emit(EventType.GROUP_CHANGED);
             }
         },
 
@@ -433,16 +552,16 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
                         
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
                             }
                             else {
-                                this.emit(POSITION_CHANGED);
+                                this.emit(EventType.POSITION_CHANGED);
                             }
                         }
                     }
@@ -475,16 +594,16 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
                             }
                             else {
-                                this.emit(POSITION_CHANGED);
+                                this.emit(EventType.POSITION_CHANGED);
                             }
                         }
                     }
@@ -504,7 +623,7 @@ var Node = cc.Class({
                 if (value !== localPosition.z) {
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
-                        this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this.setLocalDirty(LocalDirtyFlag.POSITION);
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -540,10 +659,10 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
-                        this.emit(ROTATION_CHANGED);
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             }
@@ -572,10 +691,10 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
-                        this.emit(ROTATION_CHANGED);
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             },
@@ -604,10 +723,10 @@ var Node = cc.Class({
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
-                    this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
-                        this.emit(ROTATION_CHANGED);
+                        this.emit(EventType.ROTATION_CHANGED);
                     }
                 }
             },
@@ -638,10 +757,10 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
-                    this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.SCALE);
 
                     if (this._eventMask & SCALE_ON) {
-                        this.emit(SCALE_CHANGED);
+                        this.emit(EventType.SCALE_CHANGED);
                     }
                 }
             },
@@ -663,10 +782,10 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
-                    this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this.setLocalDirty(LocalDirtyFlag.SCALE);
 
                     if (this._eventMask & SCALE_ON) {
-                        this.emit(SCALE_CHANGED);
+                        this.emit(EventType.SCALE_CHANGED);
                     }
                 }
             },
@@ -687,7 +806,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
-                this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
 
@@ -706,7 +825,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
-                this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
 
@@ -769,7 +888,7 @@ var Node = cc.Class({
                 if (anchorPoint.x !== value) {
                     anchorPoint.x = value;
                     if (this._eventMask & ANCHOR_ON) {
-                        this.emit(ANCHOR_CHANGED);
+                        this.emit(EventType.ANCHOR_CHANGED);
                     }
                 }
             },
@@ -792,7 +911,7 @@ var Node = cc.Class({
                 if (anchorPoint.y !== value) {
                     anchorPoint.y = value;
                     if (this._eventMask & ANCHOR_ON) {
-                        this.emit(ANCHOR_CHANGED);
+                        this.emit(EventType.ANCHOR_CHANGED);
                     }
                 }
             },
@@ -818,10 +937,10 @@ var Node = cc.Class({
                     this._contentSize.width = value;
                     if (this._eventMask & SIZE_ON) {
                         if (CC_EDITOR) {
-                            this.emit(SIZE_CHANGED, clone);
+                            this.emit(EventType.SIZE_CHANGED, clone);
                         }
                         else {
-                            this.emit(SIZE_CHANGED);
+                            this.emit(EventType.SIZE_CHANGED);
                         }
                     }
                 }
@@ -848,10 +967,10 @@ var Node = cc.Class({
                     this._contentSize.height = value;
                     if (this._eventMask & SIZE_ON) {
                         if (CC_EDITOR) {
-                            this.emit(SIZE_CHANGED, clone);
+                            this.emit(EventType.SIZE_CHANGED, clone);
                         }
                         else {
-                            this.emit(SIZE_CHANGED);
+                            this.emit(EventType.SIZE_CHANGED);
                         }
                     }
                 }
@@ -927,7 +1046,7 @@ var Node = cc.Class({
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
-        this._localMatDirty = ALL_DIRTY_FLAG;
+        this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
         this._worldMatUpdated = false;
 
@@ -936,6 +1055,8 @@ var Node = cc.Class({
     },
 
     statics: {
+        EventType,
+        LocalDirtyFlag,
         // is node but not scene
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
@@ -1140,7 +1261,7 @@ var Node = cc.Class({
      * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。
      * @method on
      * @param {String} type - A string representing the event type to listen for.<br>
-     *                        See {{#crossLink "Node/position-changed:event"}}Node Events{{/crossLink}} for all builtin events.
+     *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.event event
@@ -1159,7 +1280,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
-     * node.on("anchor-changed", callback, this);
+     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     on (type, callback, target, useCapture) {
         let newAdded = false;
@@ -1211,19 +1332,19 @@ var Node = cc.Class({
         }
         else {
             switch (type) {
-                case POSITION_CHANGED:
+                case EventType.POSITION_CHANGED:
                 this._eventMask |= POSITION_ON;
                 break;
-                case SCALE_CHANGED:
+                case EventType.SCALE_CHANGED:
                 this._eventMask |= SCALE_ON;
                 break;
-                case ROTATION_CHANGED:
+                case EventType.ROTATION_CHANGED:
                 this._eventMask |= ROTATION_ON;
                 break;
-                case SIZE_CHANGED:
+                case EventType.SIZE_CHANGED:
                 this._eventMask |= SIZE_ON;
                 break;
-                case ANCHOR_CHANGED:
+                case EventType.ANCHOR_CHANGED:
                 this._eventMask |= ANCHOR_ON;
                 break;
             }
@@ -1247,7 +1368,7 @@ var Node = cc.Class({
      * @example
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.off("anchor-changed", callback, this);
+     * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     off (type, callback, target, useCapture) {
         let forDispatch = false;
@@ -1275,19 +1396,19 @@ var Node = cc.Class({
             // All listener removed
             if (!hasListeners) {
                 switch (type) {
-                    case POSITION_CHANGED:
+                    case EventType.POSITION_CHANGED:
                     this._eventMask &= ~POSITION_ON;
                     break;
-                    case SCALE_CHANGED:
+                    case EventType.SCALE_CHANGED:
                     this._eventMask &= ~SCALE_ON;
                     break;
-                    case ROTATION_CHANGED:
+                    case EventType.ROTATION_CHANGED:
                     this._eventMask &= ~ROTATION_ON;
                     break;
-                    case SIZE_CHANGED:
+                    case EventType.SIZE_CHANGED:
                     this._eventMask &= ~SIZE_ON;
                     break;
-                    case ANCHOR_CHANGED:
+                    case EventType.ANCHOR_CHANGED:
                     this._eventMask &= ~ANCHOR_ON;
                     break;
                 }
@@ -1317,19 +1438,19 @@ var Node = cc.Class({
         // Check for event mask reset
         let listeners = this._bubblingListeners;
         if (listeners) {
-            if ((this._eventMask & POSITION_ON) && !listeners.has(POSITION_CHANGED)) {
+            if ((this._eventMask & POSITION_ON) && !listeners.has(EventType.POSITION_CHANGED)) {
                 this._eventMask &= ~POSITION_ON;
             }
-            if ((this._eventMask & SCALE_ON) && !listeners.has(SCALE_CHANGED)) {
+            if ((this._eventMask & SCALE_ON) && !listeners.has(EventType.SCALE_CHANGED)) {
                 this._eventMask &= ~SCALE_ON;
             }
-            if ((this._eventMask & ROTATION_ON) && !listeners.has(ROTATION_CHANGED)) {
+            if ((this._eventMask & ROTATION_ON) && !listeners.has(EventType.ROTATION_CHANGED)) {
                 this._eventMask &= ~ROTATION_ON;
             }
-            if ((this._eventMask & SIZE_ON) && !listeners.has(SIZE_CHANGED)) {
+            if ((this._eventMask & SIZE_ON) && !listeners.has(EventType.SIZE_CHANGED)) {
                 this._eventMask &= ~SIZE_ON;
             }
-            if ((this._eventMask & ANCHOR_ON) && !listeners.has(ANCHOR_CHANGED)) {
+            if ((this._eventMask & ANCHOR_ON) && !listeners.has(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
             }
         }
@@ -1629,16 +1750,16 @@ var Node = cc.Class({
         else {	
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
         if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
+                this.emit(EventType.POSITION_CHANGED, oldPosition);
             }
             else {
-                this.emit(POSITION_CHANGED);
+                this.emit(EventType.POSITION_CHANGED);
             }
         }
     },
@@ -1680,10 +1801,10 @@ var Node = cc.Class({
         if (this._scale.x !== x || this._scale.y !== y) {
             this._scale.x = x;
             this._scale.y = y;
-            this.setLocalDirty(SCALE_DIRTY_FLAG);
+            this.setLocalDirty(LocalDirtyFlag.SCALE);
 
             if (this._eventMask & SCALE_ON) {
-                this.emit(SCALE_CHANGED);
+                this.emit(EventType.SCALE_CHANGED);
             }
         }
     },
@@ -1752,10 +1873,10 @@ var Node = cc.Class({
         }
         if (this._eventMask & SIZE_ON) {
             if (CC_EDITOR) {
-                this.emit(SIZE_CHANGED, clone);
+                this.emit(EventType.SIZE_CHANGED, clone);
             }
             else {
-                this.emit(SIZE_CHANGED);
+                this.emit(EventType.SIZE_CHANGED);
             }
         }
     },
@@ -1819,9 +1940,9 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
         if (this._eventMask & ANCHOR_ON) {
-            this.emit(ANCHOR_CHANGED);
+            this.emit(EventType.ANCHOR_CHANGED);
         }
     },
 
@@ -1888,16 +2009,16 @@ var Node = cc.Class({
         else {
             math.vec3.copy(this._position, pos);
         }
-        this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
         if (this._eventMask & POSITION_ON) {
             // send event
             if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
+                this.emit(EventType.POSITION_CHANGED, oldPosition);
             }
             else {
-                this.emit(POSITION_CHANGED);
+                this.emit(EventType.POSITION_CHANGED);
             }
         }
     },
@@ -1981,7 +2102,7 @@ var Node = cc.Class({
         let t = this._matrix;
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
-        if (dirtyFlag & RT_DIRTY_FLAG) {
+        if (dirtyFlag & LocalDirtyFlag.RT) {
             let hasRotation = this._rotationX || this._rotationY;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
@@ -2550,7 +2671,7 @@ var Node = cc.Class({
                     }
                     _children[j + 1] = child;
                 }
-                this.emit(CHILD_REORDER);
+                this.emit(EventType.CHILD_REORDER);
             }
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
@@ -2577,39 +2698,6 @@ var Node = cc.Class({
         }
     },
 });
-
-/**
- * @event position-changed
- * @param {Event.EventCustom} event
- * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
- */
-/**
- * @event size-changed
- * @param {Event.EventCustom} event
- * @param {Size} event.detail - The old size, but this parameter is only available in editor!
- */
-/**
- * @event anchor-changed
- * @param {Event.EventCustom} event
- */
-/**
- * @event child-added
- * @param {Event.EventCustom} event
- * @param {Node} event.detail - child
- */
-/**
- * @event child-removed
- * @param {Event.EventCustom} event
- * @param {Node} event.detail - child
- */
-/**
- * @event child-reorder
- * @param {Event.EventCustom} event
- */
-/**
- * @event group-changed
- * @param {Event.EventCustom} event
- */
 
 // Deprecated APIs
 
@@ -2694,7 +2782,5 @@ var Node = cc.Class({
 
 var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
 misc.propertyDefine(Node, SameNameGetSets);
-
-Node.EventType = EventType;
 
 cc.Node = module.exports = Node;

@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const NodeEvent = require('../CCNode').EventType;
+
 var NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 var OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 var EPSILON = 1e-4;
@@ -1527,11 +1529,11 @@ var ScrollView = cc.Class({
     onDisable: function () {
         if (!CC_EDITOR) {
             this._unregisterEvent();
-            this.node.off('size-changed', this._calculateBoundary, this);
-            this.node.off('scale-changed', this._calculateBoundary, this);
+            this.node.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+            this.node.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             if(this.content) {
-                this.content.off('size-changed', this._calculateBoundary, this);
-                this.content.off('scale-changed', this._calculateBoundary, this);
+                this.content.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+                this.content.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             }
         }
         this._hideScrollbar();
@@ -1541,11 +1543,11 @@ var ScrollView = cc.Class({
     onEnable: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
-            this.node.on('size-changed', this._calculateBoundary, this);
-            this.node.on('scale-changed', this._calculateBoundary, this);
+            this.node.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+            this.node.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             if(this.content) {
-                this.content.on('size-changed', this._calculateBoundary, this);
-                this.content.on('scale-changed', this._calculateBoundary, this);
+                this.content.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+                this.content.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             }
         }
         this._showScrollbar();

@@ -29,12 +29,9 @@ const math = renderEngine.math;
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
 
-const POSITION_CHANGED = 'position-changed';
-const ROTATION_CHANGED = 'rotation-changed';
-const SCALE_CHANGED = 'scale-changed';
-const POSITION_DIRTY_FLAG = 1 << 0;
-const SCALE_DIRTY_FLAG = 1 << 1;
-const ROTATION_DIRTY_FLAG = 1 << 2;
+const POSITION_ON = 1 << 0;
+const SCALE_ON = 1 << 1;
+const ROTATION_ON = 1 << 2;
 
 let _updateLocalMatrix2d = null;
 let _calculWorldMatrix2d = null;
@@ -134,15 +131,8 @@ function setPosition (newPosOrX, y, z) {
     this.setLocalDirty(POSITION_DIRTY_FLAG);
 
     // fast check event
-    var cache = this._hasListenerCache;
-    if (cache && cache[POSITION_CHANGED]) {
-        // send event
-        if (CC_EDITOR) {
-            this.emit(POSITION_CHANGED, oldPosition);
-        }
-        else {
-            this.emit(POSITION_CHANGED);
-        }
+    if (this._eventMask & POSITION_ON) {
+        this.emit(cc.Node.EventType.POSITION_CHANGED);
     }
 }
 
@@ -167,9 +157,8 @@ function setQuat (quat) {
         math.quat.copy(this._quat, value);
         this.setLocalDirty(ROTATION_DIRTY_FLAG);
 
-        var cache = this._hasListenerCache;
-        if (cache && cache[ROTATION_CHANGED]) {
-            this.emit(ROTATION_CHANGED);
+        if (this._eventMask & ROTATION_ON) {
+            this.emit(cc.Node.EventType.ROTATION_CHANGED);
         }
     }
 }
@@ -215,8 +204,8 @@ function setScale (x, y, z) {
         this.setLocalDirty(SCALE_DIRTY_FLAG);
 
         var cache = this._hasListenerCache;
-        if (cache && cache[SCALE_CHANGED]) {
-            this.emit(SCALE_CHANGED);
+        if (this._eventMask & SCALE_ON) {
+            this.emit(cc.Node.EventType.SCALE_CHANGED);
         }
     }
 }
