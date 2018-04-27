@@ -2270,9 +2270,11 @@ var Node = cc.Class({
             this._parent.getWorldRot(this._quat);
             math.quat.conjugate(this._quat, this._quat);
             math.quat.mul(this._quat, this._quat, quat);
-            return;
         }
-        math.quat.copy(this._quat, quat);
+        else {
+            math.quat.copy(this._quat, quat);
+        }
+        this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
     getWorldRT (out) {
