@@ -52,7 +52,6 @@ module.exports = {
                 this.updateVerts(sprite);
             }
         }
-        return sprite.__allocedDatas;
     },
 
     fillBuffers (sprite, renderer) {

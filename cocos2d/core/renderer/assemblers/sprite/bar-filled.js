@@ -78,12 +78,9 @@ module.exports = {
             }
             if (vertDirty) {
                 this.updateVerts(sprite, fillStart, fillEnd);
-            }
-            if (vertDirty || sprite.node._worldMatUpdated) {
                 this.updateWorldVerts(sprite);
             }
         }
-        return sprite.__allocedDatas;
     },
 
     updateUVs (sprite, fillStart, fillEnd) {
@@ -219,30 +216,36 @@ module.exports = {
         }
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
-        let data = sprite._renderData._data;
-        let node = sprite.node;
-        let z = node._position.z;
-        let color = node._color._val;
-    
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset ++] = vert.x;
-            vbuf[vertexOffset ++] = vert.y;
-            vbuf[vertexOffset ++] = z;
-            uintbuf[vertexOffset ++] = color;
-            vbuf[vertexOffset ++] = vert.u;
-            vbuf[vertexOffset ++] = vert.v;
+    fillBuffers (sprite, renderer) {
+        if (renderer.worldMatDirty) {
+            this.updateWorldVerts(sprite);
         }
 
-        ibuf[indiceOffset ++] = vertexId;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 2;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 3;
-        ibuf[indiceOffset ++] = vertexId + 2;
+        let data = sprite._renderData._data,
+            node = sprite.node,
+        //  z = node._position.z,
+            color = node._color._val,
+            matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+    
+        let buffer = renderer._quadBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+
+        buffer.request(4, 6);
+
+        // vertex
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset] = vert.x;
+            vbuf[vertexOffset+1] = vert.y;
+            // vbuf[vertexOffset+2] = z;
+            uintbuf[vertexOffset+3] = color;
+            vbuf[vertexOffset+4] = vert.u;
+            vbuf[vertexOffset+5] = vert.v;
+            vertexOffset += 6;
+        }
     }
 };

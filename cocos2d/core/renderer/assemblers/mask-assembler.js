@@ -113,10 +113,7 @@ let maskFrontAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.vertexOffset,
-            indiceOffset = batchData.indiceOffset;
-        
+    fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
@@ -124,12 +121,12 @@ let maskFrontAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
+                spriteAssembler.fillBuffers(mask, renderer);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
         }
     }
@@ -158,10 +155,7 @@ let maskEndAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.vertexOffset,
-            indiceOffset = batchData.indiceOffset;
-        
+    fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
@@ -169,12 +163,12 @@ let maskEndAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
+                spriteAssembler.fillBuffers(mask, renderer);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, renderer);
                 // put back graphics to pool
                 _graphicsPool.push(mask._graphics);
                 mask._graphics = null;

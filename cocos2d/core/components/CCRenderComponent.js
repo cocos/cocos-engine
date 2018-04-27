@@ -52,12 +52,8 @@ var RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
-        // Render component chain entries
-        this._chain = {
-            comp: this,
-            next: null
-        };
-        this._postChain = null;
+        this._assembler = this.constructor._assembler;
+        this._postAssembler = this.constructor._postAssembler;
     },
 
     onEnable () {
@@ -67,7 +63,7 @@ var RenderComponent = cc.Class({
 
     onDisable () {
         this.node._renderComponent = null;
-        this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     onDestroy () {

@@ -491,9 +491,9 @@ var Sprite = cc.Class({
     },
 
     _onNodeSizeDirty () {
-        if (this._renderData) {
-            this._renderData.vertDirty = true;
-        }
+        if (!this._renderData) return;
+        this._renderData.vertDirty = true;
+        this.updateRenderDataFlag();
     },
 
     _updateAssembler: function () {

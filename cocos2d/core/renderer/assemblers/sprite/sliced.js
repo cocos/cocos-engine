@@ -63,12 +63,9 @@ module.exports = {
             let vertDirty = renderData.vertDirty;
             if (vertDirty) {
                 this.updateVerts(sprite);
-            }
-            if (vertDirty || sprite.node._worldMatUpdated) {
                 this.updateWorldVerts(sprite);
             }
         }
-        return sprite.__allocedDatas;
     },
     
     updateUVs (sprite) {
@@ -160,6 +157,10 @@ module.exports = {
     },
 
     fillBuffers (sprite, renderer) {
+        if (renderer.worldMatDirty) {
+            this.updateWorldVerts(sprite);
+        }
+
         let renderData = sprite._renderData,
             data = renderData._data,
             node = sprite.node,
