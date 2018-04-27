@@ -890,7 +890,7 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             var gl = this._gl;
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
             if (
-                sys.platform === sys.WECHAT_GAME ||
+                (sys.platform === sys.WECHAT_GAME && !(img instanceof Uint8Array)) ||
                 sys.platform === sys.QQ_PLAY ||
                 img instanceof HTMLCanvasElement ||
                 img instanceof HTMLImageElement ||

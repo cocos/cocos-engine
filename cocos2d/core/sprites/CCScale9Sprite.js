@@ -1192,12 +1192,12 @@ cc.Scale9Sprite = _ccsg.Node.extend({
      */
     setBlendFunc: function (blendFunc, dst) {
         if (dst === undefined) {
-            this._blendFunc.src = blendFunc.src || cc.macro.BLEND_SRC;
-            this._blendFunc.dst = blendFunc.dst || cc.macro.BLEND_DST;
+            this._blendFunc.src = blendFunc.src;
+            this._blendFunc.dst = blendFunc.dst;
         }
         else {
-            this._blendFunc.src = blendFunc || cc.macro.BLEND_SRC;
-            this._blendFunc.dst = dst || cc.macro.BLEND_DST;
+            this._blendFunc.src = blendFunc;
+            this._blendFunc.dst = dst;
         }
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },

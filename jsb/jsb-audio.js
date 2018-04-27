@@ -56,6 +56,10 @@ cc.Audio = function (src) {
         audioEngine.stop(this.id);
     };
 
+    proto.destroy = function () {
+
+    };
+
     proto.setLoop = function (loop) {
         this.loop = loop;
         audioEngine.setLoop(this.id, loop);

@@ -158,7 +158,7 @@ Audio.State = {
 
     proto.destroy = function () {
         if (CC_WECHATGAME) {
-            this._element.destroy();
+            this._element && this._element.destroy();
         }
     };
 
