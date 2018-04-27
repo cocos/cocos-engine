@@ -184,7 +184,6 @@ RenderComponentWalker.prototype = {
     
             this.node = assembler.useModel ? node : this._dummyNode;
             this.material = comp._material;
-            this.vfmt = comp._vertexFormat;
             this.cullingMask = cullingMask;
         }
     
