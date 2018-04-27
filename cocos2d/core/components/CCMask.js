@@ -30,6 +30,7 @@ const gfx = renderEngine.gfx;
 const math = renderEngine.math;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
+const RenderFlow = require('../renderer/render-flow');
 
 let _mat4_temp = math.mat4.create();
 let _rect_temp = cc.rect();
@@ -329,13 +330,19 @@ let Mask = cc.Class({
         }
     },
 
-    onEnable: function () {
+    onEnable () {
         this._super();
         // for graphic stencil data
         this._renderDatas = [];
         // for graphic stencil data
         this._graphics = null;
         this._updateMaterial();
+
+        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
+    },
+
+    onDisable () {
+        this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     },
 
     onDestroy () {

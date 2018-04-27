@@ -66,13 +66,6 @@ module.exports = {
 
         buffer.request(4, 6);
 
-        // TODO: remove after restructure vertex format
-        for (let i = 0; i < 4; i++) {
-            // vbuf[vertexOffset+2] = z;
-            uintbuf[vertexOffset+3] = color;
-            vertexOffset += 6;
-        }
-
         // get uv from sprite frame directly
         let uv = sprite._spriteFrame.uv;
         vbuf[vertexOffset+4] = uv[0];
@@ -104,6 +97,13 @@ module.exports = {
         // right top
         vbuf[vertexOffset+18] = ar + ct + tx;
         vbuf[vertexOffset+19] = br + dt + ty;
+
+        // TODO: remove after restructure vertex format
+        for (let i = 0; i < 4; i++) {
+            // vbuf[vertexOffset+2] = z;
+            uintbuf[vertexOffset+3] = color;
+            vertexOffset += 6;
+        }
     },
 
     createData (sprite) {

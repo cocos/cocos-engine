@@ -149,7 +149,7 @@ function createFlow (flag, next) {
 
 function getFlow (flag) {
     var flow = null;
-    var tFlag = CHILDREN;
+    var tFlag = FINAL;
     while (tFlag > 0) {
         if (tFlag & flag)
             flow = createFlow(tFlag, flow);
@@ -160,12 +160,20 @@ function getFlow (flag) {
 
 
 function render (scene) {
-    scene._calculWorldMatrix();
-    scene._renderFlag &= ~WORLD_TRANSFORM;
-
     _cullingMask = 1 << scene.groupIndex;
 
-    flows[scene._renderFlag]._func(scene);
+    if (scene._renderFlag & WORLD_TRANSFORM) {
+        _walker.worldMatDirty ++;
+        scene._calculWorldMatrix();
+        scene._renderFlag &= ~WORLD_TRANSFORM;
+
+        flows[scene._renderFlag]._func(scene);
+
+        _walker.worldMatDirty --;
+    }
+    else {
+        flows[scene._renderFlag]._func(scene);
+    }
 }
 
 // 
