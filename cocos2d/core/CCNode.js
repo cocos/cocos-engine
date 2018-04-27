@@ -680,16 +680,14 @@ var Node = cc.Class({
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
                         this.setLocalDirty(LocalDirtyFlag.POSITION);
+                        // fast check event
+                        if (this._eventMask & POSITION_ON) {
+                            this.emit(EventType.POSITION_CHANGED);
+                        }
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
                     }
-                }
-
-                // fast check event
-                var cache = this._hasListenerCache;
-                if (cache && cache[POSITION_CHANGED]) {
-                    this.emit(POSITION_CHANGED);
                 }
             },
         },
