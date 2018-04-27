@@ -265,7 +265,7 @@ var spineAssembler = js.addon({
             }
         }
         if (comp.debugBones || comp.debugSlots) {
-            let renderDatas = graphics._renderDatas;
+            let renderDatas = graphics._impl._renderDatas;
             for (let i = 0; i < renderDatas.length; i++) {
                 renderDatas[i].material = _debugMaterial;
                 datas.push(renderDatas[i]);

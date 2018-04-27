@@ -1115,7 +1115,7 @@ var Node = cc.Class({
 
     statics: {
         EventType,
-        _LocalDirtyFlag,
+        _LocalDirtyFlag: LocalDirtyFlag,
         // is node but not scene
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));

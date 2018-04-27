@@ -542,6 +542,11 @@ var Sprite = cc.Class({
         // TODO: old texture in material have been released by loader
         material.texture = texture;
 
+        if (this._renderData) {
+            this._renderData.material = material;
+        }
+        this._material = material;
+
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
             // Update hash inside
             this._updateBlendFunc();
@@ -549,12 +554,6 @@ var Sprite = cc.Class({
         else {
             material.updateHash();
         }
-
-        if (this._renderData) {
-            this._renderData.material = material;
-        }
-
-        this._material = material;
     },
     
     _updateBlendFunc: function () {
