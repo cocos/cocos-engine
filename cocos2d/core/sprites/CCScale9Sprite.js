@@ -1194,6 +1194,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._renderCmd._needDraw = false;
             var self = this;
             var onResourceDataLoaded = function () {
+                if (!self.isValid) {
+                    return;
+                }
                 if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
                     self.setContentSize(self._spriteFrame._rect);
                 }
