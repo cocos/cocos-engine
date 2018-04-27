@@ -79,6 +79,7 @@ function _calculWorldMatrix3d () {
         math.mat4.copy(this._worldMatrix, this._matrix);
     }
     this._worldMatDirty = false;
+    this._worldMatUpdated = true;
 }
 
 
@@ -113,10 +114,11 @@ function setPosition (newPosOrX, y, z) {
     if (y === undefined) {
         x = newPosOrX.x;
         y = newPosOrX.y;
-        z = newPosOrX.z;
+        z = newPosOrX.z || 0;
     }
     else {
         x = newPosOrX;
+        z = z || 0
     }
 
     var pos = this._position;
@@ -130,7 +132,7 @@ function setPosition (newPosOrX, y, z) {
 
     pos.x = x;
     pos.y = y;
-    pos.z = z || 0;
+    pos.z = z;
     this.setLocalDirty(DirtyFlag.POSITION);
 
     // fast check event
@@ -198,15 +200,15 @@ function setScale (x, y, z) {
         y = x;
         z = x;
     }
-    else {
-        return;
+    else if (z === undefined) {
+        z = 1;
     }
-    if (this._scale.x !== x || this._scale.y !== y) {
+    if (this._scale.x !== x || this._scale.y !== y || this._scale.z !== z) {
         this._scale.x = x;
         this._scale.y = y;
+        this._scale.z = z;
         this.setLocalDirty(DirtyFlag.SCALE);
 
-        var cache = this._hasListenerCache;
         if (this._eventMask & SCALE_ON) {
             this.emit(EventType.SCALE_CHANGED);
         }

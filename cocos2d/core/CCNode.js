@@ -680,16 +680,14 @@ var Node = cc.Class({
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
                         this.setLocalDirty(LocalDirtyFlag.POSITION);
+                        // fast check event
+                        if (this._eventMask & POSITION_ON) {
+                            this.emit(EventType.POSITION_CHANGED);
+                        }
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
                     }
-                }
-
-                // fast check event
-                var cache = this._hasListenerCache;
-                if (cache && cache[POSITION_CHANGED]) {
-                    this.emit(POSITION_CHANGED);
                 }
             },
         },
@@ -2272,9 +2270,11 @@ var Node = cc.Class({
             this._parent.getWorldRot(this._quat);
             math.quat.conjugate(this._quat, this._quat);
             math.quat.mul(this._quat, this._quat, quat);
-            return;
         }
-        math.quat.copy(this._quat, quat);
+        else {
+            math.quat.copy(this._quat, quat);
+        }
+        this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
     getWorldRT (out) {
