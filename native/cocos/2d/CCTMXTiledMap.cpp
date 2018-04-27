@@ -93,7 +93,7 @@ bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& r
     return true;
 }
 
-bool TMXTiledMap::initWithXML(const std::string& tmxString, const cocos2d::Map<std::string, std::string>& tsxFileMap, 
+bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::map<std::string, std::string>& tsxFileMap,
                               const cocos2d::Map<std::string, Texture2D*>& textures)
 {
     _tmxFile = tmxString;

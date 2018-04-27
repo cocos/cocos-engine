@@ -217,7 +217,7 @@ class CC_DLL TMXMapInfo : public Ref, public SAXDelegator
 {
 public:
     typedef cocos2d::Map<std::string, Texture2D*> TextureMap;
-    typedef cocos2d::Map<std::string, std::string> TsxFileMap;
+    typedef std::map<std::string, std::string> TsxFileMap;
 
     /** creates a TMX Format with a tmx file */
     static TMXMapInfo * create(const std::string& tmxFile);

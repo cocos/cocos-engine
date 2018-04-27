@@ -36280,7 +36280,7 @@ static bool js_cocos2dx_TMXMapInfo_initWithXML(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            const cocos2d::Map<std::basic_string<char>, std::basic_string<char> >* arg1 = nullptr;
+            const std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >* arg1 = nullptr;
             ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithXML(arg0, arg1);
@@ -36295,7 +36295,7 @@ static bool js_cocos2dx_TMXMapInfo_initWithXML(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            const cocos2d::Map<std::basic_string<char>, std::basic_string<char> >* arg1 = nullptr;
+            const std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >* arg1 = nullptr;
             ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             const cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *>* arg2 = nullptr;
@@ -36827,7 +36827,7 @@ static bool js_cocos2dx_TMXMapInfo_createWithXML(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            const cocos2d::Map<std::basic_string<char>, std::basic_string<char> >* arg1 = nullptr;
+            const std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >* arg1 = nullptr;
             ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::TMXMapInfo* result = cocos2d::TMXMapInfo::createWithXML(arg0, arg1);
@@ -36841,7 +36841,7 @@ static bool js_cocos2dx_TMXMapInfo_createWithXML(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            const cocos2d::Map<std::basic_string<char>, std::basic_string<char> >* arg1 = nullptr;
+            const std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >* arg1 = nullptr;
             ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             const cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *>* arg2 = nullptr;
@@ -37736,8 +37736,8 @@ static bool js_cocos2dx_TMXTiledMap_initWithXML(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::Map<std::basic_string<char>, std::basic_string<char> > arg1;
-            ok &= seval_to_Map_string_key(args[1], &arg1);
+            std::map<std::string, std::string> arg1;
+            ok &= seval_to_std_map_string_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *> arg2;
             ok &= seval_to_Map_string_key(args[2], &arg2);
