@@ -379,12 +379,13 @@ RenderComponentWalker.prototype = {
 
         // Transform scene
         if (scene._worldMatDirty) {
-            scene._updateWorldMatrix();
-            this._batchData.worldMatUpdated = true;
+            scene._calculWorldMatrix();
         }
+        this._batchData.worldMatUpdated = scene._worldMatUpdated;
         for (let i = 0, l = scene._children.length; i < l; i++) {
             this._visitNode(scene._children[i]);
         }
+        scene._worldMatUpdated = false;
         
         atlasManager.update();
         this._flush();
