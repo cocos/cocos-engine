@@ -229,7 +229,7 @@ var AudioSource = cc.Class({
         if (this.preload) {
             this.audio.src = this._clip;
         }
-        if (this.playOnLoad) {
+        else if (this.playOnLoad) {
             this.play();
         }
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
