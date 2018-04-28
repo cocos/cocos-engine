@@ -171,13 +171,13 @@ var proto = AnimationState.prototype;
 cc.js.mixin(proto, cc.EventTarget.prototype);
 
 proto._emit = function (type, detail) {
-    if (this._target) {
+    if (this._target && this._target.isValid) {
         this._target.emit(type, detail);
     }
 };
 
 proto.on = function (type, callback, target, useCapture) {
-    if (this._target) {
+    if (this._target && this._target.isValid) {
         if (type === 'lastframe') {
             this._lastframeEventOn = true;
         }
@@ -189,7 +189,7 @@ proto.on = function (type, callback, target, useCapture) {
 };
 
 proto.off = function () {
-    if (this._target) {
+    if (this._target && this._target.isValid) {
         if (type === 'lastframe') {
             if (!this.hasEventListener(type)) {
                 this._lastframeEventOn = false;
