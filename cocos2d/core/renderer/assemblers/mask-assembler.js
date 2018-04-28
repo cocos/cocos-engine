@@ -124,6 +124,8 @@ let maskFrontAssembler = js.addon({
                 graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
         }
+
+        mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }, assembler);
 
@@ -167,10 +169,10 @@ let maskEndAssembler = js.addon({
                 // put back graphics to pool
                 _graphicsPool.push(mask._graphics);
                 mask._graphics = null;
-
-                mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
             }
         }
+
+        mask.node._renderFlag |= RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     }
 }, assembler);
 

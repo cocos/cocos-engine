@@ -338,11 +338,11 @@ let Mask = cc.Class({
         this._graphics = null;
         this._updateMaterial();
 
-        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
+        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     },
 
     onDisable () {
-        this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
+        this.node._renderFlag &= ~(RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
     },
 
     onDestroy () {

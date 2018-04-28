@@ -8,8 +8,9 @@ const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
 const RENDER = 1 << 3;
 const CHILDREN = 1 << 4;
-const POST_RENDER = 1 << 5;
-const FINAL = 1 << 6;
+const POST_UPDATE_RENDER_DATA = 1 << 5;
+const POST_RENDER = 1 << 6;
+const FINAL = 1 << 7;
 
 const POSITION_DIRTY_FLAG = 1 << 0;
 const SCALE_DIRTY_FLAG = 1 << 1;
@@ -76,7 +77,6 @@ _proto._worldTransform = function (node) {
 _proto._updateRenderData = function (node) {
     let comp = node._renderComponent;
     comp._assembler.updateRenderData(comp);
-    comp.constructor._postAssembler && comp.constructor._postAssembler.updateRenderData(comp);
     node._renderFlag &= ~UPDATE_RENDER_DATA;
     this._next._func(node);
 }
@@ -104,9 +104,16 @@ _proto._children = function (node) {
     _cullingMask = cullingMask;
 }
 
+_proto._postUpdateRenderData = function (node) {
+    let comp = node._renderComponent;
+    comp._postAssembler && comp._postAssembler.updateRenderData(comp);
+    node._renderFlag &= ~POST_UPDATE_RENDER_DATA;
+    this._next._func(node);
+}
+
 _proto._postRender = function (node) {
     let comp = node._renderComponent;
-    _walker._commitComp(comp, comp.constructor._postAssembler, node._cullingMask);
+    _walker._commitComp(comp, comp._postAssembler, node._cullingMask);
     this._next._func(node);
 }
 
@@ -138,6 +145,9 @@ function createFlow (flag, next) {
             break;
         case CHILDREN: 
             flow._func = flow._children;
+            break;
+        case POST_UPDATE_RENDER_DATA: 
+            flow._func = flow._postUpdateRenderData;
             break;
         case POST_RENDER: 
             flow._func = flow._postRender;
@@ -204,6 +214,7 @@ RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
 RenderFlow.FLAG_CHILDREN = CHILDREN;
+RenderFlow.FLAG_POST_UPDATE_RENDER_DATA = POST_UPDATE_RENDER_DATA;
 RenderFlow.FLAG_POST_RENDER = POST_RENDER;
 RenderFlow.FLAG_FINAL = FINAL;
 
