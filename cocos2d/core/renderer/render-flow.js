@@ -12,14 +12,6 @@ const POST_UPDATE_RENDER_DATA = 1 << 5;
 const POST_RENDER = 1 << 6;
 const FINAL = 1 << 7;
 
-const POSITION_DIRTY_FLAG = 1 << 0;
-const SCALE_DIRTY_FLAG = 1 << 1;
-const ROTATION_DIRTY_FLAG = 1 << 2;
-const SKEW_DIRTY_FLAG = 1 << 3;
-// rotation transform dirty
-const RT_DIRTY_FLAG = SCALE_DIRTY_FLAG | ROTATION_DIRTY_FLAG | SKEW_DIRTY_FLAG;
-const ALL_DIRTY_FLAG = 0xffff;
-
 let _walker = null;
 
 // 
@@ -94,6 +86,7 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
+        if (!c.activeInHierarchy) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
         c._renderFlag |= worldTransformFlag;
         flows[c._renderFlag]._func(c);

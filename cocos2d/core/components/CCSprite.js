@@ -521,12 +521,6 @@ var Sprite = cc.Class({
 
         // Get material
         let texture = spriteFrame.getTexture();
-        let url = texture.url;
-        let key = url;
-        if (this._state === State.GRAY) {
-            key = url + ':gray';
-        }
-
         let material;
         if (this._state === State.GRAY) {
             material = new GraySpriteMaterial();
