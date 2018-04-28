@@ -282,7 +282,11 @@ var MotionStreak = cc.Class({
         if (this._motionStreak) {
             // add root for let the global coordinates effective
             var node = this.node;
+            //correct the motionStreak rotation
+            const angle = cc.degreesToRadians(-this.node.rotation);
             var worldMt = node.getNodeToWorldTransform();
+            var correct = cc.affineTransformMake(Math.cos(angle), -Math.sin(angle), Math.sin(angle), Math.cos(angle), 0, 0);
+            worldMy = cc.affineTransformConcatIn(worldMt, correct);
             // calculation anchor coordinates
             var tx = worldMt.tx - (node.width / 2 + node.anchorX * node.width);
             var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
