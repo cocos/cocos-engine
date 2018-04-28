@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config.hpp"
+#include "../../config.hpp"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "v8.h"

@@ -1,7 +1,7 @@
 #ifndef SRC_NODE_DEBUG_OPTIONS_H_
 #define SRC_NODE_DEBUG_OPTIONS_H_
 
-#include "../config.hpp"
+#include "../../config.hpp"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include <string>

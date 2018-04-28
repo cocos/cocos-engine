@@ -33,9 +33,9 @@
 #include "../MappingUtils.hpp"
 
 #if SE_ENABLE_INSPECTOR
-#include "inspector_agent.h"
-#include "env.h"
-#include "node.h"
+#include "debugger/inspector_agent.h"
+#include "debugger/env.h"
+#include "debugger/node.h"
 #endif
 
 uint32_t __jsbInvocationCount = 0;

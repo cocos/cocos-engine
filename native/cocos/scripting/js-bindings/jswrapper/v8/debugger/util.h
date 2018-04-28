@@ -22,7 +22,7 @@
 #ifndef SRC_UTIL_H_
 #define SRC_UTIL_H_
 
-#include "../config.hpp"
+#include "../../config.hpp"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #define NODE_WANT_INTERNALS 1 //cjh added
