@@ -32,6 +32,7 @@ const PNGReader = require('./CCPNGReader');
 const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
+const RenderFlow = require('../core/renderer/render-flow');
 const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
@@ -901,6 +902,7 @@ var ParticleSystem = cc.Class({
         // vfx handle real particle step process based on GPU shaders
         this._vfx = new Particles(cc.renderer.device, cc.renderer._forward, this);
         this._vertexFormat = this._vfx.vertexFormat;
+        this._vertexFormat.name = 'ParticlesVertexFormat';
 
         // Config update flags, vfx constructor has updated with the current config, so not dirty
         this._maxParticleDirty = false;
@@ -974,7 +976,7 @@ var ParticleSystem = cc.Class({
     },
 
     onEnable: function () {
-        this._super();
+        this.node._renderComponent = this;
         this._updateMaterial();
     },
 
@@ -1342,6 +1344,8 @@ var ParticleSystem = cc.Class({
         this._updateMaterialSize();
 
         this._updateBlendFunc();
+
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
     
     _updateBlendFunc: function () {

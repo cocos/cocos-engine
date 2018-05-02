@@ -85,17 +85,21 @@ let armatureAssembler = js.addon({
         }
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+    fillBuffers (comp, renderer) {
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
-        _vertexOffset = batchData.byteOffset / 4;
-        _indiceOffset = batchData.indiceOffset;
+        let buffer = renderer._meshBuffer,
+            renderData = comp._renderData;
 
-        _ibuf = ibuf;
-        _vbuf = vbuf;
-        _uintbuf = uintbuf;
-        _vertexId = vertexId;
+        _vertexOffset = buffer.byteOffset >> 2;
+        _vbuf = buffer._vData;
+        _uintbuf = buffer._uintVData;
+        _ibuf = buffer._iData;
+        _indiceOffset = buffer.indiceOffset;
+        _vertexId = buffer.vertexOffset;
+
+        buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let node = comp.node;
         _z = node._position.z;

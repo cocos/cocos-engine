@@ -44,7 +44,7 @@ class MeshBuffer {
         if (this.byteOffset === 0) {
             return;
         }
-        
+
         // update vertext data
         let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
         let indicesData = new Uint16Array(this._iData.buffer, 0, this.indiceOffset);
@@ -63,13 +63,17 @@ class MeshBuffer {
         }
 
         let byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
+        let indiceOffset = this.indiceOffset + indiceCount;
+
         let byteLength = this._vData.byteLength;
-        if (byteOffset > byteLength) {
-            while (byteLength < byteOffset) {
+        let indiceLength = this._iData.length;
+        if (byteOffset > byteLength || indiceOffset > indiceLength) {
+            while (byteLength < byteOffset || indiceLength < indiceOffset) {
                 this._initVDataCount *= 2;
                 this._initIDataCount *= 2;
 
                 byteLength = this._initVDataCount * 4;
+                indiceLength = this._initIDataCount;
             }
 
             this._reallocBuffer();
