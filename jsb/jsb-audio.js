@@ -118,7 +118,7 @@ cc.Audio = function (src) {
             }
             path = clip._nativeAsset;
         }
-        path = cc.loader.md5Pipe.transformURL(path);
+        path = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(path) : path;
         return audioEngine.play2d(path, loop, volume);
     };
     audioEngine.playMusic = function (clip, loop) {

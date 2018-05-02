@@ -110,7 +110,7 @@ function getPosition () {
  * @param {Number} [z] - Z coordinate for position
  */
 function setPosition (newPosOrX, y, z) {
-    var x;
+    let x;
     if (y === undefined) {
         x = newPosOrX.x;
         y = newPosOrX.y;
@@ -121,13 +121,13 @@ function setPosition (newPosOrX, y, z) {
         z = z || 0
     }
 
-    var pos = this._position;
+    let pos = this._position;
     if (pos.x === x && pos.y === y && pos.z === z) {
         return;
     }
 
     if (CC_EDITOR) {
-        var oldPosition = new cc.Vec3(pos);
+        let oldPosition = new cc.Vec3(pos);
     }
 
     pos.x = x;
@@ -155,11 +155,26 @@ function getQuat () {
  * !#en Set rotation of node (in quaternion).
  * !#zh 设置该节点的 quaternion 旋转角度。
  * @method setQuat
- * @param {cc.Quat} quat Quaternion object represents the rotation
+ * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
+ * @param {Number} y y value of quternion
+ * @param {Number} z z value of quternion
+ * @param {Number} w w value of quternion
  */
-function setQuat (quat) {
-    if (!this._quat.equals(value)) {
-        math.quat.copy(this._quat, value);
+function setQuat (quat, y, z, w) {
+    let x;
+    if (y === undefined) {
+        x = quat.x;
+        y = quat.y;
+        z = quat.z;
+        w = quat.w;
+    }
+
+    let old = this._quat;
+    if (old.x !== x || old.y !== y || old.z !== z || old.w !== w) {
+        old.x = x;
+        old.y = y;
+        old.z = z;
+        old.w = w;
         this.setLocalDirty(DirtyFlag.ROTATION);
 
         if (this._eventMask & ROTATION_ON) {
