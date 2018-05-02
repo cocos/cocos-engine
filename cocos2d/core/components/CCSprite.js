@@ -218,7 +218,7 @@ var Sprite = cc.Class({
                     this._material = null;
                 }
                 this._applySpriteFrame(lastSprite);
-                this.updateRenderDataFlag();
+                this.markUpdateRenderData();
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
                 }
@@ -272,7 +272,7 @@ var Sprite = cc.Class({
                         this._renderData = null;
                     }
                     else if (this._renderData) {
-                        this.updateRenderDataFlag();
+                        this.markUpdateRenderData();
                     }
                     this._fillType = value;
                     this._updateAssembler();
@@ -299,7 +299,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillCenter = cc.v2(value);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._renderData.vertDirty = true;
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
@@ -323,7 +323,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this.updateRenderDataFlag();
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
@@ -347,7 +347,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this.updateRenderDataFlag();
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
@@ -369,7 +369,7 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
                         this._renderData) {
-                        this.updateRenderDataFlag();
+                        this.markUpdateRenderData();
                     }
                 }
             },
@@ -492,8 +492,7 @@ var Sprite = cc.Class({
 
     _onNodeSizeDirty () {
         if (!this._renderData) return;
-        this._renderData.vertDirty = true;
-        this.updateRenderDataFlag();
+        this.markUpdateRenderData();
     },
 
     _updateAssembler: function () {
@@ -573,7 +572,7 @@ var Sprite = cc.Class({
         }
     },
 
-    updateRenderDataFlag () {
+    markUpdateRenderData () {
         this._super();
 
         let renderData = this._renderData;

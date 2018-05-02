@@ -506,8 +506,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         let vertices = this.vertices;
         if (vertices) {
-            vertices.nu = [];
-            vertices.nv = [];
+            vertices.nu.length = 0;
+            vertices.nv.length = 0;
             for (let i = 0; i < vertices.u.length; i++) {
                 vertices.nu[i] = vertices.u[i]/texw;
                 vertices.nv[i] = vertices.v[i]/texh;
@@ -592,6 +592,11 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         this.vertices = data.vertices;
+        if (this.vertices) {
+            // initialize normal uv arrays
+            this.vertices.nu = [];
+            this.vertices.nv = [];
+        }
 
         // load texture via _textureSetter
         var textureUuid = data.texture;

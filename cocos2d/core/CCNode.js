@@ -1540,50 +1540,50 @@ var Node = cc.Class({
      * @param {Number} [y] - Y coordinate for position
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
      */
-    setPosition (newPosOrX, y) {
-        var x;
-        if (y === undefined) {
-            x = newPosOrX.x;
-            y = newPosOrX.y;
-        }
-        else {
-            x = newPosOrX;
-        }
+    setPosition (x, y) {
+        // var x;
+        // if (y === undefined) {
+        //     x = newPosOrX.x;
+        //     y = newPosOrX.y;
+        // }
+        // else {
+        //     x = newPosOrX;
+        // }
 
         var locPosition = this._position;
         if (locPosition.x === x && locPosition.y === y) {
             return;
         }
 
-        if (CC_EDITOR) {
-            var oldPosition = new cc.Vec2(locPosition);
-        }
-        if (!CC_EDITOR || isFinite(x)) {
+        // if (CC_EDITOR) {
+        //     var oldPosition = new cc.Vec2(locPosition);
+        // }
+        // if (!CC_EDITOR || isFinite(x)) {
             locPosition.x = x;
-        }
-        else {
-            return cc.error(ERR_INVALID_NUMBER, 'x of new position');
-        }
-        if (!CC_EDITOR || isFinite(y)) {
+        // }
+        // else {
+        //     return cc.error(ERR_INVALID_NUMBER, 'x of new position');
+        // }
+        // if (!CC_EDITOR || isFinite(y)) {
             locPosition.y = y;
-        }
-        else {	
-            return cc.error(ERR_INVALID_NUMBER, 'y of new position');
-        }
+        // }
+        // else {	
+        //     return cc.error(ERR_INVALID_NUMBER, 'y of new position');
+        // }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
         this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
         // fast check event
-        var cache = this._hasListenerCache;
-        if (cache && cache[POSITION_CHANGED]) {
-            // send event
-            if (CC_EDITOR) {
-                this.emit(POSITION_CHANGED, oldPosition);
-            }
-            else {
-                this.emit(POSITION_CHANGED);
-            }
-        }
+        // var cache = this._hasListenerCache;
+        // if (cache && cache[POSITION_CHANGED]) {
+        //     // send event
+        //     if (CC_EDITOR) {
+        //         this.emit(POSITION_CHANGED, oldPosition);
+        //     }
+        //     else {
+        //         this.emit(POSITION_CHANGED);
+        //     }
+        // }
     },
 
     /**

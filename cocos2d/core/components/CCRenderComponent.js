@@ -73,7 +73,7 @@ var RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
     },
 
-    updateRenderDataFlag () {
+    markUpdateRenderData () {
         this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 

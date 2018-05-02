@@ -34,13 +34,17 @@ class MeshBuffer {
 
         this._renderer = renderer;
 
-        this._initVDataCount = 256 * 4 * 6; // 4 vertex , 6 float
+        this._initVDataCount = 256 * vertexFormat._bytes; // actually 256 * 4 * (vertexFormat._bytes / 4)
         this._initIDataCount = 256 * 6;
         
         this._reallocBuffer();
     }
 
     uploadData () {
+        if (this.byteOffset === 0) {
+            return;
+        }
+        
         // update vertext data
         let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
         let indicesData = new Uint16Array(this._iData.buffer, 0, this.indiceOffset);

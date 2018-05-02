@@ -247,7 +247,7 @@ let Mask = cc.Class({
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderData.vertDirty = true;
-            this.updateRenderDataFlag();
+            this.markUpdateRenderData();
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
