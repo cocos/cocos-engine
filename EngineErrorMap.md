@@ -2295,6 +2295,7 @@ cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported
 
 ### 7220
 
+<!-- DEPRECATED -->
 TMX Parser: please load the xml resource first: %s
 
 ### 7221

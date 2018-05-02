@@ -337,10 +337,13 @@ cc.Sequence = cc.Class({
      * @return {Boolean}
      */
     initWithTwoActions:function (actionOne, actionTwo) {
-        if(!actionOne || !actionTwo)
+        if (!actionOne || !actionTwo)
             throw new Error(cc._getError(1025));
 
-        var d = actionOne._duration + actionTwo._duration;
+        var durationOne = actionOne._duration, durationTwo = actionTwo._duration;
+        durationOne *= actionOne._repeatMethod ? actionOne._timesForRepeat : 1;
+        durationTwo *= actionTwo._repeatMethod ? actionTwo._timesForRepeat : 1;
+        var d = durationOne + durationTwo;
         this.initWithDuration(d);
 
         this._actions[0] = actionOne;
@@ -358,6 +361,7 @@ cc.Sequence = cc.Class({
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         this._split = this._actions[0]._duration / this._duration;
+        this._split *= this._actions[0]._repeatMethod ? this._actions[0]._timesForRepeat : 1;
         this._last = -1;
     },
 

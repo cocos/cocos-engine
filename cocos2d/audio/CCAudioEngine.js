@@ -43,6 +43,7 @@ var getAudioFromPath = function (path) {
         var oldId = list.shift();
         var oldAudio = id2audio[oldId];
         oldAudio.stop();
+        oldAudio.destroy();
     }
 
     var audio = new Audio();
@@ -365,6 +366,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (audio) {
             audio.stop();
+            audio.destroy();
             return true;
         }
         else {
@@ -384,6 +386,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio) {
                 audio.stop();
+                audio.destroy();
             }
         }
     },

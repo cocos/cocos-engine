@@ -36,7 +36,6 @@ let TiledMapAsset = cc.Class({
 
     properties: {
         tmxXmlStr: '',
-        tmxFolderPath: '',
 
         /**
          * @property {Texture2D[]} textures
@@ -51,7 +50,8 @@ let TiledMapAsset = cc.Class({
          */
         textureNames: [cc.String],
 
-        tsxFiles: [cc.RawAsset]
+        tsxFiles: [cc.TextAsset],
+        tsxFileNames: [cc.String],
     },
 
     statics: {

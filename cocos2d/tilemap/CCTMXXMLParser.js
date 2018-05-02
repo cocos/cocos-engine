@@ -541,16 +541,15 @@ cc.TMXMapInfo.prototype = {
     /**
      * initializes a TMX format with an XML string and a TMX resource path
      * @param {String} tmxString
-     * @param {String} resourcePath
+     * @param {Object} tsxMap
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, resourcePath, textures) {
+    initWithXML:function (tmxString, tsxMap, textures) {
         this._tilesets.length = 0;
         this._layers.length = 0;
 
-        if (resourcePath)
-            this._resources = resourcePath;
+        this._tsxMap = tsxMap;
         this._textures = textures;
 
         this._objectGroups.length = 0;
@@ -568,20 +567,13 @@ cc.TMXMapInfo.prototype = {
     },
 
     /** Initalises parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file
-     * @param {String} tmxFile
-     * @param {boolean} [isXmlString=false]
+     * @param {String} xmlStr
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLFile (tmxFile, isXmlString, tilesetFirstGid) {
-        isXmlString = isXmlString || false;
-	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
-        if (!xmlStr) {
-            cc.errorID(7220, tmxFile);
-        }
-
-        let mapXML = this._parser._parseXML(xmlStr);
-        let i, j;
+    parseXMLFile:function (xmlStr, tilesetFirstGid) {
+        var mapXML = this._parseXML(xmlStr);
+        var i, j;
 
         // PARSE <map>
         let map = mapXML.documentElement;
@@ -656,9 +648,11 @@ cc.TMXMapInfo.prototype = {
             // If this is an external tileset then start parsing that
             let tsxName = selTileset.getAttribute('source');
             if (tsxName) {
-                let currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
-                let tsxPath = isXmlString ? cc.path.join(this._resources, tsxName) : cc.path.changeBasename(tmxFile, tsxName);
-                this.parseXMLFile(tsxPath, false, currentFirstGID);
+                var currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
+                var tsxXmlString = this._tsxMap[tsxName];
+                if (tsxXmlString) {
+                    this.parseXMLFile(tsxXmlString, currentFirstGID);
+                }
             } else {
                 let tileset = new cc.TMXTilesetInfo();
                 tileset.name = selTileset.getAttribute('name') || "";
@@ -949,8 +943,8 @@ cc.TMXMapInfo.prototype = {
      * @param {String} xmlString
      * @return {Boolean}
      */
-    parseXMLString (xmlString) {
-        return this.parseXMLFile(xmlString, true);
+    parseXMLString:function (xmlString) {
+        return this.parseXMLFile(xmlString);
     },
 
     /**
