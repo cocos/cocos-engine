@@ -213,7 +213,6 @@ function getPropertyList (node) {
  *
  * <p>This information is obtained from the TMX file. </p>
  * @class
- * @extends cc.saxParser
  *
  * @property {Array}    properties          - Properties of the map info.
  * @property {Number}   orientation         - Map orientation.
@@ -226,9 +225,6 @@ function getPropertyList (node) {
  * @property {Number}   mapHeight           - Height of the map
  * @property {Number}   tileWidth           - Width of a tile
  * @property {Number}   tileHeight          - Height of a tile
- *
- * @param {String} tmxFile fileName or content string
- * @param {String} resourcePath  If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
  * @example
  * 1.
  * //create a TMXMapInfo with file name
@@ -246,10 +242,10 @@ function getPropertyList (node) {
  * Constructor of cc.TMXMapInfo
  * @method constructor
  * @param {String} tmxFile content string
- * @param {String} resourcePath
+ * @param {Object} tsxMap
  * @param {Object} textures
  */
-cc.TMXMapInfo = function (tmxFile, resourcePath, textures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -266,7 +262,7 @@ cc.TMXMapInfo = function (tmxFile, resourcePath, textures) {
     this._layers = [];
     this._tilesets = [];
     this._tileProperties = {};
-    this._resources = "";
+    this._tsxMap = null;
 
     // map of textures indexed by name
     this._textures = null;
@@ -276,7 +272,7 @@ cc.TMXMapInfo = function (tmxFile, resourcePath, textures) {
     this._staggerIndex = null;
     this._hexSideLength = 0;
 
-    this.initWithXML(tmxFile, resourcePath, textures);
+    this.initWithXML(tmxFile, tsxMap, textures);
 };
 cc.TMXMapInfo.prototype = {
     constructor: cc.TMXMapInfo,
@@ -566,13 +562,14 @@ cc.TMXMapInfo.prototype = {
         return this.parseXMLString(tmxString);
     },
 
-    /** Initalises parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file
-     * @param {String} xmlStr
+    /** 
+     * Initializes parsing of an XML string, either a tmx (Map) string or tsx (Tileset) string
+     * @param {String} xmlString
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLFile:function (xmlStr, tilesetFirstGid) {
-        var mapXML = this._parseXML(xmlStr);
+    parseXMLString:function (xmlStr, tilesetFirstGid) {
+        var mapXML = this._parser._parseXML(xmlStr);
         var i, j;
 
         // PARSE <map>
@@ -651,7 +648,7 @@ cc.TMXMapInfo.prototype = {
                 var currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
                 var tsxXmlString = this._tsxMap[tsxName];
                 if (tsxXmlString) {
-                    this.parseXMLFile(tsxXmlString, currentFirstGID);
+                    this.parseXMLString(tsxXmlString, currentFirstGID);
                 }
             } else {
                 let tileset = new cc.TMXTilesetInfo();
@@ -936,15 +933,6 @@ cc.TMXMapInfo.prototype = {
             points.push({'x':parseFloat(selPointStr[0]), 'y':parseFloat(selPointStr[1])});
         }
         return points;
-    },
-
-    /**
-     * initializes parsing of an XML string, either a tmx (Map) string or tsx (Tileset) string
-     * @param {String} xmlString
-     * @return {Boolean}
-     */
-    parseXMLString:function (xmlString) {
-        return this.parseXMLFile(xmlString);
     },
 
     /**
