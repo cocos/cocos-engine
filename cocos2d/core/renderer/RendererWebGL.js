@@ -143,6 +143,12 @@ cc.rendererWebGL = {
         initQuadBuffer(cc.macro.BATCH_VERTEX_COUNT);
         if (cc.sys.os === cc.sys.OS_IOS) {
             _IS_IOS = true;
+
+            // todo Can be removed after qqplay with support
+            let version = cc.sys.osVersion.split('.');
+            if (cc.sys.platform === cc.sys.QQ_PLAY && version[0] < 10) {
+                cc.sys.isOldIOS = true;
+            }
         }
     },
 
@@ -438,11 +444,20 @@ cc.rendererWebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
         if (uploadAll) {
-            gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
+            if (cc.sys.isOldIOS) {
+                gl.bufferDataOldIOS(gl.ARRAY_BUFFER, _vertexDataF32, _vertexDataUI32, gl.DYNAMIC_DRAW);
+            }
+            else
+                gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
         }
         else {
             var view = _vertexDataF32.subarray(0, _batchingSize * _sizePerVertex);
-            gl.bufferData(gl.ARRAY_BUFFER, view, gl.DYNAMIC_DRAW);
+            if (cc.sys.isOldIOS) {
+                var viewUI32 = _vertexDataUI32.subarray(0, _batchingSize * _sizePerVertex);
+                gl.bufferDataOldIOS(gl.ARRAY_BUFFER, view, viewUI32, gl.DYNAMIC_DRAW);
+            }
+            else
+                gl.bufferData(gl.ARRAY_BUFFER, view, gl.DYNAMIC_DRAW);
         }
 
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
