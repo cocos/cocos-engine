@@ -161,8 +161,8 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (sys.platform !== sys.WECHAT_GAME && 
-            this._audioType === Audio.Type.DOM && 
+        if (sys.platform !== sys.WECHAT_GAME &&
+            this._audioType === Audio.Type.DOM &&
             this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
@@ -196,7 +196,9 @@ Audio.State = {
     proto.resume = function () {
         if (!this._element || this._element.currentTime === 0) return;
         this._bindEnded();
-        this._element.play();
+        if (!cc.sys.platform === cc.sys.QQ_PLAY) {
+            this._element.play();
+        }
         this.emit('resume');
         this._state = Audio.State.PLAYING;
     };
@@ -214,7 +216,9 @@ Audio.State = {
                 this._element.currentTime = 0;
             } catch (error) {}
         }
-        this._element.pause();
+        if (!cc.sys.platform === cc.sys.QQ_PLAY) {
+            this._element.pause();
+        }
         // remove touchPlayList
         for (var i=0; i<touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {

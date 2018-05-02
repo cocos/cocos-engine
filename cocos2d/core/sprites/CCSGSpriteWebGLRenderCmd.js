@@ -285,10 +285,20 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         f32buffer[offset] = vertex.x;
         f32buffer[offset + 1] = vertex.y;
         f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = color;
-        f32buffer[offset + 4] = vertex.u;
-        f32buffer[offset + 5] = vertex.v;
-        offset += 6;
+        if (cc.sys.isOldIOS) {
+            f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+            f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+            f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+            f32buffer[offset + 6] = ((opacity >> 0) & 0xFF) / 255;
+            f32buffer[offset + 7] = vertex.u;
+            f32buffer[offset + 8] = vertex.v;
+            offset += 9;
+        } else {
+            ui32buffer[offset + 3] = color;
+            f32buffer[offset + 4] = vertex.u;
+            f32buffer[offset + 5] = vertex.v;
+            offset += 6;
+        }
     }
 
     return len;

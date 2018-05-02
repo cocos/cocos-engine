@@ -141,8 +141,19 @@ cc.rendererWebGL = {
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
         initQuadBuffer(cc.macro.BATCH_VERTEX_COUNT);
-        if (cc.sys.os === cc.sys.OS_IOS) {
-            _IS_IOS = true;
+
+        if (cc.sys.platform === cc.sys.QQ_PLAY) {
+            var e = window["BK"]["Director"]["queryDeviceInfo"](),
+                t = e.version.split(".");
+            if ("ios" === e.platform && Number(t[0]) >= 10 || "android" === e.platform) {
+                cc.sys.isOldIOS = false;
+            } else {
+                cc.sys.isOldIOS = true;
+            }
+        }
+        // cc.sys.isOldIOS = true;
+        if (cc.sys.isOldIOS) {
+            _sizePerVertex = 9;//x,y,z,r,g,b,a,u,v
         }
     },
 
@@ -448,9 +459,16 @@ cc.rendererWebGL = {
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
-        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);
-        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);
-        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);
+        var total = _sizePerVertex * 4;
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, total, 0);
+        if(cc.sys.isOldIOS){
+            gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.FLOAT, false, total, 12);
+            gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, total, 28);
+        }
+        else {
+            gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, total, 12);
+            gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, total, 16);
+        }
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
         if (!_prevIndexSize || !_pureQuad || _indexSize > _prevIndexSize) {
