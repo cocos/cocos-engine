@@ -155,6 +155,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this.vertices = null;
 
+        this.uv = [];
+
         this._texture = null;
         this._textureFilename = '';
 
@@ -290,6 +292,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (!self._offset) {
             self.setOffset(cc.v2(0, 0));
         }
+
+        self._calculateUV();
 
         // dispatch 'load' event of cc.SpriteFrame
         self.emit("load");
@@ -464,15 +468,50 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    _normalizeUV () {
+    _calculateUV () {
+        let rect = this._rect,
+            texture = this._texture,
+            uv = this.uv,
+            texw = texture.width,
+            texh = texture.height;
+
+        if (this._rotated) {
+            let l = texw === 0 ? 0 : rect.x / texw;
+            let r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
+            let b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            let t = texh === 0 ? 0 : rect.y / texh;
+            uv[0] = l;
+            uv[1] = t;
+            uv[2] = l;
+            uv[3] = b;
+            uv[4] = r;
+            uv[5] = t;
+            uv[6] = r;
+            uv[7] = b;
+        }
+        else {
+            let l = texw === 0 ? 0 : rect.x / texw;
+            let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            let t = texh === 0 ? 0 : rect.y / texh;
+            uv[0] = l;
+            uv[1] = b;
+            uv[2] = r;
+            uv[3] = b;
+            uv[4] = l;
+            uv[5] = t;
+            uv[6] = r;
+            uv[7] = t;
+        }
+
         let vertices = this.vertices;
-        let tw = this._texture.width;
-        let th = this._texture.height;
-        vertices.nu = [];
-        vertices.nv = [];
-        for (let i = 0; i < vertices.u.length; i++) {
-            vertices.nu[i] = vertices.u[i]/tw;
-            vertices.nv[i] = vertices.v[i]/th;
+        if (vertices) {
+            vertices.nu.length = 0;
+            vertices.nv.length = 0;
+            for (let i = 0; i < vertices.u.length; i++) {
+                vertices.nu[i] = vertices.u[i]/texw;
+                vertices.nv[i] = vertices.v[i]/texh;
+            }
         }
     },
 
@@ -552,9 +591,11 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._atlasUuid = data.atlas;
         }
 
-        if (data.vertices) {
-            this.vertices = data.vertices;
-            this.on('load', this._normalizeUV, this);
+        this.vertices = data.vertices;
+        if (this.vertices) {
+            // initialize normal uv arrays
+            this.vertices.nu = [];
+            this.vertices.nv = [];
         }
 
         // load texture via _textureSetter

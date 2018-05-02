@@ -44,45 +44,67 @@ module.exports = {
 
         let renderData = sprite._renderData;
         if (renderData && frame) {
-            if (renderData.uvDirty) {
-                this.updateUVs(sprite);
-            }
-
             if (renderData.vertDirty) {
                 this.updateVerts(sprite);
             }
         }
-        return sprite.__allocedDatas;
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
-        let data = sprite._renderData._data;
-        let node = sprite.node;
-        let z = node._position.z;
-        let color = node._color._val;
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+    fillBuffers (sprite, renderer) {
+        let data = sprite._renderData._data,
+            node = sprite.node,
+        //  z = node._position.z,
+            color = node._color._val,
+            matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset ++] = z;
-            uintbuf[vertexOffset ++] = color;
-            vbuf[vertexOffset ++] = vert.u;
-            vbuf[vertexOffset ++] = vert.v;
-        }
+        let buffer = renderer._quadBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
 
-        ibuf[indiceOffset ++] = vertexId;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 2;
-        ibuf[indiceOffset ++] = vertexId + 1;
-        ibuf[indiceOffset ++] = vertexId + 3;
-        ibuf[indiceOffset ++] = vertexId + 2;
+        buffer.request(4, 6);
+
+        // get uv from sprite frame directly
+        let uv = sprite._spriteFrame.uv;
+        vbuf[vertexOffset+4] = uv[0];
+        vbuf[vertexOffset+5] = uv[1];
+        vbuf[vertexOffset+10] = uv[2];
+        vbuf[vertexOffset+11] = uv[3];
+        vbuf[vertexOffset+16] = uv[4];
+        vbuf[vertexOffset+17] = uv[5];
+        vbuf[vertexOffset+22] = uv[6];
+        vbuf[vertexOffset+23] = uv[7];
+
+        let data0 = data[0], data3 = data[3],
+            vl = data0.x, vr = data3.x;
+            vb = data0.y, vt = data3.y;
+
+        let al = a * vl, ar = a * vr,
+            bl = b * vl, br = b * vr,
+            cb = c * vb, ct = c * vt,
+            db = d * vb, dt = d * vt;
+
+        // left bottom
+        vbuf[vertexOffset] = al + cb + tx;
+        vbuf[vertexOffset+1] = bl + db + ty;
+        // right bottom
+        vbuf[vertexOffset+6] = ar + cb + tx;
+        vbuf[vertexOffset+7] = br + db + ty;
+        // left top
+        vbuf[vertexOffset+12] = al + ct + tx;
+        vbuf[vertexOffset+13] = bl + dt + ty;
+        // right top
+        vbuf[vertexOffset+18] = ar + ct + tx;
+        vbuf[vertexOffset+19] = br + dt + ty;
+
+        // TODO: remove after restructure vertex format
+        for (let i = 0; i < 4; i++) {
+            // vbuf[vertexOffset+2] = z;
+            uintbuf[vertexOffset+3] = color;
+            vertexOffset += 6;
+        }
     },
 
     createData (sprite) {
@@ -91,48 +113,6 @@ module.exports = {
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
         return renderData;
-    },
-
-    updateUVs (sprite) {
-        let material = sprite.getMaterial();
-        let renderData = sprite._renderData;
-        let data = renderData._data;
-        let texture = material.effect.getProperty('texture');
-        let texw = texture._width,
-            texh = texture._height;
-        let frame = sprite.spriteFrame;
-        let rect = frame._rect;
-        
-        if (frame._rotated) {
-            let l = texw === 0 ? 0 : rect.x / texw;
-            let r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-            let b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
-            let t = texh === 0 ? 0 : rect.y / texh;
-            data[0].u = l;
-            data[0].v = t;
-            data[1].u = l;
-            data[1].v = b;
-            data[2].u = r;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = b;
-        }
-        else {
-            let l = texw === 0 ? 0 : rect.x / texw;
-            let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
-            let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
-            let t = texh === 0 ? 0 : rect.y / texh;
-            data[0].u = l;
-            data[0].v = b;
-            data[1].u = r;
-            data[1].v = b;
-            data[2].u = l;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = t;
-        }
-        
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite) {

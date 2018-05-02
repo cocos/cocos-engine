@@ -27,6 +27,7 @@ const StencilManager = require('../stencil-manager');
 const Node = require('../../CCNode');
 const Mask = require('../../components/CCMask');
 const renderEngine = require('../render-engine');
+const RenderFlow = require('../render-flow');
 
 const js = require('../../platform/js');
 const assembler = require('./assembler');
@@ -88,16 +89,12 @@ let maskFrontAssembler = js.addon({
         let anchor = mask.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
 
-        let datas;
         mask._material = mask._frontMaterial;
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
-                datas = mask._renderDatas;
-                datas.length = 0;
                 renderData.dataLength = 4;
                 spriteAssembler.updateRenderData(mask);
                 renderData.material = mask.getMaterial();
-                datas.push(renderData);
             }
             else {
                 mask._material = null;
@@ -107,16 +104,11 @@ let maskFrontAssembler = js.addon({
             mask._graphics = getGraphics();
             this.updateGraphics(mask);
             mask._graphics._material = mask._material;
-            datas = graphicsAssembler.updateRenderData(mask._graphics);
+            graphicsAssembler.updateRenderData(mask._graphics);
         }
-
-        return datas;
     },
 
-    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.vertexOffset,
-            indiceOffset = batchData.indiceOffset;
-        
+    fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
@@ -124,14 +116,16 @@ let maskFrontAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
+                spriteAssembler.fillBuffers(mask, renderer);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
         }
+
+        mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }, assembler);
 
@@ -158,10 +152,7 @@ let maskEndAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.vertexOffset,
-            indiceOffset = batchData.indiceOffset;
-        
+    fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
@@ -169,17 +160,19 @@ let maskEndAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillBuffers(mask, batchData, vertexId, vbuf, uintbuf, ibuf);
+                spriteAssembler.fillBuffers(mask, renderer);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, renderer);
                 // put back graphics to pool
                 _graphicsPool.push(mask._graphics);
                 mask._graphics = null;
             }
         }
+
+        mask.node._renderFlag |= RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     }
 }, assembler);
 

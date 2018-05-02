@@ -35,6 +35,7 @@ const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
 const misc = require('./utils/misc');
 const Event = require('./event/event');
+const RenderFlow = require('./renderer/render-flow');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -430,6 +431,7 @@ var Node = cc.Class({
 
                         localPosition.x = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -473,6 +475,7 @@ var Node = cc.Class({
 
                         localPosition.y = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -503,6 +506,7 @@ var Node = cc.Class({
                     if (!CC_EDITOR || isFinite(value)) {
                         localPosition.z = value;
                         this.setLocalDirty(POSITION_DIRTY_FLAG);
+                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
                     }
                     else {
                         cc.error(ERR_INVALID_NUMBER, 'new z');
@@ -539,6 +543,7 @@ var Node = cc.Class({
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -572,6 +577,7 @@ var Node = cc.Class({
                         math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -605,6 +611,7 @@ var Node = cc.Class({
                         math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
                     this.setLocalDirty(ROTATION_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -640,6 +647,8 @@ var Node = cc.Class({
                 if (this._scale.x !== value) {
                     this._scale.x = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -666,6 +675,7 @@ var Node = cc.Class({
                 if (this._scale.y !== value) {
                     this._scale.y = value;
                     this.setLocalDirty(SCALE_DIRTY_FLAG);
+                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -691,6 +701,7 @@ var Node = cc.Class({
             set (value) {
                 this._skewX = value;
                 this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -710,6 +721,7 @@ var Node = cc.Class({
             set (value) {
                 this._skewY = value;
                 this.setLocalDirty(SKEW_DIRTY_FLAG);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -1099,6 +1111,10 @@ var Node = cc.Class({
         for (let i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
         }
+
+        if (children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
+        }
     },
 
     // the same as _onBatchCreated but untouch prefab
@@ -1116,6 +1132,10 @@ var Node = cc.Class({
         var children = this._children;
         for (var i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchRestored();
+        }
+
+        if (children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
     },
 
@@ -1551,6 +1571,7 @@ var Node = cc.Class({
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
         this.setLocalDirty(POSITION_DIRTY_FLAG);
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -2014,17 +2035,11 @@ var Node = cc.Class({
 
     setLocalDirty (flag) {
         this._localMatDirty = this._localMatDirty | flag;
-        if (!this._worldMatDirty) {
-            this._worldMatDirty = true;
-            this._worldMatUpdated = false;
-        }
+        this._worldMatDirty = true;
     },
 
     setWorldDirty () {
-        if (!this._worldMatDirty) {
-            this._worldMatDirty = true;
-            this._worldMatUpdated = false;
-        }
+        this._worldMatDirty = true;
     },
 
     /**

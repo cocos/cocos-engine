@@ -26,6 +26,7 @@
 const Component = require('./CCComponent');
 const defaultVertexFormat = require('../renderer/vertex-format');
 const renderEngine = require('../renderer/render-engine');
+const RenderFlow = require('../renderer/render-flow');
 const RenderData = renderEngine.RenderData;
 
 /**
@@ -51,20 +52,18 @@ var RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
-        // Render component chain entries
-        this._chain = {
-            comp: this,
-            next: null
-        };
-        this._postChain = null;
+        this._assembler = this.constructor._assembler;
+        this._postAssembler = this.constructor._postAssembler;
     },
 
     onEnable () {
         this.node._renderComponent = this;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 
     onDisable () {
         this.node._renderComponent = null;
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     onDestroy () {
@@ -72,6 +71,10 @@ var RenderComponent = cc.Class({
             RenderData.free(this.__allocedDatas[i]);
         }
         this.__allocedDatas.length = 0;
+    },
+
+    markUpdateRenderData () {
+        this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 
     requestRenderData () {

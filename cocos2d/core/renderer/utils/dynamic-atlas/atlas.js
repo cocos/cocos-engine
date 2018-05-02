@@ -33,13 +33,13 @@ class Atlas {
         else {
             let width = texture.width, height = texture.height;        
 
-            if ((this._x + width) > this._width) {
+            if ((this._x + width + space) > this._width) {
                 this._x = space;
                 this._y = this._nexty;
             }
 
             if ((this._y + height) > this._nexty) {
-                this._nexty = this._y + height;
+                this._nexty = this._y + height + space;
             }
 
             if (this._nexty > this._height) {
@@ -57,7 +57,7 @@ class Atlas {
             rect.x += this._x;
             rect.y += this._y;
 
-            this._x += width;
+            this._x += width + space;
 
             this._dirty = true;
         }
@@ -69,6 +69,7 @@ class Atlas {
         }
 
         spriteFrame._texture = this._texture;
+        spriteFrame._calculateUV();
 
         this._innerSpriteFrames.push(spriteFrame);
 
@@ -96,6 +97,7 @@ class Atlas {
             frame._rect.x = oriInfo.x;
             frame._rect.y = oriInfo.y;
             frame._texture = oriInfo.texture;
+            spriteFrame._calculateUV();
             frame._original = null;
         }
         this._innerSpriteFrames.length = 0;
