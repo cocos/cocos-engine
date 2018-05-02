@@ -440,24 +440,23 @@ let TiledMap = cc.Class({
         let file = this._tmxFile;
         let self = this;
         if (file) {
-            let resPath = cc.url._rawAssets + file.tmxFolderPath;
-            resPath = cc.path.stripSep(resPath);
-
-            if (CC_EDITOR && cc.sys.os === cc.sys.OS_WINDOWS) {
-                // In windows editor, the key of loaded textures are using '/'.
-                // But the value of cc.url._rawAssets is using '\'
-                // So, here should change the separater.
-                resPath = resPath.replace(/\\/g, '/');
-            }
-
             let texValues = file.textures;
             let texKeys = file.textureNames;
             let textures = {};
             for (let i = 0; i < texValues.length; ++i) {
                 textures[texKeys[i]] = texValues[i];
             }
+            
+            let tsxFileNames = file.tsxFileNames;
+            let tsxFiles = file.tsxFiles;
+            let tsxMap = {};
+            for (let i = 0; i < tsxFileNames.length; ++i) {
+                if (tsxFileNames[i].length > 0) {
+                    tsxMap[tsxFileNames[i]] = tsxFiles[i].text;
+                }
+            }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, resPath, textures);
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7213);

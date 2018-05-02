@@ -245,6 +245,7 @@ var AudioSource = cc.Class({
 
     onDestroy: function () {
         this.stop();
+        this.audio.destroy();
         cc.audioEngine.uncache(this._clip);
     },
 
