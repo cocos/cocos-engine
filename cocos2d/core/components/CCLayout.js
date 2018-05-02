@@ -520,9 +520,17 @@ var Layout = cc.Class({
 
         var maxHeightChildAnchorY = 0;
 
+        var activeChildCount = 0;
+        children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+            activeChildCount++;
+        });
+
         var newChildWidth = this.cellSize.width;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (children.length - 1) * this.spacingX) / children.length;
+            newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (activeChildCount - 1) * this.spacingX) / activeChildCount;
         }
 
         children.forEach(function(child) {
@@ -653,9 +661,17 @@ var Layout = cc.Class({
         var containerResizeBoundary = 0;
         var maxWidthChildAnchorX = 0;
 
+        var activeChildCount = 0;
+        children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+            activeChildCount++;
+        });
+
         var newChildHeight = this.cellSize.height;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (children.length - 1) * this.spacingY) / children.length;
+            newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (activeChildCount - 1) * this.spacingY) / activeChildCount;
         }
 
         children.forEach(function(child) {
