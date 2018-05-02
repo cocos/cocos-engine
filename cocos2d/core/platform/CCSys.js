@@ -562,6 +562,15 @@ else if (CC_WECHATGAME) {
     else if (env.platform === "ios") {
         sys.os = sys.OS_IOS;
     }
+    else if (env.platform === 'devtools') {
+        var system = env.system.toLowerCase();
+        if (system.indexOf('android') > -1) {
+            sys.os = sys.OS_ANDROID;
+        }
+        else if (system.indexOf('ios') > -1) {
+            sys.os = sys.OS_IOS;
+        }
+    }
 
     var version = /[\d\.]+/.exec(env.system);
     sys.osVersion = version[0];
