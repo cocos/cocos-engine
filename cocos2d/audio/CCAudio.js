@@ -32,6 +32,11 @@ var touchPlayList = [
     //{ instance: Audio, offset: 0, audio: audio }
 ];
 
+//是否是小游戏环境
+function isHybridEnv () {
+    return sys.platform === sys.WECHAT_GAME || sys.platform === sys.QQ_PLAY;
+}
+
 var Audio = function (src) {
     EventTarget.call(this);
 
@@ -139,7 +144,7 @@ Audio.State = {
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
-            if (sys.platform === sys.WECHAT_GAME) {
+            if (isHybridEnv()) {
                 this._element = elem;
             } else {
                 this._element = document.createElement('audio');
@@ -161,7 +166,7 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (sys.platform !== sys.WECHAT_GAME &&
+        if (!isHybridEnv() &&
             this._audioType === Audio.Type.DOM &&
             this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
@@ -196,7 +201,7 @@ Audio.State = {
     proto.resume = function () {
         if (!this._element || this._element.currentTime === 0) return;
         this._bindEnded();
-        if (!cc.sys.platform === cc.sys.QQ_PLAY) {
+        if (cc.sys.platform !== cc.sys.QQ_PLAY) {
             this._element.play();
         }
         this.emit('resume');
@@ -216,7 +221,7 @@ Audio.State = {
                 this._element.currentTime = 0;
             } catch (error) {}
         }
-        if (!cc.sys.platform === cc.sys.QQ_PLAY) {
+        if (cc.sys.platform !== cc.sys.QQ_PLAY) {
             this._element.pause();
         }
         // remove touchPlayList
@@ -250,7 +255,7 @@ Audio.State = {
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
         this._unbindEnded();
-        if (sys.platform !== sys.WECHAT_GAME) {
+        if (!isHybridEnv()) {
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));
@@ -382,7 +387,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (sys.platform !== sys.WECHAT_GAME && self._context.currentTime === 0) {
+                if (!isHybridEnv() && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
