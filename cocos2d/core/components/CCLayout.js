@@ -191,10 +191,10 @@ var Layout = cc.Class({
          */
         type: {
             type: Type,
-            get: function() {
+            get: function () {
                 return this._N$layoutType;
             },
-            set: function(value) {
+            set: function (value) {
                 this._N$layoutType = value;
 
                 if (CC_EDITOR && this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
@@ -222,10 +222,10 @@ var Layout = cc.Class({
             type: ResizeMode,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.resize_mode',
             animatable: false,
-            get: function() {
+            get: function () {
                 return this._resize;
             },
-            set: function(value) {
+            set: function (value) {
                 if (this.type === Type.NONE && value === ResizeMode.CHILDREN) {
                     return;
                 }
@@ -251,7 +251,7 @@ var Layout = cc.Class({
             default: cc.size(40, 40),
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.cell_size',
             type: cc.Size,
-            notify: function() {
+            notify: function () {
                 this._doLayoutDirty();
             },
         },
@@ -267,7 +267,7 @@ var Layout = cc.Class({
             default: AxisDirection.HORIZONTAL,
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
-            notify: function() {
+            notify: function () {
                 if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
@@ -341,7 +341,7 @@ var Layout = cc.Class({
          */
         spacingX: {
             default: 0,
-            notify: function() {
+            notify: function () {
                 this._doLayoutDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_x'
@@ -354,7 +354,7 @@ var Layout = cc.Class({
          */
         spacingY: {
             default: 0,
-            notify: function() {
+            notify: function () {
                 this._doLayoutDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_y'
@@ -370,7 +370,7 @@ var Layout = cc.Class({
         verticalDirection: {
             default: VerticalDirection.TOP_TO_BOTTOM,
             type: VerticalDirection,
-            notify: function() {
+            notify: function () {
                 this._doLayoutDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.vertical_direction',
@@ -387,7 +387,7 @@ var Layout = cc.Class({
         horizontalDirection: {
             default: HorizontalDirection.LEFT_TO_RIGHT,
             type: HorizontalDirection,
-            notify: function() {
+            notify: function () {
                 this._doLayoutDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction',
@@ -411,14 +411,14 @@ var Layout = cc.Class({
         this._N$padding = 0;
     },
 
-    onEnable: function() {
+    onEnable: function () {
         this._addEventListeners();
 
-        if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
+        if (cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
         }
 
-        if(this._N$padding !== 0) {
+        if (this._N$padding !== 0) {
             this._migratePaddingData();
         }
 
@@ -429,7 +429,7 @@ var Layout = cc.Class({
         this._removeEventListeners();
     },
 
-    _doLayoutDirty : function () {
+    _doLayoutDirty: function () {
         this._layoutDirty = true;
     },
 
@@ -453,27 +453,29 @@ var Layout = cc.Class({
         this._removeChildrenEventListeners();
     },
 
-    _addChildrenEventListeners: function() {
+    _addChildrenEventListeners: function () {
         var children = this.node.children;
-        children.forEach(function (child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             child.on('size-changed', this._doLayoutDirty, this);
             child.on('position-changed', this._doLayoutDirty, this);
             child.on('anchor-changed', this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
-        }.bind(this));
+        }
     },
 
     _removeChildrenEventListeners: function () {
         var children = this.node.children;
-        children.forEach(function (child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             child.off('size-changed', this._doLayoutDirty, this);
             child.off('position-changed', this._doLayoutDirty, this);
             child.off('anchor-changed', this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
-        }.bind(this));
+        }
     },
 
-    _childAdded: function(event) {
+    _childAdded: function (event) {
         var child = event.detail;
         child.on('size-changed', this._doLayoutDirty, this);
         child.on('position-changed', this._doLayoutDirty, this);
@@ -483,7 +485,7 @@ var Layout = cc.Class({
         this._doLayoutDirty();
     },
 
-    _childRemoved: function(event) {
+    _childRemoved: function (event) {
         var child = event.detail;
         child.off('size-changed', this._doLayoutDirty, this);
         child.off('position-changed', this._doLayoutDirty, this);
@@ -493,12 +495,12 @@ var Layout = cc.Class({
         this._doLayoutDirty();
     },
 
-    _resized: function() {
+    _resized: function () {
         this._layoutSize = this.node.getContentSize();
         this._doLayoutDirty();
     },
 
-    _doLayoutHorizontally: function(baseWidth, rowBreak, fnPositionY, applyChildren) {
+    _doLayoutHorizontally: function (baseWidth, rowBreak, fnPositionY, applyChildren) {
         var layoutAnchor = this.node.getAnchorPoint();
         var children = this.node.children;
 
@@ -521,21 +523,23 @@ var Layout = cc.Class({
         var maxHeightChildAnchorY = 0;
 
         var activeChildCount = 0;
-        children.forEach(function(child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             if (!child.activeInHierarchy) {
-                return;
+                continue;
             }
             activeChildCount++;
-        });
+        }
 
         var newChildWidth = this.cellSize.width;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
             newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (activeChildCount - 1) * this.spacingX) / activeChildCount;
         }
 
-        children.forEach(function(child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             if (!child.activeInHierarchy) {
-                return;
+                continue;
             }
             //for resizing children
             if (this._resize === ResizeMode.CHILDREN) {
@@ -582,13 +586,13 @@ var Layout = cc.Class({
                         secondMaxHeight = child.height;
                         tempMaxHeight = 0;
                     }
-                    nextX = leftBoundaryOfLayout + sign * (paddingX  + anchorX * child.width);
+                    nextX = leftBoundaryOfLayout + sign * (paddingX + anchorX * child.width);
                     row++;
                 }
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
+            if (baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(nextX, finalPositionY));
                 }
@@ -601,21 +605,21 @@ var Layout = cc.Class({
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
                 signX = -1;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
+                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
             else {
                 containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
+                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
 
             nextX += rightBoundaryOfChild;
-        }.bind(this));
+        }
 
         return containerResizeBoundary;
     },
@@ -624,13 +628,14 @@ var Layout = cc.Class({
         var newHeight = 0;
         var activeChildCount = 0;
         if (this.resizeMode === ResizeMode.CONTAINER) {
-            children.forEach(function(child) {
+            for (var i = 0; i < children.length; ++i) {
+                var child = children[i];
                 if (!child.activeInHierarchy) {
-                    return;
+                    continue;
                 }
                 activeChildCount++;
                 newHeight += child.height;
-            });
+            }
 
             newHeight += (activeChildCount - 1) * this.spacingY + this.paddingBottom + this.paddingTop;
         }
@@ -640,7 +645,7 @@ var Layout = cc.Class({
         return newHeight;
     },
 
-    _doLayoutVertically: function(baseHeight, columnBreak, fnPositionX, applyChildren) {
+    _doLayoutVertically: function (baseHeight, columnBreak, fnPositionX, applyChildren) {
         var layoutAnchor = this.node.getAnchorPoint();
         var children = this.node.children;
 
@@ -662,21 +667,23 @@ var Layout = cc.Class({
         var maxWidthChildAnchorX = 0;
 
         var activeChildCount = 0;
-        children.forEach(function(child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             if (!child.activeInHierarchy) {
-                return;
+                continue;
             }
             activeChildCount++;
-        });
+        }
 
         var newChildHeight = this.cellSize.height;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
             newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (activeChildCount - 1) * this.spacingY) / activeChildCount;
         }
 
-        children.forEach(function(child) {
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             if (!child.activeInHierarchy) {
-                return;
+                continue;
             }
 
             //for resizing children
@@ -758,27 +765,27 @@ var Layout = cc.Class({
             }
 
             nextY += topBoundaryOfChild;
-        }.bind(this));
+        }
 
         return containerResizeBoundary;
     },
 
-    _doLayoutBasic: function() {
+    _doLayoutBasic: function () {
         var children = this.node.children;
 
         var allChildrenBoundingBox = null;
 
-        children.forEach(function(child){
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i];
             if (!child.activeInHierarchy) {
-                return;
+                continue;
             }
-
-            if(!allChildrenBoundingBox){
+            if (!allChildrenBoundingBox) {
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
                 allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
             }
-        });
+        }
 
         if (allChildrenBoundingBox) {
             var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
@@ -813,7 +820,7 @@ var Layout = cc.Class({
             paddingY = this.paddingTop;
         }
 
-        var fnPositionY = function(child, topOffset, row) {
+        var fnPositionY = function (child, topOffset, row) {
             return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + paddingY + row * this.spacingY);
         }.bind(this);
 
@@ -854,7 +861,7 @@ var Layout = cc.Class({
             paddingX = this.paddingRight;
         }
 
-        var fnPositionX = function(child, leftOffset, column) {
+        var fnPositionX = function (child, leftOffset, column) {
             return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + paddingX + column * this.spacingX);
         }.bind(this);
 
@@ -881,7 +888,7 @@ var Layout = cc.Class({
         }
     },
 
-    _doLayoutGrid: function() {
+    _doLayoutGrid: function () {
         var layoutAnchor = this.node.getAnchorPoint();
         var layoutSize = this.node.getContentSize();
 
@@ -889,7 +896,7 @@ var Layout = cc.Class({
             this._doLayoutGridAxisHorizontal(layoutAnchor, layoutSize);
 
         }
-        else if(this.startAxis === AxisDirection.VERTICAL) {
+        else if (this.startAxis === AxisDirection.VERTICAL) {
             this._doLayoutGridAxisVertical(layoutAnchor, layoutSize);
         }
 
@@ -899,13 +906,14 @@ var Layout = cc.Class({
         var newWidth = 0;
         var activeChildCount = 0;
         if (this.resizeMode === ResizeMode.CONTAINER) {
-            children.forEach(function(child) {
-                if(!child.activeInHierarchy) {
-                    return;
+            for (var i = 0; i < children.length; ++i) {
+                var child = children[i];
+                if (!child.activeInHierarchy) {
+                    continue;
                 }
                 activeChildCount++;
                 newWidth += child.width;
-            });
+            }
             newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
         }
         else {
@@ -914,23 +922,23 @@ var Layout = cc.Class({
         return newWidth;
     },
 
-    _doLayout: function() {
+    _doLayout: function () {
 
         if (this.type === Type.HORIZONTAL) {
             var newWidth = this._getHorizontalBaseWidth(this.node.children);
 
-            var fnPositionY = function(child) {
+            var fnPositionY = function (child) {
                 return child.y;
             };
 
-            this._doLayoutHorizontally( newWidth, false, fnPositionY, true);
+            this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
 
             this.node.width = newWidth;
         }
         else if (this.type === Type.VERTICAL) {
             var newHeight = this._getVerticalBaseHeight(this.node.children);
 
-            var fnPositionX = function(child) {
+            var fnPositionX = function (child) {
                 return child.x;
             };
 
@@ -943,7 +951,7 @@ var Layout = cc.Class({
                 this._doLayoutBasic();
             }
         }
-        else if(this.type === Type.GRID) {
+        else if (this.type === Type.GRID) {
             this._doLayoutGrid();
         }
     },
@@ -961,7 +969,7 @@ var Layout = cc.Class({
      * layout.updateLayout();
      * cc.log(childNode.x); // changed
      */
-    updateLayout: function() {
+    updateLayout: function () {
         if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;
