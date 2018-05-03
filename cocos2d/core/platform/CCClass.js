@@ -1239,18 +1239,6 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
 
 cc.Class = CCClass;
 
-// Merged from old _CCClass
-
-/**
- * ClassManager
- */
-cc.ClassManager = {
-    instanceId: (0 | (Math.random() * 998)),
-    getNewInstanceId: function () {
-        return this.instanceId++;
-    }
-};
-
 module.exports = {
     isArray: function (defaultVal) {
         defaultVal = getDefault(defaultVal);

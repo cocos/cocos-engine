@@ -328,9 +328,6 @@ var BaseNode = cc.Class({
         this._activeInHierarchy = false;
         this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
 
-        // Temp
-        this.__instanceId = this._id;
-
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 
         /**

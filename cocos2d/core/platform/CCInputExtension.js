@@ -24,10 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (!cc.ClassManager) {
-    require("./CCClass");
-}
-
 var eventManager = require('../event-manager');
 var inputManager = require("./CCInputManager");
 
