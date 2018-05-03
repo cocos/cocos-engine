@@ -1331,7 +1331,7 @@ var ParticleSystem = cc.Class({
         if (!this._material) {
             this._material = new ParticleMaterial();
             // Particle System cannot be batched, so every one use a unique hash id
-            this._material.updateHash(this.__instanceId);
+            this._material.updateHash(this._id);
         }
 
         let vfx = this._vfx;
