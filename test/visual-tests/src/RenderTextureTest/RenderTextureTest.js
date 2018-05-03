@@ -398,7 +398,7 @@ var RenderTextureZbuffer = RenderTextureBaseLayer.extend({
 
     renderScreenShot:function () {
         var winSize = cc.director.getWinSize();
-        var texture = new cc.RenderTexture(winSize.width, winSize.width);
+        var texture = new cc.RenderTexture(winSize.width, winSize.height);
         if (!texture)
             return;
 
@@ -411,7 +411,7 @@ var RenderTextureZbuffer = RenderTextureBaseLayer.extend({
         var sprite = new _ccsg.Sprite(texture.getSprite().texture);
 
         sprite.x = winSize.width/2;
-        sprite.y = winSize.width/2;
+        sprite.y = winSize.height/2;
         sprite.opacity = 182;
         sprite.flippedY = 1;
         this.addChild(sprite, 999999);
