@@ -1492,23 +1492,23 @@ var Node = cc.Class({
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     off (type, callback, target, useCapture) {
-        let forDispatch = false;
-        if (_touchEvents.indexOf(type) !== -1) {
-            if (this._touchListener && !_checkListeners(this, _touchEvents)) {
-                eventManager.removeListener(this._touchListener);
-                this._touchListener = null;
-            }
-            forDispatch = true;
-        }
-        else if (_mouseEvents.indexOf(type) !== -1) {
-            if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
-                eventManager.removeListener(this._mouseListener);
-                this._mouseListener = null;
-            }
-            forDispatch = true;
-        }
-        if (forDispatch) {
+        let touchEvent = _touchEvents.indexOf(type) !== -1;
+        let mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
+        if (touchEvent || mouseEvent) {
             this._offDispatch(type, callback, target, useCapture);
+
+            if (touchEvent) {
+                if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+                    eventManager.removeListener(this._touchListener);
+                    this._touchListener = null;
+                }
+            }
+            else if (mouseEvent) {
+                if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+                    eventManager.removeListener(this._mouseListener);
+                    this._mouseListener = null;
+                }
+            }
         }
         else if (this._bubblingListeners) {
             this._bubblingListeners.off(type, callback, target);
