@@ -143,12 +143,6 @@ cc.rendererWebGL = {
         initQuadBuffer(cc.macro.BATCH_VERTEX_COUNT);
         if (cc.sys.os === cc.sys.OS_IOS) {
             _IS_IOS = true;
-
-            // todo Can be removed after qqplay with support
-            let version = cc.sys.osVersion.split('.');
-            if (cc.sys.platform === cc.sys.QQ_PLAY && version[0] < 10) {
-                cc.sys.isOldIOS = true;
-            }
         }
     },
 
@@ -444,7 +438,7 @@ cc.rendererWebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
         if (uploadAll) {
-            if (cc.sys.isOldIOS) {
+            if (CC_QQPLAY && cc.sys.supportArrayBuffer) {
                 gl.bufferDataOldIOS(gl.ARRAY_BUFFER, _vertexDataF32, _vertexDataUI32, gl.DYNAMIC_DRAW);
             }
             else
@@ -452,7 +446,7 @@ cc.rendererWebGL = {
         }
         else {
             var view = _vertexDataF32.subarray(0, _batchingSize * _sizePerVertex);
-            if (cc.sys.isOldIOS) {
+            if (CC_QQPLAY && cc.sys.supportArrayBuffer) {
                 var viewUI32 = _vertexDataUI32.subarray(0, _batchingSize * _sizePerVertex);
                 gl.bufferDataOldIOS(gl.ARRAY_BUFFER, view, viewUI32, gl.DYNAMIC_DRAW);
             }
