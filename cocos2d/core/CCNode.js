@@ -1148,15 +1148,19 @@ var Node = cc.Class({
             _currentHovered = null;
         }
 
-        if (this._touchListener) {
-            this._touchListener.owner = null;
-            this._touchListener.mask = null;
-            this._touchListener = null;
-        }
-        if (this._mouseListener) {
-            this._mouseListener.owner = null;
-            this._mouseListener.mask = null;
-            this._mouseListener = null;
+        // Remove all event listeners if necessary
+        if (this._touchListener || this._mouseListener) {
+            eventManager.removeListeners(this);
+            if (this._touchListener) {
+                this._touchListener.owner = null;
+                this._touchListener.mask = null;
+                this._touchListener = null;
+            }
+            if (this._mouseListener) {
+                this._mouseListener.owner = null;
+                this._mouseListener.mask = null;
+                this._mouseListener = null;
+            }
         }
 
         // Recycle math objects
@@ -1166,8 +1170,6 @@ var Node = cc.Class({
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
-
-        eventManager.removeListeners(this);
 
         if (!destroyByParent) {
             // simulate some destruct logic to make undo system work correctly
