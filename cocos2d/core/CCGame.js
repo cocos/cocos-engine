@@ -406,11 +406,19 @@ var game = {
         if (cc._engineLoaded) {
             this._prepareCalled = true;
 
-            this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
-
             /**
              * @module cc
              */
+
+            /**
+             * !#en Director
+             * !#zh 导演类。
+             * @property director
+             * @type {Director}
+             */
+            cc.director = new cc.Director();
+
+            this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
 
             /**
              * !#en cc.view is the shared view object.
@@ -419,14 +427,8 @@ var game = {
              * @type {View}
              */
             cc.view = View ? View._getInstance() : null;
-
-            /**
-             * !#en Director
-             * !#zh 导演类。
-             * @property director
-             * @type {Director}
-             */
-            cc.director = cc.Director._getInstance();
+            
+            cc.director.init();
             
             /**
              * !#en cc.winSize is the alias object for the size of the current game window.

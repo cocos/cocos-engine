@@ -28,7 +28,7 @@
  * @module cc
  */
 const js = require('./platform/js');
-const IdGenerater = require('../platform/id-generater');
+const IdGenerater = require('./platform/id-generater');
 const MAX_POOL_SIZE = 20;
 
 var idGenerater = new IdGenerater('Scheduler');
