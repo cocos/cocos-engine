@@ -138,7 +138,6 @@ var BaseNode = cc.Class({
     extends: cc.Object,
 
     properties: {
-
         // SERIALIZABLE
 
         _parent: null,
@@ -233,11 +232,7 @@ var BaseNode = cc.Class({
          */
         uuid: {
             get () {
-                var id = this._id;
-                if (!id) {
-                    id = this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
-                }
-                return id;
+                return this._id;
             }
         },
 
@@ -330,10 +325,13 @@ var BaseNode = cc.Class({
      */
     ctor (name) {
         this._name = name !== undefined ? name : 'New Node';
-
         this._activeInHierarchy = false;
-        // Support for ActionManager and EventManager
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+        this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
+
+        // Temp
+        this.__instanceId = this._id;
+
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 
         /**
          * Register all related EventTargets,

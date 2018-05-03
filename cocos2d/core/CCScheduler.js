@@ -27,8 +27,11 @@
 /**
  * @module cc
  */
-var js = require('./platform/js');
-var MAX_POOL_SIZE = 20;
+const js = require('./platform/js');
+const IdGenerater = require('../platform/id-generater');
+const MAX_POOL_SIZE = 20;
+
+var idGenerater = new IdGenerater('Scheduler');
 
 //data structures
 /*
@@ -256,10 +259,6 @@ CallbackTimer.put = function (timer) {
     }
 };
 
-var getTargetId = function (target) {
-    return target.__instanceId || target.uuid;
-};
-
 /**
  * !#en
  * Scheduler is responsible of triggering the scheduled callbacks.<br/>
@@ -301,7 +300,7 @@ cc.Scheduler.prototype = {
     //-----------------------private method----------------------
 
     _removeHashElement: function (element) {
-        delete this._hashForTimers[getTargetId(element.target)];
+        delete this._hashForTimers[element.target._id];
         var arr = this._arrayForTimers;
         for (var i = 0, l = arr.length; i < l; i++) {
             if (arr[i] === element) {
@@ -313,7 +312,7 @@ cc.Scheduler.prototype = {
     },
 
     _removeUpdateFromHash: function (entry) {
-        var targetId = getTargetId(entry.target);
+        var targetId = entry.target._id;
         var self = this, element = self._hashForUpdates[targetId];
         if (element) {
             // Remove list entry from list
@@ -346,6 +345,25 @@ cc.Scheduler.prototype = {
     },
 
     //-----------------------public method-------------------------
+    /**
+     * !en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.
+     * This method will add a `_id` property if it doesn't exist.
+     * !zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。
+     * 这个方法会给对象添加一个 `_id` 属性，如果这个属性不存在的话。
+     * @method enableForTarget
+     * @param {Object} target
+     */
+    enableForTarget: function (target) {
+        if (!target._id) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+            }
+            else {
+                target._id = idGenerater.getNewId();
+            }
+        }
+    },
+
     /**
      * !#en
      * Modifies the time of all scheduled callbacks.<br/>
@@ -494,14 +512,22 @@ cc.Scheduler.prototype = {
 
         cc.assertID(target, 1502);
 
-        var instanceId = getTargetId(target);
-        cc.assertID(instanceId, 1510);
-        var element = this._hashForTimers[instanceId];
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
+        var element = this._hashForTimers[targetId];
         if (!element) {
             // Is this the 1st element ? Then set the pause level to all the callback_fns of this target
             element = HashTimerEntry.get(null, target, 0, null, null, paused);
             this._arrayForTimers.push(element);
-            this._hashForTimers[instanceId] = element;
+            this._hashForTimers[targetId] = element;
         } else if (element.paused !== paused) {
             cc.warnID(1511);
         }
@@ -544,8 +570,16 @@ cc.Scheduler.prototype = {
      * @param {Boolean} paused
      */
     scheduleUpdate: function(target, priority, paused) {
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
         var hashElement = this._hashForUpdates[targetId];
         if (hashElement && hashElement.entry){
             // check if priority has changed
@@ -601,8 +635,16 @@ cc.Scheduler.prototype = {
         // explicity handle nil arguments when removing an object
         if (!target || !callback)
             return;
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         var self = this, element = self._hashForTimers[targetId];
         if (element) {
@@ -642,8 +684,16 @@ cc.Scheduler.prototype = {
     unscheduleUpdate: function (target) {
         if (!target)
             return;
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         var element = this._hashForUpdates[targetId];
         if (element) {
@@ -668,8 +718,16 @@ cc.Scheduler.prototype = {
         if (!target){
             return;
         }
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         // Custom Selectors
         var element = this._hashForTimers[targetId];
@@ -775,8 +833,16 @@ cc.Scheduler.prototype = {
         //selector, target
         cc.assertID(callback, 1508);
         cc.assertID(target, 1509);
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
         
         var element = this._hashForTimers[targetId];
 
@@ -906,8 +972,16 @@ cc.Scheduler.prototype = {
      */
     pauseTarget: function (target) {
         cc.assertID(target, 1503);
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         //customer selectors
         var self = this, 
@@ -937,20 +1011,26 @@ cc.Scheduler.prototype = {
      */
     resumeTarget: function (target) {
         cc.assertID(target, 1504);
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         // custom selectors
         var self = this,
             element = self._hashForTimers[targetId];
-
         if (element) {
             element.paused = false;
         }
 
         //update callback
         var elementUpdate = self._hashForUpdates[targetId];
-
         if (elementUpdate) {
             elementUpdate.entry.paused = false;
         }
@@ -965,8 +1045,16 @@ cc.Scheduler.prototype = {
      */
     isTargetPaused: function (target) {
         cc.assertID(target, 1505);
-        var targetId = getTargetId(target);
-        cc.assertID(targetId, 1510);
+        var targetId = target._id;
+        if (!targetId) {
+            if (target.__instanceId) {
+                cc.warnID(1513);
+                targetId = target._id = target.__instanceId;
+            }
+            else {
+                cc.errorID(1510);
+            }
+        }
 
         // Custom selectors
         var element = this._hashForTimers[targetId];

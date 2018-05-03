@@ -337,7 +337,7 @@ cc.Director.prototype = {
      */
     purgeDirector: function () {
         //cleanup scheduler
-        this.getScheduler().unscheduleAll();
+        this._scheduler.unscheduleAll();
         this._compScheduler.unscheduleAll();
 
         this._nodeActivator.reset();

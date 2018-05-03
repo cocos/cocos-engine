@@ -52,7 +52,7 @@ var callLateUpdate = CC_SUPPORT_JIT ? 'c.lateUpdate(dt)' : function (c, dt) {
 
 function sortedIndex (array, comp) {
     var order = comp.constructor._executionOrder;
-    var id = comp.__instanceId;
+    var id = comp._id;
     for (var l = 0, h = array.length - 1, m = h >>> 1;
          l <= h;
          m = (l + h) >>> 1
@@ -66,7 +66,7 @@ function sortedIndex (array, comp) {
             l = m + 1;
         }
         else {
-            var testId = test.__instanceId;
+            var testId = test._id;
             if (testId > id) {
                 h = m - 1;
             }

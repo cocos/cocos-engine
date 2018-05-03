@@ -40,10 +40,10 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     },
 
     ctor () {
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
         this._dragonBones = new dragonBones.DragonBones();
 
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && cc.director._scheduler) {
+            cc.director._scheduler.enableForTarget(this);
             cc.director._scheduler.scheduleUpdate(this, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
     },

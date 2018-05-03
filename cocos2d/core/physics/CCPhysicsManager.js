@@ -137,8 +137,6 @@ var PhysicsManager = cc.Class({
     },
 
     ctor: function () {
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
-
         this._debugDrawFlags = 0;
         this._debugDrawer = null;
 
@@ -153,6 +151,8 @@ var PhysicsManager = cc.Class({
         this._delayEvents = [];
 
         this._accumulator = 0;
+
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 
         /**
          * !#en

@@ -65,7 +65,7 @@ cc.ActionManager = function () {
     this._hashTargets = js.createMap(true);
     this._arrayTargets = [];
     this._currentTarget = null;
-    this.__instanceId = cc.ClassManager.getNewInstanceId();
+    cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 };
 cc.ActionManager.prototype = {
     constructor: cc.ActionManager,

@@ -27,11 +27,10 @@ var js = cc.js;
 
 var AnimationManager = cc.Class({
     ctor: function () {
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
-
         this._anims = new js.array.MutableForwardIterator([]);
-
         this._delayEvents = [];
+
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
     },
 
     // for manager
