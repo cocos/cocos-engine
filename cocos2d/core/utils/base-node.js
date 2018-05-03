@@ -1289,6 +1289,8 @@ var BaseNode = cc.Class({
     },
 });
 
+BaseNode.idGenerater = idGenerater;
+
 // For walk
 BaseNode._stacks = [[]];
 BaseNode._stackId = 0;
