@@ -42,6 +42,8 @@ const GL_REPEAT = 10497;                // gl.REPEAT
 const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
 const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
 
+var idGenerater = new (require('../platform/id-generater'))('Tex');
+
 /**
  * <p>
  * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
@@ -244,7 +246,7 @@ var Texture2D = cc.Class({
 
     ctor () {
         // Id for generate hash in material
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._id = idGenerater.getNewId();
         
         /**
          * !#en
@@ -301,7 +303,7 @@ var Texture2D = cc.Class({
     },
 
     getId () {
-        return this.__instanceId;
+        return this._id;
     },
 
     toString () {
