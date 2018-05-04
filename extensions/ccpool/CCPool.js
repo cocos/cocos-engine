@@ -60,7 +60,7 @@ cc.pool = /** @lends cc.pool# */{
      * !#zh 加入对象到对象池中。
      * @method putInPool
      * @param {Object} obj - The need put in pool object.
-     * @example {@link utils/api/engine/docs/extensions/ccpool/putInPool.js}
+     * @example {@link extensions/ccpool/putInPool.js}
      */
     putInPool: function (obj) {
         var cid = cc.js._getClassId(obj.constructor);

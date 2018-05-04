@@ -101,7 +101,7 @@ var __getListenerID = function (event) {
  *
  * @class eventManager
  * @static
- * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
+ * @example {@link cocos2d/core/event-manager/CCEventManager/addListener.js}
  * @deprecated
  */
 var eventManager = {
@@ -806,7 +806,7 @@ var eventManager = {
      * !#zh 移除一个已添加的监听器。
      * @method removeListener
      * @param {EventListener} listener - an event listener or a registered node target
-     * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/removeListener.js}
+     * @example {@link cocos2d/core/event-manager/CCEventManager/removeListener.js}
      */
     removeListener: function (listener) {
         if (listener == null)

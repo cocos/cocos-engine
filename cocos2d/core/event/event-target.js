@@ -469,7 +469,7 @@ proto._isTargetActive = function (type) {
  * @method _getCapturingTargets
  * @param {String} type - the event type
  * @param {Array} array - the array to receive targets
- * @example {@link utils/api/engine/docs/cocos2d/core/event/_getCapturingTargets.js}
+ * @example {@link cocos2d/core/event/_getCapturingTargets.js}
  */
 proto._getCapturingTargets = function (type, array) {
 
