@@ -54,9 +54,7 @@ var Component = cc.Class({
             _Scene.AssetsWatcher.initComponent(this);
         }
         this._id = idGenerater.getNewId();
-        if (CC_EDITOR || CC_TEST) {
-            cc.engine.attachedObjsForEditor[this._id] = this;
-        }
+        cc.engine.attachedObjsForEditor[this._id] = this;
 
         /**
          * Register all related EventTargets,
@@ -67,7 +65,7 @@ var Component = cc.Class({
         this.__eventTargets = [];
     } : function () {
         this._id = idGenerater.getNewId();
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_TEST) {
             cc.engine.attachedObjsForEditor[this._id] = this;
         }
         this.__eventTargets = [];
