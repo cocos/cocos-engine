@@ -618,8 +618,8 @@ else if (CC_QQPLAY) {
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
 
-    // todo Can be removed after qqplay with support
-    sys.supportArrayBuffer = sys.os === sys.OS_IOS && sys.osMainVersion < 10;
+    // todo Can be removed after qqplay with support (ArrayBuffer)
+    sys.noABSupport = sys.os === sys.OS_IOS && sys.osMainVersion < 10;
 
     var w = env.screenWidth;
     var h = env.screenHeight;
