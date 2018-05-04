@@ -7,10 +7,11 @@ const WORLD_TRANSFORM = 1 << 1;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
 const RENDER = 1 << 3;
-const CHILDREN = 1 << 4;
-const POST_UPDATE_RENDER_DATA = 1 << 5;
-const POST_RENDER = 1 << 6;
-const FINAL = 1 << 7;
+const CUSTOM_IA_RENDER = 1 << 4;
+const CHILDREN = 1 << 5;
+const POST_UPDATE_RENDER_DATA = 1 << 6;
+const POST_RENDER = 1 << 7;
+const FINAL = 1 << 8;
 
 let _walker = null;
 
@@ -79,6 +80,12 @@ _proto._render = function (node) {
     this._next._func(node);
 }
 
+_proto._customIARender = function (node) {
+    let comp = node._renderComponent;
+    _walker._commitIA(comp, comp._assembler, node._cullingMask);
+    this._next._func(node);
+}
+
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
 
@@ -135,6 +142,9 @@ function createFlow (flag, next) {
             break;
         case RENDER: 
             flow._func = flow._render;
+            break;
+        case CUSTOM_IA_RENDER:
+            flow._func = flow._customIARender;
             break;
         case CHILDREN: 
             flow._func = flow._children;
@@ -206,9 +216,10 @@ RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
+RenderFlow.FLAG_CUSTOM_IA_RENDER = CUSTOM_IA_RENDER;
 RenderFlow.FLAG_CHILDREN = CHILDREN;
 RenderFlow.FLAG_POST_UPDATE_RENDER_DATA = POST_UPDATE_RENDER_DATA;
 RenderFlow.FLAG_POST_RENDER = POST_RENDER;
 RenderFlow.FLAG_FINAL = FINAL;
 
-module.exports = RenderFlow;
+module.exports = cc.RenderFlow = RenderFlow;

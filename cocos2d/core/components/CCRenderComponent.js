@@ -74,6 +74,7 @@ var RenderComponent = cc.Class({
     },
 
     markUpdateRenderData () {
+        if (!this.enabledInHierarchy) return;
         this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 

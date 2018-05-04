@@ -32,6 +32,8 @@ const RenderFlow = require('./render-flow');
 const QuadBuffer = require('./webgl/quad-buffer');
 const MeshBuffer = require('./webgl/mesh-buffer');
 
+let idGenerater = new (require('../platform/id-generater'))('VertextFormat');
+
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -154,13 +156,14 @@ RenderComponentWalker.prototype = {
         buffer.indiceStart = buffer.indiceOffset;
     },
 
-    _flushIA () {
-        let material = this.material,
-            iaRenderData = this.data;
-
-        if (!iaRenderData.ia) {
+    _flushIA (iaRenderData) {
+        let material = iaRenderData.material;
+        
+        if (!iaRenderData.ia || !material) {
             return;
         }
+
+        this.material = material;
 
         // Check stencil state and modify pass
         let effect = this._stencilMgr.handleEffect(material.effect);
@@ -182,12 +185,21 @@ RenderComponentWalker.prototype = {
             this.cullingMask !== cullingMask) {
             this._flush();
     
-            this.node = assembler.useModel ? node : this._dummyNode;
+            this.node = assembler.useModel ? comp.node : this._dummyNode;
             this.material = comp._material;
             this.cullingMask = cullingMask;
         }
     
         assembler.fillBuffers(comp, this);
+    },
+
+    _commitIA (comp, assembler, cullingMask) {
+        this._flush();
+        this.cullingMask = cullingMask;
+        this.material = comp._material;
+        this.node = assembler.useModel ? comp.node : this._dummyNode;
+
+        assembler.renderIA(comp, this);
     },
 
     visit (scene) {
@@ -204,6 +216,10 @@ RenderComponentWalker.prototype = {
     },
 
     getBuffer (type, vertextFormat) {
+        if (!vertextFormat.name) {
+            vertextFormat.name = idGenerater.getNewId();
+        }
+
         let key = type + vertextFormat.name;
         let buffer = _buffers[key];
         if (!buffer) {

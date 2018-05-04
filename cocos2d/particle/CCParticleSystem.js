@@ -32,6 +32,7 @@ const PNGReader = require('./CCPNGReader');
 const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
+const RenderFlow = require('../core/renderer/render-flow');
 const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
@@ -976,6 +977,9 @@ var ParticleSystem = cc.Class({
     onEnable: function () {
         this._super();
         this._updateMaterial();
+
+        // should add render flag after particle loaded
+        this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     onDestroy: function () {
@@ -1342,6 +1346,8 @@ var ParticleSystem = cc.Class({
         this._updateMaterialSize();
 
         this._updateBlendFunc();
+
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
     
     _updateBlendFunc: function () {
