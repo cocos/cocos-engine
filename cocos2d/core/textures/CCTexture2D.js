@@ -427,6 +427,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     releaseTexture: function () {
         if (this._gl && this._glID !== null) {
             this._gl.deleteTexture(this._glID);
+            this._glID = null;
         }
     },
 

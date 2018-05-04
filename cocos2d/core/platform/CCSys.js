@@ -614,7 +614,7 @@ else if (CC_QQPLAY) {
 
     var version = /[\d\.]+/.exec(env.version);
     sys.osVersion = version[0];
-    sys.osMainVersion = parseInt(osVersion.split('.')[0]);
+    sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
 

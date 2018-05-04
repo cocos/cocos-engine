@@ -32,6 +32,10 @@ var touchPlayList = [
     //{ instance: Audio, offset: 0, audio: audio }
 ];
 
+function isHybridEnv () {
+    return sys.platform === sys.WECHAT_GAME || sys.platform === sys.QQ_PLAY;
+}
+
 var Audio = function (src) {
     EventTarget.call(this);
 
@@ -138,10 +142,15 @@ Audio.State = {
     };
 
     proto.mount = function (elem) {
-        if (sys.platform === sys.WECHAT_GAME || elem instanceof HTMLElement) {
-            this._element = document.createElement('audio');
-            this._element.src = elem.src;
-            this._audioType = Audio.Type.DOM;
+        if (elem instanceof HTMLElement) {
+            if (isHybridEnv()) {
+                this._element = elem;
+            }
+            else {
+                this._element = document.createElement('audio');
+                this._element.src = elem.src;
+                this._audioType = Audio.Type.DOM;
+            }
         } else {
             this._element = new WebAudioElement(elem, this);
             this._audioType = Audio.Type.WEBAUDIO;
@@ -157,7 +166,7 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (sys.platform !== sys.WECHAT_GAME && 
+        if (!isHybridEnv() &&
             this._audioType === Audio.Type.DOM && 
             this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
@@ -242,7 +251,7 @@ Audio.State = {
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
         this._unbindEnded();
-        if (sys.platform !== sys.WECHAT_GAME) {
+        if (!isHybridEnv()) {
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));
@@ -374,7 +383,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (sys.platform !== sys.WECHAT_GAME && self._context.currentTime === 0) {
+                if (!isHybridEnv() && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
