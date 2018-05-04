@@ -7,7 +7,7 @@ const WORLD_TRANSFORM = 1 << 1;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
 const RENDER = 1 << 3;
-const COMSTOM_IA_RENDER = 1 << 4;
+const CUSTOM_IA_RENDER = 1 << 4;
 const CHILDREN = 1 << 5;
 const POST_UPDATE_RENDER_DATA = 1 << 6;
 const POST_RENDER = 1 << 7;
@@ -143,7 +143,7 @@ function createFlow (flag, next) {
         case RENDER: 
             flow._func = flow._render;
             break;
-        case COMSTOM_IA_RENDER:
+        case CUSTOM_IA_RENDER:
             flow._func = flow._customIARender;
             break;
         case CHILDREN: 
@@ -216,7 +216,7 @@ RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
-RenderFlow.FLAG_COMSTOM_IA_RENDER = COMSTOM_IA_RENDER;
+RenderFlow.FLAG_CUSTOM_IA_RENDER = CUSTOM_IA_RENDER;
 RenderFlow.FLAG_CHILDREN = CHILDREN;
 RenderFlow.FLAG_POST_UPDATE_RENDER_DATA = POST_UPDATE_RENDER_DATA;
 RenderFlow.FLAG_POST_RENDER = POST_RENDER;

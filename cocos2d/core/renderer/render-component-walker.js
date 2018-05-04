@@ -197,7 +197,7 @@ RenderComponentWalker.prototype = {
         this.material = comp._material;
         this.node = assembler.useModel ? comp.node : this._dummyNode;
 
-        assembler._renderIA(comp, this);
+        assembler.renderIA(comp, this);
     },
 
     visit (scene) {

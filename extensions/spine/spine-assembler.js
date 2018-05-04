@@ -156,8 +156,8 @@ var spineAssembler = js.addon({
         data.dataLength = 0;
         let indices;
         let material = null, currMaterial = null;
-        let vertexCount = 0, vertexOffset = 0;//, maxVertex = batchData.MAX_VERTEX - batchData.vertexOffset;
-        let indiceCount = 0, indiceOffset = 0;//, maxIndice = batchData.MAX_INDICE - batchData.indiceOffset;
+        let vertexCount = 0, vertexOffset = 0;
+        let indiceCount = 0, indiceOffset = 0;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -192,10 +192,6 @@ var spineAssembler = js.addon({
                 }
                 data.material = currMaterial = material;
             }
-            // if (vertexOffset + vertexCount > maxVertex || indiceOffset + vertexCount > maxIndice) {
-            //     currMaterial = null;
-            //     newData = true;
-            // }
 
             // Request new render data and new vertex content
             if (newData) {
@@ -212,9 +208,6 @@ var spineAssembler = js.addon({
                 // reset offset
                 vertexOffset = 0;
                 indiceOffset = 0;
-                // reset max because initial max is depending on batchData.vertexOffset & indiceOffset
-                // maxVertex = batchData.MAX_VERTEX;
-                // maxIndice = batchData.MAX_INDICE;
             }
 
             // Fill up indices

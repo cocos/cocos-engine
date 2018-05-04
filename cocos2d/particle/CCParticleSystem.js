@@ -902,7 +902,6 @@ var ParticleSystem = cc.Class({
         // vfx handle real particle step process based on GPU shaders
         this._vfx = new Particles(cc.renderer.device, cc.renderer._forward, this);
         this._vertexFormat = this._vfx.vertexFormat;
-        this._vertexFormat.name = 'ParticlesVertexFormat';
 
         // Config update flags, vfx constructor has updated with the current config, so not dirty
         this._maxParticleDirty = false;
@@ -976,8 +975,11 @@ var ParticleSystem = cc.Class({
     },
 
     onEnable: function () {
-        this.node._renderComponent = this;
+        this._super();
         this._updateMaterial();
+
+        // should add render flag after particle loaded
+        this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     onDestroy: function () {
