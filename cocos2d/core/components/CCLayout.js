@@ -525,10 +525,9 @@ var Layout = cc.Class({
         var activeChildCount = 0;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
-            if (!child.activeInHierarchy) {
-                continue;
+            if (child.activeInHierarchy) {
+                activeChildCount++;
             }
-            activeChildCount++;
         }
 
         var newChildWidth = this.cellSize.width;
@@ -630,11 +629,10 @@ var Layout = cc.Class({
         if (this.resizeMode === ResizeMode.CONTAINER) {
             for (var i = 0; i < children.length; ++i) {
                 var child = children[i];
-                if (!child.activeInHierarchy) {
-                    continue;
+                if (child.activeInHierarchy) {
+                    activeChildCount++;
+                    newHeight += child.height;
                 }
-                activeChildCount++;
-                newHeight += child.height;
             }
 
             newHeight += (activeChildCount - 1) * this.spacingY + this.paddingBottom + this.paddingTop;
@@ -669,10 +667,9 @@ var Layout = cc.Class({
         var activeChildCount = 0;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
-            if (!child.activeInHierarchy) {
-                continue;
+            if (child.activeInHierarchy) {
+                activeChildCount++;
             }
-            activeChildCount++;
         }
 
         var newChildHeight = this.cellSize.height;
@@ -777,13 +774,12 @@ var Layout = cc.Class({
 
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
-            if (!child.activeInHierarchy) {
-                continue;
-            }
-            if (!allChildrenBoundingBox) {
-                allChildrenBoundingBox = child.getBoundingBoxToWorld();
-            } else {
-                allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+            if (child.activeInHierarchy) {
+                if (!allChildrenBoundingBox) {
+                    allChildrenBoundingBox = child.getBoundingBoxToWorld();
+                } else {
+                    allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+                }
             }
         }
 
@@ -908,11 +904,10 @@ var Layout = cc.Class({
         if (this.resizeMode === ResizeMode.CONTAINER) {
             for (var i = 0; i < children.length; ++i) {
                 var child = children[i];
-                if (!child.activeInHierarchy) {
-                    continue;
+                if (child.activeInHierarchy) {
+                    activeChildCount++;
+                    newWidth += child.width;
                 }
-                activeChildCount++;
-                newWidth += child.width;
             }
             newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
         }
