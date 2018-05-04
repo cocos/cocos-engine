@@ -35,7 +35,12 @@ _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
-    this._labelCanvas = document.createElement("canvas");
+    if (cc.sys.platform === cc.sys.QQ_PLAY) {
+        cc.sharedLabelCanvas = cc.sharedLabelCanvas || document.createElement('canvas');
+        this._labelCanvas = cc.sharedLabelCanvas;
+    } else {
+        this._labelCanvas = document.createElement("canvas");
+    }
     this._texture.initWithElement(this._labelCanvas);
     this._labelContext = this._labelCanvas.getContext("2d");
 
