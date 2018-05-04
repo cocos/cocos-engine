@@ -298,6 +298,10 @@ cc.Scheduler: pause state of the scheduled task doesn't match the element pause 
 
 cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0
 
+### 1513
+
+cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do scheduler.enableForTarget(target) before all scheduler API usage on target
+
 ### 1600
 
 getZOrder is deprecated. Please use getLocalZOrder instead.

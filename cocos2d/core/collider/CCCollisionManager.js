@@ -133,13 +133,12 @@ let CollisionManager = cc.Class({
     },
 
     ctor: function () {
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
-
         this._contacts = [];
         this._colliders = [];
-
         this._debugDrawer = null;
         this._enabledDebugDraw = false;
+        
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
     },
 
     update: function (dt) {

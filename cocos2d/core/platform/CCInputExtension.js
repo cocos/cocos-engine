@@ -24,10 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (!cc.ClassManager) {
-    require("./CCClass");
-}
-
 var eventManager = require('../event-manager');
 var inputManager = require("./CCInputManager");
 
@@ -53,8 +49,6 @@ cc.Acceleration = function (x, y, z, timestamp) {
     this.timestamp = timestamp || 0;
 };
 
-inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
-
 /**
  * whether enable accelerometer event
  * @method setAccelerometerEnabled
@@ -67,6 +61,7 @@ inputManager.setAccelerometerEnabled = function(isEnable){
 
     _t._accelEnabled = isEnable;
     var scheduler = cc.director.getScheduler();
+    scheduler.enableForTarget(_t);
     if(_t._accelEnabled){
         _t._accelCurTime = 0;
         scheduler.scheduleUpdate(_t);

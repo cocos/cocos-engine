@@ -1148,15 +1148,19 @@ var Node = cc.Class({
             _currentHovered = null;
         }
 
-        if (this._touchListener) {
-            this._touchListener.owner = null;
-            this._touchListener.mask = null;
-            this._touchListener = null;
-        }
-        if (this._mouseListener) {
-            this._mouseListener.owner = null;
-            this._mouseListener.mask = null;
-            this._mouseListener = null;
+        // Remove all event listeners if necessary
+        if (this._touchListener || this._mouseListener) {
+            eventManager.removeListeners(this);
+            if (this._touchListener) {
+                this._touchListener.owner = null;
+                this._touchListener.mask = null;
+                this._touchListener = null;
+            }
+            if (this._mouseListener) {
+                this._mouseListener.owner = null;
+                this._mouseListener.mask = null;
+                this._mouseListener = null;
+            }
         }
 
         // Recycle math objects
@@ -1166,8 +1170,6 @@ var Node = cc.Class({
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
-
-        eventManager.removeListeners(this);
 
         if (!destroyByParent) {
             // simulate some destruct logic to make undo system work correctly
@@ -1260,6 +1262,10 @@ var Node = cc.Class({
     _onBatchCreated () {
         this._upgrade_1x_to_2x();
 
+        if (!this._id) {
+            this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : BaseNode.idGenerater.getNewId();
+        }
+
         this._updateOrderOfArrival();
 
         let prefabInfo = this._prefab;
@@ -1288,6 +1294,10 @@ var Node = cc.Class({
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
+
+        if (!this._id) {
+            this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : BaseNode.idGenerater.getNewId();
+        }
         
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1492,23 +1502,23 @@ var Node = cc.Class({
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     off (type, callback, target, useCapture) {
-        let forDispatch = false;
-        if (_touchEvents.indexOf(type) !== -1) {
-            if (this._touchListener && !_checkListeners(this, _touchEvents)) {
-                eventManager.removeListener(this._touchListener);
-                this._touchListener = null;
-            }
-            forDispatch = true;
-        }
-        else if (_mouseEvents.indexOf(type) !== -1) {
-            if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
-                eventManager.removeListener(this._mouseListener);
-                this._mouseListener = null;
-            }
-            forDispatch = true;
-        }
-        if (forDispatch) {
+        let touchEvent = _touchEvents.indexOf(type) !== -1;
+        let mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
+        if (touchEvent || mouseEvent) {
             this._offDispatch(type, callback, target, useCapture);
+
+            if (touchEvent) {
+                if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+                    eventManager.removeListener(this._touchListener);
+                    this._touchListener = null;
+                }
+            }
+            else if (mouseEvent) {
+                if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+                    eventManager.removeListener(this._mouseListener);
+                    this._mouseListener = null;
+                }
+            }
         }
         else if (this._bubblingListeners) {
             this._bubblingListeners.off(type, callback, target);

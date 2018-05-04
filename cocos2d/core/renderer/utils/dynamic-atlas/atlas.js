@@ -22,7 +22,7 @@ class Atlas {
     insertSpriteFrame (spriteFrame) {
         let rect = spriteFrame._rect,
             texture = spriteFrame._texture,
-            info = this._innerTextureInfos[texture.__instanceId];
+            info = this._innerTextureInfos[texture._id];
 
         let sx = rect.x, sy = rect.y;
 
@@ -48,7 +48,7 @@ class Atlas {
 
             this._texture.drawTextureAt(texture, this._x, this._y);
 
-            this._innerTextureInfos[texture.__instanceId] = {
+            this._innerTextureInfos[texture._id] = {
                 x: this._x,
                 y: this._y,
                 texture: texture

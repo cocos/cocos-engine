@@ -53,8 +53,8 @@ var Component = cc.Class({
         if (window._Scene && _Scene.AssetsWatcher) {
             _Scene.AssetsWatcher.initComponent(this);
         }
-        // Support for Scheduler
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._id = idGenerater.getNewId();
+        cc.engine.attachedObjsForEditor[this._id] = this;
 
         /**
          * Register all related EventTargets,
@@ -64,8 +64,10 @@ var Component = cc.Class({
          */
         this.__eventTargets = [];
     } : function () {
-        // Support for Scheduler
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._id = idGenerater.getNewId();
+        if (CC_TEST) {
+            cc.engine.attachedObjsForEditor[this._id] = this;
+        }
         this.__eventTargets = [];
     },
 
@@ -117,14 +119,7 @@ var Component = cc.Class({
          */
         uuid: {
             get () {
-                var id = this._id;
-                if ( !id ) {
-                    id = this._id = idGenerater.getNewId();
-                    if (CC_EDITOR || CC_TEST) {
-                        cc.engine.attachedObjsForEditor[id] = this;
-                    }
-                }
-                return id;
+                return this._id;
             },
             visible: false
         },

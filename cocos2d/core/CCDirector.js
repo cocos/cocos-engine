@@ -337,7 +337,7 @@ cc.Director.prototype = {
      */
     purgeDirector: function () {
         //cleanup scheduler
-        this.getScheduler().unscheduleAll();
+        this._scheduler.unscheduleAll();
         this._compScheduler.unscheduleAll();
 
         this._nodeActivator.reset();
@@ -1126,18 +1126,6 @@ cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
  * @static
  */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
-
-cc.Director.sharedDirector = null;
-cc.Director.firstUseDirector = true;
-
-cc.Director._getInstance = function () {
-    if (cc.Director.firstUseDirector) {
-        cc.Director.firstUseDirector = false;
-        cc.Director.sharedDirector = new cc.Director();
-        cc.Director.sharedDirector.init();
-    }
-    return cc.Director.sharedDirector;
-};
 
 //Possible OpenGL projections used by director
 

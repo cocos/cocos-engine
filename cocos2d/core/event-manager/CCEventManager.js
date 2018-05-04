@@ -128,7 +128,7 @@ var eventManager = {
 
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        if (this._nodeListenersMap[node.__instanceId] !== undefined) {
+        if (this._nodeListenersMap[node._id] !== undefined) {
             this._dirtyNodes.push(node);
         }
         if (node.getChildren) {
@@ -150,7 +150,7 @@ var eventManager = {
             cc.warnID(3506);
             return;
         }
-        var listeners = this._nodeListenersMap[node.__instanceId], i, len;
+        var listeners = this._nodeListenersMap[node._id], i, len;
         if (listeners) {
             for (i = 0, len = listeners.length; i < len; i++)
                 listeners[i]._setPaused(true);
@@ -174,7 +174,7 @@ var eventManager = {
             cc.warnID(3506);
             return;
         }
-        var listeners = this._nodeListenersMap[node.__instanceId], i, len;
+        var listeners = this._nodeListenersMap[node._id], i, len;
         if (listeners){
             for ( i = 0, len = listeners.length; i < len; i++)
                 listeners[i]._setPaused(false);
@@ -227,7 +227,7 @@ var eventManager = {
 
         var locDirtyNodes = this._dirtyNodes, selListeners, selListener, locNodeListenersMap = this._nodeListenersMap;
         for (var i = 0, len = locDirtyNodes.length; i < len; i++) {
-            selListeners = locNodeListenersMap[locDirtyNodes[i].__instanceId];
+            selListeners = locNodeListenersMap[locDirtyNodes[i]._id];
             if (selListeners) {
                 for (var j = 0, listenersLen = selListeners.length; j < listenersLen; j++) {
                     selListener = selListeners[j];
@@ -330,11 +330,11 @@ var eventManager = {
         var locNodePriorityMap = eventManager._nodePriorityMap,
             node1 = l1._getSceneGraphPriority(),
             node2 = l2._getSceneGraphPriority();
-        if (!l2 || !node2 || !locNodePriorityMap[node2.__instanceId])
+        if (!l2 || !node2 || !locNodePriorityMap[node2._id])
             return -1;
-        else if (!l1 || !node1 || !locNodePriorityMap[node1.__instanceId])
+        else if (!l1 || !node1 || !locNodePriorityMap[node1._id])
             return 1;
-        return locNodePriorityMap[node2.__instanceId] - locNodePriorityMap[node1.__instanceId];
+        return locNodePriorityMap[node2._id] - locNodePriorityMap[node1._id];
     },
 
     _sortListenersOfFixedPriority: function (listenerID) {
@@ -591,20 +591,20 @@ var eventManager = {
     },
 
     _associateNodeAndEventListener: function (node, listener) {
-        var listeners = this._nodeListenersMap[node.__instanceId];
+        var listeners = this._nodeListenersMap[node._id];
         if (!listeners) {
             listeners = [];
-            this._nodeListenersMap[node.__instanceId] = listeners;
+            this._nodeListenersMap[node._id] = listeners;
         }
         listeners.push(listener);
     },
 
     _dissociateNodeAndEventListener: function (node, listener) {
-        var listeners = this._nodeListenersMap[node.__instanceId];
+        var listeners = this._nodeListenersMap[node._id];
         if (listeners) {
             cc.js.array.remove(listeners, listener);
             if (listeners.length === 0)
-                delete this._nodeListenersMap[node.__instanceId];
+                delete this._nodeListenersMap[node._id];
         }
     },
 
@@ -664,10 +664,10 @@ var eventManager = {
         var childrenCount = children.length, locGlobalZOrderNodeMap = this._globalZOrderNodeMap, locNodeListenersMap = this._nodeListenersMap;
 
         if (childrenCount > 0) {
-            if (locNodeListenersMap[node.__instanceId] !== undefined) {
+            if (locNodeListenersMap[node._id] !== undefined) {
                 if (!locGlobalZOrderNodeMap)
                     locGlobalZOrderNodeMap = [];
-                locGlobalZOrderNodeMap.push(node.__instanceId);
+                locGlobalZOrderNodeMap.push(node._id);
             }
 
             var child;
@@ -677,10 +677,10 @@ var eventManager = {
                     this._visitTarget(child, false);
             }
         } else {
-            if (locNodeListenersMap[node.__instanceId] !== undefined) {
+            if (locNodeListenersMap[node._id] !== undefined) {
                 if (!locGlobalZOrderNodeMap)
                     locGlobalZOrderNodeMap = [];
-                locGlobalZOrderNodeMap.push(node.__instanceId);
+                locGlobalZOrderNodeMap.push(node._id);
             }
         }
 
@@ -906,17 +906,17 @@ var eventManager = {
             cc.warnID(3506);
             return;
         }
-        if (listenerType.__instanceId !== undefined) {
+        if (listenerType._id !== undefined) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
-            delete _t._nodePriorityMap[listenerType.__instanceId];
+            delete _t._nodePriorityMap[listenerType._id];
             cc.js.array.remove(_t._dirtyNodes, listenerType);
-            var listeners = _t._nodeListenersMap[listenerType.__instanceId], i;
+            var listeners = _t._nodeListenersMap[listenerType._id], i;
             if (listeners) {
                 var listenersCopy = cc.js.array.copy(listeners);
                 for (i = 0; i < listenersCopy.length; i++)
                     _t.removeListener(listenersCopy[i]);
-                delete _t._nodeListenersMap[listenerType.__instanceId];
+                delete _t._nodeListenersMap[listenerType._id];
             }
 
             // Bug fix: ensure there are no references to the node in the list of listeners to be added.

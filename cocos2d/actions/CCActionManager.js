@@ -65,7 +65,7 @@ cc.ActionManager = function () {
     this._hashTargets = js.createMap(true);
     this._arrayTargets = [];
     this._currentTarget = null;
-    this.__instanceId = cc.ClassManager.getNewInstanceId();
+    cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 };
 cc.ActionManager.prototype = {
     constructor: cc.ActionManager,
@@ -123,11 +123,11 @@ cc.ActionManager.prototype = {
             throw new Error(cc._getError(1000));
 
         //check if the action target already exists
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         //if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
             element = this._getElement(target, paused);
-            this._hashTargets[target.__instanceId] = element;
+            this._hashTargets[target._id] = element;
             this._arrayTargets.push(element);
         }
         else if (!element.actions) {
@@ -166,7 +166,7 @@ cc.ActionManager.prototype = {
         // explicit null handling
         if (target == null)
             return;
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         if (element) {
             element.actions.length = 0;
             this._deleteHashElement(element);
@@ -183,7 +183,7 @@ cc.ActionManager.prototype = {
         if (action == null)
             return;
         var target = action.getOriginalTarget();
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
 
         if (element) {
             for (var i = 0; i < element.actions.length; i++) {
@@ -213,7 +213,7 @@ cc.ActionManager.prototype = {
 
         cc.assertID(target, 1003);
 
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
 
         if (element) {
             var limit = element.actions.length;
@@ -239,7 +239,7 @@ cc.ActionManager.prototype = {
         if(tag === cc.Action.TAG_INVALID)
             cc.logID(1004);
 
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         if (element) {
             if (element.actions != null) {
                 for (var i = 0; i < element.actions.length; ++i) {
@@ -273,7 +273,7 @@ cc.ActionManager.prototype = {
      * @return {Number}
      */
     getNumberOfRunningActionsInTarget:function (target) {
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         if (element)
             return (element.actions) ? element.actions.length : 0;
 
@@ -286,7 +286,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      */
     pauseTarget:function (target) {
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         if (element)
             element.paused = true;
     },
@@ -297,7 +297,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      */
     resumeTarget:function (target) {
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         if (element)
             element.paused = false;
     },
@@ -384,8 +384,8 @@ cc.ActionManager.prototype = {
     _deleteHashElement:function (element) {
         var ret = false;
         if (element && !element.lock) {
-            if (this._hashTargets[element.target.__instanceId]) {
-                delete this._hashTargets[element.target.__instanceId];
+            if (this._hashTargets[element.target._id]) {
+                delete this._hashTargets[element.target._id];
                 var targets = this._arrayTargets;
                 for (var i = 0, l = targets.length; i < l; i++) {
                     if (targets[i] === element) {
@@ -444,7 +444,7 @@ cc.ActionManager.prototype = {
 
 if (CC_TEST) {
     cc.ActionManager.prototype.isTargetPaused_TEST = function (target) {
-        var element = this._hashTargets[target.__instanceId];
+        var element = this._hashTargets[target._id];
         return element.paused;
     };
 }
