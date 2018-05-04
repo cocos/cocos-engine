@@ -32,6 +32,8 @@ const RenderFlow = require('./render-flow');
 const QuadBuffer = require('./webgl/quad-buffer');
 const MeshBuffer = require('./webgl/mesh-buffer');
 
+let idGenerater = new (require('../platform/id-generater'))('VertextFormat');
+
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -214,6 +216,10 @@ RenderComponentWalker.prototype = {
     },
 
     getBuffer (type, vertextFormat) {
+        if (!vertextFormat.name) {
+            vertextFormat.name = idGenerater.getNewId();
+        }
+
         let key = type + vertextFormat.name;
         let buffer = _buffers[key];
         if (!buffer) {
