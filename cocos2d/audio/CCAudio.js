@@ -32,10 +32,6 @@ var touchPlayList = [
     //{ instance: Audio, offset: 0, audio: audio }
 ];
 
-function isHybridEnv () {
-    return sys.platform === sys.WECHAT_GAME || sys.platform === sys.QQ_PLAY;
-}
-
 var Audio = function (src) {
     EventTarget.call(this);
 
@@ -143,7 +139,7 @@ Audio.State = {
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
-            if (isHybridEnv()) {
+            if (CC_QQPLAY || CC_WECHATGAME) {
                 this._element = elem;
             }
             else {
@@ -166,7 +162,7 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (!isHybridEnv() &&
+        if (!(CC_QQPLAY || CC_WECHATGAME) &&
             this._audioType === Audio.Type.DOM && 
             this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
@@ -251,7 +247,7 @@ Audio.State = {
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
         this._unbindEnded();
-        if (!isHybridEnv()) {
+        if (!(CC_QQPLAY || CC_WECHATGAME)) {
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));
@@ -383,7 +379,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (!isHybridEnv() && self._context.currentTime === 0) {
+                if (!(CC_QQPLAY || CC_WECHATGAME) && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
