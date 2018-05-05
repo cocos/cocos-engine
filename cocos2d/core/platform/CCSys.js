@@ -665,20 +665,32 @@ else if (CC_WECHATGAME) {
     };
 }
 else if (CC_QQPLAY) {
+    var env = window["BK"]["Director"]["queryDeviceInfo"]();
     sys.isMobile = true;
     sys.platform = sys.QQ_PLAY;
     sys.language = sys.LANGUAGE_UNKNOWN;
-    sys.os = sys.OS_UNKNOWN;
+    if (env.platform === "android") {
+        sys.os = sys.OS_ANDROID;
+    }
+    else if (env.platform === "ios") {
+        sys.os = sys.OS_IOS;
+    }
+    else {
+        sys.os = sys.OS_UNKNOWN;
+    }
 
-    sys.osVersion = 0;
-    sys.osMainVersion = 0;
+    var version = /[\d\.]+/.exec(env.version);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(osVersion.split('.')[0]);
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
 
-    var w = 960;
-    var h = 640;
-    var ratio = 1;
+    // todo Can be removed after qqplay with support (ArrayBuffer)
+    sys.noABSupport = sys.os === sys.OS_IOS && sys.osMainVersion < 10;
 
+    var w = env.screenWidth;
+    var h = env.screenHeight;
+    var ratio = env.pixelRatio || 1;
     sys.windowPixelResolution = {
         width: ratio * w,
         height: ratio * h
