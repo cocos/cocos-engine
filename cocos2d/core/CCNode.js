@@ -1621,7 +1621,7 @@ var Node = cc.Class({
      * @method setPosition
      * @param {Vec2|Number} newPosOrX - X coordinate for position or the position (x, y) of the node in coordinates
      * @param {Number} [y] - Y coordinate for position
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
+     * @example {@link cocos2d/core/utils/base-node/setPosition.js}
      */
     setPosition (newPosOrX, y) {
         var x;

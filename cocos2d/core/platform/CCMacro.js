@@ -31,7 +31,7 @@ require('./_CCClass');
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
  * @enum KEY
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
+ * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.KEY = {
     /**
@@ -2003,7 +2003,7 @@ cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
  * @param {Number} a number A
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ * @example {@link cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
     return a + (b - a) * r;

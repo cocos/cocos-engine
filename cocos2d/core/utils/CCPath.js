@@ -41,7 +41,7 @@ cc.path = /** @lends cc.path# */{
      * !#en Join strings to be a path.
      * !#zh 拼接字符串为 Path
      * @method join
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/join.js}
+     * @example {@link cocos2d/core/utils/CCPath/join.js}
      * @returns {String}
      */
     join: function () {
@@ -57,7 +57,7 @@ cc.path = /** @lends cc.path# */{
      * !#en Get the ext name of a path including '.', like '.png'.
      * !#zh 返回 Path 的扩展名，包括 '.'，例如 '.png'。
      * @method extname
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/extname.js}
+     * @example {@link cocos2d/core/utils/CCPath/extname.js}
      * @param {String} pathStr
      * @returns {*}
      */
@@ -87,7 +87,7 @@ cc.path = /** @lends cc.path# */{
      * !#en Get the file name of a file path.
      * !#zh 获取文件路径的文件名。
      * @method basename
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/basename.js}
+     * @example {@link cocos2d/core/utils/CCPath/basename.js}
      * @param {String} pathStr
      * @param {String} [extname]
      * @returns {*}
@@ -108,7 +108,7 @@ cc.path = /** @lends cc.path# */{
      * !#en Get dirname of a file path.
      * !#zh 获取文件路径的目录名。
      * @method dirname
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/dirname.js}
+     * @example {@link cocos2d/core/utils/CCPath/dirname.js}
      * @param {String} pathStr
      * @returns {*}
      */
@@ -121,7 +121,7 @@ cc.path = /** @lends cc.path# */{
      * !#en Change extname of a file path.
      * !#zh 更改文件路径的扩展名。
      * @method changeExtname
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeExtname.js}
+     * @example {@link cocos2d/core/utils/CCPath/changeExtname.js}
      * @param {String} pathStr
      * @param {String} [extname]
      * @returns {String}
@@ -141,7 +141,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * !#en Change file name of a file path.
      * !#zh 更改文件路径的文件名。
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeBasename.js}
+     * @example {@link cocos2d/core/utils/CCPath/changeBasename.js}
      * @param {String} pathStr
      * @param {String} basename
      * @param {Boolean} [isSameExt]

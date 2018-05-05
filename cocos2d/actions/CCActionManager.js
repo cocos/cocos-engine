@@ -56,7 +56,7 @@ var HashElement = function () {
  *  - 当你想要运行一个动作，但目标不是 CCNode 类型时。 <br/>
  *  - 当你想要暂停/恢复动作时。 <br/>
  * @class ActionManager
- * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
+ * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 

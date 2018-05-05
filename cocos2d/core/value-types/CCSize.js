@@ -163,7 +163,7 @@ proto.toString = function () {
  * @param {Number|Size} w - width or a size object
  * @param {Number} [h] - height
  * @return {Size}
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
+ * @example {@link cocos2d/core/value-types/CCSize/size.js}
  */
 cc.size = function (w, h) {
     return new Size(w, h);

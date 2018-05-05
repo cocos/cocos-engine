@@ -52,7 +52,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @method getTextureForKey
      * @param {String} textureKeyName
      * @return {Texture2D|Null}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureForKey.js}
+     * @example {@link cocos2d/core/textures/getTextureForKey.js}
      */
     getTextureForKey: function(textureKeyName){
         return this._textures[textureKeyName];
@@ -62,7 +62,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @method getKeyByTexture
      * @param {HTMLImageElement} texture
      * @return {String|Null}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getKeyByTexture.js}
+     * @example {@link cocos2d/core/textures/getKeyByTexture.js}
      */
     getKeyByTexture: function (texture) {
         for (var key in this._textures) {
@@ -81,7 +81,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @method getTextureColors
      * @param {HTMLImageElement} texture
      * @return {Array}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureColors.js}
+     * @example {@link cocos2d/core/textures/getTextureColors.js}
      */
     getTextureColors: function (texture) {
         var image = texture._image;
@@ -120,7 +120,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * In the medium term: it will allocate more resources <br />
      * In the long term: it will be the same</p>
      * @method removeAllTextures
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeAllTextures.js}
+     * @example {@link cocos2d/core/textures/removeAllTextures.js}
      */
     removeAllTextures: function () {
         var locTextures = this._textures;
@@ -135,7 +135,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * Deletes a texture from the cache given a texture.
      * @method removeTexture
      * @param {HTMLImageElement} texture
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTexture.js}
+     * @example {@link cocos2d/core/textures/removeTexture.js}
      */
     removeTexture: function (texture) {
         if (!texture)
@@ -154,7 +154,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * Deletes a texture from the cache given a its key name.
      * @method removeTextureForKey
      * @param {String} textureKeyName
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTextureForKey.js}
+     * @example {@link cocos2d/core/textures/removeTextureForKey.js}
      */
     removeTextureForKey: function (textureKeyName) {
         if (CC_DEBUG && textureKeyName instanceof cc.Texture2D) {
@@ -183,7 +183,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @param {Function} cb
      * @param {Object} target
      * @return {Texture2D}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/addImage.js}
+     * @example {@link cocos2d/core/textures/addImage.js}
      */
     addImage (url, cb, target) {
         if (CC_DEBUG && url instanceof cc.Texture2D) {
