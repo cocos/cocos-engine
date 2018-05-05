@@ -399,7 +399,7 @@
     };
 
     proto._updateTexture = function() {
-        this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
+        this._labelContext.clearRect(0, 0, this._canvasSize.width, this._canvasSize.height);
 
         this._labelContext.font = this._fontDesc;
 
@@ -506,7 +506,7 @@
             bb = this._currentRegion,
             l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY,
             vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
-            
+
         this._needDraw = !(r < vl || l > vr || t < vb || b > vt);
     };
 

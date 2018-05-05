@@ -35,12 +35,8 @@ _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
-    if (cc.sys.platform === cc.sys.QQ_PLAY) {
-        cc.sharedLabelCanvas = cc.sharedLabelCanvas || document.createElement('canvas');
-        this._labelCanvas = cc.sharedLabelCanvas;
-    } else {
-        this._labelCanvas = document.createElement("canvas");
-    }
+    cc.sharedLabelCanvas = cc.sharedLabelCanvas || document.createElement('canvas');
+    this._labelCanvas = cc.sharedLabelCanvas;
     this._texture.initWithElement(this._labelCanvas);
     this._labelContext = this._labelCanvas.getContext("2d");
 
@@ -70,8 +66,8 @@ proto.updateTransform = function (parentCmd) {
     this.originUpdateTransform(parentCmd);
 
     var node = this._node,
-        lx = 0, rx = this._labelCanvas.width,
-        by = 0, ty = this._labelCanvas.height,
+        lx = 0, rx = this._node.width,
+        by = 0, ty = this._node.height,
         wt = this._worldTransform;
 
     var vert = this._vertices;
