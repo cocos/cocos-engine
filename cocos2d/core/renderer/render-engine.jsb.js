@@ -1058,7 +1058,7 @@ var FixedArray = function FixedArray(size) {
   this._data = new Array(size);
 };
 
-var prototypeAccessors = { length: {},data: {} };
+var prototypeAccessors = { length: { configurable: true },data: { configurable: true } };
 
 FixedArray.prototype._resize = function _resize (size) {
     var this$1 = this;
@@ -1195,7 +1195,7 @@ var LinkedArray = function LinkedArray(fn, size) {
   this._pool = new Pool(fn, size);
 };
 
-var prototypeAccessors$1 = { head: {},tail: {},length: {} };
+var prototypeAccessors$1 = { head: { configurable: true },tail: { configurable: true },length: { configurable: true } };
 
 prototypeAccessors$1.head.get = function () {
   return this._head;
@@ -1281,7 +1281,7 @@ var RecyclePool = function RecyclePool(fn, size) {
   }
 };
 
-var prototypeAccessors$2 = { length: {},data: {} };
+var prototypeAccessors$2 = { length: { configurable: true },data: { configurable: true } };
 
 prototypeAccessors$2.length.get = function () {
   return this._count;
@@ -1388,7 +1388,7 @@ var RenderData = (function (BaseRenderData$$1) {
   RenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
   RenderData.prototype.constructor = RenderData;
 
-  var prototypeAccessors = { type: {},dataLength: {} };
+  var prototypeAccessors = { type: { configurable: true },dataLength: { configurable: true } };
 
   prototypeAccessors.type.get = function () {
     return RenderData.type;
@@ -1475,7 +1475,7 @@ var IARenderData = (function (BaseRenderData$$1) {
     IARenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
     IARenderData.prototype.constructor = IARenderData;
 
-    var prototypeAccessors = { type: {} };
+    var prototypeAccessors = { type: { configurable: true } };
 
     prototypeAccessors.type.get = function () {
         return IARenderData.type;
@@ -1504,6 +1504,8 @@ var MAX_SCALE = 500;
 var _vertexFmt = new gfx.VertexFormat([
   { name: 'a_quad', type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
+
+_vertexFmt.name = 'ParticlesVertexFormat';
 
 var _dataOpts = {
   width: 0,
@@ -1594,7 +1596,7 @@ var Particles = function Particles (device, renderer$$1, config) {
   this._endColorVar = new Float32Array([config.endColorVar.r, config.endColorVar.g, config.endColorVar.b, config.endColorVar.a]);
 };
 
-var prototypeAccessors$3 = { vertexFormat: {},particleCount: {},stopped: {},pos: {},posVar: {},gravity: {},startColor: {},startColorVar: {},endColor: {},endColorVar: {} };
+var prototypeAccessors$3 = { vertexFormat: { configurable: true },particleCount: { configurable: true },stopped: { configurable: true },pos: { configurable: true },posVar: { configurable: true },gravity: { configurable: true },startColor: { configurable: true },startColorVar: { configurable: true },endColor: { configurable: true },endColorVar: { configurable: true } };
 
 prototypeAccessors$3.vertexFormat.get = function () {
   return _vertexFmt;
@@ -2217,7 +2219,7 @@ var Material = (function (Asset$$1) {
   Material.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
   Material.prototype.constructor = Material;
 
-  var prototypeAccessors = { hash: {} };
+  var prototypeAccessors = { hash: { configurable: true } };
 
   prototypeAccessors.hash.get = function () {
     return this._hash;
@@ -2275,7 +2277,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: {},useTexture: {},useModel: {},texture: {} };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },texture: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -2363,7 +2365,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   GraySpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   GraySpriteMaterial.prototype.constructor = GraySpriteMaterial;
 
-  var prototypeAccessors = { effect: {},texture: {} };
+  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -2437,7 +2439,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   StencilMaterial.prototype.constructor = StencilMaterial;
 
-  var prototypeAccessors = { effect: {},useTexture: {},texture: {},alphaThreshold: {} };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -9810,7 +9812,7 @@ var ParticleMaterial = (function (Material$$1) {
   ParticleMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   ParticleMaterial.prototype.constructor = ParticleMaterial;
 
-  var prototypeAccessors = { effect: {},texture: {},stateMap: {},quadMap: {},stateSize: {},quadSize: {},z: {},uv: {} };
+  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true },stateMap: { configurable: true },quadMap: { configurable: true },stateSize: { configurable: true },quadSize: { configurable: true },z: { configurable: true },uv: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;

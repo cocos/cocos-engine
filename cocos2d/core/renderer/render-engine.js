@@ -7465,7 +7465,7 @@ var _textureFmtGL = [
   // TEXTURE_FMT_D16: 25
   { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT, pixelType: GL_UNSIGNED_SHORT },
 
-  // TEXTURE_FMT_D24: 26
+  // TEXTURE_FMT_D32: 26
   { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT, pixelType: GL_UNSIGNED_INT },
 
   // TEXTURE_FMT_D24S8: 27
@@ -7733,8 +7733,8 @@ var IndexBuffer = function IndexBuffer(device, format, usage, data, numIndices) 
   this._usage = usage;
   this._numIndices = numIndices;
   this._bytesPerIndex = 0;
+
   // calculate bytes
-  var bytes = 0;
   if (format === enums$1.INDEX_FMT_UINT8) {
     this._bytesPerIndex = 1;
   } else if (format === enums$1.INDEX_FMT_UINT16) {
@@ -7749,10 +7749,10 @@ var IndexBuffer = function IndexBuffer(device, format, usage, data, numIndices) 
   this.update(0, data);
 
   // stats
-  device._stats.ib += bytes;
+  device._stats.ib += this._bytes;
 };
 
-var prototypeAccessors = { count: {} };
+var prototypeAccessors = { count: { configurable: true } };
 
 /**
  * @method destroy
@@ -7791,10 +7791,14 @@ IndexBuffer.prototype.update = function update (offset, data) {
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glID);
   if (!data) {
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._bytes, glUsage);
+    if (this._bytes) {
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._bytes, glUsage);
+    } else {
+      console.warn('bufferData should not submit 0 bytes data');
+    }
   } else {
     if (offset) {
-      gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, data, glUsage);
+      gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, offset, data);
     } else {
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, glUsage);
     }
@@ -7825,7 +7829,7 @@ var VertexBuffer = function VertexBuffer(device, format, usage, data, numVertice
   device._stats.vb += this._bytes;
 };
 
-var prototypeAccessors$1 = { count: {} };
+var prototypeAccessors$1 = { count: { configurable: true } };
 
 /**
  * @method destroy
@@ -7864,7 +7868,11 @@ VertexBuffer.prototype.update = function update (offset, data) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, this._glID);
   if (!data) {
-    gl.bufferData(gl.ARRAY_BUFFER, this._bytes, glUsage);
+    if (this._bytes) {
+      gl.bufferData(gl.ARRAY_BUFFER, this._bytes, glUsage);
+    } else {
+      console.warn('bufferData should not submit 0 bytes data');
+    }
   } else {
     if (offset) {
       gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
@@ -7923,7 +7931,7 @@ var Program = function Program(device, options) {
   this._id = _genID++;
 };
 
-var prototypeAccessors$2 = { id: {} };
+var prototypeAccessors$2 = { id: { configurable: true } };
 
 prototypeAccessors$2.id.get = function () {
   return this._id;
@@ -8177,7 +8185,7 @@ var Texture2D = (function (Texture$$1) {
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._glID);
-    if (options.images !== undefined) {
+    if (options.images !== undefined && options.images.length > 0) {
       this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
     }
 
@@ -8517,7 +8525,7 @@ var TextureCube = (function (Texture$$1) {
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, this._glID);
-    if (options.images !== undefined) {
+    if (options.images !== undefined && options.images.length > 0) {
       this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
     }
 
@@ -8854,17 +8862,24 @@ var _default = {
   vertexBuffers: [],
   vertexBufferOffsets: [],
   indexBuffer: null,
+  maxTextureSlot: -1,
   textureUnits: [],
   program: null,
 };
 
-var State = function State() {
+var State = function State(device) {
   // bindings
-  this.vertexBuffers = [];
-  this.vertexBufferOffsets = [];
-  this.textureUnits = [];
+  this.vertexBuffers = new Array(device._caps.maxVertexStreams);
+  this.vertexBufferOffsets = new Array(device._caps.maxVertexStreams);
+  this.textureUnits = new Array(device._caps.maxTextureUnits);
 
   this.set(_default);
+};
+
+State.initDefault = function initDefault (device) {
+  _default.vertexBuffers = new Array(device._caps.maxVertexStreams);
+  _default.vertexBufferOffsets = new Array(device._caps.maxVertexStreams);
+  _default.textureUnits = new Array(device._caps.maxTextureUnits);
 };
 
 State.prototype.reset = function reset () {
@@ -8914,7 +8929,7 @@ State.prototype.set = function set (cpy) {
   // primitive-type
   this.primitiveType = cpy.primitiveType;
 
-  // bindings
+  // buffer bindings
   this.maxStream = cpy.maxStream;
   for (var i = 0; i < cpy.vertexBuffers.length; ++i) {
     this$1.vertexBuffers[i] = cpy.vertexBuffers[i];
@@ -8923,9 +8938,13 @@ State.prototype.set = function set (cpy) {
     this$1.vertexBufferOffsets[i$1] = cpy.vertexBufferOffsets[i$1];
   }
   this.indexBuffer = cpy.indexBuffer;
+
+  // texture bindings
+  this.maxTextureSlot = cpy.maxTextureSlot;
   for (var i$2 = 0; i$2 < cpy.textureUnits.length; ++i$2) {
     this$1.textureUnits[i$2] = cpy.textureUnits[i$2];
   }
+
   this.program = cpy.program;
 };
 
@@ -9409,11 +9428,13 @@ function _commitVertexBuffers(device, gl, cur, next) {
  * _commitTextures
  */
 function _commitTextures(gl, cur, next) {
-  for (var i = 0; i < next.textureUnits.length; ++i) {
+  for (var i = 0; i < next.maxTextureSlot + 1; ++i) {
     if (cur.textureUnits[i] !== next.textureUnits[i]) {
       var texture = next.textureUnits[i];
-      gl.activeTexture(gl.TEXTURE0 + i);
-      gl.bindTexture(texture._target, texture._glID);
+      if (texture !== undefined && texture._glID !== -1) {
+        gl.activeTexture(gl.TEXTURE0 + i);
+        gl.bindTexture(texture._target, texture._glID);
+      }
     }
   }
 }
@@ -9492,14 +9513,6 @@ var Device = function Device(canvasEL, opts) {
     drawcalls: 0,
   };
 
-  // runtime
-  this._current = new State();
-  this._next = new State();
-  this._uniforms = {}; // name: { value, num, dirty }
-  this._vx = this._vy = this._vw = this._vh = 0;
-  this._sx = this._sy = this._sw = this._sh = 0;
-  this._framebuffer = null;
-
   this._initExtensions([
     'EXT_texture_filter_anisotropic',
     'EXT_shader_texture_lod',
@@ -9517,6 +9530,15 @@ var Device = function Device(canvasEL, opts) {
     'WEBGL_draw_buffers' ]);
   this._initCaps();
   this._initStates();
+
+  // runtime
+  State.initDefault(this);
+  this._current = new State(this);
+  this._next = new State(this);
+  this._uniforms = {}; // name: { value, num, dirty }
+  this._vx = this._vy = this._vw = this._vh = 0;
+  this._sx = this._sy = this._sw = this._sh = 0;
+  this._framebuffer = null;
 
   //
   this._enabledAttributes = new Array(this._caps.maxVertexAttribs);
@@ -9551,6 +9573,7 @@ Device.prototype._initCaps = function _initCaps () {
   var gl = this._gl;
   var extDrawBuffers = this.ext('WEBGL_draw_buffers');
 
+  this._caps.maxVertexStreams = 4;
   this._caps.maxVertexTextures = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
   this._caps.maxFragUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
   this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
@@ -9602,7 +9625,7 @@ Device.prototype._restoreTexture = function _restoreTexture (unit) {
   var gl = this._gl;
 
   var texture = this._current.textureUnits[unit];
-  if (texture) {
+  if (texture && texture._glID !== -1) {
     gl.bindTexture(texture._target, texture._glID);
   } else {
     gl.bindTexture(gl.TEXTURE_2D, null);
@@ -10012,6 +10035,10 @@ Device.prototype.setTexture = function setTexture (name, texture, slot) {
 
   this._next.textureUnits[slot] = texture;
   this.setUniform(name, slot);
+
+  if (this._next.maxTextureSlot < slot) {
+    this._next.maxTextureSlot = slot;
+  }
 };
 
 /**
@@ -10403,7 +10430,7 @@ var Technique = function Technique(stages, parameters, passes, layer) {
   // TODO: this._version = 'webgl' or 'webgl2' // ????
 };
 
-var prototypeAccessors$3 = { passes: {},stageIDs: {} };
+var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
 
 Technique.prototype.setStages = function setStages (stages) {
   this._stageIDs = config.stageIDs(stages);
@@ -10687,7 +10714,7 @@ var Light = function Light() {
   this._shadowFustumSize = 80; // used for directional light.
 };
 
-var prototypeAccessors$4 = { color: {},intensity: {},type: {},spotAngle: {},spotExp: {},range: {},shadowType: {},shadowMap: {},viewProjMatrix: {},shadowResolution: {},shadowBias: {},shadowDarkness: {},shadowMinDepth: {},shadowMaxDepth: {},shadowDepthScale: {},frustumEdgeFalloff: {} };
+var prototypeAccessors$4 = { color: { configurable: true },intensity: { configurable: true },type: { configurable: true },spotAngle: { configurable: true },spotExp: { configurable: true },range: { configurable: true },shadowType: { configurable: true },shadowMap: { configurable: true },viewProjMatrix: { configurable: true },shadowResolution: { configurable: true },shadowBias: { configurable: true },shadowDarkness: { configurable: true },shadowMinDepth: { configurable: true },shadowMaxDepth: { configurable: true },shadowDepthScale: { configurable: true },frustumEdgeFalloff: { configurable: true } };
 
 Light.prototype.setNode = function setNode (node) {
   this._node = node;
@@ -10960,7 +10987,7 @@ var Camera = function Camera() {
   this._orthoHeight = 10;
 };
 
-var prototypeAccessors$5 = { cullingMask: {} };
+var prototypeAccessors$5 = { cullingMask: { configurable: true } };
 
 // culling mask
 prototypeAccessors$5.cullingMask.get = function () {
@@ -11260,7 +11287,7 @@ var Model = function Model() {
   // this._aabb
 };
 
-var prototypeAccessors$6 = { inputAssemblerCount: {},dynamicIA: {},drawItemCount: {},cullingMask: {} };
+var prototypeAccessors$6 = { inputAssemblerCount: { configurable: true },dynamicIA: { configurable: true },drawItemCount: { configurable: true },cullingMask: { configurable: true } };
 
 prototypeAccessors$6.inputAssemblerCount.get = function () {
   return this._inputAssemblers.length;
@@ -12331,7 +12358,7 @@ var FixedArray = function FixedArray(size) {
   this._data = new Array(size);
 };
 
-var prototypeAccessors$7 = { length: {},data: {} };
+var prototypeAccessors$7 = { length: { configurable: true },data: { configurable: true } };
 
 FixedArray.prototype._resize = function _resize (size) {
     var this$1 = this;
@@ -12468,7 +12495,7 @@ var LinkedArray = function LinkedArray(fn, size) {
   this._pool = new Pool(fn, size);
 };
 
-var prototypeAccessors$8 = { head: {},tail: {},length: {} };
+var prototypeAccessors$8 = { head: { configurable: true },tail: { configurable: true },length: { configurable: true } };
 
 prototypeAccessors$8.head.get = function () {
   return this._head;
@@ -12554,7 +12581,7 @@ var RecyclePool = function RecyclePool(fn, size) {
   }
 };
 
-var prototypeAccessors$9 = { length: {},data: {} };
+var prototypeAccessors$9 = { length: { configurable: true },data: { configurable: true } };
 
 prototypeAccessors$9.length.get = function () {
   return this._count;
@@ -13137,11 +13164,12 @@ _type2uniformArrayValue[enums.PARAM_MAT4] = {
   };
 
 var Base = function Base(device, opts) {
+  var obj;
+
   this._device = device;
   this._programLib = new ProgramLib(device, opts.programTemplates, opts.programChunks);
   this._opts = opts;
   this._type2defaultValue = ( obj = {}, obj[enums.PARAM_INT] = 0, obj[enums.PARAM_INT2] = vec2.new(0, 0), obj[enums.PARAM_INT3] = vec3.new(0, 0, 0), obj[enums.PARAM_INT4] = vec4.new(0, 0, 0, 0), obj[enums.PARAM_FLOAT] = 0.0, obj[enums.PARAM_FLOAT2] = vec2.new(0, 0), obj[enums.PARAM_FLOAT3] = vec3.new(0, 0, 0), obj[enums.PARAM_FLOAT4] = vec4.new(0, 0, 0, 0), obj[enums.PARAM_COLOR3] = color3.new(0, 0, 0), obj[enums.PARAM_COLOR4] = color4.new(0, 0, 0, 1), obj[enums.PARAM_MAT2] = mat2.create(), obj[enums.PARAM_MAT3] = mat3.create(), obj[enums.PARAM_MAT4] = mat4.create(), obj[enums.PARAM_TEXTURE_2D] = opts.defaultTexture, obj[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube, obj);
-  var obj;
   this._stage2fn = {};
   this._usedTextureUnits = 0;
 
@@ -13679,7 +13707,7 @@ var RenderData = (function (BaseRenderData$$1) {
   RenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
   RenderData.prototype.constructor = RenderData;
 
-  var prototypeAccessors = { type: {},dataLength: {} };
+  var prototypeAccessors = { type: { configurable: true },dataLength: { configurable: true } };
 
   prototypeAccessors.type.get = function () {
     return RenderData.type;
@@ -13766,7 +13794,7 @@ var IARenderData = (function (BaseRenderData$$1) {
     IARenderData.prototype = Object.create( BaseRenderData$$1 && BaseRenderData$$1.prototype );
     IARenderData.prototype.constructor = IARenderData;
 
-    var prototypeAccessors = { type: {} };
+    var prototypeAccessors = { type: { configurable: true } };
 
     prototypeAccessors.type.get = function () {
         return IARenderData.type;
@@ -13883,7 +13911,7 @@ var Particles = function Particles (device, renderer$$1, config) {
   this._endColorVar = new Float32Array([config.endColorVar.r, config.endColorVar.g, config.endColorVar.b, config.endColorVar.a]);
 };
 
-var prototypeAccessors$10 = { vertexFormat: {},particleCount: {},stopped: {},pos: {},posVar: {},gravity: {},startColor: {},startColorVar: {},endColor: {},endColorVar: {} };
+var prototypeAccessors$10 = { vertexFormat: { configurable: true },particleCount: { configurable: true },stopped: { configurable: true },pos: { configurable: true },posVar: { configurable: true },gravity: { configurable: true },startColor: { configurable: true },startColorVar: { configurable: true },endColor: { configurable: true },endColorVar: { configurable: true } };
 
 prototypeAccessors$10.vertexFormat.get = function () {
   return _vertexFmt;
@@ -14506,7 +14534,7 @@ var Material = (function (Asset$$1) {
   Material.prototype = Object.create( Asset$$1 && Asset$$1.prototype );
   Material.prototype.constructor = Material;
 
-  var prototypeAccessors = { hash: {} };
+  var prototypeAccessors = { hash: { configurable: true } };
 
   prototypeAccessors.hash.get = function () {
     return this._hash;
@@ -14564,7 +14592,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: {},useTexture: {},useModel: {},texture: {} };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },texture: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14652,7 +14680,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   GraySpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   GraySpriteMaterial.prototype.constructor = GraySpriteMaterial;
 
-  var prototypeAccessors = { effect: {},texture: {} };
+  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14726,7 +14754,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   StencilMaterial.prototype.constructor = StencilMaterial;
 
-  var prototypeAccessors = { effect: {},useTexture: {},texture: {},alphaThreshold: {} };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14823,7 +14851,7 @@ var ParticleMaterial = (function (Material$$1) {
   ParticleMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   ParticleMaterial.prototype.constructor = ParticleMaterial;
 
-  var prototypeAccessors = { effect: {},texture: {},stateMap: {},quadMap: {},stateSize: {},quadSize: {},z: {},uv: {} };
+  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true },stateMap: { configurable: true },quadMap: { configurable: true },stateSize: { configurable: true },quadSize: { configurable: true },z: { configurable: true },uv: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
