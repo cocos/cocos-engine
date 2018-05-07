@@ -28,6 +28,7 @@ const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 const Skeleton = require('./skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
@@ -155,8 +156,8 @@ var spineAssembler = js.addon({
         data.dataLength = 0;
         let indices;
         let material = null, currMaterial = null;
-        let vertexCount = 0, vertexOffset = 0, maxVertex = batchData.MAX_VERTEX - batchData.vertexOffset;
-        let indiceCount = 0, indiceOffset = 0, maxIndice = batchData.MAX_INDICE - batchData.indiceOffset;
+        let vertexCount = 0, vertexOffset = 0;
+        let indiceCount = 0, indiceOffset = 0;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -191,10 +192,6 @@ var spineAssembler = js.addon({
                 }
                 data.material = currMaterial = material;
             }
-            if (vertexOffset + vertexCount > maxVertex || indiceOffset + vertexCount > maxIndice) {
-                currMaterial = null;
-                newData = true;
-            }
 
             // Request new render data and new vertex content
             if (newData) {
@@ -211,9 +208,6 @@ var spineAssembler = js.addon({
                 // reset offset
                 vertexOffset = 0;
                 indiceOffset = 0;
-                // reset max because initial max is depending on batchData.vertexOffset & indiceOffset
-                maxVertex = batchData.MAX_VERTEX;
-                maxIndice = batchData.MAX_INDICE;
             }
 
             // Fill up indices
@@ -264,6 +258,7 @@ var spineAssembler = js.addon({
                 }
             }
         }
+
         if (comp.debugBones || comp.debugSlots) {
             let renderDatas = graphics._impl._renderDatas;
             for (let i = 0; i < renderDatas.length; i++) {
@@ -292,35 +287,54 @@ var spineAssembler = js.addon({
         else {
             comp._renderDatas.length = 0;
         }
-
-        return comp._renderDatas;
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let data = batchData.data;
-        let vertexs = data._data;
-        let indices = data._indices;
-        let z = comp.node._position.z;
+    fillBuffers (comp, renderer) {
+        let renderDatas = comp._renderDatas;
+        for (let index = 0, length = renderDatas.length; index < length; index++) {
+            let data = renderDatas[index];
 
-        // fill vertex buffer
-        let offset = batchData.byteOffset / 4;
-        let vert;
-        for (let i = 0, l = data.dataLength; i < l; i++) {
-            vert = vertexs[i];
-            vbuf[offset + 0] = vert.x;
-            vbuf[offset + 1] = vert.y;
-            vbuf[offset + 2] = z;
-            vbuf[offset + 4] = vert.u;
-            vbuf[offset + 5] = vert.v;
-            uintbuf[offset + 3] = vert.color;
-            offset += 6;
+            if (data.material !== renderer.material) {
+                renderer._flush();
+                renderer.material = data.material;
+            }
+
+            let vertexs = data._data;
+            let indices = data._indices;
+            let z = comp.node._position.z;
+
+            let buffer = renderer._meshBuffer,
+                vertexOffset = buffer.byteOffset >> 2,
+                vbuf = buffer._vData,
+                uintbuf = buffer._uintVData,
+                vertexCount = data.vertexCount;
+            
+            let ibuf = buffer._iData,
+                indiceOffset = buffer.indiceOffset,
+                vertexId = buffer.vertexOffset;
+                
+            buffer.request(vertexCount, data.indiceCount);
+
+            // fill vertex buffer
+            let vert;
+            for (let i = 0, l = data.dataLength; i < l; i++) {
+                vert = vertexs[i];
+                vbuf[vertexOffset + 0] = vert.x;
+                vbuf[vertexOffset + 1] = vert.y;
+                vbuf[vertexOffset + 2] = z;
+                vbuf[vertexOffset + 4] = vert.u;
+                vbuf[vertexOffset + 5] = vert.v;
+                uintbuf[vertexOffset + 3] = vert.color;
+                vertexOffset += 6;
+            }
+
+            // index buffer
+            for (let i = 0, l = indices.length; i < l; i ++) {
+                ibuf[indiceOffset++] = vertexId + indices[i];
+            }
         }
 
-        // index buffer
-        offset = batchData.indiceOffset;
-        for (let i = 0, l = indices.length; i < l; i ++) {
-            ibuf[offset++] = vertexId + indices[i];
-        }
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }, assembler);
 

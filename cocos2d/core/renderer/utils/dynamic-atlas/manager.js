@@ -148,7 +148,7 @@ let dynamicAtlasManager = {
      */
     showDebug: CC_DEV && function (show) {
         if (show) {
-            if (!_debugNode) {
+            if (!_debugNode || !_debugNode.isValid) {
                 let width = cc.visibleRect.width;
                 let height = cc.visibleRect.height;
 
