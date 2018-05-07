@@ -28,6 +28,7 @@ const assembler = require('../../renderer/assemblers/assembler');
 const renderEngine = require('../../renderer/render-engine');
 
 const MotionStreak = require('../../components/CCMotionStreak');
+const RenderFlow = require('../render-flow');
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -88,9 +89,6 @@ var motionStreakAssembler = js.addon({
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         renderData.material = comp.getMaterial();
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
     },
 
     update (comp, dt) {
@@ -195,37 +193,49 @@ var motionStreakAssembler = js.addon({
         renderData.indiceCount = (renderData.vertexCount - 2)*3;
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let offset = batchData.byteOffset / 4,
-            node = comp.node,
+    fillBuffers (comp, renderer) {
+        let node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,
             z = node._position.z;
+    
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
+            vertexCount = renderData.vertexCount;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+        
+        buffer.request(vertexCount, renderData.indiceCount);
     
         // vertex buffer
         let vert;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             vert = data[i];
-            vbuf[offset + 0] = vert.x;
-            vbuf[offset + 1] = vert.y;
-            vbuf[offset + 2] = z;
-            vbuf[offset + 4] = vert.u;
-            vbuf[offset + 5] = vert.v;
-            uintbuf[offset + 3] = vert.color;
-            offset += 6;
+            vbuf[vertexOffset + 0] = vert.x;
+            vbuf[vertexOffset + 1] = vert.y;
+            vbuf[vertexOffset + 2] = z;
+            vbuf[vertexOffset + 4] = vert.u;
+            vbuf[vertexOffset + 5] = vert.v;
+            uintbuf[vertexOffset + 3] = vert.color;
+            vertexOffset += 6;
         }
         
         // index buffer
-        offset = batchData.indiceOffset;
         for (let i = 0, l = renderData.vertexCount; i < l; i += 2) {
             let start = vertexId + i;
-            ibuf[offset++] = start;
-            ibuf[offset++] = start + 2;
-            ibuf[offset++] = start + 1;
-            ibuf[offset++] = start + 1;
-            ibuf[offset++] = start + 2;
-            ibuf[offset++] = start + 3;
+            ibuf[indiceOffset++] = start;
+            ibuf[indiceOffset++] = start + 2;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 2;
+            ibuf[indiceOffset++] = start + 3;
         }
+
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }, assembler);
 

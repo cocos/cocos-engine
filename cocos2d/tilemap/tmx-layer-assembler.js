@@ -29,6 +29,7 @@ const TiledMap = require('./CCTiledMap');
 const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
 const renderEngine = require('../core/renderer/render-engine');
+const RenderFlow = require('../core/renderer/render-flow');
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -57,18 +58,23 @@ let tmxAssembler = js.addon({
         renderData.material = comp.getMaterial();
         
         this.updateVertices(comp);
-
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+    fillBuffers (comp, renderer) {
         let renderData = comp._renderData;
         let data = renderData._data;
+
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
+            vertexCount = renderData.vertexCount;
         
-        let vertexOffset = batchData.byteOffset / 4;
-        let indiceOffset = batchData.indiceOffset;
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+            
+        buffer.request(vertexCount, renderData.indiceCount);
         
         let z = comp.node._position.z;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
@@ -90,6 +96,8 @@ let tmxAssembler = js.addon({
             ibuf[indiceOffset++] = vertexId+2;
             vertexId += 4;
         }
+
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 
     updateVertices (comp) {

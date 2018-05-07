@@ -66,43 +66,33 @@ module.exports = js.addon({
         return datas;
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
-        let node = comp.node;
-        let renderData = comp._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        let color = cc.Color.WHITE._val;
-        
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
+    fillBuffers (comp, renderer) {
+        let data = comp._renderData._data,
+            node = comp.node,
+        //  z = node._position.z,
+            color = node._color._val,
+            matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
     
-        let vert;
-        let length = renderData.dataLength;
-        for (let i = 0; i < length; i++) {
-            vert = data[i];
-            vbuf[vertexOffset + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset + 2] = z;
-            vbuf[vertexOffset + 4] = vert.u;
-            vbuf[vertexOffset + 5] = vert.v;
-            uintbuf[vertexOffset + 3] = color;
+        let buffer = renderer._quadBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+
+        buffer.request(4, 6);
+
+        // vertex
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset+1] = vert.x * b + vert.y * d + ty;
+            // vbuf[vertexOffset+2] = z;
+            uintbuf[vertexOffset+3] = color;
+            vbuf[vertexOffset+4] = vert.u;
+            vbuf[vertexOffset+5] = vert.v;
             vertexOffset += 6;
         }
-
-        ibuf[indiceOffset + 0] = vertexId;
-        ibuf[indiceOffset + 1] = vertexId + 1;
-        ibuf[indiceOffset + 2] = vertexId + 2;
-        ibuf[indiceOffset + 3] = vertexId + 1;
-        ibuf[indiceOffset + 4] = vertexId + 3;
-        ibuf[indiceOffset + 5] = vertexId + 2;
     },
 
     _updateVerts (comp) {

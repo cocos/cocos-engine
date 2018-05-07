@@ -30,6 +30,7 @@ const misc = require('./misc');
 const js = require('../platform/js');
 const IdGenerater = require('../platform/id-generater');
 const eventManager = require('../event-manager');
+const RenderFlow = require('../renderer/render-flow');
 
 const Destroying = Flags.Destroying;
 const DontDestroy = Flags.DontDestroy;
@@ -338,6 +339,8 @@ var BaseNode = cc.Class({
          * @private
          */
         this.__eventTargets = [];
+
+        this._renderFlag = RenderFlow.FLAG_TRANSFORM;
     },
 
     /**
@@ -378,6 +381,7 @@ var BaseNode = cc.Class({
             eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit && value.emit(CHILD_ADDED, this);
+            value._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
@@ -388,6 +392,10 @@ var BaseNode = cc.Class({
                 oldParent._children.splice(removeAt, 1);
                 oldParent.emit && oldParent.emit(CHILD_REMOVED, this);
                 this._onHierarchyChanged(oldParent);
+
+                if (oldParent._children.length === 0) {
+                    oldParent._renderFlag &= ~RenderFlow.FLAG_CHILDREN;
+                }
             }
         }
         else if (value) {
@@ -1113,12 +1121,8 @@ var BaseNode = cc.Class({
 
     _onSetParent (value) {},
     _onPostActivated () {},
-    _onBatchRestored () {
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchRestored();
-        }
-    },
+    _onBatchRestored () {},
+    _onBatchCreated () {},
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
@@ -1167,21 +1171,6 @@ var BaseNode = cc.Class({
             _Scene.DetectConflict.afterAddChild(this);
         }
 
-    },
-
-    _onBatchCreated () {
-        var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
-            if (CC_DEV && prefabInfo._synced) {
-                cc.error('Internal error: prefab already synced');
-            }
-            PrefabHelper.syncWithPrefab(this);
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
-        }
     },
 
     _instantiate (cloned) {

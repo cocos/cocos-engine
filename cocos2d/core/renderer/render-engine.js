@@ -13792,6 +13792,8 @@ var _vertexFmt = new gfx.VertexFormat([
   { name: 'a_quad', type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
 
+_vertexFmt.name = 'ParticlesVertexFormat';
+
 var _dataOpts = {
   width: 0,
   height: 0,

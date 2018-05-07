@@ -27,6 +27,7 @@ const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
 const ParticleSystem = require('./CCParticleSystem');
 const renderEngine = require('../core/renderer/render-engine');
+const RenderFlow = require('../core/renderer/render-flow');
 
 var particleSystemAssembler = js.addon({
     useModel: true,
@@ -95,38 +96,48 @@ var particleSystemAssembler = js.addon({
         renderData.vertexCount = vfx.buffers.indexes.length;
         renderData.indiceCount = renderData.vertexCount / 2 * 3;
         renderData.material = comp.getMaterial();
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let offset = batchData.byteOffset / 4,
-            verts = comp._vfx.buffers.indexes;
+    fillBuffers (comp, renderer) {
+        let verts = comp._vfx.buffers.indexes;
         
+
+        let buffer = renderer.getBuffer('mesh', comp._vertexFormat),
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+
+        let quads = verts.length / 4;
+        let quadsize = comp._vfx.quadsize;
+        let w = quadsize[0], h = quadsize[1];
+
+        buffer.request(verts.length, w/2 * h/2 * 6);
+
         // vertex buffer
         for (let i = 0; i < verts.length; i++) {
-            vbuf[offset] = verts[i];
-            offset++;
+            vbuf[vertexOffset] = verts[i];
+            vertexOffset++;
         }
 
         // index buffer
-        let quads = comp._vfx.buffers.indexes.length / 4;
-        let quadsize = comp._vfx.quadsize;
-        let w = quadsize[0], h = quadsize[1];
-        offset = batchData.indiceOffset;
+        
         for (let y = 0; y < h; y+=2) {
             for (let x = 0; x < w; x+=2) {
                 let i = vertexId + y * w + x;
-                ibuf[offset + 0] = i;
-                ibuf[offset + 1] = i + 1;
-                ibuf[offset + 2] = i + w;
-                ibuf[offset + 3] = i + 1;
-                ibuf[offset + 4] = i + w + 1;
-                ibuf[offset + 5] = i + w;
-                offset += 6;
+                ibuf[indiceOffset + 0] = i;
+                ibuf[indiceOffset + 1] = i + 1;
+                ibuf[indiceOffset + 2] = i + w;
+                ibuf[indiceOffset + 3] = i + 1;
+                ibuf[indiceOffset + 4] = i + w + 1;
+                ibuf[indiceOffset + 5] = i + w;
+                indiceOffset += 6;
             }
         }
+
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }, assembler);
 

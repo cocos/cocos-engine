@@ -219,7 +219,7 @@ var Sprite = cc.Class({
                     this._material = null;
                 }
                 this._applySpriteFrame(lastSprite);
-                this._checkDirtyState(value, lastSprite);
+                this.markUpdateRenderData();
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
                 }
@@ -273,8 +273,7 @@ var Sprite = cc.Class({
                         this._renderData = null;
                     }
                     else if (this._renderData) {
-                        this._renderData.uvDirty = true;
-                        this._renderData.vertDirty = true;
+                        this.markUpdateRenderData();
                     }
                     this._fillType = value;
                     this._updateAssembler();
@@ -301,7 +300,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillCenter = cc.v2(value);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._renderData.vertDirty = true;
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
@@ -325,8 +324,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._renderData.uvDirty = true;
-                    this._renderData.vertDirty = true;
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
@@ -350,8 +348,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._renderData.uvDirty = true;
-                    this._renderData.vertDirty = true;
+                    this.markUpdateRenderData();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
@@ -373,8 +370,7 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
                         this._renderData) {
-                        this._renderData.uvDirty = true;
-                        this._renderData.vertDirty = true;
+                        this.markUpdateRenderData();
                     }
                 }
             },
@@ -496,9 +492,8 @@ var Sprite = cc.Class({
     },
 
     _onNodeSizeDirty () {
-        if (this._renderData) {
-            this._renderData.vertDirty = true;
-        }
+        if (!this._renderData) return;
+        this.markUpdateRenderData();
     },
 
     _updateAssembler: function () {
@@ -526,12 +521,6 @@ var Sprite = cc.Class({
 
         // Get material
         let texture = spriteFrame.getTexture();
-        let url = texture.url;
-        let key = url;
-        if (this._state === State.GRAY) {
-            key = url + ':gray';
-        }
-
         let material;
         if (this._state === State.GRAY) {
             material = new GraySpriteMaterial();
@@ -583,38 +572,12 @@ var Sprite = cc.Class({
         }
     },
 
-    _checkDirtyState (spriteFrame, oldSpriteFrame) {
+    markUpdateRenderData () {
+        this._super();
+
         let renderData = this._renderData;
-        if (!renderData) {
-            return;
-        }
-
-        if (!spriteFrame || !oldSpriteFrame) {
+        if (renderData) {
             renderData.uvDirty = true;
-            renderData.vertDirty = true;
-            return;
-        }
-
-        let rect = spriteFrame._rect, 
-            oldRect = oldSpriteFrame._rect;
-        let rectSizeChanged = rect.width !== oldRect.width || rect.height !== oldRect.height;
-        if (rect.x !== oldRect.x ||
-            rect.y !== oldRect.y ||
-            rectSizeChanged ||
-            spriteFrame._rotated !== oldSpriteFrame._rotated ||
-            spriteFrame._texture.width !== oldSpriteFrame._texture.width) {
-            renderData.uvDirty = true;
-        }
-
-        let originalSize = spriteFrame._originalSize,
-            oldOriginalSize = oldSpriteFrame._originalSize,
-            offset = spriteFrame._offset,
-            oldOffset = oldSpriteFrame._offset;
-        if (rectSizeChanged ||
-            originalSize.width !== oldOriginalSize.width ||
-            originalSize.height !== oldOriginalSize.height ||
-            offset.x !== oldOffset.x ||
-            offset.y !== oldOffset.y) {
             renderData.vertDirty = true;
         }
     },

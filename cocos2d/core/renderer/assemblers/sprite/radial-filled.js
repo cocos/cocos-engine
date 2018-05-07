@@ -149,7 +149,6 @@ module.exports = {
                 renderData.vertDirty = renderData.uvDirty = false;
             }
         }
-        return sprite.__allocedDatas;
     },
 
     _getVertAngle: function(start, end) {
@@ -328,18 +327,28 @@ module.exports = {
         }
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
-
-        let data = sprite._renderData._data;
-        let node = sprite.node;
-        let z = node._position.z;
-        let color = node._color._val;
+    fillBuffers (sprite, renderer) {
+        let renderData = sprite._renderData,
+            data = renderData._data,
+            node = sprite.node,
+            z = node._position.z,
+            color = node._color._val;
     
         let matrix = node._worldMatrix;
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
+
+        // buffer
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+            
+        buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let count = data.length;
         for (let i = 0; i < count; i++) {

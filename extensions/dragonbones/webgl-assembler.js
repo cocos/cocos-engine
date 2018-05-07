@@ -31,6 +31,8 @@ const math = renderEngine.math;
 const js = require('../../cocos2d/core/platform/js');
 const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
 
@@ -43,11 +45,9 @@ let _vbuf, _uintbuf,
 
 let armatureAssembler = js.addon({
     updateRenderData (comp) {
-        this.datas.length = 0;
-        
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) {
-            return this.datas;
+            return;
         }
         
         let renderData = comp._renderData;
@@ -64,10 +64,6 @@ let armatureAssembler = js.addon({
         renderData.indiceCount = 0;
 
         this.calcBufferCount(renderData, armature);
-        
-        this.datas.push(renderData);
-
-        return this.datas;
     },
 
     calcBufferCount (renderData, armature) {
@@ -85,17 +81,21 @@ let armatureAssembler = js.addon({
         }
     },
 
-    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+    fillBuffers (comp, renderer) {
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
-        _vertexOffset = batchData.byteOffset / 4;
-        _indiceOffset = batchData.indiceOffset;
+        let buffer = renderer._meshBuffer,
+            renderData = comp._renderData;
 
-        _ibuf = ibuf;
-        _vbuf = vbuf;
-        _uintbuf = uintbuf;
-        _vertexId = vertexId;
+        _vertexOffset = buffer.byteOffset >> 2;
+        _vbuf = buffer._vData;
+        _uintbuf = buffer._uintVData;
+        _ibuf = buffer._iData;
+        _indiceOffset = buffer.indiceOffset;
+        _vertexId = buffer.vertexOffset;
+
+        buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let node = comp.node;
         _z = node._position.z;
@@ -106,6 +106,8 @@ let armatureAssembler = js.addon({
 
         this.fillIndexBufferWithArmature(armature);
         this.fillVertexBufferWithArmature(armature);
+
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         _worldMatrix = _ibuf = _vbuf = _uintbuf = null;
     },

@@ -31,7 +31,7 @@ const Earcut = require('./earcut');
 const Impl = require('./impl');
 
 const macro = require('../../../platform/CCMacro');
-const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
+const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
 
 const js = require('../../../platform/js');
@@ -82,15 +82,10 @@ let graphicsAssembler = js.addon({
         for (let i = 0, l = datas.length; i < l; i++) {
             datas[i].material = graphics.getMaterial();
         }
-
-        return datas;
     },
 
-    fillBuffers (graphics, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let offset = batchData.byteOffset / 4,
-            node = graphics.node,
-            renderData = batchData.data,
-            data = renderData._data,
+    fillBuffers (graphics, renderer) {
+        let node = graphics.node,
             z = node._position.z;
         
         // vertex buffer
@@ -103,26 +98,43 @@ let graphicsAssembler = js.addon({
             nodeG = nodeColor.g / 255,
             nodeB = nodeColor.b / 255,
             nodeA = nodeColor.a / 255;
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            vbuf[offset++] = data[i].x * a + data[i].y * c + tx;
-            vbuf[offset++] = data[i].x * b + data[i].y * d + ty;
-            vbuf[offset++] = z;
 
-            let color = data[i].color;
-            let cr = (color & 0x000000ff) * nodeR;
-            let cg = ((color & 0x0000ff00) >> 8) * nodeG;
-            let cb = ((color & 0x00ff0000) >> 16) * nodeB;
-            let ca = ((color & 0xff000000) >>> 24) * nodeA;
-            color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
-            uintbuf[offset++] = color;
-            offset+=2;
-        }
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
-        // index buffer
-        let indicesBuffer = renderData._indices;
-        offset = batchData.indiceOffset;
-        for (let i = 0, l = indicesBuffer.length; i < l; i++) {
-            ibuf[offset + i] = vertexId + indicesBuffer[i];
+        let renderDatas = graphics._impl._renderDatas;
+        for (let index = 0, length = renderDatas.length; index < length; index++) {
+            let renderData = renderDatas[index];
+                data = renderData._data;
+
+            buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+            for (let i = 0, l = data.length; i < l; i++) {
+                vbuf[vertexOffset++] = data[i].x * a + data[i].y * c + tx;
+                vbuf[vertexOffset++] = data[i].x * b + data[i].y * d + ty;
+                vbuf[vertexOffset++] = z;
+    
+                let color = data[i].color;
+                let cr = (color & 0x000000ff) * nodeR;
+                let cg = ((color & 0x0000ff00) >> 8) * nodeG;
+                let cb = ((color & 0x00ff0000) >> 16) * nodeB;
+                let ca = ((color & 0xff000000) >>> 24) * nodeA;
+                color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+                uintbuf[vertexOffset++] = color;
+                vertexOffset+=2;
+            }
+
+            // index buffer
+            let indicesBuffer = renderData._indices;
+            for (let i = 0, l = indicesBuffer.length; i < l; i++) {
+                ibuf[indiceOffset + i] = vertexId + indicesBuffer[i];
+            }
         }
     },
 
