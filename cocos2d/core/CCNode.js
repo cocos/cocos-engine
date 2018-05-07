@@ -2529,6 +2529,7 @@ var Node = cc.Class({
                     }
                 }
             }
+            sizeProvider.visible = this.active;
         }
 
         var sgParent = this._parent && this._parent._sgNode;
