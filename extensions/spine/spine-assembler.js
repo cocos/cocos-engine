@@ -296,6 +296,7 @@ var spineAssembler = js.addon({
 
             if (data.material !== renderer.material) {
                 renderer._flush();
+                renderer.node = comp.node;
                 renderer.material = data.material;
             }
 

@@ -57,7 +57,6 @@ var RenderComponentWalker = function (device, renderScene) {
     this._device = device;
     this._stencilMgr = StencilManager.sharedManager;
 
-    this.node = null;
     this.material = empty_material;
     this.cullingMask = 1;
 
@@ -79,6 +78,7 @@ var RenderComponentWalker = function (device, renderScene) {
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
 
+    this.node = this._dummyNode;
     this.worldMatDirty = 0;
 
     RenderFlow.init(this);
@@ -109,7 +109,7 @@ RenderComponentWalker.prototype = {
         }
 
         // reset caches for handle render components
-        this.node = null;
+        this.node = this._dummyNode;
         this.material = empty_material;
         this.cullingMask = 1;
 
