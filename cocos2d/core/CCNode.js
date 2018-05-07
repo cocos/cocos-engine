@@ -2448,6 +2448,15 @@ var Node = cc.Class({
         var self = this;
         var sgNode = self._sgNode;
 
+        // `active` must synchronize to component
+        for (var i=0; i<this._components.length; i++) {
+            var comp = this._components[i];
+            if (!comp || !comp._sgNode) {
+                continue;
+            }
+            comp._sgNode.visible = this.active;
+        }
+
         sgNode.setPosition(self._position);
         sgNode.setRotationX(self._rotationX);
         sgNode.setRotationY(self._rotationY);
