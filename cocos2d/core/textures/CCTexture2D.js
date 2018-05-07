@@ -270,7 +270,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     },
 
     /**
-     * Update texture options, not available in Canvas render mode. 
+     * Update texture options, not available in Canvas render mode.
      * image, format, premultiplyAlpha can not be updated in native.
      * @method update
      * @param {Object} options
@@ -427,6 +427,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     releaseTexture: function () {
         if (this._gl && this._glID !== null) {
             this._gl.deleteTexture(this._glID);
+            this._glID = null;
         }
     },
 
@@ -831,18 +832,18 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 );
             }
         };
-        
+
         _p._setTexInfo = function () {
             var gl = this._gl;
             var pot = _isPow2(this.width) && _isPow2(this.height);
-        
+
             // WebGL1 doesn't support all wrap modes with NPOT textures
             if (!pot && (this._wrapS !== WrapMode.CLAMP_TO_EDGE || this._wrapT !== WrapMode.CLAMP_TO_EDGE)) {
                 cc.warnID(3116);
                 this._wrapS = WrapMode.CLAMP_TO_EDGE;
                 this._wrapT = WrapMode.CLAMP_TO_EDGE;
             }
-        
+
             if (this._minFilter === Filter.LINEAR) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._hasMipmap ? gl.LINEAR_MIPMAP_NEAREST : gl.LINEAR);
             }
@@ -874,7 +875,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         _p.initWithElement = function (element) {
             if (!element || element.width === 0 || element.height === 0)
                 return;
-            
+
             this._image = element;
             return true;
         };

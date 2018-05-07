@@ -24,7 +24,19 @@
  ****************************************************************************/
 
 if (cc.sys) return;
-
+cc._isWechatGame = function () {
+    //TODO: need to refactor in the future
+    return window['wx'];
+};
+// TODO: 小程序上面判断iOS平台
+cc.isIOSPlatform = function () {
+    if (cc._isWechatGame()) {
+        var systemInfo = window['wx'].getSystemInfoSync();
+        return systemInfo.platform === "ios" || /^iOS\s+/.test(systemInfo.system);
+    } else {
+        return false;
+    }
+}
 /**
  * System variables
  * @class sys

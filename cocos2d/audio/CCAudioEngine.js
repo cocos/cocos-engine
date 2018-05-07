@@ -53,6 +53,7 @@ var getAudioFromPath = function (path) {
     };
     audio.on('ended', callback);
     audio.on('stop', callback);
+    audio._defaultCallback = callback;
     id2audio[id] = audio;
 
     audio.instanceId = id;

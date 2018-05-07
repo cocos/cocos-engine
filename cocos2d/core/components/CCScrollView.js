@@ -718,7 +718,7 @@ var ScrollView = cc.Class({
     getContentPosition: function () {
         return this.content.getPosition();
     },
-    
+
     /**
      * !#en Query whether the user is currently dragging the ScrollView to scroll it
      * !#zh 用户是否在拖拽当前滚动视图
@@ -738,7 +738,7 @@ var ScrollView = cc.Class({
     isAutoScrolling: function () {
         return this._autoScrolling;
     },
-    
+
     //private methods
     _registerEvent: function () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
@@ -997,7 +997,7 @@ var ScrollView = cc.Class({
             this._stopPropagationIfTargetIsMe(event);
         }
     },
-    
+
     _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
@@ -1527,10 +1527,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._unregisterEvent();
             this.node.off('size-changed', this._calculateBoundary, this);
-            this.node.off('scale-changed', this._calculateBoundary, this);
+            // this.node.off('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.off('size-changed', this._calculateBoundary, this);
-                this.content.off('scale-changed', this._calculateBoundary, this);
+                // this.content.off('scale-changed', this._calculateBoundary, this);
             }
         }
         this._hideScrollbar();
@@ -1541,10 +1541,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
             this.node.on('size-changed', this._calculateBoundary, this);
-            this.node.on('scale-changed', this._calculateBoundary, this);
+            // this.node.on('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.on('size-changed', this._calculateBoundary, this);
-                this.content.on('scale-changed', this._calculateBoundary, this);
+                // this.content.on('scale-changed', this._calculateBoundary, this);
             }
         }
         this._showScrollbar();

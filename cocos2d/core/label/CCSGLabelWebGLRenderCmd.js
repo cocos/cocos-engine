@@ -35,7 +35,8 @@ _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
-    this._labelCanvas = document.createElement("canvas");
+    cc.sharedLabelCanvas = cc.sharedLabelCanvas || document.createElement('canvas');
+    this._labelCanvas = cc.sharedLabelCanvas;
     this._texture.initWithElement(this._labelCanvas);
     this._labelContext = this._labelCanvas.getContext("2d");
 
@@ -65,8 +66,8 @@ proto.updateTransform = function (parentCmd) {
     this.originUpdateTransform(parentCmd);
 
     var node = this._node,
-        lx = 0, rx = this._labelCanvas.width,
-        by = 0, ty = this._labelCanvas.height,
+        lx = 0, rx = this._node.width,
+        by = 0, ty = this._node.height,
         wt = this._worldTransform;
 
     var vert = this._vertices;
@@ -92,7 +93,7 @@ proto._doCulling = function () {
     if (this._cameraFlag > 0) {
         rect = cc.Camera.main.visibleRect;
     }
-    
+
     var vl = rect.left.x;
     var vr = rect.right.x;
     var vt = rect.top.y;
@@ -132,10 +133,21 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         f32buffer[offset] = vertex.x;
         f32buffer[offset + 1] = vertex.y;
         f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = this._color[0];
-        f32buffer[offset + 4] = vertex.u;
-        f32buffer[offset + 5] = vertex.v;
-        offset += 6;
+        if(cc.sys.isOldIOS) {
+            f32buffer[offset + 3] = ((this._color[0] >> 24) & 0xFF) / 255;
+            f32buffer[offset + 4] = ((this._color[0] >> 16) & 0xFF) / 255;
+            f32buffer[offset + 5] = ((this._color[0] >> 8) & 0xFF) / 255;
+            f32buffer[offset + 6] = ((opacity >> 0) & 0xFF) / 255;
+            f32buffer[offset + 7] = vertex.u;
+            f32buffer[offset + 8] = vertex.v;
+            offset += 9;
+        }
+        else {
+            ui32buffer[offset + 3] = this._color[0];
+            f32buffer[offset + 4] = vertex.u;
+            f32buffer[offset + 5] = vertex.v;
+            offset += 6;
+        }
     }
 
     return len;

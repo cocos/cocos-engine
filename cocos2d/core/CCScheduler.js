@@ -245,7 +245,15 @@ proto.getCallback = function(){
 proto.trigger = function () {
     if (this._target && this._callback) {
         this._lock = true;
-        this._callback.call(this._target, this._elapsed);
+        try {
+            this._callback.call(this._target, this._elapsed);
+        } catch(e) {
+            if (Log && Log.Error) {
+                Log.Error(e.message);
+            } else {
+                console.error(e.message);
+            }
+        }
         this._lock = false;
     }
 };
@@ -399,22 +407,30 @@ cc.Scheduler = cc._Class.extend({
 
         var i, list, len, entry;
 
-        for(i=0,list=this._updatesNegList, len = list.length; i<len; i++){
-            entry = list[i];
-            if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
-        }
+        try {
+            for(i=0,list=this._updatesNegList, len = list.length; i<len; i++){
+                entry = list[i];
+                if (!entry.paused && !entry.markedForDeletion)
+                    entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+            }
 
-        for(i=0, list=this._updates0List, len=list.length; i<len; i++){
-            entry = list[i];
-            if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
-        }
+            for(i=0, list=this._updates0List, len=list.length; i<len; i++){
+                entry = list[i];
+                if (!entry.paused && !entry.markedForDeletion)
+                    entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+            }
 
-        for(i=0, list=this._updatesPosList, len=list.length; i<len; i++){
-            entry = list[i];
-            if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+            for(i=0, list=this._updatesPosList, len=list.length; i<len; i++){
+                entry = list[i];
+                if (!entry.paused && !entry.markedForDeletion)
+                    entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+            }
+        } catch (e) {
+            if (Log && Log.Error) {
+                Log.Error(e.message);
+            } else {
+                console.error(e.message);
+            }
         }
 
         // Iterate over all the custom selectors

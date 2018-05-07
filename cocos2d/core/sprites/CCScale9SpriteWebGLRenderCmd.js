@@ -44,41 +44,85 @@ proto.constructor = Scale9Sprite.WebGLRenderCmd;
 
 proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
     var off;
+    var colorVal = this._displayedColor._val;
     for (var r = 0; r < 3; ++r) {
         for (var c = 0; c < 3; ++c) {
-            off = r*8 + c*2;
+            off = r * 8 + c * 2;
             // lb
             f32buffer[offset] = vertices[off];
-            f32buffer[offset+1] = vertices[off+1];
-            f32buffer[offset+2] = z;
-            ui32buffer[offset+3] = color;
-            f32buffer[offset+4] = uvs[off];
-            f32buffer[offset+5] = uvs[off+1];
-            offset += 6;
+            f32buffer[offset + 1] = vertices[off + 1];
+            f32buffer[offset + 2] = z;
+            if (cc.sys.isOldIOS) {
+                f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+                f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+                f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+                f32buffer[offset + 6] = ((this._displayedOpacity >> 0) & 0xFF) / 255;
+                f32buffer[offset + 7] = uvs[off];
+                f32buffer[offset + 8] = uvs[off + 1];
+                offset += 9;
+            }
+            else {
+                ui32buffer[offset + 3] = color;
+                f32buffer[offset + 4] = uvs[off];
+                f32buffer[offset + 5] = uvs[off + 1];
+                offset += 6;
+            }
             // rb
-            f32buffer[offset] = vertices[off+2];
-            f32buffer[offset + 1] = vertices[off+3];
+            f32buffer[offset] = vertices[off + 2];
+            f32buffer[offset + 1] = vertices[off + 3];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color;
-            f32buffer[offset + 4] = uvs[off+2];
-            f32buffer[offset + 5] = uvs[off+3];
-            offset += 6;
+            if (cc.sys.isOldIOS) {
+                f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+                f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+                f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+                f32buffer[offset + 6] = ((this._displayedOpacity >> 0) & 0xFF) / 255;
+                f32buffer[offset + 7] = uvs[off + 2];
+                f32buffer[offset + 8] = uvs[off + 3];
+                offset += 9;
+            }
+            else {
+                ui32buffer[offset + 3] = color;
+                f32buffer[offset + 4] = uvs[off + 2];
+                f32buffer[offset + 5] = uvs[off + 3];
+                offset += 6;
+            }
             // lt
-            f32buffer[offset] = vertices[off+8];
-            f32buffer[offset + 1] = vertices[off+9];
+            f32buffer[offset] = vertices[off + 8];
+            f32buffer[offset + 1] = vertices[off + 9];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color;
-            f32buffer[offset + 4] = uvs[off+8];
-            f32buffer[offset + 5] = uvs[off+9];
-            offset += 6;
+            if (cc.sys.isOldIOS) {
+                f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+                f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+                f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+                f32buffer[offset + 6] = ((this._displayedOpacity >> 0) & 0xFF) / 255;
+                f32buffer[offset + 7] = uvs[off + 8];
+                f32buffer[offset + 8] = uvs[off + 9];
+                offset += 9;
+            }
+            else {
+                ui32buffer[offset + 3] = color;
+                f32buffer[offset + 4] = uvs[off + 8];
+                f32buffer[offset + 5] = uvs[off + 9];
+                offset += 6;
+            }
             // rt
-            f32buffer[offset] = vertices[off+10];
-            f32buffer[offset + 1] = vertices[off+11];
+            f32buffer[offset] = vertices[off + 10];
+            f32buffer[offset + 1] = vertices[off + 11];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color;
-            f32buffer[offset + 4] = uvs[off+10];
-            f32buffer[offset + 5] = uvs[off+11];
-            offset += 6;
+            if (cc.sys.isOldIOS) {
+                f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+                f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+                f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+                f32buffer[offset + 6] = ((this._displayedOpacity >> 0) & 0xFF) / 255;
+                f32buffer[offset + 7] = uvs[off + 10];
+                f32buffer[offset + 8] = uvs[off + 11];
+                offset += 9;
+            } else {
+                ui32buffer[offset + 3] = color;
+                f32buffer[offset + 4] = uvs[off + 10];
+                f32buffer[offset + 5] = uvs[off + 11];
+                offset += 6;
+            }
         }
     }
     return 36;
@@ -92,7 +136,7 @@ proto.updateTransform = function (parentCmd) {
 proto._doCulling = function () {
     var node = this._node;
     var rect = cc.visibleRect;
-    
+
     if (this._cameraFlag > 0) {
         rect = cc.Camera.main.visibleRect;
     }
@@ -179,10 +223,20 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             f32buffer[offset] = vertices[srcOff];
             f32buffer[offset + 1] = vertices[srcOff+1];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color;
-            f32buffer[offset + 4] = uvs[srcOff];
-            f32buffer[offset + 5] = uvs[srcOff+1];
-            offset += 6;
+            if (cc.sys.isOldIOS) {
+                f32buffer[offset + 3] = ((colorVal >> 24) & 0xFF) / 255;
+                f32buffer[offset + 4] = ((colorVal >> 16) & 0xFF) / 255;
+                f32buffer[offset + 5] = ((colorVal >> 8) & 0xFF) / 255;
+                f32buffer[offset + 6] = ((opacity >> 0) & 0xFF) / 255;
+                f32buffer[offset + 7] = uvs[srcOff];
+                f32buffer[offset + 8] = uvs[srcOff+1];
+                offset += 9;
+            } else {
+                ui32buffer[offset + 3] = color;
+                f32buffer[offset + 4] = uvs[srcOff];
+                f32buffer[offset + 5] = uvs[srcOff+1];
+                offset += 6;
+            }
         }
         break;
     case types.SLICED:

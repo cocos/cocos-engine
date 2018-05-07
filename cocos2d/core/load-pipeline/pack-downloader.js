@@ -51,6 +51,25 @@ function error (uuid, packUuid) {
     return new Error('Can not retrieve ' + uuid + ' from packer ' + packUuid);
 }
 
+function safeLoad (resources, callback, initTry) {
+    initTry = initTry || 0;
+    cc.loader.load(resources, function (error, prefab) {
+        if (error) {
+            if (initTry < 6) {
+                initTry++;
+                setTimeout(function () {
+                    safeLoad(resources, callback, initTry);
+                }, 500);
+                console.warn('try reload res: ' + resources);
+            } else {
+                callback && callback(error, prefab);
+            }
+        } else {
+            callback && callback(error, prefab);
+        }
+    })
+}
+
 module.exports = {
     initPacks: function (packs) {
         packIndices = packs;
@@ -68,7 +87,7 @@ module.exports = {
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
         var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
-        cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
+        safeLoad({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
             if (err) {
                 cc.errorID(4916, uuid);
                 return callback(err);
