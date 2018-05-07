@@ -31,6 +31,8 @@ const math = renderEngine.math;
 const js = require('../../cocos2d/core/platform/js');
 const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
 
@@ -43,11 +45,9 @@ let _vbuf, _uintbuf,
 
 let armatureAssembler = js.addon({
     updateRenderData (comp) {
-        this.datas.length = 0;
-        
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) {
-            return this.datas;
+            return;
         }
         
         let renderData = comp._renderData;
@@ -64,10 +64,6 @@ let armatureAssembler = js.addon({
         renderData.indiceCount = 0;
 
         this.calcBufferCount(renderData, armature);
-        
-        this.datas.push(renderData);
-
-        return this.datas;
     },
 
     calcBufferCount (renderData, armature) {
@@ -110,6 +106,8 @@ let armatureAssembler = js.addon({
 
         this.fillIndexBufferWithArmature(armature);
         this.fillVertexBufferWithArmature(armature);
+
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         _worldMatrix = _ibuf = _vbuf = _uintbuf = null;
     },
