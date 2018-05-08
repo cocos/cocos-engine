@@ -72,7 +72,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         material.useModel = true;
         // update texture
         material.texture = tex;
-        material.useUniformColor = false;
+        material.useColor = false;
         
         // update blend function
         let pass = material._mainTech.passes[0];

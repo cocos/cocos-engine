@@ -616,7 +616,7 @@ let TiledLayer = cc.Class({
         let material = new SpriteMaterial();
         // TODO: old texture in material have been released by loader
         material.texture = this._texture;
-        material.useUniformColor = false;
+        material.useColor = false;
         
         this.setMaterial(material);
     },
