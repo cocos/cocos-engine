@@ -629,6 +629,15 @@ else if (CC_WECHATGAME) {
     else if (env.platform === "ios") {
         sys.os = sys.OS_IOS;
     }
+    else if (env.platform === 'devtools') {
+        var system = env.system.toLowerCase();
+        if (system.indexOf('android') > -1) {
+            sys.os = sys.OS_ANDROID;
+        }
+        else if (system.indexOf('ios') > -1) {
+            sys.os = sys.OS_IOS;
+        }
+    }
 
     var version = /[\d\.]+/.exec(env.system);
     sys.osVersion = version[0];
@@ -681,7 +690,7 @@ else if (CC_QQPLAY) {
 
     var version = /[\d\.]+/.exec(env.version);
     sys.osVersion = version[0];
-    sys.osMainVersion = parseInt(osVersion.split('.')[0]);
+    sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
 
