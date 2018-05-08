@@ -32,7 +32,7 @@ const js = require('../../cocos2d/core/platform/js');
 const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const default2DVertexFormat = require('../../cocos2d/core/renderer/vertex-format').default2DVertexFormat;
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
 
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
@@ -86,7 +86,7 @@ let armatureAssembler = js.addon({
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
-        let buffer = renderer.getBuffer('mesh', default2DVertexFormat),
+        let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
             renderData = comp._renderData;
 
         _vertexOffset = buffer.byteOffset >> 2;
@@ -134,9 +134,9 @@ let armatureAssembler = js.addon({
                 let vertex = vertices[j];
                 _vbuf[_vertexOffset++] = vertex.x * _a + vertex.y * _c + _tx;
                 _vbuf[_vertexOffset++] = vertex.x * _b + vertex.y * _d + _ty;
-                _uintbuf[_vertexOffset++] = color;
                 _vbuf[_vertexOffset++] = vertex.u;
                 _vbuf[_vertexOffset++] = vertex.v;
+                _uintbuf[_vertexOffset++] = color;
             }
         }
     },

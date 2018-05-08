@@ -26,28 +26,28 @@
 const renderEngine = require('./render-engine');
 const gfx = renderEngine.gfx;
 
-var default3DVertexFormat = new gfx.VertexFormat([
+var vfmt3D = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
+    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
-default3DVertexFormat.name = 'default3DVertexFormat';
+vfmt3D.name = 'vfmt3D';
 
-var default2DVertexFormat = new gfx.VertexFormat([
+var vfmtPosColorUv = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
-default2DVertexFormat.name = 'default2DVertexFormat';
+vfmtPosColorUv.name = 'vfmtPosColorUv';
 
-var default2DNoColorVertexFormat = new gfx.VertexFormat([
+var vfmtPosUv = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
-default2DNoColorVertexFormat.name = 'default2DNoColorVertexFormat';
+vfmtPosUv.name = 'vfmtPosUv';
 
 module.exports = {
-    default3DVertexFormat,
-    default2DVertexFormat,
-    default2DNoColorVertexFormat
+    vfmt3D,
+    vfmtPosColorUv,
+    vfmtPosUv
 };

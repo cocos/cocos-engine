@@ -29,7 +29,7 @@ const Skeleton = require('./skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const default2DVertexFormat = require('../../cocos2d/core/renderer/vertex-format').default2DVertexFormat;
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
@@ -306,7 +306,7 @@ var spineAssembler = js.addon({
             let vertexs = data._data;
             let indices = data._indices;
 
-            let buffer = renderer.getBuffer('mesh', default2DVertexFormat),
+            let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
                 vertexOffset = buffer.byteOffset >> 2,
                 vbuf = buffer._vData,
                 uintbuf = buffer._uintVData,
@@ -324,9 +324,9 @@ var spineAssembler = js.addon({
                 vert = vertexs[i];
                 vbuf[vertexOffset++] = vert.x;
                 vbuf[vertexOffset++] = vert.y;
-                uintbuf[vertexOffset++] = vert.color;
                 vbuf[vertexOffset++] = vert.u;
                 vbuf[vertexOffset++] = vert.v;
+                uintbuf[vertexOffset++] = vert.color;
             }
 
             // index buffer
