@@ -270,55 +270,55 @@ void BaseRenderer::draw(const StageItem& item)
             _device->setPrimitiveType(ia->_primitiveType);
             
             // set program
-            auto program = _programLib->getProgram(pass._programName, *(item.defines));
+            auto program = _programLib->getProgram(pass->_programName, *(item.defines));
             _device->setProgram(program);
             
             // cull mode
-            _device->setCullMode(pass._cullMode);
+            _device->setCullMode(pass->_cullMode);
             
             // blend
-            if (pass._blend)
+            if (pass->_blend)
             {
                 _device->enableBlend();
-                _device->setBlendFuncSeparate(pass._blendSrc,
-                                              pass._blendDst,
-                                              pass._blendSrcAlpha,
-                                              pass._blendDstAlpha);
-                _device->setBlendEquationSeparate(pass._blendEq, pass._blendAlphaEq);
-                _device->setBlendColor(pass._blendColor);
+                _device->setBlendFuncSeparate(pass->_blendSrc,
+                                              pass->_blendDst,
+                                              pass->_blendSrcAlpha,
+                                              pass->_blendDstAlpha);
+                _device->setBlendEquationSeparate(pass->_blendEq, pass->_blendAlphaEq);
+                _device->setBlendColor(pass->_blendColor);
             }
             
             // depth test & write
-            if (pass._depthTest)
+            if (pass->_depthTest)
             {
                 _device->enableDepthTest();
-                _device->setDepthFunc(pass._depthFunc);
+                _device->setDepthFunc(pass->_depthFunc);
             }
-            if (pass._depthWrite)
+            if (pass->_depthWrite)
                 _device->enableDepthWrite();
             
             // setencil
-            if (pass._stencilTest)
+            if (pass->_stencilTest)
             {
                 _device->enableStencilTest();
                 
                 // front
-                _device->setStencilFuncFront(pass._stencilFuncFront,
-                                             pass._stencilRefFront,
-                                             pass._stencilMaskFront);
-                _device->setStencilOpFront(pass._stencilFailOpFront,
-                                           pass._stencilZFailOpFront,
-                                           pass._stencilZPassOpFront,
-                                           pass._stencilWriteMaskFront);
+                _device->setStencilFuncFront(pass->_stencilFuncFront,
+                                             pass->_stencilRefFront,
+                                             pass->_stencilMaskFront);
+                _device->setStencilOpFront(pass->_stencilFailOpFront,
+                                           pass->_stencilZFailOpFront,
+                                           pass->_stencilZPassOpFront,
+                                           pass->_stencilWriteMaskFront);
                 
                 // back
-                _device->setStencilFuncBack(pass._stencilFuncBack,
-                                            pass._stencilRefBack,
-                                            pass._stencilMaskBack);
-                _device->setStencilOpBack(pass._stencilFailOpBack,
-                                          pass._stencilZFailOpBack,
-                                          pass._stencilZPassOpBack,
-                                          pass._stencilWriteMaskBack);
+                _device->setStencilFuncBack(pass->_stencilFuncBack,
+                                            pass->_stencilRefBack,
+                                            pass->_stencilMaskBack);
+                _device->setStencilOpBack(pass->_stencilFailOpBack,
+                                          pass->_stencilZFailOpBack,
+                                          pass->_stencilZPassOpBack,
+                                          pass->_stencilWriteMaskBack);
             }
             
             // draw pass

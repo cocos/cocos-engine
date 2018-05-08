@@ -31,7 +31,7 @@
 
 RENDERER_BEGIN
 
-class Pass
+class Pass : public Ref
 {
 public:
     Pass(const std::string& programName);
@@ -66,6 +66,7 @@ public:
     inline void setStencilTest(bool value) { _stencilTest = value; }
     inline bool getStencilTest() const { return _stencilTest; }
     inline void setProgramName(const std::string& programName) { _programName = programName; }
+    inline void disableStencilTest() { _stencilTest = false; }
     
 private:
     friend class BaseRenderer;

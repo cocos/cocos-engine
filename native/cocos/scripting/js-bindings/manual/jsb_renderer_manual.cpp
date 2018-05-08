@@ -467,27 +467,6 @@ SE_BIND_FUNC(js_renderer_ForwardRenderer_render);
 se::Object* __jsb_cocos2d_renderer_Technique_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_Technique_class = nullptr;
 
-static bool js_renderer_Technique_setPass(se::State& s)
-{
-    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_setPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        int arg0 = 0;
-        cocos2d::renderer::Pass arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-        ok &= seval_to_Pass(args[1], arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_Technique_setPass : Error processing arguments");
-        cobj->setPass(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Technique_setPass)
-
 static bool js_renderer_Technique_setStages(se::State& s)
 {
     cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
@@ -515,7 +494,7 @@ static bool js_renderer_Technique_constructor(se::State& s)
     const auto& args = s.args();
     std::vector<std::string> arg0;
     std::vector<cocos2d::renderer::Technique::Parameter> arg1;
-    std::vector<cocos2d::renderer::Pass> arg2;
+    cocos2d::Vector<cocos2d::renderer::Pass*> arg2;
     ok &= seval_to_std_vector_string(args[0], &arg0);
     ok &= seval_to_std_vector_TechniqueParameter(args[1], &arg1);
     ok &= seval_to_std_vector_Pass(args[2], &arg2);
@@ -528,14 +507,10 @@ SE_BIND_CTOR(js_renderer_Technique_constructor, __jsb_cocos2d_renderer_Technique
 
 static bool js_cocos2d_renderer_Technique_finalize(se::State& s)
 {
-    
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Technique)", s.nativeThisObject());
     cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
-    
+    cobj->release();
+
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Technique_finalize)
@@ -543,19 +518,69 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Technique_finalize)
 bool js_register_renderer_Technique(se::Object* obj)
 {
     auto cls = se::Class::create("TechniqueNative", obj, nullptr, _SE(js_renderer_Technique_constructor));
-    
-    cls->defineFunction("setPass", _SE(js_renderer_Technique_setPass));
+
     cls->defineFunction("setStages", _SE(js_renderer_Technique_setStages));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Technique_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Technique>(cls);
-    
+
     __jsb_cocos2d_renderer_Technique_proto = cls->getProto();
     __jsb_cocos2d_renderer_Technique_class = cls;
-    
+
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+
+static bool js_renderer_Pass_init(se::State& s)
+{
+    cocos2d::renderer::Pass* cobj = (cocos2d::renderer::Pass*)s.nativeThisObject();
+    const auto& args = s.args();
+    
+    // program name
+    cobj->setProgramName(args[0].toString());
+    
+    uint8_t* data = nullptr;
+    size_t length = 0;
+    args[1].toObject()->getTypedArrayData(&data, &length);
+    uint32_t* binary32 = (uint32_t*)data;
+    
+    // cull mode
+    cobj->setCullMode(static_cast<cocos2d::renderer::CullMode>(*binary32));
+    
+    // blend
+    cobj->setBlend(static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 1)),     // blendEq
+                   static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 2)), // blendSrc
+                   static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 3)), // blendDst
+                   static_cast<cocos2d::renderer::BlendOp>(*(binary32 + 4)),     // blendAlphaEq
+                   static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 5)), // blendSrcAlpha
+                   static_cast<cocos2d::renderer::BlendFactor>(*(binary32 + 6)), // blendDstAlpha
+                   *(binary32 + 7));                                              // blend color
+    
+    // depth
+    cobj->setDepth(*(binary32 + 8), // depth test
+                   *(binary32 + 9), // depth write
+                   static_cast<cocos2d::renderer::DepthFunc>(*(binary32 + 10))); // depth func
+    
+    // stencil front
+    cobj->setStencilFront(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 11)),  // stencilFuncFront
+                          *(binary32 + 12),                                               // stencilRefFront
+                          *(binary32 + 13),                                               // stencilMaskFront
+                          static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 14)),    // stencilFailOpFront
+                          static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 15)),    // stencilZFailOpFront
+                          static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 16)),    // stencilZPassOpFront
+                          *(binary32 + 17));                                              // stencilWrtieMaskFront
+    
+    // stencil back
+    cobj->setStencilBack(static_cast<cocos2d::renderer::StencilFunc>(*(binary32 + 18)), // stencilFuncBack
+                         *(binary32 + 19),                                              // stencilRefBack
+                         *(binary32 + 20),                                              // stencilMaskBack
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 21)),   // stencilFailOpBack
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 22)),   // stencilZFailOpBack
+                         static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 23)),   // stencilZFailOpBack
+                         *(binary32 + 24));
+    
+}
+SE_BIND_FUNC(js_renderer_Pass_init);
 
 bool jsb_register_renderer_manual(se::Object* global)
 {
@@ -568,16 +593,9 @@ bool jsb_register_renderer_manual(se::Object* global)
         global->setProperty("renderer", nsVal);
     }
     se::Object* ns = nsVal.toObject();
-    
+
     js_register_renderer_Config(ns);
     js_register_renderer_Technique(ns);
-    
-    // Camera
-//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getColor", _SE(js_renderer_Camera_getColor));
-//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getRect", _SE(js_renderer_Camera_getRect));
-//   __jsb_cocos2d_renderer_Camera_proto->defineFunction("extractView", _SE(js_renderer_Camera_extractView));
-//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("screenToWorld", _SE(js_renderer_Camera_screenToWorld));
-//    __jsb_cocos2d_renderer_Camera_proto->defineFunction("worldToScreen", _SE(js_renderer_Camera_worldToScreen));
 
     // Effect
     __jsb_cocos2d_renderer_Effect_proto->defineFunction("setProperty", _SE(js_renderer_Effect_setProperty));
@@ -602,12 +620,11 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // BaseRenderer
     __jsb_cocos2d_renderer_BaseRenderer_proto->defineProperty("_programLib", _SE(js_renderer_BaseRenderer_prop_getProgramLib), nullptr);
-
-    // Scene
-//    __jsb_cocos2d_renderer_Scene_proto->defineFunction("addModelNative", _SE(js_renderer_Scene_addModel));
     
     // ForwardRenderer
     __jsb_cocos2d_renderer_ForwardRenderer_proto->defineFunction("renderNative", _SE(js_renderer_ForwardRenderer_render));
-
+    
+    // Pass
+    __jsb_cocos2d_renderer_Pass_proto->defineFunction("init", _SE(js_renderer_Pass_init));
     return true;
 }
