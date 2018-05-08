@@ -109,9 +109,10 @@ public:
     {
         jbyteArray arr = JniHelper::callObjectByteArrayMethod(_obj, _className, "getDataRef");
         jsize len  = JniHelper::getEnv()->GetArrayLength(arr);
-        jbyte *jbarray = (jbyte *)malloc(len * sizeof(jbyte));
+        jbyte* jbarray = (jbyte *)malloc(len * sizeof(jbyte));
         JniHelper::getEnv()->GetByteArrayRegion(arr,0,len,jbarray);
         _data.fastSet((unsigned char*) jbarray, len);
+        JniHelper::getEnv()->DeleteLocalRef(arr);
     }
 
 private:
