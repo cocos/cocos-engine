@@ -10377,6 +10377,10 @@ Pass.prototype.setStencilBack = function setStencilBack (
   this._stencilWriteMaskBack = stencilWriteMask;
 };
 
+Pass.prototype.disableStencilTest = function disableStencilTest () {
+  this._stencilTest = false;
+};
+
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
 
 var _stageOffset = 0;
