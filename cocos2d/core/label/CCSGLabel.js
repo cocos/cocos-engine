@@ -157,7 +157,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
         _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(0.5, 0.5);
-        _ccsg.Node.prototype.setContentSize.call(this, 128, 128);
+        _ccsg.Node.prototype.setContentSize.call(this, 10, 10);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
         this._imageOffset = cc.p(0, 0);
@@ -1270,8 +1270,6 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     label._fontHandle = "";
     label._labelType = 0;
     label._resetBMFont();
-    label._renderCmd._labelCanvas.width = 1;
-    label._renderCmd._labelCanvas.height = 1;
     label._renderCmd._texture.releaseTexture();
     if (CC_DEV) {
         cc.assert(!label._parent, 'Recycling label\'s parent should be null!');
@@ -1294,7 +1292,7 @@ _ccsg.Label.pool.get = function (string, fontAsset) {
         label._position.x = 0;
         label._position.y = 0;
         label.setAnchorPoint(0.5, 0.5);
-        _ccsg.Node.prototype.setContentSize.call(label, 128, 128);
+        _ccsg.Node.prototype.setContentSize.call(label, 10, 10);
 
         if (isAsset) {
             label.setFontAsset(fontAsset);
