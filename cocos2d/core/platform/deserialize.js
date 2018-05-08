@@ -578,6 +578,9 @@ var _Deserializer = (function () {
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
             sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
         }
+        if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
+            sources.push('o._id=d._id;');
+        }
         return Function('s', 'o', 'd', 'k', 't', sources.join(''));
     } : function (self, klass) {
         var TYPE = Attr.DELIMETER + 'type';
@@ -654,6 +657,9 @@ var _Deserializer = (function () {
                 o._$erialized=JSON.parse(JSON.stringify(d));
                 // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
                 s._deserializePrimitiveObject(o._$erialized,d);
+            }
+            if ((o instanceof cc._BaseNode) || (o instanceof cc.Component)) {
+                o._id = d._id;
             }
         }
     };

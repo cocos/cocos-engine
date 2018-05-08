@@ -175,9 +175,6 @@ function enumerateCCClass (klass, obj, clone, parent) {
             }
         }
     }
-    if ((CC_EDITOR || CC_TEST) && (obj instanceof cc._BaseNode || obj instanceof cc.Component)) {
-        clone._id = '';
-    }
 }
 
 function enumerateObject (obj, clone, parent) {
