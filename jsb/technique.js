@@ -20,7 +20,11 @@ class Technique {
     this._stages = stages;
     // TODO: this._version = 'webgl' or 'webgl2' // ????
 
-    this._nativeObj = new renderer.TechniqueNative(stages, parameters, passes, layer);
+    var passesNative = [];
+    for (var i = 0, len = passes.length; i < len; ++i) {
+      passesNative.push(passes[i]._native);
+    }
+    this._nativeObj = new renderer.TechniqueNative(stages, parameters, passesNative, layer);
 
   }
 
