@@ -2505,13 +2505,13 @@ var Node = cc.Class({
     _removeSgNode: SgHelper.removeSgNode,
 
     onRestore: CC_EDITOR && function () {
-        // `active` must synchronize to component
+        // update dummy sgNode of components
         for (var i=0; i<this._components.length; i++) {
             var comp = this._components[i];
             if (!comp || !comp._sgNode) {
                 continue;
             }
-            comp._sgNode.visible = this.active;
+            comp._sgNode.visible = comp.enabledInHierarchy;
         }
 
         this._updateDummySgNode();
