@@ -96,6 +96,9 @@ Audio.State = {
             this._loaded = false;
             return;
         }
+        
+        if (this._element)
+            return;
 
         var item = cc.loader.getItem(src);
 
