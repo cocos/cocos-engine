@@ -399,7 +399,7 @@
     };
 
     proto._updateTexture = function() {
-        this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
+        this._labelContext.clearRect(0, 0, this._canvasSize.width, this._canvasSize.height);
 
         this._labelContext.font = this._fontDesc;
 
