@@ -909,6 +909,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._color.a !== value) {
                     this._color.a = value;
+                    this._renderFlag |= RenderFlow.FLAG_COLOR;
                 }
             },
             range: [0, 255]
@@ -932,6 +933,7 @@ var Node = cc.Class({
                     if (CC_DEV && value.a !== 255) {
                         cc.warnID(1626);
                     }
+                    this._renderFlag |= RenderFlow.FLAG_COLOR;
                 }
             },
         },

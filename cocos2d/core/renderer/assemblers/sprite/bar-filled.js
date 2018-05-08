@@ -223,29 +223,23 @@ module.exports = {
 
         let data = sprite._renderData._data,
             node = sprite.node,
-        //  z = node._position.z,
-            color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
         let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            vbuf = buffer._vData;
 
         buffer.request(4, 6);
 
         // vertex
         for (let i = 0; i < 4; i++) {
             let vert = data[i];
-            vbuf[vertexOffset] = vert.x;
-            vbuf[vertexOffset+1] = vert.y;
-            // vbuf[vertexOffset+2] = z;
-            uintbuf[vertexOffset+3] = color;
-            vbuf[vertexOffset+4] = vert.u;
-            vbuf[vertexOffset+5] = vert.v;
-            vertexOffset += 6;
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
         }
     }
 };

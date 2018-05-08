@@ -29,6 +29,7 @@ const Skeleton = require('./skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const default2DVertexFormat = require('../../cocos2d/core/renderer/vertex-format').default2DVertexFormat;
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
@@ -71,6 +72,8 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         material.useModel = true;
         // update texture
         material.texture = tex;
+        material.useUniformColor = false;
+        
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -302,9 +305,8 @@ var spineAssembler = js.addon({
 
             let vertexs = data._data;
             let indices = data._indices;
-            let z = comp.node._position.z;
 
-            let buffer = renderer._meshBuffer,
+            let buffer = renderer.getBuffer('mesh', default2DVertexFormat),
                 vertexOffset = buffer.byteOffset >> 2,
                 vbuf = buffer._vData,
                 uintbuf = buffer._uintVData,
@@ -320,13 +322,11 @@ var spineAssembler = js.addon({
             let vert;
             for (let i = 0, l = data.dataLength; i < l; i++) {
                 vert = vertexs[i];
-                vbuf[vertexOffset + 0] = vert.x;
-                vbuf[vertexOffset + 1] = vert.y;
-                vbuf[vertexOffset + 2] = z;
-                vbuf[vertexOffset + 4] = vert.u;
-                vbuf[vertexOffset + 5] = vert.v;
-                uintbuf[vertexOffset + 3] = vert.color;
-                vertexOffset += 6;
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                uintbuf[vertexOffset++] = vert.color;
+                vbuf[vertexOffset++] = vert.u;
+                vbuf[vertexOffset++] = vert.v;
             }
 
             // index buffer

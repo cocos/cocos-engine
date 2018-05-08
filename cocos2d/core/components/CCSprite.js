@@ -527,6 +527,7 @@ var Sprite = cc.Class({
         }
         else {
             material = new SpriteMaterial();
+            material.color = this.node.color;
         }
         // TODO: old texture in material have been released by loader
         material.texture = texture;

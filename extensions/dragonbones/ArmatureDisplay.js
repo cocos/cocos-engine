@@ -344,6 +344,7 @@ let ArmatureDisplay = cc.Class({
         // Get material
         let material = new SpriteMaterial();
         material.texture = texture;
+        material.useUniformColor = false;
 
         this.setMaterial(material);
     },

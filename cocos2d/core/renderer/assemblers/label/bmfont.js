@@ -42,14 +42,12 @@ module.exports = js.addon({
         let node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,
-        //  z = node._position.z,
             color = node.color._val;
         
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        
         let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
@@ -60,13 +58,10 @@ module.exports = js.addon({
 
         for (let i = 0; i < vertexCount; i++) {
             let vert = data[i];
-            vbuf[vertexOffset] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset+1] = vert.x * b + vert.y * d + ty;
-            // vbuf[vertexOffset+2] = z;
-            uintbuf[vertexOffset+3] = color;
-            vbuf[vertexOffset+4] = vert.u;
-            vbuf[vertexOffset+5] = vert.v;
-            vertexOffset += 6;
+            vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
         }
     },
 

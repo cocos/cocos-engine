@@ -155,23 +155,26 @@ const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
         }
     },
 
-    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let vertexOffset = batchData.byteOffset / 4,
-            indiceOffset = batchData.indiceOffset;
+    fillBuffers (sprite, renderer) {
+        let node = sprite.node,
+            renderData = sprite._renderData,
+            data = renderData._data;
 
-        // update verts
-        let node = sprite.node;
-        let renderData = sprite._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        let color = node._color._val;
+        // buffer
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            vbuf = buffer._vData;
+        
+        let ibuf = buffer._iData,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+
+        buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             let vertice = data[i];
             vbuf[vertexOffset++] = vertice.x;
             vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = z;
-            uintbuf[vertexOffset++] = color;
             vbuf[vertexOffset++] = vertice.u;
             vbuf[vertexOffset++] = vertice.v;
         }

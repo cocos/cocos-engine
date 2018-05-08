@@ -29,6 +29,7 @@ const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
 const Impl = require('./impl');
+const default2DVertexFormat = require('../../vertex-format').default2DVertexFormat;
 
 const macro = require('../../../platform/CCMacro');
 const MAX_VERTEX = 65535;
@@ -99,7 +100,7 @@ let graphicsAssembler = js.addon({
             nodeB = nodeColor.b / 255,
             nodeA = nodeColor.a / 255;
 
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', default2DVertexFormat),
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData;
@@ -118,7 +119,6 @@ let graphicsAssembler = js.addon({
             for (let i = 0, l = data.length; i < l; i++) {
                 vbuf[vertexOffset++] = data[i].x * a + data[i].y * c + tx;
                 vbuf[vertexOffset++] = data[i].x * b + data[i].y * d + ty;
-                vbuf[vertexOffset++] = z;
     
                 let color = data[i].color;
                 let cr = (color & 0x000000ff) * nodeR;

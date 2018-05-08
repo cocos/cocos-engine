@@ -30,6 +30,7 @@ const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
+const default2DVertexFormat = require('../../cocos2d/core/renderer/vertex-format').default2DVertexFormat;
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -64,7 +65,7 @@ let tmxAssembler = js.addon({
         let renderData = comp._renderData;
         let data = renderData._data;
 
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', default2DVertexFormat),
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
@@ -76,12 +77,10 @@ let tmxAssembler = js.addon({
             
         buffer.request(vertexCount, renderData.indiceCount);
         
-        let z = comp.node._position.z;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             let vert = data[i];
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = z;
             uintbuf[vertexOffset++] = vert.color;
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
