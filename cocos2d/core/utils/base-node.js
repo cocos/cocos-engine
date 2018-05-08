@@ -219,7 +219,7 @@ var BaseNode = cc.Class({
 
         _id: {
             default: '',
-            editorOnly: true
+            serializable: false
         },
 
         /**
