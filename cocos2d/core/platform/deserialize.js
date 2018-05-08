@@ -504,10 +504,7 @@ var _Deserializer = (function () {
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
             if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-                var mayUsedInPersistRoot = (propName === '_id' && js.isChildClassOf(klass, cc.Node));
-                if (!mayUsedInPersistRoot) {
-                    continue;   // skip editor only if in preview
-                }
+                continue;   // skip editor only if in preview
             }
             if (attrs[propName + SERIALIZABLE] === false) {
                 continue;   // skip nonSerialized
@@ -572,19 +569,26 @@ var _Deserializer = (function () {
             }
             sources.push('}');
         }
+        if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
+            if (CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) {
+                var mayUsedInPersistRoot = js.isChildClassOf(klass, cc.Node);
+                if (mayUsedInPersistRoot) {
+                    sources.push('d._id&&(o._id=d._id);');
+                }
+            }
+            else {
+                sources.push('d._id&&(o._id=d._id);');
+            }
+        }
         if (props[props.length - 1] === '_$erialized') {
             // deep copy original serialized data
             sources.push('o._$erialized=JSON.parse(JSON.stringify(d));');
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
             sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
         }
-        if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
-            sources.push('o._id=d._id;');
-        }
         return Function('s', 'o', 'd', 'k', 't', sources.join(''));
     } : function (self, klass) {
         var TYPE = Attr.DELIMETER + 'type';
-        var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
         var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
@@ -598,12 +602,6 @@ var _Deserializer = (function () {
             var prop;
             for (var p = 0; p < props.length; p++) {
                 var propName = props[p];
-                if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-                    var mayUsedInPersistRoot = (propName === '_id' && js.isChildClassOf(klass, cc.Node));
-                    if (!mayUsedInPersistRoot) {
-                        continue;   // skip editor only if in preview
-                    }
-                }
                 if (attrs[propName + SERIALIZABLE] === false) {
                     continue;   // skip nonSerialized
                 }
@@ -652,14 +650,14 @@ var _Deserializer = (function () {
                     }
                 }
             }
+            if (((o instanceof cc._BaseNode) || (o instanceof cc.Component)) && d._id) {
+                o._id = d._id;
+            }
             if (props[props.length - 1] === '_$erialized') {
                 // deep copy original serialized data
                 o._$erialized=JSON.parse(JSON.stringify(d));
                 // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
                 s._deserializePrimitiveObject(o._$erialized,d);
-            }
-            if ((o instanceof cc._BaseNode) || (o instanceof cc.Component)) {
-                o._id = d._id;
             }
         }
     };

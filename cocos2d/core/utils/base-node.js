@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const PrefabHelper = require('./prefab-helper');
 const Flags = require('../platform/CCObject').Flags;
 const misc = require('./misc');
 const js = require('../platform/js');
@@ -215,11 +214,6 @@ var BaseNode = cc.Class({
                 }
                 this._name = value;
             },
-        },
-
-        _id: {
-            default: '',
-            serializable: false
         },
 
         /**
