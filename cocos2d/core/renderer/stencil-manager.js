@@ -66,7 +66,9 @@ StencilManager.prototype = {
             this.stage = Stage.DISABLED;
             for (let i = 0; i < passes.length; ++i) {
                 let pass = passes[i];
-                pass._stencilTest = false;
+                if (pass._stencilTest) {
+                    pass.disableStencilTest();
+                }
             }
             return effect;
         }
