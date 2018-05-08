@@ -39,13 +39,46 @@ class Pass {
     this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilWriteMaskBack = 0xff;
 
-    this._binary = new Uint32Array(25);
-    this._updateBinary();
+    var binary = new Uint32Array(25);
+    binary[0] = this._cullMode;
+    binary[1] = this._blendEq;
+    binary[2] = this._blendSrc;
+    binary[3] = this._blendDst;
+    binary[4] = this._blendAlphaEq;
+    binary[5] = this._blendSrcAlpha;
+    binary[6] = this._blendDstAlpha;
+    binary[7] = this._blendColor;
+    binary[8] = this._depthTest;
+    binary[9] = this._depthWrite;
+    binary[10] = this._depthFunc;
+    binary[11] = this._stencilFuncFront;
+    binary[12] = this._stencilRefFront;
+    binary[13] = this._stencilMaskFront;
+    binary[14] = this._stencilFailOpFront;
+    binary[15] = this._stencilZFailOpFront;
+    binary[16] = this._stencilZPassOpFront;
+    binary[17] = this._stencilWriteMaskFront;
+    binary[18] = this._stencilFuncBack;
+    binary[19] = this._stencilRefBack;
+    binary[20] = this._stencilMaskBack;
+    binary[21] = this._stencilFailOpBack;
+    binary[22] = this._stencilZFailOpBack;
+    binary[23] = this._stencilZPassOpBack;
+    binary[24] = this._stencilWriteMaskBack;
+    this._native = new renderer.PassNative();
+    this._native.init(this._programName, binary);
   }
 
   setCullMode(cullMode) {
     this._cullMode = cullMode;
-    this._binary[0] = cullMode;
+
+    this._native.setCullMode(cullMode);
+  }
+
+  disableStecilTest() {
+    this._stencilTest = false;
+
+    this._native.disableStecilTest();
   }
 
   setBlend(
@@ -66,13 +99,13 @@ class Pass {
     this._blendDstAlpha = blendDstAlpha;
     this._blendColor = blendColor;
 
-    this._binary[1] = this._blendEq;
-    this._binary[2] = this._blendSrc;
-    this._binary[3] = this._blendDst;
-    this._binary[4] = this._blendAlphaEq;
-    this._binary[5] = this._blendSrcAlpha;
-    this._binary[6] = this._blendDstAlpha;
-    this._binary[7] = this._blendColor;
+    this._native.setBlend(blendEq,
+                          blendSrc,
+                          blendDst,
+                          blendAlphaEq,
+                          blendSrcAlpha,
+                          blendDstAlpha,
+                          blendColor);
   }
 
   setDepth(
@@ -84,9 +117,7 @@ class Pass {
     this._depthWrite = depthWrite;
     this._depthFunc = depthFunc;
 
-    this._binary[8] = this._depthTest;
-    this._binary[9] = this._depthWrite;
-    this._binary[10] = this._depthFunc;
+    this._native.setDepth(depthTest, depthWrite, depthFunc);
   }
 
   setStencilFront(
@@ -107,13 +138,13 @@ class Pass {
     this._stencilZPassOpFront = stencilZPassOp;
     this._stencilWriteMaskFront = stencilWriteMask;
 
-    this._binary[11] = this._stencilFuncFront;
-    this._binary[12] = this._stencilRefFront;
-    this._binary[13] = this._stencilMaskFront;
-    this._binary[14] = this._stencilFailOpFront;
-    this._binary[15] = this._stencilZFailOpFront;
-    this._binary[16] = this._stencilZPassOpFront;
-    this._binary[17] = this._stencilWriteMaskFront;
+    this._native.setStencilFront(stencilFunc,
+                                 stencilRef,
+                                 stencilMask,
+                                 stencilFailOp,
+                                 stencilZFailOp,
+                                 stencilZPassOp,
+                                 stencilWriteMask);
   }
 
   setStencilBack(
@@ -134,41 +165,13 @@ class Pass {
     this._stencilZPassOpBack = stencilZPassOp;
     this._stencilWriteMaskBack = stencilWriteMask;
 
-    this._binary[18] = this._stencilFuncBack;
-    this._binary[19] = this._stencilRefBack;
-    this._binary[20] = this._stencilMaskBack;
-    this._binary[21] = this._stencilFailOpBack;
-    this._binary[22] = this._stencilZFailOpBack;
-    this._binary[23] = this._stencilZPassOpBack;
-    this._binary[24] = this._stencilWriteMaskBack;
-  }
-
-  _updateBinary() {
-    this._binary[0] = this._cullMode;
-    this._binary[1] = this._blendEq;
-    this._binary[2] = this._blendSrc;
-    this._binary[3] = this._blendDst;
-    this._binary[4] = this._blendAlphaEq;
-    this._binary[5] = this._blendSrcAlpha;
-    this._binary[6] = this._blendDstAlpha;
-    this._binary[7] = this._blendColor;
-    this._binary[8] = this._depthTest;
-    this._binary[9] = this._depthWrite;
-    this._binary[10] = this._depthFunc;
-    this._binary[11] = this._stencilFuncFront;
-    this._binary[12] = this._stencilRefFront;
-    this._binary[13] = this._stencilMaskFront;
-    this._binary[14] = this._stencilFailOpFront;
-    this._binary[15] = this._stencilZFailOpFront;
-    this._binary[16] = this._stencilZPassOpFront;
-    this._binary[17] = this._stencilWriteMaskFront;
-    this._binary[18] = this._stencilFuncBack;
-    this._binary[19] = this._stencilRefBack;
-    this._binary[20] = this._stencilMaskBack;
-    this._binary[21] = this._stencilFailOpBack;
-    this._binary[22] = this._stencilZFailOpBack;
-    this._binary[23] = this._stencilZPassOpBack;
-    this._binary[24] = this._stencilWriteMaskBack;
+    this._native.setStencilBack(stencilFunc,
+                                stencilRef,
+                                stencilMask,
+                                stencilFailOp,
+                                stencilZFailOp,
+                                stencilZPassOp,
+                                stencilWriteMask);
   }
 }
 
