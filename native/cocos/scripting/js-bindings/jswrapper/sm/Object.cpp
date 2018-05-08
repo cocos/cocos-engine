@@ -308,7 +308,7 @@ namespace se {
     bool Object::defineFunction(const char *funcName, JSNative func)
     {
         JS::RootedObject object(__cx, _getJSObject());
-        bool ok = JS_DefineFunction(__cx, object, funcName, func, 0, 0);
+        bool ok = JS_DefineFunction(__cx, object, funcName, func, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         return ok;
     }
 
