@@ -163,14 +163,11 @@ module.exports = {
 
         let renderData = sprite._renderData,
             data = renderData._data,
-            node = sprite.node,
-            z = node._position.z,
-            color = node._color._val;
+            node = sprite.node;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
             vertexCount = renderData.vertexCount;
         
         let ibuf = buffer._iData,
@@ -182,13 +179,10 @@ module.exports = {
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];
 
-            vbuf[vertexOffset] = vert.x;
-            vbuf[vertexOffset + 1] = vert.y;
-            // vbuf[vertexOffset + 2] = z;
-            vbuf[vertexOffset + 4] = vert.u;
-            vbuf[vertexOffset + 5] = vert.v;
-            uintbuf[vertexOffset + 3] = color;
-            vertexOffset += 6;
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
         }
 
         for (let r = 0; r < 3; ++r) {

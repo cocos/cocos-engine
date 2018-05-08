@@ -6,12 +6,13 @@ const LOCAL_TRANSFORM = 1 << 0;
 const WORLD_TRANSFORM = 1 << 1;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
-const RENDER = 1 << 3;
-const CUSTOM_IA_RENDER = 1 << 4;
-const CHILDREN = 1 << 5;
-const POST_UPDATE_RENDER_DATA = 1 << 6;
-const POST_RENDER = 1 << 7;
-const FINAL = 1 << 8;
+const COLOR = 1 << 3;
+const RENDER = 1 << 4;
+const CUSTOM_IA_RENDER = 1 << 5;
+const CHILDREN = 1 << 6;
+const POST_UPDATE_RENDER_DATA = 1 << 7;
+const POST_RENDER = 1 << 8;
+const FINAL = 1 << 9;
 
 let _walker = null;
 
@@ -65,6 +66,19 @@ _proto._worldTransform = function (node) {
     this._next._func(node);
 
     _walker.worldMatDirty --;
+}
+
+_proto._color = function (node) {
+    if (node._renderFlag & RENDER || node._renderFlag & CUSTOM_IA_RENDER) {
+        let comp = node._renderComponent;
+        let material = comp._material;
+        if (material) {
+            material.color = node.color;
+            material.updateHash();
+        }
+    }
+    node._renderFlag &= ~COLOR;
+    this._next._func(node);
 }
 
 _proto._updateRenderData = function (node) {
@@ -136,6 +150,9 @@ function createFlow (flag, next) {
             break;
         case WORLD_TRANSFORM: 
             flow._func = flow._worldTransform;
+            break;
+        case COLOR:
+            flow._func = flow._color;
             break;
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
@@ -214,6 +231,7 @@ RenderFlow.FLAG_DONOTHING = DONOTHING;
 RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;
 RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
+RenderFlow.FLAG_COLOR = COLOR;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
 RenderFlow.FLAG_CUSTOM_IA_RENDER = CUSTOM_IA_RENDER;

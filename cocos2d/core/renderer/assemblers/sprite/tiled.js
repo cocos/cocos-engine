@@ -138,15 +138,12 @@ module.exports = {
     fillBuffers (sprite, renderer) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data,
-            z = node._position.z,
-            color = node._color._val;
+            data = renderData._data;
 
         // buffer
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            vbuf = buffer._vData;
         
         let ibuf = buffer._iData,
             indiceOffset = buffer.indiceOffset,
@@ -180,32 +177,24 @@ module.exports = {
                 // lb
                 vbuf[vertexOffset++] = x * a + y * c + tx;
                 vbuf[vertexOffset++] = x * b + y * d + ty;
-                vbuf[vertexOffset++] = z;
-                uintbuf[vertexOffset++] = color;
                 vbuf[vertexOffset++] = lastx ? data[4].u : data[0].u;
                 vbuf[vertexOffset++] = lasty ? data[4].v : data[0].v;
 
                 // rb
                 vbuf[vertexOffset++] = x1 * a + y * c + tx;
                 vbuf[vertexOffset++] = x1 * b + y * d + ty;
-                vbuf[vertexOffset++] = z;
-                uintbuf[vertexOffset++] = color;
                 vbuf[vertexOffset++] = lastx ? data[5].u : data[1].u;
                 vbuf[vertexOffset++] = lasty ? data[5].v : data[1].v;
 
                 // lt
                 vbuf[vertexOffset++] = x * a + y1 * c + tx;
                 vbuf[vertexOffset++] = x * b + y1 * d + ty;
-                vbuf[vertexOffset++] = z;
-                uintbuf[vertexOffset++] = color;
                 vbuf[vertexOffset++] = lastx ? data[6].u : data[2].u;
                 vbuf[vertexOffset++] = lasty ? data[6].v : data[2].v;
 
                 // rt
                 vbuf[vertexOffset++] = x1 * a + y1 * c + tx;
                 vbuf[vertexOffset++] = x1 * b + y1 * d + ty;
-                vbuf[vertexOffset++] = z;
-                uintbuf[vertexOffset++] = color;
                 vbuf[vertexOffset++] = lastx ? data[7].u : data[3].u;
                 vbuf[vertexOffset++] = lasty ? data[7].v : data[3].v;
             }

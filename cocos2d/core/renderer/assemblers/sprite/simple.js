@@ -53,8 +53,6 @@ module.exports = {
     fillBuffers (sprite, renderer) {
         let data = sprite._renderData._data,
             node = sprite.node,
-        //  z = node._position.z,
-            color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
@@ -68,14 +66,14 @@ module.exports = {
 
         // get uv from sprite frame directly
         let uv = sprite._spriteFrame.uv;
-        vbuf[vertexOffset+4] = uv[0];
-        vbuf[vertexOffset+5] = uv[1];
-        vbuf[vertexOffset+10] = uv[2];
-        vbuf[vertexOffset+11] = uv[3];
-        vbuf[vertexOffset+16] = uv[4];
-        vbuf[vertexOffset+17] = uv[5];
-        vbuf[vertexOffset+22] = uv[6];
-        vbuf[vertexOffset+23] = uv[7];
+        vbuf[vertexOffset+2] = uv[0];
+        vbuf[vertexOffset+3] = uv[1];
+        vbuf[vertexOffset+6] = uv[2];
+        vbuf[vertexOffset+7] = uv[3];
+        vbuf[vertexOffset+10] = uv[4];
+        vbuf[vertexOffset+11] = uv[5];
+        vbuf[vertexOffset+14] = uv[6];
+        vbuf[vertexOffset+15] = uv[7];
 
         let data0 = data[0], data3 = data[3],
             vl = data0.x, vr = data3.x;
@@ -90,21 +88,14 @@ module.exports = {
         vbuf[vertexOffset] = al + cb + tx;
         vbuf[vertexOffset+1] = bl + db + ty;
         // right bottom
-        vbuf[vertexOffset+6] = ar + cb + tx;
-        vbuf[vertexOffset+7] = br + db + ty;
+        vbuf[vertexOffset+4] = ar + cb + tx;
+        vbuf[vertexOffset+5] = br + db + ty;
         // left top
-        vbuf[vertexOffset+12] = al + ct + tx;
-        vbuf[vertexOffset+13] = bl + dt + ty;
+        vbuf[vertexOffset+8] = al + ct + tx;
+        vbuf[vertexOffset+9] = bl + dt + ty;
         // right top
-        vbuf[vertexOffset+18] = ar + ct + tx;
-        vbuf[vertexOffset+19] = br + dt + ty;
-
-        // TODO: remove after restructure vertex format
-        for (let i = 0; i < 4; i++) {
-            // vbuf[vertexOffset+2] = z;
-            uintbuf[vertexOffset+3] = color;
-            vertexOffset += 6;
-        }
+        vbuf[vertexOffset+12] = ar + ct + tx;
+        vbuf[vertexOffset+13] = br + dt + ty;
     },
 
     createData (sprite) {

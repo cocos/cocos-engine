@@ -32,6 +32,7 @@ const js = require('../../cocos2d/core/platform/js');
 const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
 
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
@@ -40,7 +41,7 @@ let _vbuf, _uintbuf,
     _vertexId, _ibuf,
     _vertexOffset, _indiceOffset,
     _a, _b, _c, _d, _tx, _ty,
-    _renderData, _z,
+    _renderData,
     _worldMatrix;
 
 let armatureAssembler = js.addon({
@@ -85,7 +86,7 @@ let armatureAssembler = js.addon({
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
             renderData = comp._renderData;
 
         _vertexOffset = buffer.byteOffset >> 2;
@@ -98,7 +99,6 @@ let armatureAssembler = js.addon({
         buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let node = comp.node;
-        _z = node._position.z;
 
         _worldMatrix = node._worldMatrix;
         _a = _worldMatrix.m00; _b = _worldMatrix.m01; _c = _worldMatrix.m04; _d = _worldMatrix.m05;
@@ -132,13 +132,11 @@ let armatureAssembler = js.addon({
             let color = slot._color;
             for (let j = 0, vl = vertices.length; j < vl; j++) {
                 let vertex = vertices[j];
-                _vbuf[_vertexOffset + 0] = vertex.x * _a + vertex.y * _c + _tx;
-                _vbuf[_vertexOffset + 1] = vertex.x * _b + vertex.y * _d + _ty;
-                _vbuf[_vertexOffset + 2] = _z;
-                _vbuf[_vertexOffset + 4] = vertex.u;
-                _vbuf[_vertexOffset + 5] = vertex.v;
-                _uintbuf[_vertexOffset + 3] = color;
-                _vertexOffset += 6;
+                _vbuf[_vertexOffset++] = vertex.x * _a + vertex.y * _c + _tx;
+                _vbuf[_vertexOffset++] = vertex.x * _b + vertex.y * _d + _ty;
+                _vbuf[_vertexOffset++] = vertex.u;
+                _vbuf[_vertexOffset++] = vertex.v;
+                _uintbuf[_vertexOffset++] = color;
             }
         }
     },

@@ -196,13 +196,11 @@ var motionStreakAssembler = js.addon({
     fillBuffers (comp, renderer) {
         let node = comp.node,
             renderData = comp._renderData,
-            data = renderData._data,
-            z = node._position.z;
+            data = renderData._data;
     
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
             vertexCount = renderData.vertexCount;
         
         let ibuf = buffer._iData,
@@ -215,13 +213,10 @@ var motionStreakAssembler = js.addon({
         let vert;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             vert = data[i];
-            vbuf[vertexOffset + 0] = vert.x;
-            vbuf[vertexOffset + 1] = vert.y;
-            vbuf[vertexOffset + 2] = z;
-            vbuf[vertexOffset + 4] = vert.u;
-            vbuf[vertexOffset + 5] = vert.v;
-            uintbuf[vertexOffset + 3] = vert.color;
-            vertexOffset += 6;
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
         }
         
         // index buffer

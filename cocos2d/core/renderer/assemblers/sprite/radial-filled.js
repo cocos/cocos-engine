@@ -330,9 +330,7 @@ module.exports = {
     fillBuffers (sprite, renderer) {
         let renderData = sprite._renderData,
             data = renderData._data,
-            node = sprite.node,
-            z = node._position.z,
-            color = node._color._val;
+            node = sprite.node;
     
         let matrix = node._worldMatrix;
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
@@ -341,8 +339,7 @@ module.exports = {
         // buffer
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            vbuf = buffer._vData;
         
         let ibuf = buffer._iData,
             indiceOffset = buffer.indiceOffset,
@@ -355,8 +352,6 @@ module.exports = {
             let vert = data[i];
             vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset ++] = z;
-            uintbuf[vertexOffset ++] = color;
             vbuf[vertexOffset ++] = vert.u;
             vbuf[vertexOffset ++] = vert.v;
         }

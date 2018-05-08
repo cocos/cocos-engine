@@ -25,7 +25,7 @@
 
 const macro = require('../platform/CCMacro');
 const renderEngine = require('./render-engine');
-const defaultVertexFormat = require('./vertex-format');
+const defaultVertexFormat = require('./vertex-format').vfmtPosUv;
 const StencilManager = require('./stencil-manager');
 const atlasManager = require('./utils/dynamic-atlas/manager');
 const RenderFlow = require('./render-flow');
