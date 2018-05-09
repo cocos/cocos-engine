@@ -43,12 +43,14 @@ var templates = [
   },
   {
     name: 'sprite',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
-    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
+    vert: '\n \nuniform mat4 viewProj;\n#ifdef use2DPos\nattribute vec2 a_position;\n#else\nattribute vec3 a_position;\n#endif\nattribute vec4 a_color;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\n#ifndef useColor\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef use2DPos\n  vec4 pos = mvp * vec4(a_position, 0, 1);\n  #else\n  vec4 pos = mvp * vec4(a_position, 1);\n  #endif\n  #ifndef useColor\n  v_fragmentColor = a_color;\n  #endif\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\n#ifdef useColor\n  uniform vec4 color;\n#else\n  varying vec4 v_fragmentColor;\n#endif\nvoid main () {\n  #ifdef useColor\n    vec4 o = color;\n  #else\n    vec4 o = v_fragmentColor;\n  #endif\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
     defines: [
       { name: 'useTexture', },
       { name: 'useModel', },
-      { name: 'alphaTest', } ],
+      { name: 'alphaTest', },
+      { name: 'use2DPos', },
+      { name: 'useColor', } ],
   },
   {
     name: 'vfx_emitter',
@@ -2253,7 +2255,8 @@ var SpriteMaterial = (function (Material$$1) {
     var mainTech = new renderer.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer.PARAM_COLOR4 } ],
       [
         pass
       ]
@@ -2266,25 +2269,28 @@ var SpriteMaterial = (function (Material$$1) {
       [
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
-        { name: 'alphaTest', value: false } ]
+        { name: 'alphaTest', value: false },
+        { name: 'use2DPos', value: true },
+        { name: 'useColor', value: true } ]
     );
     
     this._mainTech = mainTech;
     this._texture = null;
+    this._color = {r: 0, g: 0, b: 0, a: 1};
   }
 
   if ( Material$$1 ) SpriteMaterial.__proto__ = Material$$1;
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },texture: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture', val);
+    this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
@@ -2292,11 +2298,27 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel', val);
+    this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
     this._effect.define('useModel', val);
+  };
+
+  prototypeAccessors.use2DPos.get = function () {
+    this._effect.getDefine('use2DPos');
+  };
+
+  prototypeAccessors.use2DPos.set = function (val) {
+    this._effect.define('use2DPos', val);
+  };
+
+  prototypeAccessors.useColor.get = function () {
+    this._effect.getDefine('useColor');
+  };
+
+  prototypeAccessors.useColor.set = function (val) {
+    this._effect.define('useColor', val);
   };
 
   prototypeAccessors.texture.get = function () {
@@ -2311,11 +2333,26 @@ var SpriteMaterial = (function (Material$$1) {
     }
   };
 
+  prototypeAccessors.color.get = function () {
+    return this._effect.getProperty('color');
+  };
+
+  prototypeAccessors.color.set = function (val) {
+    var color = this._color;
+    color.r = val.r / 255;
+    color.g = val.g / 255;
+    color.b = val.b / 255;
+    color.a = val.a / 255;
+    this._effect.setProperty('color', color);
+  };
+
   SpriteMaterial.prototype.clone = function clone () {
     var copy = new SpriteMaterial();
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
+    copy.use2DPos = this.use2DPos;
+    copy.useColor = this.useColor;
     copy.updateHash();
     return copy;
   };
