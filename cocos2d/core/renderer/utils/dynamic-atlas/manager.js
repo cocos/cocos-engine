@@ -9,17 +9,23 @@ let _textureSize = 2048;
 let _minFrameSize = 8;
 let _maxFrameSize = 512;
 
-let _enabled = true;
 
 let _debugNode = null;
 
 function newAtlas () {
-    let atlas = new Atlas(_textureSize, _textureSize);
-    _atlases.push(atlas);
-    _atlasIndex++;
+    let atlas = _atlases[++_atlasIndex]
+    if (!atlas) {
+        atlas = new Atlas(_textureSize, _textureSize);
+        _atlases.push(atlas);
+    }
     return atlas;
 }
 
+function beforeSceneLoad () {
+    dynamicAtlasManager.reset();
+}
+
+let _enabled = false;
 
 /**
  * !#en Manager the dynamic atlas.
@@ -42,7 +48,12 @@ let dynamicAtlasManager = {
 
         if (value) {
             this.reset();
+            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
         }
+        else {
+            cc.director.off(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
+        }
+
         _enabled = value;
     },
 

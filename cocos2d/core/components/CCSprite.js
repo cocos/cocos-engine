@@ -484,6 +484,7 @@ var Sprite = cc.Class({
         }
         
         this._updateAssembler();
+        this._renderData.uvDirty = true;
 
         this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
@@ -512,6 +513,7 @@ var Sprite = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.material = this._material;
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
     },
 

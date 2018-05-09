@@ -156,6 +156,8 @@ cc.Director.prototype = {
             this._actionManager = null;
         }
 
+        cc.dynamicAtlasManager.enabled = true;
+
         this.sharedInit();
         return true;
     },
