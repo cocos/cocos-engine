@@ -105,7 +105,7 @@ var audioEngine = {
         var audio;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
             // load clip
             audio = getAudioFromPath(path);
@@ -426,7 +426,7 @@ var audioEngine = {
         var filePath = clip;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             filePath = clip;
         }
         else {
