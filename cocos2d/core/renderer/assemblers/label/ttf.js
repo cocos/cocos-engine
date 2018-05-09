@@ -51,19 +51,7 @@ module.exports = js.addon({
     },
 
     updateRenderData (comp) {
-        let datas = this.datas;
-        datas.length = 0;
-
-        if (!comp.string) {
-            return datas;
-        } 
-
-        let renderData = comp._renderData;
         this.update(comp);
-
-        renderData.material = comp.getMaterial();
-        datas.push(renderData);
-        return datas;
     },
 
     fillBuffers (comp, renderer) {
