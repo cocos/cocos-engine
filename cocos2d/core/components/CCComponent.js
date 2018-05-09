@@ -53,7 +53,7 @@ var Component = cc.Class({
         if (window._Scene && _Scene.AssetsWatcher) {
             _Scene.AssetsWatcher.initComponent(this);
         }
-        this._id = idGenerater.getNewId();
+        this._id = Editor.Utils.UuidUtils.uuid();
         if (cc.engine) {
             cc.engine.attachedObjsForEditor[this._id] = this;
         }
@@ -103,11 +103,6 @@ var Component = cc.Class({
                 this._name = value;
             },
             visible: false
-        },
-
-        _id: {
-            default: '',
-            serializable: false
         },
 
         /**
