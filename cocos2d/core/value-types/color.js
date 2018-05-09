@@ -383,10 +383,10 @@ var Color = (function () {
      */
     proto.fromHEX = function (hexString) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
-        let r = parseInt(str.substr(0, 2), 16) || 0;
-        let g = parseInt(str.substr(2, 2), 16) || 0;
-        let b = parseInt(str.substr(4, 2), 16) || 0;
-        let a = parseInt(str.substr(6, 2), 16) || 255;
+        let r = parseInt(hexString.substr(0, 2), 16) || 0;
+        let g = parseInt(hexString.substr(2, 2), 16) || 0;
+        let b = parseInt(hexString.substr(4, 2), 16) || 0;
+        let a = parseInt(hexString.substr(6, 2), 16) || 255;
         this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
         return this;
     };
