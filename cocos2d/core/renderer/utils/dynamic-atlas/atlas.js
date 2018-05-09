@@ -97,7 +97,7 @@ class Atlas {
             frame._rect.x = oriInfo.x;
             frame._rect.y = oriInfo.y;
             frame._texture = oriInfo.texture;
-            spriteFrame._calculateUV();
+            frame._calculateUV();
             frame._original = null;
         }
         this._innerSpriteFrames.length = 0;
