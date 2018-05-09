@@ -113,7 +113,7 @@ cc.Audio = function (src) {
         var path;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
         }
         else {
@@ -206,7 +206,7 @@ cc.Audio = function (src) {
         var path;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
         }
         else {

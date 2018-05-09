@@ -95,7 +95,7 @@ var AudioSource = cc.Class({
             set: function (value) {
                 if (typeof value === 'string') {
                     // backward compatibility since 1.10
-                    cc.warnID(8401, 'cc.AudioSource');
+                    cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
                     let self = this;
                     AudioClip._loadByUrl(value, function (err, clip) {
                         if (clip) {

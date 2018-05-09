@@ -160,6 +160,11 @@ var properties = {
             return this._file;
         },
         set: function (value, force) {
+            if (typeof value === 'string') {
+                // backward compatibility since 1.10
+                cc.errorID(8401, 'cc.ParticleSystem', 'cc.ParticleAsset', 'ParticleAsset', 'cc.ParticleAsset', 'particle');
+                value = { nativeUrl: value };
+            }
             if (this._file !== value || (CC_EDITOR && force)) {
                 this._file = value;
                 if (value) {
