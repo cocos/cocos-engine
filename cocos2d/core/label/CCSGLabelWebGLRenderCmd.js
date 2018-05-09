@@ -31,12 +31,18 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 
+//
+var opts = {
+    premultiplyAlpha: true
+};
+
 var _sharedLabelCanvas;
 _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
+    this._texture.update(opts);
     _sharedLabelCanvas = _sharedLabelCanvas || document.createElement('canvas');
     this._labelCanvas = _sharedLabelCanvas;
     this._texture.initWithElement(this._labelCanvas);

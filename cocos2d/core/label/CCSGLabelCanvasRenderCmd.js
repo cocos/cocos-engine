@@ -448,8 +448,7 @@
 
         this._texture.loaded = false;
         // Hack. because we delete _image after usage in WEBGL mode
-        this._texture._image = this._labelCanvas;
-        this._texture.handleLoadedTexture(true);
+        this._texture._nativeAsset = this._labelCanvas;
     };
 
     proto._getGradientArgs = function () {
