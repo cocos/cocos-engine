@@ -14670,9 +14670,9 @@ var SpriteMaterial = (function (Material$$1) {
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
-    copy.updateHash();
     copy.use2DPos = this.use2DPos;
     copy.useColor = this.useColor;
+    copy.updateHash();
     return copy;
   };
 

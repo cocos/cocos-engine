@@ -28,6 +28,7 @@ const misc = require('../utils/misc');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
+const RenderFlow = require('../renderer/render-flow');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
@@ -219,7 +220,6 @@ var Sprite = cc.Class({
                     this._material = null;
                 }
                 this._applySpriteFrame(lastSprite);
-                this.markUpdateRenderData();
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
                 }
@@ -477,6 +477,11 @@ var Sprite = cc.Class({
 
     onEnable: function () {
         this._super();
+
+        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+            // Do not render when sprite frame is not ready
+            this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+        }
         
         this._updateAssembler();
 
@@ -592,6 +597,9 @@ var Sprite = cc.Class({
                 var rect = this._spriteFrame.getRect();
                 this.node.setContentSize(rect.width, rect.height);
             }
+            
+            this.markUpdateRenderData();
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
     },
 

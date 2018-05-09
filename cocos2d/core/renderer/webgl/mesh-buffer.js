@@ -16,7 +16,7 @@ class MeshBuffer {
             renderer._device,
             vertexFormat,
             gfx.USAGE_DYNAMIC,
-            null,
+            new ArrayBuffer(),
             0
         );
 
@@ -24,7 +24,7 @@ class MeshBuffer {
             renderer._device,
             gfx.INDEX_FMT_UINT16,
             gfx.USAGE_STATIC,
-            null,
+            new ArrayBuffer(),
             0
         );
 
