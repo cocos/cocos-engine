@@ -565,6 +565,7 @@ var Sprite = cc.Class({
             }
         }
         else {
+            sgNode.setSpriteFrame(null);
             sgNode.setVisible(false);
         }
 
