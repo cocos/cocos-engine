@@ -224,6 +224,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
 
     var self = this;
     var singleRes = false;
+    var res;
     if (!(resources instanceof Array)) {
         singleRes = true;
         resources = resources ? [resources] : [];
@@ -239,7 +240,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
                 resource.url = resource.id;
             }
         }
-        var res = getResWithUrl(resource);
+        res = getResWithUrl(resource);
         if (!res.url && !res.uuid)
             continue;
         var item = this._cache[res.url];

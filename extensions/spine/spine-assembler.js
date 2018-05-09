@@ -110,7 +110,7 @@ var spineAssembler = js.addon({
         let nodeR = nodeColor.r,
             nodeG = nodeColor.g,
             nodeB = nodeColor.b,
-            nodeA = comp.node._opacity;
+            nodeA = nodeColor.a;
         for (var i = 0, n = vertices.length; i < n; i += 8) {
             let r = vertices[i + 2] * nodeR,
                 g = vertices[i + 3] * nodeG,
