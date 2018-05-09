@@ -371,20 +371,6 @@ var Color = (function () {
     };
 
     /**
-     * !#en Clamp this color to make all components between 0 to 255。
-     * !#zh 限制颜色数值，在 0 到 255 之间。
-     * @method clamp
-     * @example
-     * var color = new cc.Color(1000, 0, 0, 255);
-     * color.clamp();
-     * cc.log(color); // (255, 0, 0, 255)
-     */
-    proto.clamp = function () {
-        // New color data don't need clamp
-        return;
-    };
-
-    /**
      * !#en Read hex string and store color data into the current color object, the hex string must be formated as rgba or rgb.
      * !#zh 读取 16 进制颜色。
      * @method fromHEX
@@ -397,11 +383,11 @@ var Color = (function () {
      */
     proto.fromHEX = function (hexString) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
-        if (hexString.length < 8) {
-            hexString = 'FF' + hexString;
-        }
-        var hex = parseInt(hexString, 16);
-        this._val = ((this._val & 0x00000000) | hex) >>> 0;
+        let r = parseInt(str.substr(0, 2), 16) || 0;
+        let g = parseInt(str.substr(2, 2), 16) || 0;
+        let b = parseInt(str.substr(4, 2), 16) || 0;
+        let a = parseInt(str.substr(6, 2), 16) || 255;
+        this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;;
         return this;
     };
 
