@@ -387,7 +387,7 @@ var Color = (function () {
         let g = parseInt(str.substr(2, 2), 16) || 0;
         let b = parseInt(str.substr(4, 2), 16) || 0;
         let a = parseInt(str.substr(6, 2), 16) || 255;
-        this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;;
+        this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
         return this;
     };
 
