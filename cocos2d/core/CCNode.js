@@ -2934,6 +2934,8 @@ var Node = cc.Class({
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
 
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_COLOR;
+
         var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
