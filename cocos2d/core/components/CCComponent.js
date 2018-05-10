@@ -54,9 +54,6 @@ var Component = cc.Class({
             _Scene.AssetsWatcher.initComponent(this);
         }
         this._id = Editor.Utils.UuidUtils.uuid();
-        if (cc.engine) {
-            cc.engine.attachedObjsForEditor[this._id] = this;
-        }
 
         /**
          * Register all related EventTargets,
@@ -67,9 +64,7 @@ var Component = cc.Class({
         this.__eventTargets = [];
     } : function () {
         this._id = idGenerater.getNewId();
-        if (CC_TEST && cc.engine) {
-            cc.engine.attachedObjsForEditor[this._id] = this;
-        }
+
         this.__eventTargets = [];
     },
 
@@ -508,12 +503,6 @@ var Component = cc.Class({
 
         // do remove component
         this.node._removeComponent(this);
-
-        if (CC_EDITOR || CC_TEST) {
-            if (cc.engine.attachedObjsForEditor[this._id] === this) {   // temporarily fix
-                delete cc.engine.attachedObjsForEditor[this._id];
-            }
-        }
     },
 
     _instantiate (cloned) {
