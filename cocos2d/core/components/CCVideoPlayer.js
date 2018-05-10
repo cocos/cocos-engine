@@ -302,10 +302,10 @@ var VideoPlayer = cc.Class({
         if (this.resourceType === ResourceType.REMOTE) {
             url = this.remoteURL;
         }
-        else {
+        else if (this._clip) {
             url = this._clip.nativeUrl || '';
         }
-        if (cc.loader.md5Pipe) {
+        if (url && cc.loader.md5Pipe) {
             url = cc.loader.md5Pipe.transformURL(url);
         }
         sgNode.setURL(url);
