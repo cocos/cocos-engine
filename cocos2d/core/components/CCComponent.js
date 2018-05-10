@@ -510,7 +510,9 @@ var Component = cc.Class({
         this.node._removeComponent(this);
 
         if (CC_EDITOR || CC_TEST) {
-            delete cc.engine.attachedObjsForEditor[this._id];
+            if (cc.engine.attachedObjsForEditor[this._id] === this) {   // temporarily fix
+                delete cc.engine.attachedObjsForEditor[this._id];
+            }
         }
     },
 
