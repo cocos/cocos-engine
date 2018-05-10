@@ -298,15 +298,17 @@ var VideoPlayer = cc.Class({
 
     _updateVideoSource: function () {
         var sgNode = this._sgNode;
+        let url = '';
         if (this.resourceType === ResourceType.REMOTE) {
-            if (cc.loader.md5Pipe) {
-                this.remoteURL = cc.loader.md5Pipe.transformURL(this.remoteURL);
-            }
-            sgNode.setURL(this.remoteURL);
+            url = this.remoteURL;
         }
-        else {
-            sgNode.setURL(this._clip.nativeUrl || '');
+        else if (this._clip) {
+            url = this._clip.nativeUrl || '';
         }
+        if (url && cc.loader.md5Pipe) {
+            url = cc.loader.md5Pipe.transformURL(url);
+        }
+        sgNode.setURL(url);
     },
 
     _initSgNode: function () {

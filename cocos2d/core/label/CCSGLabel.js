@@ -1271,7 +1271,7 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     label._fontHandle = "";
     label._labelType = 0;
     label._resetBMFont();
-    label._renderCmd._texture.releaseTexture();
+    label._renderCmd._texture._releaseTexture();
     if (CC_DEV) {
         cc.assert(!label._parent, 'Recycling label\'s parent should be null!');
     }
