@@ -570,25 +570,14 @@ var _Deserializer = (function () {
             sources.push('}');
         }
         if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
-            let overwriteId = false;
             if (CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) {
                 var mayUsedInPersistRoot = js.isChildClassOf(klass, cc.Node);
-                overwriteId = mayUsedInPersistRoot;
-            }
-            else {
-                overwriteId = true;
-            }
-            if (overwriteId) {
-                if (CC_EDITOR && cc.engine) {
-                    sources.push('if (d._id) {' +
-                                     'delete cc.engine.attachedObjsForEditor[o._id];' +
-                                     'o._id=d._id;' +
-                                     'cc.engine.attachedObjsForEditor[d._id] = o;' +
-                                 '}');
-                }
-                else {
+                if (mayUsedInPersistRoot) {
                     sources.push('d._id&&(o._id=d._id);');
                 }
+            }
+            else {
+                sources.push('d._id&&(o._id=d._id);');
             }
         }
         if (props[props.length - 1] === '_$erialized') {

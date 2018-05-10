@@ -1275,10 +1275,6 @@ var Node = cc.Class({
     _onBatchCreated () {
         this._upgrade_1x_to_2x();
 
-        if (!this._id) {
-            this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : BaseNode.idGenerater.getNewId();
-        }
-
         this._updateOrderOfArrival();
 
         let prefabInfo = this._prefab;
@@ -1312,10 +1308,6 @@ var Node = cc.Class({
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        if (!this._id) {
-            this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : BaseNode.idGenerater.getNewId();
-        }
-        
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
             if (ActionManagerExist) {

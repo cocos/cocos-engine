@@ -949,7 +949,9 @@ var BaseNode = cc.Class({
         var component = new constructor();
         component.node = this;
         this._components.push(component);
-
+        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
+            cc.engine.attachedObjsForEditor[component._id] = component;
+        }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(component);
         }
@@ -997,7 +999,9 @@ var BaseNode = cc.Class({
 
         comp.node = this;
         this._components.splice(index, 0, comp);
-
+        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
+            cc.engine.attachedObjsForEditor[comp._id] = comp;
+        }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(comp);
         }
@@ -1061,6 +1065,9 @@ var BaseNode = cc.Class({
             var i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
+                if ((CC_EDITOR || CC_TEST) && cc.engine) {
+                    delete cc.engine.attachedObjsForEditor[component._id];
+                }
             }
             else if (component.node !== this) {
                 cc.errorID(3815);
@@ -1196,17 +1203,25 @@ var BaseNode = cc.Class({
     },
 
     _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
+        var attachedObjsForEditor = cc.engine.attachedObjsForEditor;
         if (register) {
-            cc.engine.attachedObjsForEditor[this.uuid] = this;
+            attachedObjsForEditor[this._id] = this;
+            for (let i = 0; i < this._components.length; i++) {
+                let comp = this._components[i];
+                attachedObjsForEditor[comp._id] = comp;
+            }
             cc.engine.emit('node-attach-to-scene', {target: this});
-            //this._objFlags |= RegisteredInEditor;
         }
         else {
             cc.engine.emit('node-detach-from-scene', {target: this});
-            delete cc.engine.attachedObjsForEditor[this._id];
+            delete attachedObjsForEditor[this._id];
+            for (let i = 0; i < this._components.length; i++) {
+                let comp = this._components[i];
+                delete attachedObjsForEditor[comp._id];
+            }
         }
         var children = this._children;
-        for (var i = 0, len = children.length; i < len; ++i) {
+        for (let i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
             child._registerIfAttached(register);
         }
