@@ -2508,8 +2508,12 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Converts a Point to node (local) space coordinates. The result is in Vec2.
-     * !#zh 将一个点转换到节点 (局部) 坐标系。结果以 Vec2 为单位。
+     * !#en Converts a Point to node (local) space coordinates then add the anchor point position.
+     * So the return position will be related to the left bottom corner of the node's bounding box.
+     * This equals to the API behavior of cocos2d-x, you probably want to use convertToNodeSpaceAR instead
+     * !#zh 将一个点转换到节点 (局部) 坐标系，并加上锚点的坐标。<br/>
+     * 也就是说返回的坐标是相对于节点包围盒左下角的坐标。<br/>
+     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToNodeSpaceAR。
      * @method convertToNodeSpace
      * @param {Vec2} worldPoint
      * @return {Vec2}
@@ -2527,8 +2531,10 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Converts a Point to world space coordinates. The result is in Points.
-     * !#zh 将一个点转换到世界空间坐标系。结果以 Vec2 为单位。
+     * !#en Converts a Point related to the left bottom corner of the node's bounding box to world space coordinates.
+     * This equals to the API behavior of cocos2d-x, you probably want to use convertToWorldSpaceAR instead
+     * !#zh 将一个相对于节点左下角的坐标位置转换到世界空间坐标系。
+     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToWorldSpaceAR
      * @method convertToWorldSpace
      * @param {Vec2} nodePoint
      * @return {Vec2}
@@ -2546,11 +2552,9 @@ var Node = cc.Class({
 
     /**
      * !#en
-     * Converts a Point to node (local) space coordinates. The result is in Points.<br/>
-     * treating the returned/received node point as anchor relative.
+     * Converts a Point to node (local) space coordinates in which the anchor point is the origin position.
      * !#zh
-     * 将一个点转换到节点 (局部) 空间坐标系。结果以 Vec2 为单位。<br/>
-     * 返回值将基于节点坐标。
+     * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * @method convertToNodeSpaceAR
      * @param {Vec2} worldPoint
      * @return {Vec2}
@@ -2566,11 +2570,9 @@ var Node = cc.Class({
 
     /**
      * !#en
-     * Converts a local Point to world space coordinates.The result is in Points.<br/>
-     * treating the returned/received node point as anchor relative.
+     * Converts a Point in node coordinates to world space coordinates.
      * !#zh
-     * 将一个点转换到世界空间坐标系。结果以 Vec2 为单位。<br/>
-     * 返回值将基于世界坐标。
+     * 将节点坐标系下的一个点转换到世界空间坐标系。
      * @method convertToWorldSpaceAR
      * @param {Vec2} nodePoint
      * @return {Vec2}
