@@ -301,6 +301,23 @@ var EditBox = cc.Class({
         },
 
         /**
+         * !#en Font family of the EditBox text.
+         * !#zh 输入框的字体名称
+         * @property {String} fontFamily
+         */
+        fontFamily: {
+            default: "Arial",
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_family',
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.fontName = this.fontFamily;
+                    this._sgNode.placeholderFontName = this.fontFamily;
+                }
+            },
+            animatable: false
+        },
+
+        /**
          * !#en The display text of placeholder.
          * !#zh 输入框占位符的文本内容。
          * @property {String} placeholder
@@ -484,9 +501,11 @@ var EditBox = cc.Class({
         sgNode.maxLength = this.maxLength;
 
         sgNode.string = this._string;
+        sgNode.fontName = this.fontFamily;
         sgNode.fontSize = this.fontSize;
         sgNode.fontColor = this.fontColor;
         sgNode.placeholder = this.placeholder;
+        sgNode.placeholderFontName = this.fontFamily;
         sgNode.placeholderFontSize = this.placeholderFontSize;
         sgNode.placeholderFontColor = this.placeholderFontColor;
         sgNode.inputFlag = this.inputFlag;
