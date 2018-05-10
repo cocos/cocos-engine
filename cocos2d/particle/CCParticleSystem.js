@@ -901,6 +901,7 @@ var ParticleSystem = cc.Class({
         
         // vfx handle real particle step process based on GPU shaders
         this._vfx = new Particles(cc.renderer.device, cc.renderer._forward, this);
+        this._vfx.stopSystem();
         this._vertexFormat = this._vfx.vertexFormat;
 
         // Config update flags, vfx constructor has updated with the current config, so not dirty
@@ -976,10 +977,10 @@ var ParticleSystem = cc.Class({
 
     onEnable: function () {
         this._super();
-        this._updateMaterial();
-
         // should add render flag after particle loaded
         this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+
+        this._updateMaterial();
     },
 
     onDestroy: function () {
@@ -995,11 +996,12 @@ var ParticleSystem = cc.Class({
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
             var self = this;
             this._previewTimer = setInterval(function () {
                 // attemptToReplay
-                if (self.particleCount === 0 && !self._willStart) {
+                if (self._vfx && !self._willStart && self.particleCount === 0) {
                     self._willStart = true;
                     setTimeout(function () {
                         self._willStart = false;
@@ -1017,6 +1019,7 @@ var ParticleSystem = cc.Class({
         if (this.preview) {
             this.resetSystem();
             this.stopSystem();
+            this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
             cc.engine.repaintInEditMode();
         }
         if (this._previewTimer) {
@@ -1291,9 +1294,7 @@ var ParticleSystem = cc.Class({
             this._renderData.uvDirty = true;
         }
         // Reactivate material
-        if (this.enabledInHierarchy) {
-            this._updateMaterial();
-        }
+        this._updateMaterial();
     },
 
     _applySpriteFrame: function (oldFrame) {
@@ -1328,6 +1329,9 @@ var ParticleSystem = cc.Class({
     _updateMaterial: function () {
         // cannot be activated if texture not loaded yet
         if (!this._texture || !this._texture.loaded) {
+            if (this._spriteFrame) {
+                this._applySpriteFrame();
+            }
             return;
         }
 

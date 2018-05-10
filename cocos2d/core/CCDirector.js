@@ -916,6 +916,8 @@ cc.Director.prototype = {
      * Run main loop of director
      */
     mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        this._deltaTime = deltaTime;
+
         // Update
         if (!this._paused) {
             this.emit(cc.Director.EVENT_BEFORE_UPDATE);
