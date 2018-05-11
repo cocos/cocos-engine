@@ -421,27 +421,14 @@ SE_BIND_FUNC(jsc_dumpRoot)
 
 static bool JSBCore_platform(se::State& s)
 {
-    if (s.args().size() != 0)
-    {
-        SE_REPORT_ERROR("Invalid number of arguments in __getPlatform");
-        return false;
-    }
-
-//cjh    Application::Platform platform;
-//    platform = Application::getInstance()->getTargetPlatform();
-//    s.rval().setInt32((int32_t)platform);
+    Application::Platform platform = Application::getInstance()->getPlatform();
+    s.rval().setInt32((int32_t)platform);
     return true;
 }
 SE_BIND_FUNC(JSBCore_platform)
 
 static bool JSBCore_version(se::State& s)
 {
-    if (s.args().size() != 0)
-    {
-        SE_REPORT_ERROR("Invalid number of arguments in __getVersion");
-        return false;
-    }
-
 //cjh    char version[256];
 //    snprintf(version, sizeof(version)-1, "%s", cocos2dVersion());
 //
@@ -452,12 +439,6 @@ SE_BIND_FUNC(JSBCore_version)
 
 static bool JSBCore_os(se::State& s)
 {
-    if (s.args().size() != 0)
-    {
-        SE_REPORT_ERROR("Invalid number of arguments in __getOS");
-        return false;
-    }
-
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
@@ -487,6 +468,86 @@ static bool JSBCore_os(se::State& s)
     return true;
 }
 SE_BIND_FUNC(JSBCore_os)
+
+static bool JSBCore_getCurrentLanguage(se::State& s)
+{
+    std::string languageStr;
+    Application::LanguageType language = Application::getInstance()->getCurrentLanguage();
+    switch (language)
+    {
+        case Application::LanguageType::ENGLISH:
+            languageStr = "en";
+            break;
+        case Application::LanguageType::CHINESE:
+            languageStr = "zh";
+            break;
+        case Application::LanguageType::FRENCH:
+            languageStr = "fr";
+            break;
+        case Application::LanguageType::ITALIAN:
+            languageStr = "it";
+            break;
+        case Application::LanguageType::GERMAN:
+            languageStr = "de";
+            break;
+        case Application::LanguageType::SPANISH:
+            languageStr = "es";
+            break;
+        case Application::LanguageType::DUTCH:
+            languageStr = "du";
+            break;
+        case Application::LanguageType::RUSSIAN:
+            languageStr = "ru";
+            break;
+        case Application::LanguageType::KOREAN:
+            languageStr = "ko";
+            break;
+        case Application::LanguageType::JAPANESE:
+            languageStr = "ja";
+            break;
+        case Application::LanguageType::HUNGARIAN:
+            languageStr = "hu";
+            break;
+        case Application::LanguageType::PORTUGUESE:
+            languageStr = "pt";
+            break;
+        case Application::LanguageType::ARABIC:
+            languageStr = "ar";
+            break;
+        case Application::LanguageType::NORWEGIAN:
+            languageStr = "no";
+            break;
+        case Application::LanguageType::POLISH:
+            languageStr = "pl";
+            break;
+        case Application::LanguageType::TURKISH:
+            languageStr = "tr";
+            break;
+        case Application::LanguageType::UKRAINIAN:
+            languageStr = "uk";
+            break;
+        case Application::LanguageType::ROMANIAN:
+            languageStr = "ro";
+            break;
+        case Application::LanguageType::BULGARIAN:
+            languageStr = "bg";
+            break;
+        default:
+            languageStr = "unknown";
+            break;
+    }
+    s.rval().setString(languageStr);
+    return true;
+}
+SE_BIND_FUNC(JSBCore_getCurrentLanguage)
+
+static bool JSB_getOSVersion(se::State& s)
+{
+    std::string systemVersion = Application::getInstance()->getSystemVersion();
+    s.rval().setString(systemVersion);
+    return true;
+}
+SE_BIND_FUNC(JSB_getOSVersion)
 
 static bool JSB_cleanScript(se::State& s)
 {
@@ -719,6 +780,24 @@ static bool js_disableBatchGLCommandsToNative(se::State& s)
 }
 SE_BIND_FUNC(js_disableBatchGLCommandsToNative)
 
+static bool JSB_openURL(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc > 0) {
+        std::string url;
+        ok = seval_to_std_string(args[0], &url);
+        SE_PRECONDITION2(ok, false, "url is invalid!");
+        Application::getInstance()->openURL(url);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_openURL)
+
 bool jsb_register_global_variables(se::Object* global)
 {
     __threadPool = ThreadPool::newFixedThreadPool(3);
@@ -745,9 +824,12 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
     __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));
+    __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
+    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getVersion", _SE(JSBCore_version));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__cleanScript", _SE(JSB_cleanScript));

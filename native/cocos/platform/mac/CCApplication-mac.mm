@@ -242,4 +242,12 @@ void Application::createView(const std::string& name)
     g_height = height;
 }
 
+std::string Application::getSystemVersion()
+{
+    NSOperatingSystemVersion v = NSProcessInfo.processInfo.operatingSystemVersion;
+    char version[50] = {0};
+    snprintf(version, sizeof(version), "%d.%d.%d", (int)v.majorVersion, (int)v.minorVersion, (int)v.patchVersion);
+    return version;
+}
+
 NS_CC_END

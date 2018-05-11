@@ -30,7 +30,7 @@
 #include <mutex>
 #include "JniHelper.h"
 #include "platform/CCApplication.h"
-#include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "platform/android/CCFileUtils-android.h"
 #include "base/CCScheduler.h"
@@ -487,6 +487,11 @@ std::string getStringWithEllipsisJni(const std::string& text, float width, float
 std::string getCurrentLanguageJNI()
 {
     return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getCurrentLanguage");
+}
+
+std::string getSystemVersionJNI()
+{
+    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getSystemVersion");
 }
 
 bool openURLJNI(const std::string& url)

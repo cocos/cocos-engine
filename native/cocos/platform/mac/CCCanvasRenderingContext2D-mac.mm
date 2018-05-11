@@ -146,6 +146,8 @@ namespace {
 }
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
+    width = width > 0 ? width : 1;
+    height = height > 0 ? height : 1;
     self.image = [[[NSImage alloc] initWithSize:NSMakeSize(width, height)] autorelease];
     [self clear];
 }

@@ -396,4 +396,10 @@ void Application::createView(const std::string& /*name*/)
     _view = eaglView;
 }
 
+std::string Application::getSystemVersion()
+{
+    NSString* systemVersion = [UIDevice currentDevice].systemVersion;
+    return [systemVersion UTF8String];
+}
+
 NS_CC_END

@@ -787,4 +787,8 @@ public class Cocos2dxHelper {
     public static int getSDKVersion() {
         return Build.VERSION.SDK_INT;
     }
+
+    public static String getSystemVersion() {
+        return Build.VERSION.RELEASE;
+    }
 }

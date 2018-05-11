@@ -144,8 +144,8 @@ namespace {
 }
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
-    _width = width;
-    _height = height;
+    _width = width = width > 0 ? width : 1;
+    _height = height = height > 0 ? height : 1;
     NSUInteger textureSize = width * height * 4;
     unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);

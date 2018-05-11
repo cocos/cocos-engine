@@ -199,4 +199,9 @@ bool Application::openURL(const std::string &url)
     return openURLJNI(url);
 }
 
+std::string Application::getSystemVersion()
+{
+    return getSystemVersionJNI();
+}
+
 NS_CC_END
