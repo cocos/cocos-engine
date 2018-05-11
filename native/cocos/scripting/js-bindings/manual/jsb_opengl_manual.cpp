@@ -393,11 +393,43 @@ namespace {
         }
     }
 
+    void flipPixelsYByFormat(GLubyte *pixels, GLenum format, uint32_t width, uint32_t height, uint32_t expectedTotalBytes)
+    {
+        bool isSupportFlipY = true;
+        GLsizei bytesPerRow = 0;
+        switch (format) {
+            case GL_RGBA:
+                bytesPerRow = width * 4;
+                break;
+            case GL_RGB:
+                bytesPerRow = width * 3;
+                break;
+            case GL_LUMINANCE_ALPHA:
+                bytesPerRow = width * 2;
+                break;
+            case GL_LUMINANCE:
+                bytesPerRow = width;
+                break;
+            default:
+                isSupportFlipY = false;
+                break;
+        }
+
+        if (isSupportFlipY)
+        {
+            assert(expectedTotalBytes == bytesPerRow * height);
+            flipPixelsY((GLubyte*)pixels, bytesPerRow, height);
+        }
+        else
+        {
+            SE_LOGE("flipPixelsYByFormat: format: 0x%X doesn't support upackFlipY!\n", format);
+        }
+    }
+
     // Lookup tables for fast [un]premultiplied alpha color values
     // From https://bugzilla.mozilla.org/show_bug.cgi?id=662130
 
     GLubyte* __premultiplyTable = nullptr;
-    GLubyte* __unPremultiplyTable = nullptr;
 
     const GLubyte* premultiplyTable()
     {
@@ -415,32 +447,14 @@ namespace {
         return __premultiplyTable;
     }
 
-    const GLubyte* unPremultiplyTable()
-    {
-        if( !__unPremultiplyTable ) {
-            __unPremultiplyTable = (GLubyte*)malloc(256*256);
-
-            unsigned char *data = __unPremultiplyTable;
-            // a == 0 case
-            for( int c = 0; c <= 255; c++ ) {
-                data[c] = c;
-            }
-
-            for( int a = 1; a <= 255; a++ ) {
-                for( int c = 0; c <= 255; c++ ) {
-                    data[a*256+c] = (c * 255) / a;
-                }
-            }
-        }
-
-        return __unPremultiplyTable;
-    }
-
-    void premultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, int byteLength, GLenum format)
+    void premultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, GLenum format, uint32_t width, uint32_t height, uint32_t expectedTotalBytes)
     {
         const GLubyte *table = premultiplyTable();
-
-        if( format == GL_RGBA ) {
+        int byteLength = 0;
+        if( format == GL_RGBA )
+        {
+            byteLength = width * height * 4;
+            assert(byteLength == expectedTotalBytes);
             for( int i = 0; i < byteLength; i += 4 ) {
                 unsigned short a = inPixels[i+3] * 256;
                 outPixels[i+0] = table[ a + inPixels[i+0] ];
@@ -449,34 +463,19 @@ namespace {
                 outPixels[i+3] = inPixels[i+3];
             }
         }
-        else if ( format == GL_LUMINANCE_ALPHA ) {
+        else if ( format == GL_LUMINANCE_ALPHA )
+        {
+            byteLength = width * height * 2;
+            assert(byteLength == expectedTotalBytes);
             for( int i = 0; i < byteLength; i += 2 ) {
                 unsigned short a = inPixels[i+1] * 256;
                 outPixels[i+0] = table[ a + inPixels[i+0] ];
                 outPixels[i+1] = inPixels[i+1];
             }
         }
-    }
-
-    void unPremultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, int byteLength, GLenum format)
-    {
-        const GLubyte *table = unPremultiplyTable();
-
-        if( format == GL_RGBA ) {
-            for( int i = 0; i < byteLength; i += 4 ) {
-                unsigned short a = inPixels[i+3] * 256;
-                outPixels[i+0] = table[ a + inPixels[i+0] ];
-                outPixels[i+1] = table[ a + inPixels[i+1] ];
-                outPixels[i+2] = table[ a + inPixels[i+2] ];
-                outPixels[i+3] = inPixels[i+3];
-            }
-        }
-        else if ( format == GL_LUMINANCE_ALPHA ) {
-            for( int i = 0; i < byteLength; i += 2 ) {
-                unsigned short a = inPixels[i+1] * 256;
-                outPixels[i+0] = table[ a + inPixels[i+0] ];
-                outPixels[i+1] = inPixels[i+1];
-            }
+        else
+        {
+            SE_LOGE("premultiplyPixels: format: 0x%X doesn't support upackFlipY!\n", format);
         }
     }
 
@@ -2131,33 +2130,12 @@ static bool JSB_glTexImage2D(se::State& s) {
     {
         if (__unpackFlipY)
         {
-            if (format == GL_RGBA)
-            {
-                flipPixelsY((GLubyte*)pixels, width * 4, height);
-            }
-            else if (format == GL_RGB)
-            {
-                flipPixelsY((GLubyte*)pixels, width * 3, height);
-            }
-            else
-            {
-                SE_LOGE("JSB_glTexImage2D: format: %d doesn't support upackFlipY!\n", format);
-                return true;
-            }
+            flipPixelsYByFormat((GLubyte*)pixels, format, width, height, count);
         }
 
         if (__premultiplyAlpha)
         {
-            if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
-            {
-                int byteLength = 0;
-                if (format == GL_RGBA)
-                    byteLength = width * height * 4;
-                else
-                    byteLength = width * height * 2;
-                assert(count == byteLength);
-                premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
-            }
+            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, format, width, height, count);
         }
     }
 
@@ -2230,33 +2208,12 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     {
         if (__unpackFlipY)
         {
-            if (format == GL_RGBA)
-            {
-                flipPixelsY((GLubyte*)pixels, width * 4, height);
-            }
-            else if (format == GL_RGB)
-            {
-                flipPixelsY((GLubyte*)pixels, width * 3, height);
-            }
-            else
-            {
-                SE_LOGE("glTexSubImage2D: format: %d doesn't support upackFlipY!\n", format);
-                return true;
-            }
+            flipPixelsYByFormat((GLubyte*)pixels, format, width, height, count);
         }
 
         if (__premultiplyAlpha)
         {
-            if (format == GL_RGBA || format == GL_LUMINANCE_ALPHA)
-            {
-                int byteLength = 0;
-                if (format == GL_RGBA)
-                    byteLength = width * height * 4;
-                else
-                    byteLength = width * height * 2;
-                assert(count == byteLength);
-                premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, byteLength, format);
-            }
+            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, format, width, height, count);
         }
     }
 
