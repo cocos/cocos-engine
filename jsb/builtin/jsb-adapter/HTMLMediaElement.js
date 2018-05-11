@@ -34,7 +34,8 @@ const HAVE_ENOUGH_DATA = 4;
 
 class HTMLMediaElement extends HTMLElement {
     constructor(type) {
-        super(type) this._volume = 1.0;
+        super(type)
+        this._volume = 1.0;
         this._duration = 0;
         this._isEnded = false;
         this._isMute = false;
