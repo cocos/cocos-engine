@@ -1151,7 +1151,7 @@ function initSys () {
      */
     sys.openURL = function (url) {
         if (CC_JSB) {
-            sys._application.openURL(url);
+            jsb.openURL(url);
         }
         else {
             window.open(url);
