@@ -58,6 +58,9 @@ function loadImage (item, callback) {
     tex.initWithElement(item.content);
     tex.handleLoadedTexture();
     cc.textureCache.cacheImage(rawUrl, tex);
+    if (CC_QQPLAY) {
+        item.content.dispose();
+    }
     return tex;
 }
 
