@@ -582,7 +582,8 @@ var Label = cc.Class({
 
         if (CC_EDITOR || force) {
             this._activateMaterial();
-            Label._assembler.updateRenderData(this);
+            this._updateAssembler();
+            this._assembler.updateRenderData(this);
         }
     },
 
