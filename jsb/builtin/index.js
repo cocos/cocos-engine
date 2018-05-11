@@ -24,30 +24,6 @@
  ****************************************************************************/
 
 window.CC_JSB = true;
-window.CC_WECHATGAME = true; //FIXME: remove CC_WECHATGAME
-
-// Simulate wechat game API:
-
-//FIXME: remove wx
-window.wx = {
-    getSystemInfoSync() {
-        return {
-            platform: 'mac',
-            language: 'CN',
-            system: 1.0,
-            windowWidth: window.innerWidth,
-            windowHeight: window.innerHeight,
-        };
-    },
-
-    onShow() {
-
-    },
-
-    onHide() {
-        
-    }
-}
 
 window.CanvasRenderingContext2D = cc.CanvasRenderingContext2D;
 delete cc.CanvasRenderingContext2D;

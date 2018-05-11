@@ -407,7 +407,7 @@ View.prototype = {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -817,7 +817,7 @@ View.prototype = {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 

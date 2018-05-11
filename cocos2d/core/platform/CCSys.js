@@ -512,7 +512,8 @@ function initSys () {
      * Is native ? This is set to be true in jsb auto.
      * @property {Boolean} isNative
      */
-    sys.isNative = false;
+    sys.isNative = CC_JSB;
+
 
     /**
      * Is web browser ?
@@ -538,41 +539,27 @@ function initSys () {
         sys.__audioSupport = {};
     }
     else if (CC_JSB) {
-        var env = wx.getSystemInfoSync();
-        sys.isMobile = false; //FIXME:
-        sys.platform = sys.WECHAT_GAME;
-        sys.language = env.language.substr(0, 2);
-        if (env.platform === "android") {
-            sys.os = sys.OS_ANDROID;
-        }
-        else if (env.platform === "ios") {
-            sys.os = sys.OS_IOS;
-        }
-        else if (env.platform === 'mac') {
-            sys.os = sys.OS_OSX;
-        }
-        else if (env.platform === 'windows') {
-            sys.os = sys.OS_WINDOWS;
-        }
+        var platform = sys.platform = __getPlatform();
+        sys.isMobile = (platform === sys.ANDROID || 
+                        platform === sys.IPAD || 
+                        platform === sys.IPHONE || 
+                        platform === sys.WP8 || 
+                        platform === sys.TIZEN ||
+                        platform === sys.BLACKBERRY);
 
-        var version = /[\d\.]+/.exec(env.system);
-        sys.osVersion = version[0];
+        sys.os = __getOS();
+        sys.language = __getCurrentLanguage();
+        sys.osVersion = __getOSVersion();
         sys.osMainVersion = parseInt(sys.osVersion);
-        if (wx.getGroupCloudStorage && wx.getFriendCloudStorage) {
-            // wechagame subdomain
-            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-        }
-        else {
-            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-        }
-        sys.browserVersion = env.version;
+        sys.browserType = null;
+        sys.browserVersion = null;
 
-        var w = env.windowWidth;
-        var h = env.windowHeight;
-        var ratio = env.pixelRatio || 1;
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        var ratio = window.devicePixelRatio || 1;
         sys.windowPixelResolution = {
-        width: ratio * w,
-        height: ratio * h
+            width: ratio * w,
+            height: ratio * h
         };
 
         sys.localStorage = window.localStorage;
@@ -580,7 +567,9 @@ function initSys () {
         sys.capabilities = {
             "canvas": false,
             "opengl": true,
-            "webp": false
+            "webp": true,
+            "touches": true,
+            "keyboard": true
         };
         sys.__audioSupport = {
             ONLY_ONE: false,
@@ -588,9 +577,6 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
-
-        // Adaptation
-        wx.getOpenDataContext = function () {return {canvas: null};}
     }
     else if (CC_WECHATGAME) {
         var env = wx.getSystemInfoSync();
@@ -1081,6 +1067,9 @@ function initSys () {
      */
     sys.garbageCollect = function () {
         // N/A in web
+        if (CC_JSB) {
+            __jsc__.garbageCollect();
+        }
     };
 
     /**
@@ -1089,6 +1078,9 @@ function initSys () {
      */
     sys.dumpRoot = function () {
         // N/A in web
+        if (CC_JSB) {
+            __jsc__.dumpRoot();
+        }
     };
 
     /**
@@ -1097,6 +1089,9 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
+        if (CC_JSB) {
+            __restartVM();
+        }
     };
 
     /**
@@ -1106,6 +1101,9 @@ function initSys () {
      */
     sys.cleanScript = function (jsfile) {
         // N/A in web
+        if (CC_JSB) {
+            __cleanScript(jsfile);
+        }
     };
 
     /**
@@ -1117,8 +1115,14 @@ function initSys () {
      * @return {Boolean} Validity of the object
      */
     sys.isObjectValid = function (obj) {
-        if (obj) return true;
-        else return false;
+        if (CC_JSB) {
+            return __isObjectValid(obj);
+        }
+        else if (obj) {
+            return true;
+        }
+
+        return false;
     };
 
     /**
@@ -1146,7 +1150,12 @@ function initSys () {
      * @param {String} url
      */
     sys.openURL = function (url) {
-        window.open(url);
+        if (CC_JSB) {
+            sys._application.openURL(url);
+        }
+        else {
+            window.open(url);
+        }
     };
 
     /**

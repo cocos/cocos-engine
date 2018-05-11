@@ -29,6 +29,7 @@ class Node extends EventTarget {
   constructor() {
     super()
     this.childNodes = []
+    this.parentNode = window.__cccanvas;
   }
 
   appendChild(node) {
