@@ -101,7 +101,6 @@ function generateAtlas () {
 
     let texture = new cc.Texture2D();
     texture.initWithElement(canvas);
-    texture.handleLoadedTexture();
 
     let spriteFrame = new cc.SpriteFrame();
     spriteFrame.setTexture(texture);
