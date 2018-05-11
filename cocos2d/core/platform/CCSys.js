@@ -568,9 +568,18 @@ function initSys () {
             "canvas": false,
             "opengl": true,
             "webp": true,
-            "touches": true,
-            "keyboard": true
         };
+
+       if (sys.isMobile) {
+            capabilities["accelerometer"] = true;
+            capabilities["touches"] = true;
+        } else {
+            // desktop
+            capabilities["keyboard"] = true;
+            capabilities["mouse"] = false; //TODO: Change to true to support dispatching mouse event for desktop platforms, need to be done in cocos2d-x-lite repo.
+            capabilities["touches"] = true; //TODO: Switch to false after the above TODO is finised!
+        }
+
         sys.__audioSupport = {
             ONLY_ONE: false,
             WEB_AUDIO: false,
