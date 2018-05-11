@@ -870,6 +870,9 @@ static void onAfterDispatchTouchEvent(Event* event)
 
 static void onTextureCreate(TextureCache* cache, Texture2D* texture)
 {
+    if (cache == nullptr || texture == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
@@ -893,6 +896,9 @@ static void onTextureCreate(TextureCache* cache, Texture2D* texture)
 
 static void onTextureDestroy(TextureCache* cache, Texture2D* texture)
 {
+    if (cache == nullptr || texture == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
@@ -916,6 +922,9 @@ static void onTextureDestroy(TextureCache* cache, Texture2D* texture)
 
 static void onGLProgramCreate(GLProgramCache* cache, GLProgram* program)
 {
+    if (cache == nullptr || program == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
@@ -925,9 +934,23 @@ static void onGLProgramCreate(GLProgramCache* cache, GLProgram* program)
     }
 
     se::Value val;
-    bool fromCache = false;
-    native_ptr_to_seval<GLProgram>(program, __jsb_cocos2d_GLProgram_class, &val, &fromCache);
-    if (!fromCache && val.isObject())
+    // bool fromCache = false;
+    native_ptr_to_seval<GLProgram>(program, __jsb_cocos2d_GLProgram_class, &val/* , &fromCache */);
+    // No need to check whether GLProgram se::Value is created from cache since we need to attach it GLProgramCache in both situations.
+    // Situation 1: fromCache is true which indicates GLProgram is created in JS, for example:
+    /*
+     var shader = new cc.GLProgram();
+     if (shader.initWithString(vertexShader, framentShader_no_alpha)) {
+        ...
+        ...
+        cc.shaderCache.addProgram(shader, 'cp_shader_gray_mvp');
+     }
+     */
+    // Situation 2: fromCache is false which indicates GLProgram is created in C++ by engine.
+    // All built-in shaders are created in C++, onGLProgramCreate will be invoked in while initializing built-in shaders.
+
+    // Therefore, don't make an assert here since it's correct for both situations.
+    if (/* !fromCache && */val.isObject())
     {
         iterOwner->second->attachObject(val.toObject());
     }
@@ -939,6 +962,9 @@ static void onGLProgramCreate(GLProgramCache* cache, GLProgram* program)
 
 static void onGLProgramDestroy(GLProgramCache* cache, GLProgram* program)
 {
+    if (cache == nullptr || program == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
@@ -962,6 +988,9 @@ static void onGLProgramDestroy(GLProgramCache* cache, GLProgram* program)
 
 static void onGLProgramStateCreate(GLProgramStateCache* cache, GLProgramState* state)
 {
+    if (cache == nullptr || state == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     // NOTE: GLProgramStateCache is a private class in cocos2dx, it isn't included in cocos2d.h and also didn't expose to JS
     // Since it's a singleton class, we could attach 'state' argument to global object instead.
@@ -981,6 +1010,9 @@ static void onGLProgramStateCreate(GLProgramStateCache* cache, GLProgramState* s
 
 static void onGLProgramStateDestroy(GLProgramStateCache* cache, GLProgramState* state)
 {
+    if (cache == nullptr || state == nullptr)
+        return;
+
     se::AutoHandleScope hs;
     // NOTE: 'state' argument is attached to global object, therefore we need to detach it from global object.
     se::Object* global = se::ScriptEngine::getInstance()->getGlobalObject();
