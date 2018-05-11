@@ -163,8 +163,7 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
         const char* s = strFilePath.c_str();
 
         // Found "@assets/" at the beginning of the path and we don't want it
-        if (strFilePath.find(_defaultResRootPath) == 0) s += _defaultResRootPath.length();
-        
+        if (strFilePath.find(ASSETS_FOLDER_NAME) == 0) s += strlen(ASSETS_FOLDER_NAME);
         if (obbfile && obbfile->fileExists(s))
         {
             bFound = true;
@@ -246,7 +245,7 @@ bool FileUtilsAndroid::isAbsolutePath(const std::string& strPath) const
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
-    if (strPath[0] == '/' || strPath.find(_defaultResRootPath) == 0)
+    if (strPath[0] == '/' || strPath.find(ASSETS_FOLDER_NAME) == 0)
     {
         return true;
     }
@@ -266,14 +265,14 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
         return FileUtils::getContents(fullPath, buffer);
 
     std::string relativePath;
-    size_t position = fullPath.find(_defaultResRootPath);
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
-        relativePath += fullPath.substr(_defaultResRootPath.length());
+        relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
     } else {
         relativePath = fullPath;
     }
-    
+
     if (obbfile)
     {
         if (obbfile->getFileData(relativePath, buffer))
