@@ -72,7 +72,6 @@ var EventType = cc.Enum({
 
 var keyboardListener = null;
 var accelerationListener = null;
-var keyboardListenerAddFrame = 0;
 var SystemEvent = cc.Class({
     name: 'SystemEvent',
     extends: EventTarget,
@@ -120,11 +119,7 @@ var SystemEvent = cc.Class({
                 });
             }
             if (!eventManager.hasEventListener(cc.EventListener.ListenerID.KEYBOARD)) {
-                var currentFrame = cc.director.getTotalFrames();
-                if (currentFrame !== keyboardListenerAddFrame) {
-                    eventManager.addListener(keyboardListener, 1);
-                    keyboardListenerAddFrame = currentFrame;
-                }
+                eventManager.addListener(keyboardListener, 1);
             }
         }
 
