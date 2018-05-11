@@ -161,7 +161,7 @@ let _canvasPool = {
             }
         }
 
-        data.width = data.height = 1;
+        data._canvas.width = data._canvas.height = 1;
         return data;
     },
     put (canvas) {
@@ -546,7 +546,6 @@ var Label = cc.Class({
 
             this._texture = new cc.Texture2D();
             this._texture.initWithElement(this._assemblerData._canvas);
-            this._texture.handleLoadedTexture();
 
             material = new SpriteMaterial();
             material.texture = this._texture;
