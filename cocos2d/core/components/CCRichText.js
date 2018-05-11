@@ -421,9 +421,9 @@ var RichText = cc.Class({
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
 
+        labelSegment.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
 
-        labelSegment.setAnchorPoint(0, 0);
         this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
