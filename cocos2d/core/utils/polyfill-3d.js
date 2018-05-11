@@ -27,6 +27,7 @@ const Node = require('../CCNode');
 const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
 const renderEngine = require('../renderer/render-engine');
+const RenderFlow = require('../renderer/render-flow');
 const math = renderEngine.math;
 
 // ====== Node transform polyfills ======
@@ -134,6 +135,7 @@ function setPosition (newPosOrX, y, z) {
     pos.y = y;
     pos.z = z;
     this.setLocalDirty(DirtyFlag.POSITION);
+    this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
     // fast check event
     if (this._eventMask & POSITION_ON) {
@@ -176,6 +178,7 @@ function setQuat (quat, y, z, w) {
         old.z = z;
         old.w = w;
         this.setLocalDirty(DirtyFlag.ROTATION);
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
         if (this._eventMask & ROTATION_ON) {
             this.emit(EventType.ROTATION_CHANGED);
@@ -223,6 +226,7 @@ function setScale (x, y, z) {
         this._scale.y = y;
         this._scale.z = z;
         this.setLocalDirty(DirtyFlag.SCALE);
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
         if (this._eventMask & SCALE_ON) {
             this.emit(EventType.SCALE_CHANGED);
