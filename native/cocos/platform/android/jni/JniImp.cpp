@@ -118,7 +118,7 @@ extern "C"
      * Cocos2dxActivity native functions implementation.
      *****************************************************/
 
-    JNIEXPORT jintArray Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
+    JNIEXPORT jintArray JNICALL Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
     {
         //TODO
         int tmp[7] = {8, 8, 8,
@@ -133,7 +133,7 @@ extern "C"
 	 * Cocos2dxRenderer native functions implementation.
 	 *****************************************************/
 
-    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
     {
         g_isGameFinished = false;
         ccInvalidateStateCache();
@@ -153,7 +153,7 @@ extern "C"
         g_app->start();
     }
 
-    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeFinish(JNIEnv*  env, jobject thiz)
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeFinish(JNIEnv*  env, jobject thiz)
     {
         g_isGameFinished = true;
         LOGD("CocosRenderer.nativeFinish");
@@ -233,7 +233,7 @@ extern "C"
         //TODO
     }
 
-    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNIEnv*  env, jobject thiz, jint w, jint h)
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNIEnv*  env, jobject thiz, jint w, jint h)
     {
         //TODO
     }
@@ -391,7 +391,7 @@ extern "C"
      * Cocos2dxAudioFocusManager native functions implementation.
      ***********************************************************/
 
-    JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxAudioFocusManager_nativeOnAudioFocusChange(JNIEnv* env, jobject thiz, jint focusChange)
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAudioFocusManager_nativeOnAudioFocusChange(JNIEnv* env, jobject thiz, jint focusChange)
     {
         // cocos_audioengine_focus_change(focusChange);
     }
