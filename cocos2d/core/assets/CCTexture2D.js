@@ -222,7 +222,6 @@ var Texture2D = cc.Class({
             },
             set (image) {
                 this.initWithElement(image);
-                this.handleLoadedTexture();
             },
             override: true
         },

@@ -67,7 +67,6 @@ let textureUtil = {
         if (url && image) {
             var tex = new Texture2D();
             tex.initWithElement(image);
-            tex.handleLoadedTexture();
             var item = {
                 id: url,
                 url: url, // real download url, maybe changed

@@ -2051,6 +2051,7 @@ var Node = cc.Class({
             this._scale.x = x;
             this._scale.y = y;
             this.setLocalDirty(LocalDirtyFlag.SCALE);
+            this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
             if (this._eventMask & SCALE_ON) {
                 this.emit(EventType.SCALE_CHANGED);
