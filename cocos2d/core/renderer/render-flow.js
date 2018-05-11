@@ -69,15 +69,15 @@ _proto._worldTransform = function (node) {
 }
 
 _proto._color = function (node) {
-    if (node._renderFlag & RENDER || node._renderFlag & CUSTOM_IA_RENDER) {
-        let comp = node._renderComponent;
-        let material = comp._material;
-        if (material) {
-            material.color = node.color;
-            material.updateHash();
-        }
+    let comp = node._renderComponent;
+    let material = comp._material;
+    if (material) {
+        material.color = node.color;
+        material.updateHash();
+
+        // reset flag when set color to material successfully
+        node._renderFlag &= ~COLOR;
     }
-    node._renderFlag &= ~COLOR;
     this._next._func(node);
 }
 

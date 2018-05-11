@@ -28,6 +28,7 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
+const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
 /**
@@ -161,7 +162,7 @@ let _canvasPool = {
             }
         }
 
-        data.width = data.height = 1;
+        data._canvas.width = data._canvas.height = 1;
         return data;
     },
     put (canvas) {
@@ -221,6 +222,8 @@ var Label = cc.Class({
                 if (this.string !== oldValue) {
                     this._updateRenderData();
                 }
+
+                this._checkStringEmpty();
             },
             multiline: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string'
@@ -495,12 +498,22 @@ var Label = cc.Class({
             this.useSystemFont = true;
         }
 
+        this._checkStringEmpty();
         this._updateAssembler();
         this._activateMaterial();
     },
 
     onDestroy () {
         this._resetAssemblerData();
+    },
+
+    _checkStringEmpty () {
+        if (!this.string) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        }
+        else {
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+        }
     },
 
     _resetAssemblerData () {
@@ -546,7 +559,6 @@ var Label = cc.Class({
 
             this._texture = new cc.Texture2D();
             this._texture.initWithElement(this._assemblerData._canvas);
-            this._texture.handleLoadedTexture();
 
             material = new SpriteMaterial();
             material.texture = this._texture;
@@ -556,6 +568,7 @@ var Label = cc.Class({
             this._texture.url = this.uuid + '_texture';
         }
 
+        material.color = this.node.color;
         this.setMaterial(material);
     },
 
