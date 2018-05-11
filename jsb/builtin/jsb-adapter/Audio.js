@@ -45,7 +45,7 @@ class Audio extends HTMLAudioElement {
 //
 //    _src.set(this, '')
 //
-//    const innerAudioContext = {};//cjh wx.createInnerAudioContext()
+//    const innerAudioContext = {};
 //
 //    _innerAudioContext.set(this, innerAudioContext)
 //

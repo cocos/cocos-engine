@@ -45,6 +45,8 @@ function inject () {
     window.HTMLAudioElement = require('./HTMLAudioElement');
     window.HTMLVideoElement = require('./HTMLVideoElement');
     window.__cccanvas = new HTMLCanvasElement();
+    window.__cccanvas._width = window.innerWidth;
+    window.__cccanvas._height = window.innerHeight;
     window.__ccgl.canvas = window.__cccanvas;
     window.navigator = require('./navigator');
     window.Image = require('./Image');
