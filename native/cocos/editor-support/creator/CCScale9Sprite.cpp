@@ -923,12 +923,18 @@ bool Scale9SpriteV2::setSpriteFrame(const std::string& sfName)
 }
 
 bool Scale9SpriteV2::setSpriteFrame(cocos2d::SpriteFrame* spriteFrame)
-{
-    if(!spriteFrame) return false;
+{    
     CC_SAFE_RELEASE(this->_spriteFrame);
     this->_spriteFrame = spriteFrame;
-    CC_SAFE_RETAIN(spriteFrame);
     this->_quadsDirty = true;
+    
+    if(!spriteFrame)
+    {
+        this->setContentSize(cocos2d::Size::ZERO);
+         return true;
+    }
+
+    CC_SAFE_RETAIN(spriteFrame);
     if(this->_contentSize.equals(cocos2d::Size::ZERO))
     {
         this->setContentSize(spriteFrame->getRect().size);
