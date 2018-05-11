@@ -33,10 +33,10 @@ class HTMLScriptElement extends HTMLElement {
     }
 
     set src(url) {
-    	setTimeout(()=>{
-    		require(url);
-    		this.dispatchEvent(new Event('load'));
-    	}, 0);
+        setTimeout(()=>{
+            require(url);
+            this.dispatchEvent(new Event('load'));
+        }, 0);
     }
 }
 
