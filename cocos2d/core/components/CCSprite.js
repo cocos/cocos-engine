@@ -219,6 +219,8 @@ var Sprite = cc.Class({
                     // Drop previous material, because texture have changed
                     this._material = null;
                 }
+                // render & update render data flag will be triggered while applying new sprite frame
+                this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
@@ -464,6 +466,7 @@ var Sprite = cc.Class({
         if (this._state === state) return;
         this._state = state;
         this._material = null;
+        this._activateMaterial();
     },
 
     /**
@@ -518,11 +521,12 @@ var Sprite = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (this._material) return;
+        if (this._material || !this.enabledInHierarchy) return;
 
         let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             return;
         }
 
@@ -551,6 +555,7 @@ var Sprite = cc.Class({
         else {
             material.updateHash();
         }
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER;
     },
     
     _updateBlendFunc: function () {
@@ -601,7 +606,7 @@ var Sprite = cc.Class({
             }
             
             this.markUpdateRenderData();
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            this._activateMaterial();
         }
     },
 
