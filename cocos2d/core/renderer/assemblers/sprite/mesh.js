@@ -72,7 +72,6 @@ const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
                 }
             }
         }
-        return sprite.__allocedDatas;
     },
 
     updateUVs (sprite) {
