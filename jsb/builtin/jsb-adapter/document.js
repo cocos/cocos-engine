@@ -28,6 +28,7 @@ const Image = require('./Image');
 const Audio = require('./Audio');
 const HTMLCanvasElement = require('./HTMLCanvasElement');
 const HTMLVideoElement = require('./HTMLVideoElement');
+const HTMLScriptElement = require('./HTMLScriptElement');
 const Node = require('./Node');
 const FontFaceSet = require('./FontFaceSet')
 
@@ -64,6 +65,8 @@ class Document extends Node {
       return new Image()
     } else if (tagName === 'video') {
       return new HTMLVideoElement();
+    } else if (tagName === 'script') {
+      return new HTMLScriptElement();
     }
 
     return new HTMLElement(tagName)
@@ -124,6 +127,17 @@ class Document extends Node {
 
   createTextNode() {
       return new HTMLElement('text');
+  }
+
+  elementFromPoint() {
+      return window.canvas;
+  }
+
+  createEvent(type) {
+      if (window[type]) {
+          return new window[type];
+      }
+      return null;
   }
 }
 
