@@ -125,7 +125,7 @@ function checkCircleReference(owner, item, recursiveCall) {
 /**
  * !#en
  * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
- * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
+ * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
  * It hold a map of items, each entry in the map is a url to object key value pair.</br>
  * Each item always contains the following property:</br>
  * - id: The identification of the item, usually it's identical to url</br>
@@ -141,7 +141,7 @@ function checkCircleReference(owner, item, recursiveCall) {
  * So please don't hold its reference for later usage, you can copy properties in it though.
  * !#zh
  * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。</br>
- * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
+ * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
  * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。</br>
  * 每个对象都会包含下列属性：</br>
  * - id：该对象的标识，通常与 url 相同。</br>
@@ -299,7 +299,7 @@ LoadingItems.ItemState = new cc.Enum(ItemState);
  * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
  * @return {LoadingItems} The LoadingItems queue object
  * @example
- *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
+ *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
  *      var progress = (100 * completedCount / totalCount).toFixed(2);
  *      cc.log(progress + '%');
  *  }, function (errors, items) {
