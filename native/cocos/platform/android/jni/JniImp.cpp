@@ -157,7 +157,9 @@ extern "C"
     {
         g_isGameFinished = true;
         LOGD("CocosRenderer.nativeFinish");
-        se::ScriptEngine::destroyInstance();
+        g_app->getScheduler()->removeAllFunctionsToBePerformedInCocosThread();
+        EventDispatcher::destroy();
+        se::ScriptEngine::getInstance()->cleanup();
         cocos2d::experimental::AudioEngine::end();
         JniHelper::callObjectVoidMethod(thiz, Cocos2dxRendererClassName, "onGameFinished");
     }
