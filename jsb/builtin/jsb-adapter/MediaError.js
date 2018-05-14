@@ -16,3 +16,5 @@ class MediaError {
 		return ""
 	}
 }
+
+module.exports = MediaError;
