@@ -564,7 +564,8 @@ function initSys () {
 
         sys.localStorage = window.localStorage;
 
-        sys.capabilities = {
+        var capabilities;
+        capabilities = sys.capabilities = {
             "canvas": false,
             "opengl": true,
             "webp": true,
