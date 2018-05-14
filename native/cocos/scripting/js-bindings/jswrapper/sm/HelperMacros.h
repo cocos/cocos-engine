@@ -28,6 +28,8 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
+extern uint32_t __jsbInvocationCount;
+
 #define SAFE_INC_REF(obj) if (obj != nullptr) obj->incRef()
 #define SAFE_DEC_REF(obj) if (obj != nullptr) obj->decRef()
 
@@ -40,6 +42,7 @@
 #define SE_BIND_FUNC(funcName) \
     bool funcName##Registry(JSContext* _cx, unsigned argc, JS::Value* _vp) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp); \
         JS::Value _thiz = _argv.computeThis(_cx); \
@@ -77,6 +80,7 @@
 #define SE_BIND_CTOR(funcName, cls, finalizeCb) \
     bool funcName##Registry(JSContext* _cx, unsigned argc, JS::Value* _vp) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp); \
         se::ValueArray args; \
@@ -103,6 +107,7 @@
 #define SE_BIND_SUB_CLS_CTOR(funcName, cls, finalizeCb) \
     bool funcName##Registry(JSContext* _cx, unsigned argc, JS::Value* _vp) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp); \
         JS::Value _thiz = _argv.computeThis(_cx); \
@@ -130,6 +135,7 @@
 #define SE_BIND_PROP_GET(funcName) \
     bool funcName##Registry(JSContext *_cx, unsigned argc, JS::Value* _vp) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp); \
         JS::Value _thiz = _argv.computeThis(_cx); \
@@ -148,6 +154,7 @@
 #define SE_BIND_PROP_SET(funcName) \
     bool funcName##Registry(JSContext *_cx, unsigned _argc, JS::Value *_vp) \
     { \
+        ++__jsbInvocationCount; \
         bool ret = false; \
         JS::CallArgs _argv = JS::CallArgsFromVp(_argc, _vp); \
         JS::Value _thiz = _argv.computeThis(_cx); \

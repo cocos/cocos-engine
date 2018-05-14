@@ -37,6 +37,8 @@ namespace {
 
 namespace cocos2d
 {
+    std::unordered_map<std::string, EventDispatcher::Node*> EventDispatcher::_listeners;
+
     void EventDispatcher::init()
     {
         _inited = true;
@@ -169,6 +171,109 @@ void EventDispatcher::dispatchTickEvent(float dt)
 
     now = std::chrono::steady_clock::now();
     dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+}
+
+uint32_t EventDispatcher::addCustomEventListener(const std::string& eventName, const CustomEventListener& listener)
+{
+    static uint32_t __listenerIDCounter = 0;
+    uint32_t listenerID = ++__listenerIDCounter;
+    listenerID = listenerID == 0 ? 1 : listenerID;
+
+    Node* newNode = new Node();
+    newNode->listener = listener;
+    newNode->listenerID = listenerID;
+    newNode->next = nullptr;
+
+    auto iter = _listeners.find(eventName);
+    if (iter == _listeners.end())
+    {
+        _listeners.emplace(eventName, newNode);
+    }
+    else
+    {
+        Node* node = iter->second;
+        assert(node != nullptr);
+        Node* prev = nullptr;
+        while (node != nullptr)
+        {
+            prev = node;
+            node = node->next;
+        }
+        prev->next = newNode;
+    }
+    return listenerID;
+}
+
+void EventDispatcher::removeCustomEventListener(const std::string& eventName, uint32_t listenerID)
+{
+    if (eventName.empty())
+        return;
+
+    if (listenerID == 0)
+        return;
+
+    auto iter = _listeners.find(eventName);
+    if (iter != _listeners.end())
+    {
+        Node* prev = nullptr;
+        Node* node = iter->second;
+        while (node != nullptr)
+        {
+            if (node->listenerID == listenerID)
+            {
+                if (prev != nullptr)
+                {
+                    prev->next = node->next;
+                }
+                else if (node->next)
+                {
+                    _listeners[eventName] = node->next;
+                }
+                else
+                {
+                    _listeners.erase(iter);
+                }
+
+                delete node;
+                return;
+            }
+
+            prev = node;
+            node = node->next;
+        }
+    }
+}
+
+void EventDispatcher::removeAllCustomEventListeners(const std::string& eventName)
+{
+    auto iter = _listeners.find(eventName);
+    if (iter != _listeners.end())
+    {
+        Node* node = iter->second;
+        while (node != nullptr)
+        {
+            delete node;
+            node = node->next;
+        }
+        _listeners.erase(iter);
+    }
+}
+
+void EventDispatcher::dispatchCustomEvent(struct CustomEvent* event)
+{
+    assert(event);
+    auto iter = _listeners.find(event->name);
+    if (iter != _listeners.end())
+    {
+        Node* next = nullptr;
+        Node* node = iter->second;
+        while (node != nullptr)
+        {
+            next = node->next;
+            node->listener(event);
+            node = next;
+        }
+    }
 }
     
 } // end of namespace cocos2d

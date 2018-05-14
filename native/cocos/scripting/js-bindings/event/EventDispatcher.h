@@ -25,6 +25,8 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
+#include <functional>
 
 namespace cocos2d
 {
@@ -52,6 +54,19 @@ struct TouchEvent
     Type type = Type::BEGAN;
 };
 
+struct CustomEvent
+{
+    std::string name;
+    union {
+        void* ptrVal;
+        long longVal;
+        int intVal;
+        short shortVal;
+        char charVal;
+        bool boolVal;
+    } args[10];
+};
+
 class EventDispatcher
 {
 public:
@@ -61,6 +76,22 @@ public:
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
     static void dispatchKeyEvent(int key, int action);
     static void dispatchTickEvent(float dt);
+
+
+    using CustomEventListener = std::function<void(struct CustomEvent*)>;
+    static uint32_t addCustomEventListener(const std::string& eventName, const CustomEventListener& listener);
+    static void removeCustomEventListener(const std::string& eventName, uint32_t listenerID);
+    static void removeAllCustomEventListeners(const std::string& eventName);
+    static void dispatchCustomEvent(struct CustomEvent* event);
+
+private:
+    struct Node
+    {
+        CustomEventListener listener;
+        uint32_t listenerID;
+        struct Node* next;
+    };
+    static std::unordered_map<std::string, Node*> _listeners;
 };
     
 } // end of namespace cocos2d

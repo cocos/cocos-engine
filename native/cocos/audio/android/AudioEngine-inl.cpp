@@ -52,6 +52,9 @@
 #include "audio/android/cutils/log.h"
 #include "audio/android/UrlAudioPlayer.h"
 
+#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/event/CustomEventTypes.h"
+
 using namespace cocos2d;
 using namespace cocos2d::experimental;
 
@@ -117,8 +120,8 @@ AudioEngineImpl::AudioEngineImpl()
     , _engineEngine(nullptr)
     , _outputMixObject(nullptr)
     , _audioPlayerProvider(nullptr)
-    , _onPauseListener(nullptr)
-    , _onResumeListener(nullptr)
+    , _onPauseListenerID(0)
+    , _onResumeListenerID(0)
     , _audioIDIndex(0)
     , _lazyInitLoop(true)
 {
@@ -143,14 +146,14 @@ AudioEngineImpl::~AudioEngineImpl()
         (*_engineObject)->Destroy(_engineObject);
     }
 
-    if (_onPauseListener != nullptr)
+    if (_onPauseListenerID != 0)
     {
-//TODO:cjh        Application::getInstance()->getEventDispatcher()->removeEventListener(_onPauseListener);
+        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_BACKGROUND, _onPauseListenerID);
     }
 
-    if (_onResumeListener != nullptr)
+    if (_onResumeListenerID != 0)
     {
-//TODO:cjh        Director::getInstance()->getEventDispatcher()->removeEventListener(_onResumeListener);
+        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_FOREGROUND, _onResumeListenerID);
     }
 
     __impl = nullptr;
@@ -185,9 +188,9 @@ bool AudioEngineImpl::init()
 
         _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, getDeviceSampleRateJNI(), getDeviceAudioBufferSizeInFramesJNI(), fdGetter, &__callerThreadUtils);
 
-        _onPauseListener = nullptr;//Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_BACKGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterBackground, this));
+        _onPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterBackground, this));
 
-        _onResumeListener = nullptr;//Director::getInstance()->getEventDispatcher()->addCustomEventListener(EVENT_COME_TO_FOREGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterForeground, this));
+        _onResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterForeground, this));
 
         ret = true;
     }while (false);
@@ -195,7 +198,7 @@ bool AudioEngineImpl::init()
     return ret;
 }
 
-void AudioEngineImpl::onEnterBackground(EventCustom* event)
+void AudioEngineImpl::onEnterBackground(CustomEvent* event)
 {
     // _audioPlayerProvider->pause() pauses AudioMixer and PcmAudioService,
     // but UrlAudioPlayers could not be paused.
@@ -217,7 +220,7 @@ void AudioEngineImpl::onEnterBackground(EventCustom* event)
     }
 }
 
-void AudioEngineImpl::onEnterForeground(EventCustom* event)
+void AudioEngineImpl::onEnterForeground(CustomEvent* event)
 {
     // _audioPlayerProvider->resume() resumes AudioMixer and PcmAudioService,
     // but UrlAudioPlayers could not be resumed.

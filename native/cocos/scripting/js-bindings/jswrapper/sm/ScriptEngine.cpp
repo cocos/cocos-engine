@@ -52,6 +52,8 @@
 #define TRACE_DEBUGGER_SERVER(...)
 #endif // #if COCOS2D_DEBUG
 
+uint32_t __jsbInvocationCount = 0;
+
 namespace se {
 
     Class* __jsb_CCPrivateData_class = nullptr;

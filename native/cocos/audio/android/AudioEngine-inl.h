@@ -42,8 +42,7 @@
 
 NS_CC_BEGIN
 
-class EventCustom;
-class EventListener;
+struct CustomEvent;
 
 namespace experimental {
 
@@ -78,8 +77,8 @@ public:
     void setAudioFocusForAllPlayers(bool isFocus);
 private:
 
-    void onEnterBackground(EventCustom* event);
-    void onEnterForeground(EventCustom* event);
+    void onEnterBackground(CustomEvent* event);
+    void onEnterForeground(CustomEvent* event);
 
     // engine interfaces
     SLObjectItf _engineObject;
@@ -96,8 +95,8 @@ private:
     std::unordered_map<int, IAudioPlayer*> _urlAudioPlayersNeedResume;
 
     AudioPlayerProvider* _audioPlayerProvider;
-    EventListener* _onPauseListener;
-    EventListener* _onResumeListener;
+    uint32_t _onPauseListenerID;
+    uint32_t _onResumeListenerID;
 
     int _audioIDIndex;
     
