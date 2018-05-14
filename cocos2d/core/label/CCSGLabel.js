@@ -469,7 +469,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this.setFontFamily('');
             return;
         }
-        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
+        var fontHandle = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(fontAsset.nativeUrl, true) : fontAsset.nativeUrl;
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
