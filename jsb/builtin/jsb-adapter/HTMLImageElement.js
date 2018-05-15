@@ -28,10 +28,14 @@ const Event = require('./Event');
 const gl = window.__ccgl;
 
 class HTMLImageElement extends HTMLElement {
-    constructor(width, height) {
+    constructor(width, height, isCalledFromImage) {
+        if (!isCalledFromImage) {
+            throw new TypeError("Illegal constructor, use 'new Image(w, h); instead!'");
+            return;
+        }
         super('img')
-        this.width = width;
-        this.height = height;
+        this.width = width ? width : 0;
+        this.height = height ? height : 0;
         this._data = null;
         this._src = null;
         this.complete = false;
