@@ -220,7 +220,7 @@ var MotionStreak = cc.Class({
         let material = new SpriteMaterial();
         // TODO: old texture in material have been released by loader
         material.texture = this._texture;
-
+        material.useColor = false;
         this.setMaterial(material);
     },
 
@@ -241,8 +241,8 @@ var MotionStreak = cc.Class({
      * !#zh 删除当前所有的拖尾片段。
      * @method reset
      * @example
-     * // stop particle system.
-     * myParticleSystem.stopSystem();
+     * // Remove all living segments of the ribbon.
+     * myMotionStreak.reset();
      */
     reset: function () {
         this._points.length = 0;

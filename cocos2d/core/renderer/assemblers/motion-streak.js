@@ -30,10 +30,12 @@ const renderEngine = require('../../renderer/render-engine');
 const MotionStreak = require('../../components/CCMotionStreak');
 const RenderFlow = require('../render-flow');
 
+const vfmtPosColorUv = require('../vertex-format').vfmtPosColorUv;
+
 function Point (point, dir) {
     this.point = point || cc.v2();
     this.dir = dir || cc.v2();
-    this.distance = 0
+    this.distance = 0;
     this.time = 0;
 }
 
@@ -197,10 +199,11 @@ var motionStreakAssembler = js.addon({
         let node = comp.node,
             renderData = comp._renderData,
             data = renderData._data;
-    
-        let buffer = renderer._meshBuffer,
+
+        let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             vertexCount = renderData.vertexCount;
         
         let ibuf = buffer._iData,
@@ -217,6 +220,7 @@ var motionStreakAssembler = js.addon({
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = vert.color;
         }
         
         // index buffer
