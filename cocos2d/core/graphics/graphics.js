@@ -127,8 +127,7 @@ let Graphics = cc.Class({
                 return this._strokeColor;
             },
             set (value) {
-                this._strokeColor = cc.color(value);
-                this._impl.strokeColor = value;
+                this._impl.strokeColor = this._strokeColor = cc.color(value);
             }
         },
 
@@ -145,8 +144,7 @@ let Graphics = cc.Class({
                 return this._fillColor;
             },
             set (value) {
-                this._fillColor = cc.color(value);
-                this._impl.fillColor = value;
+                this._impl.fillColor = this._fillColor = cc.color(value);
             }
         },
 

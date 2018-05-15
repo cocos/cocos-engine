@@ -41,6 +41,7 @@ let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
 let _debugMaterial = new SpriteMaterial();
 _debugMaterial.useModel = true;
+_debugMaterial.useColor = false;
 _debugMaterial.useTexture = false;
 _debugMaterial.updateHash();
 
@@ -111,7 +112,7 @@ var spineAssembler = js.addon({
             nodeG = nodeColor.g,
             nodeB = nodeColor.b,
             nodeA = nodeColor.a;
-        for (var i = 0, n = vertices.length; i < n; i += 8) {
+        for (let i = 0, n = vertices.length; i < n; i += 8) {
             let r = vertices[i + 2] * nodeR,
                 g = vertices[i + 3] * nodeG,
                 b = vertices[i + 4] * nodeB,
@@ -130,7 +131,7 @@ var spineAssembler = js.addon({
             // Debug Slot
             let VERTEX = spine.RegionAttachment;
             graphics.strokeColor = _slotColor;
-            graphics.lineWidth = 1;
+            graphics.lineWidth = 5;
             graphics.moveTo(vertices[VERTEX.X1], vertices[VERTEX.Y1]);
             graphics.lineTo(vertices[VERTEX.X2], vertices[VERTEX.Y2]);
             graphics.lineTo(vertices[VERTEX.X3], vertices[VERTEX.Y3]);
@@ -239,7 +240,7 @@ var spineAssembler = js.addon({
 
         if (comp.debugBones) {
             let bone;
-            graphics.lineWidth = 2;
+            graphics.lineWidth = 5;
             graphics.strokeColor = _boneColor;
             graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 
@@ -254,9 +255,9 @@ var spineAssembler = js.addon({
                 graphics.stroke();
                 
                 // Bone origins.
-                graphics.circle(bone.worldX, bone.worldY, 2);
+                graphics.circle(bone.worldX, bone.worldY, Math.PI * 2);
                 graphics.fill();
-                if (i == 0) {
+                if (i === 0) {
                     graphics.fillColor = _originColor;
                 }
             }
