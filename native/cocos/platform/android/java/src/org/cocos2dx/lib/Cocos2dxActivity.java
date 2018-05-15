@@ -546,8 +546,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
             @Override
             public void onGameInfoUpdated_1(String text) {
-                if (mLinearLayoutForDebugView != null)
-                    return;
+
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -560,8 +559,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
             @Override
             public void onGameInfoUpdated_2(String text) {
-                if (mLinearLayoutForDebugView != null)
-                    return;
+
                 Cocos2dxActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

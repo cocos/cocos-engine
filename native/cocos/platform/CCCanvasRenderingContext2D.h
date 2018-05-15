@@ -98,7 +98,7 @@ public:
     void setTransform(float a, float b, float c, float d, float e, float f);
 
 private:
-    void recreateBuffer();
+    void recreateBufferIfNeeded();
 
 public:
 
