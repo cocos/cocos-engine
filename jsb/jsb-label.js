@@ -307,6 +307,6 @@ cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
     if (!isAsset) {
         return new _ccsg.Label(string, null, null, fontSize);
     }
-    var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
+    var fontHandle = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(fontAsset.nativeUrl, true) : fontAsset.nativeUrl;
     return new _ccsg.Label(string, fontHandle, spriteFrame, fontSize);
 };
