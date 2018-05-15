@@ -522,7 +522,10 @@ var Sprite = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (this._material || !this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy) {
+            return;
+        }
+        if (this._material) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             return;
         }

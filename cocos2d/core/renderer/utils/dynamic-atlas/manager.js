@@ -48,10 +48,10 @@ let dynamicAtlasManager = {
 
         if (value) {
             this.reset();
-            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
+            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, beforeSceneLoad);
         }
         else {
-            cc.director.off(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
+            cc.director.off(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, beforeSceneLoad);
         }
 
         _enabled = value;
