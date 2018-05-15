@@ -89,10 +89,10 @@ var MotionStreak = cc.Class({
          */
         _fadeTime: 1,
         fadeTime: {
-            get: function () {
+            get () {
                 return this._fadeTime;
             },
-            set: function (value) {
+            set (value) {
                 this._fadeTime = value;
                 this.reset();
             },
@@ -110,10 +110,10 @@ var MotionStreak = cc.Class({
          */
         _minSeg: 1,
         minSeg: {
-            get: function () {
+            get () {
                 return this._minSeg;
             },
-            set: function (value) {
+            set (value) {
                 this._minSeg = value;
             },
             animatable: false,
@@ -130,10 +130,10 @@ var MotionStreak = cc.Class({
          */
         _stroke: 64,
         stroke: {
-            get: function () {
+            get () {
                 return this._stroke;
             },
-            set: function (value) {
+            set (value) {
                 this._stroke = value;
             },
             animatable: false,
@@ -153,13 +153,12 @@ var MotionStreak = cc.Class({
             type: cc.Texture2D
         },
         texture: {
-            get: function () {
+            get () {
                 return this._texture;
             },
-            set: function (value) {
+            set (value) {
                 this._texture = value;
-                this._material = null;
-                this._activateMaterial();
+                this._activateMaterial(true);
             },
             type: cc.Texture2D,
             animatable: false,
@@ -177,10 +176,10 @@ var MotionStreak = cc.Class({
          */
         _color: cc.Color.WHITE,
         color: {
-            get: function () {
+            get () {
                 return this._color;
             },
-            set: function (value) {
+            set (value) {
                 this._color = value;
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
@@ -197,10 +196,10 @@ var MotionStreak = cc.Class({
          */
         _fastMode: false,
         fastMode: {
-            get: function () {
+            get () {
                 return this._fastMode;
             },
-            set: function (value) {
+            set (value) {
                 this._fastMode = value;
             },
             animatable: false,
@@ -208,19 +207,23 @@ var MotionStreak = cc.Class({
         }
     },
 
-    onEnable: function () {
+    onEnable () {
         this._super();
         this._activateMaterial();
         this.reset();
     },
 
-    _activateMaterial: function () {
-        if (this._material) return;
+    _activateMaterial (force) {
+        let material = this._material;
+        if (!material) {
+            material = this._material = new SpriteMaterial();
+            material.useColor = false;
+        }
+        else if (!force) {
+            return;
+        }
         
-        let material = new SpriteMaterial();
-        // TODO: old texture in material have been released by loader
         material.texture = this._texture;
-        material.useColor = false;
         this.setMaterial(material);
     },
 
@@ -244,7 +247,7 @@ var MotionStreak = cc.Class({
      * // Remove all living segments of the ribbon.
      * myMotionStreak.reset();
      */
-    reset: function () {
+    reset () {
         this._points.length = 0;
         let renderData = this._renderData;
         if (renderData) {

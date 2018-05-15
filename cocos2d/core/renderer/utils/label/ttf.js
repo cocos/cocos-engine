@@ -70,7 +70,7 @@ let _isItalic = false;
 let _isUnderline = false;
 
 module.exports = {
-    update (comp) {
+    updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
         _comp = comp;

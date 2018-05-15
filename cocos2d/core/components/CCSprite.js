@@ -158,6 +158,8 @@ var Sprite = cc.Class({
 
     ctor () {
         this._assembler = null;
+        this._graySpriteMaterial = null;
+        this._spriteMaterial = null;
     },
 
     editor: CC_EDITOR && {
@@ -216,8 +218,7 @@ var Sprite = cc.Class({
                 }
                 this._spriteFrame = value;
                 if ((this._material && this._material._texture) !== (value && value._texture)) {
-                    // Drop previous material, because texture have changed
-                    this._material = null;
+                    // disable render flow util texture is loaded
                     this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
                 }
                 // render & update render data flag will be triggered while applying new sprite frame
@@ -466,7 +467,6 @@ var Sprite = cc.Class({
     setState: function (state) {
         if (this._state === state) return;
         this._state = state;
-        this._material = null;
         this._activateMaterial();
     },
 
@@ -522,29 +522,34 @@ var Sprite = cc.Class({
     },
 
     _activateMaterial: function () {
+        this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        
         if (!this.enabledInHierarchy) {
-            return;
-        }
-        if (this._material) {
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             return;
         }
 
         let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             return;
         }
+
+        this.markUpdateRenderData();
 
         // Get material
         let texture = spriteFrame.getTexture();
         let material;
         if (this._state === State.GRAY) {
-            material = new GraySpriteMaterial();
+            if (!this._graySpriteMaterial) {
+                this._graySpriteMaterial = new GraySpriteMaterial();
+            }
+            material = this._graySpriteMaterial;
         }
         else {
-            material = new SpriteMaterial();
+            if (!this._spriteMaterial) {
+                this._spriteMaterial = new SpriteMaterial();
+            }
+            material = this._spriteMaterial;
             material.color = this.node.color;
         }
         // TODO: old texture in material have been released by loader
@@ -612,7 +617,6 @@ var Sprite = cc.Class({
                 this.node.setContentSize(rect.width, rect.height);
             }
             
-            this.markUpdateRenderData();
             this._activateMaterial();
         }
     },

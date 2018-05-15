@@ -42,7 +42,6 @@ module.exports = {
                 dynamicAtlasManager.insertSpriteFrame(frame);
             }
             if (!sprite._material || sprite._material._texture !== frame._texture) {
-                sprite._material = null;
                 sprite._activateMaterial();
             }
         }
