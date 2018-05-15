@@ -215,7 +215,8 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
+                if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture()) ||
+                    (this._material && this._material._texture) !== (value && value._texture)) {
                     // Drop previous material, because texture have changed
                     this._material = null;
                     this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
@@ -522,7 +523,10 @@ var Sprite = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (this._material || !this.enabledInHierarchy) return;
+        if (this._material || !this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+            return;
+        }
 
         let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet

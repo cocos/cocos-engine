@@ -132,18 +132,6 @@ let dynamicAtlasManager = {
      * @method reset
     */
     reset () {
-        for (let i = 0; i <= _atlasIndex; i++) {
-            _atlases[i].reset();
-        }
-        _atlasIndex = -1;
-    },
-
-    /** 
-     * !#en Releases all dynamic atlas, which are destroyed.
-     * !#zh 释放所有动态图集，这些图集会被销毁掉。
-     * @method releaseAll
-    */
-    releaseAll () {
         for (let i = 0, l = _atlases.length; i < l; i++) {
             _atlases[i].destroy();
         }
@@ -193,10 +181,6 @@ let dynamicAtlasManager = {
 
                     let sprite = node.addComponent(cc.Sprite)
                     sprite.spriteFrame = spriteFrame;
-                    // sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
-
-                    // node.width = height;
-                    // node.height = height;
 
                     node.parent = content;
                 }
