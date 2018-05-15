@@ -127,8 +127,8 @@ let dynamicAtlasManager = {
     },
 
     /** 
-     * !#en Resets all dynamic atlas, and the existing ones are not destroyed, but are reused.
-     * !#zh 重置所有动态图集，已有的动态图集并不会被销毁，而是会被复用。
+     * !#en Resets all dynamic atlas, and the existing ones will be destroyed.
+     * !#zh 重置所有动态图集，已有的动态图集会被销毁。
      * @method reset
     */
     reset () {

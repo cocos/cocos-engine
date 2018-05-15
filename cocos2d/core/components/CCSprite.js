@@ -215,8 +215,7 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture()) ||
-                    (this._material && this._material._texture) !== (value && value._texture)) {
+                if ((this._material && this._material._texture) !== (value && value._texture)) {
                     // Drop previous material, because texture have changed
                     this._material = null;
                     this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
