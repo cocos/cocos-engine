@@ -25,8 +25,10 @@
  
 let HTMLImageElement = require('./HTMLImageElement');
 
-function Image (width, height) {
-    return new HTMLImageElement(width, height);
+class Image extends HTMLImageElement {
+    constructor(width, height) {
+        super(width, height, true)
+    }
 }
 
 module.exports = Image;
