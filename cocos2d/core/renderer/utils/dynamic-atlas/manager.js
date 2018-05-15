@@ -48,10 +48,10 @@ let dynamicAtlasManager = {
 
         if (value) {
             this.reset();
-            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
+            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, beforeSceneLoad);
         }
         else {
-            cc.director.off(cc.Director.EVENT_BEFORE_SCENE_LOADING, beforeSceneLoad);
+            cc.director.off(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, beforeSceneLoad);
         }
 
         _enabled = value;
@@ -127,23 +127,11 @@ let dynamicAtlasManager = {
     },
 
     /** 
-     * !#en Resets all dynamic atlas, and the existing ones are not destroyed, but are reused.
-     * !#zh 重置所有动态图集，已有的动态图集并不会被销毁，而是会被复用。
+     * !#en Resets all dynamic atlas, and the existing ones will be destroyed.
+     * !#zh 重置所有动态图集，已有的动态图集会被销毁。
      * @method reset
     */
     reset () {
-        for (let i = 0; i <= _atlasIndex; i++) {
-            _atlases[i].reset();
-        }
-        _atlasIndex = -1;
-    },
-
-    /** 
-     * !#en Releases all dynamic atlas, which are destroyed.
-     * !#zh 释放所有动态图集，这些图集会被销毁掉。
-     * @method releaseAll
-    */
-    releaseAll () {
         for (let i = 0, l = _atlases.length; i < l; i++) {
             _atlases[i].destroy();
         }
@@ -193,10 +181,6 @@ let dynamicAtlasManager = {
 
                     let sprite = node.addComponent(cc.Sprite)
                     sprite.spriteFrame = spriteFrame;
-                    // sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
-
-                    // node.width = height;
-                    // node.height = height;
 
                     node.parent = content;
                 }
