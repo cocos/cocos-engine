@@ -218,9 +218,10 @@ var Sprite = cc.Class({
                 if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                     // Drop previous material, because texture have changed
                     this._material = null;
+                    this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
                 }
                 // render & update render data flag will be triggered while applying new sprite frame
-                this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+                this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
