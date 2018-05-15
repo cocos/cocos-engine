@@ -134,7 +134,7 @@ let _labelHeight = 0;
 let _maxLineWidth = 0;
 
 module.exports = {
-    update (comp) {
+    updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
         _comp = comp;

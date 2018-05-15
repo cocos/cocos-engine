@@ -50,10 +50,6 @@ module.exports = js.addon({
         return renderData;
     },
 
-    updateRenderData (comp) {
-        this.update(comp);
-    },
-
     fillBuffers (comp, renderer) {
         let data = comp._renderData._data,
             node = comp.node,

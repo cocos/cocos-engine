@@ -379,11 +379,11 @@ var Label = cc.Class({
                 if (this.font === value) return;
                 
                 //if delete the font, we should change isSystemFontUsed to true
-                if(!value) {
+                if (!value) {
                     this._isSystemFontUsed = true;
                 }
 
-                if(CC_EDITOR && value) {
+                if (CC_EDITOR && value) {
                     this._userDefinedFont = value;
                 }
 
@@ -405,9 +405,8 @@ var Label = cc.Class({
                     this._renderData = null;    
                 }
                 this._fontAtlas = null;
-                this._material = null;
                 this._updateAssembler();
-                this._activateMaterial();
+                this._activateMaterial(true);
                 this._updateRenderData();
             },
             type: cc.Font,
@@ -536,39 +535,43 @@ var Label = cc.Class({
         }
     },
 
-    _activateMaterial () {
-        if (this._material) return;
+    _activateMaterial (force) {
+        let material = this._material;
+        if (!material) {
+            material = this._material = new SpriteMaterial();
+        }
+        else if (!force) {
+            return;
+        }
 
         this._resetAssemblerData();
 
-        let material;
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
-            let spriteFrame = this.font.spriteFrame;
+            let spriteFrame = font.spriteFrame;
             // cannot be activated if texture not loaded yet
             if (!spriteFrame.textureLoaded()) {
                 return;
             }
             
-            material = new SpriteMaterial();
             // TODO: old texture in material have been released by loader
-            material.texture = this._texture = spriteFrame._texture;
+            this._texture = spriteFrame._texture;
         }
         else {
             this._assemblerData = _canvasPool.get();
 
             this._texture = new cc.Texture2D();
             this._texture.initWithElement(this._assemblerData._canvas);
-
-            material = new SpriteMaterial();
-            material.texture = this._texture;
         }
+
+        material.texture = this._texture;
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             this._texture.url = this.uuid + '_texture';
         }
 
         material.color = this.node.color;
+
         this.setMaterial(material);
     },
 
@@ -581,7 +584,7 @@ var Label = cc.Class({
         }
 
         if (CC_EDITOR || force) {
-            this._activateMaterial();
+            this._activateMaterial(force);
             this._updateAssembler();
             this._assembler.updateRenderData(this);
         }

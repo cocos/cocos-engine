@@ -36,8 +36,6 @@ module.exports = js.addon({
         return comp.requestRenderData();
     },
 
-    updateRenderData: ttfAssembler.updateRenderData,
-
     fillBuffers (comp, renderer) {
         let node = comp.node,
             renderData = comp._renderData,
