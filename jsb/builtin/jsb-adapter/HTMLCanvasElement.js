@@ -56,8 +56,14 @@ class HTMLCanvasElement extends HTMLElement {
 
         this.top = 0;
         this.left = 0;
-        this._width = width ? Math.ceil(width) : 1;
-        this._height = height ? Math.ceil(height) : 1;
+        this._width = width ? width : 0;
+        this._height = height ? height : 0;
+        var w = Math.ceil(this._width);
+        var h = Math.ceil(this._height);
+        w = w <= 0 ? 1 : w;
+        h = h <= 0 ? 1 : h;
+        this._bufferWidth = w % 2 === 0 ? w : ++w;
+        this._bufferHeight = h % 2 === 0 ? h : ++h;
         this._context2D = null;
         this._data = null;
     }
@@ -70,10 +76,12 @@ class HTMLCanvasElement extends HTMLElement {
             return window.__ccgl;
         } else if (name === '2d') {
             if (!this._context2D) {
-                this._context2D = new CanvasRenderingContext2D(this._width, this._height);
+                this._context2D = new CanvasRenderingContext2D(this._bufferWidth, this._bufferHeight);
                 this._context2D._canvas = this;
                 this._context2D._setCanvasBufferUpdatedCallback(function(data) {
-                    self._data = new ImageData(data, self._width, self._height);
+                    // Canvas's data will take 2x memory size, one in C++, another is obtained by Uint8Array here.
+                    // HOW TO FIX ?
+                    self._data = new ImageData(data, self._bufferWidth, self._bufferHeight);
                 });
             }
             return this._context2D;
@@ -89,10 +97,13 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     set width(width) {
+        this._width = width;
         width = Math.ceil(width);
         // console.log(`==> HTMLCanvasElement.width = ${width}`);
-        if (this._width !== width) {
-            this._width = width;
+        // Make sure width could be divided by 2, otherwise text display may be wrong.
+        width = width % 2 === 0 ? width : ++width;
+        if (this._bufferWidth !== width) {
+            this._bufferWidth = width;
             if (this._context2D) {
                 this._context2D._width = width;
             }
@@ -104,10 +115,13 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     set height(height) {
+        this._height = height;
         height = Math.ceil(height);
         // console.log(`==> HTMLCanvasElement.height = ${height}`);
-        if (this._height !== height) {
-            this._height = height;
+        // Make sure height could be divided by 2, otherwise text display may be wrong.
+        height = height % 2 === 0 ? height : ++height;
+        if (this._bufferHeight !== height) {
+            this._bufferHeight = height;
             if (this._context2D) {
                 this._context2D._height = height;
             }
