@@ -489,7 +489,7 @@ cc.Follow = cc.Class({
         _this._followedNode = followedNode;
         _this._worldRect = rect;
 
-        _this._boundarySet = !(rect.x === 0 && rect.y === 0);
+        _this._boundarySet = !(rect.width === 0 && rect.height === 0);
 
         _this._boundaryFullyCovered = false;
 
