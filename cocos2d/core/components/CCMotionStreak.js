@@ -209,7 +209,13 @@ var MotionStreak = cc.Class({
 
     onEnable () {
         this._super();
-        this._activateMaterial();
+
+        if (!this._texture || !this._texture.loaded) {
+            this.disableRender();
+        }
+        else {
+            this._activateMaterial();
+        }
         this.reset();
     },
 

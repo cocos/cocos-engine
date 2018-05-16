@@ -219,10 +219,10 @@ var Sprite = cc.Class({
                 this._spriteFrame = value;
                 if ((this._material && this._material._texture) !== (value && value._texture)) {
                     // disable render flow util texture is loaded
-                    this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+                    this.markForRender(false);
                 }
                 // render & update render data flag will be triggered while applying new sprite frame
-                this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+                this.markForUpdateRenderData(false);
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
@@ -277,7 +277,7 @@ var Sprite = cc.Class({
                         this._renderData = null;
                     }
                     else if (this._renderData) {
-                        this.markUpdateRenderData();
+                        this.markForUpdateRenderData(true);
                     }
                     this._fillType = value;
                     this._updateAssembler();
@@ -304,7 +304,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillCenter = cc.v2(value);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this.markUpdateRenderData();
+                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
@@ -328,7 +328,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this.markUpdateRenderData();
+                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
@@ -352,7 +352,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this.markUpdateRenderData();
+                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
@@ -374,7 +374,7 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
                         this._renderData) {
-                        this.markUpdateRenderData();
+                        this.markForUpdateRenderData(true);
                     }
                 }
             },
@@ -484,7 +484,7 @@ var Sprite = cc.Class({
 
         if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             // Do not render when sprite frame is not ready
-            this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+            this.disableRender();
         }
         
         this._updateAssembler();
@@ -503,7 +503,7 @@ var Sprite = cc.Class({
 
     _onNodeSizeDirty () {
         if (!this._renderData) return;
-        this.markUpdateRenderData();
+        this.markForUpdateRenderData(true);
     },
 
     _updateAssembler: function () {
@@ -517,24 +517,22 @@ var Sprite = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.material = this._material;
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            this.markForUpdateRenderData(true);
         }
     },
 
     _activateMaterial: function () {
-        this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
-        
         if (!this.enabledInHierarchy) {
+            this.markForRender(false);
             return;
         }
 
         let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            this.markForRender(false);
             return;
         }
-
-        this.markUpdateRenderData();
 
         // Get material
         let texture = spriteFrame.getTexture();
@@ -567,7 +565,8 @@ var Sprite = cc.Class({
         else {
             material.updateHash();
         }
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
     
     _updateBlendFunc: function () {
@@ -597,11 +596,11 @@ var Sprite = cc.Class({
         }
     },
 
-    markUpdateRenderData () {
-        this._super();
+    markForUpdateRenderData (enable) {
+        this._super(enable);
 
         let renderData = this._renderData;
-        if (renderData) {
+        if (renderData && enable) {
             renderData.uvDirty = true;
             renderData.vertDirty = true;
         }

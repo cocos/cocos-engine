@@ -73,9 +73,26 @@ var RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
     },
 
-    markUpdateRenderData () {
-        if (!this.enabledInHierarchy) return;
-        this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+    markForUpdateRenderData (enable) {
+        if (enable && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        }
+    },
+
+    markForRender (enable) {
+        if (enable && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        }
+    },
+
+    disableRender () {
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     requestRenderData () {
