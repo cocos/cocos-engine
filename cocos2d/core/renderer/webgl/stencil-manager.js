@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Enums = require('../platform/CCEnum');
-const renderEngine = require('./render-engine');
+const Enums = require('../../platform/CCEnum');
+const renderEngine = require('../render-engine');
 const gfx = renderEngine.gfx;
 const renderer = renderEngine.renderer;
 const RecyclePool = renderEngine.RecyclePool;

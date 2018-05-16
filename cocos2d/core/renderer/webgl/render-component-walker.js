@@ -23,16 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../platform/CCMacro');
-const renderEngine = require('./render-engine');
+const macro = require('../../platform/CCMacro');
+const renderEngine = require('../render-engine');
 const defaultVertexFormat = require('./vertex-format').vfmtPosUv;
 const StencilManager = require('./stencil-manager');
-const atlasManager = require('./utils/dynamic-atlas/manager');
-const RenderFlow = require('./render-flow');
-const QuadBuffer = require('./webgl/quad-buffer');
-const MeshBuffer = require('./webgl/mesh-buffer');
+const atlasManager = require('../utils/dynamic-atlas/manager');
+const RenderFlow = require('../render-flow');
+const QuadBuffer = require('./quad-buffer');
+const MeshBuffer = require('./mesh-buffer');
 
-let idGenerater = new (require('../platform/id-generater'))('VertextFormat');
+let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;

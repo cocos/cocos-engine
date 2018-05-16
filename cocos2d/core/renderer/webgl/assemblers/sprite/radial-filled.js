@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 const PI_2 = Math.PI * 2;
 

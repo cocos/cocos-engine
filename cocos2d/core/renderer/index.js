@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const renderEngine = require('./render-engine');
-const RenderComponentWalker = require('./render-component-walker');
 const math = renderEngine.math;
 
 let _pos = math.vec3.create();
@@ -61,7 +60,8 @@ module.exports = {
     _forward: null,
 
     initWebGL (canvas, opts) {
-        require('./assemblers');
+        require('./webgl/assemblers');
+        const RenderComponentWalker = require('./webgl/render-component-walker');
 
         this.Texture2D = renderEngine.Texture2D;
 

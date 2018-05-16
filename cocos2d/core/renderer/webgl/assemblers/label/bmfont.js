@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../../platform/CCMacro');
-const renderEngine = require('../../render-engine');
+const macro = require('../../../../platform/CCMacro');
+const renderEngine = require('../../../render-engine');
 
-const js = require('../../../platform/js');
-const bmfontUtls = require('../../utils/label/bmfont');
-const assembler = require('../assembler');
+const js = require('../../../../platform/js');
+const bmfontUtls = require('../../../utils/label/bmfont');
 const ttfAssembler = require('./ttf');
 
 module.exports = js.addon({
@@ -117,4 +116,4 @@ module.exports = js.addon({
         data[dataOffset+3].x = x + rectWidth * scale;
         data[dataOffset+3].y = y;
     },
-}, bmfontUtls, assembler);
+}, bmfontUtls);

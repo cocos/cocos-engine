@@ -23,21 +23,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Graphics = require('../../../graphics/graphics');
-const PointFlags = require('../../../graphics/types').PointFlags;
+const Graphics = require('../../../../graphics/graphics');
+const PointFlags = require('../../../../graphics/types').PointFlags;
 const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
 const Impl = require('./impl');
 const vfmtPosColorUv = require('../../vertex-format').vfmtPosColorUv;
 
-const macro = require('../../../platform/CCMacro');
+const macro = require('../../../../platform/CCMacro');
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
 
-const js = require('../../../platform/js');
-const assembler = require('../assembler');
-const renderEngine = require('../../render-engine');
+const js = require('../../../../platform/js');
+const renderEngine = require('../../../render-engine');
 const math = renderEngine.math;
 
 const PI      = Math.PI;
@@ -69,7 +68,7 @@ function clamp (v, min, max) {
     return v;
 }
 
-let graphicsAssembler = js.addon({
+let graphicsAssembler = {
     createImpl () {
         return new Impl();
     },
@@ -661,7 +660,7 @@ let graphicsAssembler = js.addon({
 
         _renderData.vertexCount ++;
     }
-}, assembler);
+};
 
 Graphics._assembler = graphicsAssembler;
 
