@@ -377,7 +377,7 @@ var Texture2D = cc.Class({
                 options.images.push(options.image);
             }
 
-            if (options.images.length > 0) {
+            if (options.images && options.images.length > 0) {
                 this._texture.update(options);
             }
         }
