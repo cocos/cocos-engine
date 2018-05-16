@@ -114,12 +114,12 @@ public:
     void start();
     
     /**
-     * @brief    Callback by Director for limit FPS.
-     * @param interval The time, expressed in seconds, between current frame and next.
+     * @brief Sets the preferred frame rate for main loop callback.
+     * @param fps The preferred frame rate for main loop callback.
      * @js NA
      * @lua NA
      */
-    void setAnimationInterval(float interval);
+    void setPreferredFramesPerSecond(int fps);
     
     void setMultitouch(bool value);
     
@@ -169,7 +169,7 @@ private:
     void* _view = nullptr;
     bool _multiTouch = false;
     void* _delegate = nullptr;
-    float _animationInterval = 1.0f / 60;
+    int _fps = 60;
     Scheduler* _scheduler = nullptr;
 };
 

@@ -188,11 +188,11 @@ void Application::start()
         timeEndPeriod(wTimerRes);
 }
 
-void Application::setAnimationInterval(float interval)
+void Application::setPreferredFramesPerSecond(int fps)
 {
     LARGE_INTEGER nFreq;
     QueryPerformanceFrequency(&nFreq);
-    _animationInterval = (LONGLONG)(interval * nFreq.QuadPart);
+    _animationInterval = (LONGLONG)(1.0 / fps * nFreq.QuadPart);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

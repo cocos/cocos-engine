@@ -798,6 +798,24 @@ static bool JSB_openURL(se::State& s)
 }
 SE_BIND_FUNC(JSB_openURL)
 
+static bool JSB_setPreferredFramesPerSecond(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc > 0) {
+        int32_t fps;
+        ok = seval_to_int32(args[0], &fps);
+        SE_PRECONDITION2(ok, false, "fps is invalid!");
+        Application::getInstance()->setPreferredFramesPerSecond(fps);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
+
 bool jsb_register_global_variables(se::Object* global)
 {
     __threadPool = ThreadPool::newFixedThreadPool(3);
@@ -825,6 +843,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
+    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));

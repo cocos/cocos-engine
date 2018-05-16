@@ -501,9 +501,9 @@ bool openURLJNI(const std::string& url)
     return JniHelper::callStaticBooleanMethod(Cocos2dxHelperClassName, "openURL", url);
 }
 
-void setAnimationIntervalJNI(float interval)
+void setPreferredFramesPerSecondJNI(int fps)
 {
-    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setAnimationInterval", interval);
+    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setPreferredFramesPerSecond", fps);
 }
 
 void setGameInfoDebugViewTextJNI(int index, const std::string& text)

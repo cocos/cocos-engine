@@ -86,10 +86,10 @@ void Application::applicationWillEnterForeground()
 
 }
 
-void Application::setAnimationInterval(float interval) 
+void Application::setPreferredFramesPerSecond(int fps) 
 {
-    _animationInterval = interval;
-    setAnimationIntervalJNI(_animationInterval);
+    _fps = fps;
+    setPreferredFramesPerSecondJNI(_fps);
 }
 
 std::string Application::getCurrentLanguageCode() const

@@ -58,36 +58,28 @@ namespace
 @interface MainLoop : NSObject
 {
     id _displayLink;
-    int _interval;
+    int _fps;
+    float _systemVersion;
     BOOL _isAppActive;
     cocos2d::Application* _application;
     cocos2d::Scheduler* _scheduler;
 }
-@property (readwrite) int interval;
 -(void) startMainLoop;
 -(void) stopMainLoop;
 -(void) doCaller: (id) sender;
--(void) setAnimationInterval:(double)interval;
+-(void) setPreferredFPS:(int)fps;
 -(void) firstStart:(id) view;
 @end
 
-@interface NSObject(CADisplayLink)
-+(id) displayLinkWithTarget: (id)arg1 selector:(SEL)arg2;
--(void) addToRunLoop: (id)arg1 forMode: (id)arg2;
--(void) setFrameInterval: (NSInteger)interval;
--(void) invalidate;
-@end
-
 @implementation MainLoop
-
-@synthesize interval;
 
 - (instancetype)initWithApplication:(cocos2d::Application*) application
 {
     self = [super init];
     if (self)
     {
-        _interval = 1;
+        _fps = 60;
+        _systemVersion = [[UIDevice currentDevice].systemVersion floatValue];
     
         _application = application;
         _scheduler = _application->getScheduler();
@@ -139,25 +131,26 @@ namespace
     [self stopMainLoop];
     
     _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
-    [_displayLink setFrameInterval: self.interval];
+    if (_systemVersion >= 10.0f)
+        [_displayLink setPreferredFramesPerSecond: _fps];
+    else
+        [_displayLink setFrameInterval: 60 / _fps];
     [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 -(void) stopMainLoop
 {
-    [_displayLink invalidate];
-    _displayLink = nil;
+    if (_displayLink != nil)
+    {
+        [_displayLink invalidate];
+        _displayLink = nil;
+    }
 }
 
--(void) setAnimationInterval:(double)intervalNew
+-(void) setPreferredFPS:(int)fps
 {
-    [self stopMainLoop];
-    
-    self.interval = 60.0 * intervalNew;
-    
-    _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
-    [_displayLink setFrameInterval: self.interval];
-    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    _fps = fps;
+    [self startMainLoop];
 }
 
 -(void) doCaller: (id) sender
@@ -223,9 +216,9 @@ void Application::start()
         [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
 }
 
-void Application::setAnimationInterval(float interval)
+void Application::setPreferredFramesPerSecond(int fps)
 {
-    [(MainLoop*)_delegate setAnimationInterval: interval];
+    [(MainLoop*)_delegate setPreferredFPS: fps];
 }
 
 std::string Application::getCurrentLanguageCode() const

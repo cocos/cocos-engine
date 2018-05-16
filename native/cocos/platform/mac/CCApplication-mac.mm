@@ -122,9 +122,9 @@ void Application::start()
     }
 }
 
-void Application::setAnimationInterval(float interval)
+void Application::setPreferredFramesPerSecond(int fps)
 {
-    _animationInterval = interval * 1000.0f;
+    _fps = fps;
 }
 
 Application::Platform Application::getPlatform() const
