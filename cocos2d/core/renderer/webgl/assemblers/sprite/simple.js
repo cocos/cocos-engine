@@ -77,7 +77,7 @@ module.exports = {
         vbuf[vertexOffset+15] = uv[7];
 
         let data0 = data[0], data3 = data[3],
-            vl = data0.x, vr = data3.x;
+            vl = data0.x, vr = data3.x,
             vb = data0.y, vt = data3.y;
 
         let al = a * vl, ar = a * vr,
