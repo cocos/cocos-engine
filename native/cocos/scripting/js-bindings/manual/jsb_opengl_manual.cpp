@@ -35,6 +35,12 @@
 
 using namespace cocos2d;
 
+#if 0
+#define LOG_GL_COMMAND(...) SE_LOGD(__VA_ARGS__)
+#else
+#define LOG_GL_COMMAND(...) 
+#endif
+
 namespace {
 
     const uint32_t GL_COMMAND_ACTIVE_TEXTURE = 0;
@@ -205,7 +211,7 @@ namespace {
         glPixelStorei(pname, param);
     }
 
-    class WebGLObject
+    class WebGLObject : public cocos2d::Ref
     {
     public:
         enum class Type {
@@ -1186,7 +1192,7 @@ static bool JSB_glProgramFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLProgram)", s.nativeThisObject());
     WebGLProgram* cobj = (WebGLProgram*) s.nativeThisObject();
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glProgramFinalize)
@@ -1221,7 +1227,7 @@ static bool JSB_glShaderFinalize(se::State& s)
     auto iter = __shaders.find(cobj->_id);
     if (iter != __shaders.end())
         __shaders.erase(iter);
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glShaderFinalize)
@@ -2939,7 +2945,7 @@ static bool JSB_glTextureFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLTexture)", s.nativeThisObject());
     WebGLTexture* cobj = (WebGLTexture*) s.nativeThisObject();
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glTextureFinalize)
@@ -2965,7 +2971,7 @@ static bool JSB_glBufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLBuffer)", s.nativeThisObject());
     WebGLBuffer* cobj = (WebGLBuffer*) s.nativeThisObject();
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glBufferFinalize)
@@ -2990,7 +2996,7 @@ static bool JSB_glRenderbufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLRenderBuffer)", s.nativeThisObject());
     WebGLRenderbuffer* cobj = (WebGLRenderbuffer*) s.nativeThisObject();
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glRenderbufferFinalize)
@@ -3015,7 +3021,7 @@ static bool JSB_glFramebufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLFramebuffer)", s.nativeThisObject());
     WebGLFramebuffer* cobj = (WebGLFramebuffer*) s.nativeThisObject();
-    delete cobj;
+    cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glFramebufferFinalize)
@@ -3870,7 +3876,7 @@ SE_BIND_FUNC(JSB_glGetShaderPrecisionFormat)
 static bool JSB_glFlushCommand(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
-    SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
+    SE_PRECONDITION2(argc == 3, false, "Invalid number of arguments" );
 
     bool ok = false;
     uint32_t floatValueCount = 0;
@@ -3880,26 +3886,36 @@ static bool JSB_glFlushCommand(se::State& s) {
     GLvoid* data = nullptr;
     ok = JSB_get_arraybufferview_dataptr(args[1], &count, &data);
     SE_PRECONDITION2(ok, false, "Convert arg1 as typed array failed!");
+
+    uint32_t commandCount = 0;
+    ok = seval_to_uint32(args[2], &commandCount);
+    SE_PRECONDITION2(ok, false, "arg2 isn't a number!");
+
     float* p = (float*)data;
     float* end = p + floatValueCount;
-    int testindex = 0;
+    uint32_t handledCommandCount = 0;
+
     while (p < end) {
-        testindex++;
         uint32_t commandID = (uint32_t)p[0];
+        ++handledCommandCount;
         if (commandID == GL_COMMAND_ACTIVE_TEXTURE) {
+            LOG_GL_COMMAND("Flush: ACTIVE_TEXTURE\n");
             JSB_GL_CHECK_VOID(ccActiveTexture((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ATTACH_SHADER) {
+            LOG_GL_COMMAND("Flush: ATTACH_SHADER\n");
             JSB_GL_CHECK_VOID(glAttachShader((GLuint)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_BUFFER) {
+            LOG_GL_COMMAND("Flush: BIND_BUFFER\n");
             GLuint bufferId = (GLuint)p[2];
             JSB_GL_CHECK_VOID(ccBindBuffer((GLenum)p[1], bufferId));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
+            LOG_GL_COMMAND("Flush: BIND_FRAME_BUFFER\n");
             GLuint fbo = (GLuint)p[2];
             if (fbo == 0)
                 fbo = __defaultFbo;
@@ -3907,286 +3923,356 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_RENDER_BUFFER) {
+            LOG_GL_COMMAND("Flush: BIND_RENDER_BUFFER\n");
             JSB_GL_CHECK_VOID(glBindRenderbuffer((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_TEXTURE) {
+            LOG_GL_COMMAND("Flush: BIND_TEXTURE\n");
             JSB_GL_CHECK_VOID(ccBindTexture((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_COLOR) {
+            LOG_GL_COMMAND("Flush: BLEND_COLOR\n");
             JSB_GL_CHECK_VOID(glBlendColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_BLEND_EQUATION) {
+            LOG_GL_COMMAND("Flush: BLEND_EQUATION\n");
             JSB_GL_CHECK_VOID(glBlendEquation((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_BLEND_EQUATION_SEPARATE) {
+            LOG_GL_COMMAND("Flush: BLEND_EQUATION_SEPARATE\n");
             JSB_GL_CHECK_VOID(glBlendEquationSeparate((GLenum)p[1], (GLenum)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_FUNC) {
+            LOG_GL_COMMAND("Flush: BLEND_FUNC\n");
             JSB_GL_CHECK_VOID(glBlendFunc((GLenum)p[1], (GLenum)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_FUNC_SEPARATE) {
+            LOG_GL_COMMAND("Flush: BLEND_FUNC_SEPARATE\n");
             JSB_GL_CHECK_VOID(glBlendFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_CLEAR) {
+            LOG_GL_COMMAND("Flush: CLEAR\n");
             JSB_GL_CHECK_VOID(glClear((GLbitfield)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_CLEAR_COLOR) {
+            LOG_GL_COMMAND("Flush: CLEAR_COLOR\n");
             JSB_GL_CHECK_VOID(glClearColor((GLclampf)p[1], (GLclampf)p[2], (GLclampf)p[3], (GLclampf)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_CLEAR_DEPTH) {
+            LOG_GL_COMMAND("Flush: CLEAR_DEPTH\n");
             JSB_GL_CHECK_VOID(glClearDepthf(p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_CLEAR_STENCIL) {
+            LOG_GL_COMMAND("Flush: CLEAR_STENCIL\n");
             JSB_GL_CHECK_VOID(glClearStencil((GLint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_COLOR_MASK) {
+            LOG_GL_COMMAND("Flush: COLOR_MASK\n");
             JSB_GL_CHECK_VOID(glColorMask((GLboolean)p[1], (GLboolean)p[2], (GLboolean)p[3], (GLboolean)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_COMPILE_SHADER) {
+            LOG_GL_COMMAND("Flush: COMPILE_SHADER\n");
             JSB_GL_CHECK_VOID(glCompileShader((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_COPY_TEX_IMAGE_2D) {
+            LOG_GL_COMMAND("Flush: COPY_TEX_IMAGE_2D\n");
             JSB_GL_CHECK_VOID(glCopyTexImage2D((GLenum)p[1], (GLint)p[2], (GLenum)p[3], (GLint)p[4], (GLint)p[5], (GLsizei)p[6], (GLsizei)p[7], (GLint)p[8]));
             p += 9;
         }
         else if (commandID == GL_COMMAND_COPY_TEX_SUB_IMAGE_2D) {
+            LOG_GL_COMMAND("Flush: COPY_TEX_SUB_IMAGE_2D\n");
             JSB_GL_CHECK_VOID(glCopyTexSubImage2D((GLenum)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5], (GLint)p[6], (GLsizei)p[7], (GLsizei)p[8]));
             p += 9;
         }
         else if (commandID == GL_COMMAND_CULL_FACE) {
+            LOG_GL_COMMAND("Flush: CULL_FACE\n");
             JSB_GL_CHECK_VOID(glCullFace((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_BUFFER) {
+            LOG_GL_COMMAND("Flush: DELETE_BUFFER\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(ccDeleteBuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglBufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_FRAME_BUFFER) {
+            LOG_GL_COMMAND("Flush: DELETE_FRAME_BUFFER\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(glDeleteFramebuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglFramebufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_PROGRAM) {
+            LOG_GL_COMMAND("Flush: DELETE_PROGRAM\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(glDeleteProgram(id));
             safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_RENDER_BUFFER) {
+            LOG_GL_COMMAND("Flush: DELETE_RENDER_BUFFER\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(glDeleteRenderbuffers(1, &id));
             safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_SHADER) {
+            LOG_GL_COMMAND("Flush: DELETE_SHADER\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(glDeleteShader(id));
             safeRemoveElementFromGLObjectMap(__webglShaderMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DELETE_TEXTURE) {
+            LOG_GL_COMMAND("Flush: DELETE_TEXTURE\n");
             GLuint id = (GLuint)p[1];
             JSB_GL_CHECK_VOID(ccDeleteTextures(1, &id));
             safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_FUNC) {
+            LOG_GL_COMMAND("Flush: DEPTH_FUNC\n");
             JSB_GL_CHECK_VOID(glDepthFunc((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_MASK) {
+            LOG_GL_COMMAND("Flush: DEPTH_MASK\n");
             JSB_GL_CHECK_VOID(glDepthMask((GLboolean)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DEPTH_RANGE) {
+            LOG_GL_COMMAND("Flush: DEPTH_RANGE\n");
             JSB_GL_CHECK_VOID(glDepthRangef(p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_DETACH_SHADER) {
+            LOG_GL_COMMAND("Flush: DETACH_SHADER\n");
             JSB_GL_CHECK_VOID(glDetachShader((GLuint)p[1], (GLuint) p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_DISABLE) {
+            LOG_GL_COMMAND("Flush: DISABLE\n");
             JSB_GL_CHECK_VOID(glDisable((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DISABLE_VERTEX_ATTRIB_ARRAY) {
+            LOG_GL_COMMAND("Flush: DISABLE_VERTEX_ATTRIB_ARRAY\n");
             JSB_GL_CHECK_VOID(glDisableVertexAttribArray((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_DRAW_ARRAYS) {
+            LOG_GL_COMMAND("Flush: DRAW_ARRAYS\n");
+            GLenum a = (GLenum)p[1];
+            GLint b = (GLint)p[2];
+            GLsizei c = (GLsizei)p[3];
             JSB_GL_CHECK_VOID(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_DRAW_ELEMENTS) {
+            LOG_GL_COMMAND("Flush: DRAW_ELEMENTS\n");
             JSB_GL_CHECK_VOID(glDrawElements((GLenum)p[1], (GLsizei)p[2], (GLenum)p[3], (const GLvoid*)(intptr_t)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_ENABLE) {
+            LOG_GL_COMMAND("Flush: ENABLE\n");
             JSB_GL_CHECK_VOID(glEnable((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ENABLE_VERTEX_ATTRIB_ARRAY) {
+            LOG_GL_COMMAND("Flush: ENABLE_VERTEX_ATTRIB_ARRAY\n");
             JSB_GL_CHECK_VOID(glEnableVertexAttribArray((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_FINISH) {
+            LOG_GL_COMMAND("Flush: FINISH\n");
             JSB_GL_CHECK_VOID(glFinish());
             p += 1;
         }
         else if (commandID == GL_COMMAND_FLUSH) {
+            LOG_GL_COMMAND("Flush: FLUSH\n");
             JSB_GL_CHECK_VOID(glFlush());
             p += 1;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_RENDER_BUFFER) {
+            LOG_GL_COMMAND("Flush: FRAME_BUFFER_RENDER_BUFFER\n");
             JSB_GL_CHECK_VOID(WEBGL_framebufferRenderbuffer((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_FRAME_BUFFER_TEXTURE_2D) {
+            LOG_GL_COMMAND("Flush: FRAME_BUFFER_TEXTURE_2D\n");
             JSB_GL_CHECK_VOID(glFramebufferTexture2D((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLuint)p[4], (GLint)p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_FRONT_FACE) {
+            LOG_GL_COMMAND("Flush: FRONT_FACE\n");
             JSB_GL_CHECK_VOID(glFrontFace((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_GENERATE_MIPMAP) {
+            LOG_GL_COMMAND("Flush: GENERATE_MIPMAP\n");
             JSB_GL_CHECK_VOID(glGenerateMipmap((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_HINT) {
+            LOG_GL_COMMAND("Flush: HINT\n");
             JSB_GL_CHECK_VOID(glHint((GLenum)p[1], (GLenum)p[2]));;
             p += 3;
         }
         else if (commandID == GL_COMMAND_LINE_WIDTH) {
+            LOG_GL_COMMAND("Flush: LINE_WIDTH\n");
             JSB_GL_CHECK_VOID(glLineWidth(p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_LINK_PROGRAM) {
+            LOG_GL_COMMAND("Flush: LINK_PROGRAM\n");
             JSB_GL_CHECK_VOID(glLinkProgram((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_PIXEL_STOREI) {
+            LOG_GL_COMMAND("Flush: PIXEL_STOREI\n");
             JSB_GL_CHECK_VOID(WEBGL_pixelStorei((GLenum)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_POLYGON_OFFSET) {
+            LOG_GL_COMMAND("Flush: POLYGON_OFFSET\n");
             JSB_GL_CHECK_VOID(glPolygonOffset(p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_RENDER_BUFFER_STORAGE) {
+            LOG_GL_COMMAND("Flush: RENDER_BUFFER_STORAGE\n");
             JSB_GL_CHECK_VOID(WEBGL_renderbufferStorage((GLenum)p[1], (GLenum)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_SAMPLE_COVERAGE) {
+            LOG_GL_COMMAND("Flush: SAMPLE_COVERAGE\n");
             JSB_GL_CHECK_VOID(glSampleCoverage(p[1], (GLboolean)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_SCISSOR) {
+            LOG_GL_COMMAND("Flush: SCISSOR\n");
             JSB_GL_CHECK_VOID(glScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_STENCIL_FUNC) {
+            LOG_GL_COMMAND("Flush: STENCIL_FUNC\n");
             JSB_GL_CHECK_VOID(glStencilFunc((GLenum)p[1], (GLint)p[2], (GLuint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_STENCIL_FUNC_SEPARATE) {
+            LOG_GL_COMMAND("Flush: STENCIL_FUNC_SEPARATE\n");
             JSB_GL_CHECK_VOID(glStencilFuncSeparate((GLenum)p[1], (GLenum)p[2], (GLint)p[3], (GLuint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_STENCIL_MASK) {
+            LOG_GL_COMMAND("Flush: STENCIL_MASK\n");
             JSB_GL_CHECK_VOID(glStencilMask((GLuint)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_STENCIL_MASK_SEPARATE) {
+            LOG_GL_COMMAND("Flush: STENCIL_MASK_SEPARATE\n");
             JSB_GL_CHECK_VOID(glStencilMaskSeparate((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_STENCIL_OP) {
+            LOG_GL_COMMAND("Flush: STENCIL_OP\n");
             JSB_GL_CHECK_VOID(glStencilOp((GLenum)p[1], (GLenum)p[2], (GLenum)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_STENCIL_OP_SEPARATE) {
+            LOG_GL_COMMAND("Flush: STENCIL_OP_SEPARATE\n");
             JSB_GL_CHECK_VOID(glStencilOpSeparate((GLenum)p[1], (GLenum)p[2], (GLenum)p[3], (GLenum)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_TEX_PARAMETER_F) {
+            LOG_GL_COMMAND("Flush: TEX_PARAMETER_F\n");
             JSB_GL_CHECK_VOID(glTexParameterf((GLenum)p[1], (GLenum)p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_TEX_PARAMETER_I) {
+            LOG_GL_COMMAND("Flush: TEX_PARAMETER_I\n");
             JSB_GL_CHECK_VOID(glTexParameteri((GLenum)p[1], (GLenum)p[2], (GLint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1F) {
+            LOG_GL_COMMAND("Flush: UNIFORM_1F\n");
             JSB_GL_CHECK_VOID(glUniform1f((GLint)p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_UNIFORM_2F) {
+            LOG_GL_COMMAND("Flush: UNIFORM_2F\n");
             JSB_GL_CHECK_VOID(glUniform2f((GLint)p[1], p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_3F) {
+            LOG_GL_COMMAND("Flush: UNIFORM_3F\n");
             JSB_GL_CHECK_VOID(glUniform3f((GLint)p[1], p[2], p[3], p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_UNIFORM_4F) {
+            LOG_GL_COMMAND("Flush: UNIFORM_4F\n");
             JSB_GL_CHECK_VOID(glUniform4f((GLint)p[1], p[2], p[3], p[4], p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1I) {
+            LOG_GL_COMMAND("Flush: UNIFORM_1I\n");
             JSB_GL_CHECK_VOID(glUniform1i((GLint)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_UNIFORM_2I) {
+            LOG_GL_COMMAND("Flush: UNIFORM_2I\n");
             JSB_GL_CHECK_VOID(glUniform2i((GLint)p[1], (GLint)p[2], (GLint)p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_UNIFORM_3I) {
+            LOG_GL_COMMAND("Flush: UNIFORM_3I\n");
             JSB_GL_CHECK_VOID(glUniform3i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_UNIFORM_4I) {
+            LOG_GL_COMMAND("Flush: UNIFORM_4I\n");
             JSB_GL_CHECK_VOID(glUniform4i((GLint)p[1], (GLint)p[2], (GLint)p[3], (GLint)p[4], (GLint)p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_UNIFORM_1FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_1FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glUniform1fv((GLint)p[1], elementCount, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_2FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_2FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glUniform2fv((GLint)p[1], elementCount / 2, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_3FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_3FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glUniform3fv((GLint)p[1], elementCount / 3, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_4FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_4FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glUniform4fv((GLint)p[1], elementCount / 3, &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_1IV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_1IV\n");
             GLsizei elementCount = (GLsizei)p[2];
             GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
@@ -4198,6 +4284,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_2IV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_2IV\n");
             GLsizei elementCount = (GLsizei)p[2];
             GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
@@ -4209,6 +4296,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_3IV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_3IV\n");
             GLsizei elementCount = (GLsizei)p[2];
             GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
@@ -4220,6 +4308,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_4IV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_4IV\n");
             GLsizei elementCount = (GLsizei)p[2];
             GLint* intBuf = (GLint*)malloc(elementCount * sizeof(GLint));
             for (GLsizei i = 0; i < elementCount; ++i)
@@ -4231,69 +4320,84 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_2FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_2FV\n");
             GLsizei elementCount = (GLsizei)p[3];
             JSB_GL_CHECK_VOID(glUniformMatrix2fv((GLint)p[1], elementCount / 4, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_3FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_3FV\n");
             GLsizei elementCount = (GLsizei)p[3];
             JSB_GL_CHECK_VOID(glUniformMatrix3fv((GLint)p[1], elementCount / 9, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_UNIFORM_MATRIX_4FV) {
+            LOG_GL_COMMAND("Flush: UNIFORM_MATRIX_4FV\n");
             GLsizei elementCount = (GLsizei)p[3];
             JSB_GL_CHECK_VOID(glUniformMatrix4fv((GLint)p[1], elementCount / 16, (GLboolean)p[2], &p[4]));
             p += (elementCount + 4);
         }
         else if (commandID == GL_COMMAND_USE_PROGRAM) {
+            LOG_GL_COMMAND("Flush: USE_PROGRAM\n");
             JSB_GL_CHECK_VOID(glUseProgram((GLuint) p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_VALIDATE_PROGRAM) {
+            LOG_GL_COMMAND("Flush: VALIDATE_PROGRAM\n");
             JSB_GL_CHECK_VOID(glValidateProgram((GLuint) p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1F) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_1F\n");
             JSB_GL_CHECK_VOID(glVertexAttrib1f((GLuint)p[1], p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2F) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_2F\n");
             JSB_GL_CHECK_VOID(glVertexAttrib2f((GLuint)p[1], p[2], p[3]));
             p += 4;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3F) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_3F\n");
             JSB_GL_CHECK_VOID(glVertexAttrib3f((GLuint)p[1], p[2], p[3], p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4F) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_4F\n");
             JSB_GL_CHECK_VOID(glVertexAttrib4f((GLuint)p[1], p[2], p[3], p[4], p[5]));
             p += 6;
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_1FV) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_1FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glVertexAttrib1fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_2FV) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_2FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glVertexAttrib2fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_3FV) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_3FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glVertexAttrib3fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_4FV) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_4FV\n");
             GLsizei elementCount = (GLsizei)p[2];
             JSB_GL_CHECK_VOID(glVertexAttrib4fv((GLint)p[1], &p[3]));
             p += (elementCount + 3);
         }
         else if (commandID == GL_COMMAND_VERTEX_ATTRIB_POINTER) {
+            LOG_GL_COMMAND("Flush: VERTEX_ATTRIB_POINTER\n");
             JSB_GL_CHECK_VOID(glVertexAttribPointer((GLuint)p[1], (GLint)p[2], (GLenum)p[3], (GLboolean)p[4], (GLsizei)p[5], (const GLvoid*)(GLintptr)p[6]));
             p += 7;
         }
         else if (commandID == GL_COMMAND_VIEW_PORT) {
+            LOG_GL_COMMAND("Flush: VIEW_PORT\n");
             JSB_GL_CHECK_VOID(glViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
@@ -4301,6 +4405,8 @@ static bool JSB_glFlushCommand(se::State& s) {
             assert(false);
         }
     }
+
+    assert(handledCommandCount == commandCount);
 
     return true;
 }
