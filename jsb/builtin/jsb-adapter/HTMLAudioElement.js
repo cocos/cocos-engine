@@ -40,8 +40,6 @@ class HTMLAudioElement extends HTMLMediaElement {
     constructor(url) {
         super('audio')
 
-        this.readyState = HAVE_NOTHING
-
         _src.set(this, '')
 
         //TODO:
