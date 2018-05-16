@@ -68,10 +68,12 @@ let VideoPlayerImpl = cc.Class({
         });
         video.addEventListener("play", function () {
             if (self._video !== video) return;
+            self._playing = true;
             self._dispatchEvent(VideoPlayerImpl.EventType.PLAYING);
         });
         video.addEventListener("pause", function () {
             if (self._ignorePause || self._video !== video) return;
+            self._playing = false;
             self._dispatchEvent(VideoPlayerImpl.EventType.PAUSED);
         });
         video.addEventListener("click", function () {
@@ -197,12 +199,12 @@ let VideoPlayerImpl = cc.Class({
             var self = this;
             setTimeout(function () {
                 video.play();
-                self._playing = true;
+                self._playing = !video.paused;
             }, 20);
         }
         else {
             video.play();
-            this._playing = true;
+            this._playing = !video.paused;
         }
     },
 
