@@ -15,6 +15,7 @@ const POST_RENDER = 1 << 8;
 const FINAL = 1 << 9;
 
 let _walker = null;
+let _cullingMask = 0;
 
 // 
 function RenderFlow () {

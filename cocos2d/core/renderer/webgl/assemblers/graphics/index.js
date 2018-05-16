@@ -110,7 +110,7 @@ let graphicsAssembler = {
 
         let renderDatas = graphics._impl._renderDatas;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
-            let renderData = renderDatas[index];
+            let renderData = renderDatas[index],
                 data = renderData._data;
 
             buffer.request(renderData.vertexCount, renderData.indiceCount);
