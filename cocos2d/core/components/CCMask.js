@@ -109,7 +109,7 @@ let Mask = cc.Class({
                     this.destroyRenderData(this._renderData);
                     this._renderData = null;
                 }
-                this._updateMaterial();
+                this._activateMaterial();
             },
             type: MaskType,
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.type',
@@ -251,7 +251,7 @@ let Mask = cc.Class({
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
-            this._updateMaterial();
+            this._activateMaterial();
         }
     },
 
@@ -271,16 +271,18 @@ let Mask = cc.Class({
         }
     },
 
-    _updateMaterial: function () {
+    _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
         if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded)) {
             return;
         }
 
         // Init material
-        if (!this._material) {
+        if (!this._frontMaterial) {
             this._frontMaterial = new StencilMaterial();
             this._endMaterial = new StencilMaterial();
+        }
+        if (!this._material) {
             this._material = this._frontMaterial;
         }
 
@@ -288,15 +290,19 @@ let Mask = cc.Class({
         if (this._type === MaskType.IMAGE_STENCIL) {
             let texture = this.spriteFrame.getTexture();
             this._frontMaterial.useTexture = true;
+            this._frontMaterial.useColor = true;
             this._frontMaterial.texture = texture;
             this._frontMaterial.alphaThreshold = this.alphaThreshold;
             this._endMaterial.useTexture = true;
+            this._endMaterial.useColor = true;
             this._endMaterial.texture = texture;
             this._endMaterial.alphaThreshold = this.alphaThreshold;
         }
         else {
             this._frontMaterial.useTexture = false;
+            this._frontMaterial.useColor = false;
             this._endMaterial.useTexture = false;
+            this._endMaterial.useColor = false;
         }
         this._frontMaterial.updateHash();
         this._endMaterial.updateHash();
@@ -336,7 +342,7 @@ let Mask = cc.Class({
         this._renderDatas = [];
         // for graphic stencil data
         this._graphics = null;
-        this._updateMaterial();
+        this._activateMaterial();
 
         this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     },
