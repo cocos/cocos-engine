@@ -597,7 +597,7 @@ var audioEngine = {
      * !#en Resume playing background music.
      * !#zh 恢复播放背景音乐。
      * @method resumeMusic
-     * //example
+     * @example
      * cc.audioEngine.resumeMusic();
      */
     resumeMusic: function () {
