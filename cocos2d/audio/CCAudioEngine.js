@@ -729,7 +729,7 @@ var audioEngine = {
      * !#zh 恢复播放音效音频。
      * @method resumeEffect
      * @param {Number} audioID - The return value of function play.
-     * //example
+     * @example
      * cc.audioEngine.resumeEffect(audioID);
      */
     resumeEffect: function (id) {
