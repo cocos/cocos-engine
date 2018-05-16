@@ -137,25 +137,24 @@ let maskEndAssembler = js.addon({
         else {
             mask._material = mask._endMaterial;
         }
+        let material = mask.getMaterial();
 
-        let datas;
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            datas = mask._renderDatas;
+            let data = mask._renderData;
+            data.material = material;
         }
         else {
-            datas = mask._graphics._impl._renderDatas;
+            let datas = mask._graphics._impl._renderDatas;
+            for (let i = 0; i < datas.length; i++) {
+                datas[i].material = material;
+            }
         }
-        let material = mask.getMaterial();
-        for (let i = 0; i < datas.length; i++) {
-            datas[i].material = material;
-        }
-        return datas;
     },
 
     fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
-            // HACK: Must pop mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
+            // HACK: Must pop mask after batch, so we can only put this logic in fillBuffers
             _stencilMgr.popMask();
 
             // vertex buffer

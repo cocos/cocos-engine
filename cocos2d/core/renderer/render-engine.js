@@ -14595,7 +14595,7 @@ var SpriteMaterial = (function (Material$$1) {
     
     this._mainTech = mainTech;
     this._texture = null;
-    this._color = {r: 0, g: 0, b: 0, a: 1};
+    this._color = {r: 1, g: 1, b: 1, a: 1};
   }
 
   if ( Material$$1 ) SpriteMaterial.__proto__ = Material$$1;
@@ -14771,7 +14771,8 @@ var StencilMaterial = (function (Material$$1) {
       ['transparent'],
       [
         { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT } ],
+        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
+        { name: 'color', type: renderer.PARAM_COLOR4 } ],
       [
         this._pass
       ]
@@ -14780,11 +14781,15 @@ var StencilMaterial = (function (Material$$1) {
     this._effect = new renderer.Effect(
       [
         mainTech ],
-      {},
+      {
+        'color': {r: 0, g: 0, b: 0, a: 1}
+      },
       [
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
-        { name: 'alphaTest', value: true } ]
+        { name: 'alphaTest', value: true },
+        { name: 'use2DPos', value: true },
+        { name: 'useColor', value: true } ]
     );
     
     this._mainTech = mainTech;
@@ -14795,7 +14800,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   StencilMaterial.prototype.constructor = StencilMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useColor: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14807,6 +14812,14 @@ var StencilMaterial = (function (Material$$1) {
 
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
+  };
+
+  prototypeAccessors.useColor.get = function () {
+    this._effect.getDefine('useColor');
+  };
+
+  prototypeAccessors.useColor.set = function (val) {
+    this._effect.define('useColor', val);
   };
 
   prototypeAccessors.texture.get = function () {
