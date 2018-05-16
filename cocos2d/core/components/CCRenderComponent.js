@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
-const defaultVertexFormat = require('../renderer/vertex-format');
+const defaultVertexFormat = require('../renderer/webgl/vertex-format');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const RenderData = renderEngine.RenderData;

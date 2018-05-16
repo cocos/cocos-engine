@@ -23,31 +23,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('./render-engine');
-const gfx = renderEngine.gfx;
+const Label = require('../../../../components/CCLabel');
+const ttfAssembler = require('./ttf');
+const bmfontAssembler = require('./bmfont');
 
-var vfmt3D = new gfx.VertexFormat([
-    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
-    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-]);
-vfmt3D.name = 'vfmt3D';
+var labelAssembler = {
+    getAssembler (comp) {
+        let assembler = ttfAssembler;
+        
+        if (comp.font instanceof cc.BitmapFont) {
+            assembler = bmfontAssembler;
+        }
 
-var vfmtPosColorUv = new gfx.VertexFormat([
-    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
-    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-]);
-vfmtPosColorUv.name = 'vfmtPosColorUv';
+        return assembler;
+    },
 
-var vfmtPosUv = new gfx.VertexFormat([
-    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
-]);
-vfmtPosUv.name = 'vfmtPosUv';
-
-module.exports = {
-    vfmt3D,
-    vfmtPosColorUv,
-    vfmtPosUv
+    // Skip invalid labels (without own _assembler)
+    updateRenderData (label) {
+        return label.__allocedDatas;
+    }
 };
+
+Label._assembler = labelAssembler;
+
+module.exports = labelAssembler;

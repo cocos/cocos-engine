@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 const js = require('../../cocos2d/core/platform/js');
-const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 const Skeleton = require('./skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosColorUv;
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
@@ -93,7 +92,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     return material;
 }
 
-var spineAssembler = js.addon({
+var spineAssembler = {
     // Use model to avoid per vertex transform
     useModel: true,
 
@@ -338,7 +337,7 @@ var spineAssembler = js.addon({
 
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
-}, assembler);
+};
 
 Skeleton._assembler = spineAssembler;
 

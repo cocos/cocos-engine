@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../components/CCSprite');
-const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+const Sprite = require('../../../../components/CCSprite');
+const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;

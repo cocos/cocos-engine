@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../../platform/CCMacro');
-const renderEngine = require('../../render-engine');
+const macro = require('../../../../platform/CCMacro');
+const renderEngine = require('../../../render-engine');
 
-const js = require('../../../platform/js');
-const ttfUtls = require('../../utils/label/ttf');
-const assembler = require('../assembler');
+const js = require('../../../../platform/js');
+const ttfUtls = require('../../../utils/label/ttf');
 
 module.exports = js.addon({
     createData (comp) {
@@ -93,4 +92,4 @@ module.exports = js.addon({
         data[3].x = width - appx;
         data[3].y = height - appy;
     }
-}, ttfUtls, assembler);
+}, ttfUtls);

@@ -27,10 +27,9 @@ const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
 
 const js = require('../core/platform/js');
-const assembler = require('../core/renderer/assemblers/assembler');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
-const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosColorUv;
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -46,7 +45,7 @@ let _mat4_temp = mat4.create();
 let _mat4_temp2 = mat4.create();
 let _vec3_temp = vec3.create();
 
-let tmxAssembler = js.addon({
+let tmxAssembler = {
     updateRenderData (comp) {
         let renderData = comp._renderData;
         if (!renderData) {
@@ -340,6 +339,6 @@ let tmxAssembler = js.addon({
             colOffset += cols;
         }
     },
-}, assembler);
+};
 
 module.exports = TiledLayer._assembler = tmxAssembler;

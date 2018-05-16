@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 const js = require('../core/platform/js');
-const assembler = require('../core/renderer/assemblers/assembler');
 const ParticleSystem = require('./CCParticleSystem');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 
-var particleSystemAssembler = js.addon({
+var particleSystemAssembler = {
     useModel: true,
 
     updateUVs (comp) {
@@ -139,7 +138,7 @@ var particleSystemAssembler = js.addon({
 
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
-}, assembler);
+};
 
 ParticleSystem._assembler = particleSystemAssembler;
 

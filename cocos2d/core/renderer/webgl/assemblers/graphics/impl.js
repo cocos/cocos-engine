@@ -1,6 +1,6 @@
 
-const Helper = require('../../../graphics/helper');
-const PointFlags = require('../../../graphics/types').PointFlags;
+const Helper = require('../../../../graphics/helper');
+const PointFlags = require('../../../../graphics/types').PointFlags;
 
 class Point extends cc.Vec2 {
     constructor (x, y) {

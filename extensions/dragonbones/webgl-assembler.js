@@ -29,10 +29,9 @@ const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const math = renderEngine.math;
 
 const js = require('../../cocos2d/core/platform/js');
-const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
 
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosColorUv = require('../../cocos2d/core/renderer/vertex-format').vfmtPosColorUv;
+const vfmtPosColorUv = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosColorUv;
 
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
@@ -44,7 +43,7 @@ let _vbuf, _uintbuf,
     _renderData,
     _worldMatrix;
 
-let armatureAssembler = js.addon({
+let armatureAssembler = {
     updateRenderData (comp) {
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) {
@@ -160,6 +159,6 @@ let armatureAssembler = js.addon({
             _vertexId += slot._vertices.length;
         }
     }
-}, assembler)
+};
 
 module.exports = Armature._assembler = armatureAssembler;

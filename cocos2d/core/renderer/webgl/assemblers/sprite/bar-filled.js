@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../components/CCSprite');
+const Sprite = require('../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,

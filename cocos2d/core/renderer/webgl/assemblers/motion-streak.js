@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('../../renderer/assemblers/assembler');
-const renderEngine = require('../../renderer/render-engine');
+const js = require('../../../platform/js');
+const renderEngine = require('../../../renderer/render-engine');
 
-const MotionStreak = require('../../components/CCMotionStreak');
-const RenderFlow = require('../render-flow');
+const MotionStreak = require('../../../components/CCMotionStreak');
+const RenderFlow = require('../../render-flow');
 
 const vfmtPosColorUv = require('../vertex-format').vfmtPosColorUv;
 
@@ -81,7 +80,7 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 }
 
 
-var motionStreakAssembler = js.addon({
+var motionStreakAssembler = {
     updateRenderData (comp) {
         let dt = cc.director.getDeltaTime();
         this.update(comp, dt);
@@ -236,6 +235,6 @@ var motionStreakAssembler = js.addon({
 
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
-}, assembler);
+};
 
 module.exports = MotionStreak._assembler = motionStreakAssembler;

@@ -24,15 +24,14 @@
  ****************************************************************************/
 
 const StencilManager = require('../stencil-manager');
-const Node = require('../../CCNode');
-const Mask = require('../../components/CCMask');
-const renderEngine = require('../render-engine');
-const RenderFlow = require('../render-flow');
+const Node = require('../../../CCNode');
+const Mask = require('../../../components/CCMask');
+const renderEngine = require('../../render-engine');
+const RenderFlow = require('../../render-flow');
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
+const js = require('../../../platform/js');
 const spriteAssembler = require('./sprite/simple');
-const Graphics = require('../../graphics/graphics');
+const Graphics = require('../../../graphics/graphics');
 const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
@@ -51,7 +50,7 @@ function getGraphics () {
     return graphics;
 }
 
-let maskFrontAssembler = js.addon({
+let maskFrontAssembler = {
     updateGraphics (mask) {
         let renderData = mask._renderData;
         let graphics = mask._graphics;
@@ -127,9 +126,9 @@ let maskFrontAssembler = js.addon({
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
-}, assembler);
+};
 
-let maskEndAssembler = js.addon({
+let maskEndAssembler = {
     updateRenderData (mask) {
         if (mask._type === Mask.Type.IMAGE_STENCIL && !mask.spriteFrame) {
             mask._material = null;
@@ -174,7 +173,7 @@ let maskEndAssembler = js.addon({
 
         mask.node._renderFlag |= RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     }
-}, assembler);
+};
 
 Mask._assembler = maskFrontAssembler;
 Mask._postAssembler = maskEndAssembler;

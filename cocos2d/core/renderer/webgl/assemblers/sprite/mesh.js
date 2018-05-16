@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
  module.exports = {
     useModel: false,
