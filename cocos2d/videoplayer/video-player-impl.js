@@ -23,8 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var utils = require('../core/platform/utils');
-var sys = require('../core/platform/CCSys');
+const utils = require('../core/platform/utils');
+const sys = require('../core/platform/CCSys');
+const renderEngine = require('../core/renderer/render-engine');
+const math = renderEngine.math;
+
+let _mat4_temp = math.mat4.create();
 
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',
@@ -56,7 +60,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _bindEvent () {
-        var video = this._video, self = this;
+        let video = this._video, self = this;
         //binding event
         video.onloadedmetadata = function () {
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
@@ -83,7 +87,7 @@ let VideoPlayerImpl = cc.Class({
 
     _updateVisibility () {
         if (!this._video) return;
-        var video = this._video;
+        let video = this._video;
         if (this._visible) {
             video.style.visibility = 'visible';
         }
@@ -96,7 +100,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _updateSize (width, height) {
-        var video = this._video;
+        let video = this._video;
         if (!video) return;
 
         video.style.width = width + 'px';
@@ -104,7 +108,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _createDom () {
-        var video = document.createElement('video');
+        let video = document.createElement('video');
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
@@ -123,9 +127,9 @@ let VideoPlayerImpl = cc.Class({
     },
 
     removeDom () {
-        var video = this._video;
+        let video = this._video;
         if (video) {
-            var hasChild = utils.contains(cc.game.container, video);
+            let hasChild = utils.contains(cc.game.container, video);
             if (hasChild)
                 cc.game.container.removeChild(video);
         }
@@ -134,7 +138,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setURL (path) {
-        var source, video, extname;
+        let source, video, extname;
 
         if (this._url === path) {
             return;
@@ -172,8 +176,8 @@ let VideoPlayerImpl = cc.Class({
         video.appendChild(source);
 
         extname = cc.path.extname(path);
-        var polyfill = VideoPlayerImpl._polyfill;
-        for (var i = 0; i < polyfill.canPlayType.length; i++) {
+        let polyfill = VideoPlayerImpl._polyfill;
+        for (let i = 0; i < polyfill.canPlayType.length; i++) {
             if (extname !== polyfill.canPlayType[i]) {
                 source = document.createElement("source");
                 source.src = path.replace(extname, polyfill.canPlayType[i]);
@@ -187,7 +191,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     play: function () {
-        var video = this._video;
+        let video = this._video;
         if (!video || !this._visible) return;
 
         this._played = true;
@@ -196,7 +200,7 @@ let VideoPlayerImpl = cc.Class({
         }
 
         if (VideoPlayerImpl._polyfill.autoplayAfterOperation) {
-            var self = this;
+            let self = this;
             setTimeout(function () {
                 video.play();
                 self._playing = !video.paused;
@@ -209,7 +213,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     pause: function () {
-        var video = this._video;
+        let video = this._video;
         if (!this._playing) return;
 
         this._playing = false;
@@ -224,11 +228,11 @@ let VideoPlayerImpl = cc.Class({
     },
 
     stop: function () {
-        var video = this._video;
+        let video = this._video;
         if (!video || !this._visible) return;
         this._ignorePause = true;
         video.pause();
-        var self = this;
+        let self = this;
         setTimeout(function () {
             self._dispatchEvent(VideoPlayerImpl.EventType.STOPPED);
             self._ignorePause = false;
@@ -239,21 +243,21 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setVolume: function (volume) {
-        var video = this._video;
+        let video = this._video;
         if (video) {
             video.volume = volume;
         }
     },
 
     seekTo: function (time) {
-        var video = this._video;
+        let video = this._video;
         if (!video) return;
 
         if (this._loaded) {
             video.currentTime = time;
         }
         else {
-            var cb = function () {
+            let cb = function () {
                 video.currentTime = time;
                 video.removeEventListener(VideoPlayerImpl._polyfill.event, cb);
             };
@@ -267,7 +271,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     isPlaying: function () {
-        var video = this._video;
+        let video = this._video;
         if (VideoPlayerImpl._polyfill.autoplayAfterOperation && this._playing) {
             setTimeout(function () {
                 video.play();
@@ -277,8 +281,8 @@ let VideoPlayerImpl = cc.Class({
     },
 
     duration: function () {
-        var video = this._video;
-        var duration = -1;
+        let video = this._video;
+        let duration = -1;
         if (!video) return duration;
 
         duration = video.duration;
@@ -290,7 +294,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     currentTime: function() {
-        var video = this._video;
+        let video = this._video;
         if (!video) return -1;
 
         return video.currentTime;
@@ -305,7 +309,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setFullScreenEnabled: function (enable) {
-        var video = this._video;
+        let video = this._video;
         if (!video) return;
 
         if (enable)
@@ -328,26 +332,26 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _dispatchEvent: function (event) {
-        var callback = this._EventList[event];
+        let callback = this._EventList[event];
         if (callback)
             callback.call(this, this, this._video.src);
     },
 
     onPlayEvent: function () {
-        var callback = this._EventList[VideoPlayerImpl.EventType.PLAYING];
+        let callback = this._EventList[VideoPlayerImpl.EventType.PLAYING];
         callback.call(this, this, this._video.src);
     },
 
     enable: function () {
-        var list = VideoPlayerImpl.elements;
+        let list = VideoPlayerImpl.elements;
         if (list.indexOf(this) === -1)
             list.push(this);
         this.setVisible(true);
     },
 
     disable: function () {
-        var list = VideoPlayerImpl.elements;
-        var index = list.indexOf(this);
+        let list = VideoPlayerImpl.elements;
+        let index = list.indexOf(this);
         if (index !== -1)
             list.splice(index, 1);
         this.setVisible(false);
@@ -368,35 +372,37 @@ let VideoPlayerImpl = cc.Class({
     updateMatrix (node) {
         if (!this._video || !this._visible) return;
 
-        var mat = node._worldMatrix;
+        node.getWorldMatrix(_mat4_temp);
         if (!this._forceUpdate &&
-            this._m00 === mat.m00 && this._m01 === mat.m01 && this._m04 === mat.m04 && this._m05 === mat.m05 && this._m12 === mat.m12 && this._m13 === mat.m13 &&
+            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
+            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
+            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
             this._w === node._contentSize.width && this._h === node._contentSize.height) {
             return;
         }
 
         // update matrix cache
-        this._m00 = mat.m00;
-        this._m01 = mat.m01;
-        this._m04 = mat.m04;
-        this._m05 = mat.m05;
-        this._m12 = mat.m12;
-        this._m13 = mat.m13;
+        this._m00 = _mat4_temp.m00;
+        this._m01 = _mat4_temp.m01;
+        this._m04 = _mat4_temp.m04;
+        this._m05 = _mat4_temp.m05;
+        this._m12 = _mat4_temp.m12;
+        this._m13 = _mat4_temp.m13;
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
-        
-        var scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
-        var dpr = cc.view._devicePixelRatio;
+
+        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
+        let dpr = cc.view._devicePixelRatio;
 
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.game.container;
-        var a = mat.m00 * scaleX, b = mat.m01, c = mat.m04, d = mat.m05 * scaleY;
+        let container = cc.game.container;
+        let a = _mat4_temp.m00 * scaleX, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05 * scaleY;
 
-        var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
-        var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
-        var w, h;
+        let offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
+        let offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
+        let w, h;
         if (VideoPlayerImpl._polyfill.zoomInvalid) {
             this._updateSize(this._w * a, this._h * d);
             a = 1;
@@ -410,11 +416,11 @@ let VideoPlayerImpl = cc.Class({
             h = this._h * scaleY;
         }
 
-        var appx = w * node._anchorPoint.x;
-        var appy = h - h * node._anchorPoint.y;
-        var tx = mat.m12 * scaleX - appx + offsetX, ty = mat.m13 * scaleY - appy + offsetY;
+        let appx = (w * a) * node._anchorPoint.x;
+        let appy = (h * d) * node._anchorPoint.y;
+        let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
-        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
+        let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
         this._video.style['transform'] = matrix;
         this._video.style['-webkit-transform'] = matrix;
         this._video.style['transform-origin'] = '0px 100% 0px';
@@ -438,8 +444,8 @@ VideoPlayerImpl.elements = [];
 VideoPlayerImpl.pauseElements = [];
 
 cc.game.on(cc.game.EVENT_HIDE, function () {
-    var list = VideoPlayerImpl.elements;
-    for (var element, i = 0; i < list.length; i++) {
+    let list = VideoPlayerImpl.elements;
+    for (let element, i = 0; i < list.length; i++) {
         element = list[i];
         if (element.isPlaying()) {
             element.pause();
@@ -449,8 +455,8 @@ cc.game.on(cc.game.EVENT_HIDE, function () {
 });
 
 cc.game.on(cc.game.EVENT_SHOW, function () {
-    var list = VideoPlayerImpl.pauseElements;
-    var element = list.pop();
+    let list = VideoPlayerImpl.pauseElements;
+    let element = list.pop();
     while (element) {
         element.play();
         element = list.pop();
