@@ -569,28 +569,36 @@ var game = {
         this._lastTime = new Date();
         var frameRate = game.config[game.CONFIG_KEY.frameRate];
         this._frameTime = 1000 / frameRate;
-        if (frameRate !== 60 && frameRate !== 30) {
-            window.requestAnimFrame = this._stTime;
-            window.cancelAnimFrame = this._ctTime;
+
+        if (CC_JSB) {
+            jsb.setPreferredFramesPerSecond(frameRate);
+            window.requestAnimFrame = window.requestAnimationFrame;
+            window.cancelAnimFrame = window.cancelAnimationFrame;
         }
         else {
-            window.requestAnimFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            this._stTime;
-            window.cancelAnimFrame = window.cancelAnimationFrame ||
-            window.cancelRequestAnimationFrame ||
-            window.msCancelRequestAnimationFrame ||
-            window.mozCancelRequestAnimationFrame ||
-            window.oCancelRequestAnimationFrame ||
-            window.webkitCancelRequestAnimationFrame ||
-            window.msCancelAnimationFrame ||
-            window.mozCancelAnimationFrame ||
-            window.webkitCancelAnimationFrame ||
-            window.oCancelAnimationFrame ||
-            this._ctTime;
+            if (frameRate !== 60 && frameRate !== 30) {
+                window.requestAnimFrame = this._stTime;
+                window.cancelAnimFrame = this._ctTime;
+            }
+            else {
+                window.requestAnimFrame = window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                this._stTime;
+                window.cancelAnimFrame = window.cancelAnimationFrame ||
+                window.cancelRequestAnimationFrame ||
+                window.msCancelRequestAnimationFrame ||
+                window.mozCancelRequestAnimationFrame ||
+                window.oCancelRequestAnimationFrame ||
+                window.webkitCancelRequestAnimationFrame ||
+                window.msCancelAnimationFrame ||
+                window.mozCancelAnimationFrame ||
+                window.webkitCancelAnimationFrame ||
+                window.oCancelAnimationFrame ||
+                this._ctTime;
+            }
         }
     },
     _stTime: function(callback){
@@ -615,7 +623,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (frameRate === 30) {
+                if (!CC_JSB && frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
