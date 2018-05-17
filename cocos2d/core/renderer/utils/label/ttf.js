@@ -69,20 +69,20 @@ let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
 
-let sharedLabelData;
+let _sharedLabelData;
 
 module.exports = {
 
     getAssemblerData () {
-        if (!sharedLabelData) {
+        if (!_sharedLabelData) {
             let labelCanvas = document.createElement("canvas");
-            sharedLabelData = {
+            _sharedLabelData = {
                 canvas: labelCanvas,
                 context: labelCanvas.getContext("2d")
             };
         }
-        sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
-        return sharedLabelData
+        _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
+        return _sharedLabelData;
     },
 
     updateRenderData (comp) {
