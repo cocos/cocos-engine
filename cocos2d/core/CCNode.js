@@ -2933,7 +2933,10 @@ var Node = cc.Class({
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
 
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_COLOR;
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+        if (this._renderComponent) {
+            this._renderFlag |= RenderFlow.FLAG_COLOR;
+        }
 
         var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
