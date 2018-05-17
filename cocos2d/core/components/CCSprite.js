@@ -523,14 +523,14 @@ var Sprite = cc.Class({
 
     _activateMaterial: function () {
         if (!this.enabledInHierarchy) {
-            this.markForRender(false);
+            this.disableRender();
             return;
         }
 
         let spriteFrame = this._spriteFrame;
         // cannot be activated if texture not loaded yet
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            this.markForRender(false);
+            this.disableRender();
             return;
         }
 
@@ -597,7 +597,12 @@ var Sprite = cc.Class({
     },
 
     markForUpdateRenderData (enable) {
-        this._super(enable);
+        if (enable && this._material && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        }
 
         let renderData = this._renderData;
         if (renderData && enable) {
