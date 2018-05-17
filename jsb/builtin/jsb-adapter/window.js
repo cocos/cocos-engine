@@ -99,6 +99,7 @@ function inject () {
     };
 
     window.focus = function() {};
+    window.scroll = function() {};
 
     window._isInjected = true;
 }
