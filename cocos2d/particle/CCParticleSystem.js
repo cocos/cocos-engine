@@ -1377,6 +1377,7 @@ var ParticleSystem = cc.Class({
 
     _finishedSimulation: function () {
         if (this._autoRemoveOnFinish && this._vfx.stopped) {
+            this.disableRender();
             this.node.destroy();
         }
     }
