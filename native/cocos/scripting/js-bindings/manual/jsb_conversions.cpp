@@ -489,10 +489,10 @@ bool seval_to_Color4F(const se::Value& v, cocos2d::Color4F* color)
     SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
     ok = obj->getProperty("a", &a);
     SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
-    color->r = r.toFloat() / 255.0f;
-    color->g = g.toFloat() / 255.0f;
-    color->b = b.toFloat() / 255.0f;
-    color->a = a.toFloat() / 255.0f;
+    color->r = r.toFloat();
+    color->g = g.toFloat();
+    color->b = b.toFloat();
+    color->a = a.toFloat();
     return true;
 }
 
@@ -1728,6 +1728,16 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
             seval_to_native_ptr(v, &texture);
             cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, texture);
             *ret = std::move(param);
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::COLOR4:
+        {
+            cocos2d::Color4F color;
+            seval_to_Color4F(v, &color);
+            float data[4] = {color.r, color.g, color.b, color.a};
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 4);
+            *ret = std::move(param);
+            break;
             break;
         }
         default:

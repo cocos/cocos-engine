@@ -162,9 +162,15 @@ Technique::Parameter::Parameter(const std::string& name, Type type, float* value
         case Type::MAT4:
             bytes *= 16 * _count;
             break;
+        case Type::COLOR4:
+            bytes *= 4 * _count;
+            break;
+        case Type::COLOR3:
+            bytes *= 3 * _count;
+            break;
             
         default:
-            RENDERER_LOGW("This constructor only supports FLAOT/FLOAT2/FLOAT3/FLOAT4/MAT2/MAT3/MAT4.");
+            RENDERER_LOGW("This constructor only supports FLAOT/FLOAT2/FLOAT3/FLOAT4/MAT2/MAT3/MAT4/COLOR3/COLOR4.");
             return;
             break;
     }
