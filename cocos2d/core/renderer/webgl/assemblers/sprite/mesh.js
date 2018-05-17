@@ -66,8 +66,6 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
                 let vertDirty = renderData.vertDirty;
                 if (vertDirty) {
                     this.updateVerts(sprite);
-                }
-                if (vertDirty || sprite.node._worldMatUpdated) {
                     this.updateWorldVerts(sprite);
                 }
             }
@@ -159,6 +157,11 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
         let node = sprite.node,
             renderData = sprite._renderData,
             data = renderData._data;
+        
+        // update world verts
+        if (renderer.worldMatDirty) {
+            this.updateWorldVerts(sprite);
+        }
 
         // buffer
         let buffer = renderer._meshBuffer,

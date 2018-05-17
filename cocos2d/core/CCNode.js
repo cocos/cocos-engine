@@ -1124,7 +1124,6 @@ var Node = cc.Class({
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
-        this._worldMatUpdated = false;
 
         this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
@@ -2448,7 +2447,6 @@ var Node = cc.Class({
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
-        this._worldMatUpdated = true;
     },
 
     _updateWorldMatrix () {
