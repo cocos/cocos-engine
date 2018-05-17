@@ -80,7 +80,6 @@ function _calculWorldMatrix3d () {
         math.mat4.copy(this._worldMatrix, this._matrix);
     }
     this._worldMatDirty = false;
-    this._worldMatUpdated = true;
 }
 
 
