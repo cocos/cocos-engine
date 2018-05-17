@@ -139,6 +139,7 @@ let WebViewImpl = cc.Class({
         this._div.style.position = 'absolute';
         this._div.style.bottom = '0px';
         this._div.style.left = '0px';
+        this._div.style['word-wrap'] = 'break-word';
         cc.game.container.appendChild(this._div);
     } : function (w, h) {
         if (!this._div) {
