@@ -27,6 +27,7 @@
 
 var PNGReader = require('./CCPNGReader');
 var tiffReader = require('./CCTIFFReader');
+require('../core/platform/CCSAXParser.js');
 require('../compression/ZipUtils');
 
 // ideas taken from:

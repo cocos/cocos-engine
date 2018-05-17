@@ -46,8 +46,7 @@
     "name": "ParticleSystem",
     "entries": [
       "./cocos2d/particle/CCParticleSystem.js",
-      "./cocos2d/particle/CCParticleAsset.js",
-      "./cocos2d/core/platform/CCSAXParser.js"
+      "./cocos2d/particle/CCParticleAsset.js"
     ]
   },
   {
