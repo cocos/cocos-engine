@@ -280,6 +280,9 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (string) {
+        if (cc.loader.md5Pipe) {
+            string = cc.loader.md5Pipe.transformURL(string);
+        }
         return this._src = string;
     });
 
