@@ -83,7 +83,8 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
             if (image._data) {
                 data = image._data._data;
             }
-            _glTexImage2D(target, level, internalformat, image._bufferWidth, image._bufferHeight, 0, format, type, data);
+            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
+            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, data);
         }
         else if (image instanceof ImageData) {
             _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data);
@@ -127,7 +128,8 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
             if (image._data) {
                 data = image._data._data;
             }
-            _glTexSubImage2D(target, level, xoffset, yoffset, image._bufferWidth, image._bufferHeight, format, type, data);
+            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
+            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, data);
         }
         else if (image instanceof ImageData) {
             _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data);
