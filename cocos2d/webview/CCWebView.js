@@ -24,14 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var WebViewImpl = require('./webview-impl');
+const WebViewImpl = require('./webview-impl');
 
 /**
  * !#en WebView event type
  * !#zh 网页视图事件类型
  * @enum WebView.EventType
  */
-var EventType = WebViewImpl.EventType;
+const EventType = WebViewImpl.EventType;
 
 
 /**
@@ -61,12 +61,13 @@ function emptyCallback () { }
  * @class WebView
  * @extends Component
  */
-var WebView = cc.Class({
+let WebView = cc.Class({
     name: 'cc.WebView',
     extends: cc.Component,
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/WebView'
+        menu: 'i18n:MAIN_MENU.component.ui/WebView',
+        executeInEditMode: true
     },
 
     properties: {
@@ -86,7 +87,7 @@ var WebView = cc.Class({
             },
             set: function (url) {
                 this._url = url;
-                var impl = this._impl;
+                let impl = this._impl;
                 if (impl) {
                     impl.loadURL(url);
                 }
@@ -108,16 +109,17 @@ var WebView = cc.Class({
         EventType: EventType,
     },
 
+
     ctor () {
         this._impl = new WebViewImpl();
     },
 
     onEnable () {
+        let impl = this._impl;
+        impl.createDomElementIfNeeded(this.node.width, this.node.height);
+        impl.loadURL(this._url);
+        impl.setVisible(true);
         if (!CC_EDITOR) {
-            var impl = this._impl;
-            this._impl.createDomElementIfNeeded(this.node.width, this.node.height);
-            this._impl.loadURL(this._url);
-            this._impl.setVisible(true);
             impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
             impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
             impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
@@ -125,9 +127,9 @@ var WebView = cc.Class({
     },
 
     onDisable () {
+        let impl = this._impl;
+        impl.setVisible(false);
         if (!CC_EDITOR) {
-            var impl = this._impl;
-            this._impl.setVisible(false);
             impl.setEventListener(EventType.LOADED, emptyCallback);
             impl.setEventListener(EventType.LOADING, emptyCallback);
             impl.setEventListener(EventType.ERROR, emptyCallback);

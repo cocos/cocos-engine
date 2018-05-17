@@ -23,11 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var utils = require('../core/platform/utils');
-var eventManager = require('../core/event-manager');
-var sys = require('../core/platform/CCSys');
+const utils = require('../core/platform/utils');
+const eventManager = require('../core/event-manager');
+const sys = require('../core/platform/CCSys');
+const renderEngine = require('../core/renderer/render-engine');
+const math = renderEngine.math;
 
-var WebViewImpl = cc.Class({
+let _mat4_temp = math.mat4.create();
+
+let WebViewImpl = cc.Class({
     name: "WebViewImpl",
 
     ctor () {
@@ -54,7 +58,7 @@ var WebViewImpl = cc.Class({
 
     _updateVisibility () {
         if (!this._div) return;
-        var div = this._div;
+        let div = this._div;
         if (this._visible) {
             div.style.visibility = 'visible';
         }
@@ -65,7 +69,7 @@ var WebViewImpl = cc.Class({
     },
 
     _updateSize (w, h) {
-        var div = this._div;
+        let div = this._div;
         if (div) {
             div.style.width = w + "px";
             div.style.height = h + "px";
@@ -73,18 +77,21 @@ var WebViewImpl = cc.Class({
     },
 
     _initEvent () {
-        var self = this;
-        this._iframe.addEventListener("load", function () {
-            self._dispatchEvent(WebViewImpl.EventType.LOADED);
-        });
-        this._iframe.addEventListener("error", function () {
-            self._dispatchEvent(WebViewImpl.EventType.ERROR);
-        });
+        let iframe = this._iframe;
+        if (iframe) {
+            let self = this;
+            iframe.addEventListener("load", function () {
+                self._dispatchEvent(WebViewImpl.EventType.LOADED);
+            });
+            iframe.addEventListener("error", function () {
+                self._dispatchEvent(WebViewImpl.EventType.ERROR);
+            });
+        }
     },
 
     _initStyle () {
         if (!this._div) return;
-        var div = this._div;
+        let div = this._div;
         div.style.position = "absolute";
         div.style.bottom = "0px";
         div.style.left = "0px";
@@ -112,6 +119,7 @@ var WebViewImpl = cc.Class({
         this._div.style.width = w + "px";
         this._div.style.overflow = "scroll";
         this._iframe.style.border = "none";
+
         cc.game.container.appendChild(this._div);
         this._updateVisibility();
     },
@@ -122,7 +130,18 @@ var WebViewImpl = cc.Class({
         this._initEvent();
     },
 
-    createDomElementIfNeeded (w, h) {
+    createDomElementIfNeeded: CC_EDITOR ? function (w, h) {
+        this._div = document.createElement('div');
+        this._div.style.background = 'rgba(255, 255, 255, 0.8)';
+        this._div.style.color = 'rgb(51, 51, 51)';
+        this._div.style.height = w + 'px';
+        this._div.style.width = h + 'px';
+        this._div.style.position = 'absolute';
+        this._div.style.bottom = '0px';
+        this._div.style.left = '0px';
+        this._div.style['word-wrap'] = 'break-word';
+        cc.game.container.appendChild(this._div);
+    } : function (w, h) {
         if (!this._div) {
             this._createNativeControl(w, h);
         }
@@ -132,9 +151,9 @@ var WebViewImpl = cc.Class({
     },
 
     removeDom () {
-        var div = this._div;
+        let div = this._div;
         if (div) {
-            var hasChild = utils.contains(cc.game.container, div);
+            let hasChild = utils.contains(cc.game.container, div);
             if (hasChild)
                 cc.game.container.removeChild(div);
         }
@@ -150,17 +169,21 @@ var WebViewImpl = cc.Class({
      * Load an URL
      * @param {String} url
      */
-    loadURL (url) {
-        var iframe = this._iframe;
-        iframe.src = url;
-        var self = this;
-        var cb = function () {
-            self._loaded = true;
-            self._updateVisibility();
-            iframe.removeEventListener("load", cb);
-        };
-        iframe.addEventListener("load", cb);
-        this._dispatchEvent(WebViewImpl.EventType.LOADING);
+    loadURL: CC_EDITOR ? function (url) {
+        this._div.innerText = url;
+    } : function (url) {
+        let iframe = this._iframe;
+        if (iframe) {
+            iframe.src = url;
+            let self = this;
+            let cb = function () {
+                self._loaded = true;
+                self._updateVisibility();
+                iframe.removeEventListener("load", cb);
+            };
+            iframe.addEventListener("load", cb);
+            this._dispatchEvent(WebViewImpl.EventType.LOADING);
+        }
     },
 
     /**
@@ -174,9 +197,9 @@ var WebViewImpl = cc.Class({
      * Reload the WebView
      */
     reload () {
-        var iframe = this._iframe;
+        let iframe = this._iframe;
         if (iframe) {
-            var win = iframe.contentWindow;
+            let win = iframe.contentWindow;
             if (win && win.location)
                 win.location.reload();
         }
@@ -205,9 +228,9 @@ var WebViewImpl = cc.Class({
         try {
             if (WebViewImpl._polyfill.closeHistory)
                 return cc.logID(7803);
-            var iframe = this._iframe;
+            let iframe = this._iframe;
             if (iframe) {
-                var win = iframe.contentWindow;
+                let win = iframe.contentWindow;
                 if (win && win.location)
                     win.history.back.call(win);
             }
@@ -223,9 +246,9 @@ var WebViewImpl = cc.Class({
         try {
             if (WebViewImpl._polyfill.closeHistory)
                 return cc.logID(7804);
-            var iframe = this._iframe;
+            let iframe = this._iframe;
             if (iframe) {
-                var win = iframe.contentWindow;
+                let win = iframe.contentWindow;
                 if (win && win.location)
                     win.history.forward.call(win);
             }
@@ -239,9 +262,9 @@ var WebViewImpl = cc.Class({
      * @param {String} str
      */
     evaluateJS (str) {
-        var iframe = this._iframe;
+        let iframe = this._iframe;
         if (iframe) {
-            var win = iframe.contentWindow;
+            let win = iframe.contentWindow;
             try {
                 win.eval(str);
                 this._dispatchEvent(WebViewImpl.EventType.JS_EVALUATED);
@@ -276,7 +299,7 @@ var WebViewImpl = cc.Class({
     },
 
     _dispatchEvent (event) {
-        var callback = this._EventList[event];
+        let callback = this._EventList[event];
         if (callback)
             callback.call(this, this, this._iframe.src);
     },
@@ -299,42 +322,44 @@ var WebViewImpl = cc.Class({
     updateMatrix (node) {
         if (!this._div || !this._visible) return;
 
-        var mat = node._worldMatrix;
+        node.getWorldMatrix(_mat4_temp);
         if (!this._forceUpdate &&
-            this._m00 === mat.m00 && this._m01 === mat.m01 && this._m04 === mat.m04 && this._m05 === mat.m05 && this._m12 === mat.m12 && this._m13 === mat.m13 &&
+            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
+            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
+            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
             this._w === node._contentSize.width && this._h === node._contentSize.height) {
             return;
         }
 
         // update matrix cache
-        this._m00 = mat.m00;
-        this._m01 = mat.m01;
-        this._m04 = mat.m04;
-        this._m05 = mat.m05;
-        this._m12 = mat.m12;
-        this._m13 = mat.m13;
+        this._m00 = _mat4_temp.m00;
+        this._m01 = _mat4_temp.m01;
+        this._m04 = _mat4_temp.m04;
+        this._m05 = _mat4_temp.m05;
+        this._m12 = _mat4_temp.m12;
+        this._m13 = _mat4_temp.m13;
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
 
-        var scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
-        var dpr = cc.view._devicePixelRatio;
+        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
+        let dpr = cc.view._devicePixelRatio;
 
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.game.container;
-        var a = mat.m00 * scaleX, b = mat.m01, c = mat.m04, d = mat.m05 * scaleY;
+        let container = cc.game.container;
+        let a = _mat4_temp.m00 * scaleX, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05 * scaleY;
 
-        var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
-        var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
+        let offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
+        let offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
         this._updateSize(this._w, this._h);
-        var w = this._div.clientWidth * scaleX;
-        var h = this._div.clientHeight * scaleY;
-        var appx = w * node._anchorPoint.x;
-        var appy = h - h * node._anchorPoint.y;
-        var tx = mat.m12 * scaleX - appx + offsetX, ty = mat.m13 * scaleY - appy + offsetY;
+        let w = this._div.clientWidth * scaleX;
+        let h = this._div.clientHeight * scaleY;
+        let appx = (w * a) * node._anchorPoint.x;
+        let appy = (h * d) * node._anchorPoint.y;
+        let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
-        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
+        let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
         this._div.style['transform'] = matrix;
         this._div.style['-webkit-transform'] = matrix;
         this._div.style['transform-origin'] = '0px 100% 0px';
@@ -349,7 +374,7 @@ WebViewImpl.EventType = {
     JS_EVALUATED: 3
 };
 
-var polyfill = WebViewImpl._polyfill = {
+let polyfill = WebViewImpl._polyfill = {
     devicePixelRatio: false,
     enableDiv: false
 };

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let VideoPlayerImpl = require('./video-player-impl');
+const VideoPlayerImpl = require('./video-player-impl');
 
 /**
  * !#en Video event type
@@ -66,7 +66,7 @@ let VideoPlayerImpl = require('./video-player-impl');
  * !#zh 视频准备好了，可以开始播放了
  * @property {Number} READY_TO_PLAY
  */
-var EventType = VideoPlayerImpl.EventType;
+const EventType = VideoPlayerImpl.EventType;
 
 
 /**
@@ -74,7 +74,7 @@ var EventType = VideoPlayerImpl.EventType;
  * !#zh 视频来源
  * @enum VideoPlayer.ResourceType
  */
-var ResourceType = cc.Enum({
+const ResourceType = cc.Enum({
     /**
      * !#en The remote resource type.
      * !#zh 远程视频
@@ -96,7 +96,7 @@ var ResourceType = cc.Enum({
  * @class VideoPlayer
  * @extends Component
  */
-var VideoPlayer = cc.Class({
+let VideoPlayer = cc.Class({
     name: 'cc.VideoPlayer',
     extends: cc.Component,
 
@@ -104,6 +104,7 @@ var VideoPlayer = cc.Class({
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',
         inspector: 'packages://inspector/inspectors/comps/videoplayer.js',
         help: 'i18n:COMPONENT.help_url.videoplayer',
+        executeInEditMode: true
     },
 
     properties: {
@@ -279,15 +280,15 @@ var VideoPlayer = cc.Class({
     },
 
     _syncVolume () {
-        var impl = this._impl;
+        let impl = this._impl;
         if (impl) {
-            var volume = this._mute ? 0 : this._volume;
+            let volume = this._mute ? 0 : this._volume;
             impl.setVolume(volume);
         }
     },
 
     _updateVideoSource () {
-        var impl = this._impl;
+        let impl = this._impl;
         if (this.resourceType === ResourceType.REMOTE) {
             if (cc.loader.md5Pipe) {
                 this.remoteURL = cc.loader.md5Pipe.transformURL(this.remoteURL);
@@ -300,7 +301,7 @@ var VideoPlayer = cc.Class({
     },
 
     onLoad () {
-        var impl = this._impl;
+        let impl = this._impl;
         if (impl) {
             impl.createDomElementIfNeeded();
             this._updateVideoSource();
