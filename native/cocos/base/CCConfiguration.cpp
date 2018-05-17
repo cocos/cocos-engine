@@ -63,6 +63,7 @@ Configuration::Configuration()
 bool Configuration::init()
 {
 //cjh    _valueDict["cocos2d.x.version"] = Value(cocos2dVersion());
+    gatherGPUInfo();
 
 
 #if CC_ENABLE_PROFILERS

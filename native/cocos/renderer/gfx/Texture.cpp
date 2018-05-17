@@ -69,7 +69,7 @@ Texture::~Texture()
         return;
     }
 
-    ccDeleteTextures(1, &_glID);
+    glDeleteTextures(1, &_glID);
 
     //TODO:    this._device._stats.tex -= this.bytes;
 }

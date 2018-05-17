@@ -655,11 +655,11 @@ void DeviceGraphics::restoreTexture(uint32_t index)
     auto texture = _currentState.getTexture(index);
     if (texture)
     {
-        GL_CHECK(ccBindTexture(texture->getTarget(), texture->getHandle()));
+        GL_CHECK(glBindTexture(texture->getTarget(), texture->getHandle()));
     }
     else
     {
-        GL_CHECK(ccBindTexture(GL_TEXTURE_2D, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
     }
 }
 
@@ -1053,13 +1053,13 @@ void DeviceGraphics::commitVertexBuffer()
                 
                 if (0 == _enabledAtrributes[attr.location])
                 {
-                    GL_CHECK(glEnableVertexAttribArray(attr.location));
+                    GL_CHECK(ccEnableVertexAttribArray(attr.location));
                     _enabledAtrributes[attr.location] = 1;
                 }
                 _newAttributes[attr.location] = 1;
                 
                 // glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
-                GL_CHECK(glVertexAttribPointer(attr.location,
+                GL_CHECK(ccVertexAttribPointer(attr.location,
                                       el.num,
                                       ENUM_CLASS_TO_GLENUM(el.type),
                                       el.normalize,
@@ -1073,7 +1073,7 @@ void DeviceGraphics::commitVertexBuffer()
         {
             if (_enabledAtrributes[i] != _newAttributes[i])
             {
-                GL_CHECK(glDisableVertexAttribArray(i));
+                GL_CHECK(ccDisableVertexAttribArray(i));
                 _enabledAtrributes[i] = 0;
             }
         }
@@ -1093,8 +1093,8 @@ void DeviceGraphics::commitTextures()
             auto texture = nextTextureUnits[i];
             if (texture)
             {
-                GL_CHECK(ccActiveTexture(GL_TEXTURE0 + i));
-                GL_CHECK(ccBindTexture(texture->getTarget(),
+                GL_CHECK(glActiveTexture(GL_TEXTURE0 + i));
+                GL_CHECK(glBindTexture(texture->getTarget(),
                                        texture->getHandle()));
             }
         }

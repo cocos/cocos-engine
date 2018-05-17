@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "base/ccMacros.h"
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
+#include "base/CCRenderTexture.h"
 
 NS_CC_BEGIN
 
@@ -99,7 +100,7 @@ public:
     // This class is useful for internal usage.
     static Application* getInstance() { return _instance; }
     
-    Application(const std::string& name);
+    Application(const std::string& name, int width, int height);
     virtual ~Application();
     
     virtual bool applicationDidFinishLaunching();
@@ -108,6 +109,7 @@ public:
     
     inline void* getView() const { return _view; }
     inline Scheduler* getScheduler() const { return _scheduler; }
+    inline RenderTexture* getRenderTexture() const { return _renderTexture; }
     
     void runOnMainThread();
     
@@ -116,8 +118,6 @@ public:
     /**
      * @brief Sets the preferred frame rate for main loop callback.
      * @param fps The preferred frame rate for main loop callback.
-     * @js NA
-     * @lua NA
      */
     void setPreferredFramesPerSecond(int fps);
     
@@ -126,23 +126,29 @@ public:
     /**
      @brief Get current language config.
      @return Current language config.
-     * @js NA
-     * @lua NA
      */
     LanguageType getCurrentLanguage() const;
     
     /**
      @brief Get current language iso 639-1 code.
      @return Current language iso 639-1 code.
-     * @js NA
-     * @lua NA
      */
     std::string getCurrentLanguageCode() const;
     
+    void setDevicePixelRatio(uint8_t ratio)
+    {
+        if (ratio <= 1)
+            return;
+        
+        _devicePixelRatio = ratio;
+        _isDownsampleEnabled = true;
+        _renderTexture->init(ratio);
+    }
+    inline uint8_t getDevicePixelRatio() const { return _devicePixelRatio; }
+    inline bool isDownsampleEnabled() const { return _isDownsampleEnabled; }
+    
     /**
      @brief Get target platform.
-     * @js NA
-     * @lua NA
      */
     Platform getPlatform() const;
     
@@ -150,8 +156,6 @@ public:
      @brief Open url in default browser.
      @param String with url to open.
      @return True if the resource located by the URL was successfully opened; otherwise false.
-     * @js NA
-     * @lua NA
      */
     bool openURL(const std::string &url);
 
@@ -171,6 +175,12 @@ private:
     void* _delegate = nullptr;
     int _fps = 60;
     Scheduler* _scheduler = nullptr;
+    
+    RenderTexture* _renderTexture = nullptr;
+    bool _isDownsampleEnabled = false;
+    // The ratio to downsample, for example, if its value is 2,
+    // then the rendering size of render texture is device_resolution/2.
+    uint8_t _devicePixelRatio = 1;
 };
 
 // end of platform group

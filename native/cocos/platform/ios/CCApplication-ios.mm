@@ -32,24 +32,32 @@
 #include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 
-#import "CCEAGLView-ios.h"
+#include "CCEAGLView-ios.h"
 #import <UIKit/UIKit.h>
 
 namespace
 {
-    bool setCanvasCallback(se::Object* global)
+    cocos2d::Vec2 getResolution()
     {
         CGRect bounds = [UIScreen mainScreen].bounds;
         float scale = [[UIScreen mainScreen] scale];
         float width = bounds.size.width * scale;
         float height = bounds.size.height * scale;
+        
+        return cocos2d::Vec2(width, height);
+    }
+    
+    bool setCanvasCallback(se::Object* global)
+    {
+        cocos2d::Vec2 resolution = getResolution();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        uint8_t devicePixelRatio = cocos2d::Application::getInstance()->getDevicePixelRatio();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                (int)(width),
-                (int)(height));
+                (int)(resolution.x / devicePixelRatio),
+                (int)(resolution.y / devicePixelRatio));
         se->evalString(commandBuf);
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, resolution.x / devicePixelRatio, resolution.y / devicePixelRatio);
         glDepthMask(GL_TRUE);
         return true;
     }
@@ -112,7 +120,8 @@ namespace
 
 -(void) firstStart:(id) view
 {
-    if ([view isReady]) {
+    if ([view isReady]) 
+    {
         cocos2d::ccInvalidateStateCache();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
@@ -161,8 +170,15 @@ namespace
 
     prevTime = std::chrono::steady_clock::now();
     
+    bool downsampleEnabled = _application->isDownsampleEnabled();
+    if (downsampleEnabled)
+        _application->getRenderTexture()->prepare();
+    
     _scheduler->update(dt);
     cocos2d::EventDispatcher::dispatchTickEvent(dt);
+    
+    if (downsampleEnabled)
+        _application->getRenderTexture()->draw();
     
     [(CCEAGLView*)(_application->getView()) swapBuffers];
     cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
@@ -177,12 +193,14 @@ NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
 
-Application::Application(const std::string& name)
+Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
     _scheduler = new Scheduler();
 
     createView(name);
+    
+    _renderTexture = new RenderTexture(width, height);
     
     se::ScriptEngine::getInstance();
     EventDispatcher::init();
@@ -206,6 +224,9 @@ Application::~Application()
     [(MainLoop*)_delegate stopMainLoop];
     [(MainLoop*)_delegate release];
     _delegate = nullptr;
+    
+    delete _renderTexture;
+    _renderTexture = nullptr;
 
     Application::_instance = nullptr;
 }
@@ -213,7 +234,7 @@ Application::~Application()
 void Application::start()
 {
     if (_delegate)
-        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
+        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];    
 }
 
 void Application::setPreferredFramesPerSecond(int fps)

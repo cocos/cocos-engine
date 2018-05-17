@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "ccMacros.h"
 #include "base/ccUtils.h"
+#include "platform/CCApplication.h"
 
 NS_CC_BEGIN
 
@@ -227,9 +228,10 @@ namespace
 {
     void dispatchTouchEvent(float x, float y, cocos2d::TouchEvent::Type type)
     {
+        uint8_t devicePixelRatio = cocos2d::Application::getInstance()->getDevicePixelRatio();
         cocos2d::TouchInfo touchInfo;
-        touchInfo.x = x;
-        touchInfo.y = y;
+        touchInfo.x = x / devicePixelRatio;
+        touchInfo.y = y / devicePixelRatio;
         touchInfo.index = 0;
 
         cocos2d::TouchEvent touchEvent;

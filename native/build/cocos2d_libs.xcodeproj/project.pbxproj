@@ -290,6 +290,10 @@
 		4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */; };
 		4626B202202D9BE700BE30B9 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */; };
 		4626B203202D9BE700BE30B9 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */; };
+		4648882520AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
+		4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
+		4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
+		4648882820AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
 		469301CF203FC696004A3D6C /* CCConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 469301CD203FC695004A3D6C /* CCConfiguration.h */; };
 		469301D0203FC696004A3D6C /* CCConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 469301CD203FC695004A3D6C /* CCConfiguration.h */; };
 		469301D1203FC696004A3D6C /* CCConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301CE203FC695004A3D6C /* CCConfiguration.cpp */; };
@@ -1161,6 +1165,8 @@
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
 		4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CCGLView-desktop.h"; path = "../desktop/CCGLView-desktop.h"; sourceTree = "<group>"; };
 		4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "CCGLView-desktop.cpp"; path = "../desktop/CCGLView-desktop.cpp"; sourceTree = "<group>"; };
+		4648882320AC2BC800CD1E4A /* CCRenderTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRenderTexture.h; sourceTree = "<group>"; };
+		4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRenderTexture.cpp; sourceTree = "<group>"; };
 		469301CD203FC695004A3D6C /* CCConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCConfiguration.h; sourceTree = "<group>"; };
 		469301CE203FC695004A3D6C /* CCConfiguration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCConfiguration.cpp; sourceTree = "<group>"; };
 		469302292046AE05004A3D6C /* RefCounter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RefCounter.hpp; sourceTree = "<group>"; };
@@ -2185,6 +2191,8 @@
 		46FDDAE9202ADDCE00931238 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */,
+				4648882320AC2BC800CD1E4A /* CCRenderTexture.h */,
 				1A52DAF5205BB81400350EE3 /* CCThreadPool.cpp */,
 				1A52DAF4205BB81400350EE3 /* CCThreadPool.h */,
 				1A29D7792056667700168D9A /* csscolorparser.cpp */,
@@ -2689,6 +2697,7 @@
 				ED30577D1BEC76C90083C3ED /* crypt.h in Headers */,
 				1A9F0F991F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
 				4DED47F01DFFA4AF0070C5C4 /* b2ChainShape.h in Headers */,
+				4648882520AC2BC900CD1E4A /* CCRenderTexture.h in Headers */,
 				46FDDA97202ACC6A00931238 /* Model.h in Headers */,
 				50ABBD4A1925AB0000A911A9 /* Mat4.h in Headers */,
 				1A52DB38205BCD9200350EE3 /* ScriptEngine.hpp in Headers */,
@@ -3108,6 +3117,7 @@
 				46FDDAAC202ACC6A00931238 /* Types.h in Headers */,
 				1AAAC876205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1A52DB7B205BCDD000350EE3 /* ScriptEngine.hpp in Headers */,
+				4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */,
 				1A29D772205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				1A29D789205666B200168D9A /* LocalStorage.h in Headers */,
 				46FDDC67202D504E00931238 /* CCApplication.h in Headers */,
@@ -3259,6 +3269,7 @@
 				46FDDAA3202ACC6A00931238 /* InputAssembler.cpp in Sources */,
 				4DED48581DFFA4AF0070C5C4 /* b2DistanceJoint.cpp in Sources */,
 				1AAAC8EB205CB6E9005321B9 /* AudioCache.mm in Sources */,
+				4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */,
 				46AE3FF92092F3A600F3A228 /* inspector_socket.cc in Sources */,
 				1A52DB61205BCDC700350EE3 /* Object.cpp in Sources */,
 				50ABBD501925AB0000A911A9 /* Quaternion.cpp in Sources */,
@@ -3671,6 +3682,7 @@
 				46FDDA8E202ACC6A00931238 /* Config.cpp in Sources */,
 				1A29D795205666F500168D9A /* jsb_opengl_manual.cpp in Sources */,
 				46AE3FFC2092F3A600F3A228 /* inspector_io.cc in Sources */,
+				4648882820AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */,
 				503DD8E31926736A00CD74DD /* CCDevice-ios.mm in Sources */,
 				1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */,
 				1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */,

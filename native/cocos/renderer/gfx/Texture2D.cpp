@@ -91,8 +91,8 @@ void Texture2D::update(const Options& options)
     if (!pot)
         genMipmap = false;
 
-    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
-    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(glActiveTexture(GL_TEXTURE0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
     if (!options.images.empty())
         setMipmap(options.images, options.flipY, options.premultiplyAlpha);
 
@@ -108,16 +108,16 @@ void Texture2D::update(const Options& options)
 
 void Texture2D::updateSubImage(const SubImageOption& option)
 {
-    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
-    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(glActiveTexture(GL_TEXTURE0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
     setSubImage(option);
     _device->restoreTexture(0);
 }
 
 void Texture2D::updateImage(const ImageOption& option)
 {
-    GL_CHECK(ccActiveTexture(GL_TEXTURE0));
-    GL_CHECK(ccBindTexture(GL_TEXTURE_2D, _glID));
+    GL_CHECK(glActiveTexture(GL_TEXTURE0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, _glID));
     setImage(option);
     _device->restoreTexture(0);
 }

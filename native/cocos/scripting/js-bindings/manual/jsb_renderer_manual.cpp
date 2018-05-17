@@ -579,6 +579,8 @@ static bool js_renderer_Pass_init(se::State& s)
                          static_cast<cocos2d::renderer::StencilOp>(*(binary32 + 23)),   // stencilZFailOpBack
                          *(binary32 + 24));
     
+    return true;
+    
 }
 SE_BIND_FUNC(js_renderer_Pass_init);
 

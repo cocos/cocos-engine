@@ -35,8 +35,8 @@ THE SOFTWARE.
 #define glClearDepth                glClearDepthf
 #define glDepthRange                glDepthRangef
 //#define glDeleteVertexArrays        glDeleteVertexArraysOES
-//#define glGenVertexArrays           glGenVertexArraysOES
-//#define glBindVertexArray           glBindVertexArrayOES
+#define glGenVertexArrays           glGenVertexArraysOES
+#define glBindVertexArray           glBindVertexArrayOES
 //#define glMapBuffer                 glMapBufferOES
 //#define glUnmapBuffer               glUnmapBufferOES
 //

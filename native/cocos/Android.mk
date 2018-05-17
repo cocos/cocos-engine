@@ -52,6 +52,7 @@ base/CCLog.cpp \
 base/CCScheduler.cpp \
 base/csscolorparser.cpp \
 base/CCGLUtils.cpp \
+base/CCRenderTexture.cpp \
 renderer/Types.cpp \
 renderer/gfx/DeviceGraphics.cpp \
 renderer/gfx/FrameBuffer.cpp \

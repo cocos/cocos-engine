@@ -55,6 +55,7 @@ using namespace cocos2d;
 
 extern uint32_t __jsbInvocationCount;
 
+
 namespace
 {	
     bool __isOpenDebugView = false;
@@ -91,26 +92,25 @@ namespace
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
+        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                g_width,
-                g_height);
+                g_width / devicePixelRatio,
+                g_height / devicePixelRatio);
         se->evalString(commandBuf);
-        glViewport(0, 0, g_width, g_height);
+        glViewport(0, 0, g_width / devicePixelRatio, g_height / devicePixelRatio);
         glDepthMask(GL_TRUE);
         
         return true;
     }
 }
 
-Application* cocos_android_app_init(JNIEnv* env);
+Application* cocos_android_app_init(JNIEnv* env, int width, int height);
 
 extern "C"
 {
     JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
     {
         JniHelper::setJavaVM(vm);
-        g_app = cocos_android_app_init(JniHelper::getEnv());
-
         return JNI_VERSION_1_4;
     }
 
@@ -135,12 +135,16 @@ extern "C"
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
     {
+        g_width = w;
+        g_height = h;
+        
+        g_app = cocos_android_app_init(env, w, h);
+
         g_isGameFinished = false;
         ccInvalidateStateCache();
         std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
         LOGD("CocosRenderer.nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
-        g_width = w;
-        g_height = h;
+        
 
         if (!defaultResourcePath.empty())
             FileUtils::getInstance()->setDefaultResourceRootPath(defaultResourcePath);
@@ -166,18 +170,26 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender(JNIEnv* env)
 	{
-        if (g_isGameFinished) {
+        if (g_isGameFinished)
             return;
-        }
+
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
         static float dt = 0.f;
         static float dtSum = 0.f;
         static uint32_t jsbInvocationTotalCount = 0;
         static uint32_t jsbInvocationTotalFrames = 0;
+        bool downsampleEnabled = g_app->isDownsampleEnabled();
+        
+        if (downsampleEnabled)
+            g_app->getRenderTexture()->prepare();
 
         g_app->getScheduler()->update(dt);
         EventDispatcher::dispatchTickEvent(dt);
+       
+        if (downsampleEnabled)
+            g_app->getRenderTexture()->draw();
+
         PoolManager::getInstance()->getCurrentPool()->clear();
 
         now = std::chrono::steady_clock::now();
@@ -261,10 +273,11 @@ extern "C"
         cocos2d::TouchEvent touchEvent;
         touchEvent.type = type;
 
+        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
         cocos2d::TouchInfo touchInfo;
         touchInfo.index = id;
-        touchInfo.x = x;
-        touchInfo.y = y;
+        touchInfo.x = x / devicePixelRatio;
+        touchInfo.y = y / devicePixelRatio;
         touchEvent.touches.push_back(touchInfo);
         
         cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
@@ -287,12 +300,13 @@ extern "C"
         env->GetFloatArrayRegion(xs, 0, size, x);
         env->GetFloatArrayRegion(ys, 0, size, y);
 
+        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
         for(int i = 0; i < size; i++)
         {
             cocos2d::TouchInfo touchInfo;
             touchInfo.index = id[i];
-            touchInfo.x = x[i];
-            touchInfo.y = y[i];
+            touchInfo.x = x[i] / devicePixelRatio;
+            touchInfo.y = y[i] / devicePixelRatio;
             touchEvent.touches.push_back(touchInfo);
         }
 

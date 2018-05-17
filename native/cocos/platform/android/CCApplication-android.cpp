@@ -26,8 +26,10 @@ THE SOFTWARE.
 #include "platform/CCApplication.h"
 #include <android/log.h>
 #include <jni.h>
+#include <EGL/egl.h>
 #include <cstring>
 #include "platform/android/jni/JniImp.h"
+#include "platform/Android/CCGL-android.h"
 #include "base/CCScheduler.h"
 
 #define  LOG_TAG    "CCApplication_android Debug"
@@ -42,20 +44,33 @@ extern "C" size_t __ctype_get_mb_cur_max(void)
 }
 #endif
 
+PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = 0;
+PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = 0;
+PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = 0;
+
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
 
-Application::Application(const std::string& name)
+Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
     _scheduler = new Scheduler();
+
+    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
+    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress("glBindVertexArrayOES");
+    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = (PFNGLDELETEVERTEXARRAYSOESPROC)eglGetProcAddress("glDeleteVertexArraysOES");
+
+    _renderTexture = new RenderTexture(width, height);
 }
 
 Application::~Application()
 {
     delete _scheduler;
     _scheduler = nullptr;
+
+    delete _renderTexture;
+    _renderTexture = nullptr;
 
     Application::_instance = nullptr;
 }
