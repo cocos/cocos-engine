@@ -356,6 +356,11 @@ let Mask = cc.Class({
         }
     },
 
+    disableRender () {
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
+                                   RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+    },
+
     onEnable () {
         this._super();
         // for graphic stencil data
