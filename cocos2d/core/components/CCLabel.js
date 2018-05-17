@@ -105,7 +105,7 @@ var Overflow = cc.Enum({
     CLAMP: 1,
     SHRINK: 2,
     RESIZE_HEIGHT: 3
-});;
+});
 
 /**
  * !#en Enum for font type.
@@ -148,32 +148,6 @@ function debounce (func, wait, immediate) {
     };
 }
 
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                _canvas: canvas,
-                _context: context
-            }
-        }
-
-        data._canvas.width = data._canvas.height = 1;
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
-
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -190,7 +164,6 @@ var Label = cc.Class({
         }
 
         this._actualFontSize = 0;
-        this._assemblerData = null;
     },
 
     editor: CC_EDITOR && {
@@ -502,10 +475,6 @@ var Label = cc.Class({
         this._activateMaterial();
     },
 
-    onDestroy () {
-        this._resetAssemblerData();
-    },
-
     _checkStringEmpty () {
         if (!this.string) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
@@ -515,16 +484,9 @@ var Label = cc.Class({
         }
     },
 
-    _resetAssemblerData () {
-        if (this._assemblerData) {
-            _canvasPool.put(this._assemblerData);
-        }
-        this._assemblerData = null;
-    },
-
     _updateAssembler () {
         let assembler = Label._assembler.getAssembler(this);
-        
+
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
@@ -544,8 +506,6 @@ var Label = cc.Class({
             return;
         }
 
-        this._resetAssemblerData();
-
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
@@ -558,10 +518,9 @@ var Label = cc.Class({
             this._texture = spriteFrame._texture;
         }
         else {
-            this._assemblerData = _canvasPool.get();
-
             this._texture = new cc.Texture2D();
-            this._texture.initWithElement(this._assemblerData._canvas);
+            let _assemblerData = this._assembler.getAssemblerData();
+            this._texture.initWithElement(_assemblerData.canvas);
         }
 
         material.texture = this._texture;
@@ -584,8 +543,8 @@ var Label = cc.Class({
         }
 
         if (CC_EDITOR || force) {
-            this._activateMaterial(force);
             this._updateAssembler();
+            this._activateMaterial(force);
             this._assembler.updateRenderData(this);
         }
     },

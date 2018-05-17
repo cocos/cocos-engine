@@ -69,7 +69,22 @@ let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
 
+let _sharedLabelData;
+
 module.exports = {
+
+    getAssemblerData () {
+        if (!_sharedLabelData) {
+            let labelCanvas = document.createElement("canvas");
+            _sharedLabelData = {
+                canvas: labelCanvas,
+                context: labelCanvas.getContext("2d")
+            };
+        }
+        _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
+        return _sharedLabelData;
+    },
+
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
@@ -131,9 +146,9 @@ module.exports = {
     },
 
     _updateProperties () {
-        let assemblerData = _comp._assemblerData;
-        _context = assemblerData._context;
-        _canvas = assemblerData._canvas;
+        let assemblerData = this.getAssemblerData();
+        _context = assemblerData.context;
+        _canvas = assemblerData.canvas;
         _texture = _comp._texture;
         
         _string = _comp.string.toString();
@@ -174,10 +189,10 @@ module.exports = {
     },
 
     _calculateFillTextStartPosition () {
-        var lineHeight = this._getLineHeight();
-        var lineCount = _splitedStrings.length;
-        var labelX;
-        var firstLinelabelY;
+        let lineHeight = this._getLineHeight();
+        let lineCount = _splitedStrings.length;
+        let labelX;
+        let firstLinelabelY;
 
         if (_hAlign === macro.TextAlignment.RIGHT) {
             labelX = _canvasSize.width - _margin;
@@ -206,17 +221,17 @@ module.exports = {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
-        var startPosition = this._calculateFillTextStartPosition();
-        var lineHeight = this._getLineHeight();
+        let startPosition = this._calculateFillTextStartPosition();
+        let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a/255})`;
-        var underlineStartPosition;
+        let underlineStartPosition;
 
         //do real rendering
-        for (var i = 0; i < _splitedStrings.length; ++i) {
+        for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
-                var strokeColor = _outlineColor || cc.color(255,255,255,255);
+                let strokeColor = _outlineColor || cc.color(255,255,255,255);
                 _context.globalCompositeOperation = 'source-over';
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a/255})`;
                 _context.lineWidth = _outlineWidth * 2;
@@ -224,9 +239,9 @@ module.exports = {
             }
 
             if (_fillColorGradientEnabled && _gradientArgs) {
-                var gradientStartColor = _gradientStartColor || cc.color(255, 255, 255, 255);
-                var gradientEndColor = _gradientEndColor || cc.color(255, 255, 255, 255);
-                var gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
+                let gradientStartColor = _gradientStartColor || cc.color(255, 255, 255, 255);
+                let gradientEndColor = _gradientEndColor || cc.color(255, 255, 255, 255);
+                let gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
                 gradient.addColorStop(0, gradientStartColor.toHEX());
                 gradient.addColorStop(1, gradientEndColor.toHEX());
                 _context.fillStyle = gradient;
@@ -250,10 +265,10 @@ module.exports = {
     },
 
     _calculateUnderlineStartPosition () {
-        var lineHeight = this._getLineHeight();
-        var lineCount = _splitedStrings.length;
-        var labelX;
-        var firstLinelabelY;
+        let lineHeight = this._getLineHeight();
+        let lineCount = _splitedStrings.length;
+        let labelX;
+        let firstLinelabelY;
 
         labelX = 0 + _margin;
 
@@ -271,18 +286,17 @@ module.exports = {
     },
 
     _updateLabelDimensions () {
-        var paragraphedStrings = _string.split('\n');
-        var i;
+        let paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
             _canvasSize.height = _splitedStrings.length * this._getLineHeight();
         }
         else if (_overflow === Overflow.NONE) {
             _splitedStrings = paragraphedStrings;
-            var canvasSizeX = 0;
-            var canvasSizeY = 0;
-            for (i = 0; i < paragraphedStrings.length; ++i) {
-                var paraLength = _context.measureText(paragraphedStrings[i]).width;
+            let canvasSizeX = 0;
+            let canvasSizeY = 0;
+            for (let i = 0; i < paragraphedStrings.length; ++i) {
+                let paraLength = _context.measureText(paragraphedStrings[i]).width;
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = _splitedStrings.length * this._getLineHeight();
@@ -300,9 +314,9 @@ module.exports = {
     },
 
     _calculateTextBaseline () {
-        var node = this._node;
-        var hAlign;
-        var vAlign;
+        let node = this._node;
+        let hAlign;
+        let vAlign;
 
         if (_hAlign === macro.TextAlignment.RIGHT) {
             hAlign = 'right';
@@ -328,15 +342,14 @@ module.exports = {
     },
 
     _calculateSplitedStrings () {
-        var paragraphedStrings = _string.split('\n');
+        let paragraphedStrings = _string.split('\n');
 
-        var i;
         if (_isWrapText) {
             _splitedStrings = [];
-            var canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
-            for (i = 0; i < paragraphedStrings.length; ++i) {
-                var allWidth = _context.measureText(paragraphedStrings[i]).width;
-                var textFragment = TextUtils.fragmentText(paragraphedStrings[i],
+            let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
+            for (let i = 0; i < paragraphedStrings.length; ++i) {
+                let allWidth = _context.measureText(paragraphedStrings[i]).width;
+                let textFragment = TextUtils.fragmentText(paragraphedStrings[i],
                                                         allWidth,
                                                         canvasWidthNoMargin,
                                                         this._measureText(_context));
@@ -350,7 +363,7 @@ module.exports = {
     },
 
     _getFontDesc () {
-        var fontDesc = _fontSize.toString() + 'px ';
+        let fontDesc = _fontSize.toString() + 'px ';
         fontDesc = fontDesc + _fontFamily;
         if (_isBold) {
             fontDesc = "bold " + fontDesc;
@@ -360,22 +373,21 @@ module.exports = {
     },
 
     _getLineHeight () {
-        var nodeSpacingY = _lineHeight;
+        let nodeSpacingY = _lineHeight;
         if (nodeSpacingY === 0) {
             nodeSpacingY = _fontSize;
         } else {
             nodeSpacingY = nodeSpacingY * _fontSize / _drawFontsize;
         }
 
-        var lineHeight = nodeSpacingY | 0;
-        return lineHeight;
+        return nodeSpacingY | 0;
     },
 
     _calculateParagraphLength (paragraphedStrings, ctx) {
-        var paragraphLength = [];
+        let paragraphLength = [];
 
-        for (var i = 0; i < paragraphedStrings.length; ++i) {
-            var textMetric = ctx.measureText(paragraphedStrings[i]);
+        for (let i = 0; i < paragraphedStrings.length; ++i) {
+            let textMetric = ctx.measureText(paragraphedStrings[i]);
             paragraphLength.push(textMetric.width);
         }
 
@@ -393,17 +405,17 @@ module.exports = {
         _context.font = _fontDesc;
 
         if (_overflow === Overflow.SHRINK) {
-            var paragraphedStrings = _string.split('\n');
-            var paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
+            let paragraphedStrings = _string.split('\n');
+            let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
         
             _splitedStrings = paragraphedStrings;
-            var i = 0;
-            var totalHeight = 0;
-            var maxLength = 0;
+            let i = 0;
+            let totalHeight = 0;
+            let maxLength = 0;
 
             if (_isWrapText) {
-                var canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
-                var canvasHeightNoMargin = _canvasSize.height - 2 * _margin;
+                let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
+                let canvasHeightNoMargin = _canvasSize.height - 2 * _margin;
                 if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
@@ -411,10 +423,10 @@ module.exports = {
                 }
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
-                var actualFontSize = _fontSize + 1;
-                var textFragment = "";
-                var tryDivideByTwo = true;
-                var startShrinkFontSize = actualFontSize | 0;
+                let actualFontSize = _fontSize + 1;
+                let textFragment = "";
+                let tryDivideByTwo = true;
+                let startShrinkFontSize = actualFontSize | 0;
 
                 while (totalHeight > canvasHeightNoMargin || maxLength > canvasWidthNoMargin) {
                     if (tryDivideByTwo) {
@@ -434,14 +446,14 @@ module.exports = {
                     _splitedStrings = [];
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
-                        var j = 0;
-                        var allWidth = _context.measureText(paragraphedStrings[i]).width;
+                        let j = 0;
+                        let allWidth = _context.measureText(paragraphedStrings[i]).width;
                         textFragment = TextUtils.fragmentText(paragraphedStrings[i],
                                                             allWidth,
                                                             canvasWidthNoMargin,
                                                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            var measureWidth = _context.measureText(textFragment[j]).width;
+                            let measureWidth = _context.measureText(textFragment[j]).width;
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
@@ -467,8 +479,8 @@ module.exports = {
                         maxLength = paragraphLength[i];
                     }
                 }
-                var scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
-                var scaleY = _canvasSize.height / totalHeight;
+                let scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
+                let scaleY = _canvasSize.height / totalHeight;
 
                 _fontSize = (_drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 _fontDesc = this._getFontDesc();
