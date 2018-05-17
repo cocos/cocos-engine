@@ -64,7 +64,11 @@ _proto._worldTransform = function (node) {
 
     mul(node._worldMatrix, t, node._parent._worldMatrix);
     node._renderFlag &= ~WORLD_TRANSFORM;
+    // Mark world mat state for assembler
+    node._worldMatUpdated = true;
     this._next._func(node);
+    // Reset world mat state
+    node._worldMatUpdated = false;
 
     _walker.worldMatDirty --;
 }
