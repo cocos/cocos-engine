@@ -56,8 +56,8 @@ class HTMLCanvasElement extends HTMLElement {
 
         this.top = 0;
         this.left = 0;
-        this._width = width ? Math.ceil(width) : 1;
-        this._height = height ? Math.ceil(height) : 1;
+        this._width = width ? Math.ceil(width) : 0;
+        this._height = height ? Math.ceil(height) : 0;
         this._context2D = null;
         this._data = null;
         this._alignment = 4; // Canvas is used for rendering text only and we make sure the data format is RGBA.
