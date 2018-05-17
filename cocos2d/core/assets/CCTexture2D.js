@@ -172,8 +172,8 @@ const Filter = cc.Enum({
 });
 
 const FilterIndex = {
-    GL_NEAREST: 0,
-    GL_LINEAR: 1,
+    9728: 0, // GL_NEAREST
+    9729: 1, // GL_LINEAR
 };
 
 let _emptyOpts = {};
