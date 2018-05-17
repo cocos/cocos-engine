@@ -89,9 +89,6 @@ let WebView = cc.Class({
                 this._url = url;
                 let impl = this._impl;
                 if (impl) {
-                    if (CC_EDITOR) {
-                        impl._div.innerHTML = url;
-                    }
                     impl.loadURL(url);
                 }
             }
@@ -112,23 +109,6 @@ let WebView = cc.Class({
         EventType: EventType,
     },
 
-    //
-    createDomElementToEditor : CC_EDITOR && function () {
-        let impl = this._impl;
-        impl._div = document.createElement('div');
-        impl._div.innerText = this._url;
-        impl._div.style.background = 'rgba(255, 255, 255, 0.8)';
-        impl._div.style.color = 'rgb(51, 51, 51)';
-        impl._div.style.height = this.node.height + 'px';
-        impl._div.style.width = this.node.width + 'px';
-        impl._div.style.visibility = 'visible';
-        impl._div.style.position = 'absolute';
-        impl._div.style.bottom = '0px';
-        impl._div.style.left = '0px';
-        impl._visible = true;
-        impl._forceUpdate = true;
-        cc.game.container.appendChild(impl._div);
-    },
 
     ctor () {
         this._impl = new WebViewImpl();
@@ -136,23 +116,20 @@ let WebView = cc.Class({
 
     onEnable () {
         let impl = this._impl;
+        impl.createDomElementIfNeeded(this.node.width, this.node.height);
+        impl.loadURL(this._url);
+        impl.setVisible(true);
         if (!CC_EDITOR) {
-            this._impl.createDomElementIfNeeded(this.node.width, this.node.height);
-            this._impl.loadURL(this._url);
-            this._impl.setVisible(true);
             impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
             impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
             impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
         }
-        else {
-            this.createDomElementToEditor();
-        }
     },
 
     onDisable () {
+        let impl = this._impl;
+        impl.setVisible(false);
         if (!CC_EDITOR) {
-            let impl = this._impl;
-            impl.setVisible(false);
             impl.setEventListener(EventType.LOADED, emptyCallback);
             impl.setEventListener(EventType.LOADING, emptyCallback);
             impl.setEventListener(EventType.ERROR, emptyCallback);

@@ -130,7 +130,17 @@ let WebViewImpl = cc.Class({
         this._initEvent();
     },
 
-    createDomElementIfNeeded (w, h) {
+    createDomElementIfNeeded: CC_EDITOR ? function (w, h) {
+        this._div = document.createElement('div');
+        this._div.style.background = 'rgba(255, 255, 255, 0.8)';
+        this._div.style.color = 'rgb(51, 51, 51)';
+        this._div.style.height = w + 'px';
+        this._div.style.width = h + 'px';
+        this._div.style.position = 'absolute';
+        this._div.style.bottom = '0px';
+        this._div.style.left = '0px';
+        cc.game.container.appendChild(this._div);
+    } : function (w, h) {
         if (!this._div) {
             this._createNativeControl(w, h);
         }
@@ -158,7 +168,9 @@ let WebViewImpl = cc.Class({
      * Load an URL
      * @param {String} url
      */
-    loadURL (url) {
+    loadURL: CC_EDITOR ? function (url) {
+        this._div.innerText = url;
+    } : function (url) {
         let iframe = this._iframe;
         if (iframe) {
             iframe.src = url;
