@@ -247,7 +247,7 @@ let Mask = cc.Class({
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderData.vertDirty = true;
-            this.markUpdateRenderData();
+            this.markForUpdateRenderData(true);
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
@@ -273,7 +273,8 @@ let Mask = cc.Class({
 
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
-        if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded)) {
+        if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded())) {
+            this.markForRender(false);
             return;
         }
 
@@ -306,6 +307,7 @@ let Mask = cc.Class({
         }
         this._frontMaterial.updateHash();
         this._endMaterial.updateHash();
+        this.markForRender(true);
     },
 
     _hitTest: function (point) {
@@ -336,15 +338,38 @@ let Mask = cc.Class({
         }
     },
 
+    markForUpdateRenderData (enable) {
+        if (enable && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~(RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+        }
+    },
+
+    markForRender (enable) {
+        if (enable && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
+        }
+    },
+
+    disableRender () {
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
+                                   RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+    },
+
     onEnable () {
         this._super();
         // for graphic stencil data
         this._renderDatas = [];
         // for graphic stencil data
         this._graphics = null;
-        this._activateMaterial();
 
         this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        this._activateMaterial();
     },
 
     onDisable () {

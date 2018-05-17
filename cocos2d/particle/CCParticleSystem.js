@@ -978,7 +978,7 @@ var ParticleSystem = cc.Class({
     onEnable: function () {
         this._super();
         // should add render flag after particle loaded
-        this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+        this.disableRender();
 
         this._updateMaterial();
     },
@@ -996,7 +996,8 @@ var ParticleSystem = cc.Class({
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
 
             var self = this;
             this._previewTimer = setInterval(function () {
@@ -1019,7 +1020,7 @@ var ParticleSystem = cc.Class({
         if (this.preview) {
             this.resetSystem();
             this.stopSystem();
-            this.node._renderFlag &= !(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+            this.disableRender();
             cc.engine.repaintInEditMode();
         }
         if (this._previewTimer) {
@@ -1327,8 +1328,13 @@ var ParticleSystem = cc.Class({
     },
 
     _updateMaterial: function () {
+        if (!this.enabledInHierarchy) {
+            this.disableRender();
+            return;
+        }
         // cannot be activated if texture not loaded yet
         if (!this._texture || !this._texture.loaded) {
+            this.markForRender(false);
             if (this._spriteFrame) {
                 this._applySpriteFrame();
             }
@@ -1351,7 +1357,8 @@ var ParticleSystem = cc.Class({
 
         this._updateBlendFunc();
 
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
     
     _updateBlendFunc: function () {
@@ -1370,6 +1377,7 @@ var ParticleSystem = cc.Class({
 
     _finishedSimulation: function () {
         if (this._autoRemoveOnFinish && this._vfx.stopped) {
+            this.disableRender();
             this.node.destroy();
         }
     }

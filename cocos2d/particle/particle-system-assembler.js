@@ -89,7 +89,7 @@ var particleSystemAssembler = {
         vfx.step(cc.director.getDeltaTime());
         // check finish
         if (running && vfx.stopped) {
-            comp._finishedSimulation();
+            comp.scheduleOnce(comp._finishedSimulation, 0);
         }
 
         renderData.vertexCount = vfx.buffers.indexes.length;

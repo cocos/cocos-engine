@@ -476,12 +476,7 @@ var Label = cc.Class({
     },
 
     _checkStringEmpty () {
-        if (!this.string) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
-        }
-        else {
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
-        }
+        this.markForRender(!!this.string);
     },
 
     _updateAssembler () {
@@ -500,7 +495,7 @@ var Label = cc.Class({
     _activateMaterial (force) {
         let material = this._material;
         if (!material) {
-            material = this._material = new SpriteMaterial();
+            material = new SpriteMaterial();
         }
         else if (!force) {
             return;
@@ -539,7 +534,7 @@ var Label = cc.Class({
         if (renderData) {
             renderData.vertDirty = true;
             renderData.uvDirty = true;
-            this.markUpdateRenderData();
+            this.markForUpdateRenderData(true);
         }
 
         if (CC_EDITOR || force) {
