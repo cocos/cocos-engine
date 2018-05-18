@@ -130,8 +130,8 @@ _p.update = function(options) {
 _p.updateSubImage = function(option) {
     var images = [option.image];
     convertImages(images);
-    var data = new Uint16Array(8 + 
-                               (images[0].length + 1) / 2);
+    var data = new Uint32Array(8 + 
+                               (images[0].length + 3) / 4);
 
     data[0] = option.x;
     data[1] = option.y;
@@ -140,11 +140,9 @@ _p.updateSubImage = function(option) {
     data[4] = option.level;
     data[5] = option.flipY;
     data[6] = false;
-
-    
     data[7] = images[0].length;
     var imageData = new Uint8Array(data.buffer);
-    imageData.set(images[0], 16);
+    imageData.set(images[0], 32);
 
     this.updateSubImageNative(data);
 };
