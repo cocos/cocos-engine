@@ -890,6 +890,7 @@ function initSys () {
                     } else {
                         _supportWebGL = false;
                     }
+                    break;
                 case sys.BROWSER_TYPE_360:
                     _supportWebGL = false;
                 }
