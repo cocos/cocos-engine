@@ -16,7 +16,7 @@
     "locked": true,
     "entries": [
       "./cocos2d/core/components/CCSprite.js",
-      "./cocos2d/core/renderer/assemblers/sprite/sprite-assembler.js"
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/sprite-assembler.js"
     ]
   },
   {
@@ -29,14 +29,14 @@
     "name": "Label",
     "entries": [
       "./cocos2d/core/components/CCLabel.js",
-      "./cocos2d/core/renderer/assemblers/label/label-assembler.js"
+      "./cocos2d/core/renderer/webgl/assemblers/label/label-assembler.js"
     ]
   },
   {
     "name": "Mask",
     "entries": [
       "./cocos2d/core/components/CCMask.js",
-      "./cocos2d/core/renderer/assemblers/mask-assembler.js"
+      "./cocos2d/core/renderer/webgl/assemblers/mask-assembler.js"
     ]
   },
   {
@@ -131,7 +131,7 @@
   {
     "name": "EditBox",
     "entries": [
-      "./cocos2d/core/components/CCEditBox.js"
+      "./cocos2d/core/components/editbox/CCEditBox.js"
     ]
   },
   {
@@ -170,7 +170,7 @@
     "name": "MotionStreak",
     "entries": [
       "./cocos2d/core/components/CCMotionStreak.js",
-      "./cocos2d/core/renderer/assemblers/motion-streak.js"
+      "./cocos2d/core/renderer/webgl/assemblers/motion-streak.js"
     ]
   },
   {
