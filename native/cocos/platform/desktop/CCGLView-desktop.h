@@ -45,10 +45,12 @@ public:
     bool windowShouldClose() const;
     void pollEvents();
     void swapBuffers();
-    float getScaleFactor() const;
+    float getScale() const;
+    GLint getMainFBO() const;
     
 private:  
     bool initGlew();
+    void computeScale();
 
     // GLFW callbacks
     void onGLFWError(int errorID, const char* errorDesc);
@@ -62,6 +64,7 @@ private:
  
     GLFWwindow* _mainWindow = nullptr;
     GLFWmonitor* _monitor = nullptr;
+    GLint _mainFBO = -1;
 
     std::string _glfwError;
     
@@ -69,6 +72,9 @@ private:
 
     float _mouseX = 0;
     float _mouseY = 0;
+    
+    // (framebuffer size) / (window size)
+    float _scale = 1.0f;
 
     friend class GLFWEventHandler;
 };

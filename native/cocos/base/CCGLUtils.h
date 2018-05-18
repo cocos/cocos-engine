@@ -38,6 +38,9 @@ GLint ccGetBoundIndexBuffer();
 void ccBindVertexArray(GLuint VAO);
 GLint ccGetBoundVertexArray();
 
+void ccViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+void ccScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+
 struct VertexAttributePointerInfo
 {
     VertexAttributePointerInfo(GLuint VBO, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)

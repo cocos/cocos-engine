@@ -147,6 +147,12 @@ public:
     inline uint8_t getDevicePixelRatio() const { return _devicePixelRatio; }
     inline bool isDownsampleEnabled() const { return _isDownsampleEnabled; }
     
+    /** The value is (framebuffer size) / (window size), but on iOS, it is special, its value is 1.
+     */
+    float getScreenScale() const;
+    
+    GLint getMainFBO() const;
+    
     /**
      @brief Get target platform.
      */
@@ -162,11 +168,10 @@ public:
     std::string getSystemVersion();
     
 protected:
-    virtual void onCreateView(int& x, int& y, int& width, int& height, 
-                              PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount);
+    virtual void onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount);
     
 private:
-    void createView(const std::string& name);
+    void createView(const std::string& name, int width, int height);
     
     static Application* _instance;
     
@@ -181,6 +186,8 @@ private:
     // The ratio to downsample, for example, if its value is 2,
     // then the rendering size of render texture is device_resolution/2.
     uint8_t _devicePixelRatio = 1;
+    
+    GLint _mainFBO = 0;
 };
 
 // end of platform group

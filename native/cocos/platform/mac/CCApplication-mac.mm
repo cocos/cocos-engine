@@ -23,19 +23,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
+#include "platform/CCApplication.h"
 #import <Cocoa/Cocoa.h>
-#import <algorithm>
-#import <mutex>
-
+#include <algorithm>
+#include <mutex>
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
-#include "platform/CCApplication.h"
 #include "platform/desktop/CCGLView-desktop.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
-#include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "base/CCGLUtils.h"
 
 NS_CC_BEGIN
 
@@ -52,7 +50,7 @@ namespace
                 g_width / devicePixelRatio,
                 g_height / devicePixelRatio);
         se->evalString(commandBuf);
-        glViewport(0, 0, g_width / devicePixelRatio, g_height / devicePixelRatio);
+        ccViewport(0, 0, g_width / devicePixelRatio, g_height / devicePixelRatio);
         glDepthMask(GL_TRUE);
         return true;
     }
@@ -66,15 +64,14 @@ Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
     
+    g_width = width;
+    g_height = height;
+    
+    createView(name, width, height);
+
+    _renderTexture = new RenderTexture(width, height);
     _scheduler = new Scheduler();
     
-    createView(name);
-    
-    float scale = CAST_VIEW(_view)->getScaleFactor();
-
-    _renderTexture = new RenderTexture(width * scale, height * scale);
-    
-    renderer::DeviceGraphics::setScaleFactor(scale);
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
@@ -195,6 +192,16 @@ Application::LanguageType Application::getCurrentLanguage() const
     return LanguageType::ENGLISH;
 }
 
+float Application::getScreenScale() const
+{
+    return CAST_VIEW(_view)->getScale();
+}
+
+GLint Application::getMainFBO() const
+{
+    return CAST_VIEW(_view)->getMainFBO();
+}
+
 bool Application::openURL(const std::string &url)
 {
     NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
@@ -219,41 +226,25 @@ void Application::setMultitouch(bool)
 {
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
+void Application::onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
 {
-    x = 0;
-    y = 0;
-    width = 960;
-    height = 640;
-    
     pixelformat = PixelFormat::RGBA8;
     depthFormat = DepthFormat::DEPTH24_STENCIL8;
 
     multisamplingCount = 0;
 }
 
-void Application::createView(const std::string& name)
+void Application::createView(const std::string& name, int width, int height)
 {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
     int multisamplingCount = 0;
     PixelFormat pixelformat;
     DepthFormat depthFormat;
     
-    onCreateView(x,
-                 y,
-                 width,
-                 height,
-                 pixelformat,
+    onCreateView(pixelformat,
                  depthFormat,
                  multisamplingCount);
 
-    _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
-    
-    g_width = width;
-    g_height = height;
+    _view = new GLView(this, name, 0, 0, width, height, pixelformat, depthFormat, multisamplingCount);
 }
 
 std::string Application::getSystemVersion()

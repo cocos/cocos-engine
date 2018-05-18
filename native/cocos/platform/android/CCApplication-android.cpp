@@ -203,8 +203,17 @@ Application::Platform Application::getPlatform() const
     return Platform::ANDROIDOS;
 }
 
-void Application::onCreateView(int& /*x*/, int& /*y*/, int& /*width*/, int& /*height*/, 
-                              PixelFormat& /*pixelformat*/, DepthFormat& /*depthFormat*/, int& /*multisamplingCount*/)
+float Application::getScreenScale() const
+{
+    return 1.f;
+}
+
+GLint Application::getMainFBO() const
+{
+    return _mainFBO;
+}
+
+void Application::onCreateView(PixelFormat& /*pixelformat*/, DepthFormat& /*depthFormat*/, int& /*multisamplingCount*/)
 {
 
 }

@@ -55,8 +55,6 @@ namespace
     }
 } // namespace {
 
-int DeviceGraphics::_scaleFactor = 1.0f;
-
 DeviceGraphics* DeviceGraphics::getInstance()
 {
     static DeviceGraphics* __instance = nullptr;
@@ -64,11 +62,6 @@ DeviceGraphics* DeviceGraphics::getInstance()
         __instance = new (std::nothrow) DeviceGraphics();
 
     return __instance;
-}
-
-void DeviceGraphics::setScaleFactor(float value)
-{
-    _scaleFactor = value;
 }
 
 bool DeviceGraphics::supportGLExtension(const std::string& extension) const
@@ -137,10 +130,7 @@ void DeviceGraphics::setViewport(int x, int y, int w, int h)
         _vy = y;
         _vw = w;
         _vh = h;
-        GL_CHECK(glViewport(_vx * _scaleFactor,
-                            _vy * _scaleFactor,
-                            _vw * _scaleFactor,
-                            _vh * _scaleFactor));
+        GL_CHECK(ccViewport(_vx, _vy, _vw, _vh));
     }
 }
 
@@ -155,10 +145,7 @@ void DeviceGraphics::setScissor(int x, int y, int w, int h)
         _sy = y;
         _sw = w;
         _sh = h;
-        glScissor(_sx * _scaleFactor,
-                  _sy * _scaleFactor,
-                  _sw * _scaleFactor,
-                  _sh * _scaleFactor);
+        ccScissor(_sx, _sy, _sw, _sh);
     }
 }
 

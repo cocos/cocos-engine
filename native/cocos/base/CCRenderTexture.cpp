@@ -30,6 +30,7 @@
 #include "base/ccMacros.h"
 #include "base/CCConfiguration.h"
 #include "platform/CCPlatformConfig.h"
+#include "platform/CCApplication.h"
 
 NS_CC_BEGIN
 
@@ -98,7 +99,7 @@ void RenderTexture::init(int factor)
 void RenderTexture::prepare()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
-    glViewport(0, 0, _width, _height);
+    ccViewport(0, 0, _width, _height);
 }
 
 void RenderTexture::draw()
@@ -121,7 +122,7 @@ void RenderTexture::draw()
     glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
 
     glBindFramebuffer(GL_FRAMEBUFFER, _mainFBO);
-    glViewport(0, 0, _deviceResolution.x, _deviceResolution.y);
+    ccViewport(0, 0, _deviceResolution.x, _deviceResolution.y);
 
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -424,7 +425,7 @@ void RenderTexture::initVBOAndVAO()
 
 void RenderTexture::initFramebuffer()
 {
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_mainFBO);
+    _mainFBO = Application::getInstance()->getMainFBO();
     glGenFramebuffers(1, &_FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);

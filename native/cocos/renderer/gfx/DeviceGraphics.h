@@ -61,9 +61,7 @@ public:
     };
     
     static DeviceGraphics* getInstance();
-    
-    static void setScaleFactor(float value);
-    
+        
     inline const Capacity& getCapacity() const { return _caps; }
     bool supportGLExtension(const std::string& extension) const;
 
@@ -162,8 +160,6 @@ private:
     inline void commitCullMode();
     inline void commitVertexBuffer();
     inline void commitTextures();
-
-    static int _scaleFactor;
 
     int _vx;
     int _vy;

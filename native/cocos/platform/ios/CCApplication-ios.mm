@@ -24,16 +24,15 @@
  ****************************************************************************/
 
 #import "CCApplication.h"
-
+#import <UIKit/UIKit.h>
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
 #include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
-
 #include "CCEAGLView-ios.h"
-#import <UIKit/UIKit.h>
+#include "base/CCGLUtils.h"
 
 namespace
 {
@@ -57,7 +56,7 @@ namespace
                 (int)(resolution.x / devicePixelRatio),
                 (int)(resolution.y / devicePixelRatio));
         se->evalString(commandBuf);
-        glViewport(0, 0, resolution.x / devicePixelRatio, resolution.y / devicePixelRatio);
+        cocos2d::ccViewport(0, 0, resolution.x / devicePixelRatio, resolution.y / devicePixelRatio);
         glDepthMask(GL_TRUE);
         return true;
     }
@@ -198,8 +197,9 @@ Application::Application(const std::string& name, int width, int height)
     Application::_instance = this;
     _scheduler = new Scheduler();
 
-    createView(name);
+    createView(name, width, height);
     
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_mainFBO);
     _renderTexture = new RenderTexture(width, height);
     
     se::ScriptEngine::getInstance();
@@ -298,6 +298,16 @@ Application::Platform Application::getPlatform() const
         return Platform::IPHONE;
 }
 
+float Application::getScreenScale() const
+{
+    return 1.f;
+}
+
+GLint Application::getMainFBO() const
+{
+    return _mainFBO;
+}
+
 bool Application::openURL(const std::string &url)
 {
     NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
@@ -328,14 +338,8 @@ void Application::setMultitouch(bool value)
     }
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
+void Application::onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
 {
-    CGRect bounds = [UIScreen mainScreen].bounds;
-    x = bounds.origin.x;
-    y = bounds.origin.y;
-    width = bounds.size.width;
-    height = bounds.size.height;
-    
     pixelformat = PixelFormat::RGB565;
     depthFormat = DepthFormat::DEPTH24_STENCIL8;
 
@@ -361,27 +365,19 @@ namespace
     }
 }
 
-void Application::createView(const std::string& /*name*/)
+void Application::createView(const std::string& /*name*/, int width, int height)
 {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
     PixelFormat pixelFormat = PixelFormat::RGB565;
     DepthFormat depthFormat = DepthFormat::DEPTH24_STENCIL8;
     int multisamplingCount = 0;
     
-    onCreateView(x,
-                 y,
-                 width,
-                 height,
-                 pixelFormat,
+    onCreateView(pixelFormat,
                  depthFormat,
                  multisamplingCount);
     
     CGRect bounds;
-    bounds.origin.x = x;
-    bounds.origin.y = y;
+    bounds.origin.x = 0;
+    bounds.origin.y = 0;
     bounds.size.width = width;
     bounds.size.height = height;
     

@@ -179,6 +179,10 @@ GLView::GLView(Application* application, const std::string& name, int x, int y, 
     
     if(multisamplingCount > 0)
         glEnable(GL_MULTISAMPLE);
+    
+    computeScale();
+    
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_mainFBO);
 }
 
 GLView::~GLView()
@@ -205,15 +209,14 @@ void GLView::swapBuffers()
     glfwSwapBuffers(_mainWindow);
 }
 
-float GLView::getScaleFactor() const
+float GLView::getScale() const
 {
-    int widthInPixel = 0;
-    glfwGetFramebufferSize(_mainWindow, &widthInPixel, nullptr);
-    
-    int width = 0;
-    glfwGetWindowSize(_mainWindow, &width, nullptr);
-    
-    return float(widthInPixel) / width;
+    return _scale;
+}
+
+GLint GLView::getMainFBO() const
+{
+    return _mainFBO;
 }
 
 void GLView::onGLFWError(int errorID, const char* errorDesc)
@@ -365,6 +368,17 @@ static bool glew_dynamic_binding()
     return true;
 }
 #endif
+
+void GLView::computeScale()
+{
+    int widthInPixel = 0;
+    glfwGetFramebufferSize(_mainWindow, &widthInPixel, nullptr);
+    
+    int width = 0;
+    glfwGetWindowSize(_mainWindow, &width, nullptr);
+    
+    _scale = float(widthInPixel) / width;
+}
 
 // helper
 bool GLView::initGlew()

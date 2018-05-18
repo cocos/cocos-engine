@@ -1983,7 +1983,7 @@ static bool JSB_glScissor(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glScissor((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
+    JSB_GL_CHECK(ccScissor((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
 
     return true;
 }
@@ -2917,7 +2917,7 @@ static bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1, (GLsizei)arg2 , (GLsizei)arg3));
+    JSB_GL_CHECK(ccViewport((GLint)arg0 , (GLint)arg1, (GLsizei)arg2 , (GLsizei)arg3));
     return true;
 }
 SE_BIND_FUNC(JSB_glViewport)
@@ -4164,7 +4164,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_SCISSOR) {
             LOG_GL_COMMAND("Flush: SCISSOR\n");
-            JSB_GL_CHECK_VOID(glScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK_VOID(ccScissor((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else if (commandID == GL_COMMAND_STENCIL_FUNC) {
@@ -4398,7 +4398,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_VIEW_PORT) {
             LOG_GL_COMMAND("Flush: VIEW_PORT\n");
-            JSB_GL_CHECK_VOID(glViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
+            JSB_GL_CHECK_VOID(ccViewport((GLint)p[1], (GLint)p[2], (GLsizei)p[3], (GLsizei)p[4]));
             p += 5;
         }
         else {

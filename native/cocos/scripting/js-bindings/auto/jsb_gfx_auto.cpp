@@ -1092,23 +1092,6 @@ static bool js_gfx_DeviceGraphics_enableStencilTest(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_DeviceGraphics_enableStencilTest)
 
-static bool js_gfx_DeviceGraphics_setScaleFactor(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setScaleFactor : Error processing arguments");
-        cocos2d::renderer::DeviceGraphics::setScaleFactor(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceGraphics_setScaleFactor)
-
 static bool js_gfx_DeviceGraphics_getInstance(se::State& s)
 {
     const auto& args = s.args();
@@ -1163,7 +1146,6 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
     cls->defineFunction("supportGLExtension", _SE(js_gfx_DeviceGraphics_supportGLExtension));
     cls->defineFunction("setStencilOp", _SE(js_gfx_DeviceGraphics_setStencilOp));
     cls->defineFunction("enableStencilTest", _SE(js_gfx_DeviceGraphics_enableStencilTest));
-    cls->defineStaticFunction("setScaleFactor", _SE(js_gfx_DeviceGraphics_setScaleFactor));
     cls->defineStaticFunction("getInstance", _SE(js_gfx_DeviceGraphics_getInstance));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::DeviceGraphics>(cls);
