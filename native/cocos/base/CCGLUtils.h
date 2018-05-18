@@ -69,4 +69,11 @@ void ccDisableVertexAttribArray(GLuint index);
 void ccVertexAttribPointer(GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 const VertexAttributePointerInfo* getVertexAttribPointerInfo(GLuint index);
 
+//  Converts pixel if unpackFlipY or premultiplyAlpha is true.
+void ccFlipYOrPremultiptyAlphaIfNeeded(GLenum format, GLsizei width, GLsizei height, uint32_t pixelBytes, GLvoid* pixels);
+
+bool ccIsUnpackFlipY();
+bool ccIsPremultiplyAlpha();
+void ccPixelStorei(GLenum pname, GLint param);
+
 NS_CC_END

@@ -340,6 +340,17 @@ void RenderTexture::initTexture()
     glBindTexture(GL_TEXTURE_2D, _texture);
     unsigned char* texData = (unsigned char*)malloc(_width * _height * 3);
     memset(texData, 0, _width * _height * 3);
+
+    GLint alignment = 1;
+    int bytesPerRow = _width * 3;
+    if (bytesPerRow % 8 == 0)
+        alignment = 8;
+    else if (bytesPerRow % 4 == 0)
+        alignment = 4;
+    else if (bytesPerRow % 2 == 0)
+        alignment = 2;
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  GL_RGB,

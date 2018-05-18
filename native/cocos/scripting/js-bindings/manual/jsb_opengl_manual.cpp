@@ -45,7 +45,7 @@ namespace {
 
     const uint32_t GL_COMMAND_ACTIVE_TEXTURE = 0;
     const uint32_t GL_COMMAND_ATTACH_SHADER = 1;
-    const uint32_t GL_COMMAND_BIND_ATTRIB_LOCATION = 2;
+//    const uint32_t GL_COMMAND_BIND_ATTRIB_LOCATION = 2;
     const uint32_t GL_COMMAND_BIND_BUFFER = 3;
     const uint32_t GL_COMMAND_BIND_FRAME_BUFFER = 4;
     const uint32_t GL_COMMAND_BIND_RENDER_BUFFER = 5;
@@ -55,17 +55,17 @@ namespace {
     const uint32_t GL_COMMAND_BLEND_EQUATION_SEPARATE = 9;
     const uint32_t GL_COMMAND_BLEND_FUNC = 10;
     const uint32_t GL_COMMAND_BLEND_FUNC_SEPARATE = 11;
-    const uint32_t GL_COMMAND_BUFFER_DATA = 12;
-    const uint32_t GL_COMMAND_BUFFER_SUB_DATA = 13;
+//    const uint32_t GL_COMMAND_BUFFER_DATA = 12;
+//    const uint32_t GL_COMMAND_BUFFER_SUB_DATA = 13;
     const uint32_t GL_COMMAND_CLEAR = 14;
     const uint32_t GL_COMMAND_CLEAR_COLOR = 15;
     const uint32_t GL_COMMAND_CLEAR_DEPTH = 16;
     const uint32_t GL_COMMAND_CLEAR_STENCIL = 17;
     const uint32_t GL_COMMAND_COLOR_MASK = 18;
-    const uint32_t GL_COMMAND_COMMIT = 19;
+//    const uint32_t GL_COMMAND_COMMIT = 19;
     const uint32_t GL_COMMAND_COMPILE_SHADER = 20;
-    const uint32_t GL_COMMAND_COMPRESSED_TEX_IMAGE_2D = 21;
-    const uint32_t GL_COMMAND_COMPRESSED_TEX_SUB_IMAGE_2D = 22;
+//    const uint32_t GL_COMMAND_COMPRESSED_TEX_IMAGE_2D = 21;
+//    const uint32_t GL_COMMAND_COMPRESSED_TEX_SUB_IMAGE_2D = 22;
     const uint32_t GL_COMMAND_COPY_TEX_IMAGE_2D = 23;
     const uint32_t GL_COMMAND_COPY_TEX_SUB_IMAGE_2D = 24;
     const uint32_t GL_COMMAND_CULL_FACE = 25;
@@ -99,17 +99,17 @@ namespace {
     const uint32_t GL_COMMAND_RENDER_BUFFER_STORAGE = 53;
     const uint32_t GL_COMMAND_SAMPLE_COVERAGE = 54;
     const uint32_t GL_COMMAND_SCISSOR = 55;
-    const uint32_t GL_COMMAND_SHADER_SOURCE = 56;
+//    const uint32_t GL_COMMAND_SHADER_SOURCE = 56;
     const uint32_t GL_COMMAND_STENCIL_FUNC = 57;
     const uint32_t GL_COMMAND_STENCIL_FUNC_SEPARATE = 58;
     const uint32_t GL_COMMAND_STENCIL_MASK = 59;
     const uint32_t GL_COMMAND_STENCIL_MASK_SEPARATE = 60;
     const uint32_t GL_COMMAND_STENCIL_OP = 61;
     const uint32_t GL_COMMAND_STENCIL_OP_SEPARATE = 62;
-    const uint32_t GL_COMMAND_TEX_IMAGE_2D = 63;
+//    const uint32_t GL_COMMAND_TEX_IMAGE_2D = 63;
     const uint32_t GL_COMMAND_TEX_PARAMETER_F = 64;
     const uint32_t GL_COMMAND_TEX_PARAMETER_I = 65;
-    const uint32_t GL_COMMAND_TEX_SUB_IMAGE_2D = 66;
+//    const uint32_t GL_COMMAND_TEX_SUB_IMAGE_2D = 66;
     const uint32_t GL_COMMAND_UNIFORM_1F = 67;
     const uint32_t GL_COMMAND_UNIFORM_1FV = 68;
     const uint32_t GL_COMMAND_UNIFORM_1I = 69;
@@ -152,7 +152,7 @@ namespace {
     se::Class* __jsb_WebGLProgram_class = nullptr;
     se::Class* __jsb_WebGLShader_class = nullptr;
     se::Class* __jsb_WebGLActiveInfo_class = nullptr;
-    se::Class* __jsb_WebGLUniformLocation_class = nullptr;
+//    se::Class* __jsb_WebGLUniformLocation_class = nullptr;
 
     std::unordered_map<GLuint, se::Value> __shaders;
 
@@ -165,9 +165,6 @@ namespace {
     WebGLObjectMap __webglFramebufferMap;
     WebGLObjectMap __webglProgramMap;
     WebGLObjectMap __webglShaderMap;
-
-    bool __unpackFlipY = false;
-    bool __premultiplyAlpha = false;
 
     inline void WEBGL_framebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
     {
@@ -188,27 +185,6 @@ namespace {
             internalformat = GL_DEPTH24_STENCIL8;
 
         glRenderbufferStorage(target, internalformat, width, height);
-    }
-
-    inline void WEBGL_pixelStorei(GLenum pname, GLint param)
-    {
-        if (pname == GL_UNPACK_FLIP_Y_WEBGL)
-        {
-            __unpackFlipY = param == 0 ? false : true;
-            return;
-        }
-        else if (pname == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
-        {
-            __premultiplyAlpha = param == 0 ? false : true;
-            return;
-        }
-        else if (pname == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL)
-        {
-            SE_LOGE("Warning: UNPACK_COLORSPACE_CONVERSION_WEBGL is unsupported\n");
-            return;
-        }
-
-        glPixelStorei(pname, param);
     }
 
     class WebGLObject : public cocos2d::Ref
@@ -362,128 +338,6 @@ namespace {
             }
         }
     };
-
-    //FIXME:cjh: ONLY SUPPORT RGBA format now.
-    void flipPixelsY(GLubyte *pixels, int bytesPerRow, int rows)
-    {
-        if( !pixels ) { return; }
-
-        GLuint middle = rows/2;
-        GLuint intsPerRow = bytesPerRow / sizeof(GLuint);
-        GLuint remainingBytes = bytesPerRow - intsPerRow * sizeof(GLuint);
-
-        for( GLuint rowTop = 0, rowBottom = rows-1; rowTop < middle; rowTop++, rowBottom-- ) {
-
-            // Swap bytes in packs of sizeof(GLuint) bytes
-            GLuint *iTop = (GLuint *)(pixels + rowTop * bytesPerRow);
-            GLuint *iBottom = (GLuint *)(pixels + rowBottom * bytesPerRow);
-
-            GLuint itmp;
-            GLint n = intsPerRow;
-            do {
-                itmp = *iTop;
-                *iTop++ = *iBottom;
-                *iBottom++ = itmp;
-            } while(--n > 0);
-
-            // Swap the remaining bytes
-            GLubyte *bTop = (GLubyte *)iTop;
-            GLubyte *bBottom = (GLubyte *)iBottom;
-
-            GLubyte btmp;
-            switch( remainingBytes ) {
-                case 3: btmp = *bTop; *bTop++ = *bBottom; *bBottom++ = btmp;
-                case 2: btmp = *bTop; *bTop++ = *bBottom; *bBottom++ = btmp;
-                case 1: btmp = *bTop; *bTop = *bBottom; *bBottom = btmp;
-            }
-        }
-    }
-
-    void flipPixelsYByFormat(GLubyte *pixels, GLenum format, uint32_t width, uint32_t height, uint32_t expectedTotalBytes)
-    {
-        bool isSupportFlipY = true;
-        GLsizei bytesPerRow = 0;
-        switch (format) {
-            case GL_RGBA:
-                bytesPerRow = width * 4;
-                break;
-            case GL_RGB:
-                bytesPerRow = width * 3;
-                break;
-            case GL_LUMINANCE_ALPHA:
-                bytesPerRow = width * 2;
-                break;
-            case GL_LUMINANCE:
-                bytesPerRow = width;
-                break;
-            default:
-                isSupportFlipY = false;
-                break;
-        }
-
-        if (isSupportFlipY)
-        {
-            assert(expectedTotalBytes == bytesPerRow * height);
-            flipPixelsY((GLubyte*)pixels, bytesPerRow, height);
-        }
-        else
-        {
-            SE_LOGE("flipPixelsYByFormat: format: 0x%X doesn't support upackFlipY!\n", format);
-        }
-    }
-
-    // Lookup tables for fast [un]premultiplied alpha color values
-    // From https://bugzilla.mozilla.org/show_bug.cgi?id=662130
-
-    GLubyte* __premultiplyTable = nullptr;
-
-    const GLubyte* premultiplyTable()
-    {
-        if( !__premultiplyTable ) {
-            __premultiplyTable = (GLubyte*)malloc(256*256);
-
-            unsigned char *data = __premultiplyTable;
-            for( int a = 0; a <= 255; a++ ) {
-                for( int c = 0; c <= 255; c++ ) {
-                    data[a*256+c] = (a * c + 254) / 255;
-                }
-            }
-        }
-
-        return __premultiplyTable;
-    }
-
-    void premultiplyPixels(const GLubyte *inPixels, GLubyte *outPixels, GLenum format, uint32_t width, uint32_t height, uint32_t expectedTotalBytes)
-    {
-        const GLubyte *table = premultiplyTable();
-        int byteLength = 0;
-        if( format == GL_RGBA )
-        {
-            byteLength = width * height * 4;
-            assert(byteLength == expectedTotalBytes);
-            for( int i = 0; i < byteLength; i += 4 ) {
-                unsigned short a = inPixels[i+3] * 256;
-                outPixels[i+0] = table[ a + inPixels[i+0] ];
-                outPixels[i+1] = table[ a + inPixels[i+1] ];
-                outPixels[i+2] = table[ a + inPixels[i+2] ];
-                outPixels[i+3] = inPixels[i+3];
-            }
-        }
-        else if ( format == GL_LUMINANCE_ALPHA )
-        {
-            byteLength = width * height * 2;
-            assert(byteLength == expectedTotalBytes);
-            for( int i = 0; i < byteLength; i += 2 ) {
-                unsigned short a = inPixels[i+1] * 256;
-                outPixels[i+0] = table[ a + inPixels[i+0] ];
-                outPixels[i+1] = inPixels[i+1];
-            }
-        }
-        else
-        {
-            SE_LOGE("premultiplyPixels: format: 0x%X doesn't support upackFlipY!\n", format);
-        }
-    }
 
     template<typename T>
     class GLData
@@ -1867,7 +1721,7 @@ static bool JSB_glPixelStorei(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(WEBGL_pixelStorei((GLenum)arg0 , (GLint)arg1  ));
+    JSB_GL_CHECK(ccPixelStorei((GLenum)arg0 , (GLint)arg1));
     return true;
 }
 SE_BIND_FUNC(JSB_glPixelStorei)
@@ -2108,15 +1962,47 @@ static bool JSB_glStencilOpSeparate(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glStencilOpSeparate)
 
+static void setUnpackAlignmentByWidthAndFormat(uint32_t width, GLenum format)
+{
+    int32_t bytesPerPixel = 0;
+    if (format == GL_RGBA) {
+        bytesPerPixel = 4;
+    }
+    else if (format == GL_RGB) {
+        bytesPerPixel = 3;
+    }
+    else if (format == GL_LUMINANCE_ALPHA) {
+        bytesPerPixel = 2;
+    }
+
+    int32_t factor;
+    GLint alignment = 1;
+    if (bytesPerPixel > 0) {
+        factor = bytesPerPixel * width;
+    }
+    else {
+        factor = width;
+    }
+
+    if (factor % 8 == 0)
+        alignment = 8;
+    else if (factor % 4 == 0)
+        alignment = 4;
+    else if (factor % 2 == 0)
+        alignment = 2;
+
+    ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+}
+
 // Arguments: GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, ArrayBufferView
 // Ret value: void
 static bool JSB_glTexImage2D(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
-    SE_PRECONDITION2( argc == 9, false, "Invalid number of arguments" );
+    SE_PRECONDITION2( argc == 10, false, "Invalid number of arguments" );
     bool ok = true;
 
-    uint32_t target; int32_t level; int32_t internalformat; int32_t width; int32_t height; int32_t border; uint32_t format; uint32_t type; void* pixels;
+    uint32_t target; int32_t level; int32_t internalformat; int32_t width; int32_t height; int32_t border; uint32_t format; uint32_t type; void* pixels; uint32_t alignment;
 
     ok &= seval_to_uint32(args[0], &target );
     ok &= seval_to_int32(args[1], &level );
@@ -2129,21 +2015,14 @@ static bool JSB_glTexImage2D(se::State& s) {
 
     GLsizei count;
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
-
+    ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if (pixels != nullptr)
-    {
-        if (__unpackFlipY)
-        {
-            flipPixelsYByFormat((GLubyte*)pixels, format, width, height, count);
-        }
-
-        if (__premultiplyAlpha)
-        {
-            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, format, width, height, count);
-        }
-    }
+    ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
+    if (alignment > 0)
+        ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+    else
+        setUnpackAlignmentByWidthAndFormat(width, format);
 
     JSB_GL_CHECK(glTexImage2D((GLenum)target , (GLint)level , (GLint)internalformat , (GLsizei)width , (GLsizei)height , (GLint)border , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
 
@@ -2194,9 +2073,9 @@ SE_BIND_FUNC(JSB_glTexParameteri)
 static bool JSB_glTexSubImage2D(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
-    SE_PRECONDITION2( argc == 9, false, "Invalid number of arguments" );
+    SE_PRECONDITION2( argc == 10, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t target; int32_t level; int32_t xoffset; int32_t yoffset; int32_t width; int32_t height; uint32_t format; uint32_t type; void* pixels;
+    uint32_t target; int32_t level; int32_t xoffset; int32_t yoffset; int32_t width; int32_t height; uint32_t format; uint32_t type; void* pixels; uint32_t alignment;
 
     ok &= seval_to_uint32(args[0], &target );
     ok &= seval_to_int32(args[1], &level );
@@ -2208,20 +2087,14 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     ok &= seval_to_uint32(args[7], &type );
     GLsizei count;
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
+    ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    if (pixels != nullptr)
-    {
-        if (__unpackFlipY)
-        {
-            flipPixelsYByFormat((GLubyte*)pixels, format, width, height, count);
-        }
-
-        if (__premultiplyAlpha)
-        {
-            premultiplyPixels((GLubyte*)pixels, (GLubyte*)pixels, format, width, height, count);
-        }
-    }
+    ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
+    if (alignment > 0)
+        ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+    else
+        setUnpackAlignmentByWidthAndFormat(width, format);
 
     JSB_GL_CHECK(glTexSubImage2D((GLenum)target , (GLint)level , (GLint)xoffset , (GLint)yoffset , (GLsizei)width , (GLsizei)height , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
 
@@ -3771,11 +3644,11 @@ static bool JSB_glGetParameter(se::State& s)
             break;
 
         case GL_UNPACK_FLIP_Y_WEBGL:
-            ret.setBoolean(__unpackFlipY);
+            ret.setBoolean(ccIsUnpackFlipY());
             break;
 
         case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
-            ret.setBoolean(__premultiplyAlpha);
+            ret.setBoolean(ccIsPremultiplyAlpha());
             break;
 
         case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
@@ -4144,7 +4017,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_PIXEL_STOREI) {
             LOG_GL_COMMAND("Flush: PIXEL_STOREI\n");
-            JSB_GL_CHECK_VOID(WEBGL_pixelStorei((GLenum)p[1], (GLint)p[2]));
+            JSB_GL_CHECK_VOID(ccPixelStorei((GLenum)p[1], (GLint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_POLYGON_OFFSET) {

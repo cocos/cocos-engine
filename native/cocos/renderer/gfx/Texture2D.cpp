@@ -126,6 +126,9 @@ void Texture2D::updateImage(const ImageOption& option)
 
 void Texture2D::setSubImage(const SubImageOption& option)
 {
+    bool flipY = option.flipY;
+    bool premultiplyAlpha = option.premultiplyAlpha;
+
     //Set the row align only when mipmapsNum == 1 and the data is uncompressed
     GLint aligment = 1;
     if (!_hasMipmap && !_compressed && _bpp > 0)
@@ -142,7 +145,13 @@ void Texture2D::setSubImage(const SubImageOption& option)
             aligment = 1;
     }
 
-    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, aligment));
+    GL_CHECK(ccPixelStorei(GL_UNPACK_ALIGNMENT, aligment));
+
+    GL_CHECK(ccPixelStorei(GL_UNPACK_FLIP_Y_WEBGL, flipY));
+    GL_CHECK(ccPixelStorei(GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha));
+
+    ccFlipYOrPremultiptyAlphaIfNeeded(_glFormat, option.width, option.height, (uint32_t)option.imageDataLength, option.imageData);
+
     if (_compressed)
     {
         glCompressedTexSubImage2D(GL_TEXTURE_2D,
@@ -172,12 +181,14 @@ void Texture2D::setImage(const ImageOption& option)
 {
     const auto& img = option.image;
 
+    bool flipY = option.flipY;
+    bool premultiplyAlpha = option.premultiplyAlpha;
+
     //Set the row align only when mipmapsNum == 1 and the data is uncompressed
     GLint aligment = 1;
+    unsigned int bytesPerRow = option.width * _bpp / 8;
     if (_hasMipmap && !_compressed && _bpp > 0)
     {
-        unsigned int bytesPerRow = option.width * _bpp / 8;
-
         if (bytesPerRow % 8 == 0)
             aligment = 8;
         else if (bytesPerRow % 4 == 0)
@@ -188,7 +199,12 @@ void Texture2D::setImage(const ImageOption& option)
             aligment = 1;
     }
 
-    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, aligment));
+    GL_CHECK(ccPixelStorei(GL_UNPACK_ALIGNMENT, aligment));
+    GL_CHECK(ccPixelStorei(GL_UNPACK_FLIP_Y_WEBGL, flipY));
+    GL_CHECK(ccPixelStorei(GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha));
+
+    ccFlipYOrPremultiptyAlphaIfNeeded(_glFormat, option.width, option.height, (uint32_t)img.length, img.data);
+
     if (_compressed)
     {
         glCompressedTexImage2D(GL_TEXTURE_2D,

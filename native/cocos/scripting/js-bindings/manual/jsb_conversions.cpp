@@ -1503,7 +1503,7 @@ bool seval_to_TextureSubImageOption(const se::Value& v, cocos2d::renderer::Textu
     assert(v.isObject());
     se::Object* obj = v.toObject();
     
-    uint16_t* ptr = nullptr;
+    uint32_t* ptr = nullptr;
     size_t length = 0;
     obj->getTypedArrayData((uint8_t**)(&ptr), &length);
     
@@ -1517,8 +1517,8 @@ bool seval_to_TextureSubImageOption(const se::Value& v, cocos2d::renderer::Textu
                                                      *(ptr + 6)   // premultiplyAlpha
                                                      );
     
-    uint16_t imageDataLength = *(ptr + 7);
-    ret->imageData = (uint8_t*)(ptr) + 16;
+    uint32_t imageDataLength = *(ptr + 7);
+    ret->imageData = (uint8_t*)(ptr + 8);
     ret->imageDataLength = imageDataLength;
     return true;
 }
@@ -1735,7 +1735,7 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
             cocos2d::Color4F color;
             seval_to_Color4F(v, &color);
             float data[4] = {color.r, color.g, color.b, color.a};
-            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 4);
+            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 1);
             *ret = std::move(param);
             break;
             break;

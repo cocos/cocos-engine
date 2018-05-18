@@ -148,12 +148,12 @@ public:
         {}
         
         SubImageOption() {}
-        
+
+        uint32_t imageDataLength = 0;
         uint16_t x = 0;
         uint16_t y = 0;
         uint16_t width = 0;
         uint16_t height = 0;
-        uint16_t imageDataLength = 0;
         uint8_t* imageData = nullptr;
         uint8_t level = 0;
         bool flipY = false;
