@@ -657,7 +657,10 @@ var Texture2D = cc.Class({
                 }
             }
         }
-        let asset = "" + extId + "," + this._minFilter + "," + this._magFilter + "," + this._wrapS + "," + this._wrapT;
+        let asset = "" + extId + "," + 
+                    this._minFilter + "," + this._magFilter + "," + 
+                    this._wrapS + "," + this._wrapT + "," + 
+                    (this._premultiplyAlpha ? 1 : 0);
         return asset;
     },
 
@@ -687,6 +690,8 @@ var Texture2D = cc.Class({
             // decode wraps
             this._wrapS = parseInt(fields[3]);
             this._wrapT = parseInt(fields[4]);
+            // decode premultiply alpha
+            this._premultiplyAlpha = !!parseInt(fields[5]);
         }
     }
 });
