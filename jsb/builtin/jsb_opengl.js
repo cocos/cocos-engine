@@ -54,7 +54,6 @@ const HTMLCanvasElement = require('./jsb-adapter/HTMLCanvasElement');
 const HTMLImageElement = require('./jsb-adapter/HTMLImageElement');
 const ImageData = require('./jsb-adapter/ImageData');
 
-const _glPixelStorei = gl.pixelStorei;
 const _glTexImage2D = gl.texImage2D;
 
 /*
@@ -75,25 +74,24 @@ gl.texImage2D = function(target, level, internalformat, width, height, border, f
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
-            _glTexImage2D(target, level, image._glInternalFormat, image.width, image.height, 0, image._glFormat, image._glType, image._data);
+            _glTexImage2D(target, level, image._glInternalFormat, image.width, image.height, 0, image._glFormat, image._glType, image._data, image._alignment);
         }
         else if (image instanceof HTMLCanvasElement) {
             var data = null;
             if (image._data) {
                 data = image._data._data;
             }
-            _glTexImage2D(target, level, internalformat, image._bufferWidth, image._bufferHeight, 0, format, type, data);
+            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, data, image._alignment);
         }
         else if (image instanceof ImageData) {
-            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data);
+            _glTexImage2D(target, level, internalformat, image.width, image.height, 0, format, type, image._data, 0);
         }
         else {
             console.error("Invalid pixel argument passed to gl.texImage2D!");
         } 
     }
     else if (argCount == 9) {
-        _glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+        _glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels, 0);
     }
     else {
         console.error("gl.texImage2D: invalid argument count!");
@@ -119,25 +117,24 @@ gl.texSubImage2D = function(target, level, xoffset, yoffset, width, height, form
         format = width;
 
         if (image instanceof HTMLImageElement) {
-            _glPixelStorei(gl.UNPACK_ALIGNMENT, image._alignment);
-            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, image._glFormat, image._glType, image._data);
+            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, image._glFormat, image._glType, image._data, image._alignment);
         }
         else if (image instanceof HTMLCanvasElement) {
             var data = null;
             if (image._data) {
                 data = image._data._data;
             }
-            _glTexSubImage2D(target, level, xoffset, yoffset, image._bufferWidth, image._bufferHeight, format, type, data);
+            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, data, image._alignment);
         }
         else if (image instanceof ImageData) {
-            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data);
+            _glTexSubImage2D(target, level, xoffset, yoffset, image.width, image.height, format, type, image._data, 0);
         }
         else {
             console.error("Invalid pixel argument passed to gl.texImage2D!");
         }
     }
     else if (argCount == 9) {
-        _glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+        _glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels, 0);
     }
     else {
         console.error((new Error("gl.texImage2D: invalid argument count!").stack));
