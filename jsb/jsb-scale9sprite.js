@@ -59,9 +59,8 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
 });
 
 cc.Scale9Sprite.FillType = cc.Enum({
-    Horizontal: 0,
-    Vertical: 1,
-    //todo implement this
+    HORIZONTAL: 0,
+    VERTICAL: 1,
     RADIAL:2,
 });
 
