@@ -100,6 +100,9 @@ Audio.State = {
         if (this._element)
             return;
 
+        if (this._element)
+            return;
+            
         var item = cc.loader.getItem(src);
 
         if (!item) {
