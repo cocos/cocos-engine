@@ -42,6 +42,9 @@ const GL_REPEAT = 10497;                // gl.REPEAT
 const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
 const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
 
+const CHAR_CODE_0 = 48;    // '0'
+const CHAR_CODE_1 = 49;    // '1'
+
 var idGenerater = new (require('../platform/id-generater'))('Tex');
 
 /**
@@ -657,36 +660,40 @@ var Texture2D = cc.Class({
                 }
             }
         }
-        let asset = "" + extId + "," + this._minFilter + "," + this._magFilter + "," + this._wrapS + "," + this._wrapT;
+        let asset = "" + extId + "," + 
+                    this._minFilter + "," + this._magFilter + "," + 
+                    this._wrapS + "," + this._wrapT + "," + 
+                    (this._premultiplyAlpha ? 1 : 0);
         return asset;
     },
 
     _deserialize: function (data, handle) {
-        var fields = data.split(',');
+        let fields = data.split(',');
         // decode extname
         var extIdStr = fields[0];
         if (extIdStr) {
-            const CHAR_CODE_0 = 48;    // '0'
-            var extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
-            var ext = Texture2D.extnames[extId];
+            let extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
+            let ext = Texture2D.extnames[extId];
             this._setRawAsset(ext || extIdStr);
 
             // preset uuid to get correct nativeUrl
-            var loadingItem = handle.customEnv;
-            var uuid = loadingItem && loadingItem.uuid;
+            let loadingItem = handle.customEnv;
+            let uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
                 var url = this.nativeUrl;
                 this.url = url;
             }
         }
-        if (fields.length >= 5) {
+        if (fields.length === 6) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
             // decode wraps
             this._wrapS = parseInt(fields[3]);
             this._wrapT = parseInt(fields[4]);
+            // decode premultiply alpha
+            this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
     }
 });
