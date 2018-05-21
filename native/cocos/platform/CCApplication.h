@@ -114,6 +114,7 @@ public:
     void runOnMainThread();
     
     void start();
+    void restart();
     
     /**
      * @brief Sets the preferred frame rate for main loop callback.
@@ -176,18 +177,18 @@ private:
     static Application* _instance;
     
     void* _view = nullptr;
-    bool _multiTouch = false;
     void* _delegate = nullptr;
-    int _fps = 60;
     Scheduler* _scheduler = nullptr;
-    
     RenderTexture* _renderTexture = nullptr;
-    bool _isDownsampleEnabled = false;
+    int _fps = 60;
+    GLint _mainFBO = 0;
+
     // The ratio to downsample, for example, if its value is 2,
     // then the rendering size of render texture is device_resolution/2.
     uint8_t _devicePixelRatio = 1;
-    
-    GLint _mainFBO = 0;
+    bool _multiTouch = false;
+    bool _isStarted = false;
+    bool _isDownsampleEnabled = false;
 };
 
 // end of platform group

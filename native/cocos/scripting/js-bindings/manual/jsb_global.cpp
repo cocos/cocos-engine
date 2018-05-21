@@ -558,7 +558,7 @@ SE_BIND_FUNC(JSB_cleanScript)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-//cjh    Director::getInstance()->restart();
+    Application::getInstance()->restart();
     return true;
 }
 SE_BIND_FUNC(JSB_core_restartVM)
@@ -874,10 +874,10 @@ bool jsb_register_global_variables(se::Object* global)
 
         __moduleCache.clear();
 
-        __ccObj->decRef();
-        __jsbObj->decRef();
-        __jscObj->decRef();
-        __glObj->decRef();
+        SAFE_DEC_REF(__ccObj);
+        SAFE_DEC_REF(__jsbObj);
+        SAFE_DEC_REF(__jscObj);
+        SAFE_DEC_REF(__glObj);
     });
 
     return true;

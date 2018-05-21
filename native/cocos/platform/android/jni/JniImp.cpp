@@ -83,6 +83,7 @@ namespace
     int g_deviceAudioBufferSizeInFrames = 192;
     int g_width = 0;
     int g_height = 0;
+    bool g_isStarted = false;
     bool g_isGameFinished = false;
 
     cocos2d::Application* g_app = nullptr;
@@ -155,6 +156,7 @@ extern "C"
         EventDispatcher::init();
 
         g_app->start();
+        g_isStarted = true;
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeFinish(JNIEnv*  env, jobject thiz)
@@ -172,6 +174,33 @@ extern "C"
 	{
         if (g_isGameFinished)
             return;
+
+        if (!g_isStarted)
+        {
+            auto scheduler = Application::getInstance()->getScheduler();
+            scheduler->removeAllFunctionsToBePerformedInCocosThread();
+            scheduler->unscheduleAll();
+
+            se::ScriptEngine::getInstance()->cleanup();
+            cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
+
+            //TODO: Wait HttpClient, WebSocket, Audio thread to exit
+
+            ccInvalidateStateCache();
+          
+            se::ScriptEngine* se = se::ScriptEngine::getInstance();
+            se->addRegisterCallback(setCanvasCallback);
+
+            EventDispatcher::init();
+
+            if(!g_app->applicationDidFinishLaunching())
+            {
+                g_isGameFinished = true;
+                return;
+            }
+
+            g_isStarted = true;
+        }
 
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
@@ -413,6 +442,10 @@ extern "C"
     }
 } // end of extern "C"
 
+void restartJSVM()
+{
+    g_isStarted = false;
+}
 
 /***********************************************************
  * Functions invoke from cpp to Java.

@@ -24,8 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "platform/CCApplication.h"
-#include <android/log.h>
-#include <jni.h>
 #include <EGL/egl.h>
 #include <cstring>
 #include "platform/android/jni/JniImp.h"
@@ -79,6 +77,11 @@ void Application::start()
 {
     if(!applicationDidFinishLaunching())
         return;
+}
+
+void Application::restart()
+{
+    restartJSVM();
 }
 
 void Application::setMultitouch(bool /*value*/)

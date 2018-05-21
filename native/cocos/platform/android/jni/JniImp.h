@@ -28,6 +28,8 @@
 
 typedef void (*EditTextCallback)(const std::string& text, void* ctx);
 
+extern void restartJSVM();
+
 extern std::string getApkPathJNI();
 extern std::string getPackageNameJNI();
 extern int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size);

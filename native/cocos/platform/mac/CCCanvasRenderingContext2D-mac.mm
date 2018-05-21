@@ -415,7 +415,7 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasGradient constructor: %p, width: %f, height: %f\n", this, width, height);
+    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
     [_impl recreateBufferWithWidth:width height:height];
 }
@@ -431,7 +431,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
     if (_isBufferSizeDirty)
     {
         _isBufferSizeDirty = false;
-        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
+//        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
         [_impl recreateBufferWithWidth: __width height:__height];
         if (_canvasBufferUpdatedCB != nullptr)
             _canvasBufferUpdatedCB([_impl getDataRef]);
@@ -440,7 +440,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
-    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+//    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     recreateBufferIfNeeded();
     [_impl clearRect:CGRectMake(x, y, width, height)];
 }
@@ -458,7 +458,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
 
@@ -471,7 +471,7 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
 {
-    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     recreateBufferIfNeeded();

@@ -121,6 +121,14 @@ namespace
 {
     if ([view isReady]) 
     {
+        auto scheduler = _application->getScheduler();
+        scheduler->removeAllFunctionsToBePerformedInCocosThread();
+        scheduler->unscheduleAll();
+
+        se::ScriptEngine::getInstance()->cleanup();
+        cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
+        cocos2d::EventDispatcher::init();
+
         cocos2d::ccInvalidateStateCache();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
@@ -235,6 +243,14 @@ void Application::start()
 {
     if (_delegate)
         [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];    
+}
+
+void Application::restart()
+{
+    if (_delegate) {
+        [(MainLoop*)_delegate stopMainLoop];
+        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
+    }
 }
 
 void Application::setPreferredFramesPerSecond(int fps)

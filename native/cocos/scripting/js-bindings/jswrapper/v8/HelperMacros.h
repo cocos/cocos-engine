@@ -37,7 +37,7 @@ extern uint32_t __jsbInvocationCount;
 #endif
 
 #define SAFE_INC_REF(obj) if (obj != nullptr) obj->incRef()
-#define SAFE_DEC_REF(obj) if (obj != nullptr) obj->decRef()
+#define SAFE_DEC_REF(obj) if ((obj) != nullptr) { (obj)->decRef(); (obj) = nullptr; }
 
 #define _SE(name) name##Registry
 

@@ -1046,7 +1046,10 @@ static bool JSB_glProgramFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLProgram)", s.nativeThisObject());
     WebGLProgram* cobj = (WebGLProgram*) s.nativeThisObject();
-    cobj->autorelease();
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glProgramFinalize)
@@ -1081,7 +1084,11 @@ static bool JSB_glShaderFinalize(se::State& s)
     auto iter = __shaders.find(cobj->_id);
     if (iter != __shaders.end())
         __shaders.erase(iter);
-    cobj->autorelease();
+
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glShaderFinalize)
@@ -2818,7 +2825,10 @@ static bool JSB_glTextureFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLTexture)", s.nativeThisObject());
     WebGLTexture* cobj = (WebGLTexture*) s.nativeThisObject();
-    cobj->autorelease();
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glTextureFinalize)
@@ -2844,7 +2854,10 @@ static bool JSB_glBufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLBuffer)", s.nativeThisObject());
     WebGLBuffer* cobj = (WebGLBuffer*) s.nativeThisObject();
-    cobj->autorelease();
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glBufferFinalize)
@@ -2869,7 +2882,10 @@ static bool JSB_glRenderbufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLRenderBuffer)", s.nativeThisObject());
     WebGLRenderbuffer* cobj = (WebGLRenderbuffer*) s.nativeThisObject();
-    cobj->autorelease();
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glRenderbufferFinalize)
@@ -2894,7 +2910,10 @@ static bool JSB_glFramebufferFinalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (WebGLFramebuffer)", s.nativeThisObject());
     WebGLFramebuffer* cobj = (WebGLFramebuffer*) s.nativeThisObject();
-    cobj->autorelease();
+    if (se::ScriptEngine::getInstance()->isInCleanup())
+        cobj->release();
+    else
+        cobj->autorelease();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JSB_glFramebufferFinalize)
@@ -3165,6 +3184,7 @@ static bool JSB_glGetActiveAttrib(se::State& s) {
 
     se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
     s.rval().setObject(object, true);
+    object->decRef();
 
     object->setProperty("size", se::Value((int32_t)size));
     object->setProperty("type", se::Value((int32_t)type));
@@ -3208,7 +3228,7 @@ static bool JSB_glGetActiveUniform(se::State& s) {
     object->setProperty("size", se::Value((int32_t)size));
     object->setProperty("type", se::Value((int32_t)type));
     object->setProperty("name", se::Value((char*)buffer));
-    s.rval().setObject(object.get());
+    s.rval().setObject(object);
 
     CC_SAFE_DELETE_ARRAY(buffer);
     return true;

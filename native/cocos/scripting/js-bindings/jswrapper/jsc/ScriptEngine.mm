@@ -327,7 +327,6 @@ namespace se {
 
         SAFE_DEC_REF(_globalObj);
         Object::cleanup();
-        Class::cleanup();
         garbageCollect();
 
         __consoleVal.setUndefined();
@@ -339,6 +338,8 @@ namespace se {
         __oldConsoleAssert.setUndefined();
 
         JSGlobalContextRelease(_cx);
+
+        Class::cleanup();
 
         _cx = nullptr;
         _globalObj = nullptr;

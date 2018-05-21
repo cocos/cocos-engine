@@ -96,42 +96,67 @@ Application::~Application()
 
 void Application::start()
 {
-    ccInvalidateStateCache();
-
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    se->addRegisterCallback(setCanvasCallback);
-    
-    if(!applicationDidFinishLaunching())
-        return;
-
     if (!_view)
         return;
     
     std::chrono::steady_clock::time_point prevTime;
     std::chrono::steady_clock::time_point now;
     float dt = 0.f;
+    const useconds_t _16ms = 16 * 1000;
+
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
     while (!CAST_VIEW(_view)->windowShouldClose())
     {
+        if (!_isStarted)
+        {
+            auto scheduler = Application::getInstance()->getScheduler();
+            scheduler->removeAllFunctionsToBePerformedInCocosThread();
+            scheduler->unscheduleAll();
+
+            se::ScriptEngine::getInstance()->cleanup();
+            cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
+            cocos2d::EventDispatcher::init();
+
+            ccInvalidateStateCache();
+            se->addRegisterCallback(setCanvasCallback);
+
+            if(!applicationDidFinishLaunching())
+                return;
+
+            _isStarted = true;
+        }
+
         prevTime = std::chrono::steady_clock::now();
-        
         // should be invoked at the begin of rendering a frame
         if (_isDownsampleEnabled)
             _renderTexture->prepare();
-        
+
         CAST_VIEW(_view)->pollEvents();
         _scheduler->update(dt);
-        EventDispatcher::dispatchTickEvent(dt);
-        
-        if (_isDownsampleEnabled)
-            _renderTexture->draw();
 
-        CAST_VIEW(_view)->swapBuffers();
-        PoolManager::getInstance()->getCurrentPool()->clear();
+        if (_isStarted)
+        {
+            EventDispatcher::dispatchTickEvent(dt);
 
-        now = std::chrono::steady_clock::now();
-        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+            if (_isDownsampleEnabled)
+                _renderTexture->draw();
+
+            CAST_VIEW(_view)->swapBuffers();
+            PoolManager::getInstance()->getCurrentPool()->clear();
+            now = std::chrono::steady_clock::now();
+            dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+        }
+        else
+        {
+            usleep(_16ms);
+        }
     }
+}
+
+void Application::restart()
+{
+    _isStarted = false;
 }
 
 void Application::setPreferredFramesPerSecond(int fps)

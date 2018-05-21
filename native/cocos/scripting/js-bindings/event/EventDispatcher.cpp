@@ -42,6 +42,9 @@ namespace cocos2d
     void EventDispatcher::init()
     {
         _inited = true;
+        se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+            EventDispatcher::destroy();
+        });
     }
 
     void EventDispatcher::destroy()
@@ -72,6 +75,9 @@ namespace cocos2d
 
 void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 {
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
     se::AutoHandleScope scope;
     assert(_inited);
     if (_jsbNameSpaceObj == nullptr)
@@ -146,10 +152,15 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 
 void EventDispatcher::dispatchKeyEvent(int key, int action)
 {
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
 }
     
 void EventDispatcher::dispatchTickEvent(float dt)
 {
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
     se::AutoHandleScope scope;
 
     static std::chrono::steady_clock::time_point prevTime;
