@@ -106,17 +106,18 @@ Audio.State = {
     // };
 
     proto._onLoaded = function () {
-        if (this._src.loadMode === LoadMode.DOM_AUDIO) {
-            if (CC_QQPLAY || CC_WECHATGAME) {
-                this._element = elem;
-            }
-            else {
-                this._element = document.createElement('audio');
-                this._element.src = this._src._nativeAsset.src;
-            }
+        var elem = this._src._nativeAsset;
+        if ((CC_QQPLAY || CC_WECHATGAME) && elem instanceof HTMLElement) {
+            this._element = elem;
         }
         else {
-            this._element = new WebAudioElement(this._src._nativeAsset, this);
+            if (this._src.loadMode === LoadMode.DOM_AUDIO) {
+                this._element = document.createElement('audio');
+                this._element.src = elem.src;
+            }
+            else {
+                this._element = new WebAudioElement(elem, this);
+            }
         }
 
         this.setVolume(this._volume);
@@ -153,8 +154,8 @@ Audio.State = {
         touchBinded = true;
 
         // Listen to the touchstart body event and play the audio when necessary.
+        var item;
         cc.game.canvas.addEventListener('touchstart', function () {
-            var item;
             while (item = touchPlayList.pop()) {
                 item.audio.play(item.offset);
             }
@@ -162,9 +163,7 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-        if (CC_WECHATGAME) {
-            this._element && this._element.destroy();
-        }
+
     };
 
     proto.pause = function () {
@@ -257,9 +256,11 @@ Audio.State = {
     };
 
     proto.getState = function () {
-        var elem = this._element;
-        if (elem && Audio.State.PLAYING === this._state && elem.paused) {
-            this._state = Audio.State.PAUSED;
+        if (!CC_WECHATGAME) {
+            var elem = this._element;
+            if (elem && Audio.State.PLAYING === this._state && elem.paused) {
+                this._state = Audio.State.PAUSED;
+            }
         }
         return this._state;
     };

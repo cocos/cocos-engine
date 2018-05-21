@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Audio = require('../../audio/CCAudio');
 const AudioClip = require('../assets/CCAudioClip');
-require('../../audio/CCAudio');
 
 /**
  * !#en Audio Source.
@@ -33,8 +33,6 @@ require('../../audio/CCAudio');
  * @class AudioSource
  * @extends Component
  */
-
-
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
     extends: require('./CCComponent'),
@@ -45,7 +43,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio();
+        this.audio = new Audio();
     },
 
     properties: {
