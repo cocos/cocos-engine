@@ -54,6 +54,8 @@ namespace {
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
     cocos2d::Color4F _fillStyle;
+    cocos2d::Color4F _strokeStyle;
+    float _lineWidth;
 }
 
 @property (nonatomic, strong) NSFont* font;
@@ -62,6 +64,7 @@ namespace {
 @property (nonatomic, strong) NSImage* image;
 @property (nonatomic, assign) CanvasTextAlign textAlign;
 @property (nonatomic, assign) CanvasTextBaseline textBaseLine;
+@property (nonatomic, assign) float lineWidth;
 
 @end
 
@@ -73,9 +76,11 @@ namespace {
 @synthesize image = _image;
 @synthesize textAlign = _textAlign;
 @synthesize textBaseLine = _textBaseLine;
+@synthesize lineWidth = _lineWidth;
 
 -(id) init {
     if (self = [super init]) {
+        _lineWidth = 0;
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
         [self updateFontWithName:@"Arial" fontSize:30];
@@ -94,7 +99,7 @@ namespace {
 }
 
 -(NSFont*) _createSystemFont {
-    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
+    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask; //TODO: Support bold & italic mode.
     NSFont* font = [[NSFontManager sharedFontManager]
                     fontWithFamily:_fontName
                     traits:mask
@@ -205,7 +210,60 @@ namespace {
 }
 
 -(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
+    if (text.length == 0)
+        return;
 
+    float imageWidth = _image.size.width;
+    float imageHeight = _image.size.height;
+    NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
+
+    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    [_tokenAttributesDict removeObjectForKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
+
+    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+                             forKey:NSForegroundColorAttributeName];
+
+    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+
+    [_image lockFocus];
+    // patch for mac retina display and lableTTF
+    [[NSAffineTransform transform] set];
+    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
+                                                                               attributes:_tokenAttributesDict] autorelease];
+
+    drawPoint.y = imageHeight - drawPoint.y;
+    [stringWithAttributes drawAtPoint:drawPoint];
+
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, imageWidth, imageHeight)];
+    [_image unlockFocus];
+
+    unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
+
+
+    NSUInteger textureSize = imageWidth * imageHeight * 4;
+    // For text debugging ...
+//    for (int i = 0; i < textureSize; i += 4) {
+//        if (data[i+3] == 0)
+//        {
+//            data[i] = 255;
+//            data[i+3] = 255;
+//        }
+//    }
+    //
+
+    uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
+    if (buffer) {
+        memcpy(buffer, data, textureSize);
+        _imageData.fastSet(buffer, textureSize);
+    }
+    [bitmap release];
+}
+
+-(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
     if (text.length == 0)
         return;
 
@@ -214,9 +272,15 @@ namespace {
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
+    [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
+
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
-                             forKey:NSForegroundColorAttributeName];
+    [_tokenAttributesDict setObject:[NSNumber numberWithFloat: _lineWidth * 2]
+                            forKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
+                                                    green:_strokeStyle.g
+                                                     blue:_strokeStyle.b
+                                                    alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
 
     [[NSGraphicsContext currentContext] setShouldAntialias:NO];
 
@@ -237,12 +301,13 @@ namespace {
     NSUInteger textureSize = _image.size.width * _image.size.height * 4;
 
     // For text debugging ...
-//    for (int i = 0; i < textureSize; i += 4) {
-//        if (data[i+3] == 0)
-//        {
-//            data[i+3] = 255;
+//        for (int i = 0; i < textureSize; i += 4) {
+//            if (data[i+3] == 0)
+//            {
+//                data[i+1] = 255;
+//                data[i+3] = 255;
+//            }
 //        }
-//    }
     //
 
     uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
@@ -258,6 +323,13 @@ namespace {
     _fillStyle.g = g;
     _fillStyle.b = b;
     _fillStyle.a = a;
+}
+
+-(void) setStrokeStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
+    _strokeStyle.r = r;
+    _strokeStyle.g = g;
+    _strokeStyle.b = b;
+    _strokeStyle.a = a;
 }
 
 -(const cocos2d::Data&) getDataRef {
@@ -359,7 +431,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
     if (_isBufferSizeDirty)
     {
         _isBufferSizeDirty = false;
-//        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
+        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
         [_impl recreateBufferWithWidth: __width height:__height];
         if (_canvasBufferUpdatedCB != nullptr)
             _canvasBufferUpdatedCB([_impl getDataRef]);
@@ -368,7 +440,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
-//    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     recreateBufferIfNeeded();
     [_impl clearRect:CGRectMake(x, y, width, height)];
 }
@@ -399,13 +471,15 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
 {
-//    SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     recreateBufferIfNeeded();
 
-//    if (_canvasBufferUpdatedCB != nullptr)
-//        _canvasBufferUpdatedCB([_impl getDataRef]);
+    [_impl strokeText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -476,7 +550,8 @@ void CanvasRenderingContext2D::set__height(float height)
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _lineWidth = lineWidth;
+    _impl.lineWidth = _lineWidth;
 }
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
@@ -560,7 +635,8 @@ void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
 
 void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
+    [_impl setStrokeStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
 }
 
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)

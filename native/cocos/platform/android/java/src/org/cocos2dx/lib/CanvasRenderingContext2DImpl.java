@@ -60,9 +60,15 @@ public class CanvasRenderingContext2DImpl {
     private int mFillStyleG = 0;
     private int mFillStyleB = 0;
     private int mFillStyleA = 255;
+
+    private int mStrokeStyleR = 0;
+    private int mStrokeStyleG = 0;
+    private int mStrokeStyleB = 0;
+    private int mStrokeStyleA = 255;
+
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
-    private boolean mIsPaintDirty = false;
+    private float mLineWidth = 0.0f;
 
     private class Size {
         Size(float w, float h) {
@@ -158,11 +164,11 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private CanvasRenderingContext2DImpl() {
-        Log.d(TAG, "constructor");
+        // Log.d(TAG, "constructor");
     }
 
     private void recreateBuffer(float w, float h) {
-        Log.d(TAG, "recreateBuffer:" + w + ", " + h);
+        // Log.d(TAG, "recreateBuffer:" + w + ", " + h);
         if (mBitmap != null) {
             mBitmap.recycle();
         }
@@ -171,7 +177,7 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private void clearRect(float x, float y, float w, float h) {
-        Log.d(TAG, "clearRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
+        // Log.d(TAG, "clearRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
         int w_ = mBitmap.getWidth();
         int h_ = mBitmap.getHeight();
         int size = w_*h_;
@@ -182,79 +188,95 @@ public class CanvasRenderingContext2DImpl {
         mBitmap.setPixels(clearColor, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
     }
 
-    private void updatePaint() {
-        if (mIsPaintDirty || mPaint == null) {
-            if (mPaint == null) {
-                mPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
-            }
-
-            mPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
-            mIsPaintDirty = false;
+    private void createPaintIfNeeded() {
+        if (mPaint == null) {
+            mPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
         }
     }
 
     private void fillRect(float x, float y, float w, float h) {
-        Log.d(TAG, "fillRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
+        // Log.d(TAG, "fillRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
     }
 
     private void fillText(String text, float x, float y, float maxWidth) {
-        Log.d(TAG, "fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
-        updatePaint();
+        // Log.d(TAG, "fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
+        createPaintIfNeeded();
+        mPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+        mPaint.setStyle(TextPaint.Style.FILL);
+
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mPaint.getFontMetrics().bottom;
-        mPaint.setStyle(TextPaint.Style.FILL);
         mCanvas.drawText(text, pt.x, baselineY, mPaint);
     }
 
     private void strokeText(String text, float x, float y, float maxWidth) {
-        Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
+        // Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
+        createPaintIfNeeded();
+        mPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
+        mPaint.setStyle(TextPaint.Style.STROKE);
+        mPaint.setStrokeWidth(mLineWidth);
+
+        Point pt = convertDrawPoint(new Point(x, y), text);
+        // Convert to baseline Y
+        float baselineY = pt.y - mPaint.getFontMetrics().bottom;
+        mCanvas.drawText(text, pt.x, baselineY, mPaint);
     }
 
     private float measureText(String text) {
-        updatePaint();
+        createPaintIfNeeded();
         float ret = mPaint.measureText(text);
-        Log.d(TAG, "measureText: " + text + ", return: " + ret);
+        // Log.d(TAG, "measureText: " + text + ", return: " + ret);
         return ret;
     }
 
     private Size measureTextReturnSize(String text) {
-        updatePaint();
+        createPaintIfNeeded();
         Paint.FontMetrics fm = mPaint.getFontMetrics();
         return new Size(measureText(text), fm.bottom - fm.top);
     }
 
     private void updateFont(String fontName, float fontSize) {
-        Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
+        // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
-        mPaint = null; // Reset paint to re-create paint object in updatePaint
-        mIsPaintDirty = true;
+        mPaint = null; // Reset paint to re-create paint object in createPaintIfNeeded
     }
 
     private void setTextAlign(int align) {
-        Log.d(TAG, "setTextAlign: " + align);
+        // Log.d(TAG, "setTextAlign: " + align);
         mTextAlign = align;
     }
 
     private void setTextBaseline(int baseline) {
-        Log.d(TAG, "setTextBaseline: " + baseline);
+        // Log.d(TAG, "setTextBaseline: " + baseline);
         mTextBaseline = baseline;
     }
 
     private void setFillStyle(float r, float g, float b, float a) {
-        Log.d(TAG, "setFillStyle: " + r + ", " + g + ", " + b + ", " + a);
+        // Log.d(TAG, "setFillStyle: " + r + ", " + g + ", " + b + ", " + a);
         mFillStyleR = (int)(r * 255.0f);
         mFillStyleG = (int)(g * 255.0f);
         mFillStyleB = (int)(b * 255.0f);
         mFillStyleA = (int)(a * 255.0f);
-        mIsPaintDirty = true;
+    }
+
+    private void setStrokeStyle(float r, float g, float b, float a) {
+        // Log.d(TAG, "setStrokeStyle: " + r + ", " + g + ", " + b + ", " + a);
+        mStrokeStyleR = (int)(r * 255.0f);
+        mStrokeStyleG = (int)(g * 255.0f);
+        mStrokeStyleB = (int)(b * 255.0f);
+        mStrokeStyleA = (int)(a * 255.0f);
+    }
+
+    private void setLineWidth(float lineWidth) {
+        mLineWidth = lineWidth;
     }
 
     private Point convertDrawPoint(final Point point, String text) {
         Point ret = new Point(point);
         Size textSize = measureTextReturnSize(text);
-        Log.d(TAG,"textSize: " + textSize.width + ", " + textSize.height);
+        // Log.d(TAG,"textSize: " + textSize.width + ", " + textSize.height);
 
         if (mTextAlign == TEXT_ALIGN_CENTER)
         {
@@ -278,7 +300,7 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private byte[] getDataRef() {
-        Log.d(TAG, "getDataRef ...");
+        // Log.d(TAG, "getDataRef ...");
         return getPixels(mBitmap);
     }
 

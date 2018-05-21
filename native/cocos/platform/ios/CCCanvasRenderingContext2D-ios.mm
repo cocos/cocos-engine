@@ -57,6 +57,8 @@ namespace {
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
     cocos2d::Color4F _fillStyle;
+    cocos2d::Color4F _strokeStyle;
+    float _lineWidth;
 }
 
 @property (nonatomic, strong) UIFont* font;
@@ -64,6 +66,7 @@ namespace {
 @property (nonatomic, strong) NSString* fontName;
 @property (nonatomic, assign) CanvasTextAlign textAlign;
 @property (nonatomic, assign) CanvasTextBaseline textBaseLine;
+@property (nonatomic, assign) float lineWidth;
 
 @end
 
@@ -74,6 +77,7 @@ namespace {
 @synthesize fontName = _fontName;
 @synthesize textAlign = _textAlign;
 @synthesize textBaseLine = _textBaseLine;
+@synthesize lineWidth = _lineWidth;
 
 -(id) init {
     if (self = [super init]) {
@@ -82,6 +86,7 @@ namespace {
         _colorSpace = nil;
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
+        _lineWidth = 0;
         [self updateFontWithName:@"Arial" fontSize:30];
     }
 
@@ -233,6 +238,53 @@ namespace {
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
+    [_tokenAttributesDict removeObjectForKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
+
+    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+                             forKey:NSForegroundColorAttributeName];
+
+    // text color
+    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+
+    // store the current context
+    UIGraphicsPushContext(_context);
+
+    CGContextSetShouldSubpixelQuantizeFonts(_context, false);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), NULL);
+
+    CGContextSetTextDrawingMode(_context, kCGTextFill);
+
+    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
+                                                                               attributes:_tokenAttributesDict] autorelease];
+
+    [stringWithAttributes drawAtPoint:drawPoint];
+
+    CGContextEndTransparencyLayer(_context);
+
+    // pop the context
+    UIGraphicsPopContext();
+}
+
+-(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
+
+    if (text.length == 0)
+        return;
+
+    CGPoint drawPoint = [self convertDrawPoint:CGPointMake(x, y) text:text];
+
+    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
+
+    [_tokenAttributesDict setObject:[NSNumber numberWithFloat: _lineWidth * 2]
+                             forKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict setObject:[UIColor colorWithRed:_strokeStyle.r
+                                                    green:_strokeStyle.g
+                                                     blue:_strokeStyle.b
+                                                    alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
     [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
                              forKey:NSForegroundColorAttributeName];
@@ -264,6 +316,13 @@ namespace {
     _fillStyle.g = g;
     _fillStyle.b = b;
     _fillStyle.a = a;
+}
+
+-(void) setStrokeStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
+    _strokeStyle.r = r;
+    _strokeStyle.g = g;
+    _strokeStyle.b = b;
+    _strokeStyle.a = a;
 }
 
 -(const cocos2d::Data&) getDataRef {
@@ -385,8 +444,10 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
 
     recreateBufferIfNeeded();
 
-//    if (_canvasBufferUpdatedCB != nullptr)
-//        _canvasBufferUpdatedCB([_impl getDataRef]);
+    [_impl strokeText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -457,7 +518,8 @@ void CanvasRenderingContext2D::set__height(float height)
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _lineWidth = lineWidth;
+    _impl.lineWidth = _lineWidth;
 }
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
@@ -541,7 +603,8 @@ void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
 
 void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
+    [_impl setStrokeStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
 }
 
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)

@@ -100,6 +100,16 @@ public:
         JniHelper::callObjectVoidMethod(_obj, _className, "setFillStyle", r, g, b, a);
     }
 
+    void setStrokeStyle(float r, float g, float b, float a)
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "setStrokeStyle", r, g, b, a);
+    }
+
+    void setLineWidth(float lineWidth)
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "setLineWidth", lineWidth);
+    }
+
     const Data& getDataRef() const
     {
         return _data;
@@ -151,17 +161,17 @@ NS_CC_BEGIN
 
 CanvasGradient::CanvasGradient()
 {
-    SE_LOGD("CanvasGradient constructor: %p\n", this);
+    // SE_LOGD("CanvasGradient constructor: %p\n", this);
 }
 
 CanvasGradient::~CanvasGradient()
 {
-    SE_LOGD("CanvasGradient destructor: %p\n", this);
+    // SE_LOGD("CanvasGradient destructor: %p\n", this);
 }
 
 void CanvasGradient::addColorStop(float offset, const std::string& color)
 {
-    SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
+    // SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
 }
 
 // CanvasRenderingContext2D
@@ -170,14 +180,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
+    // SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = new CanvasRenderingContext2DImpl();
     recreateBufferIfNeeded();
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
+    // SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     delete _impl;
 }
 
@@ -228,8 +238,10 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
         return;
     recreateBufferIfNeeded();
 
-   // if (_canvasBufferUpdatedCB != nullptr)
-   //     _canvasBufferUpdatedCB(_impl->getDataRef());
+    _impl->strokeText(text, x, y, maxWidth);
+
+   if (_canvasBufferUpdatedCB != nullptr)
+       _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -245,37 +257,37 @@ CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y
 
 void CanvasRenderingContext2D::save()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::beginPath()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::closePath()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::lineTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::stroke()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::restore()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
@@ -299,12 +311,13 @@ void CanvasRenderingContext2D::set__height(float height)
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _lineWidth = lineWidth;
+    _impl->setLineWidth(lineWidth);
 }
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
@@ -334,7 +347,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
 
 void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 {
-    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
+    // SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left")
     {
         _impl->setTextAlign(CanvasTextAlign::LEFT);
@@ -355,7 +368,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 
 void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
 {
-    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
+    // SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top")
     {
         _impl->setTextBaseline(CanvasTextBaseline::TOP);
@@ -378,17 +391,18 @@ void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
 {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
     _impl->setFillStyle(color.r/255.0f, color.g/255.0f, color.b/255.0f, color.a);
-    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
+    // SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
+    _impl->setStrokeStyle(color.r/255.0f, color.g/255.0f, color.b/255.0f, color.a);
 }
 
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 // transform
@@ -396,27 +410,27 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
 
 void CanvasRenderingContext2D::translate(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::scale(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::rotate(float angle)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 NS_CC_END
