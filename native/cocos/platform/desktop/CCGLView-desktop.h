@@ -56,12 +56,11 @@ private:
     void onGLFWError(int errorID, const char* errorDesc);
     void onGLFWMouseCallBack(GLFWwindow* window, int button, int action, int modify);
     void onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y);
+    void onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y);
     void onGLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void onGLFWCharCallback(GLFWwindow* window, unsigned int character);
     void onGLFWWindowIconifyCallback(GLFWwindow* window, int iconified);
 
-    bool _captured = false;
- 
     GLFWwindow* _mainWindow = nullptr;
     GLFWmonitor* _monitor = nullptr;
     GLint _mainFBO = -1;
@@ -96,6 +95,11 @@ public:
     static void onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     {
         _view->onGLFWMouseMoveCallBack(window, x, y);
+    }
+
+    static void onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
+    {
+        _view->onGLFWMouseScrollCallback(window, x, y);
     }
 
     static void onGLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

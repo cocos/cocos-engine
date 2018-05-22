@@ -32,6 +32,7 @@ namespace {
     std::vector<se::Object*> _jsTouchObjPool;
     se::Object* _jsTouchObjArray = nullptr;
     se::Object* _jsbNameSpaceObj = nullptr;
+    se::Object* _jsMouseEventObj = nullptr;
     bool _inited = false;
 }
 
@@ -68,6 +69,13 @@ namespace cocos2d
             _jsbNameSpaceObj->unroot();
             _jsbNameSpaceObj->decRef();
             _jsbNameSpaceObj = nullptr;
+        }
+
+        if (_jsMouseEventObj != nullptr)
+        {
+            _jsMouseEventObj->unroot();
+            _jsMouseEventObj->decRef();
+            _jsMouseEventObj = nullptr;
         }
         _inited = false;
         _tickVal.setUndefined();
@@ -146,6 +154,78 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
     {
         se::ValueArray args;
         args.push_back(se::Value(_jsTouchObjArray));
+        callbackVal.toObject()->call(args, nullptr);
+    }
+}
+
+void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
+{
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
+    if (_jsMouseEventObj == nullptr)
+    {
+        _jsMouseEventObj = se::Object::createPlainObject();
+        _jsMouseEventObj->root();
+    }
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+    if (_jsbNameSpaceObj == nullptr)
+    {
+        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
+        se::Value jsbVal;
+        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
+        {
+            _jsbNameSpaceObj = jsbVal.toObject();
+            _jsbNameSpaceObj->incRef();
+            _jsbNameSpaceObj->root();
+        }
+    }
+
+    const auto& xVal = se::Value(mouseEvent.x);
+    const auto& yVal = se::Value(mouseEvent.y);
+    const MouseEvent::Type type = mouseEvent.type;
+
+    if (type == MouseEvent::Type::WHEEL)
+    {
+        _jsMouseEventObj->setProperty("wheelDeltaX", xVal);
+        _jsMouseEventObj->setProperty("wheelDeltaY", yVal);
+    }
+    else
+    {
+        if (type == MouseEvent::Type::DOWN || type == MouseEvent::Type::UP)
+        {
+            _jsMouseEventObj->setProperty("button", se::Value(mouseEvent.button));
+        }
+        _jsMouseEventObj->setProperty("x", xVal);
+        _jsMouseEventObj->setProperty("y", yVal);
+    }
+
+    const char* eventName = nullptr;
+    switch (type) {
+        case MouseEvent::Type::DOWN:
+            eventName = "onMouseDown";
+            break;
+        case MouseEvent::Type::MOVE:
+            eventName = "onMouseMove";
+            break;
+        case MouseEvent::Type::UP:
+            eventName = "onMouseUp";
+            break;
+        case MouseEvent::Type::WHEEL:
+            eventName = "onMouseWheel";
+            break;
+        default:
+            assert(false);
+            break;
+    }
+
+    se::Value callbackVal;
+    if (_jsbNameSpaceObj->getProperty(eventName, &callbackVal))
+    {
+        se::ValueArray args;
+        args.push_back(se::Value(_jsMouseEventObj));
         callbackVal.toObject()->call(args, nullptr);
     }
 }

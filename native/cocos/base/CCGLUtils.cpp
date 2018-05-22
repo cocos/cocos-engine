@@ -412,7 +412,6 @@ void ccPixelStorei(GLenum pname, GLint param)
         {
             glPixelStorei(pname, param);
             _currentUnpackAlignment = param;
-            CCLOG("pixel store changed: %d", param);
         }
 #else
         glPixelStorei(pname, param);

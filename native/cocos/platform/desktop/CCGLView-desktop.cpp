@@ -117,7 +117,6 @@ namespace
 GLView::GLView(Application* application, const std::string& name, int x, int y, int width, int height,
                Application::PixelFormat pixelformat, Application::DepthFormat depthFormat, int multisamplingCount)
 : _application(application)
-, _captured(false)
 , _mainWindow(nullptr)
 , _monitor(nullptr)
 , _mouseX(0.0f)
@@ -155,6 +154,7 @@ GLView::GLView(Application* application, const std::string& name, int x, int y, 
 
     glfwSetMouseButtonCallback(_mainWindow, GLFWEventHandler::onGLFWMouseCallBack);
     glfwSetCursorPosCallback(_mainWindow, GLFWEventHandler::onGLFWMouseMoveCallBack);
+    glfwSetScrollCallback(_mainWindow, GLFWEventHandler::onGLFWMouseScrollCallback);
     glfwSetCharCallback(_mainWindow, GLFWEventHandler::onGLFWCharCallback);
     glfwSetKeyCallback(_mainWindow, GLFWEventHandler::onGLFWKeyCallback);
     glfwSetWindowIconifyCallback(_mainWindow, GLFWEventHandler::onGLFWWindowIconifyCallback);
@@ -229,37 +229,42 @@ void GLView::onGLFWError(int errorID, const char* errorDesc)
 
 namespace
 {
-    void dispatchTouchEvent(float x, float y, cocos2d::TouchEvent::Type type)
+    void dispatchMouseEvent(double x, double y, unsigned short button, cocos2d::MouseEvent::Type type)
     {
         uint8_t devicePixelRatio = cocos2d::Application::getInstance()->getDevicePixelRatio();
-        cocos2d::TouchInfo touchInfo;
-        touchInfo.x = x / devicePixelRatio;
-        touchInfo.y = y / devicePixelRatio;
-        touchInfo.index = 0;
 
-        cocos2d::TouchEvent touchEvent;
-        touchEvent.type = type;
-        touchEvent.touches.push_back(touchInfo);
-
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        cocos2d::MouseEvent mouseEvent;
+        mouseEvent.x = x / devicePixelRatio;
+        mouseEvent.y = y / devicePixelRatio;
+        mouseEvent.button = button;
+        mouseEvent.type = type;
+        cocos2d::EventDispatcher::dispatchMouseEvent(mouseEvent);
     }
 }
 
 void GLView::onGLFWMouseCallBack(GLFWwindow* /*window*/, int button, int action, int /*modify*/)
 {
-    if(GLFW_MOUSE_BUTTON_LEFT == button)
+    unsigned short jsButton;
+    if (GLFW_MOUSE_BUTTON_LEFT == button)
+        jsButton = 0;
+    else if (GLFW_MOUSE_BUTTON_MIDDLE == button)
+        jsButton = 1;
+    else if (GLFW_MOUSE_BUTTON_RIGHT == button)
+        jsButton = 2;
+
+    if (GLFW_PRESS == action)
     {
-        if(GLFW_PRESS == action)
-        {
-            _captured = true;
-            dispatchTouchEvent(_mouseX, _mouseY, TouchEvent::Type::BEGAN);
-        }
-        else if(GLFW_RELEASE == action)
-        {
-            if (_captured)
-                dispatchTouchEvent(_mouseX, _mouseY, TouchEvent::Type::ENDED);
-        }
+        dispatchMouseEvent(_mouseX, _mouseY, jsButton, MouseEvent::Type::DOWN);
     }
+    else if (GLFW_RELEASE == action)
+    {
+        dispatchMouseEvent(_mouseX, _mouseY, jsButton, MouseEvent::Type::UP);
+    }
+}
+
+void GLView::onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
+{
+    dispatchMouseEvent(x, y, 0, MouseEvent::Type::WHEEL);
 }
 
 void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
@@ -267,8 +272,7 @@ void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     _mouseX = (float)x;
     _mouseY = (float)y;
 
-    if (_captured)
-        dispatchTouchEvent(_mouseX, _mouseY, TouchEvent::Type::MOVED);
+    dispatchMouseEvent(_mouseX, _mouseY, 0, MouseEvent::Type::MOVE);
 }
 
 void GLView::onGLFWKeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)

@@ -42,16 +42,36 @@ struct TouchInfo
 
 struct TouchEvent
 {
-    enum class Type
+    enum class Type : uint8_t
     {
         BEGAN,
         MOVED,
         ENDED,
-        CANCELLED
+        CANCELLED,
+        UNKNOWN
     };
     
     std::vector<TouchInfo> touches;
-    Type type = Type::BEGAN;
+    Type type = Type::UNKNOWN;
+};
+
+struct MouseEvent
+{
+    enum class Type : uint8_t
+    {
+        DOWN,
+        UP,
+        MOVE,
+        WHEEL,
+        UNKNOWN
+    };
+
+    float x = 0.0f;
+    float y = 0.0f;
+    // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
+    // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
+    unsigned short button = 0;
+    Type type = Type::UNKNOWN;
 };
 
 struct CustomEvent
@@ -74,6 +94,7 @@ public:
     static void destroy();
 
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
+    static void dispatchMouseEvent(const struct MouseEvent& mouseEvent);
     static void dispatchKeyEvent(int key, int action);
     static void dispatchTickEvent(float dt);
 
