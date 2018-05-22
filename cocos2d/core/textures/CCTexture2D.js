@@ -407,7 +407,8 @@ var Texture2D = cc.Class({
         // load image
         var self = this;
         cc.loader.load({
-            url: this.url
+            url: this.url,
+            _owner: this
         }, function (err, image) {
             if (image) {
                 if (CC_DEBUG && image instanceof cc.Texture2D) {
