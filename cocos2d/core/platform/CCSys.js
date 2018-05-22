@@ -577,8 +577,8 @@ function initSys () {
         } else {
             // desktop
             capabilities["keyboard"] = true;
-            capabilities["mouse"] = false; //TODO: Change to true to support dispatching mouse event for desktop platforms, need to be done in cocos2d-x-lite repo.
-            capabilities["touches"] = true; //TODO: Switch to false after the above TODO is finised!
+            capabilities["mouse"] = true;
+            capabilities["touches"] = false;
         }
 
         sys.__audioSupport = {
