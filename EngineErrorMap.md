@@ -458,6 +458,10 @@ Node's zIndex value can't be greater than cc.macro.MAX_ZINDEX, setting to the ma
 
 Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the minimum value
 
+### 1638
+
+Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its value
+
 ### 1700
 
 <!-- DEPRECATED -->
