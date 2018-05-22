@@ -2526,6 +2526,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
     copy.useTexture = this.useTexture;
+    copy.useColor = this.useColor;
     copy.texture = this.texture;
     copy.alphaThreshold = this.alphaThreshold;
     copy.updateHash();
