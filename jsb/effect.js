@@ -16,7 +16,8 @@ class Effect {
       techniqueObjs.push(techniqueObj);
     }
 
-    this._nativeObj = new renderer.EffectNative(techniqueObjs, properties, defines);
+    this._nativeObj = new renderer.EffectNative();
+    this._nativeObj.init(techniqueObjs, properties, defines);
     this._nativePtr = this._nativeObj.self();
 
     // TODO: check if params is valid for current technique???
