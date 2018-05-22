@@ -107,7 +107,7 @@ Audio.State = {
 
     proto._onLoaded = function () {
         var elem = this._src._nativeAsset;
-        if ((CC_QQPLAY || CC_WECHATGAME) && elem instanceof HTMLElement) {
+        if (CC_QQPLAY || CC_WECHATGAME) {
             this._element = elem;
         }
         else {
@@ -154,8 +154,8 @@ Audio.State = {
         touchBinded = true;
 
         // Listen to the touchstart body event and play the audio when necessary.
-        var item;
         cc.game.canvas.addEventListener('touchstart', function () {
+            var item;
             while (item = touchPlayList.pop()) {
                 item.audio.play(item.offset);
             }
