@@ -33,6 +33,8 @@ class Element extends Node {
         this.children = []
         this.clientLeft = 0;
         this.clientTop = 0;
+        this.scrollLeft = 0;
+        this.scrollTop = 0;
     }
 
     get clientWidth() {

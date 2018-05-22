@@ -25,9 +25,10 @@
  
 var __targetID = 0;
 var __listenTouchEventMap = {};
+var __listenMouseEventMap = {};
 
 const __touchEventNames = ['touchstart', 'touchmove', 'touchend', 'touchcancel'];
-
+const __mouseEventNames = ['mousedown', 'mousemove', 'mouseup', 'mousewheel'];
 
 // Listener types
 const CAPTURE = 1
@@ -57,7 +58,34 @@ class EventTarget {
     constructor() {
         this._targetID = ++__targetID;
         this._touchListenerCount = 0;
+        this._mouseListenerCount = 0;
         this._listeners = new Map();
+    }
+
+    _associateSystemEventListener(eventName) {
+        if (__touchEventNames.indexOf(eventName) > -1) {
+            if (this._touchListenerCount === 0)
+                __listenTouchEventMap[this._targetID] = this;
+            ++this._touchListenerCount;
+        }
+        else if (__mouseEventNames.indexOf(eventName) > -1) {
+            if (this._mouseListenerCount === 0)
+                __listenMouseEventMap[this._targetID] = this;
+            ++this._mouseListenerCount;
+        }
+    }
+
+    _dissociateSystemEventListener(eventName) {
+        if (__touchEventNames.indexOf(eventName) > -1) {
+            --this._touchListenerCount;
+            if (this._touchListenerCount <= 0)
+                delete __listenTouchEventMap[this._targetID];
+        }
+        else if (__mouseEventNames.indexOf(eventName) > -1) {
+            --this._mouseListenerCount;
+            if (this._mouseListenerCount <= 0)
+                delete __listenMouseEventMap[this._targetID];
+        }
     }
 
     /**
@@ -91,11 +119,7 @@ class EventTarget {
         let node = listeners.get(eventName)
         if (node === undefined) {
             listeners.set(eventName, newNode)
-            if (__touchEventNames.indexOf(eventName) > -1) {
-                if (this._touchListenerCount === 0)
-                    __listenTouchEventMap[this._targetID] = this;
-                ++this._touchListenerCount;
-            }
+            this._associateSystemEventListener(eventName);
             return true
         }
 
@@ -112,11 +136,7 @@ class EventTarget {
 
         // Add it.
         prev.next = newNode
-        if (__touchEventNames.indexOf(eventName) > -1) {
-            if (this._touchListenerCount === 0)
-                __listenTouchEventMap[this._targetID] = this;
-            ++this._touchListenerCount;
-        }
+        this._associateSystemEventListener(eventName);
         return true
     }
 
@@ -150,11 +170,7 @@ class EventTarget {
                     listeners.delete(eventName)
                 }
 
-                if (__touchEventNames.indexOf(eventName) > -1) {
-                    --this._touchListenerCount;
-                    if (this._touchListenerCount <= 0)
-                        delete __listenTouchEventMap[this._targetID];
-                }
+                this._dissociateSystemEventListener(eventName);
 
                 return true
             }
@@ -266,7 +282,25 @@ jsb.onTouchMove = touchEventHandlerFactory('touchmove');
 jsb.onTouchEnd = touchEventHandlerFactory('touchend');
 jsb.onTouchCancel = touchEventHandlerFactory('touchcancel');
 
-// export { defineEventAttribute, EventTarget }
-// export default EventTarget
+function mouseEventHandlerFactory(type) {
+    return (event) => {
+        const mouseEvent = new MouseEvent(type);
+        mouseEvent.wheelDelta = event.wheelDeltaY;
+        mouseEvent.clientX = mouseEvent.screenX = event.x;
+        mouseEvent.clientY = mouseEvent.screenY = event.y;
+
+        var target;
+        for (let key in __listenMouseEventMap) {
+            target = __listenMouseEventMap[key];
+            target.dispatchEvent(mouseEvent);
+        }
+    }
+}
+
+jsb.onMouseDown = mouseEventHandlerFactory('mousedown');
+jsb.onMouseMove = mouseEventHandlerFactory('mousemove');
+jsb.onMouseUp = mouseEventHandlerFactory('mouseup');
+jsb.onMouseWheel = mouseEventHandlerFactory('mousewheel');
+
 module.exports = EventTarget
 
