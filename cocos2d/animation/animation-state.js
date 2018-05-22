@@ -154,7 +154,7 @@ function AnimationState (clip, name) {
     this.time = 0;
 
     // Animation as event target
-    this._taget = null;
+    this._target = null;
     this._lastframeEventOn = false;
     this.emit = function () {
         var args = new Array(arguments.length);
@@ -176,26 +176,26 @@ proto._emit = function (type, detail) {
     }
 };
 
-proto.on = function (type, callback, target, useCapture) {
+proto.on = function (type, callback, target) {
     if (this._target && this._target.isValid) {
         if (type === 'lastframe') {
             this._lastframeEventOn = true;
         }
-        return this._target.on(type, callback, target, useCapture);
+        return this._target.on(type, callback, target);
     }
     else {
         return null;
     }
 };
 
-proto.off = function () {
+proto.off = function (type, callback, target) {
     if (this._target && this._target.isValid) {
         if (type === 'lastframe') {
             if (!this.hasEventListener(type)) {
                 this._lastframeEventOn = false;
             }
         }
-        this._target.off(type, callback, target, useCapture);
+        this._target.off(type, callback, target);
     }
 };
 
