@@ -32,8 +32,6 @@ const math = renderEngine.math;
 
 const LocalDirtyFlag = Node._LocalDirtyFlag;
 const POSITION_ON = 1 << 0;
-const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
-const ONE_DEGREE = Math.PI / 180;
 
 let _vec3_temp = math.vec3.create();
 
