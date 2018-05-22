@@ -26,9 +26,13 @@
 'use strict';
 
 const Node = require('./CCNode');
+const RenderFlow = require('./renderer/render-flow');
 const renderEngine = require('./renderer/render-engine');
 const math = renderEngine.math;
 
+const LocalDirtyFlag = Node._LocalDirtyFlag;
+const POSITION_ON = 1 << 0;
+const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
 let _vec3_temp = math.vec3.create();
@@ -37,11 +41,11 @@ let _vec3_temp = math.vec3.create();
  * !#en
  * Class of private entities in Cocos Creator scenes.<br/>
  * The PrivateNode is hidden in editor, and completely transparent to users.<br/>
- * It has the minimum zIndex and the position is affected by parent's anchor point.
+ * It has the minimum zIndex and the position isn't affected by parent's anchor point.
  * !#zh
  * Cocos Creator 场景中的私有节点类。<br/>
  * 私有节点在编辑器中不可见，对用户透明。<br/>
- * 它有着最小的渲染排序的 Z 轴深度，同时位置受父节点的锚点影响。
+ * 它有着最小的渲染排序的 Z 轴深度，同时位置不受父节点的锚点影响。
  * @class PrivateNode
  * @constructor
  * @param {String} name
@@ -51,45 +55,80 @@ let PrivateNode = cc.Class({
     name: 'cc.PrivateNode',
     extends: Node,
 
+    properties: {
+        x: {
+            get () {
+                return this._originPos.x;
+            },
+            set (value) {
+                var localPosition = this._originPos;
+                if (value !== localPosition.x) {
+                    localPosition.x = value;
+                    this._posDirty(true);
+                }
+            },
+            override: true
+        },
+
+        y: {
+            get () {
+                return this._originPos.y;
+            },
+            set (value) {
+                var localPosition = this._originPos;
+                if (value !== localPosition.y) {
+                    localPosition.y = value;
+                    this._posDirty(true);
+                }
+            },
+            override: true
+        },
+    },
+
     /**
      * @method constructor
      * @param {String} [name]
      */
     ctor (name) {
         this.zIndex = cc.macro.MIN_ZINDEX;
+        this._originPos = cc.v2();
     },
 
-    _onAnchorChangedHandler () {
-        this._localMatDirty = true;
+    _posDirty (sendEvent) {
+        this.setLocalDirty(LocalDirtyFlag.POSITION);
+        this._renderFlag |= RenderFlow.FLAG_LOCAL_TRANSFORM;
+        if (sendEvent === true && (this._eventMask & POSITION_ON)) {
+            this.emit(EventType.POSITION_CHANGED);
+        }
     },
 
     _updateLocalMatrix() {
-        if (this._localMatDirty) {
-            // Update transform
-            let t = this._matrix;
-            _vec3_temp.x = this._position.x - (this.parent._anchorPoint.x - 0.5) * this.parent._contentSize.width;
-            _vec3_temp.y = this._position.y - (this.parent._anchorPoint.y - 0.5) * this.parent._contentSize.height;
-            _vec3_temp.z = this._position.z;    
-            math.mat4.fromRTS(t, this._quat, _vec3_temp, this._scale);
+        if (!this._localMatDirty) return;
 
-            // skew
-            if (this._skewX || this._skewY) {
-                let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
-                let skx = Math.tan(this._skewX * ONE_DEGREE);
-                let sky = Math.tan(this._skewY * ONE_DEGREE);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                t.m00 = a + c * sky;
-                t.m01 = b + d * sky;
-                t.m04 = c + a * skx;
-                t.m05 = d + b * skx;
-            }
-            this._localMatDirty = false;
-            // Register dirty status of world matrix so that it can be recalculated
-            this._worldMatDirty = true;
+        // Position correction for transform calculation
+        this._position.x = this._originPos.x - (this.parent._anchorPoint.x - 0.5) * this.parent._contentSize.width;
+        this._position.y = this._originPos.y - (this.parent._anchorPoint.y - 0.5) * this.parent._contentSize.height;
+
+        this._super();
+    },
+
+    getPosition () {
+        return new cc.Vec2(this._originPos);
+    },
+
+    setPosition (x, y) {
+        if (y === undefined) {
+            x = x.x;
+            y = x.y;
         }
+
+        var pos = this._originPos;
+        if (pos.x === x && pos.y === y) {
+            return;
+        }
+        pos.x = x;
+        pos.y = y;
+        this._posDirty(true);
     },
 
     setParent(value) {
@@ -97,10 +136,10 @@ let PrivateNode = cc.Class({
         this._super(value);
         if (oldParent !== value) {
             if (oldParent) {
-                oldParent.off(Node.EventType.ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
+                oldParent.off(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
             }
             if (value) {
-                value.on(Node.EventType.ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
+                value.on(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
             }
         }
     },
@@ -113,5 +152,6 @@ let PrivateNode = cc.Class({
 });
 
 cc.js.getset(PrivateNode.prototype, "parent", PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
+cc.js.getset(PrivateNode.prototype, "position", PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
 
 cc.PrivateNode = module.exports = PrivateNode;
