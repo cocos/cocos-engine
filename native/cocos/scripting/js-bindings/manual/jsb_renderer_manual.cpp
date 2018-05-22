@@ -584,6 +584,23 @@ static bool js_renderer_Pass_init(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Pass_init);
 
+static bool js_renderer_Effect_init(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::Vector<cocos2d::renderer::Technique *> arg0;
+    std::unordered_map<std::string, cocos2d::renderer::Technique::Parameter> arg1;
+    std::vector<std::unordered_map<std::string, cocos2d::Value>> arg2;
+    ok &= seval_to_Vector(args[0], &arg0);
+    ok &= seval_to_EffectProperty(arg0, args[1], &arg1);
+    ok &= seval_to_EffectDefineTemplate(args[2], &arg2);
+    SE_PRECONDITION2(ok, false, "js_renderer_Effect_init : Error processing arguments");
+    cobj->init(arg0, arg1, arg2);
+    return true;
+}
+SE_BIND_FUNC(js_renderer_Effect_init);
+
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Get the ns
@@ -628,5 +645,9 @@ bool jsb_register_renderer_manual(se::Object* global)
     
     // Pass
     __jsb_cocos2d_renderer_Pass_proto->defineFunction("init", _SE(js_renderer_Pass_init));
+
+    // Effect
+    __jsb_cocos2d_renderer_Effect_proto->defineFunction("init", _SE(js_renderer_Effect_init));
+
     return true;
 }

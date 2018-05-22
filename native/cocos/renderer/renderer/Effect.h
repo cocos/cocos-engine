@@ -37,14 +37,14 @@ class Effect : public Ref
 {
 public:
     
-    typedef Technique::Parameter Property;
+    using Property = Technique::Parameter;
     
-    Effect(const Vector<Technique*>& techniques,
-           const std::unordered_map<std::string, Property>& properties,
-           const std::vector<ValueMap>& defineTemplates);
-
+    Effect();
     ~Effect();
     
+    void init(const Vector<Technique*>& techniques,
+              const std::unordered_map<std::string, Property>& properties,
+              const std::vector<ValueMap>& defineTemplates);
     void clear();
     
     Technique* getTechnique(const std::string& stage) const;

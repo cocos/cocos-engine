@@ -100,7 +100,6 @@ SE_BIND_CTOR(js_renderer_ProgramLib_constructor, __jsb_cocos2d_renderer_ProgramL
 
 static bool js_cocos2d_renderer_ProgramLib_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::ProgramLib)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -109,7 +108,6 @@ static bool js_cocos2d_renderer_ProgramLib_finalize(se::State& s)
         cocos2d::renderer::ProgramLib* cobj = (cocos2d::renderer::ProgramLib*)s.nativeThisObject();
         delete cobj;
     }
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_ProgramLib_finalize)
@@ -213,11 +211,9 @@ SE_BIND_CTOR(js_renderer_BaseRenderer_constructor, __jsb_cocos2d_renderer_BaseRe
 
 static bool js_cocos2d_renderer_BaseRenderer_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::BaseRenderer)", s.nativeThisObject());
     cocos2d::renderer::BaseRenderer* cobj = (cocos2d::renderer::BaseRenderer*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_BaseRenderer_finalize)
@@ -287,6 +283,9 @@ extern se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto;
 
 static bool js_cocos2d_renderer_ForwardRenderer_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::ForwardRenderer)", s.nativeThisObject());
+    cocos2d::renderer::ForwardRenderer* cobj = (cocos2d::renderer::ForwardRenderer*)s.nativeThisObject();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_ForwardRenderer_finalize)
@@ -325,6 +324,9 @@ SE_BIND_CTOR(js_renderer_View_constructor, __jsb_cocos2d_renderer_View_class, js
 
 static bool js_cocos2d_renderer_View_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::View)", s.nativeThisObject());
+    cocos2d::renderer::View* cobj = (cocos2d::renderer::View*)s.nativeThisObject();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_View_finalize)
@@ -782,11 +784,9 @@ SE_BIND_CTOR(js_renderer_Camera_constructor, __jsb_cocos2d_renderer_Camera_class
 
 static bool js_cocos2d_renderer_Camera_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Camera)", s.nativeThisObject());
     cocos2d::renderer::Camera* cobj = (cocos2d::renderer::Camera*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Camera_finalize)
@@ -871,16 +871,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
 
 static bool js_renderer_Effect_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::Vector<cocos2d::renderer::Technique *> arg0;
-    std::unordered_map<std::string, cocos2d::renderer::Technique::Parameter> arg1;
-    std::vector<std::unordered_map<std::string, cocos2d::Value>> arg2;
-    ok &= seval_to_Vector(args[0], &arg0);
-    ok &= seval_to_EffectProperty(args[1], &arg1);
-    ok &= seval_to_EffectDefineTemplate(args[2], &arg2);
-    SE_PRECONDITION2(ok, false, "js_renderer_Effect_constructor : Error processing arguments");
-    cocos2d::renderer::Effect* cobj = new (std::nothrow) cocos2d::renderer::Effect(arg0, arg1, arg2);
+    cocos2d::renderer::Effect* cobj = new (std::nothrow) cocos2d::renderer::Effect();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -891,11 +882,9 @@ SE_BIND_CTOR(js_renderer_Effect_constructor, __jsb_cocos2d_renderer_Effect_class
 
 static bool js_cocos2d_renderer_Effect_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Effect)", s.nativeThisObject());
     cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
@@ -1567,6 +1556,9 @@ SE_BIND_CTOR(js_renderer_Light_constructor, __jsb_cocos2d_renderer_Light_class, 
 
 static bool js_cocos2d_renderer_Light_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Light)", s.nativeThisObject());
+    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Light_finalize)
@@ -2111,11 +2103,9 @@ SE_BIND_CTOR(js_renderer_Pass_constructor, __jsb_cocos2d_renderer_Pass_class, js
 
 static bool js_cocos2d_renderer_Pass_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Pass)", s.nativeThisObject());
     cocos2d::renderer::Pass* cobj = (cocos2d::renderer::Pass*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Pass_finalize)
@@ -2407,6 +2397,14 @@ SE_BIND_CTOR(js_renderer_Scene_constructor, __jsb_cocos2d_renderer_Scene_class, 
 
 static bool js_cocos2d_renderer_Scene_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Scene)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::renderer::Scene* cobj = (cocos2d::renderer::Scene*)s.nativeThisObject();
+        delete cobj;
+    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Scene_finalize)

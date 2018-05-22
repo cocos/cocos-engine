@@ -27,14 +27,16 @@
 
 RENDERER_BEGIN
 
-Effect::Effect(const Vector<Technique*>& techniques,
+Effect::Effect()
+{}
+
+void Effect::init(const Vector<Technique*>& techniques,
                const std::unordered_map<std::string, Property>& properties,
                const std::vector<ValueMap>& defineTemplates)
-: _techniques(techniques)
-, _properties(properties)
-, _defineTemplates(defineTemplates)
 {
-//    RENDERER_LOGD("Effect construction: %p", this);
+    _techniques = techniques;
+    _properties = properties;
+    _defineTemplates = defineTemplates;
     
     for (const auto defineTemplate: _defineTemplates)
         _cachedNameValues.emplace(defineTemplate.at("name").asString(),

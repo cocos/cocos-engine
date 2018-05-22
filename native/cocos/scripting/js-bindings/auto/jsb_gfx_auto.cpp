@@ -39,11 +39,9 @@ SE_BIND_CTOR(js_gfx_GraphicsHandle_constructor, __jsb_cocos2d_renderer_GraphicsH
 
 static bool js_cocos2d_renderer_GraphicsHandle_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::GraphicsHandle)", s.nativeThisObject());
     cocos2d::renderer::GraphicsHandle* cobj = (cocos2d::renderer::GraphicsHandle*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_GraphicsHandle_finalize)
@@ -247,11 +245,9 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_IndexBuffer_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::IndexBuffer)", s.nativeThisObject());
     cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_IndexBuffer_finalize)
@@ -425,11 +421,9 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_VertexBuffer_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::VertexBuffer)", s.nativeThisObject());
     cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_VertexBuffer_finalize)
@@ -1176,6 +1170,9 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_FrameBuffer_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::FrameBuffer)", s.nativeThisObject());
+    cocos2d::renderer::FrameBuffer* cobj = (cocos2d::renderer::FrameBuffer*)s.nativeThisObject();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_FrameBuffer_finalize)
@@ -1203,11 +1200,9 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_RenderTarget_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderTarget)", s.nativeThisObject());
     cocos2d::renderer::RenderTarget* cobj = (cocos2d::renderer::RenderTarget*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderTarget_finalize)
@@ -1300,11 +1295,9 @@ extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
 static bool js_cocos2d_renderer_RenderBuffer_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderBuffer)", s.nativeThisObject());
     cocos2d::renderer::RenderBuffer* cobj = (cocos2d::renderer::RenderBuffer*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderBuffer_finalize)
@@ -1388,6 +1381,9 @@ extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
 static bool js_cocos2d_renderer_Texture_finalize(se::State& s)
 {
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture)", s.nativeThisObject());
+    cocos2d::renderer::Texture* cobj = (cocos2d::renderer::Texture*)s.nativeThisObject();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture_finalize)
@@ -1509,11 +1505,9 @@ extern se::Object* __jsb_cocos2d_renderer_Texture_proto;
 
 static bool js_cocos2d_renderer_Texture2D_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture2D)", s.nativeThisObject());
     cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture2D_finalize)
@@ -1614,11 +1608,9 @@ extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
 static bool js_cocos2d_renderer_Program_finalize(se::State& s)
 {
-
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Program)", s.nativeThisObject());
     cocos2d::renderer::Program* cobj = (cocos2d::renderer::Program*)s.nativeThisObject();
     cobj->release();
-
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Program_finalize)

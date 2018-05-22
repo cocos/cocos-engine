@@ -1566,7 +1566,7 @@ bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture:
     return true;
 }
 
-bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
+bool seval_to_EffectProperty(const cocos2d::Vector<cocos2d::renderer::Technique *>& techniqes, const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
 {
     assert(ret != nullptr);
     if (v.isNullOrUndefined())
@@ -1587,11 +1587,20 @@ bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string,
         cocos2d::renderer::Effect::Property property;
         if (obj->getProperty(key.c_str(), &value) && value.isObject())
         {
-            if (seval_to_TechniqueParameter(value, &property))
+            for (const auto& techinque : techniqes)
             {
-                ret->emplace(key, std::move(property));
+                for (const auto& param : techinque->getParameters())
+                {
+                    if (key == param.getName())
+                    {
+                        ret->emplace(key, param);
+                        goto theEnd;
+                    }
+                }
             }
         }
+        
+    theEnd:;
     }
 
     return true;
