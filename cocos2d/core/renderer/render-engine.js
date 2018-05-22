@@ -10070,13 +10070,43 @@ Device.prototype.setTextureArray = function setTextureArray (name, textures, slo
 Device.prototype.setUniform = function setUniform (name, value) {
   var uniform = this._uniforms[name];
   if (!uniform) {
+    var newValue = value;
+    var isArray = false;
+    if (value instanceof Float32Array || Array.isArray(value)) {
+      newValue = new Float32Array(value);
+      isArray = true;
+    }
+    else if (value instanceof Int32Array) {
+      newValue = new Int32Array(value);
+      isArray = true;
+    }
+
     uniform = {
       dirty: true,
-      value: value,
+      value: newValue,
+      isArray: isArray
     };
   } else {
-    uniform.dirty = true;
-    uniform.value = value;
+    var oldValue = uniform.value;
+    var dirty = false;
+    if (uniform.isArray) {
+      for (var i = 0, l = oldValue.length; i < l; i++) {
+        if (oldValue[i] !== value[i]) {
+          dirty = true;
+          oldValue[i] = value[i];
+        }
+      }
+    }
+    else {
+      if (oldValue !== value) {
+        dirty = true;
+        uniform.value = value;
+      }
+    }
+
+    if (dirty) {
+      uniform.dirty = true;
+    }
   }
   this._uniforms[name] = uniform;
 };
@@ -14782,7 +14812,7 @@ var StencilMaterial = (function (Material$$1) {
       [
         mainTech ],
       {
-        'color': {r: 0, g: 0, b: 0, a: 1}
+        'color': {r: 1, g: 1, b: 1, a: 1}
       },
       [
         { name: 'useTexture', value: true },
@@ -14845,6 +14875,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
     copy.useTexture = this.useTexture;
+    copy.useColor = this.useColor;
     copy.texture = this.texture;
     copy.alphaThreshold = this.alphaThreshold;
     copy.updateHash();
