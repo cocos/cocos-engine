@@ -330,7 +330,7 @@ using namespace cocos2d::experimental::ui;
 -(void) setVolume:(float)volume
 {
     if (self.volumeSlider != NULL) {
-        [self.volumeSlider setVolume:volume animated:NO];
+        [self.volumeSlider setValue:volume animated:NO];
     }
 }
 
