@@ -396,7 +396,7 @@ sp.Skeleton = cc.Class({
                     cc.errorID(7504);
                     return null;
                 }
-                var jsonFile = skeletonData.nativeUrl;
+                var jsonFile = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(skeletonData.nativeUrl, true) : skeletonData.nativeUrl;
                 var atlasText = skeletonData.atlasText;
                 if (!atlasText) {
                     cc.errorID(7508, skeletonData.name);
