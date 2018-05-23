@@ -683,6 +683,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
                 var image = selTileset.getElementsByTagName('image')[0];
                 var imagename = image.getAttribute('source');
+                imagename.replace(/\\/g, '\/');
                 tileset.sourceImage = this._textures[imagename];
                 if (!tileset.sourceImage) {
                     cc.errorID(7221, imagename);

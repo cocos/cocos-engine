@@ -42,6 +42,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
 
   var textures = [];
   var tsxFiles = [];
+  var textureNames = [];
   function parseTilesetImages(tilesetNode, sourcePath) {
     var images = tilesetNode.getElementsByTagName('image');
     for (var i = 0, n = images.length; i < n ; i++) {
@@ -49,6 +50,9 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
       if (imageCfg) {
         var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
         textures.push(imgPath);
+        let textureName = Path.relative(Path.dirname(sourcePath), imgPath);
+        textureName = textureName.replace(/\\/g, '\/');
+        textureNames.push(textureName);
       }
     }
   }
@@ -77,7 +81,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     parseTilesetImages(tileset, tmxFile);
   }
 
-  cb(null, { textures: textures, tsxFiles: tsxFiles });
+  cb(null, { textures, tsxFiles, textureNames });
 }
 
 const AssetRootUrl = 'db://assets/';
@@ -88,9 +92,10 @@ class TiledMapMeta extends CustomAssetMeta {
     this._tmxData = '';
     this._textures = [];
     this._tsxFiles = [];
+    this._textureNames = [];
   }
 
-  static version () { return '2.0.0'; }
+  static version () { return '2.0.1'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
@@ -107,6 +112,7 @@ class TiledMapMeta extends CustomAssetMeta {
 
         this._textures = info.textures;
         this._tsxFiles = info.tsxFiles;
+        this._textureNames = info.textureNames;
 
         cb();
       });
@@ -122,7 +128,7 @@ class TiledMapMeta extends CustomAssetMeta {
       var uuid = db.fspathToUuid(p);
       return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
-    asset.textureNames = this._textures.map(p => Path.basename(p));
+    asset.textureNames = this._textureNames;
     asset.tsxFiles = this._tsxFiles.map(p => {
         var tsxPath = Path.join(Path.dirname(fspath), p);
         var uuid = db.fspathToUuid(tsxPath);
