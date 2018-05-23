@@ -43,6 +43,7 @@ function getGraphics () {
 }
 
 let beforeHandler = {
+    updateRenderData (comp) {},
     updateGraphics (mask) {
         let node = mask.node;
         let graphics = mask._graphics;
@@ -85,6 +86,7 @@ let beforeHandler = {
 };
 
 let afterHandler = {
+    updateRenderData (comp) {},
     draw (ctx, mask) {
         ctx.restore();
     }

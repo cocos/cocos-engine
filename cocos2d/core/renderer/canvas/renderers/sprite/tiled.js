@@ -32,7 +32,11 @@ let renderer = {
         return renderData;
     },
     
-    update (sprite) {},
+    updateRenderData (sprite) {
+        if (!sprite._material) {
+            sprite._activateMaterial();
+        }
+    },
 
     draw (ctx, sprite) {
         let node = sprite.node;

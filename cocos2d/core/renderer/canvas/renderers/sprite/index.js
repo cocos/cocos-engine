@@ -49,17 +49,5 @@ module.exports = {
 
     createData (sprite) {
         return sprite._assembler.createData(sprite);
-    },
-
-    draw (ctx, sprite) {
-        let node = sprite.node;
-        // Check whether need to render
-        if (!sprite._spriteFrame || !sprite._spriteFrame.textureLoaded()) {
-            return 0;
-        }
-        // update
-        sprite._assembler.update(sprite);
-
-        return sprite._assembler.draw(ctx, sprite);
     }
 };

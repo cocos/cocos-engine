@@ -34,12 +34,12 @@ let renderer = {
         return renderData;
     },
 
-    update (sprite) {
-        let renderData = sprite._renderData;
-        if (!renderData) {
-            return;
+    updateRenderData (sprite) {
+        if (!sprite._material) {
+            sprite._activateMaterial();
         }
-        
+
+        let renderData = sprite._renderData;
         if (renderData.uvDirty) {
             this.updateUVs(sprite);
         }

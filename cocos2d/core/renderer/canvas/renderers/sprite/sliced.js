@@ -34,7 +34,7 @@ let renderer = {
         return renderData;
     },
 
-    update: simple.update,
+    updateRenderData: simple.updateRenderData,
     
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
