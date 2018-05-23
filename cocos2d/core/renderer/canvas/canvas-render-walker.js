@@ -25,6 +25,7 @@
 
 const js = require('../../platform/js');
 const renderers = require('./renderers');
+const RenderFlow = require('../render-flow');
 
 let RenderComponentWalker = function (device, defaultCamera) {
     this._device = device;
@@ -32,8 +33,10 @@ let RenderComponentWalker = function (device, defaultCamera) {
     // let vy = this._device._vy;
     // let vh = this._device._vh;
     this._camera = defaultCamera;
-    this._renderHandler = this._handleRender.bind(this);
-    this._postRenderHandler = this._postHandleRender.bind(this);
+
+    this.worldMatDirty = 0;
+    
+    RenderFlow.init(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -41,34 +44,11 @@ RenderComponentWalker.prototype = {
     
     reset() {},
 
-    _handleRender (node) {
-        let comp = node._renderComponent;
-        let opacity = node.opacity;
-        let assembler = comp && comp.constructor._assembler;
-        if (opacity && assembler) {
-            this._render(comp, assembler);
-        }
-    },
-
-    _postHandleRender (node) {
-        let comp = node._renderComponent;
-        let opacity = node.opacity;
-        let postAssembler = comp && comp.constructor._postAssembler;
-        if (opacity && postAssembler) {
-            this._render(comp, postAssembler);
-        }
-    },
-
-    _render (comp, renderer) {
+    _commitComp (comp, assembler, cullingMask) {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
-        let node = comp.node;
-        if (node._worldMatDirty) {
-            node._updateWorldMatrix();
-        }
-        let drawCall = renderer.draw(ctx, comp);
-        this._device._stats.drawcalls += drawCall;
+        assembler.draw(ctx, comp);
     },
 
     visit (scene) {
@@ -79,7 +59,8 @@ RenderComponentWalker.prototype = {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
-        scene.walk(this._renderHandler, this._postRenderHandler);
+
+        RenderFlow.render(scene);
     }
 }
 

@@ -156,7 +156,9 @@ cc.Director.prototype = {
             this._actionManager = null;
         }
 
-        cc.dynamicAtlasManager.enabled = true;
+        if (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
+            cc.dynamicAtlasManager.enabled = true;
+        }
 
         this.sharedInit();
         return true;
