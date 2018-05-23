@@ -576,7 +576,7 @@ else if (CC_WECHATGAME) {
     sys.osVersion = version[0];
     sys.osMainVersion = parseInt(sys.osVersion);
     // wechagame subdomain
-    if (wx.getGroupCloudStorage && wx.getFriendCloudStorage) {
+    if (!wx.getFileSystemManager) {
         sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
     }
     else {
