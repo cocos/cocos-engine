@@ -28,6 +28,7 @@
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
+#include "base/CCConfiguration.h"
 #include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
@@ -206,6 +207,7 @@ Application::Application(const std::string& name, int width, int height)
     _scheduler = new Scheduler();
 
     createView(name, width, height);
+    Configuration::getInstance();
     
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_mainFBO);
     _renderTexture = new RenderTexture(width, height);

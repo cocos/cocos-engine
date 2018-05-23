@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
+#include "base/CCConfiguration.h"
 #include "platform/desktop/CCGLView-desktop.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
@@ -68,6 +69,8 @@ Application::Application(const std::string& name, int width, int height)
     g_height = height;
     
     createView(name, width, height);
+
+    Configuration::getInstance();
 
     _renderTexture = new RenderTexture(width, height);
     _scheduler = new Scheduler();

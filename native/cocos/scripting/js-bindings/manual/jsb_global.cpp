@@ -708,7 +708,21 @@ static bool js_loadImage(se::State& s)
                     retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
                     retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
                     retObj->setProperty("compressed", se::Value(img->isCompressed()));
-                    retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
+                    int numberOfMipmaps = img->getNumberOfMipmaps();
+                    retObj->setProperty("numberOfMipmaps", se::Value(numberOfMipmaps));
+                    if (numberOfMipmaps > 0)
+                    {
+                        se::HandleObject mipmapArray(se::Object::createArrayObject(numberOfMipmaps));
+                        retObj->setProperty("mipmaps", se::Value(mipmapArray));
+                        MipmapInfo* mipmapInfo = img->getMipmaps();
+                        for (int i = 0; i < numberOfMipmaps; ++i)
+                        {
+                            se::HandleObject info(se::Object::createPlainObject());
+                            info->setProperty("offset", se::Value(mipmapInfo[i].offset));
+                            info->setProperty("length", se::Value(mipmapInfo[i].len));
+                            mipmapArray->setArrayElement(i, se::Value(info));
+                        }
+                    }
 
                     const auto& pixelFormatInfo = img->getPixelFormatInfo();
                     retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));

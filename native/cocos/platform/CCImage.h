@@ -54,9 +54,9 @@ NS_CC_BEGIN
  */
 typedef struct _MipmapInfo
 {
-    unsigned char* address;
-    int len;
-    _MipmapInfo():address(nullptr),len(0){}
+    unsigned char* address = nullptr;
+    int offset = 0;
+    int len = 0;
 }MipmapInfo;
 
 class Image : public Ref
@@ -83,7 +83,7 @@ public:
         //! ETC
         ETC,
         //! S3TC
-//        S3TC,
+        S3TC,
         //! ATITC
 //        ATITC,
         //! TGA
@@ -237,6 +237,7 @@ protected:
     bool initWithPVRv2Data(const unsigned char * data, ssize_t dataLen);
     bool initWithPVRv3Data(const unsigned char * data, ssize_t dataLen);
     bool initWithETCData(const unsigned char * data, ssize_t dataLen);
+    bool initWithS3TCData(const unsigned char * data, ssize_t dataLen);
 
     typedef struct sImageTGA tImageTGA;
     bool initWithTGAData(tImageTGA* tgaData);
@@ -260,7 +261,6 @@ protected:
     ssize_t _dataLen;
     int _width;
     int _height;
-    bool _unpack;
     Format _fileType;
     PixelFormat _renderFormat;
     MipmapInfo _mipmaps[MIPMAP_MAX];   // pointer to mipmap images
@@ -291,6 +291,7 @@ protected:
     bool isWebp(const unsigned char * data, ssize_t dataLen);
     bool isPvr(const unsigned char * data, ssize_t dataLen);
     bool isEtc(const unsigned char * data, ssize_t dataLen);
+    bool isS3TC(const unsigned char * data,ssize_t dataLen);
 };
 
 // end of platform group

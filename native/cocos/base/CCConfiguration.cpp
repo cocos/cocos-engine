@@ -41,8 +41,8 @@ Configuration::Configuration()
 , _maxModelviewStackDepth(0)
 , _supportsPVRTC(false)
 , _supportsETC1(false)
-//, _supportsS3TC(false)
-//, _supportsATITC(false)
+, _supportsS3TC(false)
+, _supportsATITC(false)
 , _supportsNPOT(false)
 , _supportsBGRA8888(false)
 , _supportsDiscardFramebuffer(false)
@@ -57,14 +57,11 @@ Configuration::Configuration()
 , _maxPointLightInShader(1)
 , _maxSpotLightInShader(1)
 {
-//cjh    _loadedEvent = new (std::nothrow) EventCustom(CONFIG_FILE_LOADED);
 }
 
 bool Configuration::init()
 {
-//cjh    _valueDict["cocos2d.x.version"] = Value(cocos2dVersion());
     gatherGPUInfo();
-
 
 #if CC_ENABLE_PROFILERS
     _valueDict["cocos2d.x.compiled_with_profiler"] = Value(true);
@@ -89,7 +86,6 @@ bool Configuration::init()
 
 Configuration::~Configuration()
 {
-//cjh    CC_SAFE_RELEASE(_loadedEvent);
 }
 
 std::string Configuration::getInfo() const
@@ -130,11 +126,11 @@ void Configuration::gatherGPUInfo()
     _supportsETC1 = checkForGLExtension("GL_OES_compressed_ETC1_RGB8_texture");
     _valueDict["gl.supports_ETC1"] = Value(_supportsETC1);
 
-//    _supportsS3TC = checkForGLExtension("GL_EXT_texture_compression_s3tc");
-//    _valueDict["gl.supports_S3TC"] = Value(_supportsS3TC);
-//
-//    _supportsATITC = checkForGLExtension("GL_AMD_compressed_ATC_texture");
-//    _valueDict["gl.supports_ATITC"] = Value(_supportsATITC);
+    _supportsS3TC = checkForGLExtension("GL_EXT_texture_compression_s3tc");
+    _valueDict["gl.supports_S3TC"] = Value(_supportsS3TC);
+
+    _supportsATITC = checkForGLExtension("GL_AMD_compressed_ATC_texture");
+    _valueDict["gl.supports_ATITC"] = Value(_supportsATITC);
 
     _supportsPVRTC = checkForGLExtension("GL_IMG_texture_compression_pvrtc");
     _valueDict["gl.supports_PVRTC"] = Value(_supportsPVRTC);
@@ -223,19 +219,19 @@ bool Configuration::supportsETC() const
 #endif
 }
 
-//bool Configuration::supportsS3TC() const
-//{
-//#ifdef GL_EXT_texture_compression_s3tc
-//    return _supportsS3TC;
-//#else
-//    return false;
-//#endif
-//}
-//
-//bool Configuration::supportsATITC() const
-//{
-//    return _supportsATITC;
-//}
+bool Configuration::supportsS3TC() const
+{
+#ifdef GL_EXT_texture_compression_s3tc
+    return _supportsS3TC;
+#else
+    return false;
+#endif
+}
+
+bool Configuration::supportsATITC() const
+{
+    return _supportsATITC;
+}
 
 bool Configuration::supportsBGRA8888() const
 {

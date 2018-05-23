@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "platform/android/jni/JniImp.h"
 #include "platform/Android/CCGL-android.h"
 #include "base/CCScheduler.h"
+#include "base/CCConfiguration.h"
 
 #define  LOG_TAG    "CCApplication_android Debug"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
@@ -53,6 +54,8 @@ Application* Application::_instance = nullptr;
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
+    Configuration::getInstance();
+
     _scheduler = new Scheduler();
 
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
