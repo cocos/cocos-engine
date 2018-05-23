@@ -157,8 +157,18 @@ var MotionStreak = cc.Class({
                 return this._texture;
             },
             set (value) {
+                if (this._texture === value) return;
+
                 this._texture = value;
-                this._activateMaterial(true);
+
+                if (!value) {
+                    this.disableRender();
+                }
+                else {
+                    this.markForRender(true);
+                    this.markForUpdateRenderData(true);
+                    this._activateMaterial(true);
+                }
             },
             type: cc.Texture2D,
             animatable: false,
