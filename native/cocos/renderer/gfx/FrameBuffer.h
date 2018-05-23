@@ -43,6 +43,7 @@ public:
 
     FrameBuffer();
     bool init(DeviceGraphics* device, uint16_t width, uint16_t height);
+    void destroy();
 
     void setColorBuffers(const std::vector<RenderTarget*>& renderTargets);
     void setColorBuffer(RenderTarget* rt, int index);

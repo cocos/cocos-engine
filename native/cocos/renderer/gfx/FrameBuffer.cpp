@@ -39,22 +39,26 @@ FrameBuffer::FrameBuffer()
 
 FrameBuffer::~FrameBuffer()
 {
+    destroy();
+}
+
+void FrameBuffer::destroy()
+{
     for (auto colorBufffer : _colorBuffers)
         RENDERER_SAFE_RELEASE(colorBufffer);
-
+    
     RENDERER_SAFE_RELEASE(_depthBuffer);
     RENDERER_SAFE_RELEASE(_stencilBuffer);
     RENDERER_SAFE_RELEASE(_depthStencilBuffer);
-
+    
     if (_glID == 0)
     {
         RENDERER_LOGE("The frame-buffer is invalid!");
         return;
     }
-
-    ccDeleteBuffers(1, &_glID);
+    
+    glDeleteFramebuffers(1, &_glID);
     _glID = 0;
-    //TODO:    _device._stats.ib -= _bytes;
 }
 
 bool FrameBuffer::init(DeviceGraphics* device, uint16_t width, uint16_t height)

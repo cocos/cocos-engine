@@ -251,9 +251,9 @@ void BaseRenderer::draw(const StageItem& item)
             if (Effect::Property::Type::INT == propType ||
                 Effect::Property::Type::INT2 == propType ||
                 Effect::Property::Type::INT4 == propType)
-                _device->setUniformiv(param.getName(), bytes, (const int*)prop->getValue());
+                _device->setUniformiv(param.getName(), bytes / sizeof(int), (const int*)prop->getValue());
             else
-                _device->setUniformfv(param.getName(), bytes, (const float*)prop->getValue());
+                _device->setUniformfv(param.getName(), bytes / sizeof(float), (const float*)prop->getValue());
         }
         
         // for each pass
