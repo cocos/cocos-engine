@@ -90,6 +90,7 @@ let Simulator = function (system) {
     this.finished = false;
     this.elapsed = 0;
     this.emitCounter = 0;
+    this._uvFilled = 0;
 }
 
 Simulator.prototype.stop = function () {
@@ -190,10 +191,30 @@ Simulator.prototype.emitParticle = function (pos) {
     }
 };
 
+Simulator.prototype.updateUVs = function (particleCount) {
+    if (this.sys._buffer && this.sys._spriteFrame) {
+        const FLOAT_PER_PARTICLE = 4 * this.sys._vertexFormat._bytes / 4;
+        let vbuf = this.sys._buffer._vData;
+        let uv = this.sys._spriteFrame.uv;
+
+        for (let i = this._uvFilled; i < particleCount; i++) {
+            let offset = i * FLOAT_PER_PARTICLE;
+            vbuf[offset+2] = uv[0];
+            vbuf[offset+3] = uv[1];
+            vbuf[offset+7] = uv[2];
+            vbuf[offset+8] = uv[3];
+            vbuf[offset+12] = uv[4];
+            vbuf[offset+13] = uv[5];
+            vbuf[offset+17] = uv[6];
+            vbuf[offset+18] = uv[7];
+        }
+        this._uvFilled = particleCount;
+    }
+}
+
 Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offset) {
     let vbuf = buffer._vData;
     let uintbuf = buffer._uintVData;
-    let uv = this.sys._spriteFrame.uv;
     
     let x = pos.x, y = pos.y;
     let size_2 = particle.size / 2;
@@ -230,15 +251,6 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
         vbuf[offset+15] = x + size_2;
         vbuf[offset+16] = y + size_2;
     }
-    // uv
-    vbuf[offset+2] = uv[0];
-    vbuf[offset+3] = uv[1];
-    vbuf[offset+7] = uv[2];
-    vbuf[offset+8] = uv[3];
-    vbuf[offset+12] = uv[4];
-    vbuf[offset+13] = uv[5];
-    vbuf[offset+17] = uv[6];
-    vbuf[offset+18] = uv[7];
     // color
     uintbuf[offset+4] = particle.color._val;
     uintbuf[offset+9] = particle.color._val;
@@ -285,8 +297,14 @@ Simulator.prototype.step = function (dt) {
 
     // Request buffer for particles
     let buffer = psys._buffer;
+    let particleCount = particles.length;
     buffer.reset();
-    buffer.request(particles.length * 4, particles.length * 6);
+    buffer.request(particleCount * 4, particles.length * 6);
+
+    // Fill up uvs
+    if (particleCount > this._uvFilled) {
+        this.updateUVs(particleCount);
+    }
 
     // Used to reduce memory allocation / creation within the loop
     let particleIdx = 0;
