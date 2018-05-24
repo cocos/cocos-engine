@@ -25,4 +25,5 @@
 
 require('./CCParticleAsset');
 require('./CCParticleSystem');
+require('./particle-simulator');
 require('./particle-system-assembler');

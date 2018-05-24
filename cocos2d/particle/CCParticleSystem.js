@@ -33,6 +33,7 @@ const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
+const ParticleSimulator = require('./particle-simulator');
 const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
@@ -267,17 +268,15 @@ var properties = {
     },
 
     /**
-     * !#en Current quantity of particles that are being simulated, 
-     * this function can be very slow currently, please don't use it frequently.
+     * !#en Current quantity of particles that are being simulated.
      * !#zh 当前播放的粒子数量。
-     * 当前版本该函数性能不够好，请不要频繁调用（比如每帧检查）。
      * @property {Number} particleCount
      * @readonly
      */
     particleCount: {
         visible: false,
-        get: function () {
-            return this._vfx.particleCount;
+        get () {
+            return this._simulator.particles.length;
         },
         readonly: true
     },
@@ -323,6 +322,20 @@ var properties = {
     },
 
     /**
+     * !#en Indicate whether the system simulation have stopped.
+     * !#zh 指示粒子播放是否完毕。
+     * @property {Boolean} autoRemoveOnFinish
+     */
+    _stopped: true,
+    stopped: {
+        get () {
+            return this._stopped;
+        },
+        animatable: false,
+        visible: false
+    },
+
+    /**
      * !#en If set to true, the particle system will automatically start playing on onLoad.
      * !#zh 如果设置为 true 运行时会自动发射粒子。
      * @property playOnLoad
@@ -336,16 +349,8 @@ var properties = {
      * !#zh 粒子播放完毕后自动销毁所在的节点。
      * @property {Boolean} autoRemoveOnFinish
      */
-    _autoRemoveOnFinish: false,
     autoRemoveOnFinish: {
-        get: function () {
-            return this._autoRemoveOnFinish;
-        },
-        set: function (value) {
-            if (this._autoRemoveOnFinish !== value) {
-                this._autoRemoveOnFinish = value;
-            }
-        },
+        default: false,
         animatable: false,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.autoRemoveOnFinish'
     },
@@ -358,8 +363,7 @@ var properties = {
      */
     active: {
         get: function () {
-            // TODO: check wether it's activated (not stopped)
-            return this.enabledInHierarchy;
+            return this._simulator.active;
         },
         visible: false
     },
@@ -370,16 +374,7 @@ var properties = {
      * @property {Number} totalParticles
      * @default 150
      */
-    _totalParticles: 150,
-    totalParticles: {
-        get () {
-            return this._totalParticles;
-        },
-        set (val) {
-            this._totalParticles = val;
-            this._maxParticleDirty = true;
-        }
-    },
+    totalParticles: 150,
     /**
      * !#en How many seconds the emitter wil run. -1 means 'forever'.
      * !#zh 发射器生存时间，单位秒，-1表示持续发射。
@@ -393,111 +388,92 @@ var properties = {
      * @property {Number} emissionRate
      * @default 10
      */
-    _emissionRate: 10,
-    emissionRate: {
-        get () {
-            return this._emissionRate;
-        },
-        set (val) {
-            this._emissionRate = val;
-            this._maxParticleDirty = true;
-        }
-    },
+    emissionRate: 10,
     /**
      * !#en Life of each particle setter.
      * !#zh 粒子的运行时间。
      * @property {Number} life
      * @default 1
      */
-    _life: 1,
-    life: {
-        get () {
-            return this._life;
-        },
-        set (val) {
-            this._life = val;
-            this._maxParticleDirty = true;
-        }
-    },
+    life: 1,
     /**
      * !#en Variation of life.
      * !#zh 粒子的运行时间变化范围。
      * @property {Number} lifeVar
      * @default 0
      */
-    _lifeVar: 0,
-    lifeVar: {
-        get () {
-            return this._lifeVar;
-        },
-        set (val) {
-            this._lifeVar = val;
-            this._maxParticleDirty = true;
-        }
-    },
+    lifeVar: 0,
 
     /**
      * !#en Start color of each particle.
      * !#zh 粒子初始颜色。
-     * @property {Color} startColor
-     * @default cc.Color.WHITE
+     * @property {Object} startColor
+     * @default {r: 255, g: 255, b: 255, a: 255}
      */
-    _startColor: cc.Color.WHITE,
+    _startColor: null,
     startColor: {
         get () {
             return this._startColor;
         },
         set (val) {
-            this._startColor.fromColor(val);
-            this._vfx.startColor = val;
+            this._startColor.r = val.r;
+            this._startColor.g = val.g;
+            this._startColor.b = val.b;
+            this._startColor.a = val.a;
         }
     },
     /**
      * !#en Variation of the start color.
      * !#zh 粒子初始颜色变化范围。
-     * @property {Color} startColorVar
-     * @default cc.Color.BLACK
+     * @property {Object} startColorVar
+     * @default {r: 0, g: 0, b: 0, a: 0}
      */
-    _startColorVar: cc.Color.BLACK,
+    _startColorVar: null,
     startColorVar: {
         get () {
             return this._startColorVar;
         },
         set (val) {
-            this._startColorVar.fromColor(val);
-            this._vfx.startColorVar = val;
+            this._startColorVar.r = val.r;
+            this._startColorVar.g = val.g;
+            this._startColorVar.b = val.b;
+            this._startColorVar.a = val.a;
         }
     },
     /**
      * !#en Ending color of each particle.
      * !#zh 粒子结束颜色。
-     * @property {Color} endColor
-     * @default new cc.Color(255, 255, 255, 0)
+     * @property {Object} endColor
+     * @default {r: 255, g: 255, b: 255, a: 0}
      */
-    _endColor: cc.color(255, 255, 255, 0),
+    _endColor: null,
     endColor: {
         get () {
             return this._endColor;
         },
         set (val) {
-            this._endColor.fromColor(val);
-            this._vfx.endColor = val;
+            this._endColor.r = val.r;
+            this._endColor.g = val.g;
+            this._endColor.b = val.b;
+            this._endColor.a = val.a;
         }
     },
     /**
      * !#en Variation of the end color.
      * !#zh 粒子结束颜色变化范围。
-     * @property {Color} endColorVar -
-     * @default Color.TRANSPARENT
+     * @property {Object} endColorVar
+     * @default {r: 0, g: 0, b: 0, a: 0}
      */
-    _endColorVar: cc.color(0, 0, 0, 0),
+    _endColorVar: null,
     endColorVar: {
         get () {
             return this._endColorVar;
         },
         set (val) {
-            this._endColorVar.fromColor(val);
-            this._vfx.endColorVar = val;
+            this._endColorVar.r = val.r;
+            this._endColorVar.g = val.g;
+            this._endColorVar.b = val.b;
+            this._endColorVar.a = val.a;
         }
     },
 
@@ -521,64 +497,28 @@ var properties = {
      * @property {Number} startSize
      * @default 50
      */
-    _startSize: 50,
-    startSize: {
-        get () {
-            return this._startSize;
-        },
-        set (val) {
-            this._startSize = val;
-            this._sizeScaleDirty = true;
-        }
-    },
+    startSize: 50,
     /**
      * !#en Variation of start size in pixels.
      * !#zh 粒子初始大小的变化范围。
      * @property {Number} startSizeVar
      * @default 0
      */
-    _startSizeVar: 0,
-    startSizeVar: {
-        get () {
-            return this._startSizeVar;
-        },
-        set (val) {
-            this._startSizeVar = val;
-            this._sizeScaleDirty = true;
-        }
-    },
+    startSizeVar: 0,
     /**
      * !#en End size in pixels of each particle.
      * !#zh 粒子结束时的大小。
      * @property {Number} endSize
      * @default 0
      */
-    _endSize: 0,
-    endSize: {
-        get () {
-            return this._endSize;
-        },
-        set (val) {
-            this._endSize = val;
-            this._sizeScaleDirty = true;
-        }
-    },
+    endSize: 0,
     /**
      * !#en Variation of end size in pixels.
      * !#zh 粒子结束大小的变化范围。
      * @property {Number} endSizeVar
      * @default 0
      */
-    _endSizeVar: 0,
-    endSizeVar: {
-        get () {
-            return this._endSizeVar;
-        },
-        set (val) {
-            this._endSizeVar = val;
-            this._sizeScaleDirty = true;
-        }
-    },
+    endSizeVar: 0,
     /**
      * !#en Start angle of each particle.
      * !#zh 粒子开始自旋角度。
@@ -675,64 +615,28 @@ var properties = {
      * @property {Number} tangentialAccel
      * @default 80
      */
-    _tangentialAccel: 80,
-    tangentialAccel: {
-        get () {
-            return this._tangentialAccel;
-        },
-        set (val) {
-            this._tangentialAccel = val;
-            this._accelScaleDirty = true;
-        }
-    },
+    tangentialAccel: 80,
     /**
      * !#en Variation of the tangential acceleration.
      * !#zh 每个粒子的切向加速度变化范围。
      * @property {Number} tangentialAccelVar
      * @default 0
      */
-    _tangentialAccelVar: 0,
-    tangentialAccelVar: {
-        get () {
-            return this._tangentialAccelVar;
-        },
-        set (val) {
-            this._tangentialAccelVar = val;
-            this._accelScaleDirty = true;
-        }
-    },
+    tangentialAccelVar: 0,
     /**
      * !#en Acceleration of each particle. Only available in 'Gravity' mode.
      * !#zh 粒子径向加速度，即平行于重力方向的加速度，只有在重力模式下可用。
      * @property {Number} radialAccel
      * @default 0
      */
-    _radialAccel: 0,
-    radialAccel: {
-        get () {
-            return this._radialAccel;
-        },
-        set (val) {
-            this._radialAccel = val;
-            this._accelScaleDirty = true;
-        }
-    },
+    radialAccel: 0,
     /**
      * !#en Variation of the radial acceleration.
      * !#zh 粒子径向加速度变化范围。
      * @property {Number} radialAccelVar
      * @default 0
      */
-    _radialAccelVar: 0,
-    radialAccelVar: {
-        get () {
-            return this._radialAccelVar;
-        },
-        set (val) {
-            this._radialAccelVar = val;
-            this._accelScaleDirty = true;
-        }
-    },
+    radialAccelVar: 0,
 
     /**
      * !#en Indicate whether the rotation of each particle equals to its direction. Only available in 'Gravity' mode.
@@ -750,64 +654,28 @@ var properties = {
      * @property {Number} startRadius
      * @default 0
      */
-    _startRadius: 0,
-    startRadius: {
-        get () {
-            return this._startRadius;
-        },
-        set (val) {
-            this._startRadius = val;
-            this._radiusScaleDirty = true;
-        }
-    },
+    startRadius: 0,
     /**
      * !#en Variation of the starting radius.
      * !#zh 初始半径变化范围。
      * @property {Number} startRadiusVar
      * @default 0
      */
-    _startRadiusVar: 0,
-    startRadiusVar: {
-        get () {
-            return this._startRadiusVar;
-        },
-        set (val) {
-            this._startRadiusVar = val;
-            this._radiusScaleDirty = true;
-        }
-    },
+    startRadiusVar: 0,
     /**
      * !#en Ending radius of the particles. Only available in 'Radius' mode.
      * !#zh 结束半径，只有在半径模式下可用。
      * @property {Number} endRadius
      * @default 0
      */
-    _endRadius: 0,
-    endRadius: {
-        get () {
-            return this._endRadius;
-        },
-        set (val) {
-            this._endRadius = val;
-            this._radiusScaleDirty = true;
-        }
-    },
+    endRadius: 0,
     /**
      * !#en Variation of the ending radius.
      * !#zh 结束半径变化范围。
      * @property {Number} endRadiusVar
      * @default 0
      */
-    _endRadiusVar: 0,
-    endRadiusVar: {
-        get () {
-            return this._endRadiusVar;
-        },
-        set (val) {
-            this._endRadiusVar = val;
-            this._radiusScaleDirty = true;
-        }
-    },
+    endRadiusVar: 0,
     /**
      * !#en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
      * !#zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
@@ -883,32 +751,13 @@ var ParticleSystem = cc.Class({
         this._willStart = false;
         this._texture = null;
 
-        // Material update caches
-        this._uv = {
-            l: 0.0,
-            b: 0.0,
-            r: 0.0,
-            t: 0.0
-        };
-        this._statesize = {
-            x: 0.0,
-            y: 0.0
-        };
-        this._quadsize = {
-            x: 0.0,
-            y: 0.0
-        };
-        
-        // vfx handle real particle step process based on GPU shaders
-        this._vfx = new Particles(cc.renderer.device, cc.renderer._forward, this);
-        this._vfx.stopSystem();
-        this._vertexFormat = this._vfx.vertexFormat;
+        this._simulator = new ParticleSimulator(this);
 
-        // Config update flags, vfx constructor has updated with the current config, so not dirty
-        this._maxParticleDirty = false;
-        this._sizeScaleDirty = false;
-        this._radiusScaleDirty = false;
-        this._accelScaleDirty = false;
+        // colors
+        this._startColor = {r: 255, g: 255, b: 255, a: 255};
+        this._startColorVar = {r: 0, g: 0, b: 0, a: 0};
+        this._endColor = {r: 255, g: 255, b: 255, a: 0};
+        this._endColorVar = {r: 0, g: 0, b: 0, a: 0};
     },
 
     properties: properties,
@@ -949,60 +798,19 @@ var ParticleSystem = cc.Class({
         PositionType: PositionType,
     },
 
-    // LIFE-CYCLE METHODS
-
-    __preload: function () {
-        if (this._file) { 
-            if (this._custom) { 
-                var missCustomTexture = !this._texture; 
-                if (missCustomTexture) { 
-                    this._applyFile();
-                } 
-                this._applyCustoms(); 
-            } 
-            else { 
-                this._applyFile(); 
-            } 
-        } 
-        else if (this._custom) { 
-            this._applyCustoms(); 
-        } 
-        // auto play
-        if (!CC_EDITOR || cc.engine.isPlaying) {
-            if (this.playOnLoad) {
-                this.resetSystem();
-            }
-        }
-    },
-
-    onEnable: function () {
-        this._super();
-        // should add render flag after particle loaded
-        this.disableRender();
-
-        this._updateMaterial();
-    },
-
-    onDestroy: function () {
-        // TODO: do we need to release memory created by vfx
-        this._vfx = null;
-        if (this._autoRemoveOnFinish) {
-            this.autoRemoveOnFinish = false;    // already removed
-        }
-        this._super();
-    },
+    // EDITOR RELATED METHODS
 
     onFocusInEditor: CC_EDITOR && function () {
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
             this.markForUpdateRenderData(true);
-            this.markForRender(true);
+            this.markForCustomIARender(true);
 
             var self = this;
             this._previewTimer = setInterval(function () {
                 // attemptToReplay
-                if (self._vfx && !self._willStart && self.particleCount === 0) {
+                if (!self._willStart && self.particleCount === 0) {
                     self._willStart = true;
                     setTimeout(function () {
                         self._willStart = false;
@@ -1028,6 +836,53 @@ var ParticleSystem = cc.Class({
         }
     },
 
+    // LIFE-CYCLE METHODS
+
+    __preload: function () {
+        if (this._file) { 
+            if (this._custom) { 
+                var missCustomTexture = !this._texture; 
+                if (missCustomTexture) { 
+                    this._applyFile();
+                }
+            }
+            else {
+                this._applyFile();
+            }
+        }
+        // auto play
+        if (!CC_EDITOR || cc.engine.isPlaying) {
+            if (this.playOnLoad) {
+                this.resetSystem();
+            }
+        }
+    },
+
+    onLoad () {
+        ParticleSystem._assembler.createIA(this);
+    },
+
+    onEnable () {
+        this._super();
+        // should add render flag after particle loaded
+        this.disableRender();
+
+        this._updateMaterial();
+    },
+
+    onDestroy () {
+        if (this.autoRemoveOnFinish) {
+            this.autoRemoveOnFinish = false;    // already removed
+        }
+        this._super();
+    },
+    
+    update (dt) {
+        if (!this._simulator.finished && this._material) {
+            this._simulator.step(dt);
+        }
+    },
+
     // APIS
 
     /*
@@ -1049,7 +904,8 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.stopSystem();
      */
     stopSystem: function () {
-        this._vfx.stopSystem();
+        this._stopped = true;
+        this._simulator.stop();
     },
 
     /**
@@ -1061,7 +917,9 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.resetSystem();
      */
     resetSystem: function () {
-        this._vfx.resetSystem();
+        this._stopped = false;
+        this._simulator.reset();
+        this.markForCustomIARender(true);
     },
 
     /**
@@ -1117,19 +975,6 @@ var ParticleSystem = cc.Class({
                 }
             });
         }
-    },
-
-    _applyCustoms: function () {
-        // trigger vfx config update after deserialize
-        this._maxParticleDirty = true;
-        this._sizeScaleDirty = true;
-        this._radiusScaleDirty = true;
-        this._accelScaleDirty = true;
-        let vfx = this._vfx;
-        vfx.startColor = this.startColor;
-        vfx.startColorVar = this.startColorVar;
-        vfx.endColor = this.endColor;
-        vfx.endColorVar = this.endColorVar;
     },
 
     _initTextureWithDictionary: function (dict) {
@@ -1227,8 +1072,9 @@ var ParticleSystem = cc.Class({
         this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
 
         // position
-        this.sourcePos.x = parseFloat(dict["sourcePositionx"] || 0);
-        this.sourcePos.y = parseFloat(dict["sourcePositiony"] || 0);
+        // for 
+        this.sourcePos.x = 0;
+        this.sourcePos.y = 0;
         this.posVar.x = parseFloat(dict["sourcePositionVariancex"] || 0);
         this.posVar.y = parseFloat(dict["sourcePositionVariancey"] || 0);
         
@@ -1266,12 +1112,12 @@ var ParticleSystem = cc.Class({
             var locRotationIsDir = dict["rotationIsDir"] || "";
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
-                this._rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
+                this.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
             }
             else {
-                this._rotationIsDir = false;
+                this.rotationIsDir = false;
             }
-        } else if (this._emitterMode === EmitterMode.RADIUS) {
+        } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
             this.startRadius = parseFloat(dict["maxRadius"] || 0);
             this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
@@ -1315,18 +1161,6 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    _updateMaterialSize: function () {
-        if (this._material) {
-            let vfx = this._vfx;
-            this._statesize.x = vfx.statesize[0];
-            this._statesize.y = vfx.statesize[1];
-            this._quadsize.x = vfx.quadsize[0];
-            this._quadsize.y = vfx.quadsize[1];
-            this._material.stateSize = this._statesize;
-            this._material.quadSize = this._quadsize;
-        }
-    },
-
     _updateMaterial: function () {
         if (!this.enabledInHierarchy) {
             this.disableRender();
@@ -1334,7 +1168,7 @@ var ParticleSystem = cc.Class({
         }
         // cannot be activated if texture not loaded yet
         if (!this._texture || !this._texture.loaded) {
-            this.markForRender(false);
+            this.markForCustomIARender(false);
             if (this._spriteFrame) {
                 this._applySpriteFrame();
             }
@@ -1343,22 +1177,17 @@ var ParticleSystem = cc.Class({
 
         // Get material
         if (!this._material) {
-            this._material = new ParticleMaterial();
-            // Particle System cannot be batched, so every one use a unique hash id
-            this._material.updateHash(this._id);
+            this._material = new renderEngine.SpriteMaterial();
+            this._material.useTexture = true;
+            this._material.useModel = true;
+            this._material.useColor = false;
+            this._material.texture = this._texture;
         }
-
-        let vfx = this._vfx;
-        this._material.texture = this._texture;
-        this._material.stateMap = this._vfx.textures.state0;
-        this._material.quadMap = this._vfx.textures.quads;
-        this._material.z = this.node.z;
-        this._updateMaterialSize();
 
         this._updateBlendFunc();
 
         this.markForUpdateRenderData(true);
-        this.markForRender(true);
+        this.markForCustomIARender(true);
     },
     
     _updateBlendFunc: function () {
@@ -1373,11 +1202,12 @@ var ParticleSystem = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
+        this._material.updateHash();
     },
 
     _finishedSimulation: function () {
-        if (this._autoRemoveOnFinish && this._vfx.stopped) {
-            this.disableRender();
+        this.disableRender();
+        if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
         }
     }
