@@ -486,12 +486,12 @@ namespace se {
         _privateData = data;
     }
 
-    void Object::clearPrivateData()
+    void Object::clearPrivateData(bool clearMapping)
     {
         if (_privateData != nullptr)
         {
-            void* data = getPrivateData();
-            NativePtrToObjectMap::erase(data);
+            if (clearMapping)
+                NativePtrToObjectMap::erase(_privateData);
             JS::RootedObject obj(__cx, _getJSObject());
             internal::clearPrivate(__cx, obj);
             _privateData = nullptr;

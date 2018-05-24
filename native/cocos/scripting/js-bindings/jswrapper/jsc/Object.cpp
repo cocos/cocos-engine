@@ -1123,12 +1123,12 @@ namespace se {
         _privateData = data;
     }
 
-    void Object::clearPrivateData()
+    void Object::clearPrivateData(bool clearMapping)
     {
         if (_privateData != nullptr)
         {
-            void* data = getPrivateData();
-            NativePtrToObjectMap::erase(data);
+            if (clearMapping)
+                NativePtrToObjectMap::erase(_privateData);
             internal::clearPrivate(_obj);
             _privateData = nullptr;
         }

@@ -1111,8 +1111,10 @@ bool register_all_box2d_manual(se::Object* obj)
             se::AutoHandleScope hs;
             se->clearException();
 
-            // The native <-> JS mapping was cleared in the callback above.
-            // seObj->clearPrivateData isn't needed since the JS object will be garbage collected after unroot and decRef.
+            // The mapping of native object & se::Object was cleared in above code.
+            // The private data (native object) may be a different object associated with other se::Object.
+            // Therefore, don't clear the mapping again.
+            seObj->clearPrivateData(false);
             seObj->unroot();
             seObj->decRef();
         };

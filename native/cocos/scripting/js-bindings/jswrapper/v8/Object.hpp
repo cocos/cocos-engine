@@ -261,8 +261,9 @@ namespace se {
 
         /**
          *  @brief Clears private data of an object.
+         *  @param clearMapping Whether to clear the mapping of native object & se::Object.
          */
-        void clearPrivateData();
+        void clearPrivateData(bool clearMapping = true);
 
         /**
          *  @brief Roots an object from garbage collection.
