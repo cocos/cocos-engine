@@ -90,13 +90,23 @@ module.exports = {
         let data = renderData._data;
         if (frame._rotated) {
             data[0].u = (rect.x) / atlasWidth;
-            data[0].v = (rect.y) / atlasHeight;
-            data[1].u = (bottomHeight + rect.x) / atlasWidth;
-            data[1].v = (leftWidth + rect.y) / atlasHeight;
-            data[2].u = (bottomHeight + centerHeight + rect.x) / atlasWidth;
-            data[2].v = (leftWidth + centerWidth + rect.y) / atlasHeight;
+            data[0].v = (rect.y + rect.width) / atlasHeight;
+            data[1].u = (rect.x + bottomHeight) / atlasWidth;
+            data[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
+            data[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
+            data[2].v = (rect.y + leftWidth) / atlasHeight;
             data[3].u = (rect.x + rect.height) / atlasWidth;
-            data[3].v = (rect.y + rect.width) / atlasHeight;
+            data[3].v = (rect.y) / atlasHeight;
+
+            for (let row = 0; row < 4; ++row) {
+                let rowD = data[row];
+                for (let col = 0; col < 4; ++col) {
+                    let colD = data[3 - col];
+                    let world = data[4 + row*4 + col];
+                    world.u = rowD.u;
+                    world.v = colD.v;
+                }
+            }
         }
         else {
             data[0].u = (rect.x) / atlasWidth;
@@ -107,15 +117,15 @@ module.exports = {
             data[2].v = (topHeight + rect.y) / atlasHeight;
             data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
             data[0].v = (rect.y + rect.height) / atlasHeight;
-        }
 
-        for (let row = 0; row < 4; ++row) {
-            let rowD = data[row];
-            for (let col = 0; col < 4; ++col) {
-                let colD = data[col];
-                let world = data[4 + row*4 + col];
-                world.u = colD.u;
-                world.v = rowD.v;
+            for (let row = 0; row < 4; ++row) {
+                let rowD = data[row];
+                for (let col = 0; col < 4; ++col) {
+                    let colD = data[col];
+                    let world = data[4 + row*4 + col];
+                    world.u = colD.u;
+                    world.v = rowD.v;
+                }
             }
         }
 
