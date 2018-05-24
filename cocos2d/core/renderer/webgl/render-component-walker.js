@@ -107,6 +107,7 @@ RenderComponentWalker.prototype = {
         for (let key in _buffers) {
             _buffers[key].reset();
         }
+        this._buffer = this._quadBuffer;
 
         // reset caches for handle render components
         this.node = this._dummyNode;

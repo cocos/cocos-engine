@@ -2683,7 +2683,7 @@ var Node = cc.Class({
             out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        return AffineTrans.fromMat4(out, this._matrix);
+        return AffineTrans.fromMat4(out, this._worldMatrix);
     },
 
     /**

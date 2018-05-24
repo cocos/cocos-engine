@@ -28,7 +28,7 @@ const Skeleton = require('./skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosColorUv = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosColorUv;
+const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
@@ -306,7 +306,7 @@ var spineAssembler = {
             let vertexs = data._data;
             let indices = data._indices;
 
-            let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
+            let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
                 vertexOffset = buffer.byteOffset >> 2,
                 vbuf = buffer._vData,
                 uintbuf = buffer._uintVData,

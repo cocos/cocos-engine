@@ -29,7 +29,7 @@ const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
 const Impl = require('./impl');
-const vfmtPosColorUv = require('../../vertex-format').vfmtPosColorUv;
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 const macro = require('../../../../platform/CCMacro');
 const MAX_VERTEX = 65535;
@@ -99,7 +99,7 @@ let graphicsAssembler = {
             nodeB = nodeColor.b / 255,
             nodeA = nodeColor.a / 255;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosColorUv),
+        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData;
