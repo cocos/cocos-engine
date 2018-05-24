@@ -147,9 +147,9 @@ AffineTransform.invert = function (out, t) {
 };
 
 /**
- * !#en Get the invert transform of an AffineTransform object.
+ * !#en Get an AffineTransform object from a given matrix 4x4.
  * This function is memory free, you should create the output affine transform by yourself and manage its memory.
- * !#zh 求逆矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
+ * !#zh 从一个 4x4 Matrix 获取 AffineTransform 对象。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
  * @method invert
  * @static
  * @param {AffineTransform} out
