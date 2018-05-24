@@ -3809,9 +3809,8 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_BUFFER) {
-            LOG_GL_COMMAND("Flush: BIND_BUFFER\n");
-            GLuint bufferId = (GLuint)p[2];
-            JSB_GL_CHECK_VOID(ccBindBuffer((GLenum)p[1], bufferId));
+            LOG_GL_COMMAND("Flush: BIND_BUFFER, %u\n", (GLuint)p[2]);
+            JSB_GL_CHECK_VOID(ccBindBuffer((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BIND_FRAME_BUFFER) {
@@ -3975,10 +3974,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 2;
         }
         else if (commandID == GL_COMMAND_DRAW_ARRAYS) {
-            LOG_GL_COMMAND("Flush: DRAW_ARRAYS\n");
-            GLenum a = (GLenum)p[1];
-            GLint b = (GLint)p[2];
-            GLsizei c = (GLsizei)p[3];
+            LOG_GL_COMMAND("Flush: DRAW_ARRAYS, %u, %d, %d\n", (GLenum)p[1], (GLint)p[2], (int)p[3]);
             JSB_GL_CHECK_VOID(glDrawArrays((GLenum)p[1], (GLint)p[2], (GLsizei)p[3]));
             p += 4;
         }
@@ -3993,7 +3989,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             p += 2;
         }
         else if (commandID == GL_COMMAND_ENABLE_VERTEX_ATTRIB_ARRAY) {
-            LOG_GL_COMMAND("Flush: ENABLE_VERTEX_ATTRIB_ARRAY\n");
+            LOG_GL_COMMAND("Flush: ENABLE_VERTEX_ATTRIB_ARRAY, %u\n", (GLuint)p[1]);
             JSB_GL_CHECK_VOID(ccEnableVertexAttribArray((GLuint)p[1]));
             p += 2;
         }
