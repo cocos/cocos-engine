@@ -59,6 +59,7 @@ function inject () {
     window.Event = require('./Event');
     window.TouchEvent = require('./TouchEvent');
     window.MouseEvent = require('./MouseEvent');
+    window.KeyboardEvent = require('./KeyboardEvent');
 
     window.devicePixelRatio = 1.0;
     window.screen = {
