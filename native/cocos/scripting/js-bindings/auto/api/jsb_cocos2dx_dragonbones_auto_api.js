@@ -1548,24 +1548,6 @@ str
 },
 
 /**
- * @method parseTextureAtlasData
-* @param {String|String} str
-* @param {String|cc.Texture2D} str
-* @param {String|String} str
-* @param {float|float} float
-* @return {dragonBones::TextureAtlasData|dragonBones::TextureAtlasData}
-*/
-parseTextureAtlasData : function(
-str,
-texture2d,
-str,
-float 
-)
-{
-    return dragonBones::TextureAtlasData;
-},
-
-/**
  * @method destroyInstance
  */
 destroyInstance : function (
