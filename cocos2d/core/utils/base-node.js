@@ -1045,6 +1045,15 @@ var BaseNode = cc.Class({
     _disableChildComps () {
         // leave this._activeInHierarchy unmodified
         var i, len = this._components.length;
+
+        // disable fixture first
+        for (i = 0; i < len; ++i) {
+            var component = this._components[i];
+            if (component._fixtures && component._fixtures.length >= 0) {
+                component._enabled && cc.director._compScheduler.disableComp(component);
+            }
+        }
+
         for (i = 0; i < len; ++i) {
             var component = this._components[i];
             if (component._enabled) {
