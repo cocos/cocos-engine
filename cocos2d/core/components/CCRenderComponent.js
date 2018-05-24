@@ -91,8 +91,17 @@ var RenderComponent = cc.Class({
         }
     },
 
+    markForCustomIARender (enable) {
+        if (enable && this.enabledInHierarchy) {
+            this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
+        }
+    },
+
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | cc.RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     requestRenderData () {
