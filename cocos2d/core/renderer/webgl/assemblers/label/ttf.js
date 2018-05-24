@@ -58,8 +58,7 @@ module.exports = js.addon({
     
         let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            vbuf = buffer._vData;
 
         buffer.request(4, 6);
 
