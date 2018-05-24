@@ -354,7 +354,7 @@ js.getset(cc.macro, 'ENABLE_3D', function () {
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
  * @enum KEY
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
+ * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.macro.KEY = {
     /**

@@ -41,7 +41,7 @@ var js = require('./js');
  * @method Enum
  * @param {object} obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
  * @return {object} the defined enum type
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCEnum/Enum.js}
+ * @example {@link cocos2d/core/platform/CCEnum/Enum.js}
  * @typescript Enum<T>(obj: T): T
  */
 function Enum (obj) {

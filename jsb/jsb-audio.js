@@ -113,7 +113,7 @@ cc.Audio = function (src) {
         var path;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
         }
         else {
@@ -122,7 +122,10 @@ cc.Audio = function (src) {
             }
             path = clip._nativeAsset;
         }
-        path = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(path) : path;
+        var md5Pipe = cc.loader.md5Pipe;
+        if (md5Pipe) {
+            path = md5Pipe.transformURL(path);
+        }
         return audioEngine.play2d(path, loop, volume);
     };
     audioEngine.playMusic = function (clip, loop) {
@@ -203,7 +206,7 @@ cc.Audio = function (src) {
         var path;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
         }
         else {

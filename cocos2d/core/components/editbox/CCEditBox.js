@@ -216,7 +216,7 @@ var EditBox = cc.Class({
 
         /**
          * !#en The font color of placeholder.
-         * !#zh 输入框最大允许输入的字符个数。
+         * !#zh 输入框占位符的字体颜色。
          * @property {Color} placeholderFontColor
          */
         placeholderFontColor: {

@@ -2609,7 +2609,7 @@ Wrong type arguments, 'filePath' must be a String.
 
 ### 8401
 
-Since 1.10, `%s` accept cc.AudioClip instance directly, not a URL string. Please directly reference the AudioClip object in your script, or load cc.AudioClip by loader first. Don't use audio's URL anymore.
+Since 1.10, `%s` accept %s instance directly, not a URL string. Please directly reference the %s object in your script, or load %s by loader first. Don't use %s's URL anymore.
 
 ### 9000
 

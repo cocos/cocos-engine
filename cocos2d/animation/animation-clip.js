@@ -85,7 +85,7 @@ var AnimationClip = cc.Class({
          * !#zh 曲线数据。
          * @property curveData
          * @type {Object}
-         * @example {@link utils/api/engine/docs/cocos2d/core/animation-clip/curve-data.js}
+         * @example {@link cocos2d/core/animation-clip/curve-data.js}
          */
         curveData: {
             default: {},
@@ -97,7 +97,7 @@ var AnimationClip = cc.Class({
          * !#zh 事件数据。
          * @property events
          * @type {Object[]}
-         * @example {@link utils/api/engine/docs/cocos2d/core/animation-clip/event-data.js}
+         * @example {@link cocos2d/core/animation-clip/event-data.js}
          * @typescript events: {frame: number, func: string, params: string[]}[]
          */
         events: {

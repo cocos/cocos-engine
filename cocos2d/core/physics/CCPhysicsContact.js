@@ -270,7 +270,7 @@ PhysicsContact.prototype.getWorldManifold = function () {
  * !#en
  * Get the manifold.
  * !#zh
- * 获取世界坐标系下的碰撞信息。
+ * 获取本地（局部）坐标系下的碰撞信息。
  * @method getManifold
  * @return {Manifold}
  */

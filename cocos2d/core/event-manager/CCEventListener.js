@@ -524,7 +524,7 @@ js.mixin(Keyboard.prototype, {
  * @param {Object} argObj a json object
  * @returns {EventListener}
  * @static
- * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
+ * @example {@link cocos2d/core/event-manager/CCEventListener/create.js}
  */
 cc.EventListener.create = function (argObj) {
     cc.assertID(argObj&&argObj.event, 1900);

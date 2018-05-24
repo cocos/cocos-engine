@@ -91,13 +91,15 @@ module.exports = {
     },
 
     _doPreload (packUuid, packJson) {
-        var unpacker = globalUnpackers[packUuid];
-        if (!unpacker) {
-            unpacker = globalUnpackers[packUuid] = new JsonUnpacker();
+        var unpackerData = globalUnpackers[packUuid];
+        if (!unpackerData) {
+            unpackerData = globalUnpackers[packUuid] = new UnpackerData();
+            unpackerData.state = PackState.Downloading;
         }
-        if (unpacker.state !== PackState.Loaded) {
-            unpacker.read(packIndices[packUuid], packJson);
-            unpacker.state = PackState.Loaded;
+        if (unpackerData.state !== PackState.Loaded) {
+            unpackerData.unpacker = new Unpackers.JsonUnpacker();
+            unpackerData.unpacker.load(packIndices[packUuid], packJson);
+            unpackerData.state = PackState.Loaded;
         }
     },
 
