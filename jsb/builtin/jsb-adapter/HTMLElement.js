@@ -39,8 +39,6 @@ class HTMLElement extends Element {
       height: `${window.innerHeight}px`
     }
 
-    this.insertBefore = noop
-
     this.innerHTML = ''
     this.parentElement = window.__cccanvas
   }

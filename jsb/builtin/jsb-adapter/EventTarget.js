@@ -285,9 +285,12 @@ jsb.onTouchCancel = touchEventHandlerFactory('touchcancel');
 function mouseEventHandlerFactory(type) {
     return (event) => {
         const mouseEvent = new MouseEvent(type);
+        var button = event.button;
+        mouseEvent.button = button;
+        mouseEvent.which = button + 1;
         mouseEvent.wheelDelta = event.wheelDeltaY;
-        mouseEvent.clientX = mouseEvent.screenX = event.x;
-        mouseEvent.clientY = mouseEvent.screenY = event.y;
+        mouseEvent.clientX = mouseEvent.screenX = mouseEvent.pageX = event.x;
+        mouseEvent.clientY = mouseEvent.screenY = mouseEvent.pageY = event.y;
 
         var target;
         for (let key in __listenMouseEventMap) {

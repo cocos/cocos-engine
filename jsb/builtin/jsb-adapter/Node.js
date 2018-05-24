@@ -40,6 +40,16 @@ class Node extends EventTarget {
     }
   }
 
+  insertBefore(newNode, referenceNode) {
+    //TODO:
+    return newNode;
+  }
+
+  replaceChild(newChild, oldChild) {
+    //TODO:
+    return oldChild;
+  }
+
   cloneNode() {
     const copyNode = Object.create(this)
 
