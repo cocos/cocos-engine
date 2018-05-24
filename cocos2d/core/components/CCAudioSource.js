@@ -26,16 +26,15 @@
 
 const misc = require('../utils/misc');
 const Component = require('./CCComponent');
+const Audio = require('../../audio/CCAudio');
 const AudioClip = require('../assets/CCAudioClip');
-require('../../audio/CCAudio');
+
 /**
  * !#en Audio Source.
  * !#zh 音频源组件，能对音频剪辑。
  * @class AudioSource
  * @extends Component
  */
-
-
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
     extends: Component,
@@ -46,7 +45,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio();
+        this.audio = new Audio();
     },
 
     properties: {
@@ -96,7 +95,7 @@ var AudioSource = cc.Class({
             set: function (value) {
                 if (typeof value === 'string') {
                     // backward compatibility since 1.10
-                    cc.warnID(8401, 'cc.AudioSource');
+                    cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
                     let self = this;
                     AudioClip._loadByUrl(value, function (err, clip) {
                         if (clip) {

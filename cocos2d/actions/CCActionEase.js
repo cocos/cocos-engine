@@ -911,7 +911,7 @@ cc.easeCircleActionIn = function(){
  * 参考 easeOutCirc：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCircleActionOut
  * @returns {Object}
- * @exampple
+ * @example
  * //example
  * actioneasing(cc.easeCircleActionOut());
  */

@@ -132,8 +132,8 @@ defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_
 defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
 defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
-defineMacro('CC_WECHATGAME', false);
-defineMacro('CC_QQPLAY', false);
+defineMacro('CC_WECHATGAME', defined('wx') && wx.getSystemInfoSync);
+defineMacro('CC_QQPLAY', defined('bk'));
 if (CC_JSB) {
     defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues.
 } else {

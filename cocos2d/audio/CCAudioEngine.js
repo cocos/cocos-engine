@@ -106,7 +106,7 @@ var audioEngine = {
         var audio;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             path = clip;
             // load clip
             audio = getAudioFromPath(path);
@@ -427,7 +427,7 @@ var audioEngine = {
         var filePath = clip;
         if (typeof clip === 'string') {
             // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine');
+            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
             filePath = clip;
         }
         else {
@@ -598,7 +598,7 @@ var audioEngine = {
      * !#en Resume playing background music.
      * !#zh 恢复播放背景音乐。
      * @method resumeMusic
-     * //example
+     * @example
      * cc.audioEngine.resumeMusic();
      */
     resumeMusic: function () {
@@ -730,7 +730,7 @@ var audioEngine = {
      * !#zh 恢复播放音效音频。
      * @method resumeEffect
      * @param {Number} audioID - The return value of function play.
-     * //example
+     * @example
      * cc.audioEngine.resumeEffect(audioID);
      */
     resumeEffect: function (id) {

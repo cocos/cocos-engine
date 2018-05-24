@@ -288,16 +288,17 @@ let VideoPlayer = cc.Class({
     },
 
     _updateVideoSource () {
-        let impl = this._impl;
+        let url = '';
         if (this.resourceType === ResourceType.REMOTE) {
-            if (cc.loader.md5Pipe) {
-                this.remoteURL = cc.loader.md5Pipe.transformURL(this.remoteURL);
-            }
-            impl.setURL(this.remoteURL);
+            url = this.remoteURL;
         }
-        else {
-            impl.setURL(this._clip.nativeUrl || '');
+        else if (this._clip) {
+            url = this._clip.nativeUrl || '';
         }
+        if (url && cc.loader.md5Pipe) {
+            url = cc.loader.md5Pipe.transformURL(url);
+        }
+        this._impl.setURL(url);
     },
 
     onLoad () {
