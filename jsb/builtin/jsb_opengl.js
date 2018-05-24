@@ -87,6 +87,7 @@ gl.getExtension = function(extension) {
         if (extension in extensionMap) {
             return extensionMap[extension];
         }
+        return {}; //TODO: Return an empty object to indicate this platform supports the extension. But we should not return an empty object actually.
     }
 
     return null;
