@@ -31,7 +31,6 @@ namespace {
     se::Value _tickVal;
     std::vector<se::Object*> _jsTouchObjPool;
     se::Object* _jsTouchObjArray = nullptr;
-    se::Object* _jsbNameSpaceObj = nullptr;
     se::Object* _jsMouseEventObj = nullptr;
     bool _inited = false;
 }
@@ -64,13 +63,6 @@ namespace cocos2d
             _jsTouchObjArray = nullptr;
         }
 
-        if (_jsbNameSpaceObj != nullptr)
-        {
-            _jsbNameSpaceObj->unroot();
-            _jsbNameSpaceObj->decRef();
-            _jsbNameSpaceObj = nullptr;
-        }
-
         if (_jsMouseEventObj != nullptr)
         {
             _jsMouseEventObj->unroot();
@@ -88,17 +80,6 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 
     se::AutoHandleScope scope;
     assert(_inited);
-    if (_jsbNameSpaceObj == nullptr)
-    {
-        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
-        se::Value jsbVal;
-        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
-        {
-            _jsbNameSpaceObj = jsbVal.toObject();
-            _jsbNameSpaceObj->incRef();
-            _jsbNameSpaceObj->root();
-        }
-    }
 
     if (_jsTouchObjArray == nullptr)
     {
@@ -150,7 +131,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
     }
 
     se::Value callbackVal;
-    if (_jsbNameSpaceObj->getProperty(eventName, &callbackVal))
+    if (__jsbObj->getProperty(eventName, &callbackVal))
     {
         se::ValueArray args;
         args.push_back(se::Value(_jsTouchObjArray));
@@ -171,17 +152,6 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
 
     se::AutoHandleScope scope;
     assert(_inited);
-    if (_jsbNameSpaceObj == nullptr)
-    {
-        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
-        se::Value jsbVal;
-        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
-        {
-            _jsbNameSpaceObj = jsbVal.toObject();
-            _jsbNameSpaceObj->incRef();
-            _jsbNameSpaceObj->root();
-        }
-    }
 
     const auto& xVal = se::Value(mouseEvent.x);
     const auto& yVal = se::Value(mouseEvent.y);
@@ -222,7 +192,7 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
     }
 
     se::Value callbackVal;
-    if (_jsbNameSpaceObj->getProperty(eventName, &callbackVal))
+    if (__jsbObj->getProperty(eventName, &callbackVal))
     {
         se::ValueArray args;
         args.push_back(se::Value(_jsMouseEventObj));
@@ -234,6 +204,8 @@ void EventDispatcher::dispatchKeyEvent(int key, int action)
 {
     if (!se::ScriptEngine::getInstance()->isValid())
         return;
+
+    //TODO:
 }
     
 void EventDispatcher::dispatchTickEvent(float dt)
@@ -242,26 +214,44 @@ void EventDispatcher::dispatchTickEvent(float dt)
         return;
 
     se::AutoHandleScope scope;
-
-    static std::chrono::steady_clock::time_point prevTime;
-    static std::chrono::steady_clock::time_point now;
-
     if (_tickVal.isUndefined())
     {
         se::ScriptEngine::getInstance()->getGlobalObject()->getProperty("gameTick", &_tickVal);
     }
 
+    static std::chrono::steady_clock::time_point prevTime;
     prevTime = std::chrono::steady_clock::now();
 
     se::ValueArray args;
-//    args.push_back(se::Value(dt));
     long long microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
-    args.push_back(se::Value((float)(microSeconds * 0.001f)));
-
+    args.push_back(se::Value((double)(microSeconds * 0.001)));
     _tickVal.toObject()->call(args, nullptr);
+}
 
-    now = std::chrono::steady_clock::now();
-    dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+static void dispatchEnterBackgroundOrForegroundEvent(const char* funcName)
+{
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+
+    se::Value func;
+    __jsbObj->getProperty(funcName, &func);
+    if (func.isObject() && func.toObject()->isFunction())
+    {
+        func.toObject()->call(se::EmptyValueArray, nullptr);
+    }
+}
+
+void EventDispatcher::dispatchEnterBackgroundEvent()
+{
+    dispatchEnterBackgroundOrForegroundEvent("onHide");
+}
+
+void EventDispatcher::dispatchEnterForegroundEvent()
+{
+    dispatchEnterBackgroundOrForegroundEvent("onShow");
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const std::string& eventName, const CustomEventListener& listener)

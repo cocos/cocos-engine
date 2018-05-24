@@ -97,7 +97,8 @@ public:
     static void dispatchMouseEvent(const struct MouseEvent& mouseEvent);
     static void dispatchKeyEvent(int key, int action);
     static void dispatchTickEvent(float dt);
-
+    static void dispatchEnterBackgroundEvent();
+    static void dispatchEnterForegroundEvent();
 
     using CustomEventListener = std::function<void(struct CustomEvent*)>;
     static uint32_t addCustomEventListener(const std::string& eventName, const CustomEventListener& listener);

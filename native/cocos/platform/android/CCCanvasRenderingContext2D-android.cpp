@@ -24,7 +24,6 @@ enum class CanvasTextBaseline {
 class CanvasRenderingContext2DImpl
 {
 public:
-
     CanvasRenderingContext2DImpl()
     {
         jobject obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
@@ -39,7 +38,9 @@ public:
 
     void recreateBuffer(float w, float h)
     {
-        if (w < 1.0f || h < 1.0f)
+        _bufferWidth = w;
+        _bufferHeight = h;
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
         JniHelper::callObjectVoidMethod(_obj, _className, "recreateBuffer", w, h);
         fillData();
@@ -47,19 +48,23 @@ public:
 
     void clearRect(float x, float y, float w, float h)
     {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
         JniHelper::callObjectVoidMethod(_obj, _className, "clearRect", x, y, w, h);
         fillData();
     }
 
     void fillRect(float x, float y, float w, float h)
     {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
         JniHelper::callObjectVoidMethod(_obj, _className, "fillRect", x, y, w, h);
         fillData();
     }
 
     void fillText(const std::string& text, float x, float y, float maxWidth)
     {
-        if (text.empty())
+        if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
         JniHelper::callObjectVoidMethod(_obj, _className, "fillText", text, x, y, maxWidth);
         fillData();
@@ -67,7 +72,7 @@ public:
 
     void strokeText(const std::string& text, float x, float y, float maxWidth)
     {
-        if (text.empty())
+        if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
         JniHelper::callObjectVoidMethod(_obj, _className, "strokeText", text, x, y, maxWidth);
         fillData();
@@ -127,13 +132,15 @@ public:
 
 private:
 
-    static const std::string& _className;
+    static const std::string _className;
 
-    jobject _obj;
+    jobject _obj = nullptr;
     Data _data;
+    float _bufferWidth = 0.0f;
+    float _bufferHeight = 0.0f;
 };
 
-const std::string& CanvasRenderingContext2DImpl::_className = "org/cocos2dx/lib/CanvasRenderingContext2DImpl";
+const std::string CanvasRenderingContext2DImpl::_className = "org/cocos2dx/lib/CanvasRenderingContext2DImpl";
 
 namespace {
     void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
