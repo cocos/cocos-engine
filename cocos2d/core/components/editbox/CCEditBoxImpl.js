@@ -47,7 +47,8 @@ let _vec3 = cc.v3();
 // polyfill
 let polyfill = {
     zoomInvalid: false
-}
+};
+
 if (cc.sys.OS_ANDROID === cc.sys.os &&
     (cc.sys.browserType === cc.sys.BROWSER_TYPE_SOUGOU ||
     cc.sys.browserType === cc.sys.BROWSER_TYPE_360)) {
@@ -396,6 +397,76 @@ _p._endEditingOnMobile = function () {
     }
 };
 
+function _inputValueHandle (input, editBoxImpl) {
+    if (input.value.length > editBoxImpl._maxLength) {
+        input.value = input.value.slice(0, editBoxImpl._maxLength);
+    }
+    if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged) {
+        if (editBoxImpl._text !== input.value) {
+            editBoxImpl._text = input.value;
+            editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
+        }
+    }
+}
+
+function registrationInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
+    let inputLock = false;
+    tmpEdTxt.addEventListener('compositionstart', function () {
+        inputLock = true;
+    });
+
+    tmpEdTxt.addEventListener('compositionend', function () {
+        inputLock = false;
+        _inputValueHandle(this, editBoxImpl);
+    });
+
+    tmpEdTxt.addEventListener('input', function () {
+        if (inputLock) {
+            return;
+        }
+        _inputValueHandle(this, editBoxImpl);
+    });
+
+    tmpEdTxt.addEventListener('focus', function () {
+        this.style.fontSize = editBoxImpl._edFontSize + 'px';
+        this.style.color = editBoxImpl._textColor.toHEX();
+
+        if (cc.sys.isMobile) {
+            editBoxImpl._onFocusOnMobile();
+        }
+
+        if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan) {
+            editBoxImpl._delegate.editBoxEditingDidBegan();
+        }
+
+    });
+    tmpEdTxt.addEventListener('keypress', function (e) {
+        if (e.keyCode === macro.KEY.enter) {
+            e.stopPropagation();
+
+            if (!isTextarea) {
+                editBoxImpl._text = this.value;
+                editBoxImpl._endEditing();
+                cc.game.canvas.focus();
+            }
+            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn) {
+                editBoxImpl._delegate.editBoxEditingReturn();
+            }
+        }
+    });
+    tmpEdTxt.addEventListener('blur', function () {
+        editBoxImpl._text = this.value;
+
+        if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded) {
+            editBoxImpl._delegate.editBoxEditingDidEnded();
+        }
+
+        editBoxImpl._endEditing();
+    });
+
+    editBoxImpl._addDomToGameContainer();
+}
+
 // Called after editbox focus to readapte the game view
 _p._onFocusOnMobile = function (editBox) {
     if (cc.view._isRotated) {
@@ -417,7 +488,6 @@ _p._onFocusOnMobile = function (editBox) {
 _p._createDomInput = function () {
     this.removeDom();
 
-    let self = this;
     let tmpEdTxt = this._edTxt = document.createElement('input');
     tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
@@ -438,56 +508,7 @@ _p._createDomInput = function () {
     tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
 
-    tmpEdTxt.addEventListener('input', function () {
-        if (this.value.length > this._maxLength) {
-            this.value = this.value.slice(0, this._maxLength);
-        }
-
-        if (self._delegate && self._delegate.editBoxTextChanged) {
-            if (self._text !== this.value) {
-                self._text = this.value;
-                self._delegate.editBoxTextChanged(self._text);
-            }
-        }
-    });
-    tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === macro.KEY.enter) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            self._text = this.value;
-
-            self._endEditing();
-            if (self._delegate && self._delegate.editBoxEditingReturn) {
-                self._delegate.editBoxEditingReturn();
-            }
-            cc.game.canvas.focus();
-        }
-    });
-
-    tmpEdTxt.addEventListener('focus', function () {
-        this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = self._textColor.toHEX();
-
-        if (cc.sys.isMobile) {
-            self._onFocusOnMobile();
-        }
-
-        if (self._delegate && self._delegate.editBoxEditingDidBegan) {
-            self._delegate.editBoxEditingDidBegan();
-        }
-    });
-    tmpEdTxt.addEventListener('blur', function () {
-        self._text = this.value;
-
-        if (self._delegate && self._delegate.editBoxEditingDidEnded) {
-            self._delegate.editBoxEditingDidEnded();
-        }
-
-        self._endEditing();
-    });
-
-    this._addDomToGameContainer();
+    registrationInputEventListener(tmpEdTxt, this);
 
     return tmpEdTxt;
 };
@@ -495,7 +516,6 @@ _p._createDomInput = function () {
 _p._createDomTextArea = function () {
     this.removeDom();
 
-    let self = this;
     let tmpEdTxt = this._edTxt = document.createElement('textarea');
     tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
@@ -517,52 +537,8 @@ _p._createDomTextArea = function () {
     tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
 
-    tmpEdTxt.addEventListener('input', function () {
-        if (this.value.length > this._maxLength) {
-            this.value = this.value.slice(0, this._maxLength);
-        }
+    registrationInputEventListener(tmpEdTxt, this, true);
 
-        if (self._delegate && self._delegate.editBoxTextChanged) {
-            if (self._text !== this.value) {
-                self._text = this.value;
-                self._delegate.editBoxTextChanged(self._text);
-            }
-        }
-    });
-
-    tmpEdTxt.addEventListener('focus', function () {
-        this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = self._textColor.toHEX();
-
-        if (cc.sys.isMobile) {
-            self._onFocusOnMobile();
-        }
-
-        if (self._delegate && self._delegate.editBoxEditingDidBegan) {
-            self._delegate.editBoxEditingDidBegan();
-        }
-
-    });
-    tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === macro.KEY.enter) {
-            e.stopPropagation();
-
-            if (self._delegate && self._delegate.editBoxEditingReturn) {
-                self._delegate.editBoxEditingReturn();
-            }
-        }
-    });
-    tmpEdTxt.addEventListener('blur', function () {
-        self._text = this.value;
-
-        if (self._delegate && self._delegate.editBoxEditingDidEnded) {
-            self._delegate.editBoxEditingDidEnded();
-        }
-
-        self._endEditing();
-    });
-
-    this._addDomToGameContainer();
     return tmpEdTxt;
 };
 
