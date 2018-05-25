@@ -281,10 +281,6 @@ let EditBoxImpl = cc.Class({
             }
         }
     
-        if (this._inputFlag === InputFlag.PASSWORD) {
-            type = 'password';
-        }
-    
         edTxt.type = type;
     },
     
