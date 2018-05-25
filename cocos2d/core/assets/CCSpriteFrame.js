@@ -25,8 +25,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require("../event/event-target");
-var textureUtil = require('../utils/texture-util');
+const EventTarget = require("../event/event-target");
+const textureUtil = require('../utils/texture-util');
 
 /**
  * !#en
@@ -53,7 +53,7 @@ var textureUtil = require('../utils/texture-util');
  *  node.parent = self.node
  * });
  */
-var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
+let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
     extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
@@ -81,7 +81,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         //         return (this._texture && this._texture.url) || "";
         //     },
         //     set (url) {
-        //         var texture = cc.textureCache.addImage(url);
+        //         let texture = cc.textureCache.addImage(url);
         //         this._refreshTexture(texture);
         //     }
         // }
@@ -100,11 +100,11 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
-        var filename = arguments[0];
-        var rect = arguments[1];
-        var rotated = arguments[2];
-        var offset = arguments[3];
-        var originalSize = arguments[4];
+        let filename = arguments[0];
+        let rect = arguments[1];
+        let rotated = arguments[2];
+        let offset = arguments[3];
+        let originalSize = arguments[4];
 
         // the location of the sprite on rendering texture
         this._rect = null;
@@ -156,6 +156,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.vertices = null;
 
         this.uv = [];
+        this.slicedUVs = [];
 
         this._texture = null;
         this._textureFilename = '';
@@ -261,13 +262,13 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     _textureLoadedCallback () {
-        var self = this;
-        var texture = this._texture;
+        let self = this;
+        let texture = this._texture;
         if (!texture) {
             // clearTexture called while loading texture...
             return;
         }
-        var w = texture.width, h = texture.height;
+        let w = texture.width, h = texture.height;
 
         if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             // TODO: rotate texture for canvas
@@ -294,6 +295,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         self._calculateUV();
+        self._calculateSlicedUV();
 
         // dispatch 'load' event of cc.SpriteFrame
         self.emit("load");
@@ -381,7 +383,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._rotated = rotated || false;
 
         // loading texture
-        var texture = textureOrTextureFile;
+        let texture = textureOrTextureFile;
         if (typeof texture === 'string' && texture) {
             this._textureFilename = texture;
             this._loadTexture();
@@ -395,7 +397,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _loadTexture: function () {
         if (this._textureFilename) {
-            var texture = textureUtil.loadImage(this._textureFilename);
+            let texture = textureUtil.loadImage(this._textureFilename);
             this._refreshTexture(texture);
         }
     },
@@ -450,8 +452,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     _checkRect: function (texture) {
-        var rect = this._rect;
-        var maxX = rect.x, maxY = rect.y;
+        let rect = this._rect;
+        let maxX = rect.x, maxY = rect.y;
         if (this._rotated) {
             maxX += rect.height;
             maxY += rect.width;
@@ -465,6 +467,71 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         if (maxY > texture.height) {
             cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+        }
+    },
+
+    _calculateSlicedUV () {
+        let rect = this._rect;
+        let atlasWidth = this._texture.width;
+        let atlasHeight = this._texture.height;
+        let leftWidth = this.insetLeft;
+        let rightWidth = this.insetRight;
+        let centerWidth = rect.width - leftWidth - rightWidth;
+        let topHeight = this.insetTop;
+        let bottomHeight = this.insetBottom;
+        let centerHeight = rect.height - topHeight - bottomHeight;
+
+        let uvs = [];
+        for (let i = 0; i < 4; ++i) {
+            uvs.push({
+                u: 0,
+                v: 0
+            })
+        }
+
+        let slicedUVs = this.slicedUVs;
+        slicedUVs.length = 0;
+        if (this._rotated) {
+            uvs[0].u = (rect.x) / atlasWidth;
+            uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
+            uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
+            uvs[3].u = (rect.x + rect.height) / atlasWidth;
+            uvs[3].v = (rect.y) / atlasHeight;
+            uvs[2].v = (rect.y + leftWidth) / atlasHeight;
+            uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
+            uvs[0].v = (rect.y + rect.width) / atlasHeight;
+
+            for (let row = 0; row < 4; ++row) {
+                let rowD = uvs[row];
+                for (let col = 0; col < 4; ++col) {
+                    let colD = uvs[3 - col];
+                    slicedUVs.push({
+                        u: rowD.u,
+                        v: colD.v
+                    });
+                }
+            }
+        }
+        else {
+            uvs[0].u = (rect.x) / atlasWidth;
+            uvs[1].u = (rect.x + leftWidth) / atlasWidth;
+            uvs[2].u = (rect.x + leftWidth + centerWidth) / atlasWidth;
+            uvs[3].u = (rect.x + rect.width) / atlasWidth;
+            uvs[3].v = (rect.y) / atlasHeight;
+            uvs[2].v = (rect.y + topHeight) / atlasHeight;
+            uvs[1].v = (rect.y + topHeight + centerHeight + rect.y) / atlasHeight;
+            uvs[0].v = (rect.y + rect.height) / atlasHeight;
+
+            for (let row = 0; row < 4; ++row) {
+                let rowD = uvs[row];
+                for (let col = 0; col < 4; ++col) {
+                    let colD = uvs[col];
+                    slicedUVs.push({
+                        u: rowD.u,
+                        v: colD.v
+                    });
+                }
+            }
         }
     },
 
@@ -507,7 +574,6 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let vertices = this.vertices;
         if (vertices) {
             vertices.nu.length = 0;
-            vertices.nv.length = 0;
             for (let i = 0; i < vertices.u.length; i++) {
                 vertices.nu[i] = vertices.u[i]/texw;
                 vertices.nv[i] = vertices.v[i]/texh;
@@ -518,16 +584,16 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     // SERIALIZATION
 
     _serialize: CC_EDITOR && function (exporting) {
-        var rect = this._rect;
-        var offset = this._offset;
-        var size = this._originalSize;
-        var uuid;
-        var texture = this._texture;
+        let rect = this._rect;
+        let offset = this._offset;
+        let size = this._originalSize;
+        let uuid;
+        let texture = this._texture;
         if (texture) {
             uuid = texture._uuid;
         }
         if (!uuid) {
-            var url = this._textureFilename;
+            let url = this._textureFilename;
             if (url) {
                 uuid = Editor.Utils.UuidCache.urlToUuid(url);
             }
@@ -535,7 +601,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
         }
-        var capInsets;
+        let capInsets;
         if (this.insetLeft !== 0 ||
             this.insetTop !== 0 ||
             this.insetRight !== 0 ||
@@ -568,7 +634,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     _deserialize: function (data, handle) {
-        var rect = data.rect;
+        let rect = data.rect;
         if (rect) {
             this.setRect(new cc.Rect(rect[0], rect[1], rect[2], rect[3]));
         }
@@ -580,7 +646,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         this._rotated = data.rotated === 1;
         this._name = data.name;
-        var capInsets = data.capInsets;
+        let capInsets = data.capInsets;
         if (capInsets) {
             this.insetLeft = capInsets[0];
             this.insetTop = capInsets[1];
@@ -599,14 +665,14 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         // load texture via _textureSetter
-        var textureUuid = data.texture;
+        let textureUuid = data.texture;
         if (textureUuid) {
             handle.result.push(this, '_textureSetter', textureUuid);
         }
     }
 });
 
-var proto = SpriteFrame.prototype;
+let proto = SpriteFrame.prototype;
 
 proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
