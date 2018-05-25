@@ -118,13 +118,13 @@ module.exports = {
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        let slicedUVs = sprite.spriteFrame.slicedUVs;
+        let uvSliced = sprite.spriteFrame.uvSliced;
             
         buffer.request(vertexCount, renderData.indiceCount);
 
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];
-            let uvs = slicedUVs[i - 4];
+            let uvs = uvSliced[i - 4];
 
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;

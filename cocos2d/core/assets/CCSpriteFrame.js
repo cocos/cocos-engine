@@ -28,6 +28,8 @@
 const EventTarget = require("../event/event-target");
 const textureUtil = require('../utils/texture-util');
 
+let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
+
 /**
  * !#en
  * A cc.SpriteFrame has:<br/>
@@ -156,7 +158,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.vertices = null;
 
         this.uv = [];
-        this.slicedUVs = [];
+        this.uvSliced = [];
 
         this._texture = null;
         this._textureFilename = '';
@@ -295,7 +297,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         self._calculateUV();
-        self._calculateSlicedUV();
 
         // dispatch 'load' event of cc.SpriteFrame
         self.emit("load");
@@ -481,31 +482,23 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let bottomHeight = this.insetBottom;
         let centerHeight = rect.height - topHeight - bottomHeight;
 
-        let uvs = [];
-        for (let i = 0; i < 4; ++i) {
-            uvs.push({
-                u: 0,
-                v: 0
-            })
-        }
-
-        let slicedUVs = this.slicedUVs;
-        slicedUVs.length = 0;
+        let uvSliced = this.uvSliced;
+        uvSliced.length = 0;
         if (this._rotated) {
-            uvs[0].u = (rect.x) / atlasWidth;
-            uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
-            uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
-            uvs[3].u = (rect.x + rect.height) / atlasWidth;
-            uvs[3].v = (rect.y) / atlasHeight;
-            uvs[2].v = (rect.y + leftWidth) / atlasHeight;
-            uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
-            uvs[0].v = (rect.y + rect.width) / atlasHeight;
+            temp_uvs[0].u = (rect.x) / atlasWidth;
+            temp_uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
+            temp_uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
+            temp_uvs[3].u = (rect.x + rect.height) / atlasWidth;
+            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[2].v = (rect.y + leftWidth) / atlasHeight;
+            temp_uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
+            temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
-                let rowD = uvs[row];
+                let rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
-                    let colD = uvs[3 - col];
-                    slicedUVs.push({
+                    let colD = temp_uvs[3 - col];
+                    uvSliced.push({
                         u: rowD.u,
                         v: colD.v
                     });
@@ -513,22 +506,22 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             }
         }
         else {
-            uvs[0].u = (rect.x) / atlasWidth;
-            uvs[1].u = (rect.x + leftWidth) / atlasWidth;
-            uvs[2].u = (rect.x + leftWidth + centerWidth) / atlasWidth;
-            uvs[3].u = (rect.x + rect.width) / atlasWidth;
-            uvs[3].v = (rect.y) / atlasHeight;
-            uvs[2].v = (rect.y + topHeight) / atlasHeight;
-            uvs[1].v = (rect.y + topHeight + centerHeight + rect.y) / atlasHeight;
-            uvs[0].v = (rect.y + rect.height) / atlasHeight;
+            temp_uvs[0].u = (rect.x) / atlasWidth;
+            temp_uvs[1].u = (rect.x + leftWidth) / atlasWidth;
+            temp_uvs[2].u = (rect.x + leftWidth + centerWidth) / atlasWidth;
+            temp_uvs[3].u = (rect.x + rect.width) / atlasWidth;
+            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[2].v = (rect.y + topHeight) / atlasHeight;
+            temp_uvs[1].v = (rect.y + topHeight + centerHeight + rect.y) / atlasHeight;
+            temp_uvs[0].v = (rect.y + rect.height) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
-                let rowD = uvs[row];
+                let rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
-                    let colD = uvs[col];
-                    slicedUVs.push({
-                        u: rowD.u,
-                        v: colD.v
+                    let colD = temp_uvs[col];
+                    uvSliced.push({
+                        u: colD.u,
+                        v: rowD.v
                     });
                 }
             }
@@ -574,11 +567,14 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let vertices = this.vertices;
         if (vertices) {
             vertices.nu.length = 0;
+            vertices.nv.length = 0;
             for (let i = 0; i < vertices.u.length; i++) {
                 vertices.nu[i] = vertices.u[i]/texw;
                 vertices.nv[i] = vertices.v[i]/texh;
             }
         }
+
+        this._calculateSlicedUV();
     },
 
     // SERIALIZATION
