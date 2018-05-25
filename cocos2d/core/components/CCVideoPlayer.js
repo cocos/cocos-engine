@@ -155,8 +155,11 @@ var VideoPlayer = cc.Class({
                 return this._clip;
             },
             set: function (value) {
-                if (typeof value !== 'string')
-                    value = '';
+                if (typeof value === 'string') {
+                    // backward compatibility since 1.10
+                    cc.errorID(8401, 'cc.VideoPlayer', 'cc.Asset', 'Asset', 'cc.Asset', 'video');
+                    value = { nativeUrl: value };
+                }
                 this._clip = value;
                 this._updateVideoSource();
             },
