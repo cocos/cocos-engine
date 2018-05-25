@@ -333,7 +333,7 @@ module.exports = {
             data = renderData._data,
             node = sprite.node;
     
-        let matrix = node._worldMatrix;
+        let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 

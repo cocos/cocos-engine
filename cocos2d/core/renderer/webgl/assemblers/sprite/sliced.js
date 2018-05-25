@@ -57,79 +57,12 @@ module.exports = {
 
         let renderData = sprite._renderData;
         if (renderData && frame) {
-            if (renderData.uvDirty) {
-                this.updateUVs(sprite);
-            }
-
             let vertDirty = renderData.vertDirty;
             if (vertDirty) {
                 this.updateVerts(sprite);
                 this.updateWorldVerts(sprite);
             }
         }
-    },
-    
-    updateUVs (sprite) {
-        let material = sprite.getMaterial();
-        let renderData = sprite._renderData;
-        let texture = material.effect.getProperty('texture');
-        let frame = sprite.spriteFrame;
-        let rect = frame._rect;
-        let atlasWidth = texture._width;
-        let atlasHeight = texture._height;
-    
-        // caculate texture coordinate
-        let leftWidth = frame.insetLeft;
-        let rightWidth = frame.insetRight;
-        let centerWidth = rect.width - leftWidth - rightWidth;
-        let topHeight = frame.insetTop;
-        let bottomHeight = frame.insetBottom;
-        let centerHeight = rect.height - topHeight - bottomHeight;
-    
-        // uv computation should take spritesheet into account.
-        let data = renderData._data;
-        if (frame._rotated) {
-            data[0].u = (rect.x) / atlasWidth;
-            data[0].v = (rect.y + rect.width) / atlasHeight;
-            data[1].u = (rect.x + bottomHeight) / atlasWidth;
-            data[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
-            data[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
-            data[2].v = (rect.y + leftWidth) / atlasHeight;
-            data[3].u = (rect.x + rect.height) / atlasWidth;
-            data[3].v = (rect.y) / atlasHeight;
-
-            for (let row = 0; row < 4; ++row) {
-                let rowD = data[row];
-                for (let col = 0; col < 4; ++col) {
-                    let colD = data[3 - col];
-                    let world = data[4 + row*4 + col];
-                    world.u = rowD.u;
-                    world.v = colD.v;
-                }
-            }
-        }
-        else {
-            data[0].u = (rect.x) / atlasWidth;
-            data[1].u = (leftWidth + rect.x) / atlasWidth;
-            data[2].u = (leftWidth + centerWidth + rect.x) / atlasWidth;
-            data[3].u = (rect.x + rect.width) / atlasWidth;
-            data[3].v = (rect.y) / atlasHeight;
-            data[2].v = (topHeight + rect.y) / atlasHeight;
-            data[1].v = (topHeight + centerHeight + rect.y) / atlasHeight;
-            data[0].v = (rect.y + rect.height) / atlasHeight;
-
-            for (let row = 0; row < 4; ++row) {
-                let rowD = data[row];
-                for (let col = 0; col < 4; ++col) {
-                    let colD = data[col];
-                    let world = data[4 + row*4 + col];
-                    world.u = colD.u;
-                    world.v = rowD.v;
-                }
-            }
-        }
-
-        renderData.uvDirty = false;
     },
     
     updateVerts (sprite) {
@@ -184,16 +117,19 @@ module.exports = {
         let ibuf = buffer._iData,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
+
+        let uvSliced = sprite.spriteFrame.uvSliced;
             
         buffer.request(vertexCount, renderData.indiceCount);
 
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];
+            let uvs = uvSliced[i - 4];
 
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
+            vbuf[vertexOffset++] = uvs.u;
+            vbuf[vertexOffset++] = uvs.v;
         }
 
         for (let r = 0; r < 3; ++r) {
