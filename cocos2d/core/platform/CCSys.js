@@ -827,7 +827,7 @@ function initSys () {
         var _tmpCanvas1 = document.createElement("canvas"),
             _tmpCanvas2 = document.createElement("canvas");
 
-        cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+        var create3DContext = function (canvas, opt_attribs, opt_contextType) {
             if (opt_contextType) {
                 try {
                     return canvas.getContext(opt_contextType, opt_attribs);
@@ -836,10 +836,10 @@ function initSys () {
                 }
             }
             else {
-                return cc.create3DContext(canvas, opt_attribs, "webgl") || 
-                    cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-                    cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-                    cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+                return create3DContext(canvas, opt_attribs, "webgl") || 
+                    create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+                    create3DContext(canvas, opt_attribs, "webkit-3d") ||
+                    create3DContext(canvas, opt_attribs, "moz-webgl") ||
                     null;
             }
         };
@@ -872,7 +872,7 @@ function initSys () {
             _supportWebGL = true;
         }
         else if (win.WebGLRenderingContext) {
-            if (cc.create3DContext(document.createElement("CANVAS"))) {
+            if (create3DContext(document.createElement("CANVAS"))) {
                 _supportWebGL = true;
             }
             if (_supportWebGL && sys.os === sys.OS_ANDROID) {
@@ -912,6 +912,7 @@ function initSys () {
                     break;
                 case sys.BROWSER_TYPE_360:
                     _supportWebGL = false;
+                    break;
                 }
             }
         }
