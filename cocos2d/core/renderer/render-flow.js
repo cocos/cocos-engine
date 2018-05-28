@@ -25,13 +25,13 @@ function RenderFlow () {
 
 let _proto = RenderFlow.prototype;
 _proto._doNothing = function () {
-}
+};
 
 _proto._localTransform = function (node) {
     node._updateLocalMatrix();
     node._renderFlag &= ~LOCAL_TRANSFORM;
     this._next._func(node);
-}
+};
 
 function mul (out, a, b) {
     let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
@@ -67,39 +67,34 @@ _proto._worldTransform = function (node) {
     this._next._func(node);
 
     _walker.worldMatDirty --;
-}
+};
 
 _proto._color = function (node) {
     let comp = node._renderComponent;
-    let material = comp._material;
-    if (material) {
-        material.color = node.color;
-        material.updateHash();
-
-        // reset flag when set color to material successfully
-        node._renderFlag &= ~COLOR;
+    if (comp) {
+        comp._updateColor();
     }
     this._next._func(node);
-}
+};
 
 _proto._updateRenderData = function (node) {
     let comp = node._renderComponent;
     comp._assembler.updateRenderData(comp);
     node._renderFlag &= ~UPDATE_RENDER_DATA;
     this._next._func(node);
-}
+};
 
 _proto._render = function (node) {
     let comp = node._renderComponent;
     _walker._commitComp(comp, comp._assembler, node._cullingMask);
     this._next._func(node);
-}
+};
 
 _proto._customIARender = function (node) {
     let comp = node._renderComponent;
     _walker._commitIA(comp, comp._assembler, node._cullingMask);
     this._next._func(node);
-}
+};
 
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
@@ -117,20 +112,20 @@ _proto._children = function (node) {
     this._next._func(node);
 
     _cullingMask = cullingMask;
-}
+};
 
 _proto._postUpdateRenderData = function (node) {
     let comp = node._renderComponent;
     comp._postAssembler && comp._postAssembler.updateRenderData(comp);
     node._renderFlag &= ~POST_UPDATE_RENDER_DATA;
     this._next._func(node);
-}
+};
 
 _proto._postRender = function (node) {
     let comp = node._renderComponent;
     _walker._commitComp(comp, comp._postAssembler, node._cullingMask);
     this._next._func(node);
-}
+};
 
 const EMPTY_FLOW = new RenderFlow();
 EMPTY_FLOW._func = EMPTY_FLOW._doNothing;
@@ -179,8 +174,8 @@ function createFlow (flag, next) {
 }
 
 function getFlow (flag) {
-    var flow = null;
-    var tFlag = FINAL;
+    let flow = null;
+    let tFlag = FINAL;
     while (tFlag > 0) {
         if (tFlag & flag)
             flow = createFlow(tFlag, flow);
@@ -210,7 +205,7 @@ function render (scene) {
 // 
 function init (node) {
     let flag = node._renderFlag;
-    var r = flows[flag] = getFlow(flag);
+    let r = flows[flag] = getFlow(flag);
     r._func(node);
 }
 
@@ -226,7 +221,7 @@ RenderFlow.init = function (walker) {
     for (let i = 1; i < FINAL; i++) {
         flows[i] = new RenderFlow();
     }
-}
+};
 
 RenderFlow.FLAG_DONOTHING = DONOTHING;
 RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;

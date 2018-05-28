@@ -14081,7 +14081,9 @@ var SpriteMaterial = (function (Material$$1) {
     this._effect = new renderer.Effect(
       [
         mainTech ],
-      {},
+      {
+        'color': {r: 1, g: 1, b: 1, a: 1}
+      },
       [
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },

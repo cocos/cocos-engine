@@ -348,7 +348,7 @@ js.getset(cc.macro, 'ENABLE_3D', function () {
     else {
         cc._polyfill3D.disable();
     }
-})
+});
 
 /**
  * !#en Key map for keyboard event

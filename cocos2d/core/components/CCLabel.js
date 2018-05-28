@@ -30,6 +30,7 @@ const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
+const COLOR = 1 << 3;
 
 /**
  * !#en Enum for text alignment.
@@ -51,7 +52,7 @@ const SpriteMaterial = renderEngine.SpriteMaterial;
  * !#zh 文本内容右边对齐。
  * @property {Number} RIGHT
  */
-var HorizontalAlign = macro.TextAlignment;
+const HorizontalAlign = macro.TextAlignment;
 
 /**
  * !#en Enum for vertical text alignment.
@@ -73,7 +74,7 @@ var HorizontalAlign = macro.TextAlignment;
  * !#zh 文本底部对齐。
  * @property {Number} BOTTOM
  */
-var VerticalAlign = macro.VerticalTextAlignment;
+const VerticalAlign = macro.VerticalTextAlignment;
 
 /**
  * !#en Enum for Overflow.
@@ -100,7 +101,7 @@ var VerticalAlign = macro.VerticalTextAlignment;
  * !#zh 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
  * @property {Number} RESIZE_HEIGHT
  */
-var Overflow = cc.Enum({
+const Overflow = cc.Enum({
     NONE: 0,
     CLAMP: 1,
     SHRINK: 2,
@@ -134,14 +135,14 @@ var Overflow = cc.Enum({
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 function debounce (func, wait, immediate) {
-    var timeout;
+    let timeout;
     return function () {
-        var context = this;
-        var later = function() {
+        let context = this;
+        let later = function() {
             timeout = null;
             if (!immediate) func.apply(context, arguments);
         };
-        var callNow = immediate && !timeout;
+        let callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, arguments);
@@ -154,7 +155,7 @@ function debounce (func, wait, immediate) {
  * @class Label
  * @extends Component
  */
-var Label = cc.Class({
+let Label = cc.Class({
     name: 'cc.Label',
     extends: RenderComponent,
 
@@ -524,9 +525,12 @@ var Label = cc.Class({
             this._texture.url = this.uuid + '_texture';
         }
 
-        material.color = this.node.color;
-
         this.setMaterial(material);
+    },
+
+    _updateColor () {
+        this._updateRenderData(true);
+        this.node._renderFlag &= ~COLOR;
     },
 
     _updateRenderData (force) {

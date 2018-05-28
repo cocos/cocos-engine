@@ -37,7 +37,7 @@
  *  node.parent = this.node;
  */
 
-var LabelOutline = cc.Class({
+let LabelOutline = cc.Class({
     name: 'cc.LabelOutline',
     extends: require('./CCComponent'),
     editor: CC_EDITOR && {
@@ -64,6 +64,7 @@ var LabelOutline = cc.Class({
             },
             set: function (value) {
                 this._color = cc.color(value);
+                this._updateRenderData();
             }
         },
 
@@ -81,9 +82,18 @@ var LabelOutline = cc.Class({
             },
             set: function (value) {
                 this._width = value;
+                this._updateRenderData();
             }
         }
+    },
+
+    _updateRenderData () {
+        let label = this.node.getComponent(cc.Label);
+        if (label) {
+            label._updateRenderData(true);
+        }
     }
+
 });
 
 cc.LabelOutline = module.exports = LabelOutline;

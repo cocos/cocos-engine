@@ -177,7 +177,7 @@ module.exports = {
 
         // outline
         let outline = LabelOutline && _comp.getComponent(LabelOutline);
-        if (outline) {
+        if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
             _outlineColor = outline.color;
@@ -225,22 +225,22 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a/255})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
         let underlineStartPosition;
 
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
-                let strokeColor = _outlineColor || cc.color(255,255,255,255);
+                let strokeColor = _outlineColor || cc.Color.WHITE;
                 _context.globalCompositeOperation = 'source-over';
-                _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a/255})`;
+                _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
                 _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
             }
 
             if (_fillColorGradientEnabled && _gradientArgs) {
-                let gradientStartColor = _gradientStartColor || cc.color(255, 255, 255, 255);
-                let gradientEndColor = _gradientEndColor || cc.color(255, 255, 255, 255);
+                let gradientStartColor = _gradientStartColor || cc.Color.WHITE;
+                let gradientEndColor = _gradientEndColor || cc.Color.WHITE;
                 let gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
                 gradient.addColorStop(0, gradientStartColor.toHEX());
                 gradient.addColorStop(1, gradientEndColor.toHEX());
@@ -253,7 +253,7 @@ module.exports = {
                 _context.save();
                 _context.beginPath();
                 _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a/255})`;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
                 _context.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
                 _context.lineTo(underlineStartPosition.x + _canvas.width, underlineStartPosition.y + i * lineHeight - 1);
                 _context.stroke();
@@ -303,7 +303,7 @@ module.exports = {
 
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
             _canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
-            if(_isItalic) {
+            if (_isItalic) {
                 //0.0174532925 = 3.141592653 / 180
                 _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
             }
@@ -395,7 +395,7 @@ module.exports = {
     },
 
     _measureText (ctx) {
-        return function(string) {
+        return function (string) {
             return ctx.measureText(string).width;
         };
     },
@@ -435,7 +435,7 @@ module.exports = {
                         actualFontSize = startShrinkFontSize - 1;
                         startShrinkFontSize = actualFontSize;
                     }
-                    if(actualFontSize <= 0) {
+                    if (actualFontSize <= 0) {
                         cc.logID(4003);
                         break;
                     }
@@ -461,7 +461,7 @@ module.exports = {
                         _splitedStrings = _splitedStrings.concat(textFragment);
                     }
 
-                    if(tryDivideByTwo) {
+                    if (tryDivideByTwo) {
                         if (totalHeight > canvasHeightNoMargin) {
                             startShrinkFontSize = actualFontSize | 0;
                         } else {
