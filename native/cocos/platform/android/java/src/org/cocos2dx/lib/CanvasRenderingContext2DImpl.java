@@ -206,7 +206,7 @@ public class CanvasRenderingContext2DImpl {
 
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
-        float baselineY = pt.y - mPaint.getFontMetrics().bottom;
+        float baselineY = pt.y - mPaint.getFontMetrics().descent;
         mCanvas.drawText(text, pt.x, baselineY, mPaint);
     }
 
@@ -219,7 +219,7 @@ public class CanvasRenderingContext2DImpl {
 
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
-        float baselineY = pt.y - mPaint.getFontMetrics().bottom;
+        float baselineY = pt.y - mPaint.getFontMetrics().descent;
         mCanvas.drawText(text, pt.x, baselineY, mPaint);
     }
 
@@ -233,7 +233,9 @@ public class CanvasRenderingContext2DImpl {
     private Size measureTextReturnSize(String text) {
         createPaintIfNeeded();
         Paint.FontMetrics fm = mPaint.getFontMetrics();
-        return new Size(measureText(text), fm.bottom - fm.top);
+        // Use descent & ascent for clipping the transparent region.
+        // So don't use bottom & top which will make text be cut.
+        return new Size(measureText(text), fm.descent - fm.ascent);
     }
 
     private void updateFont(String fontName, float fontSize) {
@@ -274,6 +276,8 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private Point convertDrawPoint(final Point point, String text) {
+        // The parameter 'point' is located at left-bottom position.
+        // Need to adjust 'point' according 'text align' & 'text base line'.
         Point ret = new Point(point);
         Size textSize = measureTextReturnSize(text);
         // Log.d(TAG,"textSize: " + textSize.width + ", " + textSize.height);

@@ -202,12 +202,12 @@ namespace {
 }
 
 -(CGPoint) convertDrawPoint:(CGPoint) point text:(NSString*) text {
+    // The parameter 'point' is located at left-bottom position.
+    // Need to adjust 'point' according 'text align' & 'text base line'.
     CGSize textSize = [self measureText:text];
-//    NSLog(@"textSize: %f, %f", textSize.width, textSize.height);
-
     if (_textAlign == CanvasTextAlign::CENTER)
     {
-        point.x -= textSize.width / 2;
+        point.x -= textSize.width / 2.0f;
     }
     else if (_textAlign == CanvasTextAlign::RIGHT)
     {
@@ -216,14 +216,20 @@ namespace {
 
     if (_textBaseLine == CanvasTextBaseline::TOP)
     {
-        point.y += textSize.height;
+        point.y += _fontSize;
     }
     else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
     {
-        point.y += textSize.height / 2;
+        point.y += _fontSize / 2.0f;
     }
 
-    point.y -= textSize.height;
+    // The origin of drawing text on iOS is from top-left, but now we get bottom-left,
+    // So, we need to substract the font size to convert 'point' to top-left.
+    point.y -= _fontSize;
+
+    // We use font size to calculate text height, but 'drawPointAt' method on iOS is based on
+    // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
+    point.y -= (textSize.height - _fontSize) / 2.0f;
 
     return point;
 }
@@ -252,7 +258,7 @@ namespace {
     UIGraphicsPushContext(_context);
 
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
-    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), NULL);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
     CGContextSetTextDrawingMode(_context, kCGTextFill);
 
@@ -296,9 +302,9 @@ namespace {
     UIGraphicsPushContext(_context);
 
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
-    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), NULL);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
-    CGContextSetTextDrawingMode(_context, kCGTextFill);
+    CGContextSetTextDrawingMode(_context, kCGTextStroke);
 
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
@@ -524,7 +530,7 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+//    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)

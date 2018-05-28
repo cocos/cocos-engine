@@ -185,12 +185,13 @@ namespace {
 }
 
 -(NSPoint) convertDrawPoint:(NSPoint) point text:(NSString*) text {
+    // The parameter 'point' is located at left-bottom position.
+    // Need to adjust 'point' according 'text align' & 'text base line'.
     NSSize textSize = [self measureText:text];
-//    NSLog(@"textSize: %f, %f", textSize.width, textSize.height);
 
     if (_textAlign == CanvasTextAlign::CENTER)
     {
-        point.x -= textSize.width / 2;
+        point.x -= textSize.width / 2.0f;
     }
     else if (_textAlign == CanvasTextAlign::RIGHT)
     {
@@ -199,13 +200,19 @@ namespace {
 
     if (_textBaseLine == CanvasTextBaseline::TOP)
     {
-        point.y += textSize.height;
+        point.y += _fontSize;
     }
     else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
     {
-        point.y += textSize.height / 2;
+        point.y += _fontSize / 2.0f;
     }
 
+    // We use font size to calculate text height, but 'drawPointAt' method on macOS is based on
+    // the real font height and in bottom-left position, add the adjust value to make the text inside text rectangle.
+    point.y += (textSize.height - _fontSize) / 2.0f;
+
+    // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
+    point.y = _image.size.height - point.y;
     return point;
 }
 
@@ -230,20 +237,17 @@ namespace {
     [[NSGraphicsContext currentContext] setShouldAntialias:YES];
 
     [_image lockFocus];
-    // patch for mac retina display and lableTTF
+
     [[NSAffineTransform transform] set];
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
 
-    drawPoint.y = imageHeight - drawPoint.y;
     [stringWithAttributes drawAtPoint:drawPoint];
 
     NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, imageWidth, imageHeight)];
     [_image unlockFocus];
 
     unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
-
-
     NSUInteger textureSize = imageWidth * imageHeight * 4;
     // For text debugging ...
 //    for (int i = 0; i < textureSize; i += 4) {
@@ -267,6 +271,8 @@ namespace {
     if (text.length == 0)
         return;
 
+    float imageWidth = _image.size.width;
+    float imageHeight = _image.size.height;
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
@@ -290,15 +296,14 @@ namespace {
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
 
-    drawPoint.y = _image.size.height - drawPoint.y;
     [stringWithAttributes drawAtPoint:drawPoint];
 
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, _image.size.width, _image.size.height)];
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, imageWidth, imageHeight)];
     [_image unlockFocus];
 
     unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
 
-    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+    NSUInteger textureSize = imageWidth * imageHeight * 4;
 
     // For text debugging ...
 //        for (int i = 0; i < textureSize; i += 4) {
@@ -556,7 +561,7 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+//    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
