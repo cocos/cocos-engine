@@ -27,6 +27,11 @@
 var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 
+/**
+ * misc utilities
+ * @class misc
+ * @static
+ */
 var misc = {};
 
 misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
