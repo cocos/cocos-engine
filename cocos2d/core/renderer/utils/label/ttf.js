@@ -176,7 +176,7 @@ module.exports = {
         }
 
         // outline
-        let outline = _comp.getComponent(LabelOutline);
+        let outline = LabelOutline && _comp.getComponent(LabelOutline);
         if (outline) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;

@@ -168,8 +168,6 @@ js.extend(AnimationState, Playable);
 
 var proto = AnimationState.prototype;
 
-cc.js.mixin(proto, cc.EventTarget.prototype);
-
 proto._emit = function (type, detail) {
     if (this._target && this._target.isValid) {
         this._target.emit(type, detail);
@@ -188,10 +186,26 @@ proto.on = function (type, callback, target) {
     }
 };
 
+proto.once = function (type, callback, target) {
+    if (this._target && this._target.isValid) {
+        if (type === 'lastframe') {
+            this._lastframeEventOn = true;
+        }
+        let self = this;
+        return this._target.once(type, function (event) {
+            callback.call(target, event);
+            self._lastframeEventOn = false;
+        });
+    }
+    else {
+        return null;
+    }
+};
+
 proto.off = function (type, callback, target) {
     if (this._target && this._target.isValid) {
         if (type === 'lastframe') {
-            if (!this.hasEventListener(type)) {
+            if (!this._target.hasEventListener(type)) {
                 this._lastframeEventOn = false;
             }
         }
