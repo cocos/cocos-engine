@@ -8,6 +8,7 @@
 
 #include "base/CCScheduler.h"
 #include "base/CCThreadPool.h"
+#include "network/HttpClient.h"
 #include "platform/CCApplication.h"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
@@ -647,12 +648,105 @@ static bool js_loadImage(se::State& s)
             return false;
         }
 
-        std::string fullPath;
-        int imageBytes = 0;
-        unsigned char* imageData = nullptr;
+        auto initImageFunc = [path, callbackVal](const std::string& fullPath, unsigned char* imageData, int imageBytes){
+            Image* img = new (std::nothrow) Image();
+
+            __threadPool->pushTask([=](int tid){
+                // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
+                // Image::initWithImageFile will call fullPathForFilename internally which may
+                // cause thread race issues. Therefore, we get the full path of file before
+                // going into task callback.
+                // Be careful of invoking any Cocos2d-x interface in a sub-thread.
+                bool loadSucceed = false;
+                if (fullPath.empty())
+                {
+                    loadSucceed = img->initWithImageData(imageData, imageBytes);
+                    free(imageData);
+                }
+                else
+                {
+                    loadSucceed = img->initWithImageFile(fullPath);
+                }
+
+                Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
+                    if (loadSucceed)
+                    {
+                        se::AutoHandleScope hs;
+                        se::HandleObject retObj(se::Object::createPlainObject());
+                        Data data;
+                        data.copy(img->getData(), img->getDataLen());
+                        se::Value dataVal;
+                        Data_to_seval(data, &dataVal);
+                        retObj->setProperty("data", dataVal);
+                        retObj->setProperty("width", se::Value(img->getWidth()));
+                        retObj->setProperty("height", se::Value(img->getHeight()));
+                        retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
+                        retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
+                        retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
+                        retObj->setProperty("compressed", se::Value(img->isCompressed()));
+                        int numberOfMipmaps = img->getNumberOfMipmaps();
+                        retObj->setProperty("numberOfMipmaps", se::Value(numberOfMipmaps));
+                        if (numberOfMipmaps > 0)
+                        {
+                            se::HandleObject mipmapArray(se::Object::createArrayObject(numberOfMipmaps));
+                            retObj->setProperty("mipmaps", se::Value(mipmapArray));
+                            MipmapInfo* mipmapInfo = img->getMipmaps();
+                            for (int i = 0; i < numberOfMipmaps; ++i)
+                            {
+                                se::HandleObject info(se::Object::createPlainObject());
+                                info->setProperty("offset", se::Value(mipmapInfo[i].offset));
+                                info->setProperty("length", se::Value(mipmapInfo[i].len));
+                                mipmapArray->setArrayElement(i, se::Value(info));
+                            }
+                        }
+
+                        const auto& pixelFormatInfo = img->getPixelFormatInfo();
+                        retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
+                        retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
+                        retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+                        se::ValueArray seArgs;
+                        seArgs.push_back(se::Value(retObj));
+                        callbackVal.toObject()->call(seArgs, nullptr);
+                    }
+                    else
+                    {
+                        SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
+                        assert(false);
+                    }
+
+                    img->release();
+                });
+
+            });
+        };
+
         size_t pos = std::string::npos;
-        if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
+        if (path.find("http://") == 0 || path.find("https://") == 0)
         {
+            auto request = new cocos2d::network::HttpRequest();
+            request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+            request->setUrl(path);
+            request->setResponseCallback([=](cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response){
+                auto data = response->getResponseData();
+                if (data != nullptr && !data->empty())
+                {
+                    int imageBytes = (int)data->size();
+                    unsigned char* imageData = (unsigned char*)malloc(imageBytes);
+                    memcpy(imageData, data->data(), imageBytes);
+                    initImageFunc("", imageData, imageBytes);
+                }
+                else
+                {
+                    SE_REPORT_ERROR("Getting image from (%s) failed!", path.c_str());
+                }
+            });
+            cocos2d::network::HttpClient::getInstance()->send(request);
+            request->release();
+        }
+        else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
+        {
+            int imageBytes = 0;
+            unsigned char* imageData = nullptr;
             size_t dataStartPos = pos + strlen("base64,");
             const char* base64Data = path.data() + dataStartPos;
             size_t dataLen = path.length() - dataStartPos;
@@ -662,87 +756,20 @@ static bool js_loadImage(se::State& s)
                 SE_REPORT_ERROR("Decode base64 image data failed!");
                 return false;
             }
+            initImageFunc("", imageData, imageBytes);
         }
         else
         {
             if (0 == path.find("file://"))
                 path = path.substr(strlen("file://"));
-            fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+            std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
             if (fullPath.empty())
             {
                 SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
                 return false;
             }
+            initImageFunc(fullPath, nullptr, 0);
         }
-
-        Image* img = new (std::nothrow) Image();
-
-        __threadPool->pushTask([=](int tid){
-            // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
-            // Image::initWithImageFile will call fullPathForFilename internally which may
-            // cause thread race issues. Therefore, we get the full path of file before
-            // going into task callback.
-            // Be careful of invoking any Cocos2d-x interface in a sub-thread.
-            bool loadSucceed = false;
-            if (fullPath.empty())
-            {
-                loadSucceed = img->initWithImageData(imageData, imageBytes);
-            }
-            else
-            {
-                loadSucceed = img->initWithImageFile(fullPath);
-            }
-
-            Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
-                if (loadSucceed)
-                {
-                    se::AutoHandleScope hs;
-                    se::HandleObject retObj(se::Object::createPlainObject());
-                    Data data;
-                    data.copy(img->getData(), img->getDataLen());
-                    se::Value dataVal;
-                    Data_to_seval(data, &dataVal);
-                    retObj->setProperty("data", dataVal);
-                    retObj->setProperty("width", se::Value(img->getWidth()));
-                    retObj->setProperty("height", se::Value(img->getHeight()));
-                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
-                    retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
-                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
-                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
-                    int numberOfMipmaps = img->getNumberOfMipmaps();
-                    retObj->setProperty("numberOfMipmaps", se::Value(numberOfMipmaps));
-                    if (numberOfMipmaps > 0)
-                    {
-                        se::HandleObject mipmapArray(se::Object::createArrayObject(numberOfMipmaps));
-                        retObj->setProperty("mipmaps", se::Value(mipmapArray));
-                        MipmapInfo* mipmapInfo = img->getMipmaps();
-                        for (int i = 0; i < numberOfMipmaps; ++i)
-                        {
-                            se::HandleObject info(se::Object::createPlainObject());
-                            info->setProperty("offset", se::Value(mipmapInfo[i].offset));
-                            info->setProperty("length", se::Value(mipmapInfo[i].len));
-                            mipmapArray->setArrayElement(i, se::Value(info));
-                        }
-                    }
-
-                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
-                    retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
-                    retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
-                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
-                    se::ValueArray seArgs;
-                    seArgs.push_back(se::Value(retObj));
-                    callbackVal.toObject()->call(seArgs, nullptr);
-                }
-                else
-                {
-                    SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
-                    assert(false);
-                }
-
-                img->release();
-            });
-
-        });
 
         return true;
     }
