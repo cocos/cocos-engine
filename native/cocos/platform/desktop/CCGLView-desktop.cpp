@@ -275,9 +275,126 @@ void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     dispatchMouseEvent(_mouseX, _mouseY, 0, MouseEvent::Type::MOVE);
 }
 
-void GLView::onGLFWKeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
+void GLView::onGLFWKeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int mods)
 {
-    EventDispatcher::dispatchKeyEvent(key, action);
+//    printf("key: %d, action: %d, mods: %d\n", key, action, mods);
+    int keyInWeb = -1;
+    if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
+        keyInWeb = key;
+    else if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z)
+        keyInWeb = key;
+    else if (key >= GLFW_KEY_F1 && key <= GLFW_KEY_F12)
+        keyInWeb = key - 178;
+    else if (key >= GLFW_KEY_KP_0 && key <= GLFW_KEY_KP_9)
+        keyInWeb = key - 272 + 10000; // For indicating number in Numberpad, needs to be converted in JS.
+    else if (key == GLFW_KEY_ESCAPE)
+        keyInWeb = 27;
+    else if (key == GLFW_KEY_MINUS)
+        keyInWeb = 189;
+    else if (key == GLFW_KEY_EQUAL)
+        keyInWeb = 187;
+    else if (key == GLFW_KEY_BACKSLASH)
+        keyInWeb = 220;
+    else if (key == GLFW_KEY_GRAVE_ACCENT)
+        keyInWeb = 192;
+    else if (key == GLFW_KEY_BACKSPACE)
+        keyInWeb = 8;
+    else if (key == GLFW_KEY_ENTER)
+        keyInWeb = 13;
+    else if (key == GLFW_KEY_LEFT_BRACKET)
+        keyInWeb = 219;
+    else if (key == GLFW_KEY_RIGHT_BRACKET)
+        keyInWeb = 221;
+    else if (key == GLFW_KEY_SEMICOLON)
+        keyInWeb = 186;
+    else if (key == GLFW_KEY_APOSTROPHE)
+        keyInWeb = 222;
+    else if (key == GLFW_KEY_TAB)
+        keyInWeb = 9;
+    else if (key == GLFW_KEY_LEFT_CONTROL)
+        keyInWeb = 17;
+    else if (key == GLFW_KEY_RIGHT_CONTROL)
+        keyInWeb = 17 + 20000; // For indicating Left/Right control, needs to be converted in JS.
+    else if (key == GLFW_KEY_LEFT_SHIFT)
+        keyInWeb = 16;
+    else if (key == GLFW_KEY_RIGHT_SHIFT)
+        keyInWeb = 16 + 20000; // For indicating Left/Right shift, needs to be converted in JS.
+    else if (key == GLFW_KEY_LEFT_ALT)
+        keyInWeb = 18;
+    else if (key == GLFW_KEY_RIGHT_ALT)
+        keyInWeb = 18 + 20000; // For indicating Left/Right alt, needs to be converted in JS.
+    else if (key == GLFW_KEY_LEFT_SUPER)
+        keyInWeb = 91;
+    else if (key == GLFW_KEY_RIGHT_SUPER)
+        keyInWeb = 93;
+    else if (key == GLFW_KEY_UP)
+        keyInWeb = 38;
+    else if (key == GLFW_KEY_DOWN)
+        keyInWeb = 40;
+    else if (key == GLFW_KEY_LEFT)
+        keyInWeb = 37;
+    else if (key == GLFW_KEY_RIGHT)
+        keyInWeb = 39;
+    else if (key == GLFW_KEY_MENU)
+        keyInWeb = 93 + 20000;
+    else if (key == GLFW_KEY_KP_ENTER)
+        keyInWeb = 13 + 20000; // For indicating numpad enter, needs to be converted in JS.
+    else if (key == GLFW_KEY_KP_ADD)
+        keyInWeb = 107;
+    else if (key == GLFW_KEY_KP_SUBTRACT)
+        keyInWeb = 109;
+    else if (key == GLFW_KEY_KP_MULTIPLY)
+        keyInWeb = 106;
+    else if (key == GLFW_KEY_KP_DIVIDE)
+        keyInWeb = 111;
+    else if (key == GLFW_KEY_NUM_LOCK)
+        keyInWeb = 12;
+    else if (key == GLFW_KEY_F13)
+        keyInWeb = 124;
+    else if (key == GLFW_KEY_BACKSPACE)
+        keyInWeb = 8;
+    else if (key == GLFW_KEY_HOME)
+        keyInWeb = 36;
+    else if (key == GLFW_KEY_PAGE_UP)
+        keyInWeb = 33;
+    else if (key == GLFW_KEY_PAGE_DOWN)
+        keyInWeb = 34;
+    else if (key == GLFW_KEY_END)
+        keyInWeb = 35;
+    else if (key == GLFW_KEY_COMMA)
+        keyInWeb = 188;
+    else if (key == GLFW_KEY_PERIOD)
+        keyInWeb = 190;
+    else if (key == GLFW_KEY_SLASH)
+        keyInWeb = 191;
+    else if (key == GLFW_KEY_SPACE)
+        keyInWeb = 32;
+    else if (key == GLFW_KEY_DELETE)
+        keyInWeb = 46;
+    else if (key == GLFW_KEY_KP_DECIMAL)
+        keyInWeb = 110;
+    else if (key == GLFW_KEY_CAPS_LOCK)
+        keyInWeb = 20;
+
+    KeyboardEvent event;
+    event.key = keyInWeb;
+    if (action == GLFW_PRESS)
+        event.action = KeyboardEvent::Action::PRESS;
+    else if (action == GLFW_RELEASE)
+        event.action = KeyboardEvent::Action::RELEASE;
+    else if (action == GLFW_REPEAT)
+        event.action = KeyboardEvent::Action::REPEAT;
+
+    if (mods & GLFW_MOD_SHIFT)
+        event.shiftKeyActive = true;
+    if (mods & GLFW_MOD_CONTROL)
+        event.ctrlKeyActive = true;
+    if (mods & GLFW_MOD_ALT)
+        event.altKeyActive = true;
+    if (mods & GLFW_MOD_SUPER)
+        event.metaKeyActive = true;
+
+    EventDispatcher::dispatchKeyboardEvent(event);
 }
 
 void GLView::onGLFWCharCallback(GLFWwindow* /*window*/, unsigned int character)

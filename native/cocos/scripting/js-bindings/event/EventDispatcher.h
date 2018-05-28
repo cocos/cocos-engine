@@ -74,6 +74,23 @@ struct MouseEvent
     Type type = Type::UNKNOWN;
 };
 
+struct KeyboardEvent
+{
+    enum class Action : int8_t {
+        UNKNOWN = -1,
+        PRESS = 0,
+        RELEASE,
+        REPEAT
+    };
+
+    int key = -1;
+    Action action = Action::UNKNOWN;
+    bool altKeyActive = false;
+    bool ctrlKeyActive = false;
+    bool metaKeyActive = false;
+    bool shiftKeyActive = false;
+};
+
 struct CustomEvent
 {
     std::string name;
@@ -95,7 +112,7 @@ public:
 
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
     static void dispatchMouseEvent(const struct MouseEvent& mouseEvent);
-    static void dispatchKeyEvent(int key, int action);
+    static void dispatchKeyboardEvent(const struct KeyboardEvent& keyboardEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();

@@ -32,6 +32,7 @@ namespace {
     std::vector<se::Object*> _jsTouchObjPool;
     se::Object* _jsTouchObjArray = nullptr;
     se::Object* _jsMouseEventObj = nullptr;
+    se::Object* _jsKeyboardEventObj = nullptr;
     bool _inited = false;
 }
 
@@ -68,6 +69,13 @@ namespace cocos2d
             _jsMouseEventObj->unroot();
             _jsMouseEventObj->decRef();
             _jsMouseEventObj = nullptr;
+        }
+
+        if (_jsKeyboardEventObj != nullptr)
+        {
+            _jsKeyboardEventObj->unroot();
+            _jsKeyboardEventObj->decRef();
+            _jsKeyboardEventObj = nullptr;
         }
         _inited = false;
         _tickVal.setUndefined();
@@ -131,7 +139,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
     }
 
     se::Value callbackVal;
-    if (__jsbObj->getProperty(eventName, &callbackVal))
+    if (__jsbObj->getProperty(eventName, &callbackVal) && !callbackVal.isNullOrUndefined())
     {
         se::ValueArray args;
         args.push_back(se::Value(_jsTouchObjArray));
@@ -192,7 +200,7 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
     }
 
     se::Value callbackVal;
-    if (__jsbObj->getProperty(eventName, &callbackVal))
+    if (__jsbObj->getProperty(eventName, &callbackVal) && !callbackVal.isNullOrUndefined())
     {
         se::ValueArray args;
         args.push_back(se::Value(_jsMouseEventObj));
@@ -200,12 +208,49 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
     }
 }
 
-void EventDispatcher::dispatchKeyEvent(int key, int action)
+void EventDispatcher::dispatchKeyboardEvent(const struct KeyboardEvent& keyboardEvent)
 {
     if (!se::ScriptEngine::getInstance()->isValid())
         return;
 
-    //TODO:
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+
+    if (_jsKeyboardEventObj == nullptr)
+    {
+        _jsKeyboardEventObj = se::Object::createPlainObject();
+        _jsKeyboardEventObj->root();
+    }
+
+    const char* eventName = nullptr;
+    switch (keyboardEvent.action) {
+        case KeyboardEvent::Action::PRESS:
+        case KeyboardEvent::Action::REPEAT:
+            eventName = "onKeyDown";
+            break;
+        case KeyboardEvent::Action::RELEASE:
+            eventName = "onKeyUp";
+            break;
+        default:
+            assert(false);
+            break;
+    }
+
+    se::Value callbackVal;
+    if (__jsbObj->getProperty(eventName, &callbackVal) && !callbackVal.isNullOrUndefined())
+    {
+        _jsKeyboardEventObj->setProperty("altKey", se::Value(keyboardEvent.altKeyActive));
+        _jsKeyboardEventObj->setProperty("ctrlKey", se::Value(keyboardEvent.ctrlKeyActive));
+        _jsKeyboardEventObj->setProperty("metaKey", se::Value(keyboardEvent.metaKeyActive));
+        _jsKeyboardEventObj->setProperty("shiftKey", se::Value(keyboardEvent.shiftKeyActive));
+        _jsKeyboardEventObj->setProperty("repeat", se::Value(keyboardEvent.action == KeyboardEvent::Action::REPEAT));
+        _jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
+
+        se::ValueArray args;
+        args.push_back(se::Value(_jsKeyboardEventObj));
+        callbackVal.toObject()->call(args, nullptr);
+    }
 }
     
 void EventDispatcher::dispatchTickEvent(float dt)
