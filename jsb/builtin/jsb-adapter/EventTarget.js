@@ -325,8 +325,6 @@ function keyboardEventHandlerFactory(type) {
             metaKey: event.metaKey,
             shiftKey: event.shiftKey,
             repeat: event.repeat,
-            code: '', // TODO
-            key: '', // TODO
             keyCode: event.keyCode
         };
 
