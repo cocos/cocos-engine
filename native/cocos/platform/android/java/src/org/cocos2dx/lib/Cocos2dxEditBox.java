@@ -25,302 +25,308 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.method.PasswordTransformationMethod;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.graphics.drawable.GradientDrawable;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 
-public class Cocos2dxEditBox extends EditText {
-    /**
-     * The user is allowed to enter any text, including line breaks.
-     */
-    private final int kEditBoxInputModeAny = 0;
+public class Cocos2dxEditBox {
+    private static Cocos2dxEditBox sThis = null;
+    private Cocos2dxEditText mEditText = null;
+    private Button mButton = null;
+    private boolean mConfirmHold = true;
+    private Cocos2dxActivity mActivity = null;
 
-    /**
-     * The user is allowed to enter an e-mail address.
-     */
-    private final int kEditBoxInputModeEmailAddr = 1;
+    /***************************************************************************************
+     Inner class.
+     **************************************************************************************/
+    class Cocos2dxEditText extends EditText {
+        private final String TAG = "Cocos2dxEditBox";
+        private boolean mIsMultiLine = false;
 
-    /**
-     * The user is allowed to enter an integer value.
-     */
-    private final int kEditBoxInputModeNumeric = 2;
+        public  Cocos2dxEditText(Cocos2dxActivity context){
+            super(context);
 
-    /**
-     * The user is allowed to enter a phone number.
-     */
-    private final int kEditBoxInputModePhoneNumber = 3;
-
-    /**
-     * The user is allowed to enter a URL.
-     */
-    private final int kEditBoxInputModeUrl = 4;
-
-    /**
-     * The user is allowed to enter a real number value. This extends kEditBoxInputModeNumeric by allowing a decimal point.
-     */
-    private final int kEditBoxInputModeDecimal = 5;
-
-    /**
-     * The user is allowed to enter any text, except for line breaks.
-     */
-    private final int kEditBoxInputModeSingleLine = 6;
-
-    /**
-     * Indicates that the text entered is confidential data that should be obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
-     */
-    private final int kEditBoxInputFlagPassword = 0;
-
-    /**
-     * Indicates that the text entered is sensitive data that the implementation must never store into a dictionary or table for use in predictive, auto-completing, or other accelerated input schemes. A credit card number is an example of sensitive data.
-     */
-    private final int kEditBoxInputFlagSensitive = 1;
-
-    /**
-     * This flag is a hint to the implementation that during text editing, the initial letter of each word should be capitalized.
-     */
-    private final int kEditBoxInputFlagInitialCapsWord = 2;
-
-    /**
-     * This flag is a hint to the implementation that during text editing, the initial letter of each sentence should be capitalized.
-     */
-    private final int kEditBoxInputFlagInitialCapsSentence = 3;
-
-    /**
-     * Capitalize all characters automatically.
-     */
-    private final int kEditBoxInputFlagInitialCapsAllCharacters = 4;
-
-    /**
-     *  Lowercase all characters automatically.
-     */
-    private final int kEditBoxInputFlagLowercaseAllCharacters = 5;
-
-    private final int kKeyboardReturnTypeDefault = 0;
-    private final int kKeyboardReturnTypeDone = 1;
-    private final int kKeyboardReturnTypeSend = 2;
-    private final int kKeyboardReturnTypeSearch = 3;
-    private final int kKeyboardReturnTypeGo = 4;
-
-    private static final int kTextHorizontalAlignmentLeft = 0;
-    private static final int kTextHorizontalAlignmentCenter = 1;
-    private static final int kTextHorizontalAlignmentRight = 2;
-
-    private static final int kTextVerticalAlignmentTop = 0;
-    private static final int kTextVerticalAlignmentCenter = 1;
-    private static final int kTextVerticalAlignmentBottom = 2;
-
-
-
-    private int mInputFlagConstraints;
-    private int mInputModeConstraints;
-    private  int mMaxLength;
-
-    public Boolean getChangedTextProgrammatically() {
-        return changedTextProgrammatically;
-    }
-
-    public void setChangedTextProgrammatically(Boolean changedTextProgrammatically) {
-        this.changedTextProgrammatically = changedTextProgrammatically;
-    }
-
-    private Boolean changedTextProgrammatically = false;
-
-    //OpenGL view scaleX
-    private  float mScaleX;
-
-    public  Cocos2dxEditBox(Context context){
-        super(context);
-    }
-
-    public void setEditBoxViewRect(int left, int top, int maxWidth, int maxHeight) {
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
-                                                                            FrameLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.leftMargin = left;
-        layoutParams.topMargin = top;
-        layoutParams.width = maxWidth;
-        layoutParams.height = maxHeight;
-        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
-        this.setLayoutParams(layoutParams);
-    }
-
-    public void setTextHorizontalAlignment(int alignment) {
-        int gravity = this.getGravity();
-        switch (alignment) {
-            case kTextHorizontalAlignmentLeft:
-                gravity = (gravity & ~Gravity.RIGHT) | Gravity.LEFT ;
-                break;
-            case kTextHorizontalAlignmentCenter:
-                gravity =(gravity & ~Gravity.RIGHT & ~Gravity.LEFT) | Gravity.CENTER_HORIZONTAL;
-                break;
-            case kTextHorizontalAlignmentRight:
-                gravity = (gravity & ~Gravity.LEFT) | Gravity.RIGHT ;
-                break;
-            default:
-                gravity = (gravity & ~Gravity.RIGHT) | Gravity.LEFT ;
-                break;
-        }
-        this.setGravity(gravity);
-    }
-
-    public void setTextVerticalAlignment(int alignment) {
-        int gravity = this.getGravity();
-        int padding = Cocos2dxEditBoxHelper.getPadding(mScaleX);
-        switch (alignment) {
-            case kTextVerticalAlignmentTop:
-                setPadding(padding, padding*3/4, 0, 0);
-                gravity = (gravity & ~Gravity.BOTTOM) | Gravity.TOP ;
-                break;
-            case kTextVerticalAlignmentCenter:
-                setPadding(padding, 0, 0, padding/2);
-                gravity =(gravity & ~Gravity.TOP & ~Gravity.BOTTOM) | Gravity.CENTER_VERTICAL;
-                break;
-            case kTextVerticalAlignmentBottom:
-                //TODO: Add appropriate padding when this alignment is used
-                gravity = (gravity & ~Gravity.TOP) | Gravity.BOTTOM ;
-                break;
-            default:
-                setPadding(padding, 0, 0, padding/2);
-                gravity =(gravity & ~Gravity.TOP & ~Gravity.BOTTOM) | Gravity.CENTER_VERTICAL;
-                break;
+            this.removeFocusBorder();
         }
 
-        this.setGravity(gravity);
-    }
+        /***************************************************************************************
+         Override functions.
+         **************************************************************************************/
 
+        @Override
+        public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    Cocos2dxEditBox.this.hide();
+                    return true;
+                default:
+                    return super.onKeyPreIme(keyCode, event);
+            }
+        }
 
+        /***************************************************************************************
+         Other member functions.
+         **************************************************************************************/
 
-    public float getOpenGLViewScaleX() {
-        return mScaleX;
-    }
+        public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
+            mIsMultiLine = isMultiline;
+            this.setText(defaultValue);
+            this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
+            this.setConfirmType(confirmType);
+            this.setInputType(inputType, mIsMultiLine);
+            this.setVisibility(View.VISIBLE);
 
-    public void setOpenGLViewScaleX(float mScaleX) {
-        this.mScaleX = mScaleX;
-    }
+            // Open soft keyboard manually. Should request focus to open soft keyboard.
+            this.requestFocus();
 
+            this.addListeners();
+        }
 
-    public  void setMaxLength(int maxLength){
-        this.mMaxLength = maxLength;
+        public void hide() {
+            mEditText.setVisibility(View.INVISIBLE);
+            this.removeListeners();
+        }
 
-        this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(this.mMaxLength) });
-    }
+        /***************************************************************************************
+         Private functions.
+         **************************************************************************************/
 
-    public void setMultilineEnabled(boolean flag){
-        this.mInputModeConstraints |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-    }
-
-    public void setReturnType(int returnType) {
-        switch (returnType) {
-            case kKeyboardReturnTypeDefault:
-                this.setImeOptions(EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
-            case kKeyboardReturnTypeDone:
+        private void setConfirmType(final String confirmType) {
+            if (confirmType.contentEquals("done"))
                 this.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
-            case kKeyboardReturnTypeSend:
-                this.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
-            case kKeyboardReturnTypeSearch:
+            else if (confirmType.contentEquals("next"))
+                this.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+            else if (confirmType.contentEquals("search"))
                 this.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
-            case kKeyboardReturnTypeGo:
+            else if (confirmType.contentEquals("go"))
                 this.setImeOptions(EditorInfo.IME_ACTION_GO | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
-            default:
-                this.setImeOptions(EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                break;
+            else if (confirmType.contentEquals("send"))
+                this.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+            else
+                Log.e(TAG, "unknown confirm type " + confirmType);
+        }
+
+        private void setInputType(final String inputType, boolean isMultiLine){
+            if (inputType.contentEquals("text")) {
+                if (isMultiLine)
+                    this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                else
+                    this.setInputType(InputType.TYPE_CLASS_TEXT);
+            }
+            else if (inputType.contentEquals("email"))
+                this.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            else if (inputType.contentEquals("number"))
+                this.setInputType(InputType.TYPE_CLASS_NUMBER);
+            else if (inputType.contentEquals("phone"))
+                this.setInputType(InputType.TYPE_CLASS_PHONE);
+            else if (inputType.contentEquals("password"))
+                this.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            else
+                Log.e(TAG, "unknown input type " + inputType);
+        }
+
+        private void removeFocusBorder() {
+            GradientDrawable shape = new GradientDrawable();
+            shape.setShape(GradientDrawable.RECTANGLE);
+            shape.setStroke(1, Color.BLACK);
+            shape.setColor(Color.WHITE);
+            this.setBackground(shape);
+        }
+
+        private void addListeners() {
+
+            this.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (! mIsMultiLine) {
+                        Cocos2dxEditBox.this.hide();
+                    }
+
+                    return false; // pass on to other listeners.
+                }
+            });
+
+            this.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // Pass text to c++.
+                    Cocos2dxEditBox.this.onKeyboardInput(s.toString());
+                }
+            });
+        }
+
+        private void removeListeners() {
+            this.setOnEditorActionListener(null);
+            this.addTextChangedListener(null);
         }
     }
 
-    public  void setInputMode(int inputMode){
-        this.setTextHorizontalAlignment(kTextHorizontalAlignmentLeft);
-        this.setTextVerticalAlignment(kTextVerticalAlignmentCenter);
-        switch (inputMode) {
-            case kEditBoxInputModeAny:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-                this.setTextVerticalAlignment(kTextVerticalAlignmentTop);
-                break;
-            case kEditBoxInputModeEmailAddr:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
-                break;
-            case kEditBoxInputModeNumeric:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED;
-                break;
-            case kEditBoxInputModePhoneNumber:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_PHONE;
-                break;
-            case kEditBoxInputModeUrl:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI;
-                break;
-            case kEditBoxInputModeDecimal:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED;
-                break;
-            case kEditBoxInputModeSingleLine:
-                this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT;
-                break;
-            default:
+    public Cocos2dxEditBox(Cocos2dxActivity context, RelativeLayout layout) {
+        Cocos2dxEditBox.sThis = this;
+        mActivity = context;
+        this.addItems(context, layout);
+    }
 
-                break;
+    /***************************************************************************************
+     Private functions.
+     **************************************************************************************/
+    private void addItems(Cocos2dxActivity context, RelativeLayout layout) {
+        RelativeLayout myLayout = new RelativeLayout(context);
+        this.addEditText(context, myLayout);
+        this.addButton(context, myLayout);
+
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layout.addView(myLayout, layoutParams);
+
+        //FXI ME: Is it needed?
+        // When touch area outside EditText and soft keyboard, then hide.
+//        layout.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                Cocos2dxEditBox.this.hide();
+//                return true;
+//            }
+//
+//        });
+    }
+
+    private void addEditText(Cocos2dxActivity context, RelativeLayout layout) {
+        mEditText = new Cocos2dxEditText(context);
+        mEditText.setVisibility(View.INVISIBLE);
+        layout.addView(mEditText, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    }
+
+    private void addButton(Cocos2dxActivity context, RelativeLayout layout) {
+        mButton = new Button(context);
+        mButton.setVisibility(View.INVISIBLE);
+        RelativeLayout.LayoutParams buttonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        mButton.setBackgroundColor(Color.GREEN);
+        layout.addView(mButton, buttonParams);
+
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Cocos2dxEditBox.this.onKeyboardConfirm(mEditText.getText().toString());
+
+                if (!Cocos2dxEditBox.this.mConfirmHold)
+                    Cocos2dxEditBox.this.hide();
+            }
+        });
+    }
+
+    private void hide() {
+        Utils.hideVirtualButton();
+        mEditText.hide();
+        mButton.setVisibility(View.INVISIBLE);
+        this.closeKeyboard();
+
+        mActivity.getGLSurfaceView().requestFocus();
+        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
+    }
+
+    private void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
+        mConfirmHold = confirmHold;
+        mButton.setText(confirmType);
+        mButton.setVisibility(View.VISIBLE);
+        mEditText.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
+        this.openKeyboard();
+    }
+
+    private void closeKeyboard() {
+        InputMethodManager imm = (InputMethodManager) Cocos2dxEditBox.this.mActivity.getSystemService(Cocos2dxEditBox.this.mActivity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+
+        this.onKeyboardComplete(mEditText.getText().toString());
+    }
+
+    private void openKeyboard() {
+        InputMethodManager imm = (InputMethodManager) Cocos2dxEditBox.this.mActivity.getSystemService(Cocos2dxEditBox.this.mActivity.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    /***************************************************************************************
+     Functions invoked by CPP.
+     **************************************************************************************/
+
+    private static void showNative(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
+        if (null != Cocos2dxEditBox.sThis) {
+            Cocos2dxEditBox.sThis.mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Cocos2dxEditBox.sThis.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+                }
+            });
         }
-
-        this.setInputType(this.mInputModeConstraints | this.mInputFlagConstraints);
-
     }
 
-    @Override
-    public boolean onKeyDown(final int pKeyCode, final KeyEvent pKeyEvent) {
-        switch (pKeyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                Cocos2dxActivity activity = (Cocos2dxActivity)this.getContext();
-                //To prevent program from going to background
-                activity.getGLSurfaceView().requestFocus();
-                return true;
-            default:
-                return super.onKeyDown(pKeyCode, pKeyEvent);
+    private static void hideNative() {
+        if (null != Cocos2dxEditBox.sThis) {
+            Cocos2dxEditBox.sThis.mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Cocos2dxEditBox.sThis.hide();
+                }
+            });
         }
     }
 
-    @Override
-    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        return super.onKeyPreIme(keyCode, event);
+    /***************************************************************************************
+     Native functions invoked by UI.
+     **************************************************************************************/
+    private void onKeyboardInput(String text) {
+        mActivity.runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBox.onKeyboardInputNative(text);
+            }
+        });
     }
 
-    public void setInputFlag(int inputFlag) {
-
-        switch (inputFlag) {
-            case kEditBoxInputFlagPassword:
-                this.mInputFlagConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
-                this.setTypeface(Typeface.DEFAULT);
-                this.setTransformationMethod(new PasswordTransformationMethod());
-                break;
-            case kEditBoxInputFlagSensitive:
-                this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-                break;
-            case kEditBoxInputFlagInitialCapsWord:
-                this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
-                break;
-            case kEditBoxInputFlagInitialCapsSentence:
-                this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-                break;
-            case kEditBoxInputFlagInitialCapsAllCharacters:
-                this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
-                break;
-            case kEditBoxInputFlagLowercaseAllCharacters:
-                this.mInputFlagConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL;
-                break;
-            default:
-                break;
-        }
-
-        this.setInputType(this.mInputFlagConstraints | this.mInputModeConstraints);
+    private void onKeyboardComplete(String text) {
+        mActivity.runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBox.onKeyboardCompleteNative(text);
+            }
+        });
     }
+
+    private void onKeyboardConfirm(String text) {
+        mActivity.runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBox.onKeyboardConfirmNative(text);
+            }
+        });
+    }
+
+    private static native void onKeyboardInputNative(String text);
+    private static native void onKeyboardCompleteNative(String text);
+    private static native void onKeyboardConfirmNative(String text);
 }

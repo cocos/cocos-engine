@@ -10,6 +10,7 @@
 #include "base/CCThreadPool.h"
 #include "network/HttpClient.h"
 #include "platform/CCApplication.h"
+#include "ui/edit-box/EditBox.h"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/jni/JniImp.h"
@@ -858,6 +859,52 @@ static bool JSB_setPreferredFramesPerSecond(se::State& s)
 }
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
+static bool JSB_showInputBox(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1)
+    {
+        se::Value tmp;
+        const auto& obj = args[0].toObject();
+        
+        obj->getProperty("defaultValue", &tmp);
+        std::string defaultValue = tmp.toString();
+        
+        obj->getProperty("maxLength", &tmp);
+        int maxLength = tmp.toInt32();
+        
+        obj->getProperty("multiple", &tmp);
+        bool isMultiLine = tmp.toBoolean();
+        
+        obj->getProperty("confirmHold", &tmp);
+        bool confirmHold = tmp.toBoolean();
+        
+        obj->getProperty("confirmType", &tmp);
+        std::string confirmType = tmp.toString();
+        
+        obj->getProperty("inputType", &tmp);
+        std::string inputType = tmp.toString();
+        
+        EditBox::show(defaultValue, maxLength, isMultiLine, confirmHold, confirmType, inputType);
+        
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_showInputBox);
+
+static bool JSB_hideInputBox(se::State& s)
+{
+    EditBox::hide();
+    return true;
+}
+SE_BIND_FUNC(JSB_hideInputBox)
+
+
 bool jsb_register_global_variables(se::Object* global)
 {
     __threadPool = ThreadPool::newFixedThreadPool(3);
@@ -886,6 +933,8 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
+    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));

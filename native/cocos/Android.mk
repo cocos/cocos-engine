@@ -128,7 +128,8 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/unzip/ioapi.cpp \
 ../external/sources/unzip/unzip.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
-../external/sources/ConvertUTF/ConvertUTF.c
+../external/sources/ConvertUTF/ConvertUTF.c \
+ui/edit-box/EditBox-android.cpp \
 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \

@@ -30,6 +30,7 @@ import android.os.Looper;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -40,12 +41,12 @@ public class Cocos2dxWebViewHelper {
     private static final String TAG = Cocos2dxWebViewHelper.class.getSimpleName();
     private static Handler sHandler;
     private static Cocos2dxActivity sCocos2dxActivity;
-    private static FrameLayout sLayout;
+    private static RelativeLayout sLayout;
 
     private static SparseArray<Cocos2dxWebView> webViews;
     private static int viewTag = 0;
 
-    public Cocos2dxWebViewHelper(FrameLayout layout) {
+    public Cocos2dxWebViewHelper(RelativeLayout layout) {
         Cocos2dxWebViewHelper.sLayout = layout;
         Cocos2dxWebViewHelper.sHandler = new Handler(Looper.myLooper());
 
