@@ -116,6 +116,13 @@ let VideoPlayerImpl = cc.Class({
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('playsinline', '');
+
+        // Stupid tencent x5 adaptation
+        let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
+        video.setAttribute("x5-playsinline", "");
+        video.setAttribute("x5-video-player-type", "h5");
+        video.setAttribute("x5-video-orientation", orientation);
+
         this._video = video;
         cc.game.container.appendChild(video);
     },
