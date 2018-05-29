@@ -294,14 +294,22 @@ jsb.onTouchCancel = touchEventHandlerFactory('touchcancel');
 
 function mouseEventHandlerFactory(type) {
     return (event) => {
-        const mouseEvent = new MouseEvent(type);
         var button = event.button;
-        mouseEvent.button = button;
-        mouseEvent.which = button + 1;
-        mouseEvent.wheelDelta = event.wheelDeltaY;
-        mouseEvent.clientX = mouseEvent.screenX = mouseEvent.pageX = event.x;
-        mouseEvent.clientY = mouseEvent.screenY = mouseEvent.pageY = event.y;
+        var x = event.x;
+        var y = event.y;
 
+        const mouseEvent = new MouseEvent(type, {
+            button: button,
+            which: button + 1,
+            wheelDelta: event.wheelDeltaY,
+            clientX: x,
+            clientY: y,
+            screenX: x,
+            screenY: y,
+            pageX: x,
+            pageY: y
+        });
+        
         var target;
         var mouseListenerMap = __listenerMap.mouse;
         for (let key in mouseListenerMap) {
@@ -319,16 +327,14 @@ jsb.onMouseWheel = mouseEventHandlerFactory('mousewheel');
 
 function keyboardEventHandlerFactory(type) {
     return (event) => {
-        var initArg = {
+        const keyboardEvent = new KeyboardEvent(type, {
             altKey: event.altKey,
             ctrlKey: event.ctrlKey,
             metaKey: event.metaKey,
             shiftKey: event.shiftKey,
             repeat: event.repeat,
             keyCode: event.keyCode
-        };
-
-        const keyboardEvent = new KeyboardEvent(type, initArg);
+        });
         var target;
         var keyboardListenerMap = __listenerMap.keyboard;
         for (let key in keyboardListenerMap) {
