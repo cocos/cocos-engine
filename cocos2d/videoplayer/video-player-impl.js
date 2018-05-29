@@ -416,8 +416,8 @@ let VideoPlayerImpl = cc.Class({
             h = this._h * scaleY;
         }
 
-        let appx = (w * a) * node._anchorPoint.x;
-        let appy = (h * d) * node._anchorPoint.y;
+        let appx = (w * _mat4_temp.m00) * node._anchorPoint.x;
+        let appy = (h * _mat4_temp.m05) * node._anchorPoint.y;
         let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
         let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
