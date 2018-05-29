@@ -681,6 +681,14 @@ function initSys () {
             format: ['.mp3']
         };
     }
+
+    var version = /[\d\.]+/.exec(env.system);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(sys.osVersion);
+    // wechagame subdomain
+    if (!wx.getFileSystemManager) {
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+    }
     else {
         // browser or runtime
         var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
