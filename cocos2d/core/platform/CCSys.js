@@ -612,7 +612,13 @@ function initSys () {
         var version = /[\d\.]+/.exec(env.system);
         sys.osVersion = version[0];
         sys.osMainVersion = parseInt(sys.osVersion);
-        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        // wechagame subdomain
+        if (!wx.getFileSystemManager) {
+            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+        }
+        else {
+            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        }
         sys.browserVersion = env.version;
     
         var w = env.windowWidth;
@@ -680,14 +686,6 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
-    }
-
-    var version = /[\d\.]+/.exec(env.system);
-    sys.osVersion = version[0];
-    sys.osMainVersion = parseInt(sys.osVersion);
-    // wechagame subdomain
-    if (!wx.getFileSystemManager) {
-        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
     }
     else {
         // browser or runtime
