@@ -476,13 +476,9 @@ let Label = cc.Class({
         this._activateMaterial();
     },
 
-    _resetAssemblerData () {
+    onDestroy () {
         this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
-    },
-
-    onDestroy () {
-        this._resetAssemblerData();
     },
 
     _checkStringEmpty () {
@@ -523,7 +519,6 @@ let Label = cc.Class({
             this._texture = spriteFrame._texture;
         }
         else {
-            this._resetAssemblerData();
             this._texture = new cc.Texture2D();
             this._assemblerData = this._assembler._getAssemblerData();
             this._texture.initWithElement(this._assemblerData.canvas);

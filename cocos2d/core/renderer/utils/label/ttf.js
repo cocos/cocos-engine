@@ -33,8 +33,6 @@ const Overflow = Label.Overflow;
 const TextUtils = utils.TextUtils;
 const CustomFontLoader = utils.CustomFontLoader;
 
-let _comp = null;
-
 let _context = null;
 let _canvas = null;
 let _texture = null;
@@ -125,39 +123,35 @@ module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        _comp = comp;
-
-        if (this._updateFontFamly()) {
-            this._updateProperties();
+        if (this._updateFontFamly(comp)) {
+            this._updateProperties(comp);
             this._calculateLabelFont();
             this._calculateSplitedStrings();
             this._updateLabelDimensions();
             this._calculateTextBaseline();
-            this._updateTexture(_comp);
-                
-            _comp._actualFontSize = _fontSize;
-            _comp.node.setContentSize(_canvasSize);
+            this._updateTexture(comp);
 
-            this._updateVerts(_comp);
+            comp._actualFontSize = _fontSize;
+            comp.node.setContentSize(_canvasSize);
 
-            _comp._renderData.vertDirty = _comp._renderData.uvDirty = false;
+            this._updateVerts(comp);
+
+            comp._renderData.vertDirty = comp._renderData.uvDirty = false;
 
             _context = null;
             _canvas = null;
             _texture = null;
         }
-        
-        _comp = null;
     },
 
     _updateVerts () {
     },
 
-    _updateFontFamly () {
-        if (!_comp.useSystemFont) {
-            if (!_comp.font) return false;
+    _updateFontFamly (comp) {
+        if (!comp.useSystemFont) {
+            if (!comp.font) return false;
 
-            let url = _comp.font.nativeUrl;
+            let url = comp.font.nativeUrl;
             if (CC_WECHATGAME) {
                 _fontFamily = wx.loadFont(url);
                 //avoid the error in wechat devtool platform
@@ -176,31 +170,31 @@ module.exports = {
             }
         }
         else {
-            _fontFamily = _comp.fontFamily;
+            _fontFamily = comp.fontFamily;
         }
 
         return true;
     },
 
-    _updateProperties () {
-        let assemblerData = _comp._assemblerData;
+    _updateProperties (comp) {
+        let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = _comp._texture;
+        _texture = comp._texture;
         
-        _string = _comp.string.toString();
-        _fontSize = _comp._fontSize;
+        _string = comp.string.toString();
+        _fontSize = comp._fontSize;
         _drawFontsize = _fontSize;
-        _overflow = _comp.overflow;
-        _canvasSize.width = _comp.node.width;
-        _canvasSize.height = _comp.node.height;
-        _lineHeight = _comp._lineHeight;
-        _hAlign = _comp.horizontalAlign;
-        _vAlign = _comp.verticalAlign;
-        _color = _comp.node.color;
-        _isBold = _comp._isBold;
-        _isItalic = _comp._isItalic;
-        _isUnderline = _comp._isUnderline;
+        _overflow = comp.overflow;
+        _canvasSize.width = comp.node.width;
+        _canvasSize.height = comp.node.height;
+        _lineHeight = comp._lineHeight;
+        _hAlign = comp.horizontalAlign;
+        _vAlign = comp.verticalAlign;
+        _color = comp.node.color;
+        _isBold = comp._isBold;
+        _isItalic = comp._isItalic;
+        _isUnderline = comp._isUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -209,11 +203,11 @@ module.exports = {
             _isWrapText = true;
         }
         else {
-            _isWrapText = _comp.enableWrapText;
+            _isWrapText = comp.enableWrapText;
         }
 
         // outline
-        let outline = LabelOutline && _comp.getComponent(LabelOutline);
+        let outline = LabelOutline && comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
@@ -254,7 +248,7 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture (comp) {
+    _updateTexture () {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
