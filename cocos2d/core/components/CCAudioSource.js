@@ -35,7 +35,7 @@ const AudioClip = require('../assets/CCAudioClip');
  * @class AudioSource
  * @extends Component
  */
-var AudioSource = cc.Class({
+let AudioSource = cc.Class({
     name: 'cc.AudioSource',
     extends: Component,
 
@@ -75,7 +75,7 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                var state = this.audio.getState();
+                let state = this.audio.getState();
                 return state === cc.Audio.State.PLAYING;
             },
             visible: false
@@ -207,7 +207,7 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
-        var audio = this.audio;
+        let audio = this.audio;
         if (audio.paused) return;
         this.audio.pause();
         this._pausedFlag = true;
@@ -256,7 +256,7 @@ var AudioSource = cc.Class({
     play: function () {
         if ( !this._clip ) return;
 
-        var audio = this.audio;
+        let audio = this.audio;
         if (this._clip.loaded) {
             audio.stop();
         }

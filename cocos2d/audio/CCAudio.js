@@ -174,7 +174,7 @@ Audio.State = {
     };
 
     proto.resume = function () {
-        if (!this._element || this._element.currentTime === 0) return;
+        if (!this._element || this._state === Audio.State.PLAYING) return;
         this._bindEnded();
         this._element.play();
         this._state = Audio.State.PLAYING;
