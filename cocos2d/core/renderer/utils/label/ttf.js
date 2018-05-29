@@ -71,18 +71,55 @@ let _isUnderline = false;
 
 let _sharedLabelData;
 
+//
+let _canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                canvas: canvas,
+                context: context
+            }
+        }
+
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
+
+
 module.exports = {
 
-    getAssemblerData () {
-        if (!_sharedLabelData) {
-            let labelCanvas = document.createElement("canvas");
-            _sharedLabelData = {
-                canvas: labelCanvas,
-                context: labelCanvas.getContext("2d")
-            };
+    _getAssemblerData () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            _sharedLabelData = _canvasPool.get();
+        }
+        else {
+            if (!_sharedLabelData) {
+                let labelCanvas = document.createElement("canvas");
+                _sharedLabelData = {
+                    canvas: labelCanvas,
+                    context: labelCanvas.getContext("2d")
+                };
+            }
         }
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
+    },
+
+    _resetAssemblerData (assemblerData) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
+            _canvasPool.put(assemblerData);
+        }
     },
 
     updateRenderData (comp) {
@@ -146,7 +183,7 @@ module.exports = {
     },
 
     _updateProperties () {
-        let assemblerData = this.getAssemblerData();
+        let assemblerData = _comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
         _texture = _comp._texture;

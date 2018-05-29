@@ -164,6 +164,7 @@ let Label = cc.Class({
         }
 
         this._actualFontSize = 0;
+        this._assemblerData = null;
     },
 
     editor: CC_EDITOR && {
@@ -475,6 +476,15 @@ let Label = cc.Class({
         this._activateMaterial();
     },
 
+    _resetAssemblerData () {
+        this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
+        this._assemblerData = null;
+    },
+
+    onDestroy () {
+        this._resetAssemblerData();
+    },
+
     _checkStringEmpty () {
         this.markForRender(!!this.string);
     },
@@ -513,9 +523,10 @@ let Label = cc.Class({
             this._texture = spriteFrame._texture;
         }
         else {
+            this._resetAssemblerData();
             this._texture = new cc.Texture2D();
-            let _assemblerData = this._assembler.getAssemblerData();
-            this._texture.initWithElement(_assemblerData.canvas);
+            this._assemblerData = this._assembler._getAssemblerData();
+            this._texture.initWithElement(this._assemblerData.canvas);
         }
 
         material.texture = this._texture;
