@@ -30,7 +30,6 @@ const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const COLOR = 1 << 3;
 
 /**
  * !#en Enum for text alignment.
@@ -530,7 +529,7 @@ let Label = cc.Class({
 
     _updateColor () {
         this._updateRenderData(true);
-        this.node._renderFlag &= ~COLOR;
+        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
     },
 
     _updateRenderData (force) {

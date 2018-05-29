@@ -29,8 +29,6 @@ const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const RenderData = renderEngine.RenderData;
 
-const COLOR = 1 << 3;
-
 /**
  * !#en
  * Base class for components which supports rendering features.
@@ -127,7 +125,7 @@ let RenderComponent = cc.Class({
             material.updateHash();
 
             // reset flag when set color to material successfully
-            this.node._renderFlag &= ~COLOR;
+            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
 
