@@ -36,7 +36,7 @@ const LEFT_PADDING = 2;
 
 function capitalize (string) {
     return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
-};
+}
 
 function capitalizeFirstLetter (string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -49,7 +49,7 @@ function capitalizeFirstLetter (string) {
  * @class EditBox
  * @extends Component
  */
-var EditBox = cc.Class({
+let EditBox = cc.Class({
     name: 'cc.EditBox',
     extends: cc.Component,
 
@@ -92,7 +92,7 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
-            notify() {
+            notify () {
                 this._createBackgroundSprite();
             }
         },
@@ -112,7 +112,7 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
-            notify() {
+            notify () {
                 this._impl.returnType = this.returnType;
             }
         },
@@ -127,7 +127,7 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.DEFAULT,
             type: InputFlag,
-            notify() {
+            notify () {
                 this._impl.inputFlag = this.inputFlag;
             }
         },
@@ -144,7 +144,7 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
-            notify() {
+            notify () {
                 this._impl.setInputMode(this.inputMode);
             }
         },
@@ -157,7 +157,7 @@ var EditBox = cc.Class({
         fontSize: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
             default: 20,
-            notify() {
+            notify () {
                 this._textLabel.fontSize = this.fontSize;
             }
         },
@@ -170,7 +170,7 @@ var EditBox = cc.Class({
         lineHeight: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
             default: 40,
-            notify() {
+            notify () {
                 this._textLabel.lineHeight = this.lineHeight;
             }
         },
@@ -183,7 +183,7 @@ var EditBox = cc.Class({
         fontColor: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
-            notify() {
+            notify () {
                 this._textLabel.node.color = this.fontColor;
             }
         },
@@ -196,7 +196,7 @@ var EditBox = cc.Class({
         placeholder: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
-            notify() {
+            notify () {
                 this._placeholderLabel.string = this.placeholder;
             }
         },
@@ -209,7 +209,7 @@ var EditBox = cc.Class({
         placeholderFontSize: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
-            notify() {
+            notify () {
                 this._placeholderLabel.fontSize = this.placeholderFontSize;
             }
         },
@@ -222,7 +222,7 @@ var EditBox = cc.Class({
         placeholderFontColor: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
-            notify() {
+            notify () {
                 this._placeholderLabel.node.color = this.placeholderFontColor;
             }
         },
@@ -239,7 +239,7 @@ var EditBox = cc.Class({
         maxLength: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
-            notify() {
+            notify () {
                 this._impl.setMaxLength(this.maxLength);
             }
         },
@@ -324,7 +324,7 @@ var EditBox = cc.Class({
         InputMode: InputMode
     },
 
-    _init() {
+    _init () {
         this._createBackgroundSprite();
         this._createLabels();
 
@@ -393,7 +393,7 @@ var EditBox = cc.Class({
         }
     },
 
-    _createBackgroundSprite() {
+    _createBackgroundSprite () {
         let background = this._background;
         if (!background) {
             let node = this.node.getChildByName('BACKGROUND_SPRITE');
@@ -506,13 +506,13 @@ var EditBox = cc.Class({
         return text;
     },
 
-    editBoxEditingDidBegan() {
+    editBoxEditingDidBegan () {
         this._hideLabels();
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     },
 
-    editBoxEditingDidEnded() {
+    editBoxEditingDidEnded () {
         if (!this.stayOnTop) {
             this._showLabels();
         }
@@ -520,7 +520,7 @@ var EditBox = cc.Class({
         this.node.emit('editing-did-ended', this);
     },
 
-    editBoxTextChanged(text) {
+    editBoxTextChanged (text) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
@@ -536,7 +536,7 @@ var EditBox = cc.Class({
         this._impl.clear();
     },
 
-    __preload() {
+    __preload () {
         if (!CC_EDITOR) {
             this._registerEvent();
         }
@@ -548,14 +548,21 @@ var EditBox = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
-    _onTouchBegan(event) {
+    _onTouchBegan (event) {
         if (this._impl) {
             this._impl._onTouchBegan(event.touch);
         }
         event.stopPropagation();
     },
 
-    _onTouchEnded(event) {
+    _onTouchCancel (event) {
+        if (this._impl) {
+            this._impl._onTouchCancel();
+        }
+        event.stopPropagation();
+    },
+
+    _onTouchEnded (event) {
         if (this._impl) {
             this._impl._onTouchEnded();
         }
@@ -568,7 +575,7 @@ var EditBox = cc.Class({
      * Note: only available on Web at the moment.
      * @method setFocus
      */
-    setFocus() {
+    setFocus () {
         if(this._impl) {
             this._impl.setFocus();
         }
@@ -581,7 +588,7 @@ var EditBox = cc.Class({
      * @method isFocused
      */
     isFocused () {
-        var isFocused = false;
+        let isFocused = false;
         if (this._impl) {
             isFocused = this._impl.isFocused();
         }
