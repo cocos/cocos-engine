@@ -394,7 +394,7 @@ _p._endEditingOnMobile = function () {
 
     window.removeEventListener('orientationchange', this.__orientationChanged);
 
-    window.scrollTo(0, 0);
+    window.scrollTo && window.scrollTo(0, 0);
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
     }
@@ -527,6 +527,34 @@ if (CC_WECHATGAME) {
         tmpEdTxt.type = "text";
 
         let editBoxImpl = this;
+
+        function onKeyboardConfirmCallback (res) {
+            editBoxImpl._text = res.value;
+            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
+            wx.hideKeyboard({
+                success: function (res) {
+                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded && editBoxImpl._delegate.editBoxEditingDidEnded();
+                },
+                fail: function (res) {
+                    cc.warn(res.errMsg);
+                }
+            });
+        }
+
+        function onKeyboardInputCallback (res) {
+            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
+                editBoxImpl._text = res.value;
+                editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
+            }
+        }
+
+        function onKeyboardCompleteCallback () {
+            editBoxImpl._endEditing();
+            wx.offKeyboardConfirm(onKeyboardConfirmCallback);
+            wx.offKeyboardInput(onKeyboardInputCallback);
+            wx.offKeyboardComplete(onKeyboardCompleteCallback);
+        }
+
         tmpEdTxt.focus = function () {
             wx.showKeyboard({
                 defaultValue: editBoxImpl._text,
@@ -535,38 +563,17 @@ if (CC_WECHATGAME) {
                 confirmHold: true,
                 confirmType: "done",
                 success: function (res) {
-                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan(editBoxImpl);
+                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
                 },
                 fail: function (res) {
                     cc.warn(res.errMsg);
                     editBoxImpl._endEditing();
                 }
             });
-            wx.onKeyboardConfirm(function (res) {
-                editBoxImpl._text = res.value;
-                editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn(editBoxImpl);
-                wx.hideKeyboard({
-                    success: function (res) {
-                        editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded && editBoxImpl._delegate.editBoxEditingDidEnded(editBoxImpl);
-                    },
-                    fail: function (res) {
-                        cc.warn(res.errMsg);
-                    }
-                });
-            });
-            wx.onKeyboardInput(function (res) {
-                if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
-                    editBoxImpl._text = res.value;
-                    editBoxImpl._delegate.editBoxTextChanged(editBoxImpl, editBoxImpl._text);
-                }
-            });
-            wx.onKeyboardComplete(function () {
-                editBoxImpl._endEditing();
-                wx.offKeyboardConfirm();
-                wx.offKeyboardInput();
-                wx.offKeyboardComplete();
-            });
-        }
+            wx.onKeyboardConfirm(onKeyboardConfirmCallback);
+            wx.onKeyboardInput(onKeyboardInputCallback);
+            wx.onKeyboardComplete(onKeyboardCompleteCallback);
+        };
     };
 }
 
