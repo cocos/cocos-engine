@@ -328,12 +328,7 @@ var audioEngine = {
     resume: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (audio) {
-            if (audio.getCurrentTime() === 0) {
-                audio.play();
-            }
-            else {
-                audio.resume();
-            }
+            audio.resume();
         }
     },
 

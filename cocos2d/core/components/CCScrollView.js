@@ -1249,7 +1249,7 @@ var ScrollView = cc.Class({
         }
 
         var contentPos = newPosition.sub(this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
+        this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent('scrolling');
 
         if (!this._autoScrolling) {
@@ -1337,7 +1337,6 @@ var ScrollView = cc.Class({
                 this._autoScrollBraking = true;
             }
         }
-
     },
 
     _calculateTouchMoveVelocity: function() {
@@ -1368,7 +1367,6 @@ var ScrollView = cc.Class({
 
     _moveContent: function(deltaMove, canStartBounceBack) {
         var adjustedMove = this._flattenVectorByDirection(deltaMove);
-
         var newPosition = this.getContentPosition().add(adjustedMove);
 
         this.setContentPosition(newPosition);
@@ -1379,9 +1377,7 @@ var ScrollView = cc.Class({
         if (this.elastic && canStartBounceBack) {
             this._startBounceBackIfNeeded();
         }
-
     },
-
 
     _getContentLeftBoundary: function() {
         var contentPos = this.getContentPosition();
