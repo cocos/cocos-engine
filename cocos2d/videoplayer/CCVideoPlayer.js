@@ -160,8 +160,6 @@ let VideoPlayer = cc.Class({
                 return this._clip;
             },
             set: function (value) {
-                if (typeof value !== 'string')
-                    value = '';
                 this._clip = value;
                 this._updateVideoSource();
             },
