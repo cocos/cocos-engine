@@ -74,7 +74,7 @@ let RenderComponent = cc.Class({
     },
 
     markForUpdateRenderData (enable) {
-        if (enable && this.enabledInHierarchy) {
+        if (enable && this._enabled) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
@@ -83,7 +83,7 @@ let RenderComponent = cc.Class({
     },
 
     markForRender (enable) {
-        if (enable && this.enabledInHierarchy) {
+        if (enable && this._enabled) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
         }
         else if (!enable) {
@@ -92,7 +92,7 @@ let RenderComponent = cc.Class({
     },
 
     markForCustomIARender (enable) {
-        if (enable && this.enabledInHierarchy) {
+        if (enable && this._enabled) {
             this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
         }
         else if (!enable) {
