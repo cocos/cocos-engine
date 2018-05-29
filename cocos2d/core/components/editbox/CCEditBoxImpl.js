@@ -137,7 +137,10 @@ let EditBoxImpl = cc.Class({
 
         this._inputMode = inputMode;
 
-        if (inputMode === InputMode.ANY) {
+        if (CC_WECHATGAME) {
+            this._createWXInput(inputMode === InputMode.ANY);
+        }
+        else if (inputMode === InputMode.ANY) {
             this._createDomTextArea();
         }
         else {
@@ -214,7 +217,10 @@ let EditBoxImpl = cc.Class({
 
     _beginEditing () {
         let self = this;
-        if (!self._alwaysOnTop) {
+        if (CC_WECHATGAME) {
+            this._edTxt.focus();
+        }
+        else if (!self._alwaysOnTop) {
             if (self._edTxt.style.display === 'none') {
                 self._edTxt.style.display = '';
     
@@ -512,6 +518,57 @@ _p._createDomInput = function () {
 
     return tmpEdTxt;
 };
+
+if (CC_WECHATGAME) {
+    _p._createWXInput = function (multiline) {
+        this.removeDom();
+
+        let tmpEdTxt = this._edTxt = document.createElement("input");
+        tmpEdTxt.type = "text";
+
+        let editBoxImpl = this;
+        tmpEdTxt.focus = function () {
+            wx.showKeyboard({
+                defaultValue: editBoxImpl._text,
+                maxLength: 140,
+                multiple: multiline,
+                confirmHold: true,
+                confirmType: "done",
+                success: function (res) {
+                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan(editBoxImpl);
+                },
+                fail: function (res) {
+                    cc.warn(res.errMsg);
+                    editBoxImpl._endEditing();
+                }
+            });
+            wx.onKeyboardConfirm(function (res) {
+                editBoxImpl._text = res.value;
+                editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn(editBoxImpl);
+                wx.hideKeyboard({
+                    success: function (res) {
+                        editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded && editBoxImpl._delegate.editBoxEditingDidEnded(editBoxImpl);
+                    },
+                    fail: function (res) {
+                        cc.warn(res.errMsg);
+                    }
+                });
+            });
+            wx.onKeyboardInput(function (res) {
+                if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
+                    editBoxImpl._text = res.value;
+                    editBoxImpl._delegate.editBoxTextChanged(editBoxImpl, editBoxImpl._text);
+                }
+            });
+            wx.onKeyboardComplete(function () {
+                editBoxImpl._endEditing();
+                wx.offKeyboardConfirm();
+                wx.offKeyboardInput();
+                wx.offKeyboardComplete();
+            });
+        }
+    };
+}
 
 _p._createDomTextArea = function () {
     this.removeDom();
