@@ -804,8 +804,6 @@ var ParticleSystem = cc.Class({
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
-            this.markForUpdateRenderData(true);
-            this.markForCustomIARender(true);
 
             var self = this;
             this._previewTimer = setInterval(function () {
@@ -919,7 +917,12 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
-        this.markForCustomIARender(true);
+        if (!this._material) {
+            this._updateMaterial();
+        }
+        else {
+            this.markForCustomIARender(true);
+        }
     },
 
     /**
@@ -1162,10 +1165,6 @@ var ParticleSystem = cc.Class({
     },
 
     _updateMaterial: function () {
-        if (!this.enabledInHierarchy) {
-            this.disableRender();
-            return;
-        }
         // cannot be activated if texture not loaded yet
         if (!this._texture || !this._texture.loaded) {
             this.markForCustomIARender(false);
