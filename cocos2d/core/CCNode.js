@@ -2936,9 +2936,8 @@ var Node = cc.Class({
 
         /*
          * TODO: Refine this code after completing undo/redo 2.0.
-         * The node is destroy when entering prefab edit mode, 
-         * but it is still used when exiting prefab edit mode, 
-         * so the built-in properties of the node need to be restored.
+         * The node will be destroyed when deleting in the editor,
+         * but it will be reserved and reused for undo.
         */
         if (!this._matrix) {
             this._matrix = mathPools.mat4.get();
