@@ -248,15 +248,26 @@ let EditBoxImpl = cc.Class({
     },
     
     _endEditing () {
-        if (!this._alwaysOnTop) {
-            this._edTxt.style.display = 'none';
-        }
-        if (cc.sys.isMobile && this._editing) {
-            let self = this;
-            // Delay end editing adaptation to ensure virtual keyboard is disapeared
-            setTimeout(function () {
-                self._endEditingOnMobile();
-            }, DELAY_TIME);
+        let self = this;
+        let hideDomInputAndShowLabel = function () {
+            if (!self._alwaysOnTop) {
+                self._edTxt.style.display = 'none';
+            }
+            if (self._delegate && self._delegate.editBoxEditingDidEnded) {
+                self._delegate.editBoxEditingDidEnded();
+            }
+        };
+        if (this._editing) {
+            if (cc.sys.isMobile) {
+                // Delay end editing adaptation to ensure virtual keyboard is disapeared
+                setTimeout(function () {
+                    self._endEditingOnMobile();
+                    hideDomInputAndShowLabel();
+                }, DELAY_TIME);
+            }
+            else {
+                hideDomInputAndShowLabel();
+            }
         }
         this._editing = false;
     },
@@ -450,23 +461,18 @@ function registrationInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
         if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
 
+            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn) {
+                editBoxImpl._delegate.editBoxEditingReturn();
+            }
             if (!isTextarea) {
                 editBoxImpl._text = this.value;
                 editBoxImpl._endEditing();
                 cc.game.canvas.focus();
             }
-            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn) {
-                editBoxImpl._delegate.editBoxEditingReturn();
-            }
         }
     });
     tmpEdTxt.addEventListener('blur', function () {
         editBoxImpl._text = this.value;
-
-        if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded) {
-            editBoxImpl._delegate.editBoxEditingDidEnded();
-        }
-
         editBoxImpl._endEditing();
     });
 
