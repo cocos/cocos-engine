@@ -71,6 +71,8 @@ let RenderComponent = cc.Class({
             RenderData.free(this.__allocedDatas[i]);
         }
         this.__allocedDatas.length = 0;
+        this._material = null;
+        this._renderData = null;
     },
 
     markForUpdateRenderData (enable) {

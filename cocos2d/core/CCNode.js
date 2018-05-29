@@ -1184,6 +1184,7 @@ var Node = cc.Class({
         // Recycle math objects
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
+        this._matrix = this._worldMatrix = null;
 
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
@@ -2932,6 +2933,19 @@ var Node = cc.Class({
 
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
+
+        /*
+         * TODO: Refine this code after completing undo/redo 2.0.
+         * The node is destroy when entering prefab edit mode, 
+         * but it is still used when exiting prefab edit mode, 
+         * so the built-in properties of the node need to be restored.
+        */
+        if (!this._matrix) {
+            this._matrix = mathPools.mat4.get();
+        }
+        if (!this._worldMatrix) {
+            this._worldMatrix = mathPools.mat4.get();
+        }
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
