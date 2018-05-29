@@ -62,8 +62,8 @@ const VideoPlayerImpl = require('./video-player-impl');
  * @property {Number} CLICKED
  */
 /**
- * !#en ready to play
- * !#zh 视频准备好了，可以开始播放了
+ * !#en ready to play, this event is not guaranteed to be triggered on all platform or browser, please don't rely on it to play your video.<br/>
+ * !#zh 视频准备好了，这个事件并不保障会在所有平台或浏览器中被触发，它依赖于平台实现，请不要依赖于这个事件做视频播放的控制。
  * @property {Number} READY_TO_PLAY
  */
 const EventType = VideoPlayerImpl.EventType;
@@ -160,8 +160,6 @@ let VideoPlayer = cc.Class({
                 return this._clip;
             },
             set: function (value) {
-                if (typeof value !== 'string')
-                    value = '';
                 this._clip = value;
                 this._updateVideoSource();
             },
