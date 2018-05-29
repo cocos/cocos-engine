@@ -204,10 +204,9 @@ spTrackEntry_setDisposeCallback([](spTrackEntry* entry){
             se::AutoHandleScope hs;
             se->clearException();
             
-            // 没必要调用 seObj->clearPrivateData ，因为 Native 对象与 JS 对象的引用关系已经在上面被解除。
-            // 如果调用，反而会导致把新生成的 Native 对象的引用关系错误解除掉。
-            // 设置 seObj 的 privateData 为 nullptr 也无意义，因为在执行 unroot 和 decRef 后，
-            // 当前 JS 对象即将被回收。
+            // 由于上面逻辑已经把映射关系解除了，这里传入 false 表示不用再次解除映射关系,
+            // 因为当前 seObj 的 private data 可能已经是另外一个不同的对象
+            seObj->clearPrivateData(false);
             seObj->unroot(); // unroot，使 JS 对象受 GC 管理
             seObj->decRef(); // 释放 se::Object
         };
