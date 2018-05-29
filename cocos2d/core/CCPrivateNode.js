@@ -138,7 +138,7 @@ let PrivateNode = cc.Class({
             y = x.y;
         }
 
-        var pos = this._originPos;
+        let pos = this._originPos;
         if (pos.x === x && pos.y === y) {
             return;
         }

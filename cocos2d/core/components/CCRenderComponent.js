@@ -38,7 +38,7 @@ const RenderData = renderEngine.RenderData;
  * @class RenderComponent
  * @extends Component
  */
-var RenderComponent = cc.Class({
+let RenderComponent = cc.Class({
     name: 'RenderComponent',
     extends: Component,
 
@@ -115,6 +115,17 @@ var RenderComponent = cc.Class({
         if (index !== -1) {
             this.__allocedDatas.splice(index, 1);
             RenderData.free(data);
+        }
+    },
+
+    _updateColor () {
+        let material = this._material;
+        if (material) {
+            material.color = this.node.color;
+            material.updateHash();
+
+            // reset flag when set color to material successfully
+            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
 
