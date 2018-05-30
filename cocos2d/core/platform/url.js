@@ -88,7 +88,8 @@ cc.url = {
             }
         }
         else {
-            // backward compatibility since 1.10
+
+            // Compatible with versions lower than 1.10
             var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, true);
             if (uuid) {
                 return cc.AssetLibrary.getLibUrlNoExt(uuid) + cc.path.extname(url);
