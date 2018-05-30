@@ -25,16 +25,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('../core/event/event-target');
-var sys = require('../core/platform/CCSys');
-var LoadMode = require('../core/assets/CCAudioClip').LoadMode;
+const EventTarget = require('../core/event/event-target');
+const sys = require('../core/platform/CCSys');
+const LoadMode = require('../core/assets/CCAudioClip').LoadMode;
 
-var touchBinded = false;
-var touchPlayList = [
+let touchBinded = false;
+let touchPlayList = [
     //{ instance: Audio, offset: 0, audio: audio }
 ];
 
-var Audio = function (src) {
+let Audio = function (src) {
     EventTarget.call(this);
 
     this._src = src;
@@ -106,12 +106,12 @@ Audio.State = {
     // };
 
     proto._onLoaded = function () {
-        var elem = this._src._nativeAsset;
-        if (CC_QQPLAY || CC_WECHATGAME) {
+        let elem = this._src._nativeAsset;
+        if (CC_QQPLAY) {
             this._element = elem;
         }
         else {
-            if (this._src.loadMode === LoadMode.DOM_AUDIO) {
+            if (this._src.loadMode === LoadMode.DOM_AUDIO || CC_WECHATGAME) {
                 this._element = document.createElement('audio');
                 this._element.src = elem.src;
             }
@@ -155,7 +155,7 @@ Audio.State = {
 
         // Listen to the touchstart body event and play the audio when necessary.
         cc.game.canvas.addEventListener('touchstart', function () {
-            var item;
+            let item;
             while (item = touchPlayList.pop()) {
                 item.audio.play(item.offset);
             }
@@ -163,7 +163,9 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-
+        if (CC_WECHATGAME) {
+            this._element && this._element.destroy();
+        }
     };
 
     proto.pause = function () {
@@ -187,7 +189,7 @@ Audio.State = {
         } catch (error) {}
         this._element.pause();
         // remove touchPlayList
-        for (var i=0; i<touchPlayList.length; i++) {
+        for (let i = 0; i < touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {
                 touchPlayList.splice(i, 1);
                 break;
@@ -237,9 +239,9 @@ Audio.State = {
             this._element.currentTime = num;
         }
         catch (err) {
-            var _element = this._element;
+            let _element = this._element;
             if (_element.addEventListener) {
-                var func = function () {
+                let func = function () {
                     _element.removeEventListener('loadedmetadata', func);
                     _element.currentTime = num;
                 };
@@ -257,7 +259,7 @@ Audio.State = {
 
     proto.getState = function () {
         if (!CC_WECHATGAME) {
-            var elem = this._element;
+            let elem = this._element;
             if (elem && Audio.State.PLAYING === this._state && elem.paused) {
                 this._state = Audio.State.PAUSED;
             }
@@ -275,7 +277,7 @@ Audio.State = {
                 this._onLoaded();
             }
             else {
-                var self = this;
+                let self = this;
                 clip.once('load', function () {
                     if (clip === self._src) {
                         self._onLoaded();
@@ -300,7 +302,7 @@ Audio.State = {
 })(Audio.prototype);
 
 // Encapsulated WebAudio interface
-var WebAudioElement = function (buffer, audio) {
+let WebAudioElement = function (buffer, audio) {
     this._audio = audio;
     this._context = sys.__audioSupport.context;
     this._buffer = buffer;
@@ -341,7 +343,7 @@ var WebAudioElement = function (buffer, audio) {
             this.playedLength = 0;
         }
 
-        var audio = this._context["createBufferSource"]();
+        let audio = this._context["createBufferSource"]();
         audio.buffer = this._buffer;
         audio["connect"](this._gainObj);
         audio.loop = this._loop;
@@ -351,10 +353,10 @@ var WebAudioElement = function (buffer, audio) {
         if (offset) {
             this._startTime -= offset;
         }
-        var duration = this._buffer.duration;
+        let duration = this._buffer.duration;
 
-        var startTime = offset;
-        var endTime;
+        let startTime = offset;
+        let endTime;
         if (this._loop) {
             if (audio.start)
                 audio.start(0, startTime);
@@ -379,7 +381,7 @@ var WebAudioElement = function (buffer, audio) {
         // If the current audio context time stamp is 0 and audio context state is suspended
         // There may be a need to touch events before you can actually start playing audio
         if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
-            var self = this;
+            let self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
                 if (!(CC_QQPLAY || CC_WECHATGAME) && self._context.currentTime === 0) {
@@ -400,7 +402,7 @@ var WebAudioElement = function (buffer, audio) {
         this.playedLength = this._context.currentTime - this._startTime;
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
-        var audio = this._currentSource;
+        let audio = this._currentSource;
         this._currentSource = null;
         this._startTime = -1;
         if (audio)
