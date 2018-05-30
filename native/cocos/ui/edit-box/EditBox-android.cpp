@@ -50,7 +50,7 @@ void EditBox::show(const std::string& defaultValue,
 
 void EditBox::hide()
 {
-	JniHelper::callStaticVoidMethod(CLASS_PATH, "hide");
+	JniHelper::callStaticVoidMethod(CLASS_PATH, "hideNative");
 }
 
 NS_CC_END

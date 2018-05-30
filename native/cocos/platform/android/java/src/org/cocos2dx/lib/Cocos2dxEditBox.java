@@ -56,11 +56,29 @@ public class Cocos2dxEditBox {
     class Cocos2dxEditText extends EditText {
         private final String TAG = "Cocos2dxEditBox";
         private boolean mIsMultiLine = false;
+        private TextWatcher mTextWatcher = null;
 
         public  Cocos2dxEditText(Cocos2dxActivity context){
             super(context);
-
             this.removeFocusBorder();
+
+            mTextWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // Pass text to c++.
+                    Cocos2dxEditBox.this.onKeyboardInput(s.toString());
+                }
+            };
         }
 
         /***************************************************************************************
@@ -134,7 +152,7 @@ public class Cocos2dxEditBox {
             else if (inputType.contentEquals("phone"))
                 this.setInputType(InputType.TYPE_CLASS_PHONE);
             else if (inputType.contentEquals("password"))
-                this.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             else
                 Log.e(TAG, "unknown input type " + inputType);
         }
@@ -160,26 +178,13 @@ public class Cocos2dxEditBox {
                 }
             });
 
-            this.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    // Pass text to c++.
-                    Cocos2dxEditBox.this.onKeyboardInput(s.toString());
-                }
-            });
+            this.addTextChangedListener(mTextWatcher);
         }
 
         private void removeListeners() {
             this.setOnEditorActionListener(null);
-            this.addTextChangedListener(null);
+            this.removeTextChangedListener(mTextWatcher);
         }
     }
 
