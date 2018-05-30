@@ -29,6 +29,7 @@ if (cc.sys) return;
 /**
  * System variables
  * @class sys
+ * @main
  * @static
  */
 cc.sys = {};
@@ -542,6 +543,10 @@ sys.NetworkType = {
      */
     WWAN: 2
 };
+
+/**
+ * @class sys
+ */
 
 /**
  * !#en

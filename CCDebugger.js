@@ -94,6 +94,10 @@ cc.DebugMode = Enum({
 });
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en Init Debug setting.
  * !#zh 设置调试模式。
  * @method _initDebugSetting
