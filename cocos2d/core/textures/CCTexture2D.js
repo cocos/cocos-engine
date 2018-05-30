@@ -803,10 +803,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         _p._setImage = function (img, width, height, glFmt, premultiplyAlpha) {
             var gl = this._gl;
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
-            if (
-                (sys.platform === sys.WECHAT_GAME && !(img instanceof Uint8Array)) ||
+            if (                
                 sys.platform === sys.QQ_PLAY ||
-                img instanceof HTMLCanvasElement ||
+                (img instanceof HTMLCanvasElement && !(img instanceof Uint8Array)) ||
                 img instanceof HTMLImageElement ||
                 img instanceof HTMLVideoElement
             ) {

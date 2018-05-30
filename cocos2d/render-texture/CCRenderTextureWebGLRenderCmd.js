@@ -23,6 +23,31 @@
  ****************************************************************************/
 
 var misc = require('../core/utils/misc');
+var sys = require('../core/platform/CCSys');
+
+var _pixelRatio = 1.0;
+if (sys.platform == sys.WECHAT_GAME) {
+    function toNum(a) {
+        var a = a.toString();
+        //也可以这样写 var c=a.split(/\./);
+        var c = a.split('.');
+        var num_place = ["", "0", "00", "000", "0000"], r = num_place.reverse();
+        for (var i = 0; i < c.length; i++) {
+            var len = c[i].length;
+            c[i] = r[len] + c[i];
+        }
+        var res = c.join('');
+        return res;
+    }
+
+    var info = wx.getSystemInfoSync();
+    var version = toNum(info.version)
+    var version_fix = toNum("6.6.6");
+
+    if (version < version_fix && info.platform == "android") {
+        _pixelRatio = info.pixelRatio;
+    }
+}
 
 cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
     this._rootCtor(renderableObject);
@@ -234,7 +259,9 @@ proto.begin = function(){
     cc.math.glPushMatrix();
 
     var gl = cc._renderContext;
-
+    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
+    
     var director = cc.director;
     director.setProjection(director.getProjection());
 
@@ -256,10 +283,7 @@ proto.begin = function(){
     var viewPortRectHeightRatio = viewport.height / this._fullRect.height;
     viewport.x = (this._fullRect.x - this._rtTextureRect.x) * viewPortRectWidthRatio;
     viewport.y = (this._fullRect.y - this._rtTextureRect.y) * viewPortRectHeightRatio;
-    gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-
-    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
+    gl.viewport(viewport.x / _pixelRatio, viewport.y / _pixelRatio, viewport.width / _pixelRatio, viewport.height / _pixelRatio);
 
     /*  Certain Qualcomm Andreno gpu's will retain data in memory after a frame buffer switch which corrupts the render to the texture.
      *   The solution is to clear the frame buffer before rendering to the texture. However, calling glClear has the unintended result of clearing the current texture.
