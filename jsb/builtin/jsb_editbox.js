@@ -30,21 +30,29 @@ var eventTarget = new EventTarget();
 var callbackMap = {};
 var index = 0;
 var callbackWrapper = function(cb) {
+    if (!cb)
+    	return null;
+
 	var func = function(event) {
 		cb({value: event.text})
 	};
+
 	cb.___index = index++;
 	callbackMap[cb.___index] = func;
 
 	return func;
 };
 var getCallbackWrapper = function(cb) {
-	var ret = callbackMap[cb.___index];
-	delete callbackMap[cb.___index];
-	return callbackMap[cb.___index];
+	if (cb && cb.___index) {
+		var ret = callbackMap[cb.___index];
+		delete callbackMap[cb.___index];
+		return callbackMap[cb.___index];
+	}
+	else
+		return null;
 }
 
-jsb.InputBox = {
+jsb.inputBox = {
 	onConfirm: function(cb) {
 		eventTarget.addEventListener('confirm', callbackWrapper(cb));
 	},
@@ -55,7 +63,7 @@ jsb.InputBox = {
 	onComplete: function(cb) {
 		eventTarget.addEventListener('complete', callbackWrapper(cb));
 	},
-	offConplete: function(cb) {
+	offComplete: function(cb) {
 		eventTarget.removeEventListener('complete', getCallbackWrapper(cb));
 	},
 
