@@ -1228,6 +1228,7 @@ var Node = cc.Class({
         if (this._parent) {
             this._parent._delaySort();
         }
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
         cc._widgetManager._nodesOrderDirty = true;
     },
