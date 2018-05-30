@@ -46,7 +46,7 @@ var __enableCallbackMap = {
     //FIXME: Cocos Creator invokes addEventListener('devicemotion') when engine initializes, it will active sensor hardware.
     // In that case, CPU and temperature cost will increase. Therefore, we require developer to invoke 'jsb.device.setMotionEnabled(true)'
     // on native platforms since most games will not listen motion event.
-    devicemotion: null, 
+    devicemotion: null
     // devicemotion: function() {
     //     jsb.device.setMotionEnabled(true);
     // }
@@ -59,6 +59,7 @@ var __disableCallbackMap = {
     // In that case, CPU and temperature cost will increase. Therefore, we require developer to invoke 'jsb.device.setMotionEnabled(true)'
     // on native platforms since most games will not listen motion event.
     keyboard: null,
+    devicemotion: null
     // devicemotion: function() {
     //     jsb.device.setMotionEnabled(false);
     // }
