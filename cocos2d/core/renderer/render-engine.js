@@ -13592,6 +13592,10 @@ var ForwardRenderer = (function (superclass) {
 
     for (var i = 0; i < scene._cameras.length; ++i) {
       var camera = scene._cameras.data[i];
+
+      // reset camera pollID after sort cameras
+      camera._poolID = i;
+      
       this$1.renderCamera(camera, scene);
     }
   };
