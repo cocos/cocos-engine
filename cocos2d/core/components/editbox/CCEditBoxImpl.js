@@ -55,6 +55,23 @@ if (cc.sys.OS_ANDROID === cc.sys.os &&
     polyfill.zoomInvalid = true;
 }
 
+function getKeyboardReturnType (type) {
+    switch (type) {
+        case KeyboardReturnType.DEFAULT:
+        case KeyboardReturnType.DONE:
+            return 'done';
+        case KeyboardReturnType.SEND:
+            return 'send';
+        case KeyboardReturnType.SEARCH:
+            return 'search';
+        case KeyboardReturnType.GO:
+            return 'go';
+        case KeyboardReturnType.NEXT:
+            return 'next';
+    }
+    return 'done';
+}
+
 let EditBoxImpl = cc.Class({
     ctor () {
         this._delegate = null;
@@ -567,7 +584,7 @@ if (CC_WECHATGAME) {
                 maxLength: 140,
                 multiple: multiline,
                 confirmHold: true,
-                confirmType: "done",
+                confirmType: getKeyboardReturnType(editBoxImpl._returnType),
                 success: function (res) {
                     editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
                 },

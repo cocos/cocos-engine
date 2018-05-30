@@ -58,7 +58,13 @@ let KeyboardReturnType = cc.Enum({
      * !#zh 跳转类型
      * @property {Number} GO
      */
-    GO: 4
+    GO: 4,
+    /**
+     * !#en TODO
+     * !#zh 下一个类型
+     * @property {Number} NEXT
+     */
+    NEXT: 5
 });
 
 /**
@@ -178,4 +184,4 @@ module.exports = {
     KeyboardReturnType: KeyboardReturnType,
     InputMode: InputMode,
     InputFlag: InputFlag
-}
+};
