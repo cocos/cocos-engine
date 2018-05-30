@@ -28,6 +28,7 @@ function initSys () {
     /**
      * System variables
      * @class sys
+     * @main
      * @static
      */
     cc.sys = {};
@@ -1069,7 +1070,11 @@ function initSys () {
          */
         WWAN: 2
     };
-    
+
+    /**
+     * @class sys
+     */
+
     /**
      * !#en
      * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
