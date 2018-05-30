@@ -28,13 +28,47 @@ var __targetID = 0;
 var __listenerMap = {
     touch: {},
     mouse: {},
-    keyboard: {}
+    keyboard: {},
+    devicemotion: {}
 };
 
-var __handleEventNames = {
+var __listenerCountMap = {
+    touch: 0,
+    mouse: 0,
+    keyboard: 0,
+    devicemotion: 0
+};
+
+var __enableCallbackMap = {
+    touch: null,
+    mouse: null,
+    keyboard: null,
+    //FIXME: Cocos Creator invokes addEventListener('devicemotion') when engine initializes, it will active sensor hardware.
+    // In that case, CPU and temperature cost will increase. Therefore, we require developer to invoke 'jsb.device.setMotionEnabled(true)'
+    // on native platforms since most games will not listen motion event.
+    devicemotion: null, 
+    // devicemotion: function() {
+    //     jsb.device.setMotionEnabled(true);
+    // }
+};
+
+var __disableCallbackMap = {
+    touch: null,
+    mouse: null,
+    //FIXME: Cocos Creator invokes addEventListener('devicemotion') when engine initializes, it will active sensor hardware.
+    // In that case, CPU and temperature cost will increase. Therefore, we require developer to invoke 'jsb.device.setMotionEnabled(true)'
+    // on native platforms since most games will not listen motion event.
+    keyboard: null,
+    // devicemotion: function() {
+    //     jsb.device.setMotionEnabled(false);
+    // }
+};
+
+const __handleEventNames = {
     touch: ['touchstart', 'touchmove', 'touchend', 'touchcancel'],
     mouse: ['mousedown', 'mousemove', 'mouseup', 'mousewheel'],
-    keyboard: ['keydown', 'keyup', 'keypress']
+    keyboard: ['keydown', 'keyup', 'keypress'],
+    devicemotion: ['devicemotion']
 }
 
 // Listener types
@@ -67,7 +101,8 @@ class EventTarget {
         this._listenerCount = {
             touch: 0,
             mouse: 0,
-            keyboard: 0
+            keyboard: 0,
+            devicemotion: 0
         };
         this._listeners = new Map();
     }
@@ -77,9 +112,14 @@ class EventTarget {
         for (var key in __handleEventNames) {
             handleEventNames = __handleEventNames[key];
             if (handleEventNames.indexOf(eventName) > -1) {
+                if (__enableCallbackMap[key] && __listenerCountMap[key] === 0) {
+                    __enableCallbackMap[key]();
+                }
+
                 if (this._listenerCount[key] === 0)
                     __listenerMap[key][this._targetID] = this;
                 ++this._listenerCount[key];
+                ++__listenerCountMap[key];
                 break;
             }
         }
@@ -92,6 +132,11 @@ class EventTarget {
             if (handleEventNames.indexOf(eventName) > -1) {
                 if (this._listenerCount[key] <= 0)
                     delete __listenerMap[key][this._targetID];
+                --__listenerCountMap[key];
+
+                if (__disableCallbackMap[key] && __listenerCountMap[key] === 0) {
+                    __disableCallbackMap[key]();
+                }
                 break;
             }
         }
@@ -346,6 +391,15 @@ function keyboardEventHandlerFactory(type) {
 
 jsb.onKeyDown = keyboardEventHandlerFactory('keydown');
 jsb.onKeyUp = keyboardEventHandlerFactory('keyup');
+
+jsb.dispatchDeviceMotionEvent = function(event) {
+    var target;
+    var devicemotionListenerMap = __listenerMap.devicemotion;
+    for (let key in devicemotionListenerMap) {
+        target = devicemotionListenerMap[key];
+        target.dispatchEvent(event);
+    }
+};
 
 module.exports = EventTarget
 

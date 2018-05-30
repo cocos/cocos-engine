@@ -28,6 +28,8 @@ window.CC_JSB = true;
 window.CanvasRenderingContext2D = cc.CanvasRenderingContext2D;
 delete cc.CanvasRenderingContext2D;
 
+jsb.device = cc.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
+
 const { btoa, atob } = require('./base64/base64.min');
 window.btoa = btoa;
 window.atob = atob;
@@ -146,11 +148,60 @@ window.clearTimeout = function(id) {
 
 window.setInterval = function(cb) {
     return createTimeoutInfo(arguments, true);
-}
+};
 
 window.clearInterval = window.clearTimeout;
-
 window.alert = console.error.bind(console);
+
+var __motionCallbackID = 0;
+var __motionEnabled = false;
+var __motionInterval = 16.6; // milliseconds
+
+jsb.device.setMotionInterval = function(milliseconds) {
+    __motionInterval = milliseconds;
+    // convert to seconds
+    jsb.device.setAccelerometerInterval(__motionInterval / 1000);
+    if (__motionEnabled) {
+        jsb.device.setMotionEnabled(false);
+        jsb.device.setMotionEnabled(true);
+    }
+};
+
+jsb.device.setMotionEnabled = function(enabled) {
+    if (__motionEnabled === enabled)
+        return;
+
+    if (enabled) {
+        jsb.device.setAccelerometerEnabled(enabled);
+        var motionValue;
+        var event = new DeviceMotionEvent();
+        __motionCallbackID = window.setInterval(function(){
+            motionValue = jsb.getDeviceMotionValue();
+
+            event._acceleration.x = motionValue[0];
+            event._acceleration.y = motionValue[1];
+            event._acceleration.z = motionValue[2];
+
+            event._accelerationIncludingGravity.x = motionValue[3];
+            event._accelerationIncludingGravity.y = motionValue[4];
+            event._accelerationIncludingGravity.z = motionValue[5];
+
+            event._rotationRate.alpha = motionValue[6];
+            event._rotationRate.beta = motionValue[7];
+            event._rotationRate.gamma = motionValue[8];
+
+            event._interval = __motionInterval;
+
+            jsb.dispatchDeviceMotionEvent(event);
+        }, __motionInterval);
+    }
+    else {
+        window.clearInterval(__motionCallbackID);
+        __motionCallbackID = 0;
+    }
+
+    __motionEnabled = enabled;
+};
 
 // File utils (Temporary, won't be accessible)
 cc.fileUtils = cc.FileUtils.getInstance();

@@ -82,7 +82,9 @@ function inject () {
             break;
     }
 
+    //FIXME: The value needs to be updated when device orientation changes.
     window.orientation = orientation;
+
     window.devicePixelRatio = 1.0;
     window.screen = {
         availTop: 0,
