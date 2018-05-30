@@ -57,16 +57,16 @@ if (cc.sys.OS_ANDROID === cc.sys.os &&
 
 function getKeyboardReturnType (type) {
     switch (type) {
-        case 0:
-        case 1:
+        case KeyboardReturnType.DEFAULT:
+        case KeyboardReturnType.DONE:
             return 'done';
-        case 2:
+        case KeyboardReturnType.SEND:
             return 'send';
-        case 3:
+        case KeyboardReturnType.SEARCH:
             return 'search';
-        case 4:
+        case KeyboardReturnType.GO:
             return 'go';
-        case 5:
+        case KeyboardReturnType.NEXT:
             return 'next';
     }
     return 'done';
