@@ -1184,6 +1184,7 @@ var Node = cc.Class({
         // Recycle math objects
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
+        this._matrix = this._worldMatrix = null;
 
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
@@ -2932,6 +2933,18 @@ var Node = cc.Class({
 
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
+
+        /*
+         * TODO: Refine this code after completing undo/redo 2.0.
+         * The node will be destroyed when deleting in the editor,
+         * but it will be reserved and reused for undo.
+        */
+        if (!this._matrix) {
+            this._matrix = mathPools.mat4.get();
+        }
+        if (!this._worldMatrix) {
+            this._worldMatrix = mathPools.mat4.get();
+        }
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {

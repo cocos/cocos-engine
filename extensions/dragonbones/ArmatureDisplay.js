@@ -314,7 +314,9 @@ let ArmatureDisplay = cc.Class({
 
     onDestroy () {
         this._super();
+        this._inited = false;
         this._armature.dispose();
+        this._armature = null;
     },
 
     _initDebugDraw () {
