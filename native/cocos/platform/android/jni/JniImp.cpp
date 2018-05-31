@@ -75,7 +75,6 @@ namespace
 
     std::string g_apkPath;
     const std::string Cocos2dxHelperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
-    const std::string Cocos2dxBitmapClassName = "org/cocos2dx/lib/Cocos2dxBitmap";
     const std::string Cocos2dxRendererClassName = "org/cocos2dx/lib/Cocos2dxRenderer";
     EditTextCallback s_editTextCallback = nullptr;
     void* s_ctx = nullptr;
@@ -521,16 +520,6 @@ void convertEncodingJNI(const std::string& src, int byteSize, const std::string&
         methodInfo.env->DeleteLocalRef(newArray);
         methodInfo.env->DeleteLocalRef(methodInfo.classID);
     }
-}
-
-int getFontSizeAccordingHeightJni(int height) 
-{
-    return JniHelper::callStaticIntMethod(Cocos2dxBitmapClassName, "getFontSizeAccordingHeight", height);
-}
-
-std::string getStringWithEllipsisJni(const std::string& text, float width, float fontSize) 
-{
-    return JniHelper::callStaticStringMethod(Cocos2dxBitmapClassName, "getStringWithEllipsis", text.c_str(), width, fontSize);
 }
 
 std::string getCurrentLanguageJNI()

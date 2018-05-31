@@ -904,6 +904,31 @@ static bool JSB_hideInputBox(se::State& s)
 }
 SE_BIND_FUNC(JSB_hideInputBox)
 
+static se::Object* __deviceMotionObject = nullptr;
+static bool JSB_getDeviceMotionValue(se::State& s)
+{
+    if (__deviceMotionObject == nullptr)
+    {
+        __deviceMotionObject = se::Object::createArrayObject(9);
+        __deviceMotionObject->root();
+    }
+
+    const auto& v = Device::getDeviceMotionValue();
+
+    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
+    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
+    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
+    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
+    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
+    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
+    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
+    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
+    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
+
+    s.rval().setObject(__deviceMotionObject);
+    return true;
+}
+SE_BIND_FUNC(JSB_getDeviceMotionValue)
 
 bool jsb_register_global_variables(se::Object* global)
 {
@@ -935,6 +960,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+    __jsbObj->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
@@ -955,6 +981,13 @@ bool jsb_register_global_variables(se::Object* global)
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
         delete __threadPool;
         __threadPool = nullptr;
+
+        if (__deviceMotionObject != nullptr)
+        {
+            __deviceMotionObject->unroot();
+            __deviceMotionObject->decRef();
+            __deviceMotionObject = nullptr;
+        }
 
         PoolManager::getInstance()->getCurrentPool()->clear();
     });

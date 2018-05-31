@@ -564,8 +564,6 @@
 		46FDDAE4202ACC6B00931238 /* GFX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDA6B202ACC6A00931238 /* GFX.cpp */; };
 		46FDDAE5202ACC6B00931238 /* IndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDA6C202ACC6A00931238 /* IndexBuffer.cpp */; };
 		46FDDAE6202ACC6B00931238 /* IndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDA6C202ACC6A00931238 /* IndexBuffer.cpp */; };
-		46FDDB4B202ADDCE00931238 /* ccFPSImages.c in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAEA202ADDCE00931238 /* ccFPSImages.c */; };
-		46FDDB4C202ADDCE00931238 /* ccFPSImages.c in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAEA202ADDCE00931238 /* ccFPSImages.c */; };
 		46FDDB4D202ADDCE00931238 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEB202ADDCE00931238 /* pvr.h */; };
 		46FDDB4E202ADDCE00931238 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEB202ADDCE00931238 /* pvr.h */; };
 		46FDDB4F202ADDCE00931238 /* CCValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEC202ADDCE00931238 /* CCValue.h */; };
@@ -1307,7 +1305,6 @@
 		46FDDA6A202ACC6A00931238 /* GFXUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFXUtils.cpp; sourceTree = "<group>"; };
 		46FDDA6B202ACC6A00931238 /* GFX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFX.cpp; sourceTree = "<group>"; };
 		46FDDA6C202ACC6A00931238 /* IndexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IndexBuffer.cpp; sourceTree = "<group>"; };
-		46FDDAEA202ADDCE00931238 /* ccFPSImages.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccFPSImages.c; sourceTree = "<group>"; };
 		46FDDAEB202ADDCE00931238 /* pvr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pvr.h; sourceTree = "<group>"; };
 		46FDDAEC202ADDCE00931238 /* CCValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCValue.h; sourceTree = "<group>"; };
 		46FDDAEE202ADDCE00931238 /* utlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utlist.h; sourceTree = "<group>"; };
@@ -2230,7 +2227,6 @@
 				46930464204FE20F004A3D6C /* CCLog.h */,
 				469301CE203FC695004A3D6C /* CCConfiguration.cpp */,
 				469301CD203FC695004A3D6C /* CCConfiguration.h */,
-				46FDDAEA202ADDCE00931238 /* ccFPSImages.c */,
 				46FDDAEB202ADDCE00931238 /* pvr.h */,
 				46FDDAEC202ADDCE00931238 /* CCValue.h */,
 				46FDDAEE202ADDCE00931238 /* utlist.h */,
@@ -3426,7 +3422,6 @@
 				1A28FF6F1F20AFAB007A1D9D /* SRError.m in Sources */,
 				1A28FF531F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				1A29D784205666B200168D9A /* LocalStorage.cpp in Sources */,
-				46FDDB4B202ADDCE00931238 /* ccFPSImages.c in Sources */,
 				4DED48501DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.cpp in Sources */,
 				4617864920522469008256E1 /* CCDownloader.cpp in Sources */,
 				1A9F0F971F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */,
@@ -3615,7 +3610,6 @@
 				461DCA3B20BBFCA300B22827 /* EditBox-ios.cpp in Sources */,
 				4DED484D1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.cpp in Sources */,
 				1A52DB78205BCDD000350EE3 /* Object.cpp in Sources */,
-				46FDDB4C202ADDCE00931238 /* ccFPSImages.c in Sources */,
 				469303A72046AE05004A3D6C /* PlatformUtils.mm in Sources */,
 				46FDDAD4202ACC6A00931238 /* Texture2D.cpp in Sources */,
 				4DED48751DFFA4AF0070C5C4 /* b2PulleyJoint.cpp in Sources */,

@@ -38,9 +38,6 @@ extern void convertEncodingJNI(const std::string& src, int byteSize, const std::
 extern int getDeviceSampleRateJNI();
 extern int getDeviceAudioBufferSizeInFramesJNI();
 
-extern int getFontSizeAccordingHeightJNI(int height);
-extern std::string getStringWithEllipsisJNI(const std::string& text, float width, float fontSize);
-
 extern std::string getCurrentLanguageJNI();
 extern std::string getSystemVersionJNI();
 extern bool openURLJNI(const std::string& url);

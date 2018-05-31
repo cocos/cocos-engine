@@ -990,6 +990,166 @@ bool js_register_cocos2dx_FileUtils(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_Device_proto = nullptr;
+se::Class* __jsb_cocos2d_Device_class = nullptr;
+
+static bool js_cocos2dx_Device_getNetworkType(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cocos2d::Device::getNetworkType();
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_getNetworkType : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_getNetworkType)
+
+static bool js_cocos2dx_Device_setAccelerometerEnabled(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_setAccelerometerEnabled : Error processing arguments");
+        cocos2d::Device::setAccelerometerEnabled(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_setAccelerometerEnabled)
+
+static bool js_cocos2dx_Device_setAccelerometerInterval(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_setAccelerometerInterval : Error processing arguments");
+        cocos2d::Device::setAccelerometerInterval(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_setAccelerometerInterval)
+
+static bool js_cocos2dx_Device_vibrate(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_vibrate : Error processing arguments");
+        cocos2d::Device::vibrate(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_vibrate)
+
+static bool js_cocos2dx_Device_setKeepScreenOn(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_setKeepScreenOn : Error processing arguments");
+        cocos2d::Device::setKeepScreenOn(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_setKeepScreenOn)
+
+static bool js_cocos2dx_Device_getBatteryLevel(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cocos2d::Device::getBatteryLevel();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_getBatteryLevel : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_getBatteryLevel)
+
+static bool js_cocos2dx_Device_getDeviceRotation(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cocos2d::Device::getDeviceRotation();
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_getDeviceRotation : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_getDeviceRotation)
+
+static bool js_cocos2dx_Device_getDPI(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cocos2d::Device::getDPI();
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_getDPI : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_getDPI)
+
+
+
+
+bool js_register_cocos2dx_Device(se::Object* obj)
+{
+    auto cls = se::Class::create("Device", obj, nullptr, nullptr);
+
+    cls->defineStaticFunction("getNetworkType", _SE(js_cocos2dx_Device_getNetworkType));
+    cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_cocos2dx_Device_setAccelerometerEnabled));
+    cls->defineStaticFunction("setAccelerometerInterval", _SE(js_cocos2dx_Device_setAccelerometerInterval));
+    cls->defineStaticFunction("vibrate", _SE(js_cocos2dx_Device_vibrate));
+    cls->defineStaticFunction("setKeepScreenOn", _SE(js_cocos2dx_Device_setKeepScreenOn));
+    cls->defineStaticFunction("getBatteryLevel", _SE(js_cocos2dx_Device_getBatteryLevel));
+    cls->defineStaticFunction("getDeviceRotation", _SE(js_cocos2dx_Device_getDeviceRotation));
+    cls->defineStaticFunction("getDPI", _SE(js_cocos2dx_Device_getDPI));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::Device>(cls);
+
+    __jsb_cocos2d_Device_proto = cls->getProto();
+    __jsb_cocos2d_Device_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 se::Object* __jsb_cocos2d_SAXParser_proto = nullptr;
 se::Class* __jsb_cocos2d_SAXParser_class = nullptr;
 
@@ -1590,6 +1750,7 @@ bool register_all_cocos2dx(se::Object* obj)
     se::Object* ns = nsVal.toObject();
 
     js_register_cocos2dx_FileUtils(ns);
+    js_register_cocos2dx_Device(ns);
     js_register_cocos2dx_CanvasGradient(ns);
     js_register_cocos2dx_CanvasRenderingContext2D(ns);
     js_register_cocos2dx_SAXParser(ns);

@@ -45,55 +45,69 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
     // ===========================================================
     // Fields
     // ===========================================================
-
     private final Context mContext;
     private final SensorManager mSensorManager;
-    private final Sensor mAccelerometer;
-    private final Sensor mCompass;
-    private final int mNaturalOrientation;
-    final float[] accelerometerValues = new float[3];
-    final float[] compassFieldValues = new float[3];
-    static final float ALPHA = 0.25f; // if ALPHA = 1 OR 0, no filter applies.
+    private final Sensor mAcceleration;
+    private final Sensor mAccelerationIncludingGravity;
+    private final Sensor mGyroscope;
+    private int mSamplingPeriodUs = SensorManager.SENSOR_DELAY_GAME;
+
+    class Acceleration {
+        public float x = 0.0f;
+        public float y = 0.0f;
+        public float z = 0.0f;
+    }
+
+    class RotationRate {
+        public float alpha = 0.0f;
+        public float beta = 0.0f;
+        public float gamma = 0.0f;
+    }
+
+    class DeviceMotionEvent {
+        public Acceleration acceleration = new Acceleration();
+        public Acceleration accelerationIncludingGravity = new Acceleration();
+        public RotationRate rotationRate = new RotationRate();
+    }
+
+    private DeviceMotionEvent mDeviceMotionEvent = new DeviceMotionEvent();
 
     // ===========================================================
     // Constructors
     // ===========================================================
 
     public Cocos2dxAccelerometer(final Context context) {
-        this.mContext = context;
+        mContext = context;
 
-        this.mSensorManager = (SensorManager) this.mContext.getSystemService(Context.SENSOR_SERVICE);
-        this.mAccelerometer = this.mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        this.mCompass = this.mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
-        final Display display = ((WindowManager) this.mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        this.mNaturalOrientation = display.getOrientation();
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+        mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerationIncludingGravity = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     }
 
     // ===========================================================
     // Getter & Setter
     // ===========================================================
-
-    public void enableCompass() {
-        this.mSensorManager.registerListener(this, this.mCompass, SensorManager.SENSOR_DELAY_GAME);
-    }
-
-    public void enableAccel() {
-        this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-    }
-
-    public void setInterval(float interval) {
-        // Honeycomb version is 11
-        if(android.os.Build.VERSION.SDK_INT < 11) {
-            this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-        } else {
-            //convert seconds to microseconds
-            this.mSensorManager.registerListener(this, this.mAccelerometer, (int)(interval*100000));
-        }
+    public void enable() {
+        mSensorManager.registerListener(this, mAcceleration, mSamplingPeriodUs);
+        mSensorManager.registerListener(this, mAccelerationIncludingGravity, mSamplingPeriodUs);
+        mSensorManager.registerListener(this, mGyroscope, mSamplingPeriodUs);
     }
 
     public void disable() {
         this.mSensorManager.unregisterListener(this);
+    }
+
+    public void setInterval(float interval) {
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            mSamplingPeriodUs = (int) (interval * 1000000);
+        }
+        disable();
+        enable();
+    }
+
+    public DeviceMotionEvent getDeviceMotionEvent() {
+        return mDeviceMotionEvent;
     }
 
     // ===========================================================
@@ -101,48 +115,22 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
     // ===========================================================
     @Override
     public void onSensorChanged(final SensorEvent sensorEvent) {
-        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-
-            float x = sensorEvent.values[0];
-            float y = sensorEvent.values[1];
-            final float z = sensorEvent.values[2];
-
-            // needed by VR code
-            this.accelerometerValues[0] = x;
-            this.accelerometerValues[1] = y;
-            this.accelerometerValues[2] = z;
-
-            /*
-             * Because the axes are not swapped when the device's screen orientation
-             * changes. So we should swap it here. In tablets such as Motorola Xoom,
-             * the default orientation is landscape, so should consider this.
-             */
-            final int orientation = this.mContext.getResources().getConfiguration().orientation;
-
-            if ((orientation == Configuration.ORIENTATION_LANDSCAPE) && (this.mNaturalOrientation != Surface.ROTATION_0)) {
-                final float tmp = x;
-                x = -y;
-                y = tmp;
-            } else if ((orientation == Configuration.ORIENTATION_PORTRAIT) && (this.mNaturalOrientation != Surface.ROTATION_0)) {
-                final float tmp = x;
-                x = y;
-                y = -tmp;
-            }
-
-
-            Cocos2dxGLSurfaceView.queueAccelerometer(x,y,z,sensorEvent.timestamp);
-
-            /*
-            if(BuildConfig.DEBUG) {
-                Log.d(TAG, "x = " + sensorEvent.values[0] + " y = " + sensorEvent.values[1] + " z = " + pSensorEvent.values[2]);
-            }
-            */
+        int type = sensorEvent.sensor.getType();
+        if (type == Sensor.TYPE_ACCELEROMETER) {
+            mDeviceMotionEvent.accelerationIncludingGravity.x = sensorEvent.values[0];
+            mDeviceMotionEvent.accelerationIncludingGravity.y = sensorEvent.values[1];
+            mDeviceMotionEvent.accelerationIncludingGravity.z = sensorEvent.values[2];
         }
-        else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            // needed by VR code
-            this.compassFieldValues[0] = sensorEvent.values[0];
-            this.compassFieldValues[1] = sensorEvent.values[1];
-            this.compassFieldValues[2] = sensorEvent.values[2];
+        else if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            mDeviceMotionEvent.acceleration.x = sensorEvent.values[0];
+            mDeviceMotionEvent.acceleration.y = sensorEvent.values[1];
+            mDeviceMotionEvent.acceleration.z = sensorEvent.values[2];
+        }
+        else if (type == Sensor.TYPE_GYROSCOPE) {
+            // The unit is rad/s, need to be converted to deg/s
+            mDeviceMotionEvent.rotationRate.alpha = (float)Math.toDegrees(sensorEvent.values[0]);
+            mDeviceMotionEvent.rotationRate.beta = (float)Math.toDegrees(sensorEvent.values[1]);
+            mDeviceMotionEvent.rotationRate.gamma = (float)Math.toDegrees(sensorEvent.values[2]);
         }
     }
 

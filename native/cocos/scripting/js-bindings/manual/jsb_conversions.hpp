@@ -86,8 +86,6 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
 bool seval_to_std_vector_Pass(const se::Value& v, cocos2d::Vector<cocos2d::renderer::Pass*>* ret);
 //bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret);
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret);
-bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret);
-//bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret);
 //bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret);
 //bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret);
 ////bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret);
@@ -251,8 +249,6 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
 bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret);
 bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret);
-//bool FontDefinition_to_seval(const cocos2d::FontDefinition& v, se::Value* ret);
-//bool Acceleration_to_seval(const cocos2d::Acceleration* v, se::Value* ret);
 //bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret);
 //bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
 //bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret);
