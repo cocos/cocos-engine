@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Audio = require('../../audio/CCAudio');
+const Audio = CC_JSB ? cc.Audio : require('../../audio/CCAudio');
 const AudioClip = require('../assets/CCAudioClip');
 
 /**
