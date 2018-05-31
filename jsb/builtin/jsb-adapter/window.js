@@ -60,6 +60,30 @@ function inject () {
     window.TouchEvent = require('./TouchEvent');
     window.MouseEvent = require('./MouseEvent');
     window.KeyboardEvent = require('./KeyboardEvent');
+    window.DeviceMotionEvent = require('./DeviceMotionEvent');
+
+    const ROTATION_0 = 0;
+    const ROTATION_90 = 1;
+    const ROTATION_180 = 2;
+    const ROTATION_270 = 3;
+    var orientation = 0;
+    var rotation = cc.Device.getDeviceRotation();
+    switch (rotation) {
+        case ROTATION_90:
+            orientation = 90;
+            break;
+        case ROTATION_180:
+            orientation = 180;
+            break;
+        case ROTATION_270:
+            orientation = -90;
+            break;
+        default:
+            break;
+    }
+
+    //FIXME: The value needs to be updated when device orientation changes.
+    window.orientation = orientation;
 
     window.devicePixelRatio = 1.0;
     window.screen = {

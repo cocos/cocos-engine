@@ -24,55 +24,38 @@
  ****************************************************************************/
 const Event = require('./Event')
 
-class MouseEvent extends Event {
-    constructor(type, initArgs) {
-        super(type)
-        this._button = initArgs.button;
-        this._which = initArgs.which;
-        this._wheelDelta = initArgs.wheelDelta;
-        this._clientX = initArgs.clientX;
-        this._clientY = initArgs.clientY;
-        this._screenX = initArgs.screenX;
-        this._screenY = initArgs.screenY;
-        this._pageX = initArgs.pageX;
-        this._pageY = initArgs.pageY;
+class DeviceMotionEvent extends Event {
+    constructor(initArgs) {
+        super('devicemotion');
+        if (initArgs) {
+            this._acceleration = initArgs.acceleration ? initArgs.acceleration : {x: 0, y: 0, z: 0};
+            this._accelerationIncludingGravity = initArgs.accelerationIncludingGravity ? initArgs.accelerationIncludingGravity : {x: 0, y: 0, z: 0};
+            this._rotationRate = initArgs.rotationRate ? initArgs.rotationRate : {alpha: 0, beta: 0, gamma: 0};
+            this._interval = initArgs.interval;
+        }
+        else {
+            this._acceleration = {x: 0, y: 0, z: 0};
+            this._accelerationIncludingGravity = {x: 0, y: 0, z: 0};
+            this._rotationRate = {alpha: 0, beta: 0, gamma: 0};
+            this._interval = 0;
+        }
     }
 
-    get button() {
-        return this._button;
+    get acceleration() {
+        return this._acceleration;
     }
 
-    get which() {
-        return this._which;
+    get accelerationIncludingGravity() {
+        return this._accelerationIncludingGravity;
     }
 
-    get wheelDelta() {
-        return this._wheelDelta;
+    get rotationRate() {
+        return this._rotationRate;
     }
 
-    get clientX() {
-        return this._clientX;
-    }
-
-    get clientY() {
-        return this._clientY;
-    }
-
-    get screenX() {
-        return this._screenX;
-    }
-
-    get screenY() {
-        return this._screenY;
-    }
-
-    get pageX() {
-        return this._pageX;
-    }
-
-    get pageY() {
-        return this._pageY;
+    get interval() {
+        return this._interval;
     }
 }
 
-module.exports = MouseEvent
+module.exports = DeviceMotionEvent;
