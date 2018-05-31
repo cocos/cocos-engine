@@ -52,7 +52,7 @@ var inputManager = {
     _maxTouches: 5,
 
     _accelEnabled: false,
-    _accelInterval: 1/30,
+    _accelInterval: 1/5,
     _accelMinus: 1,
     _accelCurTime: 0,
     _acceleration: null,
@@ -582,9 +582,6 @@ var inputManager = {
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             //register keyboard event
             this._registerKeyboardEvent();
-
-            //register Accelerometer event
-            this._registerAccelerometerEvent();
         }
 
         this._isRegisterEvent = true;

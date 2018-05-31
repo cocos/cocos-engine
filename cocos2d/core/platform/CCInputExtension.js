@@ -33,6 +33,8 @@ var inputManager = require("./CCInputManager");
 
 inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
 
+var _didAccelerateFun;
+
 /**
  * whether enable accelerometer event
  * @method setAccelerometerEnabled
@@ -46,11 +48,13 @@ inputManager.setAccelerometerEnabled = function(isEnable){
     _t._accelEnabled = isEnable;
     var scheduler = cc.director.getScheduler();
     if(_t._accelEnabled){
+        _t._registerAccelerometerEvent();
         _t._accelCurTime = 0;
         scheduler.scheduleUpdate(_t);
     } else {
+        _t._unregisterAccelerometerEvent();
         _t._accelCurTime = 0;
-        scheduler.scheduleUpdate(_t);
+        scheduler.unscheduleUpdate(_t);
     }
 };
 
@@ -93,7 +97,16 @@ inputManager._registerAccelerometerEvent = function(){
         _t._minus = -1;
     }
 
-    w.addEventListener(_deviceEventType, _t.didAccelerate.bind(_t), false);
+    _didAccelerateFun = _t.didAccelerate.bind(_t);
+    w.addEventListener(_deviceEventType, _didAccelerateFun, false);
+};
+
+inputManager._unregisterAccelerometerEvent = function () {
+    let w = window, _t = this;
+    let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+    if (_didAccelerateFun) {
+        w.removeEventListener(_deviceEventType, _didAccelerateFun, false);
+    }
 };
 
 inputManager.didAccelerate = function (eventData) {
