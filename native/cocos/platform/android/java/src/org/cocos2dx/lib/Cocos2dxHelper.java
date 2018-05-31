@@ -78,8 +78,6 @@ public class Cocos2dxHelper {
     // Fields
     // ===========================================================
 
-    private static Cocos2dxMusic sCocos2dMusic;
-    private static Cocos2dxSound sCocos2dSound;
     private static AssetManager sAssetManager;
     private static Cocos2dxAccelerometer sCocos2dxAccelerometer;
     private static boolean sAccelerometerEnabled;
@@ -212,8 +210,6 @@ public class Cocos2dxHelper {
             Cocos2dxHelper.nativeSetApkPath(Cocos2dxHelper.getAssetsPath());
     
             Cocos2dxHelper.sCocos2dxAccelerometer = new Cocos2dxAccelerometer(activity);
-            Cocos2dxHelper.sCocos2dMusic = new Cocos2dxMusic(activity);
-            Cocos2dxHelper.sCocos2dSound = new Cocos2dxSound(activity);
             Cocos2dxHelper.sAssetManager = activity.getAssets();
             Cocos2dxHelper.nativeSetContext((Context)activity, Cocos2dxHelper.sAssetManager);
             Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
@@ -382,98 +378,8 @@ public class Cocos2dxHelper {
         return array;
     }
 
-    public static void preloadBackgroundMusic(final String pPath) {
-        Cocos2dxHelper.sCocos2dMusic.preloadBackgroundMusic(pPath);
-    }
-
-    public static void playBackgroundMusic(final String pPath, final boolean isLoop) {
-        Cocos2dxHelper.sCocos2dMusic.playBackgroundMusic(pPath, isLoop);
-    }
-
-    public static void resumeBackgroundMusic() {
-        Cocos2dxHelper.sCocos2dMusic.resumeBackgroundMusic();
-    }
-
-    public static void pauseBackgroundMusic() {
-        Cocos2dxHelper.sCocos2dMusic.pauseBackgroundMusic();
-    }
-
-    public static void stopBackgroundMusic() {
-        Cocos2dxHelper.sCocos2dMusic.stopBackgroundMusic();
-    }
-
-    public static void rewindBackgroundMusic() {
-        Cocos2dxHelper.sCocos2dMusic.rewindBackgroundMusic();
-    }
-
-    public static boolean willPlayBackgroundMusic() {
-        return Cocos2dxHelper.sCocos2dMusic.willPlayBackgroundMusic();
-    }
-
-    public static boolean isBackgroundMusicPlaying() {
-        return Cocos2dxHelper.sCocos2dMusic.isBackgroundMusicPlaying();
-    }
-
-    public static float getBackgroundMusicVolume() {
-        return Cocos2dxHelper.sCocos2dMusic.getBackgroundVolume();
-    }
-
-    public static void setBackgroundMusicVolume(final float volume) {
-        Cocos2dxHelper.sCocos2dMusic.setBackgroundVolume(volume);
-    }
-
-    public static void preloadEffect(final String path) {
-        Cocos2dxHelper.sCocos2dSound.preloadEffect(path);
-    }
-
-    public static int playEffect(final String path, final boolean isLoop, final float pitch, final float pan, final float gain) {
-        return Cocos2dxHelper.sCocos2dSound.playEffect(path, isLoop, pitch, pan, gain);
-    }
-
-    public static void resumeEffect(final int soundId) {
-        Cocos2dxHelper.sCocos2dSound.resumeEffect(soundId);
-    }
-
-    public static void pauseEffect(final int soundId) {
-        Cocos2dxHelper.sCocos2dSound.pauseEffect(soundId);
-    }
-
-    public static void stopEffect(final int soundId) {
-        Cocos2dxHelper.sCocos2dSound.stopEffect(soundId);
-    }
-
-    public static float getEffectsVolume() {
-        return Cocos2dxHelper.sCocos2dSound.getEffectsVolume();
-    }
-
-    public static void setEffectsVolume(final float volume) {
-        Cocos2dxHelper.sCocos2dSound.setEffectsVolume(volume);
-    }
-
-    public static void unloadEffect(final String path) {
-        Cocos2dxHelper.sCocos2dSound.unloadEffect(path);
-    }
-
-    public static void pauseAllEffects() {
-        Cocos2dxHelper.sCocos2dSound.pauseAllEffects();
-    }
-
-    public static void resumeAllEffects() {
-        Cocos2dxHelper.sCocos2dSound.resumeAllEffects();
-    }
-
-    public static void stopAllEffects() {
-        Cocos2dxHelper.sCocos2dSound.stopAllEffects();
-    }
-
-    static void setAudioFocus(boolean isAudioFocus) {
-        sCocos2dMusic.setAudioFocus(isAudioFocus);
-        sCocos2dSound.setAudioFocus(isAudioFocus);
-    }
-
     public static void end() {
-        Cocos2dxHelper.sCocos2dMusic.end();
-        Cocos2dxHelper.sCocos2dSound.end();
+
     }
 
     public static void onResume() {
@@ -491,13 +397,11 @@ public class Cocos2dxHelper {
     }
 
     public static void onEnterBackground() {
-        sCocos2dSound.onEnterBackground();
-        sCocos2dMusic.onEnterBackground();
+
     }
     
     public static void onEnterForeground() {
-        sCocos2dSound.onEnterForeground();
-        sCocos2dMusic.onEnterForeground();
+
     }
     
     public static void terminateProcess() {
@@ -507,7 +411,6 @@ public class Cocos2dxHelper {
     private static void showDialog(final String pTitle, final String pMessage) {
         Cocos2dxHelper.sCocos2dxHelperListener.showDialog(pTitle, pMessage);
     }
-
 
     public static void setEditTextDialogResult(final String pResult) {
         try {
@@ -541,155 +444,6 @@ public class Cocos2dxHelper {
             }
         }
         return -1;
-    }
-
-    // ===========================================================
-    // Functions for CCUserDefault
-    // ===========================================================
-    
-    public static boolean getBoolForKey(String key, boolean defaultValue) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        try {
-            return settings.getBoolean(key, defaultValue);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-
-            Map allValues = settings.getAll();
-            Object value = allValues.get(key);
-            if ( value instanceof String)
-            {
-                return  Boolean.parseBoolean(value.toString());
-            }
-            else if (value instanceof Integer)
-            {
-                int intValue = ((Integer) value).intValue();
-                return (intValue !=  0) ;
-            }
-            else if (value instanceof Float)
-            {
-                float floatValue = ((Float) value).floatValue();
-                return (floatValue != 0.0f);
-            }
-        }
-
-        return defaultValue;
-    }
-    
-    public static int getIntegerForKey(String key, int defaultValue) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        try {
-            return settings.getInt(key, defaultValue);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-
-            Map allValues = settings.getAll();
-            Object value = allValues.get(key);
-            if ( value instanceof String) {
-                return  Integer.parseInt(value.toString());
-            }
-            else if (value instanceof Float)
-            {
-                return ((Float) value).intValue();
-            }
-            else if (value instanceof Boolean)
-            {
-                boolean booleanValue = ((Boolean) value).booleanValue();
-                if (booleanValue)
-                    return 1;
-            }
-        }
-
-        return defaultValue;
-    }
-    
-    public static float getFloatForKey(String key, float defaultValue) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        try {
-            return settings.getFloat(key, defaultValue);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-
-            Map allValues = settings.getAll();
-            Object value = allValues.get(key);
-            if ( value instanceof String) {
-                return  Float.parseFloat(value.toString());
-            }
-            else if (value instanceof Integer)
-            {
-                return ((Integer) value).floatValue();
-            }
-            else if (value instanceof Boolean)
-            {
-                boolean booleanValue = ((Boolean) value).booleanValue();
-                if (booleanValue)
-                    return 1.0f;
-            }
-        }
-
-        return defaultValue;
-    }
-    
-    public static double getDoubleForKey(String key, double defaultValue) {
-        // SharedPreferences doesn't support saving double value
-        return getFloatForKey(key, (float) defaultValue);
-    }
-    
-    public static String getStringForKey(String key, String defaultValue) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        try {
-            return settings.getString(key, defaultValue);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            
-            return settings.getAll().get(key).toString();
-        }
-    }
-    
-    public static void setBoolForKey(String key, boolean value) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-    
-    public static void setIntegerForKey(String key, int value) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(key, value);
-        editor.apply();
-    }
-    
-    public static void setFloatForKey(String key, float value) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat(key, value);
-        editor.apply();
-    }
-    
-    public static void setDoubleForKey(String key, double value) {
-        // SharedPreferences doesn't support recording double value
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat(key, (float)value);
-        editor.apply();
-    }
-    
-    public static void setStringForKey(String key, String value) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
-    
-    public static void deleteValueForKey(String key) {
-        SharedPreferences settings = sActivity.getSharedPreferences(Cocos2dxHelper.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.remove(key);
-        editor.apply();
     }
 
     public static byte[] conversionEncoding(byte[] text, String fromCharset,String newCharset)

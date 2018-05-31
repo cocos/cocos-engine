@@ -42,10 +42,8 @@ THE SOFTWARE.
 #include "base/CCAutoreleasePool.h"
 #include "base/CCData.h"
 #include "base/CCMap.h"
-#include "base/CCNS.h"
 #include "base/CCRef.h"
 #include "base/CCRefPtr.h"
-#include "base/CCUserDefault.h"
 #include "base/CCValue.h"
 #include "base/CCVector.h"
 #include "base/ZipUtils.h"
@@ -58,7 +56,6 @@ THE SOFTWARE.
 
 
 // math
-#include "math/CCAffineTransform.h"
 #include "math/CCGeometry.h"
 #include "math/CCVertex.h"
 #include "math/Mat4.h"

@@ -25,12 +25,11 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "base/ccUtils.h"
+#include "base/base64.h"
+#include "platform/CCFileUtils.h"
 
 #include <cmath>
 #include <stdlib.h>
-
-#include "base/base64.h"
-#include "platform/CCFileUtils.h"
 
 NS_CC_BEGIN
 

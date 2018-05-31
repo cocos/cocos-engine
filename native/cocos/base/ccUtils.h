@@ -49,8 +49,6 @@ Examples:
 @since v0.99.5
 */
 
-class Image;
-
 namespace utils
 {
 	CC_DLL int nextPOT(int x);

@@ -23,14 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-//
-//  jsb_cocos2dx_extension_manual.cpp
-//  cocos2d_js_bindings
-//
-//  Created by James Chen on 6/7/17.
-//
-//
-
 #include "jsb_cocos2dx_extension_manual.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
