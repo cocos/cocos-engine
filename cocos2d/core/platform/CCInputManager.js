@@ -52,7 +52,7 @@ let inputManager = {
     _maxTouches: 8,
 
     _accelEnabled: false,
-    _accelInterval: 1/30,
+    _accelInterval: 1/5,
     _accelMinus: 1,
     _accelCurTime: 0,
     _acceleration: null,
@@ -596,13 +596,11 @@ let inputManager = {
      * @param {Number} dt
      */
     update (dt) {
-        if (this._accelEnabled) {
-            if (this._accelCurTime > this._accelInterval) {
-                this._accelCurTime -= this._accelInterval;
-                eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
-            }
-            this._accelCurTime += dt;
+        if (this._accelCurTime > this._accelInterval) {
+            this._accelCurTime -= this._accelInterval;
+            eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
         }
+        this._accelCurTime += dt;
     }
 };
 

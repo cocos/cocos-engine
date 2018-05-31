@@ -32,6 +32,8 @@ const LANDSCAPE_LEFT = -90;
 const PORTRAIT_UPSIDE_DOWN = 180;
 const LANDSCAPE_RIGHT = 90;
 
+let _didAccelerateFun;
+
 /**
  * !#en the device accelerometer reports values for each axis in units of g-force.
  * !#zh 设备重力传感器传递的各个轴的数据。
@@ -69,7 +71,7 @@ inputManager.setAccelerometerEnabled = function (isEnable) {
     } else {
         _t._unregisterAccelerometerEvent();
         _t._accelCurTime = 0;
-        scheduler.scheduleUpdate(_t);
+        scheduler.unscheduleUpdate(_t);
     }
 };
 
@@ -112,13 +114,16 @@ inputManager._registerAccelerometerEvent = function () {
         _t._minus = -1;
     }
 
-    w.addEventListener(_deviceEventType, _t.didAccelerate.bind(_t), false);
+    _didAccelerateFun = _t.didAccelerate.bind(_t);
+    w.addEventListener(_deviceEventType, _didAccelerateFun, false);
 };
 
 inputManager._unregisterAccelerometerEvent = function () {
     let w = window, _t = this;
     let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
-    w.removeEventListener(_deviceEventType, _t.didAccelerate, false);
+    if (_didAccelerateFun) {
+        w.removeEventListener(_deviceEventType, _didAccelerateFun, false);
+    }
 };
 
 inputManager.didAccelerate = function (eventData) {
