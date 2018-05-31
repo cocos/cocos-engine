@@ -214,7 +214,7 @@ proto.emit = function (type, detail, target) {
         event.detail = detail;
         // Event.AT_TARGET
         event.eventPhase = 2;
-        event.target = event.currentTarget = target;
+        event.target = event.currentTarget = target || this;
 
         this.invoke(event);
         
