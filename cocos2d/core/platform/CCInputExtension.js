@@ -24,13 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventManager = require('../event-manager');
-var inputManager = require("./CCInputManager");
+const eventManager = require('../event-manager');
+const inputManager = require("./CCInputManager");
 
 const PORTRAIT = 0;
 const LANDSCAPE_LEFT = -90;
 const PORTRAIT_UPSIDE_DOWN = 180;
 const LANDSCAPE_RIGHT = 90;
+
+let _didAccelerateFun;
 
 /**
  * !#en the device accelerometer reports values for each axis in units of g-force.
@@ -54,20 +56,22 @@ cc.Acceleration = function (x, y, z, timestamp) {
  * @method setAccelerometerEnabled
  * @param {Boolean} isEnable
  */
-inputManager.setAccelerometerEnabled = function(isEnable){
-    var _t = this;
+inputManager.setAccelerometerEnabled = function (isEnable) {
+    let _t = this;
     if(_t._accelEnabled === isEnable)
         return;
 
     _t._accelEnabled = isEnable;
-    var scheduler = cc.director.getScheduler();
+    let scheduler = cc.director.getScheduler();
     scheduler.enableForTarget(_t);
-    if(_t._accelEnabled){
+    if (_t._accelEnabled) {
+        _t._registerAccelerometerEvent();
         _t._accelCurTime = 0;
         scheduler.scheduleUpdate(_t);
     } else {
+        _t._unregisterAccelerometerEvent();
         _t._accelCurTime = 0;
-        scheduler.scheduleUpdate(_t);
+        scheduler.unscheduleUpdate(_t);
     }
 };
 
@@ -76,13 +80,13 @@ inputManager.setAccelerometerEnabled = function(isEnable){
  * @method setAccelerometerInterval
  * @param {Number} interval
  */
-inputManager.setAccelerometerInterval = function(interval){
+inputManager.setAccelerometerInterval = function (interval) {
     if (this._accelInterval !== interval) {
         this._accelInterval = interval;
     }
 };
 
-inputManager._registerKeyboardEvent = function(){
+inputManager._registerKeyboardEvent = function () {
     cc.game.canvas.addEventListener("keydown", function (e) {
         eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, true));
         e.stopPropagation();
@@ -95,8 +99,8 @@ inputManager._registerKeyboardEvent = function(){
     }, false);
 };
 
-inputManager._registerAccelerometerEvent = function(){
-    var w = window, _t = this;
+inputManager._registerAccelerometerEvent = function () {
+    let w = window, _t = this;
     _t._acceleration = new cc.Acceleration();
     _t._accelDeviceEvent = w.DeviceMotionEvent || w.DeviceOrientationEvent;
 
@@ -104,26 +108,35 @@ inputManager._registerAccelerometerEvent = function(){
     if (cc.sys.browserType === cc.sys.BROWSER_TYPE_MOBILE_QQ)
         _t._accelDeviceEvent = window.DeviceOrientationEvent;
 
-    var _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
-    var ua = navigator.userAgent;
+    let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+    let ua = navigator.userAgent;
     if (/Android/.test(ua) || (/Adr/.test(ua) && cc.sys.browserType === cc.BROWSER_TYPE_UC)) {
         _t._minus = -1;
     }
 
-    w.addEventListener(_deviceEventType, _t.didAccelerate.bind(_t), false);
+    _didAccelerateFun = _t.didAccelerate.bind(_t);
+    w.addEventListener(_deviceEventType, _didAccelerateFun, false);
+};
+
+inputManager._unregisterAccelerometerEvent = function () {
+    let w = window, _t = this;
+    let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+    if (_didAccelerateFun) {
+        w.removeEventListener(_deviceEventType, _didAccelerateFun, false);
+    }
 };
 
 inputManager.didAccelerate = function (eventData) {
-    var _t = this, w = window;
+    let _t = this, w = window;
     if (!_t._accelEnabled)
         return;
 
-    var mAcceleration = _t._acceleration;
+    let mAcceleration = _t._acceleration;
 
-    var x, y, z;
+    let x, y, z;
 
     if (_t._accelDeviceEvent === window.DeviceMotionEvent) {
-        var eventAcceleration = eventData["accelerationIncludingGravity"];
+        let eventAcceleration = eventData["accelerationIncludingGravity"];
         x = _t._accelMinus * eventAcceleration.x * 0.1;
         y = _t._accelMinus * eventAcceleration.y * 0.1;
         z = eventAcceleration.z * 0.1;
@@ -139,14 +152,14 @@ inputManager.didAccelerate = function (eventData) {
 
     mAcceleration.timestamp = eventData.timeStamp || Date.now();
 
-    var tmpX = mAcceleration.x;
-    if(w.orientation === LANDSCAPE_RIGHT){
+    let tmpX = mAcceleration.x;
+    if (w.orientation === LANDSCAPE_RIGHT) {
         mAcceleration.x = -mAcceleration.y;
         mAcceleration.y = tmpX;
-    }else if(w.orientation === LANDSCAPE_LEFT){
+    } else if (w.orientation === LANDSCAPE_LEFT) {
         mAcceleration.x = mAcceleration.y;
         mAcceleration.y = -tmpX;
-    }else if(w.orientation === PORTRAIT_UPSIDE_DOWN){
+    } else if (w.orientation === PORTRAIT_UPSIDE_DOWN) {
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
     }
