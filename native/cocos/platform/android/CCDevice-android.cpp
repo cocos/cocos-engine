@@ -92,6 +92,11 @@ Device::Rotation Device::getDeviceRotation()
     return (Device::Rotation)rotation;
 }
 
+std::string Device::getDeviceModel()
+{
+    return JniHelper::callStaticStringMethod(helperClassName, "getDeviceModel");
+}
+
 void Device::setKeepScreenOn(bool value)
 {
     JniHelper::callStaticVoidMethod(helperClassName, "setKeepScreenOn", value);

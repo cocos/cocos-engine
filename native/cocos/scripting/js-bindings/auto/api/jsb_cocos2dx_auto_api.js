@@ -597,6 +597,16 @@ getDPI : function (
     return 0;
 },
 
+/**
+ * @method getDeviceModel
+ * @return {String}
+ */
+getDeviceModel : function (
+)
+{
+    return ;
+},
+
 };
 
 /**

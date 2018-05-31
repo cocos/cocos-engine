@@ -89,9 +89,14 @@ public:
     static const MotionValue& getDeviceMotionValue();
 
     /**
-     *  Gets the rotation of device
+     *  Gets the rotation of device.
      */
     static Rotation getDeviceRotation();
+
+    /**
+     *  Gets device model information.
+     */
+    static std::string getDeviceModel();
 
     /**
      * Controls whether the screen should remain on.

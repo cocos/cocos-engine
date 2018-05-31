@@ -28,13 +28,14 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 
 #include "platform/CCDevice.h"
+#include "platform/apple/CCDevice-apple.h"
+#include "base/ccTypes.h"
+#include "CCReachability.h"
+
 #include <Foundation/Foundation.h>
 #include <Cocoa/Cocoa.h>
+#include <sys/utsname.h>
 #include <string>
-#include "base/ccTypes.h"
-#include "platform/apple/CCDevice-apple.h"
-
-#include "CCReachability.h"
 
 NS_CC_BEGIN
 
@@ -67,6 +68,13 @@ const Device::MotionValue& Device::getDeviceMotionValue()
 Device::Rotation Device::getDeviceRotation()
 {
     return Device::Rotation::_0;
+}
+
+std::string Device::getDeviceModel()
+{
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    return systemInfo.machine;
 }
 
 void Device::setKeepScreenOn(bool value)

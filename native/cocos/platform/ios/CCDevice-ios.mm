@@ -25,16 +25,19 @@
  ****************************************************************************/
 
 #include "platform/CCDevice.h"
-#import <UIKit/UIKit.h>
-// Accelerometer
-#import<CoreMotion/CoreMotion.h>
-#import<CoreFoundation/CoreFoundation.h>
-#import <CoreText/CoreText.h>
+
 // Vibrate
 #import <AudioToolbox/AudioToolbox.h>
 #include "base/ccTypes.h"
 #include "platform/apple/CCDevice-apple.h"
 #include "CCReachability.h"
+
+#import <UIKit/UIKit.h>
+// Accelerometer
+#import <CoreMotion/CoreMotion.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreText/CoreText.h>
+#include <sys/utsname.h>
 
 static const float g = 9.80665;
 static const float radToDeg = (180/M_PI);
@@ -237,6 +240,13 @@ Device::Rotation Device::getDeviceRotation()
     }
 
     return ret;
+}
+
+std::string Device::getDeviceModel()
+{
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    return systemInfo.machine;
 }
 
 void Device::setKeepScreenOn(bool value)

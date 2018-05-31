@@ -1125,6 +1125,22 @@ static bool js_cocos2dx_Device_getDPI(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Device_getDPI)
 
+static bool js_cocos2dx_Device_getDeviceModel(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cocos2d::Device::getDeviceModel();
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Device_getDeviceModel : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Device_getDeviceModel)
+
 
 
 
@@ -1140,6 +1156,7 @@ bool js_register_cocos2dx_Device(se::Object* obj)
     cls->defineStaticFunction("getBatteryLevel", _SE(js_cocos2dx_Device_getBatteryLevel));
     cls->defineStaticFunction("getDeviceRotation", _SE(js_cocos2dx_Device_getDeviceRotation));
     cls->defineStaticFunction("getDPI", _SE(js_cocos2dx_Device_getDPI));
+    cls->defineStaticFunction("getDeviceModel", _SE(js_cocos2dx_Device_getDeviceModel));
     cls->install();
     JSBClassType::registerClass<cocos2d::Device>(cls);
 
