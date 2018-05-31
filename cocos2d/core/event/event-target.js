@@ -198,8 +198,13 @@ proto.once = function (type, callback, target) {
  * @method emit
  * @param {String} type - event type
  * @param {*} [detail] - whatever argument the message needs
+ * @param {*} [target] - the target which emit this event
+ * @example
+ * 
+ * eventTarget.emit('fire', {data: 'test'});
+ * eventTarget.emit('fire', null, target);
  */
-proto.emit = function (type, detail) {
+proto.emit = function (type, detail, target) {
     if (CC_DEV && typeof type !== 'string') {
         cc.errorID(6801);
         return;
@@ -209,7 +214,7 @@ proto.emit = function (type, detail) {
         event.detail = detail;
         // Event.AT_TARGET
         event.eventPhase = 2;
-        event.target = event.currentTarget = this;
+        event.target = event.currentTarget = target;
 
         this.invoke(event);
         
