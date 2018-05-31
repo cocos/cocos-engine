@@ -432,7 +432,7 @@ namespace se {
                 {
                     exceptionStr += "\nSTACK:\n" + exceptionInfo.stack;
                 }
-                SE_LOGD("ERROR: %s\n", exceptionStr.c_str());
+                SE_LOGE("ERROR: %s\n", exceptionStr.c_str());
 
                 if (_exceptionCallback != nullptr)
                 {
