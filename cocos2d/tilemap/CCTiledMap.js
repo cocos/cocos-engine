@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -843,17 +844,23 @@ var TiledMap = cc.Class({
         var file = this._tmxFile;
         var self = this;
         if (file) {
-            var resPath = cc.url._rawAssets + file.tmxFolderPath;
-            resPath = cc.path.stripSep(resPath);
-
-            if (CC_EDITOR && cc.sys.os === cc.sys.OS_WINDOWS) {
-                // In windows editor, the key of loaded textures are using '/'.
-                // But the value of cc.url._rawAssets is using '\'
-                // So, here should change the separater.
-                resPath = resPath.replace(/\\/g, '/');
+            var texValues = file.textures;
+            var texKeys = file.textureNames;
+            var textures = {};
+            for (let i = 0; i < texValues.length; ++i) {
+                textures[texKeys[i]] = texValues[i];
             }
 
-            var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
+            var tsxFileNames = file.tsxFileNames;
+            var tsxFiles = file.tsxFiles;
+            var tsxMap = {};
+            for (let i = 0; i < tsxFileNames.length; ++i) {
+                if (tsxFileNames[i].length > 0) {
+                    tsxMap[tsxFileNames[i]] = tsxFiles[i].text;
+                }
+            }
+
+            var ret = sgNode.initWithXML(file.tmxXmlStr, tsxMap, textures);
             if (ret) {
                 // Asset is changed, the layers are recreated.
                 // The layers of pre asset should be cleaned.
@@ -864,11 +871,11 @@ var TiledMap = cc.Class({
             // tmx file is cleared
             // 1. hide the tmx layers & groups in _sgNode
             var layers = sgNode.allLayers();
-            for (var i = 0, n = layers.length; i < n; i++) {
+            for (let i = 0, n = layers.length; i < n; i++) {
                 sgNode.removeChild(layers[i]);
             }
             var groups = sgNode.getObjectGroups();
-            for (i = 0, n = groups.length; i < n; i++) {
+            for (let i = 0, n = groups.length; i < n; i++) {
                 sgNode.removeChild(groups[i]);
             }
 

@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2017 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -58,7 +59,7 @@ sp.SkeletonTexture = cc.Class({
 
     bind: function() {
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            cc.gl.bindTexture2D(this._texture);
+            cc.gl.bindTexture2DN(0, this._texture);
         }
     }
 });

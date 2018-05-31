@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -374,6 +375,19 @@ cc.affineTransformInvert = function (t) {
         tx: determinant * (t.c * t.ty - t.d * t.tx), ty: determinant * (t.b * t.tx - t.a * t.ty)};
 };
 
+cc.affineTransformInvertIn = function (t) {
+    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var determinant = 1 / (a * d - b * c);
+    var tx = t.tx, ty = t.ty;
+    t.a = determinant * d;
+    t.b = -determinant * b;
+    t.c = -determinant * c;
+    t.d = determinant * a;
+    t.tx = determinant * (c * ty - d * tx);
+    t.ty = determinant * (b * tx - a * ty);
+    return t;
+};
+
 /**
  * !#en Put the invert transform of an AffineTransform object into the out AffineTransform object.
  * !#zh 求逆矩阵并存入用户传入的矩阵对象参数。
@@ -382,12 +396,12 @@ cc.affineTransformInvert = function (t) {
  * @param {AffineTransform} out
  */
 cc.affineTransformInvertOut = function (t, out) {
-    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var a = t.a, b = t.b, c = t.c, d = t.d, tx = t.tx, ty = t.ty;
     var determinant = 1 / (a * d - b * c);
     out.a = determinant * d;
     out.b = -determinant * b;
     out.c = -determinant * c;
     out.d = determinant * a;
-    out.tx = determinant * (c * t.ty - d * t.tx);
-    out.ty = determinant * (b * t.tx - a * t.ty);
+    out.tx = determinant * (c * ty - d * tx);
+    out.ty = determinant * (b * tx - a * ty);
 };

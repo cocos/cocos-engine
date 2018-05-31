@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,7 +31,7 @@ const DELIMETER = '$_$';
 
 function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
-    if (CC_DEV && cc.supportJit) {
+    if (CC_DEV && CC_SUPPORT_JIT) {
         var ctorName = ownerCtor.name;
         if (owner === ownerCtor) {
             ctorName += '_ATTRS';
@@ -339,45 +340,6 @@ function ObjectType (typeCtor) {
     };
 }
 
-// function RawType (typename) {
-//     var NEED_EXT_TYPES = ['image', 'json', 'text', 'audio'];  // the types need to specify exact extname
-//     return {
-//         // type: 'raw',
-//         rawType: typename,
-//         serializable: false,
-//         // hideInInspector: true,
-
-//         _onAfterProp: function (constructor, mainPropName) {
-//             // check raw object
-//             var checked = !CC_DEV || (function checkRawType(constructor) {
-//                 if (! cc.isChildClassOf(constructor, cc.Asset)) {
-//                     cc.errorID(3630);
-//                     return false;
-//                 }
-//                 var attrs = getClassAttrs(constructor);
-//                 var found = false;
-//                 for (var p = 0; p < constructor.__props__.length; p++) {
-//                     var propName = constructor.__props__[p];
-//                     var rawType = attrs[propName + DELIMETER + 'rawType'];
-//                     if (rawType) {
-//                         var containsUppercase = (rawType.toLowerCase() !== rawType);
-//                         if (containsUppercase) {
-//                             cc.errorID(3631);
-//                             return false;
-//                         }
-//                         if (found) {
-//                             cc.errorID(3632);
-//                             return false;
-//                         }
-//                         found = true;
-//                     }
-//                 }
-//                 return true;
-//             })(constructor);
-//         }
-//     };
-// }
-
 module.exports = {
     attr: attr,
     getClassAttrs: getClassAttrs,
@@ -386,6 +348,5 @@ module.exports = {
     DELIMETER: DELIMETER,
     getTypeChecker: getTypeChecker,
     ObjectType: ObjectType,
-    // RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
 };

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -145,20 +146,6 @@ sp.Skeleton = cc.Class({
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
-
-        ///**
-        // * The url of atlas file.
-        // * @property {string} file
-        // */
-        //atlasFile: {
-        //    default: '',
-        //    url: cc.TextAsset,
-        //    notify: function () {
-        //        this.defaultSkin = '';
-        //        this.defaultAnimation = '';
-        //        this._applyAsset();
-        //    },
-        //},
 
         // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
         /**
@@ -390,9 +377,8 @@ sp.Skeleton = cc.Class({
     // IMPLEMENT
 
     __preload: function () {
-        if (CC_EDITOR || CC_DEV) {
+        if (CC_EDITOR) {
             var Flags = cc.Object.Flags;
-            this._objFlags &= Flags.PersistentMask; // for v1.0 project
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
         }
         // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
@@ -402,33 +388,46 @@ sp.Skeleton = cc.Class({
     },
 
     _createSgNode: function () {
-        if (this.skeletonData/* && self.atlasFile*/) {
+        var skeletonData = this.skeletonData;
+        if (skeletonData/* && self.atlasFile*/) {
             if (CC_JSB) {
-                var uuid = this.skeletonData._uuid;
+                var uuid = skeletonData._uuid;
                 if ( !uuid ) {
                     cc.errorID(7504);
                     return null;
                 }
-                var jsonFile = this.skeletonData.rawUrl;
-                var atlasFile = this.skeletonData.atlasUrl;
-                if (atlasFile) {
-                    if (typeof atlasFile !== 'string') {
-                        cc.errorID(7505);
-                        return null;
-                    }
-                    try {
-                        return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
-                    }
-                    catch (e) {
-                        cc._throw(e);
-                    }
+                var jsonFile = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(skeletonData.nativeUrl, true) : skeletonData.nativeUrl;
+                var atlasText = skeletonData.atlasText;
+                if (!atlasText) {
+                    cc.errorID(7508, skeletonData.name);
+                    return null;
                 }
+                var texValues = skeletonData.textures;
+                var texKeys = skeletonData.textureNames;
+                if ( !(texValues && texValues.length > 0 && texKeys && texKeys.length > 0) ) {
+                    cc.errorID(7507, skeletonData.name);
+                    return null;
+                }
+                var textures = {};
+                for (var i = 0; i < texValues.length; ++i) {
+                    textures[texKeys[i]] = texValues[i];
+                }
+
+                var sgNode = new sp._SGSkeletonAnimation();
+                try {
+                    sp._initSkeletonRenderer(sgNode, jsonFile, atlasText, textures, skeletonData.scale);
+                }
+                catch (e) {
+                    cc._throw(e);
+                    return null;
+                }
+                return sgNode;
             }
             else {
-                var data = this.skeletonData.getRuntimeData();
+                var data = skeletonData.getRuntimeData();
                 if (data) {
                     try {
-                        return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                        return new sp._SGSkeletonAnimation(data, null, skeletonData.scale);
                     }
                     catch (e) {
                         cc._throw(e);
@@ -1047,9 +1046,6 @@ sp.Skeleton = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
-                sgNode.retain();
-            }
             if ( !self.enabledInHierarchy ) {
                 sgNode.setVisible(false);
             }

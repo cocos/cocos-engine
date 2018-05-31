@@ -2,7 +2,8 @@
  Copyright (c) 2011 Devon Govett
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -161,7 +162,7 @@ var PNGReader = cc._Class.extend({
             }
             this.pos += 4;
             if (this.pos > this.data.length) {
-                throw new Error("Incomplete or corrupt PNG file");
+                throw new Error(cc._getError(6017));
             }
         }
     },
@@ -262,7 +263,7 @@ var PNGReader = cc._Class.extend({
                     }
                     break;
                 default:
-                    throw new Error("Invalid filter algorithm: " + data[pos - 1]);
+                    throw new Error(cc._getError(6018, data[pos - 1]));
             }
             row++;
         }

@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,6 +26,7 @@
  ****************************************************************************/
 
 var Misc = require('../utils/misc');
+var eventManager = require('../event-manager');
 
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
@@ -274,7 +276,7 @@ _ccsg.Node = cc.Class({
             this._parent.reorderChild(this, localZOrder);
         else
             this._localZOrder = localZOrder;
-        cc.eventManager._setDirtyForNode(this);
+        eventManager._setDirtyForNode(this);
     },
 
     //Helper function used by `setLocalZOrder`. Don't use it unless you know what you are doing.
@@ -339,7 +341,7 @@ _ccsg.Node = cc.Class({
     setGlobalZOrder: function (globalZOrder) {
         if (this._globalZOrder !== globalZOrder) {
             this._globalZOrder = globalZOrder;
-            cc.eventManager._setDirtyForNode(this);
+            eventManager._setDirtyForNode(this);
         }
     },
 
@@ -964,7 +966,7 @@ _ccsg.Node = cc.Class({
         this.unscheduleAllCallbacks();
 
         // event
-        cc.eventManager.removeListeners(this);
+        eventManager.removeListeners(this);
     },
 
     // composition: GET
@@ -1646,7 +1648,7 @@ _ccsg.Node = cc.Class({
     resume: function () {
         this.scheduler.resumeTarget(this);
         ActionManagerExist && cc.director.getActionManager().resumeTarget(this);
-        cc.eventManager.resumeTarget(this);
+        eventManager.resumeTarget(this);
     },
 
     /**
@@ -1668,7 +1670,7 @@ _ccsg.Node = cc.Class({
     pause: function () {
         this.scheduler.pauseTarget(this);
         ActionManagerExist && cc.director.getActionManager().pauseTarget(this);
-        cc.eventManager.pauseTarget(this);
+        eventManager.pauseTarget(this);
     },
 
     /**
@@ -1695,9 +1697,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        var t = this.getNodeToParentTransform();
+        var t = cc.affineTransformClone(this.getNodeToParentTransform());
         for (var p = this._parent; p !== null; p = p.parent)
-            t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+            t = cc.affineTransformConcatIn(t, p.getNodeToParentTransform());
         return t;
     },
 
@@ -1715,7 +1717,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getWorldToNodeTransform: function () {
-        return cc.affineTransformInvert(this.getNodeToWorldTransform());
+        var trans = this.getNodeToWorldTransform();
+        cc.affineTransformInvertOut(trans, trans);
+        return trans;
     },
 
     /**

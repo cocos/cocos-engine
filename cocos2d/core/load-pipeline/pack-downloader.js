@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,20 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JsonUnpacker = require('./json-unpacker');
+var Unpackers = require('./unpackers');
 var pushToMap = require('../utils/misc').pushToMap;
-
-// {assetUuid: packUuid|[packUuid]}
-// If value is array of packUuid, then the first one will be prioritized for download,
-// so the smallest pack must be at the beginning of the array.
-var uuidToPack = {};
-
-// {packUuid: assetIndices}
-var packIndices = {};
-
-// {packUuid: JsonUnpacker}
-// We have to cache all packs in global because for now there's no operation context in loader.
-var globalUnpackers = {};
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -46,6 +35,24 @@ var PackState = {
     Downloading: 2,
     Loaded: 3,
 };
+
+function UnpackerData () {
+    this.unpacker = null;
+    this.state = PackState.Invalid;
+}
+
+// {assetUuid: packUuid|[packUuid]}
+// If value is array of packUuid, then the first one will be prioritized for download,
+// so the smallest pack must be at the beginning of the array.
+var uuidToPack = {};
+
+// {packUuid: assetIndices}
+var packIndices = {};
+
+// {packUuid: UnpackerData}
+// We have to cache all packs in global because for now there's no operation context in loader.
+var globalUnpackers = {};
+
 
 function error (uuid, packUuid) {
     return new Error('Can not retrieve ' + uuid + ' from packer ' + packUuid);
@@ -83,15 +90,38 @@ module.exports = {
         });
     },
 
-    _doLoadNewPack: function (uuid, packUuid, packJson) {
-        var unpacker = globalUnpackers[packUuid];
+    _doPreload (packUuid, packJson) {
+        var unpackerData = globalUnpackers[packUuid];
+        if (!unpackerData) {
+            unpackerData = globalUnpackers[packUuid] = new UnpackerData();
+            unpackerData.state = PackState.Downloading;
+        }
+        if (unpackerData.state !== PackState.Loaded) {
+            unpackerData.unpacker = new Unpackers.JsonUnpacker();
+            unpackerData.unpacker.load(packIndices[packUuid], packJson);
+            unpackerData.state = PackState.Loaded;
+        }
+    },
+
+    _doLoadNewPack: function (uuid, packUuid, packedJson) {
+        var unpackerData = globalUnpackers[packUuid];
         // double check cache after load
-        if (unpacker.state !== PackState.Loaded) {
-            unpacker.read(packIndices[packUuid], packJson);
-            unpacker.state = PackState.Loaded;
+        if (unpackerData.state !== PackState.Loaded) {
+            // init unpacker
+            if (typeof packedJson === 'string') {
+                packedJson = JSON.parse(packedJson);
+            }
+            if (Array.isArray(packedJson)) {
+                unpackerData.unpacker = new Unpackers.JsonUnpacker();
+            }
+            else if (packedJson.type === Unpackers.TextureUnpacker.ID) {
+                unpackerData.unpacker = new Unpackers.TextureUnpacker();
+            }
+            unpackerData.unpacker.load(packIndices[packUuid], packedJson);
+            unpackerData.state = PackState.Loaded;
         }
 
-        return unpacker.retrieve(uuid);
+        return unpackerData.unpacker.retrieve(uuid);
     },
 
     _selectLoadedPack: function (packUuids) {
@@ -99,9 +129,9 @@ module.exports = {
         var existsPackUuid = '';
         for (var i = 0; i < packUuids.length; i++) {
             var packUuid = packUuids[i];
-            var unpacker = globalUnpackers[packUuid];
-            if (unpacker) {
-                var state = unpacker.state;
+            var unpackerData = globalUnpackers[packUuid];
+            if (unpackerData) {
+                var state = unpackerData.state;
                 if (state === PackState.Loaded) {
                     return packUuid;
                 }
@@ -132,10 +162,10 @@ module.exports = {
             packUuid = this._selectLoadedPack(packUuid);
         }
 
-        var unpacker = globalUnpackers[packUuid];
-        if (unpacker && unpacker.state === PackState.Loaded) {
+        var unpackerData = globalUnpackers[packUuid];
+        if (unpackerData && unpackerData.state === PackState.Loaded) {
             // ensure async
-            var json = unpacker.retrieve(uuid);
+            var json = unpackerData.unpacker.retrieve(uuid);
             if (json) {
                 return json;
             }
@@ -144,12 +174,12 @@ module.exports = {
             }
         }
         else {
-            if (!unpacker) {
+            if (!unpackerData) {
                 if (!CC_TEST) {
                     console.log('Create unpacker %s for %s', packUuid, uuid);
                 }
-                unpacker = globalUnpackers[packUuid] = new JsonUnpacker();
-                unpacker.state = PackState.Downloading;
+                unpackerData = globalUnpackers[packUuid] = new UnpackerData();
+                unpackerData.state = PackState.Downloading;
             }
             this._loadNewPack(uuid, packUuid, callback);
         }

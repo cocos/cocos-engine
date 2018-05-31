@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,6 +29,7 @@ if (cc.sys) return;
 /**
  * System variables
  * @class sys
+ * @main
  * @static
  */
 cc.sys = {};
@@ -335,12 +337,41 @@ sys.EDITOR_PAGE = 102;
  */
 sys.EDITOR_CORE = 103;
 /**
+ * @property {Number} WECHAT_GAME
+ * @readOnly
+ * @default 104
+ */
+sys.WECHAT_GAME = 104;
+/**
+ * @property {Number} QQ_PLAY
+ * @readOnly
+ * @default 105
+ */
+sys.QQ_PLAY = 105;
+
+/**
  * BROWSER_TYPE_WECHAT
  * @property {String} BROWSER_TYPE_WECHAT
  * @readOnly
  * @default "wechat"
  */
 sys.BROWSER_TYPE_WECHAT = "wechat";
+/**
+ * BROWSER_TYPE_WECHAT_GAME
+ * @property {String} BROWSER_TYPE_WECHAT_GAME
+ * @readOnly
+ * @default "wechatgame"
+ */
+sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+
+/**
+ * BROWSER_TYPE_QQ_PLAY
+ * @property {String} BROWSER_TYPE_QQ_PLAY
+ * @readOnly
+ * @default "qqplay"
+ */
+sys.BROWSER_TYPE_QQ_PLAY = "qqplay";
 /**
  *
  * @property {String} BROWSER_TYPE_ANDROID
@@ -476,6 +507,77 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
 /**
+ * !#en
+ * Network type enumeration
+ * !#zh
+ * 网络类型枚举
+ *
+ * @enum NetworkType
+ */
+sys.NetworkType = {
+    /**
+     * !#en
+     * Network is unreachable.
+     * !#zh
+     * 网络不通
+     *
+     * @property {Number} NONE
+     */
+    NONE: 0,
+    /**
+     * !#en
+     * Network is reachable via WiFi or cable.
+     * !#zh
+     * 通过无线或者有线本地网络连接因特网
+     *
+     * @property {Number} LAN
+     */
+    LAN: 1,
+    /**
+     * !#en
+     * Network is reachable via Wireless Wide Area Network
+     * !#zh
+     * 通过蜂窝移动网络连接因特网
+     *
+     * @property {Number} WWAN
+     */
+    WWAN: 2
+};
+
+/**
+ * @class sys
+ */
+
+/**
+ * !#en
+ * Get the battery level of current device, return 1.0 if failure.
+ * !#zh
+ * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
+ *
+ * @method getBatteryLevel
+ * @return {Number} - 0.0 ~ 1.0
+ */
+sys.getBatteryLevel = function() {
+    // TODO: need to implement this for mobile phones.
+    return 1.0;
+};
+
+/**
+ * !#en
+ * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
+ * !#zh
+ * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
+ *
+ * @method getNetworkType
+ * @return {NetworkType}
+ */
+sys.getNetworkType = function() {
+    // TODO: need to implement this for mobile phones.
+    return sys.NetworkType.LAN;
+};
+
+
+/**
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
@@ -485,7 +587,24 @@ sys.isNative = false;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object';
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
+
+cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+    if (opt_contextType) {
+        try {
+            return canvas.getContext(opt_contextType, opt_attribs);
+        } catch (e) {
+            return null;
+        }
+    }
+    else {
+        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+               cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+               cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+               cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+               null;
+    }
+};
 
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
@@ -503,6 +622,107 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
+}
+else if (CC_WECHATGAME) {
+    var env = wx.getSystemInfoSync();
+    sys.isMobile = true;
+    sys.platform = sys.WECHAT_GAME;
+    sys.language = env.language.substr(0, 2);
+    if (env.platform === "android") {
+        sys.os = sys.OS_ANDROID;
+    }
+    else if (env.platform === "ios") {
+        sys.os = sys.OS_IOS;
+    }
+    else if (env.platform === 'devtools') {
+        var system = env.system.toLowerCase();
+        if (system.indexOf('android') > -1) {
+            sys.os = sys.OS_ANDROID;
+        }
+        else if (system.indexOf('ios') > -1) {
+            sys.os = sys.OS_IOS;
+        }
+    }
+
+    var version = /[\d\.]+/.exec(env.system);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(sys.osVersion);
+    // wechagame subdomain
+    if (!wx.getFileSystemManager) {
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+    }
+    else {
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+    }
+    sys.browserVersion = env.version;
+
+    var w = env.windowWidth;
+    var h = env.windowHeight;
+    var ratio = env.pixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    sys.capabilities = {
+        "canvas": true,
+        "opengl": true,
+        "webp": false
+    };
+    sys.__audioSupport = { 
+        ONLY_ONE: false, 
+        WEB_AUDIO: false, 
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
+}
+else if (CC_QQPLAY) {
+    var env = window["BK"]["Director"]["queryDeviceInfo"]();
+    sys.isMobile = true;
+    sys.platform = sys.QQ_PLAY;
+    sys.language = sys.LANGUAGE_UNKNOWN;
+    if (env.platform === "android") {
+        sys.os = sys.OS_ANDROID;
+    }
+    else if (env.platform === "ios") {
+        sys.os = sys.OS_IOS;
+    }
+    else {
+        sys.os = sys.OS_UNKNOWN;
+    }
+
+    var version = /[\d\.]+/.exec(env.version);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
+    sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
+    sys.browserVersion = 0;
+
+    // todo Can be removed after qqplay with support (ArrayBuffer)
+    sys.noABSupport = sys.os === sys.OS_IOS && sys.osMainVersion < 10;
+
+    var w = env.screenWidth;
+    var h = env.screenHeight;
+    var ratio = env.pixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    sys.capabilities = {
+        "canvas": false,
+        "opengl": true,
+        "webp": false
+    };
+    sys.__audioSupport = {
+        ONLY_ONE: false,
+        WEB_AUDIO: false,
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
 }
 else {
     // browser or runtime
@@ -561,9 +781,8 @@ else {
     if (nav.appVersion.indexOf("Win") !== -1) osName = sys.OS_WINDOWS;
     else if (iOS) osName = sys.OS_IOS;
     else if (nav.appVersion.indexOf("Mac") !== -1) osName = sys.OS_OSX;
-    else if (nav.appVersion.indexOf("X11") !== -1 && nav.appVersion.indexOf("Linux") === -1) osName = sys.OS_UNIX;
     else if (isAndroid) osName = sys.OS_ANDROID;
-    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1) osName = sys.OS_LINUX;
+    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1 || nav.appVersion.indexOf("X11") !== -1) osName = sys.OS_LINUX;
 
     /**
      * Indicate the running os name
@@ -593,7 +812,12 @@ else {
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (browserType === 'micromessenger')
+        if (CC_WECHATGAME) {
+            browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        }
+        else if (CC_QQPLAY)
+            browserType = sys.BROWSER_TYPE_QQ_PLAY;
+        else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
         else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
@@ -640,28 +864,11 @@ else {
 
     sys._checkWebGLRenderMode = function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
-            throw new Error("This feature supports WebGL render mode only.");
+            throw new Error(cc._getError(5202));
     };
 
     var _tmpCanvas1 = document.createElement("canvas"),
         _tmpCanvas2 = document.createElement("canvas");
-
-    cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
-        if (opt_contextType) {
-            try {
-                return canvas.getContext(opt_contextType, opt_attribs);
-            } catch (e) {
-                return null;
-            }
-        }
-        else {
-            return cc.create3DContext(canvas, opt_attribs, "webgl") || 
-                   cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-                   cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-                   cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
-                   null;
-        }
-    };
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
@@ -848,9 +1055,8 @@ else {
         cc.logID(5201);
     }
 
-    var formatSupport = [];
-
-    (function(){
+    function detectAudioFormat () {
+        var formatSupport = [];
         var audio = document.createElement('audio');
         if(audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
@@ -864,9 +1070,9 @@ else {
             var m4a = audio.canPlayType('audio/x-m4a');
             if (m4a) formatSupport.push('.m4a');
         }
-    })();
-    __audioSupport.format = formatSupport;
-
+        return formatSupport;
+    }
+    __audioSupport.format = detectAudioFormat();
     sys.__audioSupport = __audioSupport;
 }
 

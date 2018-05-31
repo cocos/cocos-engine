@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2015-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -46,21 +47,25 @@ cc.Scene = cc.Class({
          * @property {Boolean} autoReleaseAssets
          * @default false
          */
-        autoReleaseAssets: undefined,
+        autoReleaseAssets: {
+            default: undefined,
+            type: cc.Boolean
+        },
 
     },
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
-        if (CC_JSB) {
-            sgNode.retain();
-        }
         sgNode.setAnchorPoint(0.0, 0.0);
         this._anchorPoint.x = 0.0;
         this._anchorPoint.y = 0.0;
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;
+
+        if (CC_EDITOR) {
+            this._prefabSyncedInLiveReload = false;
+        }
 
         // cache all depend assets for auto release
         this.dependAssets = null;
@@ -79,7 +84,12 @@ cc.Scene = cc.Class({
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-            this._onBatchCreated();
+            if (CC_EDITOR && this._prefabSyncedInLiveReload) {
+                this._onBatchRestored();
+            }
+            else {
+                this._onBatchCreated();
+            }
             this._inited = true;
         }
     },

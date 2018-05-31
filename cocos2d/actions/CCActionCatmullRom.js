@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright (c) 2008 Radu Gruian
  Copyright (c) 2011 Vit Valentin
 
@@ -129,7 +130,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
 
     initWithDuration:function (duration, points, tension) {
         if(!points || points.length === 0)
-            throw new Error("Invalid configuration. It must at least have one control point");
+            throw new Error(cc._getError(1024));
 
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
             this.setPoints(points);

@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -143,7 +144,7 @@ var DrawingPrimitiveCanvas = cc._Class.extend({
             return;
 
         if (vertices.length < 3)
-            throw new Error("Polygon's point must greater than 2");
+            throw new Error(cc._getError(6704));
 
         var firstPoint = vertices[0], locContext = this._renderContext.getContext();
         var locScaleX = cc.view.getScaleX(), locScaleY = cc.view.getScaleY();
@@ -319,7 +320,7 @@ var DrawingPrimitiveCanvas = cc._Class.extend({
                     destSize.width, destSize.height);
                 break;
             default:
-                throw new Error("Argument must be non-nil");
+                throw new Error(cc._getError(6705));
                 break;
         }
     },

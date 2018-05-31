@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -79,6 +80,7 @@ _ccsg.TMXObject = cc.Class({
      * !#en Get the property of object
      * !#zh 获取对象的属性
      * @method getProperty
+     * @param {String} propertyName
      * @return {Object}
      */
     getProperty: function (propName) {
@@ -147,8 +149,10 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         this.setVisible(this._container.objectVisible);
 
         // init the image
-        var texture = cc.textureCache.addImage(cc.path._normalize(tileset.sourceImage));
-        this._initWithTileset(texture, useTileset);
+        var texture = tileset.sourceImage;
+        if (texture) {
+            this._initWithTileset(texture, useTileset);
+        }
 
         // init the position & anchor point with map info
         this._initPosWithMapInfo(mapInfo);
@@ -168,7 +172,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
     },
 
     _initWithTileset: function(texture, tileset) {
-        if (!texture.isLoaded()) {
+        if (!texture.loaded) {
             texture.once('load', function () {
                 this._initWithTileset(texture, tileset);
             }, this);

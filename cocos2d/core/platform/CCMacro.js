@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,7 +31,7 @@ require('./_CCClass');
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
  * @enum KEY
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
+ * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.KEY = {
     /**
@@ -1725,10 +1726,9 @@ cc.macro = {
     SPRITEBATCHNODE_RENDER_SUBPIXEL: 1,
 
     /**
-     * <p>
-     *     Automatically premultiply alpha for PNG resources
-     * </p>
-     * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+     * Automatically premultiply alpha for remote PNG resources.
+     * @property {Boolean} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+     * @default false
      */
     AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: 0,
 
@@ -1881,21 +1881,6 @@ cc.macro = {
      */
     ENABLE_GC_FOR_NATIVE_OBJECTS: true,
 
-
-    /**
-     * !#en
-     * Whether or not enable auto culling.
-     * If your game have more dynamic objects, we suggest to disable auto culling.
-     * If your game have more static objects, we suggest to enable auto culling.
-     * !#zh
-     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
-     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
-     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
-     * @property {Boolean} ENABLE_CULLING
-     * @default true
-     */
-    ENABLE_CULLING: true,
-
     /**
      * !#en 
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
@@ -1930,7 +1915,63 @@ cc.macro = {
      * @default false
      */
     ENABLE_TRANSPARENT_CANVAS: false,
+
+    /**
+     * !#en
+     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
+     * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
+     * Whether to use this really depend on your game design and targeted platform,
+     * device with retina display usually have good detail on graphics with or without this option,
+     * you probably don't want antialias if your game style is pixel art based.
+     * Also, it could have great performance impact with some browser / device using software MSAA.
+     * You can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置在创建 WebGL Context 时是否开启 `antialias` 选项，默认值是 false。
+     * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
+     * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
+     * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
+     * 你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
+     * @default false
+     */
+    ENABLE_WEBGL_ANTIALIAS: false,
 };
+
+/**
+ * !#en
+ * Whether or not enable auto culling.
+ * If your game have more dynamic objects, we suggest to disable auto culling.
+ * If your game have more static objects, we suggest to enable auto culling.
+ * !#zh
+ * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+ * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+ * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+ * @property {Boolean} ENABLE_CULLING
+ * @default true
+ */
+var ENABLE_CULLING = true;
+cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
+    function () {
+        return ENABLE_CULLING;
+    },
+    function (val) {
+        ENABLE_CULLING = val;
+
+        var scene = cc.director.getScene();
+        if (!scene) return;
+
+        if (CC_JSB) {
+            scene._sgNode.markCullingDirty();
+            cc.director.setCullingEnabled(val);
+        }
+        else {
+            scene._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.cullingDirty);
+            cc.renderer.childrenOrderDirty = true;
+        }
+    }
+);
 
 /**
  * !#en
@@ -1962,7 +2003,7 @@ cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
  * @param {Number} a number A
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ * @example {@link cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
     return a + (b - a) * r;

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -187,7 +188,7 @@ var Sprite = cc.Class({
          * !#en The sprite render type.
          * !#zh 精灵渲染类型
          * @property type
-         * @type {Sprite.SpriteType}
+         * @type {Sprite.Type}
          * @example
          * sprite.type = cc.Sprite.Type.SIMPLE;
          */
@@ -208,7 +209,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillType
          * @type {Sprite.FillType}
          * @example
@@ -230,7 +231,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充中心点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充中心点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillCenter
          * @type {Vec2}
          * @example
@@ -251,7 +252,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充起始点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillStart
          * @type {Number}
          * @example
@@ -273,7 +274,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充范围，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillRange
          * @type {Number}
          * @example
@@ -564,6 +565,7 @@ var Sprite = cc.Class({
             }
         }
         else {
+            sgNode.setSpriteFrame(null);
             sgNode.setVisible(false);
         }
 

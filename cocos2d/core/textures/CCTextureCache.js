@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var game = require('../CCGame');
 var Texture2D = require('./CCTexture2D');
 
 /**
@@ -49,23 +49,10 @@ var textureCache = /** @lends cc.textureCache# */{
 
     /**
      * Returns an already created texture. Returns null if the texture doesn't exist.
-     * @method textureForKey
-     * @param {String} textureKeyName
-     * @return {Texture2D|Null}
-     * @deprecated
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/textureForKey.js}
-     */
-    textureForKey: function (textureKeyName) {
-        cc.logID(3002);
-        return this.getTextureForKey(textureKeyName);
-    },
-
-    /**
-     * Returns an already created texture. Returns null if the texture doesn't exist.
      * @method getTextureForKey
      * @param {String} textureKeyName
      * @return {Texture2D|Null}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureForKey.js}
+     * @example {@link cocos2d/core/textures/getTextureForKey.js}
      */
     getTextureForKey: function(textureKeyName){
         return this._textures[textureKeyName];
@@ -75,7 +62,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @method getKeyByTexture
      * @param {HTMLImageElement} texture
      * @return {String|Null}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getKeyByTexture.js}
+     * @example {@link cocos2d/core/textures/getKeyByTexture.js}
      */
     getKeyByTexture: function (texture) {
         for (var key in this._textures) {
@@ -94,7 +81,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @method getTextureColors
      * @param {HTMLImageElement} texture
      * @return {Array}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureColors.js}
+     * @example {@link cocos2d/core/textures/getTextureColors.js}
      */
     getTextureColors: function (texture) {
         var image = texture._image;
@@ -112,8 +99,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * #en get all textures
-     * #zh 获取所有贴图
+     * !#en get all textures
+     * !#zh 获取所有贴图
      * @method getAllTextures
      * @return {Texture2D[]}
      */
@@ -133,13 +120,13 @@ var textureCache = /** @lends cc.textureCache# */{
      * In the medium term: it will allocate more resources <br />
      * In the long term: it will be the same</p>
      * @method removeAllTextures
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeAllTextures.js}
+     * @example {@link cocos2d/core/textures/removeAllTextures.js}
      */
     removeAllTextures: function () {
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey])
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
         }
         this._textures = {};
     },
@@ -148,7 +135,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * Deletes a texture from the cache given a texture.
      * @method removeTexture
      * @param {HTMLImageElement} texture
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTexture.js}
+     * @example {@link cocos2d/core/textures/removeTexture.js}
      */
     removeTexture: function (texture) {
         if (!texture)
@@ -157,7 +144,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey] === texture) {
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
                 delete(locTextures[selKey]);
             }
         }
@@ -167,32 +154,73 @@ var textureCache = /** @lends cc.textureCache# */{
      * Deletes a texture from the cache given a its key name.
      * @method removeTextureForKey
      * @param {String} textureKeyName
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTextureForKey.js}
+     * @example {@link cocos2d/core/textures/removeTextureForKey.js}
      */
     removeTextureForKey: function (textureKeyName) {
+        if (CC_DEBUG && textureKeyName instanceof cc.Texture2D) {
+            // TODO - remove at 2.0
+            cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
+        }
+
         if (typeof textureKeyName !== 'string')
             return;
-        var locTextures = this._textures;
-        if (locTextures[textureKeyName]) {
-            locTextures[textureKeyName].releaseTexture();
-            delete(locTextures[textureKeyName]);
+
+        var texture = this._textures[textureKeyName];
+        if (texture) {
+            texture._releaseTexture();
+            delete this._textures[textureKeyName];
         }
     },
     
     /**
-     * <p>Returns a Texture2D object given an file image <br />
-     * If the file image was not previously loaded, it will create a new Texture2D <br />
-     *  object and it will return it. It will use the filename as a key.<br />
+     * Returns a Texture2D object given an file image <br />
+     * If the file image was not previously loaded, it will create a new Texture2D
+     * object and it will return it. It will use the filename as a key.
      * Otherwise it will return a reference of a previously loaded image. <br />
-     * Supported image extensions: .png, .jpg, .gif</p>
+     * Supported image extensions: .png, .jpg, .gif
      * @method addImage
      * @param {String} url
      * @param {Function} cb
      * @param {Object} target
      * @return {Texture2D}
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/addImage.js}
+     * @example {@link cocos2d/core/textures/addImage.js}
      */
-    addImage: null,
+    addImage (url, cb, target) {
+        if (CC_DEBUG && url instanceof cc.Texture2D) {
+            // TODO - remove at 2.0
+            cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
+        }
+
+        cc.assertID(url, 3103);
+
+        var locTexs = this._textures;
+        var tex = locTexs[url];
+        if (tex) {
+            if(tex.loaded) {
+                cb && cb.call(target, tex);
+            }
+            else {
+                tex.once("load", function(){
+                    cb && cb.call(target, tex);
+                }, target);
+            }
+        }
+        else {
+            tex = locTexs[url] = new Texture2D();
+            tex.url = url;
+            cc.loader.load(url, function (err, texture) {
+                if (err) {
+                    return cb && cb.call(target, err || new Error('Unknown error'));
+                }
+
+                textureCache.handleLoadedTexture(url);
+
+                cb && cb.call(target, tex);
+            });
+        }
+
+        return tex;
+    },
     addImageAsync: null,
 
     /**
@@ -215,8 +243,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * <p>Output to cc.log the current contents of this TextureCache <br />
-     * This will attempt to calculate the size of each texture, and the total texture memory in use. </p>
+     * Output to cc.log the current contents of this TextureCache.<br>
+     * This will attempt to calculate the size of each texture, and the total texture memory in use.
      */
     dumpCachedTextureInfo: function () {
         var count = 0;
@@ -251,111 +279,20 @@ var textureCache = /** @lends cc.textureCache# */{
         this._textures = {};
         this._textureColorsCache = {};
         this._textureKeySeq = (0 | Math.random() * 1000);
+    },
+
+    handleLoadedTexture (url) {
+        var locTexs = this._textures;
+        var tex = locTexs[url];
+        if (!tex) {
+            cc.assertID(url, 3009);
+            tex = locTexs[url] = new Texture2D();
+            tex.url = url;
+        }
+        tex.handleLoadedTexture();
     }
 };
 
-game.once(game.EVENT_RENDERER_INITED, function () {
-    var _p = textureCache;
-    if (cc._renderType === game.RENDER_TYPE_CANVAS) {
-        _p.handleLoadedTexture = function (url) {
-            var locTexs = this._textures;
-            //remove judge
-            var tex = locTexs[url];
-            if (!tex) {
-                cc.assertID(url, 3009);
-                tex = locTexs[url] = new Texture2D();
-                tex.url = url;
-            }
-            tex.handleLoadedTexture();
-        };
-
-        _p.addImage = function (url, cb, target) {
-
-            cc.assertID(url, 3103);
-
-            var locTexs = this._textures;
-            //remove judge
-            var tex = locTexs[url];
-            if (tex) {
-                if(tex.isLoaded()) {
-                    cb && cb.call(target, tex);
-                    return tex;
-                }
-                else
-                {
-                    tex.once("load", function(){
-                        cb && cb.call(target, tex);
-                    }, target);
-                    return tex;
-                }
-            }
-
-            tex = locTexs[url] = new Texture2D();
-            tex.url = url;
-            cc.loader.load(url, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-
-                textureCache.handleLoadedTexture(url);
-
-                cb && cb.call(target, tex);
-            });
-
-            return tex;
-        };
-
-        _p.addImageAsync = _p.addImage;
-
-    } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-        
-        _p.handleLoadedTexture = function (url) {
-            var locTexs = this._textures, tex, premultiplied;
-            tex = locTexs[url];
-            if (!tex) {
-                cc.assertID(url, 3009);
-                tex = locTexs[url] = new Texture2D();
-                tex.url = url;
-            }
-            tex.handleLoadedTexture();
-        };
-
-        _p.addImage = function (url, cb, target) {
-            cc.assertID(url, 3112);
-
-            var locTexs = this._textures;
-            var tex = locTexs[url];
-            if (tex) {
-                if(tex.isLoaded()) {
-                    cb && cb.call(target, tex);
-                    return tex;
-                }
-                else
-                {
-                    tex.once("load", function(){
-                       cb && cb.call(target, tex);
-                    }, target);
-                    return tex;
-                }
-            }
-
-            tex = locTexs[url] = new Texture2D();
-            tex.url = url;
-            cc.loader.load(url, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-
-                textureCache.handleLoadedTexture(url);
-
-                cb && cb.call(target, tex);
-            });
-
-            return tex;
-        };
-
-        _p.addImageAsync = _p.addImage;
-    }
-});
+textureCache.addImageAsync = textureCache.addImage;
 
 cc.textureCache = module.exports = textureCache;

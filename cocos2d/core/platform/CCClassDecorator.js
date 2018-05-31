@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -146,7 +147,12 @@ function extractActualDefaultValues (ctor) {
 }
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
-    var fullOptions = options && (Preprocess.getFullFormOfProperty(options) || options);
+    var fullOptions;
+    if (options) {
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, JS.getClassName(ctor)) :
+                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = fullOptions || options;
+    }
     var existsProperty = properties[propName];
     var prop = JS.mixin(existsProperty || {}, fullOptions || {});
 
@@ -214,8 +220,15 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, propName);
+                cc.warnID(3654, JS.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
+            }
+            if (cc.RawAsset.wasRawAssetType(prop.url) &&
+                prop._short &&
+                isDefaultValueSpecified &&
+                defaultValue == null
+            ) {
+                cc.warnID(3656, JS.getClassName(ctor), propName);
             }
         }
         prop.default = defaultValue;
@@ -305,7 +318,6 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * @method property
  * @param {Object} [options] - an object with some property attributes
  * @param {Any} [options.type]
- * @param {Function} [options.url]
  * @param {Boolean|Function} [options.visible]
  * @param {String} [options.displayName]
  * @param {String} [options.tooltip]
@@ -356,8 +368,8 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     &#64;property(cc.Vec2)
  *     offsets = [];
  *
- *     &#64;property(cc.Texture2D)
- *     texture = "";
+ *     &#64;property(cc.SpriteFrame)
+ *     frame = null;
  * }
  *
  * // above is equivalent to (上面的代码相当于):
@@ -397,14 +409,14 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *             type: cc.Vec2
  *         }
  *
- *         texture: {
- *             default: "",
- *             url: cc.Texture2D
+ *         frame: {
+ *             default: null,
+ *             type: cc.SpriteFrame
  *         },
  *     }
  * });
  * @typescript
- * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
+ * property(options?: {type?: any; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {

@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,6 +31,7 @@ var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 var ComponentScheduler = require('./component-scheduler');
 var NodeActivator = require('./node-activator');
 var EventListeners = require('./event/event-listeners');
+var eventManager = require('./event-manager');
 
 cc.g_NumberOfDraws = 0;
 
@@ -346,9 +348,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Returns the size of the OpenGL view in pixels.<br/>
      * It takes into account any possible rotation (device orientation) of the window.<br/>
      * On Mac winSize and winSizeInPixels return the same value.
-     * !#zh 获取视图大小，以像素为单位。
+     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use cc.view.getFrameSize())
+     * !#zh
+     * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
+     * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
      * @method getWinSizeInPixels
      * @return {Size}
+     * @deprecated
      */
     getWinSizeInPixels: function () {
         return cc.size(this._winSizeInPoints.width * this._contentScaleFactor, this._winSizeInPoints.height * this._contentScaleFactor);
@@ -441,8 +447,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._nodeActivator.reset();
 
         // Disable event dispatching
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(false);
+        if (eventManager)
+            eventManager.setEnabled(false);
 
         // don't release the event handlers
         // They are needed in case the director is run again
@@ -477,8 +483,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     reset: function () {
         this.purgeDirector();
 
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(true);
+        if (eventManager)
+            eventManager.setEnabled(true);
 
         // Action manager
         if (this._actionManager){
@@ -1494,7 +1500,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
-            cc.eventManager.frameUpdateListeners();
+            eventManager.frameUpdateListeners();
         }
     },
 
@@ -1524,12 +1530,14 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             listeners = this._bubblingListeners = new EventListeners();
         }
         listeners.add(type, callback, target);
+        this._addEventFlag(type, listeners, false);
     },
 
     __fastOff: function (type, callback, target) {
         var listeners = this._bubblingListeners;
         if (listeners) {
             listeners.remove(type, callback, target);
+            this._purgeEventFlag(type, listeners, false);
         }
     },
 });

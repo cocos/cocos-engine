@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -1245,8 +1246,8 @@ var ScrollView = cc.Class({
             this._autoScrolling = false;
         }
 
-        var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveContent(contentPos, reachedEnd);
+        var deltaMove = cc.pSub(newPosition, this.getContentPosition());
+        this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent('scrolling');
 
         if (!this._autoScrolling) {
@@ -1334,7 +1335,6 @@ var ScrollView = cc.Class({
                 this._autoScrollBraking = true;
             }
         }
-
     },
 
     _calculateTouchMoveVelocity: function() {
@@ -1365,7 +1365,6 @@ var ScrollView = cc.Class({
 
     _moveContent: function(deltaMove, canStartBounceBack) {
         var adjustedMove = this._flattenVectorByDirection(deltaMove);
-
         var newPosition = cc.pAdd(this.getContentPosition(), adjustedMove);
 
         this.setContentPosition(newPosition);
@@ -1376,9 +1375,7 @@ var ScrollView = cc.Class({
         if (this.elastic && canStartBounceBack) {
             this._startBounceBackIfNeeded();
         }
-
     },
-
 
     _getContentLeftBoundary: function() {
         var contentPos = this.getContentPosition();
@@ -1527,8 +1524,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._unregisterEvent();
             this.node.off('size-changed', this._calculateBoundary, this);
+            this.node.off('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.off('size-changed', this._calculateBoundary, this);
+                this.content.off('scale-changed', this._calculateBoundary, this);
             }
         }
         this._hideScrollbar();
@@ -1539,8 +1538,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
             this.node.on('size-changed', this._calculateBoundary, this);
+            this.node.on('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.on('size-changed', this._calculateBoundary, this);
+                this.content.on('scale-changed', this._calculateBoundary, this);
             }
         }
         this._showScrollbar();

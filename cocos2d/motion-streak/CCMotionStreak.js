@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -154,8 +155,8 @@ var MotionStreak = cc.Class({
          * motionStreak.texture = newTexture;
          */
         _texture: {
-            default: '',
-            url: cc.Texture2D
+            default: null,
+            type: cc.Texture2D
         },
         texture: {
             get: function () {
@@ -164,13 +165,17 @@ var MotionStreak = cc.Class({
             set: function (value) {
                 this._texture = value;
                 if (this._motionStreak) {
-                    if (value && cc.js.isString(value))
-                        value = cc.textureCache.addImage(value);
-
+                    if (CC_DEBUG && typeof value === 'string') {
+                        // TODO - remove at 2.0
+                        cc.warnID(3657, 'motionStreak.texture');
+                        if (value) {
+                            value = cc.textureCache.addImage(value);
+                        }
+                    }
                     this._motionStreak.setTexture(value);
                 }
             },
-            url: cc.Texture2D,
+            type: cc.Texture2D,
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.texture'
         },
@@ -242,8 +247,8 @@ var MotionStreak = cc.Class({
      * !#zh 删除当前所有的拖尾片段。
      * @method reset
      * @example
-     * // stop particle system.
-     * myParticleSystem.stopSystem();
+     * // Remove all living segments of the ribbon.
+     * myMotionStreak.reset();
      */
     reset: function () {
         this._motionStreak.reset();
@@ -256,7 +261,7 @@ var MotionStreak = cc.Class({
         }
         this._root = new _ccsg.Node();
         var motionStreak = new _ccsg.MotionStreak();
-        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture || null);
+        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture);
         motionStreak.setFastMode(this._fastMode);
         this._root.addChild(motionStreak);
         var sgNode = this.node._sgNode;

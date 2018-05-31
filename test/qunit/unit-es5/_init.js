@@ -65,8 +65,8 @@ var TestSprite = cc.Class({
         width: 0,
         height: 0,
         texture: {
-            default: '',
-            url: TestTexture,
+            default: null,
+            type: TestTexture,
         },
         rotated: false,
         trimLeft: 0,
@@ -169,6 +169,7 @@ function _resetGame (w, h) {
             id: 'test-canvas',
             debugMode: cc.DebugMode.INFO
         });
+        cc.director.setDisplayStats(false);
     }
     else {
         var view = cc.view;
@@ -200,7 +201,7 @@ function _resetGame (w, h) {
         var size = view.getDesignResolutionSize();
         view.setDesignResolutionSize(size.width, size.height, cc.ResolutionPolicy.SHOW_ALL);
 
-        cc.eventManager.dispatchCustomEvent('canvas-resize');
+        cc._Test.eventManager.dispatchCustomEvent('canvas-resize');
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();

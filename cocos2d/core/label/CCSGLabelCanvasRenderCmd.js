@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -288,8 +289,8 @@
             }
             canvasSizeY = this._splitedStrings.length * this._getLineHeight();
 
-            this._canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
-            this._canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
+            this._canvasSize.width = Math.round(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
+            this._canvasSize.height = Math.round(canvasSizeY.toFixed(2));
             if(node._isItalic) {
                 //0.0174532925 = 3.141592653 / 180
                 this._canvasSize.width += node._drawFontsize * Math.tan(12 * 0.0174532925);
@@ -399,7 +400,7 @@
     };
 
     proto._updateTexture = function() {
-        this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
+        this._labelContext.clearRect(0, 0, this._canvasSize.width, this._canvasSize.height);
 
         this._labelContext.font = this._fontDesc;
 
@@ -447,8 +448,7 @@
 
         this._texture.loaded = false;
         // Hack. because we delete _image after usage in WEBGL mode
-        this._texture._image = this._labelCanvas;
-        this._texture.handleLoadedTexture(true);
+        this._texture._nativeAsset = this._labelCanvas;
     };
 
     proto._getGradientArgs = function () {

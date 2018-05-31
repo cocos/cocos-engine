@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,13 +50,15 @@ cc.url = {
     _builtinRawAssets: '',
     
     normalize: function (url) {
-        if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
-            // strip './'
-            url = url.slice(2);
-        }
-        else if (url.charCodeAt(0) === 47) {
-            // strip '/'
-            url = url.slice(1);
+        if (url) {
+            if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
+                // strip './'
+                url = url.slice(2);
+            }
+            else if (url.charCodeAt(0) === 47) {
+                // strip '/'
+                url = url.slice(1);
+            }
         }
         return url;
     },
@@ -66,7 +69,7 @@ cc.url = {
      * @method raw
      * @param {String} url
      * @return {String}
-     * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/raw.js}
+     * @example {@link cocos2d/core/platform/url/raw.js}
      */
     raw: function (url) {
         if (CC_EDITOR && !this._rawAssets) {
@@ -84,6 +87,13 @@ cc.url = {
                 cc.errorID(7002, url);
             }
         }
+        else {
+            // backward compatibility since 1.10
+            var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, true);
+            if (uuid) {
+                return cc.AssetLibrary.getLibUrlNoExt(uuid) + cc.path.extname(url);
+            }
+        }
         
         return this._rawAssets + url;
     },
@@ -93,7 +103,7 @@ cc.url = {
      * @method builtinRaw
      * @param {String} url
      * @return {String}
-     * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/builtinRaw.js}
+     * @example {@link cocos2d/core/platform/url/builtinRaw.js}
      */
     builtinRaw: CC_EDITOR && function (url) {
         if ( !this._builtinRawAssets ) {

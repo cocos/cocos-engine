@@ -20,7 +20,7 @@ asyncTest('Load', function () {
             strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
         }
         else if (item.id === json2) {
-            strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
+            strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else {
             ok(false, 'should not load an unknown url');
@@ -86,7 +86,7 @@ asyncTest('Load with dependencies', function () {
         type: 'deps'
     };
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
-    var audio = assetDir + '/background.mp3';
+    var audio = assetDir + '/library/12/1258a1.json';
     var resources = [
         json1,
         json2,
@@ -108,11 +108,11 @@ asyncTest('Load with dependencies', function () {
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');
         }
         else if (item.id === json2) {
-            strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
+            strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else if (item.id === audio) {
             // Test environment doesn't support audio
-            ok((item.content instanceof cc.Audio) || true, 'audio url\'s result should be Audio');
+            ok((item.content instanceof cc.AudioClip) || true, 'audio url\'s result should be AudioClip');
         }
         else if (item.id === dep1 || item.id === dep2 || item.id === dep3) {
             depsProgression();

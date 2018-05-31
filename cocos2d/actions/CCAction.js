@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -300,7 +301,7 @@ cc.Speed = cc.Action.extend({
      */
     initWithAction:function (action, speed) {
         if(!action)
-            throw new Error("cc.Speed.initWithAction(): action must be non nil");
+            throw new Error(cc._getError(1021));
 
         this._innerAction = action;
         this._speed = speed;
@@ -489,7 +490,7 @@ cc.Follow = cc.Action.extend({
      */
     initWithTarget:function (followedNode, rect) {
         if(!followedNode)
-            throw new Error("cc.Follow.initWithAction(): followedNode must be non nil");
+            throw new Error(cc._getError(1022));
 
         var _this = this;
         rect = rect || cc.rect(0, 0, 0, 0);

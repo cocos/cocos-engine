@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -106,7 +107,7 @@ proto._doCulling = function () {
     // x2, y2  rightBottom
     // x3, y3  leftTop
     // x4, y4  rightTop
-    var vert = node._isTriangle ? node._rawVerts : node._vertices,
+    var vert = node._vertices,
         corner = node._corner,
         c0 = corner[0], c1 = corner[1], c2 = corner[2], c3 = corner[3],
         x0 = vert[c0], x1 = vert[c1], x2 = vert[c2], x3 = vert[c3],

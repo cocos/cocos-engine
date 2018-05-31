@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,13 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var PrefabHelper = require('./prefab-helper');
 var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
+var eventManager = require('../event-manager');
 
 var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
+var Deactivating = Flags.Deactivating; 
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -50,20 +54,40 @@ function getConstructor(typeOrClassName) {
 }
 
 function findComponent(node, constructor) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            return comp;
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                return comp;
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                return comp;
+            }
         }
     }
     return null;
 }
 
 function findComponents(node, constructor, components) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            components.push(comp);
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                components.push(comp);
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                components.push(comp);
+            }
         }
     }
 }
@@ -357,15 +381,21 @@ var BaseNode = cc.Class({
                 return;
             }
         }
-        //
         var oldParent = this._parent;
+        if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
+            cc.errorID(3821);
+        }
+        //
         this._parent = value || null;
 
         this._onSetParent(value);
 
         if (value) {
+            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+                cc.errorID(3821);
+            }
             if (!CC_JSB) {
-                cc.eventManager._setDirtyForNode(this);
+                eventManager._setDirtyForNode(this);
             }
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
@@ -546,6 +576,10 @@ var BaseNode = cc.Class({
      */
     setSiblingIndex (index) {
         if (!this._parent) {
+            return;
+        }
+        if (this._parent._objFlags & Deactivating) {
+            cc.errorID(3821);
             return;
         }
         var siblings = this._parent._children;
@@ -1055,6 +1089,12 @@ var BaseNode = cc.Class({
 
     _onSetParent (value) {},
     _onPostActivated () {},
+    _onBatchRestored () {
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchRestored();
+        }
+    },
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
@@ -1086,8 +1126,11 @@ var BaseNode = cc.Class({
             var myPrefabInfo = this._prefab;
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
-                    // change prefab
-                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    if (myPrefabInfo.root !== newPrefabRoot) {
+                        // change prefab
+                        _Scene.PrefabUtils.unlinkPrefab(this);
+                        _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    }
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
@@ -1107,11 +1150,11 @@ var BaseNode = cc.Class({
 
     _onBatchCreated () {
         var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
+        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
+            if (CC_DEV && prefabInfo._synced) {
+                cc.error('Internal error: prefab already synced');
             }
+            PrefabHelper.syncWithPrefab(this);
         }
 
         var children = this._children;
@@ -1133,8 +1176,6 @@ var BaseNode = cc.Class({
         }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
-            // copy non-serialized property
-            cloned._prefab._synced = thisPrefabInfo._synced;
             //if (thisPrefabInfo._synced) {
             //    return clone;
             //}
@@ -1145,7 +1186,7 @@ var BaseNode = cc.Class({
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchCreated();
+        cloned._onBatchRestored();
 
         return cloned;
     },

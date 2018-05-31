@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -69,12 +70,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             serializable: false,
         },
 
-        _dragonBonesData: {
-            default: null,
-            type: dragonBones.DragonBonesData,
-            serializable: false,
-        },
-
         /**
          * !#en
          * The DragonBones data contains the armatures information (bind pose bones, slots, draw order,
@@ -86,9 +81,9 @@ dragonBones.ArmatureDisplay = cc.Class({
          * 多个 ArmatureDisplay 可以共用相同的骨骼数据。
          * @property {DragonBonesAsset} dragonAsset
          */
-        dragonAsset : {
+        dragonAsset: {
             default: null,
-            type : dragonBones.DragonBonesAsset,
+            type: dragonBones.DragonBonesAsset,
             notify: function () {
                 // parse the asset data
                 this._parseDragonAsset();
@@ -109,7 +104,7 @@ dragonBones.ArmatureDisplay = cc.Class({
          * 骨骼数据所需的 Atlas Texture 数据。
          * @property {DragonBonesAtlasAsset} dragonAtlasAsset
          */
-        dragonAtlasAsset : {
+        dragonAtlasAsset: {
             default: null,
             type: dragonBones.DragonBonesAtlasAsset,
             notify: function () {
@@ -121,24 +116,25 @@ dragonBones.ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
 
-        _armatureName : '',
+        _armatureName: '',
         /**
          * !#en The name of current armature.
          * !#zh 当前的 Armature 名称。
          * @property {String} armatureName
          */
         armatureName: {
-            get : function () {
+            get: function () {
                 return this._armatureName;
             },
-            set : function (value) {
+            set: function (value) {
                 this._armatureName = value;
                 var animNames = this.getAnimationNames(this._armatureName);
 
                 if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
                     if (CC_EDITOR) {
                         this.animationName = animNames[0];
-                    } else {
+                    }
+                    else {
                         // Not use default animation name at runtime
                         this.animationName = '';
                     }
@@ -148,17 +144,17 @@ dragonBones.ArmatureDisplay = cc.Class({
             visible: false
         },
 
-        _animationName : '',
+        _animationName: '',
         /**
          * !#en The name of current playing animation.
          * !#zh 当前播放的动画名称。
          * @property {String} animationName
          */
         animationName: {
-            get : function () {
+            get: function () {
                 return this._animationName;
             },
-            set : function (value) {
+            set: function (value) {
                 this._animationName = value;
             },
             visible: false
@@ -176,7 +172,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     if (this.dragonAsset) {
                         armaturesEnum = this.dragonAsset.getArmatureEnum();
                     }
-                    if ( !armaturesEnum ) {
+                    if (!armaturesEnum) {
                         return cc.errorID(7400, this.name);
                     }
 
@@ -211,7 +207,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     animsEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
                 }
 
-                if ( !animsEnum ) {
+                if (!animsEnum) {
                     return;
                 }
 
@@ -282,18 +278,18 @@ dragonBones.ArmatureDisplay = cc.Class({
     },
 
     // IMPLEMENT
-    ctor : function () {
+    ctor: function () {
         if (CC_JSB) {
             // TODO Fix me
             // If using the getFactory in JSB.
             // There may be throw errors when close the application.
             this._factory = new dragonBones.CCFactory();
         } else {
-            this._factory = dragonBones.CCFactory.getFactory();
+            this._factory = dragonBones.CCFactory.getInstance();
         }
     },
 
-    __preload : function () {
+    __preload: function () {
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
@@ -301,7 +297,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _createSgNode: function () {
         if (this.dragonAsset && this.dragonAtlasAsset && this.armatureName) {
-            return this._factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name);
+            return this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name);
         }
         return null;
     },
@@ -328,64 +324,27 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
     },
 
-    _parseDragonAsset : function() {
+    _parseDragonAsset: function () {
         if (this.dragonAsset) {
-            var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
-            var data = this._factory.getDragonBonesData(jsonObj.name);
-            if (data) {
-                // already added asset
-                this._dragonBonesData = data;
-                return;
-            }
-
-            if (CC_JSB) {
-                this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
-            } else {
-                this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
-            }
+            this.dragonAsset.init(this._factory);
         }
     },
 
-    _parseDragonAtlasAsset : function() {
+    _parseDragonAtlasAsset: function () {
         if (this.dragonAtlasAsset) {
-            if (CC_JSB) {
-                // TODO parse the texture atlas data from json string & texture path
-                this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
-            } else {
-                var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-                var atlasName = atlasJsonObj.name;
-                var existedAtlasData = null;
-                var atlasDataList = this._factory.getTextureAtlasData(atlasName);
-                var texturePath = this.dragonAtlasAsset.texture;
-                if (atlasDataList && atlasDataList.length > 0) {
-                    for (var idx in atlasDataList) {
-                        var data = atlasDataList[idx];
-                        if (data && data.texture && data.texture.url === texturePath) {
-                            existedAtlasData = data;
-                            break;
-                        }
-                    }
-                }
-
-                var texture = cc.textureCache.getTextureForKey(texturePath);
-                if (existedAtlasData) {
-                    existedAtlasData.texture = texture;
-                } else {
-                    this._factory.parseTextureAtlasData(atlasJsonObj, texture);
-                }
-            }
+            this.dragonAtlasAsset.init(this._factory);
         }
     },
 
-    _refreshSgNode : function() {
+    _refreshSgNode: function () {
         var self = this;
 
         // discard exists sgNode
-        var listenersBefore = null, listenerCacheBefore = null;
+        var listenersBefore = null, listenersCacheBefore = null;
         if (self._sgNode) {
             listenersBefore = self._sgNode._bubblingListeners; // get the listeners added before
-            listenerCacheBefore = self._sgNode._hasListenerCache;
-            if ( self.node._sizeProvider === self._sgNode ) {
+            listenersCacheBefore = self._sgNode._hasListenerCache;
+            if (self.node._sizeProvider === self._sgNode) {
                 self.node._sizeProvider = null;
             }
             self._removeSgNode();
@@ -395,16 +354,13 @@ dragonBones.ArmatureDisplay = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
-                sgNode.retain();
-            }
-            if ( !self.enabledInHierarchy ) {
+            if (!self.enabledInHierarchy) {
                 sgNode.setVisible(false);
             }
 
             if (listenersBefore) {
                 sgNode._bubblingListeners = listenersBefore; // using the listeners added before
-                sgNode._hasListenerCache = listenerCacheBefore;
+                sgNode._hasListenerCache = listenersCacheBefore;
                 if (CC_JSB && !sgNode.hasEventCallback()) {
                     // In JSB, should set event callback of the new sgNode
                     // to make the listeners work well.
@@ -420,7 +376,7 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
     },
 
-    _refresh : function () {
+    _refresh: function () {
         this._refreshSgNode();
 
         if (CC_EDITOR) {
@@ -471,7 +427,7 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @param {Number} playTimes
      * @return {dragonBones.AnimationState}
      */
-    playAnimation: function(animName, playTimes) {
+    playAnimation: function (animName, playTimes) {
         if (this._sgNode) {
             this.playTimes = (playTimes === undefined) ? -1 : playTimes;
             this.animationName = animName;
@@ -489,12 +445,9 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @method getArmatureNames
      * @returns {Array}
      */
-    getArmatureNames : function () {
-        if (this._dragonBonesData) {
-            return this._dragonBonesData.armatureNames;
-        }
-
-        return [];
+    getArmatureNames: function () {
+        var dragonBonesData = this.dragonAsset && this.dragonAsset._dragonBonesData;
+        return (dragonBonesData && dragonBonesData.armatureNames) || [];
     },
 
     /**
@@ -506,10 +459,10 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @param {String} armatureName
      * @returns {Array}
      */
-    getAnimationNames : function (armatureName) {
+    getAnimationNames: function (armatureName) {
         var ret = [];
-        if (this._dragonBonesData) {
-            var armatureData = this._dragonBonesData.getArmature(armatureName);
+        if (this.dragonAsset && this.dragonAsset._dragonBonesData) {
+            var armatureData = this.dragonAsset._dragonBonesData.getArmature(armatureName);
             if (armatureData) {
                 for (var animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {
@@ -528,13 +481,14 @@ dragonBones.ArmatureDisplay = cc.Class({
      * !#zh
      * 添加 DragonBones 事件监听器。
      * @method addEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    addEventListener : function (eventType, listener, target) {
+    addEventListener: function (type, listener, target) {
         if (this._sgNode) {
-            this._sgNode.addEvent(eventType, listener, target);
+            this._sgNode.addEvent(type, listener, target);
         }
     },
 
@@ -544,11 +498,11 @@ dragonBones.ArmatureDisplay = cc.Class({
      * !#zh
      * 移除 DragonBones 事件监听器。
      * @method removeEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
      */
-    removeEventListener : function (eventType, listener, target) {
+    removeEventListener: function (eventType, listener, target) {
         if (this._sgNode) {
             this._sgNode.removeEvent(eventType, listener, target);
         }
@@ -563,7 +517,7 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @param {String} armatureName
      * @return {dragonBones.Armature}
      */
-    buildArmature : function (armatureName) {
+    buildArmature: function (armatureName) {
         if (this._factory) {
             return this._factory.buildArmature(armatureName);
         }
@@ -579,7 +533,7 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @method armature
      * @returns {Object}
      */
-    armature : function () {
+    armature: function () {
         if (this._sgNode) {
             return this._sgNode.armature();
         }

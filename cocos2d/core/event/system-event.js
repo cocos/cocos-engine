@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +25,14 @@
  ****************************************************************************/
 
 var EventTarget = require('../event/event-target');
+var eventManager = require('../event-manager');
+var inputManger;
+if (CC_JSB) {
+    inputManger = cc.inputManager;
+}
+else {
+    inputManger = require('../platform/CCInputManager');
+}
 
 /**
  * !#en The event type supported by SystemEvent
@@ -78,6 +87,26 @@ var SystemEvent = cc.Class({
         EventType: EventType
     },
 
+    /**
+     * !#en whether enable accelerometer event
+     * !#zh 是否启用加速度计事件
+     * @method setAccelerometerEnabled
+     * @param {Boolean} isEnable
+     */
+    setAccelerometerEnabled: function (isEnable) {
+        inputManger.setAccelerometerEnabled(isEnable);
+    },
+
+    /**
+     * !#en set accelerometer interval value
+     * !#zh 设置加速度计间隔值
+     * @method setAccelerometerInterval
+     * @param {Number} interval
+     */
+    setAccelerometerInterval: function(interval) {
+        inputManger.setAccelerometerInterval(interval);
+    },
+
     on: function (type, callback, target, useCapture) {
         this._super(type, callback, target, useCapture);
 
@@ -104,10 +133,10 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
+            if (!eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
                 var currentFrame = cc.director.getTotalFrames();
                 if (currentFrame !== keyboardListenerAddFrame) {
-                    cc.eventManager.addListener(keyboardListener, 1);
+                    eventManager.addListener(keyboardListener, 1);
                     keyboardListenerAddFrame = currentFrame;
                 }
             }
@@ -127,8 +156,8 @@ var SystemEvent = cc.Class({
                     }
                 });
             }
-            if (!cc.eventManager.hasEventListener(cc._EventListenerAcceleration.LISTENER_ID)) {
-                cc.eventManager.addListener(accelerationListener, 1);
+            if (!eventManager.hasEventListener(cc._EventListenerAcceleration.LISTENER_ID)) {
+                eventManager.addListener(accelerationListener, 1);
             }
         }
     },
@@ -142,13 +171,13 @@ var SystemEvent = cc.Class({
             var hasKeyDownEventListener = this.hasEventListener(EventType.KEY_DOWN);
             var hasKeyUpEventListener = this.hasEventListener(EventType.KEY_UP);
             if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
-                cc.eventManager.removeListener(keyboardListener);
+                eventManager.removeListener(keyboardListener);
             }
         }
 
         // Acceleration
         if (accelerationListener && type === EventType.DEVICEMOTION) {
-            cc.eventManager.removeListener(accelerationListener);
+            eventManager.removeListener(accelerationListener);
         }
     }
 

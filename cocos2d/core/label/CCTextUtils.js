@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -204,10 +205,10 @@ var CustomFontLoader = {
 
 var TextUtils = {
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
-    label_symbolRex : /^[!,.:;}\]%\?>、‘“》？。，！]/,
+    label_symbolRex : /^[!,.:;'}\]%\?>、‘“》？。，！]/,
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
-    label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
+    label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
     label_wrapinspection : true,
 
     isUnicodeCJK: function(ch) {
@@ -255,7 +256,7 @@ var TextUtils = {
             checkWhile = 0;
 
             //Find the truncation point
-            while (width < maxWidth && checkWhile++ < checkCount) {
+            while (width <= maxWidth && checkWhile++ < checkCount) {
                 if (tmpText) {
                     var exec = this.label_wordRex.exec(tmpText);
                     pushNum = exec ? exec[0].length : 1;
@@ -288,7 +289,7 @@ var TextUtils = {
             }
 
             //To judge whether a English words are truncated
-            if (this.label_firsrEnglish.test(sLine)) {
+            if (this.label_firstEnglish.test(sLine)) {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
@@ -296,16 +297,30 @@ var TextUtils = {
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-            if (sText.trim().length > 0) {
+
+            // The first line And do not wrap should not remove the space
+            if (wrappedWords.length === 0) {
                 wrappedWords.push(sText);
+            }
+            else {
+                sText = sText.trim();
+                if (sText.length > 0) {
+                    wrappedWords.push(sText);
+                }
             }
             text = sLine || tmpText;
             allWidth = measureText(text);
         }
-        if (text.length > 0) {
+
+        if (wrappedWords.length === 0) {
             wrappedWords.push(text);
         }
-
+        else {
+            text = text.trim();
+            if (text.length > 0) {
+                wrappedWords.push(text);
+            }
+        }
         return wrappedWords;
     },
 

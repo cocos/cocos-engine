@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -38,7 +39,7 @@ _ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
     if (node._nuPoints <= 1)
         return;
 
-    if (node.texture && node.texture.isLoaded()) {
+    if (node.texture && node.texture.loaded) {
         ctx = ctx || cc._renderContext;
 
         // update the color

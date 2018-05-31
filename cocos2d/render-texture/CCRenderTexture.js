@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright (c) 2009      Jason Booth
 
  http://www.cocos2d-x.org
@@ -343,7 +344,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @param {Number} format
      */
     saveToFile: function (filePath, format) {
-        cc.log("saveToFile isn't supported on Cocos2d-Html5");
+        cc.logID(7604);
     },
 
     /**
@@ -351,7 +352,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @return {*}
      */
     newCCImage: function (flipImage) {
-        cc.log("saveToFile isn't supported on cocos2d-html5");
+        cc.logID(7605);
         return null;
     },
 

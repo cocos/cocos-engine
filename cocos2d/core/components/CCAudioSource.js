@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Audio = require('../../audio/CCAudio');
+const AudioClip = require('../assets/CCAudioClip');
+
 /**
  * !#en Audio Source.
  * !#zh 音频源组件，能对音频剪辑。
  * @class AudioSource
  * @extends Component
  */
-
-
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
     extends: require('./CCComponent'),
@@ -41,13 +43,13 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio();
+        this.audio = new Audio();
     },
 
     properties: {
         _clip: {
-            default: '',
-            url: cc.AudioClip
+            default: null,
+            type: AudioClip
         },
         _volume: 1,
         _mute: false,
@@ -71,7 +73,6 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                if (!this.audio) return false;
                 var state = this.audio.getState();
                 return state === cc.Audio.State.PLAYING;
             },
@@ -79,8 +80,8 @@ var AudioSource = cc.Class({
         },
 
         /**
-         * !#en The clip of the audio source.
-         * !#zh 默认要播放的音频剪辑。
+         * !#en The clip of the audio source to play.
+         * !#zh 要播放的音频剪辑。
          * @property clip
          * @type {AudioClip}
          * @default 1
@@ -90,17 +91,28 @@ var AudioSource = cc.Class({
                 return this._clip;
             },
             set: function (value) {
+                if (typeof value === 'string') {
+                    // backward compatibility since 1.10
+                    cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
+                    let self = this;
+                    AudioClip._loadByUrl(value, function (err, clip) {
+                        if (clip) {
+                            self.clip = clip;
+                        }
+                    });
+                    return;
+                }
+
                 if (value === this._clip) {
                     return;
                 }
                 this._clip = value;
                 this.audio.stop();
-                this.audio.src = this._clip;
-                if (this.audio.preload) {
-                    this.audio.preload();
+                if (this.preload) {
+                    this.audio.src = this._clip;
                 }
             },
-            url: cc.AudioClip,
+            type: AudioClip,
             tooltip: CC_DEV && 'i18n:COMPONENT.audio.clip',
             animatable: false
         },
@@ -119,14 +131,8 @@ var AudioSource = cc.Class({
             set: function (value) {
                 value = cc.clamp01(value);
                 this._volume = value;
-                var audio = this.audio;
-                if (audio && !this._mute) {
-                    audio.setVolume(value);
-                    if (!audio._loaded) {
-                        audio.on('load', function () {
-                            audio.setVolume(value);
-                        });
-                    }
+                if (!this._mute) {
+                    this.audio.setVolume(value);
                 }
                 return value;
             },
@@ -146,9 +152,7 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._mute = value;
-                if (this.audio) {
-                    this.audio.setVolume(value ? 0 : this._volume);
-                }
+                this.audio.setVolume(value ? 0 : this._volume);
                 return value;
             },
             animatable: false,
@@ -168,9 +172,7 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._loop = value;
-                if (this.audio) {
-                    this.audio.setLoop(value);
-                }
+                this.audio.setLoop(value);
                 return value;
             },
             animatable: false,
@@ -178,8 +180,8 @@ var AudioSource = cc.Class({
         },
 
         /**
-         * !#en If set to true, the audio source will automatically start playing on onLoad.
-         * !#zh 如果设置为true，音频源将在 onLoad 时自动播放。
+         * !#en If set to true, the audio source will automatically start playing on onEnable.
+         * !#zh 如果设置为 true，音频源将在 onEnable 时自动播放。
          * @property playOnLoad
          * @type {Boolean}
          * @default true
@@ -196,28 +198,37 @@ var AudioSource = cc.Class({
         }
     },
 
+    _ensureDataLoaded () {
+        if (this.audio.src !== this._clip) {
+            this.audio.src = this._clip;
+        }
+    },
+
     _pausedCallback: function () {
         var audio = this.audio;
-        if (!audio || audio.paused) return;
+        if (audio.paused) return;
         this.audio.pause();
         this._pausedFlag = true;
     },
 
     _restoreCallback: function () {
-        if (!this.audio) return;
         if (this._pausedFlag) {
             this.audio.resume();
         }
         this._pausedFlag = false;
     },
 
+    onLoad: function () {
+        this.audio.setVolume(this._mute ? 0 : this._volume);
+        this.audio.setLoop(this._loop);
+    },
+
     onEnable: function () {
-        if ( this.playOnLoad ) {
-            this.play();
-        }
-        if ( this.preload ) {
+        if (this.preload) {
             this.audio.src = this._clip;
-            this.audio.preload();
+        }
+        if (this.playOnLoad) {
+            this.play();
         }
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
@@ -231,6 +242,7 @@ var AudioSource = cc.Class({
 
     onDestroy: function () {
         this.stop();
+        this.audio.destroy();
         cc.audioEngine.uncache(this._clip);
     },
 
@@ -242,24 +254,13 @@ var AudioSource = cc.Class({
     play: function () {
         if ( !this._clip ) return;
 
-        var volume = this._mute ? 0 : this._volume;
         var audio = this.audio;
-        var loop = this._loop;
-
-        if (audio._loaded) {
+        if (this._clip.loaded) {
             audio.stop();
-            audio.setCurrentTime(0);
-            audio.play();
-            return;
         }
-
-        audio.src = this._clip;
-        audio.once('load', function () {
-            audio.setLoop(loop);
-            audio.setVolume(volume);
-            audio.play();
-        });
-        audio.preload();
+        this._ensureDataLoaded();
+        audio.setCurrentTime(0);
+        audio.play();
     },
 
     /**
@@ -268,9 +269,7 @@ var AudioSource = cc.Class({
      * @method stop
      */
     stop: function () {
-        if (this.audio) {
-            this.audio.stop();
-        }
+        this.audio.stop();
     },
 
     /**
@@ -279,9 +278,7 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
-        if (this.audio) {
-            this.audio.pause();
-        }
+        this.audio.pause();
     },
 
     /**
@@ -290,9 +287,8 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        if (this.audio) {
-            this.audio.resume();
-        }
+        this._ensureDataLoaded();
+        this.audio.resume();
     },
 
     /**
@@ -301,9 +297,7 @@ var AudioSource = cc.Class({
      * @method rewind
      */
     rewind: function(){
-        if (this.audio) {
-            this.audio.setCurrentTime(0);
-        }
+        this.audio.setCurrentTime(0);
     },
 
     /**
@@ -312,11 +306,7 @@ var AudioSource = cc.Class({
      * @method getCurrentTime
      */
     getCurrentTime: function () {
-        var time = 0;
-        if (this.audio) {
-            time = this.audio.getCurrentTime();
-        }
-        return time;
+        return this.audio.getCurrentTime();
     },
 
     /**
@@ -326,16 +316,7 @@ var AudioSource = cc.Class({
      * @param {Number} time
      */
     setCurrentTime: function (time) {
-        var audio = this.audio;
-        if (!audio) return time;
-
-        if (!audio._loaded) {
-            audio.once('load', function () {
-                audio.setCurrentTime(time);
-            });
-            return time;
-        }
-        audio.setCurrentTime(time);
+        this.audio.setCurrentTime(time);
         return time;
     },
 
@@ -345,11 +326,7 @@ var AudioSource = cc.Class({
      * @method getDuration
      */
     getDuration: function () {
-        var time = 0;
-        if (this.audio) {
-            time = this.audio.getDuration();
-        }
-        return time;
+        return this.audio.getDuration();
     }
 
 });

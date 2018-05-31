@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -213,7 +214,7 @@ var RigidBody = cc.Class({
                 this._allowSleep = value;
 
                 if (this._b2Body) {
-                    this._b2Body.SetAllowSleeping(value);
+                    this._b2Body.SetSleepingAllowed(value);
                 }
             }
         },
@@ -618,7 +619,7 @@ var RigidBody = cc.Class({
      * Get all the joints connect to the rigidbody.
      * !#zh
      * 获取链接到此刚体的所有关节
-     * @method getInertia
+     * @method getJointList
      * @return {[Joint]} the joint list.
      */
     getJointList: function () {
@@ -664,6 +665,7 @@ var RigidBody = cc.Class({
 	 * affect the angular velocity.
      * !#zh
      * 施加一个力到刚体上的一个点。如果力没有施加到刚体的质心上，还会产生一个扭矩并且影响到角速度。
+     * @method applyForce
      * @param {Vec2} force - the world force vector.
      * @param {Vec2} point - the world position.
      * @param {Boolean} wake - also wake up the body.
@@ -681,6 +683,7 @@ var RigidBody = cc.Class({
      * Apply a force to the center of mass.
      * !#zh
      * 施加一个力到刚体上的质心上。
+     * @method applyForceToCenter
      * @param {Vec2} force - the world force vector.
      * @param {Boolean} wake - also wake up the body.
      */
@@ -696,6 +699,7 @@ var RigidBody = cc.Class({
      * Apply a torque. This affects the angular velocity.
      * !#zh
      * 施加一个扭矩力，将影响刚体的角速度
+     * @method applyTorque
      * @param {Number} torque - about the z-axis (out of the screen), usually in N-m.
      * @param {Boolean} wake - also wake up the body
      */
@@ -713,6 +717,7 @@ var RigidBody = cc.Class({
      * !#zh
      * 施加冲量到刚体上的一个点，将立即改变刚体的线性速度。
      * 如果冲量施加到的点不是刚体的质心，那么将产生一个扭矩并影响刚体的角速度。
+     * @method applyLinearImpulse
      * @param {Vec2} impulse - the world impulse vector, usually in N-seconds or kg-m/s.
      * @param {Vec2} point - the world position
      * @param {Boolean} wake - alse wake up the body
@@ -730,6 +735,7 @@ var RigidBody = cc.Class({
      * Apply an angular impulse.
      * !#zh
      * 施加一个角速度冲量。
+     * @method applyAngularImpulse
      * @param {Number} impulse - the angular impulse in units of kg*m*m/s
      * @param {Boolean} wake - also wake up the body
      */
@@ -747,6 +753,7 @@ var RigidBody = cc.Class({
      * !#zh
      * 同步节点的世界坐标到 box2d 刚体的坐标上。
      * 如果 enableAnimated 是 true，并且刚体的类型是 Animated ，那么将设置刚体的线性速度来代替直接设置刚体的位置。
+     * @method syncPosition
      * @param {Boolean} enableAnimated
      */
     syncPosition: function (enableAnimated) {
@@ -791,6 +798,7 @@ var RigidBody = cc.Class({
      * !#zh
      * 同步节点的世界旋转角度值到 box2d 刚体的旋转值上。
      * 如果 enableAnimated 是 true，并且刚体的类型是 Animated ，那么将设置刚体的角速度来代替直接设置刚体的角度。
+     * @method syncRotation
      * @param {Boolean} enableAnimated
      */
     syncRotation: function (enableAnimated) {

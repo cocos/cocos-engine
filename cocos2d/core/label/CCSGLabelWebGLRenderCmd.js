@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,12 +31,20 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 
+//
+var opts = {
+    premultiplyAlpha: true
+};
+
+var _sharedLabelCanvas;
 _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
-    this._labelCanvas = document.createElement("canvas");
+    this._texture.update(opts);
+    _sharedLabelCanvas = _sharedLabelCanvas || document.createElement('canvas');
+    this._labelCanvas = _sharedLabelCanvas;
     this._texture.initWithElement(this._labelCanvas);
     this._labelContext = this._labelCanvas.getContext("2d");
 
@@ -65,8 +74,8 @@ proto.updateTransform = function (parentCmd) {
     this.originUpdateTransform(parentCmd);
 
     var node = this._node,
-        lx = 0, rx = this._labelCanvas.width,
-        by = 0, ty = this._labelCanvas.height,
+        lx = 0, rx = this._node.width,
+        by = 0, ty = this._node.height,
         wt = this._worldTransform;
 
     var vert = this._vertices;
@@ -121,7 +130,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     // Use 255 because color has been set when baking label
     // premultiplied alpha is used for labelTTF and system font
     var opacity = this._displayedOpacity;
-    this._color[0] = ((opacity<<24) | (opacity<<16) | (opacity<<8) | opacity);
+    this._color[0] = ((~~opacity << 24) >>> 0) | (~~opacity << 16) | (~~opacity << 8) | ~~opacity;
 
     var z = node._vertexZ;
 

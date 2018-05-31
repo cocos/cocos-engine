@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -59,7 +60,7 @@ cc.pool = /** @lends cc.pool# */{
      * !#zh 加入对象到对象池中。
      * @method putInPool
      * @param {Object} obj - The need put in pool object.
-     * @example {@link utils/api/engine/docs/extensions/ccpool/putInPool.js}
+     * @example {@link extensions/ccpool/putInPool.js}
      */
     putInPool: function (obj) {
         var cid = cc.js._getClassId(obj.constructor);
@@ -69,8 +70,6 @@ cc.pool = /** @lends cc.pool# */{
         if (!this._pool[cid]) {
             this._pool[cid] = [];
         }
-        // JSB retain to avoid being auto released
-        CC_JSB && obj.retain && obj.retain();
         // User implementation for disable the object
         obj.unuse && obj.unuse();
         this._pool[cid].push(obj);
@@ -104,8 +103,6 @@ cc.pool = /** @lends cc.pool# */{
             if (list) {
                 for (var i = 0; i < list.length; i++) {
                     if (obj === list[i]) {
-                        // JSB release to avoid memory leak
-                        CC_JSB && obj.release && obj.release();
                         list.splice(i, 1);
                     }
                 }
@@ -130,8 +127,6 @@ cc.pool = /** @lends cc.pool# */{
             var obj = list.pop();
             // User implementation for re-enable the object
             obj.reuse && obj.reuse.apply(obj, _args);
-            // JSB release to avoid memory leak
-            CC_JSB && obj.release && this._autoRelease(obj);
             _args.length = 0;
             return obj;
         }
@@ -147,8 +142,6 @@ cc.pool = /** @lends cc.pool# */{
             for (var i in this._pool) {
                 for (var j = 0; j < this._pool[i].length; j++) {
                     var obj = this._pool[i][j];
-                    // JSB release to avoid memory leak
-                    obj.release && obj.release();
                 }
             }
         }

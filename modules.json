@@ -91,18 +91,15 @@
     "name": "ScrollView",
     "entries": [
       "./cocos2d/core/components/CCScrollView.js"
-    ]
+    ],
+    "dependencies": ["Layout"]
   },
   {
     "name": "Toggle",
     "entries": [
-      "./cocos2d/core/components/CCToggle.js"
-    ]
-  },
-  {
-    "name": "ToggleGroup",
-    "entries": [
-      "./cocos2d/core/components/CCToggleGroup.js"
+      "./cocos2d/core/components/CCToggle.js",
+      "./cocos2d/core/components/CCToggleGroup.js",
+      "./cocos2d/core/components/CCToggleContainer.js"
     ]
   },
   {
@@ -227,12 +224,6 @@
       "./cocos2d/render-texture/CCRenderTexture.js",
       "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
       "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
-    ]
-  },
-  {
-    "name": "Chipmunk",
-    "entries": [
-      "./external/chipmunk/chipmunk.js"
     ]
   },
   {

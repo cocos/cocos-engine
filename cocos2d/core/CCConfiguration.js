@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -244,7 +245,7 @@ cc.configuration = /** @lends cc.configuration# */{
         this._supportsPVRTC = this.checkForGLExtension("GL_IMG_texture_compression_pvrtc");
         locValueDict["gl.supports_PVRTC"] = this._supportsPVRTC;
 
-        this._supportsNPOT = false; //true;
+        this._supportsNPOT = true;
         locValueDict["gl.supports_NPOT"] = this._supportsNPOT;
 
         this._supportsBGRA8888 = this.checkForGLExtension("GL_IMG_texture_format_BGRA888");
@@ -267,7 +268,7 @@ cc.configuration = /** @lends cc.configuration# */{
         if(!this._inited)
             this._init();
         var dict = cc.loader.getRes(url);
-        if(!dict) throw new Error("Please load the resource first : " + url);
+        if(!dict) throw new Error(cc._getError(1102, url));
         cc.assertID(dict, 1101, url);
 
         var getDatas = dict["data"];

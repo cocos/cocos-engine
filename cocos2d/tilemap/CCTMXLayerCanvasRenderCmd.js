@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -50,7 +51,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         tiles = node.tiles,
         alpha = node._opacity / 255;
 
-    if (!tiles || alpha <= 0) {
+    if (!tiles || alpha <= 0 || !node.tileset) {
         return;
     }
 

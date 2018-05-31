@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -52,19 +53,15 @@ var Misc = require('../utils/misc');
  * @class
  * @extends _ccsg.Node
  *
- * @param {String|cc.SpriteFrame|HTMLImageElement|cc.Texture2D} fileName  The string which indicates a path to image file, e.g., "scene1/monster.png".
+ * @param {cc.SpriteFrame|cc.Texture2D} textureOrSpriteFrame
  * @param {Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
  * @param {Boolean} [rotated] Whether or not the texture rectangle is rotated.
  * @example
  *
- * 1.Create a sprite with image path and rect
- * var sprite1 = new _ccsg.Sprite("res/HelloHTML5World.png");
- * var sprite2 = new _ccsg.Sprite("res/HelloHTML5World.png",cc.rect(0,0,480,320));
- *
- * 2.Create a sprite with a sprite frame
+ * 1.Create a sprite with a sprite frame
  * var sprite = new _ccsg.Sprite(spriteFrame);
  *
- * 3.Create a sprite with an existing texture contained in a CCTexture2D object
+ * 2.Create a sprite with an existing texture contained in a CCTexture2D object
  *      After creation, the rect will be the size of the texture, and the offset will be (0,0).
  * var texture = cc.textureCache.addImage("HelloHTML5World.png");
  * var sprite1 = new _ccsg.Sprite(texture);
@@ -113,7 +110,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
     _textureLoaded:false,
     _className:"Sprite",
 
-    ctor: function (fileName, rect, rotated) {
+    ctor: function (textureOrSpriteFrame, rect, rotated) {
         var self = this;
         _ccsg.Node.prototype.ctor.call(self);
         EventTarget.call(self);
@@ -124,7 +121,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         self._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
         self._rect = cc.rect(0, 0, 0, 0);
 
-        self._softInit(fileName, rect, rotated);
+        self._softInit(textureOrSpriteFrame, rect, rotated);
     },
 
     /**
@@ -367,39 +364,16 @@ _ccsg.Sprite = _ccsg.Node.extend({
         return this._texture;
     },
 
-    _softInit: function (fileName, rect, rotated) {
-        if (fileName === undefined)
+    _softInit: function (textureOrSpriteFrame, rect, rotated) {
+        if (textureOrSpriteFrame === undefined)
             _ccsg.Sprite.prototype.init.call(this);
-        else if (cc.js.isString(fileName)) {
-            if (fileName[0] === "#") {
-                cc.logID(2728, fileName);
-            } else {
-                // Init  with filename and rect
-                _ccsg.Sprite.prototype.init.call(this, fileName, rect);
-            }
-        } else if (typeof fileName === "object") {
-            if (fileName instanceof cc.Texture2D) {
-                // Init  with texture and rect
-                this.initWithTexture(fileName, rect, rotated);
-            } else if (fileName instanceof cc.SpriteFrame) {
-                // Init with a sprite frame
-                this.initWithSpriteFrame(fileName);
-            } else if ((fileName instanceof HTMLImageElement) || (fileName instanceof HTMLCanvasElement)) {
-                // Init with a canvas or image element
-                var texture2d = new cc.Texture2D();
-                texture2d.initWithElement(fileName);
-                texture2d.handleLoadedTexture();
-                this.initWithTexture(texture2d);
-            }
+        else if (textureOrSpriteFrame instanceof cc.Texture2D) {
+            // Init  with texture and rect
+            this.initWithTexture(textureOrSpriteFrame, rect, rotated);
+        } else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
+            // Init with a sprite frame
+            this.initWithSpriteFrame(textureOrSpriteFrame);
         }
-    },
-
-    /**
-     * Returns the quad (tex coords, vertex coords and color) information.
-     * @return {cc.V3F_C4B_T2F_Quad|null} Returns a cc.V3F_C4B_T2F_Quad object when render mode is WebGL, returns null when render mode is Canvas.
-     */
-    getQuad:function () {
-        return null;
     },
 
     /**
@@ -472,7 +446,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var tex = cc.textureCache.getTextureForKey(filename);
         if (!tex) {
             tex = cc.textureCache.addImage(filename);
-            return this.initWithTexture(tex, rect || cc.rect(0, 0, tex._contentSize.width, tex._contentSize.height));
+            return this.initWithTexture(tex, rect || cc.rect(0, 0, tex.width, tex.height));
         } else {
             if (!rect) {
                 var size = tex.getContentSize();
@@ -693,12 +667,8 @@ _ccsg.Sprite = _ccsg.Node.extend({
             this._changeRectWithTexture(texture);
     },
 
-    _changeRectWithTexture: function(texture){
-        var contentSize = texture._contentSize;
-        var rect = cc.rect(
-                0, 0,
-                contentSize.width, contentSize.height
-            );
+    _changeRectWithTexture: function(texture) {
+        var rect = cc.rect(0, 0, texture.width, texture.height);
         this.setTextureRect(rect);
     },
 
@@ -712,7 +682,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
-var SameNameGetSets = ['opacity', 'color', 'texture', 'quad'];
+var SameNameGetSets = ['opacity', 'color', 'texture'];
 var DiffNameGetSets = {
     opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
     flippedX: ['isFlippedX', 'setFlippedX'],

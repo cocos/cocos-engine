@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -297,7 +298,6 @@ var AssetLibrary = {
         resources.reset();
         var rawAssets = options.rawAssets;
         if (rawAssets) {
-            var RES_DIR = 'resources/';
             for (var mountPoint in rawAssets) {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
@@ -311,20 +311,11 @@ var AssetLibrary = {
                     }
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if (cc.isChildClassOf(type, Asset)) {
-                            var ext = cc.path.extname(url);
-                            if (ext) {
-                                // trim base dir and extname
-                                url = url.slice(RES_DIR.length, - ext.length);
-                            }
-                            else {
-                                // trim base dir
-                                url = url.slice(RES_DIR.length);
-                            }
-                        }
-                        else {
-                            url = url.slice(RES_DIR.length);
+                    if (mountPoint === 'assets') {
+                        var ext = cc.path.extname(url);
+                        if (ext) {
+                            // trim base dir and extname
+                            url = url.slice(0, - ext.length);
                         }
                         var isSubAsset = info[2] === 1;
                         // register

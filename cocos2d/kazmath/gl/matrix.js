@@ -1,7 +1,8 @@
 /**
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright (c) 2008, Luke Benstead.
  All rights reserved.
 
@@ -77,17 +78,20 @@ math.glFreeAll = function () {
 
 math.glPushMatrix = function () {
     cc.current_stack.push(cc.current_stack.top);
+    cc.current_stack.update();
 };
 
 math.glPushMatrixWitMat4 = function (saveMat) {
     cc.current_stack.stack.push(cc.current_stack.top);
     saveMat.assignFrom(cc.current_stack.top);
     cc.current_stack.top = saveMat;
+    cc.current_stack.update();
 };
 
 math.glPopMatrix = function () {
     //No need to lazy initialize, you shouldnt be popping first anyway!
     cc.current_stack.top = cc.current_stack.stack.pop();
+    cc.current_stack.update();
 };
 
 math.glMatrixMode = function (mode) {
@@ -103,7 +107,7 @@ math.glMatrixMode = function (mode) {
             cc.current_stack = math.texture_matrix_stack;
             break;
         default:
-            throw new Error("Invalid matrix mode specified");   //TODO: Proper error handling
+            throw new Error(cc._getError(7908));   //TODO: Proper error handling
             break;
     }
 };
@@ -166,7 +170,7 @@ math.glGetMatrix = function (mode, pOut) {
             pOut.assignFrom(math.texture_matrix_stack.top);
             break;
         default:
-            throw new Error("Invalid matrix mode specified"); //TODO: Proper error handling
+            throw new Error(cc._getError(7908)); //TODO: Proper error handling
             break;
     }
 };

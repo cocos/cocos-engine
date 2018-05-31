@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,8 +31,10 @@ dragonBones.CCArmatureDisplay = cc.Class({
     extends: _ccsg.Node,
     mixins: [EventTarget],
 
-    _armature : null,
-    _debugDrawer : null,
+    ctor () {
+        this._armature = null;
+        this._debugDrawer = null;
+    },
 
     _onClear : function () {
         this._armature = null;

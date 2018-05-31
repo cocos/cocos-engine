@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,7 +50,7 @@ var Toggle = cc.Class({
         isChecked: {
             default: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
-            notify: function() {
+            notify: function () {
                 this._updateCheckMark();
             }
         },
@@ -64,7 +65,7 @@ var Toggle = cc.Class({
         toggleGroup: {
             default: null,
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle.toggleGroup',
-            type: cc.ToggleGroup
+            type: require('./CCToggleGroup')
         },
 
         /**
@@ -91,7 +92,7 @@ var Toggle = cc.Class({
         _resizeToTarget: {
             animatable: false,
             set: function (value) {
-                if(value) {
+                if (value) {
                     this._resizeNodeToTargetNode();
                 }
             }
@@ -99,32 +100,28 @@ var Toggle = cc.Class({
 
     },
 
-    __preload: function () {
-        this._super();
-    },
-
     onEnable: function () {
         this._super();
-        if(!CC_EDITOR) {
+        if (!CC_EDITOR) {
             this._registerToggleEvent();
         }
-        if(this.toggleGroup && this.toggleGroup.enabled) {
+        if (this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.addToggle(this);
         }
     },
 
     onDisable: function () {
         this._super();
-        if(!CC_EDITOR) {
+        if (!CC_EDITOR) {
             this._unregisterToggleEvent();
         }
-        if(this.toggleGroup && this.toggleGroup.enabled) {
+        if (this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.removeToggle(this);
         }
     },
 
     _updateCheckMark: function () {
-        if(this.checkMark) {
+        if (this.checkMark) {
             this.checkMark.node.active = !!this.isChecked;
         }
     },
@@ -132,11 +129,11 @@ var Toggle = cc.Class({
     _updateDisabledState: function () {
         this._super();
 
-        if(this.checkMark) {
+        if (this.checkMark) {
             this.checkMark._sgNode.setState(0);
         }
-        if(this.enableAutoGrayEffect) {
-            if(this.checkMark && !this.interactable) {
+        if (this.enableAutoGrayEffect) {
+            if (this.checkMark && !this.interactable) {
                 this.checkMark._sgNode.setState(1);
             }
         }
@@ -151,18 +148,20 @@ var Toggle = cc.Class({
     },
 
     toggle: function (event) {
-        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
-            if(!this.toggleGroup.allowSwitchOff) {
+        var group = this.toggleGroup || this._toggleContainer;
+
+        if (group && group.enabled && this.isChecked) {
+            if (!group.allowSwitchOff) {
                 return;
             }
         }
+
         this.isChecked = !this.isChecked;
 
         this._updateCheckMark();
 
-
-        if(this.toggleGroup && this.toggleGroup.enabled) {
-            this.toggleGroup.updateToggles(this);
+        if (group && group.enabled) {
+            group.updateToggles(this);
         }
 
         this._emitToggleEvents(event);
@@ -170,7 +169,7 @@ var Toggle = cc.Class({
 
     _emitToggleEvents: function () {
         this.node.emit('toggle', this);
-        if(this.checkEvents) {
+        if (this.checkEvents) {
             cc.Component.EventHandler.emitEvents(this.checkEvents, this);
         }
     },
@@ -181,16 +180,18 @@ var Toggle = cc.Class({
      * @method check
      */
     check: function () {
-        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
-            if(!this.toggleGroup.allowSwitchOff) {
+        var group = this.toggleGroup || this._toggleContainer;
+
+        if (group && group.enabled && this.isChecked) {
+            if (!group.allowSwitchOff) {
                 return;
             }
         }
 
         this.isChecked = true;
 
-        if(this.toggleGroup && this.toggleGroup.enabled) {
-            this.toggleGroup.updateToggles(this);
+        if (group && group.enabled) {
+            group.updateToggles(this);
         }
 
         this._emitToggleEvents();
@@ -202,8 +203,10 @@ var Toggle = cc.Class({
      * @method uncheck
      */
     uncheck: function () {
-        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
-            if(!this.toggleGroup.allowSwitchOff) {
+        var group = this.toggleGroup || this._toggleContainer;
+
+        if (group && group.enabled && this.isChecked) {
+            if (!group.allowSwitchOff) {
                 return;
             }
         }
@@ -212,11 +215,22 @@ var Toggle = cc.Class({
 
         this._emitToggleEvents();
     }
-
-
 });
 
 cc.Toggle = module.exports = Toggle;
+
+
+var JS = require('../platform/js');
+
+JS.get(Toggle.prototype, '_toggleContainer',
+    function () {
+        var parent = this.node.parent;
+        if (cc.Node.isNode(parent)) {
+            return parent.getComponent(cc.ToggleContainer);
+        }
+        return null;
+    }
+);
 
 /**
  * !#en

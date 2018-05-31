@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -118,7 +119,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
 
     _fillTextureGrids: function (tileset, texId) {
         var tex = this._textures[texId];
-        if (!tex.isLoaded()) {
+        if (!tex.loaded) {
             tex.once('load', function () {
                 this._fillTextureGrids(tileset, texId);
             }, this);
@@ -209,12 +210,14 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             this._texGrids = [];
             for (i = 0; i < len; ++i) {
                 tileset = tilesets[i];
-                tex = cc.textureCache.addImage(tileset.sourceImage);
-                tex.setAliasTexParameters();
-                this._textures[i] = tex;
-                this._fillTextureGrids(tileset, i);
-                if (tileset === tilesetInfo) {
-                    this._texture = tex;
+                tex = tileset.sourceImage;
+                if (tex) {
+                    tex.setAliasTexParameters();
+                    this._textures[i] = tex;
+                    this._fillTextureGrids(tileset, i);
+                    if (tileset === tilesetInfo) {
+                        this._texture = tex;
+                    }
                 }
             }
         }
@@ -471,7 +474,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileAt: function (pos, y) {
         if (pos === undefined) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
+            throw new Error(cc._getError(7226));
         }
         var x = pos;
         if (y === undefined) {
@@ -479,7 +482,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             y = pos.y;
         }
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
+            throw new Error(cc._getError(7227));
         }
         if (!this.tiles) {
             cc.logID(7204);
@@ -521,7 +524,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileGIDAt:function (pos, y) {
         if (pos === undefined) {
-            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null");
+            throw new Error(cc._getError(7228));
         }
         var x = pos;
         if (y === undefined) {
@@ -529,7 +532,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             y = pos.y;
         }
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
+            throw new Error(cc._getError(7229));
         }
         if (!this.tiles) {
             cc.logID(7205);
@@ -556,7 +559,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (posOrX === undefined) {
-            throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
+            throw new Error(cc._getError(7230));
         }
         var pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
@@ -570,7 +573,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
-            throw new Error("_ccsg.TMXLayer.setTileGID(): invalid position");
+            throw new Error(cc._getError(7231));
         }
         if (!this.tiles) {
             cc.logID(7206);
@@ -636,11 +639,11 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileFlagsAt:function (pos, y) {
         if(!pos)
-            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null");
+            throw new Error(cc._getError(7232));
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
+            throw new Error(cc._getError(7233));
         if(!this.tiles){
             cc.logID(7208);
             return null;
@@ -662,13 +665,13 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     removeTileAt:function (pos, y) {
         if (!pos) {
-            throw new Error("_ccsg.TMXLayer.removeTileAt(): pos should be non-null");
+            throw new Error(cc._getError(7234));
         }
         if (y !== undefined) {
             pos = cc.p(pos, y);
         }
         if (pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
-            throw new Error("_ccsg.TMXLayer.removeTileAt(): invalid position");
+            throw new Error(cc._getError(7235));
         }
         if (!this.tiles) {
             cc.logID(7209);

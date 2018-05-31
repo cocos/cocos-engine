@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 
 var JS = cc.js;
 var Playable = require('./playable');
@@ -28,7 +53,9 @@ function AnimationState (clip, name) {
     Playable.call(this);
     cc.EventTarget.call(this);
     
-    this._firstFramePlayed = false;
+    // Mark whether the current frame is played.
+    // When set new time to animation state, we should ensure the frame at the specified time being played at next update.
+    this._currentFramePlayed = false;
     
     this._delay = 0;
     this._delayTime = 0;
@@ -186,6 +213,7 @@ proto.onPause = function () {
 };
 
 proto.setTime = function (time) {
+    this._currentFramePlayed = false;
     this.time = time || 0;
 
     var curves = this.curves;
@@ -204,23 +232,14 @@ function process () {
     var cache = this._hasListenerCache;
     if (cache && cache['lastframe']) {
         var lastInfo;
-        if (!lastInfo) {
+        if (!this._lastWrappedInfo) {
             lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
+        } else {
+            lastInfo = this._lastWrappedInfo;
         }
 
-        if (this.repeatCount > 1 && 
-            ((info.iterations | 0) > (lastInfo.iterations | 0)) // another iterations
-            ) {
-            if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-                if (lastInfo.direction < 0) {
-                    this.emit('lastframe', this);
-                }
-            }
-            else {
-                if (lastInfo.direction > 0) {
-                    this.emit('lastframe', this);
-                }
-            }
+        if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
+            this.emit('lastframe', this);
         }
 
         lastInfo.set(info);
@@ -230,7 +249,7 @@ function process () {
         this.stop();
         this.emit('finished', this);
     }
-};
+}
 
 function simpleProcess () {
     var time = this.time;
@@ -242,7 +261,7 @@ function simpleProcess () {
     }
     else if (time < 0) {
         time = time % duration;
-        if (time !== 0 ) time += duration;
+        if (time !== 0) time += duration;
     }
 
     var ratio = time / duration;
@@ -255,18 +274,15 @@ function simpleProcess () {
 
     var cache = this._hasListenerCache;
     if (cache && cache['lastframe']) {
-        var currentIterations = time > 0 ? (time / duration) : -(time / duration);
-        
-        var lastIterations = this._lastIterations;
-        if (lastIterations === undefined) {
-            lastIterations = this._lastIterations = currentIterations;
+        if (this._lastIterations === undefined) {
+            this._lastIterations = ratio;
         }
 
-        if ((currentIterations | 0) > (lastIterations | 0)) {
+        if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
             this.emit('lastframe', this);
         }
 
-        this._lastIterations = currentIterations;
+        this._lastIterations = ratio;
     }
 }
 
@@ -284,11 +300,11 @@ proto.update = function (delta) {
     // make first frame perfect
 
     //var playPerfectFirstFrame = (this.time === 0);
-    if (this._firstFramePlayed) {
+    if (this._currentFramePlayed) {
         this.time += (delta * this.speed);
     }
     else {
-        this._firstFramePlayed = true;
+        this._currentFramePlayed = true;
     }
 
     this._process();

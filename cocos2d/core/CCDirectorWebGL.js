@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -27,6 +28,7 @@
 require('./CCDirector');
 require('./CCGame');
 require('../kazmath');
+var eventManager = require('./event-manager');
 
 var math = cc.math;
 
@@ -146,8 +148,10 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         _t._openGLView = openGLView || cc.view;
 
         // Configuration. Gather GPU info
-        var conf = cc.configuration;
-        conf.gatherGPUInfo();
+        if (!CC_QQPLAY) {
+            var conf = cc.configuration;
+            conf.gatherGPUInfo();
+        }
 
         // set size
         //_t._winSizeInPoints = _t._openGLView.getDesignResolutionSize();
@@ -164,8 +168,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
          }*/
 
         //}
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(true);
+        if (eventManager)
+            eventManager.setEnabled(true);
     };
 
     _p.getVisibleSize = function () {

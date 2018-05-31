@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -55,7 +56,7 @@ var HashElement = function () {
  *  - 当你想要运行一个动作，但目标不是 CCNode 类型时。 <br/>
  *  - 当你想要暂停/恢复动作时。 <br/>
  * @class ActionManager
- * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
+ * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
@@ -114,9 +115,9 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      */
     addAction:function (action, target, paused) {
         if(!action)
-            throw new Error("cc.ActionManager.addAction(): action must be non-null");
+            throw new Error(cc._getError(1000));
         if(!target)
-            throw new Error("cc.ActionManager.addAction(): action must be non-null");
+            throw new Error(cc._getError(1000));
 
         //check if the action target already exists
         var element = this._hashTargets[target.__instanceId];

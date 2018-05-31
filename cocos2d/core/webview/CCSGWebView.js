@@ -1,15 +1,16 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +20,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var Utils = require('../platform/utils');
+var eventManager = require('../event-manager');
 
 _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
@@ -205,10 +207,12 @@ _ccsg.WebView.EventType = {
 
     var polyfill = _ccsg.WebView._polyfill = {
         devicePixelRatio: false,
-        enableDiv: false
+        enableDiv: false,
+        enableBG: false,
+        closeHistory: false
     };
 
-    if (cc.sys.os === cc.sys.OS_IOS)
+    if (cc.sys.os === cc.sys.OS_IOS || cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI)
         polyfill.enableDiv = true;
 
     if (cc.sys.isMobile) {
@@ -275,8 +279,7 @@ _ccsg.WebView.EventType = {
 
     proto.resize = function (view) {
         view = view || cc.view;
-        var node = this._node,
-            eventManager = cc.eventManager;
+        var node = this._node;
         if (node._parent && node._visible)
             this.updateMatrix();
         else {
@@ -311,8 +314,8 @@ _ccsg.WebView.EventType = {
     };
 
     proto.initStyle = function () {
-        if (!this._div) return;
         var div = this._div;
+        if (!div) return;
         div.style.position = "absolute";
         div.style.bottom = "0px";
         div.style.left = "0px";
@@ -382,14 +385,13 @@ _ccsg.WebView.EventType = {
     };
 
     proto.updateVisibility = function () {
-        var node = this._node;
-        if (!this._div) return;
         var div = this._div;
-        if (node.visible) {
-            div.style.visibility = 'visible';
-        }
-        else {
-            div.style.visibility = 'hidden';
+        if (!div) return;
+        var visible = this._node.visible;
+        div.style.visibility = visible ? '' : 'hidden';
+        if (div !== this._iframe) {
+            // fix visibility on iOS 9/10 Safari
+            this._iframe.style.display = visible ? '' : 'none';
         }
     };
 

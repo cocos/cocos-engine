@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -81,9 +82,12 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         if (cc.Scale9Sprite.state.GRAY === this._state) {
             this._textureToRender = this._textureToRender._generateGrayTexture();
         }
-        var color = node.getDisplayedColor();
-        if (locTexture && (color.r !== 255 || color.g !==255 || color.b !== 255))
-            this._textureToRender = this._textureToRender._generateColorTexture(color.r,color.g,color.b);
+
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            var color = node.getDisplayedColor();
+            if (locTexture && (color.r !== 255 || color.g !== 255 || color.b !== 255))
+                this._textureToRender = this._textureToRender._generateColorTexture(color.r, color.g, color.b);
+        }
     }
 
     var wrapper = ctx || cc._renderContext, context = wrapper.getContext();

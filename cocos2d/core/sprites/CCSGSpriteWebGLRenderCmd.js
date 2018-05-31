@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -68,8 +69,9 @@ proto._handleTextureForRotatedTexture = function (texture) {
 
 proto.isFrameDisplayed = function (frame) {
     var node = this._node;
-    return (cc.rectEqualToRect(frame.getRect(), node._rect) && frame.getTexture().url === node._texture.url
-        && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
+    return (cc.rectEqualToRect(frame.getRect(), node._rect) &&
+            frame.getTexture().url === node._texture.url &&
+            cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
 };
 
 proto._updateForSetSpriteFrame = function () {};

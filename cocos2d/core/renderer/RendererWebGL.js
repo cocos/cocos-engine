@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -11,7 +12,7 @@
  furnished to do so, subject to the following conditions:
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -438,11 +439,20 @@ cc.rendererWebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
         if (uploadAll) {
-            gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
+            if (CC_QQPLAY && cc.sys.noABSupport) {
+                gl.bufferDataOldIOS(gl.ARRAY_BUFFER, _vertexDataF32, _vertexDataUI32, gl.DYNAMIC_DRAW);
+            }
+            else
+                gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
         }
         else {
             var view = _vertexDataF32.subarray(0, _batchingSize * _sizePerVertex);
-            gl.bufferData(gl.ARRAY_BUFFER, view, gl.DYNAMIC_DRAW);
+            if (CC_QQPLAY && cc.sys.noABSupport) {
+                var viewUI32 = _vertexDataUI32.subarray(0, _batchingSize * _sizePerVertex);
+                gl.bufferDataOldIOS(gl.ARRAY_BUFFER, view, viewUI32, gl.DYNAMIC_DRAW);
+            }
+            else
+                gl.bufferData(gl.ARRAY_BUFFER, view, gl.DYNAMIC_DRAW);
         }
 
         gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
@@ -485,8 +495,9 @@ cc.rendererWebGL = {
             i, len, cmd,
             context = ctx || cc._renderContext;
 
-        // Reset buffer for rendering
+        // Reset buffer and texture for rendering
         context.bindBuffer(context.ARRAY_BUFFER, null);
+        cc.gl.bindTexture2DN(0, null);
         
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];

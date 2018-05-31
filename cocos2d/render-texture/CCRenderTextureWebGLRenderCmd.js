@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -136,11 +137,10 @@ proto.updateClearColor = function(clearColor){ };
 proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
     var node = this._node;
     if(format === cc.Texture2D.PixelFormat.A8)
-        cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
+        cc.logID(7601);
 
     var gl = cc._renderContext;
     this._fullRect = new cc.Rect(0,0, width, height);
-    this._fullViewport = new cc.Rect(0,0, width, height);
 
     width = 0 | width;
     height = 0 | height;
@@ -158,6 +158,8 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
         powH = misc.NextPOT(height);
     }
 
+    this._fullViewport = new cc.Rect(0,0, powW, powH);
+
     //void *data = malloc(powW * powH * 4);
     var dataLen = powW * powH * 4;
     var data = new Uint8Array(dataLen);
@@ -171,7 +173,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
     if (!node._texture)
         return false;
 
-    locTexture.initWithData(data, node._pixelFormat, powW, powH, cc.size(width, height));
+    locTexture.initWithData(data, node._pixelFormat, powW, powH);
     //free( data );
 
     var oldRBO = gl.getParameter(gl.RENDERBUFFER_BINDING);
@@ -180,7 +182,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
         this._textureCopy = new cc.Texture2D();
         if (!this._textureCopy)
             return false;
-        this._textureCopy.initWithData(data, node._pixelFormat, powW, powH, cc.size(width, height));
+        this._textureCopy.initWithData(data, node._pixelFormat, powW, powH);
     }
 
     // generate FBO
@@ -205,7 +207,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
 
     // check if it worked (probably worth doing :) )
     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
-        cc.log("Could not attach texture to the framebuffer");
+        cc.logID(7602);
 
     locTexture.setAliasTexParameters();
 
@@ -244,6 +246,7 @@ proto.begin = function(){
 
     var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(-1.0 / widthRatio, 1.0 / widthRatio,
         -1.0 / heightRatio, 1.0 / heightRatio, -1, 1);
+    cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
     cc.math.glMultMatrix(orthoMatrix);
 
     //calculate viewport

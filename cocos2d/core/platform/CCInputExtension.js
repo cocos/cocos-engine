@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -27,6 +28,7 @@ if (!cc.ClassManager) {
     require("./_CCClass");
 }
 
+var eventManager = require('../event-manager');
 var inputManager = require("./CCInputManager");
 
 inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
@@ -65,12 +67,12 @@ inputManager.setAccelerometerInterval = function(interval){
 
 inputManager._registerKeyboardEvent = function(){
     cc.game.canvas.addEventListener("keydown", function (e) {
-        cc.eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, true));
+        eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, true));
         e.stopPropagation();
         e.preventDefault();
     }, false);
     cc.game.canvas.addEventListener("keyup", function (e) {
-        cc.eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, false));
+        eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, false));
         e.stopPropagation();
         e.preventDefault();
     }, false);

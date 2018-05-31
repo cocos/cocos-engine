@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright 2011 Jeff Lamarche
  Copyright 2012 Goffredo Marocchi
 
@@ -99,7 +100,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             else
                 cc.log("cocos2d: \n" + this.fragmentShaderLog());
         }
-        return ( status === true );
+        return !!status
     },
 
     /**
@@ -194,9 +195,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     initWithVertexShaderFilename: function (vShaderFilename, fShaderFileName) {
         var vertexSource = cc.loader.getRes(vShaderFilename);
-        if (!vertexSource) throw new Error("Please load the resource firset : " + vShaderFilename);
+        if (!vertexSource) throw new Error(cc._getError(8106, vShaderFilename));
         var fragmentSource = cc.loader.getRes(fShaderFileName);
-        if (!fragmentSource) throw new Error("Please load the resource firset : " + fShaderFileName);
+        if (!fragmentSource) throw new Error(cc._getError(8106, fShaderFileName));
         return this.initWithVertexShaderByteArray(vertexSource, fragmentSource);
     },
 
@@ -296,9 +297,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     getUniformLocationForName: function (name) {
         if (!name)
-            throw new Error("cc.GLProgram.getUniformLocationForName(): uniform name should be non-null");
+            throw new Error(cc._getError(8107));
         if (!this._programObj)
-            throw new Error("cc.GLProgram.getUniformLocationForName(): Invalid operation. Cannot get uniform location when program is not initialized");
+            throw new Error(cc._getError(8108));
 
         var location = this._uniforms[name] || this._glContext.getUniformLocation(this._programObj, name);
         return location;
@@ -682,7 +683,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
     _setUniformForMVPMatrixWithMat4: function(modelViewMatrix){
         if(!modelViewMatrix)
-            throw new Error("modelView matrix is undefined.");
+            throw new Error(cc._getError(8109));
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },

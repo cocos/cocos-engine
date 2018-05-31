@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -22,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-_ccsg.Sprite.CanvasRenderCmd = function (renderable) {
+function CanvasRenderCmd (renderable) {
     this._rootCtor(renderable);
     this._needDraw = true;
     this._textureCoord = {
@@ -40,8 +41,8 @@ _ccsg.Sprite.CanvasRenderCmd = function (renderable) {
     this._textureToRender = null;
 };
 
-var proto = _ccsg.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-proto.constructor = _ccsg.Sprite.CanvasRenderCmd;
+var proto = CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = CanvasRenderCmd;
 
 proto.setDirtyRecursively = function (value) {};
 
@@ -50,8 +51,7 @@ proto._setTexture = function (texture) {
     if (node._texture !== texture) {
         node._textureLoaded = texture ? texture.loaded : false;
         node._texture = texture;
-        var texSize = texture._contentSize;
-        var rect = cc.rect(0, 0, texSize.width, texSize.height);
+        var rect = cc.rect(0, 0, texture.width, texture.height);
         node.setTextureRect(rect);
         this._updateColor();
     }
@@ -73,13 +73,8 @@ proto.updateBlendFunc = function (blendFunc) {
 };
 
 proto._handleTextureForRotatedTexture = function (texture, rect, rotated, counterclockwise) {
-    if (rotated && texture.isLoaded()) {
-        var tempElement = texture.getHtmlElementObj();
-        tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, rect, counterclockwise);
-        var tempTexture = new cc.Texture2D();
-        tempTexture.initWithElement(tempElement);
-        tempTexture.handleLoadedTexture();
-        texture = tempTexture;
+    if (rotated && texture.loaded) {
+        texture = CanvasRenderCmd._createRotatedTexture(texture, rect, counterclockwise);
         rect.x = rect.y = 0;
         this._node._rect = cc.rect(0, 0, rect.width, rect.height);
     }
@@ -234,7 +229,7 @@ proto._setTextureCoords = function (rect) {
     locTextureRect.validRect = !(locTextureRect.width === 0 || locTextureRect.height === 0 || locTextureRect.x < 0 || locTextureRect.y < 0);
 };
 
-_ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas = function (texture, rect, counterclockwise) {
+CanvasRenderCmd._cutRotateImageToCanvas = function (texture, rect, counterclockwise) {
     if (!texture)
         return null;
 
@@ -255,3 +250,11 @@ _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas = function (texture, rect, 
     ctx.drawImage(texture, rect.x, rect.y, rect.height, rect.width, -rect.height / 2, -rect.width / 2, rect.height, rect.width);
     return nCanvas;
 };
+
+CanvasRenderCmd._createRotatedTexture = function (texture, rect, counterclockwise) {
+    var rotatedTexture = new cc.Texture2D();
+    rotatedTexture._nativeAsset = CanvasRenderCmd._cutRotateImageToCanvas(texture._nativeAsset, rect, counterclockwise);
+    return rotatedTexture;
+};
+
+_ccsg.Sprite.CanvasRenderCmd = CanvasRenderCmd;
