@@ -77,8 +77,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
  * The view content is basically an EAGL surface you render your OpenGL scene into.
  * Note that setting the view non-opaque will only work if the EAGL surface has an alpha channel.
  */
-@interface CCEAGLView : UIView <UIKeyInput, UITextInput>
+@interface CCEAGLView : UIView
 {
+@private
     EAGLContext             *_context;
     GLuint                  _defaultFramebuffer;
     GLuint                  _defaultColorBuffer;
@@ -98,39 +99,22 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     BOOL                    _discardFramebufferSupported;
     EAGLSharegroup*         _sharegroup;
     
-    BOOL                    _isUseUITextField;
-    
-@private
-    NSString *              _markedText;
-    CGRect                  _caretRect;
-    CGRect                  _originalRect;
-    NSNotification*         _keyboardShowNotification;
-    BOOL                    _isKeyboardShown;
-    unsigned int            _touchesIds;
+    unsigned int            _touchIds;
     UITouch*                _touches[10];
     BOOL                    _isReady;
+    
+    BOOL                    _needToPreventTouch;
 }
 
-@property(nonatomic, readonly) UITextPosition *beginningOfDocument;
-@property(nonatomic, readonly) UITextPosition *endOfDocument;
-@property(nonatomic, assign) id<UITextInputDelegate> inputDelegate;
-@property(nonatomic, readonly) UITextRange *markedTextRange;
-@property (nonatomic, copy) NSDictionary *markedTextStyle;
-@property(readwrite, copy) UITextRange *selectedTextRange;
-@property(nonatomic, readonly) id<UITextInputTokenizer> tokenizer;
-@property(nonatomic, readonly, getter = isKeyboardShown) BOOL isKeyboardShown;
-@property(nonatomic, copy) NSNotification* keyboardShowNotification;
 /** creates an initializes an CCEAGLView with a frame, a color buffer format, a depth buffer format, a sharegroup, and multisampling */
-+ (id) viewWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)multisampling numberOfSamples:(unsigned int)samples;
++(id) viewWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)multisampling numberOfSamples:(unsigned int)samples;
 
 /** Initializes an CCEAGLView with a frame, a color buffer format, a depth buffer format, a sharegroup and multisampling support */
-- (id) initWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)sampling numberOfSamples:(unsigned int)nSamples;
+-(id) initWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)sampling numberOfSamples:(unsigned int)nSamples;
 
 /** CCEAGLView uses double-buffer. This method swaps the buffers */
 -(void) swapBuffers;
 
-- (BOOL) isReady;
-
--(void) doAnimationWhenKeyboardMoveWithDuration:(float) duration distance:(float) dis;
--(void) doAnimationWhenAnotherEditBeClicked;
+-(BOOL) isReady;
+-(void) setPreventTouchEvent:(BOOL) flag;
 @end

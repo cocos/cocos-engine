@@ -35,7 +35,8 @@ public class Utils {
     }
 
     public static void hideVirtualButton() {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 19 &&
+                null != Utils.sActivity) {
             // use reflection to remove dependence of API level
 
             Class viewClass = View.class;

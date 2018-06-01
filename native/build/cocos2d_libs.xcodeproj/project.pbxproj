@@ -289,7 +289,7 @@
 		46178671205262BC008256E1 /* jsb_conversions.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4617866F205262BB008256E1 /* jsb_conversions.hpp */; };
 		461DCA3620BBFA2D00B22827 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA3420BBFA2D00B22827 /* EditBox.h */; };
 		461DCA3720BBFA2D00B22827 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA3420BBFA2D00B22827 /* EditBox.h */; };
-		461DCA3B20BBFCA300B22827 /* EditBox-ios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3A20BBFCA300B22827 /* EditBox-ios.cpp */; };
+		461DCA3B20BBFCA300B22827 /* EditBox-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */; };
 		461DCA3E20BBFCFE00B22827 /* EditBox-mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */; };
 		4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */; };
 		4626B202202D9BE700BE30B9 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */; };
@@ -1145,7 +1145,7 @@
 		4617866A2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_network_auto.hpp; sourceTree = "<group>"; };
 		4617866F205262BB008256E1 /* jsb_conversions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_conversions.hpp; sourceTree = "<group>"; };
 		461DCA3420BBFA2D00B22827 /* EditBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditBox.h; sourceTree = "<group>"; };
-		461DCA3A20BBFCA300B22827 /* EditBox-ios.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "EditBox-ios.cpp"; sourceTree = "<group>"; };
+		461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "EditBox-ios.mm"; sourceTree = "<group>"; };
 		461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "EditBox-mac.cpp"; sourceTree = "<group>"; };
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
 		4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CCGLView-desktop.h"; path = "../desktop/CCGLView-desktop.h"; sourceTree = "<group>"; };
@@ -1579,6 +1579,7 @@
 		1551A334158F2AB200E66CFE = {
 			isa = PBXGroup;
 			children = (
+				461DCA4020BCFED800B22827 /* New Group */,
 				461DCA3220BBFA2D00B22827 /* ui */,
 				1AAAC877205CB6E9005321B9 /* audio */,
 				1A29D77F205666B100168D9A /* storage */,
@@ -1899,10 +1900,17 @@
 			isa = PBXGroup;
 			children = (
 				461DCA3420BBFA2D00B22827 /* EditBox.h */,
-				461DCA3A20BBFCA300B22827 /* EditBox-ios.cpp */,
+				461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */,
 				461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */,
 			);
 			path = "edit-box";
+			sourceTree = "<group>";
+		};
+		461DCA4020BCFED800B22827 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 		469301F42046AE05004A3D6C /* js-bindings */ = {
@@ -3549,7 +3557,7 @@
 				50ABBD491925AB0000A911A9 /* Mat4.cpp in Sources */,
 				469303672046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				46FDDACA202ACC6A00931238 /* RenderBuffer.cpp in Sources */,
-				461DCA3B20BBFCA300B22827 /* EditBox-ios.cpp in Sources */,
+				461DCA3B20BBFCA300B22827 /* EditBox-ios.mm in Sources */,
 				4DED484D1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.cpp in Sources */,
 				1A52DB78205BCDD000350EE3 /* Object.cpp in Sources */,
 				469303A72046AE05004A3D6C /* PlatformUtils.mm in Sources */,

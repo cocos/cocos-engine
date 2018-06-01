@@ -68,6 +68,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #include "platform/ios/OpenGL_Internal-ios.h"
 #include "platform/CCApplication.h"
 #include "base/ccMacros.h"
+#include "ui/edit-box/EditBox.h"
 
 namespace
 {
@@ -82,15 +83,13 @@ namespace
 
 //CLASS IMPLEMENTATIONS:
 
-#define IOS_MAX__touchesCOUNT     10
+#define MAX_TOUCH_COUNT     10
 
 @interface CCEAGLView (Private)
 @end
 
 @implementation CCEAGLView
 
-@synthesize isKeyboardShown=_isKeyboardShown;
-@synthesize keyboardShowNotification = _keyboardShowNotification;
 + (Class) layerClass
 {
     return [CAEAGLLayer class];
@@ -105,7 +104,6 @@ namespace
 {
     if((self = [super initWithFrame:frame]))
     {
-        _isUseUITextField = YES;
         _pixelformatString = format;
         _pixelformat = pixelformat2glenum(_pixelformatString);
         _depthFormat = depth;
@@ -113,23 +111,19 @@ namespace
         _multisampling = sampling;
         _requestedSamples = nSamples;
         _preserveBackbuffer = retained;
-        _markedText = nil;
         _sharegroup = sharegroup;
         _isReady = FALSE;
+        _needToPreventTouch = FALSE;
         
 #if GL_EXT_discard_framebuffer == 1
         _discardFramebufferSupported = YES;
 #else
         _discardFramebufferSupported = NO;
 #endif
-        
-        _originalRect = self.frame;
-        self.keyboardShowNotification = nil;
-
         if ([self respondsToSelector:@selector(setContentScaleFactor:)])
             self.contentScaleFactor = [[UIScreen mainScreen] scale];
         
-        _touchesIds = 0;
+        _touchIds = 0;
         for (int i = 0; i < 10; ++i)
             _touches[i] = nil;
         
@@ -139,29 +133,8 @@ namespace
     return self;
 }
 
-- (void)didMoveToWindow;
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onUIKeyboardNotification:)
-                                                 name:UIKeyboardWillShowNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onUIKeyboardNotification:)
-                                                 name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onUIKeyboardNotification:)
-                                                 name:UIKeyboardWillHideNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onUIKeyboardNotification:)
-                                                 name:UIKeyboardDidHideNotification object:nil];
-}
-
 - (void) dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self]; // remove keyboard notification
-    self.keyboardShowNotification = nullptr; // implicit release
-    
     if (_defaultColorBuffer)
     {
         glDeleteRenderbuffers(1, &_defaultColorBuffer);
@@ -266,6 +239,11 @@ namespace
 - (BOOL) isReady
 {
     return _isReady;
+}
+
+-(void) setPreventTouchEvent:(BOOL) flag
+{
+    _needToPreventTouch = flag;
 }
 
 - (void) setupGLContext
@@ -462,40 +440,20 @@ namespace
         glBindFramebuffer(GL_FRAMEBUFFER, _msaaFramebuffer);
 }
 
-#pragma mark CCEAGLView - Point conversion
-
--(void)handleTouchesAfterKeyboardShow
-{
-    NSArray *subviews = self.subviews;
-
-    for(UIView* view in subviews)
-    {
-        if([view isKindOfClass:NSClassFromString(@"UITextView")] ||
-           [view isKindOfClass:NSClassFromString(@"UITextField")])
-        {
-            if ([view isFirstResponder])
-            {
-                [view resignFirstResponder];
-                return;
-            }
-        }
-    }
-}
-
 // Pass the touches to the superview
 #pragma mark CCEAGLView - Touch Delegate
 
 namespace
 {
-    int getUnusedID(unsigned int& touchesIDs)
+    int getUnusedID(unsigned int& touchIDs)
     {
         int i;
-        unsigned int temp = touchesIDs;
+        unsigned int temp = touchIDs;
         
         for (i = 0; i < 10; i++) {
             if (! (temp & 0x00000001))
             {
-                touchesIDs |= (1 <<  i);
+                touchIDs |= (1 <<  i);
                 return i;
             }
             
@@ -506,9 +464,9 @@ namespace
         return -1;
     }
     
-    void resetTouchID(unsigned int& touchesIDs, int index)
+    void resetTouchID(unsigned int& touchIDs, int index)
     {
-        touchesIDs &= ((1 << index) ^ 0xffffffff);
+        touchIDs &= ((1 << index) ^ 0xffffffff);
     }
     
     cocos2d::TouchInfo createTouchInfo(int index, UITouch* touch, float contentScaleFactor)
@@ -521,20 +479,48 @@ namespace
         
         return touchInfo;
     }
+    
+    void deliverTouch(cocos2d::TouchEvent& touchEvent,
+                      NSSet* touches,
+                      UITouch** internalTouches,
+                      float contentScaleFactor,
+                      bool reset,
+                      unsigned int& touchIds)
+    {
+        for (UITouch *touch in touches)
+        {
+            for (int i = 0; i < MAX_TOUCH_COUNT; ++i)
+            {
+                if (touch == internalTouches[i])
+                {
+                    if (reset)
+                    {
+                        internalTouches[i] = nil;
+                        resetTouchID(touchIds, i);
+                    }
+                    touchEvent.touches.push_back(createTouchInfo(i, touch, contentScaleFactor));
+                }
+            }
+        }
+        
+        if (!touchEvent.touches.empty())
+            cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (_isKeyboardShown)
+    // When editbox is editing, should prevent glview to handle touch events.
+    if (_needToPreventTouch)
     {
-        [self handleTouchesAfterKeyboardShow];
+        cocos2d::EditBox::hide();
         return;
     }
-
+    
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
     for (UITouch *touch in touches) {
-        int index = getUnusedID(_touchesIds);
+        int index = getUnusedID(_touchIds);
         if (-1 == index)
             return;
         
@@ -551,487 +537,21 @@ namespace
 {
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
-    for (UITouch *touch in touches)
-    {
-        for (int i = 0; i < 10; ++i)
-        {
-            if (touch == _touches[i])
-                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
-        }
-    }
-    
-    if (!touchEvent.touches.empty())
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+    deliverTouch(touchEvent, touches, _touches, self.contentScaleFactor, false, _touchIds);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
-    for (UITouch *touch in touches)
-    {
-        for (int i = 0; i < 10; ++i)
-        {
-            if (touch == _touches[i])
-            {
-                _touches[i] = nil;
-                resetTouchID(_touchesIds, i);
-                
-                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
-            }
-        }
-    }
-
-    if (!touchEvent.touches.empty())
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+    deliverTouch(touchEvent, touches, _touches, self.contentScaleFactor, true, _touchIds);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
-    for (UITouch *touch in touches)
-    {
-        for (int i = 0; i < 10; ++i)
-        {
-            if (touch == _touches[i])
-            {
-                _touches[i] = nil;
-                resetTouchID(_touchesIds, i);
-                
-                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
-            }
-        }
-    }
-    
-    if (!touchEvent.touches.empty())
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
-}
-
-#pragma mark - UIView - Responder
-
-- (BOOL)canBecomeFirstResponder
-{
-    if (nil != _markedText)
-        [_markedText release];
-
-    _markedText = nil;
-    if (_isUseUITextField)
-    {
-        return NO;
-    }
-    return YES;
-}
-
-- (BOOL)becomeFirstResponder
-{
-    _isUseUITextField = NO;
-    return [super becomeFirstResponder];
-}
-
-- (BOOL)resignFirstResponder
-{
-    _isUseUITextField = YES;
-    return [super resignFirstResponder];
-}
-
-#pragma mark - UIKeyInput protocol
-
-
-- (BOOL)hasText
-{
-    return NO;
-}
-
-- (void)insertText:(NSString *)text
-{
-    if (nil != _markedText) 
-    {
-        [_markedText release];
-        _markedText = nil;
-    }
-    const char * pszText = [text cStringUsingEncoding:NSUTF8StringEncoding];
-//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
-}
-
-- (void)deleteBackward
-{
-    if (nil != _markedText) 
-    {
-        [_markedText release];
-        _markedText = nil;
-    }
-//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
-}
-
-#pragma mark - UITextInputTrait protocol
-
--(UITextAutocapitalizationType) autocapitalizationType
-{
-    return UITextAutocapitalizationTypeNone;
-}
-
-#pragma mark - UITextInput protocol
-
-#pragma mark UITextInput - properties
-
-@synthesize beginningOfDocument;
-@synthesize endOfDocument;
-@synthesize inputDelegate;
-@synthesize markedTextRange;
-@synthesize markedTextStyle;
-// @synthesize selectedTextRange;       // must implement
-@synthesize tokenizer;
-
-/* Text may have a selection, either zero-length (a caret) or ranged.  Editing operations are
- * always performed on the text from this selection.  nil corresponds to no selection. */
-- (void)setSelectedTextRange:(UITextRange *)aSelectedTextRange;
-{
-    CCLOG("UITextRange:setSelectedTextRange");
-}
-- (UITextRange *)selectedTextRange;
-{
-    return [[[UITextRange alloc] init] autorelease];
-}
-
-#pragma mark UITextInput - Replacing and Returning Text
-
-- (NSString *)textInRange:(UITextRange *)range;
-{
-    CCLOG("textInRange");
-    return @"";
-}
-- (void)replaceRange:(UITextRange *)range withText:(NSString *)theText;
-{
-    CCLOG("replaceRange");
-}
-
-#pragma mark UITextInput - Working with Marked and Selected Text
-
-
-
-/* If text can be selected, it can be marked. Marked text represents provisionally
- * inserted text that has yet to be confirmed by the user.  It requires unique visual
- * treatment in its display.  If there is any marked text, the selection, whether a
- * caret or an extended range, always resides within.
- *
- * Setting marked text either replaces the existing marked text or, if none is present,
- * inserts it from the current selection. */
-
-- (void)setMarkedTextRange:(UITextRange *)markedTextRange;
-{
-    CCLOG("setMarkedTextRange");
-}
-
-- (UITextRange *)markedTextRange;
-{
-    CCLOG("markedTextRange");
-    return nil; // Nil if no marked text.
-}
-- (void)setMarkedTextStyle:(NSDictionary *)markedTextStyle;
-{
-    CCLOG("setMarkedTextStyle");
-
-}
-- (NSDictionary *)markedTextStyle;
-{
-    CCLOG("markedTextStyle");
-    return nil;
-}
-- (void)setMarkedText:(NSString *)markedText selectedRange:(NSRange)selectedRange;
-{
-    CCLOG("setMarkedText");
-    if (markedText == _markedText) {
-        return;
-    }
-    if (nil != _markedText) {
-        [_markedText release];
-    }
-    _markedText = markedText;
-    [_markedText retain];
-}
-- (void)unmarkText;
-{
-    CCLOG("unmarkText");
-    if (nil == _markedText)
-    {
-        return;
-    }
-    const char * pszText = [_markedText cStringUsingEncoding:NSUTF8StringEncoding];
-//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
-    [_markedText release];
-    _markedText = nil;
-}
-
-#pragma mark Methods for creating ranges and positions.
-
-- (UITextRange *)textRangeFromPosition:(UITextPosition *)fromPosition toPosition:(UITextPosition *)toPosition;
-{
-    CCLOG("textRangeFromPosition");
-    return nil;
-}
-- (UITextPosition *)positionFromPosition:(UITextPosition *)position offset:(NSInteger)offset;
-{
-    CCLOG("positionFromPosition");
-    return nil;
-}
-- (UITextPosition *)positionFromPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction offset:(NSInteger)offset;
-{
-    CCLOG("positionFromPosition");
-    return nil;
-}
-
-/* Simple evaluation of positions */
-- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other;
-{
-    CCLOG("comparePosition");
-    return (NSComparisonResult)0;
-}
-- (NSInteger)offsetFromPosition:(UITextPosition *)from toPosition:(UITextPosition *)toPosition;
-{
-    CCLOG("offsetFromPosition");
-    return 0;
-}
-
-- (UITextPosition *)positionWithinRange:(UITextRange *)range farthestInDirection:(UITextLayoutDirection)direction;
-{
-    CCLOG("positionWithinRange");
-    return nil;
-}
-- (UITextRange *)characterRangeByExtendingPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction;
-{
-    CCLOG("characterRangeByExtendingPosition");
-    return nil;
-}
-
-#pragma mark Writing direction
-
-- (UITextWritingDirection)baseWritingDirectionForPosition:(UITextPosition *)position inDirection:(UITextStorageDirection)direction;
-{
-    CCLOG("baseWritingDirectionForPosition");
-    return UITextWritingDirectionNatural;
-}
-- (void)setBaseWritingDirection:(UITextWritingDirection)writingDirection forRange:(UITextRange *)range;
-{
-    CCLOG("setBaseWritingDirection");
-}
-
-#pragma mark Geometry
-
-/* Geometry used to provide, for example, a correction rect. */
-- (CGRect)firstRectForRange:(UITextRange *)range;
-{
-    CCLOG("firstRectForRange");
-    return CGRectNull;
-}
-- (CGRect)caretRectForPosition:(UITextPosition *)position;
-{
-    CCLOG("caretRectForPosition");
-    return _caretRect;
-}
-
-#pragma mark Hit testing
-
-/* JS - Find the closest position to a given point */
-- (UITextPosition *)closestPositionToPoint:(CGPoint)point;
-{
-    CCLOG("closestPositionToPoint");
-    return nil;
-}
-- (UITextPosition *)closestPositionToPoint:(CGPoint)point withinRange:(UITextRange *)range;
-{
-    CCLOG("closestPositionToPoint");
-    return nil;
-}
-- (UITextRange *)characterRangeAtPoint:(CGPoint)point;
-{
-    CCLOG("characterRangeAtPoint");
-    return nil;
-}
-
-- (NSArray *)selectionRectsForRange:(UITextRange *)range
-{
-    CCLOG("selectionRectsForRange");
-    return nil;
-}
-
-#pragma mark - UIKeyboard notification
-
-- (void)onUIKeyboardNotification:(NSNotification *)notif;
-{
-    NSString * type = notif.name;
-
-    NSDictionary* info = [notif userInfo];
-    CGRect begin = [self convertRect:
-                    [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue]
-                            fromView:self];
-    CGRect end = [self convertRect:
-                  [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue]
-                          fromView:self];
-    double aniDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-
-    CGSize viewSize = self.frame.size;
-
-    CGFloat tmp;
-    switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
-    {
-        case UIInterfaceOrientationPortrait:
-            begin.origin.y = viewSize.height - begin.origin.y - begin.size.height;
-            end.origin.y = viewSize.height - end.origin.y - end.size.height;
-            break;
-
-        case UIInterfaceOrientationPortraitUpsideDown:
-            begin.origin.x = viewSize.width - (begin.origin.x + begin.size.width);
-            end.origin.x = viewSize.width - (end.origin.x + end.size.width);
-            break;
-
-        case UIInterfaceOrientationLandscapeLeft:
-            std::swap(begin.size.width, begin.size.height);
-            std::swap(end.size.width, end.size.height);
-            std::swap(viewSize.width, viewSize.height);
-
-            tmp = begin.origin.x;
-            begin.origin.x = begin.origin.y;
-            begin.origin.y = viewSize.height - tmp - begin.size.height;
-            tmp = end.origin.x;
-            end.origin.x = end.origin.y;
-            end.origin.y = viewSize.height - tmp - end.size.height;
-            break;
-
-        case UIInterfaceOrientationLandscapeRight:
-            std::swap(begin.size.width, begin.size.height);
-            std::swap(end.size.width, end.size.height);
-            std::swap(viewSize.width, viewSize.height);
-
-            tmp = begin.origin.x;
-            begin.origin.x = begin.origin.y;
-            begin.origin.y = tmp;
-            tmp = end.origin.x;
-            end.origin.x = end.origin.y;
-            end.origin.y = tmp;
-            break;
-
-        default:
-            break;
-    }
-
-//    auto glview = director->getOpenGLView();
-//    float scaleX = glview->getScaleX();
-//    float scaleY = glview->getScaleY();
-
-    // Convert to pixel coordinate
-    begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, self.contentScaleFactor, self.contentScaleFactor));
-    end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, self.contentScaleFactor, self.contentScaleFactor));
-
-//    float offestY = glview->getViewPortRect().origin.y;
-//    CCLOG("offestY = %f", offestY);
-//    if (offestY < 0.0f)
-//    {
-//        begin.origin.y += offestY;
-//        begin.size.height -= offestY;
-//        end.size.height -= offestY;
-//    }
-
-    // Convert to design coordinate
-//    begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
-//    end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
-
-
-//    cocos2d::IMEKeyboardNotificationInfo notiInfo;
-//    notiInfo.begin = cocos2d::Rect(begin.origin.x,
-//                                     begin.origin.y,
-//                                     begin.size.width,
-//                                     begin.size.height);
-//    notiInfo.end = cocos2d::Rect(end.origin.x,
-//                                   end.origin.y,
-//                                   end.size.width,
-//                                   end.size.height);
-//    notiInfo.duration = (float)aniDuration;
-//
-//    cocos2d::IMEDispatcher* dispatcher = cocos2d::IMEDispatcher::sharedDispatcher();
-//    if (UIKeyboardWillShowNotification == type)
-//    {
-//        self.keyboardShowNotification = notif; // implicit copy
-//        dispatcher->dispatchKeyboardWillShow(notiInfo);
-//    }
-//    else if (UIKeyboardDidShowNotification == type)
-//    {
-//        //CGSize screenSize = self.window.screen.bounds.size;
-//        dispatcher->dispatchKeyboardDidShow(notiInfo);
-//        _caretRect = end;
-//
-//        int fontSize = [UIFont smallSystemFontSize];
-//        _caretRect.origin.y = viewSize.height - (_caretRect.origin.y + _caretRect.size.height + fontSize);
-//        _caretRect.size.height = 0;
-//        _isKeyboardShown = YES;
-//    }
-//    else if (UIKeyboardWillHideNotification == type)
-//    {
-//        dispatcher->dispatchKeyboardWillHide(notiInfo);
-//    }
-//    else if (UIKeyboardDidHideNotification == type)
-//    {
-//        _caretRect = CGRectZero;
-//        dispatcher->dispatchKeyboardDidHide(notiInfo);
-//        _isKeyboardShown = NO;
-//    }
-}
-
-UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrientation)
-{
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
-    {
-        statusBarOrientation = UIInterfaceOrientationPortrait;
-    }
-    return statusBarOrientation;
-}
-
--(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)dis
-{
-    [UIView beginAnimations:nil context:nullptr];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDuration:duration];
-    [UIView setAnimationBeginsFromCurrentState:YES];
-
-    //NSLog(@"[animation] dis = %f, scale = %f \n", dis, cocos2d::GLView::getInstance()->getScaleY());
-
-    if (dis < 0.0f) dis = 0.0f;
-
-//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-//    dis *= glview->getScaleY();
-
-    dis /= self.contentScaleFactor;
-
-    switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
-    {
-        case UIInterfaceOrientationPortrait:
-            self.frame = CGRectMake(_originalRect.origin.x, _originalRect.origin.y - dis, _originalRect.size.width, _originalRect.size.height);
-            break;
-
-        case UIInterfaceOrientationPortraitUpsideDown:
-            self.frame = CGRectMake(_originalRect.origin.x, _originalRect.origin.y + dis, _originalRect.size.width, _originalRect.size.height);
-            break;
-
-        case UIInterfaceOrientationLandscapeLeft:
-            self.frame = CGRectMake(_originalRect.origin.x - dis, _originalRect.origin.y , _originalRect.size.width, _originalRect.size.height);
-            break;
-
-        case UIInterfaceOrientationLandscapeRight:
-            self.frame = CGRectMake(_originalRect.origin.x + dis, _originalRect.origin.y , _originalRect.size.width, _originalRect.size.height);
-            break;
-
-        default:
-            break;
-    }
-    
-    [UIView commitAnimations];
-}
-
-
--(void) doAnimationWhenAnotherEditBeClicked
-{
-    if (self.keyboardShowNotification != nil)
-        [[NSNotificationCenter defaultCenter]postNotification:self.keyboardShowNotification];
+    deliverTouch(touchEvent, touches, _touches, self.contentScaleFactor, true, _touchIds);
 }
 
 @end
