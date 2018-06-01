@@ -38,6 +38,9 @@ public:
 		             const std::string& confirmType,
 		             const std::string& inputType);
 	static void hide();
+    
+    // It is used on iOS to send a complete message to JS.
+    static void complete();
 };
 
 NS_CC_END

@@ -335,8 +335,7 @@ namespace
 
 -(BOOL) textFieldShouldReturn:(UITextField *)textField
 {
-    callJSFunc("complete", [textField.text UTF8String]);
-    cocos2d::EditBox::hide();
+    cocos2d::EditBox::complete();
     return YES;
 }
 @end
@@ -347,10 +346,7 @@ namespace
     const std::string text([getCurrentText() UTF8String]);
     callJSFunc("confirm", text);
     if (!g_confirmHold)
-    {
-        cocos2d::EditBox::hide();
-        callJSFunc("complete", text);
-    }
+        cocos2d::EditBox::complete();
 }
 @end
 
@@ -400,6 +396,13 @@ void EditBox::hide()
     }
     
     [(CCEAGLView*)cocos2d::Application::getInstance()->getView() setPreventTouchEvent:false];
+}
+
+void EditBox::complete()
+{
+    NSString* text = getCurrentText();
+    callJSFunc("complete", [text UTF8String]);
+    EditBox::hide();
 }
 
 NS_CC_END

@@ -513,7 +513,7 @@ namespace
     // When editbox is editing, should prevent glview to handle touch events.
     if (_needToPreventTouch)
     {
-        cocos2d::EditBox::hide();
+        cocos2d::EditBox::complete();
         return;
     }
     
