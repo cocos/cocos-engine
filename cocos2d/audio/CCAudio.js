@@ -128,7 +128,7 @@ Audio.State = {
 
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
-        if (this._audioType === Audio.Type.DOM) {
+        if (CC_WECHATGAME || this._audioType === Audio.Type.DOM) {
             this._element.addEventListener('ended', callback);
         } else {
             this._element.onended = callback;
@@ -136,7 +136,7 @@ Audio.State = {
     };
 
     proto._unbindEnded = function () {
-        if (this._audioType === Audio.Type.DOM) {
+        if (CC_WECHATGAME || this._audioType === Audio.Type.DOM) {
             this._element.removeEventListener('ended', this._onended);
         } else {
             this._element.onended = null;
