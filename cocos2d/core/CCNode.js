@@ -2932,9 +2932,7 @@ var Node = cc.Class({
         }
     },
 
-    onRestore: CC_EDITOR && function () {
-        this._onRestoreBase();
-
+    _restoreProperties () {
         /*
          * TODO: Refine this code after completing undo/redo 2.0.
          * The node will be destroyed when deleting in the editor,
@@ -2947,10 +2945,18 @@ var Node = cc.Class({
             this._worldMatrix = mathPools.mat4.get();
         }
 
+        this._localMatDirty = this._worldMatDirty = true;
+
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
             this._renderFlag |= RenderFlow.FLAG_COLOR;
         }
+    },
+
+    onRestore: CC_EDITOR && function () {
+        this._onRestoreBase();
+
+        this._restoreProperties();
 
         var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
