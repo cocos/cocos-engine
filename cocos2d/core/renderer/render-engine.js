@@ -13645,8 +13645,8 @@ var chunks = {
 var templates = [
   {
     name: 'gray_sprite',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
-    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  gl_Position = pos;\n  uv0 = a_uv0;\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nuniform vec4 color;\nvoid main () {\n  vec4 c = color * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
     defines: [
     ],
   },
@@ -14082,11 +14082,12 @@ var SpriteMaterial = (function (Material$$1) {
       ]
     );
 
+    this._color = {r: 1, g: 1, b: 1, a: 1};
     this._effect = new renderer.Effect(
       [
         mainTech ],
       {
-        'color': {r: 1, g: 1, b: 1, a: 1}
+        'color': this._color
       },
       [
         { name: 'useTexture', value: true },
@@ -14098,7 +14099,6 @@ var SpriteMaterial = (function (Material$$1) {
     
     this._mainTech = mainTech;
     this._texture = null;
-    this._color = {r: 1, g: 1, b: 1, a: 1};
   }
 
   if ( Material$$1 ) SpriteMaterial.__proto__ = Material$$1;
@@ -14156,7 +14156,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.color.get = function () {
-    return this._effect.getProperty('color');
+    return this._color;
   };
 
   prototypeAccessors.color.set = function (val) {
@@ -14203,16 +14203,20 @@ var GraySpriteMaterial = (function (Material$$1) {
     var mainTech = new renderer.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
+    this._color = {r: 1, g: 1, b: 1, a: 1};
     this._effect = new renderer.Effect(
       [
         mainTech ],
-      {},
+      {
+        'color': this._color
+      },
       []
     );
     
@@ -14224,7 +14228,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   GraySpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   GraySpriteMaterial.prototype.constructor = GraySpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },texture: { configurable: true },color: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14240,6 +14244,19 @@ var GraySpriteMaterial = (function (Material$$1) {
       this._effect.setProperty('texture', val.getImpl());
       this._texIds['texture'] = val.getId();
     }
+  };
+
+  prototypeAccessors.color.get = function () {
+    return this._color;
+  };
+
+  prototypeAccessors.color.set = function (val) {
+    var color = this._color;
+    color.r = val.r / 255;
+    color.g = val.g / 255;
+    color.b = val.b / 255;
+    color.a = val.a / 255;
+    this._effect.setProperty('color', color);
   };
 
   GraySpriteMaterial.prototype.clone = function clone () {
