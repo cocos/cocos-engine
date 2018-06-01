@@ -46,6 +46,45 @@ public:
         fillData();
     }
 
+    void beginPath()
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "beginPath");
+    }
+
+    void closePath()
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "closePath");
+    }
+
+    void moveTo(float x, float y)
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "moveTo", x, y);
+    }
+
+    void lineTo(float x, float y)
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "lineTo", x, y);
+    }
+
+    void stroke()
+    {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
+
+        JniHelper::callObjectVoidMethod(_obj, _className, "stroke");
+        fillData();
+    }
+
+    void saveContext()
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "saveContext");
+    }
+
+    void restoreContext()
+    {
+        JniHelper::callObjectVoidMethod(_obj, _className, "restoreContext");
+    }
+
     void clearRect(float x, float y, float w, float h)
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
@@ -126,7 +165,7 @@ public:
         jsize len  = JniHelper::getEnv()->GetArrayLength(arr);
         jbyte* jbarray = (jbyte *)malloc(len * sizeof(jbyte));
         JniHelper::getEnv()->GetByteArrayRegion(arr,0,len,jbarray);
-        _data.fastSet((unsigned char*) jbarray, len);
+        _data.fastSet((unsigned char*) jbarray, len); //FIXME: DON'T create new jbarray every time.
         JniHelper::getEnv()->DeleteLocalRef(arr);
     }
 
@@ -264,37 +303,40 @@ CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y
 
 void CanvasRenderingContext2D::save()
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->saveContext();
 }
 
 void CanvasRenderingContext2D::beginPath()
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->beginPath();
 }
 
 void CanvasRenderingContext2D::closePath()
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->closePath();
 }
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->moveTo(x, y);
 }
 
 void CanvasRenderingContext2D::lineTo(float x, float y)
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->lineTo(x, y);
 }
 
 void CanvasRenderingContext2D::stroke()
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->stroke();
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
 void CanvasRenderingContext2D::restore()
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    _impl->restoreContext();
 }
 
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)

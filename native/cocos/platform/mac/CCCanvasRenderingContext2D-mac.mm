@@ -49,8 +49,14 @@ namespace {
     NSMutableDictionary* _tokenAttributesDict;
     NSString* _fontName;
     CGFloat _fontSize;
-    NSImage* _image;
+    CGFloat _width;
+    CGFloat _height;
+    CGContextRef _context;
+    CGColorSpaceRef _colorSpace;
     cocos2d::Data _imageData;
+    NSBezierPath* _path;
+    NSGraphicsContext* _currentGraphicsContext;
+    NSGraphicsContext* _oldGraphicsContext;
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
     cocos2d::Color4F _fillStyle;
@@ -61,7 +67,6 @@ namespace {
 @property (nonatomic, strong) NSFont* font;
 @property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
 @property (nonatomic, strong) NSString* fontName;
-@property (nonatomic, strong) NSImage* image;
 @property (nonatomic, assign) CanvasTextAlign textAlign;
 @property (nonatomic, assign) CanvasTextBaseline textBaseLine;
 @property (nonatomic, assign) float lineWidth;
@@ -73,7 +78,6 @@ namespace {
 @synthesize font = _font;
 @synthesize tokenAttributesDict = _tokenAttributesDict;
 @synthesize fontName = _fontName;
-@synthesize image = _image;
 @synthesize textAlign = _textAlign;
 @synthesize textBaseLine = _textBaseLine;
 @synthesize lineWidth = _lineWidth;
@@ -83,6 +87,13 @@ namespace {
         _lineWidth = 0;
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
+        _width = _height = 0;
+        _context = nil;
+        _colorSpace = nil;
+        _currentGraphicsContext = nil;
+        _oldGraphicsContext = nil;
+        _path = [NSBezierPath bezierPath];
+        [_path retain];
         [self updateFontWithName:@"Arial" fontSize:30];
     }
 
@@ -93,8 +104,11 @@ namespace {
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
-    self.image = nil;
-
+    CGColorSpaceRelease(_colorSpace);
+    // release the context
+    CGContextRelease(_context);
+    [_path release];
+    [_currentGraphicsContext release];
     [super dealloc];
 }
 
@@ -151,10 +165,36 @@ namespace {
 }
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
-    width = width > 0 ? width : 1;
-    height = height > 0 ? height : 1;
-    self.image = [[[NSImage alloc] initWithSize:NSMakeSize(width, height)] autorelease];
-    [self clear];
+    _width = width = width > 0 ? width : 1;
+    _height = height = height > 0 ? height : 1;
+    NSUInteger textureSize = width * height * 4;
+    unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
+    memset(data, 0, textureSize);
+    _imageData.fastSet(data, textureSize);
+
+    if (_context != nil)
+        CGContextRelease(_context);
+
+    if (_currentGraphicsContext != nil)
+        [_currentGraphicsContext release];
+
+    // draw text
+    _colorSpace  = CGColorSpaceCreateDeviceRGB();
+    _context = CGBitmapContextCreate(data,
+                                     width,
+                                     height,
+                                     8,
+                                     width * 4,
+                                     _colorSpace,
+                                     kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    if (!_context)
+    {
+        CGColorSpaceRelease(_colorSpace); //TODO HOWTO RELEASE?
+        _colorSpace = nil;
+    }
+
+    _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped: NO];
+    [_currentGraphicsContext retain];
 }
 
 -(NSSize) measureText:(NSString*) text {
@@ -212,7 +252,7 @@ namespace {
     point.y += (textSize.height - _fontSize) / 2.0f;
 
     // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
-    point.y = _image.size.height - point.y;
+    point.y = _height - point.y;
     return point;
 }
 
@@ -220,8 +260,6 @@ namespace {
     if (text.length == 0)
         return;
 
-    float imageWidth = _image.size.width;
-    float imageHeight = _image.size.height;
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
@@ -234,45 +272,31 @@ namespace {
     [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
                              forKey:NSForegroundColorAttributeName];
 
+    [self saveContext];
+
+    // text color
+    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+    CGContextSetShouldSubpixelQuantizeFonts(_context, false);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
+    CGContextSetTextDrawingMode(_context, kCGTextFill);
+
     [[NSGraphicsContext currentContext] setShouldAntialias:YES];
 
-    [_image lockFocus];
-
-    [[NSAffineTransform transform] set];
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
 
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, imageWidth, imageHeight)];
-    [_image unlockFocus];
 
-    unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
-    NSUInteger textureSize = imageWidth * imageHeight * 4;
-    // For text debugging ...
-//    for (int i = 0; i < textureSize; i += 4) {
-//        if (data[i+3] == 0)
-//        {
-//            data[i] = 255;
-//            data[i+3] = 255;
-//        }
-//    }
-    //
+    CGContextEndTransparencyLayer(_context);
 
-    uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
-    if (buffer) {
-        memcpy(buffer, data, textureSize);
-        _imageData.fastSet(buffer, textureSize);
-    }
-    [bitmap release];
+    [self restoreContext];
 }
 
 -(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
     if (text.length == 0)
         return;
 
-    float imageWidth = _image.size.width;
-    float imageHeight = _image.size.height;
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
@@ -288,39 +312,26 @@ namespace {
                                                      blue:_strokeStyle.b
                                                     alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
 
-    [[NSGraphicsContext currentContext] setShouldAntialias:NO];
+    [self saveContext];
 
-    [_image lockFocus];
-    // patch for mac retina display and lableTTF
-    [[NSAffineTransform transform] set];
+    // text color
+    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+
+    CGContextSetShouldSubpixelQuantizeFonts(_context, false);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
+
+    CGContextSetTextDrawingMode(_context, kCGTextStroke);
+
+    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
 
-    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, imageWidth, imageHeight)];
-    [_image unlockFocus];
+    CGContextEndTransparencyLayer(_context);
 
-    unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
-
-    NSUInteger textureSize = imageWidth * imageHeight * 4;
-
-    // For text debugging ...
-//        for (int i = 0; i < textureSize; i += 4) {
-//            if (data[i+3] == 0)
-//            {
-//                data[i+1] = 255;
-//                data[i+3] = 255;
-//            }
-//        }
-    //
-
-    uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
-    if (buffer) {
-        memcpy(buffer, data, textureSize);
-        _imageData.fastSet(buffer, textureSize);
-    }
-    [bitmap release];
+    [self restoreContext];
 }
 
 -(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
@@ -342,7 +353,7 @@ namespace {
 }
 
 -(void) clearRect:(CGRect) rect {
-    if (_image == nil)
+    if (_imageData.isNull())
         return;
 
     rect.origin.x = floor(rect.origin.x);
@@ -356,43 +367,55 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-//    assert(rect.origin.x == 0 && rect.origin.y == 0);
-//    NSLog(@"clearRect, image:%f, %f", _image.size.width, _image.size.height);
-//    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
-
-    [_image lockFocus];
-    [[NSColor clearColor] set];
-    NSRectFill(rect);
-    [_image unlockFocus];
+    //    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
 -(void) fillRect:(CGRect) rect {
-    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
-    uint8_t* buffer = nullptr;
-    if (_imageData.isNull())
-    {
-        buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
-        _imageData.fastSet(buffer, textureSize);
-    }
-
+    uint8_t* buffer = _imageData.getBytes();
     if (buffer)
     {
         uint8_t r = _fillStyle.r * 255.0f;
         uint8_t g = _fillStyle.g * 255.0f;
         uint8_t b = _fillStyle.b * 255.0f;
-        fillRectWithColor(buffer, (uint32_t)_image.size.width, (uint32_t)_image.size.height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
+        fillRectWithColor(buffer, (uint32_t)_width, (uint32_t)_height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
     }
 }
 
--(void) clear {
-    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
-    uint8_t* buffer = nullptr;
-    buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
-    if (buffer)
-    {
-        memset(buffer, 0x00, textureSize);
-        _imageData.fastSet(buffer, textureSize);
-    }
+-(void) saveContext {
+    // save the old graphics context
+    _oldGraphicsContext = [NSGraphicsContext currentContext];
+    // store the current context
+    [NSGraphicsContext setCurrentContext:_currentGraphicsContext];
+    // push graphics state to stack
+    [NSGraphicsContext saveGraphicsState];
+}
+
+-(void) restoreContext {
+    // pop the context
+    [NSGraphicsContext restoreGraphicsState];
+    // reset the old graphics context
+    [NSGraphicsContext setCurrentContext:_oldGraphicsContext];
+    _oldGraphicsContext = nil;
+}
+
+-(void) beginPath {
+
+}
+
+-(void) stroke {
+    NSColor* color = [NSColor colorWithRed:_strokeStyle.r green:_strokeStyle.g blue:_strokeStyle.b alpha:_strokeStyle.a];
+    [color setStroke];
+    [_path setLineWidth: _lineWidth];
+    [_path stroke];
+}
+
+-(void) moveToX: (float) x y:(float) y {
+    [_path moveToPoint: NSMakePoint(x, _height - y)];
+}
+
+-(void) lineToX: (float) x y:(float) y {
+    [_path lineToPoint: NSMakePoint(x, _height - y)];
 }
 
 @end
@@ -420,14 +443,14 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
 {
-    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
+//    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
     [_impl recreateBufferWithWidth:width height:height];
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
-    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
+//    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     [_impl release];
 }
 
@@ -501,12 +524,12 @@ CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y
 
 void CanvasRenderingContext2D::save()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl saveContext];
 }
 
 void CanvasRenderingContext2D::beginPath()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl beginPath];
 }
 
 void CanvasRenderingContext2D::closePath()
@@ -516,22 +539,25 @@ void CanvasRenderingContext2D::closePath()
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl moveToX:x y:y];
 }
 
 void CanvasRenderingContext2D::lineTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl lineToX:x y:y];
 }
 
 void CanvasRenderingContext2D::stroke()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl stroke];
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::restore()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl restoreContext];
 }
 
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)

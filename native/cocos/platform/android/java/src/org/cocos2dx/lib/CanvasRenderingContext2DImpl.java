@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.Log;
@@ -51,7 +52,9 @@ public class CanvasRenderingContext2DImpl {
     private static final int TEXT_BASELINE_BOTTOM = 2;
 
     private static WeakReference<Context> sContext;
-    private TextPaint mPaint;
+    private TextPaint mTextPaint;
+    private Paint mLinePaint;
+    private Path mLinePath;
     private Canvas mCanvas;
     private Bitmap mBitmap;
     private int mTextAlign = TEXT_ALIGN_LEFT;
@@ -99,6 +102,10 @@ public class CanvasRenderingContext2DImpl {
             this.y = pt.y;
         }
 
+        void set(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
 
         public float x;
         public float y;
@@ -176,8 +183,46 @@ public class CanvasRenderingContext2DImpl {
         mCanvas = new Canvas(mBitmap);
     }
 
+    private void beginPath() {
+        if (mLinePath == null) {
+            mLinePath = new Path();
+        }
+        mLinePath.reset();
+    }
+
+    private void closePath() {
+        mLinePath.close();
+    }
+
+    private void moveTo(float x, float y) {
+        mLinePath.moveTo(x, y);
+    }
+
+    private void lineTo(float x, float y) {
+        mLinePath.lineTo(x, y);
+    }
+
+    private void stroke() {
+        if (mLinePaint == null) {
+            mLinePaint = new Paint();
+        }
+
+        mLinePaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
+        mLinePaint.setStyle(Paint.Style.STROKE);
+        mLinePaint.setStrokeWidth(mLineWidth);
+        mCanvas.drawPath(mLinePath, mLinePaint);
+    }
+
+    private void saveContext() {
+        mCanvas.save();
+    }
+
+    private void restoreContext() {
+        mCanvas.restore();
+    }
+
     private void clearRect(float x, float y, float w, float h) {
-        // Log.d(TAG, "clearRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
+//        Log.d(TAG, "this: " + this + ", clearRect: " + x + ", " + y + ", " + w + ", " + h);
         int w_ = mBitmap.getWidth();
         int h_ = mBitmap.getHeight();
         int size = w_*h_;
@@ -188,9 +233,9 @@ public class CanvasRenderingContext2DImpl {
         mBitmap.setPixels(clearColor, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
     }
 
-    private void createPaintIfNeeded() {
-        if (mPaint == null) {
-            mPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
+    private void createTextPaintIfNeeded() {
+        if (mTextPaint == null) {
+            mTextPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
         }
     }
 
@@ -199,40 +244,40 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private void fillText(String text, float x, float y, float maxWidth) {
-        // Log.d(TAG, "fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
-        createPaintIfNeeded();
-        mPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
-        mPaint.setStyle(TextPaint.Style.FILL);
+//        Log.d(TAG, "this: " + this + ", fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
+        createTextPaintIfNeeded();
+        mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+        mTextPaint.setStyle(Paint.Style.FILL);
 
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
-        float baselineY = pt.y - mPaint.getFontMetrics().descent;
-        mCanvas.drawText(text, pt.x, baselineY, mPaint);
+        float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
+        mCanvas.drawText(text, pt.x, baselineY, mTextPaint);
     }
 
     private void strokeText(String text, float x, float y, float maxWidth) {
         // Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
-        createPaintIfNeeded();
-        mPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
-        mPaint.setStyle(TextPaint.Style.STROKE);
-        mPaint.setStrokeWidth(mLineWidth);
+        createTextPaintIfNeeded();
+        mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
+        mTextPaint.setStyle(Paint.Style.STROKE);
+        mTextPaint.setStrokeWidth(mLineWidth);
 
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
-        float baselineY = pt.y - mPaint.getFontMetrics().descent;
-        mCanvas.drawText(text, pt.x, baselineY, mPaint);
+        float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
+        mCanvas.drawText(text, pt.x, baselineY, mTextPaint);
     }
 
     private float measureText(String text) {
-        createPaintIfNeeded();
-        float ret = mPaint.measureText(text);
+        createTextPaintIfNeeded();
+        float ret = mTextPaint.measureText(text);
         // Log.d(TAG, "measureText: " + text + ", return: " + ret);
         return ret;
     }
 
     private Size measureTextReturnSize(String text) {
-        createPaintIfNeeded();
-        Paint.FontMetrics fm = mPaint.getFontMetrics();
+        createTextPaintIfNeeded();
+        Paint.FontMetrics fm = mTextPaint.getFontMetrics();
         // Use descent & ascent for clipping the transparent region.
         // So don't use bottom & top which will make text be cut.
         return new Size(measureText(text), fm.descent - fm.ascent);
@@ -242,7 +287,7 @@ public class CanvasRenderingContext2DImpl {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
-        mPaint = null; // Reset paint to re-create paint object in createPaintIfNeeded
+        mTextPaint = null; // Reset paint to re-create paint object in createTextPaintIfNeeded
     }
 
     private void setTextAlign(int align) {
@@ -304,21 +349,16 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private byte[] getDataRef() {
-        // Log.d(TAG, "getDataRef ...");
-        return getPixels(mBitmap);
-    }
-
-    private static byte[] getPixels(final Bitmap bitmap) {
-        if (bitmap != null) {
-            final byte[] pixels = new byte[bitmap.getWidth()
-                    * bitmap.getHeight() * 4];
+//        Log.d(TAG, "this: " + this + ", getDataRef ...");
+        if (mBitmap != null) {
+            final byte[] pixels = new byte[mBitmap.getWidth() * mBitmap.getHeight() * 4];
             final ByteBuffer buf = ByteBuffer.wrap(pixels);
             buf.order(ByteOrder.nativeOrder());
-            bitmap.copyPixelsToBuffer(buf);
+            mBitmap.copyPixelsToBuffer(buf);
             return pixels;
         }
 
-        Log.e(TAG, "getPixel return null");
+        Log.e(TAG, "getDataRef return null");
         return null;
     }
 }

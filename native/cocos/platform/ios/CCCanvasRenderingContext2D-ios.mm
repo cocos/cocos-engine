@@ -52,7 +52,9 @@ namespace {
     CGFloat _width;
     CGFloat _height;
     CGContextRef _context;
+    CGContextRef _oldContext;
     CGColorSpaceRef _colorSpace;
+    UIBezierPath* _path;
     cocos2d::Data _imageData;
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
@@ -83,10 +85,13 @@ namespace {
     if (self = [super init]) {
         _width = _height = 0;
         _context = nil;
+        _oldContext = nil;
         _colorSpace = nil;
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
         _lineWidth = 0;
+        _path = [UIBezierPath bezierPath];
+        [_path retain];
         [self updateFontWithName:@"Arial" fontSize:30];
     }
 
@@ -101,7 +106,7 @@ namespace {
     CGColorSpaceRelease(_colorSpace);
     // release the context
     CGContextRelease(_context);
-
+    [_path release];
     [super dealloc];
 }
 
@@ -251,12 +256,9 @@ namespace {
     [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
                              forKey:NSForegroundColorAttributeName];
 
+    [self saveContext];
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
-
-    // store the current context
-    UIGraphicsPushContext(_context);
-
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
@@ -269,8 +271,7 @@ namespace {
 
     CGContextEndTransparencyLayer(_context);
 
-    // pop the context
-    UIGraphicsPopContext();
+    [self restoreContext];
 }
 
 -(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
@@ -295,12 +296,9 @@ namespace {
     [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
                              forKey:NSForegroundColorAttributeName];
 
+    [self saveContext];
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
-
-    // store the current context
-    UIGraphicsPushContext(_context);
-
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
@@ -313,8 +311,7 @@ namespace {
 
     CGContextEndTransparencyLayer(_context);
 
-    // pop the context
-    UIGraphicsPopContext();
+    [self restoreContext];
 }
 
 -(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
@@ -363,6 +360,41 @@ namespace {
         uint8_t b = _fillStyle.b * 255.0f;
         fillRectWithColor(buffer, (uint32_t)_width, (uint32_t)_height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
     }
+}
+
+-(void) saveContext {
+    // save the old graphics context
+    _oldContext = UIGraphicsGetCurrentContext();
+    // store the current context
+    UIGraphicsPushContext(_context);
+    CGContextSaveGState(_context);
+}
+
+-(void) restoreContext {
+    // pop the context
+    CGContextRestoreGState(_context);
+    // reset the old graphics context
+    UIGraphicsPopContext();
+    _oldContext = nil;
+}
+
+-(void) beginPath {
+
+}
+
+-(void) stroke {
+    UIColor* color = [UIColor colorWithRed:_strokeStyle.r green:_strokeStyle.g blue:_strokeStyle.b alpha:_strokeStyle.a];
+    [color setStroke];
+    [_path setLineWidth: _lineWidth];
+    [_path stroke];
+}
+
+-(void) moveToX: (float) x y:(float) y {
+    [_path moveToPoint: CGPointMake(x, y)];
+}
+
+-(void) lineToX: (float) x y:(float) y {
+    [_path addLineToPoint: CGPointMake(x, y)];
 }
 
 @end
@@ -470,12 +502,12 @@ CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y
 
 void CanvasRenderingContext2D::save()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl saveContext];
 }
 
 void CanvasRenderingContext2D::beginPath()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl beginPath];
 }
 
 void CanvasRenderingContext2D::closePath()
@@ -485,22 +517,25 @@ void CanvasRenderingContext2D::closePath()
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl moveToX:x y:y];
 }
 
 void CanvasRenderingContext2D::lineTo(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl lineToX:x y:y];
 }
 
 void CanvasRenderingContext2D::stroke()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl stroke];
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::restore()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    [_impl restoreContext];
 }
 
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
