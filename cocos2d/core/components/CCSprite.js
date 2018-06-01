@@ -461,6 +461,7 @@ var Sprite = cc.Class({
 
     /**
      * Change the state of sprite.
+     * @method setState
      * @see `Sprite.State`
      * @param state {Sprite.State} NORMAL or GRAY State.
      */
@@ -472,6 +473,7 @@ var Sprite = cc.Class({
 
     /**
      * Gets the current state.
+     * @method getState
      * @see `Sprite.State`
      * @return {Sprite.State}
      */
