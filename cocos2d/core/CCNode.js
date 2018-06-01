@@ -1666,7 +1666,7 @@ var Node = cc.Class({
      */
     emit (type, detail) {
         if (this._bubblingListeners) {
-            this._bubblingListeners.emit(type, detail);
+            this._bubblingListeners.emit(type, detail, this);
         }
     },
 
