@@ -512,7 +512,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             temp_uvs[3].u = (rect.x + rect.width) / atlasWidth;
             temp_uvs[3].v = (rect.y) / atlasHeight;
             temp_uvs[2].v = (rect.y + topHeight) / atlasHeight;
-            temp_uvs[1].v = (rect.y + topHeight + centerHeight + rect.y) / atlasHeight;
+            temp_uvs[1].v = (rect.y + topHeight + centerHeight) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.height) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
