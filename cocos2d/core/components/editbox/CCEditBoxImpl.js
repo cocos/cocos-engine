@@ -72,6 +72,24 @@ function getKeyboardReturnType (type) {
     return 'done';
 }
 
+function getInputType(type) {
+    switch (type) {
+        case InputMode.EMAIL_ADDR:
+            return 'email';
+        case InputMode.NUMERIC:
+        case InputMode.DECIMAL:
+            return 'number';
+        case InputMode.PHONE_NUMBER:
+            return 'phone';
+        case InputMode.URL:
+            return 'url';
+        case InputMode.SINGLE_LINE:
+        case InputMode.ANY:
+        default:
+            return 'text';
+    }
+}
+
 let EditBoxImpl = cc.Class({
     ctor () {
         this._delegate = null;
@@ -226,6 +244,8 @@ let EditBoxImpl = cc.Class({
     },
 
     _onTouchBegan (touch) {
+        if (CC_JSB)
+            this._createJSBInput();
     },
 
     _onTouchEnded () {
@@ -597,6 +617,48 @@ if (CC_WECHATGAME) {
             wx.onKeyboardInput(onKeyboardInputCallback);
             wx.onKeyboardComplete(onKeyboardCompleteCallback);
         };
+    };
+}
+
+if (CC_JSB) {
+    _p._createJSBInput = function () {
+        let editBoxImpl = this;
+        var multiline = this._inputMode === InputMode.ANY;
+
+        var inputTypeString = getInputType(this._inputMode);
+        if (this._inputFlag === InputFlag.PASSWORD)
+            inputTypeString = 'password';
+        
+        jsb.inputBox.show({
+            defaultValue: editBoxImpl._text,
+            maxLength: editBoxImpl._maxLength,
+            multiple: multiline,
+            confirmHold: false,
+            confirmType: getKeyboardReturnType(editBoxImpl._returnType),
+            inputType: inputTypeString
+        });
+        editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
+
+        function onConfirm(res) {
+            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
+        }
+        jsb.inputBox.onConfirm(onConfirm);
+
+        function onInput(res) {
+            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
+                editBoxImpl._text = res.value;
+                editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
+            }
+        }
+        jsb.inputBox.onInput(onInput);
+
+        function onComplete(res) {
+            editBoxImpl._endEditing();
+            jsb.inputBox.offConfirm(onConfirm);
+            jsb.inputBox.offInput(onInput);
+            jsb.inputBox.offComplete(onComplete);
+        }
+        jsb.inputBox.onComplete(onComplete);
     };
 }
 
