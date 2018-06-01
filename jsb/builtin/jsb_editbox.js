@@ -27,7 +27,8 @@ const Event = require('./jsb-adapter/Event');
 
 var eventTarget = new EventTarget();
 
-var callbackMap = {};
+var callbackWrappers = {};
+var callbacks = {};
 var index = 0;
 var callbackWrapper = function(cb) {
     if (!cb)
@@ -36,42 +37,71 @@ var callbackWrapper = function(cb) {
 	var func = function(event) {
 		cb({value: event.text})
 	};
-
 	cb.___index = index++;
-	callbackMap[cb.___index] = func;
+	callbackWrappers[cb.___index] = func;
 
 	return func;
 };
 var getCallbackWrapper = function(cb) {
 	if (cb && cb.___index) {
-		var ret = callbackMap[cb.___index];
-		delete callbackMap[cb.___index];
-		return callbackMap[cb.___index];
+		var ret = callbackWrappers[cb.___index];
+		delete callbackWrappers[cb.___index];
+		return ret;
 	}
 	else
 		return null;
+};
+var removeListener = function(name, cb) {
+	if (cb)
+	    eventTarget.removeEventListener(name, getCallbackWrapper(cb))
+	else {
+		// remove all listeners of name
+		var cbs = callbacks[name];
+		if (! cbs)
+			return;
+
+		for (var i = 0, len = cbs.length; i < len; ++i)
+			eventTarget.removeEventListener(name, cbs[i]);
+
+		delete callbacks[name];
+	}
+};
+var recordCallback = function(name, cb) {
+	if (!cb || !name || name ==='')
+		return;
+
+	if (! callbacks[name])
+		callbacks[name] = [];
+
+	callbacks[name].push(cb);
 }
 
 jsb.inputBox = {
 	onConfirm: function(cb) {
-		eventTarget.addEventListener('confirm', callbackWrapper(cb));
+		var newCb = callbackWrapper(cb);
+		eventTarget.addEventListener('confirm', newCb);
+		recordCallback('confirm', newCb);
 	},
 	offConfirm: function(cb) {
-		eventTarget.removeEventListener('confirm', getCallbackWrapper(cb));
+		removeListener('confirm', cb);
 	},
 
 	onComplete: function(cb) {
-		eventTarget.addEventListener('complete', callbackWrapper(cb));
+		var newCb = callbackWrapper(cb);
+		eventTarget.addEventListener('complete', newCb);
+		recordCallback('complete', newCb);
 	},
 	offComplete: function(cb) {
-		eventTarget.removeEventListener('complete', getCallbackWrapper(cb));
+		removeListener('complete', cb);
 	},
 
 	onInput: function(cb) {
-		eventTarget.addEventListener('input', callbackWrapper(cb));
+		var newCb = callbackWrapper(cb);
+		eventTarget.addEventListener('input', newCb);
+		recordCallback('input', newCb);
 	},
 	offInput: function(cb) {
-		eventTarget.removeEventListener('input', getCallbackWrapper(cb));
+		removeListener('input', cb);
 	},
 
     /**
