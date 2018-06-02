@@ -46,7 +46,7 @@ cc.rendererCanvas = {
     //max dirty Region count, default is 10
     _dirtyRegionCountThreshold: 10,
     init: function() {
-        if(cc.sys.browserType === cc.sys.BROWSER_TYPE_IE || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+        if(cc.sys.browserType === cc.sys.BROWSER_TYPE_IE) {
             this.enableDirtyRegion(false);
         }
     },
