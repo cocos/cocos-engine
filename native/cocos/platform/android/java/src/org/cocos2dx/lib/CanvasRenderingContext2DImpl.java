@@ -72,6 +72,7 @@ public class CanvasRenderingContext2DImpl {
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
+    private boolean mIsBoldFont = false;
 
     private class Size {
         Size(float w, float h) {
@@ -150,15 +151,20 @@ public class CanvasRenderingContext2DImpl {
         sTypefaceCache.clear();
     }
 
-    private static TextPaint newPaint(final String fontName, final int fontSize, final boolean enableBold) {
-        final TextPaint paint = new TextPaint();
+    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold) {
+        TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
 
+        String key = fontName;
+        if (enableBold) {
+            key += "-Bold";
+        }
+        
         Typeface typeFace;
-        if (sTypefaceCache.containsKey(fontName)) {
-            typeFace = sTypefaceCache.get(fontName);
-         } else {
+        if (sTypefaceCache.containsKey(key)) {
+            typeFace = sTypefaceCache.get(key);
+        } else {
             if (enableBold) {
                 typeFace = Typeface.create(fontName, Typeface.BOLD);
             } else {
@@ -235,7 +241,7 @@ public class CanvasRenderingContext2DImpl {
 
     private void createTextPaintIfNeeded() {
         if (mTextPaint == null) {
-            mTextPaint = newPaint(mFontName, (int) mFontSize, false); //TODO: bold
+            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont);
         }
     }
 
@@ -283,10 +289,11 @@ public class CanvasRenderingContext2DImpl {
         return new Size(measureText(text), fm.descent - fm.ascent);
     }
 
-    private void updateFont(String fontName, float fontSize) {
+    private void updateFont(String fontName, float fontSize, boolean bold) {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
+        mIsBoldFont = bold;
         mTextPaint = null; // Reset paint to re-create paint object in createTextPaintIfNeeded
     }
 

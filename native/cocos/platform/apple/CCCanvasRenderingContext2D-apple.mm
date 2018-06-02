@@ -83,6 +83,7 @@ namespace {
     cocos2d::Color4F _fillStyle;
     cocos2d::Color4F _strokeStyle;
     float _lineWidth;
+    bool _bold;
 }
 
 @property (nonatomic, strong) NSFont* font;
@@ -118,7 +119,7 @@ namespace {
 #endif
         _path = [NSBezierPath bezierPath];
         [_path retain];
-        [self updateFontWithName:@"Arial" fontSize:30];
+        [self updateFontWithName:@"Arial" fontSize:30 bold:false];
     }
 
     return self;
@@ -141,7 +142,14 @@ namespace {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 
 -(NSFont*) _createSystemFont {
-    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask; //TODO: Support bold & italic mode.
+    NSFontTraitMask mask = NSUnitalicFontMask;
+    if (_bold) {
+        mask |= NSBoldFontMask;
+    }
+    else {
+        mask |= NSUnboldFontMask;
+    }
+
     NSFont* font = [[NSFontManager sharedFontManager]
                     fontWithFamily:_fontName
                     traits:mask
@@ -173,7 +181,14 @@ namespace {
 #else
 
 -(UIFont*) _createSystemFont {
-    UIFont* font = [UIFont fontWithName:_fontName size:_fontSize];
+    UIFont* font = nil;
+
+    if (_bold) {
+        font = [UIFont fontWithName:[_fontName stringByAppendingString:@"-Bold"] size:_fontSize];
+    }
+    else {
+        font = [UIFont fontWithName:_fontName size:_fontSize];
+    }
 
     if (font == nil) {
         const auto& familyMap = getFontFamilyNameMap();
@@ -184,7 +199,7 @@ namespace {
     }
 
     if (font == nil) {
-        if (false) { //TODO: enableBold) {
+        if (_bold) {
             font = [UIFont boldSystemFontOfSize:_fontSize];
         } else {
             font = [UIFont systemFontOfSize:_fontSize];
@@ -195,9 +210,11 @@ namespace {
 
 #endif
 
--(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize {
-    self.fontName = fontName;
+-(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize bold: (bool)bold{
     _fontSize = fontSize;
+    _bold = bold;
+
+    self.fontName = fontName;
     self.font = [self _createSystemFont];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
@@ -688,8 +705,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
     {
         _font = font;
 
-        // TODO: cjh implements bold
-        std::string bold;
+        std::string boldStr;
         std::string fontName = "Arial";
         std::string fontSizeStr = "30";
 
@@ -697,13 +713,13 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
-            bold = results[1].str();
+            boldStr = results[1].str();
             fontSizeStr = results[2].str();
             fontName = results[3].str();
         }
 
         CGFloat fontSize = atof(fontSizeStr.c_str());
-        [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:fontSize];
+        [_impl updateFontWithName:[NSString stringWithUTF8String:fontName.c_str()] fontSize:fontSize bold:!boldStr.empty()];
     }
 }
 

@@ -124,9 +124,9 @@ public:
         return JniHelper::callObjectFloatMethod(_obj, _className, "measureText", text);
     }
 
-    void updateFont(const std::string& fontName, float fontSize)
+    void updateFont(const std::string& fontName, float fontSize, bool bold)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "updateFont", fontName, fontSize);
+        JniHelper::callObjectVoidMethod(_obj, _className, "updateFont", fontName, fontSize, bold);
     }
 
     void setTextAlign(CanvasTextAlign align)
@@ -375,8 +375,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
     {
         _font = font;
 
-        // TODO: cjh implements bold
-        std::string bold;
+        std::string boldStr;
         std::string fontName = "Arial";
         std::string fontSizeStr = "30";
 
@@ -384,13 +383,13 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
-            bold = results[1].str();
+            boldStr = results[1].str();
             fontSizeStr = results[2].str();
             fontName = results[3].str();
         }
 
         float fontSize = atof(fontSizeStr.c_str());
-        _impl->updateFont(fontName, fontSize);
+        _impl->updateFont(fontName, fontSize, !boldStr.empty());
     }
 }
 
