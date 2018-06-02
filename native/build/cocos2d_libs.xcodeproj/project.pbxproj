@@ -101,8 +101,6 @@
 		1A29D770205665D200168D9A /* jsb_cocos2dx_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D76D205665D100168D9A /* jsb_cocos2dx_manual.cpp */; };
 		1A29D771205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D76E205665D100168D9A /* jsb_cocos2dx_manual.hpp */; };
 		1A29D772205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D76E205665D100168D9A /* jsb_cocos2dx_manual.hpp */; };
-		1A29D775205665F100168D9A /* CCCanvasRenderingContext2D-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D773205665F000168D9A /* CCCanvasRenderingContext2D-ios.mm */; };
-		1A29D7772056660300168D9A /* CCCanvasRenderingContext2D-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D7762056660300168D9A /* CCCanvasRenderingContext2D-mac.mm */; };
 		1A29D77B2056667800168D9A /* csscolorparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D7792056667700168D9A /* csscolorparser.cpp */; };
 		1A29D77C2056667800168D9A /* csscolorparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D7792056667700168D9A /* csscolorparser.cpp */; };
 		1A29D77D2056667800168D9A /* csscolorparser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D77A2056667800168D9A /* csscolorparser.hpp */; };
@@ -221,6 +219,8 @@
 		1AAAC8F4205CB6E9005321B9 /* AudioEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAAC884205CB6E9005321B9 /* AudioEngine.h */; };
 		1AAAC8F5205CB6E9005321B9 /* Export.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAAC885205CB6E9005321B9 /* Export.h */; };
 		1AAAC8F6205CB6E9005321B9 /* Export.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAAC885205CB6E9005321B9 /* Export.h */; };
+		1ABAD24E20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1ABAD24D20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm */; };
+		1ABAD24F20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1ABAD24D20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm */; };
 		1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */; };
 		1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACF6A3B1E4AFDC80033C137 /* libssl.a */; };
 		294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */; };
@@ -1033,8 +1033,6 @@
 		1A29D768205665BE00168D9A /* jsb_cocos2dx_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_auto.hpp; sourceTree = "<group>"; };
 		1A29D76D205665D100168D9A /* jsb_cocos2dx_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_manual.cpp; sourceTree = "<group>"; };
 		1A29D76E205665D100168D9A /* jsb_cocos2dx_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_manual.hpp; sourceTree = "<group>"; };
-		1A29D773205665F000168D9A /* CCCanvasRenderingContext2D-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCCanvasRenderingContext2D-ios.mm"; sourceTree = "<group>"; };
-		1A29D7762056660300168D9A /* CCCanvasRenderingContext2D-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCCanvasRenderingContext2D-mac.mm"; sourceTree = "<group>"; };
 		1A29D7792056667700168D9A /* csscolorparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csscolorparser.cpp; sourceTree = "<group>"; };
 		1A29D77A2056667800168D9A /* csscolorparser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = csscolorparser.hpp; sourceTree = "<group>"; };
 		1A29D781205666B100168D9A /* LocalStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalStorage.cpp; sourceTree = "<group>"; };
@@ -1110,6 +1108,7 @@
 		1AAAC882205CB6E9005321B9 /* AudioEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioEngine.cpp; sourceTree = "<group>"; };
 		1AAAC884205CB6E9005321B9 /* AudioEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioEngine.h; sourceTree = "<group>"; };
 		1AAAC885205CB6E9005321B9 /* Export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Export.h; sourceTree = "<group>"; };
+		1ABAD24D20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCCanvasRenderingContext2D-apple.mm"; sourceTree = "<group>"; };
 		1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../external/ios/libs/libcrypto.a; sourceTree = "<group>"; };
 		1ACF6A3B1E4AFDC80033C137 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../external/ios/libs/libssl.a; sourceTree = "<group>"; };
 		294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCDevice-apple.h"; sourceTree = "<group>"; };
@@ -1579,7 +1578,6 @@
 		1551A334158F2AB200E66CFE = {
 			isa = PBXGroup;
 			children = (
-				461DCA4020BCFED800B22827 /* New Group */,
 				461DCA3220BBFA2D00B22827 /* ui */,
 				1AAAC877205CB6E9005321B9 /* audio */,
 				1A29D77F205666B100168D9A /* storage */,
@@ -1904,13 +1902,6 @@
 				461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */,
 			);
 			path = "edit-box";
-			sourceTree = "<group>";
-		};
-		461DCA4020BCFED800B22827 /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "New Group";
 			sourceTree = "<group>";
 		};
 		469301F42046AE05004A3D6C /* js-bindings */ = {
@@ -2419,7 +2410,6 @@
 			isa = PBXGroup;
 			children = (
 				46FDDC68202D733700931238 /* CCApplication-ios.mm */,
-				1A29D773205665F000168D9A /* CCCanvasRenderingContext2D-ios.mm */,
 				503DD8D11926736A00CD74DD /* CCDevice-ios.mm */,
 				503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */,
 				503DD8D51926736A00CD74DD /* CCEAGLView-ios.mm */,
@@ -2460,6 +2450,7 @@
 		50ABBF1A1926664700A911A9 /* apple */ = {
 			isa = PBXGroup;
 			children = (
+				1ABAD24D20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm */,
 				46FDDC62202D502E00931238 /* CCApplication.h */,
 				294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */,
 				294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */,
@@ -2473,7 +2464,6 @@
 			isa = PBXGroup;
 			children = (
 				4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */,
-				1A29D7762056660300168D9A /* CCCanvasRenderingContext2D-mac.mm */,
 				50ABBF521926664700A911A9 /* CCDevice-mac.mm */,
 				50ABBF531926664700A911A9 /* CCGL-mac.h */,
 				4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */,
@@ -3305,6 +3295,7 @@
 				46FDDA99202ACC6A00931238 /* Model.cpp in Sources */,
 				4693038E2046AE05004A3D6C /* Value.cpp in Sources */,
 				46FDDA89202ACC6A00931238 /* Effect.cpp in Sources */,
+				1ABAD24E20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */,
 				4DED48161DFFA4AF0070C5C4 /* b2Timer.cpp in Sources */,
 				4DED47E61DFFA4AF0070C5C4 /* b2DynamicTree.cpp in Sources */,
 				ED30577E1BEC76C90083C3ED /* ioapi_mem.cpp in Sources */,
@@ -3367,7 +3358,6 @@
 				46AE3FF12092F3A600F3A228 /* SHA1.cpp in Sources */,
 				46FDDAB1202ACC6A00931238 /* DeviceGraphics.cpp in Sources */,
 				1A28FF7B1F20AFAB007A1D9D /* SRLog.m in Sources */,
-				1A29D7772056660300168D9A /* CCCanvasRenderingContext2D-mac.mm in Sources */,
 				4DED48401DFFA4AF0070C5C4 /* b2Contact.cpp in Sources */,
 				46FDDAC9202ACC6A00931238 /* RenderBuffer.cpp in Sources */,
 				4DED48441DFFA4AF0070C5C4 /* b2ContactSolver.cpp in Sources */,
@@ -3624,10 +3614,10 @@
 				46FDDA7E202ACC6A00931238 /* Light.cpp in Sources */,
 				BA68D7861D62F4A500B7A3F9 /* advancing_front.cc in Sources */,
 				469303AB2046AE05004A3D6C /* Class.cpp in Sources */,
+				1ABAD24F20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */,
 				46AE3FFA2092F3A600F3A228 /* inspector_socket.cc in Sources */,
 				1AAAC8EC205CB6E9005321B9 /* AudioCache.mm in Sources */,
 				46FDDBE4202ADDCE00931238 /* CCData.cpp in Sources */,
-				1A29D775205665F100168D9A /* CCCanvasRenderingContext2D-ios.mm in Sources */,
 				469304592046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				46FDDAB4202ACC6A00931238 /* VertexBuffer.cpp in Sources */,
 				4DED47DF1DFFA4AF0070C5C4 /* b2Collision.cpp in Sources */,

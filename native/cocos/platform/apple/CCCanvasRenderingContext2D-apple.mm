@@ -6,7 +6,21 @@
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#import <Cocoa/Cocoa.h>
+#else
 #import <CoreText/CoreText.h>
+
+#define NSBezierPath UIBezierPath
+#define NSFont UIFont
+#define NSColor UIColor
+#define NSSize CGSize
+#define NSZeroSize CGSizeZero
+#define NSPoint CGPoint
+#define NSMakePoint CGPointMake
+
+#endif
 
 #include <regex>
 
@@ -45,17 +59,25 @@ namespace {
 }
 
 @interface CanvasRenderingContext2DImpl : NSObject {
-    UIFont* _font;
+    NSFont* _font;
     NSMutableDictionary* _tokenAttributesDict;
     NSString* _fontName;
     CGFloat _fontSize;
     CGFloat _width;
     CGFloat _height;
     CGContextRef _context;
+    
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    NSGraphicsContext* _currentGraphicsContext;
+    NSGraphicsContext* _oldGraphicsContext;
+#else
     CGContextRef _oldContext;
+#endif
+    
     CGColorSpaceRef _colorSpace;
-    UIBezierPath* _path;
     cocos2d::Data _imageData;
+    NSBezierPath* _path;
+
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
     cocos2d::Color4F _fillStyle;
@@ -63,7 +85,7 @@ namespace {
     float _lineWidth;
 }
 
-@property (nonatomic, strong) UIFont* font;
+@property (nonatomic, strong) NSFont* font;
 @property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
 @property (nonatomic, strong) NSString* fontName;
 @property (nonatomic, assign) CanvasTextAlign textAlign;
@@ -83,14 +105,18 @@ namespace {
 
 -(id) init {
     if (self = [super init]) {
-        _width = _height = 0;
-        _context = nil;
-        _oldContext = nil;
-        _colorSpace = nil;
+        _lineWidth = 0;
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
-        _lineWidth = 0;
-        _path = [UIBezierPath bezierPath];
+        _width = _height = 0;
+        _context = nil;
+        _colorSpace = nil;
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+        _currentGraphicsContext = nil;
+        _oldGraphicsContext = nil;
+#endif
+        _path = [NSBezierPath bezierPath];
         [_path retain];
         [self updateFontWithName:@"Arial" fontSize:30];
     }
@@ -102,13 +128,49 @@ namespace {
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
-
     CGColorSpaceRelease(_colorSpace);
     // release the context
     CGContextRelease(_context);
     [_path release];
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    [_currentGraphicsContext release];
+#endif
     [super dealloc];
 }
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+
+-(NSFont*) _createSystemFont {
+    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask; //TODO: Support bold & italic mode.
+    NSFont* font = [[NSFontManager sharedFontManager]
+                    fontWithFamily:_fontName
+                    traits:mask
+                    weight:0
+                    size:_fontSize];
+
+    if (font == nil) {
+        const auto& familyMap = getFontFamilyNameMap();
+        auto iter = familyMap.find([_fontName UTF8String]);
+        if (iter != familyMap.end()) {
+            font = [[NSFontManager sharedFontManager]
+               fontWithFamily: [NSString stringWithUTF8String:iter->second.c_str()]
+               traits: mask
+               weight: 0
+               size: _fontSize];
+        }
+    }
+
+    if (font == nil) {
+        font = [[NSFontManager sharedFontManager]
+                fontWithFamily: @"Arial"
+                traits: mask
+                weight: 0
+                size: _fontSize];
+    }
+    return font;
+}
+
+#else
 
 -(UIFont*) _createSystemFont {
     UIFont* font = [UIFont fontWithName:_fontName size:_fontSize];
@@ -131,7 +193,9 @@ namespace {
     return font;
 }
 
--(void) updateFontWithName:(NSString*) fontName fontSize:(CGFloat) fontSize {
+#endif
+
+-(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize {
     self.fontName = fontName;
     _fontSize = fontSize;
     self.font = [self _createSystemFont];
@@ -141,7 +205,7 @@ namespace {
     [paragraphStyle setAlignment:NSTextAlignmentCenter];
 
     // color
-    UIColor* foregroundColor = [UIColor colorWithRed:1.0f
+    NSColor* foregroundColor = [NSColor colorWithRed:1.0f
                                                green:1.0f
                                                 blue:1.0f
                                                alpha:1.0f];
@@ -164,41 +228,54 @@ namespace {
     if (_context != nil)
     {
         CGContextRelease(_context);
+        _context = nil;
     }
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    if (_currentGraphicsContext != nil)
+    {
+        [_currentGraphicsContext release];
+        _currentGraphicsContext = nil;
+    }
+#endif
 
     // draw text
     _colorSpace  = CGColorSpaceCreateDeviceRGB();
     _context = CGBitmapContextCreate(data,
-                                        width,
-                                        height,
-                                        8,
-                                        width * 4,
-                                        _colorSpace,
-                                        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    if (!_context)
+                                     width,
+                                     height,
+                                     8,
+                                     width * 4,
+                                     _colorSpace,
+                                     kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    if (nil == _context)
     {
         CGColorSpaceRelease(_colorSpace); //TODO HOWTO RELEASE?
         _colorSpace = nil;
     }
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped: NO];
+    [_currentGraphicsContext retain];
+#else
     // move Y rendering to the top of the image
     CGContextTranslateCTM(_context, 0.0f, _height);
 
     //NOTE: NSString draws in UIKit referential i.e. renders upside-down compared to CGBitmapContext referential
     CGContextScaleCTM(_context, 1.0f, -1.0f);
+#endif
 }
 
--(CGSize) measureText:(NSString*) text {
+-(NSSize) measureText:(NSString*) text {
 
     NSAttributedString* stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
                                                              attributes:_tokenAttributesDict] autorelease];
 
-    CGSize textRect = CGSizeZero;
+    NSSize textRect = NSZeroSize;
     textRect.width = CGFLOAT_MAX;
     textRect.height = CGFLOAT_MAX;
 
-    CGSize dim;
-    dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin) context:nil].size;
+    NSSize dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin) context:nil].size;
 
     dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
@@ -206,10 +283,11 @@ namespace {
     return dim;
 }
 
--(CGPoint) convertDrawPoint:(CGPoint) point text:(NSString*) text {
+-(NSPoint) convertDrawPoint:(NSPoint) point text:(NSString*) text {
     // The parameter 'point' is located at left-bottom position.
     // Need to adjust 'point' according 'text align' & 'text base line'.
-    CGSize textSize = [self measureText:text];
+    NSSize textSize = [self measureText:text];
+
     if (_textAlign == CanvasTextAlign::CENTER)
     {
         point.x -= textSize.width / 2.0f;
@@ -228,6 +306,14 @@ namespace {
         point.y += _fontSize / 2.0f;
     }
 
+#if CC_TARGET_PLATFROM == CC_PLATFORM_MAC
+    // We use font size to calculate text height, but 'drawPointAt' method on macOS is based on
+    // the real font height and in bottom-left position, add the adjust value to make the text inside text rectangle.
+    point.y += (textSize.height - _fontSize) / 2.0f;
+
+    // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
+    point.y = _height - point.y;
+#else
     // The origin of drawing text on iOS is from top-left, but now we get bottom-left,
     // So, we need to substract the font size to convert 'point' to top-left.
     point.y -= _fontSize;
@@ -235,16 +321,15 @@ namespace {
     // We use font size to calculate text height, but 'drawPointAt' method on iOS is based on
     // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
     point.y -= (textSize.height - _fontSize) / 2.0f;
-
+#endif
     return point;
 }
 
 -(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
-
     if (text.length == 0)
         return;
 
-    CGPoint drawPoint = [self convertDrawPoint:CGPointMake(x, y) text:text];
+    NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -253,21 +338,24 @@ namespace {
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
                              forKey:NSForegroundColorAttributeName];
 
     [self saveContext];
+
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
-
     CGContextSetTextDrawingMode(_context, kCGTextFill);
+
+    
 
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
+
 
     CGContextEndTransparencyLayer(_context);
 
@@ -275,30 +363,29 @@ namespace {
 }
 
 -(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
-
     if (text.length == 0)
         return;
 
-    CGPoint drawPoint = [self convertDrawPoint:CGPointMake(x, y) text:text];
+    NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
+    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
     [_tokenAttributesDict setObject:[NSNumber numberWithFloat: _lineWidth * 2]
-                             forKey:NSStrokeWidthAttributeName];
-    [_tokenAttributesDict setObject:[UIColor colorWithRed:_strokeStyle.r
+                            forKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
                                                     green:_strokeStyle.g
                                                      blue:_strokeStyle.b
                                                     alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
-    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[UIColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
-                             forKey:NSForegroundColorAttributeName];
 
     [self saveContext];
+
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
@@ -347,7 +434,7 @@ namespace {
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
     //TODO:
-//    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    //    assert(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
@@ -363,19 +450,37 @@ namespace {
 }
 
 -(void) saveContext {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    // save the old graphics context
+    _oldGraphicsContext = [NSGraphicsContext currentContext];
+    // store the current context
+    [NSGraphicsContext setCurrentContext:_currentGraphicsContext];
+    // push graphics state to stack
+    [NSGraphicsContext saveGraphicsState];
+    [[NSGraphicsContext currentContext] setShouldAntialias:YES];
+#else
     // save the old graphics context
     _oldContext = UIGraphicsGetCurrentContext();
     // store the current context
     UIGraphicsPushContext(_context);
     CGContextSaveGState(_context);
+#endif
 }
 
 -(void) restoreContext {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    // pop the context
+    [NSGraphicsContext restoreGraphicsState];
+    // reset the old graphics context
+    [NSGraphicsContext setCurrentContext:_oldGraphicsContext];
+    _oldGraphicsContext = nil;
+#else
     // pop the context
     CGContextRestoreGState(_context);
     // reset the old graphics context
     UIGraphicsPopContext();
     _oldContext = nil;
+#endif
 }
 
 -(void) beginPath {
@@ -383,18 +488,26 @@ namespace {
 }
 
 -(void) stroke {
-    UIColor* color = [UIColor colorWithRed:_strokeStyle.r green:_strokeStyle.g blue:_strokeStyle.b alpha:_strokeStyle.a];
+    NSColor* color = [NSColor colorWithRed:_strokeStyle.r green:_strokeStyle.g blue:_strokeStyle.b alpha:_strokeStyle.a];
     [color setStroke];
     [_path setLineWidth: _lineWidth];
     [_path stroke];
 }
 
 -(void) moveToX: (float) x y:(float) y {
-    [_path moveToPoint: CGPointMake(x, y)];
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    [_path moveToPoint: NSMakePoint(x, _height - y)];
+#else
+    [_path moveToPoint: NSMakePoint(x, y)];
+#endif
 }
 
 -(void) lineToX: (float) x y:(float) y {
-    [_path addLineToPoint: CGPointMake(x, y)];
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    [_path lineToPoint: NSMakePoint(x, _height - y)];
+#else
+    [_path addLineToPoint: NSMakePoint(x, y)];
+#endif
 }
 
 @end
@@ -437,8 +550,8 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
 {
     if (_isBufferSizeDirty)
     {
-//        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
         _isBufferSizeDirty = false;
+//        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
         [_impl recreateBufferWithWidth: __width height:__height];
         if (_canvasBufferUpdatedCB != nullptr)
             _canvasBufferUpdatedCB([_impl getDataRef]);
@@ -458,12 +571,14 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
     [_impl fillRect:CGRectMake(x, y, width, height)];
 
     if (_canvasBufferUpdatedCB != nullptr)
+    {
         _canvasBufferUpdatedCB([_impl getDataRef]);
+    }
 }
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
-//    SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
 
@@ -476,10 +591,9 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
 {
-//    SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+//    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
-
     recreateBufferIfNeeded();
 
     [_impl strokeText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
