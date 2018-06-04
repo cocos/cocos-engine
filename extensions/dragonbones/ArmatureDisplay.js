@@ -304,19 +304,25 @@ let ArmatureDisplay = cc.Class({
 
     onEnable () {
         this._super();
-        dragonBones.CCFactory.getInstance()._dragonBones.clock.add(this._armature);
+        if (this._armature) {
+            dragonBones.CCFactory.getInstance()._dragonBones.clock.add(this._armature);
+        }
     },
 
     onDisable () {
         this._super();
-        dragonBones.CCFactory.getInstance()._dragonBones.clock.remove(this._armature);
+        if (this._armature) {
+            dragonBones.CCFactory.getInstance()._dragonBones.clock.remove(this._armature);
+        }
     },
 
     onDestroy () {
         this._super();
         this._inited = false;
-        this._armature.dispose();
-        this._armature = null;
+        if (this._armature) {
+            this._armature.dispose();
+            this._armature = null;
+        }
     },
 
     _initDebugDraw () {
@@ -339,14 +345,21 @@ let ArmatureDisplay = cc.Class({
     },
 
     _activateMaterial () {
-        let texture = this.dragonAtlasAsset.texture;
-        if (this._material || !texture)
-            return;
+        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
+        
 
         // Get material
-        let material = new SpriteMaterial();
-        material.texture = texture;
+        let material = this._material || new SpriteMaterial();
         material.useColor = false;
+
+        if (texture) {
+            material.texture = texture;
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+        }
+        else {
+            this.disableRender();
+        }
 
         this.setMaterial(material);
     },
