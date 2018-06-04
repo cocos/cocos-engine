@@ -862,10 +862,8 @@ var ParticleSystem = cc.Class({
 
     onEnable () {
         this._super();
-        // should add render flag after particle loaded
-        this.disableRender();
-
-        this._updateMaterial();
+        this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        this._activateMaterial();
     },
 
     onDestroy () {
@@ -918,7 +916,7 @@ var ParticleSystem = cc.Class({
         this._stopped = false;
         this._simulator.reset();
         if (!this._material) {
-            this._updateMaterial();
+            this._activateMaterial();
         }
         else {
             this.markForCustomIARender(true);
@@ -1144,7 +1142,7 @@ var ParticleSystem = cc.Class({
             this._renderData.uvDirty = true;
         }
         // Reactivate material
-        this._updateMaterial();
+        this._activateMaterial();
     },
 
     _applySpriteFrame: function (oldFrame) {
@@ -1164,29 +1162,27 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    _updateMaterial: function () {
-        // cannot be activated if texture not loaded yet
-        if (!this._texture || !this._texture.loaded) {
-            this.markForCustomIARender(false);
-            if (this._spriteFrame) {
-                this._applySpriteFrame();
-            }
-            return;
-        }
-
-        // Get material
+    _activateMaterial: function () {
         if (!this._material) {
             this._material = new renderEngine.SpriteMaterial();
             this._material.useTexture = true;
             this._material.useModel = true;
             this._material.useColor = false;
+        }
+
+        if (!this._texture || !this._texture.loaded) {
+            this.markForCustomIARender(false);
+            if (this._spriteFrame) {
+                this._applySpriteFrame();
+            }
+        }
+        else {
+            this.markForUpdateRenderData(true);
+            this.markForCustomIARender(true);
             this._material.texture = this._texture;
         }
 
         this._updateBlendFunc();
-
-        this.markForUpdateRenderData(true);
-        this.markForCustomIARender(true);
     },
     
     _updateBlendFunc: function () {

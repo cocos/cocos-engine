@@ -43,7 +43,8 @@ let RenderComponent = cc.Class({
     extends: Component,
 
     editor: CC_EDITOR && {
-        executeInEditMode: true
+        executeInEditMode: true,
+        disallowMultiple: true
     },
     
     ctor () {
@@ -57,13 +58,16 @@ let RenderComponent = cc.Class({
     },
 
     onEnable () {
+        if (this.node._renderComponent) {
+            this.node._renderComponent.enabled = false;
+        }
         this.node._renderComponent = this;
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
     },
 
     onDisable () {
         this.node._renderComponent = null;
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+        this.disableRender();
     },
 
     onDestroy () {
@@ -103,7 +107,7 @@ let RenderComponent = cc.Class({
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | cc.RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | cc.RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
     },
 
     requestRenderData () {
