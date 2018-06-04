@@ -98,11 +98,7 @@ Audio.State = {
         }
         
         if (this._element)
-            return;
-
-        if (this._element)
-            return;
-            
+            return;    
         var item = cc.loader.getItem(src);
 
         if (!item) {
@@ -145,7 +141,7 @@ Audio.State = {
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
-            if (CC_QQPLAY || CC_WECHATGAME) {
+            if (CC_QQPLAY) {
                 this._element = elem;
             }
             else {
