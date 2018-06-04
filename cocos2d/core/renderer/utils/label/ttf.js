@@ -211,7 +211,9 @@ module.exports = {
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
-            _outlineColor = outline.color;
+            _outlineColor = cc.color(outline.color);
+            // TODO: temporary solution, cascade opacity for outline color
+            _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
         }
         else {
             _isOutlined = false;
