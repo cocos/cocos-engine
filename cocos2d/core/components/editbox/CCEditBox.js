@@ -454,8 +454,9 @@ let EditBox = cc.Class({
     },
 
     _showLabels () {
-        this._textLabel.node.active = true;
-        this._placeholderLabel.node.active = true;
+        let displayText = this._textLabel.string;
+        this._textLabel.node.active = displayText !== '';
+        this._placeholderLabel.node.active = displayText === '';
     },
 
     _hideLabels () {
@@ -468,14 +469,7 @@ let EditBox = cc.Class({
         let textLabel = this._textLabel;
 
         let displayText = text;
-        if (displayText === '') {
-            placeholderLabel.enabled = true;
-            textLabel.enabled = false;
-        }
-        else {
-            placeholderLabel.enabled = false;
-            textLabel.enabled = true;
-
+        if (displayText) {
             displayText = this._updateLabelStringStyle(displayText);
         }
 
