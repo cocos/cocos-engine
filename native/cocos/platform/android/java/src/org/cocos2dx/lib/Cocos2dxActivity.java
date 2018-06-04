@@ -49,7 +49,6 @@ import android.widget.TextView;
 import com.cocos.analytics.CAAgent;
 
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
-import org.cocos2dx.lib.Cocos2dxEditBox;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;

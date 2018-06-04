@@ -26,14 +26,10 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.view.Display;
-import android.view.Surface;
-import android.view.WindowManager;
 
 public class Cocos2dxAccelerometer implements SensorEventListener {
     // ===========================================================

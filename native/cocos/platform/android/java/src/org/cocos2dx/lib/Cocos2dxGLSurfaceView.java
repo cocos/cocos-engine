@@ -25,17 +25,13 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
-import android.app.Activity;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import com.cocos.analytics.CAAgent;
 
 public class Cocos2dxGLSurfaceView extends GLSurfaceView {
@@ -141,9 +137,6 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(final MotionEvent pMotionEvent) {
-        if (mStopHandleTouchAndKeyEvents)
-            return false;
-
         // these data are used in ACTION_MOVE and ACTION_CANCEL
         final int pointerNumber = pMotionEvent.getPointerCount();
         final int[] ids = new int[pointerNumber];
@@ -158,6 +151,11 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
         switch (pMotionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_POINTER_DOWN:
+                if (mStopHandleTouchAndKeyEvents) {
+                    Cocos2dxEditBox.complete();
+                    return true;
+                }
+
                 final int indexPointerDown = pMotionEvent.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                 final int idPointerDown = pMotionEvent.getPointerId(indexPointerDown);
                 final float xPointerDown = pMotionEvent.getX(indexPointerDown);
@@ -172,6 +170,11 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
                 break;
 
             case MotionEvent.ACTION_DOWN:
+                if (mStopHandleTouchAndKeyEvents) {
+                    Cocos2dxEditBox.complete();
+                    return true;
+                }
+
                 // there are only one finger on the screen
                 final int idDown = pMotionEvent.getPointerId(0);
                 final float xDown = xs[0];
@@ -253,9 +256,6 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onKeyDown(final int pKeyCode, final KeyEvent pKeyEvent) {
-        if (mStopHandleTouchAndKeyEvents)
-            return false;
-
         switch (pKeyCode) {
             case KeyEvent.KEYCODE_BACK:
                 Cocos2dxVideoHelper.mVideoHandler.sendEmptyMessage(Cocos2dxVideoHelper.KeyEventBack);
@@ -281,9 +281,6 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onKeyUp(final int keyCode, KeyEvent event) {
-        if (mStopHandleTouchAndKeyEvents)
-            return false;
-
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_MENU:

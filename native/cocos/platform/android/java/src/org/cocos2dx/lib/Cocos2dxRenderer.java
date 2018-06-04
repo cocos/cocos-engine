@@ -26,7 +26,6 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import android.opengl.GLSurfaceView;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 

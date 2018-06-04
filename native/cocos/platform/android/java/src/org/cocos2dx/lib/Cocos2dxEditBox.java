@@ -32,7 +32,6 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -97,7 +96,7 @@ public class Cocos2dxEditBox {
         }
 
         /***************************************************************************************
-         Other member functions.
+         Public functions.
          **************************************************************************************/
 
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
@@ -192,6 +191,15 @@ public class Cocos2dxEditBox {
         Cocos2dxEditBox.sThis = this;
         mActivity = context;
         this.addItems(context, layout);
+    }
+
+    /***************************************************************************************
+     Public functions.
+     **************************************************************************************/
+
+    // Invoked by surface view to send a complete message to CPP.
+    public static void complete() {
+        Cocos2dxEditBox.sThis.hide();
     }
 
     /***************************************************************************************
@@ -314,6 +322,8 @@ public class Cocos2dxEditBox {
     }
 
     private void onKeyboardComplete(String text) {
+        mActivity.getGLSurfaceView().requestFocus();
+        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
         mActivity.runOnGLThread(new Runnable() {
             @Override
             public void run() {
