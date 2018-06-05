@@ -180,7 +180,7 @@ var View = cc._Class.extend({
         _t._orientation = 3;
 
         var sys = cc.sys;
-        _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
+        _t.enableRetina(true);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
