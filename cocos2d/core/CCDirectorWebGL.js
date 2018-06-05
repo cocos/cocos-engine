@@ -85,10 +85,10 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                 math.glMatrixMode(math.KM_GL_PROJECTION);
                 math.glLoadIdentity();
                 var orthoMatrix = math.Matrix4.createOrthographicProjection(
-                    0,
-                    size.width,
-                    0,
-                    size.height,
+                    -ox,
+                    size.width - ox,
+                    -oy,
+                    size.height - oy,
                     -1024, 1024);
                 math.glMultMatrix(orthoMatrix);
                 math.glMatrixMode(math.KM_GL_MODELVIEW);
