@@ -863,11 +863,12 @@ View.prototype = {
      * @param {Number} h
      */
     setScissorInPoints: function (x, y, w, h) {
-        var scaleX = this._scaleX, scaleY = this._scaleY;
-        var sx = Math.ceil(x * scaleX + this._viewportRect.x);
-        var sy = Math.ceil(y * scaleY + this._viewportRect.y);
-        var sw = Math.ceil(w * scaleX);
-        var sh = Math.ceil(h * scaleY);
+        let scaleX = this._scaleX, scaleY = this._scaleY;
+        let sx = Math.ceil(x * scaleX + this._viewportRect.x);
+        let sy = Math.ceil(y * scaleY + this._viewportRect.y);
+        let sw = Math.ceil(w * scaleX);
+        let sh = Math.ceil(h * scaleY);
+        let gl = cc.game._renderContext;
 
         if (!_scissorRect) {
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
@@ -879,7 +880,7 @@ View.prototype = {
             _scissorRect.y = sy;
             _scissorRect.width = sw;
             _scissorRect.height = sh;
-            cc.game._renderContext.scissor(sx, sy, sw, sh);
+            gl.scissor(sx, sy, sw, sh);
         }
     },
 

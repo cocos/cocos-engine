@@ -47,11 +47,8 @@ function getReadonlyNodeSize (parent) {
     if (parent instanceof cc.Scene) {
         return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
     }
-    else if (!parent._sizeProvider || (parent._sizeProvider instanceof _ccsg.Node)) {
-        return parent._contentSize;
-    }
     else {
-        return parent.getContentSize();
+        return parent._contentSize;
     }
 }
 

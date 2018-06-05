@@ -145,7 +145,6 @@ let Mask = cc.Class({
                 this._spriteFrame = value;
                 this._applySpriteFrame(lastSprite);
             },
-            type: cc.SpriteFrame,
         },
 
         /**

@@ -109,7 +109,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             rectWidth = frame._rect.width,
             rectHeight = frame._rect.height,
             offsetX = frame._offset.x,
-            offsetY = frame._offset.y;
+            offsetY = frame._offset.y,
             trimX = offsetX + (originalWidth - rectWidth) / 2,
             trimY = offsetY + (originalHeight - rectHeight) / 2;
             

@@ -114,7 +114,7 @@ let PrivateNode = cc.Class({
         this.setLocalDirty(LocalDirtyFlag.POSITION);
         this._renderFlag |= RenderFlow.FLAG_LOCAL_TRANSFORM;
         if (sendEvent === true && (this._eventMask & POSITION_ON)) {
-            this.emit(EventType.POSITION_CHANGED);
+            this.emit(Node.EventType.POSITION_CHANGED);
         }
     },
 

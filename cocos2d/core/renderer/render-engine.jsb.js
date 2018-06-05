@@ -1974,7 +1974,7 @@ var StencilMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture', val);
+    this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
