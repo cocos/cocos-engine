@@ -170,7 +170,7 @@ let maskEndAssembler = {
             }
         }
 
-        mask.node._renderFlag |= RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
     }
 };
 
