@@ -1202,7 +1202,8 @@ var Node = cc.Class({
     _onPostActivated (active) {
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
-            // activate
+            // Refresh transform
+            this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
