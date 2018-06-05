@@ -34,7 +34,7 @@ function install_clang()
     echo "Download clang"
     curl -O http://releases.llvm.org/5.0.0/clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
     echo "Decompress clang"
-    tar xvfj ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
+    tar xpvf ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
     cp ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04/lib/libclang.so.5.0 ./tools/bindings-generator/libclang/libclang.so
 }
 
