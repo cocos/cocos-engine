@@ -499,7 +499,7 @@ let TiledLayer = cc.Class({
                 this._textures[i] = tex;
                 this._fillTextureGrids(tilesetInfo, i);
                 if (tileset === tilesetInfo) {
-                    this.setTexture(tex);
+                    this._texture = tex;
                 }
             }
         }
@@ -523,6 +523,8 @@ let TiledLayer = cc.Class({
         }
         this._useAutomaticVertexZ = false;
         this._vertexZvalue = 0;
+
+        this._activateMaterial();
     },
 
     _calculateLayerOffset (pos) {
@@ -611,12 +613,21 @@ let TiledLayer = cc.Class({
     },
 
     _activateMaterial () {
-        if (this._material) return;
-        
-        let material = new SpriteMaterial();
-        // TODO: old texture in material have been released by loader
-        material.texture = this._texture;
-        material.useColor = false;
+        let material = this._material;
+        if (!material) {
+            material = this._material = new SpriteMaterial();
+            material.useColor = false;
+        }
+
+        if (this._texture) {
+            // TODO: old texture in material have been released by loader
+            material.texture = this._texture;
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+        }
+        else {
+            this.disableRender();   
+        }
         
         this.setMaterial(material);
     },
