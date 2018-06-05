@@ -222,6 +222,7 @@ let EditBoxImpl = cc.Class({
     },
 
     clear () {
+        this._node = null;
         this.setDelegate(null);
         this.removeDom();
     },
