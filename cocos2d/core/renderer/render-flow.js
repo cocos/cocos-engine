@@ -74,7 +74,7 @@ _proto._color = function (node) {
 
     let comp = node._renderComponent;
     if (comp) {
-        comp._updateColor(_walker);
+        comp._updateColor();
     }
     this._next._func(node);
 
@@ -83,7 +83,7 @@ _proto._color = function (node) {
 
 _proto._updateRenderData = function (node) {
     let comp = node._renderComponent;
-    comp._assembler.updateRenderData(comp, _walker);
+    comp._assembler.updateRenderData(comp);
     node._renderFlag &= ~UPDATE_RENDER_DATA;
     this._next._func(node);
 };
@@ -117,7 +117,7 @@ _proto._children = function (node) {
         c._renderFlag |= worldTransformFlag | worldOpacityFlag;
 
         // TODO: Maybe has better way to implement cascade opacity
-        let a = c.color.a;
+        let a = c._color.a;
         c._color.a = a * (c.opacity/255) * _walker.worldOpacity;
         flows[c._renderFlag]._func(c);
         c._color.a = a;
@@ -132,7 +132,7 @@ _proto._children = function (node) {
 
 _proto._postUpdateRenderData = function (node) {
     let comp = node._renderComponent;
-    comp._postAssembler && comp._postAssembler.updateRenderData(comp, _walker);
+    comp._postAssembler && comp._postAssembler.updateRenderData(comp);
     node._renderFlag &= ~POST_UPDATE_RENDER_DATA;
     this._next._func(node);
 };
