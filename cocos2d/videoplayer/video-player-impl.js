@@ -57,32 +57,59 @@ let VideoPlayerImpl = cc.Class({
         this._m13 = 0;
         this._w = 0;
         this._h = 0;
+        //
+        this.__eventListeners = {};
     },
 
     _bindEvent () {
         let video = this._video, self = this;
         //binding event
-        video.addEventListener("loadedmetadata", function () {
+        let cbs = this.__eventListeners;
+        cbs.loadedmetadata = function () {
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
-        });
-        video.addEventListener("ended", function () {
-            if (self._video !== video) return;
+        };
+        cbs.ended = function () {
+            if (this._video !== video) return;
             self._playing = false;
             self._dispatchEvent(VideoPlayerImpl.EventType.COMPLETED);
-        });
-        video.addEventListener("play", function () {
+        };
+        cbs.play = function () {
             if (self._video !== video) return;
             self._playing = true;
             self._dispatchEvent(VideoPlayerImpl.EventType.PLAYING);
-        });
-        video.addEventListener("pause", function () {
+        };
+        cbs.pause = function () {
             if (self._ignorePause || self._video !== video) return;
             self._playing = false;
             self._dispatchEvent(VideoPlayerImpl.EventType.PAUSED);
-        });
-        video.addEventListener("click", function () {
+        };
+        cbs.click = function () {
             self._dispatchEvent(VideoPlayerImpl.EventType.CLICKED);
-        });
+        };
+
+        video.addEventListener("loadedmetadata", cbs.loadedmetadata);
+        video.addEventListener("ended", cbs.ended);
+        video.addEventListener("play", cbs.play);
+        video.addEventListener("pause", cbs.pause);
+        video.addEventListener("click", cbs.click);
+
+        function onCanPlay () {
+            if (this._loaded)
+                return;
+            let video = this._video;
+            if (video.readyState === 4) {
+                this._loaded = true;
+                // node.setContentSize(node._contentSize.width, node._contentSize.height);
+                video.currentTime = 0;
+                this._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
+                this._updateVisibility();
+            }
+        }
+
+        cbs.onCanPlay = onCanPlay.bind(this);
+        video.addEventListener('canplay', cbs.onCanPlay);
+        video.addEventListener('canplaythrough', cbs.onCanPlay);
+        video.addEventListener('suspend', cbs.onCanPlay);
     },
 
     _updateVisibility () {
@@ -142,6 +169,23 @@ let VideoPlayerImpl = cc.Class({
         }
         this._video = null;
         this._url = "";
+
+        let cbs = this.__eventListeners;
+        video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
+        video.removeEventListener("ended", cbs.ended);
+        video.removeEventListener("play", cbs.play);
+        video.removeEventListener("pause", cbs.pause);
+        video.removeEventListener("click", cbs.click);
+        video.removeEventListener("canplay", cbs.onCanPlay);
+        video.removeEventListener("canplaythrough", cbs.onCanPlay);
+        video.removeEventListener("suspend", cbs.onCanPlay);
+
+        cbs.loadedmetadata = null;
+        cbs.ended = null;
+        cbs.play = null;
+        cbs.pause = null;
+        cbs.click = null;
+        cbs.onCanPlay = null;
     },
 
     setURL (path) {
@@ -158,28 +202,9 @@ let VideoPlayerImpl = cc.Class({
 
         this.removeDom();
         this.createDomElementIfNeeded();
-
         this._bindEvent();
 
-        function onCanPlay () {
-            if (this._loaded)
-                return;
-            let video = this._video;
-            if (video.readyState === 4) {
-                this._loaded = true;
-                // node.setContentSize(node._contentSize.width, node._contentSize.height);
-                video.currentTime = 0;
-                this._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
-                this._updateVisibility();
-            }
-        }
-
-        let callback = onCanPlay.bind(this);
         let video = this._video;
-        video.addEventListener('canplay', callback);
-        video.addEventListener('canplaythrough', callback);
-        video.addEventListener('suspend', callback);
-
         video.style["visibility"] = "hidden";
         this._loaded = false;
         this._played = false;

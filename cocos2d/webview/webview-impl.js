@@ -54,6 +54,8 @@ let WebViewImpl = cc.Class({
         this._m13 = 0;
         this._w = 0;
         this._h = 0;
+        //
+        this.__eventListeners = {};
     },
 
     _updateVisibility () {
@@ -79,13 +81,15 @@ let WebViewImpl = cc.Class({
     _initEvent () {
         let iframe = this._iframe;
         if (iframe) {
-            let self = this;
-            iframe.addEventListener("load", function () {
+            let cbs = this.__eventListeners, self = this;
+            cbs.load = () => {
                 self._dispatchEvent(WebViewImpl.EventType.LOADED);
-            });
-            iframe.addEventListener("error", function () {
+            };
+            cbs.error = () => {
                 self._dispatchEvent(WebViewImpl.EventType.ERROR);
-            });
+            };
+            iframe.addEventListener("load", cbs.load);
+            iframe.addEventListener("error", cbs.error);
         }
     },
 
@@ -158,6 +162,13 @@ let WebViewImpl = cc.Class({
                 cc.game.container.removeChild(div);
         }
         this._div = null;
+
+        let cbs = this.__eventListeners;
+        let iframe = this._iframe;
+        iframe.removeEventListener("load", cbs.load);
+        iframe.removeEventListener("error", cbs.error);
+        cbs.load = null;
+        cbs.error = null;
     },
 
     setOnJSCallback (callback) {},
