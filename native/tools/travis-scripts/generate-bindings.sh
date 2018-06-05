@@ -47,6 +47,10 @@ popd
 # 1. Generate js bindings
 generate_bindings_glue_codes
 
+if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+  exit 0
+fi
+
 echo
 echo Bindings generated successfully
 echo
