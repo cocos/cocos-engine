@@ -13,7 +13,7 @@ popd
 mkdir -p $HOME/bin
 cd $HOME/bin
 
-install_android_ndk()
+function install_android_ndk()
 {
     # Download android ndk
     if [ $TRAVIS_OS_NAME = 'osx' ]; then
@@ -29,6 +29,15 @@ install_android_ndk()
     mv android-ndk-r11c android-ndk
 }
 
+function install_clang()
+{
+    echo "Download clang"
+    curl -O http://releases.llvm.org/5.0.0/clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
+    echo "Decompress clang"
+    tar xvfj ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
+    cp ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04/lib/libclang.so.5.0 ./tools/bindings-generator/libclang/libclang.so
+}
+
 function install_python_module_for_osx()
 {
   sudo easy_install pip
@@ -39,3 +48,4 @@ function install_python_module_for_osx()
 #we only use osx for generate bindings
 install_android_ndk
 install_python_module_for_osx
+install_clang
