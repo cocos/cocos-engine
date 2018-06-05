@@ -70,8 +70,11 @@ module.exports = {
         //
         if (!_prefab.asset) {
             if (CC_EDITOR) {
-                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: _Scene.NodeUtils.getNodePath(node) }));
-                node.name += _Scene.PrefabUtils.MISSING_PREFAB_SUFFIX;
+                var NodeUtils = Editor.require('scene://utils/node');
+                var PrefabUtils = Editor.require('scene://utils/prefab');
+
+                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
+                node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
             }
             else {
                 cc.errorID(3701, node.name);

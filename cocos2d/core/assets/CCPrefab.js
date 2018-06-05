@@ -189,8 +189,9 @@ var Prefab = cc.Class({
 
         // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
+            var PrefabUtils = Editor.require('scene://utils/prefab');
             // This operation is not necessary, but some old prefab asset may not contain complete data.
-            _Scene.PrefabUtils.linkPrefab(this, node);
+            PrefabUtils.linkPrefab(this, node);
         }
         return node;
     }

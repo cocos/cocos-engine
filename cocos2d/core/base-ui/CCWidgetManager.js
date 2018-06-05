@@ -268,21 +268,24 @@ if (CC_EDITOR) {
 
 function refreshScene () {
     // check animation editor
-    if (CC_EDITOR && window._Scene && _Scene.AnimUtils) {
-        var nowPreviewing = !!_Scene.AnimUtils.curAnimState;
-        if (nowPreviewing !== animationState.previewing) {
-            animationState.previewing = nowPreviewing;
-            if (nowPreviewing) {
+    if (CC_EDITOR) {
+        var AnimUtils = Editor.require('scene://utils/animation');
+        if (AnimUtils) {
+            var nowPreviewing = !!AnimUtils.Cache.animation;
+            if (nowPreviewing !== animationState.previewing) {
+                animationState.previewing = nowPreviewing;
+                if (nowPreviewing) {
+                    animationState.animatedSinceLastFrame = true;
+                    animationState.time = AnimUtils.Cache.animation.time;
+                }
+                else {
+                    animationState.animatedSinceLastFrame = false;
+                }
+            }
+            else if (nowPreviewing && animationState.time !== AnimUtils.Cache.animation.time) {
                 animationState.animatedSinceLastFrame = true;
-                animationState.time = _Scene.AnimUtils.curAnimState.time;
+                animationState.time = AnimUtils.Cache.animation.time;
             }
-            else {
-                animationState.animatedSinceLastFrame = false;
-            }
-        }
-        else if (nowPreviewing && animationState.time !== _Scene.AnimUtils.curAnimState.time) {
-            animationState.animatedSinceLastFrame = true;
-            animationState.time = _Scene.AnimUtils.curAnimState.time;
         }
     }
 
@@ -296,8 +299,9 @@ function refreshScene () {
         }
         else {
             var i, widget, iterator = widgetManager._activeWidgetsIterator;
-            if (CC_EDITOR && window._Scene && _Scene.AnimUtils && _Scene.AnimUtils.curAnimState) {
-                var editingNode = _Scene.AnimUtils.curRootNode;
+            var AnimUtils = Editor.require('scene://utils/animation');
+            if (CC_EDITOR && AnimUtils.Cache.animation) {
+                var editingNode = AnimUtils.Cache.rNode;
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
                     var node = widget.node;
