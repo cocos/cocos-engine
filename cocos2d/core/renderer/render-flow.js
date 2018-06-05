@@ -70,16 +70,20 @@ _proto._worldTransform = function (node) {
 };
 
 _proto._color = function (node) {
+    _walker.worldOpacityDirty ++;
+
     let comp = node._renderComponent;
     if (comp) {
-        comp._updateColor();
+        comp._updateColor(_walker);
     }
     this._next._func(node);
+
+    _walker.worldOpacityDirty --;
 };
 
 _proto._updateRenderData = function (node) {
     let comp = node._renderComponent;
-    comp._assembler.updateRenderData(comp);
+    comp._assembler.updateRenderData(comp, _walker);
     node._renderFlag &= ~UPDATE_RENDER_DATA;
     this._next._func(node);
 };
@@ -99,15 +103,27 @@ _proto._customIARender = function (node) {
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
 
+    let worldOpacity = _walker.worldOpacity;
+    _walker.worldOpacity *= (node.opacity/255);
+
     let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
+    let worldOpacityFlag = _walker.worldOpacityDirty ? COLOR : 0;
+
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
         if (!c.activeInHierarchy) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
-        c._renderFlag |= worldTransformFlag;
+        c._renderFlag |= worldTransformFlag | worldOpacityFlag;
+
+        // TODO: Maybe has better way to implement cascade opacity
+        let a = c.color.a;
+        c._color.a = a * (c.opacity/255) * _walker.worldOpacity;
         flows[c._renderFlag]._func(c);
+        c._color.a = a;
     }
+
+    _walker.worldOpacity = worldOpacity;
 
     this._next._func(node);
 
@@ -116,7 +132,7 @@ _proto._children = function (node) {
 
 _proto._postUpdateRenderData = function (node) {
     let comp = node._renderComponent;
-    comp._postAssembler && comp._postAssembler.updateRenderData(comp);
+    comp._postAssembler && comp._postAssembler.updateRenderData(comp, _walker);
     node._renderFlag &= ~POST_UPDATE_RENDER_DATA;
     this._next._func(node);
 };
