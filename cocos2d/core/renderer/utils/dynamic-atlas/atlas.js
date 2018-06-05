@@ -1,4 +1,4 @@
-const space = 1;
+const space = 2;
 
 class Atlas {
     constructor (width, height) {
@@ -46,6 +46,11 @@ class Atlas {
                 return false;
             }
 
+            // texture bleeding
+            this._texture.drawTextureAt(texture, this._x-1, this._y);
+            this._texture.drawTextureAt(texture, this._x+1, this._y);
+            this._texture.drawTextureAt(texture, this._x, this._y-1);
+            this._texture.drawTextureAt(texture, this._x, this._y+1);
             this._texture.drawTextureAt(texture, this._x, this._y);
 
             this._innerTextureInfos[texture._id] = {
