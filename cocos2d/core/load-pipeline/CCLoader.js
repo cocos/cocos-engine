@@ -767,8 +767,9 @@ proto.release = function (asset) {
             var removed = this.removeItem(id);
             asset = item.content;
             if (cc.Class.isInstanceOf(asset, cc.Asset)) {
-                if (asset.nativeUrl) {
-                    this.release(asset.nativeUrl);  // uncache loading item of native asset
+                let nativeUrl = asset.nativeUrl;
+                if (nativeUrl) {
+                    this.release(nativeUrl);  // uncache loading item of native asset
                 }
                 asset.destroy();
             }

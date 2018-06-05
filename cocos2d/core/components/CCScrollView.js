@@ -649,7 +649,7 @@ let ScrollView = cc.Class({
      */
     scrollTo (anchor, timeInSecond, attenuated) {
         let moveDelta = this._calculateMovePercentDelta({
-            anchor: anchor,
+            anchor: cc.v2(anchor),
             applyToHorizontal: true,
             applyToVertical: true,
         });
