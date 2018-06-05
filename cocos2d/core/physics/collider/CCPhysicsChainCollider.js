@@ -93,7 +93,8 @@ var PhysicsChainCollider = cc.Class({
     },
 
     resetPointsByContour: CC_EDITOR && function () {
-        _Scene.PhysicsUtils.resetPoints(this, {threshold: this.threshold, loop: this.loop});
+        var PhysicsUtils = Editor.require('scene://utils/physics');
+        PhysicsUtils.resetPoints(this, {threshold: this.threshold, loop: this.loop});
     }
 });
 
