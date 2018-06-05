@@ -34,8 +34,8 @@ function install_clang()
     echo "Download clang"
     curl -O http://releases.llvm.org/5.0.0/clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
     echo "Decompress clang"
-    tar xpvf ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
-    cp ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04/lib/libclang.so.5.0 ./tools/bindings-generator/libclang/libclang.so
+    tar xpf ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04.tar.xz
+    cp ./clang+llvm-5.0.0-linux-x86_64-ubuntu14.04/lib/libclang.so.5.0 $COCOS2DX_ROOT/tools/bindings-generator/libclang/libclang.so
 }
 
 function install_python_module_for_osx()
