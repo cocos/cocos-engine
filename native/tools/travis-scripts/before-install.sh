@@ -21,12 +21,12 @@ function install_android_ndk()
     else
         HOST_NAME="linux"
     fi
-    echo "Download android-ndk-r11c-${HOST_NAME}-x86_64.zip ..."
-    curl -O http://dl.google.com/android/repository/android-ndk-r11c-${HOST_NAME}-x86_64.zip
-    echo "Decompress android-ndk-r11c-${HOST_NAME}-x86_64.zip ..."
-    unzip -q android-ndk-r11c-${HOST_NAME}-x86_64.zip
+    echo "Download android-ndk-r16b-${HOST_NAME}-x86_64.zip ..."
+    curl -O http://dl.google.com/android/repository/android-ndk-r16b-${HOST_NAME}-x86_64.zip
+    echo "Decompress android-ndk-r16b-${HOST_NAME}-x86_64.zip ..."
+    unzip -q android-ndk-r16b-${HOST_NAME}-x86_64.zip
     # Rename ndk
-    mv android-ndk-r11c android-ndk
+    mv android-ndk-r16b android-ndk
 }
 
 function install_clang()
