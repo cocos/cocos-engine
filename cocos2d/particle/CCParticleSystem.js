@@ -1201,6 +1201,10 @@ var ParticleSystem = cc.Class({
     },
 
     _finishedSimulation: function () {
+        if (CC_EDITOR) {
+            this.stopSystem();
+            return;
+        }
         this.disableRender();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
