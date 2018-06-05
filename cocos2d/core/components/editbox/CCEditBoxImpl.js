@@ -104,6 +104,7 @@ let EditBoxImpl = cc.Class({
         this._node = null;
         this._editing = false;
         
+        this.__eventListeners = {};
         this.__fullscreen = false;
         this.__autoResize = false;
         this.__rotateScreen = false;
@@ -239,6 +240,7 @@ let EditBoxImpl = cc.Class({
     },
 
     clear () {
+        this._node = null;
         this.setDelegate(null);
         this.removeDom();
     },
@@ -253,14 +255,14 @@ let EditBoxImpl = cc.Class({
     },
 
     _beginEditing () {
-        let self = this;
         if (CC_WECHATGAME) {
             this._edTxt.focus();
         }
-        else if (!self._alwaysOnTop) {
-            if (self._edTxt.style.display === 'none') {
-                self._edTxt.style.display = '';
+        else if (!this._alwaysOnTop) {
+            if (this._edTxt.style.display === 'none') {
+                this._edTxt.style.display = '';
     
+                let self = this;
                 function startFocus () {
                     self._edTxt.focus();
                 }
@@ -277,11 +279,11 @@ let EditBoxImpl = cc.Class({
             }
         }
     
-        if (cc.sys.isMobile && !self._editing) {
+        if (cc.sys.isMobile && !this._editing) {
             // Pre adaptation and
-            self._beginEditingOnMobile(self._editBox);
+            this._beginEditingOnMobile(this._editBox);
         }
-        self._editing = true;
+        this._editing = true;
     },
     
     _endEditing () {
@@ -463,25 +465,29 @@ function _inputValueHandle (input, editBoxImpl) {
     }
 }
 
-function registrationInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
+function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
-    tmpEdTxt.addEventListener('compositionstart', function () {
+    let cbs = editBoxImpl.__eventListeners;
+    cbs.compositionstart = function () {
         inputLock = true;
-    });
+    };
+    tmpEdTxt.addEventListener('compositionstart', cbs.compositionstart);
 
-    tmpEdTxt.addEventListener('compositionend', function () {
+    cbs.compositionend = function () {
         inputLock = false;
         _inputValueHandle(this, editBoxImpl);
-    });
+    };
+    tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
 
-    tmpEdTxt.addEventListener('input', function () {
+    cbs.input = function () {
         if (inputLock) {
             return;
         }
         _inputValueHandle(this, editBoxImpl);
-    });
+    };
+    tmpEdTxt.addEventListener('input', cbs.input);
 
-    tmpEdTxt.addEventListener('focus', function () {
+    cbs.focus = function () {
         this.style.fontSize = editBoxImpl._edFontSize + 'px';
         this.style.color = editBoxImpl._textColor.toHEX();
 
@@ -493,8 +499,10 @@ function registrationInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
             editBoxImpl._delegate.editBoxEditingDidBegan();
         }
 
-    });
-    tmpEdTxt.addEventListener('keypress', function (e) {
+    };
+    tmpEdTxt.addEventListener('focus', cbs.focus);
+
+    cbs.keypress = function (e) {
         if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
 
@@ -507,11 +515,14 @@ function registrationInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
                 cc.game.canvas.focus();
             }
         }
-    });
-    tmpEdTxt.addEventListener('blur', function () {
+    };
+    tmpEdTxt.addEventListener('keypress', cbs.keypress);
+
+    cbs.blur = function () {
         editBoxImpl._text = this.value;
         editBoxImpl._endEditing();
-    });
+    };
+    tmpEdTxt.addEventListener('blur', cbs.blur);
 
     editBoxImpl._addDomToGameContainer();
 }
@@ -557,7 +568,7 @@ _p._createDomInput = function () {
     tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
 
-    registrationInputEventListener(tmpEdTxt, this);
+    registerInputEventListener(tmpEdTxt, this);
 
     return tmpEdTxt;
 };
@@ -686,7 +697,7 @@ _p._createDomTextArea = function () {
     tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
 
-    registrationInputEventListener(tmpEdTxt, this, true);
+    registerInputEventListener(tmpEdTxt, this, true);
 
     return tmpEdTxt;
 };
@@ -698,6 +709,21 @@ _p._addDomToGameContainer = function () {
 _p.removeDom = function () {
     let edTxt = this._edTxt;
     if (edTxt) {
+        // Remove listeners 
+        let cbs = this.__eventListeners;
+        edTxt.removeEventListener('compositionstart', cbs.compositionstart);
+        edTxt.removeEventListener('compositionend', cbs.compositionend);
+        edTxt.removeEventListener('input', cbs.input);
+        edTxt.removeEventListener('focus', cbs.focus);
+        edTxt.removeEventListener('keypress', cbs.keypress);
+        edTxt.removeEventListener('blur', cbs.blur);
+        cbs.compositionstart = null;
+        cbs.compositionend = null;
+        cbs.input = null;
+        cbs.focus = null;
+        cbs.keypress = null;
+        cbs.blur = null;
+
         let hasChild = utils.contains(cc.game.container, edTxt);
         if (hasChild) {
             cc.game.container.removeChild(edTxt);
