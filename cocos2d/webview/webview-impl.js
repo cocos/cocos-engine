@@ -82,10 +82,10 @@ let WebViewImpl = cc.Class({
         let iframe = this._iframe;
         if (iframe) {
             let cbs = this.__eventListeners, self = this;
-            cbs.load = () => {
+            cbs.load = function () {
                 self._dispatchEvent(WebViewImpl.EventType.LOADED);
             };
-            cbs.error = () => {
+            cbs.error = function () {
                 self._dispatchEvent(WebViewImpl.EventType.ERROR);
             };
             iframe.addEventListener("load", cbs.load);

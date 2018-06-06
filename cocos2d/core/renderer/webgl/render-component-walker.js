@@ -65,7 +65,7 @@ var RenderComponentWalker = function (device, renderScene) {
         return new InputAssembler();
     }, 16);
 
-    this._modelPool = new RecyclePool(() => {
+    this._modelPool = new RecyclePool(function () {
         return new renderEngine.Model();
     }, 16);
 
