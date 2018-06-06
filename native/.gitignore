@@ -140,6 +140,7 @@ project.properties
 !/external/config.json
 /templates/lua-template-runtime/runtime
 /v*-deps-*.zip
+/new-renderer-*.zip
 /v*-lua-runtime-*.zip
 /v*-console-*.zip
 /tools/fbx-conv/
