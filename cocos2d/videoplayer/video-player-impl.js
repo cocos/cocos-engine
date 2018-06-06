@@ -166,26 +166,26 @@ let VideoPlayerImpl = cc.Class({
             let hasChild = utils.contains(cc.game.container, video);
             if (hasChild)
                 cc.game.container.removeChild(video);
+            let cbs = this.__eventListeners;
+            video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
+            video.removeEventListener("ended", cbs.ended);
+            video.removeEventListener("play", cbs.play);
+            video.removeEventListener("pause", cbs.pause);
+            video.removeEventListener("click", cbs.click);
+            video.removeEventListener("canplay", cbs.onCanPlay);
+            video.removeEventListener("canplaythrough", cbs.onCanPlay);
+            video.removeEventListener("suspend", cbs.onCanPlay);
+
+            cbs.loadedmetadata = null;
+            cbs.ended = null;
+            cbs.play = null;
+            cbs.pause = null;
+            cbs.click = null;
+            cbs.onCanPlay = null;
         }
+
         this._video = null;
         this._url = "";
-
-        let cbs = this.__eventListeners;
-        video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
-        video.removeEventListener("ended", cbs.ended);
-        video.removeEventListener("play", cbs.play);
-        video.removeEventListener("pause", cbs.pause);
-        video.removeEventListener("click", cbs.click);
-        video.removeEventListener("canplay", cbs.onCanPlay);
-        video.removeEventListener("canplaythrough", cbs.onCanPlay);
-        video.removeEventListener("suspend", cbs.onCanPlay);
-
-        cbs.loadedmetadata = null;
-        cbs.ended = null;
-        cbs.play = null;
-        cbs.pause = null;
-        cbs.click = null;
-        cbs.onCanPlay = null;
     },
 
     setURL (path) {

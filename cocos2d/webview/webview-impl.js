@@ -169,6 +169,7 @@ let WebViewImpl = cc.Class({
         iframe.removeEventListener("error", cbs.error);
         cbs.load = null;
         cbs.error = null;
+        this._iframe = null;
     },
 
     setOnJSCallback (callback) {},
