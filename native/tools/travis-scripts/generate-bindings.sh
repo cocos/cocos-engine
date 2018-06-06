@@ -118,7 +118,8 @@ git commit -m "$COMMITTAG"
 git remote add upstream "$COCOS_ROBOT_REMOTE" 2> /dev/null > /dev/null
 
 echo "Pushing to Robot's repo ..."
-git push -fq upstream "$COCOS_BRANCH" 2> /dev/null
+# git push -fq upstream "$COCOS_BRANCH" 2> /dev/null
+git push -fq upstream "$COCOS_BRANCH"
 
 # 7.
 echo "Sending Pull Request to base repo ..."
