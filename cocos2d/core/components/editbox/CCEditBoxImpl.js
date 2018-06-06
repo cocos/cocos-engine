@@ -410,10 +410,9 @@ let _p = EditBoxImpl.prototype;
 
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
-    this.__orientationChanged = () => {
+    this.__orientationChanged = function () {
         this._adjustEditBoxPosition();
     };
-
     window.addEventListener('orientationchange', this.__orientationChanged);
 
     if (cc.view.isAutoFullScreenEnabled()) {
