@@ -70,7 +70,7 @@ _proto._worldTransform = function (node) {
 };
 
 _proto._color = function (node) {
-    _walker.worldOpacityDirty ++;
+    _walker.parentOpacityDirty ++;
 
     let comp = node._renderComponent;
     if (comp) {
@@ -78,7 +78,7 @@ _proto._color = function (node) {
     }
     this._next._func(node);
 
-    _walker.worldOpacityDirty --;
+    _walker.parentOpacityDirty --;
 };
 
 _proto._updateRenderData = function (node) {
@@ -107,7 +107,7 @@ _proto._children = function (node) {
     _walker.parentOpacity *= (node._opacity/255);
 
     let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
-    let worldOpacityFlag = _walker.worldOpacityDirty ? COLOR : 0;
+    let worldOpacityFlag = _walker.parentOpacityDirty ? COLOR : 0;
 
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {

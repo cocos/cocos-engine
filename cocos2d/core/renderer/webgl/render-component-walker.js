@@ -81,7 +81,7 @@ var RenderComponentWalker = function (device, renderScene) {
     this.node = this._dummyNode;
     
     this.parentOpacity = 1 / 255;
-    this.worldOpacityDirty = 0;
+    this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
 
     RenderFlow.init(this);
@@ -118,7 +118,7 @@ RenderComponentWalker.prototype = {
         this.cullingMask = 1;
 
         this.parentOpacity = 1 / 255;
-        this.worldOpacityDirty = 0;
+        this.parentOpacityDirty = 0;
         this.worldMatDirty = 0;
 
         // reset stencil manager's cache
