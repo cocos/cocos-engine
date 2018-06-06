@@ -513,11 +513,7 @@ var Node = cc.Class({
 
     properties: {
         // SERIALIZABLE
-        _opacity: {
-            default: undefined,
-            type: cc.Integer
-        },
-        
+        _opacity: 255,
         _color: cc.Color.WHITE,
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
@@ -904,11 +900,11 @@ var Node = cc.Class({
          */
         opacity: {
             get () {
-                return this._color.a;
+                return this._opacity;
             },
             set (value) {
-                if (this._color.a !== value) {
-                    this._color.a = value;
+                if (this._opacity !== value) {
+                    this._opacity = value;
 
                     if (this._renderComponent) {
                         this._renderFlag |= RenderFlow.FLAG_COLOR;
@@ -1269,11 +1265,6 @@ var Node = cc.Class({
                 this._rotationX = rotx;
                 this._rotationY = roty;
             }
-        }
-
-        // TODO: remove _opacity in future version, 3.0 ?
-        if (this._opacity !== 255 && this._opacity !== undefined) {
-            this._color.a = this._opacity;
         }
     },
 

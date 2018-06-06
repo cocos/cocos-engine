@@ -70,11 +70,15 @@ _proto._worldTransform = function (node) {
 };
 
 _proto._color = function (node) {
+    _walker.parentOpacityDirty ++;
+
     let comp = node._renderComponent;
     if (comp) {
         comp._updateColor();
     }
     this._next._func(node);
+
+    _walker.parentOpacityDirty --;
 };
 
 _proto._updateRenderData = function (node) {
@@ -99,15 +103,27 @@ _proto._customIARender = function (node) {
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
 
+    let parentOpacity = _walker.parentOpacity;
+    _walker.parentOpacity *= (node._opacity/255);
+
     let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
+    let worldOpacityFlag = _walker.parentOpacityDirty ? COLOR : 0;
+
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
         if (!c.activeInHierarchy) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
-        c._renderFlag |= worldTransformFlag;
+        c._renderFlag |= worldTransformFlag | worldOpacityFlag;
+
+        // TODO: Maybe has better way to implement cascade opacity
+        let a = c._color.a;
+        c._color.a = a * c._opacity * _walker.parentOpacity;
         flows[c._renderFlag]._func(c);
+        c._color.a = a;
     }
+
+    _walker.parentOpacity = parentOpacity;
 
     this._next._func(node);
 
