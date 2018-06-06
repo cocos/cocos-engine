@@ -1,5 +1,22 @@
 #!/bin/bash
 
+if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+  exit 0
+fi
+
+if [ -z "${GH_EMAIL}" ]; then
+  echo "GH_EMAIL not set"
+  exit 1
+fi
+if [ -z "${GH_USER}" ]; then
+  echo "GH_USER not set"
+  exit 1
+fi
+if [ -z "${GH_PASSWORD}" ]; then
+  echo "GH_USER not set"
+  exit 1
+fi
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR"/../..
 
