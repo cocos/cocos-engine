@@ -5,7 +5,6 @@
         "auto-build.bat", 
         "build/cocos2d-win32.sln", 
         "build/cocos2d_libs.xcodeproj/project.pbxproj", 
-        "cocos/2d/CCAction.cpp", 
         "cocos/2d/CCAction.h", 
         "cocos/2d/CCActionCamera.cpp", 
         "cocos/2d/CCActionCamera.h", 
