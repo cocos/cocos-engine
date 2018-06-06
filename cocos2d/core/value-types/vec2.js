@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./value-type');
-var js = require('../platform/js');
-var CCClass = require('../platform/CCClass');
-var misc = require('../utils/misc');
+const ValueType = require('./value-type');
+const js = require('../platform/js');
+const CCClass = require('../platform/CCClass');
+const misc = require('../utils/misc');
 
 /**
  * !#en Representation of 2D vectors and points.

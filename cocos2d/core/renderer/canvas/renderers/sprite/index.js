@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let SpriteType = require('../../../../components/CCSprite').Type;
+const Sprite = require('../../../../components/CCSprite');
+const SpriteType = Sprite.Type;
+const FillType = Sprite.FillType;
 let simple = require('./simple');
 let sliced = require('./sliced');
 let tiled = require('./tiled');

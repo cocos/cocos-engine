@@ -24,10 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./value-type');
-var js = require('../platform/js');
-var CCClass = require('../platform/CCClass');
-var math = require('../renderer/render-engine').math;
+const ValueType = require('./value-type');
+const js = require('../platform/js');
+const CCClass = require('../platform/CCClass');
+const math = require('../renderer/render-engine').math;
+const misc = require('../utils/misc');
 
 /**
  * !#en Representation of 3D vectors and points.
