@@ -31,6 +31,7 @@ USING_NS_CC;
 
 int main(int argc, char *argv[])
 {
-    AppDelegate app;
-    return Application::getInstance()->run();
+    AppDelegate app(960, 640);
+    app.start();
+    return 0;
 }

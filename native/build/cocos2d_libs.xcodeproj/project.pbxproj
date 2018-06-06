@@ -291,6 +291,10 @@
 		461DCA3720BBFA2D00B22827 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA3420BBFA2D00B22827 /* EditBox.h */; };
 		461DCA3B20BBFCA300B22827 /* EditBox-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */; };
 		461DCA3E20BBFCFE00B22827 /* EditBox-mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */; };
+		461DCA5820C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */; };
+		461DCA5920C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */; };
+		461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
+		461DCA5B20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
 		4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */; };
 		4626B202202D9BE700BE30B9 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */; };
 		4626B203202D9BE700BE30B9 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */; };
@@ -1146,6 +1150,8 @@
 		461DCA3420BBFA2D00B22827 /* EditBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditBox.h; sourceTree = "<group>"; };
 		461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "EditBox-ios.mm"; sourceTree = "<group>"; };
 		461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "EditBox-mac.cpp"; sourceTree = "<group>"; };
+		461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
+		461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
 		4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CCGLView-desktop.h"; path = "../desktop/CCGLView-desktop.h"; sourceTree = "<group>"; };
 		4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "CCGLView-desktop.cpp"; path = "../desktop/CCGLView-desktop.cpp"; sourceTree = "<group>"; };
@@ -1985,6 +1991,8 @@
 		469302BE2046AE05004A3D6C /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */,
+				461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */,
 				1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */,
 				1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */,
 				1A52DB872060B11800350EE3 /* jsb_platform.h */,
@@ -2851,6 +2859,7 @@
 				4DED485A1DFFA4AF0070C5C4 /* b2DistanceJoint.h in Headers */,
 				46FDDACD202ACC6A00931238 /* GraphicsHandle.h in Headers */,
 				4DED47D21DFFA4AF0070C5C4 /* Box2D.h in Headers */,
+				461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */,
 				ED3057921BEC77770083C3ED /* edtaa3func.h in Headers */,
 				46FDDBCB202ADDCE00931238 /* ZipUtils.h in Headers */,
 				50ABBFFD1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
@@ -3042,6 +3051,7 @@
 				BAEA45561E279D5C00FA219F /* tinydir.h in Headers */,
 				4DED47FD1DFFA4AF0070C5C4 /* b2PolygonShape.h in Headers */,
 				4693038B2046AE05004A3D6C /* State.hpp in Headers */,
+				461DCA5B20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */,
 				46FDDADC202ACC6A00931238 /* State.h in Headers */,
 				46FDDB8A202ADDCE00931238 /* CCRef.h in Headers */,
 				4DED47D71DFFA4AF0070C5C4 /* b2BroadPhase.h in Headers */,
@@ -3299,6 +3309,7 @@
 				4DED48161DFFA4AF0070C5C4 /* b2Timer.cpp in Sources */,
 				4DED47E61DFFA4AF0070C5C4 /* b2DynamicTree.cpp in Sources */,
 				ED30577E1BEC76C90083C3ED /* ioapi_mem.cpp in Sources */,
+				461DCA5820C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */,
 				4DED484C1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.cpp in Sources */,
 				4DED48481DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.cpp in Sources */,
 				4617861920522469008256E1 /* SocketIO.cpp in Sources */,
@@ -3487,6 +3498,7 @@
 				46FDDBFC202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				46FDDB7C202ADDCE00931238 /* CCRef.cpp in Sources */,
 				469301D2203FC696004A3D6C /* CCConfiguration.cpp in Sources */,
+				461DCA5920C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */,
 				46FDDAB2202ACC6A00931238 /* DeviceGraphics.cpp in Sources */,
 				46FDDBFA202ADDCE00931238 /* etc1.cpp in Sources */,
 				46FDDA88202ACC6A00931238 /* View.cpp in Sources */,

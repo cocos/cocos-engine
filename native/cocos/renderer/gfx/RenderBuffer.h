@@ -25,7 +25,7 @@
 #pragma once
 
 #include "../Macro.h"
-#include "Types.h"
+#include "renderer/Types.h"
 
 #include "RenderTarget.h"
 

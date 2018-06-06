@@ -27,20 +27,22 @@
 
 #include "cocos2d.h"
 
-#include "cocos/scripting/js-bindings/manual/ScriptingCore.h"
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
+#include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate()
+AppDelegate::AppDelegate(int width, int height) : Application("Cocos Runtime", width, height)
 {
 }
 
 AppDelegate::~AppDelegate()
 {
-    ScriptEngineManager::destroyInstance();
+    
 }
 
 bool AppDelegate::applicationDidFinishLaunching()
@@ -65,7 +67,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     se->start();
 
     se::AutoHandleScope hs;
-    jsb_run_script("builtin/dist/jsb.js");
+    jsb_run_script("src/jsb.js");
     jsb_run_script("main.js");
 
     se->addAfterCleanupHook([](){
@@ -78,15 +80,15 @@ bool AppDelegate::applicationDidFinishLaunching()
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void AppDelegate::applicationDidEnterBackground()
 {
-    auto director = Director::getInstance();
-    director->stopAnimation();
-    director->getEventDispatcher()->dispatchCustomEvent("game_on_hide");
+    struct CustomEvent event;
+    event.name = EVENT_COME_TO_BACKGROUND;
+    EventDispatcher::dispatchCustomEvent(&event);
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
-    auto director = Director::getInstance();
-    director->startAnimation();
-    director->getEventDispatcher()->dispatchCustomEvent("game_on_show");
+    struct CustomEvent event;
+    event.name = EVENT_COME_TO_FOREGROUND;
+    EventDispatcher::dispatchCustomEvent(&event);
 }

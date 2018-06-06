@@ -29,8 +29,8 @@
 #include "scripting/js-bindings/manual/jsb_classtype.hpp"
 
 #include "cocos2d.h"
-#include "gfx/GFX.h"
-#include "renderer/Renderer.h"
+#include "renderer/gfx/GFX.h"
+#include "renderer/renderer/Renderer.h"
 #include "network/CCDownloader.h"
 //#include "extensions/cocos-ext.h"
 //#include "Box2D/Box2D.h"

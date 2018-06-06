@@ -33,7 +33,7 @@
 class  AppDelegate : public cocos2d::Application
 {
 public:
-    AppDelegate();
+    AppDelegate(int width, int height);
     ~AppDelegate();
     
     /**
@@ -55,6 +55,3 @@ public:
      */
     virtual void applicationWillEnterForeground() override;
 };
-
-#endif // _APP_DELEGATE_H_
-
