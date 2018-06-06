@@ -1154,6 +1154,21 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_FrameBuffer_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_FrameBuffer_class = nullptr;
 
+static bool js_gfx_FrameBuffer_destroy(se::State& s)
+{
+    cocos2d::renderer::FrameBuffer* cobj = (cocos2d::renderer::FrameBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_FrameBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_FrameBuffer_destroy)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_FrameBuffer_finalize)
 
 static bool js_gfx_FrameBuffer_constructor(se::State& s)
@@ -1181,6 +1196,7 @@ bool js_register_gfx_FrameBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("FrameBuffer", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, _SE(js_gfx_FrameBuffer_constructor));
 
+    cls->defineFunction("destroy", _SE(js_gfx_FrameBuffer_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_FrameBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::FrameBuffer>(cls);

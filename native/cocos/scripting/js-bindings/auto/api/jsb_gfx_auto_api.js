@@ -75,6 +75,14 @@ int
 },
 
 /**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
+
+/**
  * @method setUsage
  * @param {cc.renderer::Usage} arg0
  */
@@ -156,6 +164,14 @@ getUsage : function (
  */
 setCount : function (
 int 
+)
+{
+},
+
+/**
+ * @method destroy
+ */
+destroy : function (
 )
 {
 },
@@ -563,16 +579,6 @@ enableStencilTest : function (
 },
 
 /**
- * @method setScaleFactor
- * @param {float} arg0
- */
-setScaleFactor : function (
-float 
-)
-{
-},
-
-/**
  * @method getInstance
  * @return {cc.renderer::DeviceGraphics}
  */
@@ -588,6 +594,14 @@ getInstance : function (
  * @class FrameBuffer
  */
 gfx.FrameBuffer = {
+
+/**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
 
 /**
  * @method FrameBuffer
@@ -743,20 +757,6 @@ update : function (
 options 
 )
 {
-},
-
-/**
- * @method create
- * @param {cc.renderer::DeviceGraphics} arg0
- * @param {cc.renderer::Texture::Options} arg1
- * @return {cc.renderer::Texture2D}
- */
-create : function (
-devicegraphics, 
-options 
-)
-{
-    return cc.renderer::Texture2D;
 },
 
 /**

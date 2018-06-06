@@ -82,6 +82,7 @@ extern se::Class* __jsb_cocos2d_renderer_FrameBuffer_class;
 
 bool js_register_cocos2d_renderer_FrameBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_FrameBuffer_destroy);
 SE_DECLARE_FUNC(js_gfx_FrameBuffer_FrameBuffer);
 
 extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;

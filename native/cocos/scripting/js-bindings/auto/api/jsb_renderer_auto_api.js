@@ -68,138 +68,6 @@ array
 };
 
 /**
- * @class Model
- */
-renderer.Model = {
-
-/**
- * @method getInputAssemblerCount
- * @return {unsigned int}
- */
-getInputAssemblerCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getDrawItemCount
- * @return {unsigned int}
- */
-getDrawItemCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getWorldMatrix
- * @return {mat4_object}
- */
-getWorldMatrix : function (
-)
-{
-    return cc.Mat4;
-},
-
-/**
- * @method isDynamicIA
- * @return {bool}
- */
-isDynamicIA : function (
-)
-{
-    return false;
-},
-
-/**
- * @method addEffect
- * @param {cc.renderer::Effect} arg0
- */
-addEffect : function (
-effect 
-)
-{
-},
-
-/**
- * @method setWorldMatix
- * @param {mat4_object} arg0
- */
-setWorldMatix : function (
-mat4 
-)
-{
-},
-
-/**
- * @method clearEffects
- */
-clearEffects : function (
-)
-{
-},
-
-/**
- * @method setDynamicIA
- * @param {bool} arg0
- */
-setDynamicIA : function (
-bool 
-)
-{
-},
-
-/**
- * @method getViewId
- * @return {int}
- */
-getViewId : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method clearInputAssemblers
- */
-clearInputAssemblers : function (
-)
-{
-},
-
-/**
- * @method addInputAssembler
- * @param {cc.renderer::InputAssembler} arg0
- */
-addInputAssembler : function (
-inputassembler 
-)
-{
-},
-
-/**
- * @method setViewId
- * @param {int} arg0
- */
-setViewId : function (
-int 
-)
-{
-},
-
-/**
- * @method Model
- * @constructor
- */
-Model : function (
-)
-{
-},
-
-};
-
-/**
  * @class BaseRenderer
  */
 renderer.Base = {
@@ -264,16 +132,6 @@ int
 )
 {
     return false;
-},
-
-/**
- * @method render
- * @param {cc.renderer::Scene} arg0
- */
-render : function (
-scene 
-)
-{
 },
 
 /**
@@ -552,117 +410,9 @@ Camera : function (
 };
 
 /**
- * @class Technique
- */
-renderer.Technique = {
-
-/**
- * @method getPasses
- * @return {Array}
- */
-getPasses : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method getStageIDs
- * @return {unsigned int}
- */
-getStageIDs : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method setPass
- * @param {int} arg0
- * @param {cc.renderer::Pass} arg1
- */
-setPass : function (
-int, 
-pass 
-)
-{
-},
-
-/**
- * @method setStages
- * @param {Array} arg0
- */
-setStages : function (
-array 
-)
-{
-},
-
-/**
- * @method getParameters
- * @return {Array}
- */
-getParameters : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method Technique
- * @constructor
- * @param {Array} arg0
- * @param {Array} arg1
- * @param {Array} arg2
- * @param {int} arg3
- */
-Technique : function (
-array, 
-array, 
-array, 
-int 
-)
-{
-},
-
-};
-
-/**
  * @class Effect
  */
-renderer.Effect = {
-
-/**
- * @method getDefineValue
- * @param {String} arg0
- * @return {cc.Value}
- */
-getDefineValue : function (
-str 
-)
-{
-    return cc.Value;
-},
-
-/**
- * @method clear
- */
-clear : function (
-)
-{
-},
-
-/**
- * @method getTechnique
- * @param {String} arg0
- * @return {cc.renderer::Technique}
- */
-getTechnique : function (
-str 
-)
-{
-    return cc.renderer::Technique;
-},
+renderer.EffectNative = {
 
 /**
  * @method setDefineValue
@@ -677,158 +427,18 @@ value
 },
 
 /**
+ * @method clear
+ */
+clear : function (
+)
+{
+},
+
+/**
  * @method Effect
  * @constructor
- * @param {Array} arg0
- * @param {map_object} arg1
- * @param {Array} arg2
  */
 Effect : function (
-array, 
-map, 
-map 
-)
-{
-},
-
-};
-
-/**
- * @class InputAssembler
- */
-renderer.InputAssembler = {
-
-/**
- * @method setVertexBuffer
- * @param {cc.renderer::VertexBuffer} arg0
- */
-setVertexBuffer : function (
-vertexbuffer 
-)
-{
-},
-
-/**
- * @method getStart
- * @return {int}
- */
-getStart : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method setStart
- * @param {int} arg0
- */
-setStart : function (
-int 
-)
-{
-},
-
-/**
- * @method setPrimitiveType
- * @param {cc.renderer::PrimitiveType} arg0
- */
-setPrimitiveType : function (
-primitivetype 
-)
-{
-},
-
-/**
- * @method getPrimitiveCount
- * @return {unsigned int}
- */
-getPrimitiveCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method setCount
- * @param {int} arg0
- */
-setCount : function (
-int 
-)
-{
-},
-
-/**
- * @method init
- * @param {cc.renderer::VertexBuffer} arg0
- * @param {cc.renderer::IndexBuffer} arg1
- * @param {cc.renderer::PrimitiveType} arg2
- * @return {bool}
- */
-init : function (
-vertexbuffer, 
-indexbuffer, 
-primitivetype 
-)
-{
-    return false;
-},
-
-/**
- * @method getVertexBuffer
- * @return {cc.renderer::VertexBuffer}
- */
-getVertexBuffer : function (
-)
-{
-    return cc.renderer::VertexBuffer;
-},
-
-/**
- * @method getIndexBuffer
- * @return {cc.renderer::IndexBuffer}
- */
-getIndexBuffer : function (
-)
-{
-    return cc.renderer::IndexBuffer;
-},
-
-/**
- * @method getCount
- * @return {int}
- */
-getCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getPrimitiveType
- * @return {cc.renderer::PrimitiveType}
- */
-getPrimitiveType : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method setIndexBuffer
- * @param {cc.renderer::IndexBuffer} arg0
- */
-setIndexBuffer : function (
-indexbuffer 
-)
-{
-},
-
-/**
- * @method InputAssembler
- * @constructor
- */
-InputAssembler : function (
 )
 {
 },
@@ -1198,7 +808,7 @@ Light : function (
 /**
  * @class Pass
  */
-renderer.Pass = {
+renderer.PassNative = {
 
 /**
  * @method getStencilTest
@@ -1247,6 +857,24 @@ setBlend : function (
 },
 
 /**
+ * @method setProgramName
+ * @param {String} arg0
+ */
+setProgramName : function (
+str 
+)
+{
+},
+
+/**
+ * @method disableStencilTest
+ */
+disableStencilTest : function (
+)
+{
+},
+
+/**
  * @method setStencilFront
  */
 setStencilFront : function (
@@ -1265,9 +893,9 @@ setDepth : function (
 /**
  * @method Pass
  * @constructor
- * @param {String} arg0
- */
-Pass : function (
+* @param {String} str
+*/
+Pass : function(
 str 
 )
 {
@@ -1329,38 +957,6 @@ getLightCount : function (
 },
 
 /**
- * @method getModel
- * @param {unsigned int} arg0
- * @return {cc.renderer::Model}
- */
-getModel : function (
-int 
-)
-{
-    return cc.renderer::Model;
-},
-
-/**
- * @method removeModel
- * @param {cc.renderer::Model} arg0
- */
-removeModel : function (
-model 
-)
-{
-},
-
-/**
- * @method getModelCount
- * @return {unsigned int}
- */
-getModelCount : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method getCamera
  * @param {unsigned int} arg0
  * @return {cc.renderer::Camera}
@@ -1395,16 +991,6 @@ getCameras : function (
 },
 
 /**
- * @method getModels
- * @return {Array}
- */
-getModels : function (
-)
-{
-    return new Array();
-},
-
-/**
  * @method addView
  * @param {cc.renderer::View} arg0
  */
@@ -1420,16 +1006,6 @@ view
  */
 setDebugCamera : function (
 camera 
-)
-{
-},
-
-/**
- * @method addModel
- * @param {cc.renderer::Model} arg0
- */
-addModel : function (
-model 
 )
 {
 },
