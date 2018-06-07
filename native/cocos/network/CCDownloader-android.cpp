@@ -149,19 +149,70 @@ namespace cocos2d { namespace network {
             if (JniHelper::getStaticMethodInfo(methodInfo,
                                                JCLS_DOWNLOADER,
                                                "createTask",
-                                               "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR")V"))
+                                               "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR "[" JARG_STR")V"))
             {
+                jclass jclassString = methodInfo.env->FindClass("java/lang/String");
                 jstring jstrURL = methodInfo.env->NewStringUTF(task->requestURL.c_str());
-                jstring jstrPath= methodInfo.env->NewStringUTF(task->storagePath.c_str());
-                methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, _impl, coTask->id, jstrURL, jstrPath);
+                jstring jstrPath = methodInfo.env->NewStringUTF(task->storagePath.c_str());
+                jobjectArray jarrayHeader = methodInfo.env->NewObjectArray(task->header.size()*2, jclassString, NULL);
+                const std::map<std::string, std::string> &headMap = task->header;
+                int index = 0;
+                for (auto it = headMap.cbegin(); it != headMap.cend(); ++it) {
+                    methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it->first.c_str()));
+                    methodInfo.env->SetObjectArrayElement(jarrayHeader, index++, methodInfo.env->NewStringUTF(it->second.c_str()));
+                }
+                methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, _impl, coTask->id, jstrURL, jstrPath, jarrayHeader);
+                for (int i = 0; i < index; ++i) {
+                    methodInfo.env->DeleteLocalRef(methodInfo.env->GetObjectArrayElement(jarrayHeader, i));
+                }
+                methodInfo.env->DeleteLocalRef(jclassString);
                 methodInfo.env->DeleteLocalRef(jstrURL);
                 methodInfo.env->DeleteLocalRef(jstrPath);
+                methodInfo.env->DeleteLocalRef(jarrayHeader);
                 methodInfo.env->DeleteLocalRef(methodInfo.classID);
             }
 
             DLLOG("DownloaderAndroid::createCoTask id: %d", coTask->id);
             _taskMap.insert(std::make_pair(coTask->id, coTask));
             return coTask;
+        }
+
+        void DownloaderAndroid::abort(const std::unique_ptr<IDownloadTask>& task) {
+            auto iter = _taskMap.begin();
+            for (; iter != _taskMap.end(); iter++) {
+                if (task.get() == iter->second) {
+                    break;
+                }
+            }
+            if(_impl != nullptr && iter != _taskMap.end())
+            {
+                JniMethodInfo methodInfo;
+                if (JniHelper::getStaticMethodInfo(methodInfo,
+                                                   JCLS_DOWNLOADER,
+                                                   "abort",
+                                                   "(" JARG_DOWNLOADER "I" ")V"))
+                {
+                    methodInfo.env->CallStaticVoidMethod(
+                            methodInfo.classID,
+                            methodInfo.methodID,
+                            _impl,
+                            iter->first
+                    );
+                    methodInfo.env->DeleteLocalRef(methodInfo.classID);
+
+                    DownloadTaskAndroid *coTask = iter->second;
+                    _taskMap.erase(iter);
+                    std::vector<unsigned char> emptyBuffer;
+                    onTaskFinish(*coTask->task,
+                                 DownloadTask::ERROR_ABORT,
+                                 DownloadTask::ERROR_ABORT,
+                                 "downloadFile:fail abort",
+                                 emptyBuffer
+                    );
+                    coTask->task.reset();
+                }
+            }
+            DLLOG("DownloaderAndroid:abort");
         }
 
         void DownloaderAndroid::_onProcess(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal)

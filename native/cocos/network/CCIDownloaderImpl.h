@@ -68,6 +68,8 @@ namespace cocos2d { namespace network
                            std::vector<unsigned char>& data)> onTaskFinish;
 
         virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask>& task) = 0;
+
+        virtual void abort(const std::unique_ptr<IDownloadTask>& task) = 0;
     };
 
 }}  // namespace cocos2d::network

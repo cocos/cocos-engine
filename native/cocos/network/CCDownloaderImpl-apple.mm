@@ -64,6 +64,7 @@
 -(const cocos2d::network::DownloaderHints&)getHints;
 -(NSURLSessionDataTask *)createDataTask:(std::shared_ptr<const cocos2d::network::DownloadTask>&) task;
 -(NSURLSessionDownloadTask *)createFileTask:(std::shared_ptr<const cocos2d::network::DownloadTask>&) task;
+-(void)abort:(NSURLSessionTask *)task;
 -(void)doDestroy;
 
 @end
@@ -72,7 +73,6 @@
 //  C++ Classes Implementation
 
 namespace cocos2d { namespace network {
-
     struct DownloadTaskApple : public IDownloadTask
     {
         DownloadTaskApple()
@@ -86,7 +86,6 @@ namespace cocos2d { namespace network {
         {
             DLLOG("Destruct DownloadTaskApple %p", this);
         }
-
         NSURLSessionDataTask *dataTask;
         NSURLSessionDownloadTask *downloadTask;
     };
@@ -118,6 +117,13 @@ namespace cocos2d { namespace network {
             coTask->dataTask = [impl createDataTask:task];
         }
         return coTask;
+    }
+    void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
+        DLLOG("DownloaderApple:abort");
+        DeclareDownloaderImplVar;
+        cocos2d::network::DownloadTaskApple *downloadTask = (cocos2d::network::DownloadTaskApple *)task.get();
+        NSURLSessionTask *taskOC = downloadTask->dataTask ? downloadTask->dataTask : downloadTask->downloadTask;
+        [impl abort:taskOC];
     }
 }}  // namespace cocos2d::network
 
@@ -247,19 +253,24 @@ namespace cocos2d { namespace network {
     const char *urlStr = task->requestURL.c_str();
     DLLOG("DownloaderAppleImpl createFileTask: %s", urlStr);
     NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:urlStr]];
-    NSURLRequest *request = nil;
+    NSMutableURLRequest *request = nil;
     if (_hints.timeoutInSeconds > 0)
     {
-        request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
+        request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
     }
     else
     {
-        request = [NSURLRequest requestWithURL:url];
+        request = [NSMutableURLRequest requestWithURL:url];
+    }
+    for (auto it = task->header.begin(); it != task->header.end(); ++it) {
+        NSString *keyStr = [NSString stringWithUTF8String:it->first.c_str()];
+        NSString *valueStr = [NSString stringWithUTF8String:it->second.c_str()];
+        [request setValue:valueStr forHTTPHeaderField:keyStr];
     }
     NSString *tempFilePath = [NSString stringWithFormat:@"%s%s", task->storagePath.c_str(), _hints.tempFileNameSuffix.c_str()];
     NSData *resumeData = [NSData dataWithContentsOfFile:tempFilePath];
     NSURLSessionDownloadTask *ocTask = nil;
-    if (resumeData)
+    if (resumeData && task->header.size() <= 0)
     {
         ocTask = [self.downloadSession downloadTaskWithResumeData:resumeData];
     }
@@ -280,6 +291,57 @@ namespace cocos2d { namespace network {
     }
     return ocTask;
 };
+
+-(void)abort:(NSURLSessionTask *)task
+{
+    // cancel all download task
+    NSEnumerator * enumeratorKey = [self.taskDict keyEnumerator];
+    for (NSURLSessionTask *taskKey in enumeratorKey)
+    {
+        if (task != taskKey) {
+            continue;
+        }
+        DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:taskKey];
+        
+        // no resume support for a data task
+        std::string storagePath = [wrapper get]->storagePath;
+        if(storagePath.length() == 0) {
+            [taskKey cancel];
+        }
+        else {
+            [(NSURLSessionDownloadTask *)taskKey cancelByProducingResumeData:^(NSData *resumeData) {
+                if (resumeData)
+                {
+                    NSString *tempFilePath = [NSString stringWithFormat:@"%s%s", storagePath.c_str(), _hints.tempFileNameSuffix.c_str()];
+                    NSString *tempFileDir = [tempFilePath stringByDeletingLastPathComponent];
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    BOOL isDir = false;
+                    if ([fileManager fileExistsAtPath:tempFileDir isDirectory:&isDir])
+                    {
+                        if (NO == isDir)
+                        {
+                            // TODO: the directory is a file, not a directory, how to echo to developer?
+                            DLLOG("DownloaderAppleImpl temp dir is a file!");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        NSURL *tempFileURL = [NSURL fileURLWithPath:tempFileDir];
+                        if (NO == [fileManager createDirectoryAtURL:tempFileURL withIntermediateDirectories:YES attributes:nil error:nil])
+                        {
+                            // create directory failed
+                            DLLOG("DownloaderAppleImpl create temp dir failed");
+                            return;
+                        }
+                    }
+                    [resumeData writeToFile:tempFilePath atomically:YES];
+                }
+            }];
+        }
+        break;
+    }
+}
 
 -(void)doDestroy
 {
@@ -403,11 +465,18 @@ namespace cocos2d { namespace network {
     {
         if(error)
         {
+            int errorCode = (int)error.code;
+            NSString *errorMsg = error.localizedDescription;
+            if (error.code == NSURLErrorCancelled) {
+                //cancel
+                errorCode = cocos2d::network::DownloadTask::ERROR_ABORT;
+                errorMsg = @"downloadFile:fail abort";
+            }
             std::vector<unsigned char> buf; // just a placeholder
             _outer->onTaskFinish(*[wrapper get],
                              cocos2d::network::DownloadTask::ERROR_IMPL_INTERNAL,
-                             (int)error.code,
-                             [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding],
+                             errorCode,
+                             [errorMsg cStringUsingEncoding:NSUTF8StringEncoding],
                              buf);
         }
         else if (![wrapper get]->storagePath.length())
@@ -602,7 +671,6 @@ namespace cocos2d { namespace network {
             errorString = [error.localizedDescription cStringUsingEncoding:NSUTF8StringEncoding];
         }
     }
-
     std::vector<unsigned char> buf; // just a placeholder
     _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
 }

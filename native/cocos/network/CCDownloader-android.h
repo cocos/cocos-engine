@@ -42,6 +42,8 @@ namespace cocos2d { namespace network
 
             virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask>& task) override;
 
+            virtual void abort(const std::unique_ptr<IDownloadTask>& task) override;
+
             // designed called by internal
             void _onProcess(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal);
             void _onFinish(int taskId, int errCode, const char *errStr, std::vector<unsigned char>& data);
@@ -50,9 +52,5 @@ namespace cocos2d { namespace network
             _jobject* _impl;
             std::unordered_map<int, DownloadTaskAndroid*> _taskMap;
         };
-
-        // Load java downloader class from main thread, to void addImageAsync function
-        //  perform in sub-thread cause java downloader unusable
-        void _preloadJavaDownloaderClass();
     }}  // namespace cocos2d::network
 

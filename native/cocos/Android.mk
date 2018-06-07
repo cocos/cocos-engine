@@ -87,6 +87,7 @@ scripting/js-bindings/manual/jsb_opengl_utils.cpp \
 scripting/js-bindings/manual/jsb_classtype.cpp \
 scripting/js-bindings/manual/jsb_conversions.cpp \
 scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp \
+scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp \
 scripting/js-bindings/manual/jsb_gfx_manual.cpp \
 scripting/js-bindings/manual/jsb_global.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
