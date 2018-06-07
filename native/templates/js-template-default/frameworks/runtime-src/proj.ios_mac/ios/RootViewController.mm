@@ -26,7 +26,9 @@
 
 #import "RootViewController.h"
 #import "cocos2d.h"
-#import "platform/ios/CCEAGLView-ios.h"
+
+#include "platform/CCApplication.h"
+#include "platform/ios/CCEAGLView-ios.h"
 
 
 @implementation RootViewController
@@ -43,20 +45,8 @@ return self;
 
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
-    // Initialize the CCEAGLView
-    CCEAGLView *eaglView = [CCEAGLView viewWithFrame: [UIScreen mainScreen].bounds
-                                         pixelFormat: (__bridge NSString *)cocos2d::GLViewImpl::_pixelFormat
-                                         depthFormat: cocos2d::GLViewImpl::_depthFormat
-                                  preserveBackbuffer: NO
-                                          sharegroup: nil
-                                       multiSampling: NO
-                                     numberOfSamples: 0 ];
-
-    // Enable or disable multiple touches
-    [eaglView setMultipleTouchEnabled:YES];
-
     // Set EAGLView as view of RootViewController
-    self.view = eaglView;
+    self.view = (__bridge CCEAGLView *)cocos2d::Application::getInstance()->getView();
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
@@ -82,23 +72,6 @@ return self;
 
 - (BOOL) shouldAutorotate {
     return YES;
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-
-    if (glview)
-    {
-        CCEAGLView *eaglview = (__bridge CCEAGLView *)glview->getEAGLView();
-
-        if (eaglview)
-        {
-            CGSize s = CGSizeMake([eaglview getWidth], [eaglview getHeight]);
-            cocos2d::Application::getInstance()->applicationScreenSizeChanged((int) s.width, (int) s.height);
-        }
-    }
 }
 
 //fix not hide status on ios7
