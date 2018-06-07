@@ -539,7 +539,7 @@ let Label = cc.Class({
             this._super();
         }
         else {
-            this._updateRenderData(true);
+            this._updateRenderData();
             this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
