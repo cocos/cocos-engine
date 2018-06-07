@@ -44,7 +44,7 @@ MD5Pipe.prototype.handle = function(item) {
     return item;
 };
 
-MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder = false) {
+MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {
     var index = url.indexOf('?');
     var key = url;
     if (index !== -1) {

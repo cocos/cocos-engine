@@ -69,19 +69,13 @@ cc.url = {
         url = this.normalize(url);
 
         if ( !url.startsWith('resources/') ) {
-            if (CC_EDITOR) {
-                cc.errorID(7001, url);
-            }
-            else {
-                cc.errorID(7002, url);
-            }
+            cc.errorID(CC_EDITOR ? 7001 : 7002, url);
         }
         else {
-
             // Compatible with versions lower than 1.10
             var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, true);
             if (uuid) {
-                return cc.AssetLibrary.getLibUrlNoExt(uuid) + cc.path.extname(url);
+                return cc.AssetLibrary.getLibUrlNoExt(uuid, true) + cc.path.extname(url);
             }
         }
         

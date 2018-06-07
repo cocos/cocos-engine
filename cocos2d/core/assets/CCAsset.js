@@ -83,7 +83,7 @@ cc.Asset = cc.Class({
                         return name.slice(1);
                     }
                     if (cc.AssetLibrary) {
-                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid);
+                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                         if (name.charCodeAt(0) === 46) {  // '.'
                             // imported in dir where json exist
                             return base + name;

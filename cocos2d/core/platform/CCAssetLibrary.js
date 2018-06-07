@@ -113,11 +113,12 @@ var AssetLibrary = {
         });
     },
 
-    getLibUrlNoExt: function (uuid) {
+    getLibUrlNoExt: function (uuid, inRawAssetsDir) {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
         }
-        return _libraryBase + uuid.slice(0, 2) + '/' + uuid;
+        var base = (CC_BUILD && inRawAssetsDir) ? (_rawAssetsBase + 'assets/') : _libraryBase;
+        return base + uuid.slice(0, 2) + '/' + uuid;
     },
 
     _queryAssetInfoInEditor: function (uuid, callback) {
