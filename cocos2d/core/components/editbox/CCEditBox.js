@@ -319,6 +319,7 @@ let EditBox = cc.Class({
     },
 
     statics: {
+        _EditBoxImpl: EditBoxImpl,
         KeyboardReturnType: KeyboardReturnType,
         InputFlag: InputFlag,
         InputMode: InputMode

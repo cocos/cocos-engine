@@ -72,24 +72,6 @@ function getKeyboardReturnType (type) {
     return 'done';
 }
 
-function getInputType(type) {
-    switch (type) {
-        case InputMode.EMAIL_ADDR:
-            return 'email';
-        case InputMode.NUMERIC:
-        case InputMode.DECIMAL:
-            return 'number';
-        case InputMode.PHONE_NUMBER:
-            return 'phone';
-        case InputMode.URL:
-            return 'url';
-        case InputMode.SINGLE_LINE:
-        case InputMode.ANY:
-        default:
-            return 'text';
-    }
-}
-
 let EditBoxImpl = cc.Class({
     ctor () {
         this._delegate = null;
@@ -173,15 +155,8 @@ let EditBoxImpl = cc.Class({
 
         this._inputMode = inputMode;
 
-        if (CC_WECHATGAME) {
-            this._createWXInput(inputMode === InputMode.ANY);
-        }
-        else if (inputMode === InputMode.ANY) {
-            this._createDomTextArea();
-        }
-        else {
-            this._createDomInput();
-        }
+        if (!CC_JSB)
+            this.createInput();
     
         this._updateDomInputType();
         this._updateSize(this._size.width, this._size.height);
@@ -247,7 +222,7 @@ let EditBoxImpl = cc.Class({
 
     _onTouchBegan (touch) {
         if (CC_JSB)
-            this._createJSBInput();
+            this.createInput();
     },
 
     _onTouchEnded () {
@@ -255,10 +230,7 @@ let EditBoxImpl = cc.Class({
     },
 
     _beginEditing () {
-        if (CC_WECHATGAME) {
-            this._edTxt.focus();
-        }
-        else if (!this._alwaysOnTop) {
+        if (!this._alwaysOnTop) {
             if (this._edTxt.style.display === 'none') {
                 this._edTxt.style.display = '';
     
@@ -407,6 +379,15 @@ let EditBoxImpl = cc.Class({
 });
 
 let _p = EditBoxImpl.prototype;
+
+_p.createInput = function() {
+    if (this._inputMode === InputMode.ANY) {
+        this._createDomTextArea();
+    }
+    else {
+        this._createDomInput();
+    }
+};
 
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
@@ -571,106 +552,6 @@ _p._createDomInput = function () {
 
     return tmpEdTxt;
 };
-
-if (CC_WECHATGAME) {
-    _p._createWXInput = function (multiline) {
-        this.removeDom();
-
-        let tmpEdTxt = this._edTxt = document.createElement("input");
-        tmpEdTxt.type = "text";
-
-        let editBoxImpl = this;
-
-        function onKeyboardConfirmCallback (res) {
-            editBoxImpl._text = res.value;
-            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
-            wx.hideKeyboard({
-                success: function (res) {
-                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidEnded && editBoxImpl._delegate.editBoxEditingDidEnded();
-                },
-                fail: function (res) {
-                    cc.warn(res.errMsg);
-                }
-            });
-        }
-
-        function onKeyboardInputCallback (res) {
-            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
-                editBoxImpl._text = res.value;
-                editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-            }
-        }
-
-        function onKeyboardCompleteCallback () {
-            editBoxImpl._endEditing();
-            wx.offKeyboardConfirm(onKeyboardConfirmCallback);
-            wx.offKeyboardInput(onKeyboardInputCallback);
-            wx.offKeyboardComplete(onKeyboardCompleteCallback);
-        }
-
-        tmpEdTxt.focus = function () {
-            wx.showKeyboard({
-                defaultValue: editBoxImpl._text,
-                maxLength: 140,
-                multiple: multiline,
-                confirmHold: true,
-                confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-                success: function (res) {
-                    editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
-                },
-                fail: function (res) {
-                    cc.warn(res.errMsg);
-                    editBoxImpl._endEditing();
-                }
-            });
-            wx.onKeyboardConfirm(onKeyboardConfirmCallback);
-            wx.onKeyboardInput(onKeyboardInputCallback);
-            wx.onKeyboardComplete(onKeyboardCompleteCallback);
-        };
-    };
-}
-
-if (CC_JSB) {
-    _p._createJSBInput = function () {
-        let editBoxImpl = this;
-        var multiline = this._inputMode === InputMode.ANY;
-
-        var inputTypeString = getInputType(this._inputMode);
-        if (this._inputFlag === InputFlag.PASSWORD)
-            inputTypeString = 'password';
-        
-        jsb.inputBox.show({
-            defaultValue: editBoxImpl._text,
-            maxLength: editBoxImpl._maxLength,
-            multiple: multiline,
-            confirmHold: false,
-            confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-            inputType: inputTypeString
-        });
-        editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
-
-        function onConfirm(res) {
-            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
-        }
-        jsb.inputBox.onConfirm(onConfirm);
-
-        function onInput(res) {
-            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged && editBoxImpl._text !== res.value) {
-                editBoxImpl._text = res.value;
-                editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-            }
-        }
-        jsb.inputBox.onInput(onInput);
-
-        function onComplete(res) {
-            editBoxImpl._endEditing();
-            jsb.inputBox.offConfirm(onConfirm);
-            jsb.inputBox.offInput(onInput);
-            jsb.inputBox.offComplete(onComplete);
-        }
-        jsb.inputBox.onComplete(onComplete);
-    };
-}
 
 _p._createDomTextArea = function () {
     this.removeDom();
