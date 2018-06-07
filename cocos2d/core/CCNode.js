@@ -2942,6 +2942,7 @@ var Node = cc.Class({
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
             this._renderFlag |= RenderFlow.FLAG_COLOR;
+            this._renderComponent.markForUpdateRenderData(true);
         }
     },
 
