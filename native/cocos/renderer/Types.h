@@ -38,10 +38,10 @@ RENDERER_BEGIN
 
 enum ClearFlag : uint8_t
 {
-    NONE        = UINT8_C(0x0000),      // No clear flags.
-    COLOR       = UINT8_C(0x0001),      // Clear color.
-    DEPTH       = UINT8_C(0x0002),      // Clear depth.
-    STENCIL     = UINT8_C(0x0004)       // Clear stencil.
+    NONE        = 0x00,      // No clear flags.
+    COLOR       = 0x01,      // Clear color.
+    DEPTH       = 0x02,      // Clear depth.
+    STENCIL     = 0x04       // Clear stencil.
 };
 
 enum class ComparisonFunc : uint16_t

@@ -152,14 +152,14 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
     if (!se::ScriptEngine::getInstance()->isValid())
         return;
 
+    se::AutoHandleScope scope;
+    assert(_inited);
+
     if (_jsMouseEventObj == nullptr)
     {
         _jsMouseEventObj = se::Object::createPlainObject();
         _jsMouseEventObj->root();
     }
-
-    se::AutoHandleScope scope;
-    assert(_inited);
 
     const auto& xVal = se::Value(mouseEvent.x);
     const auto& yVal = se::Value(mouseEvent.y);
