@@ -160,16 +160,18 @@ let WebViewImpl = cc.Class({
             let hasChild = utils.contains(cc.game.container, div);
             if (hasChild)
                 cc.game.container.removeChild(div);
-        }
-        this._div = null;
 
-        let cbs = this.__eventListeners;
+            this._div = null;
+        }
         let iframe = this._iframe;
-        iframe.removeEventListener("load", cbs.load);
-        iframe.removeEventListener("error", cbs.error);
-        cbs.load = null;
-        cbs.error = null;
-        this._iframe = null;
+        if (iframe) {
+            let cbs = this.__eventListeners;
+            iframe.removeEventListener("load", cbs.load);
+            iframe.removeEventListener("error", cbs.error);
+            cbs.load = null;
+            cbs.error = null;
+            this._iframe = null;
+        }
     },
 
     setOnJSCallback (callback) {},
