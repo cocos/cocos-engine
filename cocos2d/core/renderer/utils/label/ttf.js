@@ -33,6 +33,8 @@ const Overflow = Label.Overflow;
 const TextUtils = utils.TextUtils;
 const CustomFontLoader = utils.CustomFontLoader;
 
+const WHITE = cc.Color.WHITE;
+
 let _context = null;
 let _canvas = null;
 let _texture = null;
@@ -56,12 +58,6 @@ let _isOutlined = false;
 let _outlineColor = null;
 let _outlineWidth = 0;
 let _margin = 0;
-
-// gradient fill color
-let _fillColorGradientEnabled = false;
-let _gradientStartColor = null;
-let _gradientEndColor = null;
-let _gradientArgs = null;
 
 let _isBold = false;
 let _isItalic = false;
@@ -264,20 +260,11 @@ module.exports = {
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
-                let strokeColor = _outlineColor || cc.Color.WHITE;
+                let strokeColor = _outlineColor || WHITE;
                 _context.globalCompositeOperation = 'source-over';
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
                 _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
-            }
-
-            if (_fillColorGradientEnabled && _gradientArgs) {
-                let gradientStartColor = _gradientStartColor || cc.Color.WHITE;
-                let gradientEndColor = _gradientEndColor || cc.Color.WHITE;
-                let gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
-                gradient.addColorStop(0, gradientStartColor.toHEX());
-                gradient.addColorStop(1, gradientEndColor.toHEX());
-                _context.fillStyle = gradient;
             }
             _context.fillText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
 

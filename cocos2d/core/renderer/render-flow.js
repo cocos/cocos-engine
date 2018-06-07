@@ -76,6 +76,9 @@ _proto._color = function (node) {
     if (comp) {
         comp._updateColor();
     }
+    else {
+        node._renderFlag &= ~COLOR;
+    }
     this._next._func(node);
 
     _walker.parentOpacityDirty --;
@@ -104,7 +107,7 @@ _proto._children = function (node) {
     let cullingMask = _cullingMask;
 
     let parentOpacity = _walker.parentOpacity;
-    _walker.parentOpacity *= (node._opacity/255);
+    _walker.parentOpacity *= (node._opacity / 255);
 
     let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
     let worldOpacityFlag = _walker.parentOpacityDirty ? COLOR : 0;
