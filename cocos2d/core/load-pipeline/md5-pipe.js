@@ -52,7 +52,7 @@ MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder = false) {
     }
     if (key.startsWith(this.libraryBase)) {
         key = key.slice(this.libraryBase.length);
-    } else if(key.startsWith(this.rawAssetsBase)) {
+    } else if (key.startsWith(this.rawAssetsBase)) {
         key = key.slice(this.rawAssetsBase.length);
     } else {
         return url;
