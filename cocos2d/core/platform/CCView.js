@@ -153,6 +153,8 @@ var View = function () {
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
+    // Retina disabled by default
+    _t._retinaEnabled = false;
     // Custom callback for resize event
     _t._resizeCallback = null;
     _t._orientationChanging = true;
@@ -164,8 +166,6 @@ var View = function () {
     _t._isRotated = false;
     _t._orientation = 3;
 
-    var sys = cc.sys;
-    _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
     cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
     // Setup system default resolution policies
