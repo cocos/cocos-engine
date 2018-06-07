@@ -242,6 +242,8 @@ if (CC_DEV) {
     }, 'cc.view');
     markAsRemovedInObject(cc.view, [
         'isViewReady',
+        'setTargetDensityDPI',
+        'getTargetDensityDPI',
         'setFrameZoomFactor',
         'canSetContentScaleFactor',
         'setContentTranslateLeftTop',

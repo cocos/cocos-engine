@@ -84,11 +84,6 @@ switch (__BrowserGetter.adaptationType) {
             return frame.clientHeight;
         };
         break;
-    case cc.sys.BROWSER_TYPE_CHROME:
-        __BrowserGetter.__defineGetter__("target-densitydpi", function(){
-            return cc.view._targetDensityDPI;
-        });
-        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.availWidth = function(frame){
@@ -146,27 +141,28 @@ var View = function () {
     // resolution size, it is the size appropriate for the app resources.
     _t._designResolutionSize = cc.size(w, h);
     _t._originalDesignResolutionSize = cc.size(w, h);
+    _t._scaleX = 1;
+    _t._scaleY = 1;
     // Viewport is the container's rect related to content's coordinates in pixel
     _t._viewportRect = cc.rect(0, 0, w, h);
     // The visible rect in content's coordinate in point
     _t._visibleRect = cc.rect(0, 0, w, h);
+    cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
+    // Auto full screen disabled by default
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
+    // Retina disabled by default
+    _t._retinaEnabled = false;
     // Custom callback for resize event
     _t._resizeCallback = null;
-    _t._orientationChanging = true;
     _t._resizing = false;
-
-    _t._scaleX = 1;
-    _t._scaleY = 1;
-
+    _t._resizeWithBrowserSize = false;
+    _t._orientationChanging = true;
     _t._isRotated = false;
-    _t._orientation = 3;
-
-    var sys = cc.sys;
-    _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
-    cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
+    _t._orientation = cc.macro.ORIENTATION_AUTO;
+    _t._isAdjustViewport = true;
+    _t._antiAliasEnabled = false;
 
     // Setup system default resolution policies
     _t._resolutionPolicy = null;
@@ -178,10 +174,6 @@ var View = function () {
 
     _t._initialized = false;
 
-    _t._resizeWithBrowserSize = false;
-    _t._isAdjustViewport = true;
-
-    _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     _t.enableAntiAlias(true);
 };
 
@@ -244,11 +236,8 @@ View.prototype = {
      *
      * @method setTargetDensityDPI
      * @param {String} densityDPI
+     * @deprecated since v2.0
      */
-    setTargetDensityDPI: function(densityDPI){
-        this._targetDensityDPI = densityDPI;
-        this._adjustViewportMeta();
-    },
 
     /**
      * !#en
@@ -256,10 +245,8 @@ View.prototype = {
      * !#zh 获取目标内容的每英寸像素点密度。
      * @method getTargetDensityDPI
      * @returns {String}
+     * @deprecated since v2.0
      */
-    getTargetDensityDPI: function(){
-        return this._targetDensityDPI;
-    },
 
     /**
      * !#en
