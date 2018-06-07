@@ -179,3 +179,18 @@ gulp.task('watch-jsb-polyfill', function () {
 });
 
 gulp.task('watch-dev-files', ['watch-preview', 'watch-jsb-polyfill']);
+
+gulp.task('test-in-ci', function () {
+    const { spawn } = require('child_process');
+    var gulp = process.platform === 'win32' ? 'gulp.cmd' : 'gulp';
+    var child = spawn(gulp, ['test'], {
+        stdio: [0, 'pipe', 2]
+    });
+    child.stdout.on('data', function (data) {
+        process.stdout.write(data);
+        if (data.toString().indexOf(' assertions failed ') !== -1) {
+            process.exitCode = 1;
+            process.exit();
+        }
+    });
+});
