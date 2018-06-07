@@ -337,11 +337,10 @@ let WebViewImpl = cc.Class({
         if (!this._div || !this._visible) return;
 
         node.getWorldMatrix(_mat4_temp);
-        if (!this._forceUpdate &&
-            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
-            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
-            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
-            this._w === node._contentSize.width && this._h === node._contentSize.height) {
+        if (!this._forceUpdate || (this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
+                                   this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
+                                   this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
+                                   this._w === node._contentSize.width && this._h === node._contentSize.height)) {
             return;
         }
 
