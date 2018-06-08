@@ -479,6 +479,7 @@ let Label = cc.Class({
     onDestroy () {
         this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
+        this._super();
     },
 
     _checkStringEmpty () {
@@ -495,12 +496,6 @@ let Label = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-        }
-
-        // Check for assembler data
-        // TODO: editor undo could reuse destroyed data, this is a temporary fix
-        if (!this._assemblerData) {
-            this._assemblerData = this._assembler._getAssemblerData();
         }
     },
 
