@@ -702,7 +702,10 @@ test('simplified properties define', function () {
             valueType: [cc.Vec2],
             node: [cc.Node],
             rawAsset: [cc.RawAsset],
-            asset: [cc.Asset],
+            asset: {
+                default: [],
+                type: cc.Asset
+            },
         }
     });
 
