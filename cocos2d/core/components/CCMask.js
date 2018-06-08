@@ -177,10 +177,9 @@ let Mask = cc.Class({
                 }
                 if (this._frontMaterial) {
                     this._frontMaterial.alphaThreshold = this.alphaThreshold;
-                    this._frontMaterial.updateHash();
                     this._endMaterial.alphaThreshold = this.alphaThreshold;
-                    this._endMaterial.updateHash();
-                    this._endMaterial._hash = -this._endMaterial._hash;
+                    this._frontMaterial.updateHash();
+                    this._endMaterial._hash = -this._frontMaterial._hash;
                 }
             }
         },
@@ -308,9 +307,8 @@ let Mask = cc.Class({
             this._endMaterial.useColor = false;
         }
         this._frontMaterial.updateHash();
-        this._endMaterial.updateHash();
         // Avoid next up mask material to be batch with the exit one
-        this._endMaterial._hash = -this._endMaterial._hash;
+        this._endMaterial._hash = -this._frontMaterial._hash;
         this.markForRender(true);
     },
 
