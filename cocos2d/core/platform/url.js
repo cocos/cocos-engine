@@ -24,9 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// mount point of actual urls for raw asset (only used in editor)
-var _mounts = {};
-
 /**
  * @class url
  * @static
@@ -40,14 +37,6 @@ cc.url = {
      * @readOnly
      */
     _rawAssets: '',
-
-    /**
-     * The base url of builtin raw assets.
-     * @property {Object} _builtinRawAssets
-     * @private
-     * @readOnly
-     */
-    _builtinRawAssets: '',
     
     normalize: function (url) {
         if (url) {
@@ -80,50 +69,21 @@ cc.url = {
         url = this.normalize(url);
 
         if ( !url.startsWith('resources/') ) {
-            if (CC_EDITOR) {
-                cc.errorID(7001, url);
-            }
-            else {
-                cc.errorID(7002, url);
-            }
+            cc.errorID(CC_EDITOR ? 7001 : 7002, url);
         }
         else {
-
             // Compatible with versions lower than 1.10
             var uuid = cc.loader._getResUuid(url.slice(10), cc.Asset, true);
             if (uuid) {
-                return cc.AssetLibrary.getLibUrlNoExt(uuid) + cc.path.extname(url);
+                return cc.AssetLibrary.getLibUrlNoExt(uuid, true) + cc.path.extname(url);
             }
         }
         
         return this._rawAssets + url;
     },
 
-    /**
-     * Returns the url of builtin raw assets. This method can only used in editor.
-     * @method builtinRaw
-     * @param {String} url
-     * @return {String}
-     * @example {@link cocos2d/core/platform/url/builtinRaw.js}
-     */
-    builtinRaw: CC_EDITOR && function (url) {
-        if ( !this._builtinRawAssets ) {
-            cc.errorID(7003);
-            return '';
-        }
-        url = this.normalize(url);
-        return this._builtinRawAssets + url;
-    },
-
-    _init: function (mountPaths) {
-        for (var dir in mountPaths) {
-            var path = mountPaths[dir];
-            path = cc.path.stripSep(path) + '/';
-            _mounts[dir] = path;
-        }
-
-        this._rawAssets = _mounts.assets;
-        this._builtinRawAssets = _mounts.internal;
+    _init: function (assets) {
+        this._rawAssets = cc.path.stripSep(assets) + '/';
     }
 };
 

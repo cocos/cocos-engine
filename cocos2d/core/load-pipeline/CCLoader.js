@@ -61,7 +61,7 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._getAssetUrl(id);
+    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._uuidInSettings(id);
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {

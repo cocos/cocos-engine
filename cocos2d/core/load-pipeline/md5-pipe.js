@@ -44,7 +44,7 @@ MD5Pipe.prototype.handle = function(item) {
     return item;
 };
 
-MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder = false) {
+MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {
     var index = url.indexOf('?');
     var key = url;
     if (index !== -1) {
@@ -52,7 +52,7 @@ MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder = false) {
     }
     if (key.startsWith(this.libraryBase)) {
         key = key.slice(this.libraryBase.length);
-    } else if(key.startsWith(this.rawAssetsBase)) {
+    } else if (key.startsWith(this.rawAssetsBase)) {
         key = key.slice(this.rawAssetsBase.length);
     } else {
         return url;
