@@ -783,7 +783,9 @@ largeModule('Class ES6');
             @property(cc.RawAsset)
             rawAsset = [];
 
-            @property(cc.Asset)
+            @property({
+                type: cc.Asset
+            })
             asset = [];
         }
 
