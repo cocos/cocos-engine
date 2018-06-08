@@ -37,6 +37,9 @@
 cc = {};
 _ccsg = {};
 
+// For internal usage
+_cc = {};
+
 require('./predefine');
 require('./CCDebugger');
 
