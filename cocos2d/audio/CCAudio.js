@@ -107,17 +107,12 @@ Audio.State = {
 
     proto._onLoaded = function () {
         var elem = this._src._nativeAsset;
-        if (CC_QQPLAY || CC_WECHATGAME) {
-            this._element = elem;
+        if (elem instanceof HTMLElement) {
+            this._element = document.createElement('audio');
+            this._element.src = elem.src;
         }
         else {
-            if (this._src.loadMode === LoadMode.DOM_AUDIO) {
-                this._element = document.createElement('audio');
-                this._element.src = elem.src;
-            }
-            else {
-                this._element = new WebAudioElement(elem, this);
-            }
+            this._element = new WebAudioElement(elem, this);
         }
 
         this.setVolume(this._volume);
