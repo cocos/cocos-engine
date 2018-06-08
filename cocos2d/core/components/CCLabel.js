@@ -479,6 +479,7 @@ let Label = cc.Class({
     onDestroy () {
         this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
+        this._super();
     },
 
     _checkStringEmpty () {

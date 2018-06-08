@@ -160,8 +160,6 @@ let EditBoxImpl = cc.Class({
     
         this._updateDomInputType();
         this._updateSize(this._size.width, this._size.height);
-
-        this._updateMatrix();
     },
 
     setInputFlag (inputFlag) {
