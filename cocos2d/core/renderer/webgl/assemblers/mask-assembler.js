@@ -136,7 +136,7 @@ let maskEndAssembler = {
         else {
             mask._material = mask._endMaterial;
         }
-        let material = mask.getMaterial();
+        let material = mask._material;
 
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             let data = mask._renderData;
