@@ -39,6 +39,9 @@ var _global = typeof window === 'undefined' ? global : window;
  */
 cc = _global.cc || {};
 
+// For internal usage
+_cc = _global._cc || {};
+
 require('./predefine');
 require('./CCDebugger');
 
