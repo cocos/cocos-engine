@@ -1,7 +1,7 @@
 const space = 2;
 
-class Atlas {
-    constructor (width, height) {
+let Atlas = cc.Class({
+    ctor (width, height) {
         let texture = new cc.RenderTexture();
         texture.initWithSize(width, height);
         texture.update();
@@ -17,7 +17,7 @@ class Atlas {
 
         this._innerTextureInfos = {};
         this._innerSpriteFrames = [];
-    }
+    },
 
     insertSpriteFrame (spriteFrame) {
         let rect = spriteFrame._rect,
@@ -79,13 +79,13 @@ class Atlas {
         this._innerSpriteFrames.push(spriteFrame);
 
         return true;
-    }
+    },
 
     update () {
         if (!this._dirty) return;
         this._texture.update();
         this._dirty = false;
-    }
+    },
 
     reset () {
         this._x = space;
@@ -107,12 +107,12 @@ class Atlas {
         }
         this._innerSpriteFrames.length = 0;
         this._innerTextureInfos = {};
-    }
+    },
 
     destroy () {
         this.reset();
         this._texture.destroy();
     }
-}
+});
 
 module.exports = Atlas;

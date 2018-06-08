@@ -1,6 +1,8 @@
 const MeshBuffer = require('./mesh-buffer');
 
-class QuadBuffer extends MeshBuffer {
+let QuadBuffer = cc.Class({
+    extends: MeshBuffer,
+    
     _fillQuadBuffer () {
         let count = this._initIDataCount / 6;
         let buffer = this._iData;
@@ -16,18 +18,18 @@ class QuadBuffer extends MeshBuffer {
 
         let indicesData = new Uint16Array(this._iData.buffer, 0, count * 6 );
         this._ib.update(0, indicesData);
-    }
+    },
 
     uploadData () {
         // update vertext data
         let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
         this._vb.update(0, vertexsData);
-    }
+    },
 
     _reallocBuffer () {
         MeshBuffer.prototype._reallocBuffer.call(this);
         this._fillQuadBuffer();
     }
-}
+});
 
 module.exports = QuadBuffer;
