@@ -153,6 +153,9 @@ cc = {};
 // The namespace for original nodes rendering in scene graph.
 _ccsg = {};
 
+// For internal usage
+_cc = {};
+
 if (CC_DEV) {
     /**
      * contains internal apis for unit tests
