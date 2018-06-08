@@ -268,7 +268,7 @@ if (CC_EDITOR) {
 
 function refreshScene () {
     // check animation editor
-    if (CC_EDITOR) {
+    if (CC_EDITOR && !Editor.isBuilder) {
         var AnimUtils = Editor.require('scene://utils/animation');
         if (AnimUtils) {
             var nowPreviewing = !!AnimUtils.Cache.animation;
@@ -299,8 +299,10 @@ function refreshScene () {
         }
         else {
             var i, widget, iterator = widgetManager._activeWidgetsIterator;
-            var AnimUtils = Editor.require('scene://utils/animation');
-            if (CC_EDITOR && AnimUtils.Cache.animation) {
+            var AnimUtils;
+            if (CC_EDITOR &&
+                (AnimUtils = Editor.require('scene://utils/animation')) &&
+                AnimUtils.Cache.animation) {
                 var editingNode = AnimUtils.Cache.rNode;
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
