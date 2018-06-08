@@ -351,7 +351,8 @@ let Mask = cc.Class({
 
     markForRender (enable) {
         if (enable && this.enabledInHierarchy) {
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER;
+            this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
+                                      RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
         }
         else if (!enable) {
             this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
