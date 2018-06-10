@@ -4366,6 +4366,8 @@
         "cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp", 
         "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp", 
+        "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp", 
+        "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h", 
         "cocos/scripting/js-bindings/manual/jsb_conversions.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_conversions.hpp", 
         "cocos/scripting/js-bindings/manual/jsb_gfx_manual.cpp", 
