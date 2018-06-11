@@ -18,7 +18,7 @@ function Atlas (width, height) {
     this._innerSpriteFrames = [];
 }
 
-cc.js.mixin({
+cc.js.mixin(Atlas.prototype, {
     insertSpriteFrame (spriteFrame) {
         let rect = spriteFrame._rect,
             texture = spriteFrame._texture,
@@ -113,6 +113,6 @@ cc.js.mixin({
         this.reset();
         this._texture.destroy();
     }
-}, Atlas.prototype);
+});
 
 module.exports = Atlas;

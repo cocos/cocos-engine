@@ -23,7 +23,7 @@ function Path () {
     this.reset();
 }
 
-cc.js.mixin({
+cc.js.mixin(Path.prototype, {
     reset () {
         this.closed = false;
         this.nbevel = 0;
@@ -36,7 +36,7 @@ cc.js.mixin({
             this.points = [];
         }
     }
-}, Path.prototype);
+});
 
 function Impl () {
     // inner properties
@@ -62,7 +62,7 @@ function Impl () {
     this._dataOffset = 0;
 }
 
-cc.js.mixin({
+cc.js.mixin(Impl.prototype, {
     moveTo (x, y) {
         if (this._updatePathOffset) {
             this._pathOffset = this._pathLength;
@@ -204,6 +204,6 @@ cc.js.mixin({
         pt.flags = flags;
         pathPoints.push(pt);
     }
-}, Impl.prototype);
+});
 
 module.exports = Impl;

@@ -1,22 +1,22 @@
 const Counter = require('./counter');
 
-class PerfCounter extends Counter {
-  constructor(id, opts, now) {
-    super(id, opts, now);
-
+let PerfCounter = cc.Class({
+  extends: Counter,
+  
+  ctor (id, opts, now) {
     // DISABLE
     // this._idstart = `${id}_start`;
     // this._idend = `${id}_end`;
 
     this._time = now;
-  }
+  },
 
   start(now) {
     this._time = now;
 
     // DISABLE: long time running will cause performance drop down
     // window.performance.mark(this._idstart);
-  }
+  },
 
   end(now) {
     this._value = now - this._time;
@@ -26,12 +26,12 @@ class PerfCounter extends Counter {
     // window.performance.measure(this._id, this._idstart, this._idend);
 
     this._average(this._value);
-  }
+  },
 
   tick() {
     this.end();
     this.start();
-  }
+  },
 
   frame(now) {
     let t = now;
@@ -46,6 +46,6 @@ class PerfCounter extends Counter {
       this._average(this._value);
     }
   }
-}
+});
 
 module.exports = PerfCounter;

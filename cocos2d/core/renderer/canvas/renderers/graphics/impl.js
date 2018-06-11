@@ -42,7 +42,9 @@ function Impl () {
     };
 }
 
-js.mixin({
+let _proto = Impl.prototype;
+
+js.mixin(_proto, {
     moveTo (x, y) {
         this.cmds.push(['moveTo', [x, y]]);
     },
@@ -98,27 +100,27 @@ js.mixin({
     fill () {
         this.cmds.push(['fill', []]);
     }
-}, Impl.prototype);
+});
 
-js.set('strokeColor', function (v) {
+js.set(_proto, 'strokeColor', function (v) {
     var strokeStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
     this.cmds.push(['strokeStyle', strokeStyle]);
     this.style.strokeStyle = strokeStyle;
 });
 
-js.set('fillColor', function (v) {
+js.set(_proto, 'fillColor', function (v) {
     var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
     this.cmds.push(['fillStyle', fillStyle]);
     this.style.fillStyle = fillStyle;
 });
 
-js.set('lineWidth', function (v) {
+js.set(_proto, 'lineWidth', function (v) {
     this.cmds.push(['lineWidth', v]);
     this.style.lineWidth = v;
 });
 
 
-js.set('lineCap', function (v) {
+js.set(_proto, 'lineCap', function (v) {
     var lineCap = 'butt';
     if (v === LineCap.BUTT) {
         lineCap = 'butt';
@@ -133,7 +135,7 @@ js.set('lineCap', function (v) {
     this.style.lineCap = lineCap;
 });
 
-js.set('lineJoin', function (v) {
+js.set(_proto, 'lineJoin', function (v) {
     var lineJoin = 'bevel';
     if (v === LineJoin.BEVEL) {
         lineJoin = 'bevel';
@@ -149,7 +151,7 @@ js.set('lineJoin', function (v) {
     this.style.lineJoin = lineJoin;
 });
 
-js.set('miterLimit', function (v) {
+js.set(_proto, 'miterLimit', function (v) {
     this.cmds.push(['miterLimit', v]);
     this.style.miterLimit = v;
 });
