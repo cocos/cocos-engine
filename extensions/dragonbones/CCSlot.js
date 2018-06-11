@@ -40,6 +40,7 @@ dragonBones.CCSlot = cc.Class({
         this._indices = [];
         this._matrix = math.mat4.create();
         this._visible = false;
+        this._color = cc.color();
     },
 
     reset () {
@@ -132,11 +133,11 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateColor () {
-        let r = this._colorTransform.redMultiplier * 255;
-        let g = this._colorTransform.greenMultiplier * 255;
-        let b = this._colorTransform.blueMultiplier * 255;
-        let a = this._colorTransform.alphaMultiplier * 255;
-        this._color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
+        let c = this._color;
+        c.r = this._colorTransform.redMultiplier * 255;
+        c.g = this._colorTransform.greenMultiplier * 255;
+        c.b = this._colorTransform.blueMultiplier * 255;
+        c.a = this._colorTransform.alphaMultiplier * 255;
     },
 
     _updateFrame () {
