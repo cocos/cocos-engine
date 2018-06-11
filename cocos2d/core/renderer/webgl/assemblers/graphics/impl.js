@@ -19,11 +19,11 @@ let Point = cc.Class({
     }
 });
 
-let Path = cc.Class({
-    ctor () {
-        this.reset();
-    },
-    
+function Path () {
+    this.reset();
+}
+
+cc.js.mixin({
     reset () {
         this.closed = false;
         this.nbevel = 0;
@@ -36,33 +36,33 @@ let Path = cc.Class({
             this.points = [];
         }
     }
-});
+}, Path.prototype);
 
-let Impl = cc.Class({
-    ctor () {
-        // inner properties
-        this._tessTol = 0.25;
-        this._distTol = 0.01;
-        this._updatePathOffset = false;
-        
-        this._paths = null;
-        this._pathLength = 0;
-        this._pathOffset = 0;
-        
-        this._points = null;
-        this._pointsOffset = 0;
-        
-        this._commandx = 0;
-        this._commandy = 0;
+function Impl () {
+    // inner properties
+    this._tessTol = 0.25;
+    this._distTol = 0.01;
+    this._updatePathOffset = false;
+    
+    this._paths = null;
+    this._pathLength = 0;
+    this._pathOffset = 0;
+    
+    this._points = null;
+    this._pointsOffset = 0;
+    
+    this._commandx = 0;
+    this._commandy = 0;
 
-        this._paths = [];
-        this._points = [];
+    this._paths = [];
+    this._points = [];
 
-        this._renderDatas = [];
-        
-        this._dataOffset = 0;
-    },
+    this._renderDatas = [];
+    
+    this._dataOffset = 0;
+}
 
+cc.js.mixin({
     moveTo (x, y) {
         if (this._updatePathOffset) {
             this._pathOffset = this._pathLength;
@@ -204,6 +204,6 @@ let Impl = cc.Class({
         pt.flags = flags;
         pathPoints.push(pt);
     }
-});
+}, Impl.prototype);
 
 module.exports = Impl;

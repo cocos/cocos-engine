@@ -25,24 +25,24 @@
 
 const Helper = require('../../../../graphics/helper');
 const Types = require('../../../../graphics/types');
-const Js = require('../../../../platform/js');
+const js = require('../../../../platform/js');
 const PointFlags = Types.PointFlags;
 const LineJoin = Types.LineJoin;
 const LineCap = Types.LineCap;
 
-let Impl = cc.Class({
-    ctor () {
-        this.cmds = [];
+function Impl () {
+    this.cmds = [];
 
-        this.style = {
-            strokeStyle: 'black',
-            fillStyle: 'white',
-            lineCap: 'butt',
-            lineJoin: 'miter',
-            miterLimit: 10
-        };
-    },
+    this.style = {
+        strokeStyle: 'black',
+        fillStyle: 'white',
+        lineCap: 'butt',
+        lineJoin: 'miter',
+        miterLimit: 10
+    };
+}
 
+js.mixin({
     moveTo (x, y) {
         this.cmds.push(['moveTo', [x, y]]);
     },
@@ -98,27 +98,27 @@ let Impl = cc.Class({
     fill () {
         this.cmds.push(['fill', []]);
     }
-});
+}, Impl.prototype);
 
-Js.set('strokeColor', function (v) {
+js.set('strokeColor', function (v) {
     var strokeStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
     this.cmds.push(['strokeStyle', strokeStyle]);
     this.style.strokeStyle = strokeStyle;
 });
 
-Js.set('fillColor', function (v) {
+js.set('fillColor', function (v) {
     var fillStyle = 'rgba(' + (0 | v.r) + ',' + (0 | v.g) + ',' + (0 | v.b) + ',' + v.a / 255 + ')';
     this.cmds.push(['fillStyle', fillStyle]);
     this.style.fillStyle = fillStyle;
 });
 
-Js.set('lineWidth', function (v) {
+js.set('lineWidth', function (v) {
     this.cmds.push(['lineWidth', v]);
     this.style.lineWidth = v;
 });
 
 
-Js.set('lineCap', function (v) {
+js.set('lineCap', function (v) {
     var lineCap = 'butt';
     if (v === LineCap.BUTT) {
         lineCap = 'butt';
@@ -133,7 +133,7 @@ Js.set('lineCap', function (v) {
     this.style.lineCap = lineCap;
 });
 
-Js.set('lineJoin', function (v) {
+js.set('lineJoin', function (v) {
     var lineJoin = 'bevel';
     if (v === LineJoin.BEVEL) {
         lineJoin = 'bevel';
@@ -149,7 +149,7 @@ Js.set('lineJoin', function (v) {
     this.style.lineJoin = lineJoin;
 });
 
-Js.set('miterLimit', function (v) {
+js.set('miterLimit', function (v) {
     this.cmds.push(['miterLimit', v]);
     this.style.miterLimit = v;
 });
