@@ -411,6 +411,13 @@ b2Vec2.prototype =
         return this;
     },
 
+    Invert: function()
+    {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    },
+
     /// Get the length of this vector (the norm).
     Length: function()
     {
