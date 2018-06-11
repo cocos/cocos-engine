@@ -367,8 +367,6 @@ let Mask = cc.Class({
     onEnable () {
         this._super();
         // for graphic stencil data
-        this._renderDatas = [];
-        // for graphic stencil data
         this._graphics = null;
 
         this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
@@ -381,7 +379,6 @@ let Mask = cc.Class({
 
     onDestroy () {
         this._super();
-        this._renderDatas.length = 0;
         this._frontMaterial = null;
         this._endMaterial = null;
     },
