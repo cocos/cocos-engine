@@ -59,42 +59,42 @@ var Transition = cc.Enum({
 
 /**
  * !#en
- * Button has 4 Transition types
- * When Button state changed:
- *  If Transition type is Button.Transition.NONE, Button will do nothing
- *  If Transition type is Button.Transition.COLOR, Button will change target's color
- *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
- *  If Transition type is Button.Transition.SCALE, Button will change target node's scale
+ * Button has 4 Transition types<br/>
+ * When Button state changed:<br/>
+ *  If Transition type is Button.Transition.NONE, Button will do nothing<br/>
+ *  If Transition type is Button.Transition.COLOR, Button will change target's color<br/>
+ *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite<br/>
+ *  If Transition type is Button.Transition.SCALE, Button will change target node's scale<br/>
  *
- * Button will trigger 5 events:
- *  Button.EVENT_TOUCH_DOWN
- *  Button.EVENT_TOUCH_UP
- *  Button.EVENT_HOVER_IN
- *  Button.EVENT_HOVER_MOVE
- *  Button.EVENT_HOVER_OUT
+ * Button will trigger 5 events:<br/>
+ *  Button.EVENT_TOUCH_DOWN<br/>
+ *  Button.EVENT_TOUCH_UP<br/>
+ *  Button.EVENT_HOVER_IN<br/>
+ *  Button.EVENT_HOVER_MOVE<br/>
+ *  Button.EVENT_HOVER_OUT<br/>
  *
  * !#zh
- * 按钮组件。可以被按下,或者点击。</br>
+ * 按钮组件。可以被按下,或者点击。<br/>
  *
- * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：</br>
- *   -Button.Transition.NONE   // 不做任何过渡</br>
- *   -Button.Transition.COLOR  // 进行颜色之间过渡</br>
- *   -Button.Transition.SPRITE // 进行精灵之间过渡</br>
- *   -Button.Transition.SCALE // 进行缩放过渡</br>
+ * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
+ *   -Button.Transition.NONE   // 不做任何过渡<br/>
+ *   -Button.Transition.COLOR  // 进行颜色之间过渡<br/>
+ *   -Button.Transition.SPRITE // 进行精灵之间过渡<br/>
+ *   -Button.Transition.SCALE // 进行缩放过渡<br/>
  *
- * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：</br>
- *   // 以下事件可以在全平台上都触发</br>
- *   -cc.Node.EventType.TOUCH_START  // 按下时事件</br>
- *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件</br>
- *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件</br>
- *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件</br>
- *   // 以下事件只在 PC 平台上触发</br>
- *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件</br>
- *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件</br>
- *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件</br>
- *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件</br>
- *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件</br>
- *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件</br>
+ * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
+ *   // 以下事件可以在全平台上都触发<br/>
+ *   -cc.Node.EventType.TOUCH_START  // 按下时事件<br/>
+ *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件<br/>
+ *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件<br/>
+ *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件<br/>
+ *   // 以下事件只在 PC 平台上触发<br/>
+ *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件<br/>
+ *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件<br/>
+ *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件<br/>
+ *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
+ *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件<br/>
+ *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
  *
  * @class Button
  * @extends Component
