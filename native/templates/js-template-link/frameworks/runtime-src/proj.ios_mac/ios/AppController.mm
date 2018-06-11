@@ -25,9 +25,12 @@
 ****************************************************************************/
 
 #import "AppController.h"
-#import "RootViewController.h"
+#import "cocos2d.h"
 #import "AppDelegate.h"
-//#import "cocos-analytics/CAAgent.h"
+#import "RootViewController.h"
+#import "platform/ios/CCEAGLView-ios.h"
+
+#import "cocos-analytics/CAAgent.h"
 
 using namespace cocos2d;
 
@@ -39,27 +42,40 @@ Application* app = nullptr;
 #pragma mark -
 #pragma mark Application lifecycle
 
-// cocos2d application instance
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-//    [CAAgent enableDebug:NO];
+    [CAAgent enableDebug:NO];
 
+    // Add the view controller's view to the window and display.
+    float scale = [[UIScreen mainScreen] scale];
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    window = [[UIWindow alloc] initWithFrame: bounds];
 
-    window = [[UIWindow alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
-    
-    app = new AppDelegate();
+    // cocos2d application instance
+    app = new AppDelegate(bounds.size.width * scale, bounds.size.height * scale);
+    app->setMultitouch(true);
 
+    // Use RootViewController to manage CCEAGLView
     _viewController = [[RootViewController alloc]init];
-    _viewController.view = (UIView*)app->getView();
+    _viewController.wantsFullScreenLayout = YES;
 
     // Set RootViewController to window
-    [window setRootViewController:_viewController];
+    if ( [[UIDevice currentDevice].systemVersion floatValue] < 6.0)
+    {
+        // warning: addSubView doesn't work on iOS6
+        [window addSubview: _viewController.view];
+    }
+    else
+    {
+        // use this method on ios6
+        [window setRootViewController:_viewController];
+    }
 
     [window makeKeyAndVisible];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    
+
+    //run the cocos2d-x game scene
     app->start();
     
     return YES;
@@ -71,16 +87,12 @@ Application* app = nullptr;
       Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
       Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     */
-    // We don't need to call this method any more. It will interrupt user defined game pause&resume logic
-    /* cocos2d::Director::getInstance()->pause(); */
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     /*
       Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     */
-    // We don't need to call this method any more. It will interrupt user defined game pause&resume logic
-    /* cocos2d::Director::getInstance()->resume(); */
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -88,16 +100,14 @@ Application* app = nullptr;
       Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
-//    [CAAgent onPause];
+    [CAAgent onPause];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     /*
       Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
     */
-//    auto glview = (__bridge CCEAGLView*)(Director::getInstance()->getOpenGLView()->getEAGLView());
-//    auto currentView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
-//    [CAAgent onResume];
+    [CAAgent onResume];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -106,7 +116,7 @@ Application* app = nullptr;
     delete app;
     app = nil;
 
-//    [CAAgent onDestroy];
+    [CAAgent onDestroy];
 }
 
 

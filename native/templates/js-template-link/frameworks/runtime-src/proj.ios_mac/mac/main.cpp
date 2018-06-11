@@ -28,6 +28,6 @@
 
 int main(int argc, char *argv[])
 {
-    AppDelegate app;
+    AppDelegate app(960, 640);
     app.start();
 }

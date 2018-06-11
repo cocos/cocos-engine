@@ -30,6 +30,8 @@
 #import "RootViewController.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
+#import "cocos-analytics/CAAgent.h"
+
 using namespace cocos2d;
 
 @implementation AppController
@@ -42,6 +44,8 @@ Application* app = nullptr;
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    [CAAgent enableDebug:NO];
 
     // Add the view controller's view to the window and display.
     float scale = [[UIScreen mainScreen] scale];
@@ -102,6 +106,7 @@ Application* app = nullptr;
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
     cocos2d::Application::getInstance()->applicationDidEnterBackground();
+    [CAAgent onPause];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -112,6 +117,7 @@ Application* app = nullptr;
     auto currentView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
     if (glview == currentView) {
         cocos2d::Application::getInstance()->applicationWillEnterForeground();
+        [CAAgent onResume];
     }
 }
 
@@ -122,7 +128,7 @@ Application* app = nullptr;
      */
     delete app;
     app = nullptr;
-
+    [CAAgent onDestroy];
 }
 
 
@@ -134,16 +140,5 @@ Application* app = nullptr;
       Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
     */
 }
-
-
-#if __has_feature(objc_arc)
-#else
-- (void)dealloc {
-    [window release];
-    [_viewController release];
-    [super dealloc];
-}
-#endif
-
 
 @end

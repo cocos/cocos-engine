@@ -36,7 +36,7 @@
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate(int width, int height) : Application("Cocos Runtime", width, height)
+AppDelegate::AppDelegate(int width, int height) : Application("Cocos Game", width, height)
 {
 }
 

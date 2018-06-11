@@ -24,16 +24,15 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
- #include "platform/CCFileUtils.h"
 
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
+#include "cocos2d.h"
 
+#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
 #include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_renderer_manual.hpp"
 
 //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
 //#include "SDKManager.h"
@@ -44,7 +43,7 @@
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate() : Application("js-test")
+AppDelegate::AppDelegate(int width, int height) : Application("Cocos Game", width, height)
 {
 }
 
@@ -60,54 +59,35 @@ bool AppDelegate::applicationDidFinishLaunching()
 //#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && PACKAGE_AS
 //    SDKManager::getInstance()->loadAllPlugins();
 //#endif
-    
-    
-    
-    // set FPS. the default value is 1.0/60 if you don't call this
-    setAnimationInterval(1.0 / 60);
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    
-    se->addRegisterCallback(jsb_register_global_variables);
-    se->addRegisterCallback(register_all_gfx);
-    se->addRegisterCallback(jsb_register_gfx_manual);
-    se->addRegisterCallback(register_all_renderer);
-    se->addRegisterCallback(jsb_register_renderer_manual);
 
-//    jsb_set_xxtea_key("");
+    jsb_set_xxtea_key("");
     jsb_init_file_operation_delegate();
 
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger("0.0.0.0", 5086);
 #endif
-    
-    se->addBeforeInitHook([](){
-        JSBClassType::init();
-    });
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){
         // Send exception information to server like Tencent Bugly.
 
     });
-    
-    FileUtils::getInstance()->addSearchPath("res");
 
-//    jsb_register_all_modules();
+    jsb_register_all_modules();
+
+    se->start();
 
 //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
 //    se->addRegisterCallback(register_all_anysdk_framework);
 //    se->addRegisterCallback(register_all_anysdk_manual);
 //#endif
 
-    se->start();
-
-//    jsb_run_script("main.js");
-    
     se::AutoHandleScope hs;
-    
-    se->runScript("src/renderer-test/main-jsb.js");
-    
+    jsb_run_script("src/jsb.js");
+    jsb_run_script("main.js");
+
     se->addAfterCleanupHook([](){
         JSBClassType::destroy();
     });
@@ -118,9 +98,15 @@ bool AppDelegate::applicationDidFinishLaunching()
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void AppDelegate::applicationDidEnterBackground()
 {
+    struct CustomEvent event;
+    event.name = EVENT_COME_TO_BACKGROUND;
+    EventDispatcher::dispatchCustomEvent(&event);
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
+    struct CustomEvent event;
+    event.name = EVENT_COME_TO_FOREGROUND;
+    EventDispatcher::dispatchCustomEvent(&event);
 }
