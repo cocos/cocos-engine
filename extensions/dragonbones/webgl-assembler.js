@@ -40,6 +40,7 @@ let _vbuf, _uintbuf,
     _vertexId, _ibuf,
     _vertexOffset, _indiceOffset,
     _a, _b, _c, _d, _tx, _ty,
+    _nodeR, _nodeG, _nodeB, _nodeA,
     _renderData,
     _worldMatrix;
 
@@ -99,6 +100,12 @@ let armatureAssembler = {
 
         let node = comp.node;
 
+        let nodeColor = node.color;
+        _nodeR = nodeColor.r / 255;
+        _nodeG = nodeColor.g / 255;
+        _nodeB = nodeColor.b / 255;
+        _nodeA = nodeColor.a / 255;
+
         _worldMatrix = node._worldMatrix;
         _a = _worldMatrix.m00; _b = _worldMatrix.m01; _c = _worldMatrix.m04; _d = _worldMatrix.m05;
         _tx = _worldMatrix.m12; _ty = _worldMatrix.m13;
@@ -128,7 +135,13 @@ let armatureAssembler = {
             }
 
             let vertices = slot._vertices;
-            let color = slot._color;
+            let slotColor = slot._color;
+            let cr = slotColor.r * _nodeR;
+            let cg = slotColor.g * _nodeG;
+            let cb = slotColor.b * _nodeB;
+            let ca = slotColor.a * _nodeA;
+            let color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+
             for (let j = 0, vl = vertices.length; j < vl; j++) {
                 let vertex = vertices[j];
                 _vbuf[_vertexOffset++] = vertex.x * _a + vertex.y * _c + _tx;
