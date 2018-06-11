@@ -432,10 +432,10 @@ var BaseNode = cc.Class({
 
     /**
      * !#en
-     * Properties configuration function </br>
-     * All properties in attrs will be set to the node, </br>
-     * when the setter of the node is available, </br>
-     * the property will be set via setter function.</br>
+     * Properties configuration function <br/>
+     * All properties in attrs will be set to the node, <br/>
+     * when the setter of the node is available, <br/>
+     * the property will be set via setter function.<br/>
      * !#zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
      * @method attr
      * @param {Object} attrs - Properties to be set to node

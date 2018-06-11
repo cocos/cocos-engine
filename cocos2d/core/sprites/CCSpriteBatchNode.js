@@ -38,7 +38,7 @@
  *       - The only object that is accepted as child (or grandchild, grand-grandchild, etc...) is _ccsg.Sprite or any subclass of _ccsg.Sprite. <br/>
  *          eg: particles, labels and layer can't be added to a cc.SpriteBatchNode. <br/>
  *       - Either all its children are Aliased or Antialiased. It can't be a mix. <br/>
- *          This is because "alias" is a property of the texture, and all the sprites share the same texture. </br>
+ *          This is because "alias" is a property of the texture, and all the sprites share the same texture. <br/>
  * </p>
  * @class
  * @extends _ccsg.Node
