@@ -140,7 +140,7 @@ let armatureAssembler = {
             let cg = slotColor.g * _nodeG;
             let cb = slotColor.b * _nodeB;
             let ca = slotColor.a * _nodeA;
-            color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+            let color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
 
             for (let j = 0, vl = vertices.length; j < vl; j++) {
                 let vertex = vertices[j];
