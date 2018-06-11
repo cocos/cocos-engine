@@ -2,11 +2,12 @@
 const Helper = require('../../../../graphics/helper');
 const PointFlags = require('../../../../graphics/types').PointFlags;
 
-class Point extends cc.Vec2 {
-    constructor (x, y) {
-        super(x, y);
+let Point = cc.Class({
+    extends: cc.Vec2,
+
+    ctor (x, y) {
         this.reset();
-    }
+    },
     
     reset () {
         this.dx = 0;
@@ -16,13 +17,13 @@ class Point extends cc.Vec2 {
         this.flags = 0;
         this.len = 0;
     }
+});
+
+function Path () {
+    this.reset();
 }
 
-class Path {
-    constructor () {
-        this.reset();
-    }
-    
+cc.js.mixin(Path.prototype, {
     reset () {
         this.closed = false;
         this.nbevel = 0;
@@ -35,33 +36,33 @@ class Path {
             this.points = [];
         }
     }
+});
+
+function Impl () {
+    // inner properties
+    this._tessTol = 0.25;
+    this._distTol = 0.01;
+    this._updatePathOffset = false;
+    
+    this._paths = null;
+    this._pathLength = 0;
+    this._pathOffset = 0;
+    
+    this._points = null;
+    this._pointsOffset = 0;
+    
+    this._commandx = 0;
+    this._commandy = 0;
+
+    this._paths = [];
+    this._points = [];
+
+    this._renderDatas = [];
+    
+    this._dataOffset = 0;
 }
 
-class Impl  {
-    constructor () {
-        // inner properties
-        this._tessTol = 0.25;
-        this._distTol = 0.01;
-        this._updatePathOffset = false;
-        
-        this._paths = null;
-        this._pathLength = 0;
-        this._pathOffset = 0;
-        
-        this._points = null;
-        this._pointsOffset = 0;
-        
-        this._commandx = 0;
-        this._commandy = 0;
-
-        this._paths = [];
-        this._points = [];
-
-        this._renderDatas = [];
-        
-        this._dataOffset = 0;
-    }
-
+cc.js.mixin(Impl.prototype, {
     moveTo (x, y) {
         if (this._updatePathOffset) {
             this._pathOffset = this._pathLength;
@@ -73,14 +74,14 @@ class Impl  {
     
         this._commandx = x;
         this._commandy = y;
-    }
+    },
 
     lineTo (x, y) {
         this._addPoint(x, y, PointFlags.PT_CORNER);
         
         this._commandx = x;
         this._commandy = y;
-    }
+    },
 
     bezierCurveTo (c1x, c1y, c2x, c2y, x, y) {
         var path = this._curPath;
@@ -95,27 +96,27 @@ class Impl  {
     
         this._commandx = x;
         this._commandy = y;
-    }
+    },
 
     quadraticCurveTo (cx, cy, x, y) {
         var x0 = this._commandx;
         var y0 = this._commandy;
         this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
-    }
+    },
 
     arc (cx, cy, r, startAngle, endAngle, counterclockwise) {
         Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
-    }
+    },
 
     ellipse (cx, cy, rx, ry) {
         Helper.ellipse(this, cx, cy, rx, ry);
         this._curPath.complex = false;
-    }
+    },
 
     circle (cx, cy, r) {
         Helper.ellipse(this, cx, cy, r, r);
         this._curPath.complex = false;
-    }
+    },
 
     rect (x, y, w, h) {
         this.moveTo(x, y);
@@ -124,12 +125,12 @@ class Impl  {
         this.lineTo(x + w, y);
         this.close();
         this._curPath.complex = false;
-    }
+    },
 
     roundRect (x, y, w, h, r) {
         Helper.roundRect(this, x, y, w, h, r);
         this._curPath.complex = false;
-    }
+    },
 
     clear (comp, clean) {
         this._pathLength = 0;
@@ -157,11 +158,11 @@ class Impl  {
                 data.vertexCount = 0;
             }
         }
-    }
+    },
 
     close () {
         this._curPath.closed = true;
-    }
+    },
 
     _addPath () {
         var offset = this._pathLength;
@@ -179,7 +180,7 @@ class Impl  {
         this._curPath = path;
     
         return path;
-    }
+    },
     
     _addPoint (x, y, flags) {
         var path = this._curPath;
@@ -203,6 +204,6 @@ class Impl  {
         pt.flags = flags;
         pathPoints.push(pt);
     }
-}
+});
 
 module.exports = Impl;

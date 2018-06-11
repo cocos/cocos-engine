@@ -1,8 +1,8 @@
 const renderEngine = require('../render-engine');
 const gfx = renderEngine.gfx;
 
-class MeshBuffer {
-    constructor (renderer, vertexFormat) {
+let MeshBuffer = cc.Class({
+    ctor (renderer, vertexFormat) {
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
@@ -38,7 +38,7 @@ class MeshBuffer {
         this._initIDataCount = 256 * 6;
         
         this._reallocBuffer();
-    }
+    },
 
     uploadData () {
         if (this.byteOffset === 0) {
@@ -54,7 +54,7 @@ class MeshBuffer {
 
         let ib = this._ib;
         ib.update(0, indicesData);
-    }
+    },
 
     request (vertexCount, indiceCount) {
         if (this._renderer._buffer !== this) {
@@ -83,7 +83,7 @@ class MeshBuffer {
         this.indiceOffset += indiceCount;
         
         this.byteOffset = byteOffset;
-    }
+    },
     
     _reallocBuffer () {
         let oldVData = this._vData;
@@ -101,7 +101,7 @@ class MeshBuffer {
 
         this._vb._bytes = this._vData.byteLength;
         this._ib._bytes = this._iData.byteLength;
-    }
+    },
 
     reset () {
         this.byteStart = 0;
@@ -110,6 +110,6 @@ class MeshBuffer {
         this.indiceOffset = 0;
         this.vertexOffset = 0;
     }
-}
+});
 
 module.exports = MeshBuffer;

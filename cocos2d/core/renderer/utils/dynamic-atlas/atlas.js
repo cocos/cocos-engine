@@ -1,24 +1,24 @@
 const space = 2;
 
-class Atlas {
-    constructor (width, height) {
-        let texture = new cc.RenderTexture();
-        texture.initWithSize(width, height);
-        texture.update();
-        
-        this._texture = texture;
+function Atlas (width, height) {
+    let texture = new cc.RenderTexture();
+    texture.initWithSize(width, height);
+    texture.update();
+    
+    this._texture = texture;
 
-        this._x = space;
-        this._y = space;
-        this._nexty = space;
+    this._x = space;
+    this._y = space;
+    this._nexty = space;
 
-        this._width = width;
-        this._height = height;
+    this._width = width;
+    this._height = height;
 
-        this._innerTextureInfos = {};
-        this._innerSpriteFrames = [];
-    }
+    this._innerTextureInfos = {};
+    this._innerSpriteFrames = [];
+}
 
+cc.js.mixin(Atlas.prototype, {
     insertSpriteFrame (spriteFrame) {
         let rect = spriteFrame._rect,
             texture = spriteFrame._texture,
@@ -79,13 +79,13 @@ class Atlas {
         this._innerSpriteFrames.push(spriteFrame);
 
         return true;
-    }
+    },
 
     update () {
         if (!this._dirty) return;
         this._texture.update();
         this._dirty = false;
-    }
+    },
 
     reset () {
         this._x = space;
@@ -107,12 +107,12 @@ class Atlas {
         }
         this._innerSpriteFrames.length = 0;
         this._innerTextureInfos = {};
-    }
+    },
 
     destroy () {
         this.reset();
         this._texture.destroy();
     }
-}
+});
 
 module.exports = Atlas;
