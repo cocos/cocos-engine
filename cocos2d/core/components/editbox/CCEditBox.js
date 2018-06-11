@@ -198,6 +198,7 @@ let EditBox = cc.Class({
             default: 'Enter text here...',
             notify () {
                 this._placeholderLabel.string = this.placeholder;
+                this._impl.setPlaceholderText(this.placeholder);
             }
         },
 
@@ -339,6 +340,7 @@ let EditBox = cc.Class({
         impl.setTabIndex(this.tabIndex);
         impl.setFontColor(this.fontColor);
         impl.setFontSize(this.fontSize);
+        impl.setPlaceholderText(this.placeholder);
 
         impl.setDelegate(this);
 
