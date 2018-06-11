@@ -291,13 +291,14 @@ let RichText = cc.Class({
             this._addEventListeners();
         }
         this._updateRichText();
+        this._activateChildren(true);
     },
 
     onDisable () {
         if (this.handleTouchEvent) {
             this._removeEventListeners();
         }
-        this._resetState();
+        this._activateChildren(false);
     },
 
     start () {
@@ -405,6 +406,15 @@ let RichText = cc.Class({
         this._labelWidth = 0;
         this._labelHeight = 0;
         this._layoutDirty = true;
+    },
+
+    _activateChildren (active) {
+        for (let i = this.node.children.length - 1; i >= 0; i--) {
+            let child = this.node.children[i];
+            if (child.name === RichTextChildName) {
+                child.active = active;
+            }
+        }
     },
 
     _addLabelSegment (stringToken, styleIndex) {
