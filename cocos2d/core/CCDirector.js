@@ -1030,7 +1030,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#zh
      * 更换场景时是否接收清理消息。<br>
      * 如果新场景是采用 push 方式进入的，那么旧的场景将不会接收到 “cleanup” 消息。<br/>
-     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。</br>
+     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。<br/>
      * @method isSendCleanupToScene
      * @return {Boolean}
      */

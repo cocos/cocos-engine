@@ -183,10 +183,10 @@ _ccsg.Node = cc.Class({
     },
 
     /**
-     * <p>Properties configuration function </br>
-     * All properties in attrs will be set to the node, </br>
-     * when the setter of the node is available, </br>
-     * the property will be set via setter function.</br>
+     * <p>Properties configuration function <br/>
+     * All properties in attrs will be set to the node, <br/>
+     * when the setter of the node is available, <br/>
+     * the property will be set via setter function.<br/>
      * </p>
      * @function
      * @param {Object} attrs Properties to be set to node
@@ -198,11 +198,11 @@ _ccsg.Node = cc.Class({
     },
 
     /**
-     * <p>Returns the skew degrees in X </br>
+     * <p>Returns the skew degrees in X <br/>
      * The X skew angle of the node in degrees.  <br/>
      * This angle describes the shear distortion in the X direction.<br/>
-     * Thus, it is the angle between the Y axis and the left edge of the shape </br>
-     * The default skewX angle is 0. Positive values distort the node in a CW direction.</br>
+     * Thus, it is the angle between the Y axis and the left edge of the shape <br/>
+     * The default skewX angle is 0. Positive values distort the node in a CW direction.<br/>
      * </p>
      * @function
      * @return {Number} The X skew angle of the node in degrees.
@@ -1286,7 +1286,7 @@ _ccsg.Node = cc.Class({
      * <p>
      *     Event callback that is invoked every time when CCNode enters the 'stage'.                                   <br/>
      *     If the CCNode enters the 'stage' with a transition, this event is called when the transition starts.        <br/>
-     *     During onEnter you can't access a "sister/brother" node.                                                    <br/>
+     *     During onEnter you can't access a "sisterbr/other" node.                                                    <br/>
      *     If you override onEnter, you must call its parent's onEnter function with this._super().
      * </p>
      * @function
