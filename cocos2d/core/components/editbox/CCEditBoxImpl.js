@@ -146,6 +146,14 @@ let EditBoxImpl = cc.Class({
         return this._text;
     },
 
+    setPlaceholderText (text) {
+        this._placeholderText = text;
+    },
+
+    getPlaceholderText () {
+        return this._placeholderText;
+    },
+
     setDelegate (delegate) {
         this._delegate = delegate;
     },
