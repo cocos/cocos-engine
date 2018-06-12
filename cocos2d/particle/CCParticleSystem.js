@@ -282,46 +282,6 @@ var properties = {
     },
 
     /**
-     * !#en Specify the source Blend Factor.
-     * !#zh 指定原图混合模式。
-     * @property srcBlendFactor
-     * @type {macro.BlendFactor}
-     */
-    _srcBlendFactor : BlendFactor.SRC_ALPHA,
-    srcBlendFactor: {
-        get: function() {
-            return this._srcBlendFactor;
-        },
-        set: function(value) {
-            this._srcBlendFactor = value;
-            this._updateBlendFunc();
-        },
-        animatable: false,
-        type:BlendFactor,
-        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.srcBlendFactor'
-    },
-
-    /**
-     * !#en Specify the destination Blend Factor.
-     * !#zh 指定目标的混合模式。
-     * @property dstBlendFactor
-     * @type {macro.BlendFactor}
-     */
-    _dstBlendFactor : BlendFactor.ONE_MINUS_SRC_ALPHA,
-    dstBlendFactor: {
-        get: function() {
-            return this._dstBlendFactor;
-        },
-        set: function(value) {
-            this._dstBlendFactor = value;
-            this._updateBlendFunc();
-        },
-        animatable: false,
-        type: BlendFactor,
-        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.dstBlendFactor'
-    },
-
-    /**
      * !#en Indicate whether the system simulation have stopped.
      * !#zh 指示粒子播放是否完毕。
      * @property {Boolean} autoRemoveOnFinish
@@ -1180,26 +1140,10 @@ var ParticleSystem = cc.Class({
             this.markForUpdateRenderData(true);
             this.markForCustomIARender(true);
             this._material.texture = this._texture;
+            this.setMaterial(this._material);
         }
-
-        this._updateBlendFunc();
     },
     
-    _updateBlendFunc: function () {
-        if (!this._material) {
-            return;
-        }
-
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
-        this._material.updateHash();
-    },
-
     _finishedSimulation: function () {
         if (CC_EDITOR) {
             this.stopSystem();

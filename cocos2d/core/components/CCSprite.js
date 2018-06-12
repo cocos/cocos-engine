@@ -25,13 +25,11 @@
  ****************************************************************************/
 
 const misc = require('../utils/misc');
-const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const GraySpriteMaterial = renderEngine.GraySpriteMaterial;
 const RenderData = renderEngine.RenderData;
@@ -181,8 +179,6 @@ var Sprite = cc.Class({
         _fillRange: 0,
         _isTrimmedMode: true,
         _state: 0,
-        _srcBlendFactor: BlendFactor.SRC_ALPHA,
-        _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
         _atlas: {
             default: null,
             type: cc.SpriteAtlas,
@@ -382,48 +378,7 @@ var Sprite = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.trim'
         },
 
-        /**
-         * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
-         * @property srcBlendFactor
-         * @type {macro.BlendFactor}
-         * @example
-         * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                this._srcBlendFactor = value;
-                this._updateBlendFunc();
-            },
-            animatable: false,
-            type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
-        },
-
-        /**
-         * !#en specify the destination Blend Factor.
-         * !#zh 指定目标的混合模式
-         * @property dstBlendFactor
-         * @type {macro.BlendFactor}
-         * @example
-         * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                this._dstBlendFactor = value;
-                this._updateBlendFunc();
-            },
-            animatable: false,
-            type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
-        },
-
+      
         /**
          * !#en specify the size tracing mode.
          * !#zh 精灵尺寸调整模式
@@ -558,32 +513,11 @@ var Sprite = cc.Class({
         if (this._renderData) {
             this._renderData.material = material;
         }
-        this._material = material;
+        
+        this.setMaterial(material);
 
-        if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
-            // Update hash inside
-            this._updateBlendFunc();
-        }
-        else {
-            material.updateHash();
-        }
         this.markForUpdateRenderData(true);
         this.markForRender(true);
-    },
-    
-    _updateBlendFunc: function () {
-        if (!this._material) {
-            return;
-        }
-
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
-        this._material.updateHash();
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {

@@ -284,9 +284,6 @@ let Mask = cc.Class({
             this._frontMaterial = new StencilMaterial();
             this._endMaterial = new StencilMaterial();
         }
-        if (!this._material) {
-            this._material = this._frontMaterial;
-        }
 
         // Reset material
         if (this._type === MaskType.IMAGE_STENCIL) {
@@ -306,7 +303,11 @@ let Mask = cc.Class({
             this._endMaterial.useTexture = false;
             this._endMaterial.useColor = false;
         }
-        this._frontMaterial.updateHash();
+        
+        if (!this._material) {
+            this.setMaterial(this._frontMaterial);
+        }
+
         // Avoid next up mask material to be batch with the exit one
         this._endMaterial._hash = -this._frontMaterial._hash;
         this.markForRender(true);
