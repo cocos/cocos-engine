@@ -453,7 +453,7 @@ var widgetManager = cc._widgetManager = module.exports = {
                 window.addEventListener('resize', this.onResized.bind(this));
             }
             else {
-                eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
+                cc.view.on('canvas-resize', this.onResized, this);
             }
         }
         else {

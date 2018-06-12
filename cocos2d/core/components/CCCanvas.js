@@ -149,7 +149,7 @@ var Canvas = cc.Class({
                 window.addEventListener('resize', this._thisOnResized);
             }
             else {
-                eventManager.addCustomListener('canvas-resize', this._thisOnResized);
+                cc.view.on('canvas-resize', this._thisOnResized);
             }
         }
 
@@ -184,7 +184,7 @@ var Canvas = cc.Class({
                 window.removeEventListener('resize', this._thisOnResized);
             }
             else {
-                eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
+                cc.view.off('canvas-resize', this._thisOnResized);
             }
         }
 

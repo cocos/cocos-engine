@@ -40,6 +40,20 @@ let _vec3_temp_2 = vec3.create();
 
 let _cameras = [];
 
+let _debugCamera = null;
+
+function repositionDebugCamera () {
+    if (!_debugCamera) return;
+
+    let node = _debugCamera._node;
+    let visibleRect = cc.visibleRect;
+    node.z = visibleRect.height / 1.1566;
+    node.x = _vec3_temp_1.x = visibleRect.width / 2;
+    node.y = _vec3_temp_1.y = visibleRect.height / 2;
+    _vec3_temp_1.z = 0;
+    node.lookAt(_vec3_temp_1);
+}
+
 /**
  * !#en Values for Camera.clearFlags, determining what to clear when rendering a Camera.
  * !#zh 摄像机清除标记位，决定摄像机渲染时会清除哪些状态
@@ -139,7 +153,7 @@ let Camera = cc.Class({
          * Determining what to clear when camera rendering.
          * !#zh
          * 决定摄像机渲染时会清除哪些状态。
-         * @property {Number} clearFlags
+         * @property {Camera.ClearFlags} clearFlags
          */
         clearFlags: {
             get () {
@@ -247,12 +261,44 @@ let Camera = cc.Class({
             }
 
             return null;
+        },
+
+        _setupDebugCamera () {
+            if (_debugCamera) return;
+            let camera = new renderEngine.Camera();
+            _debugCamera = camera;
+            
+            camera.setStages([
+                'transparent'
+            ]);
+
+            camera.setFov(Math.PI * 60 / 180);
+            camera.setNear(0.1);
+            camera.setFar(4096);
+
+            let view = new renderEngine.View();
+            camera.view = view;
+            camera.dirty = true;
+
+            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.Debug;
+            camera.setDepth(cc.macro.MAX_ZINDEX);
+            camera.setClearFlags(0);
+            camera.setColor(0,0,0,0);
+
+            let node = new cc.Node();
+            camera.setNode(node);
+
+            repositionDebugCamera();
+            cc.view.on('design-resolution-changed', repositionDebugCamera);
+
+            renderer.scene.addCamera(camera);
         }
     },
 
     _updateCameraMask () {
-        this._camera._cullingMask = this._cullingMask;
-        this._camera.view._cullingMask = this._cullingMask;
+        let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.Debug));
+        this._camera._cullingMask = mask;
+        this._camera.view._cullingMask = mask;
     },
 
     _updateBackgroundColor () {
