@@ -2934,7 +2934,8 @@ var Node = cc.Class({
             this._worldMatrix = mathPools.mat4.get();
         }
 
-        this._localMatDirty = this._worldMatDirty = true;
+        this._localMatDirty = LocalDirtyFlag.ALL;
+        this._worldMatDirty = true;
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
