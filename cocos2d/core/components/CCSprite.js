@@ -542,15 +542,16 @@ var Sprite = cc.Class({
         if (this._state === State.GRAY) {
             if (!this._graySpriteMaterial) {
                 this._graySpriteMaterial = new GraySpriteMaterial();
+                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
             }
             material = this._graySpriteMaterial;
         }
         else {
             if (!this._spriteMaterial) {
                 this._spriteMaterial = new SpriteMaterial();
+                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
             }
             material = this._spriteMaterial;
-            material.color = this.node.color;
         }
         // TODO: old texture in material have been released by loader
         material.texture = texture;

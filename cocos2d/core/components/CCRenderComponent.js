@@ -107,7 +107,7 @@ let RenderComponent = cc.Class({
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | cc.RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
     },
 
     requestRenderData () {
