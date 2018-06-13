@@ -6,8 +6,8 @@ const LOCAL_TRANSFORM = 1 << 0;
 const WORLD_TRANSFORM = 1 << 1;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
-const COLOR = 1 << 3;
-const OPACITY = 1 << 4;
+const OPACITY = 1 << 3;
+const COLOR = 1 << 4;
 const RENDER = 1 << 5;
 const CUSTOM_IA_RENDER = 1 << 6;
 const CHILDREN = 1 << 7;
@@ -82,13 +82,12 @@ _proto._color = function (node) {
 };
 
 _proto._opacity = function (node) {
-    let opacityLevel = (node._opacity <= 255) ? 1 : 0;
-    _walker.parentOpacityDirty += opacityLevel;
+    _walker.parentOpacityDirty++;
 
     node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
-    _walker.parentOpacityDirty -= opacityLevel;
+    _walker.parentOpacityDirty--;
 };
 
 _proto._updateRenderData = function (node) {
