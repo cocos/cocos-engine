@@ -514,7 +514,7 @@ var Sprite = cc.Class({
             this._renderData.material = material;
         }
         
-        this.setMaterial(material);
+        this._updateMaterial(material);
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);

@@ -629,7 +629,7 @@ let TiledLayer = cc.Class({
             this.disableRender();   
         }
         
-        this.setMaterial(material);
+        this._updateMaterial(material);
     },
 });
 

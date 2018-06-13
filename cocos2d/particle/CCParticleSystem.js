@@ -1140,7 +1140,7 @@ var ParticleSystem = cc.Class({
             this.markForUpdateRenderData(true);
             this.markForCustomIARender(true);
             this._material.texture = this._texture;
-            this.setMaterial(this._material);
+            this._updateMaterial(this._material);
         }
     },
     

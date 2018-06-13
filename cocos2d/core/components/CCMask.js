@@ -305,7 +305,7 @@ let Mask = cc.Class({
         }
         
         if (!this._material) {
-            this.setMaterial(this._frontMaterial);
+            this._updateMaterial(this._frontMaterial);
         }
 
         // Avoid next up mask material to be batch with the exit one

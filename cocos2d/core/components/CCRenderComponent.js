@@ -66,6 +66,7 @@ let RenderComponent = cc.Class({
                 return this._srcBlendFactor;
             },
             set: function(value) {
+                if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
                 this._updateBlendFunc(true);
             },
@@ -87,6 +88,7 @@ let RenderComponent = cc.Class({
                 return this._dstBlendFactor;
             },
             set: function(value) {
+                if (this._dstBlendFactor === value) return;
                 this._dstBlendFactor = value;
                 this._updateBlendFunc(true);
             },
@@ -188,7 +190,7 @@ let RenderComponent = cc.Class({
         return this._material;
     },
 
-    setMaterial (material) {
+    _updateMaterial (material) {
         this._material = material;
 
         this._updateBlendFunc();
@@ -196,10 +198,6 @@ let RenderComponent = cc.Class({
     },
         
     _updateBlendFunc: function (updateHash) {
-        if (this.srcBlendFactor === gfx.BLEND_SRC_ALPHA && this.dstBlendFactor === gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
-            return;
-        }
-
         if (!this._material) {
             return;
         }
