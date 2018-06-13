@@ -60,6 +60,12 @@ const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 
+
+let BuiltinGroupIndex = cc.Enum({
+    DEBUG: 31
+})
+
+
 /**
  * !#en Node's local dirty properties flag
  * !#zh Node 的本地属性 dirty 状态位
@@ -1128,7 +1134,9 @@ var Node = cc.Class({
         // is node but not scene
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
-        }
+        },
+
+        BuiltinGroupIndex
     },
 
     // OVERRIDES

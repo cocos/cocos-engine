@@ -129,8 +129,12 @@ function generateStats () {
 function generateNode () {
     if (_rootNode && _rootNode.isValid) return;
 
+
     _rootNode = new cc.Node('PROFILER-NODE');
     _rootNode.x = _rootNode.y = 10;
+
+    _rootNode.groupIndex = cc.Node.BuiltinGroupIndex.DEBUG;
+    cc.Camera._setupDebugCamera();
 
     _rootNode.zIndex = macro.MAX_ZINDEX;
     cc.game.addPersistRootNode(_rootNode);

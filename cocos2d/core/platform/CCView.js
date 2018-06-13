@@ -25,7 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const eventManager = require('../event-manager');
+const EventTarget = require('../event/event-target');
 const js = require('../platform/js');
 const renderer = require('../renderer');
 require('../platform/CCClass');
@@ -129,6 +129,8 @@ var _scissorRect = null;
  * @class View
  */
 var View = function () {
+    EventTarget.call(this);
+
     var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
     __BrowserGetter.init(this);
@@ -177,8 +179,10 @@ var View = function () {
     _t.enableAntiAlias(true);
 };
 
-View.prototype = {
-    constructor: View,
+cc.js.extend(View, EventTarget);
+
+
+cc.js.mixin(View.prototype, {
     // Resize helper functions
     _resizeEvent: function () {
         var view;
@@ -213,7 +217,7 @@ View.prototype = {
             view.setDesignResolutionSize(width, height, view._resolutionPolicy);
         view._resizing = false;
 
-        eventManager.dispatchCustomEvent('canvas-resize');
+        this.emit('canvas-resize');
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
@@ -771,6 +775,7 @@ View.prototype = {
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
+        this.emit('design-resolution-changed');
     },
 
     /**
@@ -992,7 +997,23 @@ View.prototype = {
             selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
-};
+});
+
+/**
+ * !en
+ * Emit when design resolution changed.
+ * !zh
+ * 当设计分辨率改变时发送。
+ * @event design-resolution-changed
+ */
+ /**
+ * !en
+ * Emit when canvas resize.
+ * !zh
+ * 当画布大小改变时发送。
+ * @event canvas-resize
+ */
+
 
 /**
  * @method _getInstance
