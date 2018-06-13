@@ -298,7 +298,8 @@ var Sprite = cc.Class({
                 return this._fillCenter;
             },
             set: function(value) {
-                this._fillCenter = cc.v2(value);
+                this._fillCenter.x = value.x;
+                this._fillCenter.y = value.y;
                 if (this._type === SpriteType.FILLED && this._renderData) {
                     this.markForUpdateRenderData(true);
                 }
