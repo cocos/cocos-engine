@@ -7,12 +7,13 @@ const WORLD_TRANSFORM = 1 << 1;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << 2;
 const COLOR = 1 << 3;
-const RENDER = 1 << 4;
-const CUSTOM_IA_RENDER = 1 << 5;
-const CHILDREN = 1 << 6;
-const POST_UPDATE_RENDER_DATA = 1 << 7;
-const POST_RENDER = 1 << 8;
-const FINAL = 1 << 9;
+const OPACITY = 1 << 4;
+const RENDER = 1 << 5;
+const CUSTOM_IA_RENDER = 1 << 6;
+const CHILDREN = 1 << 7;
+const POST_UPDATE_RENDER_DATA = 1 << 8;
+const POST_RENDER = 1 << 9;
+const FINAL = 1 << 10;
 
 let _walker = null;
 let _cullingMask = 0;
@@ -70,9 +71,6 @@ _proto._worldTransform = function (node) {
 };
 
 _proto._color = function (node) {
-    let opacityLevel = (node._opacity < 255) ? 1 : 0;
-    _walker.parentOpacityDirty += opacityLevel;
-
     let comp = node._renderComponent;
     if (comp) {
         comp._updateColor();
@@ -80,6 +78,14 @@ _proto._color = function (node) {
     else {
         node._renderFlag &= ~COLOR;
     }
+    this._next._func(node);
+};
+
+_proto._opacity = function (node) {
+    let opacityLevel = (node._opacity <= 255) ? 1 : 0;
+    _walker.parentOpacityDirty += opacityLevel;
+
+    node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
     _walker.parentOpacityDirty -= opacityLevel;
@@ -170,6 +176,9 @@ function createFlow (flag, next) {
         case COLOR:
             flow._func = flow._color;
             break;
+        case OPACITY:
+            flow._func = flow._opacity;
+            break;
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
             break;
@@ -248,6 +257,7 @@ RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;
 RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_COLOR = COLOR;
+RenderFlow.FLAG_OPACITY = OPACITY;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
 RenderFlow.FLAG_CUSTOM_IA_RENDER = CUSTOM_IA_RENDER;
