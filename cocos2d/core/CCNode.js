@@ -62,7 +62,7 @@ const ANCHOR_ON = 1 << 4;
 
 
 let BuiltinGroupIndex = cc.Enum({
-    Debug: 31
+    DEBUG: 31
 })
 
 

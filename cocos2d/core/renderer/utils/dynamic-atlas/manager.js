@@ -159,7 +159,7 @@ let dynamicAtlasManager = {
                 _debugNode._zIndex = cc.macro.MAX_ZINDEX;
                 _debugNode.parent = cc.director.getScene();
 
-                _debugNode.groupIndex = cc.Node.BuiltinGroupIndex.Debug;
+                _debugNode.groupIndex = cc.Node.BuiltinGroupIndex.DEBUG;
                 cc.Camera._setupDebugCamera();
 
                 let scroll = _debugNode.addComponent(cc.ScrollView);

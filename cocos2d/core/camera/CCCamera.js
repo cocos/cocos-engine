@@ -280,7 +280,7 @@ let Camera = cc.Class({
             camera.view = view;
             camera.dirty = true;
 
-            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.Debug;
+            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
             camera.setDepth(cc.macro.MAX_ZINDEX);
             camera.setClearFlags(0);
             camera.setColor(0,0,0,0);
@@ -296,7 +296,7 @@ let Camera = cc.Class({
     },
 
     _updateCameraMask () {
-        let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.Debug));
+        let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
         this._camera._cullingMask = mask;
         this._camera.view._cullingMask = mask;
     },
