@@ -361,7 +361,7 @@ let ArmatureDisplay = cc.Class({
             this.disableRender();
         }
 
-        this.setMaterial(material);
+        this._updateMaterial(material);
     },
 
     _buildArmature () {

@@ -540,7 +540,7 @@ let Label = cc.Class({
             this._texture.url = this.uuid + '_texture';
         }
 
-        this.setMaterial(material);
+        this._updateMaterial(material);
     },
 
     _updateColor () {

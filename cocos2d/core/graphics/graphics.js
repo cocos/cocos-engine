@@ -188,7 +188,7 @@ let Graphics = cc.Class({
         let material = new SpriteMaterial();
         material.useColor = false;
         material.useTexture = false;
-        this.setMaterial(material);
+        this._updateMaterial(material);
     },
 
     /**
