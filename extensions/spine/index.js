@@ -102,7 +102,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     sp.spine = require('./lib/spine');
     require('./skeleton-texture');
     require('./skeleton-data');
-    require('./skeleton');
+    require('./Skeleton');
     require('./spine-assembler');
 }
 else {
