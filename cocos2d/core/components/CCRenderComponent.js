@@ -129,9 +129,13 @@ let RenderComponent = cc.Class({
         this._material = null;
         this._renderData = null;
     },
+    
+    _canRender () {
+        return this._enabled;
+    },
 
     markForUpdateRenderData (enable) {
-        if (enable && this._enabled) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
@@ -140,7 +144,7 @@ let RenderComponent = cc.Class({
     },
 
     markForRender (enable) {
-        if (enable && this._enabled) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
         }
         else if (!enable) {
@@ -149,7 +153,7 @@ let RenderComponent = cc.Class({
     },
 
     markForCustomIARender (enable) {
-        if (enable && this._enabled) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
         }
         else if (!enable) {

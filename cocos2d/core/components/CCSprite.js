@@ -533,8 +533,17 @@ var Sprite = cc.Class({
         }
     },
 
+    _canRender () {
+        if (!this.enabledInHierarchy) return false;
+        let spriteFrame = this._spriteFrame;
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            return false;
+        }
+        return true;
+    },
+
     markForUpdateRenderData (enable) {
-        if (enable && this._material && this.enabledInHierarchy) {
+        if (enable && this._material && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
