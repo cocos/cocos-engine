@@ -42,7 +42,7 @@ require('./jsb_prepare');
 require('./jsb_opengl');
 require('./jsb-adapter');
 require('./jsb_audioengine');
-require('./jsb_editbox');
+require('./jsb_input');
 
 let _oldRequestFrameCallback = null;
 let _requestAnimationFrameID = 0;

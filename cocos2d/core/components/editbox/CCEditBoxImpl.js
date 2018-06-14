@@ -162,9 +162,7 @@ let EditBoxImpl = cc.Class({
         if (this._inputMode === inputMode) return;
 
         this._inputMode = inputMode;
-
-        if (!CC_JSB)
-            this.createInput();
+        this.createInput();
     
         this._updateDomInputType();
         this._updateSize(this._size.width, this._size.height);
@@ -227,8 +225,7 @@ let EditBoxImpl = cc.Class({
     },
 
     _onTouchBegan (touch) {
-        if (CC_JSB)
-            this.createInput();
+        
     },
 
     _onTouchEnded () {
