@@ -203,6 +203,8 @@ function _resetGame (w, h) {
 
         cc._Test.eventManager.dispatchCustomEvent('canvas-resize');
     }
+    // Forbid render in test
+    cc.renderer.render = function () {};
     cc.director.purgeDirector();
     cc.loader.releaseAll();
 
