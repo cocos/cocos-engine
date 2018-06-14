@@ -792,7 +792,7 @@ var game = {
             if (!cc._isContextMenuEnable) return false;
         };
 
-        this.emit(this.EVENT_RENDERER_INITED, true);
+        this.emit(this.EVENT_RENDERER_INITED);
 
         this._rendererInitialized = true;
     },
@@ -819,13 +819,13 @@ var game = {
         function onHidden () {
             if (!hidden) {
                 hidden = true;
-                game.emit(game.EVENT_HIDE, game);
+                game.emit(game.EVENT_HIDE);
             }
         }
         function onShown () {
             if (hidden) {
                 hidden = false;
-                game.emit(game.EVENT_SHOW, game);
+                game.emit(game.EVENT_SHOW);
             }
         }
 

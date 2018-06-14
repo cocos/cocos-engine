@@ -24,9 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var AnimationAnimator = require('../../animation/animation-animator');
-var AnimationClip = require('../../animation/animation-clip');
-var js = require('../platform/js');
+const AnimationAnimator = require('../../animation/animation-animator');
+const AnimationClip = require('../../animation/animation-clip');
+const EventTarget = require('../event/event-target');
+const js = require('../platform/js');
 
 function equalClips (clip1, clip2) {
     if (clip1 === clip2) {
@@ -64,7 +65,7 @@ function equalClips (clip1, clip2) {
 var Animation = cc.Class({
     name: 'cc.Animation',
     extends: require('./CCComponent'),
-    mixins: [cc.EventTarget],
+    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Animation',
@@ -632,5 +633,8 @@ var Animation = cc.Class({
         }
     }
 });
+
+Animation.prototype._EventTargetOn = EventTarget.prototype.on;
+Animation.prototype._EventTargetOff = EventTarget.prototype.off;
 
 cc.Animation = module.exports = Animation;

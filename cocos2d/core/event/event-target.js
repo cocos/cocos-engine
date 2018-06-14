@@ -26,6 +26,7 @@
 
 const js = require('../platform/js');
 const EventListeners = require('./event-listeners');
+const CallbacksInvoker = require('../platform/callbacks-invoker');
 require('./event');
 
 var fastRemove = js.array.fastRemove;
@@ -209,7 +210,7 @@ proto.emit = function (type, detail, target) {
         cc.errorID(6801);
         return;
     }
-    if (this.hasEventListener(type)) {
+    if (detail !== undefined || target) {
         var event = cc.Event.EventCustom.get(type);
         event.detail = detail;
         // Event.AT_TARGET
@@ -220,6 +221,10 @@ proto.emit = function (type, detail, target) {
         
         event.detail = null;
         cc.Event.EventCustom.put(event);
+    }
+    else {
+        // Fast invoke
+        this._invoke(type);
     }
 };
 
@@ -232,16 +237,8 @@ proto.emit = function (type, detail, target) {
  * @method dispatchEvent
  * @param {Event} event
  */
-proto.dispatchEvent = function (event) {
-    if (this.hasEventListener(event.type)) {
-        this.invoke(event);
-    }
-};
+proto.dispatchEvent = proto.invoke;
 
-// Improve performance of function call (avoid using EventTarget.prototype.on.call)
-EventTarget.prototype._EventTargetOn = EventTarget.prototype.on;
-EventTarget.prototype._EventTargetOnce = EventTarget.prototype.once;
-EventTarget.prototype._EventTargetOff = EventTarget.prototype.off;
-EventTarget.prototype._EventTargetTargetOff = EventTarget.prototype.targetOff;
+proto._invoke = CallbacksInvoker.prototype.invoke;
 
 cc.EventTarget = module.exports = EventTarget;

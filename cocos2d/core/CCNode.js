@@ -575,7 +575,7 @@ var Node = cc.Class({
 
             set (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                this.emit(EventType.GROUP_CHANGED);
+                this.emit(EventType.GROUP_CHANGED, null, this);
             }
         },
 
@@ -1660,10 +1660,15 @@ var Node = cc.Class({
      * @method emit
      * @param {String} type - event type
      * @param {*} [detail] - whatever argument the message needs
+     * @param {*} [target] - the target which emit this event
+     * @example
+     * 
+     * node.emit('fire', {data: 'test'});
+     * node.emit('fire', null, node);
      */
-    emit (type, detail) {
+    emit (type, detail, target) {
         if (this._bubblingListeners) {
-            this._bubblingListeners.emit(type, detail, this);
+            this._bubblingListeners.emit(type, detail, target);
         }
     },
 
