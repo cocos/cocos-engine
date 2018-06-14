@@ -24,69 +24,55 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#import <UIKit/UIKit.h>
-#import "cocos2d.h"
-
 #import "AppController.h"
+#import "cocos2d.h"
 #import "AppDelegate.h"
 #import "RootViewController.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
 @implementation AppController
 
+using namespace cocos2d;
+
+Application* app = nullptr;
+@synthesize window;
+
 #pragma mark -
 #pragma mark Application lifecycle
-
-// cocos2d application instance
-static AppDelegate s_sharedApplication;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 
-    cocos2d::Application *app = cocos2d::Application::getInstance();
-    app->initGLContextAttrs();
-    cocos2d::GLViewImpl::convertAttrs();
-
-    // Override point for customization after application launch.
-
     // Add the view controller's view to the window and display.
-    window = [[UIWindow alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
-    CCEAGLView *eaglView = [CCEAGLView viewWithFrame: [window bounds]
-                                     pixelFormat: (NSString*)cocos2d::GLViewImpl::_pixelFormat
-                                     depthFormat: cocos2d::GLViewImpl::_depthFormat
-                              preserveBackbuffer: NO
-                                      sharegroup: nil
-                                   multiSampling: NO
-                                 numberOfSamples: 0 ];
+    float scale = [[UIScreen mainScreen] scale];
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    window = [[UIWindow alloc] initWithFrame: bounds];
 
-    [eaglView setMultipleTouchEnabled:YES];
+    // cocos2d application instance
+    app = new AppDelegate("Cocos Simulator",bounds.size.width * scale, bounds.size.height * scale);
+    app->setMultitouch(true);
     
-    // Use RootViewController manage CCEAGLView
-    viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
-    viewController.wantsFullScreenLayout = YES;
-    viewController.view = eaglView;
+    // Use RootViewController to manage CCEAGLView
+    _viewController = [[RootViewController alloc]init];
+    _viewController.wantsFullScreenLayout = YES;
 
     // Set RootViewController to window
     if ( [[UIDevice currentDevice].systemVersion floatValue] < 6.0)
     {
         // warning: addSubView doesn't work on iOS6
-        [window addSubview: viewController.view];
+        [window addSubview: _viewController.view];
     }
     else
     {
         // use this method on ios6
-        [window setRootViewController:viewController];
+        [window setRootViewController:_viewController];
     }
     
     [window makeKeyAndVisible];
 
     [[UIApplication sharedApplication] setStatusBarHidden: YES];
 
-    // IMPORTANT: Setting the GLView should be done after creating the RootViewController
-    cocos2d::GLView *glview = cocos2d::GLViewImpl::createWithEAGLView(eaglView);
-    cocos2d::Director::getInstance()->setOpenGLView(glview);
-
-    app->run();
+    app->start();
     return YES;
 }
 
@@ -96,14 +82,12 @@ static AppDelegate s_sharedApplication;
      Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
-    cocos2d::Director::getInstance()->pause();
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    cocos2d::Director::getInstance()->resume();
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -136,11 +120,12 @@ static AppDelegate s_sharedApplication;
     /*
      Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
      */
-     cocos2d::Director::getInstance()->purgeCachedData();
 }
 
 
 - (void)dealloc {
+    [window release];
+    [_viewController release];
     [super dealloc];
 }
 

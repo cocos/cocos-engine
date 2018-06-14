@@ -55,7 +55,7 @@ public:
     virtual PlayerFileDialogServiceProtocol *getFileDialogService() = 0; // implemented in platform related source files
     virtual PlayerMessageBoxServiceProtocol *getMessageBoxService() = 0;
     virtual PlayerMenuServiceProtocol *getMenuService() = 0;
-    virtual PlayerEditBoxServiceProtocol *getEditBoxService() = 0;
+//    virtual PlayerEditBoxServiceProtocol *getEditBoxService() = 0;
     virtual PlayerTaskServiceProtocol *getTaskService() = 0;
     
 protected:

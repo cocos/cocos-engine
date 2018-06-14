@@ -119,10 +119,6 @@
 		1A29D79F205666F500168D9A /* jsb_opengl_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D790205666F500168D9A /* jsb_opengl_manual.hpp */; };
 		1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */; };
 		1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */; };
-		1A37E9C5200DD0680078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
-		1A37E9C6200DD0680078AF72 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
-		1A37E9C7200DDFC70078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
-		1A37E9C8200DDFC90078AF72 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		1A52DAF6205BB81400350EE3 /* CCThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DAF4205BB81400350EE3 /* CCThreadPool.h */; };
 		1A52DAF7205BB81400350EE3 /* CCThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DAF4205BB81400350EE3 /* CCThreadPool.h */; };
 		1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DAF5205BB81400350EE3 /* CCThreadPool.cpp */; };
@@ -235,6 +231,14 @@
 		403ACADB20CE4EB000BB433D /* jsb_module_register.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */; };
 		403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */; };
 		403ACADD20CE542900BB433D /* jsb_module_register.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */; };
+		4043D65E20D2132E00C55611 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */; };
+		4043D65F20D2132E00C55611 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4043D65D20D2132E00C55611 /* CCGLView-desktop.h */; };
+		40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */; };
+		40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
+		40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
+		40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
+		40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
+		40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -304,8 +308,6 @@
 		461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
 		461DCA5B20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
 		4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */; };
-		4626B202202D9BE700BE30B9 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */; };
-		4626B203202D9BE700BE30B9 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */; };
 		4648882520AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
 		4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
 		4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
@@ -1129,6 +1131,10 @@
 		4008729320CE20C2002EB77B /* jsb_cocos2dx_network_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_network_manual.h; sourceTree = "<group>"; };
 		403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_module_register.hpp; sourceTree = "<group>"; };
+		4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CCGLView-desktop.cpp"; sourceTree = "<group>"; };
+		4043D65D20D2132E00C55611 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCGLView-desktop.h"; sourceTree = "<group>"; };
+		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
+		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		4617860220522468008256E1 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		4617860420522469008256E1 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -1165,8 +1171,6 @@
 		461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
-		4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CCGLView-desktop.h"; path = "../desktop/CCGLView-desktop.h"; sourceTree = "<group>"; };
-		4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "CCGLView-desktop.cpp"; path = "../desktop/CCGLView-desktop.cpp"; sourceTree = "<group>"; };
 		4648882320AC2BC800CD1E4A /* CCRenderTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRenderTexture.h; sourceTree = "<group>"; };
 		4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRenderTexture.cpp; sourceTree = "<group>"; };
 		469301CD203FC695004A3D6C /* CCConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCConfiguration.h; sourceTree = "<group>"; };
@@ -1553,6 +1557,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */,
 				A679D0DA1C71D93200620A6C /* libcrypto.a in Frameworks */,
 				A679D0D91C71D90A00620A6C /* libssl.a in Frameworks */,
 				A6A554211C2A7C1300FDD954 /* libcurl.a in Frameworks */,
@@ -1626,6 +1631,7 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */,
 				1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */,
 				1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */,
 				1ACF6A3B1E4AFDC80033C137 /* libssl.a */,
@@ -1876,6 +1882,15 @@
 			path = include;
 			sourceTree = "<group>";
 		};
+		4043D65B20D2132E00C55611 /* desktop */ = {
+			isa = PBXGroup;
+			children = (
+				4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */,
+				4043D65D20D2132E00C55611 /* CCGLView-desktop.h */,
+			);
+			path = desktop;
+			sourceTree = "<group>";
+		};
 		461785FD20522468008256E1 /* network */ = {
 			isa = PBXGroup;
 			children = (
@@ -2044,6 +2059,7 @@
 		469302F82046AE05004A3D6C /* event */ = {
 			isa = PBXGroup;
 			children = (
+				40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */,
 				469302F92046AE05004A3D6C /* EventDispatcher.cpp */,
 				469302FA2046AE05004A3D6C /* EventDispatcher.h */,
 			);
@@ -2450,6 +2466,7 @@
 		50ABBEDB1926664700A911A9 /* platform */ = {
 			isa = PBXGroup;
 			children = (
+				4043D65B20D2132E00C55611 /* desktop */,
 				50ABBF1A1926664700A911A9 /* apple */,
 				503DD8CD1926736A00CD74DD /* ios */,
 				50ABBF4E1926664700A911A9 /* mac */,
@@ -2490,8 +2507,6 @@
 				4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */,
 				50ABBF521926664700A911A9 /* CCDevice-mac.mm */,
 				50ABBF531926664700A911A9 /* CCGL-mac.h */,
-				4626B201202D9BE700BE30B9 /* CCGLView-desktop.cpp */,
-				4626B200202D9BE700BE30B9 /* CCGLView-desktop.h */,
 				50ABBF541926664700A911A9 /* CCPlatformDefine-mac.h */,
 			);
 			path = mac;
@@ -2673,6 +2688,7 @@
 				46FDDA9B202ACC6A00931238 /* Effect.h in Headers */,
 				50ABBD3E1925AB0000A911A9 /* CCGeometry.h in Headers */,
 				46FDDAD9202ACC6A00931238 /* Program.h in Headers */,
+				40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */,
 				ED30579B1BEC77B70083C3ED /* ConvertUTF.h in Headers */,
 				46FDDA75202ACC6A00931238 /* Config.h in Headers */,
 				469303822046AE05004A3D6C /* Value.hpp in Headers */,
@@ -2777,11 +2793,11 @@
 				46AE3FF32092F3A600F3A228 /* node.h in Headers */,
 				1A52DB68205BCDC700350EE3 /* Base.h in Headers */,
 				BA68D79A1D62F4B700B7A3F9 /* clipper.hpp in Headers */,
-				4626B202202D9BE700BE30B9 /* CCGLView-desktop.h in Headers */,
 				50ABBD521925AB0000A911A9 /* Quaternion.h in Headers */,
 				1A52DB2D205BCD9200350EE3 /* ObjectWrap.h in Headers */,
 				BA68D7931D62F4A500B7A3F9 /* sweep_context.h in Headers */,
 				1A52DB6A205BCDC700350EE3 /* HelperMacros.h in Headers */,
+				40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */,
 				4DED482A1DFFA4AF0070C5C4 /* b2TimeStep.h in Headers */,
 				1A52DB23205BCD9200350EE3 /* Class.hpp in Headers */,
 				1A28FF9B1F20AFAB007A1D9D /* SRWebSocket.h in Headers */,
@@ -2864,7 +2880,6 @@
 				46178670205262BC008256E1 /* jsb_conversions.hpp in Headers */,
 				469303A82046AE05004A3D6C /* SeApi.h in Headers */,
 				50ABBD5A1925AB0000A911A9 /* Vec2.h in Headers */,
-				1A37E9C7200DDFC70078AF72 /* CCReachability.h in Headers */,
 				46FDDB81202ADDCE00931238 /* ccTypes.h in Headers */,
 				469304302046AE06004A3D6C /* jsb_classtype.hpp in Headers */,
 				46FDDADD202ACC6A00931238 /* VertexBuffer.h in Headers */,
@@ -2873,6 +2888,7 @@
 				4DED48521DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.h in Headers */,
 				4DED48861DFFA4AF0070C5C4 /* b2WheelJoint.h in Headers */,
 				469304202046AE06004A3D6C /* jsb_gfx_manual.hpp in Headers */,
+				4043D65F20D2132E00C55611 /* CCGLView-desktop.h in Headers */,
 				4DED485A1DFFA4AF0070C5C4 /* b2DistanceJoint.h in Headers */,
 				403ACADB20CE4EB000BB433D /* jsb_module_register.hpp in Headers */,
 				46FDDACD202ACC6A00931238 /* GraphicsHandle.h in Headers */,
@@ -3009,11 +3025,11 @@
 				469303EF2046AE05004A3D6C /* jsb_renderer_auto.hpp in Headers */,
 				1A28FF521F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				1A28FF981F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
+				40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */,
 				1A52DB76205BCDD000350EE3 /* Class.hpp in Headers */,
 				50643BDC19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				469303AF2046AE05004A3D6C /* Base.h in Headers */,
 				46930467204FE20F004A3D6C /* CCLog.h in Headers */,
-				1A37E9C5200DD0680078AF72 /* CCReachability.h in Headers */,
 				1A28FF761F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
 				46FDDBBC202ADDCE00931238 /* CCRefPtr.h in Headers */,
 				46AE3FEC2092F3A600F3A228 /* node_mutex.h in Headers */,
@@ -3293,6 +3309,7 @@
 				4DED48681DFFA4AF0070C5C4 /* b2MotorJoint.cpp in Sources */,
 				4617866B2052609B008256E1 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				461DCA3E20BBFCFE00B22827 /* EditBox-mac.cpp in Sources */,
+				40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
 				1A52DB62205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,
 				BA68D7911D62F4A500B7A3F9 /* sweep_context.cc in Sources */,
@@ -3401,8 +3418,8 @@
 				4DED48501DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.cpp in Sources */,
 				4617864920522469008256E1 /* CCDownloader.cpp in Sources */,
 				1A9F0F971F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */,
-				1A37E9C8200DDFC90078AF72 /* CCReachability.cpp in Sources */,
 				4693039E2046AE05004A3D6C /* Object.mm in Sources */,
+				4043D65E20D2132E00C55611 /* CCGLView-desktop.cpp in Sources */,
 				46AE3FE12092F3A600F3A228 /* node.cc in Sources */,
 				46FDDA8B202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				50ABBD481925AB0000A911A9 /* Mat4.cpp in Sources */,
@@ -3447,7 +3464,6 @@
 				4DED47E21DFFA4AF0070C5C4 /* b2Distance.cpp in Sources */,
 				46AE400B2092F3A600F3A228 /* env.cc in Sources */,
 				46FDDAD3202ACC6A00931238 /* Texture2D.cpp in Sources */,
-				4626B203202D9BE700BE30B9 /* CCGLView-desktop.cpp in Sources */,
 				46FDDB6F202ADDCE00931238 /* ZipUtils.cpp in Sources */,
 				1A28FF871F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				50ABBD601925AB0000A911A9 /* Vec4.cpp in Sources */,
@@ -3532,7 +3548,6 @@
 				403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */,
 				46FDDA9A202ACC6A00931238 /* Model.cpp in Sources */,
 				4693038F2046AE05004A3D6C /* Value.cpp in Sources */,
-				1A37E9C6200DD0680078AF72 /* CCReachability.cpp in Sources */,
 				BA68D7991D62F4B600B7A3F9 /* clipper.cpp in Sources */,
 				469303A12046AE05004A3D6C /* ScriptEngine.mm in Sources */,
 				46FDDB8C202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */,
@@ -3588,6 +3603,7 @@
 				469303A72046AE05004A3D6C /* PlatformUtils.mm in Sources */,
 				46FDDAD4202ACC6A00931238 /* Texture2D.cpp in Sources */,
 				4DED48751DFFA4AF0070C5C4 /* b2PulleyJoint.cpp in Sources */,
+				40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				ED30579D1BEC77B90083C3ED /* ConvertUTF.c in Sources */,
 				4DED483D1DFFA4AF0070C5C4 /* b2CircleContact.cpp in Sources */,

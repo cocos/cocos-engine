@@ -242,24 +242,11 @@ gulp.task('update-simulator-dll', function(cb) {
 
 gulp.task('update-simulator-script', function(cb) {
     var simulatorPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
-    var destPath = simulatorPath + '/script';
-    var updateScript = function(callback) {
-        fs.copy('./cocos/scripting/js-bindings/script', destPath, {
-            clobber: true,
-            filter: function(name) {
-                if (name.startsWith('.DS_Store')) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }, callback);
-    };
-
     if (!fs.existsSync(simulatorPath)) {
         console.error(`Cant\'t find simulator dir [${simulatorPath}]`);
     } else {
-        updateScript(cb);
+        var destPath = simulatorPath + '/src/jsb.js';
+        fs.copy('./../engine/jsb/builtin/dist/jsb.js', destPath, cb);
     }
 });
 

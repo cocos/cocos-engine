@@ -29,7 +29,7 @@
 
 #include "PlayerProtocol.h"
 
-#include "PlayerEditBoxServiceMac.h"
+//#include "PlayerEditBoxServiceMac.h"
 #include "PlayerFileDialogServiceMac.h"
 #include "PlayerMenuServiceMac.h"
 #include "PlayerMessageBoxServiceMac.h"
@@ -49,7 +49,7 @@ public:
     virtual PlayerFileDialogServiceProtocol *getFileDialogService();
     virtual PlayerMessageBoxServiceProtocol *getMessageBoxService();
     virtual PlayerMenuServiceProtocol *getMenuService();
-    virtual PlayerEditBoxServiceProtocol *getEditBoxService();
+//    virtual PlayerEditBoxServiceProtocol *getEditBoxService();
     virtual PlayerTaskServiceProtocol *getTaskService();
 
 protected:
@@ -58,7 +58,7 @@ protected:
     PlayerMenuServiceMac       *_menuService;
     PlayerMessageBoxServiceMac *_messageBoxService;
     PlayerFileDialogServiceMac *_fileDialogService;
-    PlayerEditBoxServiceMac    *_editBoxService;
+//    PlayerEditBoxServiceMac    *_editBoxService;
     PlayerTaskServiceMac       *_taskService;
     id _appController;
 };

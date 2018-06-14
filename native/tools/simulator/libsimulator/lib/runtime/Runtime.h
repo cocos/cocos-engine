@@ -53,7 +53,6 @@ const char* getRuntimeVersion();
 //
 #include "ProjectConfig/ProjectConfig.h"
 
-#define kRuntimeEngineLua 1
 #define kRuntimeEngineJs  2
 
 class RuntimeProtocol;

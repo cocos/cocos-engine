@@ -41,6 +41,9 @@
 #include "json/writer.h"
 #include "SimulatorExport.h"
 
+#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
+
 enum
 {
     APP_EVENT_MENU = 1,
@@ -50,7 +53,7 @@ enum
 #define kAppEventDropName "APP.EVENT.DROP"
 #define kAppEventName     "APP.EVENT"
 
-class CC_LIBSIM_DLL AppEvent : public cocos2d::EventCustom
+class CC_LIBSIM_DLL AppEvent : public cocos2d::CustomEvent
 {
 public:
     /** Constructor */

@@ -78,17 +78,18 @@ void FileServer::readResFileFinfo()
     }
     
     //save file info to disk every five second
-    cocos2d::Director::getInstance()->getScheduler()->schedule([&](float){
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
-        _filecfgjson.Accept(writer);
-        const char* str = buffer.GetString();
-        std::string filecfg = _writePath + "/fileinfo_debug.json";
-        FILE * pFile = fopen(filecfg.c_str(), "w");
-        if (!pFile) return ;
-        fwrite(str, sizeof(char), strlen(str), pFile);
-        fclose(pFile);
-    },this, 5.0f, false, "fileinfo");
+    CCLOG("FileServer::readResFileFinfo()");
+//    cocos2d::Director::getInstance()->getScheduler()->schedule([&](float){
+//        rapidjson::StringBuffer buffer;
+//        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
+//        _filecfgjson.Accept(writer);
+//        const char* str = buffer.GetString();
+//        std::string filecfg = _writePath + "/fileinfo_debug.json";
+//        FILE * pFile = fopen(filecfg.c_str(), "w");
+//        if (!pFile) return ;
+//        fwrite(str, sizeof(char), strlen(str), pFile);
+//        fclose(pFile);
+//    },this, 5.0f, false, "fileinfo");
 }
 
 void FileServer::addResFileInfo(const char* filename, uint64_t u64)

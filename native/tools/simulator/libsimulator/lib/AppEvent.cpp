@@ -32,9 +32,10 @@
 #include "AppEvent.h"
 
 AppEvent::AppEvent(const std::string& eventName, int type)
-: EventCustom(eventName)
+: CustomEvent()
 , _eventName(eventName)
 {
+    name = eventName;
     setEventType(type);
 }
 

@@ -160,7 +160,7 @@ bool PlayerTaskMac::run()
                   withArguments:[NSMutableArray arrayWithArray:[commandLine componentsSeparatedByString:@" "]]];
     _state = STATE_RUNNING;
     
-    cocos2d::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
+//    cocos2d::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     return true;
 }
 
@@ -187,7 +187,7 @@ void PlayerTaskMac::update(float dt)
         return ;
     }
     
-    cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+//    cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
     cleanup();
 }
 
@@ -211,7 +211,7 @@ void PlayerTaskMac::cleanup()
     _taskPrivate = nil;
     CCLOG("\nCMD: (exit code: %d) %s", _resultCode, _output.c_str());
     
-    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
+//    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
 }
 
 std::u16string PlayerTaskMac::makeCommandLine() const

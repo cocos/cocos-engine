@@ -38,7 +38,9 @@
 #include "runtime/ConfigParser.h"
 
 #include "cocos2d.h"
+#include "base/CCConfiguration.h"
 #include "ide-support/CodeIDESupport.h"
+#include "platform/desktop/CCGLView-desktop.h"
 
 #include "platform/mac/PlayerMac.h"
 #include "AppEvent.h"
@@ -81,13 +83,14 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     std::string firstFile(files[0]);
     forwardEvent.setDataString(firstFile);
 
-    Director::getInstance()->getEventDispatcher()->dispatchEvent(&forwardEvent);
+    EventDispatcher::dispatchCustomEvent(&forwardEvent);
 }
 #endif
 
 -(void) dealloc
 {
-    Director::getInstance()->end();
+    delete _app;
+    _app = nullptr;
     player::PlayerProtocol::getInstance()->purgeInstance();
     [super dealloc];
 }
@@ -338,15 +341,11 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
 - (void) createWindowAndGLView
 {
-    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
-    GLView::setGLContextAttrs(glContextAttrs);
-
     // create console window **MUST** before create opengl view
 #if (CC_CODE_IDE_DEBUG_SUPPORT == 1)
     if (_project.isShowConsole())
     {
         [self openConsoleWindow];
-        CCLOG("%s\n",Configuration::getInstance()->getInfo().c_str());
     }
 #endif
     float frameScale = _project.getFrameScale();
@@ -381,27 +380,28 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     if (pos.x < 0) pos.x = 0;
     if (pos.y < 0) pos.y = 0;
 
-    // create opengl view
-    const cocos2d::Rect frameRect = cocos2d::Rect(0, 0, frameSize.width, frameSize.height);
+    // get app name
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
-    GLViewImpl *eglView = GLViewImpl::createWithRect(title.str(), frameRect, frameScale, true);
 
-    auto director = Director::getInstance();
-    director->setOpenGLView(eglView);
+    // create opengl view, and init app
+    _app = new AppDelegate(title.str(), _project.getFrameScale() * frameSize.width, _project.getFrameScale() * frameSize.height);
 
-    _window = eglView->getCocoaWindow();
-    [[NSApplication sharedApplication] setDelegate: self];
+    // this **MUST** be called after create opengl view, or crash will occur at 'gatherGPUInfo'
+    CCLOG("%s\n",Configuration::getInstance()->getInfo().c_str());
+
+    auto glfwWindow = ((GLView*)_app->getView())->getGLFWWindow();
+    _window = glfwGetCocoaWindow((GLFWwindow*)glfwWindow);
     [_window center];
 
-    [self setZoom:_project.getFrameScale()];
+    // [self setZoom:_project.getFrameScale()];
     if (pos.x != 0 && pos.y != 0)
     {
         [_window setFrameOrigin:NSMakePoint(pos.x, pos.y)];
     }
 
 #if (PLAYER_SUPPORT_DROP > 0)
-    glfwSetDropCallback(eglView->getWindow(), glfwDropFunc);
+    glfwSetDropCallback((GLFWwindow*)glfwWindow, glfwDropFunc);
 #endif
 }
 
@@ -446,19 +446,18 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     FileUtils::getInstance()->addSearchPath(resourcePath.UTF8String);
 
-    // app
-    _app = new AppDelegate();
-
-    [self setupUI];
-    [self adjustEditMenuIndex];
+    // not show the custom menu items
+    // [self setupUI];
+    // [self adjustEditMenuIndex];
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
-    Application::getInstance()->run();
+    _app->start();
     CC_SAFE_DELETE(_app);
     // After run, application needs to be terminated immediately.
     [NSApp terminate: self];
 }
 
+/*
 - (void) setupUI
 {
     auto menuBar = player::PlayerProtocol::getInstance()->getMenuService();
@@ -540,6 +539,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     menuBar->addItem("REFRESH_MENU", tr("Refresh"), "VIEW_MENU")->setShortcut("super+r");
 
     ProjectConfig &project = _project;
+
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     auto window = _window;
     dispatcher->addEventListenerWithFixedPriority(EventListenerCustom::create(kAppEventName, [&project, scaleMenuVector, window](EventCustom* event){
@@ -565,7 +565,8 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
                         string data = dArgParse["data"].GetString();
                         if ((data == "CLOSE_MENU") || (data == "EXIT_MENU"))
                         {
-                            Director::getInstance()->end();
+                            delete _app;
+                            _app = nullptr
                         }
                         else if (data == "REFRESH_MENU")
                         {
@@ -612,7 +613,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
                             auto director = cocos2d::Director::getInstance();
                             director->setDisplayStats(director->isDisplayStats() == false);
                             menuItem->setTitle(director->isDisplayStats() ? tr("Hide FPS") : tr("Show FPS"));
-//                            [SIMULATOR relaunch];
+                            [SIMULATOR relaunch];
                         }
                     }
                 }
@@ -648,6 +649,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     });
     dispatcher->addEventListenerWithFixedPriority(listener, 1);
 }
+*/
 
 - (void) openConsoleWindow
 {
@@ -704,6 +706,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     }
 }
 
+/*
 - (void) setZoom:(float)scale
 {
     Director::getInstance()->getOpenGLView()->setFrameZoomFactor(scale);
@@ -712,6 +715,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     title << "Cocos " << tr("Simulator") << " (" << _project.getFrameScale() * 100 << "%)";
     [_window setTitle:[NSString stringWithUTF8String:title.str().c_str()]];
 }
+*/
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag
 {

@@ -47,6 +47,8 @@ public:
     void swapBuffers();
     float getScale() const;
     GLint getMainFBO() const;
+
+    inline void* getGLFWWindow() const {return _mainWindow;};
     
 private:  
     bool initGlew();
