@@ -64,7 +64,6 @@
 		C03780EB18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
 		C03780EC18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
 		C03C8B4B18A770DD00723415 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C03C8B4818A770DD00723415 /* main.mm */; };
-		C05D1C171923467600B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C161923467600B808A4 /* config.json */; };
 		C05D1C181923467600B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C161923467600B808A4 /* config.json */; };
 		C0799CB918BAE62000E9C828 /* res in Resources */ = {isa = PBXBuildFile; fileRef = C0799CB518BAE62000E9C828 /* res */; };
 		C0799CBA18BAE62000E9C828 /* res in Resources */ = {isa = PBXBuildFile; fileRef = C0799CB518BAE62000E9C828 /* res */; };
@@ -441,7 +440,6 @@
 				1AFFCD921F7A5E7500628F2C /* LaunchScreenBackground.png in Resources */,
 				1AD7E0A818C9DB93004817A6 /* main.js in Resources */,
 				1AFFCD901F7A5E7500628F2C /* Images.xcassets in Resources */,
-				C05D1C171923467600B808A4 /* config.json in Resources */,
 				C03780EB18BEE0E400FE4F13 /* src in Resources */,
 				C0799CB918BAE62000E9C828 /* res in Resources */,
 				9BC548CABC4F606F82D43E76 /* script in Resources */,

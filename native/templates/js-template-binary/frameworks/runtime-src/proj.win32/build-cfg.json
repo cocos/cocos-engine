@@ -15,10 +15,6 @@
         {
             "from": "../../../project.json",
             "to": ""
-        },
-        {
-            "from": "../../../config.json",
-            "to": ""
         }
     ],
     "must_copy_resources": [
