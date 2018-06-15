@@ -32,4 +32,5 @@ require('../index');
 require('./jsb-node');
 require('./jsb-audio');
 require('./jsb-loader');
-require('./jsb_reflection');
+require('./jsb-reflection');
+require('./jsb-editbox');
