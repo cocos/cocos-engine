@@ -106,7 +106,7 @@ Audio.State = {
     // };
 
     proto._onLoaded = function () {
-        var elem = this._src._nativeAsset;
+        let elem = this._src._nativeAsset;
         if (elem instanceof HTMLElement) {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
