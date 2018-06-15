@@ -148,7 +148,7 @@ var AssetLibrary = {
     _getAssetInfoInRuntime: function (uuid, result) {
         result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
-        if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
+        if (info && !js.isChildClassOf(info.type, cc.Asset)) {
             // backward compatibility since 1.10
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
