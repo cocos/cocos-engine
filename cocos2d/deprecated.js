@@ -339,6 +339,13 @@ if (CC_DEV) {
         'isRunning',
     ]);
 
+    provideClearError(cc.Sprite.prototype, {
+        setInsetLeft: 'cc.SpriteFrame insetLeft',
+        setInsetRight: 'cc.SpriteFrame insetRight',
+        setInsetTop: 'cc.SpriteFrame insetTop',
+        setInsetBottom: 'cc.SpriteFrame insetBottom',
+    });
+
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
         getNodeToCameraTransform: 'getWorldToCameraMatrix'

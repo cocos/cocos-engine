@@ -911,7 +911,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
-                    this._renderFlag |= RenderFlow.FLAG_COLOR;
+                    this._renderFlag |= RenderFlow.FLAG_OPACITY | RenderFlow.FLAG_COLOR;
                 }
             },
             range: [0, 255]
@@ -2942,7 +2942,8 @@ var Node = cc.Class({
             this._worldMatrix = mathPools.mat4.get();
         }
 
-        this._localMatDirty = this._worldMatDirty = true;
+        this._localMatDirty = LocalDirtyFlag.ALL;
+        this._worldMatDirty = true;
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {

@@ -127,13 +127,7 @@ asyncTest('Load with dependencies', function () {
         depsProgression.expect(depsCount, 'should call progress callback for all ' + depsCount + ' dependencies');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
         var count = loader.getResCount();
-        if (isPhantomJS) {
-            // Test environment doesn't load audio
-            strictEqual(count, total-1, 'getResCount should return correct count of loaded resources');
-        }
-        else {
-            strictEqual(count, total, 'getResCount should return correct count of loaded resources');
-        }
+        strictEqual(count, total, 'getResCount should return correct count of loaded resources');
         loader.releaseAll();
         
         start();

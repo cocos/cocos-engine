@@ -4,13 +4,13 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node:8.9.4
     steps:
       - checkout
       - run: sudo npm install -g gulp
       - run: npm install gulp-qunit
       - run: npm install
-      - run: npm test  
+      - run: npm test
 
 workflows:
   version: 2

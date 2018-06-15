@@ -24,7 +24,6 @@
  ****************************************************************************/
 const EventTarget = require('./jsb-adapter/EventTarget');
 const Event = require('./jsb-adapter/Event');
-let KeyboardReturnType = cc.EditBox.KeyboardReturnType;
 
 var eventTarget = new EventTarget();
 
@@ -77,87 +76,6 @@ var recordCallback = function(name, cb) {
 	callbacks[name].push(cb);
 }
 
-function getInputType(type) {
-    switch (type) {
-        case InputMode.EMAIL_ADDR:
-            return 'email';
-        case InputMode.NUMERIC:
-        case InputMode.DECIMAL:
-            return 'number';
-        case InputMode.PHONE_NUMBER:
-            return 'phone';
-        case InputMode.URL:
-            return 'url';
-        case InputMode.SINGLE_LINE:
-        case InputMode.ANY:
-        default:
-            return 'text';
-    }
-}
-
-
-function getKeyboardReturnType (type) {
-    switch (type) {
-        case KeyboardReturnType.DEFAULT:
-        case KeyboardReturnType.DONE:
-            return 'done';
-        case KeyboardReturnType.SEND:
-            return 'send';
-        case KeyboardReturnType.SEARCH:
-            return 'search';
-        case KeyboardReturnType.GO:
-            return 'go';
-        case KeyboardReturnType.NEXT:
-            return 'next';
-    }
-    return 'done';
-}
-
-cc.EditBox._EditBoxImpl.prototype.createInput = function() {
-	let editBoxImpl = this;
-
-	let multiline = this._inputMode === cc.EditBox.InputMode.ANY;
-	let inputTypeString = getInputType(editBoxImpl._inputMode);
-	if (editBoxImpl._inputFlag === InputFlag.PASSWORD)
-		inputTypeString = 'password';
-	
-	jsb.inputBox.show({
-		defaultValue: editBoxImpl._text,
-		maxLength: editBoxImpl._maxLength,
-		multiple: multiline,
-		confirmHold: false,
-		confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-		inputType: inputTypeString
-	});
-	editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
-
-	function onConfirm(res) {
-		editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
-	}
-	jsb.inputBox.onConfirm(onConfirm);
-
-	function onInput(res) {
-		if (res.value.length > editBoxImpl._maxLength) {
-			res.value = res.value.slice(0, editBoxImpl._maxLength);
-		}
-		if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged) {
-			if (editBoxImpl._text !== res.value) {
-				editBoxImpl._text = res.value;
-				editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-			}
-		}
-	}
-	jsb.inputBox.onInput(onInput);
-
-	function onComplete(res) {
-		editBoxImpl._endEditing();
-		jsb.inputBox.offConfirm(onConfirm);
-		jsb.inputBox.offInput(onInput);
-		jsb.inputBox.offComplete(onComplete);
-	}
-	jsb.inputBox.onComplete(onComplete);
-};
-
 jsb.inputBox = {
 	onConfirm: function(cb) {
 		var newCb = callbackWrapper(cb);
@@ -209,4 +127,4 @@ jsb.onTextInput = function(eventName, text) {
 	var event = new Event(eventName);
 	event.text = text;
 	eventTarget.dispatchEvent(event);
-}
+};

@@ -172,7 +172,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         if (filename !== undefined) {
-            this.initWithTexture(filename, rect, rotated, offset, originalSize);
+            this.setTexture(filename, rect, rotated, offset, originalSize);
         } else {
             //todo log Error
         }

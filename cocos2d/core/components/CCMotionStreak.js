@@ -240,7 +240,7 @@ var MotionStreak = cc.Class({
         }
         
         material.texture = this._texture;
-        this.setMaterial(material);
+        this._updateMaterial(material);
     },
 
     onFocusInEditor: CC_EDITOR && function () {
