@@ -14262,6 +14262,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
     copy.texture = this.texture;
+    copy.color = this.color;
     copy.updateHash();
     return copy;
   };
@@ -14515,14 +14516,7 @@ var Device$4 = gfx.Device;
 var Model$2 = renderer.Model;
 var InputAssembler$2 = renderer.InputAssembler;
 
-// Add stage to renderer
-if (renderer.config) {
-  // JSB adaptation
-  renderer.config.addStage('transparent');
-}
-else {
-  renderer.addStage('transparent');
-}
+renderer.addStage('transparent');
 
 var renderEngine = {
   // core classes

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-//TODO: replace CC_NATIVERENDERER with CC_COCOSNATIVE
-if (CC_NATIVERENDERER) {
-    require('./gfx');
-    require('./renderer');
-}
 require('../index');
 require('./jsb-node');
 require('./jsb-audio');
