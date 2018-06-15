@@ -95,6 +95,7 @@ scripting/js-bindings/manual/jsb_socketio.cpp \
 scripting/js-bindings/manual/jsb_websocket.cpp \
 scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
 scripting/js-bindings/manual/jsb_platform_android.cpp \
+scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
 scripting/js-bindings/jswrapper/config.cpp \
 scripting/js-bindings/jswrapper/HandleObject.cpp \
 scripting/js-bindings/jswrapper/MappingUtils.cpp \
