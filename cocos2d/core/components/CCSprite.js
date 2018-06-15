@@ -534,7 +534,7 @@ var Sprite = cc.Class({
     },
 
     _canRender () {
-        if (!this.enabledInHierarchy) return false;
+        if (!this._enabled) return false;
         let spriteFrame = this._spriteFrame;
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
             return false;
