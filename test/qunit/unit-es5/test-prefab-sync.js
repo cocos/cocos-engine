@@ -38,19 +38,20 @@
 
         // CREATE PREFAB ASSET
 
-        _Scene.PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
+        var PrefabUtils = Editor.require('scene://utils/prefab');
+        PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
         //var asset = new cc.Prefab();
         //asset.data = parent;
         nodeToCreatePrefab._prefab.asset._uuid = UUID;
-        //_Scene.PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
-        _Scene.PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
+        //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
+        PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
 
         otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
         otherSyncedNode.x = 1234;
         otherSyncedNode.name = 'otherSyncedNode';
 
         // apply sync property
-        prefabAsset = _Scene.PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
+        prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
 
         // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
         prefabJson = Editor.serialize(prefabAsset, { stringify: false });

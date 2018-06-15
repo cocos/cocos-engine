@@ -231,6 +231,4 @@ class SpineMeta extends CustomAssetMeta {
     }
 }
 
-SpineMeta.prototype.export = null;
-
 module.exports = SpineMeta;

@@ -146,6 +146,4 @@ class TiledMapMeta extends CustomAssetMeta {
   }
 }
 
-TiledMapMeta.prototype.export = null;
-
 module.exports = TiledMapMeta;

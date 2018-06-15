@@ -42,6 +42,9 @@ cc = _global.cc || {};
 // For internal usage
 _cc = _global._cc || {};
 
+// For internal usage
+_cc = {};
+
 require('./predefine');
 require('./CCDebugger');
 

@@ -144,6 +144,13 @@ cc.engine = new (cc.Class({
         checkConflict_Layout: beFalse,
         checkConflict_Widget: beFalse,
     };
+
+    // 引擎内使用了 Editor.require 所以需要在测试内模拟
+    if (!TestEditorExtends) {
+        Editor.require = function () {
+            return null;
+        };
+    }
 })();
 
 Editor.log = cc.log;

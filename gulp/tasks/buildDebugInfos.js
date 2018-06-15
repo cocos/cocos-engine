@@ -15,6 +15,7 @@ module.exports =  function buildDebugInfos () {
         let errInfo = readContent.slice(errInfoHead, errInfoTail);
         errInfo = errInfo.replace(/```/g, ' ');
         errInfo = errInfo.trim();
+        errInfo = errInfo.replace(/\r\n/g, '\n');
 
         if (!errInfo.includes('<!-- DEPRECATED -->')) {
             debugInfos[`${errCode}`] = errInfo;

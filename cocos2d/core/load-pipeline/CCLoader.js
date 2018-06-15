@@ -61,7 +61,7 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._getAssetUrl(id);
+    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._uuidInSettings(id);
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {
@@ -217,6 +217,10 @@ proto.addLoadHandlers = function (extMap) {
  * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
  */
 proto.load = function(resources, progressCallback, completeCallback) {
+    if (CC_DEV && !resources) {
+        return cc.error("[cc.loader.load] resources must be non-nil.");
+    }
+
     if (completeCallback === undefined) {
         completeCallback = progressCallback;
         progressCallback = this.onProgress || null;
