@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const js = require('../../cocos2d/core/platform/js');
-const Skeleton = require('./skeleton');
+const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');

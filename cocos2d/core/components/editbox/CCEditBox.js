@@ -332,6 +332,7 @@ let EditBox = cc.Class({
 
         let impl = this._impl = new EditBoxImpl();
 
+        impl.setDelegate(this);
         impl.setNode(this.node);
         impl.setInputMode(this.inputMode);
         impl.setMaxLength(this.maxLength);
@@ -341,8 +342,6 @@ let EditBox = cc.Class({
         impl.setFontColor(this.fontColor);
         impl.setFontSize(this.fontSize);
         impl.setPlaceholderText(this.placeholder);
-
-        impl.setDelegate(this);
 
         this._updateStayOnTop();
         this._updateString(this.string);

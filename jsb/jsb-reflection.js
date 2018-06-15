@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
@@ -23,14 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-//TODO: replace CC_NATIVERENDERER with CC_COCOSNATIVE
-if (CC_NATIVERENDERER) {
-    require('./gfx');
-    require('./renderer');
+// JS to Native bridges
+if(window.JavascriptJavaBridge && cc.sys.os == cc.sys.OS_ANDROID){
+    jsb.reflection = new JavascriptJavaBridge();
+    cc.sys.capabilities["keyboard"] = true;
 }
-require('../index');
-require('./jsb-node');
-require('./jsb-audio');
-require('./jsb-loader');
-require('./jsb-reflection');
-require('./jsb-editbox');
+else if(window.JavaScriptObjCBridge && (cc.sys.os == cc.sys.OS_IOS || cc.sys.os == cc.sys.OS_OSX)){
+    jsb.reflection = new JavaScriptObjCBridge();
+}

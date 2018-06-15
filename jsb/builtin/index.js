@@ -42,7 +42,7 @@ require('./jsb_prepare');
 require('./jsb_opengl');
 require('./jsb-adapter');
 require('./jsb_audioengine');
-require('./jsb_editbox');
+require('./jsb_input');
 
 let _oldRequestFrameCallback = null;
 let _requestAnimationFrameID = 0;
@@ -221,19 +221,6 @@ delete cc.fileUtils;
 
 jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
-/**
- * @type {Object}
- * @name jsb.reflection
- * jsb.reflection is a bridge to let you invoke Java static functions.
- * please refer to this document to know how to use it: http://www.cocos2d-x.org/docs/manual/framework/html5/v3/reflection/en
- * Only available on Android platform
- */
-jsb.reflection = {
-    callStaticMethod : function(){
-        cc.log("not supported on current platform");
-    }
-};
-
 XMLHttpRequest.prototype.addEventListener = function(eventName, listener, options) {
     this['on' + eventName] = listener;
 }
@@ -241,16 +228,6 @@ XMLHttpRequest.prototype.addEventListener = function(eventName, listener, option
 XMLHttpRequest.prototype.removeEventListener = function(eventName, listener, options) {
     this['on' + eventName] = null;
 }
-
-//NOTE: Runtime API should not private Javascript bridge functionality for security issues.
-// JS to Native bridges
-// if(window.JavascriptJavaBridge && cc.sys.os == cc.sys.OS_ANDROID){
-//     jsb.reflection = new JavascriptJavaBridge();
-//     cc.sys.capabilities["keyboard"] = true;
-// }
-// else if(window.JavaScriptObjCBridge && (cc.sys.os == cc.sys.OS_IOS || cc.sys.os == cc.sys.OS_OSX)){
-//     jsb.reflection = new JavaScriptObjCBridge();
-// }
 
 // SocketIO
 if (window.SocketIO) {

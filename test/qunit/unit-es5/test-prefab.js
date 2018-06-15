@@ -85,7 +85,6 @@
     test('saved prefab node', function () {
         var nodeToSave = prefab.data;
         ok(cc.Node.isNode(nodeToSave), 'Checking prefab data');
-        ok(!nodeToSave._id, 'The id in prefab data should be cleared');
         strictEqual(nodeToSave.scaleX, 123, 'Checking prefab data');
         strictEqual(nodeToSave.scaleY, 432, 'Checking prefab data');
         var comp = nodeToSave.getComponent(TestScript);
@@ -128,7 +127,7 @@
 
         ok(newNode.children.length === 2, 'Should load child');
         var c = newNode.children[0];
-        ok(c.getScaleX() === 22 && c.getScaleY() === 11, 'Checking child');
+        ok(c.scaleX === 22 && c.scaleY === 11, 'Checking child');
     });
 
     test('re-instantiate an instantiated node', function () {
@@ -194,13 +193,13 @@
 
         _Scene.PrefabUtils.revertPrefab(testNode, function () {
             ok(testNode.x != prefab.data.x, 'Should not revert root position');
-            ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
+            ok(testNode.scaleX === 123 && testNode.scaleY === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
             ok(testNode.parent === originParent, 'parent should not changed');
             ok(testNode.parent.getComponent(TestScript).target === originParent, 'component property of parent should not changed');
 
             ok(testChild.x === prefab.data.children[0].x, 'Revert child position');
-            ok(testChild.getScaleX() === 22 && testChild.getScaleY() === 11, 'Revert child node');
+            ok(testChild.scaleX === 22 && testChild.scaleY === 11, 'Revert child node');
             ok(testChild.getComponent(TestScript) == null, 'Remove added component');
 
             ok(testNode.getComponent(TestScript).target === testChild, 'Should redirect reference to scene node');
