@@ -174,18 +174,22 @@ namespace
     void setTexFiledKeyboardType(UITextField* textField, const std::string& inputType)
     {
         if (0 == inputType.compare("password"))
+        {
             textField.secureTextEntry = TRUE;
-        else
-            textField.secureTextEntry = FALSE;
-        
-        if (0 == inputType.compare("email"))
-            textField.keyboardType = UIKeyboardTypeEmailAddress;
-        else if (0 == inputType.compare("number"))
-            textField.keyboardType = UIKeyboardTypeDecimalPad;
-        else if (0 == inputType.compare("url"))
-            textField.keyboardType = UIKeyboardTypeURL;
-        else if (0 == inputType.compare("text"))
             textField.keyboardType = UIKeyboardTypeDefault;
+        }
+        else
+        {
+            textField.secureTextEntry = FALSE;
+            if (0 == inputType.compare("email"))
+                textField.keyboardType = UIKeyboardTypeEmailAddress;
+            else if (0 == inputType.compare("number"))
+                textField.keyboardType = UIKeyboardTypeDecimalPad;
+            else if (0 == inputType.compare("url"))
+                textField.keyboardType = UIKeyboardTypeURL;
+            else if (0 == inputType.compare("text"))
+                textField.keyboardType = UIKeyboardTypeDefault;
+        }
     }
     
     void setTextFieldReturnType(UITextField* textField, const std::string& returnType)
