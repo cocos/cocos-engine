@@ -27,9 +27,9 @@
 if (CC_NATIVERENDERER) {
     require('./gfx');
     require('./renderer');
-    require('./jsb_reflection');
 }
 require('../index');
 require('./jsb-node');
 require('./jsb-audio');
 require('./jsb-loader');
+require('./jsb_reflection');
