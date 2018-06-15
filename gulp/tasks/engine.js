@@ -97,7 +97,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         bundler.ignore(file);
     });
 
-    bundler.ignore('../../DebugInfos.json');
+    bundler.ignore('./DebugInfos.json');
 
     var Size = null;
     try {

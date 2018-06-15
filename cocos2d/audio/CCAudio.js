@@ -107,7 +107,7 @@ Audio.State = {
 
     proto._onLoaded = function () {
         let elem = this._src._nativeAsset;
-        if (this._src.loadMode === LoadMode.DOM_AUDIO || CC_WECHATGAME || CC_QQPLAY) {
+        if (elem instanceof HTMLElement) {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
         }

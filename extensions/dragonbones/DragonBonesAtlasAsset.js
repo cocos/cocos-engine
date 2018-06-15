@@ -96,7 +96,6 @@ var DragonBonesAtlasAsset = cc.Class({
 
     init (factory) {
         if (this._textureAtlasData) {
-            cc.log('Has textureAtlasData');
             factory.addTextureAtlasData(this._textureAtlasData);
         }
         else {

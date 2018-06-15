@@ -59,9 +59,10 @@
     var prefabJson;
 
     (function savePrefab () {
-        prefab = _Scene.PrefabUtils.createPrefabFrom(parent);
+        var PrefabUtils = Editor.require('scene://utils/prefab');
+        prefab = PrefabUtils.createPrefabFrom(parent);
         prefab._uuid = UUID;
-        //_Scene.PrefabUtils.setPrefabAsset(parent, prefab);
+        //PrefabUtils.setPrefabAsset(parent, prefab);
 
         // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
         prefabJson = Editor.serialize(prefab);
@@ -147,7 +148,8 @@
 
     test('apply node', function () {
         var newNode = cc.instantiate(prefab);
-        var newPrefab = _Scene.PrefabUtils.createAppliedPrefab(newNode);
+        var PrefabUtils = Editor.require('scene://utils/prefab');
+        var newPrefab = PrefabUtils.createAppliedPrefab(newNode);
         strictEqual(newPrefab.data._prefab.fileId, prefab.data._prefab.fileId, "fileId should not changed during apply");
     });
 
@@ -191,7 +193,8 @@
         var newNode2 = new cc.Node();
         testNode.insertChild(newNode2, 0);
 
-        _Scene.PrefabUtils.revertPrefab(testNode, function () {
+        var PrefabUtils = Editor.require('scene://utils/prefab');
+        PrefabUtils.revertPrefab(testNode, function () {
             ok(testNode.x != prefab.data.x, 'Should not revert root position');
             ok(testNode.scaleX === 123 && testNode.scaleY === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
