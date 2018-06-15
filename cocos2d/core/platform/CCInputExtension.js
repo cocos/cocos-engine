@@ -95,6 +95,14 @@ inputManager._registerAccelerometerEvent = function(){
     w.addEventListener(_deviceEventType, _t.didAccelerate.bind(_t), false);
 };
 
+inputManager._unregisterAccelerometerEvent = function () {
+    let w = window, _t = this;
+    let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+    if (_didAccelerateFun) {
+        w.removeEventListener(_deviceEventType, _didAccelerateFun, false);
+    }
+};
+
 inputManager.didAccelerate = function (eventData) {
     var _t = this, w = window;
     if (!_t._accelEnabled)
