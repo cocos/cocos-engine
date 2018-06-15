@@ -534,18 +534,27 @@ var Sprite = cc.Class({
         }
     },
 
+    _canRender () {
+        if (!this._enabled || !this._material) return false;
+        let spriteFrame = this._spriteFrame;
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            return false;
+        }
+        return true;
+    },
+
     markForUpdateRenderData (enable) {
-        if (enable && this._material && this.enabledInHierarchy) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            
+            let renderData = this._renderData;
+            if (renderData) {
+                renderData.uvDirty = true;
+                renderData.vertDirty = true;
+            }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-
-        let renderData = this._renderData;
-        if (renderData && enable) {
-            renderData.uvDirty = true;
-            renderData.vertDirty = true;
         }
     },
 

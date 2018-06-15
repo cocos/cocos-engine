@@ -488,6 +488,19 @@ let Label = cc.Class({
         this._super();
     },
 
+    _canRender () {
+        let result = this._super();
+        let font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            let spriteFrame = font.spriteFrame;
+            // cannot be activated if texture not loaded yet
+            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                result = false;
+            }
+        }
+        return result;
+    },
+
     _checkStringEmpty () {
         this.markForRender(!!this.string);
     },
@@ -507,18 +520,20 @@ let Label = cc.Class({
 
     _activateMaterial (force) {
         let material = this._material;
-        if (!material) {
-            material = new SpriteMaterial();
-        }
-        else if (!force) {
+        if (material && !force) {
             return;
         }
-
+        
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame.textureLoaded()) {
+            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                this.disableRender();
+
+                if (spriteFrame) {
+                    spriteFrame.once('load', this._activateMaterial, this);
+                }
                 return;
             }
             
@@ -534,6 +549,10 @@ let Label = cc.Class({
             this._texture.initWithElement(this._assemblerData.canvas);
         }
 
+        if (!material) {
+            material = new SpriteMaterial();
+        }
+
         material.texture = this._texture;
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -541,6 +560,9 @@ let Label = cc.Class({
         }
 
         this._updateMaterial(material);
+
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
 
     _updateColor () {
