@@ -28,7 +28,1000 @@
 
 'use strict';
 
-var ForwardRenderer = window.renderer.ForwardRenderer;
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var gl = window.__ccgl;
+
+var _filterGL = [
+  [ gl.GL_NEAREST,  gl.GL_NEAREST_MIPMAP_NEAREST, gl.GL_NEAREST_MIPMAP_LINEAR ],
+  [ gl.GL_LINEAR,  gl.GL_LINEAR_MIPMAP_NEAREST, gl.GL_LINEAR_MIPMAP_LINEAR ] ];
+
+var _textureFmtGL = [
+  // TEXTURE_FMT_RGB_DXT1: 0
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_S3TC_DXT1_EXT, pixelType: 0,  bpp: 3 },
+
+  // TEXTURE_FMT_RGBA_DXT1: 1
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT1_EXT, pixelType: 0, bpp: 4 },
+
+  // TEXTURE_FMT_RGBA_DXT3: 2
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT3_EXT, pixelType: 0, bpp: 8 },
+
+  // TEXTURE_FMT_RGBA_DXT5: 3
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_S3TC_DXT5_EXT, pixelType: 0, bpp: 8 },
+
+  // TEXTURE_FMT_RGB_ETC1: 4
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_ETC1_WEBGL, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_RGB_PVRTC_2BPPV1: 5
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_PVRTC_2BPPV1_IMG, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_RGBA_PVRTC_2BPPV1: 6
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, pixelType: 0, bpp:0 },
+
+  // TEXTURE_FMT_RGB_PVRTC_4BPPV1: 7
+  { format: gl.RGB, internalFormat: gl.COMPRESSED_RGB_PVRTC_4BPPV1_IMG, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_RGBA_PVRTC_4BPPV1: 8
+  { format: gl.RGBA, internalFormat: gl.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, pixelType: null },
+
+  // TEXTURE_FMT_A8: 9
+  { format: gl.ALPHA, internalFormat: gl.ALPHA, pixelType: gl.UNSIGNED_BYTE, bpp: 8 },
+
+  // TEXTURE_FMT_L8: 10
+  { format: gl.LUMINANCE, internalFormat: gl.LUMINANCE, pixelType: gl.UNSIGNED_BYTE, bpp: 8 },
+
+  // TEXTURE_FMT_L8_A8: 11
+  { format: gl.LUMINANCE_ALPHA, internalFormat: gl.LUMINANCE_ALPHA, pixelType: gl.UNSIGNED_BYTE, bpp: 16 },
+
+  // TEXTURE_FMT_R5_G6_B5: 12
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.UNSIGNED_SHORT_5_6_5, bpp: 16 },
+
+  // TEXTURE_FMT_R5_G5_B5_A1: 13
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_SHORT_5_5_5_1, bpp: 16 },
+
+  // TEXTURE_FMT_R4_G4_B4_A4: 14
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_SHORT_4_4_4_4, bpp: 16 },
+
+  // TEXTURE_FMT_RGB8: 15
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.UNSIGNED_BYTE, bpp: 24 },
+
+  // TEXTURE_FMT_RGBA8: 16
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.UNSIGNED_BYTE, bpp: 32 },
+
+  // TEXTURE_FMT_RGB16F: 17
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.HALF_FLOAT_OES, bpp: 0 },
+
+  // TEXTURE_FMT_RGBA16F: 18
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.HALF_FLOAT_OES, bpp: 0 },
+
+  // TEXTURE_FMT_RGB32F: 19
+  { format: gl.RGB, internalFormat: gl.RGB, pixelType: gl.FLOAT, bpp: 96 },
+
+  // TEXTURE_FMT_RGBA32F: 20
+  { format: gl.RGBA, internalFormat: gl.RGBA, pixelType: gl.FLOAT, bpp: 128 },
+
+  // TEXTURE_FMT_R32F: 21
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_111110F: 22
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_SRGB: 23
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_SRGBA: 24
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 },
+
+  // TEXTURE_FMT_D16: 25
+  // TODO: fix it on android
+  { format: gl.DEPTH_COMPONENT, internalFormat: gl.DEPTH_COMPONENT16, pixelType: gl.UNSIGNED_SHORT },
+
+  // TEXTURE_FMT_D24: 26
+  // { format: gl.DEPTH_COMPONENT, internalFormat: gl.DEPTH_COMPONENT24, pixelType: gl.FLOAT },
+
+  // TEXTURE_FMT_D24S8: 27
+  { format: null, internalFormat: null, pixelType: 0, bpp: 0 } ];
+
+/**
+ * enums
+ */
+var enums = {
+  // buffer usage
+  USAGE_STATIC: 35044,  // gl.STATIC_DRAW
+  USAGE_DYNAMIC: 35048, // gl.DYNAMIC_DRAW
+  USAGE_STREAM: 35040,  // gl.STREAM_DRAW
+
+  // index buffer format
+  INDEX_FMT_UINT8: 5121,  // gl.UNSIGNED_BYTE
+  INDEX_FMT_UINT16: 5123, // gl.UNSIGNED_SHORT
+  INDEX_FMT_UINT32: 5125, // gl.UNSIGNED_INT (OES_element_index_uint)
+
+  // vertex attribute semantic
+  ATTR_POSITION: 'a_position',
+  ATTR_NORMAL: 'a_normal',
+  ATTR_TANGENT: 'a_tangent',
+  ATTR_BITANGENT: 'a_bitangent',
+  ATTR_WEIGHTS: 'a_weights',
+  ATTR_JOINTS: 'a_joints',
+  ATTR_COLOR: 'a_color',
+  ATTR_COLOR0: 'a_color0',
+  ATTR_COLOR1: 'a_color1',
+  ATTR_UV: 'a_uv',
+  ATTR_UV0: 'a_uv0',
+  ATTR_UV1: 'a_uv1',
+  ATTR_UV2: 'a_uv2',
+  ATTR_UV3: 'a_uv3',
+  ATTR_UV4: 'a_uv4',
+  ATTR_UV5: 'a_uv5',
+  ATTR_UV6: 'a_uv6',
+  ATTR_UV7: 'a_uv7',
+
+  // vertex attribute type
+  ATTR_TYPE_INT8: 5120,    // gl.BYTE
+  ATTR_TYPE_UINT8: 5121,   // gl.UNSIGNED_BYTE
+  ATTR_TYPE_INT16: 5122,   // gl.SHORT
+  ATTR_TYPE_UINT16: 5123,  // gl.UNSIGNED_SHORT
+  ATTR_TYPE_INT32: 5124,   // gl.INT
+  ATTR_TYPE_UINT32: 5125,  // gl.UNSIGNED_INT
+  ATTR_TYPE_FLOAT32: 5126, // gl.FLOAT
+
+  // texture filter
+  FILTER_NEAREST: 0,
+  FILTER_LINEAR: 1,
+
+  // texture wrap mode
+  WRAP_REPEAT: 10497, // gl.REPEAT
+  WRAP_CLAMP: 33071,  // gl.CLAMP_TO_EDGE
+  WRAP_MIRROR: 33648, // gl.MIRRORED_REPEAT
+
+  // texture format
+  // compress formats
+  TEXTURE_FMT_RGB_DXT1: 0,
+  TEXTURE_FMT_RGBA_DXT1: 1,
+  TEXTURE_FMT_RGBA_DXT3: 2,
+  TEXTURE_FMT_RGBA_DXT5: 3,
+  TEXTURE_FMT_RGB_ETC1: 4,
+  TEXTURE_FMT_RGB_PVRTC_2BPPV1: 5,
+  TEXTURE_FMT_RGBA_PVRTC_2BPPV1: 6,
+  TEXTURE_FMT_RGB_PVRTC_4BPPV1: 7,
+  TEXTURE_FMT_RGBA_PVRTC_4BPPV1: 8,
+
+  // normal formats
+  TEXTURE_FMT_A8: 9,
+  TEXTURE_FMT_L8: 10,
+  TEXTURE_FMT_L8_A8: 11,
+  TEXTURE_FMT_R5_G6_B5: 12,
+  TEXTURE_FMT_R5_G5_B5_A1: 13,
+  TEXTURE_FMT_R4_G4_B4_A4: 14,
+  TEXTURE_FMT_RGB8: 15,
+  TEXTURE_FMT_RGBA8: 16,
+  TEXTURE_FMT_RGB16F: 17,
+  TEXTURE_FMT_RGBA16F: 18,
+  TEXTURE_FMT_RGB32F: 19,
+  TEXTURE_FMT_RGBA32F: 20,
+  TEXTURE_FMT_R32F: 21,
+  TEXTURE_FMT_111110F: 22,
+  TEXTURE_FMT_SRGB: 23,
+  TEXTURE_FMT_SRGBA: 24,
+
+  // depth formats
+  TEXTURE_FMT_D16: 25,
+  TEXTURE_FMT_D24: 26,
+  TEXTURE_FMT_D24S8: 27,
+
+  // depth and stencil function
+  DS_FUNC_NEVER: 512,    // gl.NEVER
+  DS_FUNC_LESS: 513,     // gl.LESS
+  DS_FUNC_EQUAL: 514,    // gl.EQUAL
+  DS_FUNC_LEQUAL: 515,   // gl.LEQUAL
+  DS_FUNC_GREATER: 516,  // gl.GREATER
+  DS_FUNC_NOTEQUAL: 517, // gl.NOTEQUAL
+  DS_FUNC_GEQUAL: 518,   // gl.GEQUAL
+  DS_FUNC_ALWAYS: 519,   // gl.ALWAYS
+
+  // render-buffer format
+  RB_FMT_RGBA4: 32854,    // gl.RGBA4
+  RB_FMT_RGB5_A1: 32855,  // gl.RGB5_A1
+  RB_FMT_RGB565: 36194,   // gl.RGB565
+  RB_FMT_D16: 33189,      // gl.DEPTH_COMPONENT16
+  RB_FMT_S8: 36168,       // gl.STENCIL_INDEX8
+  RB_FMT_D24S8: 34041,    // gl.DEPTH_STENCIL
+
+  // blend-equation
+  BLEND_FUNC_ADD: 32774,              // gl.FUNC_ADD
+  BLEND_FUNC_SUBTRACT: 32778,         // gl.FUNC_SUBTRACT
+  BLEND_FUNC_REVERSE_SUBTRACT: 32779, // gl.FUNC_REVERSE_SUBTRACT
+
+  // blend
+  BLEND_ZERO: 0,                          // gl.ZERO
+  BLEND_ONE: 1,                           // gl.ONE
+  BLEND_SRC_COLOR: 768,                   // gl.SRC_COLOR
+  BLEND_ONE_MINUS_SRC_COLOR: 769,         // gl.ONE_MINUS_SRC_COLOR
+  BLEND_DST_COLOR: 774,                   // gl.DST_COLOR
+  BLEND_ONE_MINUS_DST_COLOR: 775,         // gl.ONE_MINUS_DST_COLOR
+  BLEND_SRC_ALPHA: 770,                   // gl.SRC_ALPHA
+  BLEND_ONE_MINUS_SRC_ALPHA: 771,         // gl.ONE_MINUS_SRC_ALPHA
+  BLEND_DST_ALPHA: 772,                   // gl.DST_ALPHA
+  BLEND_ONE_MINUS_DST_ALPHA: 773,         // gl.ONE_MINUS_DST_ALPHA
+  BLEND_CONSTANT_COLOR: 32769,            // gl.CONSTANT_COLOR
+  BLEND_ONE_MINUS_CONSTANT_COLOR: 32770,  // gl.ONE_MINUS_CONSTANT_COLOR
+  BLEND_CONSTANT_ALPHA: 32771,            // gl.CONSTANT_ALPHA
+  BLEND_ONE_MINUS_CONSTANT_ALPHA: 32772,  // gl.ONE_MINUS_CONSTANT_ALPHA
+  BLEND_SRC_ALPHA_SATURATE: 776,          // gl.SRC_ALPHA_SATURATE
+
+  // stencil operation
+  STENCIL_OP_KEEP: 7680,          // gl.KEEP
+  STENCIL_OP_ZERO: 0,             // gl.ZERO
+  STENCIL_OP_REPLACE: 7681,       // gl.REPLACE
+  STENCIL_OP_INCR: 7682,          // gl.INCR
+  STENCIL_OP_INCR_WRAP: 34055,    // gl.INCR_WRAP
+  STENCIL_OP_DECR: 7683,          // gl.DECR
+  STENCIL_OP_DECR_WRAP: 34056,    // gl.DECR_WRAP
+  STENCIL_OP_INVERT: 5386,        // gl.INVERT
+
+  // cull
+  CULL_NONE: 0,
+  CULL_FRONT: 1028,
+  CULL_BACK: 1029,
+  CULL_FRONT_AND_BACK: 1032,
+
+  // primitive type
+  PT_POINTS: 0,         // gl.POINTS
+  PT_LINES: 1,          // gl.LINES
+  PT_LINE_LOOP: 2,      // gl.LINE_LOOP
+  PT_LINE_STRIP: 3,     // gl.LINE_STRIP
+  PT_TRIANGLES: 4,      // gl.TRIANGLES
+  PT_TRIANGLE_STRIP: 5, // gl.TRIANGLE_STRIP
+  PT_TRIANGLE_FAN: 6,   // gl.TRIANGLE_FAN
+};
+
+/**
+ * @method attrTypeBytes
+ * @param {ATTR_TYPE_*} attrType
+ */
+function attrTypeBytes(attrType) {
+  if (attrType === enums.ATTR_TYPE_INT8) {
+    return 1;
+  } else if (attrType === enums.ATTR_TYPE_UINT8) {
+    return 1;
+  } else if (attrType === enums.ATTR_TYPE_INT16) {
+    return 2;
+  } else if (attrType === enums.ATTR_TYPE_UINT16) {
+    return 2;
+  } else if (attrType === enums.ATTR_TYPE_INT32) {
+    return 4;
+  } else if (attrType === enums.ATTR_TYPE_UINT32) {
+    return 4;
+  } else if (attrType === enums.ATTR_TYPE_FLOAT32) {
+    return 4;
+  }
+
+  console.warn(("Unknown ATTR_TYPE: " + attrType));
+  return 0;
+}
+
+/**
+ * @method glTextureFmt
+ * @param {TEXTURE_FMT_*} fmt
+ */
+function glTextureFmt(fmt) {
+  var result = _textureFmtGL[fmt];
+  if (result === undefined) {
+    console.warn(("Unknown TEXTURE_FMT: " + fmt));
+    return _textureFmtGL[enums.TEXTURE_FMT_RGBA8];
+  }
+
+  return result;
+}
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var gfx = window.gfx;
+
+// ====================
+// exports
+// ====================
+
+var VertexFormat = function VertexFormat(infos) {
+  var this$1 = this;
+
+  this._attr2el = {};
+  this._elements = [];
+  this._bytes = 0;
+
+  var offset = 0;
+  for (var i = 0, len = infos.length; i < len; ++i) {
+    var info = infos[i];
+    var el = {
+      name: info.name,
+      offset: offset,
+      stride: 0,
+      stream: -1,
+      type: info.type,
+      num: info.num,
+      normalize: (info.normalize === undefined) ? false : info.normalize,
+      bytes: info.num * attrTypeBytes(info.type),
+    };
+    // log('info.num is:' + info.num + ' attrTypeBytes(info.type) is:' + attrTypeBytes(info.type));
+
+    this$1._attr2el[el.name] = el;
+    this$1._elements.push(el);
+
+    this$1._bytes += el.bytes;
+    offset += el.bytes;
+  }
+
+  for (var i$1 = 0, len$1 = this._elements.length; i$1 < len$1; ++i$1) {
+    var el$1 = this$1._elements[i$1];
+    el$1.stride = this$1._bytes;
+  }
+
+  this._nativeObj = new gfx.VertexFormatNative(this._elements);
+};
+
+/**
+ * @method element
+ * @param {string} attrName
+ */
+VertexFormat.prototype.element = function element (attrName) {
+  return this._attr2el[attrName];
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var gl$1 = window.__ccgl;
+var gfx$1 = window.gfx;
+
+window.device = gfx$1.Device.getInstance();
+window.device._gl = window.__ccgl;
+
+//FIXME:
+window.device._stats = { vb: 0 };
+window.device._caps = {
+    maxVextexTextures: 16,
+    maxFragUniforms: 1024,
+    maxTextureUints: 8,
+    maxVertexAttributes: 16,
+    maxDrawBuffers: 8,
+    maxColorAttatchments: 8
+};
+
+device.setBlendColor32 = device.setBlendColor;
+
+_p = gfx$1.Program.prototype;
+_p._ctor = function(device, options) {
+    this.init(device, options.vert, options.frag);
+};
+
+_p = gfx$1.VertexBuffer.prototype;
+_p._ctor = function(device, format, usage, data, numVertices) {
+    this.init(device, format._nativeObj, usage, data, numVertices);
+    this._nativePtr = this.self();
+};
+cc.defineGetterSetter(_p, "count", _p.getCount);
+
+_p = gfx$1.IndexBuffer.prototype;
+_p._ctor = function(device, format, usage, data, numIndices) {
+    this.init(device, format, usage, data, numIndices);
+    this._nativePtr = this.self();
+};
+cc.defineGetterSetter(_p, "count", _p.getCount);
+
+gfx$1.VertexFormat = VertexFormat;
+Object.assign(gfx$1, enums);
+
+function convertImages(images) {
+    if (images) {
+        for (var i = 0, len = images.length; i < len; ++i) {
+            var image = images[i];
+            if (image !== null) {
+                if (image instanceof window.HTMLCanvasElement) {
+                    if (image._data) {
+                        images[i] = image._data._data;
+                    }
+                    else {
+                        images[i] = null;
+                    }
+                }
+                else if (image instanceof window.HTMLImageElement) {
+                    images[i] = image._data;
+                }
+            }
+        }
+    }
+}
+
+function convertOptions(options) {    
+    if (options.images && options.images[0] instanceof HTMLImageElement) {
+        var image = options.images[0];
+        options.glInternalFormat = image._glInternalFormat;
+        options.glFormat = image._glFormat;
+        options.glType = image._glType;
+        options.bpp = image._bpp;
+        options.compressed = image._compressed;
+        options.premultiplyAlpha = image._premultiplyAlpha;
+    }
+    else if (options.images && options.images[0] instanceof HTMLCanvasElement) {
+        options.glInternalFormat = gl$1.RGBA;
+        options.glFormat = gl$1.RGBA;
+        options.glType = gl$1.UNSIGNED_BYTE;
+        options.bpp = 32;
+        options.compressed = false;
+    }
+    else {
+        var gltf = glTextureFmt(options.format);
+        options.glInternalFormat = gltf.internalFormat;
+        options.glFormat = gltf.format;
+        options.glType = gltf.pixelType;
+        options.bpp = gltf.bpp;
+        options.compressed = options.glFormat >= enums.TEXTURE_FMT_RGB_DXT1 &&
+                             options.gltf <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1;
+    }
+
+    convertImages(options.images);
+}
+
+_p = gfx$1.Texture2D.prototype;
+_p._ctor = function(device, options) {
+    convertOptions(options);
+    this.init(device, options);
+};
+_p.destroy = function() { 
+};
+_p.update = function(options) {
+    convertOptions(options);
+    this.updateNative(options);
+};
+_p.updateSubImage = function(option) {
+    var images = [option.image];
+    convertImages(images);
+    var data = new Uint32Array(8 + 
+                               (images[0].length + 3) / 4);
+
+    data[0] = option.x;
+    data[1] = option.y;
+    data[2] = option.width;
+    data[3] = option.height;
+    data[4] = option.level;
+    data[5] = option.flipY;
+    data[6] = false;
+    data[7] = images[0].length;
+    var imageData = new Uint8Array(data.buffer);
+    imageData.set(images[0], 32);
+
+    this.updateSubImageNative(data);
+};
+cc.defineGetterSetter(_p, "_width", _p.getWidth);
+cc.defineGetterSetter(_p, "_height", _p.getHeight);
+
+_p = gfx$1.FrameBuffer.prototype;
+_p._ctor = function(device, width, height, options) {
+    this.init(device, width, height, options);
+};
+
+gfx$1.RB_FMT_D16 = 0x81A5; // GL_DEPTH_COMPONENT16 hack for JSB
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+var gfx$3 = window.gfx;
+
+var InputAssembler = function InputAssembler(vb, ib, pt) {
+  if ( pt === void 0 ) pt = gfx$3.PT_TRIANGLES;
+
+  this._vertexBuffer = vb;
+  this._indexBuffer = ib;
+  this._primitiveType = pt;
+  this._start = 0;
+  this._count = -1;
+
+  // TODO: instancing data
+  // this._stream = 0;
+};
+
+InputAssembler.prototype.getPrimitiveCount = function getPrimitiveCount () {
+  if (this._count !== -1) {
+    return this._count;
+  }
+
+  if (this._indexBuffer) {
+    return this._indexBuffer.count;
+  }
+
+  return this._vertexBuffer.count;
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var renderer = window.renderer;
+var _stageOffset = 0;
+var _name2stageID = {};
+
+var config = {
+  addStage: function (name) {
+    // already added
+    if (_name2stageID[name] !== undefined) {
+      return;
+    }
+
+    var stageID = 1 << _stageOffset;
+    _name2stageID[name] = stageID;
+
+    _stageOffset += 1;
+
+    renderer.addStage(name);
+  },
+
+  stageID: function (name) {
+    var id = _name2stageID[name];
+    if (id === undefined) {
+      return -1;
+    }
+    return id;
+  },
+
+  stageIDs: function (nameList) {
+    var key = 0;
+    for (var i = 0; i < nameList.length; ++i) {
+      var id = _name2stageID[nameList[i]];
+      if (id !== undefined) {
+        key |= id;
+      }
+    }
+    return key;
+  }
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var renderer$1 = window.renderer;
+var _genID = 0;
+
+var Technique = function Technique(stages, parameters, passes, layer) {
+  if ( layer === void 0 ) layer = 0;
+
+  this._id = _genID++;
+  this._stageIDs = config.stageIDs(stages);
+  this.stageIDs = this._stageIDs;
+  this._parameters = parameters; // {name, type, size, val}
+  this._passes = passes;
+  this.passes = this._passes;
+  this._layer = layer;
+  this._stages = stages;
+  // TODO: this._version = 'webgl' or 'webgl2' // ????
+
+  var passesNative = [];
+  for (var i = 0, len = passes.length; i < len; ++i) {
+    passesNative.push(passes[i]._native);
+  }
+  this._nativeObj = new renderer$1.TechniqueNative(stages, parameters, passesNative, layer);
+
+};
+
+Technique.prototype.setStages = function setStages (stages) {
+  this._stageIDs = config.stageIDs(stages);
+  this._stages = stages;
+
+  this._nativeObj.setStages(stages);
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+var gfx$4 = window.gfx;
+var renderer$2 = window.renderer;
+
+var Pass = function Pass(name) {
+  this._programName = name;
+
+  // cullmode
+  this._cullMode = gfx$4.CULL_BACK;
+
+  // blending
+  this._blend = false;
+  this._blendEq = gfx$4.BLEND_FUNC_ADD;
+  this._blendAlphaEq = gfx$4.BLEND_FUNC_ADD;
+  this._blendSrc = gfx$4.BLEND_ONE;
+  this._blendDst = gfx$4.BLEND_ZERO;
+  this._blendSrcAlpha = gfx$4.BLEND_ONE;
+  this._blendDstAlpha = gfx$4.BLEND_ZERO;
+  this._blendColor = 0xffffffff;
+
+  // depth
+  this._depthTest = false;
+  this._depthWrite = false;
+  this._depthFunc = gfx$4.DS_FUNC_LESS, this._stencilTest = false;
+  // front
+  this._stencilFuncFront = gfx$4.DS_FUNC_ALWAYS;
+  this._stencilRefFront = 0;
+  this._stencilMaskFront = 0xff;
+  this._stencilFailOpFront = gfx$4.STENCIL_OP_KEEP;
+  this._stencilZFailOpFront = gfx$4.STENCIL_OP_KEEP;
+  this._stencilZPassOpFront = gfx$4.STENCIL_OP_KEEP;
+  this._stencilWriteMaskFront = 0xff;
+  // back
+  this._stencilFuncBack = gfx$4.DS_FUNC_ALWAYS;
+  this._stencilRefBack = 0;
+  this._stencilMaskBack = 0xff;
+  this._stencilFailOpBack = gfx$4.STENCIL_OP_KEEP;
+  this._stencilZFailOpBack = gfx$4.STENCIL_OP_KEEP;
+  this._stencilZPassOpBack = gfx$4.STENCIL_OP_KEEP;
+  this._stencilWriteMaskBack = 0xff;
+
+  var binary = new Uint32Array(25);
+  binary[0] = this._cullMode;
+  binary[1] = this._blendEq;
+  binary[2] = this._blendSrc;
+  binary[3] = this._blendDst;
+  binary[4] = this._blendAlphaEq;
+  binary[5] = this._blendSrcAlpha;
+  binary[6] = this._blendDstAlpha;
+  binary[7] = this._blendColor;
+  binary[8] = this._depthTest;
+  binary[9] = this._depthWrite;
+  binary[10] = this._depthFunc;
+  binary[11] = this._stencilFuncFront;
+  binary[12] = this._stencilRefFront;
+  binary[13] = this._stencilMaskFront;
+  binary[14] = this._stencilFailOpFront;
+  binary[15] = this._stencilZFailOpFront;
+  binary[16] = this._stencilZPassOpFront;
+  binary[17] = this._stencilWriteMaskFront;
+  binary[18] = this._stencilFuncBack;
+  binary[19] = this._stencilRefBack;
+  binary[20] = this._stencilMaskBack;
+  binary[21] = this._stencilFailOpBack;
+  binary[22] = this._stencilZFailOpBack;
+  binary[23] = this._stencilZPassOpBack;
+  binary[24] = this._stencilWriteMaskBack;
+  this._native = new renderer$2.PassNative();
+  this._native.init(this._programName, binary);
+};
+
+Pass.prototype.setCullMode = function setCullMode (cullMode) {
+  this._cullMode = cullMode;
+
+  this._native.setCullMode(cullMode);
+};
+
+Pass.prototype.disableStecilTest = function disableStecilTest () {
+  this._stencilTest = false;
+
+  this._native.disableStecilTest();
+};
+
+Pass.prototype.setBlend = function setBlend (
+  blendEq,
+  blendSrc,
+  blendDst,
+  blendAlphaEq,
+  blendSrcAlpha,
+  blendDstAlpha,
+  blendColor
+) {
+    if ( blendEq === void 0 ) blendEq = gfx$4.BLEND_FUNC_ADD;
+    if ( blendSrc === void 0 ) blendSrc = gfx$4.BLEND_ONE;
+    if ( blendDst === void 0 ) blendDst = gfx$4.BLEND_ZERO;
+    if ( blendAlphaEq === void 0 ) blendAlphaEq = gfx$4.BLEND_FUNC_ADD;
+    if ( blendSrcAlpha === void 0 ) blendSrcAlpha = gfx$4.BLEND_ONE;
+    if ( blendDstAlpha === void 0 ) blendDstAlpha = gfx$4.BLEND_ZERO;
+    if ( blendColor === void 0 ) blendColor = 0xffffffff;
+
+  this._blend = true;
+  this._blendEq = blendEq;
+  this._blendSrc = blendSrc;
+  this._blendDst = blendDst;
+  this._blendAlphaEq = blendAlphaEq;
+  this._blendSrcAlpha = blendSrcAlpha;
+  this._blendDstAlpha = blendDstAlpha;
+  this._blendColor = blendColor;
+
+  this._native.setBlend(blendEq,
+                        blendSrc,
+                        blendDst,
+                        blendAlphaEq,
+                        blendSrcAlpha,
+                        blendDstAlpha,
+                        blendColor);
+};
+
+Pass.prototype.setDepth = function setDepth (
+  depthTest,
+  depthWrite,
+  depthFunc
+) {
+    if ( depthTest === void 0 ) depthTest = false;
+    if ( depthWrite === void 0 ) depthWrite = false;
+    if ( depthFunc === void 0 ) depthFunc = gfx$4.DS_FUNC_LESS;
+
+  this._depthTest = depthTest;
+  this._depthWrite = depthWrite;
+  this._depthFunc = depthFunc;
+
+  this._native.setDepth(depthTest, depthWrite, depthFunc);
+};
+
+Pass.prototype.setStencilFront = function setStencilFront (
+  stencilFunc,
+  stencilRef,
+  stencilMask,
+  stencilFailOp,
+  stencilZFailOp,
+  stencilZPassOp,
+  stencilWriteMask
+) {
+    if ( stencilFunc === void 0 ) stencilFunc = gfx$4.DS_FUNC_ALWAYS;
+    if ( stencilRef === void 0 ) stencilRef = 0;
+    if ( stencilMask === void 0 ) stencilMask = 0xff;
+    if ( stencilFailOp === void 0 ) stencilFailOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilZFailOp === void 0 ) stencilZFailOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilZPassOp === void 0 ) stencilZPassOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilWriteMask === void 0 ) stencilWriteMask = 0xff;
+
+  this._stencilTest = true;
+  this._stencilFuncFront = stencilFunc;
+  this._stencilRefFront = stencilRef;
+  this._stencilMaskFront = stencilMask;
+  this._stencilFailOpFront = stencilFailOp;
+  this._stencilZFailOpFront = stencilZFailOp;
+  this._stencilZPassOpFront = stencilZPassOp;
+  this._stencilWriteMaskFront = stencilWriteMask;
+
+  this._native.setStencilFront(stencilFunc,
+                               stencilRef,
+                               stencilMask,
+                               stencilFailOp,
+                               stencilZFailOp,
+                               stencilZPassOp,
+                               stencilWriteMask);
+};
+
+Pass.prototype.setStencilBack = function setStencilBack (
+  stencilFunc,
+  stencilRef,
+  stencilMask,
+  stencilFailOp,
+  stencilZFailOp,
+  stencilZPassOp,
+  stencilWriteMask
+) {
+    if ( stencilFunc === void 0 ) stencilFunc = gfx$4.DS_FUNC_ALWAYS;
+    if ( stencilRef === void 0 ) stencilRef = 0;
+    if ( stencilMask === void 0 ) stencilMask = 0xff;
+    if ( stencilFailOp === void 0 ) stencilFailOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilZFailOp === void 0 ) stencilZFailOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilZPassOp === void 0 ) stencilZPassOp = gfx$4.STENCIL_OP_KEEP;
+    if ( stencilWriteMask === void 0 ) stencilWriteMask = 0xff;
+
+  this._stencilTest = true;
+  this._stencilFuncBack = stencilFunc;
+  this._stencilRefBack = stencilRef;
+  this._stencilMaskBack = stencilMask;
+  this._stencilFailOpBack = stencilFailOp;
+  this._stencilZFailOpBack = stencilZFailOp;
+  this._stencilZPassOpBack = stencilZPassOp;
+  this._stencilWriteMaskBack = stencilWriteMask;
+
+  this._native.setStencilBack(stencilFunc,
+                              stencilRef,
+                              stencilMask,
+                              stencilFailOp,
+                              stencilZFailOp,
+                              stencilZPassOp,
+                              stencilWriteMask);
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var Model = function Model() {
+  this._poolID = -1;
+  this._node = null;
+  this._inputAssemblers = [];
+  this._effects = [];
+  this._defines = [];
+  this._dynamicIA = false;
+  this._viewID = -1;
+
+  // TODO: we calculate aabb based on vertices
+  // this._aabb
+};
+
+var prototypeAccessors = { inputAssemblerCount: { configurable: true },dynamicIA: { configurable: true },drawItemCount: { configurable: true } };
+
+prototypeAccessors.inputAssemblerCount.get = function () {
+  return this._inputAssemblers.length;
+};
+
+prototypeAccessors.dynamicIA.get = function () {
+  return this._dynamicIA;
+};
+
+prototypeAccessors.drawItemCount.get = function () {
+  return this._dynamicIA ? 1 : this._inputAssemblers.length;
+};
+
+Model.prototype.setNode = function setNode (node) {
+  this._node = node;
+};
+
+Model.prototype.setDynamicIA = function setDynamicIA (enabled) {
+  this._dynamicIA = enabled;
+};
+
+Model.prototype.addInputAssembler = function addInputAssembler (ia) {
+  if (this._inputAssemblers.indexOf(ia) !== -1) {
+    return;
+  }
+  this._inputAssemblers.push(ia);
+};
+
+Model.prototype.clearInputAssemblers = function clearInputAssemblers () {
+  this._inputAssemblers.length = 0;
+};
+
+Model.prototype.addEffect = function addEffect (effect) {
+  if (this._effects.indexOf(effect) !== -1) {
+    return;
+  }
+  this._effects.push(effect);
+
+  //
+  // let defs = Object.create(null);
+  // effect.extractDefines(defs);
+  // this._defines.push(defs);
+};
+
+Model.prototype.clearEffects = function clearEffects () {
+  this._effects.length = 0;
+  this._defines.length = 0;
+};
+
+Model.prototype.extractDrawItem = function extractDrawItem (out, index) {
+  if (this._dynamicIA) {
+    out.model = this;
+    out.node = this._node;
+    out.ia = null;
+    out.effect = this._effects[0];
+    out.defines = out.effect.extractDefines(this._defines[0]);
+
+    return;
+  }
+
+  if (index >= this._inputAssemblers.length ) {
+    out.model = null;
+    out.node = null;
+    out.ia = null;
+    out.effect = null;
+    out.defines = null;
+
+    return;
+  }
+
+  out.model = this;
+  out.node = this._node;
+  out.ia = this._inputAssemblers[index];
+
+  var effect, defines;
+  if (index < this._effects.length) {
+    effect = this._effects[index];
+    defines = this._defines[index];
+  } else {
+    effect = this._effects[this._effects.length-1];
+    defines = this._defines[this._effects.length-1];
+  }
+  out.effect = effect;
+  out.defines = effect.extractDefines(defines);
+};
+
+Object.defineProperties( Model.prototype, prototypeAccessors );
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var renderer$3 = window.renderer;
+
+// projection
+renderer$3.PROJ_PERSPECTIVE = 0;
+renderer$3.PROJ_ORTHO = 1;
+
+// lights
+renderer$3.LIGHT_DIRECTIONAL = 0;
+renderer$3.LIGHT_POINT = 1;
+renderer$3.LIGHT_SPOT = 2;
+
+// shadows
+renderer$3.SHADOW_NONE = 0;
+renderer$3.SHADOW_HARD = 1;
+renderer$3.SHADOW_SOFT = 2;
+
+// parameter type
+renderer$3.PARAM_INT = 0;
+renderer$3.PARAM_INT2 = 1;
+renderer$3.PARAM_INT3 = 2;
+renderer$3.PARAM_INT4 = 3;
+renderer$3.PARAM_FLOAT = 4;
+renderer$3.PARAM_FLOAT2 = 5;
+renderer$3.PARAM_FLOAT3 = 6;
+renderer$3.PARAM_FLOAT4 = 7;
+renderer$3.PARAM_COLOR3 = 8;
+renderer$3.PARAM_COLOR4 = 9;
+renderer$3.PARAM_MAT2 = 10;
+renderer$3.PARAM_MAT3 = 11;
+renderer$3.PARAM_MAT4 = 12;
+renderer$3.PARAM_TEXTURE_2D = 13;
+renderer$3.PARAM_TEXTURE_CUBE = 14;
+
+// clear flags
+renderer$3.CLEAR_COLOR = 1;
+renderer$3.CLEAR_DEPTH = 2;
+renderer$3.CLEAR_STENCIL = 4;
+renderer$3.InputAssembler = InputAssembler;
+renderer$3.config = config;
+renderer$3.Effect = Effect;
+renderer$3.Technique = Technique;
+renderer$3.Pass = Pass;
+renderer$3.Model = Model;
+
+var models = [];
+var sizeOfModel = 13;
+var lengthOfCachedModels = 500;
+// length + 500 modles(8 for each model)
+var modelsData = new Float64Array(1 + lengthOfCachedModels*sizeOfModel);
+var modelsData32 = new Float32Array(modelsData.buffer);
+var fillModelData = function() {
+  if (models.length > lengthOfCachedModels) {
+    modelsData = new Floa64Array(1 + models.length*sizeOfModel);
+    lengthOfCachedModels = models.length;
+    modelsData32 = new Float32Array(modelsData.buffer);
+  }
+
+  modelsData[0] = models.length;
+  var index64 = 1;
+  var index32 = 2;
+  var model;
+  var worldMatrix;
+  var ia;
+  for (var i = 0, len = models.length; i < len; ++i) {
+    model = models[i];
+
+    ia = model._inputAssemblers[0];
+
+    // 3 elements of 64 bits data
+    modelsData[index64++] = model._effects[0]._nativePtr;
+    modelsData[index64++] = ia._vertexBuffer._nativePtr;
+    modelsData[index64++] = ia._indexBuffer._nativePtr;
+
+    index32 += 6; 
+    modelsData32[index32++] = model._dynamicIA;
+    modelsData32[index32++] = model._viewID;
+    worldMatrix = model._node.getWorldRTInAB();
+    modelsData32.set(worldMatrix, index32);
+    index32 += 16;
+
+    modelsData32[index32++] = ia._start;
+    modelsData32[index32++] = ia._count;
+
+    index64 += 10;
+  }
+};
+
+// ForwardRenderer adapter
+var _p$1;
+
+_p$1 = renderer$3.ForwardRenderer.prototype;
+_p$1._ctor = function(device, builtin) {
+  this.init(device, builtin.programTemplates, builtin.defaultTexture, window.innerWidth, window.innerHeight);
+};
+_p$1.render = function(scene) {
+  fillModelData();
+  this.renderNative(scene, modelsData);
+
+  models.length = 0;
+};
+
+// Scene 
+_p$1 = renderer$3.Scene.prototype;
+_p$1.addModel = function(model) {
+  models.push(model); 
+};
+_p$1.removeModel = function() {};
 
 var chunks = {
 };
@@ -1032,7 +2025,7 @@ var FixedArray = function FixedArray(size) {
   this._data = new Array(size);
 };
 
-var prototypeAccessors = { length: { configurable: true },data: { configurable: true } };
+var prototypeAccessors$1 = { length: { configurable: true },data: { configurable: true } };
 
 FixedArray.prototype._resize = function _resize (size) {
     var this$1 = this;
@@ -1044,11 +2037,11 @@ FixedArray.prototype._resize = function _resize (size) {
   }
 };
 
-prototypeAccessors.length.get = function () {
+prototypeAccessors$1.length.get = function () {
   return this._count;
 };
 
-prototypeAccessors.data.get = function () {
+prototypeAccessors$1.data.get = function () {
   return this._data;
 };
 
@@ -1108,7 +2101,7 @@ FixedArray.prototype.sort = function sort$1 (cmp) {
   return sort(this._data, 0, this._count, cmp);
 };
 
-Object.defineProperties( FixedArray.prototype, prototypeAccessors );
+Object.defineProperties( FixedArray.prototype, prototypeAccessors$1 );
 
 var Pool = function Pool(fn, size) {
   var this$1 = this;
@@ -1169,17 +2162,17 @@ var LinkedArray = function LinkedArray(fn, size) {
   this._pool = new Pool(fn, size);
 };
 
-var prototypeAccessors$1 = { head: { configurable: true },tail: { configurable: true },length: { configurable: true } };
+var prototypeAccessors$2 = { head: { configurable: true },tail: { configurable: true },length: { configurable: true } };
 
-prototypeAccessors$1.head.get = function () {
+prototypeAccessors$2.head.get = function () {
   return this._head;
 };
 
-prototypeAccessors$1.tail.get = function () {
+prototypeAccessors$2.tail.get = function () {
   return this._tail;
 };
 
-prototypeAccessors$1.length.get = function () {
+prototypeAccessors$2.length.get = function () {
   return this._count;
 };
 
@@ -1241,7 +2234,7 @@ LinkedArray.prototype.forEach = function forEach (fn, binder) {
   }
 };
 
-Object.defineProperties( LinkedArray.prototype, prototypeAccessors$1 );
+Object.defineProperties( LinkedArray.prototype, prototypeAccessors$2 );
 
 var RecyclePool = function RecyclePool(fn, size) {
   var this$1 = this;
@@ -1255,13 +2248,13 @@ var RecyclePool = function RecyclePool(fn, size) {
   }
 };
 
-var prototypeAccessors$2 = { length: { configurable: true },data: { configurable: true } };
+var prototypeAccessors$3 = { length: { configurable: true },data: { configurable: true } };
 
-prototypeAccessors$2.length.get = function () {
+prototypeAccessors$3.length.get = function () {
   return this._count;
 };
 
-prototypeAccessors$2.data.get = function () {
+prototypeAccessors$3.data.get = function () {
   return this._data;
 };
 
@@ -1303,7 +2296,7 @@ RecyclePool.prototype.sort = function sort$1 (cmp) {
   return sort(this._data, 0, this._count, cmp);
 };
 
-Object.defineProperties( RecyclePool.prototype, prototypeAccessors$2 );
+Object.defineProperties( RecyclePool.prototype, prototypeAccessors$3 );
 
 var _bufferPools = Array(8);
 for (var i = 0; i < 8; ++i) {
@@ -1558,7 +2551,7 @@ function murmurhash2_32_gc(str, seed) {
   return h >>> 0;
 }
 
-var renderer = window.renderer;
+var renderer$5 = window.renderer;
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
@@ -1631,33 +2624,33 @@ function computeHash(material) {
                     continue;
                 }
                 switch(param.type) {
-                    case renderer.PARAM_INT:
-                    case renderer.PARAM_FLOAT:
+                    case renderer$5.PARAM_INT:
+                    case renderer$5.PARAM_FLOAT:
                         hashData += prop + ';';
                         break;
-                    case renderer.PARAM_INT2:
-                    case renderer.PARAM_FLOAT2:
+                    case renderer$5.PARAM_INT2:
+                    case renderer$5.PARAM_FLOAT2:
                         hashData += prop.x + ',' + prop.y + ';';
                         break;
-                    case renderer.PARAM_INT4:
-                    case renderer.PARAM_FLOAT4:
+                    case renderer$5.PARAM_INT4:
+                    case renderer$5.PARAM_FLOAT4:
                         hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
                         break;
-                    case renderer.PARAM_COLOR4:
+                    case renderer$5.PARAM_COLOR4:
                         hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
                         break;
-                    case renderer.PARAM_MAT2:
+                    case renderer$5.PARAM_MAT2:
                         hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
                         break;
-                    case renderer.PARAM_TEXTURE_2D:
-                    case renderer.PARAM_TEXTURE_CUBE:
+                    case renderer$5.PARAM_TEXTURE_2D:
+                    case renderer$5.PARAM_TEXTURE_CUBE:
                         hashData += material._texIds[propKey] + ';';
                         break;
-                    case renderer.PARAM_INT3:
-                    case renderer.PARAM_FLOAT3:
-                    case renderer.PARAM_COLOR3:
-                    case renderer.PARAM_MAT3:
-                    case renderer.PARAM_MAT4:
+                    case renderer$5.PARAM_INT3:
+                    case renderer$5.PARAM_FLOAT3:
+                    case renderer$5.PARAM_COLOR3:
+                    case renderer$5.PARAM_MAT3:
+                    case renderer$5.PARAM_MAT4:
                         hashData += JSON.stringify(prop) + ';';
                         break;
                     default:
@@ -1701,7 +2694,7 @@ var Material = (function (Asset$$1) {
   return Material;
 }(Asset));
 
-var gfx = window.gfx;
+var gfx$5 = window.gfx;
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
@@ -1709,28 +2702,28 @@ var SpriteMaterial = (function (Material$$1) {
   function SpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer.Pass('sprite');
+    var pass = new renderer$5.Pass('sprite');
     pass.setDepth(false, false);
-    pass.setCullMode(gfx.CULL_NONE);
+    pass.setCullMode(gfx$5.CULL_NONE);
     pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$5.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$5.Effect(
       [
         mainTech ],
       {
@@ -1837,28 +2830,28 @@ var GraySpriteMaterial = (function (Material$$1) {
   function GraySpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer.Pass('gray_sprite');
+    var pass = new renderer$5.Pass('gray_sprite');
     pass.setDepth(false, false);
-    pass.setCullMode(gfx.CULL_NONE);
+    pass.setCullMode(gfx$5.CULL_NONE);
     pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$5.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$5.Effect(
       [
         mainTech ],
       {
@@ -1909,6 +2902,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
     copy.texture = this.texture;
+    copy.color = this.color;
     copy.updateHash();
     return copy;
   };
@@ -1924,28 +2918,28 @@ var StencilMaterial = (function (Material$$1) {
   function StencilMaterial() {
     Material$$1.call(this, false);
 
-    this._pass = new renderer.Pass('sprite');
+    this._pass = new renderer$5.Pass('sprite');
     this._pass.setDepth(false, false);
-    this._pass.setCullMode(gfx.CULL_NONE);
+    this._pass.setCullMode(gfx$5.CULL_NONE);
     this._pass.setBlend(
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-      gfx.BLEND_FUNC_ADD,
-      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx$5.BLEND_FUNC_ADD,
+      gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$5.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
+        { name: 'alphaThreshold', type: renderer$5.PARAM_FLOAT },
+        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
       [
         this._pass
       ]
     );
 
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$5.Effect(
       [
         mainTech ],
       {
@@ -9430,40 +10424,26 @@ var canvas = {
 
 // intenral
 // deps
-var Scene = renderer.Scene;
-var Camera = renderer.Camera;
-var View = renderer.View;
-var Texture2D$2 = gfx.Texture2D;
-var Device$2 = gfx.Device;
-var Model = renderer.Model;
-var InputAssembler = renderer.InputAssembler;
-
 // Add stage to renderer
-if (renderer.config) {
-  // JSB adaptation
-  renderer.config.addStage('transparent');
-}
-else {
-  renderer.addStage('transparent');
-}
+renderer$3.config.addStage('transparent');
 
 var renderEngine = {
   // core classes
-  Device: Device$2,
-  ForwardRenderer: ForwardRenderer,
-  Texture2D: Texture2D$2,
+  Device: gfx$1.Device,
+  ForwardRenderer: renderer$3.ForwardRenderer,
+  Texture2D: gfx$1.Texture2D,
 
   // Canvas render support
   canvas: canvas,
 
   // render scene
-  Scene: Scene,
-  Camera: Camera,
-  View: View,
-  Model: Model,
+  Scene: renderer$3.Scene,
+  Camera: renderer$3.Camera,
+  View: renderer$3.View,
+  Model: renderer$3.Model,
   RenderData: RenderData,
   IARenderData: IARenderData,
-  InputAssembler: InputAssembler,
+  InputAssembler: renderer$3.InputAssembler,
   
   // assets
   Asset: Asset,
@@ -9484,8 +10464,8 @@ var renderEngine = {
 
   // modules
   math: math,
-  renderer: renderer,
-  gfx: gfx,
+  renderer: renderer$3,
+  gfx: gfx$1,
 };
 
 module.exports = renderEngine;
