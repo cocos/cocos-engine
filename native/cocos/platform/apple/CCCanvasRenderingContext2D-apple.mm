@@ -323,7 +323,7 @@ namespace {
         point.y += _fontSize / 2.0f;
     }
 
-#if CC_TARGET_PLATFROM == CC_PLATFORM_MAC
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
     // We use font size to calculate text height, but 'drawPointAt' method on macOS is based on
     // the real font height and in bottom-left position, add the adjust value to make the text inside text rectangle.
     point.y += (textSize.height - _fontSize) / 2.0f;
