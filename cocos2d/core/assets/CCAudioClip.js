@@ -109,7 +109,6 @@ var AudioClip = cc.Class({
  * This event is emitted when the asset is loaded
  *
  * @event load
- * @param {Event.EventCustom} event
  */
 
 cc.AudioClip = AudioClip;

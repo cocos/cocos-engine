@@ -389,8 +389,7 @@ let CollisionManager = cc.Class({
         }
     },
 
-    onNodeGroupChanged: function (event) {
-        let node = event.currentTarget;
+    onNodeGroupChanged: function (node) {
         let colliders = node.getComponents(cc.Collider);
 
         for (let i = 0, l = colliders.length; i < l; i++) {

@@ -1117,13 +1117,11 @@ test('animation removeClip', function () {
 test('animation callback', function () {
     var type; 
 
-    function callback (event) {
-        var state = event.detail;
-
+    function callback (t, state) {
         strictEqual(state instanceof cc.AnimationState, true);
         strictEqual(state.name === 'move', true);
 
-        type = event.type;
+        type = t;
     }
 
     var manager = cc.director.getAnimationManager();
@@ -1208,8 +1206,8 @@ test('animation callback', function () {
     animation.addClip(clip);
 
     var list = [];
-    function callback2 (event) {
-        list.push([event.detail.name, event.type]);
+    function callback2 (t, state) {
+        list.push([state.name, t]);
     }
 
     animation.play('move');

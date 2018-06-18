@@ -236,5 +236,5 @@ cc.Slider = module.exports = Slider;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event slide
  * @param {Event.EventCustom} event
- * @param {Slider} event.detail - The slider component.
+ * @param {Slider} slider - The slider component.
  */

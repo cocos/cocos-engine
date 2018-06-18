@@ -1213,10 +1213,10 @@ var BaseNode = cc.Class({
                 let comp = this._components[i];
                 attachedObjsForEditor[comp._id] = comp;
             }
-            cc.engine.emit('node-attach-to-scene', {target: this});
+            cc.engine.emit('node-attach-to-scene', this);
         }
         else {
-            cc.engine.emit('node-detach-from-scene', {target: this});
+            cc.engine.emit('node-detach-from-scene', this);
             delete attachedObjsForEditor[this._id];
             for (let i = 0; i < this._components.length; i++) {
                 let comp = this._components[i];

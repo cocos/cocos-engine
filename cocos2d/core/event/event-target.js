@@ -25,9 +25,7 @@
  ****************************************************************************/
 
 const js = require('../platform/js');
-const EventListeners = require('./event-listeners');
 const CallbacksInvoker = require('../platform/callbacks-invoker');
-require('./event');
 
 var fastRemove = js.array.fastRemove;
 
@@ -58,9 +56,9 @@ var fastRemove = js.array.fastRemove;
  * @class EventTarget
  */
 function EventTarget () {
-    EventListeners.call(this);
+    CallbacksInvoker.call(this);
 }
-js.extend(EventTarget, EventListeners);
+js.extend(EventTarget, CallbacksInvoker);
 
 var proto = EventTarget.prototype;
 
@@ -191,42 +189,23 @@ proto.once = function (type, callback, target) {
 
 /**
  * !#en
- * Send an event to this object directly.
- * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+ * Trigger an event directly with the event name and necessary arguments.
  * !#zh
- * 通过事件名和 detail 发送自定义事件
+ * 通过事件名发送自定义事件
  *
  * @method emit
  * @param {String} type - event type
- * @param {*} [detail] - whatever argument the message needs
- * @param {*} [target] - the target which emit this event
+ * @param {*} [arg1] - First argument
+ * @param {*} [arg2] - Second argument
+ * @param {*} [arg3] - Third argument
+ * @param {*} [arg4] - Fourth argument
+ * @param {*} [arg5] - Fifth argument
  * @example
  * 
- * eventTarget.emit('fire', {data: 'test'});
- * eventTarget.emit('fire', null, target);
+ * eventTarget.emit('fire', event);
+ * eventTarget.emit('fire', message, emitter);
  */
-proto.emit = function (type, detail, target) {
-    if (CC_DEV && typeof type !== 'string') {
-        cc.errorID(6801);
-        return;
-    }
-    if (detail !== undefined || target) {
-        var event = cc.Event.EventCustom.get(type);
-        event.detail = detail;
-        // Event.AT_TARGET
-        event.eventPhase = 2;
-        event.target = event.currentTarget = target || this;
-
-        this.invoke(event);
-        
-        event.detail = null;
-        cc.Event.EventCustom.put(event);
-    }
-    else {
-        // Fast invoke
-        this._invoke(type);
-    }
-};
+proto.emit = CallbacksInvoker.prototype.invoke;
 
 /**
  * !#en
@@ -237,8 +216,8 @@ proto.emit = function (type, detail, target) {
  * @method dispatchEvent
  * @param {Event} event
  */
-proto.dispatchEvent = proto.invoke;
-
-proto._invoke = CallbacksInvoker.prototype.invoke;
+proto.dispatchEvent = function (event) {
+    this.invoke(event.type, event);
+};
 
 cc.EventTarget = module.exports = EventTarget;

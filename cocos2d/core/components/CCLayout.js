@@ -477,8 +477,7 @@ var Layout = cc.Class({
         }
     },
 
-    _childAdded: function (event) {
-        var child = event.detail;
+    _childAdded: function (child) {
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -487,8 +486,7 @@ var Layout = cc.Class({
         this._doLayoutDirty();
     },
 
-    _childRemoved: function (event) {
-        var child = event.detail;
+    _childRemoved: function (child) {
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
