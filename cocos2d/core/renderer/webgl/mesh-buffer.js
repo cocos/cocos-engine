@@ -2,6 +2,7 @@ const renderEngine = require('../render-engine');
 const gfx = renderEngine.gfx;
 
 let MeshBuffer = cc.Class({
+    name: 'cc.MeshBuffer',
     ctor (renderer, vertexFormat) {
         this.byteStart = 0;
         this.byteOffset = 0;

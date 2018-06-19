@@ -1,6 +1,7 @@
 const Counter = require('./counter');
 
 let PerfCounter = cc.Class({
+  name: 'cc.PerfCounter',
   extends: Counter,
   
   ctor (id, opts, now) {

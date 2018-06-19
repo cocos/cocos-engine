@@ -3,6 +3,7 @@ const Helper = require('../../../../graphics/helper');
 const PointFlags = require('../../../../graphics/types').PointFlags;
 
 let Point = cc.Class({
+    name: 'cc.GraphicsPoint',
     extends: cc.Vec2,
 
     ctor (x, y) {
