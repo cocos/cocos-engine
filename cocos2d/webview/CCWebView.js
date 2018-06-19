@@ -114,6 +114,12 @@ let WebView = cc.Class({
         this._impl = new WebViewImpl();
     },
 
+    onRestore () {
+        if (!this._impl) {
+            this._impl = new WebViewImpl();
+        }
+    },
+
     onEnable () {
         let impl = this._impl;
         impl.createDomElementIfNeeded(this.node.width, this.node.height);

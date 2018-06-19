@@ -172,6 +172,12 @@ let Graphics = cc.Class({
         LineCap: LineCap
     },
 
+    onRestore () {
+        if (!this._impl) {
+            this._impl = Graphics._assembler.createImpl();
+        }
+    },
+
     onEnable () {
         this._super();
         this._activateMaterial();
