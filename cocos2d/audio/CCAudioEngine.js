@@ -41,13 +41,15 @@ var getAudioFromPath = function (path) {
     }
     if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
-        var oldAudio = id2audio[oldId];
+        var oldAudio = getAudioFromId(oldId);
         oldAudio.stop();
         oldAudio.destroy();
     }
 
     var audio = new Audio();
     var callback = function () {
+        var oldAudio = getAudioFromId(this.id);
+        oldAudio.destroy();
         delete id2audio[this.id];
         var index = list.indexOf(this.id);
         cc.js.array.fastRemoveAt(list, index);

@@ -84,18 +84,20 @@ Audio.State = {
 
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
-        if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO) {
-            this._element.addEventListener('ended', callback);
+        let elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.addEventListener('ended', callback);
         } else {
-            this._element.onended = callback;
+            elem.onended = callback;
         }
     };
 
     proto._unbindEnded = function () {
-        if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO) {
-            this._element.removeEventListener('ended', this._onended);
+        let elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.removeEventListener('ended', this._onended);
         } else {
-            this._element.onended = null;
+            elem.onended = null;
         }
     };
 
@@ -107,7 +109,7 @@ Audio.State = {
 
     proto._onLoaded = function () {
         let elem = this._src._nativeAsset;
-        if (elem instanceof HTMLElement) {
+        if (elem instanceof HTMLAudioElement) {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
         }
