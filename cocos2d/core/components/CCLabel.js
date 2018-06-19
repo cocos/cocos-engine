@@ -543,10 +543,10 @@ let Label = cc.Class({
         else {
             if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
+                this._assemblerData = this._assembler._getAssemblerData();
+                this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
-            this._assemblerData = this._assembler._getAssemblerData();
-            this._texture.initWithElement(this._assemblerData.canvas);
         }
 
         if (!material) {

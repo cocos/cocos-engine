@@ -408,6 +408,18 @@ let RichText = cc.Class({
         this._layoutDirty = true;
     },
 
+    onRestore: CC_EDITOR && function () {
+        // TODO: refine undo/redo system
+        // Because undo/redo will not call onEnable/onDisable,
+        // we need call onEnable/onDisable manually to active/disactive children nodes.
+        if (this.enabledInHierarchy) {
+            this.onEnable();
+        }
+        else {
+            this.onDisable();
+        }
+    },
+
     _activateChildren (active) {
         for (let i = this.node.children.length - 1; i >= 0; i--) {
             let child = this.node.children[i];
