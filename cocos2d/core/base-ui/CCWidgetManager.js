@@ -452,20 +452,13 @@ var widgetManager = cc._widgetManager = module.exports = {
         if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
         }
-        else if (!CC_JSB) {
+        else {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
             }
             else {
                 cc.view.on('canvas-resize', this.onResized, this);
             }
-        }
-        else {
-            eventManager.addListener(cc.EventListener.create({
-                event: cc.EventListener.CUSTOM,
-                eventName: "window-resize",
-                callback: this.onResized.bind(this)
-            }), 1);
         }
     },
     add: function (widget) {
