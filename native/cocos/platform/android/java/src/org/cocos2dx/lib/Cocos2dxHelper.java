@@ -43,6 +43,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.DisplayMetrics;
@@ -329,7 +330,18 @@ public class Cocos2dxHelper {
     }
 
     public static void vibrate(float duration) {
-        sVibrateService.vibrate((long)(duration * 1000));
+        try {
+            if (sVibrateService != null && sVibrateService.hasVibrator()) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    VibrationEffect effect = VibrationEffect.createOneShot((long) (duration * 1000), VibrationEffect.DEFAULT_AMPLITUDE);
+                    sVibrateService.vibrate(effect);
+                } else {
+                    sVibrateService.vibrate((long) (duration * 1000));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
  	public static String getVersion() {
