@@ -376,6 +376,17 @@ sp.Skeleton = cc.Class({
         this._updateSkeletonData();
     },
 
+    onRestore () {
+        // Destroyed and restored in Editor
+        if (!this._material) {
+            this._boundingBox = cc.rect();
+            this._material = new SpriteMaterial();
+            this._renderDatas = [];
+            this._debugNode = new Node();
+            this._debugRenderer = this._debugNode.addComponent(Graphics);
+        }
+    },
+
     onDestroy () {
         this._super();
         this._debugNode.destroy();
