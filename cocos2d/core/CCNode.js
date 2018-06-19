@@ -460,7 +460,7 @@ function _doDispatchEvent (owner, event) {
         if (target._capturingListeners) {
             event.currentTarget = target;
             // fire event
-            target._capturingListeners.invoke(event, _cachedArray);
+            target._capturingListeners.emit(event.type, event, _cachedArray);
             // check if propagation stopped
             if (event._propagationStopped) {
                 _cachedArray.length = 0;
@@ -475,10 +475,10 @@ function _doDispatchEvent (owner, event) {
     event.eventPhase = 2;
     event.currentTarget = owner;
     if (owner._capturingListeners) {
-        owner._capturingListeners.invoke(event);
+        owner._capturingListeners.emit(event.type, event);
     }
     if (!event._propagationImmediateStopped && owner._bubblingListeners) {
-        owner._bubblingListeners.invoke(event);
+        owner._bubblingListeners.emit(event.type, event);
     }
 
     if (!event._propagationStopped && event.bubbles) {
@@ -491,7 +491,7 @@ function _doDispatchEvent (owner, event) {
             if (target._bubblingListeners) {
                 event.currentTarget = target;
                 // fire event
-                target._bubblingListeners.invoke(event);
+                target._bubblingListeners.emit(event.type, event);
                 // check if propagation stopped
                 if (event._propagationStopped) {
                     _cachedArray.length = 0;
@@ -575,7 +575,7 @@ var Node = cc.Class({
 
             set (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                this.emit(EventType.GROUP_CHANGED);
+                this.emit(EventType.GROUP_CHANGED, this);
             }
         },
 
@@ -1343,8 +1343,9 @@ var Node = cc.Class({
      * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
      * It's the recommended way to register touch/mouse event for Node,<br/>
      * please do not use cc.eventManager directly for Node.<br/>
-     * You can also register custom event and use emit to dispatch custom event on Node.<br/>
-     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
+     * You can also register custom event and use `emit` to trigger custom event on Node.<br/>
+     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.<br/>
+     * You can also pass event callback parameters with `emit` by passing parameters after `type`.
      * !#zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
      * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
@@ -1353,7 +1354,8 @@ var Node = cc.Class({
      * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
      * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
-     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
+     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
+     * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
      * @method on
      * @param {String} type - A string representing the event type to listen for.<br>
      *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
@@ -1652,18 +1654,25 @@ var Node = cc.Class({
 
     /**
      * !#en
-     * Send an event to this object directly.
-     * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     * Trigger an event directly with the event name and necessary arguments.
      * !#zh
-     * 通过事件名和 detail 发送自定义事件
+     * 通过事件名发送自定义事件
      *
      * @method emit
      * @param {String} type - event type
-     * @param {*} [detail] - whatever argument the message needs
+     * @param {*} [arg1] - First argument in callback
+     * @param {*} [arg2] - Second argument in callback
+     * @param {*} [arg3] - Third argument in callback
+     * @param {*} [arg4] - Fourth argument in callback
+     * @param {*} [arg5] - Fifth argument in callback
+     * @example
+     * 
+     * eventTarget.emit('fire', event);
+     * eventTarget.emit('fire', message, emitter);
      */
-    emit (type, detail) {
+    emit (type, arg1, arg2, arg3, arg4, arg5) {
         if (this._bubblingListeners) {
-            this._bubblingListeners.emit(type, detail, this);
+            this._bubblingListeners.emit(type, arg1, arg2, arg3, arg4, arg5);
         }
     },
 
@@ -2916,7 +2925,7 @@ var Node = cc.Class({
                     }
                     _children[j + 1] = child;
                 }
-                this.emit(EventType.CHILD_REORDER);
+                this.emit(EventType.CHILD_REORDER, this);
             }
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
@@ -2971,35 +2980,30 @@ var Node = cc.Class({
 
 /**
  * @event position-changed
- * @param {Event.EventCustom} event
- * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
+ * @param {Vec2} oldPos - The old position, but this parameter is only available in editor!
  */
 /**
  * @event size-changed
- * @param {Event.EventCustom} event
- * @param {Size} event.detail - The old size, but this parameter is only available in editor!
+ * @param {Size} oldSize - The old size, but this parameter is only available in editor!
  */
 /**
  * @event anchor-changed
- * @param {Event.EventCustom} event
  */
 /**
  * @event child-added
- * @param {Event.EventCustom} event
- * @param {Node} event.detail - child
+ * @param {Node} child - child which have been added
  */
 /**
  * @event child-removed
- * @param {Event.EventCustom} event
- * @param {Node} event.detail - child
+ * @param {Node} child - child which have been removed
  */
 /**
  * @event child-reorder
- * @param {Event.EventCustom} event
+ * @param {Node} node - node whose children have been reordered
  */
 /**
  * @event group-changed
- * @param {Event.EventCustom} event
+ * @param {Node} node - node whose group has changed
  */
 
 // Deprecated APIs

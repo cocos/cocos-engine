@@ -608,7 +608,7 @@ cc.EditBox = module.exports = EditBox;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-began
  * @param {Event.EventCustom} event
- * @param {EditBox} event.detail - The EditBox component.
+ * @param {EditBox} editbox - The EditBox component.
  */
 
 /**
@@ -618,7 +618,7 @@ cc.EditBox = module.exports = EditBox;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-ended
  * @param {Event.EventCustom} event
- * @param {EditBox} event.detail - The EditBox component.
+ * @param {EditBox} editbox - The EditBox component.
  */
 
 /**
@@ -628,7 +628,7 @@ cc.EditBox = module.exports = EditBox;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event text-changed
  * @param {Event.EventCustom} event
- * @param {EditBox} event.detail - The EditBox component.
+ * @param {EditBox} editbox - The EditBox component.
  */
 
 /**
@@ -638,7 +638,7 @@ cc.EditBox = module.exports = EditBox;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-return
  * @param {Event.EventCustom} event
- * @param {EditBox} event.detail - The EditBox component.
+ * @param {EditBox} editbox - The EditBox component.
  */
 
 /**

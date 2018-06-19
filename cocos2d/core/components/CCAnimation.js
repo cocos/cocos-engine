@@ -24,9 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var AnimationAnimator = require('../../animation/animation-animator');
-var AnimationClip = require('../../animation/animation-clip');
-var js = require('../platform/js');
+const AnimationAnimator = require('../../animation/animation-animator');
+const AnimationClip = require('../../animation/animation-clip');
+const EventTarget = require('../event/event-target');
+const js = require('../platform/js');
 
 function equalClips (clip1, clip2) {
     if (clip1 === clip2) {
@@ -64,7 +65,7 @@ function equalClips (clip1, clip2) {
 var Animation = cc.Class({
     name: 'cc.Animation',
     extends: require('./CCComponent'),
-    mixins: [cc.EventTarget],
+    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Animation',
@@ -520,7 +521,7 @@ var Animation = cc.Class({
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.event event
+     * @param {cc.AnimationState} state 
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
@@ -532,9 +533,8 @@ var Animation = cc.Class({
      * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
      * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
      * @example
-     * onPlay: function (event) {
-     *     var state = event.detail;    // state instanceof cc.AnimationState
-     *     var type = event.type;       // type === 'play';
+     * onPlay: function (type, state) {
+     *     // callback
      * }
      * 
      * // register event to all animation
@@ -632,5 +632,8 @@ var Animation = cc.Class({
         }
     }
 });
+
+Animation.prototype._EventTargetOn = EventTarget.prototype.on;
+Animation.prototype._EventTargetOff = EventTarget.prototype.off;
 
 cc.Animation = module.exports = Animation;

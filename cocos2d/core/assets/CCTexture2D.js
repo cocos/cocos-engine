@@ -705,7 +705,6 @@ var Texture2D = cc.Class({
  * This event is emitted when the asset is loaded
  *
  * @event load
- * @param {Event.EventCustom} event
  */
 
 cc.Texture2D = module.exports = Texture2D;

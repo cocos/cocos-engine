@@ -168,9 +168,9 @@ js.extend(AnimationState, Playable);
 
 var proto = AnimationState.prototype;
 
-proto._emit = function (type, detail) {
+proto._emit = function (type, state) {
     if (this._target && this._target.isValid) {
-        this._target.emit(type, detail);
+        this._target.emit(type, type, state);
     }
 };
 

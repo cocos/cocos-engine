@@ -111,8 +111,8 @@ var Transition = cc.Enum({
 
  * // You could also add a click event
  * //Note: In this way, you can't get the touch event info, so use it wisely.
- * button.node.on('click', function (event) {
- *    //The event is a custom event, you could get the Button component via event.detail
+ * button.node.on('click', function (button) {
+ *    //The event is a custom event, you could get the Button component via first argument
  * })
  *
  */
@@ -419,9 +419,9 @@ var Button = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
-            this.node.on('spriteframe-changed', function(event) {
+            this.node.on('spriteframe-changed', function(comp) {
                 if (this.transition === Transition.SPRITE) {
-                    this.normalSprite = event.detail.spriteFrame;
+                    this.normalSprite = comp.spriteFrame;
                 }
             }.bind(this));
         }
@@ -678,5 +678,5 @@ cc.Button = module.exports = Button;
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event click
  * @param {Event.EventCustom} event
- * @param {Button} event.detail - The Button component.
+ * @param {Button} button - The Button component.
  */

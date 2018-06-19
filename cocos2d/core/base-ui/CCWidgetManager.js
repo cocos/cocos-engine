@@ -335,11 +335,10 @@ function refreshScene () {
     }
 }
 
-var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
+var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (oldPos) {
     if (widgetManager.isAligning) {
         return;
     }
-    var oldPos = event.detail;
     var newPos = this.node.position;
     var delta = newPos.sub(oldPos);
 
@@ -380,11 +379,10 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     }
 };
 
-var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
+var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
     if (widgetManager.isAligning) {
         return;
     }
-    var oldSize = event.detail;
     var newSize = this.node.getContentSize();
     var delta = cc.v2(newSize.width - oldSize.width, newSize.height - oldSize.height);
 
