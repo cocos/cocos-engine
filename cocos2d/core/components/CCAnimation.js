@@ -533,8 +533,8 @@ var Animation = cc.Class({
      * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
      * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
      * @example
-     * onPlay: function (state) {
-     *     // state instanceof cc.AnimationState
+     * onPlay: function (type, state) {
+     *     // callback
      * }
      * 
      * // register event to all animation
