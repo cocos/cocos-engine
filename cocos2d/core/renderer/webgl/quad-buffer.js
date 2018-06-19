@@ -1,6 +1,7 @@
 const MeshBuffer = require('./mesh-buffer');
 
 let QuadBuffer = cc.Class({
+    name: 'cc.QuadBuffer',
     extends: MeshBuffer,
     
     _fillQuadBuffer () {

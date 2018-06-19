@@ -1,4 +1,5 @@
 let Counter = cc.Class({
+    name: 'cc.Counter',
     ctor (id, opts, now) {
         this._id = id;
         this._opts = opts || {};
