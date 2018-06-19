@@ -1051,22 +1051,6 @@ CCClass.getInheritanceChain = function (klass) {
     return chain;
 };
 
-/*
- * Is instance of for JSB.
- * `obj` can be native object such as cc.Texture2D or cc.SpriteFrame.
- * `klass` can be base class of native object such as cc.Asset, cc.RawAsset or cc.Object.
- * @method isInstanceOf
- * @param {Object} obj
- * @param {Function} klass
- * @returns {Boolean}
- */
-// TODO - remove at 2.0 if all assets implemented in pure js
-CCClass.isInstanceOf = CC_JSB ? function (obj, klass) {
-    return obj && js.isChildClassOf(obj.constructor, klass);
-} : function (obj__skip_jsb_warning, klass) {
-    return obj__skip_jsb_warning instanceof klass;
-};
-
 var PrimitiveTypes = {
     // Specify that the input value must be integer in Properties.
     // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.

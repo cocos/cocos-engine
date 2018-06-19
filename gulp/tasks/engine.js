@@ -180,7 +180,6 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
 
 exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
-    var CheckInstanceof = require('../util/check-jsb-instanceof');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
@@ -191,8 +190,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
-    bundler.transform(CheckInstanceof)
-        .bundle()
+    bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))

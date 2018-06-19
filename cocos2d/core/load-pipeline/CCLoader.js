@@ -770,7 +770,7 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            if (cc.Class.isInstanceOf(asset, cc.Asset)) {
+            if (asset instanceof cc.Asset) {
                 let nativeUrl = asset.nativeUrl;
                 if (nativeUrl) {
                     this.release(nativeUrl);  // uncache loading item of native asset
