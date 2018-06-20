@@ -753,63 +753,71 @@ var game = {
     },
 
     _initEvents: function () {
-        var win = window, hidden, visibilityChange, _undef = "undefined";
+        var win = window, hiddenPropName;
 
         // register system events
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
             inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
-            hidden = "hidden";
+            hiddenPropName = "hidden";
         } else if (typeof document.mozHidden !== 'undefined') {
-            hidden = "mozHidden";
+            hiddenPropName = "mozHidden";
         } else if (typeof document.msHidden !== 'undefined') {
-            hidden = "msHidden";
+            hiddenPropName = "msHidden";
         } else if (typeof document.webkitHidden !== 'undefined') {
-            hidden = "webkitHidden";
+            hiddenPropName = "webkitHidden";
+        }
+        
+        var hidden = false;
+        
+        function onHidden () {
+            if (!hidden) {
+                hidden = true;
+                game.emit(game.EVENT_HIDE, game);
+            }
+        }
+        function onShown () {
+            if (hidden) {
+                hidden = false;
+                game.emit(game.EVENT_SHOW, game);
+            }
         }
 
-        var changeList = [
-            "visibilitychange",
-            "mozvisibilitychange",
-            "msvisibilitychange",
-            "webkitvisibilitychange",
-            "qbrowserVisibilityChange"
-        ];
-        var onHidden = function () {
-            game.emit(game.EVENT_HIDE, game);
-        };
-        var onShow = function () {
-            game.emit(game.EVENT_SHOW, game);
-        };
-
-        if (hidden) {
+        if (hiddenPropName) {
+            var changeList = [
+                "visibilitychange",
+                "mozvisibilitychange",
+                "msvisibilitychange",
+                "webkitvisibilitychange",
+                "qbrowserVisibilityChange"
+            ];
             for (var i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], function (event) {
-                    var visible = document[hidden];
+                    var visible = document[hiddenPropName];
                     // QQ App
                     visible = visible || event["hidden"];
                     if (visible) onHidden();
-                    else onShow();
+                    else onShown();
                 }, false);
             }
         } else {
             win.addEventListener("blur", onHidden, false);
-            win.addEventListener("focus", onShow, false);
+            win.addEventListener("focus", onShown, false);
         }
 
         if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
-            win.onfocus = onShow;
+            win.onfocus = onShown;
         }
 
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            wx.onShow(onShow);
+            wx.onShow(onShown);
             wx.onHide(onHidden);
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {
             win.addEventListener("pagehide", onHidden, false);
-            win.addEventListener("pageshow", onShow, false);
+            win.addEventListener("pageshow", onShown, false);
         }
 
         this.on(game.EVENT_HIDE, function () {
