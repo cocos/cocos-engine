@@ -329,11 +329,8 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.resume)
             return false;
-        if (audio.getCurrentTime() === 0) {
-            audio.play();
-        } else {
-            audio.resume();
-        }
+
+        audio.resume();
     },
 
     /**

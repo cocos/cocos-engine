@@ -215,7 +215,7 @@ var AudioSource = cc.Class({
         if ( this.playOnLoad ) {
             this.play();
         }
-        if ( this.preload ) {
+        else if ( this.preload ) {
             this.audio.src = this._clip;
             this.audio.preload();
         }
