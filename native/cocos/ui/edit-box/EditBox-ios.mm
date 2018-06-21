@@ -72,7 +72,7 @@ namespace
 {
     bool g_isMultiline = false;
     bool g_confirmHold = false;
-    int g_maxLength = 0;
+    int g_maxLength = INT_MAX;
     KeyboardEventHandler* g_keyboardHandler = nil;
     
     UITextField* g_textField = nil;
