@@ -365,7 +365,7 @@
         "cocos/storage/local-storage/LocalStorage.h", 
         "cocos/ui/edit-box/EditBox-android.cpp", 
         "cocos/ui/edit-box/EditBox-ios.mm", 
-        "cocos/ui/edit-box/EditBox-mac.cpp", 
+        "cocos/ui/edit-box/EditBox-mac.mm", 
         "cocos/ui/edit-box/EditBox.h", 
         "download-deps.py", 
         "extensions/Android.mk", 
