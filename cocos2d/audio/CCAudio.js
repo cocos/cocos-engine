@@ -141,27 +141,29 @@ Audio.State = {
         this._bindEnded();
         this._element.play();
 
-        if (!(CC_QQPLAY || CC_WECHATGAME) &&
-            this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
-            this._element.paused) {
-            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
-        }
-
-        if (touchBinded) return;
-        touchBinded = true;
-
-        // Listen to the touchstart body event and play the audio when necessary.
-        cc.game.canvas.addEventListener('touchstart', function () {
-            let item;
-            while (item = touchPlayList.pop()) {
-                item.audio.play(item.offset);
+        if (!CC_QQPLAY && !CC_WECHATGAME) {
+            if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
+                this._element.paused) {
+                touchPlayList.push({ instance: this, offset: 0, audio: this._element });
             }
-        });
+
+            if (touchBinded) return;
+            touchBinded = true;
+
+            // Listen to the touchstart body event and play the audio when necessary.
+            cc.game.canvas.addEventListener('touchstart', function () {
+                let item;
+                while (item = touchPlayList.pop()) {
+                    item.audio.play(item.offset);
+                }
+            });
+        }
     };
 
     proto.destroy = function () {
         if (CC_WECHATGAME) {
             this._element && this._element.destroy();
+            this._element = null;
         }
     };
 
