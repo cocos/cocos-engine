@@ -48,13 +48,13 @@ var getAudioFromPath = function (path) {
 
     var audio = new Audio();
     var callback = function () {
-        var oldAudio = getAudioFromId(this.id);
-        if (oldAudio) {
-            oldAudio.destroy();
+        var audioInList = getAudioFromId(this.id);
+        if (audioInList) {
             delete id2audio[this.id];
             var index = list.indexOf(this.id);
             cc.js.array.fastRemoveAt(list, index);
         }
+        this.destroy();
     };
     audio.on('ended', callback, audio);
     audio.on('stop', callback, audio);
