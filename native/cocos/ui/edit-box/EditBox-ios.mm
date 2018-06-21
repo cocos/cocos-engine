@@ -22,12 +22,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "EditBox.h"
-#import <UIKit/UITextField.h>
-#import <UIKit/UITextView.h>
 #include "platform/CCApplication.h"
 #include "platform/ios/CCEAGLView-ios.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+
+#import <UIKit/UITextField.h>
+#import <UIKit/UITextView.h>
 
 #define TEXT_LINE_HEIGHT  40
 #define TEXT_VIEW_MAX_LINE_SHOWN    3
@@ -206,11 +207,7 @@ namespace
             textField.returnKeyType = UIReturnKeySend;
     }
     
-    void initTextField(const CGRect& rect,
-                       const std::string& defaultValue,
-                       int maxLength,
-                       const std::string& confirmType,
-                       const std::string& inputType)
+    void initTextField(const CGRect& rect, const cocos2d::EditBox::ShowInfo& showInfo)
     {
         if (! g_textField)
         {
@@ -222,18 +219,18 @@ namespace
             g_textField.delegate = g_textFieldDelegate;
             
             // Assign the overlay button to a stored text field
-            createButton(&g_textFieldConfirmButton, &g_textFieldConfirmButtonHandler, rect, confirmType);
+            createButton(&g_textFieldConfirmButton, &g_textFieldConfirmButtonHandler, rect, showInfo.confirmType);
             g_textField.rightView = g_textFieldConfirmButton;
             g_textField.rightViewMode = UITextFieldViewModeAlways;
         }
 
         g_textField.frame = rect;
-        setTextFieldReturnType(g_textField, confirmType);
-        setTexFiledKeyboardType(g_textField, inputType);
-        g_textField.text = [NSString stringWithUTF8String: defaultValue.c_str()];
+        setTextFieldReturnType(g_textField, showInfo.confirmType);
+        setTexFiledKeyboardType(g_textField, showInfo.inputType);
+        g_textField.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
     }
     
-    void initTextView(const CGRect& viewRect, const CGRect& btnRect, const std::string& defaultValue, const std::string& confirmType)
+    void initTextView(const CGRect& viewRect, const CGRect& btnRect, const cocos2d::EditBox::ShowInfo& showInfo)
     {
         if (!g_textView)
         {
@@ -242,21 +239,16 @@ namespace
             g_textViewDelegate = [[TextViewDelegate alloc] init];
             g_textView.delegate = g_textViewDelegate;
             
-            createButton(&g_textViewConfirmButton, &g_textViewConfirmButtonHander, btnRect, confirmType);
+            createButton(&g_textViewConfirmButton, &g_textViewConfirmButtonHander, btnRect, showInfo.confirmType);
             g_textViewConfirmButton.frame = CGRectMake(viewRect.size.width - BUTTON_WIDTH, 0, BUTTON_WIDTH, BUTTON_HIGHT);
             [g_textView addSubview:g_textViewConfirmButton];
         }
         
         g_textView.frame = btnRect;
-        g_textView.text = [NSString stringWithUTF8String: defaultValue.c_str()];
+        g_textView.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
     }
     
-    void addTextInput(const std::string& defaultValue,
-                      int maxLength,
-                      bool isMultiline,
-                      bool confirmHold,
-                      const std::string& confirmType,
-                      const std::string& inputType)
+    void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)
     {
         UIView* view = (UIView*)cocos2d::Application::getInstance()->getView();
         CGRect viewRect = view.frame;
@@ -265,10 +257,10 @@ namespace
                                  viewRect.size.height - height,
                                  viewRect.size.width,
                                  height);
-        if (isMultiline)
-            initTextView(viewRect, rect, defaultValue, confirmType);
+        if (showInfo.isMultiline)
+            initTextView(viewRect, rect, showInfo);
         else
-            initTextField(rect, defaultValue, maxLength, confirmType, inputType);
+            initTextField(rect, showInfo);
         
         UIView* textInput = getCurrentView();
         [view addSubview:textInput];
@@ -371,21 +363,16 @@ namespace
 
 NS_CC_BEGIN
 
-void EditBox::show(const std::string& defaultValue,
-                   int maxLength,
-                   bool isMultiline,
-                   bool confirmHold,
-                   const std::string& confirmType,
-                   const std::string& inputType)
+void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
     // Should initialize them at first.
-    g_maxLength = maxLength;
-    g_isMultiline = isMultiline;
-    g_confirmHold = confirmHold;
+    g_maxLength = showInfo.maxLength;
+    g_isMultiline = showInfo.isMultiline;
+    g_confirmHold = showInfo.confirmHold;
     
     [(CCEAGLView*)cocos2d::Application::getInstance()->getView() setPreventTouchEvent:true];
     addKeyboardEventLisnters();
-    addTextInput(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+    addTextInput(showInfo);
 }
 
 void EditBox::hide()

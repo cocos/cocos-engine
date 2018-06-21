@@ -27,11 +27,30 @@ THE SOFTWARE.
 #pragma once
 
 #include "platform/CCGL.h"
-#include "glfw3/glfw3.h"
-#include "glfw3/glfw3native.h"
-
 #include "base/ccMacros.h"
 #include "platform/CCApplication.h"
+
+#include "glfw3/glfw3.h"
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#ifndef GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#endif
+#ifndef GLFW_EXPOSE_NATIVE_WGL
+#define GLFW_EXPOSE_NATIVE_WGL
+#endif
+#include "glfw3/glfw3native.h"
+#endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) */
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#ifndef GLFW_EXPOSE_NATIVE_NSGL
+#define GLFW_EXPOSE_NATIVE_NSGL
+#endif
+#ifndef GLFW_EXPOSE_NATIVE_COCOA
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+#include "glfw3/glfw3native.h"
+#endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 
 NS_CC_BEGIN
 
@@ -47,8 +66,9 @@ public:
     void swapBuffers();
     float getScale() const;
     GLint getMainFBO() const;
+    void setIsEditboxEditing(bool value);
 
-    inline void* getGLFWWindow() const {return _mainWindow;};
+    inline GLFWwindow* getGLFWWindow() const {return _mainWindow;};
     
 private:  
     bool initGlew();
@@ -76,6 +96,8 @@ private:
     
     // (framebuffer size) / (window size)
     float _scale = 1.0f;
+    
+    bool _isEditboxEditing = false;
 
     friend class GLFWEventHandler;
 };

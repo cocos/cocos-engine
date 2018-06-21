@@ -885,25 +885,47 @@ static bool JSB_showInputBox(se::State& s)
         se::Value tmp;
         const auto& obj = args[0].toObject();
         
+        cocos2d::EditBox::ShowInfo showInfo;
+        
         obj->getProperty("defaultValue", &tmp);
-        std::string defaultValue = tmp.toString();
+        showInfo.defaultValue = tmp.toString();
+        
         
         obj->getProperty("maxLength", &tmp);
-        int maxLength = tmp.toInt32();
+        showInfo.maxLength = tmp.toInt32();
         
         obj->getProperty("multiple", &tmp);
-        bool isMultiLine = tmp.toBoolean();
+        showInfo.isMultiline = tmp.toBoolean();
         
         obj->getProperty("confirmHold", &tmp);
-        bool confirmHold = tmp.toBoolean();
+        if (! tmp.isUndefined())
+            showInfo.confirmHold = tmp.toBoolean();
         
         obj->getProperty("confirmType", &tmp);
-        std::string confirmType = tmp.toString();
+        if (! tmp.isUndefined())
+            showInfo.confirmType = tmp.toString();
         
         obj->getProperty("inputType", &tmp);
-        std::string inputType = tmp.toString();
+        if (! tmp.isUndefined())
+            showInfo.inputType = tmp.toString();
         
-        EditBox::show(defaultValue, maxLength, isMultiLine, confirmHold, confirmType, inputType);
+        obj->getProperty("originX", &tmp);
+        if (! tmp.isUndefined())
+            showInfo.x = tmp.toInt32();
+        
+        obj->getProperty("originY", &tmp);
+        if (! tmp.isUndefined())
+            showInfo.y = tmp.toInt32();
+        
+        obj->getProperty("width", &tmp);
+        if (! tmp.isUndefined())
+            showInfo.width = tmp.toInt32();
+        
+        obj->getProperty("height", &tmp);
+        if (! tmp.isUndefined())
+            showInfo.height = tmp.toInt32();
+        
+        EditBox::show(showInfo);
         
         return true;
     }

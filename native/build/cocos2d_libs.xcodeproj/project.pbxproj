@@ -302,7 +302,7 @@
 		461DCA3620BBFA2D00B22827 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA3420BBFA2D00B22827 /* EditBox.h */; };
 		461DCA3720BBFA2D00B22827 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA3420BBFA2D00B22827 /* EditBox.h */; };
 		461DCA3B20BBFCA300B22827 /* EditBox-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */; };
-		461DCA3E20BBFCFE00B22827 /* EditBox-mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */; };
+		461DCA3E20BBFCFE00B22827 /* EditBox-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA3C20BBFCFE00B22827 /* EditBox-mac.mm */; };
 		461DCA5820C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */; };
 		461DCA5920C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */; };
 		461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
@@ -1167,7 +1167,7 @@
 		4617866F205262BB008256E1 /* jsb_conversions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_conversions.hpp; sourceTree = "<group>"; };
 		461DCA3420BBFA2D00B22827 /* EditBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditBox.h; sourceTree = "<group>"; };
 		461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "EditBox-ios.mm"; sourceTree = "<group>"; };
-		461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "EditBox-mac.cpp"; sourceTree = "<group>"; };
+		461DCA3C20BBFCFE00B22827 /* EditBox-mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "EditBox-mac.mm"; sourceTree = "<group>"; };
 		461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
@@ -1932,7 +1932,7 @@
 			children = (
 				461DCA3420BBFA2D00B22827 /* EditBox.h */,
 				461DCA3A20BBFCA300B22827 /* EditBox-ios.mm */,
-				461DCA3C20BBFCFE00B22827 /* EditBox-mac.cpp */,
+				461DCA3C20BBFCFE00B22827 /* EditBox-mac.mm */,
 			);
 			path = "edit-box";
 			sourceTree = "<group>";
@@ -3308,7 +3308,7 @@
 				4DED48701DFFA4AF0070C5C4 /* b2PrismaticJoint.cpp in Sources */,
 				4DED48681DFFA4AF0070C5C4 /* b2MotorJoint.cpp in Sources */,
 				4617866B2052609B008256E1 /* jsb_cocos2dx_network_auto.cpp in Sources */,
-				461DCA3E20BBFCFE00B22827 /* EditBox-mac.cpp in Sources */,
+				461DCA3E20BBFCFE00B22827 /* EditBox-mac.mm in Sources */,
 				40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
 				1A52DB62205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,

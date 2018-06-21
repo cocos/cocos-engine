@@ -25,15 +25,15 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/desktop/CCGLView-desktop.h"
-
-#include <cmath>
-#include <unordered_map>
-
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "ccMacros.h"
 #include "base/ccUtils.h"
 #include "platform/CCApplication.h"
+#include "cocos/ui/edit-box/EditBox.h"
+
+#include <cmath>
+#include <unordered_map>
 
 NS_CC_BEGIN
 
@@ -219,6 +219,11 @@ GLint GLView::getMainFBO() const
     return _mainFBO;
 }
 
+void GLView::setIsEditboxEditing(bool value)
+{
+    _isEditboxEditing = value;
+}
+
 void GLView::onGLFWError(int errorID, const char* errorDesc)
 {
     if (_mainWindow)
@@ -244,6 +249,9 @@ namespace
 
 void GLView::onGLFWMouseCallBack(GLFWwindow* /*window*/, int button, int action, int /*modify*/)
 {
+    if (_isEditboxEditing)
+        EditBox::complete();
+    
     unsigned short jsButton;
     if (GLFW_MOUSE_BUTTON_LEFT == button)
         jsButton = 0;
@@ -264,6 +272,9 @@ void GLView::onGLFWMouseCallBack(GLFWwindow* /*window*/, int button, int action,
 
 void GLView::onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
 {
+    if (_isEditboxEditing)
+        return;
+    
     dispatchMouseEvent(x, y, 0, MouseEvent::Type::WHEEL);
 }
 
@@ -271,6 +282,9 @@ void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
 {
     _mouseX = (float)x;
     _mouseY = (float)y;
+    
+    if (_isEditboxEditing)
+        return;
 
     dispatchMouseEvent(_mouseX, _mouseY, 0, MouseEvent::Type::MOVE);
 }

@@ -31,21 +31,16 @@
 
 NS_CC_BEGIN
 
-void EditBox::show(const std::string& defaultValue,
-	               int maxLength,
-	               bool isMultiline,
-	               bool confirmHold,
-	               const std::string& confirmType,
-	               const std::string& inputType)
+void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
 	JniHelper::callStaticVoidMethod(CLASS_PATH, 
 		                            "showNative",
-		                            defaultValue,
-		                            maxLength,
-		                            isMultiline,
-		                            confirmHold,
-		                            confirmType,
-		                            inputType);
+		                            ShowInfo.defaultValue,
+		                            ShowInfo.maxLength,
+		                            ShowInfo.isMultiline,
+		                            ShowInfo.confirmHold,
+		                            ShowInfo.confirmType,
+		                            ShowInfo.inputType);
 }
 
 void EditBox::hide()

@@ -31,15 +31,25 @@ NS_CC_BEGIN
 class EditBox 
 {
 public:
-	static void show(const std::string& defaultValue,
-		             int maxLength,
-		             bool isMultiLine,
-		             bool confirmHold,
-		             const std::string& confirmType,
-		             const std::string& inputType);
+    struct ShowInfo
+    {
+        std::string defaultValue = "";
+        std::string confirmType = "";
+        std::string inputType = "";
+        int maxLength = 0;
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+        bool confirmHold = false;
+        bool isMultiline = false;
+    };
+    
+	static void show(const ShowInfo& showInfo);
 	static void hide();
     
-    // It is used on iOS to send a complete message to JS.
+    // It is internally to send a complete message to JS.
+    // Don't call it by yourself untile you know the effect.
     static void complete();
 };
 
