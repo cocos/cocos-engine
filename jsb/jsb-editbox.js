@@ -84,6 +84,8 @@
 		let inputTypeString = getInputType(editBoxImpl._inputMode);
 		if (editBoxImpl._inputFlag === InputFlag.PASSWORD)
 			inputTypeString = 'password';
+
+		let rect = this._getRect();
 		
 		jsb.inputBox.show({
 			defaultValue: editBoxImpl._text,
@@ -91,7 +93,11 @@
 			multiple: multiline,
 			confirmHold: false,
 			confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-			inputType: inputTypeString
+			inputType: inputTypeString,
+			originX: rect.x,
+			originY: rect.y,
+			width: rect.width,
+			height: rect.height
 		});
 		if (this._delegate) {
 			let editBox = this._delegate;
@@ -144,12 +150,42 @@
 	};
 
 	_p._updateMatrix = function () {
-		// jsb not support
+		
 	};
 
 	_p._updateSize = function (newWidth, newHeight) {
 		// jsb not support
 	};
+
+	_p._getRect = function() {
+		let node = this._node, 
+            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
+        let dpr = cc.view._devicePixelRatio;
+    
+        let math = cc.vmath;
+        let matrix = math.mat4.create();  
+        node.getWorldMatrix(matrix);
+        let contentSize = node._contentSize;
+        let vec3 = cc.v3();
+        vec3.x = -node._anchorPoint.x * contentSize.width;
+        vec3.y = -node._anchorPoint.y * contentSize.height;
+    
+        
+        math.mat4.translate(matrix, matrix, vec3);
+    
+        scaleX /= dpr;
+        scaleY /= dpr;
+    
+        let finalScaleX = matrix.m00 * scaleX;
+        let finaleScaleY = matrix.m05 * scaleY;
+
+        return {
+        	x: matrix.m12 * finalScaleX,
+        	y: matrix.m13 * finaleScaleY,
+        	width: contentSize.width * finalScaleX,
+        	height: contentSize.height * finaleScaleY
+        };
+	}
 
 	_p.setMaxLength = function (maxLength) {
 		if (!isNaN(maxLength)) {
