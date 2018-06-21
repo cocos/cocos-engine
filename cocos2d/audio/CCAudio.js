@@ -96,9 +96,6 @@ Audio.State = {
             this._loaded = false;
             return;
         }
-        
-        if (this._element)
-            return;
 
         if (this._element)
             return;
