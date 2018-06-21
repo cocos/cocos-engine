@@ -3326,7 +3326,7 @@ var spine;
 					var constraint = ikConstraints[ii];
 					if (constraint.data.order == i) {
 						this.sortIkConstraint(constraint);
-						continue outer;
+						//continue outer;
 					}
 				}
 				for (var ii = 0; ii < transformCount; ii++) {
