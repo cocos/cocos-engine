@@ -142,6 +142,13 @@ _ccsg.Label = _ccsg.Node.extend({
     _isUnderline: false,
     _fontAsset: null,
 
+    onExit: function () {
+        this._super();
+
+        this._renderCmd._texture.releaseTexture();
+        this._notifyLabelSkinDirty();
+    },
+
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontAsset) {
         EventTarget.call(this);
@@ -1270,13 +1277,11 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     label._fontHandle = "";
     label._labelType = 0;
     label._resetBMFont();
-    label._renderCmd._texture.releaseTexture();
     if (CC_DEV) {
         cc.assert(!label._parent, 'Recycling label\'s parent should be null!');
     }
-    label._updateLabel();
     return true;
-}, 120);
+}, 10);
 
 _ccsg.Label.pool.get = function (string, fontAsset) {
     var label = this._get();
