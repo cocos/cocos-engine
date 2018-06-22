@@ -80,7 +80,7 @@ var RenderComponentWalker = function (device, renderScene) {
 
     this.node = this._dummyNode;
     
-    this.parentOpacity = 1 / 255;
+    this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
 
