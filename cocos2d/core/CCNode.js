@@ -1271,6 +1271,13 @@ var Node = cc.Class({
                 this._rotationY = roty;
             }
         }
+
+        // Upgrade from 2.0.0 preview 4 & earlier versions
+        // TODO: Remove after final version
+        if (this._color.a < 255 && this._opacity === 255) {
+            this._opacity = this._color.a;
+            this._color.a = 255;
+        }
     },
 
     /*
