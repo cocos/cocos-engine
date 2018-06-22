@@ -331,15 +331,10 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _parseDragonAsset: function () {
         if (this.dragonAsset) {
-            if (CC_JSB) {
-                // The '_factory' create a new one every time in JSB, they can't use getDragonBonesData
-                // to get cached data, and only parse data every time
-                this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
-            }
-            else {
-                var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
-                var data = this._factory.getDragonBonesData(jsonObj.name);
-                if (data) {
+            var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
+            var data = this._factory.getDragonBonesData(jsonObj.name);
+            if (data) {
+                if (!CC_JSB) {
                     // already added asset
                     var armature, dragonBonesData;
                     for (var i = 0, len = jsonObj.armature.length; i < len; i++) {
@@ -352,10 +347,18 @@ dragonBones.ArmatureDisplay = cc.Class({
                             data.addArmature(dragonBonesData.armatures[armature.name]);
                         }
                     }
-                    this._dragonBonesData = data;
-                    return;
                 }
-                this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
+                this._dragonBonesData = data;
+            }
+            else {
+                if (CC_JSB) {
+                    // The '_factory' create a new one every time in JSB, they can't use getDragonBonesData
+                    // to get cached data, and only parse data every time
+                    this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
+                }
+                else {
+                    this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
+                }
             }
         }
     },
