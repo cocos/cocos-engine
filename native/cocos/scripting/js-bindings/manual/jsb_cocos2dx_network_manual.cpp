@@ -27,7 +27,7 @@
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "network/CCDownloader.h"
-#include "jsb_cocos2dx_network_auto.hpp"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 
 static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) {
     cocos2d::network::Downloader *cobj = (cocos2d::network::Downloader *) s.nativeThisObject();

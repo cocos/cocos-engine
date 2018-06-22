@@ -27,7 +27,6 @@
 #include "audio/win32/AudioMacros.h"
 #include "platform/CCFileUtils.h"
 
-#include "base/CCConsole.h"
 #include "mpg123/mpg123.h"
 
 #define LOG_TAG "AudioDecoderMp3"

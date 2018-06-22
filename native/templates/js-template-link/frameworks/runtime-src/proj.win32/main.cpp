@@ -47,12 +47,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 #endif
 
     // create the application instance
-    AppDelegate app;
-    app.run();
+    AppDelegate app(960, 640);
+    app.start();
 
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
 #endif
-
-    return ret;
 }

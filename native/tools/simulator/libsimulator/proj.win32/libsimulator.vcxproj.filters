@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="network">
-      <UniqueIdentifier>{2c74ba1d-1959-47a0-a821-7442ff714dbb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="service">
       <UniqueIdentifier>{4f295ca0-5110-4f3a-9c39-d5299950cdb6}</UniqueIdentifier>
     </Filter>
@@ -34,12 +31,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lib\network\CCHTTPRequest.h">
-      <Filter>network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\network\CCHTTPRequestDelegate.h">
-      <Filter>network</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\ProjectConfig\ProjectConfig.h">
       <Filter>ProjectConfig</Filter>
     </ClInclude>
@@ -107,12 +98,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="..\lib\runtime\ConfigParser.h">
-      <Filter>runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\runtime\ConnectWaitLayer.h">
-      <Filter>runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\runtime\ConsoleCommand.h">
       <Filter>runtime</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\runtime\FileServer.h">
@@ -216,9 +201,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\lib\network\CCHTTPRequest.cpp">
-      <Filter>network</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\ProjectConfig\ProjectConfig.cpp">
       <Filter>ProjectConfig</Filter>
     </ClCompile>
@@ -273,12 +255,6 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Runtime_win32.cpp" />
     <ClCompile Include="..\lib\runtime\ConfigParser.cpp">
-      <Filter>runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\runtime\ConnectWaitLayer.cpp">
-      <Filter>runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\runtime\ConsoleCommand.cpp">
       <Filter>runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\runtime\FileServer.cpp">

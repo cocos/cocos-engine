@@ -38,7 +38,7 @@
 #include "OpenalSoft/alext.h"
 #endif
 #include "audio/include/AudioEngine.h"
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 #include "platform/CCFileUtils.h"
 #include "audio/win32/AudioDecoderManager.h"
@@ -122,7 +122,7 @@ AudioEngineImpl::~AudioEngineImpl()
 {
     if (_scheduler != nullptr)
     {
-        _scheduler->unschedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this);
+        _scheduler->unschedule("AudioEngine", this);
     }
 
     if (s_ALContext) {
@@ -166,7 +166,7 @@ bool AudioEngineImpl::init()
                 _alSourceUsed[_alSources[i]] = false;
             }
 
-            _scheduler = Director::getInstance()->getScheduler();
+            _scheduler = Application::getInstance()->getScheduler();
             ret = AudioDecoderManager::init();
             ALOGI("OpenAL was initialized successfully!");
         }
@@ -252,7 +252,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
 
     if (_lazyInitLoop) {
         _lazyInitLoop = false;
-        _scheduler->schedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this, 0.05f, false);
+        _scheduler->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05f, false, "AudioEngine");
     }
 
     return _currentAudioID++;
@@ -503,7 +503,7 @@ void AudioEngineImpl::update(float dt)
 
     if(_audioPlayers.empty()){
         _lazyInitLoop = true;
-        _scheduler->unschedule(CC_SCHEDULE_SELECTOR(AudioEngineImpl::update), this);
+        _scheduler->unschedule("AudioEngine", this);
     }
 }
 

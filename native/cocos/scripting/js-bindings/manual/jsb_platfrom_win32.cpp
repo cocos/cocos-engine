@@ -23,34 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "main.h"
-#include "AppDelegate.h"
+#include "jsb_platform.h"
 
-USING_NS_CC;
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/platform/CCFileUtils.h"
 
-// uncomment below line, open debug console
-// #define USE_WIN32_CONSOLE
+using namespace cocos2d;
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE hPrevInstance,
-                       LPTSTR    lpCmdLine,
-                       int       nCmdShow)
+static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
+
+// TODO
+const std::unordered_map<std::string, std::string>& getFontFamilyNameMap()
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+    return _fontFamilyNameMap;
+}
 
-#ifdef USE_WIN32_CONSOLE
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-#endif
-
-    // create the application instance
-    AppDelegate app(960, 640);
-    app.start();
-
-#ifdef USE_WIN32_CONSOLE
-    FreeConsole();
-#endif
+bool register_platform_bindings(se::Object* obj)
+{
+    return true;
 }

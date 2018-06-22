@@ -16,12 +16,6 @@
     <ClCompile Include="..\cocos\base\CCData.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\base\ccFPSImages.c">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\base\CCNS.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\base\ccRandom.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -29,9 +23,6 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\base\ccTypes.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\base\CCUserDefault.cpp">
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\base\ccUTF8.cpp">
@@ -46,9 +37,6 @@
     <ClCompile Include="..\cocos\base\etc1.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\base\ObjectFactory.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\base\pvr.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -57,9 +45,6 @@
     </ClCompile>
     <ClCompile Include="..\cocos\base\ZipUtils.cpp">
       <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\math\CCAffineTransform.cpp">
-      <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\math\CCGeometry.cpp">
       <Filter>math</Filter>
@@ -74,9 +59,6 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\math\Quaternion.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\math\TransformUtils.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\math\Vec2.cpp">
@@ -175,30 +157,6 @@
     <ClCompile Include="..\cocos\renderer\Types.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp">
-      <Filter>js-bindings\auto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp">
-      <Filter>js-bindings\auto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\event\EventDispatcher.cpp">
       <Filter>js-bindings\event</Filter>
     </ClCompile>
@@ -223,30 +181,6 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.cpp">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.c">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.cc">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.cpp">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClCompile>
@@ -254,12 +188,6 @@
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\ScriptEngine.cpp">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.cpp">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.cc">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.cpp">
@@ -344,8 +272,77 @@
     <ClCompile Include="..\cocos\network\WebSocket-libwebsockets.cpp">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\base\CCScheduler.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\env.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\http_parser.c">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_agent.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_io.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_socket.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_socket_server.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\node.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\node_debug_options.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\SHA1.cpp">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\util.cc">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp">
       <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_utils.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.cpp">
       <Filter>js-bindings\manual</Filter>
@@ -356,8 +353,59 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp">
       <Filter>js-bindings\manual</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\base\CCScheduler.cpp">
+    <ClCompile Include="..\cocos\base\CCRenderTexture.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCGLUtils.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_platfrom_win32.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\ui\edit-box\EditBox-win32.cpp">
+      <Filter>ui\edit-box</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\storage\local-storage\LocalStorage.cpp">
+      <Filter>storage\local-storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\CCCanvasRenderingContext2D-win32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\csscolorparser.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCThreadPool.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_network_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\AudioEngine.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioCache.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioDecoder.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioDecoderManager.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioDecoderMp3.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioDecoderOgg.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioEngine-win32.cpp">
+      <Filter>audio\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\audio\win32\AudioPlayer.cpp">
+      <Filter>audio\win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -379,16 +427,10 @@
     <ClInclude Include="..\cocos\base\CCData.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\base\ccFPSImages.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\base\ccMacros.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\base\CCMap.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\base\CCNS.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\base\ccRandom.h">
@@ -401,9 +443,6 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\base\ccTypes.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\base\CCUserDefault.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\base\ccUTF8.h">
@@ -421,12 +460,6 @@
     <ClInclude Include="..\cocos\base\etc1.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\base\firePngData.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\base\ObjectFactory.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\base\pvr.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -441,9 +474,6 @@
     </ClInclude>
     <ClInclude Include="..\cocos\base\ZipUtils.h">
       <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\math\CCAffineTransform.h">
-      <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\math\CCGeometry.h">
       <Filter>math</Filter>
@@ -464,9 +494,6 @@
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\math\Quaternion.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\math\TransformUtils.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\math\Vec2.h">
@@ -574,30 +601,6 @@
     <ClInclude Include="..\cocos\renderer\Types.h">
       <Filter>renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp">
-      <Filter>js-bindings\auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp">
-      <Filter>js-bindings\auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.hpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.hpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\event\EventDispatcher.h">
       <Filter>js-bindings\event</Filter>
     </ClInclude>
@@ -628,40 +631,10 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Base.h">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\base64.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.hpp">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\HelperMacros.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_mutex.h">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.hpp">
@@ -676,19 +649,7 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SeApi.h">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util-inl.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.h">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.hpp">
-      <Filter>js-bindings\jswrapper\v8</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\v8_inspector_protocol_json.h">
       <Filter>js-bindings\jswrapper\v8</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\cocos2d.h" />
@@ -848,8 +809,95 @@
     <ClInclude Include="..\cocos\network\WebSocket.h">
       <Filter>network</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\base\CCScheduler.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\base64.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\env.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\http_parser.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_agent.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_io.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_socket.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\inspector_socket_server.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\node.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\node_debug_options.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\node_mutex.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\SHA1.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\util.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\util-inl.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\debugger\v8_inspector_protocol_json.h">
+      <Filter>js-bindings\jswrapper\v8\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp">
       <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_utils.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform.h">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform_ios.h">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp">
       <Filter>js-bindings\manual</Filter>
@@ -860,8 +908,65 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\base\CCScheduler.h">
+    <ClInclude Include="..\cocos\scripting\js-bindings\event\CustomEventTypes.h">
+      <Filter>js-bindings\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCRenderTexture.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCGLUtils.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\ui\edit-box\EditBox.h">
+      <Filter>ui\edit-box</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\storage\local-storage\LocalStorage.h">
+      <Filter>storage\local-storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCCanvasRenderingContext2D.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\csscolorparser.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCThreadPool.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_network_manual.h">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioCache.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioDecoder.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioDecoderManager.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioDecoderMp3.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioDecoderOgg.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioEngine-win32.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioMacros.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\win32\AudioPlayer.h">
+      <Filter>audio\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\include\AudioEngine.h">
+      <Filter>audio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\audio\include\Export.h">
+      <Filter>audio\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -927,6 +1032,30 @@
     </Filter>
     <Filter Include="network">
       <UniqueIdentifier>{8553d9e7-36b8-413a-bef4-e21d498ffeca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\jswrapper\v8\debugger">
+      <UniqueIdentifier>{bc60b25a-96ac-44c4-b41d-1cd54b7ced67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{762b2921-c270-4c06-8c20-f1610fe6f2e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\edit-box">
+      <UniqueIdentifier>{22012012-8bc2-45cf-9c45-ea226dec0069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="storage">
+      <UniqueIdentifier>{7150bd34-60ba-4140-afa6-3d09517bd600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="storage\local-storage">
+      <UniqueIdentifier>{edff1dc7-36e1-4978-a197-d7a5daa8f0a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{c32501cd-4b8f-4bf2-b009-b77550c7f4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\win32">
+      <UniqueIdentifier>{b06d91ac-f060-4eeb-ae08-0e7dc0d3b195}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\include">
+      <UniqueIdentifier>{d1b8a7c4-28cc-45b3-8276-494fbcf958d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -40,13 +40,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\cocos2d-x\cocos\2d\cocos2dx.props" />
-    <Import Project="..\..\cocos2d-x\cocos\2d\cocos2d_headers.props" />
+    <Import Project="..\..\cocos2d-x\build\cocos2dx.props" />
+    <Import Project="..\..\cocos2d-x\build\cocos2d_headers.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\cocos2d-x\cocos\2d\cocos2dx.props" />
-    <Import Project="..\..\cocos2d-x\cocos\2d\cocos2d_headers.props" />
+    <Import Project="..\..\cocos2d-x\build\cocos2dx.props" />
+    <Import Project="..\..\cocos2d-x\build\cocos2d_headers.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -196,11 +196,6 @@ copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\game.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\cocos2d-x\cocos\scripting\js-bindings\proj.win32\libjscocos2d.vcxproj">
-      <Project>{39379840-825a-45a0-b363-c09ffef864bd}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

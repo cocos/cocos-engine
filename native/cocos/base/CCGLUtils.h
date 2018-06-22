@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "base/ccMacros.h"
 #include "platform/CCGL.h"
 

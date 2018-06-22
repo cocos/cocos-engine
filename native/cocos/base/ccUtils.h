@@ -34,6 +34,14 @@ Misc free functions
 */
 
 NS_CC_BEGIN
+
+namespace
+{
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#include <winsock.h>
+    extern "C" int gettimeofday(struct timeval * val, void *);
+#endif
+}
 /*
 utils::nextPOT function is licensed under the same license that is used in Texture2D.m.
 */
@@ -51,7 +59,7 @@ Examples:
 
 namespace utils
 {
-	CC_DLL int nextPOT(int x);
+    CC_DLL int nextPOT(int x);
     /** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
      * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
      * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.

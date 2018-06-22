@@ -890,7 +890,7 @@ static bool XMLHttpRequest_getResponse(se::State& s)
             }
             else
             {
-                SE_PRECONDITION2(false, false, "Invalid response type: %d", (int)xhr->getResponseType());
+                SE_PRECONDITION2(false, false, "Invalid response type");
             }
         }
     }
@@ -976,7 +976,7 @@ static bool XMLHttpRequest_setResponseType(se::State& s)
         }
         else
         {
-            SE_PRECONDITION2(false, false, "The response type (%s) isn't supported!", type.c_str());
+            SE_PRECONDITION2(false, false, "The response type isn't supported!");
         }
         return true;
     }

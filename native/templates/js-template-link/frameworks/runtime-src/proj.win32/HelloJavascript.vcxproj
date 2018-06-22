@@ -38,8 +38,15 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(COCOS_X_ROOT)\build\cocos2dx.props" />
+    <Import Project="$(COCOS_X_ROOT)\build\cocos2d_headers.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(COCOS_X_ROOT)\build\cocos2dx.props" />
+    <Import Project="$(COCOS_X_ROOT)\build\cocos2d_headers.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -100,7 +107,7 @@
       </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;libuv.lib;libcocos2d.lib;opengl32.lib;glew32.lib;libzlib.lib;freetype.lib;winmm.lib;ws2_32.lib;Psapi.lib;Iphlpapi.lib;libwebp.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;libuv.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -117,8 +124,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <CustomBuildStep>
-      <Command>xcopy "$(COCOS_X_ROOT)\cocos\scripting\js-bindings\script" "$(OutDir)\script" /D /E /I /F /Y
-xcopy "$(ProjectDir)..\..\..\src" "$(OutDir)\src" /D /E /I /F /Y
+      <Command>xcopy "$(ProjectDir)..\..\..\src" "$(OutDir)\src" /D /E /I /F /Y
 xcopy "$(ProjectDir)..\..\..\res" "$(OutDir)\res" /D /E /I /F /Y
 copy "$(ProjectDir)..\..\..\main.js" "$(OutDir)\" /Y
 copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
@@ -140,7 +146,7 @@ copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
       <ProxyFileName>game_p.c</ProxyFileName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Classes;$(EngineRoot);$(EngineRoot)cocos;$(EngineRoot)cocos\base;$(EngineRoot)cocos\scripting\js-bindings\auto;$(EngineRoot)cocos\scripting\js-bindings\manual;$(EngineRoot)cocos\audio\include;$(EngineRoot)external\win32\include\v8;$(EngineRoot)external\win32\include;$(EngineRoot)extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Classes;$(EngineRoot);$(EngineRoot)cocos;$(EngineRoot)cocos\editor-support;$(EngineRoot)cocos\scripting\js-bindings\auto;$(EngineRoot)cocos\scripting\js-bindings\manual;$(EngineRoot)cocos\audio\include;$(EngineRoot)external\win32\include\v8;$(EngineRoot)external\win32\include;$(EngineRoot)extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NDEBUG;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USRJSSTATIC;_USRLIBSIMSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -163,7 +169,7 @@ copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
       </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;libuv.lib;libcocos2d.lib;opengl32.lib;glew32.lib;libzlib.lib;freetype.lib;winmm.lib;ws2_32.lib;Psapi.lib;Iphlpapi.lib;libwebp.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;libuv.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -189,11 +195,6 @@ copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\game.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(COCOS_X_ROOT)\cocos\scripting\js-bindings\proj.win32\libcocos2d.vcxproj">
-      <Project>{39379840-825a-45a0-b363-c09ffef864bd}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

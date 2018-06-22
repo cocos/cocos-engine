@@ -34,6 +34,8 @@ THE SOFTWARE.
 #include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
+#include "base/CCAutoreleasePool.h"
+#include "base/CCGLUtils.h"
 
 #define CAST_VIEW(view)    ((GLView*)view)
 
@@ -83,11 +85,12 @@ namespace
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-		sprintf(commandBuf, "var window = window || this; window.canvas = { width: %d, height: %d };",
+        sprintf(commandBuf, "var window = window || this; window.canvas = { width: %d, height: %d };",
                 g_width,
                 g_height);
         se->evalString(commandBuf);
-        
+        cocos2d::ccViewport(0, 0, g_width, g_height);
+        glDepthMask(GL_TRUE);
         return true;
     }
 }
@@ -96,14 +99,17 @@ NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
 
-Application::Application(const std::string& name)
+Application::Application(const std::string& name, int width, int height)
 {
-	Application::_instance = this;
-	_scheduler = new Scheduler();
+    Application::_instance = this;
+    _scheduler = new Scheduler();
 
-    createView(name);
+    createView(name, width, height);
     
-    renderer::DeviceGraphics::getInstance();
+    _renderTexture = new RenderTexture(width, height);
+    _scheduler = new Scheduler();
+    
+    EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
 
@@ -111,25 +117,22 @@ Application::~Application()
 {
     // TODO: destroy DeviceGraphics
     
-	delete _scheduler;
-	_scheduler = nullptr;
+    delete _scheduler;
+    _scheduler = nullptr;
 
     se::ScriptEngine::destroyInstance();
     
     delete CAST_VIEW(_view);
     _view = nullptr;
+    
+    delete _renderTexture;
+    _renderTexture = nullptr;
 
-	Application::_instance = nullptr;
+    Application::_instance = nullptr;
 }
 
 void Application::start()
 {
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    se->addRegisterCallback(setCanvasCallback);
-    
-    if(!applicationDidFinishLaunching())
-        return;
-
     if (!_view)
         return;
 
@@ -147,6 +150,12 @@ void Application::start()
         timeBeginPeriod(wTimerRes);
     }
 
+    LARGE_INTEGER nFreq;
+    QueryPerformanceFrequency(&nFreq);
+    LONGLONG animationInterval = (LONGLONG)(1.0 / _fps * nFreq.QuadPart);
+    float dt = 0.f;
+    const DWORD _16ms = 16;
+
     // Main message loop:
     LARGE_INTEGER nLast;
     LARGE_INTEGER nNow;
@@ -159,40 +168,82 @@ void Application::start()
     LARGE_INTEGER freq;
     QueryPerformanceFrequency(&freq);
     
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+
     while (!CAST_VIEW(_view)->windowShouldClose())
     {       
-        QueryPerformanceCounter(&nNow);
-        interval = nNow.QuadPart - nLast.QuadPart;
-        if (interval >= _animationInterval)
+        if (!_isStarted)
         {
-            nLast.QuadPart = nNow.QuadPart;
-            
-            CAST_VIEW(_view)->pollEvents();
-            EventDispatcher::dispatchTickEvent((float)interval / freq.QuadPart);
-            CAST_VIEW(_view)->swapBuffers();
+            auto scheduler = Application::getInstance()->getScheduler();
+            scheduler->removeAllFunctionsToBePerformedInCocosThread();
+            scheduler->unscheduleAll();
+
+            se::ScriptEngine::getInstance()->cleanup();
+            cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
+            cocos2d::EventDispatcher::init();
+
+            ccInvalidateStateCache();
+            se->addRegisterCallback(setCanvasCallback);
+
+            if(!applicationDidFinishLaunching())
+                return;
+
+            _isStarted = true;
+        }
+
+        // should be invoked at the begin of rendering a frame
+        if (_isDownsampleEnabled)
+            _renderTexture->prepare();
+        CAST_VIEW(_view)->pollEvents();
+        _scheduler->update(dt);
+
+        if(_isStarted)
+        {
+            QueryPerformanceCounter(&nNow);
+            interval = nNow.QuadPart - nLast.QuadPart;
+            if (interval >= animationInterval)
+            {
+                nLast.QuadPart = nNow.QuadPart;
+                dt = (float)interval / freq.QuadPart;
+                
+                EventDispatcher::dispatchTickEvent(dt);
+
+                if (_isDownsampleEnabled)
+                    _renderTexture->draw();
+
+                CAST_VIEW(_view)->swapBuffers();
+            }
+            else
+            {
+                // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
+                // but it's still not precise enough. For example, if the precision of timer is 1ms,
+                // Sleep(3) may make a sleep of 2ms or 4ms. Therefore, we subtract 1ms here to make Sleep time shorter.
+                // If 'waitMS' is equal or less than 1ms, don't sleep and run into next loop to
+                // boost CPU to next frame accurately.
+                waitMS = (animationInterval - interval) * 1000LL / freq.QuadPart - 1L;
+                if (waitMS > 1L)
+                    Sleep(waitMS);
+            } 
         }
         else
         {
-            // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
-            // but it's still not precise enough. For example, if the precision of timer is 1ms,
-            // Sleep(3) may make a sleep of 2ms or 4ms. Therefore, we subtract 1ms here to make Sleep time shorter.
-            // If 'waitMS' is equal or less than 1ms, don't sleep and run into next loop to
-            // boost CPU to next frame accurately.
-            waitMS = (_animationInterval - interval) * 1000LL / freq.QuadPart - 1L;
-            if (waitMS > 1L)
-                Sleep(waitMS);
-        } 
+            Sleep(_16ms);
+        }
+
     }
 
     if (wTimerRes != 0)
         timeEndPeriod(wTimerRes);
 }
 
+void Application::restart()
+{
+    _isStarted = false;
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
-    LARGE_INTEGER nFreq;
-    QueryPerformanceFrequency(&nFreq);
-    _animationInterval = (LONGLONG)(1.0 / fps * nFreq.QuadPart);
+    _fps = fps;
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
@@ -276,6 +327,16 @@ std::string Application::getCurrentLanguageCode() const
     return code;
 }
 
+float Application::getScreenScale() const
+{
+    return CAST_VIEW(_view)->getScale();
+}
+
+GLint Application::getMainFBO() const
+{
+    return CAST_VIEW(_view)->getMainFBO();
+}
+
 Application::Platform Application::getPlatform() const
 {
     return Platform::WINDOWS;
@@ -307,41 +368,33 @@ void Application::setMultitouch(bool)
 {
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
-{
-    x = 0;
-    y = 0;
-    width = 960;
-    height = 640;
-    
+void Application::onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
+{  
     pixelformat = PixelFormat::RGBA8;
     depthFormat = DepthFormat::DEPTH24_STENCIL8;
 
     multisamplingCount = 0;
 }
 
-void Application::createView(const std::string& name)
+void Application::createView(const std::string& name, int width, int height)
 {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
     int multisamplingCount = 0;
     PixelFormat pixelformat;
     DepthFormat depthFormat;
     
-    onCreateView(x,
-                 y,
-                 width,
-                 height,
-                 pixelformat,
+    onCreateView(pixelformat,
                  depthFormat,
                  multisamplingCount);
 
-    _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
+    _view = new GLView(this, name, 0, 0, width, height, pixelformat, depthFormat, multisamplingCount);
     
     g_width = width;
     g_height = height;
 }
 
+std::string Application::getSystemVersion()
+{
+    // TODO
+    return std::string("unknown Windows version");
+}
 NS_CC_END
