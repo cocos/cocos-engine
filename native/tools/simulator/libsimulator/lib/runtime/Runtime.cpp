@@ -321,7 +321,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
 #else
     const char *platform = "UNKNOWN";
 #endif
-
+    /*
     char cidBuf[64] = {0};
     auto guid = player::DeviceEx::getInstance()->getUserGUID();
     snprintf(cidBuf, sizeof(cidBuf), "%x", XXH32(guid.c_str(), (int)guid.length(), 0));
@@ -340,7 +340,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
     request->addPOSTValue("ea", eventName.c_str());
 
     request->start();
-
+    */
 #endif // ((CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC))
 }
 

@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -53,8 +53,10 @@
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
 
+#include "platform/CCApplication.h"
 #include "platform/win32/PlayerWin.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
+#include "platform/desktop/CCGLView-desktop.h"
 
 #include "resource.h"
 
@@ -92,19 +94,27 @@ INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPA
     }
     return (INT_PTR)FALSE;
 }
+
+HWND getWin32Window()
+{
+  auto glfwWindow = ((cocos2d::GLView*)cocos2d::Application::getInstance()->getView())->getGLFWWindow();
+  return glfwGetWin32Window(glfwWindow);
+}
+
+
 void onHelpAbout()
 {
     DialogBox(GetModuleHandle(NULL),
               MAKEINTRESOURCE(IDD_DIALOG_ABOUT),
-              Director::getInstance()->getOpenGLView()->getWin32Window(),
+              getWin32Window(),
               AboutDialogCallback);
 }
 
+
 void shutDownApp()
 {
-    auto glview = dynamic_cast<GLViewImpl*> (Director::getInstance()->getOpenGLView());
-    HWND hWnd = glview->getWin32Window();
-    ::SendMessage(hWnd, WM_CLOSE, NULL, NULL);
+    
+    ::SendMessage(getWin32Window(), WM_CLOSE, NULL, NULL);
 }
 
 std::string getCurAppPath(void)
@@ -139,15 +149,6 @@ static bool stringEndWith(const std::string str, const std::string needle)
     return false;
 }
 
-static void initGLContextAttrs()
-{
-    //set OpenGL context attributions,now can only set six attributions:
-    //red,green,blue,alpha,depth,stencil
-    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8};
-
-    GLView::setGLContextAttrs(glContextAttrs);
-}
-
 SimulatorWin *SimulatorWin::_instance = nullptr;
 
 SimulatorWin *SimulatorWin::getInstance()
@@ -178,7 +179,8 @@ SimulatorWin::~SimulatorWin()
 
 void SimulatorWin::quit()
 {
-    Director::getInstance()->end();
+    delete _app;
+    _app = nullptr;
 }
 
 void SimulatorWin::relaunch()
@@ -289,7 +291,6 @@ int SimulatorWin::run()
     }
 
     // create the application instance
-    _app = new AppDelegate();
     RuntimeEngine::getInstance()->setProjectConfig(_project);
 
     // create console window
@@ -404,7 +405,17 @@ int SimulatorWin::run()
     const bool isResize = _project.isResizeWindow();
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
-    initGLContextAttrs();
+
+    // create opengl view, and init app
+    _app = new AppDelegate(title.str(), _project.getFrameScale() * frameSize.width, _project.getFrameScale() * frameSize.height);
+    _app->start();
+    CC_SAFE_DELETE(_app);
+
+    // path for looking Lang file, Studio Default images
+    FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
+
+    return true;
+    /*
     auto glview = GLViewImpl::createWithRect(title.str(), frameRect, frameScale, true);
     _hwnd = glview->getWin32Window();
     player::PlayerWin::createWithHwnd(_hwnd);
@@ -456,10 +467,11 @@ int SimulatorWin::run()
     int ret = app->run();
     CC_SAFE_DELETE(_app);
     return ret;
+    */
 }
 
 // services
-
+/*
 void SimulatorWin::setupUI()
 {
     auto menuBar = player::PlayerProtocol::getInstance()->getMenuService();
@@ -733,7 +745,7 @@ void SimulatorWin::writeDebugLog(const char *log)
     fputc('\n', _writeDebugLogFile);
     fflush(_writeDebugLogFile);
 }
-
+*/
 void SimulatorWin::parseCocosProjectConfig(ProjectConfig &config)
 {
     // get project directory
@@ -901,7 +913,7 @@ std::string SimulatorWin::getApplicationPath()
 
     return workdir;
 }
-
+/*
 LRESULT CALLBACK SimulatorWin::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (!_instance) return 0;
@@ -988,7 +1000,7 @@ LRESULT CALLBACK SimulatorWin::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
     }
     return g_oldWindowProc(hWnd, uMsg, wParam, lParam);
 }
-
+*/
 void SimulatorWin::onOpenFile(const std::string &filePath)
 {
     string entry = filePath;
@@ -1021,12 +1033,15 @@ void SimulatorWin::onOpenFile(const std::string &filePath)
     }
 }
 
+
 /*
 1. find @folderPath/config.json
 2. get project name from file: @folderPath/folderName.ccs
 3. find @folderPath/cocosstudio/MainScene.csd
 4. find @folderPath/cocosstudio/MainScene.csb
 */
+
+/*
 void SimulatorWin::onOpenProjectFolder(const std::string &folderPath)
 {
     string path = folderPath;
@@ -1120,3 +1135,4 @@ void SimulatorWin::onDrop(const std::string &path)
         onOpenFile(path);
     }
 }
+*/

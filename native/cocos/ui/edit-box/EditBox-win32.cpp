@@ -37,4 +37,8 @@ void EditBox::hide()
     
 }
 
+void EditBox::complete()
+{
+    
+}
 NS_CC_END
