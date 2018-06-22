@@ -352,8 +352,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             }
             else {
                 if (CC_JSB) {
-                    // The '_factory' create a new one every time in JSB, they can't use getDragonBonesData
-                    // to get cached data, and only parse data every time
                     this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
                 }
                 else {
