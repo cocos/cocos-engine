@@ -117,7 +117,7 @@ RenderComponentWalker.prototype = {
         this.material = empty_material;
         this.cullingMask = 1;
 
-        this.parentOpacity = 1 / 255;
+        this.parentOpacity = 1;
         this.parentOpacityDirty = 0;
         this.worldMatDirty = 0;
 
