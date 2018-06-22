@@ -186,9 +186,9 @@ cc.js.mixin(View.prototype, {
     // Resize helper functions
     _resizeEvent: function () {
         var view;
-        if(this.setDesignResolutionSize){
+        if (this.setDesignResolutionSize) {
             view = this;
-        }else{
+        } else {
             view = cc.view;
         }
 
@@ -217,7 +217,7 @@ cc.js.mixin(View.prototype, {
             view.setDesignResolutionSize(width, height, view._resolutionPolicy);
         view._resizing = false;
 
-        this.emit('canvas-resize');
+        view.emit('canvas-resize');
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
