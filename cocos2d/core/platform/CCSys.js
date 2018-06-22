@@ -408,6 +408,13 @@ sys.BROWSER_TYPE_MOBILE_QQ = "mqqbrowser";
  */
 sys.BROWSER_TYPE_UC = "ucbrowser";
 /**
+ * uc third party integration.
+ * @property {String} BROWSER_TYPE_UCBS
+ * @readOnly
+ * @default "ucbs"
+ */
+sys.BROWSER_TYPE_UCBS = "ucbs";
+/**
  *
  * @property {String} BROWSER_TYPE_360
  * @readOnly
@@ -807,10 +814,13 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function(){
-        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
+        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        var typeReg2 = /qqbrowser|ucbrowser/i
+        var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
+        if(!browserTypes) browserTypes = typeReg3.exec(ua);
+        
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
@@ -842,7 +852,7 @@ else {
     sys.browserVersion = "";
     /* Determine the browser version number */
     (function(){
-        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
         var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
@@ -963,6 +973,7 @@ else {
                 } else {
                     _supportWebGL = false;
                 }
+                break;
             case sys.BROWSER_TYPE_360:
                 _supportWebGL = false;
             }
