@@ -126,10 +126,9 @@ _proto._children = function (node) {
         c._renderFlag |= worldTransformFlag | worldOpacityFlag;
 
         // TODO: Maybe has better way to implement cascade opacity
-        let a = c._color.a;
-        c._color.a = a * c._opacity * _walker.parentOpacity;
+        c._color.a = c._opacity * _walker.parentOpacity;
         flows[c._renderFlag]._func(c);
-        c._color.a = a;
+        c._color.a = 255;
     }
 
     _walker.parentOpacity = parentOpacity;
