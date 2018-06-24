@@ -110,7 +110,10 @@ Audio.State = {
     proto._onLoaded = function () {
         let elem = this._src._nativeAsset;
         if (elem instanceof HTMLAudioElement) {
-            this._element = document.createElement('audio');
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
             this._element.src = elem.src;
         }
         else {
