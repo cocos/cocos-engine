@@ -25,49 +25,61 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Audio = require('./CCAudio');
-var AudioClip = require('../core/assets/CCAudioClip');
-var js = cc.js;
+const Audio = require('./CCAudio');
+const AudioClip = require('../core/assets/CCAudioClip');
+const js = cc.js;
 
-var instanceId = 0;
-var id2audio = js.createMap(true);
-var url2id = {};
+let _instanceId = 0;
+let _id2audio = js.createMap(true);
+let _url2id = {};
+let _audioPool = [];
 
-var getAudioFromPath = function (path) {
-    var id = instanceId++;
-    var list = url2id[path];
+let recycleAudio = function (audio) {
+    if (_audioPool.length < 32) {
+        audio._unbindEnded();
+        audio.off('ended');
+        audio.off('stop');
+        _audioPool.push(audio);
+    }
+    else {
+        audio.destroy();
+    }
+}
+
+let getAudioFromPath = function (path) {
+    var id = _instanceId++;
+    var list = _url2id[path];
     if (!list) {
-        list = url2id[path] = [];
+        list = _url2id[path] = [];
     }
     if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
         var oldAudio = getAudioFromId(oldId);
         oldAudio.stop();
-        oldAudio.destroy();
+        recycleAudio(oldAudio);
     }
 
-    var audio = new Audio();
+    var audio = _audioPool.pop() || new Audio();
     var callback = function () {
         var audioInList = getAudioFromId(this.id);
         if (audioInList) {
-            delete id2audio[this.id];
+            delete _id2audio[this.id];
             var index = list.indexOf(this.id);
             cc.js.array.fastRemoveAt(list, index);
         }
-        this.destroy();
+        recycleAudio(this);
     };
     audio.on('ended', callback, audio);
     audio.on('stop', callback, audio);
-    id2audio[id] = audio;
-
     audio.id = id;
+    _id2audio[id] = audio;
     list.push(id);
 
     return audio;
 };
 
 var getAudioFromId = function (id) {
-    return id2audio[id];
+    return _id2audio[id];
 };
 
 /**
@@ -90,7 +102,7 @@ var audioEngine = {
     _maxWebAudioSize: 2097152, // 2048kb * 1024
     _maxAudioInstance: 24,
 
-    _id2audio: id2audio,
+    _id2audio: _id2audio,
 
     /**
      * !#en Play audio.
@@ -311,8 +323,8 @@ var audioEngine = {
      * cc.audioEngine.pauseAll();
      */
     pauseAll: function () {
-        for (var id in id2audio) {
-            var audio = id2audio[id];
+        for (var id in _id2audio) {
+            var audio = _id2audio[id];
             var state = audio.getState();
             if (state === Audio.State.PLAYING) {
                 this._pauseIDCache.push(id);
@@ -365,7 +377,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (audio) {
             audio.stop();
-            audio.destroy();
+            recycleAudio(audio);
             return true;
         }
         else {
@@ -381,11 +393,11 @@ var audioEngine = {
      * cc.audioEngine.stopAll();
      */
     stopAll: function () {
-        for (var id in id2audio) {
-            var audio = id2audio[id];
+        for (var id in _id2audio) {
+            var audio = _id2audio[id];
             if (audio) {
                 audio.stop();
-                audio.destroy();
+                recycleAudio(audio);
             }
         }
     },
@@ -436,15 +448,15 @@ var audioEngine = {
             filePath = clip.nativeUrl;
         }
 
-        var list = url2id[filePath];
+        var list = _url2id[filePath];
         if (!list) return;
         while (list.length > 0) {
             var id = list.pop();
-            var audio = id2audio[id];
+            var audio = _id2audio[id];
             if (audio) {
                 audio.stop();
-                audio.destroy();
-                delete id2audio[id];
+                recycleAudio(audio);
+                delete _id2audio[id];
             }
         }
     },
@@ -458,14 +470,18 @@ var audioEngine = {
      */
     uncacheAll: function () {
         this.stopAll();
-        for (var id in id2audio) {
-            var audio = id2audio[id];
+        let audio;
+        for (let id in _id2audio) {
+            audio = _id2audio[id];
             if (audio) {
                 audio.destroy();
             }
         }
-        id2audio = js.createMap(true);
-        url2id = {};
+        while (audio = _audioPool.pop()) {
+            audio.destroy();
+        }
+        _id2audio = js.createMap(true);
+        _url2id = {};
     },
 
     /**
@@ -514,8 +530,8 @@ var audioEngine = {
     _breakCache: null,
     _break: function () {
         this._breakCache = [];
-        for (var id in id2audio) {
-            var audio = id2audio[id];
+        for (var id in _id2audio) {
+            var audio = _id2audio[id];
             var state = audio.getState();
             if (state === Audio.State.PLAYING) {
                 this._breakCache.push(id);
@@ -671,7 +687,7 @@ var audioEngine = {
     setEffectsVolume: function (volume) {
         var musicId = this._music.id;
         this._effect.volume = volume;
-        for (var id in id2audio) {
+        for (var id in _id2audio) {
             if (id === musicId) continue;
             audioEngine.setVolume(id, volume);
         }
@@ -713,9 +729,9 @@ var audioEngine = {
         var effect = this._effect;
         effect.pauseCache.length = 0;
 
-        for (var id in id2audio) {
+        for (var id in _id2audio) {
             if (id === musicId) continue;
-            var audio = id2audio[id];
+            var audio = _id2audio[id];
             var state = audio.getState();
             if (state === this.AudioState.PLAYING) {
                 effect.pauseCache.push(id);
@@ -747,7 +763,7 @@ var audioEngine = {
         var pauseIDCache = this._effect.pauseCache;
         for (var i = 0; i < pauseIDCache.length; ++i) {
             var id = pauseIDCache[i];
-            var audio = id2audio[id];
+            var audio = _id2audio[id];
             if (audio)
                 audio.resume();
         }
@@ -774,9 +790,9 @@ var audioEngine = {
      */
     stopAllEffects: function () {
         var musicId = this._music.id;
-        for (var id in id2audio) {
+        for (var id in _id2audio) {
             if (id === musicId) continue;
-            var audio = id2audio[id];
+            var audio = _id2audio[id];
             var state = audio.getState();
             if (state === audioEngine.AudioState.PLAYING) {
                 audio.stop();
