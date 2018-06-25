@@ -46,7 +46,6 @@ _cc = _global._cc || {};
 _cc = {};
 
 require('./predefine');
-require('./CCDebugger');
 
 // polyfills
 require('./polyfill/string');
