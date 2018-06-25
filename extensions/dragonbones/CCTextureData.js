@@ -57,7 +57,6 @@ dragonBones.CCTextureData = cc.Class({
     _onClear : function() {
         dragonBones.TextureData.prototype._onClear.call(this);
         if (this.texture) {
-            this.texture.dispose();
             this.texture = null;
         }
     }
