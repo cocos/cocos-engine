@@ -166,8 +166,8 @@ Audio.State = {
     proto.destroy = function () {
         if (CC_WECHATGAME) {
             this._element && this._element.destroy();
-            this._element = null;
         }
+        this._element = null;
     };
 
     proto.pause = function () {
@@ -273,6 +273,7 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (clip) {
+        this._unbindEnded();
         if (clip) {
             this._src = clip;
             if (clip.loaded) {
@@ -289,7 +290,12 @@ Audio.State = {
         }
         else {
             this._src = null;
-            this._element = null;
+            if (this._element instanceof HTMLAudioElement) {
+                this._element.src = '';
+            }
+            else {
+                this._element = null;
+            }
             this._state = Audio.State.INITIALZING;
         }
         return clip;

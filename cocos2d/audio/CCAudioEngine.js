@@ -36,9 +36,9 @@ let _audioPool = [];
 
 let recycleAudio = function (audio) {
     if (_audioPool.length < 32) {
-        audio._unbindEnded();
         audio.off('ended');
         audio.off('stop');
+        audio.src = null;
         _audioPool.push(audio);
     }
     else {
@@ -78,7 +78,7 @@ let getAudioFromPath = function (path) {
     return audio;
 };
 
-var getAudioFromId = function (id) {
+let getAudioFromId = function (id) {
     return _id2audio[id];
 };
 
@@ -411,7 +411,7 @@ var audioEngine = {
      * cc.audioEngine.setMaxAudioInstance(20);
      */
     setMaxAudioInstance: function (num) {
-        return this._maxAudioInstance = num;
+        this._maxAudioInstance = num;
     },
 
     /**
