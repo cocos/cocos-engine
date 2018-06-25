@@ -84,10 +84,11 @@ namespace
     bool setCanvasCallback(se::Object* global)
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        uint8_t devicePixelRatio = cocos2d::Application::getInstance()->getDevicePixelRatio();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "var window = window || this; window.canvas = { width: %d, height: %d };",
-                g_width,
-                g_height);
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+          (int)(g_width / devicePixelRatio),
+          (int)(g_height / devicePixelRatio));
         se->evalString(commandBuf);
         cocos2d::ccViewport(0, 0, g_width, g_height);
         glDepthMask(GL_TRUE);

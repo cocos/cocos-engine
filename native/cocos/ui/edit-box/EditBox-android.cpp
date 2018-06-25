@@ -35,12 +35,12 @@ void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
 	JniHelper::callStaticVoidMethod(CLASS_PATH, 
 		                            "showNative",
-		                            ShowInfo.defaultValue,
-		                            ShowInfo.maxLength,
-		                            ShowInfo.isMultiline,
-		                            ShowInfo.confirmHold,
-		                            ShowInfo.confirmType,
-		                            ShowInfo.inputType);
+		                            showInfo.defaultValue,
+		                            showInfo.maxLength,
+		                            showInfo.isMultiline,
+		                            showInfo.confirmHold,
+		                            showInfo.confirmType,
+		                            showInfo.inputType);
 }
 
 void EditBox::hide()
