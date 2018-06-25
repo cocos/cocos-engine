@@ -94,9 +94,9 @@ Audio.State = {
 
     proto._unbindEnded = function () {
         let elem = this._element;
-        if (this._src && (elem instanceof HTMLAudioElement)) {
+        if (elem instanceof HTMLAudioElement) {
             elem.removeEventListener('ended', this._onended);
-        } else {
+        } else if (elem) {
             elem.onended = null;
         }
     };
@@ -110,7 +110,10 @@ Audio.State = {
     proto._onLoaded = function () {
         let elem = this._src._nativeAsset;
         if (elem instanceof HTMLAudioElement) {
-            this._element = document.createElement('audio');
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
             this._element.src = elem.src;
         }
         else {
@@ -163,8 +166,8 @@ Audio.State = {
     proto.destroy = function () {
         if (CC_WECHATGAME) {
             this._element && this._element.destroy();
-            this._element = null;
         }
+        this._element = null;
     };
 
     proto.pause = function () {
@@ -270,6 +273,7 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (clip) {
+        this._unbindEnded();
         if (clip) {
             this._src = clip;
             if (clip.loaded) {
@@ -286,7 +290,12 @@ Audio.State = {
         }
         else {
             this._src = null;
-            this._element = null;
+            if (this._element instanceof HTMLAudioElement) {
+                this._element.src = '';
+            }
+            else {
+                this._element = null;
+            }
             this._state = Audio.State.INITIALZING;
         }
         return clip;
