@@ -31,8 +31,10 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-var renderer = require('./renderer/index.js');
-var inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
+const Enum = require('./cocos2d/core/platform/CCEnum');
+const debugUtil = require('./utils/debug-util');
+const renderer = require('./renderer/index.js');
+const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.
@@ -40,7 +42,73 @@ var inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('.
  * @class Game
  * @extends EventTarget
  */
+
+/**
+ * !#en Enum for debug modes.
+ * !#zh 调试模式
+ * @enum DebugMode
+ */
+var DebugMode = Enum({
+    /**
+     * !#en The debug mode none.
+     * !#zh 禁止模式，禁止显示任何日志信息。
+     * @property NONE
+     * @type {Number}
+     * @static
+     */
+    NONE: 0,
+    /**
+     * !#en The debug mode info.
+     * !#zh 信息模式，在 console 中显示所有日志。
+     * @property INFO
+     * @type {Number}
+     * @static
+     */
+    INFO: 1,
+    /**
+     * !#en The debug mode warn.
+     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @property WARN
+     * @type {Number}
+     * @static
+     */
+    WARN: 2,
+    /**
+     * !#en The debug mode error.
+     * !#zh 错误模式，在 console 中只显示 error 日志。
+     * @property ERROR
+     * @type {Number}
+     * @static
+     */
+    ERROR: 3,
+    /**
+     * !#en The debug mode info for web page.
+     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
+     * @property INFO_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    INFO_FOR_WEB_PAGE: 4,
+    /**
+     * !#en The debug mode warn for web page.
+     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
+     * @property WARN_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    WARN_FOR_WEB_PAGE: 5,
+    /**
+     * !#en The debug mode error for web page.
+     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
+     * @property ERROR_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    ERROR_FOR_WEB_PAGE: 6
+});
+
 var game = {
+    DebugMode: DebugMode,
 
     /**
      * !#en Event triggered when game hide to background.
@@ -374,6 +442,41 @@ var game = {
     },
 
 //  @Game loading
+
+    _initEngine () {
+        if (cc.director) {
+            return;
+        }
+        /**
+         * @module cc
+         */
+
+        /**
+         * !#en Director
+         * !#zh 导演类。
+         * @property director
+         * @type {Director}
+         */
+        cc.director = new cc.Director();
+        cc.director.init();
+
+        /**
+         * !#en cc.view is the shared view object.
+         * !#zh cc.view 是全局的视图对象。
+         * @property view
+         * @type {View}
+         */
+        cc.view = View ? View._getInstance() : null;
+        
+        /**
+         * !#en cc.winSize is the alias object for the size of the current game window.
+         * !#zh cc.winSize 为当前的游戏窗口的大小。
+         * @property winSize
+         * @type Size
+         */
+        cc.winSize = cc.director.getWinSize();
+    },
+
     /**
      * !#en Prepare game.
      * !#zh 准备引擎，请不要直接调用这个函数。
@@ -406,38 +509,8 @@ var game = {
         if (cc._engineLoaded) {
             this._prepareCalled = true;
 
-            /**
-             * @module cc
-             */
-
-            /**
-             * !#en Director
-             * !#zh 导演类。
-             * @property director
-             * @type {Director}
-             */
-            cc.director = new cc.Director();
-
             this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
-
-            /**
-             * !#en cc.view is the shared view object.
-             * !#zh cc.view 是全局的视图对象。
-             * @property view
-             * @type {View}
-             */
-            cc.view = View ? View._getInstance() : null;
-            
-            cc.director.init();
-            
-            /**
-             * !#en cc.winSize is the alias object for the size of the current game window.
-             * !#zh cc.winSize 为当前的游戏窗口的大小。
-             * @property winSize
-             * @type Size
-             */
-            cc.winSize = cc.director.getWinSize();
-
+            this._initEngine();
             if (!CC_EDITOR) {
                 this._initEvents();
             }
@@ -689,7 +762,7 @@ var game = {
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
 
-        cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
+        debugUtil.initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
         this._configLoaded = true;

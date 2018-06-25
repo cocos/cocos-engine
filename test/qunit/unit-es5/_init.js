@@ -174,7 +174,7 @@ function _resetGame (w, h) {
             width: w,
             height: h,
             id: 'test-canvas',
-            debugMode: cc.DebugMode.INFO
+            debugMode: cc.game.DebugMode.INFO
         });
         cc.director.setDisplayStats(false);
     }

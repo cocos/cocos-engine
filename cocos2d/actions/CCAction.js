@@ -303,8 +303,10 @@ cc.Speed = cc.Class({
      * @return {Boolean}
      */
     initWithAction:function (action, speed) {
-        if(!action)
-            throw new Error(cc._getError(1021));
+        if (!action) {
+            cc.errorID(1021);
+            return false;
+        }
 
         this._innerAction = action;
         this._speed = speed;
@@ -481,8 +483,10 @@ cc.Follow = cc.Class({
      * @return {Boolean}
      */
     initWithTarget:function (followedNode, rect) {
-        if(!followedNode)
-            throw new Error(cc._getError(1022));
+        if (!followedNode) {
+            cc.errorID(1022);
+            return false;
+        }
 
         var _this = this;
         rect = rect || cc.rect(0, 0, 0, 0);

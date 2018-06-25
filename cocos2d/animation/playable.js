@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var js = cc.js;
+const debugUtil = require('../core/utils/debug-util');
 
 /**
  * @class Playable
@@ -105,7 +106,7 @@ prototype.play = function () {
             this.onResume();
         }
         else {
-            this.onError(cc._getError(3912));
+            this.onError(debugUtil.getError(3912));
         }
     }
     else {

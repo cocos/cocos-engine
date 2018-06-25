@@ -25,8 +25,9 @@
  ****************************************************************************/
 
 require('../utils/CCPath');
-var Pipeline = require('./pipeline');
-var LoadingItems = require('./loading-items');
+const debugUtil = require('../utils/debug-util');
+const Pipeline = require('./pipeline');
+const LoadingItems = require('./loading-items');
 
 var ID = 'AssetLoader';
 
@@ -55,7 +56,7 @@ AssetLoader.prototype.handle = function (item, callback) {
             if (isRawAsset) {
                 var ext = cc.path.extname(url).toLowerCase();
                 if (!ext) {
-                    callback(new Error(cc._getError(4931, uuid, url)));
+                    callback(new Error(debugUtil.getError(4931, uuid, url)));
                     return;
                 }
                 ext = ext.substr(1);

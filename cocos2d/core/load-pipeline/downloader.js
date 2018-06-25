@@ -23,15 +23,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var js = require('../platform/js');
-var sys = require('../platform/CCSys');
-require('../utils/CCPath');
-var Pipeline = require('./pipeline');
-var PackDownloader = require('./pack-downloader');
-var downloadBinary = require('./binary-downloader');
-var downloadText = require('./text-downloader');
 
-var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
+const js = require('../platform/js');
+const sys = require('../platform/CCSys');
+const debugUtil = require('../utils/debug-util');
+require('../utils/CCPath');
+const Pipeline = require('./pipeline');
+const PackDownloader = require('./pack-downloader');
+
+let downloadBinary = require('./binary-downloader');
+let downloadText = require('./text-downloader');
+let urlAppendTimestamp = require('./utils').urlAppendTimestamp;
 
 var downloadAudio;
 if (!CC_EDITOR || !Editor.isMainProcess) {
@@ -63,7 +65,7 @@ function downloadScript (item, callback, isAsync) {
         s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
-        callback(new Error(cc._getError(4928, url)));
+        callback(new Error(debugUtil.getError(4928, url)));
     }
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
@@ -72,7 +74,7 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadWebp (item, callback, isCrossOrigin, img) {
     if (!cc.sys.capabilities.webp) {
-        return new Error(cc._getError(4929, item.url));
+        return new Error(debugUtil.getError(4929, item.url));
     }
     return downloadImage(item, callback, isCrossOrigin, img);
 }
@@ -111,7 +113,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
                 downloadImage(item, callback, false, img);
             }
             else {
-                callback(new Error(cc._getError(4930, url)));
+                callback(new Error(debugUtil.getError(4930, url)));
             }
         }
 

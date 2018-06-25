@@ -24,93 +24,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Enum = require('./cocos2d/core/platform/CCEnum');
-
-// the html element displays log in web page (cc.DebugMode.INFO_FOR_WEB_PAGE)
-var logList;
-
-/**
- * !#en Enum for debug modes.
- * !#zh 调试模式
- * @enum DebugMode
- */
-cc.DebugMode = Enum({
-    /**
-     * !#en The debug mode none.
-     * !#zh 禁止模式，禁止显示任何日志信息。
-     * @property NONE
-     * @type {Number}
-     * @static
-     */
-    NONE: 0,
-    /**
-     * !#en The debug mode info.
-     * !#zh 信息模式，在 console 中显示所有日志。
-     * @property INFO
-     * @type {Number}
-     * @static
-     */
-    INFO: 1,
-    /**
-     * !#en The debug mode warn.
-     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
-     * @property WARN
-     * @type {Number}
-     * @static
-     */
-    WARN: 2,
-    /**
-     * !#en The debug mode error.
-     * !#zh 错误模式，在 console 中只显示 error 日志。
-     * @property ERROR
-     * @type {Number}
-     * @static
-     */
-    ERROR: 3,
-    /**
-     * !#en The debug mode info for web page.
-     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
-     * @property INFO_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    INFO_FOR_WEB_PAGE: 4,
-    /**
-     * !#en The debug mode warn for web page.
-     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
-     * @property WARN_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    WARN_FOR_WEB_PAGE: 5,
-    /**
-     * !#en The debug mode error for web page.
-     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
-     * @property ERROR_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    ERROR_FOR_WEB_PAGE: 6
-});
+// the html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
+let logList;
 
 /**
  * @module cc
  */
 
-/**
- * !#en Init Debug setting.
- * !#zh 设置调试模式。
- * @method _initDebugSetting
- * @param {DebugMode} mode
- */
-cc._initDebugSetting = function (mode) {
+let initDebugSetting = function (mode) {
     // reset
     cc.log = cc.warn = cc.error = cc.assert = function () { };
 
-    if (mode === cc.DebugMode.NONE)
+    let DebugMode = cc.game.DebugMode;
+
+    if (mode === DebugMode.NONE)
         return;
 
-    if (mode > cc.DebugMode.ERROR) {
+    if (mode > DebugMode.ERROR) {
         //log to web page
 
         function logToWebPage (msg) {
@@ -157,12 +87,12 @@ cc._initDebugSetting = function (mode) {
                 logToWebPage("ASSERT: " + msg);
             }
         };
-        if (mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE) {
+        if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
             cc.warn = function () {
                 logToWebPage("WARN :  " + cc.js.formatStr.apply(null, arguments));
             };
         }
-        if (mode === cc.DebugMode.INFO_FOR_WEB_PAGE) {
+        if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
             cc.log = cc.info = function () {
                 logToWebPage(cc.js.formatStr.apply(null, arguments));
             };
@@ -218,7 +148,7 @@ cc._initDebugSetting = function (mode) {
             }
         }
     }
-    if (mode !== cc.DebugMode.ERROR) {
+    if (mode !== DebugMode.ERROR) {
         /**
          * !#en
          * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
@@ -360,8 +290,9 @@ cc.assertID = function (cond) {
     cc.assert(false, assertFormatter.apply(null, cc.js.shiftArguments.apply(null, arguments)));
 };
 
-cc._getError = getTypedFormatter('ERROR');
+let getError = getTypedFormatter('ERROR');
 
-// output all info by default before initialized
-
-cc._initDebugSetting(cc.DebugMode.INFO);
+module.exports = {
+    initDebugSetting,
+    getError
+}

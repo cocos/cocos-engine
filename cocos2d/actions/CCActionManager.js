@@ -117,10 +117,10 @@ cc.ActionManager.prototype = {
      * @param {Boolean} paused
      */
     addAction:function (action, target, paused) {
-        if(!action)
-            throw new Error(cc._getError(1000));
-        if(!target)
-            throw new Error(cc._getError(1000));
+        if (!action || !target) {
+            cc.errorID(1000);
+            return;
+        }
 
         //check if the action target already exists
         var element = this._hashTargets[target._id];

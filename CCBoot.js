@@ -36,6 +36,7 @@ window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
+const debugUtil = require('./cocos2d/core/utils/debug-util');
 
 // INIT ENGINE
 
@@ -76,7 +77,7 @@ function _determineRenderType(config) {
     }
 
     if (!supportRender) {
-        throw new Error(cc._getError(3820, userRenderMode));
+        throw new Error(debugUtil.getError(3820, userRenderMode));
     }
 }
 
