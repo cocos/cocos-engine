@@ -74,6 +74,7 @@ require('./jsb-etc');
 require('./jsb-audio');
 require('./jsb-tiledmap');
 require('./jsb-box2d');
+require('./jsb-dragonbones-asset');
 require('./jsb-dragonbones');
 
 require('../extends');
