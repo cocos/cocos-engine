@@ -31,7 +31,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-const Enum = require('./cocos2d/core/platform/CCEnum');
+const Enum = require('./platform/CCEnum');
 const debugUtil = require('./utils/debug-util');
 const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
@@ -458,7 +458,9 @@ var game = {
          * @type {Director}
          */
         cc.director = new cc.Director();
-        cc.director.init();
+
+        // Init renderer before view
+        this._initRenderer(this.config[this.CONFIG_KEY.width], this.config[this.CONFIG_KEY.height]);
 
         /**
          * !#en cc.view is the shared view object.
@@ -467,6 +469,8 @@ var game = {
          * @type {View}
          */
         cc.view = View ? View._getInstance() : null;
+
+        cc.director.init();
         
         /**
          * !#en cc.winSize is the alias object for the size of the current game window.
@@ -475,6 +479,10 @@ var game = {
          * @type Size
          */
         cc.winSize = cc.director.getWinSize();
+
+        if (!CC_EDITOR) {
+            this._initEvents();
+        }
     },
 
     /**
@@ -484,29 +492,13 @@ var game = {
      * @method prepare
      */
     prepare: function (cb) {
-        var self = this,
-            config = self.config,
-            CONFIG_KEY = self.CONFIG_KEY;
-
-        // Config loaded
-        if (!this._configLoaded) {
-            this._loadConfig(function () {
-                self.prepare(cb);
-            });
-            return;
-        }
-
         // Already prepared
         if (this._prepared) {
             if (cb) cb();
             return;
         }
-        // Prepare never called
-        this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
+        // Init engine
         this._initEngine();
-        if (!CC_EDITOR) {
-            this._initEvents();
-        }
         // Log engine version
         console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 
@@ -514,8 +506,9 @@ var game = {
         this._runMainLoop();
 
         // Load game scripts
-        var jsList = config[CONFIG_KEY.jsList];
+        var jsList = this.config[this.CONFIG_KEY.jsList];
         if (jsList && jsList.length > 0) {
+            var self = this;
             cc.loader.load(jsList, function (err) {
                 if (err) throw new Error(JSON.stringify(err));
                 self._prepared = true;
@@ -525,7 +518,7 @@ var game = {
         }
         else {
             if (cb) cb();
-            self.emit(self.EVENT_GAME_INITED);
+            this.emit(this.EVENT_GAME_INITED);
         }
     },
 
@@ -543,7 +536,7 @@ var game = {
      * @param {Function} onStart - function to be executed after game initialized
      */
     run: function (config, onStart) {
-        this.config = config;
+        this._initConfig(config);
         this.onStart = onStart;
         this.prepare(game.onStart && game.onStart.bind(game));
     },
@@ -684,6 +677,10 @@ var game = {
 
         self._intervalId = window.requestAnimFrame(callback);
         self._paused = false;
+    },
+
+    _resetDebugSetting (debugMode) {
+        debugUtil.initDebugSetting(debugMode);
     },
 
 //  @Game loading section

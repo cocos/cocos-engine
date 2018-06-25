@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// define log methods to lookup message ID
+
+const debugInfos = require('../../../DebugInfos') || {};
+const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
+
 // the html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList;
 
@@ -179,7 +184,7 @@ let initDebugSetting = function (mode) {
         cc.log = Editor.log;
         cc.info = Editor.info;
     }
-    else if (mode === cc.DebugMode.INFO) {
+    else if (mode === DebugMode.INFO) {
         /**
          * !#en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
          * !#zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
@@ -241,11 +246,6 @@ cc._throw = CC_EDITOR ? Editor.error : function (error) {
         cc.error(error);
     }
 };
-
-// define log methods to lookup message ID
-
-const debugInfos = require('./DebugInfos') || {};
-const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
 function getTypedFormatter (type) {
     return function () {
