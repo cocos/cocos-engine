@@ -94,9 +94,9 @@ Audio.State = {
 
     proto._unbindEnded = function () {
         let elem = this._element;
-        if (this._src && (elem instanceof HTMLAudioElement)) {
+        if (elem instanceof HTMLAudioElement) {
             elem.removeEventListener('ended', this._onended);
-        } else {
+        } else if (elem) {
             elem.onended = null;
         }
     };
