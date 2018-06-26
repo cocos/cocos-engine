@@ -212,7 +212,8 @@ if (CC_DEV) {
         getRunningScene: 'cc.director.getScene',
         getAnimationInterval: 'cc.game.getFrameRate',
         setAnimationInterval: 'cc.game.setFrameRate',
-        
+        isDisplayStats: 'cc.debug.isDisplayStats',
+        showDisplayStats: 'cc.debug.showDisplayStats',
     }, 'cc.Director');
     markAsRemoved(cc.Director, [
         'pushScene',
@@ -479,6 +480,10 @@ if (CC_DEV) {
         container: 'cc.game.container',
         _canvas: 'cc.game.canvas',
         _renderType: 'cc.game.renderType',
+
+        _getError: 'cc.debug.getError',
+        _initDebugSetting: 'cc.debug._resetDebugSetting',
+        DebugMode: 'cc.debug.DebugMode',
     }, 'cc');
     markAsRemovedInObject(cc, [
         'BlendFunc',
@@ -493,6 +498,8 @@ if (CC_DEV) {
         'obbApplyMatrix',
 
         'getImageFormatByData',
+
+        'initEngine',
     ], 'cc');
     markFunctionWarning(cc, {
         // cc.p
