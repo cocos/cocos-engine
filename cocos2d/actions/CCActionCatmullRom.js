@@ -128,8 +128,10 @@ cc.CardinalSplineTo = cc.Class({
     },
 
     initWithDuration:function (duration, points, tension) {
-        if(!points || points.length === 0)
-            throw new Error(cc._getError(1024));
+        if (!points || points.length === 0) {
+            cc.errorID(1024);
+            return false;
+        }
 
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
             this.setPoints(points);

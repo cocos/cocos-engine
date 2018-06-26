@@ -24,9 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
+const js = require('../platform/js');
+const debug = require('../CCDebug');
 require('../platform/deserialize');
-var LoadingItems = require('./loading-items');
+const LoadingItems = require('./loading-items');
 
 function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';
@@ -212,14 +213,14 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            return new Error(cc._getError(4923, item.id, e.stack));
+            return new Error(debug.getError(4923, item.id, e.stack));
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        return new Error(cc._getError(4924));
+        return new Error(debug.getError(4924));
     }
 
     var classFinder;
@@ -264,7 +265,7 @@ function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        return new Error(cc._getError(4925, item.id, err));
+        return new Error(debug.getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;

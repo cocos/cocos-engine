@@ -46,7 +46,6 @@ _cc = _global._cc || {};
 _cc = {};
 
 require('./predefine');
-require('./CCDebugger');
 
 // polyfills
 require('./polyfill/string');
@@ -61,7 +60,6 @@ require('./cocos2d/core/predefine');
 // LOAD COCOS2D ENGINE CODE
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./CCBoot');
     require('./cocos2d');
 }
 

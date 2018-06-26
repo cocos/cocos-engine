@@ -917,7 +917,8 @@ var ParticleSystem = cc.Class({
             var self = this;
             cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error(cc._getError(6029));
+                    cc.errorID(6029);
+                    return;
                 }
                 if (!self.isValid) {
                     return;

@@ -1041,8 +1041,10 @@ var eventManager = {
 
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
-        if(!event || !event.getType)
-            throw new Error(cc._getError(3511));
+        if (!event || !event.getType) {
+            cc.errorID(3511);
+            return;
+        }
         if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;

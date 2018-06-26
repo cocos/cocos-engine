@@ -337,8 +337,10 @@ cc.Sequence = cc.Class({
      * @return {Boolean}
      */
     initWithTwoActions:function (actionOne, actionTwo) {
-        if (!actionOne || !actionTwo)
-            throw new Error(cc._getError(1025));
+        if (!actionOne || !actionTwo) {
+            cc.errorID(1025);
+            return false;
+        }
 
         var durationOne = actionOne._duration, durationTwo = actionTwo._duration;
         durationOne *= actionOne._repeatMethod ? actionOne._timesForRepeat : 1;
@@ -648,8 +650,10 @@ cc.RepeatForever = cc.Class({
      * @return {Boolean}
      */
     initWithAction:function (action) {
-        if(!action)
-            throw new Error(cc._getError(1026));
+        if (!action) {
+            cc.errorID(1026);
+            return false;
+        }
 
         this._innerAction = action;
         return true;
@@ -765,8 +769,10 @@ cc.Spawn = cc.Class({
      * @return {Boolean}
      */
     initWithTwoActions:function (action1, action2) {
-        if(!action1 || !action2)
-            throw new Error(cc._getError(1027));
+        if (!action1 || !action2) {
+            cc.errorID(1027);
+            return false;
+        }
 
         var ret = false;
 
@@ -2462,10 +2468,14 @@ cc.ReverseTime = cc.Class({
      * @return {Boolean}
      */
     initWithAction:function (action) {
-        if(!action)
-            throw new Error(cc._getError(1028));
-        if(action === this._other)
-            throw new Error(cc._getError(1029));
+        if (!action) {
+            cc.errorID(1028);
+            return false;
+        }
+        if (action === this._other) {
+            cc.errorID(1029);
+            return false;
+        }
 
         if (cc.ActionInterval.prototype.initWithDuration.call(this, action._duration)) {
             // Don't leak if action is reused

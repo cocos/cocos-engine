@@ -24,7 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var sys = require('../platform/CCSys');
+const sys = require('../platform/CCSys');
+const debug = require('../CCDebug');
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
@@ -69,7 +70,8 @@ function loadDomAudio (item, callback) {
 }
 
 function loadWebAudio (item, callback) {
-    if (!context) callback(new Error(cc._getError(4926)));
+    if (!context)
+        callback(new Error(debug.getError(4926)));
 
     var request = cc.loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
@@ -95,7 +97,7 @@ function loadWebAudio (item, callback) {
 
 function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
-        return new Error(cc._getError(4927));
+        return new Error(debug.getError(4927));
     }
 
     var loader;

@@ -219,7 +219,7 @@ cc.Director.prototype = {
         var now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
-        if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
+        if (CC_DEBUG && (this._deltaTime > 1))
             this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
@@ -786,29 +786,6 @@ cc.Director.prototype = {
      */
     getTotalFrames: function () {
         return this._totalFrames;
-    },
-
-    /**
-     * !#en Returns whether or not to display the FPS informations.
-     * !#zh 是否显示 FPS 信息。
-     * @method isDisplayStats
-     * @return {Boolean}
-     */
-    isDisplayStats: function () {
-        return cc.profiler ? cc.profiler.isShowingStats() : false;
-    },
-
-    /**
-     * !#en Sets whether display the FPS on the bottom-left corner.
-     * !#zh 设置是否在左下角显示 FPS。
-     * @method setDisplayStats
-     * @param {Boolean} displayStats
-     */
-    setDisplayStats: function (displayStats) {
-        if (cc.profiler) {
-            displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
-            cc.game.config[cc.game.CONFIG_KEY.showFPS] = !!displayStats;
-        }
     },
 
     /**
