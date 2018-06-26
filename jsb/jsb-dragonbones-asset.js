@@ -26,8 +26,6 @@
 
 'use strict';
 
-require('../cocos2d/core/platform/CCClass');
-require('../cocos2d/core/assets/CCAsset');
 var WebDragonBonesAsset = require('../extensions/dragonbones/DragonBonesAsset.js');
 
 var prototype = WebDragonBonesAsset.prototype;
