@@ -34,12 +34,10 @@ const Url = require('fire-url');
 const DOMParser = require('xmldom').DOMParser;
 const TMX_ENCODING = { encoding: 'utf-8' };
 
-const debug = require('../../core/CCDebug');
-
 function searchDependFiles(tmxFile, tmxFileData, cb) {
   var doc = new DOMParser().parseFromString(tmxFileData);
   if (!doc) {
-    return cb(new Error(debug.getError(7222, tmxFile)));
+    return cb(new Error(cc.debug.getError(7222, tmxFile)));
   }
 
   var textures = [];
