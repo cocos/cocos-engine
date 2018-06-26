@@ -137,10 +137,10 @@ module.exports = {
         
         data[0].x = l;
         data[0].y = b;
-        data[1].x = r;
-        data[1].y = b;
-        data[2].x = l;
-        data[2].y = t;
+        // data[1].x = r;
+        // data[1].y = b;
+        // data[2].x = l;
+        // data[2].y = t;
         data[3].x = r;
         data[3].y = t;
 
