@@ -1049,6 +1049,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
             this._editBox._text = capitalizeFirstLetter(this._editBox._text);
         }
+        if (this._edTxt) {
+            this._edTxt.value = this._editBox._text;
+        }
     };
 
     proto._updateLabelStringStyle = function() {
