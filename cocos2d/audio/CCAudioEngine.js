@@ -55,8 +55,8 @@ let getAudioFromPath = function (path) {
     if (audioEngine._maxAudioInstance <= list.length) {
         var oldId = list.shift();
         var oldAudio = getAudioFromId(oldId);
+        // Stop will recycle audio automatically by event callback
         oldAudio.stop();
-        recycleAudio(oldAudio);
     }
 
     var audio = _audioPool.pop() || new Audio();
@@ -376,8 +376,8 @@ var audioEngine = {
     stop: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (audio) {
+            // Stop will recycle audio automatically by event callback
             audio.stop();
-            recycleAudio(audio);
             return true;
         }
         else {
@@ -396,8 +396,8 @@ var audioEngine = {
         for (var id in _id2audio) {
             var audio = _id2audio[id];
             if (audio) {
+                // Stop will recycle audio automatically by event callback
                 audio.stop();
-                recycleAudio(audio);
             }
         }
     },
@@ -454,8 +454,8 @@ var audioEngine = {
             var id = list.pop();
             var audio = _id2audio[id];
             if (audio) {
+                // Stop will recycle audio automatically by event callback
                 audio.stop();
-                recycleAudio(audio);
                 delete _id2audio[id];
             }
         }
