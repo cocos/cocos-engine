@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// define log methods to lookup message ID
-
-const debugInfos = require('../../../DebugInfos') || {};
+const Enum = require('./platform/CCEnum');
+const debugInfos = require('../../DebugInfos') || {};
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
 // the html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
@@ -36,11 +34,9 @@ let logList;
  * @module cc
  */
 
-let initDebugSetting = function (mode) {
+let resetDebugSetting = function (mode) {
     // reset
     cc.log = cc.warn = cc.error = cc.assert = function () { };
-
-    let DebugMode = cc.game.DebugMode;
 
     if (mode === DebugMode.NONE)
         return;
@@ -290,9 +286,114 @@ cc.assertID = function (cond) {
     cc.assert(false, assertFormatter.apply(null, cc.js.shiftArguments.apply(null, arguments)));
 };
 
-let getError = getTypedFormatter('ERROR');
+/**
+ * !#en An object to boot the game.
+ * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
+ * @class debug
+ * @main
+ * @static
+ */
+
+/**
+ * !#en Enum for debug modes.
+ * !#zh 调试模式
+ * @enum DebugMode
+ * @property
+ */
+var DebugMode = Enum({
+    /**
+     * !#en The debug mode none.
+     * !#zh 禁止模式，禁止显示任何日志信息。
+     * @property NONE
+     * @type {Number}
+     * @static
+     */
+    NONE: 0,
+    /**
+     * !#en The debug mode info.
+     * !#zh 信息模式，在 console 中显示所有日志。
+     * @property INFO
+     * @type {Number}
+     * @static
+     */
+    INFO: 1,
+    /**
+     * !#en The debug mode warn.
+     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @property WARN
+     * @type {Number}
+     * @static
+     */
+    WARN: 2,
+    /**
+     * !#en The debug mode error.
+     * !#zh 错误模式，在 console 中只显示 error 日志。
+     * @property ERROR
+     * @type {Number}
+     * @static
+     */
+    ERROR: 3,
+    /**
+     * !#en The debug mode info for web page.
+     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
+     * @property INFO_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    INFO_FOR_WEB_PAGE: 4,
+    /**
+     * !#en The debug mode warn for web page.
+     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
+     * @property WARN_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    WARN_FOR_WEB_PAGE: 5,
+    /**
+     * !#en The debug mode error for web page.
+     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
+     * @property ERROR_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
+     */
+    ERROR_FOR_WEB_PAGE: 6
+});
 
 module.exports = {
-    initDebugSetting,
-    getError
+    DebugMode: DebugMode,
+
+    _resetDebugSetting: resetDebugSetting,
+
+    /**
+     * !#en Gets error message with the error id and possible parameters.
+     * !#zh 通过 error id 和必要的参数来获取错误信息。
+     * @method getError
+     * @param {id} errorId
+     * @param {ANY} [param]
+     * @return {String}
+     */
+    getError: getTypedFormatter('ERROR'),
+
+    /**
+     * !#en Returns whether or not to display the FPS informations.
+     * !#zh 是否显示 FPS 信息。
+     * @method isDisplayStats
+     * @return {Boolean}
+     */
+    isDisplayStats: function () {
+        return cc.profiler ? cc.profiler.isShowingStats() : false;
+    },
+
+    /**
+     * !#en Sets whether display the FPS on the bottom-left corner.
+     * !#zh 设置是否在左下角显示 FPS。
+     * @method setDisplayStats
+     * @param {Boolean} displayStats
+     */
+    setDisplayStats: function (displayStats) {
+        if (cc.profiler) {
+            displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
+            cc.game.config[cc.game.CONFIG_KEY.showFPS] = !!displayStats;
+        }
+    },
 }

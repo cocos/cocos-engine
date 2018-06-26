@@ -31,8 +31,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-const Enum = require('./platform/CCEnum');
-const debugUtil = require('./utils/debug-util');
+const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
@@ -42,74 +41,7 @@ const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require(
  * @class Game
  * @extends EventTarget
  */
-
-/**
- * !#en Enum for debug modes.
- * !#zh 调试模式
- * @enum DebugMode
- */
-var DebugMode = Enum({
-    /**
-     * !#en The debug mode none.
-     * !#zh 禁止模式，禁止显示任何日志信息。
-     * @property NONE
-     * @type {Number}
-     * @static
-     */
-    NONE: 0,
-    /**
-     * !#en The debug mode info.
-     * !#zh 信息模式，在 console 中显示所有日志。
-     * @property INFO
-     * @type {Number}
-     * @static
-     */
-    INFO: 1,
-    /**
-     * !#en The debug mode warn.
-     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
-     * @property WARN
-     * @type {Number}
-     * @static
-     */
-    WARN: 2,
-    /**
-     * !#en The debug mode error.
-     * !#zh 错误模式，在 console 中只显示 error 日志。
-     * @property ERROR
-     * @type {Number}
-     * @static
-     */
-    ERROR: 3,
-    /**
-     * !#en The debug mode info for web page.
-     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
-     * @property INFO_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    INFO_FOR_WEB_PAGE: 4,
-    /**
-     * !#en The debug mode warn for web page.
-     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
-     * @property WARN_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    WARN_FOR_WEB_PAGE: 5,
-    /**
-     * !#en The debug mode error for web page.
-     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
-     * @property ERROR_FOR_WEB_PAGE
-     * @type {Number}
-     * @static
-     */
-    ERROR_FOR_WEB_PAGE: 6
-});
-
 var game = {
-    DebugMode: DebugMode,
-
     /**
      * !#en Event triggered when game hide to background.
      * Please note that this event is not 100% guaranteed to be fired on Web platform,
@@ -661,7 +593,7 @@ var game = {
             director = cc.director,
             skip = true, frameRate = config[CONFIG_KEY.frameRate];
 
-        director.setDisplayStats(config[CONFIG_KEY.showFPS]);
+        debug.setDisplayStats(config[CONFIG_KEY.showFPS]);
 
         callback = function () {
             if (!self._paused) {
@@ -677,10 +609,6 @@ var game = {
 
         self._intervalId = window.requestAnimFrame(callback);
         self._paused = false;
-    },
-
-    _resetDebugSetting (debugMode) {
-        debugUtil.initDebugSetting(debugMode);
     },
 
 //  @Game loading section
@@ -712,7 +640,7 @@ var game = {
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
 
-        debugUtil.initDebugSetting(config[CONFIG_KEY.debugMode]);
+        debug._resetDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
         this._configLoaded = true;
@@ -747,7 +675,7 @@ var game = {
         }
     
         if (!supportRender) {
-            throw new Error(debugUtil.getError(3820, userRenderMode));
+            throw new Error(debug.getError(3820, userRenderMode));
         }
     },
 

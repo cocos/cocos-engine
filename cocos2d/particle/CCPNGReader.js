@@ -28,7 +28,7 @@
  ****************************************************************************/
 
 const zlib = require('../compression/zlib.min');
-const debugUtil = require('../core/utils/debug-util');
+const debug = require('../core/CCDebug');
 
 /**
  * A png file reader
@@ -162,7 +162,7 @@ var PNGReader = function(data){
         }
         this.pos += 4;
         if (this.pos > this.data.length) {
-            throw new Error(debugUtil.getError(6017));
+            throw new Error(debug.getError(6017));
         }
     }
 };
@@ -265,7 +265,7 @@ PNGReader.prototype = {
                     }
                     break;
                 default:
-                    throw new Error(debugUtil.getError(6018, data[pos - 1]));
+                    throw new Error(debug.getError(6018, data[pos - 1]));
             }
             row++;
         }

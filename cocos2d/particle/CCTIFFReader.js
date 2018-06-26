@@ -29,7 +29,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const debugUtil = require('../core/utils/debug-util');
+const debug = require('../core/CCDebug');
 
 /**
  * cc.tiffReader is a singleton object, it's a tiff file reader, it can parse byte array to draw into a canvas
@@ -69,7 +69,7 @@ var tiffReader = /** @lends tiffReader# */{
             this.littleEndian = false;
         } else {
             console.log(BOM);
-            throw TypeError(debugUtil.getError(6019));
+            throw TypeError(debug.getError(6019));
         }
 
         return this.littleEndian;
@@ -78,7 +78,7 @@ var tiffReader = /** @lends tiffReader# */{
     hasTowel: function () {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
-            throw RangeError(debugUtil.getError(6020));
+            throw RangeError(debug.getError(6020));
             return false;
         }
 
@@ -306,7 +306,7 @@ var tiffReader = /** @lends tiffReader# */{
             if (numStripOffsetValues === 1) {
                 var stripByteCountValues = [Math.ceil((imageWidth * imageLength * bitsPerPixel) / 8)];
             } else {
-                throw Error(debugUtil.getError(6024));
+                throw Error(debug.getError(6024));
             }
         }
 
@@ -336,7 +336,7 @@ var tiffReader = /** @lends tiffReader# */{
                                 byteOffset = sampleInfo.byteOffset - stripOffset;
                                 bitOffset = sampleInfo.bitOffset;
 
-                                throw RangeError(debugUtil.getError(6025));
+                                throw RangeError(debug.getError(6025));
                             }
                         }
 
@@ -346,7 +346,7 @@ var tiffReader = /** @lends tiffReader# */{
                             jIncrement = bytesPerPixel;
                         } else {
                             jIncrement = 0;
-                            throw RangeError(debugUtil.getError(6026));
+                            throw RangeError(debug.getError(6026));
                         }
                         break;
 
@@ -416,7 +416,7 @@ var tiffReader = /** @lends tiffReader# */{
                                         sample++;
                                     }
                                 } else {
-                                    throw RangeError(debugUtil.getError(6025));
+                                    throw RangeError(debug.getError(6025));
                                 }
 
                                 // Is our pixel complete?
@@ -539,7 +539,7 @@ var tiffReader = /** @lends tiffReader# */{
                             // RGB Color Palette
                             case 3:
                                 if (colorMapValues === undefined) {
-                                    throw Error(debugUtil.getError(6027));
+                                    throw Error(debug.getError(6027));
                                 }
 
                                 var colorMapIndex = pixelSamples[0];
@@ -551,7 +551,7 @@ var tiffReader = /** @lends tiffReader# */{
 
                             // Unknown Photometric Interpretation
                             default:
-                                throw RangeError(debugUtil.getError(6028, photometricInterpretation));
+                                throw RangeError(debug.getError(6028, photometricInterpretation));
                                 break;
                         }
 
