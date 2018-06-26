@@ -39,14 +39,6 @@ var _global = typeof window === 'undefined' ? global : window;
  */
 cc = _global.cc || {};
 
-/**
- * The current version of Cocos2d being used.<br/>
- * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
- * If you post a bug to forum, please attach this flag.
- * @property {String} ENGINE_VERSION
- */
-_global['CocosEngine'] = cc.ENGINE_VERSION = '2.0.0 alpha';
-
 // For internal usage
 _cc = _global._cc || {};
 
