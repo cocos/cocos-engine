@@ -510,14 +510,15 @@ var Sprite = cc.Class({
             material = this._spriteMaterial;
         }
         // TODO: old texture in material have been released by loader
-        material.texture = texture;
+        if (material.texture !== texture) {
+            material.texture = texture;
+            this._updateMaterial(material);
+        }
 
         if (this._renderData) {
             this._renderData.material = material;
         }
         
-        this._updateMaterial(material);
-
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
