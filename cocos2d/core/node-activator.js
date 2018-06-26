@@ -113,11 +113,11 @@ function _componentCorrupted (node, comp, index) {
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !cc.engine._isPlaying) {
         var focused = Editor.Selection.curActivate('node') === comp.node.uuid;
-        if (focused && comp.onFocusInEditor) {
-            callOnFocusInTryCatch(comp);
+        if (focused) {
+            comp.onFocusInEditor && callOnFocusInTryCatch(comp);
         }
-        else if (comp.onLostFocusInEditor) {
-            callOnLostFocusInTryCatch(comp);
+        else {
+            comp.onLostFocusInEditor && callOnLostFocusInTryCatch(comp);
         }
     }
     if ( !CC_TEST ) {

@@ -411,6 +411,13 @@ function initSys () {
      */
     sys.BROWSER_TYPE_UC = "ucbrowser";
     /**
+     * uc third party integration.
+     * @property {String} BROWSER_TYPE_UCBS
+     * @readOnly
+     * @default "ucbs"
+     */
+    sys.BROWSER_TYPE_UCBS = "ucbs";
+    /**
      *
      * @property {String} BROWSER_TYPE_360
      * @readOnly
@@ -541,10 +548,10 @@ function initSys () {
     }
     else if (CC_JSB) {
         var platform = sys.platform = __getPlatform();
-        sys.isMobile = (platform === sys.ANDROID || 
-                        platform === sys.IPAD || 
-                        platform === sys.IPHONE || 
-                        platform === sys.WP8 || 
+        sys.isMobile = (platform === sys.ANDROID ||
+                        platform === sys.IPAD ||
+                        platform === sys.IPHONE ||
+                        platform === sys.WP8 ||
                         platform === sys.TIZEN ||
                         platform === sys.BLACKBERRY);
 
@@ -609,7 +616,7 @@ function initSys () {
                 sys.os = sys.OS_IOS;
             }
         }
-    
+
         var version = /[\d\.]+/.exec(env.system);
         sys.osVersion = version[0];
         sys.osMainVersion = parseInt(sys.osVersion);
@@ -621,7 +628,7 @@ function initSys () {
             sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
         }
         sys.browserVersion = env.version;
-    
+
         var w = env.windowWidth;
         var h = env.windowHeight;
         var ratio = env.pixelRatio || 1;
@@ -629,17 +636,17 @@ function initSys () {
             width: ratio * w,
             height: ratio * h
         };
-    
+
         sys.localStorage = window.localStorage;
-    
+
         sys.capabilities = {
             "canvas": true,
             "opengl": true,
             "webp": false
         };
-        sys.__audioSupport = { 
-            ONLY_ONE: false, 
-            WEB_AUDIO: false, 
+        sys.__audioSupport = {
+            ONLY_ONE: false,
+            WEB_AUDIO: false,
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
@@ -658,24 +665,24 @@ function initSys () {
         else {
             sys.os = sys.OS_UNKNOWN;
         }
-    
+
         var version = /[\d\.]+/.exec(env.version);
         sys.osVersion = version[0];
         sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
         sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
         sys.browserVersion = 0;
-    
+
         var w = env.screenWidth;
         var h = env.screenHeight;
         var ratio = env.pixelRatio || 1;
-    
+
         sys.windowPixelResolution = {
             width: ratio * w,
             height: ratio * h
         };
-    
+
         sys.localStorage = window.localStorage;
-    
+
         sys.capabilities = {
             "canvas": false,
             "opengl": true,
@@ -734,7 +741,7 @@ function initSys () {
             iOS = true;
             osVersion = uaResult[2] || '';
             osMainVersion = parseInt(osVersion) || 0;
-        } 
+        }
         else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
             iOS = true;
             osVersion = '';
@@ -772,10 +779,13 @@ function initSys () {
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
         (function(){
-            var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
+            var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+            var typeReg2 = /qqbrowser|ucbrowser/i;
+            var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             var browserTypes = typeReg1.exec(ua);
             if(!browserTypes) browserTypes = typeReg2.exec(ua);
+            if(!browserTypes) browserTypes = typeReg3.exec(ua);
+
             var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (CC_WECHATGAME)
                 browserType = sys.BROWSER_TYPE_WECHAT_GAME;
@@ -806,7 +816,7 @@ function initSys () {
         sys.browserVersion = "";
         /* Determine the browser version number */
         (function(){
-            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
             var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
             var tmp = ua.match(versionReg1);
             if(!tmp) tmp = ua.match(versionReg2);
@@ -843,7 +853,7 @@ function initSys () {
                 }
             }
             else {
-                return create3DContext(canvas, opt_attribs, "webgl") || 
+                return create3DContext(canvas, opt_attribs, "webgl") ||
                     create3DContext(canvas, opt_attribs, "experimental-webgl") ||
                     create3DContext(canvas, opt_attribs, "webkit-3d") ||
                     create3DContext(canvas, opt_attribs, "moz-webgl") ||
@@ -965,7 +975,7 @@ function initSys () {
 
             // check if browser supports Web Audio
             // check Web Audio's context
-            var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && 
+            var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME &&
                                 !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
             __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
