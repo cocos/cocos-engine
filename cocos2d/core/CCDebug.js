@@ -359,7 +359,7 @@ var DebugMode = Enum({
     ERROR_FOR_WEB_PAGE: 6
 });
 
-module.exports = {
+module.exports = cc.debug = {
     DebugMode: DebugMode,
 
     _resetDebugSetting: resetDebugSetting,
