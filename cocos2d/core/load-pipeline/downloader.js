@@ -355,14 +355,15 @@ Downloader.prototype.handle = function (item, callback) {
  * @method loadSubpackage
  * @param {String} name - Subpackage name
  * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+ * @param {Error} completeCallback.error - error information
  */
 Downloader.prototype.loadSubpackage = function (name, completeCallback) {
     let pac = this._subpackages[name];
     if (pac) {
         downloadScript({url: pac.path}, completeCallback);
     }
-    else {
-        cc.warn(`Can't find subpackage ${name}`);
+    else if (completeCallback) {
+        completeCallback(new Error(`Can't find subpackage ${name}`));
     }
 };
 
