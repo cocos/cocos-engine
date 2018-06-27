@@ -2003,6 +2003,7 @@ cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
  * @param {Number} a number A
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
+ * @return {Number}
  * @example {@link cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
