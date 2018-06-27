@@ -154,8 +154,7 @@
   {
     "name": "AudioSource",
     "entries": [
-      "./cocos2d/core/components/CCAudioSource.js",
-      "./jsb/jsb-audio.js"
+      "./cocos2d/core/components/CCAudioSource.js"
     ]
   },
   {
