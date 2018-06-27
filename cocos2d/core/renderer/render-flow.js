@@ -121,7 +121,7 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
-        if (!c.activeInHierarchy) continue;
+        if (!c._activeInHierarchy) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
         c._renderFlag |= worldTransformFlag | worldOpacityFlag;
 

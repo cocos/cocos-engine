@@ -618,7 +618,7 @@ function initSys () {
         }
 
         var version = /[\d\.]+/.exec(env.system);
-        sys.osVersion = version[0];
+        sys.osVersion = version ? version[0] : "unknown";
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
         if (!wx.getFileSystemManager) {
@@ -841,8 +841,7 @@ function initSys () {
                 throw new Error("This feature supports WebGL render mode only.");
         };
 
-        var _tmpCanvas1 = document.createElement("canvas"),
-            _tmpCanvas2 = document.createElement("canvas");
+        var _tmpCanvas1 = document.createElement("canvas");
 
         var create3DContext = function (canvas, opt_attribs, opt_contextType) {
             if (opt_contextType) {

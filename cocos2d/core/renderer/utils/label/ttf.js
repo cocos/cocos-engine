@@ -160,7 +160,9 @@ module.exports = {
                 _fontFamily = CustomFontLoader._getFontFamily(url);
                 let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
                 if (!fontDescriptor || !fontDescriptor.isLoaded()) {
-                    CustomFontLoader.loadTTF(url);
+                    CustomFontLoader.loadTTF(url, function () {
+                        comp._updateRenderData();
+                    });
                     return false;
                 }
             }
