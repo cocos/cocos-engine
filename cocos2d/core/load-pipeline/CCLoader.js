@@ -125,8 +125,6 @@ function CCLoader () {
     // assets to release automatically
     this._autoReleaseSetting = {};
 
-    this._subpackages = {};
-
     if (CC_DEBUG) {
         this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
     }
@@ -278,25 +276,6 @@ proto.load = function(resources, progressCallback, completeCallback) {
     LoadingItems.initQueueDeps(queue);
     queue.append(_sharedResources);
     _sharedResources.length = 0;
-};
-
-/**
- * !#en
- * Load subpackage with name.
- * !#zh
- * 通过子包名加载子包代码。
- * @method loadSubpackage
- * @param {String} name - Subpackage name
- * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
- */
-proto.loadSubpackage = function (name, completeCallback) {
-    let pac = this._subpackages[name];
-    if (pac) {
-        this.load(pac.path, completeCallback);
-    }
-    else {
-        cc.warn(`Can't find subpackage ${name}`);
-    }
 };
 
 proto.flowInDeps = function (owner, urlList, callback) {
