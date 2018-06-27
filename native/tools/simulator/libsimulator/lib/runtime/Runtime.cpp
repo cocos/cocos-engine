@@ -245,7 +245,7 @@ void RuntimeEngine::start()
     }
 
     setupRuntime();
-    startScript("src/jsb.js");
+    startScript("jsb-adapter/jsb-builtin.js");
     startScript("");
 }
 

@@ -103,6 +103,11 @@ android.applicationVariants.all { variant ->
         copy {
             from "${buildDir}/../../../../../src"
             into "${buildDir}/intermediates/assets/${variant.dirName}/src"
+        }        
+
+        copy {
+            from "${buildDir}/../../../../../jsb-adapter"
+            into "${buildDir}/intermediates/assets/${variant.dirName}/jsb-adapter"
         }
 
         copy {

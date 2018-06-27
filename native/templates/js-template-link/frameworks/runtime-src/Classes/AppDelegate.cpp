@@ -85,7 +85,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 //#endif
 
     se::AutoHandleScope hs;
-    jsb_run_script("src/jsb.js");
+    jsb_run_script("jsb-adapter/jsb-builtin.js");
     jsb_run_script("main.js");
 
     se->addAfterCleanupHook([](){

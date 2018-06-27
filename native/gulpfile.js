@@ -247,7 +247,7 @@ gulp.task('update-simulator-script', function(cb) {
     if (!fs.existsSync(simulatorPath)) {
         console.error(`Cant\'t find simulator dir [${simulatorPath}]`);
     } else {
-        var destPath = simulatorPath + '/src/jsb.js';
+        var destPath = simulatorPath + '/jsb-adapter/jsb-builtin.js';
         fs.copy('./../engine/jsb/builtin/dist/jsb.js', destPath, cb);
     }
 });
