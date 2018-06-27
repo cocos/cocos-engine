@@ -10,7 +10,7 @@ before_install:
 # blocklist
 branches:
   only:
-    - runtime
+    - next
 
 env:
   global:
