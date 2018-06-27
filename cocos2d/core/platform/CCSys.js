@@ -618,7 +618,7 @@ function initSys () {
         }
 
         var version = /[\d\.]+/.exec(env.system);
-        sys.osVersion = version[0];
+        sys.osVersion = version ? version[0] : "unknown";
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
         if (!wx.getFileSystemManager) {
