@@ -582,14 +582,29 @@ cc.Director.prototype = {
      *
      * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
+     * @param {Function} [onProgress] - callback, will be called when the load progression change.
+     * @param {Number} onProgress.completedCount - The number of the items that are already completed
+     * @param {Number} onProgress.totalCount - The total number of the items
+     * @param {Object} onProgress.item - The latest item which flow out the pipeline
      * @param {Function} [onLoaded] - callback, will be called after scene loaded.
      * @param {Error} onLoaded.error - null or the error object.
      */
-    preloadScene: function (sceneName, onLoaded) {
+    preloadScene: function (sceneName, onProgress, onLoaded) {
+        if (onLoaded === undefined) {
+            onLoaded = onProgress;
+            onProgress = null;
+        }
+
         var info = this._getSceneUuid(sceneName);
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, function (error, asset) {
+            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, 
+            function (completedCount, totalCount, item) {
+                if (onProgress) {
+                    onProgress(completedCount, totalCount, item);
+                }
+            },  
+            function (error, asset) {
                 if (error) {
                     cc.errorID(1210, sceneName, error.message);
                 }

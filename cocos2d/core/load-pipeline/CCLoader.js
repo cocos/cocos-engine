@@ -112,7 +112,7 @@ function CCLoader () {
     this.downloader = downloader;
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the third pipe.
+     * The loader in cc.loader's pipeline, it's by default the third pipe.
      * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
      * You can add your own download function with addLoadHandlers
      * @property loader
