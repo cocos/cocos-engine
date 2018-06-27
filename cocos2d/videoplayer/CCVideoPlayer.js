@@ -324,7 +324,7 @@ let VideoPlayer = cc.Class({
 
     onRestore () {
         if (!this._impl) {
-            this._impl = new WebViewImpl();
+            this._impl = new VideoPlayerImpl();
         }
     },
 
