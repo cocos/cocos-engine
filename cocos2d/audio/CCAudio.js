@@ -206,12 +206,7 @@ Audio.State = {
             this._element.currentTime = 0;
         } catch (error) {}
         this._element.pause();
-
-        if (this._audioType === Audio.Type.DOM) {
-            this._onended && this._onended();
-        } else {
-            this._element.onended && this._element.onended();
-        }
+        this._onended && this._onended();
         // remove touchPlayList
         for (var i=0; i<touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {
