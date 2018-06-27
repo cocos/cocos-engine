@@ -601,6 +601,7 @@ function initSys () {
         sys.isMobile = true;
         sys.platform = sys.WECHAT_GAME;
         sys.language = env.language.substr(0, 2);
+        var system = env.system.toLowerCase();
         if (env.platform === "android") {
             sys.os = sys.OS_ANDROID;
         }
@@ -608,7 +609,6 @@ function initSys () {
             sys.os = sys.OS_IOS;
         }
         else if (env.platform === 'devtools') {
-            var system = env.system.toLowerCase();
             if (system.indexOf('android') > -1) {
                 sys.os = sys.OS_ANDROID;
             }
@@ -616,9 +616,13 @@ function initSys () {
                 sys.os = sys.OS_IOS;
             }
         }
+        // Adaptation to Android P
+        if (system === 'android p') {
+            system = 'android p 9.0';
+        }
 
-        var version = /[\d\.]+/.exec(env.system);
-        sys.osVersion = version ? version[0] : "unknown";
+        var version = /[\d\.]+/.exec(system);
+        sys.osVersion = version ? version[0] : system;
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
         if (!wx.getFileSystemManager) {
