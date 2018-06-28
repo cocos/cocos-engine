@@ -446,7 +446,7 @@ var PhysicsManager = cc.Class({
 
     _init: function () {
         this.enabled = true;
-        this.debugDrawFlags = b2.Draw.e_shapeBit;
+        this.debugDrawFlags = DrawBits.e_shapeBit;
     },
 
     _getWorld: function () {

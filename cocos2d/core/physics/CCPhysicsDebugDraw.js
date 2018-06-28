@@ -42,6 +42,8 @@ const AabbColor = cc.color(229, 77, 229, 255);
 
 let _vec2_tmp1 = cc.v2();
 let _vec2_tmp2 = cc.v2();
+let _vec2_tmp3 = cc.v2();
+let _vec2_tmp4 = cc.v2();
 let _mat4_tmp = mat4.create();
 let _rect_tmp = cc.rect();
 
@@ -177,8 +179,8 @@ module.exports = function (manager) {
             _vec2_tmp2.x = _mat4_tmp.m12;
             _vec2_tmp2.y = _mat4_tmp.m13;
 
-            let p1 = cc.v2(joint._joint.GetAnchorA()).mulSelf(PTM_RATIO);
-            let p2 = cc.v2(joint._joint.GetAnchorB()).mulSelf(PTM_RATIO);
+            let p1 = joint._joint.GetAnchorA(_vec2_tmp3).mulSelf(PTM_RATIO);
+            let p2 = joint._joint.GetAnchorB(_vec2_tmp4).mulSelf(PTM_RATIO);
 
             if (joint instanceof cc.DistanceJoint) {
                 drawSegment(debugDrawer, p1, p2, JointColor);
