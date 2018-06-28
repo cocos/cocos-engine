@@ -105,20 +105,18 @@ Application* app = nullptr;
       Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
-    cocos2d::Application::getInstance()->applicationDidEnterBackground();
-    [CAAgent onPause];
+    app->applicationDidEnterBackground();
+    if (CAAgent.isInited)
+        [CAAgent onPause];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     /*
       Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
     */
-    auto glview = (__bridge CCEAGLView*)(cocos2d::Application::getInstance()->getView());
-    auto currentView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
-    if (glview == currentView) {
-        cocos2d::Application::getInstance()->applicationWillEnterForeground();
+    app->applicationWillEnterForeground();
+    if (CAAgent.isInited)
         [CAAgent onResume];
-    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -128,7 +126,9 @@ Application* app = nullptr;
      */
     delete app;
     app = nullptr;
-    [CAAgent onDestroy];
+
+    if (CAAgent.isInited)
+        [CAAgent onDestroy];
 }
 
 
