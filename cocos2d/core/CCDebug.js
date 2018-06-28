@@ -393,7 +393,7 @@ module.exports = cc.debug = {
     setDisplayStats: function (displayStats) {
         if (cc.profiler) {
             displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
-            cc.game.config[cc.game.CONFIG_KEY.showFPS] = !!displayStats;
+            cc.game.config.showFPS = !!displayStats;
         }
     },
 }

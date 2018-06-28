@@ -261,8 +261,8 @@ var game = {
      * @param {Number} frameRate
      */
     setFrameRate: function (frameRate) {
-        var config = this.config, CONFIG_KEY = this.CONFIG_KEY;
-        config[CONFIG_KEY.frameRate] = frameRate;
+        var config = this.config;
+        config.frameRate = frameRate;
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
         this._intervalId = 0;
@@ -278,7 +278,7 @@ var game = {
      * @return {Number} frame rate
      */
     getFrameRate: function () {
-        return this.config[this.CONFIG_KEY.frameRate];
+        return this.config.frameRate;
     },
 
     /**
@@ -438,7 +438,7 @@ var game = {
         this._runMainLoop();
 
         // Load game scripts
-        var jsList = this.config[this.CONFIG_KEY.jsList];
+        let jsList = this.config.jsList;
         if (jsList && jsList.length > 0) {
             var self = this;
             cc.loader.load(jsList, function (err) {
@@ -542,7 +542,7 @@ var game = {
 //  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
-        var frameRate = game.config[game.CONFIG_KEY.frameRate];
+        var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
         if (CC_JSB) {
@@ -589,11 +589,11 @@ var game = {
     },
     //Run game.
     _runMainLoop: function () {
-        var self = this, callback, config = self.config, CONFIG_KEY = self.CONFIG_KEY,
+        var self = this, callback, config = self.config,
             director = cc.director,
-            skip = true, frameRate = config[CONFIG_KEY.frameRate];
+            skip = true, frameRate = config.frameRate;
 
-        debug.setDisplayStats(config[CONFIG_KEY.showFPS]);
+        debug.setDisplayStats(config.showFPS);
 
         callback = function () {
             if (!self._paused) {
@@ -613,43 +613,39 @@ var game = {
 
 //  @Game loading section
     _initConfig (config) {
-        let CONFIG_KEY = this.CONFIG_KEY;
-
         // Configs adjustment
-        if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
-            config[CONFIG_KEY.debugMode] = 0;
+        if (typeof config.debugMode !== 'number') {
+            config.debugMode = 0;
         }
-        config[CONFIG_KEY.exposeClassName] = !!config[CONFIG_KEY.exposeClassName];
-        if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
-            config[CONFIG_KEY.frameRate] = 60;
+        config.exposeClassName = !!config.exposeClassName;
+        if (typeof config.frameRate !== 'number') {
+            config.frameRate = 60;
         }
-        let renderMode = config[CONFIG_KEY.renderMode];
+        let renderMode = config.renderMode;
         if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
-            config[CONFIG_KEY.renderMode] = 0;
+            config.renderMode = 0;
         }
-        if (typeof config[CONFIG_KEY.registerSystemEvent] !== 'boolean') {
-            config[CONFIG_KEY.registerSystemEvent] = true;
+        if (typeof config.registerSystemEvent !== 'boolean') {
+            config.registerSystemEvent = true;
         }
-        config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
-        // config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+        config.showFPS = (typeof config.showFPS !== 'undefined') ? (!!config.showFPS) : true;
 
         // Scene parser
-        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
+        this._sceneInfos = config.scenes || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
 
-        debug._resetDebugSetting(config[CONFIG_KEY.debugMode]);
+        debug._resetDebugSetting(config.debugMode);
 
         this.config = config;
         this._configLoaded = true;
     },
 
     _determineRenderType () {
-        let CONFIG_KEY = this.CONFIG_KEY,
-            config = this.config,
-            userRenderMode = parseInt(config[CONFIG_KEY.renderMode]) || 0;
+        let config = this.config,
+            userRenderMode = parseInt(config.renderMode) || 0;
     
         // Determine RenderType
         this.renderType = this.RENDER_TYPE_CANVAS;
@@ -679,12 +675,12 @@ var game = {
         }
     },
 
-    _initRenderer (width, height) {
+    _initRenderer () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
-        var el = this.config[game.CONFIG_KEY.id],
-            win = window,
+        let el = this.config.id,
+            width, height,
             localCanvas, localContainer,
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
@@ -712,8 +708,8 @@ var game = {
             var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
 
             if (element.tagName === "CANVAS") {
-                width = width || element.width;
-                height = height || element.height;
+                width = element.width;
+                height = element.height;
 
                 //it is already a canvas, we wrap it around with a div
                 this.canvas = localCanvas = element;
@@ -725,8 +721,8 @@ var game = {
                 if (element.tagName !== "DIV") {
                     cc.warnID(3819);
                 }
-                width = width || element.clientWidth;
-                height = height || element.clientHeight;
+                width = element.clientWidth;
+                height = element.clientHeight;
                 this.canvas = localCanvas = document.createElement("CANVAS");
                 this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
@@ -786,7 +782,7 @@ var game = {
         var win = window, hiddenPropName;
 
         // register system events
-        if (this.config[this.CONFIG_KEY.registerSystemEvent])
+        if (this.config.registerSystemEvent)
             inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {

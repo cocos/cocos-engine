@@ -194,6 +194,11 @@ if (CC_DEV) {
         UINT_MAX: 'Number.MAX_SAFE_INTEGER'
     }, 'cc.macro');
 
+    // cc.game
+    markAsRemovedInObject(cc.game, [
+        'CONFIG_KEY',
+    ], 'cc.game');
+
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',
