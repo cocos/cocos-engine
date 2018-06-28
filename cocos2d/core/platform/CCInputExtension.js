@@ -32,6 +32,8 @@ var inputManager = require("./CCInputManager");
 
 inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
 
+var _didAccelerateFun;
+
 /**
  * whether enable accelerometer event
  * @method setAccelerometerEnabled
@@ -92,7 +94,8 @@ inputManager._registerAccelerometerEvent = function(){
         _t._minus = -1;
     }
 
-    w.addEventListener(_deviceEventType, _t.didAccelerate.bind(_t), false);
+    _didAccelerateFun = _t.didAccelerate.bind(_t);
+    w.addEventListener(_deviceEventType, _didAccelerateFun, false);
 };
 
 inputManager._unregisterAccelerometerEvent = function () {
