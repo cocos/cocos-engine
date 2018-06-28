@@ -124,9 +124,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <CustomBuildStep>
-      <Command>xcopy "$(ProjectDir)..\..\cocos2d-x\cocos\scripting\js-bindings\script" "$(OutDir)\script" /D /E /I /F /Y
-xcopy "$(ProjectDir)..\..\..\src" "$(OutDir)\src" /D /E /I /F /Y
+      <Command>xcopy "$(ProjectDir)..\..\..\src" "$(OutDir)\src" /D /E /I /F /Y
 xcopy "$(ProjectDir)..\..\..\res" "$(OutDir)\res" /D /E /I /F /Y
+xcopy "$(ProjectDir)..\..\..\jsb-adapter" "$(OutDir)\jsb-adapter" /D /E /I /F /Y
 copy "$(ProjectDir)..\..\..\main.js" "$(OutDir)\" /Y
 copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
       <Outputs>$(TargetName).cab</Outputs>
