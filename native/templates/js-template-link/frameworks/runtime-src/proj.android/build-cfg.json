@@ -18,12 +18,12 @@
             "to": ""
         },
         {
-            "from": "${COCOS_X_ROOT}/cocos/scripting/js-bindings/script",
-            "to": "script"
-        },
-        {
             "from": "../../../project.json",
             "to": ""
+        },
+        {
+            "from": "../../../jsb-adapter",
+            "to": "jsb-adapter"
         }
     ]
 }
