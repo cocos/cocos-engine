@@ -43,7 +43,6 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.DisplayMetrics;
@@ -332,9 +331,22 @@ public class Cocos2dxHelper {
     public static void vibrate(float duration) {
         try {
             if (sVibrateService != null && sVibrateService.hasVibrator()) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    VibrationEffect effect = VibrationEffect.createOneShot((long) (duration * 1000), VibrationEffect.DEFAULT_AMPLITUDE);
-                    sVibrateService.vibrate(effect);
+                if (android.os.Build.VERSION.SDK_INT >= 26) {
+                    Class<?> vibrationEffectClass = Class.forName("android.os.VibrationEffect");
+                    if(vibrationEffectClass != null) {
+                        final int DEFAULT_AMPLITUDE = Cocos2dxReflectionHelper.<Integer>getConstantValue(vibrationEffectClass,
+                                "DEFAULT_AMPLITUDE");
+                        //VibrationEffect.createOneShot(long milliseconds, int amplitude)
+                        final Method method = vibrationEffectClass.getMethod("createOneShot",
+                                new Class[]{Long.TYPE, Integer.TYPE});
+                        Class<?> type = method.getReturnType();
+
+                        Object effect =  method.invoke(vibrationEffectClass,
+                                new Object[]{(long) (duration * 1000), DEFAULT_AMPLITUDE});
+                        //sVibrateService.vibrate(VibrationEffect effect);
+                        Cocos2dxReflectionHelper.invokeInstanceMethod(sVibrateService,"vibrate",
+                                new Class[]{type}, new Object[]{(effect)});
+                    }
                 } else {
                     sVibrateService.vibrate((long) (duration * 1000));
                 }
