@@ -32,7 +32,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import com.cocos.analytics.CAAgent;
 
 public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     // ===========================================================
@@ -117,9 +116,6 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             @Override
             public void run() {
                 Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnResume();
-                if (CAAgent.isInited()) {
-                    CAAgent.onResume(Cocos2dxGLSurfaceView.this.getContext());
-                }
             }
         });
     }
@@ -130,9 +126,6 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             @Override
             public void run() {
                 Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnPause();
-                if (CAAgent.isInited()) {
-                    CAAgent.onPause(Cocos2dxGLSurfaceView.this.getContext());
-                }
             }
         });
         this.setRenderMode(RENDERMODE_WHEN_DIRTY);

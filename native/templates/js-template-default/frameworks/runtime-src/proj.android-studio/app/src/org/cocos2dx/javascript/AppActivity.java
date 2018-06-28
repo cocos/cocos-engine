@@ -29,6 +29,7 @@ import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
 
 import android.os.Bundle;
 import org.cocos2dx.javascript.SDKWrapper;
+import com.cocos.analytics.CAAgent;
 
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +51,7 @@ public class AppActivity extends Cocos2dxActivity {
         // DO OTHER INITIALIZATION BELOW
         
         SDKWrapper.getInstance().init(this);
+        CAAgent.enableDebug(false);
     }
 	
     @Override
@@ -67,18 +69,24 @@ public class AppActivity extends Cocos2dxActivity {
     protected void onResume() {
         super.onResume();
         SDKWrapper.getInstance().onResume();
+        if (CAAgent.isInited())
+            CAAgent.onResume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         SDKWrapper.getInstance().onPause();
+        if (CAAgent.isInited())
+            CAAgent.onPause(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SDKWrapper.getInstance().onDestroy();
+        if (CAAgent.isInited())
+            CAAgent.onDestroy();
     }
 
     @Override
