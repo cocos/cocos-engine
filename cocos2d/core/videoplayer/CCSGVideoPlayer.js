@@ -78,11 +78,11 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     duration: function () {
-        return this._renderCmd.duration();
+        return this._renderCmd.duration() || -1;
     },
 
     currentTime: function() {
-        return this._renderCmd.currentTime();
+        return this._renderCmd.currentTime() || -1;
     },
 
     createDomElementIfNeeded: function () {
@@ -314,7 +314,7 @@ _ccsg.VideoPlayer.EventType = {
         var node = this._node;
 
 
-        if (this._url == path) {
+        if (this._url === path) {
             return;
         }
 
@@ -331,7 +331,7 @@ _ccsg.VideoPlayer.EventType = {
         video = this._video;
 
         var cb = function(){
-            if(this._loaded == true)
+            if(this._loaded)
                 return;
             this._loaded = true;
             node.setContentSize(node._contentSize.width, node._contentSize.height);
