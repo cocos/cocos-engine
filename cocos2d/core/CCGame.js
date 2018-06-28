@@ -31,9 +31,14 @@ const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class Game
+ * @class game
+ * @static
  * @extends EventTarget
  */
 var game = {
@@ -818,10 +823,6 @@ var game = {
 
 EventTarget.call(game);
 cc.js.addon(game, EventTarget.prototype);
-
-/**
- * @module cc
- */
 
 /**
  * @property game
