@@ -191,6 +191,9 @@ cc.js.mixin(View.prototype, {
         this._viewportRect.height = h;
         this._visibleRect.width = w;
         this._visibleRect.height = h;
+
+        cc.winSize.width = this._visibleRect.width;
+        cc.winSize.height = this._visibleRect.height;
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
     },
 
@@ -773,11 +776,9 @@ cc.js.mixin(View.prototype, {
 
         // reset director's member variables to fit visible rect
         var director = cc.director;
-        director._winSizeInPoints.width = this._designResolutionSize.width;
-        director._winSizeInPoints.height = this._designResolutionSize.height;
         policy.postApply(this);
-        cc.winSize.width = director._winSizeInPoints.width;
-        cc.winSize.height = director._winSizeInPoints.height;
+        cc.winSize.width = this._visibleRect.width;
+        cc.winSize.height = this._visibleRect.height;
 
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
@@ -1355,10 +1356,6 @@ cc.ContentStrategy = cc.Class({
                 contentW = containerW, contentH = containerH;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        },
-
-        postApply: function (view) {
-            cc.director._winSizeInPoints = view.getVisibleSize();
         }
     });
 
@@ -1371,10 +1368,6 @@ cc.ContentStrategy = cc.Class({
                 contentW = containerW, contentH = containerH;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        },
-
-        postApply: function (view) {
-            cc.director._winSizeInPoints = view.getVisibleSize();
         }
     });
 
@@ -1540,6 +1533,10 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
 cc.ResolutionPolicy.UNKNOWN = 5;
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en cc.view is the shared view object.
  * !#zh cc.view 是全局的视图对象。
  * @property view
@@ -1547,5 +1544,13 @@ cc.ResolutionPolicy.UNKNOWN = 5;
  * @type {View}
  */
 cc.view = new View();
+
+/**
+ * !#en cc.winSize is the alias object for the size of the current game window.
+ * !#zh cc.winSize 为当前的游戏窗口的大小。
+ * @property winSize
+ * @type Size
+ */
+cc.winSize = cc.v2();
 
 module.exports = cc.view;

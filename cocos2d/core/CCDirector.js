@@ -289,9 +289,10 @@ cc.Director.prototype = {
      * !#zh 获取视图的大小，以点为单位。
      * @method getWinSize
      * @return {Size}
+     * @deprecated since v2.0
      */
     getWinSize: function () {
-        return cc.size(this._winSizeInPoints);
+        return cc.size(cc.winSize);
     },
 
     /**
@@ -308,7 +309,7 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      */
     getWinSizeInPixels: function () {
-        return cc.size(this._winSizeInPoints.width, this._winSizeInPoints.height);
+        return cc.size(cc.winSize);
     },
 
     /**
@@ -1157,6 +1158,10 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @deprecated since v2.0
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
+
+/**
+ * @module cc
+ */
 
 /**
  * !#en Director

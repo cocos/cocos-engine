@@ -208,7 +208,8 @@ if (CC_DEV) {
     markFunctionWarning(cc.Director.prototype, {
         convertToGL: 'cc.view.convertToLocationInView',
         convertToUI: '',
-        getWinSizeInPixels: 'cc.director.getWinSize',
+        getWinSize: 'cc.winSize',
+        getWinSizeInPixels: 'cc.winSize',
         getVisibleSize: 'cc.view.getVisibleSize',
         getVisibleOrigin: 'cc.view.getVisibleOrigin',
         purgeCachedData: 'cc.loader.releaseAll',

@@ -357,19 +357,7 @@ var game = {
             return;
         }
 
-        /**
-         * @module cc
-         */
-
         this._initRenderer();
-        
-        /**
-         * !#en cc.winSize is the alias object for the size of the current game window.
-         * !#zh cc.winSize 为当前的游戏窗口的大小。
-         * @property winSize
-         * @type Size
-         */
-        cc.winSize = cc.director.getWinSize();
 
         if (!CC_EDITOR) {
             this._initEvents();
@@ -388,7 +376,7 @@ var game = {
 
         this._setAnimFrame();
         this._runMainLoop();
-        
+
         this.emit(self.EVENT_GAME_INITED);
 
         if (cb) cb();
