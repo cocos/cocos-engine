@@ -29,10 +29,10 @@ const EventTarget = require('./event/event-target');
 const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
-const EventListeners = require('./event/event-listeners');
 const Obj = require('./platform/CCObject');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
+const Scheduler = require('./CCScheduler');
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -121,7 +121,7 @@ cc.Director = function () {
 
     // FPS
     this._totalFrames = 0;
-    this._lastUpdate = performance.now();
+    this._lastUpdate = 0;
     this._deltaTime = 0.0;
 
     // Scheduler for user registration update
@@ -137,6 +137,8 @@ cc.Director = function () {
     cc.game.on(cc.game.EVENT_SHOW, function () {
         self._lastUpdate = performance.now();
     });
+
+    cc.game.once(cc.game.EVENT_ENGINE_INITED, this.init, this);
 };
 
 cc.Director.prototype = {
@@ -147,17 +149,13 @@ cc.Director.prototype = {
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
-        this._scheduler = new cc.Scheduler();
+        this._scheduler = new Scheduler();
 
         if (cc.ActionManager) {
             this._actionManager = new cc.ActionManager();
-            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            this._scheduler.scheduleUpdate(this._actionManager, Scheduler.PRIORITY_SYSTEM, false);
         } else {
             this._actionManager = null;
-        }
-
-        if (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
-            cc.dynamicAtlasManager.enabled = true;
         }
 
         this.sharedInit();
@@ -180,7 +178,7 @@ cc.Director.prototype = {
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();
-            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            this._scheduler.scheduleUpdate(this._animationManager, Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
             this._animationManager = null;
@@ -189,7 +187,7 @@ cc.Director.prototype = {
         // collision manager
         if (cc.CollisionManager) {
             this._collisionManager = new cc.CollisionManager();
-            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            this._scheduler.scheduleUpdate(this._collisionManager, Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
             this._collisionManager = null;
@@ -198,7 +196,7 @@ cc.Director.prototype = {
         // physics manager
         if (cc.PhysicsManager) {
             this._physicsManager = new cc.PhysicsManager();
-            this._scheduler.scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            this._scheduler.scheduleUpdate(this._physicsManager, Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
             this._physicsManager = null;
@@ -1159,3 +1157,13 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @deprecated since v2.0
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
+
+/**
+ * !#en Director
+ * !#zh 导演类。
+ * @property director
+ * @type {Director}
+ */
+cc.director = new cc.Director();
+
+module.exports = cc.director;

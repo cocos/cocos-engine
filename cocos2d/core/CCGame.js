@@ -25,11 +25,6 @@
  ****************************************************************************/
 
 var EventTarget = require('./event/event-target');
-var View;
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    View = require('./platform/CCView');
-}
-
 require('../audio/CCAudioEngine');
 const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
@@ -81,12 +76,15 @@ var game = {
     EVENT_GAME_INITED: "game_inited",
 
     /**
-     * Event triggered after renderer inited, at this point you will be able to use the render context
-     * @property EVENT_RENDERER_INITED
+     * Event triggered after engine inited, at this point you will be able to use all engine classes. 
+     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
+     * @property EVENT_ENGINE_INITED
      * @constant
      * @type {String}
      */
-    EVENT_RENDERER_INITED: "renderer_inited",
+    EVENT_ENGINE_INITED: "engine_inited",
+    // deprecated
+    EVENT_RENDERER_INITED: "engine_inited",
 
     /**
      * Web Canvas 2d API as renderer backend
@@ -355,33 +353,15 @@ var game = {
 //  @Game loading
 
     _initEngine () {
-        if (cc.director) {
+        if (this._rendererInitialized) {
             return;
         }
+
         /**
          * @module cc
          */
 
-        /**
-         * !#en Director
-         * !#zh 导演类。
-         * @property director
-         * @type {Director}
-         */
-        cc.director = new cc.Director();
-
-        // Init renderer before view
-        this._initRenderer(this.config[this.CONFIG_KEY.width], this.config[this.CONFIG_KEY.height]);
-
-        /**
-         * !#en cc.view is the shared view object.
-         * !#zh cc.view 是全局的视图对象。
-         * @property view
-         * @type {View}
-         */
-        cc.view = View ? View._getInstance() : null;
-
-        cc.director.init();
+        this._initRenderer();
         
         /**
          * !#en cc.winSize is the alias object for the size of the current game window.
@@ -394,6 +374,24 @@ var game = {
         if (!CC_EDITOR) {
             this._initEvents();
         }
+
+        this.emit(this.EVENT_ENGINE_INITED);
+    },
+
+    _prepareFinished (cb) {
+        this._prepared = true;
+
+        // Init engine
+        this._initEngine();
+        // Log engine version
+        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+
+        this._setAnimFrame();
+        this._runMainLoop();
+        
+        this.emit(self.EVENT_GAME_INITED);
+
+        if (cb) cb();
     },
 
     /**
@@ -402,19 +400,12 @@ var game = {
      * @param {Function} cb
      * @method prepare
      */
-    prepare: function (cb) {
+    prepare (cb) {
         // Already prepared
         if (this._prepared) {
             if (cb) cb();
             return;
         }
-        // Init engine
-        this._initEngine();
-        // Log engine version
-        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
-
-        this._setAnimFrame();
-        this._runMainLoop();
 
         // Load game scripts
         let jsList = this.config.jsList;
@@ -422,14 +413,11 @@ var game = {
             var self = this;
             cc.loader.load(jsList, function (err) {
                 if (err) throw new Error(JSON.stringify(err));
-                self._prepared = true;
-                if (cb) cb();
-                self.emit(self.EVENT_GAME_INITED);
+                self._prepareFinished(cb);
             });
         }
         else {
-            if (cb) cb();
-            this.emit(this.EVENT_GAME_INITED);
+            this._prepareFinished(cb);
         }
     },
 
@@ -739,6 +727,9 @@ var game = {
             }
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
+            
+            // Enable dynamic atlas manager by default
+            cc.dynamicAtlasManager.enabled = true;
         }
         if (!this._renderContext) {
             this.renderType = this.RENDER_TYPE_CANVAS;
@@ -751,8 +742,6 @@ var game = {
         this.canvas.oncontextmenu = function () {
             if (!cc._isContextMenuEnable) return false;
         };
-
-        this.emit(this.EVENT_RENDERER_INITED);
 
         this._rendererInitialized = true;
     },
