@@ -608,6 +608,5 @@ js.get(cc, 'inputManager', function () {
     cc.warnID(1405, 'cc.inputManager', 'cc.systemEvent');
     return inputManager;
 });
-_cc.inputManager = inputManager;
 
-module.exports = inputManager;
+module.exports = _cc.inputManager = inputManager;
