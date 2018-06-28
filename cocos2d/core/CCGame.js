@@ -113,31 +113,10 @@ var game = {
     _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
-    /**
-     * Key of config
-     * @property CONFIG_KEY
-     * @type {Object}
-     */
-    CONFIG_KEY: {
-        width: "width",
-        height: "height",
-        // engineDir: "engineDir",
-        debugMode: "debugMode",
-        exposeClassName: "exposeClassName",
-        showFPS: "showFPS",
-        frameRate: "frameRate",
-        id: "id",
-        renderMode: "renderMode",
-        registerSystemEvent: "registerSystemEvent",
-        jsList: "jsList",
-        scenes: "scenes"
-    },
-
     // states
     _paused: true,//whether the game is paused
     _configLoaded: false,//whether config loaded
     _isCloning: false,    // deserializing or instantiating
-    _prepareCalled: false, //whether the prepare function has been called
     _prepared: false, //whether the engine has prepared
     _rendererInitialized: false,
 
