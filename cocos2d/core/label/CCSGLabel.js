@@ -146,7 +146,7 @@ _ccsg.Label = _ccsg.Node.extend({
     onExit: function () {
         this._super();
 
-        this._renderCmd._texture.releaseTexture();
+        this._renderCmd._texture._releaseTexture();
         this._notifyLabelSkinDirty();
     },
 
