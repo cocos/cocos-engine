@@ -25,20 +25,20 @@
  ****************************************************************************/
 
 var EventTarget = require('./event/event-target');
-var View;
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    View = require('./platform/CCView');
-}
-
 require('../audio/CCAudioEngine');
 const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class Game
+ * @class game
+ * @static
  * @extends EventTarget
  */
 var game = {
@@ -81,12 +81,15 @@ var game = {
     EVENT_GAME_INITED: "game_inited",
 
     /**
-     * Event triggered after renderer inited, at this point you will be able to use the render context
-     * @property EVENT_RENDERER_INITED
+     * Event triggered after engine inited, at this point you will be able to use all engine classes. 
+     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
+     * @property EVENT_ENGINE_INITED
      * @constant
      * @type {String}
      */
-    EVENT_RENDERER_INITED: "renderer_inited",
+    EVENT_ENGINE_INITED: "engine_inited",
+    // deprecated
+    EVENT_RENDERER_INITED: "engine_inited",
 
     /**
      * Web Canvas 2d API as renderer backend
@@ -113,31 +116,10 @@ var game = {
     _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
-    /**
-     * Key of config
-     * @property CONFIG_KEY
-     * @type {Object}
-     */
-    CONFIG_KEY: {
-        width: "width",
-        height: "height",
-        // engineDir: "engineDir",
-        debugMode: "debugMode",
-        exposeClassName: "exposeClassName",
-        showFPS: "showFPS",
-        frameRate: "frameRate",
-        id: "id",
-        renderMode: "renderMode",
-        registerSystemEvent: "registerSystemEvent",
-        jsList: "jsList",
-        scenes: "scenes"
-    },
-
     // states
     _paused: true,//whether the game is paused
     _configLoaded: false,//whether config loaded
     _isCloning: false,    // deserializing or instantiating
-    _prepareCalled: false, //whether the prepare function has been called
     _prepared: false, //whether the engine has prepared
     _rendererInitialized: false,
 
@@ -261,8 +243,8 @@ var game = {
      * @param {Number} frameRate
      */
     setFrameRate: function (frameRate) {
-        var config = this.config, CONFIG_KEY = this.CONFIG_KEY;
-        config[CONFIG_KEY.frameRate] = frameRate;
+        var config = this.config;
+        config.frameRate = frameRate;
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
         this._intervalId = 0;
@@ -278,7 +260,7 @@ var game = {
      * @return {Number} frame rate
      */
     getFrameRate: function () {
-        return this.config[this.CONFIG_KEY.frameRate];
+        return this.config.frameRate;
     },
 
     /**
@@ -376,59 +358,22 @@ var game = {
 //  @Game loading
 
     _initEngine () {
-        if (cc.director) {
+        if (this._rendererInitialized) {
             return;
         }
-        /**
-         * @module cc
-         */
 
-        /**
-         * !#en Director
-         * !#zh 导演类。
-         * @property director
-         * @type {Director}
-         */
-        cc.director = new cc.Director();
-
-        // Init renderer before view
-        this._initRenderer(this.config[this.CONFIG_KEY.width], this.config[this.CONFIG_KEY.height]);
-
-        /**
-         * !#en cc.view is the shared view object.
-         * !#zh cc.view 是全局的视图对象。
-         * @property view
-         * @type {View}
-         */
-        cc.view = View ? View._getInstance() : null;
-
-        cc.director.init();
-        
-        /**
-         * !#en cc.winSize is the alias object for the size of the current game window.
-         * !#zh cc.winSize 为当前的游戏窗口的大小。
-         * @property winSize
-         * @type Size
-         */
-        cc.winSize = cc.director.getWinSize();
+        this._initRenderer();
 
         if (!CC_EDITOR) {
             this._initEvents();
         }
+
+        this.emit(this.EVENT_ENGINE_INITED);
     },
 
-    /**
-     * !#en Prepare game.
-     * !#zh 准备引擎，请不要直接调用这个函数。
-     * @param {Function} cb
-     * @method prepare
-     */
-    prepare: function (cb) {
-        // Already prepared
-        if (this._prepared) {
-            if (cb) cb();
-            return;
-        }
+    _prepareFinished (cb) {
+        this._prepared = true;
+
         // Init engine
         this._initEngine();
         // Log engine version
@@ -437,20 +382,35 @@ var game = {
         this._setAnimFrame();
         this._runMainLoop();
 
+        this.emit(self.EVENT_GAME_INITED);
+
+        if (cb) cb();
+    },
+
+    /**
+     * !#en Prepare game.
+     * !#zh 准备引擎，请不要直接调用这个函数。
+     * @param {Function} cb
+     * @method prepare
+     */
+    prepare (cb) {
+        // Already prepared
+        if (this._prepared) {
+            if (cb) cb();
+            return;
+        }
+
         // Load game scripts
-        var jsList = this.config[this.CONFIG_KEY.jsList];
+        let jsList = this.config.jsList;
         if (jsList && jsList.length > 0) {
             var self = this;
             cc.loader.load(jsList, function (err) {
                 if (err) throw new Error(JSON.stringify(err));
-                self._prepared = true;
-                if (cb) cb();
-                self.emit(self.EVENT_GAME_INITED);
+                self._prepareFinished(cb);
             });
         }
         else {
-            if (cb) cb();
-            this.emit(this.EVENT_GAME_INITED);
+            this._prepareFinished(cb);
         }
     },
 
@@ -542,7 +502,7 @@ var game = {
 //  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
-        var frameRate = game.config[game.CONFIG_KEY.frameRate];
+        var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
         if (CC_JSB) {
@@ -589,11 +549,11 @@ var game = {
     },
     //Run game.
     _runMainLoop: function () {
-        var self = this, callback, config = self.config, CONFIG_KEY = self.CONFIG_KEY,
+        var self = this, callback, config = self.config,
             director = cc.director,
-            skip = true, frameRate = config[CONFIG_KEY.frameRate];
+            skip = true, frameRate = config.frameRate;
 
-        debug.setDisplayStats(config[CONFIG_KEY.showFPS]);
+        debug.setDisplayStats(config.showFPS);
 
         callback = function () {
             if (!self._paused) {
@@ -613,43 +573,39 @@ var game = {
 
 //  @Game loading section
     _initConfig (config) {
-        let CONFIG_KEY = this.CONFIG_KEY;
-
         // Configs adjustment
-        if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
-            config[CONFIG_KEY.debugMode] = 0;
+        if (typeof config.debugMode !== 'number') {
+            config.debugMode = 0;
         }
-        config[CONFIG_KEY.exposeClassName] = !!config[CONFIG_KEY.exposeClassName];
-        if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
-            config[CONFIG_KEY.frameRate] = 60;
+        config.exposeClassName = !!config.exposeClassName;
+        if (typeof config.frameRate !== 'number') {
+            config.frameRate = 60;
         }
-        let renderMode = config[CONFIG_KEY.renderMode];
+        let renderMode = config.renderMode;
         if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
-            config[CONFIG_KEY.renderMode] = 0;
+            config.renderMode = 0;
         }
-        if (typeof config[CONFIG_KEY.registerSystemEvent] !== 'boolean') {
-            config[CONFIG_KEY.registerSystemEvent] = true;
+        if (typeof config.registerSystemEvent !== 'boolean') {
+            config.registerSystemEvent = true;
         }
-        config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
-        // config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+        config.showFPS = (typeof config.showFPS !== 'undefined') ? (!!config.showFPS) : true;
 
         // Scene parser
-        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
+        this._sceneInfos = config.scenes || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
 
-        debug._resetDebugSetting(config[CONFIG_KEY.debugMode]);
+        debug._resetDebugSetting(config.debugMode);
 
         this.config = config;
         this._configLoaded = true;
     },
 
     _determineRenderType () {
-        let CONFIG_KEY = this.CONFIG_KEY,
-            config = this.config,
-            userRenderMode = parseInt(config[CONFIG_KEY.renderMode]) || 0;
+        let config = this.config,
+            userRenderMode = parseInt(config.renderMode) || 0;
     
         // Determine RenderType
         this.renderType = this.RENDER_TYPE_CANVAS;
@@ -679,12 +635,12 @@ var game = {
         }
     },
 
-    _initRenderer (width, height) {
+    _initRenderer () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
-        var el = this.config[game.CONFIG_KEY.id],
-            win = window,
+        let el = this.config.id,
+            width, height,
             localCanvas, localContainer,
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
@@ -712,8 +668,8 @@ var game = {
             var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
 
             if (element.tagName === "CANVAS") {
-                width = width || element.width;
-                height = height || element.height;
+                width = element.width;
+                height = element.height;
 
                 //it is already a canvas, we wrap it around with a div
                 this.canvas = localCanvas = element;
@@ -725,8 +681,8 @@ var game = {
                 if (element.tagName !== "DIV") {
                     cc.warnID(3819);
                 }
-                width = width || element.clientWidth;
-                height = height || element.clientHeight;
+                width = element.clientWidth;
+                height = element.clientHeight;
                 this.canvas = localCanvas = document.createElement("CANVAS");
                 this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
@@ -764,6 +720,9 @@ var game = {
             }
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
+            
+            // Enable dynamic atlas manager by default
+            cc.dynamicAtlasManager.enabled = true;
         }
         if (!this._renderContext) {
             this.renderType = this.RENDER_TYPE_CANVAS;
@@ -777,8 +736,6 @@ var game = {
             if (!cc._isContextMenuEnable) return false;
         };
 
-        this.emit(this.EVENT_RENDERER_INITED);
-
         this._rendererInitialized = true;
     },
 
@@ -786,7 +743,7 @@ var game = {
         var win = window, hiddenPropName;
 
         // register system events
-        if (this.config[this.CONFIG_KEY.registerSystemEvent])
+        if (this.config.registerSystemEvent)
             inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
@@ -866,10 +823,6 @@ var game = {
 
 EventTarget.call(game);
 cc.js.addon(game, EventTarget.prototype);
-
-/**
- * @module cc
- */
 
 /**
  * @property game

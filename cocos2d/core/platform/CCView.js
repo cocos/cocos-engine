@@ -137,19 +137,16 @@ var View = function () {
 
     // Size of parent node that contains cc.game.container and cc.game.canvas
     _t._frameSize = cc.size(0, 0);
-    _t._initFrameSize();
 
-    var w = cc.game.canvas.width, h = cc.game.canvas.height;
     // resolution size, it is the size appropriate for the app resources.
-    _t._designResolutionSize = cc.size(w, h);
-    _t._originalDesignResolutionSize = cc.size(w, h);
+    _t._designResolutionSize = cc.size(0, 0);
+    _t._originalDesignResolutionSize = cc.size(0, 0);
     _t._scaleX = 1;
     _t._scaleY = 1;
     // Viewport is the container's rect related to content's coordinates in pixel
-    _t._viewportRect = cc.rect(0, 0, w, h);
+    _t._viewportRect = cc.rect(0, 0, 0, 0);
     // The visible rect in content's coordinate in point
-    _t._visibleRect = cc.rect(0, 0, w, h);
-    cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
+    _t._visibleRect = cc.rect(0, 0, 0, 0);
     // Auto full screen disabled by default
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
@@ -174,15 +171,32 @@ var View = function () {
     _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
     _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-    _t._initialized = false;
-
-    _t.enableAntiAlias(true);
+    cc.game.once(cc.game.EVENT_ENGINE_INITED, this.init, this);
 };
 
 cc.js.extend(View, EventTarget);
 
 
 cc.js.mixin(View.prototype, {
+    init () {
+        this._initFrameSize();
+        this.enableAntiAlias(true);
+
+        var w = cc.game.canvas.width, h = cc.game.canvas.height;
+        this._designResolutionSize.width = w;
+        this._designResolutionSize.height = h;
+        this._originalDesignResolutionSize.width = w;
+        this._originalDesignResolutionSize.height = h;
+        this._viewportRect.width = w;
+        this._viewportRect.height = h;
+        this._visibleRect.width = w;
+        this._visibleRect.height = h;
+
+        cc.winSize.width = this._visibleRect.width;
+        cc.winSize.height = this._visibleRect.height;
+        cc.visibleRect && cc.visibleRect.init(this._visibleRect);
+    },
+
     // Resize helper functions
     _resizeEvent: function () {
         var view;
@@ -402,10 +416,6 @@ cc.js.mixin(View.prototype, {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
-    },
-
-    initialize: function () {
-        this._initialized = true;
     },
 
     /**
@@ -766,11 +776,9 @@ cc.js.mixin(View.prototype, {
 
         // reset director's member variables to fit visible rect
         var director = cc.director;
-        director._winSizeInPoints.width = this._designResolutionSize.width;
-        director._winSizeInPoints.height = this._designResolutionSize.height;
         policy.postApply(this);
-        cc.winSize.width = director._winSizeInPoints.width;
-        cc.winSize.height = director._winSizeInPoints.height;
+        cc.winSize.width = this._visibleRect.width;
+        cc.winSize.height = this._visibleRect.height;
 
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
@@ -1014,19 +1022,6 @@ cc.js.mixin(View.prototype, {
  * @event canvas-resize
  */
 
-
-/**
- * @method _getInstance
- * @return {View}
- * @private
- */
-View._getInstance = function () {
-    if (!this._instance) {
-        this._instance = this._instance || new View();
-        this._instance.initialize();
-    }
-    return this._instance;
-};
 
 /**
  * <p>cc.game.containerStrategy class is the root strategy class of container's scale strategy,
@@ -1361,10 +1356,6 @@ cc.ContentStrategy = cc.Class({
                 contentW = containerW, contentH = containerH;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        },
-
-        postApply: function (view) {
-            cc.director._winSizeInPoints = view.getVisibleSize();
         }
     });
 
@@ -1377,10 +1368,6 @@ cc.ContentStrategy = cc.Class({
                 contentW = containerW, contentH = containerH;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        },
-
-        postApply: function (view) {
-            cc.director._winSizeInPoints = view.getVisibleSize();
         }
     });
 
@@ -1545,4 +1532,25 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
 
-module.exports = View;
+/**
+ * @module cc
+ */
+
+/**
+ * !#en cc.view is the shared view object.
+ * !#zh cc.view 是全局的视图对象。
+ * @property view
+ * @static
+ * @type {View}
+ */
+cc.view = new View();
+
+/**
+ * !#en cc.winSize is the alias object for the size of the current game window.
+ * !#zh cc.winSize 为当前的游戏窗口的大小。
+ * @property winSize
+ * @type Size
+ */
+cc.winSize = cc.v2();
+
+module.exports = cc.view;

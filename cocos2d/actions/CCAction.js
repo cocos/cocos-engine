@@ -497,7 +497,7 @@ cc.Follow = cc.Class({
 
         _this._boundaryFullyCovered = false;
 
-        var winSize = cc.director.getWinSize();
+        var winSize = cc.winSize;
         _this._fullScreenSize = cc.v2(winSize.width, winSize.height);
         _this._halfScreenSize = _this._fullScreenSize.mul(0.5);
 

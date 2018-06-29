@@ -253,18 +253,6 @@ cc.macro = {
 
     /**
      * !#en 
-     * JSB only, using JS object life cycle to control C++ object or inversely, 
-     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
-     * Modify the JS macro value won't have any effect.
-     * !#zh
-     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
-     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
-     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
-     */
-    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
-
-    /**
-     * !#en 
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
      * !#zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
@@ -322,14 +310,14 @@ cc.macro = {
 
     /**
      * !#en
+     * Whether or not enable auto culling.
      * This feature have been removed in v2.0 new renderer due to overall performance consumption.
      * We have no plan currently to re-enable auto culling.
-     * Whether or not enable auto culling.
      * If your game have more dynamic objects, we suggest to disable auto culling.
      * If your game have more static objects, we suggest to enable auto culling.
      * !#zh
-     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在绝大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
      * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
      * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
      * 如果游戏中的静态物体比较多的话，建议将此选项打开。
      * @property {Boolean} ENABLE_CULLING

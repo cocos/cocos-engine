@@ -132,7 +132,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./DragonBonesAtlasAsset');
     require('./ArmatureDisplay')
 
-    cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
+    cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             require('./canvas-assembler');
         }

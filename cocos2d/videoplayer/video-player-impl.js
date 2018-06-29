@@ -196,10 +196,6 @@ let VideoPlayerImpl = cc.Class({
         }
 
         this._url = path;
-
-        if (cc.loader.resPath && !/^http/.test(path))
-            path = cc.path.join(cc.loader.resPath, path);
-
         this.removeDom();
         this.createDomElementIfNeeded();
         this._bindEvent();

@@ -1103,3 +1103,5 @@ cc.Scheduler.PRIORITY_SYSTEM = 1 << 31;
  * @static
  */
 cc.Scheduler.PRIORITY_NON_SYSTEM = cc.Scheduler.PRIORITY_SYSTEM + 1;
+
+module.exports = cc.Scheduler;
