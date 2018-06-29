@@ -360,7 +360,17 @@ Downloader.prototype.handle = function (item, callback) {
 Downloader.prototype.loadSubpackage = function (name, completeCallback) {
     let pac = this._subpackages[name];
     if (pac) {
-        downloadScript({url: pac.path}, completeCallback);
+        if (pac.loaded) {
+            if (completeCallback) completeCallback();
+        }
+        else {
+            downloadScript({url: pac.path}, function (err) {
+                if (!err) {
+                    pac.loaded = true;
+                }
+                if (completeCallback) completeCallback(err);
+            });
+        }
     }
     else if (completeCallback) {
         completeCallback(new Error(`Can't find subpackage ${name}`));
