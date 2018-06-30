@@ -598,19 +598,15 @@ cc.Director.prototype = {
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             cc.loader.load({ uuid: info.uuid, type: 'uuid' }, 
-            function (completedCount, totalCount, item) {
-                if (onProgress) {
-                    onProgress(completedCount, totalCount, item);
-                }
-            },  
-            function (error, asset) {
-                if (error) {
-                    cc.errorID(1210, sceneName, error.message);
-                }
-                if (onLoaded) {
-                    onLoaded(error, asset);
-                }
-            });
+                onProgress,    
+                function (error, asset) {
+                    if (error) {
+                        cc.errorID(1210, sceneName, error.message);
+                    }
+                    if (onLoaded) {
+                        onLoaded(error, asset);
+                    }
+                });       
         }
         else {
             var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
