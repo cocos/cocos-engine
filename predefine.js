@@ -111,6 +111,9 @@
 /**
  * @property {Boolean} CC_QQPLAY - Running in the bricks.
  */
+/**
+ * @property {Boolean} CC_RUNTIME - Running in runtime environments.
+ */
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
@@ -134,11 +137,8 @@ defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', defined('wx') && wx.getSystemInfoSync);
 defineMacro('CC_QQPLAY', defined('bk'));
-if (CC_JSB) {
-    defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues.
-} else {
-    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
-}
+defineMacro('CC_RUNTIME', false);
+defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
 
 //
 
