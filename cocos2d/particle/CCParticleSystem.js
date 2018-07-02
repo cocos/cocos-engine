@@ -940,7 +940,7 @@ var ParticleSystem = cc.Class({
     },
 
     _initTextureWithDictionary: function (dict) {
-        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"]);
+        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"] || '');
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
