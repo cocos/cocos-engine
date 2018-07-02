@@ -560,6 +560,26 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     var proto = EditBoxImpl.prototype = Object.create(Object.prototype);
 
+    proto._appendEmptyDiv = function () {
+        var tmpEdDiv = document.createElement('dev');
+        tmpEdDiv.style.position = "absolute";
+        tmpEdDiv.style.top = "0px";
+        tmpEdDiv.style.bottom = "0px";
+        tmpEdDiv.style.left = "0px";
+        tmpEdDiv.style.right = "0px";
+        tmpEdDiv.style.width = '100%';
+        tmpEdDiv.style.height = '100%';
+        cc.game.container.appendChild(tmpEdDiv);
+        this._emptyDiv = tmpEdDiv;
+    };
+
+    proto._removeEmptyDiv = function () {
+        if (this._emptyDiv) {
+            cc.game.container.removeChild(this._emptyDiv);
+            this._emptyDiv = null;
+        }
+    };
+
     proto.updateMatrix = function () {
         if (!this._edTxt) return;
 
@@ -1120,6 +1140,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             self._beginEditingOnMobile(self._editBox);
         }
         self._editingMode = true;
+
+        if (sys.isMobile) {
+            self._appendEmptyDiv();
+        }
     };
 
     proto._endEditing = function() {
@@ -1136,6 +1160,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }, DELAY_TIME);
         }
         this._editingMode = false;
+
+        if (sys.isMobile) {
+            this._removeEmptyDiv();
+        }
     };
 
     proto._setFont = function (fontStyle) {
