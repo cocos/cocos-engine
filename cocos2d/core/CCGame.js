@@ -382,7 +382,7 @@ var game = {
         this._setAnimFrame();
         this._runMainLoop();
 
-        this.emit(self.EVENT_GAME_INITED);
+        this.emit(this.EVENT_GAME_INITED);
 
         if (cb) cb();
     },
