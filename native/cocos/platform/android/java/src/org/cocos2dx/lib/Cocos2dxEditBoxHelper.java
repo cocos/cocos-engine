@@ -132,6 +132,14 @@ public class Cocos2dxEditBoxHelper {
                     @Override
                     public void afterTextChanged(final Editable s) {
                         if (!editBox.getChangedTextProgrammatically()) {
+
+                            // fix fireball/issues/7726
+                            // Remove the current listener first to avoid endless loops.
+                            editBox.removeTextChangedListener(this);
+                            editBox.setText(editBox.getText().toString());
+                            // Resume listening.
+                            editBox.addTextChangedListener(this);
+
                             if((Boolean)editBox.getTag()) {
                                 mCocos2dxActivity.runOnGLThread(new Runnable() {
                                     @Override
