@@ -84,18 +84,20 @@ Audio.State = {
 
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
-        if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO) {
-            this._element.addEventListener('ended', callback);
+        var elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.addEventListener('ended', callback);
         } else {
-            this._element.onended = callback;
+            elem.onended = callback;
         }
     };
 
     proto._unbindEnded = function () {
-        if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO) {
-            this._element.removeEventListener('ended', this._onended);
-        } else {
-            this._element.onended = null;
+        var elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.removeEventListener('ended', this._onended);
+        } else if (elem) {
+            elem.onended = null;
         }
     };
 
@@ -107,8 +109,11 @@ Audio.State = {
 
     proto._onLoaded = function () {
         var elem = this._src._nativeAsset;
-        if (elem instanceof HTMLElement) {
-            this._element = document.createElement('audio');
+        if (elem instanceof HTMLAudioElement) {
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
             this._element.src = elem.src;
         }
         else {
@@ -139,10 +144,11 @@ Audio.State = {
         this._bindEnded();
         this._element.play();
 
-        if (!(CC_QQPLAY || CC_WECHATGAME) &&
-            this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
-            this._element.paused) {
-            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+        if (!CC_QQPLAY && !CC_WECHATGAME) {
+            if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
+                this._element.paused) {
+                touchPlayList.push({instance: this, offset: 0, audio: this._element});
+            }
         }
 
         if (touchBinded) return;
@@ -158,7 +164,10 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-
+        if (CC_WECHATGAME) {
+            this._element && this._element.destroy();
+        }
+        this._element = null;
     };
 
     proto.pause = function () {
@@ -264,6 +273,7 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (clip) {
+        this._unbindEnded();
         if (clip) {
             this._src = clip;
             if (clip.loaded) {
@@ -280,7 +290,12 @@ Audio.State = {
         }
         else {
             this._src = null;
-            this._element = null;
+            if (this._element instanceof HTMLAudioElement) {
+                this._element.src = '';
+            }
+            else {
+                this._element = null;
+            }
             this._state = Audio.State.INITIALZING;
         }
         return clip;
