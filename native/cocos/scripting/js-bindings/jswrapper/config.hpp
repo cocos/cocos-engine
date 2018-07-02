@@ -66,11 +66,12 @@
 #define QUOTEME(x) QUOTEME_(x)
 #endif
 
-void seLog(const char * format, ...);
+void seLogD(const char * format, ...);
+void seLogE(const char * format, ...);
 
 #define LOG_TAG    "jswrapper"
-#define SE_LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
-#define SE_LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGD(fmt, ...) seLogD("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGE(fmt, ...) seLogE("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 
 #else
 
