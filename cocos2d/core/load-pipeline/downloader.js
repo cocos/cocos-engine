@@ -286,6 +286,8 @@ var Downloader = function (extMap) {
     this._curConcurrent = 0;
     this._loadQueue = [];
 
+    this._subpackages = {};
+
     this.extMap = js.mixin(extMap, defaultMap);
 };
 Downloader.ID = ID;
@@ -346,6 +348,36 @@ Downloader.prototype.handle = function (item, callback) {
             item: item,
             callback: callback
         });
+    }
+};
+
+/**
+ * !#en
+ * Load subpackage with name.
+ * !#zh
+ * 通过子包名加载子包代码。
+ * @method loadSubpackage
+ * @param {String} name - Subpackage name
+ * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+ * @param {Error} completeCallback.error - error information
+ */
+Downloader.prototype.loadSubpackage = function (name, completeCallback) {
+    let pac = this._subpackages[name];
+    if (pac) {
+        if (pac.loaded) {
+            if (completeCallback) completeCallback();
+        }
+        else {
+            downloadScript({url: pac.path}, function (err) {
+                if (!err) {
+                    pac.loaded = true;
+                }
+                if (completeCallback) completeCallback(err);
+            });
+        }
+    }
+    else if (completeCallback) {
+        completeCallback(new Error(`Can't find subpackage ${name}`));
     }
 };
 

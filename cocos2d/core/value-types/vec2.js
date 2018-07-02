@@ -328,7 +328,7 @@ proto.scale = function (vector, out) {
  * !#en Divides by a number. If you want to save result to another vector, use div() instead.
  * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
  * @method divSelf
- * @param {Vec2} vector
+ * @param {Vec2} divisor
  * @return {Vec2} returns this
  * @chainable
  * @example
@@ -345,7 +345,7 @@ proto.divSelf = function (num) {
  * !#en Divides by a number, and returns the new result.
  * !#zh 向量除法，并返回新的结果。
  * @method div
- * @param {Vec2} vector
+ * @param {Vec2} divisor
  * @param {Vec2} [out] - optional, the receiving vector
  * @return {Vec2} the result
  * @example

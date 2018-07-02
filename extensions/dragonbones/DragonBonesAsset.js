@@ -102,32 +102,25 @@ var DragonBonesAsset = cc.Class({
             }
         }
         else {
-            if (CC_JSB) {
-                // The 'factory' create a new one every time in JSB, they can't use getDragonBonesData
-                // to get cached data, and don't need to merge armatures.
-                this._dragonBonesData = factory.parseDragonBonesData(this._dragonBonesJson);
+            let _dragonBonesJson = JSON.parse(this.dragonBonesJson);
+            let sameNamedDragonBonesData = factory.getDragonBonesData(_dragonBonesJson.name);
+            if (sameNamedDragonBonesData) {
+                // already added asset, see #2002
+                let dragonBonesData;
+                for (let i = 0; i < _dragonBonesJson.armature.length; i++) {
+                    let armatureName = _dragonBonesJson.armature[i].name;
+                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
+                        // add new armature
+                        if (!dragonBonesData) {
+                            dragonBonesData = factory._dataParser.parseDragonBonesData(_dragonBonesJson);
+                        }
+                        sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
+                    }
+                }
+                this._dragonBonesData = sameNamedDragonBonesData;
             }
             else {
-                let jsonObj = JSON.parse(this._dragonBonesJson);
-                let sameNamedDragonBonesData = factory.getDragonBonesData(jsonObj.name);
-                if (sameNamedDragonBonesData) {
-                    // already added asset, see #2002
-                    let dragonBonesData;
-                    for (let i = 0; i < jsonObj.armature.length; i++) {
-                        let armatureName = jsonObj.armature[i].name;
-                        if (!sameNamedDragonBonesData.armatures[armatureName]) {
-                            // add new armature
-                            if (!dragonBonesData) {
-                                dragonBonesData = factory._dataParser.parseDragonBonesData(jsonObj);
-                            }
-                            sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
-                        }
-                    }
-                    this._dragonBonesData = sameNamedDragonBonesData;
-                }
-                else {
-                    this._dragonBonesData = factory.parseDragonBonesData(jsonObj);
-                }
+                this._dragonBonesData = factory.parseDragonBonesData(_dragonBonesJson);
             }
         }
     },
