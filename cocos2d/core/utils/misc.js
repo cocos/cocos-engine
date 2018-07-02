@@ -199,6 +199,7 @@ misc.clamp01 = function (value) {
  * @param {Number} a number A
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
+ * @return {Number}
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
  */
 misc.lerp = function (a, b, r) {

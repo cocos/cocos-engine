@@ -604,6 +604,4 @@ let inputManager = {
     }
 };
 
-_cc.inputManager = inputManager;
-
-module.exports = inputManager;
+module.exports = _cc.inputManager = inputManager;

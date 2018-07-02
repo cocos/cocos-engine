@@ -183,7 +183,10 @@ let EditBoxImpl = cc.Class({
             textTransform = 'capitalize';
         }
 
-        this._edTxt.style.textTransform = textTransform;
+        if (this._edTxt) {
+            this._edTxt.style.textTransform = textTransform;
+            this._edTxt.value = this._text;
+        }
     },
 
     setReturnType (returnType) {
@@ -256,7 +259,7 @@ let EditBoxImpl = cc.Class({
     
         if (cc.sys.isMobile && !this._editing) {
             // Pre adaptation and
-            this._beginEditingOnMobile(this._editBox);
+            this._beginEditingOnMobile();
         }
         this._editing = true;
     },
