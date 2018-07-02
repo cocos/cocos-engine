@@ -173,7 +173,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
         if (CC_EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        callback(null, asset);
+        callback(errors, asset);
     });
 }
 
