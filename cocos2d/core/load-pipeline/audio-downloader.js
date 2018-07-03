@@ -38,7 +38,7 @@ function loadDomAudio (item, callback) {
 
     if (sys.platform === sys.WECHAT_GAME) {
         item.element = dom;
-        callback(null, item.url);
+        callback(null, item.id);
         return;
     }
 
