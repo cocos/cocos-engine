@@ -258,7 +258,7 @@ let tmxAssembler = {
                     // transform
                     a2 = a; b2 = b; c2 = c; d2 = d; tx2 = tx; ty2 = ty;
                     tiledNode._updateLocalMatrix();
-                    mat4.copy(_mat4_temp, tiledNode._mat4_temp);
+                    mat4.copy(_mat4_temp, tiledNode._matrix);
                     vec3.set(_vec3_temp, -left, -bottom, 0);
                     mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
                     mat4.multiply(_mat4_temp, node._worldMatrix, _mat4_temp);
