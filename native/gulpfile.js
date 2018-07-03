@@ -193,7 +193,7 @@ gulp.task('sign-simulator', function () {
     }
 });
 
-gulp.task('update-simulator-config', ['update-simulator-script'], function(cb) {
+gulp.task('update-simulator-config', function(cb) {
     var destPath = process.platform === 'win32' ? './simulator/win32/config.json' : './simulator/mac/Simulator.app/Contents/Resources/config.json';
     fs.copy('./tools/simulator/config.json', destPath, cb);
 });
@@ -203,16 +203,6 @@ gulp.task('update-simulator-dll', function(cb) {
         downloadSimulatorDLL(cb);
     } else {
         cb();
-    }
-});
-
-gulp.task('update-simulator-script', function(cb) {
-    var simulatorPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
-    if (!fs.existsSync(simulatorPath)) {
-        console.error(`Cant\'t find simulator dir [${simulatorPath}]`);
-    } else {
-        var destPath = simulatorPath + '/jsb-adapter/jsb-builtin.js';
-        fs.copy('./../engine/jsb/builtin/dist/jsb.js', destPath, cb);
     }
 });
 
