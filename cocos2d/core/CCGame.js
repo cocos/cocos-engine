@@ -814,8 +814,8 @@ var game = {
         }
 
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            wx.onShow(onShown);
-            wx.onHide(onHidden);
+            wx.onShow && wx.onShow(onShown);
+            wx.onHide && wx.onHide(onHidden);
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {
