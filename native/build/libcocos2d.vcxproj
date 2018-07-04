@@ -408,7 +408,7 @@
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>../../external/sqlite3/libraries/win32;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -459,8 +459,8 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       </Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_USRDLL;USING_V8_SHARED;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;_EXPORT_DLL_;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;XP_WIN;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -468,21 +468,22 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4267;4251;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <CompileAs>CompileAsCpp</CompileAs>
+      <CompileAs>Default</CompileAs>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <Optimization>MinSpace</Optimization>
       <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <PreLinkEvent>
-      <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
-xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
-</Command>
+      <Command>
+      if not exist "$(OutDir)" mkdir "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\*.*" "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>sqlite3.lib;libcrypto.lib;libssl.lib;libcurl.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;libwebp.lib;libuv.lib;v8_libplatform.dll.lib;v8_libbase.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3.lib;libcrypto.lib;libssl.lib;libcurl.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;libwebp.lib;libuv.lib;v8_libplatform.dll.lib;v8_libbase.dll.lib;opengl32.lib;glew32.lib;libzlib.lib;Psapi.lib;Iphlpapi.lib;userenv.lib;ws2_32.lib;libiconv.lib;v8.dll.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>LIBCMTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
