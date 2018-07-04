@@ -42,7 +42,7 @@ var reusedArray = [];
 AssetLoader.prototype.handle = function (item, callback) {
     var uuid = item.uuid;
     if (!uuid) {
-        return !!item.content ? item.content : null;
+        return item.content || null;
     }
 
     var self = this;
