@@ -1325,11 +1325,6 @@ let ScrollView = cc.Class({
         let currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         if (!currentOutOfBoundary.fuzzyEquals(cc.v2(0, 0), EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
-            let afterOutOfBoundary = this._getHowMuchOutOfBoundary(adjustedDeltaMove);
-            if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 ||
-                currentOutOfBoundary.y * afterOutOfBoundary.y > 0) {
-                this._autoScrollBraking = true;
-            }
         }
     },
 
