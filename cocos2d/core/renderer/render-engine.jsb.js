@@ -388,7 +388,7 @@ window.device._caps = {
 
 device.setBlendColor32 = device.setBlendColor;
 
-_p = gfx$1.Program.prototype;
+var _p = gfx$1.Program.prototype;
 _p._ctor = function(device, options) {
     this.init(device, options.vert, options.frag);
 };
@@ -1003,9 +1003,7 @@ var fillModelData = function() {
 };
 
 // ForwardRenderer adapter
-var _p$1;
-
-_p$1 = renderer$3.ForwardRenderer.prototype;
+var _p$1 = renderer$3.ForwardRenderer.prototype;
 _p$1._ctor = function(device, builtin) {
   this.init(device, builtin.programTemplates, builtin.defaultTexture, window.innerWidth, window.innerHeight);
 };
