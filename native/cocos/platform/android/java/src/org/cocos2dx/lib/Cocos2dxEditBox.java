@@ -39,6 +39,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Cocos2dxEditBox extends EditText {
     /**
      * The user is allowed to enter any text, including line breaks.
@@ -123,7 +126,7 @@ public class Cocos2dxEditBox extends EditText {
 
     private int mInputFlagConstraints;
     private int mInputModeConstraints;
-    private  int mMaxLength;
+    private int mMaxLength;
 
     public Boolean getChangedTextProgrammatically() {
         return changedTextProgrammatically;
@@ -136,9 +139,9 @@ public class Cocos2dxEditBox extends EditText {
     private Boolean changedTextProgrammatically = false;
 
     //OpenGL view scaleX
-    private  float mScaleX;
+    private float mScaleX;
 
-    public  Cocos2dxEditBox(Context context){
+    public Cocos2dxEditBox(Context context){
         super(context);
     }
 
@@ -197,8 +200,6 @@ public class Cocos2dxEditBox extends EditText {
         this.setGravity(gravity);
     }
 
-
-
     public float getOpenGLViewScaleX() {
         return mScaleX;
     }
@@ -207,8 +208,7 @@ public class Cocos2dxEditBox extends EditText {
         this.mScaleX = mScaleX;
     }
 
-
-    public  void setMaxLength(int maxLength){
+    public void setMaxLength(int maxLength){
         this.mMaxLength = maxLength;
 
         this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(this.mMaxLength) });
@@ -241,7 +241,7 @@ public class Cocos2dxEditBox extends EditText {
         }
     }
 
-    public  void setInputMode(int inputMode){
+    public void setInputMode(int inputMode){
         this.setTextHorizontalAlignment(kTextHorizontalAlignmentLeft);
         this.setTextVerticalAlignment(kTextVerticalAlignmentCenter);
         switch (inputMode) {
@@ -322,5 +322,36 @@ public class Cocos2dxEditBox extends EditText {
         }
 
         this.setInputType(this.mInputFlagConstraints | this.mInputModeConstraints);
+    }
+
+    private String updateDomTextCases (final String text) {
+        String newText = text;
+        switch (this.mInputFlagConstraints) {
+            case InputType.TYPE_TEXT_FLAG_CAP_SENTENCES:
+                char[] charArray = text.toCharArray();
+                charArray[0] -= 32;
+                newText = String.valueOf(charArray);
+                break;
+            case InputType.TYPE_TEXT_FLAG_CAP_WORDS:
+                StringBuffer stringbf = new StringBuffer();
+                Matcher m = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE).matcher(text);
+                while (m.find()) {
+                    m.appendReplacement(stringbf,m.group(1).toUpperCase() + m.group(2).toLowerCase());
+                }
+                newText = m.appendTail(stringbf).toString();
+                break;
+            case InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS:
+                newText = text.toUpperCase();
+                break;
+            default:
+                break;
+        }
+        return newText;
+    }
+
+    public void setText(String text) {
+        String newText = updateDomTextCases(text);
+        super.setText(newText);
+        this.setSelection(newText.length());
     }
 }
