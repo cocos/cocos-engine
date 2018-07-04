@@ -38,6 +38,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Cocos2dxEditBox extends EditText {
     /**
      * The user is allowed to enter any text, including line breaks.
@@ -122,7 +125,7 @@ public class Cocos2dxEditBox extends EditText {
 
     private int mInputFlagConstraints;
     private int mInputModeConstraints;
-    private  int mMaxLength;
+    private int mMaxLength;
 
     public Boolean getChangedTextProgrammatically() {
         return changedTextProgrammatically;
@@ -135,9 +138,9 @@ public class Cocos2dxEditBox extends EditText {
     private Boolean changedTextProgrammatically = false;
 
     //OpenGL view scaleX
-    private  float mScaleX;
+    private float mScaleX;
 
-    public  Cocos2dxEditBox(Context context){
+    public Cocos2dxEditBox(Context context){
         super(context);
     }
 
@@ -196,8 +199,6 @@ public class Cocos2dxEditBox extends EditText {
         this.setGravity(gravity);
     }
 
-
-
     public float getOpenGLViewScaleX() {
         return mScaleX;
     }
@@ -206,8 +207,7 @@ public class Cocos2dxEditBox extends EditText {
         this.mScaleX = mScaleX;
     }
 
-
-    public  void setMaxLength(int maxLength){
+    public void setMaxLength(int maxLength){
         this.mMaxLength = maxLength;
 
         this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(this.mMaxLength) });
@@ -240,7 +240,7 @@ public class Cocos2dxEditBox extends EditText {
         }
     }
 
-    public  void setInputMode(int inputMode){
+    public void setInputMode(int inputMode){
         this.setTextHorizontalAlignment(kTextHorizontalAlignmentLeft);
         this.setTextVerticalAlignment(kTextVerticalAlignmentCenter);
         switch (inputMode) {
