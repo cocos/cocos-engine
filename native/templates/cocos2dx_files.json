@@ -4230,7 +4230,7 @@
         "tools/simulator/libsimulator/proj.win32/stdafx.cpp", 
         "tools/simulator/libsimulator/proj.win32/stdafx.h", 
         "tools/simulator/libsimulator/proj.win32/targetver.h", 
-        "utils/update-version.js"
+        "utils/git.js"
     ], 
     "js": [
         "cocos/scripting/js-bindings/auto/api/jsb_cocos2dx_audioengine_auto_api.js", 

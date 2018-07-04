@@ -43,10 +43,10 @@ gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
 if (process.platform === 'darwin') {
-    gulp.task('publish', gulpSequence('init', 'bump-version', 'make-cocos2d-x', 'make-simulator', 'push-tag'));
+    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator', 'push-tag'));
 }
 else {
-    gulp.task('publish', gulpSequence('init', 'bump-version', 'make-simulator'));
+    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-simulator'));
 }
 
 function execSync(cmd, workPath) {
@@ -123,6 +123,12 @@ function getCurrentBranch() {
     // console.log(output);
     return output.stdout.toString().trim();
 }
+
+gulp.task('update', function (cb) {
+    const git = require('./utils/git');
+    var branch = git.getCurrentBranch('.');
+    git.pull('.', 'git@github.com:cocos-creator/cocos2d-x-lite.git', branch, cb);
+});
 
 gulp.task('init', function(cb) {
     execSync('python download-deps.py --remove-download no');
