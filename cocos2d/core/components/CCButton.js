@@ -32,7 +32,7 @@ const misc = require('../utils/misc');
  * !#zh 过渡类型
  * @enum Button.Transition
  */
-var Transition = cc.Enum({
+let Transition = cc.Enum({
     /**
      * !#en The none type.
      * !#zh 不做任何过渡
@@ -116,13 +116,13 @@ var Transition = cc.Enum({
  * })
  *
  */
-var Button = cc.Class({
+let Button = cc.Class({
     name: 'cc.Button',
     extends: Component,
 
-    ctor: function () {
-        this._resetState();
-
+    ctor () {
+        this._pressed = false;
+        this._hovered = false;
         this._fromColor = null;
         this._toColor = null;
         this._time = 0;
@@ -133,15 +133,9 @@ var Button = cc.Class({
 
         this._sprite = null;
 
-        if(CC_EDITOR) {
+        if (CC_EDITOR) {
             this._previousNormalSprite = null;
         }
-    },
-
-    _resetState: function () {
-        this._pressed = false;
-        this._hovered = false;
-
     },
 
     editor: CC_EDITOR && {
@@ -164,9 +158,9 @@ var Button = cc.Class({
         interactable: {
             default: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.button.interactable',
-            notify: function (oldValue) {
-                if(CC_EDITOR) {
-                    if(oldValue) {
+            notify (oldValue) {
+                if (CC_EDITOR) {
+                    if (oldValue) {
                         this._previousNormalSprite = this.normalSprite;
                     } else {
                         this.normalSprite = this._previousNormalSprite;
@@ -174,7 +168,7 @@ var Button = cc.Class({
                 }
                 this._updateState();
 
-                if(!this.interactable) {
+                if (!this.interactable) {
                     this._resetState();
                 }
             },
@@ -183,8 +177,8 @@ var Button = cc.Class({
 
         _resizeToTarget: {
             animatable: false,
-            set: function (value) {
-                if(value) {
+            set (value) {
+                if (value) {
                     this._resizeNodeToTargetNode();
                 }
             }
@@ -198,7 +192,7 @@ var Button = cc.Class({
         enableAutoGrayEffect: {
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.button.auto_gray_effect',
-            notify: function () {
+            notify () {
                 this._updateDisabledState();
             }
         },
@@ -227,7 +221,7 @@ var Button = cc.Class({
             default: cc.color(214, 214, 214),
             displayName: 'Normal',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_color',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -263,7 +257,7 @@ var Button = cc.Class({
             default: cc.color(124, 124, 124),
             displayName: 'Disabled',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.disabled_color',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -301,7 +295,7 @@ var Button = cc.Class({
             type: cc.SpriteFrame,
             displayName: 'Normal',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_sprite',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -317,7 +311,7 @@ var Button = cc.Class({
             displayName: 'Pressed',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.pressed_sprite',
             formerlySerializedAs: 'pressedSprite',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -333,7 +327,7 @@ var Button = cc.Class({
             displayName: 'Hover',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.hover_sprite',
             formerlySerializedAs: 'hoverSprite',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -348,7 +342,7 @@ var Button = cc.Class({
             type: cc.SpriteFrame,
             displayName: 'Disabled',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.disabled_sprite',
-            notify: function () {
+            notify () {
                 this._updateState();
             }
         },
@@ -372,7 +366,7 @@ var Button = cc.Class({
             default: null,
             type: cc.Node,
             tooltip: CC_DEV && "i18n:COMPONENT.button.target",
-            notify: function () {
+            notify () {
                 this._applyTarget();
             }
         },
@@ -393,7 +387,7 @@ var Button = cc.Class({
         Transition: Transition,
     },
 
-    __preload: function () {
+    __preload () {
         if (!this.target) {
             this.target = this.node;
         }
@@ -401,7 +395,21 @@ var Button = cc.Class({
         this._updateState();
     },
 
-    onEnable: function () {
+    _resetState () {
+        this._pressed = false;
+        this._hovered = false;
+        // // Restore button status
+        let target = this.target;
+        let transition = this.transition;
+        if (transition === Transition.COLOR) {
+            target.color = this.normalColor;
+        } else if (transition === Transition.SCALE) {
+            target.scale = this._originalScale;
+        }
+        this._transitionFinished = true;
+    },
+
+    onEnable () {
         // check sprite frames
         if (this.normalSprite) {
             this.normalSprite.ensureLoadTexture();
@@ -419,7 +427,7 @@ var Button = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
-            this.node.on('spriteframe-changed', function(comp) {
+            this.node.on('spriteframe-changed', function (comp) {
                 if (this.transition === Transition.SPRITE) {
                     this.normalSprite = comp.spriteFrame;
                 }
@@ -427,153 +435,8 @@ var Button = cc.Class({
         }
     },
 
-    update: function (dt) {
-        var target = this.target;
-        if(this._transitionFinished) return;
-        if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
-
-        this.time += dt;
-        var ratio = 1.0;
-        if(this.duration > 0) {
-            ratio = this.time / this.duration;
-        }
-
-        if (ratio >= 1) {
-            ratio = 1;
-            this._transitionFinished = true;
-        }
-
-        if(this.transition === Transition.COLOR) {
-            target.color = this._fromColor.lerp(this._toColor, ratio);
-        } else if (this.transition === Transition.SCALE) {
-            target.scale = misc.lerp(this._fromScale, this._toScale, ratio);
-        }
-
-    },
-
-    _registerEvent: function () {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
-
-        this.node.on(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-    },
-
-    _getTargetSprite: function (target) {
-        var sprite = null;
-        if (target) {
-            sprite = target.getComponent(cc.Sprite);
-        }
-        return sprite;
-    },
-
-    _applyTarget: function () {
-        this._sprite = this._getTargetSprite(this.target);
-        if(this.target) {
-            this._originalScale = this.target.scale;
-        }
-    },
-
-    // touch event handler
-    _onTouchBegan: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
-
-        this._pressed = true;
-        this._updateState();
-        event.stopPropagation();
-    },
-
-    _onTouchMove: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
-        // mobile phone will not emit _onMouseMoveOut,
-        // so we have to do hit test when touch moving
-        var touch = event.touch;
-        var hit = this.node._hitTest(touch.getLocation());
-
-        if(this.transition === Transition.SCALE && this.target) {
-            if(hit) {
-                this._fromScale = this._originalScale;
-                this._toScale = this._originalScale * this.zoomScale;
-                this._transitionFinished = false;
-            } else {
-                this.time = 0;
-                this._transitionFinished = true;
-                this.target.scale = this._originalScale;
-            }
-        } else {
-            var state;
-            if (hit) {
-                state = 'pressed';
-            } else {
-                state = 'normal';
-            }
-            this._applyTransition(state);
-        }
-        event.stopPropagation();
-    },
-
-    _onTouchEnded: function (event) {
-        if (!this.interactable || !this.enabledInHierarchy) return;
-
-        if (this._pressed) {
-            cc.Component.EventHandler.emitEvents(this.clickEvents, event);
-            this.node.emit('click', this);
-        }
-        this._pressed = false;
-        this._updateState();
-        event.stopPropagation();
-    },
-
-    _zoomUp: function () {
-        this._fromScale = this._originalScale;
-        this._toScale = this._originalScale * this.zoomScale;
-        this.time = 0;
-        this._transitionFinished = false;
-    },
-
-    _zoomBack: function () {
-        this._fromScale = this.target.scale;
-        this._toScale = this._originalScale;
-        this.time = 0;
-        this._transitionFinished = false;
-    },
-
-    _onTouchCancel: function () {
-        if (!this.interactable || !this.enabledInHierarchy) return;
-
-        this._pressed = false;
-        this._updateState();
-    },
-
-    _onMouseMoveIn: function () {
-        if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
-        if (this.transition === Transition.SPRITE && !this.hoverSprite) return;
-
-        if (!this._hovered) {
-            this._hovered = true;
-            this._updateState();
-        }
-    },
-
-    _onMouseMoveOut: function(){
-        if (this._hovered) {
-            this._hovered = false;
-            this._updateState();
-        }
-    },
-
-    // state handler
-    _updateState: function () {
-        var state = this._getButtonState();
-        this._applyTransition(state);
-        this._updateDisabledState();
-    },
-
-    onDisable: function() {
-        this._hovered = false;
-        this._pressed = false;
+    onDisable () {
+        this._resetState();
 
         if (!CC_EDITOR) {
             this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
@@ -588,8 +451,138 @@ var Button = cc.Class({
         }
     },
 
-    _getButtonState: function () {
-        var state;
+    update (dt) {
+        let target = this.target;
+        if (this._transitionFinished) return;
+        if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
+
+        this.time += dt;
+        let ratio = 1.0;
+        if (this.duration > 0) {
+            ratio = this.time / this.duration;
+        }
+
+        if (ratio >= 1) {
+            ratio = 1;
+            this._transitionFinished = true;
+        }
+
+        if (this.transition === Transition.COLOR) {
+            target.color = this._fromColor.lerp(this._toColor, ratio);
+        } else if (this.transition === Transition.SCALE) {
+            target.scale = misc.lerp(this._fromScale, this._toScale, ratio);
+        }
+
+    },
+
+    _registerEvent () {
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+        this.node.on(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+    },
+
+    _getTargetSprite (target) {
+        let sprite = null;
+        if (target) {
+            sprite = target.getComponent(cc.Sprite);
+        }
+        return sprite;
+    },
+
+    _applyTarget () {
+        this._sprite = this._getTargetSprite(this.target);
+        if (this.target) {
+            this._originalScale = this.target.scale;
+        }
+    },
+
+    // touch event handler
+    _onTouchBegan (event) {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
+        this._pressed = true;
+        this._updateState();
+        event.stopPropagation();
+    },
+
+    _onTouchMove (event) {
+        if (!this.interactable || !this.enabledInHierarchy || !this._pressed) return;
+        // mobile phone will not emit _onMouseMoveOut,
+        // so we have to do hit test when touch moving
+        let touch = event.touch;
+        let hit = this.node._hitTest(touch.getLocation());
+
+        if (this.transition === Transition.SCALE && this.target) {
+            if (hit) {
+                this._fromScale = this._originalScale;
+                this._toScale = this._originalScale * this.zoomScale;
+                this._transitionFinished = false;
+            } else {
+                this.time = 0;
+                this._transitionFinished = true;
+                this.target.scale = this._originalScale;
+            }
+        } else {
+            let state;
+            if (hit) {
+                state = 'pressed';
+            } else {
+                state = 'normal';
+            }
+            this._applyTransition(state);
+        }
+        event.stopPropagation();
+    },
+
+    _onTouchEnded (event) {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
+        if (this._pressed) {
+            cc.Component.EventHandler.emitEvents(this.clickEvents, event);
+            this.node.emit('click', this);
+        }
+        this._pressed = false;
+        this._updateState();
+        event.stopPropagation();
+    },
+
+    _onTouchCancel () {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
+        this._pressed = false;
+        this._updateState();
+    },
+
+    _onMouseMoveIn () {
+        if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
+        if (this.transition === Transition.SPRITE && !this.hoverSprite) return;
+
+        if (!this._hovered) {
+            this._hovered = true;
+            this._updateState();
+        }
+    },
+
+    _onMouseMoveOut () {
+        if (this._hovered) {
+            this._hovered = false;
+            this._updateState();
+        }
+    },
+
+    // state handler
+    _updateState () {
+        let state = this._getButtonState();
+        this._applyTransition(state);
+        this._updateDisabledState();
+    },
+
+    _getButtonState () {
+        let state;
         if (!this.interactable) {
             state = 'disabled';
         }
@@ -605,9 +598,9 @@ var Button = cc.Class({
         return state;
     },
 
-    _updateColorTransition: function (state) {
-        var color  = this[state + 'Color'];
-        var target = this.target;
+    _updateColorTransition (state) {
+        let color = this[state + 'Color'];
+        let target = this.target;
 
         if (CC_EDITOR) {
             target.color = color;
@@ -620,53 +613,64 @@ var Button = cc.Class({
         }
     },
 
-    _updateSpriteTransition: function (state) {
-        var sprite = this[state + 'Sprite'];
-        if(this._sprite && sprite) {
+    _updateSpriteTransition (state) {
+        let sprite = this[state + 'Sprite'];
+        if (this._sprite && sprite) {
             this._sprite.spriteFrame = sprite;
         }
     },
 
-    _updateScaleTransition: function (state) {
-        if(state === 'pressed') {
+    _updateScaleTransition (state) {
+        if (state === 'pressed') {
             this._zoomUp();
         } else {
             this._zoomBack();
         }
     },
 
-    _applyTransition: function (state) {
+    _zoomUp () {
+        this._fromScale = this._originalScale;
+        this._toScale = this._originalScale * this.zoomScale;
+        this.time = 0;
+        this._transitionFinished = false;
+    },
 
-        var transition = this.transition;
+    _zoomBack () {
+        this._fromScale = this.target.scale;
+        this._toScale = this._originalScale;
+        this.time = 0;
+        this._transitionFinished = false;
+    },
 
+    _applyTransition (state) {
+        let transition = this.transition;
         if (transition === Transition.COLOR) {
             this._updateColorTransition(state);
         } else if (transition === Transition.SPRITE) {
             this._updateSpriteTransition(state);
-        } else if(transition === Transition.SCALE) {
+        } else if (transition === Transition.SCALE) {
             this._updateScaleTransition(state);
         }
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
-        if(this.target) {
+        if (this.target) {
             this.node.setContentSize(this.target.getContentSize());
         }
     },
 
-    _updateDisabledState: function () {
-        if(this._sprite) {
+    _updateDisabledState () {
+        if (this._sprite) {
             this._sprite.setState(cc.Sprite.State.NORMAL);
         }
-        if(this.enableAutoGrayEffect && this.transition !== Transition.COLOR) {
-            if(!(this.transition === Transition.SPRITE && this.disabledSprite)) {
-                if(this._sprite && !this.interactable) {
+        if (this.enableAutoGrayEffect && this.transition !== Transition.COLOR) {
+            if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
+                if (this._sprite && !this.interactable) {
                     this._sprite.setState(cc.Sprite.State.GRAY);
                 }
             }
         }
     }
-
 });
 
 cc.Button = module.exports = Button;
