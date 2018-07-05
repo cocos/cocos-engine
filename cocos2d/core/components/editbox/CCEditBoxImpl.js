@@ -267,7 +267,7 @@ let EditBoxImpl = cc.Class({
     _endEditing () {
         let self = this;
         let hideDomInputAndShowLabel = function () {
-            if (!self._alwaysOnTop) {
+            if (!self._alwaysOnTop && self._edTxt) {
                 self._edTxt.style.display = 'none';
             }
             if (self._delegate && self._delegate.editBoxEditingDidEnded) {
@@ -397,8 +397,9 @@ _p.createInput = function() {
 
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
+    let self = this;
     this.__orientationChanged = function () {
-        this._adjustEditBoxPosition();
+        self._adjustEditBoxPosition();
     };
     window.addEventListener('orientationchange', this.__orientationChanged);
 
