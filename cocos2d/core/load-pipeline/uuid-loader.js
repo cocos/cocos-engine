@@ -173,7 +173,9 @@ function loadDepends (pipeline, item, asset, depends, callback) {
         if (CC_EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        callback(errors, asset);
+        // Emit dependency errors in runtime, but not in editor,
+        // because editor need to open the scene / prefab to let user fix missing asset issues
+        callback(CC_EDITOR ? null : errors, asset);
     });
 }
 
