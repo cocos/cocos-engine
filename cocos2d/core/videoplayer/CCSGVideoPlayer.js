@@ -82,11 +82,13 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     duration: function () {
-        return this._renderCmd.duration() || -1;
+        var duration = this._renderCmd.duration();
+        return typeof duration === 'number' ? duration : -1;
     },
 
     currentTime: function() {
-        return this._renderCmd.currentTime() || -1;
+        var currentTime = this._renderCmd.currentTime();
+        return typeof currentTime === 'number' ? currentTime : -1;
     },
 
     createDomElementIfNeeded: function () {
