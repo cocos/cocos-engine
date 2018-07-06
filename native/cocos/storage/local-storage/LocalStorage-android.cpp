@@ -132,4 +132,18 @@ void localStorageClear()
     JniHelper::callStaticVoidMethod(className, "clear");
 }
 
+/** gets an key from the JS. */
+void localStorageGetKey( const int nIndex, std::string *outKey )
+{
+    assert( _initialized );
+    outKey->assign(JniHelper::callStaticStringMethod(className,"getKey",nIndex));
+}
+
+/** gets all items count in the JS. */
+void localStorageGetLength( int& outLength )
+{
+    assert( _initialized );
+    outLength = JniHelper::callStaticIntMethod(className,"getLength");
+}
+
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)

@@ -298,6 +298,41 @@ static bool JSB_localStorageClear(se::State& s)
 }
 SE_BIND_FUNC(JSB_localStorageClear)
 
+static bool JSB_localStorageKey(se::State& s) {
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        bool ok = true;
+        int nIndex = 0;
+        ok = seval_to_int32(args[0], &nIndex);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        std::string value;
+        localStorageGetKey(nIndex, &value);
+        s.rval().setString(value);
+        return true;
+    }
+
+    SE_REPORT_ERROR("Invalid number of arguments");
+    return false;
+}
+SE_BIND_FUNC(JSB_localStorageKey)
+
+static bool JSB_localStorage_getLength(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        int nLength = 0;
+
+        localStorageGetLength(nLength);
+        s.rval().setInt32(nLength);
+        return true;
+    }
+
+    SE_REPORT_ERROR("Invalid number of arguments");
+    return false;
+}
+SE_BIND_PROP_GET(JSB_localStorage_getLength);
 
 static bool register_sys_localStorage(se::Object* obj)
 {
@@ -316,6 +351,8 @@ static bool register_sys_localStorage(se::Object* obj)
     localStorageObj->defineFunction("removeItem", _SE(JSB_localStorageRemoveItem));
     localStorageObj->defineFunction("setItem", _SE(JSB_localStorageSetItem));
     localStorageObj->defineFunction("clear", _SE(JSB_localStorageClear));
+    localStorageObj->defineFunction("key", _SE(JSB_localStorageKey));
+    localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
     std::string strFilePath = cocos2d::FileUtils::getInstance()->getWritablePath();
     strFilePath += "/jsb.sqlite";
