@@ -158,6 +158,11 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             renderData = sprite._renderData,
             data = renderData._data;
         
+        let vertices = sprite.spriteFrame.vertices;
+        if (!vertices) {
+            return;
+        }
+        
         // update world verts
         if (renderer.worldMatDirty) {
             this.updateWorldVerts(sprite);
@@ -182,7 +187,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             vbuf[vertexOffset++] = vertice.v;
         }
 
-        let triangles = sprite.spriteFrame.vertices.triangles;
+        let triangles = vertices.triangles;
 
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
