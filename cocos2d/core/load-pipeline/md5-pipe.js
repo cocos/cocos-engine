@@ -26,51 +26,53 @@
 
 var Pipeline = require('./pipeline');
 
-var ID = 'MD5Pipe';
-var ExtnameRegex = /(\.[^.\n\\/]*)$/;
+const ID = 'MD5Pipe';
+const ExtnameRegex = /(\.[^.\n\\/]*)$/;
+const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
 
-var MD5Pipe = function (md5AssetsMap, libraryBase, rawAssetsBase) {
+function getUuidFromURL (url) {
+    var matches = url.match(UuidRegex);
+    if (matches) {
+        return matches[1];
+    }
+    return "";
+}
+
+var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
     this.id = ID;
     this.async = false;
     this.pipeline = null;
     this.md5AssetsMap = md5AssetsMap;
+    this.md5NativeAssetsMap = md5NativeAssetsMap;
     this.libraryBase = libraryBase;
-    this.rawAssetsBase = rawAssetsBase;
 };
 MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
-    item.url = this.transformURL(item.url);
+    item.url = this.transformURL(item.url, false);
     return item;
 };
 
 MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {
-    var index = url.indexOf('?');
-    var key = url;
-    if (index !== -1) {
-        key = url.substr(0, index);
-    }
-    if (key.startsWith(this.libraryBase)) {
-        key = key.slice(this.libraryBase.length);
-    } else if (key.startsWith(this.rawAssetsBase)) {
-        key = key.slice(this.rawAssetsBase.length);
-    } else {
-        return url;
-    }
-    let hashValue = this.md5AssetsMap[key];
-    if (hashValue) {
-        if (hashPatchInFolder) {
-            var dirname = cc.path.dirname(url);
-            var basename = cc.path.basename(url);
-            url = `${dirname}.${hashValue}/${basename}`;
-        } else {
-            var matched = false;
-            url = url.replace(ExtnameRegex, (function(match, p1) {
-                matched = true;
-                return "." + hashValue + p1;
-            }));
-            if (!matched) {
-                url = url + "." + hashValue
+    var uuid = getUuidFromURL(url);
+    if (uuid) {
+        var isNativeAsset = !url.startsWith(this.libraryBase);
+        var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+        let hashValue = map[uuid];
+        if (hashValue) {
+            if (hashPatchInFolder) {
+                var dirname = cc.path.dirname(url);
+                var basename = cc.path.basename(url);
+                url = `${dirname}.${hashValue}/${basename}`;
+            } else {
+                var matched = false;
+                url = url.replace(ExtnameRegex, (function(match, p1) {
+                    matched = true;
+                    return "." + hashValue + p1;
+                }));
+                if (!matched) {
+                    url = url + "." + hashValue;
+                }
             }
         }
     }
