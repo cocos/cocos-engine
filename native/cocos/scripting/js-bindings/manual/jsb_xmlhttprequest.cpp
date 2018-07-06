@@ -574,7 +574,7 @@ static bool XMLHttpRequest_constructor(se::State& s)
         se::Object* thizObj = thiz.toObject();
 
         se::Value func;
-        if (thizObj->getProperty(eventName, &func))
+        if (thizObj->getProperty(eventName, &func) && func.isObject() && func.toObject()->isFunction())
         {
             func.toObject()->call(se::EmptyValueArray, thizObj);
         }
