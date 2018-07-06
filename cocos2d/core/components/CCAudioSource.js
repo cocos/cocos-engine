@@ -26,7 +26,6 @@
 
 const misc = require('../utils/misc');
 const Component = require('./CCComponent');
-const Audio = require('../../audio/CCAudio');
 const AudioClip = require('../assets/CCAudioClip');
 
 /**
@@ -45,7 +44,9 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new Audio();
+        // We can't require Audio here because jsb Audio is implemented outside the engine,
+        // it can only take effect rely on overwriting cc.Audio
+        this.audio = new cc.Audio();
     },
 
     properties: {
