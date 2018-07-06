@@ -41,7 +41,6 @@ namespace {
             }
         }
     }
-
 }
 
 class CanvasRenderingContext2DImpl
@@ -89,29 +88,37 @@ public:
 
     void beginPath()
     {
-        _DC = BeginPaint(_wnd, &_paintStruct);
+        // called: set_lineWidth() -> beginPath() -> moveTo() -> lineTo() -> stroke(), when draw line
+        _hpen = CreatePen(PS_SOLID, _lineWidth, RGB(255, 255, 255));
+        // the return value of SelectObject is a handle to the object being replaced, so we should delete them to avoid memory leak
+        HGDIOBJ hOldPen = SelectObject(_DC, _hpen);
+        HGDIOBJ hOldBmp = SelectObject(_DC, _bmp);
+        DeleteObject(hOldPen);
+        DeleteObject(hOldBmp);
+
+        SetBkMode(_DC, TRANSPARENT);
     }
 
     void closePath()
     {
-        EndPaint(_wnd, &_paintStruct);
     }
 
     void moveTo(float x, float y)
     {
-        MoveToEx(_DC, x, y, nullptr);
+        MoveToEx(_DC, x, -(y - _bufferHeight - _fontSize), nullptr);
     }
 
     void lineTo(float x, float y)
     {
-        LineTo(_DC, x, y);
+        LineTo(_DC, x, -(y - _bufferHeight - _fontSize));
     }
 
     void stroke()
     {
+        DeleteObject(_hpen);
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        //
+        _imageData = _getTextureData();
     }
 
     void saveContext()
@@ -121,7 +128,11 @@ public:
 
     void restoreContext()
     {
-        RestoreDC(_DC, _savedDC);
+        BOOL ret = RestoreDC(_DC, _savedDC);
+        if (0 == ret)
+        {
+            SE_LOGD("CanvasRenderingContext2DImpl restore context failed.\n");
+        }
     }
 
     void clearRect(float x, float y, float w, float h)
@@ -320,7 +331,7 @@ public:
 
     void setLineWidth(float lineWidth)
     {
-        //check, use Pen to support this
+        _lineWidth = lineWidth;
     }
 
     const Data& getDataRef() const
@@ -335,9 +346,11 @@ private:
     Data _imageData;
     HFONT   _font;
     HWND    _wnd;
+    HPEN _hpen;
     PAINTSTRUCT _paintStruct;
     std::string _curFontPath;
     int _savedDC;
+    float _lineWidth = 0.0f;
     float _bufferWidth = 0.0f;
     float _bufferHeight = 0.0f;
 
@@ -671,32 +684,37 @@ CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y
 
 void CanvasRenderingContext2D::save()
 {
-    //SE_LOGD("CanvasRenderingContext2D::save");
+    //SE_LOGD("CanvasRenderingContext2D::save\n");
     _impl->saveContext();
 }
 
 void CanvasRenderingContext2D::beginPath()
 {
+    //SE_LOGD("\n-----------begin------------------\nCanvasRenderingContext2D::beginPath\n");
     _impl->beginPath();
 }
 
 void CanvasRenderingContext2D::closePath()
 {
+    //SE_LOGD("CanvasRenderingContext2D::closePath\n");
     _impl->closePath();
 }
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
 {
+    //SE_LOGD("CanvasRenderingContext2D::moveTo\n");
     _impl->moveTo(x, y);
 }
 
 void CanvasRenderingContext2D::lineTo(float x, float y)
 {
+    //SE_LOGD("CanvasRenderingContext2D::lineTo\n");
     _impl->lineTo(x, y);
 }
 
 void CanvasRenderingContext2D::stroke()
 {
+    //SE_LOGD("CanvasRenderingContext2D::stroke\n");
     _impl->stroke();
 
     if (_canvasBufferUpdatedCB != nullptr)
@@ -705,7 +723,7 @@ void CanvasRenderingContext2D::stroke()
 
 void CanvasRenderingContext2D::restore()
 {
-    //SE_LOGD("CanvasRenderingContext2D::restore");
+    //SE_LOGD("CanvasRenderingContext2D::restore\n");
     _impl->restoreContext();
 }
 
@@ -730,6 +748,7 @@ void CanvasRenderingContext2D::set__height(float height)
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 {
+    //SE_LOGD("CanvasRenderingContext2D::set_lineWidth %d\n", lineWidth);
     _lineWidth = lineWidth;
     _impl->setLineWidth(lineWidth);
 }
