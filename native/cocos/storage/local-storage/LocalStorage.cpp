@@ -50,6 +50,7 @@ static sqlite3_stmt *_stmt_remove;
 static sqlite3_stmt *_stmt_update;
 static sqlite3_stmt *_stmt_clear;
 static sqlite3_stmt *_stmt_key;
+static sqlite3_stmt *_stmt_count;
 
 static void localStorageCreateTable()
 {
@@ -95,6 +96,10 @@ void localStorageInit( const std::string& fullpath/* = "" */)
         // key
         const char *sql_key = "SELECT key FROM data;";
         ret |= sqlite3_prepare_v2(_db, sql_key, -1, &_stmt_key, nullptr);
+
+        //count
+        const char *sql_count = "SELECT COUNT(*) FROM data";
+        ret != sqlite3_prepare_v2(_db, sql_count, -1, &_stmt_count, nullptr);
 
         if( ret != SQLITE_OK ) {
             printf("Error initializing DB\n");
@@ -229,24 +234,18 @@ void localStorageGetKey( const int nIndex, std::string *outKey )
 void localStorageGetLength( int& outLength )
 {
     assert( _initialized );
-    int ok = sqlite3_reset(_stmt_key);
+    int ok = sqlite3_reset(_stmt_count);
 
-    ok |= sqlite3_step(_stmt_key);
-
-    int nIndex = 0;
-    while ( ok == SQLITE_ROW )
-    {
-        ok |= sqlite3_step(_stmt_key);
-        nIndex++;
-    }
+    ok |= sqlite3_step(_stmt_count);
 
     if ( ok != SQLITE_OK && ok != SQLITE_DONE && ok != SQLITE_ROW )
     {
         printf("Error in localStorage.length\n");
+        outLength = 0;
     }
     else
     {
-        outLength = nIndex;
+        outLength = sqlite3_column_int(_stmt_count, 0);
     }
 }
 
