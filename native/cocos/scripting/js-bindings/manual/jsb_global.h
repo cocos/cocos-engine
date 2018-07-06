@@ -46,3 +46,5 @@ bool jsb_run_script(const std::string& filePath, se::Value* rval = nullptr);
 bool jsb_run_script_module(const std::string& filePath, se::Value* rval = nullptr);
 
 void jsb_set_xxtea_key(const std::string& key);
+
+bool jsb_global_load_image(std::string path, se::Value callbackVal);
