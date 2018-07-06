@@ -418,6 +418,12 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
+                    this._updateAssembler();
+                    this._updateRenderData();
+                    this._checkStringEmpty();
+                }
+                else if (!this._userDefinedFont) {
+                    this.disableRender();
                 }
 
             },
