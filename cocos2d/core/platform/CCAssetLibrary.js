@@ -287,17 +287,22 @@ var AssetLibrary = {
         var md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
-            for (var folder in md5AssetsMap) {
-                var md5Map = js.createMap(true);
-                var md5Entries = md5AssetsMap[folder];
-                for (var i = 0; i < md5Entries.length; i += 2) {
-                    var uuid = decodeUuid(md5Entries[i]);
-                    md5Map[uuid] = md5Entries[i + 1];
-                }
-                md5AssetsMap[folder] = md5Map;
+            var i = 0, uuid = 0;
+            var md5ImportMap = js.createMap(true);
+            var md5Entries = md5AssetsMap.import;
+            for (i = 0; i < md5Entries.length; i += 2) {
+                uuid = decodeUuid(md5Entries[i]);
+                md5ImportMap[uuid] = md5Entries[i + 1];
             }
 
-            var md5Pipe = new MD5Pipe(md5AssetsMap.import, md5AssetsMap['raw-assets'], _libraryBase);
+            var md5RawAssetsMap = js.createMap(true);
+            md5Entries = md5AssetsMap['raw-assets'];
+            for (i = 0; i < md5Entries.length; i += 2) {
+                uuid = decodeUuid(md5Entries[i]);
+                md5RawAssetsMap[uuid] = md5Entries[i + 1];
+            }
+
+            var md5Pipe = new MD5Pipe(md5ImportMap, md5RawAssetsMap, _libraryBase);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
             cc.loader.md5Pipe = md5Pipe;
         }
