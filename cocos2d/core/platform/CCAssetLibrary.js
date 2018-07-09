@@ -285,7 +285,7 @@ var AssetLibrary = {
         _rawAssetsBase = options.rawAssetsBase;
 
         var md5AssetsMap = options.md5AssetsMap;
-        if (md5AssetsMap) {
+        if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
             for (var folder in md5AssetsMap) {
                 var md5Map = js.createMap(true);
