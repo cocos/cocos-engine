@@ -549,6 +549,8 @@ cc.js.getset(PhysicsManager.prototype, 'enabled',
         return this._enabled;
     },
     function (value) {
+        if (CC_EDITOR) return;
+        
         if (value && !this._world) {
             var world = new b2.World( new b2.Vec2(0, -10) );
             world.SetAllowSleeping(true);
