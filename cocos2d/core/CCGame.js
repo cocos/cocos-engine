@@ -387,6 +387,28 @@ var game = {
         if (cb) cb();
     },
 
+    eventTargetOn: EventTarget.prototype.on,
+    eventTargetOnce: EventTarget.prototype.once,
+
+    on (type, callback, target) {
+        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
+        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+            callback.call(target);
+        }
+        else {
+            this.eventTargetOn(type, callback, target);
+        }
+    },
+    once (type, callback, target) {
+        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
+        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+            callback.call(target);
+        }
+        else {
+            this.eventTargetOnce(type, callback, target);
+        }
+    },
+
     /**
      * !#en Prepare game.
      * !#zh 准备引擎，请不要直接调用这个函数。
@@ -558,7 +580,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
+                if (frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
