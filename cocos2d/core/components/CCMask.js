@@ -375,6 +375,7 @@ let Mask = cc.Class({
     },
 
     onDisable () {
+        this._super();
         this.node._renderFlag &= ~(RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
     },
 
