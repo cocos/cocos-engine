@@ -488,13 +488,12 @@ var _Deserializer = (function () {
     var compileDeserialize = CC_SUPPORT_JIT ? function (self, klass) {
         var TYPE = Attr.DELIMETER + 'type';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
-        var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
         var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
         var attrs = Attr.getClassAttrs(klass);
 
-        var props = klass.__props__;
+        var props = klass.__values__;
         // self, obj, serializedData, klass, target
         var sources = [
             'var prop;'
@@ -505,9 +504,6 @@ var _Deserializer = (function () {
             var propName = props[p];
             if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
                 continue;   // skip editor only if in preview
-            }
-            if (attrs[propName + SERIALIZABLE] === false) {
-                continue;   // skip nonSerialized
             }
 
             var accessorToSet, propNameLiteralToSet;
@@ -589,23 +585,18 @@ var _Deserializer = (function () {
         return Function('s', 'o', 'd', 'k', 't', sources.join(''));
     } : function (self, klass) {
         var TYPE = Attr.DELIMETER + 'type';
-        var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
         var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
         var attrs = Attr.getClassAttrs(klass);
 
-        var props = klass.__props__;
+        var props = klass.__values__;
         var fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
 
         return function (s, o, d, k, t) {
             var prop;
             for (var p = 0; p < props.length; p++) {
                 var propName = props[p];
-                if (attrs[propName + SERIALIZABLE] === false) {
-                    continue;   // skip nonSerialized
-                }
-
                 var propNameToRead = propName;
                 if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
                     propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
