@@ -493,7 +493,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldVector.x/PTM_RATIO, worldVector.y/PTM_RATIO);
-            var vector = this._b2Body.GetLocalVector(tempb2Vec21);
+            var vector = this._b2Body.GetLocalVector(tempb2Vec21, out);
             out.x = vector.x*PTM_RATIO;
             out.y = vector.y*PTM_RATIO;
         }
