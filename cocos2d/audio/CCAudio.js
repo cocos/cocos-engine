@@ -96,9 +96,6 @@ Audio.State = {
             this._loaded = false;
             return;
         }
-
-        if (this._element)
-            return;
             
         var item = cc.loader.getItem(src);
 
@@ -142,6 +139,7 @@ Audio.State = {
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
+            CC_WECHATGAME && this._element && this._element.destroy();
             this._element = document.createElement('audio');
             this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
