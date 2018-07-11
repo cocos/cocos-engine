@@ -1,7 +1,8 @@
 /*global cc */
 
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2015-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -145,7 +146,7 @@ _ccsg.Label = _ccsg.Node.extend({
     onExit: function () {
         this._super();
 
-        this._renderCmd._texture.releaseTexture();
+        this._renderCmd._texture._releaseTexture();
         this._notifyLabelSkinDirty();
     },
 
@@ -153,7 +154,7 @@ _ccsg.Label = _ccsg.Node.extend({
     ctor: function(string, fontAsset) {
         EventTarget.call(this);
         var isAsset = fontAsset instanceof cc.Font;
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
 
         this._fontHandle = fontHandle;
         if (typeof string !== 'string') {
@@ -475,7 +476,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this.setFontFamily('');
             return;
         }
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle = cc.loader.md5Pipe ? cc.loader.md5Pipe.transformURL(fontAsset.nativeUrl, true) : fontAsset.nativeUrl;
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
@@ -1287,7 +1288,7 @@ _ccsg.Label.pool.get = function (string, fontAsset) {
     var label = this._get();
     if (label) {
         var isAsset = fontAsset instanceof cc.Font;
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
         label._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;

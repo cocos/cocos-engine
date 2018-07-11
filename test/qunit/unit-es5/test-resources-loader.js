@@ -6,11 +6,11 @@
         setup: function () {
             _resetGame();
             Assets = {
-                '0000001': ['resources/grossini/grossini.png', cc.js._getClassId(cc.Texture2D)],
-                '123201':  ['resources/grossini/grossini', cc.js._getClassId(TestSprite), 1],
-                '0000000': ['resources/grossini.png', cc.js._getClassId(cc.Texture2D)],
-                '1232218': ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in texture
-                '123200':  ['resources/grossini', cc.js._getClassId(TestSprite), 1],   // sprite in plist
+                '0000001': ['grossini/grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '123201':  ['grossini/grossini', cc.js._getClassId(TestSprite), 1],
+                '0000000': ['grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '1232218': ['grossini', cc.js._getClassId(TestSprite), 1],   // sprite in texture
+                '123200':  ['grossini', cc.js._getClassId(TestSprite), 1],   // sprite in plist
             };
             var options = {
                 libraryPath: assetDir + '/library',
@@ -65,15 +65,10 @@
     asyncTest('load main asset and sub asset by loadResDir', function () {
         cc.loader.loadResDir('grossini', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
-            ['123200', '1232218', '123201'].forEach(function (uuid) {
+            ['123200', '1232218', '123201', '0000000', '0000001'].forEach(function (uuid) {
                 ok(results.some(function (item) {
                     return item._uuid === uuid;
                 }), 'checking uuid ' + uuid);
-            });
-            ['resources/grossini/grossini.png', 'resources/grossini.png',].forEach(function (url) {
-                ok(results.some(function (item) {
-                    return item.url && item.url.endsWith(url);
-                }), 'checking url ' + url);
             });
             start();
         });

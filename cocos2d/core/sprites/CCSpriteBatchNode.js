@@ -2,7 +2,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -58,19 +59,10 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     _texture: null,
     _className: "SpriteBatchNode",
 
-    ctor: function (fileImage) {
+    ctor: function (texture) {
         _ccsg.Node.prototype.ctor.call(this);
         this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
-
-        var texture2D;
-        if (cc.js.isString(fileImage)) {
-            texture2D = cc.textureCache.getTextureForKey(fileImage);
-            if (!texture2D)
-                texture2D = cc.textureCache.addImage(fileImage);
-        }else if (fileImage instanceof cc.Texture2D)
-            texture2D = fileImage;
-
-        texture2D && this.initWithTexture(texture2D);
+        texture && this.initWithTexture(texture);
     },
 
     // property
@@ -153,7 +145,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     appendChild: function (sprite) {
         this.sortAllChildren();
         var lastLocalZOrder = this._children[this._children.length-1]._localZOrder;
-        this.addChild(sprite. lastLocalZOrder + 1);
+        this.addChild(sprite, lastLocalZOrder + 1);
     },
 
     /**

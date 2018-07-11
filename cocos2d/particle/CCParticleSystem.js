@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -151,14 +152,19 @@ var properties = {
      * @default ""
      */
     _file: {
-        default: '',
-        url: cc.ParticleAsset
+        default: null,
+        type: cc.ParticleAsset
     },
     file: {
         get: function () {
             return this._file;
         },
         set: function (value, force) {
+            if (typeof value === 'string') {
+                // backward compatibility since 1.10
+                cc.errorID(8401, 'cc.ParticleSystem', 'cc.ParticleAsset', 'ParticleAsset', 'cc.ParticleAsset', 'particle');
+                value = { nativeUrl: value };
+            }
             if (this._file !== value || (CC_EDITOR && force)) {
                 this._file = value;
                 if (value) {
@@ -174,7 +180,7 @@ var properties = {
             }
         },
         animatable: false,
-        url: cc.ParticleAsset,
+        type: cc.ParticleAsset,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
@@ -184,22 +190,29 @@ var properties = {
      * @property {Texture2D} texture.
      */
     _texture: {
-        default: '',
-        url: cc.Texture2D
+        default: null,
+        type: cc.Texture2D
     },
     texture: {
         get: function () {
             return this._texture;
         },
         set: function (value) {
+            if (CC_DEBUG && typeof value === 'string') {
+                // TODO - remove at 2.0
+                cc.warnID(3657, 'particleSystem.texture');
+                if (value) {
+                    value = cc.textureCache.addImage(value);
+                }
+            }
             this._texture = value;
-            this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
+            this._sgNode.texture = value;
             if (!value && this._file) {
                 // fallback to plist
                 this._applyFile();
             }
         },
-        url: cc.Texture2D,
+        type: cc.Texture2D,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture'
     },
 
@@ -882,7 +895,7 @@ var ParticleSystem = cc.Class({
 
         var texture = spriteFrame.getTexture();
         if (texture) {
-            this._texture = texture.url;
+            this._texture = texture;
         }
         this._sgNode.setDisplayFrame(spriteFrame);
     },
@@ -895,9 +908,7 @@ var ParticleSystem = cc.Class({
      * @param {Rect} rect
      */
     setTextureWithRect: function (texture, rect) {
-        if (texture instanceof cc.Texture2D) {
-            this._texture = texture.url;
-        }
+        this._texture = texture;
         this._sgNode.setTextureWithRect(texture, rect);
     },
 
@@ -907,9 +918,9 @@ var ParticleSystem = cc.Class({
         var file = this._file;
         if (file) {
             var self = this;
-            cc.loader.load(file, function (err, content) {
+            cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error('Unkown error');
+                    throw err || new Error(cc._getError(6029));
                 }
                 if (!self.isValid) {
                     return;
@@ -921,23 +932,26 @@ var ParticleSystem = cc.Class({
                 var active = sgNode.isActive();
 
                 if (CC_EDITOR) {
-                    sgNode._plistFile = file;
+                    sgNode._plistFile = file.nativeUrl;
                     sgNode.initWithDictionary(content, '');
                 }
                 else {
-                    sgNode.initWithFile(file);
+                    sgNode.initWithFile(file.nativeUrl);
                 }
 
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData
                 if (content.textureUuid) {
-                    cc.AssetLibrary.queryAssetInfo(content.textureUuid, function (err, url, raw) {
+                    cc.loader.load({ uuid: content.textureUuid, type: 'uuid' }, function (err, texture) {
                         if (err) {
                             cc.error(err);
                             return;
                         }
-                        self.texture = url;
+                        self.texture = texture;
                     });
+                }
+                else if (!content.textureImageData && file.texture) {
+                    sgNode.texture = file.texture;
                 }
 
                 // For custom data export
@@ -978,7 +992,7 @@ var ParticleSystem = cc.Class({
         sgNode.setBlendFunc(this._blendFunc);
 
         if (this._texture) {
-            sgNode.texture = cc.textureCache.addImage(this._texture);
+            sgNode.texture = this._texture;
         }
 
         // recover sgNode properties

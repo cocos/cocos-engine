@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -47,11 +48,13 @@ inputManager.setAccelerometerEnabled = function(isEnable){
     _t._accelEnabled = isEnable;
     var scheduler = cc.director.getScheduler();
     if(_t._accelEnabled){
+        _t._registerAccelerometerEvent();
         _t._accelCurTime = 0;
         scheduler.scheduleUpdate(_t);
     } else {
+        _t._unregisterAccelerometerEvent();
         _t._accelCurTime = 0;
-        scheduler.scheduleUpdate(_t);
+        scheduler.unscheduleUpdate(_t);
     }
 };
 

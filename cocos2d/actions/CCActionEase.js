@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -51,7 +52,7 @@ cc.ActionEase = cc.ActionInterval.extend({
      */
     initWithAction:function (action) {
         if(!action)
-            throw new Error("cc.ActionEase.initWithAction(): action must be non nil");
+            throw new Error(cc._getError(1023));
 
         if (this.initWithDuration(action.getDuration())) {
             this._inner = action;
@@ -783,7 +784,7 @@ cc._easeElasticInObj = {
 
 /**
  * !#en
- * Creates the action easing obejct with the period in radians (default is 0.3). <br />
+ * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeInElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
  * !#zh
@@ -2138,7 +2139,7 @@ cc._easeCircleActionOut = {
  * 参考 easeOutCirc：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCircleActionOut
  * @returns {Object}
- * @exampple
+ * @example
  * //example
  * actioneasing(cc.easeCircleActionOut());
  */

@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -51,7 +52,7 @@ var inputManager = {
     _maxTouches: 5,
 
     _accelEnabled: false,
-    _accelInterval: 1/30,
+    _accelInterval: 1/5,
     _accelMinus: 1,
     _accelCurTime: 0,
     _acceleration: null,
@@ -581,9 +582,6 @@ var inputManager = {
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             //register keyboard event
             this._registerKeyboardEvent();
-
-            //register Accelerometer event
-            this._registerAccelerometerEvent();
         }
 
         this._isRegisterEvent = true;

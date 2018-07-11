@@ -5,14 +5,14 @@
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,9 +32,6 @@ const Path = require('path');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
 const Buffer = require('vinyl-buffer');
-const Composer = require('gulp-uglify/composer');
-const Uglify = require('uglify-es');
-const Minify = Composer(Uglify, console);
 const Sourcemaps = require('gulp-sourcemaps');
 const EventStream = require('event-stream');
 const Chalk = require('chalk');
@@ -44,8 +41,8 @@ const Optimizejs = require('gulp-optimize-js');
 var jsbSkipModules = [
     '../../cocos2d/core/CCGame',
     '../../cocos2d/core/CCDrawingPrimitives.js',
-    '../../cocos2d/core/textures/CCTexture2D',
-    '../../cocos2d/core/sprites/CCSpriteFrame',
+    // '../../cocos2d/core/textures/CCTexture2D',
+    // '../../cocos2d/core/sprites/CCSpriteFrame',
     '../../cocos2d/core/event-manager/CCTouch.js',
     '../../cocos2d/core/event-manager/CCEventListener.js',
     '../../cocos2d/core/event-manager/CCEventManager.js',
@@ -102,8 +99,9 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCTextureData',
     '../../extensions/dragonbones/CCArmatureDisplay',
     '../../external/box2d/box2d.js',
-    '../../external/chipmunk/chipmunk.js',
 ];
+
+exports.buildDebugInfos = require('./buildDebugInfos');
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
     if (typeof opt_macroFlags === 'function') {
@@ -119,13 +117,11 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.getUglifyOptions('build', Object.assign({ debug: true }, opt_macroFlags));
-
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
     bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
-    bundler = bundler.pipe(Minify(uglifyOption));
+    bundler = bundler.pipe(Utils.uglify('build', Object.assign({ debug: true }, opt_macroFlags)));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
@@ -152,7 +148,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.getUglifyOptions('build', opt_macroFlags);
+    bundler.ignore('./DebugInfos.json');
 
     var Size = null;
     try {
@@ -173,7 +169,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         console.error('Can not use sourcemap with optimize-js');
         bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
     }
-    bundler = bundler.pipe(Minify(uglifyOption));
+    bundler = bundler.pipe(Utils.uglify('build', opt_macroFlags));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
@@ -200,32 +196,42 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     return bundler.on('end', callback);
 };
 
-exports.buildPreview = function (sourceFile, outputFile, callback) {
+exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
+    var cacheDir = devMode && Path.resolve(Path.dirname(outputFile), '.cache/preview-compile-cache');
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = createBundler(sourceFile);
-    bundler.bundle()
+    var bundler = createBundler(sourceFile, {
+        cacheDir: cacheDir,
+        sourcemaps: !devMode
+    });
+    var bundler = bundler
+        .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
-        .pipe(Buffer())
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minify(Utils.getUglifyOptions('preview')))
-        .pipe(Optimizejs({
-            sourceMap: false
-        }))
-        .pipe(Sourcemaps.write('./', {
-            sourceRoot: '../',
-            includeContent: false,
-            addComment: true
-        }))
+        .pipe(Buffer());
+    if (!devMode) {
+        bundler = bundler
+            .pipe(Sourcemaps.init({loadMaps: true}))
+            .pipe(Utils.uglify('preview'))
+            .pipe(Optimizejs({
+                sourceMap: false
+            }))
+            .pipe(Sourcemaps.write('./', {
+                sourceRoot: '../',
+                includeContent: false,
+                addComment: true
+            }));
+    }
+    bundler
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
 
 exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+    var CheckInstanceof = require('../util/check-jsb-instanceof');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
@@ -236,13 +242,14 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
-    bundler.bundle()
+    bundler.transform(CheckInstanceof)
+        .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('preview', { jsb: true })))
+        .pipe(Utils.uglify('preview', { jsb: true }))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -273,7 +280,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('build', Object.assign({ jsb: true, debug: true }, opt_macroFlags))))
+        .pipe(Utils.uglify('build', Object.assign({ jsb: true, debug: true }, opt_macroFlags)))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -298,13 +305,16 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
+
+    bundler.ignore('../../DebugInfos.json');
+
     bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('build', Object.assign({ jsb: true }, opt_macroFlags))))
+        .pipe(Utils.uglify('build', Object.assign({ jsb: true }, opt_macroFlags)))
         .pipe(Optimizejs({
             sourceMap: false
         }))

@@ -276,6 +276,8 @@ test('Animation Component', function () {
 
     entity.x = 400;
 
+    cc.director.getScene().addChild(entity);
+
     var clip = new cc.AnimationClip();
     clip._duration = 10;
     clip._name = 'test';
@@ -315,6 +317,11 @@ test('Animation Component', function () {
     strictEqual(animation.getAnimationState('test'), null, 'should remove state');
 
     animation.stop();
+
+    animation.addClip(clip);
+    animation.play('test');
+    cc.director.runSceneImmediate(new cc.Scene());
+    strictEqual(!!(animation._animator && animation._animator.isPlaying), false, 'animation should be stopped after load scene');
 });
 
 
@@ -449,6 +456,8 @@ test('EventAnimCurve', function () {
 
     var entity = new cc.Node();
     entity.addComponent(MyComp);
+
+    cc.director.getScene().addChild(entity);
 
     var animation = entity.addComponent(cc.Animation);
 
@@ -911,6 +920,8 @@ test('EventAnimCurve', function () {
 test('stop Animation', function () {
     var entity = new cc.Node();
     var animation = entity.addComponent(cc.Animation);
+    
+    cc.director.getScene().addChild(entity);
 
     var clip = new cc.AnimationClip();
     clip._name = 'test';
@@ -1119,6 +1130,8 @@ test('animation callback', function () {
 
     var entity = new cc.Node();
     var animation = entity.addComponent(cc.Animation);
+
+    cc.director.getScene().addChild(entity);
 
     var clip = new cc.AnimationClip();
     clip._name = 'move';

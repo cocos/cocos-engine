@@ -65,8 +65,8 @@ var TestSprite = cc.Class({
         width: 0,
         height: 0,
         texture: {
-            default: '',
-            url: TestTexture,
+            default: null,
+            type: TestTexture,
         },
         rotated: false,
         trimLeft: 0,
@@ -144,6 +144,13 @@ cc.engine = new (cc.Class({
         checkConflict_Layout: beFalse,
         checkConflict_Widget: beFalse,
     };
+
+    // 引擎内使用了 Editor.require 所以需要在测试内模拟
+    if (!TestEditorExtends) {
+        Editor.require = function () {
+            return null;
+        };
+    }
 })();
 
 Editor.log = cc.log;
@@ -169,6 +176,7 @@ function _resetGame (w, h) {
             id: 'test-canvas',
             debugMode: cc.DebugMode.INFO
         });
+        cc.director.setDisplayStats(false);
     }
     else {
         var view = cc.view;
@@ -200,7 +208,7 @@ function _resetGame (w, h) {
         var size = view.getDesignResolutionSize();
         view.setDesignResolutionSize(size.width, size.height, cc.ResolutionPolicy.SHOW_ALL);
 
-        cc.eventManager.dispatchCustomEvent('canvas-resize');
+        cc._Test.eventManager.dispatchCustomEvent('canvas-resize');
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();

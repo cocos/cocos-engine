@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,48 +27,6 @@
 /**
  * @module sp
  */
-
-// implements a simple texture loader like sp._atlasLoader
-var TextureLoader = !CC_JSB && cc.Class({
-    ctor: function () {
-        // {SkeletonData}
-        this.asset = arguments[0];
-    },
-    getTexture: function (line) {
-        //var name = cc.path.mainFileName(line);
-        //var textures = this.asset.textures;
-        //for (var i = 0; i < textures.length; i++) {
-        //    var tex = textures[i];
-        //    if (tex.name === name) {
-        //        return tex;
-        //    }
-        //}
-        var urls = this.asset.textures;
-        for (var i = 0; i < urls.length; i++) {
-            var url = urls[i];
-            if (url.endsWith(line)) {
-                var texture = cc.textureCache.addImage(url);
-                var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
-                tex.setRealTexture(texture);
-                return tex;
-            }
-        }
-        return null;
-    },
-    load: function (line) {
-        var texture = this.getTexture(line);
-        if (texture) {
-            return texture;
-        }
-        else {
-            cc.errorID(7506, line);
-            return null;
-        }
-    },
-    unload: function (obj) {
-        //page.rendererObject.release();
-    }
-});
 
 /**
  * !#en The skeleton data of spine.
@@ -117,19 +76,21 @@ var SkeletonData = cc.Class({
             }
         },
 
-        // Fallback to raw asset for JSB -------------------
-        atlasUrl: {
-            default: '',
-            url: cc.RawAsset
-        },
-        // -------------------------------------------------
-
         /**
          * @property {Texture2D[]} textures
          */
         textures: {
             default: [],
-            url: [cc.Texture2D]
+            type: [cc.Texture2D]
+        },
+
+        /**
+         * @property {String[]} textureNames
+         * @private
+         */
+        textureNames: {
+            default: [],
+            type: [cc.String]
         },
 
         /**
@@ -148,7 +109,8 @@ var SkeletonData = cc.Class({
     },
 
     statics: {
-        preventDeferredLoadDependents: true
+        preventDeferredLoadDependents: true,
+        preventPreloadNativeObject: true,
     },
 
     // PUBLIC
@@ -198,7 +160,7 @@ var SkeletonData = cc.Class({
         }
 
 
-        if ( !(this.textures && this.textures.length > 0) ) {
+        if ( !(this.textures && this.textures.length > 0 && this.textureNames && this.textureNames.length > 0) ) {
             if ( !quiet ) {
                 cc.errorID(7507, this.name);
             }
@@ -258,6 +220,20 @@ var SkeletonData = cc.Class({
 
     // PRIVATE
 
+    _getTexture: !CC_JSB && function (line) {
+        var names = this.textureNames;
+        for (var i = 0; i < names.length; i++) {
+            if (names[i] === line) {
+                var texture = this.textures[i];
+                var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+                tex.setRealTexture(texture);
+                return tex;
+            }
+        }
+        cc.errorID(7506, line);
+        return null;
+    },
+
     /**
      * @method _getAtlas
      * @param {boolean} [quiet=false]
@@ -276,8 +252,7 @@ var SkeletonData = cc.Class({
             return null;
         }
 
-        var loader =  new TextureLoader(this);
-        return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
+        return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, this._getTexture.bind(this));
     }
 });
 

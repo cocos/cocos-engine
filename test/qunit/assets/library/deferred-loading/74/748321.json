@@ -1,7 +1,7 @@
 {
     "__type__": "Test.TextureNeedsDeferredLoad",
     "name": "",
-    "_rawFiles": ["YouKnowEverything"],
+    "_native": "YouKnowEverything",
     "width": 321,
     "height": 123
 } 

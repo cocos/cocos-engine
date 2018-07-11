@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -304,7 +305,7 @@ function doDefine (className, baseClass, mixins, options) {
             JS.extend(fireClass, baseClass);        // 这里会把父类的 __props__ 复制给子类
             prototype = fireClass.prototype;        // get extended prototype
         }
-        JS.value(fireClass, '$super', baseClass);   // not inheritable in JSB and TypeScript
+        fireClass.$super = baseClass;
         if (CC_DEV && shouldAddProtoCtor) {
             prototype.ctor = function () {};
         }
@@ -554,7 +555,7 @@ function getInitProps (attrs, propList) {
 }
 
 // simple test variable name
-var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
+var IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 function compileProps (actualClass) {
     // init deferred properties
     var attrs = Attr.getClassAttrs(actualClass);
@@ -864,6 +865,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  * @return {Function} - the created class
  *
  * @example
+
  // define base class
  var Node = cc.Class();
 
@@ -871,6 +873,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  var Sprite = cc.Class({
      name: 'Sprite',
      extends: Node,
+
      ctor: function () {
          this.url = "";
          this.id = 0;
@@ -1063,7 +1066,7 @@ cc.isChildClassOf = function (subclass, superclass) {
     return false;
 };
 
-/**
+/*
  * Return all super classes
  * @method getInheritanceChain
  * @param {Function} constructor
@@ -1081,6 +1084,22 @@ CCClass.getInheritanceChain = function (klass) {
         }
     }
     return chain;
+};
+
+/*
+ * Is instance of for JSB.
+ * `obj` can be native object such as cc.Texture2D or cc.SpriteFrame.
+ * `klass` can be base class of native object such as cc.Asset, cc.RawAsset or cc.Object.
+ * @method isInstanceOf
+ * @param {Object} obj
+ * @param {Function} klass
+ * @returns {Boolean}
+ */
+// TODO - remove at 2.0 if all assets implemented in pure js
+CCClass.isInstanceOf = CC_JSB ? function (obj, klass) {
+    return obj && cc.isChildClassOf(obj.constructor, klass);
+} : function (obj__skip_jsb_warning, klass) {
+    return obj__skip_jsb_warning instanceof klass;
 };
 
 var PrimitiveTypes = {
@@ -1172,21 +1191,6 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
         }
     }
 
-    // if (attrs.rawType) {
-    //     if (CC_DEV && usedInGetter) {
-    //         cc.errorID(3613, "rawType", name, propName);
-    //     }
-    //     else {
-    //         var val = attrs.rawType;
-    //         if (typeof val === 'string') {
-    //             result.push(Attr.RawType(val));
-    //         }
-    //         else if (CC_DEV) {
-    //             cc.error(ERR_Type, "rawType", className, propName, 'string');
-    //         }
-    //     }
-    // }
-    
     if (attrs.editorOnly) {
         if (CC_DEV && usedInGetter) {
             cc.errorID(3613, "editorOnly", name, propName);

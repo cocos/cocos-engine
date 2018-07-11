@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,6 +27,7 @@
 
 var EventTarget = require('../core/event/event-target');
 var sys = require('../core/platform/CCSys');
+var LoadMode = require('../core/assets/CCAudioClip').LoadMode;
 
 var touchBinded = false;
 var touchPlayList = [
@@ -36,12 +38,14 @@ var Audio = function (src) {
     EventTarget.call(this);
 
     this._src = src;
-    this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
+    this.id = 0;
 
-    this._eventList = {};
+    this._volume = 1;
+    this._loop = false;
+    this._nextTime = 0;  // playback position to set
+
     this._state = Audio.State.INITIALZING;
-    this._loaded = false;
 
     this._onended = function () {
         this.emit('ended');
@@ -50,20 +54,13 @@ var Audio = function (src) {
 
 cc.js.extend(Audio, EventTarget);
 
-Audio.Type = {
-    DOM: 'AUDIO',
-    WEBAUDIO: 'WEBAUDIO',
-    NATIVE: 'NATIVE',
-    UNKNOWN: 'UNKNOWN'
-};
-
 /**
  * !#en Audio state.
  * !#zh 声音播放状态
  * @enum audioEngine.AudioState
  * @memberof cc
  */
-
+// TODO - At present, the state is mixed with two states of users and systems, and it is best to split into two types. A "loading" should also be added to the system state.
 Audio.State = {
     /**
      * @property {Number} ERROR
@@ -85,85 +82,73 @@ Audio.State = {
 
 (function (proto) {
 
-    proto.preload = function () {
-        var src = this._src, audio = this;
-
-        if (!src) {
-            this._src = '';
-            this._audioType = Audio.Type.UNKNOWN;
-            this._element = null;
-            this._state = Audio.State.INITIALZING;
-            this._loaded = false;
-            return;
-        }
-
-        if (this._element)
-            return;
-            
-        var item = cc.loader.getItem(src);
-
-        if (!item) {
-            item = cc.loader.getItem(src + '?useDom=1');
-        }
-
-        // If the resource does not exist
-        if (!item || !item.complete) {
-            return cc.loader.load(src, function (error) {
-                if (!error) {
-                    var item = cc.loader.getItem(src);
-                    audio.mount(item.element || item.buffer);
-                    audio.emit('load');
-                }
-            });
-        } else {
-            audio.mount(item.element || item.buffer);
-            audio.emit('load');
-        }
-
-        // current and  volume
-    };
-
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
-        if (this._audioType === Audio.Type.DOM) {
-            this._element.addEventListener('ended', callback);
+        var elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.addEventListener('ended', callback);
         } else {
-            this._element.onended = callback;
+            elem.onended = callback;
         }
     };
 
     proto._unbindEnded = function () {
-        if (this._audioType === Audio.Type.DOM) {
-            this._element.removeEventListener('ended', this._onended);
-        } else {
-            this._element.onended = null;
+        var elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.removeEventListener('ended', this._onended);
+        } else if (elem) {
+            elem.onended = null;
         }
     };
 
-    proto.mount = function (elem) {
-        if (elem instanceof HTMLElement) {
-            this._element = document.createElement('audio');
+    // proto.mount = function (elem) {
+    //     if (CC_DEBUG) {
+    //         cc.warn('Audio.mount(value) is deprecated. Please use Audio._onLoaded().');
+    //     }
+    // };
+
+    proto._onLoaded = function () {
+        var elem = this._src._nativeAsset;
+        if (elem instanceof HTMLAudioElement) {
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
             this._element.src = elem.src;
-            this._audioType = Audio.Type.DOM;
-        } else {
-            this._element = new WebAudioElement(elem, this);
-            this._audioType = Audio.Type.WEBAUDIO;
         }
-        this._state = Audio.State.INITIALZING;
-        this._loaded = true;
+        else {
+            this._element = new WebAudioElement(elem, this);
+        }
+
+        this.setVolume(this._volume);
+        this.setLoop(this._loop);
+        if (this._nextTime !== 0) {
+            this.setCurrentTime(this._nextTime);
+        }
+        if (this._state === Audio.State.PLAYING) {
+            this.play();
+        }
+        else {
+            this._state = Audio.State.INITIALZING;
+        }
     };
 
     proto.play = function () {
-        if (!this._element) return;
-        this._bindEnded();
-        this._element.play();
-        this.emit('play');
+        // marked as playing so it will playOnLoad
         this._state = Audio.State.PLAYING;
 
-        if (!(CC_QQPLAY || CC_WECHATGAME) &&
-            this._audioType === Audio.Type.DOM && 
-            this._element.paused) {
-            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+        if (!this._element) {
+            return;
+        }
+
+        this._bindEnded();
+        this._element.play();
+
+        if (!CC_QQPLAY && !CC_WECHATGAME) {
+            if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
+                this._element.paused) {
+                touchPlayList.push({instance: this, offset: 0, audio: this._element});
+            }
         }
 
         if (touchBinded) return;
@@ -182,13 +167,13 @@ Audio.State = {
         if (CC_WECHATGAME) {
             this._element && this._element.destroy();
         }
+        this._element = null;
     };
 
     proto.pause = function () {
         if (!this._element) return;
         this._unbindEnded();
         this._element.pause();
-        this.emit('pause');
         this._state = Audio.State.PAUSED;
     };
 
@@ -196,7 +181,6 @@ Audio.State = {
         if (!this._element || this._state === Audio.State.PLAYING) return;
         this._bindEnded();
         this._element.play();
-        this.emit('resume');
         this._state = Audio.State.PLAYING;
     };
 
@@ -219,23 +203,34 @@ Audio.State = {
     };
 
     proto.setLoop = function (loop) {
-        if (!this._element) return;
-        this._element.loop = loop;
+        this._loop = loop;
+        if (this._element) {
+            this._element.loop = loop;
+        }
     };
     proto.getLoop = function () {
-        return this._element && this._element.loop;
+        return this._loop;
     };
 
     proto.setVolume = function (num) {
-        if (!this._element) return;
-        this._element.volume = num;
+        this._volume = num;
+        if (this._element) {
+            this._element.volume = num;
+        }
     };
     proto.getVolume = function () {
-        return this._element ? this._element.volume : 1;
+        return this._volume;
     };
 
     proto.setCurrentTime = function (num) {
-        if (!this._element) return;
+        if (this._element) {
+            this._nextTime = 0;
+        }
+        else {
+            this._nextTime = num;
+            return;
+        }
+
         this._unbindEnded();
         if (!(CC_QQPLAY || CC_WECHATGAME)) {
             this._bindEnded(function () {
@@ -244,7 +239,8 @@ Audio.State = {
         }
         try {
             this._element.currentTime = num;
-        } catch (err) {
+        }
+        catch (err) {
             var _element = this._element;
             if (_element.addEventListener) {
                 var func = function () {
@@ -264,9 +260,11 @@ Audio.State = {
     };
 
     proto.getState = function () {
-        var elem = this._element;
-        if (Audio.State.PLAYING === this._state && elem.paused) {
-            this._state = Audio.State.PAUSED;
+        if (!CC_WECHATGAME) {
+            var elem = this._element;
+            if (elem && Audio.State.PLAYING === this._state && elem.paused) {
+                this._state = Audio.State.PAUSED;
+            }
         }
         return this._state;
     };
@@ -274,8 +272,33 @@ Audio.State = {
     proto.__defineGetter__('src', function () {
         return this._src;
     });
-    proto.__defineSetter__('src', function (string) {
-        return this._src = string;
+    proto.__defineSetter__('src', function (clip) {
+        this._unbindEnded();
+        if (clip) {
+            this._src = clip;
+            if (clip.loaded) {
+                this._onLoaded();
+            }
+            else {
+                var self = this;
+                clip.once('load', function () {
+                    if (clip === self._src) {
+                        self._onLoaded();
+                    }
+                });
+            }
+        }
+        else {
+            this._src = null;
+            if (this._element instanceof HTMLAudioElement) {
+                this._element.src = '';
+            }
+            else {
+                this._element = null;
+            }
+            this._state = Audio.State.INITIALZING;
+        }
+        return clip;
     });
 
     proto.__defineGetter__('paused', function () {

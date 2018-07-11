@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -945,7 +946,6 @@ var Node = cc.Class({
          */
         var sgNode = this._sgNode = new _ccsg.Node();
         if (CC_JSB) {
-            sgNode.retain();
             sgNode._entity = this;
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
@@ -979,11 +979,6 @@ var Node = cc.Class({
 
         // Mouse event listener
         this._mouseListener = null;
-
-        // Retained actions for JSB
-        if (CC_JSB) {
-            this._retainedActions = [];
-        }
     },
 
     statics: {
@@ -1062,17 +1057,12 @@ var Node = cc.Class({
         }
 
         if (CC_JSB) {
-            if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
-                this._releaseAllActions();
-            }
             if (this._touchListener) {
-                this._touchListener.release();
                 this._touchListener.owner = null;
                 this._touchListener.mask = null;
                 this._touchListener = null;
             }
             if (this._mouseListener) {
-                this._mouseListener.release();
                 this._mouseListener.owner = null;
                 this._mouseListener.mask = null;
                 this._mouseListener = null;
@@ -1134,11 +1124,12 @@ var Node = cc.Class({
      */
     _onBatchCreated () {
         var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
+        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
+            if (CC_DEV) {
+                // TODO - remove all usage of _synced
+                cc.assert(!prefabInfo._synced, 'prefab should not synced');
             }
+            PrefabHelper.syncWithPrefab(this);
         }
 
         this._updateDummySgNode();
@@ -1158,6 +1149,28 @@ var Node = cc.Class({
         var children = this._children;
         for (var i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
+        }
+    },
+
+    // the same as _onBatchCreated but untouch prefab
+    _onBatchRestored () {
+        this._updateDummySgNode();
+
+        if (this._parent) {
+            this._parent._sgNode.addChild(this._sgNode);
+        }
+
+        if (!this._activeInHierarchy) {
+            // deactivate ActionManager and EventManager by default
+            if (ActionManagerExist) {
+                cc.director.getActionManager().pauseTarget(this);
+            }
+            eventManager.pauseTarget(this);
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchRestored();
         }
     },
 
@@ -1211,9 +1224,6 @@ var Node = cc.Class({
                     onTouchEnded: _touchEndHandler,
                     onTouchCancelled: _touchCancelHandler
                 });
-                if (CC_JSB) {
-                    this._touchListener.retain();
-                }
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
@@ -1230,9 +1240,6 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                if (CC_JSB) {
-                    this._mouseListener.retain();
-                }
                 eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
@@ -1255,7 +1262,7 @@ var Node = cc.Class({
      * !#zh 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      * @method off
      * @param {String} type - A string representing the event type being removed.
-     * @param {Function} callback - The callback to remove.
+     * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
@@ -1470,10 +1477,7 @@ var Node = cc.Class({
         if (!this.active)
             return;
         cc.assertID(action, 1618);
-
-        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
-            this._retainAction(action);
-        }
+        
         if (CC_JSB) {
             this._sgNode._owner = this;
         }
@@ -1587,22 +1591,6 @@ var Node = cc.Class({
         return 0;
     },
 
-    _retainAction (action) {
-        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
-            this._retainedActions.push(action);
-            action.retain();
-        }
-    },
-
-    _releaseAllActions () {
-        if (CC_JSB) {
-            for (var i = 0; i < this._retainedActions.length; ++i) {
-                this._retainedActions[i].release();
-            }
-            this._retainedActions.length = 0;
-        }
-    },
-
     setTag (value) {
         this._tag = value;
         this._sgNode.tag = value;
@@ -1633,7 +1621,7 @@ var Node = cc.Class({
      * @method setPosition
      * @param {Vec2|Number} newPosOrX - X coordinate for position or the position (x, y) of the node in coordinates
      * @param {Number} [y] - Y coordinate for position
-     * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
+     * @example {@link cocos2d/core/utils/base-node/setPosition.js}
      */
     setPosition (newPosOrX, y) {
         var x;
@@ -2584,16 +2572,12 @@ if (CC_JSB) {
             this.__sgNode = value;
             if (this._touchListener || this._mouseListener) {
                 if (this._touchListener) {
-                    this._touchListener.retain();
                     eventManager.removeListener(this._touchListener);
                     eventManager.addListener(this._touchListener, this);
-                    this._touchListener.release();
                 }
                 if (this._mouseListener) {
-                    this._mouseListener.retain();
                     eventManager.removeListener(this._mouseListener);
                     eventManager.addListener(this._mouseListener, this);
-                    this._mouseListener.release();
                 }
                 cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, updateListeners, this);
             }

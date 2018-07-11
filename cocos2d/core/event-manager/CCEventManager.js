@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -100,7 +101,7 @@ var __getListenerID = function (event) {
  *
  * @class eventManager
  * @static
- * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
+ * @example {@link cocos2d/core/event-manager/CCEventManager/addListener.js}
  * @deprecated
  */
 var eventManager = {
@@ -805,7 +806,7 @@ var eventManager = {
      * !#zh 移除一个已添加的监听器。
      * @method removeListener
      * @param {EventListener} listener - an event listener or a registered node target
-     * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/removeListener.js}
+     * @example {@link cocos2d/core/event-manager/CCEventManager/removeListener.js}
      */
     removeListener: function (listener) {
         if (listener == null)
@@ -1054,7 +1055,7 @@ var eventManager = {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if(!event || !event.getType)
-            throw new Error("event is undefined");
+            throw new Error(cc._getError(3511));
         if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;

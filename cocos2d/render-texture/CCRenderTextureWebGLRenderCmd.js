@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -136,7 +137,7 @@ proto.updateClearColor = function(clearColor){ };
 proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
     var node = this._node;
     if(format === cc.Texture2D.PixelFormat.A8)
-        cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
+        cc.logID(7601);
 
     var gl = cc._renderContext;
     this._fullRect = new cc.Rect(0,0, width, height);
@@ -206,7 +207,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
 
     // check if it worked (probably worth doing :) )
     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
-        cc.log("Could not attach texture to the framebuffer");
+        cc.logID(7602);
 
     locTexture.setAliasTexParameters();
 
@@ -235,6 +236,9 @@ proto.begin = function(){
 
     var gl = cc._renderContext;
 
+    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
+
     var director = cc.director;
     director.setProjection(director.getProjection());
 
@@ -257,9 +261,6 @@ proto.begin = function(){
     viewport.x = (this._fullRect.x - this._rtTextureRect.x) * viewPortRectWidthRatio;
     viewport.y = (this._fullRect.y - this._rtTextureRect.y) * viewPortRectHeightRatio;
     gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-
-    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
 
     /*  Certain Qualcomm Andreno gpu's will retain data in memory after a frame buffer switch which corrupts the render to the texture.
      *   The solution is to clear the frame buffer before rendering to the texture. However, calling glClear has the unintended result of clearing the current texture.
