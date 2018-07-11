@@ -236,6 +236,9 @@ proto.begin = function(){
 
     var gl = cc._renderContext;
 
+    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
+
     var director = cc.director;
     director.setProjection(director.getProjection());
 
@@ -258,9 +261,6 @@ proto.begin = function(){
     viewport.x = (this._fullRect.x - this._rtTextureRect.x) * viewPortRectWidthRatio;
     viewport.y = (this._fullRect.y - this._rtTextureRect.y) * viewPortRectHeightRatio;
     gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-
-    this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);//Will direct drawing to the frame buffer created above
 
     /*  Certain Qualcomm Andreno gpu's will retain data in memory after a frame buffer switch which corrupts the render to the texture.
      *   The solution is to clear the frame buffer before rendering to the texture. However, calling glClear has the unintended result of clearing the current texture.
