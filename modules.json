@@ -105,7 +105,8 @@
     "name": "RichText",
     "entries": [
       "./cocos2d/core/components/CCRichText.js"
-    ]
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "MotionStreak",
@@ -198,10 +199,17 @@
     ]
   },
   {
+    "name": "Audio",
+    "entries": [
+      "./cocos2d/audio/CCAudioEngine.js"
+    ]
+  },
+  {
     "name": "AudioSource",
     "entries": [
       "./cocos2d/core/components/CCAudioSource.js"
-    ]
+    ],
+    "dependencies": ["Audio"]
   },
   {
     "name": "Animation",
@@ -220,12 +228,6 @@
     "name": "Action",
     "entries": [
       "./cocos2d/actions/index.js"
-    ]
-  },
-  {
-    "name": "Audio",
-    "entries": [
-      "./cocos2d/audio/CCAudioEngine.js"
     ]
   },
   {
