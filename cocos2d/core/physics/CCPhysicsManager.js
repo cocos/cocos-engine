@@ -594,6 +594,8 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
         return this._debugDrawFlags;
     },
     function (value) {
+        if (CC_EDITOR) return;
+        
         if (value && !this._debugDrawFlags) {
             if (this._debugDrawer && this._debugDrawer.node) this._debugDrawer.node.active = true;
         }
