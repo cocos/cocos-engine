@@ -13,3 +13,5 @@ for (var key in box2d) {
     let newKey = key.replace('b2', '');
     b2[newKey] = box2d[key];
 }
+
+b2.maxPolygonVertices = 8;
