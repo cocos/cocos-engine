@@ -108,10 +108,10 @@ module.exports = {
     initCanvas (canvas) {
         let canvasRenderer = require('./canvas');
         
-        this.Texture2D = renderEngine.canvas.Texture2D;
+        this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
-        this.device = new renderEngine.canvas.Device(canvas);
+        this.device = new renderEngine.Device(canvas);
         this._camera = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };

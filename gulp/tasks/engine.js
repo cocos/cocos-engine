@@ -39,13 +39,17 @@ const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
-    '../../cocos2d/audio/CCAudio',
-    // '../../external/box2d/box2d.js',
-    // '../../external/chipmunk/chipmunk.js'
+    '../../cocos2d/audio/CCAudio'
 ];
-var aliasifyConfig = {
+var jsbAliasify = {
     replacements: {
         '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.jsb')
+    },
+    verbose: false
+};
+var canvasAliasify = {
+    replacements: {
+        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
     },
     verbose: false
 };
@@ -58,9 +62,13 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
         opt_macroFlags = null;
     }
 
+    var opts = {};
+    if (opt_macroFlags && opt_macroFlags.forceCanvas) {
+        opts.aliasifyConfig = canvasAliasify;
+    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
@@ -89,9 +97,13 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         opt_macroFlags = null;
     }
 
+    var opts = {};
+    if (opt_macroFlags && opt_macroFlags.forceCanvas) {
+        opts.aliasifyConfig = canvasAliasify;
+    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
@@ -217,7 +229,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
 
     var opts = {};
     if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
-        opts.aliasifyConfig = aliasifyConfig;
+        opts.aliasifyConfig = jsbAliasify;
     }
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
@@ -251,7 +263,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
 
     var opts = {};
     if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
-        opts.aliasifyConfig = aliasifyConfig;
+        opts.aliasifyConfig = jsbAliasify;
     }
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
