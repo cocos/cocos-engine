@@ -2,13 +2,15 @@ const PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 let _tmp_vec2 = cc.v2();
 
-class PhysicsDebugDraw extends b2.Draw {
-    constructor (drawer) {
-        super();
-        this._drawer = drawer;
-        this._xf = this._dxf = new b2.Transform();
-    }
+function PhysicsDebugDraw (drawer) {
+    b2.Draw.call(this);
+    this._drawer = drawer;
+    this._xf = this._dxf = new b2.Transform();
+}
 
+cc.js.extend(PhysicsDebugDraw, b2.Draw);
+
+cc.js.mixin(PhysicsDebugDraw.prototype, {
     _DrawPolygon (vertices, vertexCount) {
         var drawer = this._drawer;
         
@@ -24,37 +26,37 @@ class PhysicsDebugDraw extends b2.Draw {
         }
 
         drawer.close();
-    }
+    },
 
     DrawPolygon (vertices, vertexCount, color) {
         this._applyStrokeColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer.stroke();
-    }
+    },
 
     DrawSolidPolygon (vertices, vertexCount, color) {
         this._applyFillColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer.fill();
         this._drawer.stroke();
-    }
+    },
 
     _DrawCircle (center, radius) {
         let p = this._xf.p;
         this._drawer.circle((center.x + p.x) * PTM_RATIO, (center.y + p.y) * PTM_RATIO, radius * PTM_RATIO);
-    }
+    },
 
     DrawCircle (center, radius, color) {
         this._applyStrokeColor(color);
         this._DrawCircle(center, radius);
         this._drawer.stroke();
-    }
+    },
 
     DrawSolidCircle (center, radius, axis, color) {
         this._applyFillColor(color);
         this._DrawCircle(center, radius);
         this._drawer.fill();
-    }
+    },
 
     DrawSegment (p1, p2, color) {
         var drawer = this._drawer;
@@ -72,10 +74,10 @@ class PhysicsDebugDraw extends b2.Draw {
         b2.Transform.MulXV(this._xf, p2, _tmp_vec2);
         drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
         drawer.stroke();   
-    }
+    },
 
     DrawPoint (center, radius, color) {
-    }
+    },
 
     _applyStrokeColor (color) {
         let strokeColor = this._drawer.strokeColor;
@@ -84,7 +86,7 @@ class PhysicsDebugDraw extends b2.Draw {
         strokeColor.b = color.b*255;
         strokeColor.a = 150;
         this._drawer.strokeColor = strokeColor;
-    }
+    },
 
     _applyFillColor (color) {
         let fillColor = this._drawer.fillColor;
@@ -94,15 +96,15 @@ class PhysicsDebugDraw extends b2.Draw {
         fillColor.a = 150;
 
         this._drawer.fillColor = fillColor;
-    }
+    },
 
     PushTransform (xf) {
         this._xf = xf;
-    }
+    },
 
     PopTransform () {
         this._xf = this._dxf;
     }
-};
+});
 
 module.exports = PhysicsDebugDraw;
