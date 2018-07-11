@@ -107,6 +107,12 @@ module.exports = {
 
     initCanvas (canvas) {
         let canvasRenderer = require('./canvas');
+
+        if (CC_TEST) {
+            // It's actually running with original render engine
+            renderEngine.Texture2D = renderEngine.canvas.Texture2D;
+            renderEngine.Device = renderEngine.canvas.Device;
+        }
         
         this.Texture2D = renderEngine.Texture2D;
 
