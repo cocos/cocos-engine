@@ -385,11 +385,13 @@ let EditBox = cc.Class({
 
         if (this.inputMode === InputMode.ANY){
             placeholderLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
+            placeholderLabel.enableWrapText = true;
             textLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
             textLabel.enableWrapText = true;
         }
         else {
             placeholderLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
+            placeholderLabel.enableWrapText = false;
             textLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
             textLabel.enableWrapText = false;
         }
