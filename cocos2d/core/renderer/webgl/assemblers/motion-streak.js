@@ -111,8 +111,8 @@ var motionStreakAssembler = {
 
         let cur;
         if (points.length > 1) {
-            let difx = points[0].x - tx;
-            let dify = points[0].y - ty;
+            let difx = points[0].point.x - tx;
+            let dify = points[0].point.y - ty;
             if ((difx*difx + dify*dify) < comp.minSeg) {
                 cur = points[0];
             }
@@ -124,7 +124,7 @@ var motionStreakAssembler = {
         }
 
         cur.setPoint(tx, ty);
-        cur.time = comp._fadeTime;
+        cur.time = comp._fadeTime + dt;
 
         renderData.dataLength = 0;
         if (points.length < 2) {
