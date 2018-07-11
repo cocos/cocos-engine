@@ -278,37 +278,41 @@ let Mask = cc.Class({
             return;
         }
 
-        // Init material
-        if (!this._frontMaterial) {
-            this._frontMaterial = new StencilMaterial();
-            this._endMaterial = new StencilMaterial();
+        // WebGL
+        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
+            // Init material
+            if (!this._frontMaterial) {
+                this._frontMaterial = new StencilMaterial();
+                this._endMaterial = new StencilMaterial();
+            }
+
+            // Reset material
+            if (this._type === MaskType.IMAGE_STENCIL) {
+                let texture = this.spriteFrame.getTexture();
+                this._frontMaterial.useTexture = true;
+                this._frontMaterial.useColor = true;
+                this._frontMaterial.texture = texture;
+                this._frontMaterial.alphaThreshold = this.alphaThreshold;
+                this._endMaterial.useTexture = true;
+                this._endMaterial.useColor = true;
+                this._endMaterial.texture = texture;
+                this._endMaterial.alphaThreshold = this.alphaThreshold;
+            }
+            else {
+                this._frontMaterial.useTexture = false;
+                this._frontMaterial.useColor = false;
+                this._endMaterial.useTexture = false;
+                this._endMaterial.useColor = false;
+            }
+            
+            if (!this._material) {
+                this._updateMaterial(this._frontMaterial);
+            }
+
+            // Avoid next up mask material to be batch with the exit one
+            this._endMaterial._hash = -this._frontMaterial._hash;
         }
 
-        // Reset material
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            let texture = this.spriteFrame.getTexture();
-            this._frontMaterial.useTexture = true;
-            this._frontMaterial.useColor = true;
-            this._frontMaterial.texture = texture;
-            this._frontMaterial.alphaThreshold = this.alphaThreshold;
-            this._endMaterial.useTexture = true;
-            this._endMaterial.useColor = true;
-            this._endMaterial.texture = texture;
-            this._endMaterial.alphaThreshold = this.alphaThreshold;
-        }
-        else {
-            this._frontMaterial.useTexture = false;
-            this._frontMaterial.useColor = false;
-            this._endMaterial.useTexture = false;
-            this._endMaterial.useColor = false;
-        }
-        
-        if (!this._material) {
-            this._updateMaterial(this._frontMaterial);
-        }
-
-        // Avoid next up mask material to be batch with the exit one
-        this._endMaterial._hash = -this._frontMaterial._hash;
         this.markForRender(true);
     },
 

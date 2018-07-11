@@ -490,31 +490,33 @@ var Sprite = cc.Class({
             return;
         }
 
-        // Get material
-        let texture = spriteFrame.getTexture();
-        let material;
-        if (this._state === State.GRAY) {
-            if (!this._graySpriteMaterial) {
-                this._graySpriteMaterial = new GraySpriteMaterial();
-                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
+        // WebGL
+        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
+            // Get material
+            let texture = spriteFrame.getTexture();
+            let material;
+            if (this._state === State.GRAY) {
+                if (!this._graySpriteMaterial) {
+                    this._graySpriteMaterial = new GraySpriteMaterial();
+                    this.node._renderFlag |= RenderFlow.FLAG_COLOR;
+                }
+                material = this._graySpriteMaterial;
             }
-            material = this._graySpriteMaterial;
-        }
-        else {
-            if (!this._spriteMaterial) {
-                this._spriteMaterial = new SpriteMaterial();
-                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
+            else {
+                if (!this._spriteMaterial) {
+                    this._spriteMaterial = new SpriteMaterial();
+                    this.node._renderFlag |= RenderFlow.FLAG_COLOR;
+                }
+                material = this._spriteMaterial;
             }
-            material = this._spriteMaterial;
-        }
-        // TODO: old texture in material have been released by loader
-        if (material.texture !== texture) {
-            material.texture = texture;
-            this._updateMaterial(material);
-        }
-
-        if (this._renderData) {
-            this._renderData.material = material;
+            // TODO: old texture in material have been released by loader
+            if (material.texture !== texture) {
+                material.texture = texture;
+                this._updateMaterial(material);
+            }
+            if (this._renderData) {
+                this._renderData.material = material;
+            }
         }
         
         this.markForUpdateRenderData(true);

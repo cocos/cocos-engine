@@ -186,7 +186,9 @@ let Graphics = cc.Class({
     },
 
     _activateMaterial () {
-        if (this._material) return;
+        // Ignore material in canvas
+        if (this._material || cc.game.renderType === cc.game.RENDER_TYPE_CANVAS)
+            return;
         
         let material = new SpriteMaterial();
         material.useColor = false;

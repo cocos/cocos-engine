@@ -127,26 +127,6 @@ const Overflow = cc.Enum({
  * @property {Number} SystemFont
  */
 
-
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
-function debounce (func, wait, immediate) {
-    let timeout;
-    return function () {
-        let context = this;
-        let later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, arguments);
-        };
-        let callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, arguments);
-    };
-}
-
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -554,17 +534,18 @@ let Label = cc.Class({
             this._texture = this._ttfTexture;
         }
 
-        if (!material) {
-            material = new SpriteMaterial();
-        }
-
-        material.texture = this._texture;
-
+        // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             this._texture.url = this.uuid + '_texture';
         }
-
-        this._updateMaterial(material);
+        // WebGL
+        else {
+            if (!material) {
+                material = new SpriteMaterial();
+            }
+            material.texture = this._texture;
+            this._updateMaterial(material);
+        }
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
