@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 var js = require('./js');
-var CCObject = require('./CCObject');
 var Attr = require('./attribute');
 var CCClass = require('./CCClass');
 var misc = require('../utils/misc');

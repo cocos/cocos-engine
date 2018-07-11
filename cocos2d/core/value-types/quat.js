@@ -119,7 +119,7 @@ proto.getRoll = function () {
     var sinr = 2.0 * (this.w * this.x + this.y * this.z);
     var cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
     return 180 * Math.atan2(sinr, cosr) / Math.PI;
-}
+};
 
 proto.getPitch = function () {
     var sinp = 2.0 * (this.w * this.y - this.z * this.x);
@@ -127,13 +127,13 @@ proto.getPitch = function () {
     pitch = sinp < -1 ? -1 : sinp;
     pitch = 180 * Math.asin(pitch) / Math.PI;
     return pitch;
-}
+};
 
 proto.getYaw = function () {
     var siny = 2.0 * (this.w * this.z + this.x * this.y);
     var cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);  
     return 180 * Math.atan2(siny, cosy) / Math.PI;
-}
+};
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.

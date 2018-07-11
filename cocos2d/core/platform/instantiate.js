@@ -30,6 +30,9 @@ var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
+var DEFAULT = Attr.DELIMETER + 'default';
+var TYPE = Attr.DELIMETER + 'type';
+
 /**
  * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
  * !#zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
@@ -157,20 +160,72 @@ function doInstantiate (obj, parent) {
     return clone;
 }
 
-// @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
+function likeStringProperty (defaultVal, currentVal) {
+    var defaultIsString = typeof defaultVal === 'string';
+    var currentIsString = typeof currentVal === 'string';
+    return (defaultIsString || currentIsString) &&
+           (defaultIsString || defaultVal === null) &&
+           (currentIsString || currentVal === null);
+}
 
+function compileCCClass (klass, obj) {
+    var advancedProps = [];
+    var simpleProps = [];
+
+    (function () {
+        var props = klass.__values__;
+        var attrs = Attr.getClassAttrs(klass);
+        for (var i = 0; i < props.length; i++) {
+            var key = props[i];
+            var value = obj[key];
+            var defaultValue = attrs[key + DEFAULT];
+            var defaultType = attrs[key + TYPE];
+            if ((defaultType === cc.String || likeStringProperty(defaultValue, value)) ||
+                (typeof defaultValue === 'number' && typeof value === 'number') ||
+                (typeof defaultValue === 'boolean' && typeof value === 'boolean')) {
+                simpleProps.push(key);
+            }
+            else {
+                advancedProps.push(key);
+            }
+        }
+    })();
+
+    return function (obj, clone, parent) {
+        for (let i = 0; i < simpleProps.length; i++) {
+            let key = simpleProps[i];
+            clone[key] = obj[key];
+        }
+        for (let i = 0; i < advancedProps.length; i++) {
+            let key = advancedProps[i];
+            let value = obj[key];
+            if (typeof value === 'object' && value) {
+                var initValue = clone[key];
+                if (initValue instanceof cc.ValueType &&
+                    initValue.constructor === value.constructor) {
+                    initValue.set(value);
+                    continue;
+                }
+                clone[key] = value._iN$t || instantiateObj(value, parent);
+            }
+            else {
+                clone[key] = value;
+            }
+        }
+    };
+}
+
+// @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 function enumerateCCClass (klass, obj, clone, parent) {
-    var props = klass.__values__;
-    for (var p = 0; p < props.length; p++) {
-        var key = props[p];
-        var value = obj[key];
-        if (typeof value === 'object' && value) {
-            clone[key] = value._iN$t || instantiateObj(value, parent);
-        }
-        else {
-            clone[key] = value;
-        }
+    var instantiate;
+    if (klass.hasOwnProperty('__instantiate__')) {
+        instantiate = klass.__instantiate__;
     }
+    else {
+        instantiate = compileCCClass(klass, obj);
+        cc.js.value(klass, '__instantiate__', instantiate, true);
+    }
+    instantiate(obj, clone, parent);
 }
 
 function enumerateObject (obj, clone, parent) {

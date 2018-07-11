@@ -159,6 +159,13 @@ proto.lerp = function (to, ratio, out) {
     return out;
 };
 
+proto.set = function (source) {
+    this.x = source.x;
+    this.y = source.y;
+    this.width = source.width;
+    this.height = source.height;
+};
+
 /**
  * !#en Check whether the current rectangle intersects with the given one
  * !#zh 当前矩形与指定矩形是否相交。
