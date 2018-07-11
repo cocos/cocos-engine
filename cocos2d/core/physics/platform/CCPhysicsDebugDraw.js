@@ -83,6 +83,7 @@ class PhysicsDebugDraw extends b2.Draw {
         strokeColor.g = color.g*255;
         strokeColor.b = color.b*255;
         strokeColor.a = 150;
+        this._drawer.strokeColor = strokeColor;
     }
 
     _applyFillColor (color) {
@@ -91,6 +92,8 @@ class PhysicsDebugDraw extends b2.Draw {
         fillColor.g = color.g*255;
         fillColor.b = color.b*255;
         fillColor.a = 150;
+
+        this._drawer.fillColor = fillColor;
     }
 
     PushTransform (xf) {
