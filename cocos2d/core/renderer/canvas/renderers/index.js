@@ -28,14 +28,7 @@ let js = require('../../../platform/js');
 let Sprite = require('../../../components/CCSprite');
 let Label = require('../../../components/CCLabel');
 let Mask = require('../../../components/CCMask');
-let RichText = require('../../../components/CCRichText');
 let Graphics = require('../../../graphics/graphics');
-
-// the following should be placed into their own module folder
-// let ParticleSystem = require('../../../../particle/CCParticleSystem');
-// let TiledLayer = require('../../../../tilemap/CCTiledLayer');
-// let Skeleton = require('../../../../../extensions/spine/Skeleton');
-// let Armature = require('../../../../../extensions/dragonbones/ArmatureDisplay');
 
 let spriteRenderer = require('./sprite');
 let labelRenderer = require('./label');
@@ -58,7 +51,6 @@ function addRenderer (Component, handler, postHandler) {
 addRenderer(Sprite, spriteRenderer);
 addRenderer(Label, labelRenderer);
 addRenderer(Mask, maskRenderer.beforeHandler, maskRenderer.afterHandler);
-addRenderer(RichText, null);
 addRenderer(Graphics, graphicsRenderer);
 
 module.exports = {
