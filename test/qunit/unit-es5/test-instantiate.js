@@ -287,22 +287,24 @@ testInstantiate('Instantiate',
     },
     cc.instantiate
 );
-testInstantiate('Instantiate-JIT',
-    function (obj, expect, info) {
-        var createCode = new cc._Test.IntantiateJit.compile(obj);
-        var res = createCode();
-        deepEqual(res, expect, info);
-    },
-    function instantiate (obj) {
-        var createCode = new cc._Test.IntantiateJit.compile(obj);
-        cc.game._isCloning = true;
-        var cloned = createCode();
-        if (obj._instantiate) {
-            obj._instantiate(cloned);
-        }
-        cc.game._isCloning = false;
+if (CC_SUPPORT_JIT) {
+    testInstantiate('Instantiate-JIT',
+        function (obj, expect, info) {
+            var createCode = new cc._Test.IntantiateJit.compile(obj);
+            var res = createCode();
+            deepEqual(res, expect, info);
+        },
+        function instantiate (obj) {
+            var createCode = new cc._Test.IntantiateJit.compile(obj);
+            cc.game._isCloning = true;
+            var cloned = createCode();
+            if (obj._instantiate) {
+                obj._instantiate(cloned);
+            }
+            cc.game._isCloning = false;
 
-        ok(!('t1' in window), 'should not pollute globals');
-        return cloned;
-    }
-);
+            ok(!('t1' in window), 'should not pollute globals');
+            return cloned;
+        }
+    );
+}

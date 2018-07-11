@@ -141,6 +141,20 @@ test('define property in quick way', function () {
     ok(obj.vec2_one.equals(cc.Vec2.ONE), 'could define default value by using cc.Vec2.ONE');
 });
 
+test('__values__', function () {
+    var Class = cc.Class({
+        properties: {
+            p1: {
+                serializable: false,
+                default: null
+            },
+            p2: null
+        }
+    });
+
+    deepEqual(Class.__values__, ['p2'], 'should not contain non-serializable properties');
+});
+
 test('extends', function () {
     var Animal = cc.Class({
         name: 'cc.Animal',
@@ -193,8 +207,10 @@ test('extends', function () {
     strictEqual(labrador.myName, 'doge', 'can inherit property with Dog.extend syntax');
 
     deepEqual(Husky.__props__, /*CCObject.__props__.concat*/(['myName', 'weight']), 'can inherit prop list');
+    deepEqual(Husky.__values__, ['myName', 'weight'], 'can inherit serializable list');
     deepEqual(Labrador.__props__, /*CCObject.__props__.concat*/(['myName', 'clever']), 'can inherit prop list with Dog.extend syntax');
     deepEqual(Dog.__props__, /*CCObject.__props__.concat*/(['myName']), 'base prop list not changed');
+    deepEqual(Dog.__values__, ['myName'], 'base serializable list not changed');
 
     strictEqual(husky instanceof Dog, true, 'can pass instanceof check');
     strictEqual(husky instanceof Animal, true, 'can pass instanceof check for deep inheritance');
@@ -588,6 +604,7 @@ test('mixins', function () {
     ok(BigDog.prototype.stop !== Mixin2.prototype.stop, "should override base functions");
 
     deepEqual(BigDog.__props__, ['p3', 'p2', 'p1', 'p4'], 'should inherit properties');
+    deepEqual(BigDog.__values__, ['p3', 'p2', 'p1', 'p4'], 'should inherit serializable properties');
     strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
     strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
     strictEqual(cc.js.getClassName(BigDog), 'BigDog', "should not overwrite class name");
@@ -638,8 +655,16 @@ asyncTest('instantiate properties in the next frame', function () {
         'should raised error if accessing to props via Class'
     );
 
+    throws(
+        function () {
+            Husky.__values__.length;
+        },
+        'should raise error if accessing to serializable props via Class'
+    );
+
     setTimeout(function () {
         deepEqual(Husky.__props__, ['like', 'weight'], 'should get properties in the correct order');
+        deepEqual(Husky.__values__, ['like', 'weight'], 'should get serializable properties in the correct order');
 
         start();
     }, 0);

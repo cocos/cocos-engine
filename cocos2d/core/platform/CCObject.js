@@ -349,9 +349,15 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 function compileDestruct (obj, ctor) {
+    var shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
+    var idToSkip = shouldSkipId ? '_id' : null;
+
     var key, propsToReset = {};
     for (key in obj) {
         if (obj.hasOwnProperty(key)) {
+            if (key === idToSkip) {
+                continue;
+            }
             switch (typeof obj[key]) {
                 case 'string':
                     propsToReset[key] = '';
@@ -371,6 +377,9 @@ function compileDestruct (obj, ctor) {
             key = propList[i];
             var attrKey = key + cc.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
+                if (shouldSkipId && key === '_id') {
+                    continue;
+                }
                 switch (typeof attrs[attrKey]) {
                     case 'string':
                         propsToReset[key] = '';
@@ -386,15 +395,11 @@ function compileDestruct (obj, ctor) {
             }
         }
     }
-    // compile code
-    var skipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
 
     if (CC_SUPPORT_JIT) {
+        // compile code
         var func = '';
         for (key in propsToReset) {
-            if (skipId && key === '_id') {
-                continue;
-            }
             var statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
                 statement = 'o.' + key + '=';
@@ -412,10 +417,7 @@ function compileDestruct (obj, ctor) {
     }
     else {
         return function (o) {
-            for (key in propsToReset) {
-                if (skipId && key === '_id') {
-                    continue;
-                }
+            for (var key in propsToReset) {
                 o[key] = propsToReset[key];
             }
         };

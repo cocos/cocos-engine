@@ -34,7 +34,6 @@ var js = require('./js');
 var CCClass = require('./CCClass');
 var Compiler = require('./compiler');
 
-var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 var DEFAULT = Attr.DELIMETER + 'default';
 var IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 var escapeForJS = CCClass.escapeForJS;
@@ -317,27 +316,25 @@ proto.setValueType = function (codeArray, defaultValue, srcValue, targetExpressi
 };
 
 proto.enumerateCCClass = function (codeArray, obj, klass) {
-    var props = klass.__props__;
+    var props = klass.__values__;
     var attrs = Attr.getClassAttrs(klass);
     for (var p = 0; p < props.length; p++) {
         var key = props[p];
-        if (attrs[key + SERIALIZABLE] !== false) {
-            var val = obj[key];
-            var defaultValue = attrs[key + DEFAULT];
-            if (equalsToDefault(defaultValue, val)) {
+        var val = obj[key];
+        var defaultValue = attrs[key + DEFAULT];
+        if (equalsToDefault(defaultValue, val)) {
+            continue;
+        }
+        if (typeof val === 'object' && val instanceof cc.ValueType) {
+            var defaultValue = CCClass.getDefault(defaultValue);
+            if ((defaultValue && defaultValue.constructor) === val.constructor) {
+                // fast case
+                var targetExpression = LOCAL_OBJ + getPropAccessor(key);
+                this.setValueType(codeArray, defaultValue, val, targetExpression);
                 continue;
             }
-            if (typeof val === 'object' && val instanceof cc.ValueType) {
-                var defaultValue = CCClass.getDefault(defaultValue);
-                if ((defaultValue && defaultValue.constructor) === val.constructor) {
-                    // fast case
-                    var targetExpression = LOCAL_OBJ + getPropAccessor(key);
-                    this.setValueType(codeArray, defaultValue, val, targetExpression);
-                    continue;
-                }
-            }
-            this.setObjProp(codeArray, obj, key, val);
         }
+        this.setObjProp(codeArray, obj, key, val);
     }
 };
 
