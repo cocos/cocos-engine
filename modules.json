@@ -15,59 +15,110 @@
     "name": "Sprite",
     "locked": true,
     "entries": [
-      "./cocos2d/core/components/CCSprite.js",
-      "./cocos2d/core/renderer/webgl/assemblers/sprite/sprite-assembler.js"
+      "./cocos2d/core/components/CCSprite.js"
+    ]
+  },
+  {
+    "name": "Label",
+    "locked": true,
+    "entries": [
+      "./cocos2d/core/components/CCLabel.js"
     ]
   },
   {
     "name": "Canvas Renderer",
     "entries": [
-      "./cocos2d/core/renderer/canvas/index.js"
+      "./cocos2d/core/renderer/canvas/index.js",
+      "./extensions/dragonbones/canvas-assembler.js"
     ]
   },
   {
-    "name": "Label",
+    "name": "WebGL Renderer",
     "entries": [
-      "./cocos2d/core/components/CCLabel.js",
-      "./cocos2d/core/renderer/webgl/assemblers/label/label-assembler.js"
-    ]
-  },
-  {
-    "name": "Mask",
-    "entries": [
-      "./cocos2d/core/components/CCMask.js",
-      "./cocos2d/core/renderer/webgl/assemblers/mask-assembler.js"
+      "./cocos2d/core/renderer/webgl/render-component-walker.js",
+      "./cocos2d/core/renderer/webgl/assemblers/index.js",
+      "./extensions/dragonbones/webgl-assembler.js"
     ]
   },
   {
     "name": "LabelOutline",
     "entries": [
       "./cocos2d/core/components/CCLabelOutline.js"
+    ],
+    "dependencies": ["Label"]
+  },
+  {
+    "name": "Mask",
+    "entries": [
+      "./cocos2d/core/components/CCMask.js"
     ]
+  },
+  {
+    "name": "Graphics",
+    "entries": [
+      "./cocos2d/core/graphics/index.js"
+    ]
+  },
+  {
+    "name": "RenderTexture",
+    "entries": [
+      "./cocos2d/core/assets/CCRenderTexture.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Camera",
+    "entries": [
+      "./cocos2d/core/camera/CCCamera.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "ParticleSystem",
     "entries": [
       "./cocos2d/particle/index.js"
-    ]
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "TiledMap",
     "entries": [
-      "./cocos2d/tilemap/index.js",
-      "./cocos2d/tilemap/CCTiledMapAsset.js"
-    ]
+      "./cocos2d/tilemap/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "Spine Skeleton",
     "entries": [
       "./extensions/spine/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "DragonBones",
+    "entries": [
+      "./extensions/dragonbones/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "RichText",
+    "entries": [
+      "./cocos2d/core/components/CCRichText.js"
     ]
+  },
+  {
+    "name": "MotionStreak",
+    "entries": [
+      "./cocos2d/core/components/CCMotionStreak.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "Widget",
     "entries": [
-      "./cocos2d/core/components/CCWidget.js"
+      "./cocos2d/core/components/CCWidget.js",
+      "./cocos2d/core/base-ui/CCWidgetManager.js"
     ]
   },
   {
@@ -131,7 +182,8 @@
     "name": "EditBox",
     "entries": [
       "./cocos2d/core/components/editbox/CCEditBox.js"
-    ]
+    ],
+    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "VideoPlayer",
@@ -146,12 +198,6 @@
     ]
   },
   {
-    "name": "RichText",
-    "entries": [
-      "./cocos2d/core/components/CCRichText.js"
-    ]
-  },
-  {
     "name": "AudioSource",
     "entries": [
       "./cocos2d/core/components/CCAudioSource.js"
@@ -162,13 +208,6 @@
     "entries": [
       "./cocos2d/core/components/CCAnimation.js",
       "./cocos2d/animation/index.js"
-    ]
-  },
-  {
-    "name": "MotionStreak",
-    "entries": [
-      "./cocos2d/core/components/CCMotionStreak.js",
-      "./cocos2d/core/renderer/webgl/assemblers/motion-streak.js"
     ]
   },
   {
@@ -190,23 +229,17 @@
     ]
   },
   {
-    "name": "Graphics",
-    "entries": [
-      "./cocos2d/core/graphics/index.js"
-    ]
-  },
-  {
-    "name": "DragonBones",
-    "entries": [
-      "./extensions/dragonbones/index.js"
-    ]
-  },
-  {
     "name": "Physics",
     "entries": [
       "./cocos2d/core/physics/index.js"
     ],
     "dependencies": ["Collider"]
+  },
+  {
+    "name": "NodePool",
+    "entries": [
+      "./extensions/ccpool/CCNodePool.js"
+    ]
   },
   {
     "name": "StudioComponent",
