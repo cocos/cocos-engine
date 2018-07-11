@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +25,35 @@
  ****************************************************************************/
 
 var WidgetManager = require('../base-ui/CCWidgetManager');
+
+/**
+ * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
+ * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
+ * @enum Widget.AlignMode
+ */
+/**
+ * !#en
+ * Only align once when the Widget is enabled for the first time.
+ * This will allow the script or animation to continue controlling the current node.
+ * It will only be aligned once before the end of frame when onEnable is called,
+ * then immediately disables the Widget.
+ * !#zh
+ * 仅在 Widget 第一次激活时对齐一次，便于脚本或动画继续控制当前节点。
+ * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
+ * @property {Number} ONCE
+ */
+/**
+ * !#en Align first from the beginning as ONCE, and then realign it every time the window is resized.
+ * !#zh 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
+ * @property {Number} ON_WINDOW_RESIZE
+ */
+/**
+ * !#en Keep aligning all the way.
+ * !#zh 始终保持对齐。
+ * @property {Number} ALWAYS
+ */
+var AlignMode = WidgetManager.AlignMode;
+
 var AlignFlags = WidgetManager._AlignFlags;
 var TOP     = AlignFlags.TOP;
 var MID     = AlignFlags.MID;
@@ -477,22 +507,24 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en TODO
-         * !#zh
-         * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
-         * 这样便于脚本或动画继续控制当前节点。
-         * 注意：onEnable 时所在的那一帧仍然会进行对齐。
-         * @property isAlignOnce
-         * @type {Boolean}
-         * @default false
+         * !#en Specifies the alignment mode of the Widget, which determines when the widget should refresh.
+         * !#zh 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
+         * @property {Widget.AlignMode} alignMode
+         * @example
+         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
          */
-        isAlignOnce: {
-            default: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_once',
-            displayName: "AlignOnce"
+        alignMode: {
+           default: AlignMode.ON_WINDOW_RESIZE,
+           type: AlignMode,
+           tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_mode',
         },
 
         //
+
+        _wasAlignOnce: {
+            default: undefined,
+            formerlySerializedAs: 'isAlignOnce',
+        },
 
         _target: null,
 
@@ -522,6 +554,18 @@ var Widget = cc.Class({
         // original size before align
         _originalWidth: 0,
         _originalHeight: 0
+    },
+
+    statics: {
+        AlignMode: AlignMode,
+    },
+
+    onLoad: function () {
+        if (this._wasAlignOnce !== undefined) {
+            // migrate for old version
+            this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
+            this._wasAlignOnce = undefined;
+        }
     },
 
     onEnable: function () {
@@ -606,6 +650,35 @@ var Widget = cc.Class({
     updateAlignment: function () {
         WidgetManager.updateAlignment(this.node);
     },
+});
+
+/**
+ * !#en
+ * When turned on, it will only be aligned once at the end of the onEnable frame,
+ * then immediately disables the current component.
+ * This will allow the script or animation to continue controlling the current node.
+ * Note: It will still be aligned at the frame when onEnable is called.
+ * !#zh
+ * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+ * 这样便于脚本或动画继续控制当前节点。
+ * 注意：onEnable 时所在的那一帧仍然会进行对齐。
+ * @property {Boolean} isAlignOnce
+ * @default false
+ * @deprecated
+ */
+Object.defineProperty(Widget.prototype, 'isAlignOnce', {
+    get () {
+        if (CC_DEBUG) {
+            cc.warn('`widget.isAlignOnce` is deprecated, use `widget.alignMode === cc.Widget.AlignMode.ONCE` instead please.');
+        }
+        return this.alignMode === AlignMode.ONCE;
+    },
+    set (value) {
+        if (CC_DEBUG) {
+            cc.warn('`widget.isAlignOnce` is deprecated, use `widget.alignMode = cc.Widget.AlignMode.*` instead please.');
+        }
+        this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
+    }
 });
 
 

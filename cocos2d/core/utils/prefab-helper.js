@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,11 +26,13 @@
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
+    // extends: require('../platform/CCObject'),
     properties: {
         // the most top node of this prefab in the scene
         root: null,
 
         // 所属的 prefab 资源对象 (cc.Prefab)
+        // In Editor, only asset._uuid is usable because asset will be changed.
         asset: null,
 
         // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
@@ -43,7 +46,18 @@ cc._PrefabInfo = cc.Class({
             default: false,
             serializable: false
         },
-    }
+    },
+    // _instantiate (cloned) {
+    //     if (!cloned) {
+    //         cloned = new cc._PrefabInfo();
+    //     }
+    //     cloned.root = this.root;
+    //     cloned.asset = this.asset;
+    //     cloned.fileId = this.fileId;
+    //     cloned.sync = this.sync;
+    //     cloned._synced = this._synced;
+    //     return cloned;
+    // }
 });
 
 // prefab helper function
@@ -56,8 +70,11 @@ module.exports = {
         //
         if (!_prefab.asset) {
             if (CC_EDITOR) {
-                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: _Scene.NodeUtils.getNodePath(node) }));
-                node.name += _Scene.PrefabUtils.MISSING_PREFAB_SUFFIX;
+                var NodeUtils = Editor.require('scene://utils/node');
+                var PrefabUtils = Editor.require('scene://utils/prefab');
+
+                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
+                node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
             }
             else {
                 cc.errorID(3701, node.name);

@@ -40,7 +40,6 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 class NewScript extends cc.Component {
     @property({
-        default: Direction.Up,
         type: cc.Enum(Direction)    // call cc.Enum
     })
     direction: Direction = Direction.Up;

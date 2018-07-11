@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -63,7 +64,7 @@ function downloadScript (item, callback, isAsync) {
         s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
-        callback(new Error('Load ' + url + ' failed!'), url);
+        callback(new Error(cc._getError(4928, url)));
     }
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
@@ -72,7 +73,7 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadWebp (item, callback, isCrossOrigin, img) {
     if (!cc.sys.capabilities.webp) {
-        return new Error('Load Webp ( ' + item.url + ' ) failed');
+        return new Error(cc._getError(4929, item.url));
     }
     return downloadImage(item, callback, isCrossOrigin, img);
 }
@@ -111,7 +112,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
                 downloadImage(item, callback, false, img);
             }
             else {
-                callback(new Error('Load image (' + url + ') failed'));
+                callback(new Error(cc._getError(4930, url)));
             }
         }
 
@@ -195,9 +196,7 @@ function downloadUuid (item, callback) {
     if (result === undefined) {
         return this.extMap['json'](item, callback);
     }
-    else if (!!result) {
-        return result;
-    }
+    return result || undefined;
 }
 
 
@@ -283,6 +282,8 @@ var Downloader = function (extMap) {
     this._curConcurrent = 0;
     this._loadQueue = [];
 
+    this._subpackages = {};
+
     this.extMap = JS.mixin(extMap, defaultMap);
 };
 Downloader.ID = ID;
@@ -343,6 +344,36 @@ Downloader.prototype.handle = function (item, callback) {
             item: item,
             callback: callback
         });
+    }
+};
+
+/**
+ * !#en
+ * Load subpackage with name.
+ * !#zh
+ * 通过子包名加载子包代码。
+ * @method loadSubpackage
+ * @param {String} name - Subpackage name
+ * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+ * @param {Error} completeCallback.error - error information
+ */
+Downloader.prototype.loadSubpackage = function (name, completeCallback) {
+    let pac = this._subpackages[name];
+    if (pac) {
+        if (pac.loaded) {
+            if (completeCallback) completeCallback();
+        }
+        else {
+            downloadScript({url: pac.path}, function (err) {
+                if (!err) {
+                    pac.loaded = true;
+                }
+                if (completeCallback) completeCallback(err);
+            });
+        }
+    }
+    else if (completeCallback) {
+        completeCallback(new Error(`Can't find subpackage ${name}`));
     }
 };
 

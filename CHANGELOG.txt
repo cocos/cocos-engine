@@ -223,7 +223,7 @@ Cocos2d-JS v3.4 Beta0 @ March 19 2015
 
 * Bug fixes:
     1. Added `getSpriteFrame` to `cc.Sprite` to fix API inconsistency.
-    2. Added `getObejct` to `cc.TMXObjectGroup` to fix API inconsistency.
+    2. Added `getObject` to `cc.TMXObjectGroup` to fix API inconsistency.
     3. Added `addImageAsync` to `cc.textureCache` to fix API inconsistency.
     4. Fixed a bug of `cc.text` that its default font name is incorrect. 
     5. Fixed a bug of `ccui.PageView` that its `getPage` doesn't work.

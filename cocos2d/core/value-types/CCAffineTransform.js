@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -395,12 +396,12 @@ cc.affineTransformInvertIn = function (t) {
  * @param {AffineTransform} out
  */
 cc.affineTransformInvertOut = function (t, out) {
-    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var a = t.a, b = t.b, c = t.c, d = t.d, tx = t.tx, ty = t.ty;
     var determinant = 1 / (a * d - b * c);
     out.a = determinant * d;
     out.b = -determinant * b;
     out.c = -determinant * c;
     out.d = determinant * a;
-    out.tx = determinant * (c * t.ty - d * t.tx);
-    out.ty = determinant * (b * t.tx - a * t.ty);
+    out.tx = determinant * (c * ty - d * tx);
+    out.ty = determinant * (b * tx - a * ty);
 };

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,22 +38,23 @@ function isSceneObj (json) {
            );
 }
 
-function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
+function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
     var uuidList = tdInfo.uuidList;
-    var objList, propList, depends;
+    var objList = tdInfo.uuidObjList;
+    var propList = tdInfo.uuidPropList;
+    var stillUseUrl = tdInfo._stillUseUrl;
+    var depends;
     var i, dependUuid;
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
 
     if (deferredLoadRawAssetsInRuntime) {
-        objList = [];
-        propList = [];
         depends = [];
         // parse depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
-            var obj = tdInfo.uuidObjList[i];
-            var prop = tdInfo.uuidPropList[i];
+            var obj = objList[i];
+            var prop = propList[i];
             var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
@@ -61,114 +63,115 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                 dependKeys.push(url);
             }
             else {
-                objList.push(obj);
-                propList.push(prop);
                 // declare depends assets
                 depends.push({
                     type: 'uuid',
                     uuid: dependUuid,
                     deferredLoadRaw: true,
+                    _owner: obj,
+                    _ownerProp: prop,
+                    _stillUseUrl: stillUseUrl[i]
                 });
             }
         }
     }
     else {
-        objList = tdInfo.uuidObjList;
-        propList = tdInfo.uuidPropList;
         depends = new Array(uuidList.length);
+
         // declare depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
             depends[i] = {
                 type: 'uuid',
-                uuid: dependUuid
+                uuid: dependUuid,
+                _owner: objList[i],
+                _ownerProp: propList[i],
+                _stillUseUrl: stillUseUrl[i]
             };
         }
-    }
-    // declare raw
-    if (tdInfo.rawProp) {
-        objList.push(asset);
-        propList.push(tdInfo.rawProp);
-        depends.push(item.url);
-    }
-    // preload raw files
-    if (asset._preloadRawFiles) {
-        var finalCallback = callback;
-        callback = function () {
-            asset._preloadRawFiles(function (err) {
-                finalCallback(err || null, asset);
+
+        // load native object (Image/Audio) as depends
+        if (asset._native && !asset.constructor.preventPreloadNativeObject) {
+            depends.push({
+                url: asset.nativeUrl,
+                _owner: asset,
+                _ownerProp: '_nativeAsset',
             });
-        };
-    }
-    // fast path
-    if (depends.length === 0) {
-        cc.deserialize.Details.pool.put(tdInfo);
-        return callback(null, asset);
+        }
     }
 
+    return depends;
+}
+
+function loadDepends (pipeline, item, asset, depends, callback) {
     // Predefine content for dependencies usage
     item.content = asset;
+    var dependKeys = item.dependKeys;
     pipeline.flowInDeps(item, depends, function (errors, items) {
         var item, missingAssetReporter;
-        for (var src in items.map) {
-            item = items.map[src];
+        var itemsMap = items.map;
+        for (var src in itemsMap) {
+            item = itemsMap[src];
             if (item.uuid && item.content) {
                 item.content._uuid = item.uuid;
             }
         }
         for (var i = 0; i < depends.length; i++) {
-            var dependSrc = depends[i].uuid;
-            var dependUrl = depends[i].url;
-            var dependObj = objList[i];
-            var dependProp = propList[i];
-            item = items.map[dependUrl];
-            if (item) {
-                var thisOfLoadCallback = {
-                    obj: dependObj,
-                    prop: dependProp
-                };
-                function loadCallback (item) {
-                    var value = item.isRawAsset ? item.rawUrl : item.content;
-                    this.obj[this.prop] = value;
-                    if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
-                        dependKeys.push(item.id);
-                    }
+            var dep = depends[i];
+            var dependSrc = dep.uuid;
+            var dependUrl = dep.url;
+            var dependObj = dep._owner;
+            var dependProp = dep._ownerProp;
+            item = itemsMap[dependUrl];
+            if (!item) {
+                continue;
+            }
+
+            var loadCallbackCtx = dep;
+            function loadCallback (item) {
+                var value = item.content;
+                if (this._stillUseUrl) {
+                    value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
                 }
-                if (item.complete || item.content) {
-                    if (item.error) {
-                        if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
-                            if (!missingAssetReporter) {
-                                var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
-                                missingAssetReporter = new MissingObjectReporter(asset);
-                            }
-                            missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                this._owner[this._ownerProp] = value;
+                if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                    dependKeys.push(item.id);
+                }
+            }
+
+            if (item.complete || item.content) {
+                if (item.error) {
+                    if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                        if (!missingAssetReporter) {
+                            var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                            missingAssetReporter = new MissingObjectReporter(asset);
                         }
-                        else {
-                            cc._throw(item.error);
-                        }
+                        missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
                     }
                     else {
-                        loadCallback.call(thisOfLoadCallback, item);
+                        cc._throw(item.error);
                     }
                 }
                 else {
-                    // item was removed from cache, but ready in pipeline actually
-                    var queue = LoadingItems.getQueue(item);
-                    // Hack to get a better behavior
-                    var list = queue._callbackTable[dependSrc];
-                    if (list) {
-                        list.unshift(loadCallback, thisOfLoadCallback);
-                    }
-                    else {
-                        queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);
-                    }
+                    loadCallback.call(loadCallbackCtx, item);
+                }
+            }
+            else {
+                // item was removed from cache, but ready in pipeline actually
+                var queue = LoadingItems.getQueue(item);
+                // Hack to get a better behavior
+                var list = queue._callbackTable[dependSrc];
+                if (list) {
+                    list.unshift(loadCallback, loadCallbackCtx);
+                }
+                else {
+                    queue.addListener(dependSrc, loadCallback, loadCallbackCtx);
                 }
             }
         }
         if (CC_EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        cc.deserialize.Details.pool.put(tdInfo);
         callback(null, asset);
     });
 }
@@ -181,7 +184,7 @@ function canDeferredLoad (asset, item, isScene) {
     var res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
-        if (asset instanceof cc.Asset && asset.constructor.preventDeferredLoadDependents) {
+        if (cc.Class.isInstanceOf(asset, cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
             res = false;
         }
     }
@@ -209,14 +212,14 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            return new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack);
+            return new Error(cc._getError(4923, item.id, e.stack));
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        return new Error('JSON Loader: Input item doesn\'t contain string content');
+        return new Error(cc._getError(4924));
     }
 
     var classFinder;
@@ -261,7 +264,7 @@ function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        return new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err);
+        return new Error(cc._getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;
@@ -271,7 +274,14 @@ function loadUuid (item, callback) {
     }
 
     var deferredLoad = canDeferredLoad(asset, item, isScene);
-    loadDepends(this.pipeline, item, asset, tdInfo, deferredLoad, callback);
+    var depends = parseDepends(item, asset, tdInfo, deferredLoad);
+
+    cc.deserialize.Details.pool.put(tdInfo);
+
+    if (depends.length === 0) {
+        return callback(null, asset);
+    }
+    loadDepends(this.pipeline, item, asset, depends, callback);
 }
 
 module.exports = loadUuid;

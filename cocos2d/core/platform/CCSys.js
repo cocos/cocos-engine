@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,6 +29,7 @@ if (cc.sys) return;
 /**
  * System variables
  * @class sys
+ * @main
  * @static
  */
 cc.sys = {};
@@ -406,6 +408,13 @@ sys.BROWSER_TYPE_MOBILE_QQ = "mqqbrowser";
  */
 sys.BROWSER_TYPE_UC = "ucbrowser";
 /**
+ * uc third party integration.
+ * @property {String} BROWSER_TYPE_UCBS
+ * @readOnly
+ * @default "ucbs"
+ */
+sys.BROWSER_TYPE_UCBS = "ucbs";
+/**
  *
  * @property {String} BROWSER_TYPE_360
  * @readOnly
@@ -503,6 +512,76 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
  * @default "unknown"
  */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
+
+/**
+ * !#en
+ * Network type enumeration
+ * !#zh
+ * 网络类型枚举
+ *
+ * @enum NetworkType
+ */
+sys.NetworkType = {
+    /**
+     * !#en
+     * Network is unreachable.
+     * !#zh
+     * 网络不通
+     *
+     * @property {Number} NONE
+     */
+    NONE: 0,
+    /**
+     * !#en
+     * Network is reachable via WiFi or cable.
+     * !#zh
+     * 通过无线或者有线本地网络连接因特网
+     *
+     * @property {Number} LAN
+     */
+    LAN: 1,
+    /**
+     * !#en
+     * Network is reachable via Wireless Wide Area Network
+     * !#zh
+     * 通过蜂窝移动网络连接因特网
+     *
+     * @property {Number} WWAN
+     */
+    WWAN: 2
+};
+
+/**
+ * @class sys
+ */
+
+/**
+ * !#en
+ * Get the battery level of current device, return 1.0 if failure.
+ * !#zh
+ * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
+ *
+ * @method getBatteryLevel
+ * @return {Number} - 0.0 ~ 1.0
+ */
+sys.getBatteryLevel = function() {
+    // TODO: need to implement this for mobile phones.
+    return 1.0;
+};
+
+/**
+ * !#en
+ * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
+ * !#zh
+ * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
+ *
+ * @method getNetworkType
+ * @return {NetworkType}
+ */
+sys.getNetworkType = function() {
+    // TODO: need to implement this for mobile phones.
+    return sys.NetworkType.LAN;
+};
 
 
 /**
@@ -709,9 +788,8 @@ else {
     if (nav.appVersion.indexOf("Win") !== -1) osName = sys.OS_WINDOWS;
     else if (iOS) osName = sys.OS_IOS;
     else if (nav.appVersion.indexOf("Mac") !== -1) osName = sys.OS_OSX;
-    else if (nav.appVersion.indexOf("X11") !== -1 && nav.appVersion.indexOf("Linux") === -1) osName = sys.OS_UNIX;
     else if (isAndroid) osName = sys.OS_ANDROID;
-    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1) osName = sys.OS_LINUX;
+    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1 || nav.appVersion.indexOf("X11") !== -1) osName = sys.OS_LINUX;
 
     /**
      * Indicate the running os name
@@ -736,10 +814,13 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function(){
-        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
+        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        var typeReg2 = /qqbrowser|ucbrowser/i
+        var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
+        if(!browserTypes) browserTypes = typeReg3.exec(ua);
+        
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
@@ -771,7 +852,7 @@ else {
     sys.browserVersion = "";
     /* Determine the browser version number */
     (function(){
-        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
         var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
@@ -793,7 +874,7 @@ else {
 
     sys._checkWebGLRenderMode = function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
-            throw new Error("This feature supports WebGL render mode only.");
+            throw new Error(cc._getError(5202));
     };
 
     var _tmpCanvas1 = document.createElement("canvas"),
@@ -892,6 +973,7 @@ else {
                 } else {
                     _supportWebGL = false;
                 }
+                break;
             case sys.BROWSER_TYPE_360:
                 _supportWebGL = false;
             }

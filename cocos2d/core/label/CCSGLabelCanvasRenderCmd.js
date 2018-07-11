@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -117,6 +118,11 @@
         return fontDesc;
     };
 
+    proto._safeMeasureText = function (ctx, string) {
+        var metric = ctx.measureText(string);
+        return metric && metric.width || 0;
+    };
+
     proto._measureText = function (ctx) {
         return function(string) {
             return ctx.measureText(string).width;
@@ -175,13 +181,13 @@
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         var j = 0;
-                        var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
+                        var allWidth = this._safeMeasureText(this._labelContext, paragraphedStrings[i]);
                         textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
                                                                  allWidth,
                                                                  canvasWidthNoMargin,
                                                                  this._measureText(this._labelContext));
                         while(j < textFragment.length) {
-                            var measureWidth = this._labelContext.measureText(textFragment[j]).width;
+                            var measureWidth = this._safeMeasureText(this._labelContext, textFragment[j]);
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
@@ -227,8 +233,7 @@
         var paragraphLength = [];
 
         for (var i = 0; i < paragraphedStrings.length; ++i) {
-            var textMetric = ctx.measureText(paragraphedStrings[i]);
-            paragraphLength.push(textMetric.width);
+            paragraphLength.push(this._safeMeasureText(ctx, paragraphedStrings[i]));
         }
 
         return paragraphLength;
@@ -254,7 +259,7 @@
             this._splitedStrings = [];
             var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
+                var allWidth = this._safeMeasureText(this._labelContext, paragraphedStrings[i]);
                 var textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
                                                              allWidth,
                                                              canvasWidthNoMargin,
@@ -283,7 +288,7 @@
             var canvasSizeX = 0;
             var canvasSizeY = 0;
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                var paraLength = ctx.measureText(paragraphedStrings[i]).width;
+                var paraLength = this._safeMeasureText(ctx, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = this._splitedStrings.length * this._getLineHeight();
@@ -447,8 +452,7 @@
 
         this._texture.loaded = false;
         // Hack. because we delete _image after usage in WEBGL mode
-        this._texture._image = this._labelCanvas;
-        this._texture.handleLoadedTexture(true);
+        this._texture._nativeAsset = this._labelCanvas;
     };
 
     proto._getGradientArgs = function () {

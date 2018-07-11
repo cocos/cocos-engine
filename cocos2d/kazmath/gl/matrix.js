@@ -1,7 +1,8 @@
 /**
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright (c) 2008, Luke Benstead.
  All rights reserved.
 
@@ -106,7 +107,7 @@ math.glMatrixMode = function (mode) {
             cc.current_stack = math.texture_matrix_stack;
             break;
         default:
-            throw new Error("Invalid matrix mode specified");   //TODO: Proper error handling
+            throw new Error(cc._getError(7908));   //TODO: Proper error handling
             break;
     }
 };
@@ -169,7 +170,7 @@ math.glGetMatrix = function (mode, pOut) {
             pOut.assignFrom(math.texture_matrix_stack.top);
             break;
         default:
-            throw new Error("Invalid matrix mode specified"); //TODO: Proper error handling
+            throw new Error(cc._getError(7908)); //TODO: Proper error handling
             break;
     }
 };

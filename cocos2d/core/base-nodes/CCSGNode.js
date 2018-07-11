@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -1696,9 +1697,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        var t = this.getNodeToParentTransform();
+        var t = cc.affineTransformClone(this.getNodeToParentTransform());
         for (var p = this._parent; p !== null; p = p.parent)
-            t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+            t = cc.affineTransformConcatIn(t, p.getNodeToParentTransform());
         return t;
     },
 
@@ -1716,7 +1717,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getWorldToNodeTransform: function () {
-        return cc.affineTransformInvert(this.getNodeToWorldTransform());
+        var trans = this.getNodeToWorldTransform();
+        cc.affineTransformInvertOut(trans, trans);
+        return trans;
     },
 
     /**

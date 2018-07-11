@@ -165,6 +165,117 @@ test('disable component during onEnable', function () {
     childComp.onEnable.once('could re-enable component');
 });
 
+test('change hierarchy during own deactivation', function () {
+    var vendorError = cc.errorID;
+    cc.errorID = new Callback();
+
+    var nodes1 = createNodes({
+        preNode: {},
+        testNode: {         
+            comps: cc.Component,
+        },
+        testNode2: {
+            comps: cc.Component,
+        },
+    });
+    nodes1.attachToScene();
+
+    cc.errorID.disable('Should allow change hierarchy during own deactivation');
+
+    nodes1.testNodeComps[0].onDisable = function() {
+        this.node.parent = nodes1.preNode;
+    };
+    nodes1.testNode.active = false;
+
+    nodes1.testNode2Comps[0].onDisable = function() {
+        this.node.parent = null;
+    };
+    nodes1.testNode2.active = false;
+
+    expect(0);
+
+    cc.errorID = vendorError;
+});
+
+test('change hierarchy during parent\'s deactivation', function () {
+    var vendorError = cc.errorID;
+    cc.errorID = new Callback().enable();
+
+    var nodes = createNodes({
+        parent1: {
+            preNode: {},
+            testNode1: {
+                comps: cc.Component,
+            },
+        },
+        parent2: {
+            testNode2: {
+                comps: cc.Component,
+            },
+        },
+        parent3: {
+            testNode3: {
+                comps: cc.Component,
+            },
+        },
+    });
+    nodes.attachToScene();
+
+    nodes.testNode1Comps[0].onDisable = function() {
+        this.node.parent = nodes.preNode;
+    };
+    nodes.parent1.active = false;
+    cc.errorID.once('Should report error if change child');
+
+    nodes.testNode2Comps[0].onDisable = function() {
+        this.node.parent = null;
+    };
+    nodes.parent2.active = false;
+    cc.errorID.once('Should report error if detach child');
+
+    nodes.testNode3Comps[0].onDisable = function() {
+        this.node.parent.addChild(new cc.Node());
+    };
+    nodes.parent3.active = false;
+    cc.errorID.once('Should report error if add child');
+
+    cc.errorID = vendorError;
+});
+
+test('set sibling index during onDisable', function () {
+    var vendorError = cc.errorID;
+    cc.errorID = new Callback().enable();
+
+    var nodes = createNodes({
+        parent: {
+            node1: {
+                comps: cc.Component,
+            },
+            node: {}
+        },
+        node2:  {
+            comps: cc.Component,
+        }
+    });
+    var node1Comp = nodes.node1Comps[0];
+    var node2Comp = nodes.node2Comps[0];
+    node1Comp.onDisable = function() {
+        this.node.setSiblingIndex(1);
+    };
+    node2Comp.onDisable = function() {
+        this.node.setSiblingIndex(0);
+    };
+    nodes.attachToScene();
+
+    nodes.parent.active = false;
+    cc.errorID.once('Should report error when setting node\'s sibling index during its parent\'s deactivation');
+
+    cc.errorID.disable('Should allow setting node\'s sibling index during its deactivation');
+    nodes.node2.active = false;
+
+    cc.errorID = vendorError;
+});
+
 (function () {
 
     // Test deactivate during activating or conversely

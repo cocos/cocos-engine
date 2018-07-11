@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,12 +31,18 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 
+//
+var opts = {
+    premultiplyAlpha: true
+};
+
 var _sharedLabelCanvas;
 _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._rootCtor(renderableObject);
     this._needDraw = true;
 
     this._texture = new cc.Texture2D();
+    this._texture.update(opts);
     _sharedLabelCanvas = _sharedLabelCanvas || document.createElement('canvas');
     this._labelCanvas = _sharedLabelCanvas;
     this._texture.initWithElement(this._labelCanvas);

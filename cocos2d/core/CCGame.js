@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -650,7 +651,7 @@ var game = {
         if (this._rendererInitialized) return;
 
         if (!cc._supportRender) {
-            throw new Error("The renderer doesn't support the renderMode " + this.config[this.CONFIG_KEY.renderMode]);
+            throw new Error(cc._getError(3820, this.config[this.CONFIG_KEY.renderMode]));
         }
 
         var el = this.config[game.CONFIG_KEY.id],
@@ -768,9 +769,9 @@ var game = {
         } else if (typeof document.webkitHidden !== 'undefined') {
             hiddenPropName = "webkitHidden";
         }
-        
+
         var hidden = false;
-        
+
         function onHidden () {
             if (!hidden) {
                 hidden = true;
@@ -797,13 +798,15 @@ var game = {
                     var visible = document[hiddenPropName];
                     // QQ App
                     visible = visible || event["hidden"];
-                    if (visible) onHidden();
-                    else onShown();
-                }, false);
+                    if (visible)
+                        onHidden();
+                    else
+                        onShown();
+                });
             }
         } else {
-            win.addEventListener("blur", onHidden, false);
-            win.addEventListener("focus", onShown, false);
+            win.addEventListener("blur", onHidden);
+            win.addEventListener("focus", onShown);
         }
 
         if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
@@ -816,8 +819,11 @@ var game = {
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {
-            win.addEventListener("pagehide", onHidden, false);
-            win.addEventListener("pageshow", onShown, false);
+            win.addEventListener("pagehide", onHidden);
+            win.addEventListener("pageshow", onShown);
+            // Taobao UIWebKit
+            document.addEventListener("pagehide", onHidden);
+            document.addEventListener("pageshow", onShown);
         }
 
         this.on(game.EVENT_HIDE, function () {

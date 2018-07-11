@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -84,10 +85,10 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                 math.glMatrixMode(math.KM_GL_PROJECTION);
                 math.glLoadIdentity();
                 var orthoMatrix = math.Matrix4.createOrthographicProjection(
-                    0,
-                    size.width,
-                    0,
-                    size.height,
+                    -ox,
+                    size.width - ox,
+                    -oy,
+                    size.height - oy,
                     -1024, 1024);
                 math.glMultMatrix(orthoMatrix);
                 math.glMatrixMode(math.KM_GL_MODELVIEW);

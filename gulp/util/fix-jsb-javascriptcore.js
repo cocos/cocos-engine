@@ -1,3 +1,6 @@
+
+// fix `typeof constructor` on JavaScriptCore
+
 const ES = require('event-stream');
 const Path = require('path');
 
