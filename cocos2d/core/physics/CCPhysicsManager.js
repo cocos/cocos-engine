@@ -34,8 +34,8 @@ const PTM_RATIO = PhysicsTypes.PTM_RATIO;
 const ANGLE_TO_PHYSICS_ANGLE = PhysicsTypes.ANGLE_TO_PHYSICS_ANGLE;
 const PHYSICS_ANGLE_TO_ANGLE = PhysicsTypes.PHYSICS_ANGLE_TO_ANGLE;
 
-const debugDraw = require('./CCPhysicsDebugDraw');
 const convertToNodeRotation = require('./utils').convertToNodeRotation;
+const DebugDraw = require('./platform/CCPhysicsDebugDraw');
 
 var b2_aabb_tmp = new b2.AABB();
 var b2_vec2_tmp1 = new b2.Vec2();
@@ -213,6 +213,12 @@ var PhysicsManager = cc.Class({
             world.Step(timeStep, velocityIterations, positionIterations);
         }
 
+        if (this.debugDrawFlags) {
+            this._checkDebugDrawValid();
+            this._debugDrawer.clear();
+            world.DrawDebugData();
+        }
+
         this._steping = false;
 
         var events = this._delayEvents;
@@ -223,8 +229,6 @@ var PhysicsManager = cc.Class({
         events.length = 0;
 
         this._syncNode();
-
-        debugDraw(this);
     },
 
     /**
@@ -446,7 +450,7 @@ var PhysicsManager = cc.Class({
 
     _init: function () {
         this.enabled = true;
-        this.debugDrawFlags = b2.Draw.e_shapeBit;
+        this.debugDrawFlags = DrawBits.e_shapeBit;
     },
 
     _getWorld: function () {
@@ -532,6 +536,8 @@ var PhysicsManager = cc.Class({
             node.zIndex = cc.macro.MAX_ZINDEX;
             cc.game.addPersistRootNode(node);
             this._debugDrawer = node.addComponent(cc.Graphics);
+
+            this._world.SetDebugDraw(new DebugDraw(this._debugDrawer));
         }
     }
 });
@@ -588,11 +594,18 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
         return this._debugDrawFlags;
     },
     function (value) {
+        if (CC_EDITOR) return;
+        
         if (value && !this._debugDrawFlags) {
             if (this._debugDrawer && this._debugDrawer.node) this._debugDrawer.node.active = true;
         }
         else if (!value && this._debugDrawFlags) {
             if (this._debugDrawer && this._debugDrawer.node) this._debugDrawer.node.active = false;
+        }
+
+        if (value) {
+            this._checkDebugDrawValid();
+            this._world.m_debugDraw.SetFlags(value);
         }
 
         this._debugDrawFlags = value;

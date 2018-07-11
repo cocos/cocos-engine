@@ -50,8 +50,8 @@ PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, norma
     }
 
     this._fixtures.push(fixture);
-    this._points.push(point);
-    this._normals.push(normal);
+    this._points.push(cc.v2(point));
+    this._normals.push(cc.v2(normal));
     this._fractions.push(fraction);
     
     if (this._type === 1) { // any

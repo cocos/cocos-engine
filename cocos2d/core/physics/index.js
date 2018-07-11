@@ -23,13 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-window.b2 = require('../../../external/box2d/box2d');
-if (CC_QQPLAY) {
-    // can only define global variable in this way
-    b2 = window.b2;
-}
-
-
+require('./box2d-adapter');
 require('./CCPhysicsManager');
 require('./CCRigidBody');
 require('./CCPhysicsContact');
