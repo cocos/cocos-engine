@@ -450,21 +450,23 @@ test('_isCCClass', function () {
     cc.js.unregisterClass(ctor);
 });
 
-test('try catch', function () {
-    var originThrow = cc._throw;
+if (CC_SUPPORT_JIT) {
+    test('try catch', function () {
+        var originThrow = cc._throw;
 
-    cc._throw = Callback().enable();
-    var Animal = cc.Class({
-        ctor: function () {
-            null.foo();
-        }
+        cc._throw = Callback().enable();
+        var Animal = cc.Class({
+            ctor: function () {
+                null.foo();
+            }
+        });
+        var animal = new Animal();
+        ok(animal, 'should create new instance even if an exception occurs');
+        cc._throw.once('should throw exception');
+
+        cc._throw = originThrow;
     });
-    var animal = new Animal();
-    ok(animal, 'should create new instance even if an exception occurs');
-    cc._throw.once('should throw exception');
-
-    cc._throw = originThrow;
-});
+}
 
 test('this._super', function () {
     var play = Callback();

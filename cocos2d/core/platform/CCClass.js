@@ -413,21 +413,6 @@ function getNewValueTypeCodeJit (value) {
     return res + ')';
 }
 
-function getNewValue (value) {
-    var type = value.constructor;
-    var res = new type();
-    for (var i = 0; i < type.__props__.length; i++) {
-        var prop = type.__props__[i];
-        var propVal = value[prop];
-        if (CC_DEV && typeof propVal === 'object') {
-            cc.errorID(3641, js.getClassName(value));
-            return res;
-        }
-        res[prop] = propVal;
-    }
-    return res;
-}
-
 // TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCodeJit to misc.js or a new source file
 
 // convert a normal string including newlines, quotes and unicode characters into a string literal
@@ -537,7 +522,7 @@ function getInitProps (attrs, propList) {
             var def = advancedValues[i];
             if (typeof def === 'object') {
                 if (def instanceof cc.ValueType) {
-                    expression = getNewValue(def);
+                    expression = def.clone();
                 }
                 else if (Array.isArray(def)) {
                     expression = [];
@@ -602,7 +587,7 @@ var _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, option
     // call user constructors
     var ctorLen = ctors.length;
     if (ctorLen > 0) {
-        var useTryCatch = ! (className && className.startsWith('cc.'));
+        var useTryCatch = CC_DEV && ! (className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
@@ -627,46 +612,61 @@ var _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, option
     return Function(body)();
 } : function (ctors, baseClass, className, options) {
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
+    var ctorLen = ctors.length;
 
-    return function CCClass () {
+    var Class;
+
+    if (ctorLen > 0) {
         if (superCallBounded) {
-            this._super=null;
-        }
-
-        this.__initProps__(CCClass);
-
-        // call user constructors
-        var ctorLen = ctors.length;
-        var cs = CCClass.__ctors__;
-        if (ctorLen > 0) {
-            var useTryCatch = ! (className && className.startsWith('cc.'));
-            if (useTryCatch) {
-                try {
-                    if (ctorLen === 1) {
-                        cs[0].apply(this, arguments);
-                    }
-                    else {
-                        for (let i = 0; i < ctorLen; i++) {
-                            cs[i].apply(this, arguments);
-                        }
-                    }
-                }
-                catch(e) {
-                    cc._throw(e);
-                }
+            if (ctorLen === 2) {
+                // User Component
+                Class = function () {
+                    this._super = null;
+                    this.__initProps__(Class);
+                    ctors[0].apply(this, arguments);
+                    ctors[1].apply(this, arguments);
+                };
             }
             else {
-                if (ctorLen === 1) {
-                    cs[0].apply(this, arguments);
-                }
-                else {
-                    for (let i = 0; i < ctorLen; i++) {
-                        cs[i].apply(this, arguments);
+                Class = function () {
+                    this._super = null;
+                    this.__initProps__(Class);
+                    for (let i = 0; i < ctors.length; ++i) {
+                        ctors[i].apply(this, arguments);
                     }
-                }
+                };
             }
         }
-    };
+        else {
+            if (ctorLen === 3) {
+                // Node
+                Class = function () {
+                    this.__initProps__(Class);
+                    ctors[0].apply(this, arguments);
+                    ctors[1].apply(this, arguments);
+                    ctors[2].apply(this, arguments);
+                };
+            }
+            else {
+                Class = function () {
+                    this.__initProps__(Class);
+                    var ctors = Class.__ctors__;
+                    for (let i = 0; i < ctors.length; ++i) {
+                        ctors[i].apply(this, arguments);
+                    }
+                };
+            }
+        }
+    }
+    else {
+        Class = function () {
+            if (superCallBounded) {
+                this._super = null;
+            }
+            this.__initProps__(Class);
+        };
+    }
+    return Class;
 };
 
 function _validateCtor_DEV (ctor, baseClass, className, options) {
