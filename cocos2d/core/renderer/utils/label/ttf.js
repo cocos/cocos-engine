@@ -25,7 +25,6 @@
 
 const macro = require('../../../platform/CCMacro');
 const utils = require('../../../utils/text-utils');
-const renderEngine = require('../../render-engine');
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');

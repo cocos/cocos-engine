@@ -31,13 +31,8 @@ const Earcut = require('./earcut');
 const Impl = require('./impl');
 const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
-const macro = require('../../../../platform/CCMacro');
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
-
-const js = require('../../../../platform/js');
-const renderEngine = require('../../../render-engine');
-const math = renderEngine.math;
 
 const PI      = Math.PI;
 const min     = Math.min;

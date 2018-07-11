@@ -23,12 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../platform/js');
-const renderEngine = require('../../../renderer/render-engine');
-
 const MotionStreak = require('../../../components/CCMotionStreak');
 const RenderFlow = require('../../render-flow');
-
 const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
 function Point (point, dir) {

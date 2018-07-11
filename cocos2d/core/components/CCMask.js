@@ -26,7 +26,6 @@
 
 const misc = require('../utils/misc');
 const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const math = renderEngine.math;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');

@@ -26,7 +26,6 @@
 
 const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
-const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;

@@ -130,7 +130,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     // require the component for dragonbones
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');
-    require('./ArmatureDisplay')
+    require('./ArmatureDisplay');
 
     cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -139,7 +139,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         else {
             require('./webgl-assembler');
         }
-    })
+    });
 } else {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');

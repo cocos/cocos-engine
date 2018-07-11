@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const utils = require('../core/platform/utils');
-const eventManager = require('../core/event-manager');
 const sys = require('../core/platform/CCSys');
 const renderEngine = require('../core/renderer/render-engine');
 const math = renderEngine.math;

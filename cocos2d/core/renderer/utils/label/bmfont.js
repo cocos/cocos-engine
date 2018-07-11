@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const macro = require('../../../platform/CCMacro');
-const renderEngine = require('../../render-engine');
 
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;

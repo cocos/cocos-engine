@@ -28,11 +28,9 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
-const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const GraySpriteMaterial = renderEngine.GraySpriteMaterial;
-const RenderData = renderEngine.RenderData;
 
 /**
  * !#en Enum for sprite type.

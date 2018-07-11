@@ -30,6 +30,7 @@ const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const Obj = require('./platform/CCObject');
+const game = require('./CCGame');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
 const Scheduler = require('./CCScheduler');
@@ -134,11 +135,11 @@ cc.Director = function () {
     this._actionManager = null;
 
     var self = this;
-    cc.game.on(cc.game.EVENT_SHOW, function () {
+    game.on(game.EVENT_SHOW, function () {
         self._lastUpdate = performance.now();
     });
 
-    cc.game.once(cc.game.EVENT_ENGINE_INITED, this.init, this);
+    game.once(game.EVENT_ENGINE_INITED, this.init, this);
 };
 
 cc.Director.prototype = {
@@ -235,7 +236,7 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      */
     convertToGL: function (uiPoint) {
-        var container = cc.game.container;
+        var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
         var left = box.left + window.pageXOffset - container.clientLeft;
@@ -257,7 +258,7 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      */
     convertToUI: function (glPoint) {
-        var container = cc.game.container;
+        var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
         var left = box.left + window.pageXOffset - container.clientLeft;
@@ -414,7 +415,6 @@ cc.Director.prototype = {
         CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
 
         // detach persist nodes
-        var game = cc.game;
         var persistNodeList = Object.keys(game._persistRootNodes).map(function (x) {
             return game._persistRootNodes[x];
         });
@@ -511,7 +511,7 @@ cc.Director.prototype = {
     //  @Scene loading section
 
     _getSceneUuid: function (key) {
-        var scenes = cc.game._sceneInfos;
+        var scenes = game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.fire')) {
                 key += '.fire';
@@ -764,7 +764,7 @@ cc.Director.prototype = {
      * @return {Number}
      */
     getAnimationInterval: function () {
-        return 1000 / cc.game.getFrameRate();
+        return 1000 / game.getFrameRate();
     },
 
     /**
@@ -775,7 +775,7 @@ cc.Director.prototype = {
      * @param {Number} value - The animation interval desired.
      */
     setAnimationInterval: function (value) {
-        cc.game.setFrameRate(Math.round(1000 / value));
+        game.setFrameRate(Math.round(1000 / value));
     },
 
     /**

@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 const js = require('../../platform/js');
-const renderers = require('./renderers');
 const RenderFlow = require('../render-flow');
+require('./renderers');
 
 let RenderComponentWalker = function (device, defaultCamera) {
     this._device = device;
