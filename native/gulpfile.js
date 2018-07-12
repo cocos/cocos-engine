@@ -41,7 +41,7 @@ program
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
-gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('gen-simulator', 'sign-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
 if (process.platform === 'darwin') {
     gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator', 'make-prebuilt', 'push-tag'));
@@ -171,20 +171,7 @@ gulp.task('gen-cocos2d-x', function(cb) {
 
 gulp.task('gen-simulator', function(cb) {
     var cocosConsoleRoot = './tools/cocos2d-console/bin';
-    var cocosConsoleBin;
-    if (process.platform === 'darwin') {
-        cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos');
-        if (fs.existsSync('./simulator.xcodeproj')) {
-            // copy mac xcode project with signing info
-            fs.copySync('./simulator.xcodeproj', './tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
-        }
-        else {
-            return cb('Failed to generate simulator, xcode project not signed. Run "gulp sign-simulator" please.');
-        }
-    }
-    else {
-        cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
-    }
+    var cocosConsoleBin = Path.join(cocosConsoleRoot, process.platform === 'win32' ? 'cocos.bat' : 'cocos');
     var args;
     if (process.platform === 'darwin') {
         args = ['gen-simulator', '-m', 'debug', '-p', 'mac'];
@@ -220,9 +207,13 @@ gulp.task('gen-simulator', function(cb) {
 
 gulp.task('sign-simulator', function () {
     if (process.platform === 'darwin') {
-        execSync('git checkout -- ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
-        execSync('/Applications/Xcode.app/Contents/MacOS/Xcode ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
-        fs.copySync('./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj', './simulator.xcodeproj');
+        try {
+            var cmd = fs.readFileSync(Path.join(process.env.HOME, '.ssh', 'codesignCmd_simulator.txt'), 'utf8');
+            execSync(cmd);
+        }
+        catch (e) {
+            console.warn('No need to run sign-simulator since v1.10.', e);
+        }
     }
 });
 
