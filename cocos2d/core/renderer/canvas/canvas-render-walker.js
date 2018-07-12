@@ -44,7 +44,7 @@ RenderComponentWalker.prototype = {
     
     reset() {},
 
-    _commitComp (comp, assembler, cullingMask) {
+    _commitComp (comp, assembler) {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
