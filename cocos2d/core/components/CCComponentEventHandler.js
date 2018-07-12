@@ -63,8 +63,22 @@ cc.Component.EventHandler = cc.Class({
          * @type {String}
          * @default ''
          */
-        component: {
-            default: '',
+        // only for deserializing old project component field
+        component: '',
+        _componentId: '',
+        _componentName: {
+            get () {
+                // to be deprecated in the future
+                if (!this._componentId) {
+                    this._componentName = this.component;
+                    this.component = '';
+                }
+
+                return this._compId2Name(this._componentId);
+            },
+            set (value) {
+                this._componentId = this._compName2Id(value);
+            },
         },
         /**
          * !#en Event handler
@@ -131,7 +145,7 @@ cc.Component.EventHandler = cc.Class({
         var target = this.target;
         if (!cc.isValid(target)) return;
 
-        var comp = target.getComponent(this.component);
+        var comp = target.getComponent(this._componentName);
         if (!cc.isValid(comp)) return;
 
         var handler = comp[this.handler];
@@ -143,5 +157,15 @@ cc.Component.EventHandler = cc.Class({
         }
 
         handler.apply(comp, params);
-    }
+    },
+
+    _compName2Id(compName) {
+        let comp = cc.js.getClassByName(compName);
+        return cc.js._getClassId(comp);
+    },
+
+    _compId2Name(compId) {
+        let comp = cc.js._getClassById(compId);
+        return cc.js.getClassName(comp);
+    },
 });
