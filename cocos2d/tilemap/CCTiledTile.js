@@ -64,7 +64,8 @@ let TiledTile = cc.Class({
                 this._resetTile();
                 this._x = value;
                 this._updateInfo();
-            }
+            },
+            type: cc.Integer
         },
 
         /**
@@ -82,7 +83,8 @@ let TiledTile = cc.Class({
                 this._resetTile();
                 this._y = value;
                 this._updateInfo();
-            }
+            },
+            type: cc.Integer
         },
 
         /**
@@ -97,7 +99,8 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 this._gid = value;
-            }
+            },
+            type: cc.Integer
         },
 
         /**
@@ -126,7 +129,12 @@ let TiledTile = cc.Class({
             this._updateInfo();
         }
         else if (this._layer) {
-            this._layer.setTiledTileAt(this._x, this._y, this);
+            if (this._layer.getTiledTileAt(this._x, this._y)) {
+                cc.warn('There is already a TiledTile at [%s, %s]', x, y);
+            }
+            else {
+                this._layer.setTiledTileAt(this._x, this._y, this);
+            }
         }
     },
 
@@ -154,3 +162,5 @@ let TiledTile = cc.Class({
         this._layer.setTiledTileAt(x, y, this);
     },
 });
+
+cc.TiledTile = module.exports = TiledTile;
