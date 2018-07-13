@@ -1429,11 +1429,11 @@ var Node = cc.Class({
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      * @example
      * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
-     * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
-     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_START, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_END, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
+     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
      */
     on (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
