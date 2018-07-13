@@ -53,4 +53,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
 #endif
+
+    return 0;
 }

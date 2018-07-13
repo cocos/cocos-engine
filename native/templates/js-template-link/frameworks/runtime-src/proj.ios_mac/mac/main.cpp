@@ -30,4 +30,5 @@ int main(int argc, char *argv[])
 {
     AppDelegate app(960, 640);
     app.start();
+    return 0;
 }
