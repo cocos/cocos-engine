@@ -27,8 +27,7 @@
 
 const Node = require('./CCNode');
 const RenderFlow = require('./renderer/render-flow');
-const renderEngine = require('./renderer/render-engine');
-const math = renderEngine.math;
+const math = require('./renderer/render-engine').math;
 
 const LocalDirtyFlag = Node._LocalDirtyFlag;
 const POSITION_ON = 1 << 0;

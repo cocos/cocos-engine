@@ -26,7 +26,6 @@
 const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
 
-const js = require('../core/platform/js');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;

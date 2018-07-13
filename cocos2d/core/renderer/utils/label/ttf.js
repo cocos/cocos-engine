@@ -25,7 +25,6 @@
 
 const macro = require('../../../platform/CCMacro');
 const utils = require('../../../utils/text-utils');
-const renderEngine = require('../../render-engine');
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
@@ -205,7 +204,7 @@ module.exports = {
         }
 
         // outline
-        let outline = LabelOutline && comp.getComponent(LabelOutline);
+        let outline = (LabelOutline instanceof cc.Component) && comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;

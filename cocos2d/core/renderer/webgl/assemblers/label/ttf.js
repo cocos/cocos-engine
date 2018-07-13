@@ -23,9 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../../../platform/CCMacro');
-const renderEngine = require('../../../render-engine');
-
 const js = require('../../../../platform/js');
 const ttfUtls = require('../../../utils/label/ttf');
 

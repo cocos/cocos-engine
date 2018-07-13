@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const math = renderEngine.math;
-
+const math = require('../../cocos2d/core/renderer/render-engine').math;
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;

@@ -34,11 +34,6 @@ const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
-const gfx = renderEngine.gfx;
-const ParticleMaterial = renderEngine.ParticleMaterial;
-const Particles = renderEngine.Particles;
-
-var BlendFactor = macro.BlendFactor;
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.

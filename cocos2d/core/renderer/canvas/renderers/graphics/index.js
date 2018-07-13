@@ -44,7 +44,7 @@ module.exports = {
         // TODO: handle blend function
 
         // opacity
-        ctx.glphaAlpha = node.opacity / 255;
+        ctx.globalAlpha = node.opacity / 255;
 
         let style = comp._impl.style;
         ctx.strokeStyle = style.strokeStyle;

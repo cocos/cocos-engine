@@ -1,6 +1,3 @@
-const mat4 = cc.vmath.mat4;
-const ONE_DEGREE = Math.PI / 180;
-
 const DONOTHING = 0;
 const LOCAL_TRANSFORM = 1 << 0;
 const WORLD_TRANSFORM = 1 << 1;

@@ -23,12 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../../../platform/CCMacro');
-const renderEngine = require('../../../render-engine');
-
 const js = require('../../../../platform/js');
 const bmfontUtls = require('../../../utils/label/bmfont');
-const ttfAssembler = require('./ttf');
 
 module.exports = js.addon({
     createData (comp) {
