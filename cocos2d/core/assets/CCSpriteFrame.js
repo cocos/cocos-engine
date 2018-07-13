@@ -102,6 +102,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
+        // Init EventTarget data
+        EventTarget.call(this);
+
         let filename = arguments[0];
         let rect = arguments[1];
         let rotated = arguments[2];
