@@ -67,13 +67,6 @@
     "dependencies": ["WebGL Renderer"]
   },
   {
-    "name": "Camera",
-    "entries": [
-      "./cocos2d/core/camera/CCCamera.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
     "name": "ParticleSystem",
     "entries": [
       "./cocos2d/particle/index.js"
