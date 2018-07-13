@@ -709,9 +709,6 @@ var Node = cc.Class({
          */
         rotation: {
             get () {
-                if (this._rotationX !== this._rotationY) {
-                    cc.logID(1602);
-                }
                 return this._rotationX;
             },
             set (value) {
