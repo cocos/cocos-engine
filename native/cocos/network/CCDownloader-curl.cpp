@@ -38,6 +38,10 @@
 // member function with suffix "Proc" designed called in DownloaderCURL::_threadProc
 // member function without suffix designed called in main thread
 
+#ifndef CC_CURL_POLL_TIMEOUT_MS
+#define CC_CURL_POLL_TIMEOUT_MS 50
+#endif
+
 namespace cocos2d { namespace network {
     using namespace std;
 
@@ -380,11 +384,14 @@ namespace cocos2d { namespace network {
             }
 
             static const long LOW_SPEED_LIMIT = 1;
-            static const long LOW_SPEED_TIME = 5;
+            static const long LOW_SPEED_TIME = 10;
             curl_easy_setopt(handle, CURLOPT_LOW_SPEED_LIMIT, LOW_SPEED_LIMIT);
             curl_easy_setopt(handle, CURLOPT_LOW_SPEED_TIME, LOW_SPEED_TIME);
 
-            static const int MAX_REDIRS = 2;
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, false);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, false);
+
+            static const int MAX_REDIRS = 5;
             if (MAX_REDIRS)
             {
                 curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, true);
@@ -507,7 +514,7 @@ namespace cocos2d { namespace network {
                     // do wait action
                     if(maxfd == -1)
                     {
-                        this_thread::sleep_for(chrono::milliseconds(timeoutMS));
+                        this_thread::sleep_for(chrono::milliseconds(CC_CURL_POLL_TIMEOUT_MS));
                         rc = 0;
                     }
                     else
