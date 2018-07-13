@@ -957,23 +957,28 @@ static bool JSB_showInputBox(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1)
     {
+        bool ok;
         se::Value tmp;
         const auto& obj = args[0].toObject();
         
         cocos2d::EditBox::ShowInfo showInfo;
         
-        obj->getProperty("defaultValue", &tmp);
+        ok = obj->getProperty("defaultValue", &tmp);
+        SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");
         showInfo.defaultValue = tmp.toString();
         
         
-        obj->getProperty("maxLength", &tmp);
+        ok = obj->getProperty("maxLength", &tmp);
+        SE_PRECONDITION2(ok && tmp.isNumber(), false, "maxLength is invalid!");
         showInfo.maxLength = tmp.toInt32();
         
-        obj->getProperty("multiple", &tmp);
+        ok = obj->getProperty("multiple", &tmp);
+        SE_PRECONDITION2(ok && tmp.isBoolean(), false, "multiple is invalid!");
         showInfo.isMultiline = tmp.toBoolean();
         
         if (obj->getProperty("confirmHold", &tmp))
         {
+            SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
             if (! tmp.isUndefined())
                 showInfo.confirmHold = tmp.toBoolean();
         }
@@ -981,12 +986,14 @@ static bool JSB_showInputBox(se::State& s)
         
         if (obj->getProperty("confirmType", &tmp))
         {
+            SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
             if (!tmp.isUndefined())
                 showInfo.confirmType = tmp.toString();
         }
         
         if (obj->getProperty("inputType", &tmp))
         {
+            SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
             if (! tmp.isUndefined())
                 showInfo.inputType = tmp.toString();
         }
@@ -994,24 +1001,28 @@ static bool JSB_showInputBox(se::State& s)
         
         if (obj->getProperty("originX", &tmp))
         {
+            SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
             if (! tmp.isUndefined())
                 showInfo.x = tmp.toInt32();
         }
 
         if (obj->getProperty("originY", &tmp))
         {
+            SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
             if (! tmp.isUndefined())
                 showInfo.y = tmp.toInt32();
         }
 
         if (obj->getProperty("width", &tmp))
         {
+            SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
             if (! tmp.isUndefined())
                 showInfo.width = tmp.toInt32();
         }
 
         if (obj->getProperty("height", &tmp))
         {
+            SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
             if (! tmp.isUndefined())
                 showInfo.height = tmp.toInt32();
         }
