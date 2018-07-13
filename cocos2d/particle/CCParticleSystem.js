@@ -255,7 +255,7 @@ var properties = {
      */
     texture: {
         get: function () {
-            return this._texture ? this._texture.url : "";
+            return this._texture;
         },
         set: function (value) {
             cc.warnID(6017);
