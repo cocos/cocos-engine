@@ -156,23 +156,21 @@ var Canvas = cc.Class({
         this.onResized();
 
         // Camera could be removed in canvas render mode
-        if (Camera instanceof cc.Component) {
-            let cameraNode = cc.find('Main Camera', this.node);
-            if (!cameraNode) {
-                cameraNode = new cc.Node('Main Camera');
-                cameraNode.parent = this.node;
-                cameraNode.setSiblingIndex(0);
-            }
-            let camera = cameraNode.getComponent(Camera);
-            if (!camera) {
-                camera = cameraNode.addComponent(Camera);
-                
-                let ClearFlags = Camera.ClearFlags;
-                camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH;
-                camera.depth = -1;
-            }
-            Camera.main = camera;
+        let cameraNode = cc.find('Main Camera', this.node);
+        if (!cameraNode) {
+            cameraNode = new cc.Node('Main Camera');
+            cameraNode.parent = this.node;
+            cameraNode.setSiblingIndex(0);
         }
+        let camera = cameraNode.getComponent(Camera);
+        if (!camera) {
+            camera = cameraNode.addComponent(Camera);
+            
+            let ClearFlags = Camera.ClearFlags;
+            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH;
+            camera.depth = -1;
+        }
+        Camera.main = camera;
     },
 
     onDestroy: function () {
