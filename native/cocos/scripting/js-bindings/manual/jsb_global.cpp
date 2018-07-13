@@ -972,33 +972,49 @@ static bool JSB_showInputBox(se::State& s)
         obj->getProperty("multiple", &tmp);
         showInfo.isMultiline = tmp.toBoolean();
         
-        obj->getProperty("confirmHold", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.confirmHold = tmp.toBoolean();
+        if (obj->getProperty("confirmHold", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.confirmHold = tmp.toBoolean();
+        }
+
         
-        obj->getProperty("confirmType", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.confirmType = tmp.toString();
+        if (obj->getProperty("confirmType", &tmp))
+        {
+            if (!tmp.isUndefined())
+                showInfo.confirmType = tmp.toString();
+        }
         
-        obj->getProperty("inputType", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.inputType = tmp.toString();
+        if (obj->getProperty("inputType", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.inputType = tmp.toString();
+        }
+
         
-        obj->getProperty("originX", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.x = tmp.toInt32();
-        
-        obj->getProperty("originY", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.y = tmp.toInt32();
-        
-        obj->getProperty("width", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.width = tmp.toInt32();
-        
-        obj->getProperty("height", &tmp);
-        if (! tmp.isUndefined())
-            showInfo.height = tmp.toInt32();
+        if (obj->getProperty("originX", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.x = tmp.toInt32();
+        }
+
+        if (obj->getProperty("originY", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.y = tmp.toInt32();
+        }
+
+        if (obj->getProperty("width", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.width = tmp.toInt32();
+        }
+
+        if (obj->getProperty("height", &tmp))
+        {
+            if (! tmp.isUndefined())
+                showInfo.height = tmp.toInt32();
+        }
         
         EditBox::show(showInfo);
         
