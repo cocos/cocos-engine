@@ -47,6 +47,8 @@ const ONE_DEGREE = Math.PI / 180;
 
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
+var _vec2a = cc.v2();
+var _vec2b = cc.v2();
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
@@ -1730,23 +1732,24 @@ var Node = cc.Class({
     },
 
     _hitTest (point, listener) {
-        var w = this.width,
-            h = this.height;
-        var testPt;
+        let w = this._contentSize.width,
+            h = this._contentSize.height,
+            cameraPt = _vec2a,
+            testPt = _vec2b;
         
         let camera = cc.Camera.findCamera(this);
         if (camera) {
-            testPt = camera.getCameraToWorldPoint(point);
+            camera.getCameraToWorldPoint(point, cameraPt);
         }
         else {
-            testPt = cc.v2(point);
+            cameraPt.set(point);
         }
 
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        math.vec2.transformMat4(testPt, testPt, _mat4_temp);
-        testPt.x += this._anchorPoint.x * this._contentSize.width;
-        testPt.y += this._anchorPoint.y * this._contentSize.height;
+        math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        testPt.x += this._anchorPoint.x * w;
+        testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
@@ -1757,7 +1760,7 @@ var Node = cc.Class({
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(point) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
                 }
                 // mask parent no longer exists
                 else {
