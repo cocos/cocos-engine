@@ -549,7 +549,7 @@ var Color = (function () {
         return hsv;
     };
 
-    proto.fromColor = function (color) {
+    proto.set = function (color) {
         if (color._val) {
             this._val = color._val;
         }

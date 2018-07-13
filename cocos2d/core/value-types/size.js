@@ -135,6 +135,11 @@ proto.lerp = function (to, ratio, out) {
     return out;
 };
 
+proto.set = function (source) {
+    this.width = source.width;
+    this.height = source.height;
+};
+
 /**
  * !#en TODO
  * !#zh 转换为方便阅读的字符串。

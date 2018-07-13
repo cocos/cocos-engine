@@ -77,6 +77,18 @@ if (CC_EDITOR) {
         cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
     };
+
+    /**
+     * !#en
+     * Copys all the properties from another given object to this value.
+     * !#zh
+     * 从其它对象把所有属性复制到当前对象。
+     * @method set
+     * @param {ValueType} source - the source to copy
+     */
+    proto.set = function (source) {
+        cc.errorID('0100', js.getClassName(this) + '.set');
+    };
 }
 
 /**

@@ -931,7 +931,7 @@ var Node = cc.Class({
             },
             set (value) {
                 if (!this._color.equals(value)) {
-                    this._color.fromColor(value);
+                    this._color.set(value);
                     if (CC_DEV && value.a !== 255) {
                         cc.warnID(1626);
                     }

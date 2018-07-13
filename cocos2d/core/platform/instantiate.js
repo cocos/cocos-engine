@@ -25,9 +25,9 @@
  ****************************************************************************/
 
 var CCObject = require('./CCObject');
+var CCValueType = require('../value-types/value-type');
 var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
-var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
@@ -165,7 +165,14 @@ function enumerateCCClass (klass, obj, clone, parent) {
         var key = props[p];
         var value = obj[key];
         if (typeof value === 'object' && value) {
-            clone[key] = value._iN$t || instantiateObj(value, parent);
+            var initValue = clone[key];
+            if (initValue instanceof CCValueType &&
+                initValue.constructor === value.constructor) {
+                initValue.set(value);
+            }
+            else {
+                clone[key] = value._iN$t || instantiateObj(value, parent);
+            }
         }
         else {
             clone[key] = value;
@@ -213,7 +220,7 @@ function enumerateObject (obj, clone, parent) {
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
 function instantiateObj (obj, parent) {
-    if (obj instanceof cc.ValueType) {
+    if (obj instanceof CCValueType) {
         return obj.clone();
     }
     if (obj instanceof cc.Asset) {
