@@ -129,8 +129,11 @@ let TiledTile = cc.Class({
             this._updateInfo();
         }
         else if (this._layer) {
-            if (this._layer.getTiledTileAt(this._x, this._y)) {
-                cc.warn('There is already a TiledTile at [%s, %s]', x, y);
+            let tile = this._layer.getTiledTileAt(this._x, this._y);
+            if (tile) {
+                if (tile !== this) {
+                    cc.warn('There is already a TiledTile at [%s, %s]', x, y);
+                }
             }
             else {
                 this._layer.setTiledTileAt(this._x, this._y, this);
