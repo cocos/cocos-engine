@@ -148,7 +148,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         bundler.ignore(file);
     });
 
-    bundler.ignore('./DebugInfos.json');
+    bundler.ignore(Path.resolve(__dirname, '../../DebugInfos.json'));
 
     var Size = null;
     try {
@@ -306,7 +306,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         bundler.ignore(require.resolve(module));
     });
 
-    bundler.ignore('../../DebugInfos.json');
+    bundler.ignore(Path.resolve(__dirname, '../../DebugInfos.json'));
 
     bundler.bundle()
         .on('error', HandleErrors.handler)
