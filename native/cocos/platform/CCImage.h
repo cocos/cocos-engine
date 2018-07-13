@@ -204,20 +204,20 @@ public:
     bool initWithRawData(const unsigned char * data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
 
     // Getters
-    inline unsigned char *   getData()               { return _data; }
-    inline ssize_t           getDataLen()            { return _dataLen; }
-    inline Format            getFileType()           {return _fileType; }
-    inline PixelFormat getRenderFormat()  { return _renderFormat; }
-    inline int               getWidth()              { return _width; }
-    inline int               getHeight()             { return _height; }
-    inline int               getNumberOfMipmaps()    { return _numberOfMipmaps; }
-    inline MipmapInfo*       getMipmaps()            { return _mipmaps; }
-    inline bool              hasPremultipliedAlpha() { return _hasPremultipliedAlpha; }
-    inline std::string getFilePath() const { return _filePath; }
+    inline unsigned char*    getData() const               { return _data; }
+    inline ssize_t           getDataLen() const            { return _dataLen; }
+    inline Format            getFileType() const           { return _fileType; }
+    inline PixelFormat       getRenderFormat() const       { return _renderFormat; }
+    inline int               getWidth() const              { return _width; }
+    inline int               getHeight() const             { return _height; }
+    inline int               getNumberOfMipmaps() const    { return _numberOfMipmaps; }
+    inline const MipmapInfo* getMipmaps() const            { return _mipmaps; }
+    inline bool              hasPremultipliedAlpha() const { return _hasPremultipliedAlpha; }
+    inline std::string       getFilePath() const           { return _filePath; }
 
-    int                      getBitPerPixel();
-    bool                     hasAlpha();
-    bool                     isCompressed();
+    int                      getBitPerPixel() const;
+    bool                     hasAlpha() const;
+    bool                     isCompressed() const;
 
     const PixelFormatInfo& getPixelFormatInfo() const;
 

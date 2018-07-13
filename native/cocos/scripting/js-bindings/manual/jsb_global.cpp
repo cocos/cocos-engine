@@ -645,7 +645,80 @@ static bool js_performance_now(se::State& s)
 }
 SE_BIND_FUNC(js_performance_now)
 
-bool jsb_global_load_image(std::string path, se::Value callbackVal) {
+namespace
+{
+    struct ImageInfo
+    {
+        ~ImageInfo()
+        {
+            if (freeData)
+                delete [] data;
+        }
+        
+        uint32_t length = 0;
+        uint32_t width = 0;
+        uint32_t height = 0;
+        uint8_t* data = nullptr;
+        GLenum glFormat = GL_RGBA;
+        GLenum glInternalFormat = GL_RGBA;
+        GLenum type = GL_UNSIGNED_BYTE;
+        uint8_t bpp = 0;
+        uint8_t numberOfMipmaps = 0;
+        bool hasAlpha = false;
+        bool hasPremultipliedAlpha = false;
+        bool compressed = false;
+        
+        bool freeData = false;
+    };
+    
+    struct ImageInfo* createImageInfo(const Image* img)
+    {
+        struct ImageInfo* imgInfo = new struct ImageInfo();
+        imgInfo->length = (uint32_t)img->getDataLen();
+        imgInfo->width = img->getWidth();
+        imgInfo->height = img->getHeight();
+        imgInfo->data = img->getData();
+        
+        const auto& pixelFormatInfo = img->getPixelFormatInfo();
+        imgInfo->glFormat = pixelFormatInfo.format;
+        imgInfo->glInternalFormat = pixelFormatInfo.internalFormat;
+        imgInfo->type = pixelFormatInfo.type;
+        
+        imgInfo->bpp = img->getBitPerPixel();
+        imgInfo->numberOfMipmaps = img->getNumberOfMipmaps();
+        imgInfo->hasAlpha = img->hasAlpha();
+        imgInfo->hasPremultipliedAlpha = img->hasPremultipliedAlpha();
+        imgInfo->compressed = img->isCompressed();
+        
+        // Convert to RGBA888 because standard web api will return only RGBA888.
+        // If not, then it may have issue in glTexSubImage. For example, engine
+        // will create a big texture, and update its content with small pictures.
+        // The big texture is RGBA888, then the small picture should be the same
+        // format, or it will cause 0x502 error on OpenGL ES 2.
+        if (GL_RGB == imgInfo->glFormat)
+        {
+            imgInfo->length = img->getWidth() * img->getHeight() * 4;
+            uint8_t* dst = new uint8_t[imgInfo->length];
+            uint8_t* src = imgInfo->data;
+            for (uint32_t i = 0, length = imgInfo->length; i < length; i += 4)
+            {
+                dst[i] = *src++;
+                dst[i + 1] = *src++;
+                dst[i + 2] = *src++;
+                dst[i + 3] = 255;
+            }
+            imgInfo->data = dst;
+            imgInfo->hasAlpha = true;
+            imgInfo->bpp = 32;
+            imgInfo->glFormat = GL_RGBA;
+            imgInfo->glInternalFormat = GL_RGBA;
+            imgInfo->freeData = true;
+        }
+        
+        return imgInfo;
+    }
+}
+bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal) {
     if (path.empty())
     {
         SE_REPORT_ERROR("src is empty!");
@@ -668,34 +741,32 @@ bool jsb_global_load_image(std::string path, se::Value callbackVal) {
                 free(imageData);
             }
             else
-            {
                 loadSucceed = img->initWithImageFile(fullPath);
-            }
-
+            
+            auto imgInfo = createImageInfo(img);
             Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
                 if (loadSucceed)
                 {
                     se::AutoHandleScope hs;
                     se::HandleObject retObj(se::Object::createPlainObject());
                     Data data;
-                    data.copy(img->getData(), img->getDataLen());
+                    data.copy(imgInfo->data, imgInfo->length);
                     se::Value dataVal;
                     Data_to_seval(data, &dataVal);
                     retObj->setProperty("data", dataVal);
-                    retObj->setProperty("width", se::Value(img->getWidth()));
-                    retObj->setProperty("height", se::Value(img->getHeight()));
-                    retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
-                    retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
-                    retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
-                    retObj->setProperty("compressed", se::Value(img->isCompressed()));
-                    int numberOfMipmaps = img->getNumberOfMipmaps();
-                    retObj->setProperty("numberOfMipmaps", se::Value(numberOfMipmaps));
-                    if (numberOfMipmaps > 0)
+                    retObj->setProperty("width", se::Value(imgInfo->width));
+                    retObj->setProperty("height", se::Value(imgInfo->height));
+                    retObj->setProperty("premultiplyAlpha", se::Value(imgInfo->hasPremultipliedAlpha));
+                    retObj->setProperty("bpp", se::Value(imgInfo->bpp));
+                    retObj->setProperty("hasAlpha", se::Value(imgInfo->hasAlpha));
+                    retObj->setProperty("compressed", se::Value(imgInfo->compressed));
+                    retObj->setProperty("numberOfMipmaps", se::Value(imgInfo->numberOfMipmaps));
+                    if (imgInfo->numberOfMipmaps > 0)
                     {
-                        se::HandleObject mipmapArray(se::Object::createArrayObject(numberOfMipmaps));
+                        se::HandleObject mipmapArray(se::Object::createArrayObject(imgInfo->numberOfMipmaps));
                         retObj->setProperty("mipmaps", se::Value(mipmapArray));
-                        MipmapInfo* mipmapInfo = img->getMipmaps();
-                        for (int i = 0; i < numberOfMipmaps; ++i)
+                        auto mipmapInfo = img->getMipmaps();
+                        for (int i = 0; i < imgInfo->numberOfMipmaps; ++i)
                         {
                             se::HandleObject info(se::Object::createPlainObject());
                             info->setProperty("offset", se::Value(mipmapInfo[i].offset));
@@ -704,10 +775,9 @@ bool jsb_global_load_image(std::string path, se::Value callbackVal) {
                         }
                     }
 
-                    const auto& pixelFormatInfo = img->getPixelFormatInfo();
-                    retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
-                    retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
-                    retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
+                    retObj->setProperty("glFormat", se::Value(imgInfo->glFormat));
+                    retObj->setProperty("glInternalFormat", se::Value(imgInfo->glInternalFormat));
+                    retObj->setProperty("glType", se::Value(imgInfo->type));
                     se::ValueArray seArgs;
                     seArgs.push_back(se::Value(retObj));
                     callbackVal.toObject()->call(seArgs, nullptr);
@@ -719,6 +789,7 @@ bool jsb_global_load_image(std::string path, se::Value callbackVal) {
                 }
 
                 img->release();
+                delete imgInfo;
             });
 
         });
@@ -764,9 +835,10 @@ bool jsb_global_load_image(std::string path, se::Value callbackVal) {
     }
     else
     {
+        std::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
         if (0 == path.find("file://"))
-            path = path.substr(strlen("file://"));
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+            fullPath = FileUtils::getInstance()->fullPathForFilename(path.substr(strlen("file://")));
+        
         if (fullPath.empty())
         {
             SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());

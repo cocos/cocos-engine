@@ -732,17 +732,17 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     }
 }
 
-int Image::getBitPerPixel()
+int Image::getBitPerPixel() const
 {
     return getPixelFormatInfoMap().at(_renderFormat).bpp;
 }
 
-bool Image::hasAlpha()
+bool Image::hasAlpha() const
 {
     return getPixelFormatInfoMap().at(_renderFormat).alpha;
 }
 
-bool Image::isCompressed()
+bool Image::isCompressed() const
 {
     return getPixelFormatInfoMap().at(_renderFormat).compressed;
 }
