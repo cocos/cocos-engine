@@ -1338,6 +1338,53 @@ var Node = cc.Class({
 
     // EVENT TARGET
 
+    _checknSetupSysEvent (type) {
+        let newAdded = false;
+        let forDispatch = false;
+        if (_touchEvents.indexOf(type) !== -1) {
+            if (!this._touchListener) {
+                this._touchListener = cc.EventListener.create({
+                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                    swallowTouches: true,
+                    owner: this,
+                    mask: _searchMaskInParent(this),
+                    onTouchBegan: _touchStartHandler,
+                    onTouchMoved: _touchMoveHandler,
+                    onTouchEnded: _touchEndHandler,
+                    onTouchCancelled: _touchCancelHandler
+                });
+                eventManager.addListener(this._touchListener, this);
+                newAdded = true;
+            }
+            forDispatch = true;
+        }
+        else if (_mouseEvents.indexOf(type) !== -1) {
+            if (!this._mouseListener) {
+                this._mouseListener = cc.EventListener.create({
+                    event: cc.EventListener.MOUSE,
+                    _previousIn: false,
+                    owner: this,
+                    mask: _searchMaskInParent(this),
+                    onMouseDown: _mouseDownHandler,
+                    onMouseMove: _mouseMoveHandler,
+                    onMouseUp: _mouseUpHandler,
+                    onMouseScroll: _mouseWheelHandler,
+                });
+                eventManager.addListener(this._mouseListener, this);
+                newAdded = true;
+            }
+            forDispatch = true;
+        }
+        if (newAdded && !this._activeInHierarchy) {
+            cc.director.getScheduler().schedule(function () {
+                if (!this._activeInHierarchy) {
+                    eventManager.pauseTarget(this);
+                }
+            }, this, 0, 0, 0, false);
+        }
+        return forDispatch;
+    },
+
     /**
      * !#en
      * Register a callback of a specific event type on Node.<br/>
@@ -1389,50 +1436,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
     on (type, callback, target, useCapture) {
-        let newAdded = false;
-        let forDispatch = false;
-        if (_touchEvents.indexOf(type) !== -1) {
-            if (!this._touchListener) {
-                this._touchListener = cc.EventListener.create({
-                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
-                    swallowTouches: true,
-                    owner: this,
-                    mask: _searchMaskInParent(this),
-                    onTouchBegan: _touchStartHandler,
-                    onTouchMoved: _touchMoveHandler,
-                    onTouchEnded: _touchEndHandler,
-                    onTouchCancelled: _touchCancelHandler
-                });
-                eventManager.addListener(this._touchListener, this);
-                newAdded = true;
-            }
-            forDispatch = true;
-        }
-        else if (_mouseEvents.indexOf(type) !== -1) {
-            if (!this._mouseListener) {
-                this._mouseListener = cc.EventListener.create({
-                    event: cc.EventListener.MOUSE,
-                    _previousIn: false,
-                    owner: this,
-                    mask: _searchMaskInParent(this),
-                    onMouseDown: _mouseDownHandler,
-                    onMouseMove: _mouseMoveHandler,
-                    onMouseUp: _mouseUpHandler,
-                    onMouseScroll: _mouseWheelHandler,
-                });
-                eventManager.addListener(this._mouseListener, this);
-                newAdded = true;
-            }
-            forDispatch = true;
-        }
-        if (newAdded && !this._activeInHierarchy) {
-            cc.director.getScheduler().schedule(function () {
-                if (!this._activeInHierarchy) {
-                    eventManager.pauseTarget(this);
-                }
-            }, this, 0, 0, 0, false);
-        }
-
+        let forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
         }
@@ -1458,6 +1462,53 @@ var Node = cc.Class({
                 this._bubblingListeners = new EventTarget();
             }
             return this._bubblingListeners.on(type, callback, target);
+        }
+    },
+
+    /**
+     * !#en
+     * Register an callback of a specific event type on the Node,
+     * the callback will remove itself after the first time it is triggered.
+     * !#zh
+     * 注册节点的特定事件类型回调，回调会在第一时间被触发后删除自身。
+     *
+     * @method once
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event} callback.event event or first argument when emit
+     * @param {Event} callback.arg2 arg2
+     * @param {Event} callback.arg3 arg3
+     * @param {Event} callback.arg4 arg4
+     * @param {Event} callback.arg5 arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @typescript
+     * once<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @example
+     * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     */
+    once (type, callback, target, useCapture) {
+        let forDispatch = this._checknSetupSysEvent(type);
+        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+
+        let listeners = null;
+        if (forDispatch && useCapture) {
+            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+        }
+        else {
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+        }
+
+        let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
+        if (!hasOnceListener) {
+            let self = this;
+            let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
+                self.off(type, onceWrapper, target);
+                listeners.remove(eventType_hasOnceListener, callback, target);
+                callback.call(this, arg1, arg2, arg3, arg4, arg5);
+            };
+            this.on(type, onceWrapper, target);
+            listeners.add(eventType_hasOnceListener, callback, target);
         }
     },
 
@@ -1489,26 +1540,6 @@ var Node = cc.Class({
         }
 
         return callback;
-    },
-
-     _onceDispatch (type, callback, target, useCapture) {
-        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-        var hasOnceListener = listeners && listeners.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            var self = this;
-            var onceWrapper = function (event) {
-                self._offDispatch(type, onceWrapper, target, useCapture);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, event);
-            };
-            this._onDispatch(type, onceWrapper, target, useCapture);
-            if (!listeners) {
-                // obtain new created listeners
-                listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-            }
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
     },
 
     /**
