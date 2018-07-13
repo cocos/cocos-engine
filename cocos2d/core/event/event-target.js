@@ -177,10 +177,10 @@ proto.once = function (type, callback, target) {
     var hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
     if (!hasOnceListener) {
         var self = this;
-        var onceWrapper = function (event) {
+        var onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
             self.off(type, onceWrapper, target);
             self.remove(eventType_hasOnceListener, callback, target);
-            callback.call(this, event);
+            callback.call(this, arg1, arg2, arg3, arg4, arg5);
         };
         this.on(type, onceWrapper, target);
         this.add(eventType_hasOnceListener, callback, target);
