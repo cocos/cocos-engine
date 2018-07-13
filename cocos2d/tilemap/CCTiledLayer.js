@@ -333,8 +333,10 @@ let TiledLayer = cc.Class({
         if (!tile && forceCreate) {
             let node = new cc.Node();
             tile = node.addComponent(cc.TiledTile);
-            tile.x = x;
-            tile.y = y;
+            tile._x = x;
+            tile._y = y;
+            tile._layer = this;
+            tile._updateInfo();
             node.parent = this.node;
             return tile;
         }
