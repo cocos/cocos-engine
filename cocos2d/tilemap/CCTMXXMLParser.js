@@ -832,7 +832,7 @@ cc.TMXMapInfo.prototype = {
 
         let color = selGroup.getAttribute('color');
         if (color)
-            objectGroup._color = cc.hexToColor(color);
+            objectGroup._color.fromHEX(color);
 
         let draworder = selGroup.getAttribute('draworder');
         if (draworder)
