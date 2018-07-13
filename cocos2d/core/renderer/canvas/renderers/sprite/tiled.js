@@ -59,7 +59,7 @@ let renderer = {
         let sw = frame._rotated ? rect.height : rect.width;
         let sh = frame._rotated ? rect.width : rect.height;
 
-        let image = utils.getFrameCache(tex, node.color, sx, sy, sw, sh);
+        let image = utils.getFrameCache(tex, node._color, sx, sy, sw, sh);
 
         let w = node.width,
             h = node.height,

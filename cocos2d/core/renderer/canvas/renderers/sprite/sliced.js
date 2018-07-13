@@ -126,7 +126,7 @@ let renderer = {
         let tex = comp._spriteFrame._texture,
             data = comp._renderData._data;
 
-        let image = utils.getColorizedImage(tex, node.color);
+        let image = utils.getColorizedImage(tex, node._color);
 
         let drawCall = 0;
         let off, ld, rd, td, bd,

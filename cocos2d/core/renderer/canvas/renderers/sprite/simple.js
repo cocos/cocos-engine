@@ -133,7 +133,7 @@ let renderer = {
         let tex = comp._spriteFrame._texture,
             data = comp._renderData._data;
 
-        let image = utils.getColorizedImage(tex, node.color);
+        let image = utils.getColorizedImage(tex, node._color);
 
         let x = data[0].x;
         let y = data[0].y;

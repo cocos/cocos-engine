@@ -89,7 +89,7 @@ module.exports = js.addon({
         let tex = comp._texture,
             data = comp._renderData._data;
 
-        let image = utils.getColorizedImage(tex, node.color);
+        let image = tex.getHtmlElementObj();
 
         for (let i = 0, l = data.length; i < l; i+=2) {
             let x = data[i].x;
