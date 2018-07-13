@@ -2368,7 +2368,7 @@ var Node = cc.Class({
         let t = this._matrix;
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
-        if (dirtyFlag & LocalDirtyFlag.RT) {
+        if (dirtyFlag & (LocalDirtyFlag.RT | LocalDirtyFlag.SKEW)) {
             let hasRotation = this._rotationX || this._rotationY;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
