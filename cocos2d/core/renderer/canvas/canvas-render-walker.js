@@ -34,6 +34,8 @@ let RenderComponentWalker = function (device, defaultCamera) {
     // let vh = this._device._vh;
     this._camera = defaultCamera;
 
+    this.parentOpacity = 1;
+    this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
     
     RenderFlow.init(this);

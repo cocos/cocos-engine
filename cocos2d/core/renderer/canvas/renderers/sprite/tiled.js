@@ -49,7 +49,7 @@ let renderer = {
         // TODO: handle blend function
 
         // opacity
-        ctx.glphaAlpha = node.opacity / 255;
+        ctx.globalAlpha = node.opacity / 255;
 
         let frame = sprite.spriteFrame;
         let rect = frame._rect;

@@ -84,7 +84,7 @@ module.exports = js.addon({
         // TODO: handle blend function
 
         // opacity
-        ctx.glphaAlpha = node.opacity / 255;
+        ctx.globalAlpha = node.opacity / 255;
 
         let tex = comp._texture,
             data = comp._renderData._data;
