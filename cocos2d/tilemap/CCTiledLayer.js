@@ -283,11 +283,11 @@ let TiledLayer = cc.Class({
 
     getTileFlagsAt (pos, y) {
         if(!pos)
-            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null");
+            throw new Error("TiledLayer.getTileFlagsAt: pos should be non-null");
         if(y !== undefined)
             pos = cc.v2(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
+            throw new Error("TiledLayer.getTileFlagsAt: invalid position");
         if(!this._tiles){
             cc.logID(7208);
             return null;
@@ -302,37 +302,26 @@ let TiledLayer = cc.Class({
 
     /**
      * !#en
-     * Returns the tile (_ccsg.Sprite) at a given a tile coordinate. <br/>
-     * The returned _ccsg.Sprite will be already added to the _ccsg.TMXLayer. Don't add it again.<br/>
-     * The _ccsg.Sprite can be treated like any other _ccsg.Sprite: rotated, scaled, translated, opacity, color, etc. <br/>
-     * You can remove either by calling: <br/>
-     * - layer.removeChild(sprite, cleanup); <br/>
-     * - or layer.removeTileAt(ccp(x,y));
+     * Get the TiledTile with the tile coordinate.<br/>
+     * If there is no tile in the specified coordinate and forceCreate parameter is true, <br/>
+     * then will create a new TiledTile at the coordinate.
+     * The renderer will render the tile with the rotation, scale, position and color property of the TiledTile.
      * !#zh
-     * 通过指定的 tile 坐标获取对应的 tile(Sprite)。 返回的 tile(Sprite) 应是已经添加到 TMXLayer，请不要重复添加。<br/>
-     * 这个 tile(Sprite) 如同其他的 Sprite 一样，可以旋转、缩放、翻转、透明化、设置颜色等。<br/>
-     * 你可以通过调用以下方法来对它进行删除:<br/>
-     * 1. layer.removeChild(sprite, cleanup);<br/>
-     * 2. 或 layer.removeTileAt(cc.v2(x,y));
-     * @method getTileAt
-     * @param {Vec2|Number} pos or x
-     * @param {Number} [y]
+     * 通过指定的 tile 坐标获取对应的 TiledTile。 <br/>
+     * 如果指定的坐标没有 tile，并且设置了 forceCreate 那么将会在指定的坐标创建一个新的 TiledTile 。<br/>
+     * 在渲染这个 tile 的时候，将会使用 TiledTile 的节点的旋转、缩放、位移、颜色属性。<br/>
+     * @method getTiledTileAt
+     * @param {Integer} x
+     * @param {Integer} y
+     * @param {Boolean} forceCreate
      * @return {cc.TiledTile}
      * @example
-     * let title = tiledLayer.getTileAt(100, 100);
-     * cc.log(title);
+     * let tile = tiledLayer.getTileAt(100, 100, true);
+     * cc.log(tile);
      */
-    getTiledTileAt (pos, y) {
-        if (pos === undefined) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
-        }
-        let x = pos;
-        if (y === undefined) {
-            x = pos.x;
-            y = pos.y;
-        }
+    getTiledTileAt (x, y, forceCreate) {
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
+            throw new Error("TiledLayer.getTiledTileAt: invalid position");
         }
         if (!this._tiles) {
             cc.logID(7204);
@@ -340,20 +329,32 @@ let TiledLayer = cc.Class({
         }
 
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        return this._tiledTiles[index];
+        let tile = this._tiledTiles[index];
+        if (!tile && forceCreate) {
+            let node = new cc.Node();
+            tile = node.addComponent(cc.TiledTile);
+            tile.x = x;
+            tile.y = y;
+            node.parent = this.node;
+            return tile;
+        }
+        return tile;
     },
 
-    setTiledTileAt (pos, y, tiledTile) {
-        if (pos === undefined) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
-        }
-        let x = pos;
-        if (y === undefined) {
-            x = pos.x;
-            y = pos.y;
-        }
+    /** 
+     * !#en
+     * Change tile to TiledTile at the specified coordinate.
+     * !#zh
+     * 将指定的 tile 坐标替换为指定的 TiledTile。
+     * @method setTiledTileAt
+     * @param {Integer} x
+     * @param {Integer} y
+     * @param {cc.TiledTile} tiledTile
+     * @return {cc.TiledTile}
+     */
+    setTiledTileAt (x, y, tiledTile) {
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
+            throw new Error("TiledLayer.setTiledTileAt: invalid position");
         }
         if (!this._tiles) {
             cc.logID(7204);
