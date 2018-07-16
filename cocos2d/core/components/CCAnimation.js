@@ -38,6 +38,58 @@ function equalClips (clip1, clip2) {
 }
 
 /**
+ * !#en The event type supported by Animation
+ * !#zh Animation 支持的事件类型
+ * @class Animation.EventType
+ * @static
+ * @namespace Animationd
+ */
+var EventType = cc.Enum({
+    /**
+     * !#en Emit when begin playing animation
+     * !#zh 开始播放时触发
+     * @property {String} PLAY
+     * @static
+     */
+    PLAY: 'play',
+    /**
+     * !#en Emit when stop playing animation
+     * !#zh 停止播放时触发
+     * @property {String} STOP
+     * @static
+     */
+    STOP: 'stop',
+    /**
+     * !#en Emit when pause animation
+     * !#zh 暂停播放时触发
+     * @property {String} PAUSE   
+     * @static
+     */
+    PAUSE: 'pause',
+    /**
+     * !#en Emit when resume animation
+     * !#zh 恢复播放时触发
+     * @property {String} RESUME
+     * @static
+     */
+    RESUME: 'resume',
+    /**
+     * !#en If animation repeat count is larger than 1, emit when animation play to the last frame
+     * !#zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发
+     * @property {String} LASTFRAME
+     * @static
+     */
+    LASTFRAME: 'lastframe',
+    /**
+     * !#en Emit when finish playing animation
+     * !#zh 动画播放完成时触发
+     * @property {String} FINISHED
+     * @static
+     */
+    FINISHED: 'finished'
+})
+
+/**
  * !#en The animation component is used to play back animations.
  *   
  * Animation provide several events to register：
@@ -71,6 +123,10 @@ var Animation = cc.Class({
         menu: 'i18n:MAIN_MENU.component.others/Animation',
         help: 'i18n:COMPONENT.help_url.animation',
         executeInEditMode: true,
+    },
+
+    statics: {
+        EventType
     },
 
     ctor: function () {

@@ -214,8 +214,8 @@ var spineAssembler = {
             }
 
             // Fill up indices
+            indices = data._indices;
             if (attachment instanceof spine.RegionAttachment) {
-                indices = data._indices;
                 indices[indiceOffset] = vertexOffset;
                 indices[indiceOffset + 1] = vertexOffset + 1;
                 indices[indiceOffset + 2] = vertexOffset + 2;

@@ -47,6 +47,8 @@ const ONE_DEGREE = Math.PI / 180;
 
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
+var _vec2a = cc.v2();
+var _vec2b = cc.v2();
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
@@ -122,7 +124,7 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
@@ -709,9 +711,6 @@ var Node = cc.Class({
          */
         rotation: {
             get () {
-                if (this._rotationX !== this._rotationY) {
-                    cc.logID(1602);
-                }
                 return this._rotationX;
             },
             set (value) {
@@ -1339,54 +1338,7 @@ var Node = cc.Class({
 
     // EVENT TARGET
 
-    /**
-     * !#en
-     * Register a callback of a specific event type on Node.<br/>
-     * Use this method to register touch or mouse event permit propagation based on scene graph,<br/>
-     * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:<br/>
-     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target<br/>
-     * 2. At target phase: dispatch to the listeners of the real target<br/>
-     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root<br/>
-     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
-     * It's the recommended way to register touch/mouse event for Node,<br/>
-     * please do not use cc.eventManager directly for Node.<br/>
-     * You can also register custom event and use `emit` to trigger custom event on Node.<br/>
-     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.<br/>
-     * You can also pass event callback parameters with `emit` by passing parameters after `type`.
-     * !#zh
-     * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
-     * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
-     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
-     * 2. 目标阶段：派发给目标节点的监听器。<br/>
-     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
-     * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
-     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
-     * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
-     * @method on
-     * @param {String} type - A string representing the event type to listen for.<br>
-     *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.event event
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
-     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
-     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
-     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
-     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
-     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
-     * @typescript
-     * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
-     * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
-     * @example
-     * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
-     * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
-     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
-     */
-    on (type, callback, target, useCapture) {
+    _checknSetupSysEvent (type) {
         let newAdded = false;
         let forDispatch = false;
         if (_touchEvents.indexOf(type) !== -1) {
@@ -1430,7 +1382,61 @@ var Node = cc.Class({
                 }
             }, this, 0, 0, 0, false);
         }
+        return forDispatch;
+    },
 
+    /**
+     * !#en
+     * Register a callback of a specific event type on Node.<br/>
+     * Use this method to register touch or mouse event permit propagation based on scene graph,<br/>
+     * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:<br/>
+     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target<br/>
+     * 2. At target phase: dispatch to the listeners of the real target<br/>
+     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root<br/>
+     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
+     * It's the recommended way to register touch/mouse event for Node,<br/>
+     * please do not use cc.eventManager directly for Node.<br/>
+     * You can also register custom event and use `emit` to trigger custom event on Node.<br/>
+     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.<br/>
+     * You can also pass event callback parameters with `emit` by passing parameters after `type`.
+     * !#zh
+     * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
+     * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
+     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
+     * 2. 目标阶段：派发给目标节点的监听器。<br/>
+     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
+     * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
+     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
+     * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
+     * @method on
+     * @param {String|Node.EventType} type - A string representing the event type to listen for.<br>
+     *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event|Object} callback.event event or first argument when emit
+     * @param {Event} callback.arg2 arg2
+     * @param {Event} callback.arg3 arg3
+     * @param {Event} callback.arg4 arg4
+     * @param {Event} callback.arg5 arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
+     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
+     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
+     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @example
+     * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
+     * node.on(cc.Node.EventType.TOUCH_START, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_END, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
+     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     */
+    on (type, callback, target, useCapture) {
+        let forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
         }
@@ -1456,6 +1462,53 @@ var Node = cc.Class({
                 this._bubblingListeners = new EventTarget();
             }
             return this._bubblingListeners.on(type, callback, target);
+        }
+    },
+
+    /**
+     * !#en
+     * Register an callback of a specific event type on the Node,
+     * the callback will remove itself after the first time it is triggered.
+     * !#zh
+     * 注册节点的特定事件类型回调，回调会在第一时间被触发后删除自身。
+     *
+     * @method once
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event} callback.event event or first argument when emit
+     * @param {Event} callback.arg2 arg2
+     * @param {Event} callback.arg3 arg3
+     * @param {Event} callback.arg4 arg4
+     * @param {Event} callback.arg5 arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @typescript
+     * once<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @example
+     * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     */
+    once (type, callback, target, useCapture) {
+        let forDispatch = this._checknSetupSysEvent(type);
+        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+
+        let listeners = null;
+        if (forDispatch && useCapture) {
+            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+        }
+        else {
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+        }
+
+        let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
+        if (!hasOnceListener) {
+            let self = this;
+            let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
+                self.off(type, onceWrapper, target);
+                listeners.remove(eventType_hasOnceListener, callback, target);
+                callback.call(this, arg1, arg2, arg3, arg4, arg5);
+            };
+            this.on(type, onceWrapper, target);
+            listeners.add(eventType_hasOnceListener, callback, target);
         }
     },
 
@@ -1487,26 +1540,6 @@ var Node = cc.Class({
         }
 
         return callback;
-    },
-
-     _onceDispatch (type, callback, target, useCapture) {
-        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-        var hasOnceListener = listeners && listeners.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            var self = this;
-            var onceWrapper = function (event) {
-                self._offDispatch(type, onceWrapper, target, useCapture);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, event);
-            };
-            this._onDispatch(type, onceWrapper, target, useCapture);
-            if (!listeners) {
-                // obtain new created listeners
-                listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-            }
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
     },
 
     /**
@@ -1730,23 +1763,24 @@ var Node = cc.Class({
     },
 
     _hitTest (point, listener) {
-        var w = this.width,
-            h = this.height;
-        var testPt;
+        let w = this._contentSize.width,
+            h = this._contentSize.height,
+            cameraPt = _vec2a,
+            testPt = _vec2b;
         
         let camera = cc.Camera.findCamera(this);
         if (camera) {
-            testPt = camera.getCameraToWorldPoint(point);
+            camera.getCameraToWorldPoint(point, cameraPt);
         }
         else {
-            testPt = cc.v2(point);
+            cameraPt.set(point);
         }
 
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        math.vec2.transformMat4(testPt, testPt, _mat4_temp);
-        testPt.x += this._anchorPoint.x * this._contentSize.width;
-        testPt.y += this._anchorPoint.y * this._contentSize.height;
+        math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        testPt.x += this._anchorPoint.x * w;
+        testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
@@ -1757,7 +1791,7 @@ var Node = cc.Class({
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(point) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
                 }
                 // mask parent no longer exists
                 else {
@@ -2368,7 +2402,7 @@ var Node = cc.Class({
         let t = this._matrix;
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
-        if (dirtyFlag & LocalDirtyFlag.RT) {
+        if (dirtyFlag & (LocalDirtyFlag.RT | LocalDirtyFlag.SKEW)) {
             let hasRotation = this._rotationX || this._rotationY;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;

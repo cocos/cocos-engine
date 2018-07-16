@@ -465,7 +465,6 @@ proto.normalizeSelf = function () {
         return this;
 
     if (magSqr === 0.0) {
-        console.warn("Can't normalize zero vector");
         return this;
     }
 
