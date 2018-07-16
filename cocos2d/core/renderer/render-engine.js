@@ -9431,7 +9431,7 @@ function _commitTextures(gl, cur, next) {
   for (var i = 0; i < next.maxTextureSlot + 1; ++i) {
     if (cur.textureUnits[i] !== next.textureUnits[i]) {
       var texture = next.textureUnits[i];
-      if (texture !== undefined && texture._glID !== -1) {
+      if (texture && texture._glID !== -1) {
         gl.activeTexture(gl.TEXTURE0 + i);
         gl.bindTexture(texture._target, texture._glID);
       }
