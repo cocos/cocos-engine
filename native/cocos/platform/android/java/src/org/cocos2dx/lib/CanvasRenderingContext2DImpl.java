@@ -55,7 +55,7 @@ public class CanvasRenderingContext2DImpl {
     private TextPaint mTextPaint;
     private Paint mLinePaint;
     private Path mLinePath;
-    private Canvas mCanvas;
+    private Canvas mCanvas = new Canvas();
     private Bitmap mBitmap;
     private int mTextAlign = TEXT_ALIGN_LEFT;
     private int mTextBaseline = TEXT_BASELINE_BOTTOM;
@@ -186,7 +186,7 @@ public class CanvasRenderingContext2DImpl {
             mBitmap.recycle();
         }
         mBitmap = Bitmap.createBitmap((int)Math.ceil(w), (int)Math.ceil(h), Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        mCanvas.setBitmap(mBitmap);
     }
 
     private void beginPath() {
@@ -224,7 +224,10 @@ public class CanvasRenderingContext2DImpl {
     }
 
     private void restoreContext() {
-        mCanvas.restore();
+        // If there is no saved state, this method should do nothing.
+        if (mCanvas.getSaveCount() > 1){
+            mCanvas.restore();
+        }
     }
 
     private void clearRect(float x, float y, float w, float h) {
