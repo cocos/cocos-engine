@@ -263,7 +263,6 @@ module.exports = {
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
                 let strokeColor = _outlineColor || WHITE;
-                _context.globalCompositeOperation = 'source-over';
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
                 _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
