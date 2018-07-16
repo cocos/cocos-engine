@@ -610,7 +610,7 @@ var game = {
         if (typeof config.registerSystemEvent !== 'boolean') {
             config.registerSystemEvent = true;
         }
-        config.showFPS = (typeof config.showFPS !== 'undefined') ? (!!config.showFPS) : false;
+        config.showFPS = !!config.showFPS;
 
         // Scene parser
         this._sceneInfos = config.scenes || [];
