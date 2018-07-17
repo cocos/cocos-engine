@@ -537,7 +537,9 @@ var PhysicsManager = cc.Class({
             cc.game.addPersistRootNode(node);
             this._debugDrawer = node.addComponent(cc.Graphics);
 
-            this._world.SetDebugDraw(new DebugDraw(this._debugDrawer));
+            let debugDraw = new DebugDraw(this._debugDrawer);
+            debugDraw.SetFlags(this.debugDrawFlags);
+            this._world.SetDebugDraw(debugDraw);
         }
     }
 });
@@ -609,6 +611,11 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
         }
 
         this._debugDrawFlags = value;
+
+        if (value) {
+            this._checkDebugDrawValid();
+            this._world.m_debugDraw.SetFlags(value);
+        }
     }
 );
 
