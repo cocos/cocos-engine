@@ -441,6 +441,10 @@ var Sprite = cc.Class({
         if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             // Do not render when sprite frame is not ready
             this.disableRender();
+            if (this._spriteFrame) {
+                this._spriteFrame.once('load', this._onTextureLoaded, this);
+                this._spriteFrame.ensureLoadTexture();
+            }
         }
         
         this._updateAssembler();
