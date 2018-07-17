@@ -36,7 +36,6 @@ const vec3 = cc.vmath.vec3;
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
 let _vec3_temp_1 = vec3.create();
-let _vec3_temp_2 = vec3.create();
 
 let _cameras = [];
 

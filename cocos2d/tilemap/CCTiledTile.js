@@ -106,7 +106,7 @@ let TiledTile = cc.Class({
         /**
          * !#en Specify which TiledLayer the TiledTile belong to.
          * !#zh 指定 TiledTile 属于哪一个 TiledLayer
-         * @property {TiledLayer} gid
+         * @property {TiledLayer} layer
          * @default 0
          */
         layer: {
