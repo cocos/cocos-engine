@@ -8,10 +8,6 @@
             "from": "../../../res",
             "to": "res"
         },
-        {
-            "from": "../../../config.json",
-            "to": ""
-        },		
         {		
             "from": "../Classes/ide-support/lang",		
             "to": ""		
