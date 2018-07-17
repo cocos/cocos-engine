@@ -121,12 +121,12 @@ let renderer = {
         // TODO: handle blend function
 
         // opacity
-        ctx.glphaAlpha = node.opacity / 255;
+        ctx.globalAlpha = node.opacity / 255;
 
         let tex = comp._spriteFrame._texture,
             data = comp._renderData._data;
 
-        let image = utils.getColorizedImage(tex, node.color);
+        let image = utils.getColorizedImage(tex, node._color);
 
         let drawCall = 0;
         let off, ld, rd, td, bd,

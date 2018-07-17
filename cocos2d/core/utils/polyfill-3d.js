@@ -26,9 +26,8 @@
 const Node = require('../CCNode');
 const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
-const renderEngine = require('../renderer/render-engine');
+const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
-const math = renderEngine.math;
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;

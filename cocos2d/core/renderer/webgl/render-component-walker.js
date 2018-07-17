@@ -37,8 +37,6 @@ let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
-const IARenderData = renderEngine.IARenderData;
-const bits = renderEngine.math.bits;
 
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
 const BYTE_PER_INDEX = 2;

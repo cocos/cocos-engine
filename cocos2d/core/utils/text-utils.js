@@ -90,7 +90,7 @@ var CustomFontLoader = {
             }
             var oldWidth = this._fontWidthCache[k];
             this._canvasContext.font = '40px ' + k;
-            var newWidth = this._canvasContext.measureText(this._testString).width;
+            var newWidth = TextUtils.safeMeasureText(this._canvasContext, this._testString);
             if(oldWidth !== newWidth) {
                 fontDescriptor.onLoaded();
             } else {
@@ -169,7 +169,7 @@ var CustomFontLoader = {
             var fontDesc = '40px ' + fontFamilyName;
             this._canvasContext.font = fontDesc;
 
-            var width = this._canvasContext.measureText(this._testString).width;
+            var width = TextUtils.safeMeasureText(this._canvasContext, this._testString);
             this._fontWidthCache[fontFamilyName] = width;
 
             var self = this;
@@ -225,6 +225,11 @@ var TextUtils = {
     isUnicodeSpace: function(ch) {
         ch = ch.charCodeAt(0);
         return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
+    },
+
+    safeMeasureText: function (ctx, string) {
+        var metric = ctx.measureText(string);
+        return metric && metric.width || 0;
     },
 
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {

@@ -217,6 +217,10 @@ PhysicsContact.prototype.init = function (b2contact) {
 };
 
 PhysicsContact.prototype.reset = function () {
+    this.setTangentSpeed(0);
+    this.resetFriction();
+    this.resetRestitution();
+
     this.colliderA = null;
     this.colliderB = null;
     this.disabled = false;

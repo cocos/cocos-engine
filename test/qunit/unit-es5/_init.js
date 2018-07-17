@@ -164,7 +164,7 @@ var assetDir = '../test/qunit/assets';
 
 var canvas;
 function _resetGame (w, h) {
-    if (!cc.game._prepared && !cc.game._prepareCalled) {
+    if (!cc.game._prepared) {
         if (!canvas) {
             canvas = document.createElement('canvas');
             canvas.id = 'test-canvas';

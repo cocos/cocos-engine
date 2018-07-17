@@ -67,12 +67,12 @@ module.exports = js.addon({
         // TODO: handle blend function
 
         // opacity
-        ctx.glphaAlpha = node.opacity / 255;
+        ctx.globalAlpha = node.opacity / 255;
 
         let tex = comp._texture,
             data = comp._renderData._data;
 
-        let image = utils.getColorizedImage(tex, node.color);
+        let image = tex.getHtmlElementObj();
 
         let x = data[0].x;
         let y = data[0].y;

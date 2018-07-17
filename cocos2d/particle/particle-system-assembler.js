@@ -23,13 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../core/platform/js');
 const ParticleSystem = require('./CCParticleSystem');
 const renderer = require('../core/renderer/');
 const renderEngine = require('../core/renderer/render-engine');
 const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
 const QuadBuffer = require('../core/renderer/webgl/quad-buffer');
-const RenderFlow = require('../core/renderer/render-flow');
 
 var particleSystemAssembler = {
     useModel: true,

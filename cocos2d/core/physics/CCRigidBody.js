@@ -430,7 +430,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
-            var pos = this._b2Body.GetLocalPoint(tempb2Vec21);
+            var pos = this._b2Body.GetLocalPoint(tempb2Vec21, out);
             out.x = pos.x*PTM_RATIO;
             out.y = pos.y*PTM_RATIO;
         }
@@ -451,7 +451,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(localPoint.x/PTM_RATIO, localPoint.y/PTM_RATIO);
-            var pos = this._b2Body.GetWorldPoint(tempb2Vec21);
+            var pos = this._b2Body.GetWorldPoint(tempb2Vec21, out);
             out.x = pos.x*PTM_RATIO;
             out.y = pos.y*PTM_RATIO;
         }
@@ -472,7 +472,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(localVector.x/PTM_RATIO, localVector.y/PTM_RATIO);
-            var vector = this._b2Body.GetWorldVector(tempb2Vec21);
+            var vector = this._b2Body.GetWorldVector(tempb2Vec21, out);
             out.x = vector.x*PTM_RATIO;
             out.y = vector.y*PTM_RATIO;
         }
@@ -493,7 +493,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldVector.x/PTM_RATIO, worldVector.y/PTM_RATIO);
-            var vector = this._b2Body.GetLocalVector(tempb2Vec21);
+            var vector = this._b2Body.GetLocalVector(tempb2Vec21, out);
             out.x = vector.x*PTM_RATIO;
             out.y = vector.y*PTM_RATIO;
         }
@@ -584,7 +584,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
-            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21);
+            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21, out);
             out.x = velocity.x*PTM_RATIO;
             out.y = velocity.y*PTM_RATIO;
         }

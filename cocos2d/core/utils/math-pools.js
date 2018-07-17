@@ -27,7 +27,7 @@ const js = require('../platform/js');
 const renderEngine = require('../renderer/render-engine');
 // const Vec2 = require('../value-types/vec2');
 // const Vec3 = require('../value-types/vec3');
-const Quat = require('../value-types/quat');
+// const Quat = require('../value-types/quat');
 const math = renderEngine.math;
 
 var mat4Pool = new js.Pool(128);

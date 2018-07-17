@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventManager = require('../event-manager');
 var Camera = require('../camera/CCCamera');
 var Component = require('./CCComponent');
 
@@ -156,6 +155,7 @@ var Canvas = cc.Class({
         this.applySettings();
         this.onResized();
 
+        // Camera could be removed in canvas render mode
         let cameraNode = cc.find('Main Camera', this.node);
         if (!cameraNode) {
             cameraNode = new cc.Node('Main Camera');

@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
-const defaultVertexFormat = require('../renderer/webgl/vertex-format');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
@@ -102,7 +101,7 @@ let RenderComponent = cc.Class({
         this._material = null;
         this._renderData = null;
         this.__allocedDatas = [];
-        this._vertexFormat = defaultVertexFormat;
+        this._vertexFormat = null;
         this._toPostHandle = false;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;

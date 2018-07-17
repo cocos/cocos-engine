@@ -79,24 +79,29 @@ let Camera = cc.Class({
     extends: cc.Component,
     
     ctor () {
-        let camera = new renderEngine.Camera();
+        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+            let camera = new renderEngine.Camera();
 
-        camera.setStages([
-            'transparent'
-        ]);
+            camera.setStages([
+                'transparent'
+            ]);
 
-        this._fov = Math.PI * 60 / 180;
-        camera.setFov(this._fov);
-        camera.setNear(0.1);
-        camera.setFar(4096);
+            this._fov = Math.PI * 60 / 180;
+            camera.setFov(this._fov);
+            camera.setNear(0.1);
+            camera.setFar(4096);
 
-        let view = new renderEngine.View();
-        camera.view = view;
-        camera.dirty = true;
+            let view = new renderEngine.View();
+            camera.view = view;
+            camera.dirty = true;
 
-        this._matrixDirty = true;
-        this._inited = false;
-        this._camera = camera;
+            this._matrixDirty = true;
+            this._inited = false;
+            this._camera = camera;
+        }
+        else {
+            this._inited = true;
+        }
     },
 
     editor: CC_EDITOR && {
@@ -160,7 +165,9 @@ let Camera = cc.Class({
             },
             set (value) {
                 this._clearFlags = value;
-                this._camera.setClearFlags(value);
+                if (this._camera) {
+                    this._camera.setClearFlags(value);
+                }
             }
         },
 
@@ -194,7 +201,9 @@ let Camera = cc.Class({
             },
             set (value) {
                 this._depth = value;
-                this._camera.setDepth(value);
+                if (this._camera) {
+                    this._camera.setDepth(value);
+                }
             }
         },
 
@@ -264,6 +273,7 @@ let Camera = cc.Class({
 
         _setupDebugCamera () {
             if (_debugCamera) return;
+            if (game.renderType === game.RENDER_TYPE_CANVAS) return;
             let camera = new renderEngine.Camera();
             _debugCamera = camera;
             
@@ -295,24 +305,30 @@ let Camera = cc.Class({
     },
 
     _updateCameraMask () {
-        let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
-        this._camera._cullingMask = mask;
-        this._camera.view._cullingMask = mask;
+        if (this._camera) {
+            let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
+            this._camera._cullingMask = mask;
+            this._camera.view._cullingMask = mask;
+        }
     },
 
     _updateBackgroundColor () {
-        let color = this._backgroundColor;
-        this._camera.setColor(
-            color.r / 255,
-            color.g / 255,
-            color.b / 255,
-            color.a / 255,
-        );
+        if (this._camera) {
+            let color = this._backgroundColor;
+            this._camera.setColor(
+                color.r / 255,
+                color.g / 255,
+                color.b / 255,
+                color.a / 255,
+            );
+        }
     },
 
     _updateTargetTexture () {
         let texture = this._targetTexture;
-        this._camera._framebuffer = texture ? texture._framebuffer : null;
+        if (this._camera) {
+            this._camera._framebuffer = texture ? texture._framebuffer : null;
+        }
     },
 
     _onMatrixDirty () {
@@ -323,12 +339,14 @@ let Camera = cc.Class({
         if (this._inited) return;
         this._inited = true;
 
-        this._camera.setNode(this.node);
-        this._camera.setClearFlags(this._clearFlags);
-        this._camera.setDepth(this._depth);
-        this._updateBackgroundColor();
-        this._updateCameraMask();
-        this._updateTargetTexture();
+        if (this._camera) {
+            this._camera.setNode(this.node);
+            this._camera.setClearFlags(this._clearFlags);
+            this._camera.setDepth(this._depth);
+            this._updateBackgroundColor();
+            this._updateCameraMask();
+            this._updateTargetTexture();
+        }
     },
 
     onLoad () {
@@ -337,16 +355,16 @@ let Camera = cc.Class({
 
     onEnable () {
         this._matrixDirty = true;
-        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-        if (game.renderType === game.RENDER_TYPE_WEBGL) {
+        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.addCamera(this._camera);
         }
         _cameras.push(this);
     },
 
     onDisable () {
-        cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-        if (game.renderType === game.RENDER_TYPE_WEBGL) {
+        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.removeCamera(this._camera);
         }
         cc.js.array.remove(_cameras, this);

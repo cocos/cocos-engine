@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 const js = require('../../platform/js');
-const renderers = require('./renderers');
 const RenderFlow = require('../render-flow');
+require('./renderers');
 
 let RenderComponentWalker = function (device, defaultCamera) {
     this._device = device;
@@ -34,6 +34,8 @@ let RenderComponentWalker = function (device, defaultCamera) {
     // let vh = this._device._vh;
     this._camera = defaultCamera;
 
+    this.parentOpacity = 1;
+    this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
     
     RenderFlow.init(this);
@@ -44,7 +46,7 @@ RenderComponentWalker.prototype = {
     
     reset() {},
 
-    _commitComp (comp, assembler, cullingMask) {
+    _commitComp (comp, assembler) {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
