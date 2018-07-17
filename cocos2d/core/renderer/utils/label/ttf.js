@@ -317,7 +317,7 @@ module.exports = {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = _context.measureText(paragraphedStrings[i]).width;
+                let paraLength = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = _splitedStrings.length * this._getLineHeight();
@@ -369,7 +369,7 @@ module.exports = {
             _splitedStrings = [];
             let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = _context.measureText(paragraphedStrings[i]).width;
+                let allWidth = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 let textFragment = TextUtils.fragmentText(paragraphedStrings[i],
                                                         allWidth,
                                                         canvasWidthNoMargin,
@@ -408,8 +408,8 @@ module.exports = {
         let paragraphLength = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let textMetric = ctx.measureText(paragraphedStrings[i]);
-            paragraphLength.push(textMetric.width);
+            let width = TextUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+            paragraphLength.push(width);
         }
 
         return paragraphLength;
@@ -417,7 +417,7 @@ module.exports = {
 
     _measureText (ctx) {
         return function (string) {
-            return ctx.measureText(string).width;
+            return TextUtils.measureText(ctx, string);
         };
     },
 
@@ -468,13 +468,13 @@ module.exports = {
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        let allWidth = _context.measureText(paragraphedStrings[i]).width;
+                        let allWidth = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
                         textFragment = TextUtils.fragmentText(paragraphedStrings[i],
                                                             allWidth,
                                                             canvasWidthNoMargin,
                                                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            let measureWidth = _context.measureText(textFragment[j]).width;
+                            let measureWidth = TextUtils.safeMeasureText(_context, textFragment[j]);
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
