@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 const RenderComponent = require('../core/components/CCRenderComponent');
-const renderer = require('../core/renderer');
 const renderEngine = require('../core/renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
@@ -187,13 +186,13 @@ let TiledLayer = cc.Class({
      * 设置给定坐标的 tile 的 gid (gid = tile 全局 id)，
      * tile 的 GID 可以使用方法 “tileGIDAt” 来获得。<br />
      * 如果一个 tile 已经放在那个位置，那么它将被删除。
-     * @method setTileGID
+     * @method setTileGIDAt
      * @param {Number} gid
      * @param {Vec2|Number} posOrX position or x
      * @param {Number} flagsOrY flags or y
      * @param {Number} [flags]
      * @example
-     * tiledLayer.setTileGID(1001, 10, 10, 1)
+     * tiledLayer.setTileGIDAt(1001, 10, 10, 1)
      */
     setTileGIDAt (gid, posOrX, flagsOrY, flags) {
         if (posOrX === undefined) {
@@ -316,7 +315,7 @@ let TiledLayer = cc.Class({
      * @param {Boolean} forceCreate
      * @return {cc.TiledTile}
      * @example
-     * let tile = tiledLayer.getTileAt(100, 100, true);
+     * let tile = tiledLayer.getTiledTileAt(100, 100, true);
      * cc.log(tile);
      */
     getTiledTileAt (x, y, forceCreate) {
