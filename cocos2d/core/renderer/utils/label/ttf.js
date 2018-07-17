@@ -417,7 +417,7 @@ module.exports = {
 
     _measureText (ctx) {
         return function (string) {
-            return TextUtils.measureText(ctx, string);
+            return TextUtils.safeMeasureText(ctx, string);
         };
     },
 

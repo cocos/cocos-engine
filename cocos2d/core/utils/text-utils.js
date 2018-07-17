@@ -227,7 +227,7 @@ var TextUtils = {
         return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
     },
 
-    safeMeasureText = function (ctx, string) {
+    safeMeasureText: function (ctx, string) {
         var metric = ctx.measureText(string);
         return metric && metric.width || 0;
     },
