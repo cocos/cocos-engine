@@ -554,7 +554,7 @@ var BaseNode = cc.Class({
      * 对子树中的所有节点，包含当前节点，会执行两次回调，prefunc 会在访问它的子节点之前调用，postfunc 会在访问所有子节点之后调用。
      * 这个函数的实现不是基于递归的，而是基于栈展开递归的方式。
      * 请不要在 walk 过程中对任何其他的节点嵌套执行 walk。
-     * @method Walk the child tree
+     * @method walk
      * @param {Function} prefunc The callback to process node when reach the node for the first time
      * @param {_BaseNode} prefunc.target The current visiting node
      * @param {Function} postfunc The callback to process node when re-visit the node after walked all children in its sub tree
