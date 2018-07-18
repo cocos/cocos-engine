@@ -28,7 +28,7 @@
  * !#en TiledTile can control the specified map tile. 
  * It will apply the node rotation, scale, translate to the map tile.
  * You can change the TiledTile's gid to change the map tile's style.
- * !#zh TiledTile 可以单独对某一个地图快进行操作。
+ * !#zh TiledTile 可以单独对某一个地图块进行操作。
  * 他会将节点的旋转，缩放，平移操作应用在这个地图块上，并可以通过更换当前地图块的 gid 来更换地图块的显示样式。
  * @class TiledTile
  * @extends Component
@@ -123,9 +123,12 @@ let TiledTile = cc.Class({
     },
 
     onEnable () {
-        if (CC_EDITOR && !this._layer) {
-            this._layer = this.node.parent.getComponent(cc.TiledLayer);
-            this._updateInfo();
+        if (CC_EDITOR) {
+            let parent = this.node.parent;
+            if (!this._layer && !(parent instanceof cc.Scene)) {
+                this._layer = this.node.parent.getComponent(cc.TiledLayer);
+                this._updateInfo();
+            }
         }
         else if (this._layer) {
             let tile = this._layer.getTiledTileAt(this._x, this._y);
