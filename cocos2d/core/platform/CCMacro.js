@@ -325,6 +325,25 @@ cc.macro = {
      * @default false
      */
     ENABLE_CULLING: false,
+
+    /**
+     * !#en
+     * Whether or not clear dom Image object cache after uploading to gl texture.
+     * Concretely, we are setting image.src to empty string to release the cache.
+     * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
+     * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
+     * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.
+     * !#zh
+     * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
+     * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
+     * 正常情况下，你不需要开启这个选项，因为在 web 平台，Image 对象所占用的内存很小。
+     * 但是在微信小游戏平台的当前版本，Image 对象会缓存解码后的图片数据，它所占用的内存空间很大。
+     * 所以我们在微信平台默认开启了这个选项，这样我们就可以在上传 GL 贴图之后立即释放 Image 对象的内存，避免过高的内存占用。
+     * @property {Boolean} CLEANUP_IMAGE_CACHE
+     * @deprecated since v2.0
+     * @default false
+     */
+    CLEANUP_IMAGE_CACHE: false,
 };
 
 js.getset(cc.macro, 'ENABLE_3D', function () {
