@@ -744,7 +744,9 @@ var game = {
             this._renderContext = renderer.device._gl;
             
             // Enable dynamic atlas manager by default
-            cc.dynamicAtlasManager.enabled = true;
+            if (!cc.macro.CLEANUP_IMAGE_CACHE) {
+                cc.dynamicAtlasManager.enabled = true;
+            }
         }
         if (!this._renderContext) {
             this.renderType = this.RENDER_TYPE_CANVAS;
