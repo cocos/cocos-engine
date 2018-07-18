@@ -188,6 +188,9 @@ var spineAssembler = {
 
             newData = false;
             material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
+            if (!material) {
+                continue;
+            }
             // Check break
             if (currMaterial !== material) {
                 if (currMaterial) {
