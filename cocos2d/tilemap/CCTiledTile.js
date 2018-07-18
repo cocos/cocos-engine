@@ -61,6 +61,10 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 if (value === this._x) return;
+                if (this._layer && this._layer._isInvalidPosition(value, this._y)) {
+                    cc.warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer._layerSize.width);
+                    return;
+                }
                 this._resetTile();
                 this._x = value;
                 this._updateInfo();
@@ -80,6 +84,10 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 if (value === this._y) return;
+                if (this._layer && this._layer._isInvalidPosition(this._x, value)) {
+                    cc.warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer._layerSize.height);
+                    return;
+                }
                 this._resetTile();
                 this._y = value;
                 this._updateInfo();
@@ -126,7 +134,7 @@ let TiledTile = cc.Class({
         if (CC_EDITOR) {
             let parent = this.node.parent;
             if (!this._layer && !(parent instanceof cc.Scene)) {
-                this._layer = this.node.parent.getComponent(cc.TiledLayer);
+                this._layer = parent.getComponent(cc.TiledLayer);
                 this._updateInfo();
             }
         }
@@ -134,7 +142,7 @@ let TiledTile = cc.Class({
             let tile = this._layer.getTiledTileAt(this._x, this._y);
             if (tile) {
                 if (tile !== this) {
-                    cc.warn('There is already a TiledTile at [%s, %s]', x, y);
+                    cc.warn('There is already a TiledTile at [%s, %s]', this._x, this._x);
                 }
             }
             else {
