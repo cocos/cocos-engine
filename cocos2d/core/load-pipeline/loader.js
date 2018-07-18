@@ -24,11 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
-var sys = require('../platform/CCSys');
-var Pipeline = require('./pipeline');
-var Texture2D = require('../assets/CCTexture2D');
-var loadUuid = require('./uuid-loader');
+const js = require('../platform/js');
+const plistParser = require('../platform/CCSAXParser').plistParser;
+const Pipeline = require('./pipeline');
+const Texture2D = require('../assets/CCTexture2D');
+const loadUuid = require('./uuid-loader');
 
 function loadNothing () {
     return null;
@@ -89,7 +89,7 @@ function loadPlist (item) {
     if (typeof item.content !== 'string') {
         return new Error('Plist Loader: Input item doesn\'t contain string content');
     }
-    var result = cc.plistParser.parse(item.content);
+    var result = plistParser.parse(item.content);
     if (result) {
         return result;
     }

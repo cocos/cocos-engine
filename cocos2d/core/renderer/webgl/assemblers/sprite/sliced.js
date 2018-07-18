@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-const FillType = Sprite.FillType;
 
 module.exports = {
     useModel: false,
@@ -73,7 +71,6 @@ module.exports = {
             appx = node.anchorX * width, appy = node.anchorY * height;
     
         let frame = sprite.spriteFrame;
-        let rect = frame._rect;
         let leftWidth = frame.insetLeft;
         let rightWidth = frame.insetRight;
         let topHeight = frame.insetTop;
@@ -106,8 +103,7 @@ module.exports = {
         }
 
         let renderData = sprite._renderData,
-            data = renderData._data,
-            node = sprite.node;
+            data = renderData._data;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,

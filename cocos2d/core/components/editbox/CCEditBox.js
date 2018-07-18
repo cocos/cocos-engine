@@ -469,8 +469,11 @@ let EditBox = cc.Class({
     },
 
     _updateString (text) {
-        let placeholderLabel = this._placeholderLabel;
         let textLabel = this._textLabel;
+        // Not inited yet
+        if (!textLabel) {
+            return;
+        }
 
         let displayText = text;
         if (displayText) {
