@@ -32,7 +32,7 @@ var js = require('../platform/js');
  * @class saxParser
  */
 cc.SAXParser = function () {
-    if (window.DOMParser) {
+    if (!(CC_EDITOR && Editor.isMainProcess) && window.DOMParser) {
         this._isSupportDOMParser = true;
         this._parser = new DOMParser();
     } else {
@@ -164,3 +164,8 @@ cc.saxParser = new cc.SAXParser();
  * A Plist Parser
  */
 cc.plistParser = new cc.PlistParser();
+
+module.exports = {
+    saxParser: cc.saxParser,
+    plistParser: cc.plistParser
+}
