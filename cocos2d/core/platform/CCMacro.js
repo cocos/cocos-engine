@@ -340,7 +340,6 @@ cc.macro = {
      * 但是在微信小游戏平台的当前版本，Image 对象会缓存解码后的图片数据，它所占用的内存空间很大。
      * 所以我们在微信平台默认开启了这个选项，这样我们就可以在上传 GL 贴图之后立即释放 Image 对象的内存，避免过高的内存占用。
      * @property {Boolean} CLEANUP_IMAGE_CACHE
-     * @deprecated since v2.0
      * @default false
      */
     CLEANUP_IMAGE_CACHE: false,
