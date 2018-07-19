@@ -669,7 +669,7 @@ var game = {
 
         if (isWeChatGame || CC_JSB) {
             this.container = localContainer = document.createElement("DIV");
-            this.frame = document.documentElement;
+            this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = wx.getSharedCanvas();
             }
