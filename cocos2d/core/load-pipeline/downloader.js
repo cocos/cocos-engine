@@ -101,6 +101,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
             img.removeEventListener('load', loadCallback);
             img.removeEventListener('error', errorCallback);
 
+            img.id = item.id;
             callback(null, img);
         }
         function errorCallback () {
