@@ -30,10 +30,6 @@ const js = require('../platform/js');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
-function isWeChatGame () {
-    return window['wx'];
-}
-
 var __BrowserGetter = {
     init: function(){
         if (!CC_WECHATGAME && !CC_QQPLAY) {
@@ -77,13 +73,6 @@ if (CC_QQPLAY) {
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta["minimal-ui"] = "true";
-        __BrowserGetter.availWidth = function(frame){
-            return frame.clientWidth;
-        };
-        __BrowserGetter.availHeight = function(frame){
-            return frame.clientHeight;
-        };
-        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.availWidth = function(frame){
