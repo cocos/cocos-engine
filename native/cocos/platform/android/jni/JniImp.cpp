@@ -104,6 +104,8 @@ namespace
     }
 }
 
+void cocos_jni_env_init (JNIEnv* env);
+
 Application* cocos_android_app_init(JNIEnv* env, int width, int height);
 
 extern "C"
@@ -111,6 +113,7 @@ extern "C"
     JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
     {
         JniHelper::setJavaVM(vm);
+        cocos_jni_env_init(JniHelper::getEnv());
         return JNI_VERSION_1_4;
     }
 
