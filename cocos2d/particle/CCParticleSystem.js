@@ -130,6 +130,7 @@ var properties = {
             this.resetSystem();
             if ( !this.preview ) {
                 this.stopSystem();
+                this.disableRender();
             }
             cc.engine.repaintInEditMode();
         },
