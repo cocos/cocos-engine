@@ -42,11 +42,13 @@ module.exports = js.addon({
             tx = matrix.m12, ty = matrix.m13;
     
         let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData;
+            vertexOffset = buffer.byteOffset >> 2;
         
         let vertexCount = renderData.vertexCount;
         buffer.request(vertexCount, renderData.indiceCount);
+
+        // buffer data may be realloc, need get reference after request.
+        let vbuf = buffer._vData;
 
         for (let i = 0; i < vertexCount; i++) {
             let vert = data[i];

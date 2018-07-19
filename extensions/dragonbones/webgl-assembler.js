@@ -90,13 +90,15 @@ let armatureAssembler = {
             renderData = comp._renderData;
 
         _vertexOffset = buffer.byteOffset >> 2;
-        _vbuf = buffer._vData;
-        _uintbuf = buffer._uintVData;
-        _ibuf = buffer._iData;
         _indiceOffset = buffer.indiceOffset;
         _vertexId = buffer.vertexOffset;
 
         buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+        // buffer data may be realloc, need get reference after request.
+        _vbuf = buffer._vData;
+        _uintbuf = buffer._uintVData;
+        _ibuf = buffer._iData;
 
         let node = comp.node;
 
