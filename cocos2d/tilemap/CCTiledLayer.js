@@ -131,6 +131,15 @@ let TiledLayer = cc.Class({
         return ret;
     },
 
+    _isInvalidPosition (x, y) {
+        if (x && typeof x === 'object') {
+            let pos = x;
+            y = pos.y;
+            x = pos.x;
+        }
+        return x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0;
+    },
+
     _positionForIsoAt (x, y) {
         return cc.v2(
             this._mapTileSize.width / 2 * ( this._layerSize.width + x - y - 1),
@@ -209,7 +218,7 @@ let TiledLayer = cc.Class({
 
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
-        if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
+        if (this._isInvalidPosition(pos)) {
             throw new Error("CCTiledLayer.setTileGID(): invalid position");
         }
         if (!this._tiles) {
@@ -265,7 +274,7 @@ let TiledLayer = cc.Class({
             x = pos.x;
             y = pos.y;
         }
-        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+        if (this._isInvalidPosition(x, y)) {
             throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
         }
         if (!this._tiles) {
@@ -281,13 +290,16 @@ let TiledLayer = cc.Class({
     },
 
     getTileFlagsAt (pos, y) {
-        if(!pos)
+        if (!pos) {
             throw new Error("TiledLayer.getTileFlagsAt: pos should be non-null");
-        if(y !== undefined)
+        }
+        if (y !== undefined) {
             pos = cc.v2(pos, y);
-        if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
+        }
+        if (this._isInvalidPosition(pos)) {
             throw new Error("TiledLayer.getTileFlagsAt: invalid position");
-        if(!this._tiles){
+        }
+        if (!this._tiles) {
             cc.logID(7208);
             return null;
         }
@@ -319,7 +331,7 @@ let TiledLayer = cc.Class({
      * cc.log(tile);
      */
     getTiledTileAt (x, y, forceCreate) {
-        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+        if (this._isInvalidPosition(x, y)) {
             throw new Error("TiledLayer.getTiledTileAt: invalid position");
         }
         if (!this._tiles) {
@@ -354,7 +366,7 @@ let TiledLayer = cc.Class({
      * @return {cc.TiledTile}
      */
     setTiledTileAt (x, y, tiledTile) {
-        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+        if (this._isInvalidPosition(x, y)) {
             throw new Error("TiledLayer.setTiledTileAt: invalid position");
         }
         if (!this._tiles) {
