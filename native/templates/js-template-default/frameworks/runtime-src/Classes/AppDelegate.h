@@ -34,7 +34,7 @@ class  AppDelegate : public cocos2d::Application
 {
 public:
     AppDelegate(int width, int height);
-    ~AppDelegate();
+    virtual ~AppDelegate();
     
     /**
      @brief    Implement Director and Scene init code here.

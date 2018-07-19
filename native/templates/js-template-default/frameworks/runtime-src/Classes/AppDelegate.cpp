@@ -34,6 +34,13 @@
 #include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
 #include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+#include "SDKManager.h"
+#include "jsb_anysdk_protocols_auto.hpp"
+#include "manualanysdkbindings.hpp"
+using namespace anysdk::framework;
+#endif
+
 USING_NS_CC;
 
 AppDelegate::AppDelegate(int width, int height) : Application("Cocos Game", width, height)
@@ -42,11 +49,17 @@ AppDelegate::AppDelegate(int width, int height) : Application("Cocos Game", widt
 
 AppDelegate::~AppDelegate()
 {
-    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+   SDKManager::getInstance()->purge();
+#endif
 }
 
 bool AppDelegate::applicationDidFinishLaunching()
 {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && PACKAGE_AS
+   SDKManager::getInstance()->loadAllPlugins();
+#endif
+
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
     jsb_set_xxtea_key("");
@@ -63,6 +76,11 @@ bool AppDelegate::applicationDidFinishLaunching()
     });
 
     jsb_register_all_modules();
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+   se->addRegisterCallback(register_all_anysdk_framework);
+   se->addRegisterCallback(register_all_anysdk_manual);
+#endif
 
     se->start();
 

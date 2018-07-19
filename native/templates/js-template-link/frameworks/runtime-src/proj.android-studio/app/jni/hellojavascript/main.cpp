@@ -41,23 +41,29 @@ using namespace cocos2d;
 using namespace anysdk::framework;
 #endif
 
-Application* cocos_android_app_init (JNIEnv* env, int width, int height) {
-    LOGD("cocos_android_app_init");
-    auto app = new AppDelegate(width, height);
+//called when JNI_OnLoad()
+void cocos_jni_env_init (JNIEnv* env) {
+    LOGD("cocos_jni_env_init");
 #if PACKAGE_AS
-    JavaVM* vm;
+    JavaVM *vm;
     env->GetJavaVM(&vm);
     PluginJniHelper::setJavaVM(vm);
 #endif
+}
+
+//called when onSurfaceCreated()
+Application* cocos_android_app_init (JNIEnv* env, int width, int height) {
+    LOGD("cocos_android_app_init");
+    auto app = new AppDelegate(width, height);
     return app;
 }
 
 extern "C"
 {
-	void Java_org_cocos2dx_javascript_SDKWrapper_nativeLoadAllPlugins(JNIEnv*  env, jobject thiz)
-	{
+    void Java_org_cocos2dx_javascript_SDKWrapper_nativeLoadAllPlugins(JNIEnv*  env, jobject thiz)
+    {
 #if PACKAGE_AS
-    	SDKManager::getInstance()->loadAllPlugins();
+        SDKManager::getInstance()->loadAllPlugins();
 #endif
-	}
+    }
 }
