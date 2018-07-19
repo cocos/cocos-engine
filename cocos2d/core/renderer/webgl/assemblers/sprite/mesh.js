@@ -170,14 +170,16 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
         // buffer
         let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData;
+            vertexOffset = buffer.byteOffset >> 2;
         
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
+        let indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+        // buffer data may be realloc, need get reference after request.
+        let vbuf = buffer._vData,
+            ibuf = buffer._iData;
 
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             let vertice = data[i];
