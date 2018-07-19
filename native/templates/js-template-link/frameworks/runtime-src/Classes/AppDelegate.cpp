@@ -77,12 +77,12 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     jsb_register_all_modules();
 
-    se->start();
-
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
    se->addRegisterCallback(register_all_anysdk_framework);
    se->addRegisterCallback(register_all_anysdk_manual);
 #endif
+
+    se->start();
 
     se::AutoHandleScope hs;
     jsb_run_script("jsb-adapter/jsb-builtin.js");
