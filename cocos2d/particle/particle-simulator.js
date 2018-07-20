@@ -191,13 +191,15 @@ Simulator.prototype.emitParticle = function (pos) {
     }
 };
 
-Simulator.prototype.updateUVs = function (particleCount) {
+Simulator.prototype.updateUVs = function (force) {
+    let particleCount = this.particles.length;
     if (this.sys._buffer && this.sys._spriteFrame) {
         const FLOAT_PER_PARTICLE = 4 * this.sys._vertexFormat._bytes / 4;
         let vbuf = this.sys._buffer._vData;
         let uv = this.sys._spriteFrame.uv;
 
-        for (let i = this._uvFilled; i < particleCount; i++) {
+        let start = force ? 0 : this._uvFilled;
+        for (let i = start; i < particleCount; i++) {
             let offset = i * FLOAT_PER_PARTICLE;
             vbuf[offset+2] = uv[0];
             vbuf[offset+3] = uv[1];
@@ -303,7 +305,7 @@ Simulator.prototype.step = function (dt) {
 
     // Fill up uvs
     if (particleCount > this._uvFilled) {
-        this.updateUVs(particleCount);
+        this.updateUVs();
     }
 
     // Used to reduce memory allocation / creation within the loop
