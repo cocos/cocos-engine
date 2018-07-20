@@ -921,15 +921,16 @@ var ParticleSystem = cc.Class({
                 }
 
                 self._plistFile = file.nativeUrl;
-                if (self._custom) {
-                    self._initTextureWithDictionary(content);
+                if (!self.spriteFrame) {
+                    if (file.texture) {
+                        self.spriteFrame = new cc.SpriteFrame(file.texture);
+                    }
+                    else {
+                        self._initTextureWithDictionary(content);
+                    }
                 }
-                else {
+                if (!self._custom) {
                     self._initWithDictionary(content);
-                }
-
-                if (file.texture) {
-                    self.spriteFrame = new cc.SpriteFrame(file.texture);
                 }
             });
         }
@@ -1094,10 +1095,7 @@ var ParticleSystem = cc.Class({
 
     _onTextureLoaded: function (event) {
         this._texture = this._spriteFrame.getTexture();
-        // Mark render data dirty
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-        }
+        this._simulator.updateUVs(true);
         // Reactivate material
         this._activateMaterial();
     },
