@@ -119,6 +119,7 @@ StencilManager.prototype = {
             pass.setStencilFront(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
             pass.setStencilBack(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
         }
+        return effect;
     },
 
     pushMask (mask) {
