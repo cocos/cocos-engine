@@ -1093,7 +1093,7 @@ var ParticleSystem = cc.Class({
         return true;
     },
 
-    _onTextureLoaded: function (event) {
+    _onTextureLoaded: function () {
         this._texture = this._spriteFrame.getTexture();
         this._simulator.updateUVs(true);
         // Reactivate material

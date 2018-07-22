@@ -400,17 +400,15 @@ cc.speed = function (action, speed) {
  * @property {Number}  topBoundary - world topBoundary.
  * @property {Number}  bottomBoundary - world bottomBoundary.
  *
- * @param {_ccsg.Node} followedNode
+ * @param {cc.Node} followedNode
  * @param {Rect} rect
  * @example
  * // creates the action with a set boundary
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = new cc.Follow(sprite, cc.rect(0, 0, s.width * 2 - 100, s.height));
+ * var followAction = new cc.Follow(node, cc.rect(0, 0, s.width * 2 - 100, s.height));
  * this.runAction(followAction);
  *
  * // creates the action with no boundary set
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = new cc.Follow(sprite);
+ * var followAction = new cc.Follow(node);
  * this.runAction(followAction);
  *
  * @class
@@ -424,7 +422,7 @@ cc.Follow = cc.Class({
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with a set boundary. <br/>
 	 * creates the action with no boundary set.
-     * @param {_ccsg.Node} followedNode
+     * @param {cc.Node} followedNode
      * @param {Rect} rect
 	 */
     ctor:function (followedNode, rect) {
@@ -478,7 +476,7 @@ cc.Follow = cc.Class({
     /*
      * initializes the action with a set boundary.
      *
-     * @param {_ccsg.Node} followedNode
+     * @param {cc.Node} followedNode
      * @param {Rect} [rect=]
      * @return {Boolean}
      */

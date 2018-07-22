@@ -1097,7 +1097,7 @@ var Node = cc.Class({
      * @method constructor
      * @param {String} [name]
      */
-    ctor (name) {
+    ctor () {
         this._reorderChildDirty = false;
         
         // cache component

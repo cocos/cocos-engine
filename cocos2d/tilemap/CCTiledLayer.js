@@ -205,7 +205,7 @@ let TiledLayer = cc.Class({
      */
     setTileGIDAt (gid, posOrX, flagsOrY, flags) {
         if (posOrX === undefined) {
-            throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
+            throw new Error("cc.TiledLayer.setTileGIDAt(): pos should be non-null");
         }
         let pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
@@ -219,7 +219,7 @@ let TiledLayer = cc.Class({
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
         if (this._isInvalidPosition(pos)) {
-            throw new Error("CCTiledLayer.setTileGID(): invalid position");
+            throw new Error("cc.TiledLayer.setTileGIDAt(): invalid position");
         }
         if (!this._tiles) {
             cc.logID(7206);
@@ -267,7 +267,7 @@ let TiledLayer = cc.Class({
      */
     getTileGIDAt (pos, y) {
         if (pos === undefined) {
-            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null");
+            throw new Error("cc.TiledLayer.getTileGIDAt(): pos should be non-null");
         }
         let x = pos;
         if (y === undefined) {
@@ -275,7 +275,7 @@ let TiledLayer = cc.Class({
             y = pos.y;
         }
         if (this._isInvalidPosition(x, y)) {
-            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
+            throw new Error("cc.TiledLayer.getTileGIDAt(): invalid position");
         }
         if (!this._tiles) {
             cc.logID(7205);

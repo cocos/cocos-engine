@@ -149,7 +149,7 @@ cc.EventListener.prototype = {
 
     /*
      * Sets scene graph priority for this listener
-     * @param {_ccsg.Node|Node} node
+     * @param {cc.Node} node
      * @private
      */
     _setSceneGraphPriority: function (node) {
@@ -159,7 +159,7 @@ cc.EventListener.prototype = {
 
     /*
      * Gets scene graph priority of this listener
-     * @returns {_ccsg.Node|cc.Node} if it's a fixed priority listener, non-null for scene graph priority listener
+     * @returns {cc.Node} if it's a fixed priority listener, non-null for scene graph priority listener
      * @private
      */
     _getSceneGraphPriority: function () {
