@@ -27,6 +27,9 @@ const PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 let _tmp_vec2 = cc.v2();
 
+let GREEN_COLOR = cc.Color.GREEN;
+let RED_COLOR = cc.Color.RED;
+
 function PhysicsDebugDraw (drawer) {
     b2.Draw.call(this);
     this._drawer = drawer;
@@ -99,6 +102,34 @@ cc.js.mixin(PhysicsDebugDraw.prototype, {
         b2.Transform.MulXV(this._xf, p2, _tmp_vec2);
         drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
         drawer.stroke();   
+    },
+
+    DrawTransform (xf) {
+        var drawer = this._drawer;
+
+        drawer.strokeColor = RED_COLOR;
+
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+        
+        _tmp_vec2.x = 1; _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+
+        drawer.stroke();
+
+        drawer.strokeColor = GREEN_COLOR;
+
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+        
+        _tmp_vec2.x = 0; _tmp_vec2.y = 1;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+
+        drawer.stroke();
     },
 
     DrawPoint (center, radius, color) {

@@ -776,7 +776,7 @@ var RigidBody = cc.Class({
             b2body.SetLinearVelocity(temp);
         }
         else {
-            b2body.SetTransform(temp, b2body.GetAngle());
+            b2body.SetTransformVec(temp, b2body.GetAngle());
         }
     },
     /**
@@ -802,7 +802,7 @@ var RigidBody = cc.Class({
             b2body.SetAngularVelocity((rotation - b2Rotation)*timeStep);
         }
         else {
-            b2body.SetTransform(b2body.GetPosition(), rotation);
+            b2body.SetTransformVec(b2body.GetPosition(), rotation);
         }
     },
     
