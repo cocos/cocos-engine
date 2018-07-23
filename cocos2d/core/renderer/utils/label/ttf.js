@@ -26,6 +26,7 @@
 const macro = require('../../../platform/CCMacro');
 const utils = require('../../../utils/text-utils');
 
+const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
@@ -33,6 +34,7 @@ const TextUtils = utils.TextUtils;
 const CustomFontLoader = utils.CustomFontLoader;
 
 const WHITE = cc.Color.WHITE;
+const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
 let _context = null;
 let _canvas = null;
@@ -204,7 +206,7 @@ module.exports = {
         }
 
         // outline
-        let outline = (LabelOutline instanceof cc.Component) && comp.getComponent(LabelOutline);
+        let outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
