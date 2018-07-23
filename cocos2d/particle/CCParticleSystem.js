@@ -952,13 +952,13 @@ var ParticleSystem = cc.Class({
             if (textureData && textureData.length > 0) {
                 var buffer = codec.unzipBase64AsArray(textureData, 1);
                 if (!buffer) {
-                    cc.logID(6010);
+                    cc.logID(6030);
                     return false;
                 }
 
                 var imageFormat = getImageFormatByData(buffer);
                 if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
-                    cc.logID(6011);
+                    cc.logID(6031);
                     return false;
                 }
 
@@ -972,7 +972,7 @@ var ParticleSystem = cc.Class({
 
                 var tex = textureUtil.cacheImage(imgPath, canvasObj);
                 if (!tex)
-                    cc.logID(6012);
+                    cc.logID(6032);
                 // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
                 this.spriteFrame = new cc.SpriteFrame(tex);
             }

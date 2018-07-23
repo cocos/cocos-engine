@@ -222,11 +222,11 @@ let TiledLayer = cc.Class({
             throw new Error("cc.TiledLayer.setTileGIDAt(): invalid position");
         }
         if (!this._tiles) {
-            cc.logID(7206);
+            cc.logID(7238);
             return;
         }
         if (gid !== 0 && gid < this._tileset.firstGid) {
-            cc.logID(7207, gid);
+            cc.logID(7239, gid);
             return;
         }
 
@@ -278,7 +278,7 @@ let TiledLayer = cc.Class({
             throw new Error("cc.TiledLayer.getTileGIDAt(): invalid position");
         }
         if (!this._tiles) {
-            cc.logID(7205);
+            cc.logID(7237);
             return null;
         }
 
@@ -300,7 +300,7 @@ let TiledLayer = cc.Class({
             throw new Error("TiledLayer.getTileFlagsAt: invalid position");
         }
         if (!this._tiles) {
-            cc.logID(7208);
+            cc.logID(7240);
             return null;
         }
 
@@ -335,7 +335,7 @@ let TiledLayer = cc.Class({
             throw new Error("TiledLayer.getTiledTileAt: invalid position");
         }
         if (!this._tiles) {
-            cc.logID(7204);
+            cc.logID(7236);
             return null;
         }
 
@@ -370,7 +370,7 @@ let TiledLayer = cc.Class({
             throw new Error("TiledLayer.setTiledTileAt: invalid position");
         }
         if (!this._tiles) {
-            cc.logID(7204);
+            cc.logID(7236);
             return null;
         }
 
