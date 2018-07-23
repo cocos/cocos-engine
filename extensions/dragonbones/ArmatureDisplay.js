@@ -148,7 +148,15 @@ let ArmatureDisplay = cc.Class({
                         this.animationName = '';
                     }
                 }
+
+                if (this._armature) {
+                    this._factory._dragonBones.clock.remove(this._armature);
+                }
                 this._refresh();
+                if (this._armature) {
+                    this._factory._dragonBones.clock.add(this._armature);
+                }
+                
             },
             visible: false
         },
@@ -303,14 +311,14 @@ let ArmatureDisplay = cc.Class({
     onEnable () {
         this._super();
         if (this._armature) {
-            dragonBones.CCFactory.getInstance()._dragonBones.clock.add(this._armature);
+            this._factory._dragonBones.clock.add(this._armature);
         }
     },
 
     onDisable () {
         this._super();
         if (this._armature) {
-            dragonBones.CCFactory.getInstance()._dragonBones.clock.remove(this._armature);
+            this._factory._dragonBones.clock.remove(this._armature);
         }
     },
 
