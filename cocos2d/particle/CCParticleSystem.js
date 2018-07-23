@@ -921,16 +921,16 @@ var ParticleSystem = cc.Class({
                 }
 
                 self._plistFile = file.nativeUrl;
+                if (!self._custom) {
+                    self._initWithDictionary(content);
+                }
                 if (!self.spriteFrame) {
                     if (file.texture) {
                         self.spriteFrame = new cc.SpriteFrame(file.texture);
                     }
-                    else {
+                    else if (self._custom) {
                         self._initTextureWithDictionary(content);
                     }
-                }
-                if (!self._custom) {
-                    self._initWithDictionary(content);
                 }
             });
         }
