@@ -146,7 +146,7 @@ var eventManager = {
      * @param {Boolean} [recursive=false]
      */
     pauseTarget: function (node, recursive) {
-        if (!(node instanceof cc._BaseNode || node instanceof _ccsg.Node)) {
+        if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }
@@ -170,7 +170,7 @@ var eventManager = {
      * @param {Boolean} [recursive=false]
      */
     resumeTarget: function (node, recursive) {
-        if (!(node instanceof cc._BaseNode || node instanceof _ccsg.Node)) {
+        if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }
@@ -732,7 +732,7 @@ var eventManager = {
      */
     addListener: function (listener, nodeOrPriority) {
         cc.assertID(listener && nodeOrPriority, 3503);
-        if (!(cc.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof cc._BaseNode || nodeOrPriority instanceof _ccsg.Node)) {
+        if (!(cc.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }
@@ -902,7 +902,7 @@ var eventManager = {
      */
     removeListeners: function (listenerType, recursive) {
         var i, _t = this;
-        if (!(cc.js.isNumber(listenerType) || listenerType instanceof cc._BaseNode || listenerType instanceof _ccsg.Node)) {
+        if (!(cc.js.isNumber(listenerType) || listenerType instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }

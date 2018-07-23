@@ -65,7 +65,7 @@ var RigidBody = cc.Class({
                 return this._enabled;
             },
             set: function () {
-                cc.warnID('8200');
+                cc.warnID(8200);
             },
             visible: false,
             override: true

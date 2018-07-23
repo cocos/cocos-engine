@@ -195,8 +195,13 @@ var spineAssembler = {
             if (currMaterial !== material) {
                 if (currMaterial) {
                     newData = true;
+                    data.material = currMaterial;
                 }
-                data.material = currMaterial = material;
+                else {
+                    // Init data material
+                    data.material = material;
+                }
+                currMaterial = material;
             }
 
             // Request new render data and new vertex content

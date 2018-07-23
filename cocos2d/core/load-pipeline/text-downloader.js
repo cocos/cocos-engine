@@ -23,10 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var sys = require('../platform/CCSys');
-
 if (CC_JSB) {
-    module.exports = function (item, callback) {
+    module.exports = function (item) {
         var url = item.url;
 
         var result = jsb.fileUtils.getStringFromFile(url);
@@ -46,8 +44,7 @@ else {
         url = urlAppendTimestamp(url);
 
         var xhr = cc.loader.getXMLHttpRequest(),
-            errInfo = 'Load text file failed: ' + url,
-            navigator = window.navigator;
+            errInfo = 'Load text file failed: ' + url;
         xhr.open('GET', url, true);
         if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
         xhr.onload = function () {

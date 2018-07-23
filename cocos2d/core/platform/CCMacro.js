@@ -192,8 +192,8 @@ cc.macro = {
      *  This formula prevents artifacts by using 99% of the texture.                   <br/>
      *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
      *                                                                                  <br/>
-     *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.TMXLayer                                                       <br/>
+     *  Affected component:                                                                 <br/>
+     *      - cc.TMXLayer                                                       <br/>
      *                                                                                  <br/>
      *  Enabled by default. To disabled set it to 0. <br/>
      *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h

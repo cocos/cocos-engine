@@ -13389,8 +13389,11 @@ Base.prototype._draw = function _draw (item) {
   node.getWorldMatrix(_m4_tmp$2);
   device.setUniform('model', mat4.array(_float16_pool.add(), _m4_tmp$2));
 
-  mat3.transpose(_m3_tmp$1, mat3.invert(_m3_tmp$1, mat3.fromMat4(_m3_tmp$1, _m4_tmp$2)));
-  device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp$1));
+  var inverse = mat3.invert(_m3_tmp$1, mat3.fromMat4(_m3_tmp$1, _m4_tmp$2));
+  if (inverse) {
+    mat3.transpose(_m3_tmp$1, inverse);
+    device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp$1));
+  }
   // }
 
   // set technique uniforms

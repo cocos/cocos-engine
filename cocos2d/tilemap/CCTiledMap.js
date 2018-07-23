@@ -459,7 +459,7 @@ let TiledMap = cc.Class({
             let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
-                cc.logID(7213);
+                cc.logID(7241);
 
             this._buildWithMapInfo(mapInfo);
         }

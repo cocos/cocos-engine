@@ -3614,7 +3614,9 @@
                 var primaryPair = this.m_pairBuffer[i];
                 var userDataA = primaryPair.proxyA.userData; // this.m_tree.GetUserData(primaryPair.proxyA);
                 var userDataB = primaryPair.proxyB.userData; // this.m_tree.GetUserData(primaryPair.proxyB);
-                callback(userDataA, userDataB);
+                if (userDataA && userDataB) {
+                    callback(userDataA, userDataB);
+                }
                 ++i;
                 // Skip any duplicate pairs.
                 while (i < this.m_pairCount) {
