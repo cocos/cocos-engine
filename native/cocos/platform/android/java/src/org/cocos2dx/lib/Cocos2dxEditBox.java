@@ -324,11 +324,17 @@ public class Cocos2dxEditBox extends EditText {
     }
 
     private String updateDomTextCases (final String text) {
+        if (text.length() <= 0) {
+            return text;
+        }
         String newText = text;
         switch (this.mInputFlagConstraints) {
             case InputType.TYPE_TEXT_FLAG_CAP_SENTENCES:
                 char[] charArray = text.toCharArray();
-                charArray[0] -= 32;
+                char firstChar = charArray[0];
+                if (Character.isLowerCase(firstChar)) {
+                    charArray[0] -= 32;
+                }
                 newText = String.valueOf(charArray);
                 break;
             case InputType.TYPE_TEXT_FLAG_CAP_WORDS:
