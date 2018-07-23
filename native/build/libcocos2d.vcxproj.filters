@@ -407,6 +407,21 @@
     <ClCompile Include="..\cocos\audio\win32\AudioPlayer.cpp">
       <Filter>audio\win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\extensions\assets-manager\AssetsManagerEx.cpp">
+      <Filter>extensions\assets-manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extensions\assets-manager\CCEventAssetsManagerEx.cpp">
+      <Filter>extensions\assets-manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extensions\assets-manager\Manifest.cpp">
+      <Filter>extensions\assets-manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCAsyncTaskPool.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -968,6 +983,30 @@
     <ClInclude Include="..\cocos\audio\include\Export.h">
       <Filter>audio\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\extensions\cocos-ext.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extensions\ExtensionExport.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extensions\ExtensionMacros.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extensions\assets-manager\AssetsManagerEx.h">
+      <Filter>extensions\assets-manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extensions\assets-manager\CCEventAssetsManagerEx.h">
+      <Filter>extensions\assets-manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extensions\assets-manager\Manifest.h">
+      <Filter>extensions\assets-manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCAsyncTaskPool.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -1056,6 +1095,12 @@
     </Filter>
     <Filter Include="audio\include">
       <UniqueIdentifier>{d1b8a7c4-28cc-45b3-8276-494fbcf958d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extensions">
+      <UniqueIdentifier>{e6a42324-ff8d-469a-97e5-2579bf1396db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extensions\assets-manager">
+      <UniqueIdentifier>{92ccd96e-a37d-42db-8c6b-ca683b0373ea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

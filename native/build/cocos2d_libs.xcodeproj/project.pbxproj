@@ -933,6 +933,16 @@
 		B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5191D4A106A00BBB345 /* libtiff.a */; };
 		B291B51E1D4A106A00BBB345 /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B51A1D4A106A00BBB345 /* libwebp.a */; };
 		BA0DAAEF1DB76F2C00EE23AD /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0DAAEE1DB76F2C00EE23AD /* libwebp.a */; };
+		BA21055821008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */; };
+		BA21055921008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */; };
+		BA21055A21009A2600E19975 /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054721008AC300E19975 /* AssetsManagerEx.cpp */; };
+		BA21055B21009A2900E19975 /* CCEventAssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */; };
+		BA21055C21009A2C00E19975 /* Manifest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054D21008AC300E19975 /* Manifest.cpp */; };
+		BA21055D21009A5500E19975 /* Manifest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054D21008AC300E19975 /* Manifest.cpp */; };
+		BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054721008AC300E19975 /* AssetsManagerEx.cpp */; };
+		BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */; };
+		BA5A5C9A21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */; };
+		BA5A5C9B21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */; };
 		BA68D77D1D62F4A500B7A3F9 /* shapes.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA68D7701D62F4A500B7A3F9 /* shapes.cc */; };
 		BA68D77E1D62F4A500B7A3F9 /* shapes.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA68D7701D62F4A500B7A3F9 /* shapes.cc */; };
 		BA68D77F1D62F4A500B7A3F9 /* shapes.h in Headers */ = {isa = PBXBuildFile; fileRef = BA68D7711D62F4A500B7A3F9 /* shapes.h */; };
@@ -1509,6 +1519,19 @@
 		B291B5191D4A106A00BBB345 /* libtiff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiff.a; path = ../external/ios/libs/libtiff.a; sourceTree = "<group>"; };
 		B291B51A1D4A106A00BBB345 /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../external/ios/libs/libwebp.a; sourceTree = "<group>"; };
 		BA0DAAEE1DB76F2C00EE23AD /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../external/mac/libs/libwebp.a; sourceTree = "<group>"; };
+		BA21054721008AC300E19975 /* AssetsManagerEx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AssetsManagerEx.cpp; sourceTree = "<group>"; };
+		BA21054821008AC300E19975 /* AssetsManagerEx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AssetsManagerEx.h; sourceTree = "<group>"; };
+		BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CCEventAssetsManagerEx.cpp; sourceTree = "<group>"; };
+		BA21054A21008AC300E19975 /* CCEventAssetsManagerEx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCEventAssetsManagerEx.h; sourceTree = "<group>"; };
+		BA21054D21008AC300E19975 /* Manifest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Manifest.cpp; sourceTree = "<group>"; };
+		BA21054E21008AC300E19975 /* Manifest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Manifest.h; sourceTree = "<group>"; };
+		BA21054F21008AC300E19975 /* cocos-ext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "cocos-ext.h"; sourceTree = "<group>"; };
+		BA21055021008AC300E19975 /* ExtensionExport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionExport.h; sourceTree = "<group>"; };
+		BA21055121008AC300E19975 /* ExtensionMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionMacros.h; sourceTree = "<group>"; };
+		BA21055621008B6600E19975 /* jsb_cocos2dx_extension_auto.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_extension_auto.hpp; sourceTree = "<group>"; };
+		BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_extension_auto.cpp; sourceTree = "<group>"; };
+		BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CCAsyncTaskPool.cpp; sourceTree = "<group>"; };
+		BA5A5C9921045D750026C732 /* CCAsyncTaskPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCAsyncTaskPool.h; sourceTree = "<group>"; };
 		BA68D7701D62F4A500B7A3F9 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shapes.cc; sourceTree = "<group>"; };
 		BA68D7711D62F4A500B7A3F9 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapes.h; sourceTree = "<group>"; };
 		BA68D7721D62F4A500B7A3F9 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -1610,6 +1633,7 @@
 				50272538190BF1B900AAF4ED /* cocos2d.h */,
 				46FDDAE9202ADDCE00931238 /* base */,
 				46FDDA2C202ACC6A00931238 /* renderer */,
+				BA21050A21008AC200E19975 /* extensions */,
 				1A57033E180BD0490088DEC7 /* external */,
 				1551A341158F2AB200E66CFE /* Frameworks */,
 				46A170851807CE87005B8026 /* math */,
@@ -2011,6 +2035,8 @@
 				469302632046AE05004A3D6C /* jsb_gfx_auto.hpp */,
 				469302592046AE05004A3D6C /* jsb_renderer_auto.cpp */,
 				469302822046AE05004A3D6C /* jsb_renderer_auto.hpp */,
+				BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */,
+				BA21055621008B6600E19975 /* jsb_cocos2dx_extension_auto.hpp */,
 			);
 			path = auto;
 			sourceTree = "<group>";
@@ -2224,6 +2250,8 @@
 				46FDDAFA202ADDCE00931238 /* base64.h */,
 				46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */,
 				46FDDB39202ADDCE00931238 /* CCAutoreleasePool.h */,
+				BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */,
+				BA5A5C9921045D750026C732 /* CCAsyncTaskPool.h */,
 				46FDDB42202ADDCE00931238 /* ccCArray.cpp */,
 				46FDDB45202ADDCE00931238 /* ccCArray.h */,
 				46FDDB26202ADDCE00931238 /* ccConfig.h */,
@@ -2542,6 +2570,31 @@
 				ED3057BE1BEC78580083C3ED /* libfreetype.a */,
 			);
 			name = ios;
+			sourceTree = "<group>";
+		};
+		BA21050A21008AC200E19975 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				BA21054621008AC300E19975 /* assets-manager */,
+				BA21054F21008AC300E19975 /* cocos-ext.h */,
+				BA21055021008AC300E19975 /* ExtensionExport.h */,
+				BA21055121008AC300E19975 /* ExtensionMacros.h */,
+			);
+			name = extensions;
+			path = ../extensions;
+			sourceTree = "<group>";
+		};
+		BA21054621008AC300E19975 /* assets-manager */ = {
+			isa = PBXGroup;
+			children = (
+				BA21054721008AC300E19975 /* AssetsManagerEx.cpp */,
+				BA21054821008AC300E19975 /* AssetsManagerEx.h */,
+				BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */,
+				BA21054A21008AC300E19975 /* CCEventAssetsManagerEx.h */,
+				BA21054D21008AC300E19975 /* Manifest.cpp */,
+				BA21054E21008AC300E19975 /* Manifest.h */,
+			);
+			path = "assets-manager";
 			sourceTree = "<group>";
 		};
 		BA68D76E1D62F4A500B7A3F9 /* poly2tri */ = {
@@ -3272,6 +3325,7 @@
 				469304582046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
 				46AE3FFB2092F3A600F3A228 /* inspector_io.cc in Sources */,
+				BA5A5C9A21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */,
 				4DED48221DFFA4AF0070C5C4 /* b2Fixture.cpp in Sources */,
 				46FDDB65202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				46FDDAB9202ACC6A00931238 /* FrameBuffer.cpp in Sources */,
@@ -3458,6 +3512,7 @@
 				4DED48601DFFA4AF0070C5C4 /* b2GearJoint.cpp in Sources */,
 				469303842046AE05004A3D6C /* MappingUtils.cpp in Sources */,
 				4617865F2052607E008256E1 /* jsb_xmlhttprequest.cpp in Sources */,
+				BA21055821008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp in Sources */,
 				469304082046AE06004A3D6C /* jsb_global.cpp in Sources */,
 				50ABC0151926664800A911A9 /* CCImage.cpp in Sources */,
 				4DED48341DFFA4AF0070C5C4 /* b2ChainAndCircleContact.cpp in Sources */,
@@ -3481,6 +3536,9 @@
 				1A28FF9D1F20AFAB007A1D9D /* SRWebSocket.m in Sources */,
 				46FDDB8F202ADDCE00931238 /* ccUtils.cpp in Sources */,
 				1A29D796205666F500168D9A /* jsb_opengl_utils.cpp in Sources */,
+				BA21055A21009A2600E19975 /* AssetsManagerEx.cpp in Sources */,
+				BA21055B21009A2900E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
+				BA21055C21009A2C00E19975 /* Manifest.cpp in Sources */,
 				1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3520,6 +3578,7 @@
 				46FDDC69202D733800931238 /* CCApplication-ios.mm in Sources */,
 				4DED47E71DFFA4AF0070C5C4 /* b2DynamicTree.cpp in Sources */,
 				ED3057C21BEC78A80083C3ED /* xxhash.c in Sources */,
+				BA5A5C9B21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */,
 				ED30578C1BEC77510083C3ED /* ioapi.cpp in Sources */,
 				4617866C2052609B008256E1 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				4DED48411DFFA4AF0070C5C4 /* b2Contact.cpp in Sources */,
@@ -3653,6 +3712,7 @@
 				469303BF2046AE05004A3D6C /* jsb_renderer_auto.cpp in Sources */,
 				4DED48391DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.cpp in Sources */,
 				4617864F205224D6008256E1 /* HttpAsynConnection-apple.m in Sources */,
+				BA21055921008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp in Sources */,
 				4DED480F1DFFA4AF0070C5C4 /* b2Settings.cpp in Sources */,
 				1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				503DD8E71926736A00CD74DD /* CCEAGLView-ios.mm in Sources */,
@@ -3705,6 +3765,9 @@
 				4DED48051DFFA4AF0070C5C4 /* b2Draw.cpp in Sources */,
 				1A52DB8D2060B12600350EE3 /* jsb_platfrom_ios.mm in Sources */,
 				4DED47EF1DFFA4AF0070C5C4 /* b2ChainShape.cpp in Sources */,
+				BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */,
+				BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
+				BA21055D21009A5500E19975 /* Manifest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

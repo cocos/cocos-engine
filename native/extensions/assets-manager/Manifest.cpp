@@ -239,7 +239,7 @@ bool Manifest::versionEquals(const Manifest *b) const
     return true;
 }
 
-bool Manifest::versionGreater(const Manifest *b, const std::function<int(const std::string& versionA, const std::string& versionB)>& handle) const
+bool Manifest::versionGreaterOrEquals(const Manifest *b, const std::function<int(const std::string& versionA, const std::string& versionB)>& handle) const
 {
     std::string localVersion = getVersion();
     std::string bVersion = b->getVersion();
@@ -251,6 +251,22 @@ bool Manifest::versionGreater(const Manifest *b, const std::function<int(const s
     else
     {
         greater = cmpVersion(localVersion, bVersion) >= 0;
+    }
+    return greater;
+}
+
+bool Manifest::versionGreater(const Manifest *b, const std::function<int(const std::string& versionA, const std::string& versionB)>& handle) const
+{
+    std::string localVersion = getVersion();
+    std::string bVersion = b->getVersion();
+    bool greater;
+    if (handle)
+    {
+        greater = handle(localVersion, bVersion) > 0;
+    }
+    else
+    {
+        greater = cmpVersion(localVersion, bVersion) > 0;
     }
     return greater;
 }

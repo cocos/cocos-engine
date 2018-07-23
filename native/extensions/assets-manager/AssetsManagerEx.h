@@ -75,6 +75,7 @@ public:
     
     typedef std::function<int(const std::string& versionA, const std::string& versionB)> VersionCompareHandle;
     typedef std::function<bool(const std::string& path, Manifest::Asset asset)> VerifyCallback;
+    typedef std::function<void(EventAssetsManagerEx *event)> EventCallback;
     
     /** @brief Create function for creating a new AssetsManagerEx
      @param manifestUrl   The url for the local manifest file
@@ -186,6 +187,11 @@ public:
      * @param callback  The verify callback function
      */
     void setVerifyCallback(const VerifyCallback& callback) {_verifyCallback = callback;};
+    
+    /** @brief Set the event callback for receiving update process events
+     * @param callback  The event callback function
+     */
+    void setEventCallback(const EventCallback& callback) {_eventCallback = callback;};
     
 CC_CONSTRUCTOR_ACCESS:
     
@@ -386,6 +392,9 @@ private:
     
     //! Callback function to verify the downloaded assets
     VerifyCallback _verifyCallback;
+    
+    //! Callback function to dispatch events
+    EventCallback _eventCallback;
     
     //! Marker for whether the assets manager is inited
     bool _inited;
