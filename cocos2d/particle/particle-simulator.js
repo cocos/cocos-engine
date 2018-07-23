@@ -301,7 +301,7 @@ Simulator.prototype.step = function (dt) {
     let buffer = psys._buffer;
     let particleCount = particles.length;
     buffer.reset();
-    buffer.request(particleCount * 4, particles.length * 6);
+    buffer.request(particleCount * 4, particleCount * 6);
 
     // Fill up uvs
     if (particleCount > this._uvFilled) {
