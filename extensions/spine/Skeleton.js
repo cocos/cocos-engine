@@ -355,7 +355,7 @@ sp.Skeleton = cc.Class({
     setAnimationStateData (stateData) {
         var state = new spine.AnimationState(stateData);
         if (this._listener) {
-            if (this._state && this._listener) {
+            if (this._state) {
                 this._state.removeListener(this._listener);
             }
             state.addListener(this._listener);
@@ -881,7 +881,9 @@ sp.Skeleton = cc.Class({
     _ensureListener () {
         if (!this._listener) {
             this._listener = new TrackEntryListeners();
-            this._state.addListener(this._listener);
+            if (this._state) {
+                this._state.addListener(this._listener);
+            }
         }
     },
 
