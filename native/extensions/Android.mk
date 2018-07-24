@@ -13,18 +13,18 @@ LOCAL_SRC_FILES := \
 assets-manager/Manifest.cpp \
 assets-manager/AssetsManagerEx.cpp \
 assets-manager/CCEventAssetsManagerEx.cpp \
-assets-manager/CCEventListenerAssetsManagerEx.cpp \
-
-LOCAL_STATIC_LIBRARIES := cis
-LOCAL_STATIC_LIBRARIES += cocos_chipmunk_static
+$(LOCAL_PATH)/../cocos/base/CCAsyncTaskPool.cpp \
 
 LOCAL_CXXFLAGS += -fexceptions
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/. \
+                    $(LOCAL_PATH)/.. \
+                    $(LOCAL_PATH)/../cocos \
+                    $(LOCAL_PATH)/../cocos/platform \
+                    $(LOCAL_PATH)/../external/sources \
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/. \
                            $(LOCAL_PATH)/.. \
-                           $(LOCAL_PATH)/GUI/CCControlExtension \
-                           $(LOCAL_PATH)/GUI/CCScrollView 
+
                     
 include $(BUILD_STATIC_LIBRARY)

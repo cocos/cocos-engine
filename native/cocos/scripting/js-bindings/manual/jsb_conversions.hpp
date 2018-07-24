@@ -32,7 +32,7 @@
 #include "renderer/gfx/GFX.h"
 #include "renderer/renderer/Renderer.h"
 #include "network/CCDownloader.h"
-//#include "extensions/cocos-ext.h"
+#include "extensions/cocos-ext.h"
 //#include "Box2D/Box2D.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...) \
@@ -275,7 +275,7 @@ bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<st
 bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret);
 //bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret);
-//bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
+bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
 //bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret);
 ////bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret);
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret);

@@ -37,13 +37,6 @@ using namespace cocos2d;
 using namespace cocos2d::extension;
 using namespace cocos2d::experimental;
 
-static bool jsb_cocos2d_extension_empty_func(se::State& s)
-{
-    return true;
-}
-SE_BIND_FUNC(jsb_cocos2d_extension_empty_func)
-
-
 static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 {
     const auto& args = s.args();
@@ -243,106 +236,10 @@ static ThreadPool* getThreadPool()
     return _threadPool;
 }
 
-static bool js_cocos2dx_extension_initTextureAsync(se::State& s)
-{
-    const auto& args = s.args();
-    int argc = (int)args.size();
-    if (argc != 3)
-    {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 3);
-        return false;
-    }
-
-    bool ok = false;
-
-    // get texture
-    cocos2d::Texture2D* texture = nullptr;
-    ok = seval_to_native_ptr(args[0], &texture);
-    SE_PRECONDITION2(ok, false, "Converting 'texture' failed!");
-
-    // get url
-    std::string url;
-    ok = seval_to_std_string(args[1], &url);
-    SE_PRECONDITION2(ok, false, "Converting 'url' failed!");
-
-    // get callback
-    se::Value func = args[2];
-    assert(func.isObject() && func.toObject()->isFunction());
-    func.toObject()->root();
-
-    auto onCallback = [=](bool success){
-        se::ScriptEngine::getInstance()->clearException();
-        se::AutoHandleScope hs;
-
-        se::ValueArray args;
-        args.resize(1);
-
-        args[0].setBoolean(success);
-        func.toObject()->call(args, nullptr);
-    };
-
-    // getDataFromFile isn't thread safe since fullPathForFilename usage in getDataFromFile isn't.
-    // So we should pass full path to getDataFromFile to avoid multi-thread issues.
-    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(url);
-
-    getThreadPool()->pushTask([texture, onCallback, fullPath](int tid){
-        Data data = FileUtils::getInstance()->getDataFromFile(fullPath);
-        if (!data.isNull())
-        {
-            Image* image = new (std::nothrow) Image();
-            if (image->initWithImageData(data.getBytes(), data.getSize()))
-            {
-                Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]() {
-                    if (texture->initWithImage(image))
-                    {
-                        onCallback(true);
-                    }
-                    else
-                    {
-                        CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to init texture with image.");
-                        onCallback(false);
-                    }
-                    CC_SAFE_RELEASE(image);
-                });
-                return;
-            }
-            else
-            {
-                CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to load image.");
-                CC_SAFE_RELEASE(image);
-            }
-        }
-        else
-        {
-            CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to load file.");
-        }
-
-        Director::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
-            onCallback(false);
-        });
-    });
-
-    return true;
-}
-SE_BIND_FUNC(js_cocos2dx_extension_initTextureAsync)
-
 bool register_all_cocos2dx_extension_manual(se::Object* obj)
 {
-
-    // empty 'retain' 'release' implementation
-    se::Object* protosNeedEmptyRetainRelease[] = {
-        __jsb_cocos2d_extension_AssetsManagerEx_proto,
-        __jsb_cocos2d_extension_Manifest_proto
-    };
-
-    for (const auto& e : protosNeedEmptyRetainRelease)
-    {
-        e->defineFunction("retain", _SE(jsb_cocos2d_extension_empty_func));
-        e->defineFunction("release", _SE(jsb_cocos2d_extension_empty_func));
-    }
     __jsbObj->defineFunction("loadRemoteImg", _SE(js_cocos2dx_extension_loadRemoteImage));
     __jsbObj->defineFunction("initRemoteImg", _SE(js_cocos2dx_extension_initRemoteImage));
-    __jsbObj->defineFunction("initTextureAsync", _SE(js_cocos2dx_extension_initTextureAsync));
 
     se::ScriptEngine::getInstance()->clearException();
 

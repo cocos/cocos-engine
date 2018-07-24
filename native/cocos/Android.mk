@@ -81,6 +81,7 @@ scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
 scripting/js-bindings/manual/jsb_opengl_manual.cpp \
 scripting/js-bindings/manual/jsb_opengl_utils.cpp \
@@ -95,7 +96,6 @@ scripting/js-bindings/manual/jsb_socketio.cpp \
 scripting/js-bindings/manual/jsb_websocket.cpp \
 scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
 scripting/js-bindings/manual/jsb_platform_android.cpp \
-scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
 scripting/js-bindings/jswrapper/config.cpp \
 scripting/js-bindings/jswrapper/HandleObject.cpp \
 scripting/js-bindings/jswrapper/MappingUtils.cpp \
@@ -162,6 +162,7 @@ LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
 LOCAL_STATIC_LIBRARIES += audioengine_static
 LOCAL_STATIC_LIBRARIES += cocos_network_static
+LOCAL_STATIC_LIBRARIES += cocos_extension_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures

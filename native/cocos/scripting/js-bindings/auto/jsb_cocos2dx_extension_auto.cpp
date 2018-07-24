@@ -260,9 +260,6 @@ static bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(se::State& s)
 SE_BIND_CTOR(js_cocos2dx_extension_EventAssetsManagerEx_constructor, __jsb_cocos2d_extension_EventAssetsManagerEx_class, js_cocos2d_extension_EventAssetsManagerEx_finalize)
 
 
-
-extern se::Object* __jsb_cocos2d_EventCustom_proto;
-
 static bool js_cocos2d_extension_EventAssetsManagerEx_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::EventAssetsManagerEx)", s.nativeThisObject());
@@ -277,7 +274,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_EventAssetsManagerEx_finalize)
 
 bool js_register_cocos2dx_extension_EventAssetsManagerEx(se::Object* obj)
 {
-    auto cls = se::Class::create("EventAssetsManager", obj, __jsb_cocos2d_EventCustom_proto, _SE(js_cocos2dx_extension_EventAssetsManagerEx_constructor));
+    auto cls = se::Class::create("EventAssetsManager", obj, nullptr, _SE(js_cocos2dx_extension_EventAssetsManagerEx_constructor));
 
     cls->defineFunction("getAssetsManagerEx", _SE(js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx));
     cls->defineFunction("getDownloadedFiles", _SE(js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles));
@@ -879,6 +876,52 @@ static bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(se::St
 }
 SE_BIND_FUNC(js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle)
 
+static bool js_cocos2dx_extension_AssetsManagerEx_setEventCallback(se::State& s)
+{
+    cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (cocos2d::extension::EventAssetsManagerEx *)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto lambda = [=](cocos2d::extension::EventAssetsManagerEx *larg0) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+                    
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(1);
+                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
+                    SE_PRECONDITION2_VOID(ok, "js_cocos2dx_extension_AssetsManagerEx_setEventCallback callback : Error processing arguments");
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    funcObj->call(args, thisObj, &rval);
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+            ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_AssetsManagerEx_setEventCallback : Error processing arguments");
+        cobj->setEventCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_extension_AssetsManagerEx_setEventCallback)
+
 static bool js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask(se::State& s)
 {
     cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx*)s.nativeThisObject();
@@ -1167,6 +1210,7 @@ bool js_register_cocos2dx_extension_AssetsManagerEx(se::Object* obj)
     cls->defineFunction("getStoragePath", _SE(js_cocos2dx_extension_AssetsManagerEx_getStoragePath));
     cls->defineFunction("update", _SE(js_cocos2dx_extension_AssetsManagerEx_update));
     cls->defineFunction("setVersionCompareHandle", _SE(js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle));
+    cls->defineFunction("setEventCallback", _SE(js_cocos2dx_extension_AssetsManagerEx_setEventCallback));
     cls->defineFunction("setMaxConcurrentTask", _SE(js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask));
     cls->defineFunction("getDownloadedBytes", _SE(js_cocos2dx_extension_AssetsManagerEx_getDownloadedBytes));
     cls->defineFunction("getLocalManifest", _SE(js_cocos2dx_extension_AssetsManagerEx_getLocalManifest));
@@ -1187,170 +1231,19 @@ bool js_register_cocos2dx_extension_AssetsManagerEx(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cocos2d_extension_EventListenerAssetsManagerEx_proto = nullptr;
-se::Class* __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = nullptr;
-
-static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(se::State& s)
-{
-    cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        const cocos2d::extension::AssetsManagerEx* arg0 = nullptr;
-        std::function<void (cocos2d::extension::EventAssetsManagerEx *)> arg1;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[1]);
-                jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(1);
-                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg1 = lambda;
-            }
-            else
-            {
-                arg1 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Error processing arguments");
-        bool result = cobj->init(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_init)
-
-static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        cocos2d::extension::AssetsManagerEx* arg0 = nullptr;
-        std::function<void (cocos2d::extension::EventAssetsManagerEx *)> arg1;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        do {
-            if (args[1].isObject() && args[1].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[1]);
-                jsFunc.toObject()->root();
-                auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(1);
-                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg1 = lambda;
-            }
-            else
-            {
-                arg1 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_create : Error processing arguments");
-        auto result = cocos2d::extension::EventListenerAssetsManagerEx::create(arg0, arg1);
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_EventListenerAssetsManagerEx_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_create)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
-
-static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor(se::State& s)
-{
-    cocos2d::extension::EventListenerAssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::EventListenerAssetsManagerEx();
-    s.thisObject()->setPrivateData(cobj);
-    return true;
-}
-SE_BIND_CTOR(js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor, __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
-
-
-
-extern se::Object* __jsb_cocos2d_EventListenerCustom_proto;
-
-static bool js_cocos2d_extension_EventListenerAssetsManagerEx_finalize(se::State& s)
-{
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::EventListenerAssetsManagerEx)", s.nativeThisObject());
-    cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
-
-bool js_register_cocos2dx_extension_EventListenerAssetsManagerEx(se::Object* obj)
-{
-    auto cls = se::Class::create("EventListenerAssetsManager", obj, __jsb_cocos2d_EventListenerCustom_proto, _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor));
-
-    cls->defineFunction("init", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_init));
-    cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_create));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::extension::EventListenerAssetsManagerEx>(cls);
-
-    __jsb_cocos2d_extension_EventListenerAssetsManagerEx_proto = cls->getProto();
-    __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 bool register_all_cocos2dx_extension(se::Object* obj)
 {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("cc", &nsVal))
+    if (!obj->getProperty("jsb", &nsVal))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
-        obj->setProperty("cc", nsVal);
+        obj->setProperty("jsb", nsVal);
     }
     se::Object* ns = nsVal.toObject();
 
     js_register_cocos2dx_extension_AssetsManagerEx(ns);
-    js_register_cocos2dx_extension_EventListenerAssetsManagerEx(ns);
     js_register_cocos2dx_extension_Manifest(ns);
     js_register_cocos2dx_extension_EventAssetsManagerEx(ns);
     return true;

@@ -20,6 +20,7 @@
     <ClCompile Include="..\cocos\audio\win32\AudioEngine-win32.cpp" />
     <ClCompile Include="..\cocos\audio\win32\AudioPlayer.cpp" />
     <ClCompile Include="..\cocos\base\base64.cpp" />
+    <ClCompile Include="..\cocos\base\CCAsyncTaskPool.cpp" />
     <ClCompile Include="..\cocos\base\CCAutoreleasePool.cpp" />
     <ClCompile Include="..\cocos\base\ccCArray.cpp" />
     <ClCompile Include="..\cocos\base\CCConfiguration.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="..\cocos\renderer\Types.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp" />
@@ -137,6 +139,9 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp" />
     <ClCompile Include="..\cocos\storage\local-storage\LocalStorage.cpp" />
     <ClCompile Include="..\cocos\ui\edit-box\EditBox-win32.cpp" />
+    <ClCompile Include="..\extensions\assets-manager\AssetsManagerEx.cpp" />
+    <ClCompile Include="..\extensions\assets-manager\CCEventAssetsManagerEx.cpp" />
+    <ClCompile Include="..\extensions\assets-manager\Manifest.cpp" />
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c" />
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTFWrapper.cpp" />
     <ClCompile Include="..\external\sources\firefox\mozilla\Assertions.cpp" />
@@ -160,6 +165,7 @@
     <ClInclude Include="..\cocos\audio\win32\AudioMacros.h" />
     <ClInclude Include="..\cocos\audio\win32\AudioPlayer.h" />
     <ClInclude Include="..\cocos\base\base64.h" />
+    <ClInclude Include="..\cocos\base\CCAsyncTaskPool.h" />
     <ClInclude Include="..\cocos\base\CCAutoreleasePool.h" />
     <ClInclude Include="..\cocos\base\ccCArray.h" />
     <ClInclude Include="..\cocos\base\ccConfig.h" />
@@ -258,6 +264,7 @@
     <ClInclude Include="..\cocos\renderer\Types.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp" />
@@ -310,6 +317,12 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp" />
     <ClInclude Include="..\cocos\storage\local-storage\LocalStorage.h" />
     <ClInclude Include="..\cocos\ui\edit-box\EditBox.h" />
+    <ClInclude Include="..\extensions\assets-manager\AssetsManagerEx.h" />
+    <ClInclude Include="..\extensions\assets-manager\CCEventAssetsManagerEx.h" />
+    <ClInclude Include="..\extensions\assets-manager\Manifest.h" />
+    <ClInclude Include="..\extensions\cocos-ext.h" />
+    <ClInclude Include="..\extensions\ExtensionExport.h" />
+    <ClInclude Include="..\extensions\ExtensionMacros.h" />
     <ClInclude Include="..\external\sources\ConvertUTF\ConvertUTF.h" />
     <ClInclude Include="..\external\sources\firefox\GLConsts.h" />
     <ClInclude Include="..\external\sources\firefox\mozilla\Assertions.h" />
@@ -419,7 +432,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_USRDLL;_EXPORT_DLL_;USING_V8_SHARED;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;XP_WIN;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -460,7 +473,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;_EXPORT_DLL_;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;XP_WIN;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>

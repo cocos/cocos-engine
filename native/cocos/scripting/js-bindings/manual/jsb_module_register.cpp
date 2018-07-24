@@ -36,7 +36,6 @@
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
-#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_node.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
@@ -93,6 +92,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_cocos2dx);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
+    se->addRegisterCallback(register_all_cocos2dx_extension);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
     se->addRegisterCallback(register_javascript_objc_bridge);

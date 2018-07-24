@@ -26,8 +26,8 @@
 #ifndef __cocos2d_libs__CCEventAssetsManagerEx__
 #define __cocos2d_libs__CCEventAssetsManagerEx__
 
-#include "base/CCEvent.h"
-#include "base/CCEventCustom.h"
+#include <string>
+#include "base/CCRef.h"
 #include "extensions/ExtensionMacros.h" 
 #include "extensions/ExtensionExport.h"
 
@@ -35,7 +35,7 @@ NS_CC_EXT_BEGIN
 
 class AssetsManagerEx;
 
-class CC_EX_DLL EventAssetsManagerEx : public cocos2d::EventCustom
+class CC_EX_DLL EventAssetsManagerEx : public cocos2d::Ref
 {
 public:
     //! Update events code
@@ -80,7 +80,7 @@ public:
     
     int getTotalFiles() const;
     
-CC_CONSTRUCTOR_ACCESS:
+public:
     /** Constructor */
     EventAssetsManagerEx(const std::string& eventName, cocos2d::extension::AssetsManagerEx *manager, const EventCode &code, const std::string& assetId = "", const std::string& message = "", int curle_code = 0, int curlm_code = 0);
     
