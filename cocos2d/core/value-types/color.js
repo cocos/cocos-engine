@@ -396,7 +396,7 @@ var Color = (function () {
      * e.g.  cc.color(255,6,255)  to : "#ff06ff"
      * !#zh 转换为 16 进制。
      * @method toHEX
-     * @param {String} fmt - "#rgb" or "#rrggbb".
+     * @param {String} fmt - "#rgb", "#rrggbb" or "#rrggbbaa".
      * @return {String}
      * @example
      * var color = cc.Color.BLACK;
@@ -408,16 +408,24 @@ var Color = (function () {
             (this.r | 0 ).toString(16),
             (this.g | 0 ).toString(16),
             (this.b | 0 ).toString(16),
+            (this.a | 0 ).toString(16),
         ];
         var i = -1;
         if ( fmt === '#rgb' ) {
-            for ( i = 0; i < hex.length; ++i ) {
+            for ( i = 0; i < 3; ++i ) {
                 if ( hex[i].length > 1 ) {
                     hex[i] = hex[i][0];
                 }
             }
         }
         else if ( fmt === '#rrggbb' ) {
+            for ( i = 0; i < 3; ++i ) {
+                if ( hex[i].length === 1 ) {
+                    hex[i] = '0' + hex[i];
+                }
+            }
+        }
+        else if ( fmt === '#rrggbbaa' ) {
             for ( i = 0; i < hex.length; ++i ) {
                 if ( hex[i].length === 1 ) {
                     hex[i] = '0' + hex[i];
