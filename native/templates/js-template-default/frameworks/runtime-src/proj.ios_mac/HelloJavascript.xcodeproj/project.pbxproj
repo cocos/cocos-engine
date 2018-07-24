@@ -643,7 +643,10 @@
 					"$(SRCROOT)/../../cocos2d-x/external/ios/libs",
 					"$(SRCROOT)/ios/anysdk",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+                                    "-ObjC",
+                                    "$(inherited)",
+                                );
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -676,7 +679,10 @@
 					"$(SRCROOT)/../../cocos2d-x/external/ios/libs",
 					"$(SRCROOT)/ios/anysdk",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+                                    "-ObjC",
+                                    "$(inherited)",
+                                );
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";

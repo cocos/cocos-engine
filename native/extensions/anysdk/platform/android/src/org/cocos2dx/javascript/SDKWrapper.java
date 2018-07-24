@@ -37,6 +37,7 @@ public class SDKWrapper {
 	private final static String TAG = "SDKWrapper";
 	private final static String CLASS_PATH = "com.anysdk.framework.PluginWrapper";
 	private static Class<?> mClass = null;
+	private Context ctx = null;
 
 	private static SDKWrapper mInstace = null;
 	public static SDKWrapper getInstance() {
@@ -52,8 +53,13 @@ public class SDKWrapper {
 		}
 		return mInstace;	
 	}
-	
+
+	public Context getContext() {
+		return ctx;
+	}
+
 	public void init(Context context) {
+		ctx = context;
 		if (PACKAGE_AS) {
 			try {
 				if (null != mClass)
