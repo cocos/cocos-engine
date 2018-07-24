@@ -219,7 +219,7 @@ if (CC_DEV) {
         getAnimationInterval: 'cc.game.getFrameRate',
         setAnimationInterval: 'cc.game.setFrameRate',
         isDisplayStats: 'cc.debug.isDisplayStats',
-        showDisplayStats: 'cc.debug.showDisplayStats',
+        setDisplayStats: 'cc.debug.setDisplayStats',
     }, 'cc.Director');
     markAsRemoved(cc.Director, [
         'pushScene',
