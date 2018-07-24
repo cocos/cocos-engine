@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../platform/js');
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 module.exports = {
@@ -59,10 +58,12 @@ module.exports = {
             tx = matrix.m12, ty = matrix.m13;
     
         let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData;
+            vertexOffset = buffer.byteOffset >> 2;
 
         buffer.request(4, 6);
+
+        // buffer data may be realloc, need get reference after request.
+        let vbuf = buffer._vData;
 
         // get uv from sprite frame directly
         let uv = sprite._spriteFrame.uv;

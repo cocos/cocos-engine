@@ -9431,7 +9431,7 @@ function _commitTextures(gl, cur, next) {
   for (var i = 0; i < next.maxTextureSlot + 1; ++i) {
     if (cur.textureUnits[i] !== next.textureUnits[i]) {
       var texture = next.textureUnits[i];
-      if (texture !== undefined && texture._glID !== -1) {
+      if (texture && texture._glID !== -1) {
         gl.activeTexture(gl.TEXTURE0 + i);
         gl.bindTexture(texture._target, texture._glID);
       }
@@ -13389,8 +13389,11 @@ Base.prototype._draw = function _draw (item) {
   node.getWorldMatrix(_m4_tmp$2);
   device.setUniform('model', mat4.array(_float16_pool.add(), _m4_tmp$2));
 
-  mat3.transpose(_m3_tmp$1, mat3.invert(_m3_tmp$1, mat3.fromMat4(_m3_tmp$1, _m4_tmp$2)));
-  device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp$1));
+  var inverse = mat3.invert(_m3_tmp$1, mat3.fromMat4(_m3_tmp$1, _m4_tmp$2));
+  if (inverse) {
+    mat3.transpose(_m3_tmp$1, inverse);
+    device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp$1));
+  }
   // }
 
   // set technique uniforms

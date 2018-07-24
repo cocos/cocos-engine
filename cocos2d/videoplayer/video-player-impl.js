@@ -69,7 +69,7 @@ let VideoPlayerImpl = cc.Class({
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
         };
         cbs.ended = function () {
-            if (this._video !== video) return;
+            if (self._video !== video) return;
             self._playing = false;
             self._dispatchEvent(VideoPlayerImpl.EventType.COMPLETED);
         };

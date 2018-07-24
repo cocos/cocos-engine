@@ -296,7 +296,7 @@ let WebViewImpl = cc.Class({
 
     /**
      * The binding event
-     * @param {_ccsg.WebView.EventType} event
+     * @param {WebViewImpl.EventType} event
      * @param {Function} callback
      */
     setEventListener (event, callback) {
@@ -305,7 +305,7 @@ let WebViewImpl = cc.Class({
 
     /**
      * Delete events
-     * @param {_ccsg.WebView.EventType} event
+     * @param {WebViewImpl.EventType} event
      */
     removeEventListener (event) {
         this._EventList[event] = null;

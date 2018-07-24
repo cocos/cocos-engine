@@ -396,6 +396,7 @@ cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.
 
 ### 1622
 
+<!-- DEPRECATED -->
 _ccsg.Node._requestDirtyFlag: failed to satisfy the request, key (%s) for flag have already been taken
 
 ### 1623
@@ -420,18 +421,22 @@ Not support for asynchronous creating node in SG
 
 ### 1628
 
+<!-- DEPRECATED -->
 Renderer error: Size of the cc._RendererInSG._sgNode must be zero
 
 ### 1629
 
+<!-- DEPRECATED -->
 The node '%s' has a component inherited from 'cc._RendererInSG'
 
 ### 1630
 
+<!-- DEPRECATED -->
 JSB environment is not support invoke node.runAction before the 'cc._RendererInSG' component enabled.
 
 ### 1631
 
+<!-- DEPRECATED -->
 Please use runAction in the method 'start' instead.
 
 ### 1632
@@ -1558,6 +1563,7 @@ _ccsg.Label._initBMFontWithString(): Impossible to create font. Please check fil
 
 ### 4002
 
+<!-- DEPRECATED -->
 _ccsg.Label._initBMFontWithString(): re-init is no longer supported
 
 ### 4003
@@ -2008,26 +2014,32 @@ cc.ParticleBatchNode._addChildHelper(): child already added. It can't be added a
 
 ### 6008
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithFile(): Particles: file not found
 
 ### 6009
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithDictionary(): Invalid emitterType in config file
 
 ### 6010
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem: error decoding or ungzipping textureImageData
 
 ### 6011
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem: unknown image format with Data
 
 ### 6012
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithDictionary() : error loading the texture
 
 ### 6013
 
+<!-- DEPRECATED -->
 Particle system: not enough memory
 
 ### 6014
@@ -2037,6 +2049,7 @@ Can't change blending functions when the particle is being batched
 
 ### 6015
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets
 
 ### 6016
@@ -2095,6 +2108,18 @@ Unknown Photometric Interpretation: %s
 ### 6029
 
 Unkown error
+
+### 6030
+
+cc.ParticleSystem: error decoding or ungzipping textureImageData
+
+### 6031
+
+cc.ParticleSystem: unknown image format with Data
+
+### 6032
+
+cc.ParticleSystem.initWithDictionary() : error loading the texture
 
 ### 6100
 
@@ -2239,26 +2264,32 @@ Property 'mapLoaded' is unused now. Please write the logic to the callback 'star
 
 ### 7204
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released
 
 ### 7205
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released
 
 ### 7206
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released
 
 ### 7207
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): invalid gid: %s
 
 ### 7208
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released
 
 ### 7209
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.removeTileAt(): TMXLayer: the tiles map has been released
 
 ### 7210
@@ -2271,10 +2302,12 @@ TMX invalid value
 
 ### 7212
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.initWithTMXFile(): Map not found. Please check the filename.
 
 ### 7213
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.
 
 ### 7214
@@ -2316,55 +2349,92 @@ Parse %s failed.
 
 ### 7223
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): pos should be non-null
 
 ### 7224
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.getLayer(): layerName should be non-null or non-empty string.
 
 ### 7225
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.
 
 ### 7226
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileAt(): pos should be non-null
 
 ### 7227
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileAt(): invalid position
 
 ### 7228
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileGIDAt(): pos should be non-null
 
 ### 7229
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileGIDAt(): invalid position
 
 ### 7230
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): pos should be non-null
 
 ### 7231
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): invalid position
 
 ### 7232
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null
 
 ### 7233
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileFlagsAt(): invalid position
 
 ### 7234
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.removeTileAt(): pos should be non-null
 
 ### 7235
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.removeTileAt(): invalid position
+
+### 7236
+
+cc.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released
+
+### 7237
+
+cc.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released
+
+### 7238
+
+cc.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released
+
+### 7239
+
+cc.TMXLayer.setTileGID(): invalid gid: %s
+
+### 7240
+
+cc.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released
+
+### 7241
+
+cc.TiledMap.initWithXML(): Map not found. Please check the filename.
 
 ### 7300
 

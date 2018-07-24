@@ -31,8 +31,8 @@ const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 
+let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
-let _rect_temp = cc.rect();
 
 /**
  * !#en the type for mask.
@@ -316,30 +316,25 @@ let Mask = cc.Class({
         this.markForRender(true);
     },
 
-    _hitTest: function (point) {
+    _hitTest: function (cameraPt) {
         let node = this.node;
         let size = node.getContentSize(),
             w = size.width,
-            h = size.height;
-        node.getWorldMatrix(_mat4_temp);
+            h = size.height,
+            testPt = _vec2_temp;
+        
+        node._updateWorldMatrix();
+        math.mat4.invert(_mat4_temp, node._worldMatrix);
+        math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        testPt.x += node._anchorPoint.x * w;
+        testPt.y += node._anchorPoint.y * h;
 
         if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
-            _rect_temp.x = -node.anchorX * w,
-            _rect_temp.y = -node.anchorX * h;
-            _rect_temp.width = w; 
-            _rect_temp.height = h;
-            _rect_temp.transformMat4(_rect_temp, _mat4_temp);
-
-            let left = point.x - _rect_temp.x,
-                right = _rect_temp.x + _rect_temp.width - point.x,
-                bottom = point.y - _rect_temp.y,
-                top = _rect_temp.y + _rect_temp.height - point.y;
-
-            return left >= 0 && right >= 0 && top >= 0 && bottom >= 0;
+            return testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         }
         else if (this.type === MaskType.ELLIPSE) {
             let rx = w / 2, ry = h / 2;
-            let px = point.x - _mat4_temp.m12, py = point.y - _mat4_temp.m13;
+            let px = testPt.x - 0.5 * w, py = testPt.y - 0.5 * h;
             return px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
     },

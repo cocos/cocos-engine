@@ -656,7 +656,7 @@ proto.loadResDir = function (url, type, progressCallback, completeCallback) {
                 }
             }
         }
-        completeCallback(errors, assetRes, urlRes);
+        completeCallback && completeCallback(errors, assetRes, urlRes);
     }, urls);
 };
 

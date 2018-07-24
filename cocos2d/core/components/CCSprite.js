@@ -211,10 +211,6 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                if ((this._material && this._material._texture) !== (value && value._texture)) {
-                    // disable render flow util texture is loaded
-                    this.markForRender(false);
-                }
                 // render & update render data flag will be triggered while applying new sprite frame
                 this.markForUpdateRenderData(false);
                 this._applySpriteFrame(lastSprite);
@@ -441,6 +437,10 @@ var Sprite = cc.Class({
         if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             // Do not render when sprite frame is not ready
             this.disableRender();
+            if (this._spriteFrame) {
+                this._spriteFrame.once('load', this._onTextureLoaded, this);
+                this._spriteFrame.ensureLoadTexture();
+            }
         }
         
         this._updateAssembler();
@@ -587,6 +587,11 @@ var Sprite = cc.Class({
         }
 
         var spriteFrame = this._spriteFrame;
+        if (!spriteFrame || (this._material && this._material._texture) !== (spriteFrame && spriteFrame._texture)) {
+            // disable render flow until texture is loaded
+            this.markForRender(false);
+        }
+
         if (spriteFrame) {
             if (!oldFrame || spriteFrame._texture !== oldFrame._texture) {
                 if (spriteFrame.textureLoaded()) {

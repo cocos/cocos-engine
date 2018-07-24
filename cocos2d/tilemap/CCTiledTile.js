@@ -28,7 +28,7 @@
  * !#en TiledTile can control the specified map tile. 
  * It will apply the node rotation, scale, translate to the map tile.
  * You can change the TiledTile's gid to change the map tile's style.
- * !#zh TiledTile 可以单独对某一个地图快进行操作。
+ * !#zh TiledTile 可以单独对某一个地图块进行操作。
  * 他会将节点的旋转，缩放，平移操作应用在这个地图块上，并可以通过更换当前地图块的 gid 来更换地图块的显示样式。
  * @class TiledTile
  * @extends Component
@@ -61,10 +61,15 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 if (value === this._x) return;
+                if (this._layer && this._layer._isInvalidPosition(value, this._y)) {
+                    cc.warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer._layerSize.width);
+                    return;
+                }
                 this._resetTile();
                 this._x = value;
                 this._updateInfo();
-            }
+            },
+            type: cc.Integer
         },
 
         /**
@@ -79,10 +84,15 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 if (value === this._y) return;
+                if (this._layer && this._layer._isInvalidPosition(this._x, value)) {
+                    cc.warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer._layerSize.height);
+                    return;
+                }
                 this._resetTile();
                 this._y = value;
                 this._updateInfo();
-            }
+            },
+            type: cc.Integer
         },
 
         /**
@@ -97,14 +107,14 @@ let TiledTile = cc.Class({
             },
             set (value) {
                 this._gid = value;
-            }
+            },
+            type: cc.Integer
         },
 
         /**
          * !#en Specify which TiledLayer the TiledTile belong to.
          * !#zh 指定 TiledTile 属于哪一个 TiledLayer
-         * @property {TiledLayer} gid
-         * @default 0
+         * @property {TiledLayer} layer
          */
         layer: {
             type: cc.TiledLayer,
@@ -121,12 +131,23 @@ let TiledTile = cc.Class({
     },
 
     onEnable () {
-        if (CC_EDITOR && !this._layer) {
-            this._layer = this.node.parent.getComponent(cc.TiledLayer);
-            this._updateInfo();
+        if (CC_EDITOR) {
+            let parent = this.node.parent;
+            if (!this._layer && !(parent instanceof cc.Scene)) {
+                this._layer = parent.getComponent(cc.TiledLayer);
+                this._updateInfo();
+            }
         }
         else if (this._layer) {
-            this._layer.setTiledTileAt(this._x, this._y, this);
+            let tile = this._layer.getTiledTileAt(this._x, this._y);
+            if (tile) {
+                if (tile !== this) {
+                    cc.warn('There is already a TiledTile at [%s, %s]', this._x, this._x);
+                }
+            }
+            else {
+                this._layer.setTiledTileAt(this._x, this._y, this);
+            }
         }
     },
 
@@ -154,3 +175,5 @@ let TiledTile = cc.Class({
         this._layer.setTiledTileAt(x, y, this);
     },
 });
+
+cc.TiledTile = module.exports = TiledTile;

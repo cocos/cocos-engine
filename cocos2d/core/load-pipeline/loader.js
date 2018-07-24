@@ -24,17 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
-var sys = require('../platform/CCSys');
-var Pipeline = require('./pipeline');
-var Texture2D = require('../assets/CCTexture2D');
-var loadUuid = require('./uuid-loader');
+const js = require('../platform/js');
+const plistParser = require('../platform/CCSAXParser').plistParser;
+const Pipeline = require('./pipeline');
+const Texture2D = require('../assets/CCTexture2D');
+const loadUuid = require('./uuid-loader');
 
-function loadNothing (item, callback) {
+function loadNothing () {
     return null;
 }
 
-function loadJSON (item, callback) {
+function loadJSON (item) {
     if (typeof item.content !== 'string') {
         return new Error('JSON Loader: Input item doesn\'t contain string content');
     }
@@ -48,7 +48,7 @@ function loadJSON (item, callback) {
     }
 }
 
-function loadImage (item, callback) {
+function loadImage (item) {
     var loadByDeserializedAsset = (item._owner instanceof cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
@@ -58,7 +58,7 @@ function loadImage (item, callback) {
     var image = item.content;
     if (!CC_WECHATGAME && !CC_QQPLAY && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
-    }
+    } 
 
     // load cc.Texture2D
     var rawUrl = item.rawUrl;
@@ -85,11 +85,11 @@ function loadAudioAsAsset (item, callback) {
     return audioClip;
 }
 
-function loadPlist (item, callback) {
+function loadPlist (item) {
     if (typeof item.content !== 'string') {
         return new Error('Plist Loader: Input item doesn\'t contain string content');
     }
-    var result = cc.plistParser.parse(item.content);
+    var result = plistParser.parse(item.content);
     if (result) {
         return result;
     }
@@ -98,7 +98,7 @@ function loadPlist (item, callback) {
     }
 }
 
-function loadBinary (item, callback) {
+function loadBinary (item) {
     // Invoke custom handle
     if (item.load) {
         return item.load(item.content);

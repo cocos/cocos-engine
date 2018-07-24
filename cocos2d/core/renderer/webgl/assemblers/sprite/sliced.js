@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-const FillType = Sprite.FillType;
 
 module.exports = {
     useModel: false,
@@ -73,7 +71,6 @@ module.exports = {
             appx = node.anchorX * width, appy = node.anchorY * height;
     
         let frame = sprite.spriteFrame;
-        let rect = frame._rect;
         let leftWidth = frame.insetLeft;
         let rightWidth = frame.insetRight;
         let topHeight = frame.insetTop;
@@ -106,21 +103,22 @@ module.exports = {
         }
 
         let renderData = sprite._renderData,
-            data = renderData._data,
-            node = sprite.node;
+            data = renderData._data;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
             vertexCount = renderData.vertexCount;
         
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
+        let indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         let uvSliced = sprite.spriteFrame.uvSliced;
             
         buffer.request(vertexCount, renderData.indiceCount);
+
+        // buffer data may be realloc, need get reference after request.
+        let vbuf = buffer._vData,
+            ibuf = buffer._iData;
 
         for (let i = 4; i < 20; ++i) {
             let vert = data[i];

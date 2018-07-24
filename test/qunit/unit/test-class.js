@@ -257,6 +257,20 @@ largeModule('Class ES6');
         strictEqual(attrs['vec2' + cc.Class.Attr.DELIMETER + 'ctor'], cc.Vec2, 'ctor is cc.Vec2');
     });
 
+    test('__values__', function () {
+        @ccclass
+        class Class {
+            @property({
+                serializable: false
+            })
+            p1 = null;
+            @property
+            p2 = null;
+        }
+
+        deepEqual(Class.__values__, ['p2'], 'should not contain non-serializable properties');
+    });
+
     test('extends', function () {
         @ccclass('cc.Animal')
         class Animal {
@@ -302,8 +316,10 @@ largeModule('Class ES6');
         strictEqual(labrador.myName, 'doge', 'can inherit property with Dog.extend syntax');
 
         deepEqual(Husky.__props__, /*CCObject.__props__.concat*/(['myName', 'weight']), 'can inherit prop list');
+        deepEqual(Husky.__values__, ['myName', 'weight'], 'can inherit serializable list');
         deepEqual(Labrador.__props__, /*CCObject.__props__.concat*/(['myName', 'clever']), 'can inherit prop list with Dog.extend syntax');
         deepEqual(Dog.__props__, /*CCObject.__props__.concat*/(['myName']), 'base prop list not changed');
+        deepEqual(Dog.__values__, ['myName'], 'base serializable list not changed');
 
         strictEqual(husky instanceof Dog, true, 'can pass instanceof check');
         strictEqual(husky instanceof Animal, true, 'can pass instanceof check for deep inheritance');
@@ -637,6 +653,7 @@ largeModule('Class ES6');
         ok(BigDog.prototype.stop !== Mixin2.prototype.stop, "should override base functions");
 
         deepEqual(BigDog.__props__, ['p3', 'p2', 'p1', 'p4'], 'should inherit properties');
+        deepEqual(BigDog.__values__, ['p3', 'p2', 'p1', 'p4'], 'should inherit serializable properties');
         strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
         strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
 

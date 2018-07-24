@@ -536,6 +536,14 @@ var Texture2D = cc.Class({
         //dispatch load event to listener.
         this.loaded = true;
         this.emit("load");
+
+        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
+            // wechat game platform will cache image parsed data, 
+            // so image will consume much more memory than web, releasing it
+            this._image.src = "";
+            // Release image in loader cache
+            cc.loader.removeItem(this._image.id);
+        }
     },
 
     /**

@@ -188,12 +188,20 @@ var spineAssembler = {
 
             newData = false;
             material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
+            if (!material) {
+                continue;
+            }
             // Check break
             if (currMaterial !== material) {
                 if (currMaterial) {
                     newData = true;
+                    data.material = currMaterial;
                 }
-                data.material = currMaterial = material;
+                else {
+                    // Init data material
+                    data.material = material;
+                }
+                currMaterial = material;
             }
 
             // Request new render data and new vertex content
@@ -214,8 +222,8 @@ var spineAssembler = {
             }
 
             // Fill up indices
+            indices = data._indices;
             if (attachment instanceof spine.RegionAttachment) {
-                indices = data._indices;
                 indices[indiceOffset] = vertexOffset;
                 indices[indiceOffset + 1] = vertexOffset + 1;
                 indices[indiceOffset + 2] = vertexOffset + 2;
@@ -308,15 +316,17 @@ var spineAssembler = {
 
             let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
                 vertexOffset = buffer.byteOffset >> 2,
-                vbuf = buffer._vData,
-                uintbuf = buffer._uintVData,
                 vertexCount = data.vertexCount;
             
-            let ibuf = buffer._iData,
-                indiceOffset = buffer.indiceOffset,
+            let indiceOffset = buffer.indiceOffset,
                 vertexId = buffer.vertexOffset;
                 
             buffer.request(vertexCount, data.indiceCount);
+
+            // buffer data may be realloc, need get reference after request.
+            let vbuf = buffer._vData,
+                ibuf = buffer._iData,
+                uintbuf = buffer._uintVData;
 
             // fill vertex buffer
             let vert;

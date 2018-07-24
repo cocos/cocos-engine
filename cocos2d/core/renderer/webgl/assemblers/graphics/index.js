@@ -95,12 +95,9 @@ let graphicsAssembler = {
             nodeA = nodeColor.a / 255;
 
         let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            vertexOffset = buffer.byteOffset >> 2;
         
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
+        let indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         let renderDatas = graphics._impl._renderDatas;
@@ -109,6 +106,11 @@ let graphicsAssembler = {
                 data = renderData._data;
 
             buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+            // buffer data may be realloc, need get reference after request.
+            let vbuf = buffer._vData,
+                ibuf = buffer._iData,
+                uintbuf = buffer._uintVData;
 
             for (let i = 0, l = data.length; i < l; i++) {
                 vbuf[vertexOffset++] = data[i].x * a + data[i].y * c + tx;

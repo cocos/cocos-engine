@@ -33,12 +33,12 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 /**
  * !#en
  * A cc.SpriteFrame has:<br/>
- *  - texture: A cc.Texture2D that will be used by the _ccsg.Sprite<br/>
+ *  - texture: A cc.Texture2D that will be used by render components<br/>
  *  - rectangle: A rectangle of the texture
  *
  * !#zh
  * 一个 SpriteFrame 包含：<br/>
- *  - 纹理：会被 Sprite 使用的 Texture2D 对象。<br/>
+ *  - 纹理：会被渲染组件使用的 Texture2D 对象。<br/>
  *  - 矩形：在纹理中的矩形区域。
  *
  * @class SpriteFrame
@@ -102,6 +102,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
+        // Init EventTarget data
+        EventTarget.call(this);
+
         let filename = arguments[0];
         let rect = arguments[1];
         let rotated = arguments[2];

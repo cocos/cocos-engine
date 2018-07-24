@@ -248,6 +248,8 @@ cc._polyfill3D = module.exports = {
             proto.setPosition = setPosition;
             proto.getScale = getScale;
             proto.setScale = setScale;
+            proto.getQuat = getQuat;
+            proto.setQuat = setQuat;
             this.enabled = true;
         }
     },

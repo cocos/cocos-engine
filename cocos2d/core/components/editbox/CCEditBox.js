@@ -469,8 +469,11 @@ let EditBox = cc.Class({
     },
 
     _updateString (text) {
-        let placeholderLabel = this._placeholderLabel;
         let textLabel = this._textLabel;
+        // Not inited yet
+        if (!textLabel) {
+            return;
+        }
 
         let displayText = text;
         if (displayText) {
@@ -479,6 +482,7 @@ let EditBox = cc.Class({
 
         textLabel.string = displayText;
         this._impl.setString(text);
+        this._showLabels();
     },
 
     _updateLabelStringStyle (text, ignorePassword) {
