@@ -10646,7 +10646,7 @@ var View = function View() {
   // clear options
   this._color = color4.new(0.3, 0.3, 0.3, 1);
   this._depth = 1;
-  this._stencil = 1;
+  this._stencil = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // matrix
@@ -10893,7 +10893,7 @@ Light.prototype.extractView = function extractView (out, stages) {
   // clear opts
   color4.set(out._color, 1, 1, 1, 1);
   out._depth = 1;
-  out._stencil = 1;
+  out._stencil = 0;
   out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // stages & framebuffer
@@ -10998,7 +10998,7 @@ var Camera = function Camera() {
   // clear options
   this._color = color4.new(0.2, 0.3, 0.47, 1);
   this._depth = 1;
-  this._stencil = 1;
+  this._stencil = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // culling mask

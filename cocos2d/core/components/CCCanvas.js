@@ -167,7 +167,7 @@ var Canvas = cc.Class({
             camera = cameraNode.addComponent(Camera);
             
             let ClearFlags = Camera.ClearFlags;
-            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH;
+            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
             camera.depth = -1;
         }
         Camera.main = camera;
