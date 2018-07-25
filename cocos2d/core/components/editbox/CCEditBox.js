@@ -482,7 +482,9 @@ let EditBox = cc.Class({
 
         textLabel.string = displayText;
         this._impl.setString(text);
-        this._showLabels();
+        if (!this._impl._editing) {
+            this._showLabels();
+        }
     },
 
     _updateLabelStringStyle (text, ignorePassword) {
