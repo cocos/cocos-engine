@@ -27,6 +27,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <string>
 
 namespace cocos2d
 {
