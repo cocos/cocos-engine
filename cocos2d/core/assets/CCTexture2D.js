@@ -173,7 +173,6 @@ const FilterIndex = {
     9729: 1, // GL_LINEAR
 };
 
-let _emptyOpts = {};
 let _images = [];
 let _sharedOpts = {
     width: undefined,

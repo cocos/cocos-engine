@@ -243,7 +243,13 @@ var spineAssembler = {
 
         data.vertexCount = vertexOffset;
         data.indiceCount = indiceOffset;
-        datas.length = dataId + 1;
+        // Check for last data valid or not
+        if (vertexOffset > 0 && indiceOffset > 0) {
+            datas.length = dataId + 1;
+        }
+        else {
+            datas.length = dataId;
+        }
 
         if (comp.debugBones) {
             let bone;
