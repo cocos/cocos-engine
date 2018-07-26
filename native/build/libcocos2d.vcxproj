@@ -309,7 +309,6 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_opengl_utils.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform.h" />
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform_ios.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.hpp" />

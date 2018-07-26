@@ -3,6 +3,7 @@
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 
 #include "platform/CCFileUtils.h"
 #include <regex>
@@ -208,14 +209,19 @@ public:
             GetObjectA(hDefFont, sizeof(tNewFont), &tNewFont);
             if (!_fontName.empty())
             {
-                // create font from ttf file
-                if (FileUtils::getInstance()->getFileExtension(_fontName) == ".ttf")
+                // firstly, try to create font from ttf file
+                const auto& fontInfoMap = getFontFamilyNameMap();
+                auto iter = fontInfoMap.find(_fontName);
+                if (iter != fontInfoMap.end())
                 {
-                    fontPath = FileUtils::getInstance()->fullPathForFilename(_fontName.c_str());
-                    int nFindPos = _fontName.rfind("/");
-                    _fontName = &_fontName[nFindPos + 1];
-                    nFindPos = _fontName.rfind(".");
-                    _fontName = _fontName.substr(0, nFindPos);
+                    fontPath = iter->second;
+                    std::string tmpFontPath = fontPath;
+                    int nFindPos = tmpFontPath.rfind("/");
+                    tmpFontPath = &tmpFontPath[nFindPos + 1];
+                    nFindPos = tmpFontPath.rfind(".");
+                    // FIXME: draw ttf failed if font file name not equal font face name
+                    // for example: "DejaVuSansMono-Oblique" not equal "DejaVu Sans Mono"  when using DejaVuSansMono-Oblique.ttf
+                    _fontName = tmpFontPath.substr(0, nFindPos);
                 }
                 else
                 {
@@ -770,7 +776,8 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::string fontName = "Arial";
         std::string fontSizeStr = "30";
 
-        std::regex re("(bold)?\\s*(\\d+)px\\s+(\\w+)");
+        // support get font name from `60px American` or `60px "American abc-abc_abc"`
+        std::regex re("(bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {

@@ -908,9 +908,6 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform.h">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform_ios.h">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
