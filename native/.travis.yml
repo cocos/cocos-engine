@@ -10,7 +10,7 @@ before_install:
 # blocklist
 branches:
   only:
-    - next
+    - v2.0-release
 
 env:
   global:

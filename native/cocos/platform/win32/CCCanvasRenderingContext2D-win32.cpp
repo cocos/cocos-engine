@@ -737,6 +737,7 @@ void CanvasRenderingContext2D::set__width(float width)
     //SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     __width = width;
     _isBufferSizeDirty = true;
+    recreateBufferIfNeeded();
 }
 
 void CanvasRenderingContext2D::set__height(float height)
@@ -744,6 +745,7 @@ void CanvasRenderingContext2D::set__height(float height)
     //SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     __height = height;
     _isBufferSizeDirty = true;
+    recreateBufferIfNeeded();
 }
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
