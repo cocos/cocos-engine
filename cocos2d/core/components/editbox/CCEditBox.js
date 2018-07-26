@@ -158,7 +158,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
             default: 20,
             notify () {
-                this._textLabel.fontSize = this.fontSize;
+                if (this._textLabel) {
+                    this._textLabel.fontSize = this.fontSize;
+                }
             }
         },
 
@@ -171,7 +173,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
             default: 40,
             notify () {
-                this._textLabel.lineHeight = this.lineHeight;
+                if (this._textLabel) {
+                    this._textLabel.lineHeight = this.lineHeight;
+                }
             }
         },
 
@@ -184,7 +188,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
             notify () {
-                this._textLabel.node.color = this.fontColor;
+                if (this._textLabel) {
+                    this._textLabel.node.color = this.fontColor;
+                }
             }
         },
 
@@ -197,7 +203,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify () {
-                this._placeholderLabel.string = this.placeholder;
+                if (this._placeholderLabel) {
+                    this._placeholderLabel.string = this.placeholder;
+                }
                 this._impl.setPlaceholderText(this.placeholder);
             }
         },
@@ -211,7 +219,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
             notify () {
-                this._placeholderLabel.fontSize = this.placeholderFontSize;
+                if (this._placeholderLabel) {
+                    this._placeholderLabel.fontSize = this.placeholderFontSize;
+                }
             }
         },
 
@@ -224,7 +234,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
             notify () {
-                this._placeholderLabel.node.color = this.placeholderFontColor;
+                if (this._placeholderLabel) {
+                    this._placeholderLabel.node.color = this.placeholderFontColor;
+                }
             }
         },
 
