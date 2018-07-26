@@ -149,6 +149,10 @@ module.exports = {
             if (!comp.font) return false;
 
             let url = comp.font.nativeUrl;
+            var md5Pipe = cc.loader.md5Pipe;
+            if (md5Pipe) {
+                url = md5Pipe.transformURL(url, true);
+            }
             if (CC_WECHATGAME) {
                 _fontFamily = wx.loadFont(url);
                 //avoid the error in wechat devtool platform
