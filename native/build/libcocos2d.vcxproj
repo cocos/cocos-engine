@@ -20,7 +20,6 @@
     <ClCompile Include="..\cocos\audio\win32\AudioEngine-win32.cpp" />
     <ClCompile Include="..\cocos\audio\win32\AudioPlayer.cpp" />
     <ClCompile Include="..\cocos\base\base64.cpp" />
-    <ClCompile Include="..\cocos\base\CCAsyncTaskPool.cpp" />
     <ClCompile Include="..\cocos\base\CCAutoreleasePool.cpp" />
     <ClCompile Include="..\cocos\base\ccCArray.cpp" />
     <ClCompile Include="..\cocos\base\CCConfiguration.cpp" />
@@ -140,6 +139,7 @@
     <ClCompile Include="..\cocos\storage\local-storage\LocalStorage.cpp" />
     <ClCompile Include="..\cocos\ui\edit-box\EditBox-win32.cpp" />
     <ClCompile Include="..\extensions\assets-manager\AssetsManagerEx.cpp" />
+    <ClCompile Include="..\extensions\assets-manager\CCAsyncTaskPool.cpp" />
     <ClCompile Include="..\extensions\assets-manager\CCEventAssetsManagerEx.cpp" />
     <ClCompile Include="..\extensions\assets-manager\Manifest.cpp" />
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c" />
@@ -165,7 +165,6 @@
     <ClInclude Include="..\cocos\audio\win32\AudioMacros.h" />
     <ClInclude Include="..\cocos\audio\win32\AudioPlayer.h" />
     <ClInclude Include="..\cocos\base\base64.h" />
-    <ClInclude Include="..\cocos\base\CCAsyncTaskPool.h" />
     <ClInclude Include="..\cocos\base\CCAutoreleasePool.h" />
     <ClInclude Include="..\cocos\base\ccCArray.h" />
     <ClInclude Include="..\cocos\base\ccConfig.h" />
@@ -318,6 +317,7 @@
     <ClInclude Include="..\cocos\storage\local-storage\LocalStorage.h" />
     <ClInclude Include="..\cocos\ui\edit-box\EditBox.h" />
     <ClInclude Include="..\extensions\assets-manager\AssetsManagerEx.h" />
+    <ClInclude Include="..\extensions\assets-manager\CCAsyncTaskPool.h" />
     <ClInclude Include="..\extensions\assets-manager\CCEventAssetsManagerEx.h" />
     <ClInclude Include="..\extensions\assets-manager\Manifest.h" />
     <ClInclude Include="..\extensions\cocos-ext.h" />
@@ -443,7 +443,7 @@
       <DisableSpecificWarnings>4138;4267;4251;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>Default</CompileAs>
-      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(Configuration).win32\$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <PreLinkEvent>
       <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
@@ -484,7 +484,7 @@ xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command
       <CompileAs>Default</CompileAs>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <Optimization>MinSpace</Optimization>
-      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(Configuration).win32\$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <PreLinkEvent>
       <Command>

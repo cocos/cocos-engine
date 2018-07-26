@@ -25,7 +25,7 @@
  ****************************************************************************/
 #include "AssetsManagerEx.h"
 #include "base/ccUTF8.h"
-#include "base/CCAsyncTaskPool.h"
+#include "CCAsyncTaskPool.h"
 
 #include <stdio.h>
 #include <errno.h>
