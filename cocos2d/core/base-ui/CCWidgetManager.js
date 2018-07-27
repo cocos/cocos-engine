@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventManager = require('../event-manager');
 var Event = require('../CCNode').EventType;
 
 var TOP     = 1 << 0;
