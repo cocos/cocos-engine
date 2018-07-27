@@ -241,7 +241,7 @@ let TiledLayer = cc.Class({
     },
 
     _updateTileForGID (gid, pos) {
-        if (!this._texGrids[gid]) {
+        if (gid !== 0 && !this._texGrids[gid]) {
             return;
         }
 
