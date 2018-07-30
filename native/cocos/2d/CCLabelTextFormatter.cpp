@@ -63,10 +63,10 @@ void Label::computeAlignmentOffset()
         _letterOffsetY = _contentSize.height;
         break;
     case cocos2d::TextVAlignment::CENTER:
-        _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2.f;
+        _letterOffsetY = (_contentSize.height + _originalFontSize + (_numberOfLines - 1) * _lineHeight) / 2.f;
         break;
     case cocos2d::TextVAlignment::BOTTOM:
-        _letterOffsetY = _textDesiredHeight;
+        _letterOffsetY = _originalFontSize + (_numberOfLines - 1) * _lineHeight;
         break;
     default:
         break;
