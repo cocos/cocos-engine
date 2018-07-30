@@ -258,8 +258,8 @@ let EditBox = cc.Class({
         },
 
         /**
-         * !#en The input is always visible and be on top of the game view.
-         * !zh 输入框总是可见，并且永远在游戏视图的上面
+         * !#en The input is always visible and be on top of the game view (only useful on Web).
+         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
          * Note: only available on Web at the moment.
          * @property {Boolean} stayOnTop
          */
@@ -274,8 +274,8 @@ let EditBox = cc.Class({
         _tabIndex: 0,
 
         /**
-         * !#en Set the tabIndex of the DOM input element, only useful on Web.
-         * !#zh 修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。
+         * !#en Set the tabIndex of the DOM input element (only useful on Web).
+         * !#zh 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
          * @property {Number} tabIndex
          */
         tabIndex: {
