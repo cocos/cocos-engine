@@ -494,7 +494,7 @@ let EditBox = cc.Class({
 
         textLabel.string = displayText;
         this._impl.setString(text);
-        if (!this._impl._editing) {
+        if (!this._impl._editing && !this.stayOnTop) {
             this._showLabels();
         }
     },
