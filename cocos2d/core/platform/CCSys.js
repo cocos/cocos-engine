@@ -646,7 +646,7 @@ function initSys () {
 
         sys.capabilities = {
             "canvas": true,
-            "opengl": true,
+            "opengl": (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB),
             "webp": false
         };
         sys.__audioSupport = {
