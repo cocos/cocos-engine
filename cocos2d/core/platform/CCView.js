@@ -760,11 +760,8 @@ cc.js.mixin(View.prototype, {
             vb.y = -vp.y / this._scaleY;
             vb.width = cc.game.canvas.width / this._scaleX;
             vb.height = cc.game.canvas.height / this._scaleY;
-            cc.game._renderContext.setOffset && cc.game._renderContext.setOffset(vp.x, -vp.y);
         }
 
-        // reset director's member variables to fit visible rect
-        var director = cc.director;
         policy.postApply(this);
         cc.winSize.width = this._visibleRect.width;
         cc.winSize.height = this._visibleRect.height;
@@ -962,10 +959,19 @@ cc.js.mixin(View.prototype, {
      * @param {Object} relatedPos - The related position object including "left", "top", "width", "height" informations
      * @return {Vec2}
      */
-    convertToLocationInView: function (tx, ty, relatedPos) {
-        var x = this._devicePixelRatio * (tx - relatedPos.left);
-        var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewportRect.width - y, y: x} : {x: x, y: y};
+    convertToLocationInView: function (tx, ty, relatedPos, out) {
+        let result = out || cc.v2();
+        let x = this._devicePixelRatio * (tx - relatedPos.left);
+        let y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
+        if (this._isRotated) {
+            result.x = this._viewportRect.width - y;
+            result.y = x;
+        }
+        else {
+            result.x = x;
+            result.y = y;
+        }
+        return result;
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
