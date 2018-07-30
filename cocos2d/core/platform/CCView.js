@@ -1122,8 +1122,21 @@ cc.ContentStrategy = cc.Class({
         };
     },
 
-    _buildResult: function (contentW, contentH, scaleX, scaleY) {
-        var viewport = cc.rect(0, 0, contentW, contentH);
+    _buildResult: function (containerW, containerH, contentW, contentH, scaleX, scaleY) {
+        // Makes content fit better the canvas
+        Math.abs(containerW - contentW) < 2 && (contentW = containerW);
+        Math.abs(containerH - contentH) < 2 && (contentH = containerH);
+
+        var viewport = cc.rect(Math.round((containerW - contentW) / 2),
+                               Math.round((containerH - contentH) / 2),
+                               contentW, contentH);
+
+        // Translate the content
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){
+            //TODO: modify something for setTransform
+            //cc.game._renderContext.translate(viewport.x, viewport.y + contentH);
+        }
+
         this._result.scale = [scaleX, scaleY];
         this._result.viewport = viewport;
         return this._result;
@@ -1293,7 +1306,7 @@ cc.ContentStrategy = cc.Class({
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 scaleX = containerW / designedResolution.width, scaleY = containerH / designedResolution.height;
 
-            return this._buildResult(containerW, containerH, scaleX, scaleY);
+            return this._buildResult(containerW, containerH, containerW, containerH, scaleX, scaleY);
         }
     });
 
@@ -1309,7 +1322,7 @@ cc.ContentStrategy = cc.Class({
             scaleX < scaleY ? (scale = scaleX, contentW = containerW, contentH = designH * scale)
                 : (scale = scaleY, contentW = designW * scale, contentH = containerH);
 
-            return this._buildResult(contentW, contentH, scale, scale);
+            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
         }
     });
 
@@ -1325,7 +1338,7 @@ cc.ContentStrategy = cc.Class({
             scaleX < scaleY ? (scale = scaleY, contentW = designW * scale, contentH = containerH)
                 : (scale = scaleX, contentW = containerW, contentH = designH * scale);
 
-            return this._buildResult(contentW, contentH, scale, scale);
+            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
         }
     });
 
@@ -1337,7 +1350,7 @@ cc.ContentStrategy = cc.Class({
                 designH = designedResolution.height, scale = containerH / designH,
                 contentW = containerW, contentH = containerH;
 
-            return this._buildResult(contentW, contentH, scale, scale);
+            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
         }
     });
 
@@ -1349,7 +1362,7 @@ cc.ContentStrategy = cc.Class({
                 designW = designedResolution.width, scale = containerW / designW,
                 contentW = containerW, contentH = containerH;
 
-            return this._buildResult(contentW, contentH, scale, scale);
+            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
         }
     });
 
