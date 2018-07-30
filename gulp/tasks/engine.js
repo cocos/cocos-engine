@@ -103,15 +103,18 @@ var jsbSkipModules = [
 
 exports.buildDebugInfos = require('./buildDebugInfos');
 
-exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
@@ -120,16 +123,24 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
-    bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+    }
+
     bundler = bundler.pipe(Utils.uglify('build', Object.assign({ debug: true }, opt_macroFlags)));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
-    bundler = bundler.pipe(Sourcemaps.write('./', {
-        sourceRoot: './',
-        includeContent: true,
-        addComment: true
-    }));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.write('./', {
+            sourceRoot: './',
+            includeContent: true,
+            addComment: true
+        }));
+    }
+
     bundler = bundler.pipe(Gulp.dest(outDir));
     return bundler.on('end', callback);
 };
@@ -140,9 +151,12 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
@@ -257,11 +271,15 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .on('end', callback);
 };
 
-exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
+
+    var opts = {
+        sourcemaps: createMap !== false
+    };
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
@@ -270,7 +288,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
 
     excludes = excludes.concat(jsbSkipModules);
 
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
@@ -288,12 +306,15 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .on('end', callback);
 };
 
-exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
@@ -301,7 +322,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
 
     excludes = excludes.concat(jsbSkipModules);
 
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
     excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
