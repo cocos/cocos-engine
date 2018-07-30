@@ -56,13 +56,15 @@ var canvasAliasify = {
 
 exports.buildDebugInfos = require('./buildDebugInfos');
 
-exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
-    var opts = {};
+    var opts = {
+        sourcemaps: createMap !== false
+    };
     if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
         opts.aliasifyConfig = canvasAliasify;
     }
@@ -77,16 +79,24 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
-    bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+    }
+
     bundler = bundler.pipe(Utils.uglify('build', Object.assign({ debug: true }, opt_macroFlags)));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
-    bundler = bundler.pipe(Sourcemaps.write('./', {
-        sourceRoot: './',
-        includeContent: true,
-        addComment: true
-    }));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.write('./', {
+            sourceRoot: './',
+            includeContent: true,
+            addComment: true
+        }));
+    }
+
     bundler = bundler.pipe(Gulp.dest(outDir));
     return bundler.on('end', callback);
 };
@@ -97,7 +107,9 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         opt_macroFlags = null;
     }
 
-    var opts = {};
+    var opts = {
+        sourcemaps: createMap !== false
+    };
     if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
         opts.aliasifyConfig = canvasAliasify;
     }
@@ -216,10 +228,17 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .on('end', callback);
 };
 
-exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
+    }
+
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
     }
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
@@ -227,10 +246,6 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var opts = {};
-    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
-        opts.aliasifyConfig = jsbAliasify;
-    }
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
@@ -250,21 +265,24 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .on('end', callback);
 };
 
-exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
+    }
+    
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var opts = {};
-    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
-        opts.aliasifyConfig = jsbAliasify;
-    }
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
