@@ -57,7 +57,7 @@ function _initBuiltins(device) {
  * @class renderer
  * @static
  */
-module.exports = {
+cc.renderer = module.exports = {
     /**
      * !#en The render engine is available only after cc.game.EVENT_ENGINE_INITED event.<br/>
      * Normally it will be inited as the webgl render engine, but in wechat open context domain,

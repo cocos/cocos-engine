@@ -745,7 +745,6 @@ var game = {
             renderer.initCanvas(localCanvas);
             this._renderContext = renderer.device._ctx;
         }
-        cc.renderer = renderer;
 
         this.canvas.oncontextmenu = function () {
             if (!cc._isContextMenuEnable) return false;
