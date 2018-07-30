@@ -91,7 +91,7 @@ switch (__BrowserGetter.adaptationType) {
         };
         break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
-        var sharedCanvas = wx.getSharedCanvas();
+        var sharedCanvas = window.sharedCanvas || wx.getSharedCanvas();
         __BrowserGetter.availWidth = function(){
             return sharedCanvas.width;
         };

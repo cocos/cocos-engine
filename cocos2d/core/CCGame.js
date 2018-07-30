@@ -662,7 +662,7 @@ var game = {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = wx.getSharedCanvas();
+                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
             else if (CC_JSB) {
                 localCanvas = window.__cccanvas;
