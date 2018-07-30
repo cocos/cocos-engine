@@ -110,7 +110,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     }
 
     var opts = {
-        sourcemaps: createMap
+        sourcemaps: createMap !== false
     };
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
@@ -152,7 +152,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     }
 
     var opts = {
-        sourcemaps: createMap
+        sourcemaps: createMap !== false
     };
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
@@ -278,7 +278,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     }
 
     var opts = {
-        sourcemaps: createMap
+        sourcemaps: createMap !== false
     };
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
@@ -313,7 +313,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     }
 
     var opts = {
-        sourcemaps: createMap
+        sourcemaps: createMap !== false
     };
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
