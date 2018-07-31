@@ -34,6 +34,7 @@ const CustomFontLoader = utils.CustomFontLoader;
 const HorizontalAlign = macro.TextAlignment;
 const VerticalAlign = macro.VerticalTextAlignment;
 const RichTextChildName = "RICHTEXT_CHILD";
+const RichTextChildImageName = "RICHTEXT_Image_CHILD";
 const _htmlTextParser = new HtmlTextParser();
 
 // Returns a function, that, as long as it continues to be invoked, will not
@@ -396,6 +397,9 @@ let RichText = cc.Class({
                 child.parent = null;
                 pool.put(child);
             }
+            else if (child.name === RichTextChildImageName) {
+                child.parent = null;
+            }
         }
 
         this._labelSegments.length = 0;
@@ -423,7 +427,7 @@ let RichText = cc.Class({
     _activateChildren (active) {
         for (let i = this.node.children.length - 1; i >= 0; i--) {
             let child = this.node.children[i];
-            if (child.name === RichTextChildName) {
+            if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 child.active = active;
             }
         }
@@ -566,7 +570,7 @@ let RichText = cc.Class({
         let spriteFrameName = richTextElement.style.src;
         let spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
-            let spriteNode = new cc.PrivateNode(RichTextChildName);
+            let spriteNode = new cc.PrivateNode(RichTextChildImageName);
             let spriteComponent = spriteNode.addComponent(cc.Sprite);
             spriteNode.setAnchorPoint(0, 0);
             spriteComponent.type = cc.Sprite.Type.SLICED;
