@@ -166,7 +166,14 @@ module.exports = {
                 }
                 else {
                     // load from remote font
-                    cc.loader.load(url, function (err) {
+                    let item = url;
+                    if (md5Pipe) {
+                        item = {
+                            url: url,
+                            skips: [md5Pipe.id]
+                        };
+                    }                    
+                    cc.loader.load(item, function (err) {
                         let localPath = wx.env.USER_DATA_PATH + '/' + url;
                         _fontFamily = wx.loadFont(localPath);
                         if (!_fontFamily) {
