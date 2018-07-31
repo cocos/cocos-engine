@@ -154,11 +154,28 @@ module.exports = {
                 url = md5Pipe.transformURL(url, true);
             }
             if (CC_WECHATGAME) {
+                // load from font cache
+                if (CustomFontLoader._fontCache[url]) {
+                    _fontFamily = CustomFontLoader._fontCache[url];
+                    return true;
+                }
+                // load from local font
                 _fontFamily = wx.loadFont(url);
-                //avoid the error in wechat devtool platform
-                if (!_fontFamily) {
-                    _fontFamily = CustomFontLoader._getFontFamily(url);
-                    cc.warn("TTF font is not supported on debugger, but it will be displayed correctly on mobile device.");
+                if (_fontFamily) {
+                    CustomFontLoader._fontCache[url] = _fontFamily;
+                }
+                else {
+                    // load from remote font
+                    cc.loader.load(url, function (err) {
+                        let localPath = wx.env.USER_DATA_PATH + '/' + url;
+                        _fontFamily = wx.loadFont(localPath);
+                        if (!_fontFamily) {
+                            _fontFamily = 'Arial';
+                        }
+                        CustomFontLoader._fontCache[url] = _fontFamily;
+                        comp._updateRenderData();
+                    });
+                    return false;
                 }
             }
             else {
