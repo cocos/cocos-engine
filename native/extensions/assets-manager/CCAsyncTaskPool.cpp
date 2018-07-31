@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CCAsyncTaskPool.h"
+#include "CCAsyncTaskPool.h"
 
 NS_CC_BEGIN
 

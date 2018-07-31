@@ -227,6 +227,10 @@
 		4008729520CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4008729220CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp */; };
 		4008729620CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4008729320CE20C2002EB77B /* jsb_cocos2dx_network_manual.h */; };
 		4008729720CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4008729320CE20C2002EB77B /* jsb_cocos2dx_network_manual.h */; };
+		4037F5CC2108751E001C205C /* CCAsyncTaskPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 4037F5CA2108751E001C205C /* CCAsyncTaskPool.h */; };
+		4037F5CD2108751E001C205C /* CCAsyncTaskPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 4037F5CA2108751E001C205C /* CCAsyncTaskPool.h */; };
+		4037F5CE2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4037F5CB2108751E001C205C /* CCAsyncTaskPool.cpp */; };
+		4037F5CF2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4037F5CB2108751E001C205C /* CCAsyncTaskPool.cpp */; };
 		403ACADA20CE4EB000BB433D /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */; };
 		403ACADB20CE4EB000BB433D /* jsb_module_register.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */; };
 		403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */; };
@@ -941,8 +945,6 @@
 		BA21055D21009A5500E19975 /* Manifest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054D21008AC300E19975 /* Manifest.cpp */; };
 		BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054721008AC300E19975 /* AssetsManagerEx.cpp */; };
 		BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */; };
-		BA5A5C9A21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */; };
-		BA5A5C9B21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */; };
 		BA68D77D1D62F4A500B7A3F9 /* shapes.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA68D7701D62F4A500B7A3F9 /* shapes.cc */; };
 		BA68D77E1D62F4A500B7A3F9 /* shapes.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA68D7701D62F4A500B7A3F9 /* shapes.cc */; };
 		BA68D77F1D62F4A500B7A3F9 /* shapes.h in Headers */ = {isa = PBXBuildFile; fileRef = BA68D7711D62F4A500B7A3F9 /* shapes.h */; };
@@ -1139,6 +1141,8 @@
 		294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDevice-apple.mm"; sourceTree = "<group>"; };
 		4008729220CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_network_manual.cpp; sourceTree = "<group>"; };
 		4008729320CE20C2002EB77B /* jsb_cocos2dx_network_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_network_manual.h; sourceTree = "<group>"; };
+		4037F5CA2108751E001C205C /* CCAsyncTaskPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCAsyncTaskPool.h; sourceTree = "<group>"; };
+		4037F5CB2108751E001C205C /* CCAsyncTaskPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAsyncTaskPool.cpp; sourceTree = "<group>"; };
 		403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_module_register.hpp; sourceTree = "<group>"; };
 		4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CCGLView-desktop.cpp"; sourceTree = "<group>"; };
@@ -1530,8 +1534,6 @@
 		BA21055121008AC300E19975 /* ExtensionMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionMacros.h; sourceTree = "<group>"; };
 		BA21055621008B6600E19975 /* jsb_cocos2dx_extension_auto.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_extension_auto.hpp; sourceTree = "<group>"; };
 		BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_extension_auto.cpp; sourceTree = "<group>"; };
-		BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CCAsyncTaskPool.cpp; sourceTree = "<group>"; };
-		BA5A5C9921045D750026C732 /* CCAsyncTaskPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCAsyncTaskPool.h; sourceTree = "<group>"; };
 		BA68D7701D62F4A500B7A3F9 /* shapes.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shapes.cc; sourceTree = "<group>"; };
 		BA68D7711D62F4A500B7A3F9 /* shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapes.h; sourceTree = "<group>"; };
 		BA68D7721D62F4A500B7A3F9 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -2250,8 +2252,6 @@
 				46FDDAFA202ADDCE00931238 /* base64.h */,
 				46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */,
 				46FDDB39202ADDCE00931238 /* CCAutoreleasePool.h */,
-				BA5A5C9821045D750026C732 /* CCAsyncTaskPool.cpp */,
-				BA5A5C9921045D750026C732 /* CCAsyncTaskPool.h */,
 				46FDDB42202ADDCE00931238 /* ccCArray.cpp */,
 				46FDDB45202ADDCE00931238 /* ccCArray.h */,
 				46FDDB26202ADDCE00931238 /* ccConfig.h */,
@@ -2587,6 +2587,8 @@
 		BA21054621008AC300E19975 /* assets-manager */ = {
 			isa = PBXGroup;
 			children = (
+				4037F5CB2108751E001C205C /* CCAsyncTaskPool.cpp */,
+				4037F5CA2108751E001C205C /* CCAsyncTaskPool.h */,
 				BA21054721008AC300E19975 /* AssetsManagerEx.cpp */,
 				BA21054821008AC300E19975 /* AssetsManagerEx.h */,
 				BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */,
@@ -2714,6 +2716,7 @@
 			files = (
 				1A28FF891F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				46FDDAA7202ACC6A00931238 /* ForwardRenderer.h in Headers */,
+				4037F5CC2108751E001C205C /* CCAsyncTaskPool.h in Headers */,
 				4DED48101DFFA4AF0070C5C4 /* b2Settings.h in Headers */,
 				46AE40052092F3A600F3A228 /* inspector_socket.h in Headers */,
 				4DED486A1DFFA4AF0070C5C4 /* b2MotorJoint.h in Headers */,
@@ -3079,6 +3082,7 @@
 				1A28FF521F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				1A28FF981F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
 				40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */,
+				4037F5CD2108751E001C205C /* CCAsyncTaskPool.h in Headers */,
 				1A52DB76205BCDD000350EE3 /* Class.hpp in Headers */,
 				50643BDC19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				469303AF2046AE05004A3D6C /* Base.h in Headers */,
@@ -3325,7 +3329,7 @@
 				469304582046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
 				46AE3FFB2092F3A600F3A228 /* inspector_io.cc in Sources */,
-				BA5A5C9A21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */,
+				4037F5CE2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */,
 				4DED48221DFFA4AF0070C5C4 /* b2Fixture.cpp in Sources */,
 				46FDDB65202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				46FDDAB9202ACC6A00931238 /* FrameBuffer.cpp in Sources */,
@@ -3578,7 +3582,7 @@
 				46FDDC69202D733800931238 /* CCApplication-ios.mm in Sources */,
 				4DED47E71DFFA4AF0070C5C4 /* b2DynamicTree.cpp in Sources */,
 				ED3057C21BEC78A80083C3ED /* xxhash.c in Sources */,
-				BA5A5C9B21045D750026C732 /* CCAsyncTaskPool.cpp in Sources */,
+				4037F5CF2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */,
 				ED30578C1BEC77510083C3ED /* ioapi.cpp in Sources */,
 				4617866C2052609B008256E1 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				4DED48411DFFA4AF0070C5C4 /* b2Contact.cpp in Sources */,

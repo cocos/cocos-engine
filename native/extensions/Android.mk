@@ -13,7 +13,7 @@ LOCAL_SRC_FILES := \
 assets-manager/Manifest.cpp \
 assets-manager/AssetsManagerEx.cpp \
 assets-manager/CCEventAssetsManagerEx.cpp \
-$(LOCAL_PATH)/../cocos/base/CCAsyncTaskPool.cpp \
+assets-manager/CCAsyncTaskPool.cpp \
 
 LOCAL_CXXFLAGS += -fexceptions
 

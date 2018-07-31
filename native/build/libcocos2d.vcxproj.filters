@@ -419,8 +419,8 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.cpp">
       <Filter>js-bindings\auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\base\CCAsyncTaskPool.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="..\extensions\assets-manager\CCAsyncTaskPool.cpp">
+      <Filter>extensions\assets-manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -908,9 +908,6 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform.h">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform_ios.h">
-      <Filter>js-bindings\manual</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
@@ -1004,8 +1001,8 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.hpp">
       <Filter>js-bindings\auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\base\CCAsyncTaskPool.h">
-      <Filter>base</Filter>
+    <ClInclude Include="..\extensions\assets-manager\CCAsyncTaskPool.h">
+      <Filter>extensions\assets-manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
