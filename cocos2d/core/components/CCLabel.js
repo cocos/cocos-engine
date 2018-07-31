@@ -458,9 +458,17 @@ let Label = cc.Class({
             this.useSystemFont = true;
         }
 
+        // Keep track of Node size
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
+
         this._checkStringEmpty();
         this._updateAssembler();
         this._activateMaterial();
+    },
+
+    onDisable () {
+        this._super();
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
     },
 
     onDestroy () {
