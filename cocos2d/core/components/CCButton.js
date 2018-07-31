@@ -661,14 +661,15 @@ let Button = cc.Class({
 
     _updateDisabledState () {
         if (this._sprite) {
-            this._sprite.setState(cc.Sprite.State.NORMAL);
-        }
-        if (this.enableAutoGrayEffect && this.transition !== Transition.COLOR) {
-            if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
-                if (this._sprite && !this.interactable) {
-                    this._sprite.setState(cc.Sprite.State.GRAY);
+            if (this.enableAutoGrayEffect) {
+                if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
+                    if (!this.interactable) {
+                        this._sprite.setState(cc.Sprite.State.GRAY);
+                        return;
+                    }
                 }
             }
+            this._sprite.setState(cc.Sprite.State.NORMAL);
         }
     }
 });
