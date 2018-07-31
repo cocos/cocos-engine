@@ -520,7 +520,7 @@ sp.Skeleton = cc.Class({
      */
     setSkin (skinName) {
         if (this._skeleton) {
-            return this._skeleton.setSkin(skinName);
+            return this._skeleton.setSkinByName(skinName);
         }
         return null;
     },
@@ -541,7 +541,7 @@ sp.Skeleton = cc.Class({
      */
     getAttachment (slotName, attachmentName) {
         if (this._skeleton) {
-            return this._skeleton.getAttachment(slotName, attachmentName);
+            return this._skeleton.getAttachmentByName(slotName, attachmentName);
         }
         return null;
     },
