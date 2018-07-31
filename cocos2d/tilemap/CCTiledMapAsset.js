@@ -60,7 +60,6 @@ let TiledMapAsset = cc.Class({
 
     createNode: CC_EDITOR && function (callback) {
         let node = new cc.Node(this.name);
-        node.setAnchorPoint(0,0);
         let tiledMap = node.addComponent(cc.TiledMap);
         tiledMap.tmxAsset = this;
 
