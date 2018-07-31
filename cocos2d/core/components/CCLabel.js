@@ -526,6 +526,7 @@ let Label = cc.Class({
 
                 if (spriteFrame) {
                     spriteFrame.once('load', this._activateMaterial, this);
+                    spriteFrame.ensureLoadTexture();
                 }
                 return;
             }
