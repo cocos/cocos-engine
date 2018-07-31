@@ -24,12 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
 const macro = require('./CCMacro');
 const sys = require('./CCSys');
 const eventManager = require('../event-manager');
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
+
+let _vec2 = cc.v2();
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
@@ -379,9 +380,9 @@ let inputManager = {
             if (touch_event) {
                 let location;
                 if (sys.BROWSER_TYPE_FIREFOX === sys.browserType)
-                    location = locView.convertToLocationInView(touch_event.pageX, touch_event.pageY, pos);
+                    location = locView.convertToLocationInView(touch_event.pageX, touch_event.pageY, pos, _vec2);
                 else
-                    location = locView.convertToLocationInView(touch_event.clientX, touch_event.clientY, pos);
+                    location = locView.convertToLocationInView(touch_event.clientX, touch_event.clientY, pos, _vec2);
                 if (touch_event.identifier != null) {
                     touch = new cc.Touch(location.x, location.y, touch_event.identifier);
                     //use Touch Pool

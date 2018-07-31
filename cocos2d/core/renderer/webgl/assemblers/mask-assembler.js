@@ -28,13 +28,11 @@ const Node = require('../../../CCNode');
 const Mask = require('../../../components/CCMask');
 const RenderFlow = require('../../render-flow');
 
-const js = require('../../../platform/js');
 const spriteAssembler = require('./sprite/simple');
 const Graphics = require('../../../graphics/graphics');
 const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
-let _color = cc.color(255, 255, 255, 0);
 // for nested mask, we might need multiple graphics component to avoid data conflict
 let _graphicsPool = [];
 

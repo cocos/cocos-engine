@@ -91,7 +91,7 @@ switch (__BrowserGetter.adaptationType) {
         };
         break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
-        var sharedCanvas = wx.getSharedCanvas();
+        var sharedCanvas = window.sharedCanvas || wx.getSharedCanvas();
         __BrowserGetter.availWidth = function(){
             return sharedCanvas.width;
         };
@@ -760,11 +760,8 @@ cc.js.mixin(View.prototype, {
             vb.y = -vp.y / this._scaleY;
             vb.width = cc.game.canvas.width / this._scaleX;
             vb.height = cc.game.canvas.height / this._scaleY;
-            cc.game._renderContext.setOffset && cc.game._renderContext.setOffset(vp.x, -vp.y);
         }
 
-        // reset director's member variables to fit visible rect
-        var director = cc.director;
         policy.postApply(this);
         cc.winSize.width = this._visibleRect.width;
         cc.winSize.height = this._visibleRect.height;
@@ -962,10 +959,19 @@ cc.js.mixin(View.prototype, {
      * @param {Object} relatedPos - The related position object including "left", "top", "width", "height" informations
      * @return {Vec2}
      */
-    convertToLocationInView: function (tx, ty, relatedPos) {
-        var x = this._devicePixelRatio * (tx - relatedPos.left);
-        var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewportRect.width - y, y: x} : {x: x, y: y};
+    convertToLocationInView: function (tx, ty, relatedPos, out) {
+        let result = out || cc.v2();
+        let x = this._devicePixelRatio * (tx - relatedPos.left);
+        let y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
+        if (this._isRotated) {
+            result.x = this._viewportRect.width - y;
+            result.y = x;
+        }
+        else {
+            result.x = x;
+            result.y = y;
+        }
+        return result;
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
@@ -1116,21 +1122,8 @@ cc.ContentStrategy = cc.Class({
         };
     },
 
-    _buildResult: function (containerW, containerH, contentW, contentH, scaleX, scaleY) {
-        // Makes content fit better the canvas
-        Math.abs(containerW - contentW) < 2 && (contentW = containerW);
-        Math.abs(containerH - contentH) < 2 && (contentH = containerH);
-
-        var viewport = cc.rect(Math.round((containerW - contentW) / 2),
-                               Math.round((containerH - contentH) / 2),
-                               contentW, contentH);
-
-        // Translate the content
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){
-            //TODO: modify something for setTransform
-            //cc.game._renderContext.translate(viewport.x, viewport.y + contentH);
-        }
-
+    _buildResult: function (contentW, contentH, scaleX, scaleY) {
+        var viewport = cc.rect(0, 0, contentW, contentH);
         this._result.scale = [scaleX, scaleY];
         this._result.viewport = viewport;
         return this._result;
@@ -1300,7 +1293,7 @@ cc.ContentStrategy = cc.Class({
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 scaleX = containerW / designedResolution.width, scaleY = containerH / designedResolution.height;
 
-            return this._buildResult(containerW, containerH, containerW, containerH, scaleX, scaleY);
+            return this._buildResult(containerW, containerH, scaleX, scaleY);
         }
     });
 
@@ -1316,7 +1309,7 @@ cc.ContentStrategy = cc.Class({
             scaleX < scaleY ? (scale = scaleX, contentW = containerW, contentH = designH * scale)
                 : (scale = scaleY, contentW = designW * scale, contentH = containerH);
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+            return this._buildResult(contentW, contentH, scale, scale);
         }
     });
 
@@ -1332,7 +1325,7 @@ cc.ContentStrategy = cc.Class({
             scaleX < scaleY ? (scale = scaleY, contentW = designW * scale, contentH = containerH)
                 : (scale = scaleX, contentW = containerW, contentH = designH * scale);
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+            return this._buildResult(contentW, contentH, scale, scale);
         }
     });
 
@@ -1344,7 +1337,7 @@ cc.ContentStrategy = cc.Class({
                 designH = designedResolution.height, scale = containerH / designH,
                 contentW = containerW, contentH = containerH;
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+            return this._buildResult(contentW, contentH, scale, scale);
         }
     });
 
@@ -1356,7 +1349,7 @@ cc.ContentStrategy = cc.Class({
                 designW = designedResolution.width, scale = containerW / designW,
                 contentW = containerW, contentH = containerH;
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+            return this._buildResult(contentW, contentH, scale, scale);
         }
     });
 

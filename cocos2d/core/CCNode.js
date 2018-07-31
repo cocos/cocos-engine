@@ -1413,11 +1413,11 @@ var Node = cc.Class({
      *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event|Object} callback.event event or first argument when emit
-     * @param {Event} callback.arg2 arg2
-     * @param {Event} callback.arg3 arg3
-     * @param {Event} callback.arg4 arg4
-     * @param {Event} callback.arg5 arg5
+     * @param {Event|any} [callback.event] event or first argument when emit
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
@@ -1475,11 +1475,11 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.event event or first argument when emit
-     * @param {Event} callback.arg2 arg2
-     * @param {Event} callback.arg3 arg3
-     * @param {Event} callback.arg4 arg4
-     * @param {Event} callback.arg5 arg5
+     * @param {Event|any} [callback.event] event or first argument when emit
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @typescript
      * once<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
