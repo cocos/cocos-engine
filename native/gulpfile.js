@@ -179,14 +179,12 @@ gulp.task('gen-simulator', function(cb) {
 });
 
 gulp.task('sign-simulator', function () {
-    if (process.platform === 'darwin') {
-        try {
-            var cmd = fs.readFileSync(Path.join(process.env.HOME, '.ssh', 'codesignCmd_simulator.txt'), 'utf8');
-            execSync(cmd);
-        }
-        catch (e) {
-            console.warn('No need to run sign-simulator since v1.10.', e);
-        }
+    try {
+        var cmd = fs.readFileSync(Path.join(process.env.HOME, '.ssh', 'codesignCmd_simulator.txt'), 'utf8');
+        execSync(cmd);
+    }
+    catch (e) {
+        console.warn('No need to run sign-simulator since v1.10.', e);
     }
 });
 
@@ -195,6 +193,7 @@ gulp.task('update-simulator-config', function(cb) {
     fs.copy('./tools/simulator/config.json', destPath, cb);
 });
 
+// 在 'sign-simulator' 之前执行，以保留这些 dll 来自第三方的签名
 gulp.task('update-simulator-dll', function(cb) {
     if (process.platform === 'win32') {
         downloadSimulatorDLL(cb);
