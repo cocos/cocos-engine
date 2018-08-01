@@ -228,16 +228,6 @@ function _getSharedOptions () {
     return _sharedOpts;
 }
 
-let SupportTextureFormats = ['.jpg', '.png'];
-if (cc.sys.isMobile) {
-    if (cc.sys.os === cc.sys.OS_ANDROID) {
-        SupportTextureFormats = ['.etc', '.jpg', '.png'];
-    }
-    else if (cc.sys.os === cc.sys.OS_IOS) {
-        SupportTextureFormats = ['.pvr', '.jpg', '.png'];
-    }
-}
-
 /**
  * This class allows to easily create OpenGL or Canvas 2D textures from images or raw data.
  *
@@ -746,6 +736,7 @@ var Texture2D = cc.Class({
             let extId = 999;
             let ext = '.png';
             let format = this._format;
+            let SupportTextureFormats = cc.macro.SupportTextureFormats;
             for (let i = 0; i < extIds.length; i++) {
                 let extFormat = extIds[i].split('@');
                 let tmpExt = extFormat[0];

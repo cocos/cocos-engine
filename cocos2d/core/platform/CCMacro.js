@@ -345,6 +345,19 @@ cc.macro = {
     CLEANUP_IMAGE_CACHE: false,
 };
 
+
+let SupportTextureFormats = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
+if (cc.sys.isMobile) {
+    if (cc.sys.os === cc.sys.OS_IOS) {
+        SupportTextureFormats = ['.pvr'].join(SupportTextureFormats);
+    }
+    // else if (cc.sys.os === cc.sys.OS_ANDROID) {
+    //     SupportTextureFormats = ['.etc'].join(SupportTextureFormats);
+    // }
+}
+
+cc.macro.SupportTextureFormats = SupportTextureFormats;
+
 js.getset(cc.macro, 'ENABLE_3D', function () {
     return cc._polyfill3D.enabled;
 }, function (enabled) {
