@@ -116,7 +116,36 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
-    AI8: gfx.TEXTURE_FMT_L8_A8
+    AI8: gfx.TEXTURE_FMT_L8_A8,
+
+    /**
+     * rgb 2 bpp pvrtc
+     * @property RGB_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGB_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
+    /**
+     * rgba 2 bpp pvrtc
+     * @property RGB_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGBA_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
+    /**
+     * rgb 4 bpp pvrtc
+     * @property RGB_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGB_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
+    /**
+     * rgba 4 bpp pvrtc
+     * @property RGB_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGBA_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
 });
 
 /**
@@ -199,6 +228,16 @@ function _getSharedOptions () {
     return _sharedOpts;
 }
 
+let SupportTextureFormats = ['.jpg', '.png'];
+if (cc.sys.isMobile) {
+    if (cc.sys.os === cc.sys.OS_ANDROID) {
+        SupportTextureFormats = ['.etc', '.jpg', '.png'];
+    }
+    else if (cc.sys.os === cc.sys.OS_IOS) {
+        SupportTextureFormats = ['.pvr', '.jpg', '.png'];
+    }
+}
+
 /**
  * This class allows to easily create OpenGL or Canvas 2D textures from images or raw data.
  *
@@ -217,8 +256,14 @@ var Texture2D = cc.Class({
                 // maybe returned to pool in webgl
                 return this._image;
             },
-            set (image) {
-                this.initWithElement(image);
+            set (asset) {
+                if (asset._compressed && asset._data) {
+                    this._compressed = true;
+                    this.initWithData(asset._data, this._format, asset.width, asset.height, this.width, this.height);
+                }
+                else {
+                    this.initWithElement(asset);
+                }
             },
             override: true
         },
@@ -237,7 +282,7 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc']
     },
 
     ctor () {
@@ -285,6 +330,8 @@ var Texture2D = cc.Class({
         this.height = 0;
 
         this._texture = null;
+        
+        this._compressed = false;
     },
 
     /**
@@ -420,15 +467,22 @@ var Texture2D = cc.Class({
      * @param {Number} pixelsHeight
      * @return {Boolean}
      */
-    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
+    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight, contentWidth, contentHeight) {
         var opts = _getSharedOptions();
         opts.image = data;
+        // webgl texture 2d uses images
+        opts.images = [opts.image];
         opts.format = pixelFormat;
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
-        this.update(opts);
-        this.width = pixelsWidth;
-        this.height = pixelsHeight;
+        if (!this._texture) {
+            this._texture = new renderer.Texture2D(renderer.device, opts);
+        }
+        else {
+            this._texture.update(opts);
+        }
+        this.width = contentWidth || pixelsWidth;
+        this.height = contentHeight || pixelsHeight;
         this.loaded = true;
         this.emit("load");
         return true;
@@ -653,19 +707,32 @@ var Texture2D = cc.Class({
     _serialize: (CC_EDITOR || CC_TEST) && function () {
         let extId = "";
         if (this._native) {
-            // encode extname
-            let ext = cc.path.extname(this._native);
-            if (ext) {
-                extId = Texture2D.extnames.indexOf(ext);
-                if (extId < 0) {
-                    extId = ext;
-                }
+            let natives = this._native;
+            if (!Array.isArray(natives)) {
+                natives = [natives];
             }
+            natives = natives.map(native => {
+                let ext = cc.path.extname(native);
+                let extId = "";
+                if (ext) {
+                    // ext@format
+                    let extFormat = ext.split('@');
+                    extId = Texture2D.extnames.indexOf(extFormat[0]);
+                    if (extId < 0) {
+                        extId = ext;
+                    }
+                    if (extFormat[1]) {
+                        extId += '@' + extFormat[1];
+                    }
+                }
+                return extId;
+            });
+            extId = natives.join('_');
         }
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
                     this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0);
+                    (this._premultiplyAlpha ? 1 : 0) + ',' + this.width + ',' + this.height;
         return asset;
     },
 
@@ -674,9 +741,27 @@ var Texture2D = cc.Class({
         // decode extname
         var extIdStr = fields[0];
         if (extIdStr) {
-            let extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
-            let ext = Texture2D.extnames[extId];
-            this._setRawAsset(ext || extIdStr);
+            let extIds = extIdStr.split('_');
+
+            let extId = 999;
+            let ext = '.png';
+            let format = this._format;
+            for (let i = 0; i < extIds.length; i++) {
+                let extFormat = extIds[i].split('@');
+                let tmpExt = extFormat[0];
+                tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
+                tmpExt = Texture2D.extnames[tmpExt];
+
+                let index = SupportTextureFormats.indexOf(tmpExt);
+                if (index !== -1 && index < extId) {
+                    extId = index;
+                    ext = tmpExt;
+                    format = extFormat[1] ? parseInt(extFormat[1]) : this._format;
+                }
+            }
+
+            this._setRawAsset(ext);
+            this._format = format;
 
             // preset uuid to get correct nativeUrl
             let loadingItem = handle.customEnv;
@@ -687,7 +772,7 @@ var Texture2D = cc.Class({
                 this.url = url;
             }
         }
-        if (fields.length === 6) {
+        if (fields.length === 8) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -696,6 +781,8 @@ var Texture2D = cc.Class({
             this._wrapT = parseInt(fields[4]);
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
+            this.width = parseInt(fields[6]);
+            this.height = parseInt(fields[7]);
         }
     }
 });

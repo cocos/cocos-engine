@@ -9558,13 +9558,16 @@ Device.prototype._initExtensions = function _initExtensions (extensions) {
   for (var i = 0; i < extensions.length; ++i) {
     var name = extensions[i];
 
-    try {
-      var ext = gl.getExtension(name);
-      if (ext) {
-        this$1._extensions[name] = ext;
+    var vendorPrefixes = ["", "WEBKIT_", "MOZ_"];
+    for (var j = 0; j < vendorPrefixes.length; j++) {
+      try {
+        var ext = gl.getExtension(vendorPrefixes[j] + name);
+        if (ext) {
+          this$1._extensions[name] = ext;
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
     }
   }
 };

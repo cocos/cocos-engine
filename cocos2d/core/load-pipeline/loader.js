@@ -108,6 +108,95 @@ function loadBinary (item) {
     }
 }
 
+//===============//
+// PVR constants //
+//===============//
+
+// PVR formats, from:
+// http://www.khronos.org/registry/webgl/extensions/WEBGL_compressed_texture_pvrtc/
+const COMPRESSED_RGB_PVRTC_4BPPV1_IMG  = 0x8C00;
+const COMPRESSED_RGB_PVRTC_2BPPV1_IMG  = 0x8C01;
+const COMPRESSED_RGBA_PVRTC_4BPPV1_IMG = 0x8C02;
+const COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03;
+
+// ETC1 format, from:
+// http://www.khronos.org/registry/webgl/extensions/WEBGL_compressed_texture_etc1/
+const COMPRESSED_RGB_ETC1_WEBGL = 0x8D64;
+
+const PVR_FORMAT_2BPP_RGB  = 0;
+const PVR_FORMAT_2BPP_RGBA = 1;
+const PVR_FORMAT_4BPP_RGB  = 2;
+const PVR_FORMAT_4BPP_RGBA = 3;
+const PVR_FORMAT_ETC1      = 6;
+
+const PVR_HEADER_LENGTH = 13; // The header length in 32 bit ints.
+const PVR_MAGIC = 0x03525650; //0x50565203;
+
+// Offsets into the header array.
+const PVR_HEADER_MAGIC = 0;
+const PVR_HEADER_FORMAT = 2;
+const PVR_HEADER_HEIGHT = 6;
+const PVR_HEADER_WIDTH = 7;
+const PVR_HEADER_MIPMAPCOUNT = 11;
+const PVR_HEADER_METADATA = 12;
+
+function loadPVR (item) {
+    // Get a view of the arrayBuffer that represents the DDS header.
+    let header = new Int32Array(item.content.buffer, 0, PVR_HEADER_LENGTH);
+
+    // Do some sanity checks to make sure this is a valid DDS file.
+    if(header[PVR_HEADER_MAGIC] != PVR_MAGIC) {
+      errorCallback("Invalid magic number in PVR header");
+      return 0;
+    }
+
+    // Determine what type of compressed data the file contains.
+    let format = header[PVR_HEADER_FORMAT];
+    let internalFormat;
+    switch(format) {
+      case PVR_FORMAT_2BPP_RGB:
+        internalFormat = COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+        break;
+
+      case PVR_FORMAT_2BPP_RGBA:
+        internalFormat = COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        break;
+
+      case PVR_FORMAT_4BPP_RGB:
+        internalFormat = COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        break;
+
+      case PVR_FORMAT_4BPP_RGBA:
+        internalFormat = COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        break;
+
+      case PVR_FORMAT_ETC1:
+        internalFormat = COMPRESSED_RGB_ETC1_WEBGL;
+        break;
+
+      default:
+        errorCallback("Unsupported PVR format: " + format);
+        return;
+    }
+
+    // Gather other basic metrics and a view of the raw the DXT data.
+    let width = header[PVR_HEADER_WIDTH];
+    let height = header[PVR_HEADER_HEIGHT];
+    let levels = header[PVR_HEADER_MIPMAPCOUNT];
+    let dataOffset = header[PVR_HEADER_METADATA] + 52;
+    let pvrtcData = new Uint8Array(item.content.buffer, dataOffset);
+
+    let pvrAsset = {
+        _data: pvrtcData,
+        _compressed: true,
+
+        width: width,
+        height: height,
+    };
+
+    return pvrAsset;
+}
+
 var defaultMap = {
     // Images
     'png' : loadImage,
@@ -119,6 +208,8 @@ var defaultMap = {
     'tiff' : loadImage,
     'webp' : loadImage,
     'image' : loadImage,
+    'pvr' : loadPVR,
+    'etc' : loadPVR,
 
     // Audio
     'mp3' : loadAudioAsAsset,

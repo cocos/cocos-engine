@@ -108,7 +108,7 @@ let dynamicAtlasManager = {
             !spriteFrame || spriteFrame._original) return;
         
         let texture = spriteFrame._texture;
-        if (texture instanceof cc.RenderTexture) return;
+        if (texture instanceof cc.RenderTexture || texture._compressed) return;
 
         let w = texture.width, h = texture.height;
         let min = texture._minFilter, mag = texture._magFilter;
