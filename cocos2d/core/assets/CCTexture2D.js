@@ -701,7 +701,7 @@ var Texture2D = cc.Class({
             if (!Array.isArray(natives)) {
                 natives = [natives];
             }
-            natives = natives.map(native => {
+            natives = natives.map(function (native) {
                 let ext = cc.path.extname(native);
                 let extId = "";
                 if (ext) {
