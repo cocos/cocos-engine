@@ -584,17 +584,7 @@ SE_BIND_FUNC(JSB_core_restartVM)
 
 static bool JSB_closeWindow(se::State& s)
 {
-//cjh    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
-//        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
-//        CC_SAFE_RELEASE(_event);
-//
-//        se::ScriptEngine::getInstance()->cleanup();
-//    });
-//    _event->retain();
-//    Director::getInstance()->end();
-//#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-//    exit(0);
-//#endif
+    Application::getInstance()->end();
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)

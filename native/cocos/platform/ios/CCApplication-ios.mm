@@ -255,6 +255,11 @@ void Application::restart()
     }
 }
 
+void Application::end()
+{
+    exit(0);
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
     [(MainLoop*)_delegate setPreferredFPS: fps];

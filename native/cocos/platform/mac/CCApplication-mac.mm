@@ -162,6 +162,11 @@ void Application::restart()
     _isStarted = false;
 }
 
+void Application::end()
+{
+    glfwSetWindowShouldClose(CAST_VIEW(_view)->getGLFWWindow(), 1);
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;

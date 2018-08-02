@@ -87,6 +87,11 @@ void Application::restart()
     restartJSVM();
 }
 
+void Application::end()
+{
+    exitApplicationJNI();
+}
+
 void Application::setMultitouch(bool /*value*/)
 {
 

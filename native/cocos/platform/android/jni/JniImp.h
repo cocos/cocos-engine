@@ -46,3 +46,4 @@ extern void setGameInfoDebugViewTextJNI(int index, const std::string& text);
 extern void setJSBInvocationCountJNI(int count);
 extern void openDebugViewJNI();
 extern void disableBatchGLCommandsToNativeJNI();
+extern void exitApplicationJNI();

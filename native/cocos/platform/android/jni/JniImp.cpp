@@ -581,3 +581,8 @@ void disableBatchGLCommandsToNativeJNI()
         JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
     }
 }
+
+void exitApplicationJNI()
+{
+    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "endApplication");
+}

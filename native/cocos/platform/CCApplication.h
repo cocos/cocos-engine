@@ -115,6 +115,7 @@ public:
     
     void start();
     void restart();
+    void end();
     
     /**
      * @brief Sets the preferred frame rate for main loop callback.
