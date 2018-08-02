@@ -291,7 +291,7 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
                 AssetFileDescriptor afd = mCocos2dxActivity.getAssets().openFd(mVideoFilePath);
                 mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
             } else {
-                mMediaPlayer.setDataSource(mCocos2dxActivity, mVideoUri);
+                mMediaPlayer.setDataSource(mVideoUri.toString());
             }
 
             mMediaPlayer.prepareAsync();
