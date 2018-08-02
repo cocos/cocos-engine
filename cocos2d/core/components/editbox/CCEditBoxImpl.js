@@ -331,8 +331,9 @@ let EditBoxImpl = cc.Class({
         if (!this._edTxt) return;
     
         let node = this._node, 
-            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
-        let dpr = cc.view._devicePixelRatio;
+            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
+            viewport = cc.view._viewportRect,
+            dpr = cc.view._devicePixelRatio;
     
         node.getWorldMatrix(_matrix);
         let contentSize = node._contentSize;
@@ -348,7 +349,9 @@ let EditBoxImpl = cc.Class({
         let a = _matrix.m00 * scaleX, b = _matrix.m01, c = _matrix.m04, d = _matrix.m05 * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
+        offsetX += viewport.x / dpr;
         let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
+        offsetY += viewport.y / dpr;
         let tx = _matrix.m12 * scaleX + offsetX, ty = _matrix.m13 * scaleY + offsetY;
     
         if (polyfill.zoomInvalid) {
