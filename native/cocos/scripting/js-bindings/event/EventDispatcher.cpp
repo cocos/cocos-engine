@@ -97,7 +97,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 
     _jsTouchObjArray->setProperty("length", se::Value(touchEvent.touches.size()));
 
-    if (_jsTouchObjPool.size() < touchEvent.touches.size())
+    while (_jsTouchObjPool.size() < touchEvent.touches.size())
     {
         se::Object* touchObj = se::Object::createPlainObject();
         touchObj->root();
