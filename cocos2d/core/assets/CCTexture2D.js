@@ -249,7 +249,7 @@ var Texture2D = cc.Class({
             set (asset) {
                 if (asset._compressed && asset._data) {
                     this._compressed = true;
-                    this.initWithData(asset._data, this._format, asset.width, asset.height, this.width, this.height);
+                    this.initWithData(asset._data, this._format, asset.width, asset.height);
                 }
                 else {
                     this.initWithElement(asset);
@@ -455,11 +455,9 @@ var Texture2D = cc.Class({
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
-     * @param {Number} contentWidth
-     * @param {Number} contentHeight
      * @return {Boolean}
      */
-    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight, contentWidth, contentHeight) {
+    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
         var opts = _getSharedOptions();
         opts.image = data;
         // webgl texture 2d uses images
@@ -473,8 +471,8 @@ var Texture2D = cc.Class({
         else {
             this._texture.update(opts);
         }
-        this.width = contentWidth || pixelsWidth;
-        this.height = contentHeight || pixelsHeight;
+        this.width = pixelsWidth;
+        this.height = pixelsHeight;
         this.loaded = true;
         this.emit("load");
         return true;
@@ -724,7 +722,7 @@ var Texture2D = cc.Class({
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
                     this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0) + ',' + this.width + ',' + this.height;
+                    (this._premultiplyAlpha ? 1 : 0);
         return asset;
     },
 
@@ -765,7 +763,7 @@ var Texture2D = cc.Class({
                 this.url = url;
             }
         }
-        if (fields.length === 8) {
+        if (fields.length === 6) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -774,8 +772,6 @@ var Texture2D = cc.Class({
             this._wrapT = parseInt(fields[4]);
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
-            this.width = parseInt(fields[6]);
-            this.height = parseInt(fields[7]);
         }
     }
 });

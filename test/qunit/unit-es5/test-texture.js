@@ -19,7 +19,7 @@
             var tex = new cc.Texture2D();
             var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
                     tex._wrapS + "," + tex._wrapT + "," + 
-                    (tex._premultiplyAlpha ? 1 : 0) + "," + tex.width + "," + tex.height;
+                    (tex._premultiplyAlpha ? 1 : 0);
             var expected = {
                 __type__: 'cc.Texture2D',
                 content: '' + append
@@ -42,7 +42,7 @@
 
                 var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
                         tex._wrapS + "," + tex._wrapT + "," + 
-                        (tex._premultiplyAlpha ? 1 : 0) + "," + tex.width + "," + tex.height;
+                        (tex._premultiplyAlpha ? 1 : 0);
 
                 var expected = {
                     __type__: 'cc.Texture2D',
