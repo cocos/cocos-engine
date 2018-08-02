@@ -455,6 +455,8 @@ var Texture2D = cc.Class({
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
+     * @param {Number} contentWidth
+     * @param {Number} contentHeight
      * @return {Boolean}
      */
     initWithData (data, pixelFormat, pixelsWidth, pixelsHeight, contentWidth, contentHeight) {
