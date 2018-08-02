@@ -438,7 +438,6 @@ let TiledMap = cc.Class({
 
     _applyFile () {
         let file = this._tmxFile;
-        let self = this;
         if (file) {
             let texValues = file.textures;
             let texKeys = file.textureNames;
