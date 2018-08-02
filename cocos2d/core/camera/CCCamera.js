@@ -500,7 +500,7 @@ let Camera = cc.Class({
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 
-    beforeDraw: !CC_EDITOR && function () {
+    beforeDraw: function () {
         let node = this.node;
         
         if (!this._matrixDirty && !node._worldMatDirty)
