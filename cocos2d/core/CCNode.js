@@ -1048,18 +1048,16 @@ var Node = cc.Class({
         },
 
         /**
-         * !#en zIndex is the 'key' used to sort the node relative to its siblings.
-         * The Node's parent will sort all its children based on the zIndex value and the arrival order.                                   <br/>
-         * Nodes with greater zIndex will be sorted after nodes with smaller zIndex.
-         * If two nodes have the same zIndex, then the node that was added first to the children's array              <br/>
-         * will be in front of the other node in the array.
-         * 
-         * Node's order in children list will affect its rendering order.
-         * !#zh zIndex 是用来对节点进行排序的关键属性，它决定一个节点在兄弟节点之间的位置。
-         * 父节点主要根据节点的 zIndex 和添加次序来排序，拥有更高 zIndex 的节点将被排在后面，
-         * 如果两个节点的 zIndex 一致，先添加的节点会稳定排在另一个节点之前。
-         * 
-         * 节点在 children 中的顺序决定了其渲染顺序。
+         * !#en zIndex is the 'key' used to sort the node relative to its siblings.<br/>
+         * The value of zIndex should be in the range between cc.macro.MIN_ZINDEX and cc.macro.MAX_ZINDEX.<br/>
+         * The Node's parent will sort all its children based on the zIndex value and the arrival order.<br/>
+         * Nodes with greater zIndex will be sorted after nodes with smaller zIndex.<br/>
+         * If two nodes have the same zIndex, then the node that was added first to the children's array will be in front of the other node in the array.<br/>
+         * Node's order in children list will affect its rendering order. Parent is always rendering before all children.
+         * !#zh zIndex 是用来对节点进行排序的关键属性，它决定一个节点在兄弟节点之间的位置。<br/>
+         * zIndex 的取值应该介于 cc.macro.MIN_ZINDEX 和 cc.macro.MAX_ZINDEX 之间
+         * 父节点主要根据节点的 zIndex 和添加次序来排序，拥有更高 zIndex 的节点将被排在后面，如果两个节点的 zIndex 一致，先添加的节点会稳定排在另一个节点之前。<br/>
+         * 节点在 children 中的顺序决定了其渲染顺序。父节点永远在所有子节点之前被渲染
          * @property zIndex
          * @type {Number}
          * @example
