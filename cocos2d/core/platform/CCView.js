@@ -756,10 +756,10 @@ cc.js.mixin(View.prototype, {
             vp.width = rv.width;
             vp.height = rv.height;
 
-            vb.x = -vp.x / this._scaleX;
-            vb.y = -vp.y / this._scaleY;
-            vb.width = cc.game.canvas.width / this._scaleX;
-            vb.height = cc.game.canvas.height / this._scaleY;
+            vb.x = 0;
+            vb.y = 0;
+            vb.width = rv.width / this._scaleX;
+            vb.height = rv.height / this._scaleY;
         }
 
         policy.postApply(this);
