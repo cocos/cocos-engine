@@ -9564,6 +9564,7 @@ Device.prototype._initExtensions = function _initExtensions (extensions) {
         var ext = gl.getExtension(vendorPrefixes[j] + name);
         if (ext) {
           this$1._extensions[name] = ext;
+          break;
         }
       } catch (e) {
         console.error(e);

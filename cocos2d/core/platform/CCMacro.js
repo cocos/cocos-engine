@@ -346,17 +346,17 @@ cc.macro = {
 };
 
 
-let SupportTextureFormats = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
+let SUPPORT_TEXTURE_FORMATS = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 if (cc.sys.isMobile) {
     if (cc.sys.os === cc.sys.OS_IOS) {
-        SupportTextureFormats = ['.pvr'].join(SupportTextureFormats);
+        SUPPORT_TEXTURE_FORMATS = ['.pvr'].concat(SUPPORT_TEXTURE_FORMATS);
     }
     // else if (cc.sys.os === cc.sys.OS_ANDROID) {
-    //     SupportTextureFormats = ['.etc'].join(SupportTextureFormats);
+    //     SUPPORT_TEXTURE_FORMATS = ['.etc'].join(SUPPORT_TEXTURE_FORMATS);
     // }
 }
 
-cc.macro.SupportTextureFormats = SupportTextureFormats;
+cc.macro.SUPPORT_TEXTURE_FORMATS = SUPPORT_TEXTURE_FORMATS;
 
 js.getset(cc.macro, 'ENABLE_3D', function () {
     return cc._polyfill3D.enabled;

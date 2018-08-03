@@ -248,7 +248,6 @@ var Texture2D = cc.Class({
             },
             set (asset) {
                 if (asset._compressed && asset._data) {
-                    this._compressed = true;
                     this.initWithData(asset._data, this._format, asset.width, asset.height);
                 }
                 else {
@@ -272,7 +271,11 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc']
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'],
+
+        _isCompressed (texture) {
+            return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+        }
     },
 
     ctor () {
@@ -321,7 +324,7 @@ var Texture2D = cc.Class({
 
         this._texture = null;
         
-        this._compressed = false;
+        this._exportedExts = null;
     },
 
     /**
@@ -696,13 +699,12 @@ var Texture2D = cc.Class({
 
     _serialize: (CC_EDITOR || CC_TEST) && function () {
         let extId = "";
-        if (this._native) {
-            let natives = this._native;
-            if (!Array.isArray(natives)) {
-                natives = [natives];
-            }
-            natives = natives.map(function (native) {
-                let ext = cc.path.extname(native);
+        let exportedExts = this._exportedExts;
+        if (!exportedExts && this._native) {
+            exportedExts = [this._native];
+        }
+        if (exportedExts) {
+            exportedExts = exportedExts.map(function (ext) {
                 let extId = "";
                 if (ext) {
                     // ext@format
@@ -717,7 +719,7 @@ var Texture2D = cc.Class({
                 }
                 return extId;
             });
-            extId = natives.join('_');
+            extId = exportedExts.join('_');
         }
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
@@ -734,14 +736,14 @@ var Texture2D = cc.Class({
             let extIds = extIdStr.split('_');
 
             let extId = 999;
-            let ext = '.png';
+            let ext = '';
             let format = this._format;
-            let SupportTextureFormats = cc.macro.SupportTextureFormats;
+            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
             for (let i = 0; i < extIds.length; i++) {
                 let extFormat = extIds[i].split('@');
                 let tmpExt = extFormat[0];
                 tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
-                tmpExt = Texture2D.extnames[tmpExt];
+                tmpExt = Texture2D.extnames[tmpExt] || extFormat;
 
                 let index = SupportTextureFormats.indexOf(tmpExt);
                 if (index !== -1 && index < extId) {
@@ -751,8 +753,10 @@ var Texture2D = cc.Class({
                 }
             }
 
-            this._setRawAsset(ext);
-            this._format = format;
+            if (ext) {
+                this._setRawAsset(ext);
+                this._format = format;
+            }
 
             // preset uuid to get correct nativeUrl
             let loadingItem = handle.customEnv;
