@@ -216,6 +216,8 @@ var defaultMap = {
     'tiff' : downloadImage,
     'webp' : downloadWebp,
     'image' : downloadImage,
+    'pvr': downloadBinary,
+    'etc': downloadBinary,
 
     // Audio
     'mp3' : downloadAudio,

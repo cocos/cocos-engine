@@ -116,7 +116,36 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
-    AI8: gfx.TEXTURE_FMT_L8_A8
+    AI8: gfx.TEXTURE_FMT_L8_A8,
+
+    /**
+     * rgb 2 bpp pvrtc
+     * @property RGB_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGB_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
+    /**
+     * rgba 2 bpp pvrtc
+     * @property RGBA_PVRTC_2BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGBA_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
+    /**
+     * rgb 4 bpp pvrtc
+     * @property RGB_PVRTC_4BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGB_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
+    /**
+     * rgba 4 bpp pvrtc
+     * @property RGBA_PVRTC_4BPPV1
+     * @readonly
+     * @type {Number}
+     */
+    RGBA_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
 });
 
 /**
@@ -217,8 +246,13 @@ var Texture2D = cc.Class({
                 // maybe returned to pool in webgl
                 return this._image;
             },
-            set (image) {
-                this.initWithElement(image);
+            set (data) {
+                if (data._compressed && data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
+                }
+                else {
+                    this.initWithElement(data);
+                }
             },
             override: true
         },
@@ -237,7 +271,11 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'],
+
+        _isCompressed (texture) {
+            return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+        }
     },
 
     ctor () {
@@ -285,6 +323,10 @@ var Texture2D = cc.Class({
         this.height = 0;
 
         this._texture = null;
+        
+        if (CC_EDITOR) {
+            this._exportedExts = null;
+        }
     },
 
     /**
@@ -423,10 +465,24 @@ var Texture2D = cc.Class({
     initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
         var opts = _getSharedOptions();
         opts.image = data;
+        // webgl texture 2d uses images
+        opts.images = [opts.image];
+        opts.hasMipmap = this._hasMipmap;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
         opts.format = pixelFormat;
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
-        this.update(opts);
+        if (!this._texture) {
+            this._texture = new renderer.Texture2D(renderer.device, opts);
+        }
+        else {
+            this._texture.update(opts);
+        }
         this.width = pixelsWidth;
         this.height = pixelsHeight;
         this.loaded = true;
@@ -652,15 +708,29 @@ var Texture2D = cc.Class({
 
     _serialize: (CC_EDITOR || CC_TEST) && function () {
         let extId = "";
-        if (this._native) {
-            // encode extname
-            let ext = cc.path.extname(this._native);
-            if (ext) {
-                extId = Texture2D.extnames.indexOf(ext);
-                if (extId < 0) {
-                    extId = ext;
+        let exportedExts = this._exportedExts;
+        if (!exportedExts && this._native) {
+            exportedExts = [this._native];
+        }
+        if (exportedExts) {
+            let exts = [];
+            for (let i = 0; i < exportedExts.length; i++) {
+                let extId = "";
+                let ext = exportedExts[i]
+                if (ext) {
+                    // ext@format
+                    let extFormat = ext.split('@');
+                    extId = Texture2D.extnames.indexOf(extFormat[0]);
+                    if (extId < 0) {
+                        extId = ext;
+                    }
+                    if (extFormat[1]) {
+                        extId += '@' + extFormat[1];
+                    }
                 }
+                exts.push(extId);
             }
+            extId = exts.join('_');
         }
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
@@ -674,9 +744,30 @@ var Texture2D = cc.Class({
         // decode extname
         var extIdStr = fields[0];
         if (extIdStr) {
-            let extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
-            let ext = Texture2D.extnames[extId];
-            this._setRawAsset(ext || extIdStr);
+            let extIds = extIdStr.split('_');
+
+            let extId = 999;
+            let ext = '';
+            let format = this._format;
+            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+            for (let i = 0; i < extIds.length; i++) {
+                let extFormat = extIds[i].split('@');
+                let tmpExt = extFormat[0];
+                tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
+                tmpExt = Texture2D.extnames[tmpExt] || extFormat;
+
+                let index = SupportTextureFormats.indexOf(tmpExt);
+                if (index !== -1 && index < extId) {
+                    extId = index;
+                    ext = tmpExt;
+                    format = extFormat[1] ? parseInt(extFormat[1]) : this._format;
+                }
+            }
+
+            if (ext) {
+                this._setRawAsset(ext);
+                this._format = format;
+            }
 
             // preset uuid to get correct nativeUrl
             let loadingItem = handle.customEnv;

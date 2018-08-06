@@ -108,6 +108,48 @@ function loadBinary (item) {
     }
 }
 
+//===============//
+// PVR constants //
+//===============//
+// https://github.com/toji/texture-tester/blob/master/js/webgl-texture-util.js#L424
+const PVR_HEADER_LENGTH = 13; // The header length in 32 bit ints.
+const PVR_MAGIC = 0x03525650; //0x50565203;
+
+// Offsets into the header array.
+const PVR_HEADER_MAGIC = 0;
+const PVR_HEADER_FORMAT = 2;
+const PVR_HEADER_HEIGHT = 6;
+const PVR_HEADER_WIDTH = 7;
+const PVR_HEADER_MIPMAPCOUNT = 11;
+const PVR_HEADER_METADATA = 12;
+
+function loadCompressedTex (item) {
+    // Get a view of the arrayBuffer that represents the DDS header.
+    let header = new Int32Array(item.content.buffer, 0, PVR_HEADER_LENGTH);
+
+    // Do some sanity checks to make sure this is a valid DDS file.
+    if(header[PVR_HEADER_MAGIC] != PVR_MAGIC) {
+      return new Error("Invalid magic number in PVR header");
+    }
+
+    // Gather other basic metrics and a view of the raw the DXT data.
+    let width = header[PVR_HEADER_WIDTH];
+    let height = header[PVR_HEADER_HEIGHT];
+    let levels = header[PVR_HEADER_MIPMAPCOUNT];
+    let dataOffset = header[PVR_HEADER_METADATA] + 52;
+    let pvrtcData = new Uint8Array(item.content.buffer, dataOffset);
+
+    let pvrAsset = {
+        _data: pvrtcData,
+        _compressed: true,
+
+        width: width,
+        height: height,
+    };
+
+    return pvrAsset;
+}
+
 var defaultMap = {
     // Images
     'png' : loadImage,
@@ -119,6 +161,8 @@ var defaultMap = {
     'tiff' : loadImage,
     'webp' : loadImage,
     'image' : loadImage,
+    'pvr' : loadCompressedTex,
+    'etc' : loadCompressedTex,
 
     // Audio
     'mp3' : loadAudioAsAsset,
