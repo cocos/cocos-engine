@@ -103,7 +103,7 @@ proto.setLocation = function (x, y) {
  * @return {Vec2} location
  */
 proto.getLocation = function () {
-    return {x: this._x, y: this._y};
+    return cc.v2(this._x, this._y);
 };
 
 /**
@@ -113,7 +113,7 @@ proto.getLocation = function () {
  * @return {Vec2}
  */
 proto.getLocationInView = function() {
-    return {x: this._x, y: cc.view._designResolutionSize.height - this._y};
+    return cc.v2(this._x, cc.view._designResolutionSize.height - this._y);
 };
 
 proto._setPrevCursor = function (x, y) {
@@ -128,7 +128,7 @@ proto._setPrevCursor = function (x, y) {
  * @return {Vec2}
  */
 proto.getPreviousLocation = function () {
-    return {x: this._prevX, y: this._prevY};
+    return cc.v2(this._prevX, this._prevY);
 };
 
 /**
@@ -138,7 +138,7 @@ proto.getPreviousLocation = function () {
  * @return {Vec2}
  */
 proto.getDelta = function () {
-    return {x: this._x - this._prevX, y: this._y - this._prevY};
+    return cc.v2(this._x - this._prevX, this._y - this._prevY);
 };
 
 /**
