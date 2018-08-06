@@ -467,6 +467,13 @@ var Texture2D = cc.Class({
         opts.image = data;
         // webgl texture 2d uses images
         opts.images = [opts.image];
+        opts.hasMipmap = this._hasMipmap;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
         opts.format = pixelFormat;
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
@@ -706,8 +713,10 @@ var Texture2D = cc.Class({
             exportedExts = [this._native];
         }
         if (exportedExts) {
-            exportedExts = exportedExts.map(function (ext) {
+            let exts = [];
+            for (let i = 0; i < exportedExts.length; i++) {
                 let extId = "";
+                let ext = exportedExts[i]
                 if (ext) {
                     // ext@format
                     let extFormat = ext.split('@');
@@ -719,9 +728,9 @@ var Texture2D = cc.Class({
                         extId += '@' + extFormat[1];
                     }
                 }
-                return extId;
-            });
-            extId = exportedExts.join('_');
+                exts.push(extId);
+            }
+            extId = exts.join('_');
         }
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 

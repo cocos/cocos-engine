@@ -123,7 +123,7 @@ const PVR_HEADER_WIDTH = 7;
 const PVR_HEADER_MIPMAPCOUNT = 11;
 const PVR_HEADER_METADATA = 12;
 
-function loadPVR (item) {
+function loadCompressedTex (item) {
     // Get a view of the arrayBuffer that represents the DDS header.
     let header = new Int32Array(item.content.buffer, 0, PVR_HEADER_LENGTH);
 
@@ -161,8 +161,8 @@ var defaultMap = {
     'tiff' : loadImage,
     'webp' : loadImage,
     'image' : loadImage,
-    'pvr' : loadPVR,
-    'etc' : loadPVR,
+    'pvr' : loadCompressedTex,
+    'etc' : loadCompressedTex,
 
     // Audio
     'mp3' : loadAudioAsAsset,
