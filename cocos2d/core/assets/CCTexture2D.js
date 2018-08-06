@@ -127,21 +127,21 @@ const PixelFormat = cc.Enum({
     RGB_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
     /**
      * rgba 2 bpp pvrtc
-     * @property RGB_PVRTC_2BPPV1
+     * @property RGBA_PVRTC_2BPPV1
      * @readonly
      * @type {Number}
      */
     RGBA_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
     /**
      * rgb 4 bpp pvrtc
-     * @property RGB_PVRTC_2BPPV1
+     * @property RGB_PVRTC_4BPPV1
      * @readonly
      * @type {Number}
      */
     RGB_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
     /**
      * rgba 4 bpp pvrtc
-     * @property RGB_PVRTC_2BPPV1
+     * @property RGBA_PVRTC_4BPPV1
      * @readonly
      * @type {Number}
      */
@@ -246,12 +246,12 @@ var Texture2D = cc.Class({
                 // maybe returned to pool in webgl
                 return this._image;
             },
-            set (asset) {
-                if (asset._compressed && asset._data) {
-                    this.initWithData(asset._data, this._format, asset.width, asset.height);
+            set (data) {
+                if (data._compressed && data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
-                    this.initWithElement(asset);
+                    this.initWithElement(data);
                 }
             },
             override: true
@@ -324,7 +324,9 @@ var Texture2D = cc.Class({
 
         this._texture = null;
         
-        this._exportedExts = null;
+        if (CC_EDITOR) {
+            this._exportedExts = null;
+        }
     },
 
     /**
