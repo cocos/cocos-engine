@@ -917,6 +917,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         proto._showBKKeyboard = function () {
             BK.Editor.showKeyBoard(this._onBKBtnClick.bind(this), this._onBKTextChange.bind(this));
             var editBox = this._editBox;
+            BK.Editor.setText(editBox._text);
             editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
         };
     }
