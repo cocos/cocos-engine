@@ -161,9 +161,9 @@ var audioEngine = {
      */
     isLoop: function (audioID) {
         var audio = getAudioFromId(audioID);
-        if (!audio || !audio.isLoop)
+        if (!audio || !audio.getLoop)
             return false;
-        return audio.isLoop();
+        return audio.getLoop();
     },
 
     /**
