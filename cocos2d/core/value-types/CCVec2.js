@@ -485,12 +485,8 @@ proto.angle = function (vector) {
  * @return {number} from -MathPI to Math.PI
  */
 proto.signAngle = function (vector) {
-    // NOTE: this algorithm will return 0.0 without signed if vectors are parallex
-    // var angle = this.angle(vector);
-    // var cross = this.cross(vector);
-    // return Math.sign(cross) * angle;
-
-    return Math.atan2(this.y, this.x) - Math.atan2(vector.y, vector.x);
+    let angle = this.angle(vector);
+    return this.cross(vector) < 0 ? -angle : angle;
 };
 
 /**
