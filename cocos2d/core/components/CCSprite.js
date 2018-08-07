@@ -539,7 +539,13 @@ var Sprite = cc.Class({
     },
 
     _canRender () {
-        if (!this._enabled || !this._material) return false;
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            if (!this._enabled) return false;
+        }
+        else {
+            if (!this._enabled || !this._material) return false;
+        }
+
         let spriteFrame = this._spriteFrame;
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
             return false;
