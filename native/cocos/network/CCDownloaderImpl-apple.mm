@@ -704,7 +704,7 @@ namespace cocos2d { namespace network {
                                        didResumeAtOffset:(int64_t)fileOffset
                                       expectedTotalBytes:(int64_t)expectedTotalBytes
 {
-    NSLog(@"[TODO]DownloaderAppleImpl downloadTask: \"%@\" didResumeAtOffset: %lld", downloadTask.originalRequest.URL, fileOffset);
+    // NSLog(@"[TODO]DownloaderAppleImpl downloadTask: \"%@\" didResumeAtOffset: %lld", downloadTask.originalRequest.URL, fileOffset);
     // 下载失败
 //    self.downloadFail([self getDownloadRespose:XZDownloadFail identifier:self.identifier progress:0.00 downloadUrl:nil downloadSaveFileUrl:nil downloadData:nil downloadResult:@"下载失败"]);
 }
