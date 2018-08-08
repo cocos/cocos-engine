@@ -293,13 +293,13 @@ if (CC_DEV) {
     ]);
 
     // cc.Node
-    markAsRemoved(cc._BaseNode, [
-        'tag',
-        'getTag',
-        'setTag',
-        'getChildByTag',
-        'removeChildByTag'
-    ]);
+    provideClearError(cc._BaseNode.prototype, {
+        'tag': 'name',
+        'getTag': 'name',
+        'setTag': 'name',
+        'getChildByTag': 'getChildByName',
+        'removeChildByTag': 'removeChildByName'
+    });
 
     markAsRemoved(cc.Node, [
         '_cascadeColorEnabled',
