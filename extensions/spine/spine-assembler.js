@@ -151,7 +151,7 @@ var spineAssembler = {
             graphics.clear();
         }
 
-        let attachment, slot;
+        let attachment, slot, isMesh, isRegion;
         let dataId = 0, datas = comp._renderDatas, data = datas[dataId], newData = false;
         if (!data) {
             data = datas[dataId] = comp.requestRenderData();
@@ -166,14 +166,16 @@ var spineAssembler = {
             if (!slot.attachment)
                 continue;
             attachment = slot.attachment;
+            isMesh = (attachment instanceof spine.MeshAttachment);
+            isRegion = (attachment instanceof spine.RegionAttachment);
 
             // get the vertices length
             vertexCount = 0;
-            if (attachment instanceof spine.RegionAttachment) {
+            if (isRegion) {
                 vertexCount = 4;
                 indiceCount = 6;
             }
-            else if (attachment instanceof spine.MeshAttachment) {
+            else if (isMesh) {
                 vertexCount = attachment.regionUVs.length / 2;
                 indiceCount = attachment.triangles.length;
             }
@@ -211,7 +213,8 @@ var spineAssembler = {
                 data.indiceCount = indiceOffset;
                 // gen new data
                 dataId++;
-                if (!datas[dataId]) {
+                data = datas[dataId];
+                if (!data) {
                     data = datas[dataId] = comp.requestRenderData();
                 }
                 data.dataLength = vertexCount;
@@ -223,7 +226,7 @@ var spineAssembler = {
 
             // Fill up indices
             indices = data._indices;
-            if (attachment instanceof spine.RegionAttachment) {
+            if (isRegion) {
                 indices[indiceOffset] = vertexOffset;
                 indices[indiceOffset + 1] = vertexOffset + 1;
                 indices[indiceOffset + 2] = vertexOffset + 2;
