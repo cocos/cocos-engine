@@ -412,6 +412,7 @@ let Camera = cc.Class({
      * Conver a world coordinates point to camera coordinates.
      * !#zh
      * 将一个世界坐标系下的点转换到摄像机坐标系下。
+     * @method getWorldToCameraPoint
      * @param {Vec2} point 
      * @param {Vec2} out - the point to receive the result
      * @return {Vec2}
@@ -428,6 +429,7 @@ let Camera = cc.Class({
      * Get the camera to world matrix
      * !#zh
      * 获取摄像机坐标系到世界坐标系的矩阵
+     * @method getCameraToWorldMatrix
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
      */
@@ -443,6 +445,7 @@ let Camera = cc.Class({
      * Get the world to camera matrix
      * !#zh
      * 获取世界坐标系到摄像机坐标系的矩阵
+     * @method getWorldToCameraMatrix
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
      */

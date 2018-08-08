@@ -16,7 +16,7 @@
 
     "./cocos2d/audio/**/*",
 
-    ".cocos2d/core/CCDebug.js",
+    "./cocos2d/core/CCDebug.js",
     "./cocos2d/core/CCDirector.js",
     "./cocos2d/core/CCNode.js",
     "./cocos2d/core/CCPrivateNode.js",

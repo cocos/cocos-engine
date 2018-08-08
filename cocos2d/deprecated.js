@@ -164,20 +164,35 @@ if (CC_DEV) {
     });
 
     // Texture
-    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+    let Texture2D = cc.Texture2D;
+    js.obsolete(Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
 
-    js.get(cc.Texture2D.prototype, 'getName', function () {
+    js.get(Texture2D.prototype, 'getName', function () {
         cc.warnID(1400, 'texture.getName()', 'texture._glID');
         return function () {
             return this._glID || null;
         };
     });
 
-    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
+    js.get(Texture2D.prototype, 'isLoaded', function () {
         cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
         return (function () {
             return this.loaded;
         });
+    });
+
+    js.get(Texture2D.prototype, 'setAntiAliasTexParameters', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            this.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
+        };
+    });
+
+    js.get(Texture2D.prototype, 'setAliasTexParameters', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            this.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        };
     });
 
     // cc.macro
@@ -278,13 +293,13 @@ if (CC_DEV) {
     ]);
 
     // cc.Node
-    markAsRemoved(cc._BaseNode, [
-        'tag',
-        'getTag',
-        'setTag',
-        'getChildByTag',
-        'removeChildByTag'
-    ]);
+    provideClearError(cc._BaseNode.prototype, {
+        'tag': 'name',
+        'getTag': 'name',
+        'setTag': 'name',
+        'getChildByTag': 'getChildByName',
+        'removeChildByTag': 'removeChildByName'
+    });
 
     markAsRemoved(cc.Node, [
         '_cascadeColorEnabled',
