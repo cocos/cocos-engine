@@ -39,6 +39,7 @@
 #endif
 
 uint32_t __jsbInvocationCount = 0;
+uint32_t __jsbStackFrameLimit = 20;
 
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
@@ -381,7 +382,7 @@ namespace se {
         v8::HandleScope hs(_isolate);
         _isolate->Enter();
 
-        _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 20, v8::StackTrace::kOverview);
+        _isolate->SetCaptureStackTraceForUncaughtExceptions(true, __jsbStackFrameLimit, v8::StackTrace::kOverview);
 
         _isolate->SetFatalErrorHandler(onFatalErrorCallback);
         _isolate->SetOOMErrorHandler(onOOMErrorCallback);
@@ -668,6 +669,16 @@ namespace se {
 
 //        assert(success);
         return success;
+    }
+
+    std::string ScriptEngine::getCurrentStackTrace()
+    {
+        if (!_isValid)
+            return std::string();
+
+        v8::HandleScope hs(_isolate);
+        v8::Local<v8::StackTrace> stack = v8::StackTrace::CurrentStackTrace(_isolate, __jsbStackFrameLimit, v8::StackTrace::kOverview);
+        return stackTraceToString(stack);
     }
 
     void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)

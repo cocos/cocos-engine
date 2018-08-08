@@ -161,6 +161,12 @@ namespace se {
         bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
+         * @brief Grab a snapshot of the current JavaScript execution stack.
+         * @return current stack trace string
+         */
+        std::string getCurrentStackTrace();
+
+        /**
          *  Delegate class for file operation
          */
         class FileOperationDelegate
