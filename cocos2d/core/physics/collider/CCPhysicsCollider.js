@@ -29,6 +29,7 @@ var getWorldScale = require('../utils').getWorldScale;
 
 /**
  * @class PhysicsCollider
+ * @extends Collider
  */
 var PhysicsCollider = cc.Class({
     name: 'cc.PhysicsCollider',
