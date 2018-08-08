@@ -9496,7 +9496,10 @@ var Device = function Device(canvasEL, opts) {
   }
 
   try {
-    gl = canvasEL.getContext('webgl', opts);
+    gl = canvasEL.getContext('webgl', opts)
+     || canvasEL.getContext('experimental-webgl', opts)
+     || canvasEL.getContext('webkit-3d', opts)
+     || canvasEL.getContext('moz-webgl', opts);
   } catch (err) {
     console.error(err);
     return;
