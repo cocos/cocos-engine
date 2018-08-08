@@ -212,6 +212,10 @@ public class CanvasRenderingContext2DImpl {
         if (mLinePaint == null) {
             mLinePaint = new Paint();
         }
+     
+        if(mLinePath == null) {
+            mLinePath = new Path();
+        }
 
         mLinePaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mLinePaint.setStyle(Paint.Style.STROKE);
