@@ -375,6 +375,19 @@ sp.Skeleton = cc.Class({
         this._updateSkeletonData();
     },
 
+    update (dt) {
+        let skeleton = this._skeleton;
+        let state = this._state;
+        if (skeleton) {
+            skeleton.update(dt);
+            if (state) {
+                dt *= this.timeScale;
+                state.update(dt);
+                state.apply(skeleton);
+            }
+        }
+    },
+
     onRestore () {
         // Destroyed and restored in Editor
         if (!this._material) {

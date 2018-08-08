@@ -290,17 +290,7 @@ var spineAssembler = {
 
     updateRenderData (comp, batchData) {
         let skeleton = comp._skeleton;
-        let state = comp._state;
         if (skeleton) {
-            let dt = cc.director.getDeltaTime();
-            skeleton.update(dt);
-
-            if (state) {
-                dt *= comp.timeScale;
-                state.update(dt);
-                state.apply(skeleton);
-            }
-
             skeleton.updateWorldTransform();
             this.genRenderDatas(comp, batchData);
         }
