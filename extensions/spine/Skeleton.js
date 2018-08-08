@@ -599,7 +599,7 @@ sp.Skeleton = cc.Class({
      */
     setMix (fromAnimation, toAnimation, duration) {
         if (this._state) {
-            this._state.data.setMixWith(fromAnimation, toAnimation, duration);
+            this._state.data.setMix(fromAnimation, toAnimation, duration);
         }
     },
 
