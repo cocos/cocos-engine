@@ -98,7 +98,7 @@ void Application::restart()
 
 void Application::end()
 {
-    exitApplicationJNI();
+    exitApplication();
 }
 
 void Application::setMultitouch(bool /*value*/)

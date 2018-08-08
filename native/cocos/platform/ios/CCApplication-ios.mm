@@ -261,6 +261,8 @@ void Application::restart()
 
 void Application::end()
 {
+    delete this;
+
     exit(0);
 }
 
