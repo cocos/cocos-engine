@@ -182,14 +182,14 @@ if (CC_DEV) {
     });
 
     js.get(Texture2D.prototype, 'setAntiAliasTexParameters', function () {
-        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR)');
         return function () {
             this.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
         };
     });
 
     js.get(Texture2D.prototype, 'setAliasTexParameters', function () {
-        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST)');
         return function () {
             this.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         };
