@@ -94,12 +94,12 @@ void localStorageInit( const std::string& fullpath/* = "" */)
         ret |= sqlite3_prepare_v2(_db, sql_clear, -1, &_stmt_clear, nullptr);
 
         // key
-        const char *sql_key = "SELECT key FROM data;";
+        const char *sql_key = "SELECT key FROM data ORDER BY ROWID ASC;";
         ret |= sqlite3_prepare_v2(_db, sql_key, -1, &_stmt_key, nullptr);
 
         //count
-        const char *sql_count = "SELECT COUNT(*) FROM data";
-        ret != sqlite3_prepare_v2(_db, sql_count, -1, &_stmt_count, nullptr);
+        const char *sql_count = "SELECT COUNT(*) FROM data;";
+        ret |= sqlite3_prepare_v2(_db, sql_count, -1, &_stmt_count, nullptr);
 
         if( ret != SQLITE_OK ) {
             printf("Error initializing DB\n");
