@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
-
 var WrapModeMask = {
     Loop: 1 << 1,
     ShouldWrap: 1 << 2,
