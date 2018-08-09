@@ -1070,8 +1070,7 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                // high bits for zIndex, lower bits for arrival order
-                return (this._zIndex & 0xffff0000) >> 16;
+                return this._zIndex;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1083,9 +1082,9 @@ var Node = cc.Class({
                     value = macro.MIN_ZINDEX;
                 }
 
-                var zIndex = (this._zIndex & 0xffff0000) >> 16;
-                if (zIndex !== value) {
-                    this._zIndex = this._localZOrder = (this._zIndex & 0x0000ffff) | (value << 16);
+                if (this._zIndex !== value) {
+                    this._zIndex = value;
+                    this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
                         this._parent._delaySort();
