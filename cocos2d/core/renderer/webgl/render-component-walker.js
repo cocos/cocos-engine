@@ -158,6 +158,7 @@ RenderComponentWalker.prototype = {
            
         buffer.byteStart = buffer.byteOffset;
         buffer.indiceStart = buffer.indiceOffset;
+        buffer.vertexStart = buffer.vertexOffset;
     },
 
     _flushIA (iaRenderData) {

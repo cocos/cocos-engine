@@ -44,7 +44,7 @@ let Graphics = cc.Class({
     },
 
     ctor () {
-        this._impl = Graphics._assembler.createImpl();
+        this._impl = Graphics._assembler.createImpl(this);
     },
 
     properties: {
@@ -177,11 +177,14 @@ let Graphics = cc.Class({
 
     onEnable () {
         this._super();
+        this.node._renderFlag &= ~cc.RenderFlow.FLAG_RENDER;
+        this.node._renderFlag |= cc.RenderFlow.FLAG_CUSTOM_IA_RENDER;
         this._activateMaterial();
     },
 
     onDestroy () {
         this._super();
+        this._impl.clear(this, true);
         this._impl = null;
     },
 
@@ -193,6 +196,7 @@ let Graphics = cc.Class({
         let material = new SpriteMaterial();
         material.useColor = false;
         material.useTexture = false;
+        material.useModel = true;
         this._updateMaterial(material);
     },
 

@@ -14327,7 +14327,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   StencilMaterial.prototype.constructor = StencilMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useColor: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },useColor: { configurable: true },texture: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14339,6 +14339,14 @@ var StencilMaterial = (function (Material$$1) {
 
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
+  };
+
+  prototypeAccessors.useModel.get = function () {
+    this._effect.getDefine('useModel');
+  };
+
+  prototypeAccessors.useModel.set = function (val) {
+    this._effect.define('useModel', val);
   };
 
   prototypeAccessors.useColor.get = function () {
@@ -14372,6 +14380,7 @@ var StencilMaterial = (function (Material$$1) {
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
     copy.useTexture = this.useTexture;
+    copy.useModel = this.useModel;
     copy.useColor = this.useColor;
     copy.texture = this.texture;
     copy.alphaThreshold = this.alphaThreshold;

@@ -1,6 +1,10 @@
 
 const Helper = require('../../../../graphics/helper');
 const PointFlags = require('../../../../graphics/types').PointFlags;
+const MeshBuffer = require('../../mesh-buffer');
+const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
+const renderer = require('../../../index');
+const renderEngine = renderer.renderEngine;
 
 let Point = cc.Class({
     name: 'cc.GraphicsPoint',
@@ -39,7 +43,7 @@ cc.js.mixin(Path.prototype, {
     }
 });
 
-function Impl () {
+function Impl (graphics) {
     // inner properties
     this._tessTol = 0.25;
     this._distTol = 0.01;
@@ -61,6 +65,8 @@ function Impl () {
     this._renderDatas = [];
     
     this._dataOffset = 0;
+
+    this.requestRenderData(graphics);
 }
 
 cc.js.mixin(Impl.prototype, {
@@ -148,15 +154,18 @@ cc.js.mixin(Impl.prototype, {
             this._points.length = 0;
             // manually destroy render datas
             for (let i = 0, l = datas.length; i < l; i++) {
-                comp.destroyRenderData(datas[i]);
+                let data = datas[i];
+                data.meshbuffer.destroy();
+                data.meshbuffer = null;
             }
             datas.length = 0;
         }
         else {
             for (let i = 0, l = datas.length; i < l; i++) {
                 let data = datas[i];
-                data.indiceCount = data._indices.length = 0;
-                data.vertexCount = 0;
+
+                let meshbuffer = data.meshbuffer;
+                meshbuffer.reset();
             }
         }
     },
@@ -204,6 +213,21 @@ cc.js.mixin(Impl.prototype, {
     
         pt.flags = flags;
         pathPoints.push(pt);
+    },
+
+    requestRenderData (graphics) {
+        let renderData = new renderEngine.IARenderData();
+        let meshbuffer = new MeshBuffer(renderer._walker, vfmtPosColor);
+        renderData.meshbuffer = meshbuffer;
+        this._renderDatas.push(renderData);
+
+        let ia = new renderEngine.InputAssembler();
+        ia._vertexBuffer = meshbuffer._vb;
+        ia._indexBuffer = meshbuffer._ib;
+        ia._start = 0;
+        renderData.ia = ia;
+
+        return renderData;
     }
 });
 
