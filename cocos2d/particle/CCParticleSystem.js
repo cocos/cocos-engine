@@ -280,7 +280,7 @@ var properties = {
     /**
      * !#en Indicate whether the system simulation have stopped.
      * !#zh 指示粒子播放是否完毕。
-     * @property {Boolean} autoRemoveOnFinish
+     * @property {Boolean} stopped
      */
     _stopped: true,
     stopped: {

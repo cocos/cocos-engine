@@ -453,6 +453,7 @@ var Texture2D = cc.Class({
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
      * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
      * @method destroy
+     * @return {Boolean} inherit from the CCObject
      */
     destroy () {
         this._image = null;

@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Enum = require('./platform/CCEnum');
 const debugInfos = require('../../DebugInfos') || {};
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
@@ -287,20 +286,12 @@ cc.assertID = function (cond) {
 };
 
 /**
- * !#en An object to boot the game.
- * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class debug
- * @main
- * @static
- */
-
-/**
- * !#en Enum for debug modes.
- * !#zh 调试模式
- * @enum DebugMode
- * @property
- */
-var DebugMode = Enum({
+* !#en Enum for debug modes.
+* !#zh 调试模式
+* @enum debug.DebugMode
+* @memberof cc
+ */         
+var DebugMode = cc.Enum({
     /**
      * !#en The debug mode none.
      * !#zh 禁止模式，禁止显示任何日志信息。
@@ -358,7 +349,13 @@ var DebugMode = Enum({
      */
     ERROR_FOR_WEB_PAGE: 6
 });
-
+/**
+ * !#en An object to boot the game.
+ * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
+ * @class debug
+ * @main
+ * @static
+ */
 module.exports = cc.debug = {
     DebugMode: DebugMode,
 
@@ -369,7 +366,7 @@ module.exports = cc.debug = {
      * !#zh 通过 error id 和必要的参数来获取错误信息。
      * @method getError
      * @param {id} errorId
-     * @param {ANY} [param]
+     * @param {any} [param]
      * @return {String}
      */
     getError: getTypedFormatter('ERROR'),
