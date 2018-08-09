@@ -539,7 +539,11 @@ var Node = cc.Class({
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
-        _localZOrder: 0,
+        _localZOrder: {
+            default: 0,
+            serializable: false
+        },
+        _zIndex: 0,
 
         // internal properties
 
@@ -1066,8 +1070,7 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                // high bits for zIndex, lower bits for arrival order
-                return (this._localZOrder & 0xffff0000) >> 16;
+                return this._zIndex;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1079,8 +1082,8 @@ var Node = cc.Class({
                     value = macro.MIN_ZINDEX;
                 }
 
-                var zIndex = (this._localZOrder & 0xffff0000) >> 16;
-                if (zIndex !== value) {
+                if (this._zIndex !== value) {
+                    this._zIndex = value;
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
@@ -1246,6 +1249,11 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
+
+        if (this._localZOrder !== 0) {
+            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        }
+
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
