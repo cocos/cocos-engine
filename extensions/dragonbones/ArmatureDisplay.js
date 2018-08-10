@@ -334,7 +334,7 @@ let ArmatureDisplay = cc.Class({
     _initDebugDraw () {
         if (this.debugBones) {
             if (!this._debugDraw) {
-                let debugDrawNode = new Node();
+                let debugDrawNode = new cc.PrivateNode();
                 debugDrawNode.name = 'DEBUG_DRAW_NODE';
                 let debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;

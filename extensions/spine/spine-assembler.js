@@ -102,7 +102,6 @@ var spineAssembler = {
         // get the vertex data
         let vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
         let vertexCount = vertices.length / 8;
-        let graphics = comp._debugRenderer;
         // augment render data size to ensure capacity
         renderData.dataLength += vertexCount;
         let data = renderData._data;
@@ -126,7 +125,9 @@ var spineAssembler = {
             dataOffset++;
         }
 
-        if (comp.debugSlots && vertexCount === 4) {
+        if (CC_DEBUG && comp.debugSlots && vertexCount === 4) {
+            let graphics = comp._debugRenderer;
+            
             // Debug Slot
             let VERTEX = spine.RegionAttachment;
             graphics.strokeColor = _slotColor;
@@ -147,7 +148,7 @@ var spineAssembler = {
         let premultiAlpha = comp.premultipliedAlpha;
         let graphics = comp._debugRenderer;
 
-        if (comp.debugBones || comp.debugSlots) {
+        if (CC_DEBUG && comp.debugBones || comp.debugSlots) {
             graphics.clear();
         }
 
@@ -254,7 +255,7 @@ var spineAssembler = {
             datas.length = dataId;
         }
 
-        if (comp.debugBones) {
+        if (CC_DEBUG && comp.debugBones) {
             let bone;
             graphics.lineWidth = 5;
             graphics.strokeColor = _boneColor;
@@ -276,14 +277,6 @@ var spineAssembler = {
                 if (i === 0) {
                     graphics.fillColor = _originColor;
                 }
-            }
-        }
-
-        if (comp.debugBones || comp.debugSlots) {
-            let renderDatas = graphics._impl._renderDatas;
-            for (let i = 0; i < renderDatas.length; i++) {
-                renderDatas[i].material = _debugMaterial;
-                datas.push(renderDatas[i]);
             }
         }
     },
