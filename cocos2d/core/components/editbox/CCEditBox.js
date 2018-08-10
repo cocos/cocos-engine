@@ -236,6 +236,7 @@ let EditBox = cc.Class({
             notify () {
                 if (this._placeholderLabel) {
                     this._placeholderLabel.node.color = this.placeholderFontColor;
+                    this._placeholderLabel.node.opacity = this.placeholderFontColor.a;
                 }
             }
         },
