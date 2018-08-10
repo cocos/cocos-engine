@@ -184,6 +184,40 @@ module.exports = {
                     });
                     return false;
                 }
+            } else if (CC_RUNTIME) {
+                // load from font cache
+                if (CustomFontLoader._fontCache[url]) {
+                    _fontFamily = CustomFontLoader._fontCache[url];
+                    return true;
+                }
+                var loaderFontFamily = CustomFontLoader._getFontFamily(url);
+                // load from local font
+                var localPath = "url('" + url + "')";
+                var fontFamily = jsb.loadFont(loaderFontFamily, localPath);
+                if (fontFamily) {
+                    CustomFontLoader._fontCache[url] = fontFamily;
+                    _fontFamily = fontFamily;
+                }
+                else {
+                    // load from remote font
+                    let item = url;
+                    if (md5Pipe) {
+                        item = {
+                            url: url,
+                            skips: [md5Pipe.id]
+                        };
+                    }                    
+                    cc.loader.load(item, function (err) {
+                        var localDownloadPath = "url('" + loadRuntime().env.USER_DATA_PATH + "/" + url + "')";
+                        _fontFamily = jsb.loadFont(loaderFontFamily, localDownloadPath);
+                        if (!_fontFamily) {
+                            _fontFamily = 'Arial';
+                        }
+                        CustomFontLoader._fontCache[url] = _fontFamily;
+                        comp._updateRenderData();
+                    });
+                    return false;
+                }
             }
             else {
                 _fontFamily = CustomFontLoader._getFontFamily(url);
