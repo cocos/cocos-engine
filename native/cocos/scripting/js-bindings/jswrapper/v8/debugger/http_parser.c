@@ -1989,7 +1989,7 @@ reexecute:
       case s_chunk_parameters:
       {
         assert(parser->flags & F_CHUNKED);
-        /* just ignore this shit. TODO check for overflow */
+        /* just ignore this shit. REFINE: check for overflow */
         if (ch == CR) {
           UPDATE_STATE(s_chunk_size_almost_done);
           break;

@@ -403,7 +403,7 @@ void Application::createView(const std::string& name, int width, int height)
 
 std::string Application::getSystemVersion()
 {
-    // TODO
+    // REFINE
     return std::string("unknown Windows version");
 }
 NS_CC_END

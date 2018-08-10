@@ -208,7 +208,7 @@ void PlayerMenuItemMac::setShortcut(const std::string &shortcut)
 
 PlayerMenuServiceMac::PlayerMenuServiceMac()
 {
-    // @TODO: build menu with **EDIT** menu
+    // @REFINE: build menu with **EDIT** menu
     
     NSApplication *thisApp = [NSApplication sharedApplication];
     _root._menu = [thisApp mainMenu];

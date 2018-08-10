@@ -171,7 +171,7 @@ void BaseRenderer::draw(const StageItem& item)
     Mat4 worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4("model", worldMatrix.m);
 
-    //TODO: add Mat3
+    //REFINE: add Mat3
     worldMatrix.inverse();
     worldMatrix.transpose();
     _device->setUniformMat4("normalMatrix", worldMatrix.m);

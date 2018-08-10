@@ -34,7 +34,7 @@ bool seval_to_int32(const se::Value& v, int32_t* ret)
     assert(ret != nullptr);
     if (v.isNumber())
     {
-        *ret = v.toInt32(); //FIXME: need to check isNan?
+        *ret = v.toInt32(); //IDEA: need to check isNan?
         return true;
     }
     else if (v.isBoolean())
@@ -1624,7 +1624,7 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
 
     if (obj->getProperty("updateSubImage", &tmp))
     {
-        //FIXME: perhaps it could be cube.
+        //IDEA: perhaps it could be cube.
         type = cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D;
         size = 1;
         seval_to_native_ptr(v, &texture);
@@ -2562,7 +2562,7 @@ bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Valu
     return true;
 }
 
-//FIXME: why v has to be a pointer?
+//IDEA: why v has to be a pointer?
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret)
 //{
 //    assert(v != nullptr && ret != nullptr);

@@ -112,7 +112,7 @@ const View& Camera::extractView( int width, int height)
                  _rect.h * height);
 
     // view matrix
-    //TODO:
+    //REFINE:
     _worldRTInv.set(_node->getWorldRT());
     _cachedView.matView.set(_worldRTInv.getInversed());
 

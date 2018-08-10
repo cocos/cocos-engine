@@ -201,7 +201,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
         if (args.size() && args.at(1).at(0) == '/')
         {
-            // FIXME:
+            // IDEA:
             // for Code IDE before RC2
             tmpConfig.setProjectDir(args.at(1));
         }

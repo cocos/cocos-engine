@@ -122,7 +122,7 @@ extern "C"
 
     JNIEXPORT jintArray JNICALL Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
     {
-        //TODO
+        //REFINE
         int tmp[7] = {8, 8, 8,
                       8, 0, 0, 0};
         jintArray glContextAttrsJava = env->NewIntArray(7);
@@ -182,7 +182,7 @@ extern "C"
             se::ScriptEngine::getInstance()->cleanup();
             cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
 
-            //TODO: Wait HttpClient, WebSocket, Audio thread to exit
+            //REFINE: Wait HttpClient, WebSocket, Audio thread to exit
 
             ccInvalidateStateCache();
           
@@ -261,22 +261,22 @@ extern "C"
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInsertText(JNIEnv* env, jobject thiz, jstring text)
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeDeleteBackward(JNIEnv* env, jobject thiz)
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT jstring JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeGetContentText()
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNIEnv*  env, jobject thiz, jint w, jint h)
     {
-        //TODO
+        //REFINE
     }
 
     /***********************************************************
@@ -285,7 +285,7 @@ extern "C"
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAccelerometer_onSensorChanged(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp)
     {
-        //TODO
+        //REFINE
     }
 
     /***********************************************************
@@ -377,7 +377,7 @@ extern "C"
         if (g_isGameFinished) {
             return JNI_TRUE;
         }
-        //TODO
+        //REFINE
         return JNI_TRUE;
 
     }

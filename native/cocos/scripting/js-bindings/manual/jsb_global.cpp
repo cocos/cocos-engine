@@ -191,7 +191,7 @@ bool jsb_enable_debugger(const std::string& debuggerServerAddr, uint32_t port)
         }
     };
 //    static SimpleRunLoop runLoop;
-    //cjh FIXME:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
+    //cjh IDEA:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
     return true;
 }
 
@@ -569,14 +569,14 @@ SE_BIND_FUNC(JSB_getOSVersion)
 
 static bool JSB_cleanScript(se::State& s)
 {
-    assert(false); //FIXME:
+    assert(false); //IDEA:
     return true;
 }
 SE_BIND_FUNC(JSB_cleanScript)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-    //TODO: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
+    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     Application::getInstance()->restart();
     return true;
 }

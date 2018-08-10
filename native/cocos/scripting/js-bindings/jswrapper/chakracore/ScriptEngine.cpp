@@ -519,18 +519,18 @@ namespace se {
 
     void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
-        //FIXME:
+        //IDEA:
     }
 
     bool ScriptEngine::isDebuggerEnabled() const
     {
-        //FIXME:
+        //IDEA:
         return false;
     }
 
     void ScriptEngine::mainLoopUpdate()
     {
-        //FIXME:
+        //IDEA:
     }
 
 } // namespace se {

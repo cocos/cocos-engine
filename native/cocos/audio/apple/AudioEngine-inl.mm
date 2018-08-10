@@ -155,10 +155,10 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
                 NSError *error = nil;
                 [[AVAudioSession sharedInstance] setActive:YES error:&error];
                 alcMakeContextCurrent(s_ALContext);
-                //FIXME:cjh                if (Director::getInstance()->isPaused())
+                //IDEA:                if (Director::getInstance()->isPaused())
                 {
                     ALOGD("AVAudioSessionInterruptionTypeEnded, director was paused, try to resume it.");
-//FIXME:cjh                    Director::getInstance()->resume();
+//IDEA:                    Director::getInstance()->resume();
                 }
             }
             else
@@ -197,7 +197,7 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
         else if (isAudioSessionInterrupted)
         {
             ALOGD("Audio session is still interrupted, pause director!");
-            //FIXME:cjh Director::getInstance()->pause();
+            //IDEA: Director::getInstance()->pause();
         }
     }
 }
@@ -672,7 +672,7 @@ void AudioEngineImpl::update(float dt)
             _threadMutex.unlock();
 
             if (player->_finishCallbak) {
-                player->_finishCallbak(audioID, filePath); //FIXME: callback will delay 50ms
+                player->_finishCallbak(audioID, filePath); //IDEA: callback will delay 50ms
             }
 
             delete player;

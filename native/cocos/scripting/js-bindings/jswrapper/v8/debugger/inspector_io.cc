@@ -482,7 +482,7 @@ bool InspectorIoDelegate::StartSession(int session_id,
 
 void InspectorIoDelegate::MessageReceived(int session_id,
                                           const std::string& message) {
-  // TODO(pfeldman): Instead of blocking execution while debugger
+  // REFINE(pfeldman): Instead of blocking execution while debugger
   // engages, node should wait for the run callback from the remote client
   // and initiate its startup. This is a change to node.cc that should be
   // upstreamed separately.

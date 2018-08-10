@@ -261,7 +261,7 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
         }
 
         // Tell the music playback service to pause
-        // TODO: these constants need to be published somewhere in the framework.
+        // REFINE: these constants need to be published somewhere in the framework.
         Intent i = new Intent("com.android.music.musicservicecommand");
         i.putExtra("command", "pause");
         mCocos2dxActivity.sendBroadcast(i);

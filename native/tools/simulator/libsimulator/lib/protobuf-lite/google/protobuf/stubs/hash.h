@@ -205,7 +205,7 @@ struct hash<pair<First, Second> > {
     size_t first_hash = hash<First>()(key.first);
     size_t second_hash = hash<Second>()(key.second);
 
-    // FIXME(kenton):  What is the best way to compute this hash?  I have
+    // IDEA(kenton):  What is the best way to compute this hash?  I have
     // no idea!  This seems a bit better than an XOR.
     return first_hash * ((1 << 16) - 1) + second_hash;
   }

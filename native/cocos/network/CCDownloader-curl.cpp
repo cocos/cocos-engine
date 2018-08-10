@@ -758,7 +758,7 @@ namespace cocos2d { namespace network {
     }
 
     void DownloaderCURL::abort(const std::unique_ptr<IDownloadTask>& task) {
-        // TODO
+        // REFINE
         // https://github.com/cocos-creator/cocos2d-x-lite/pull/1291
         DLLOG("%s isn't implemented!\n", __FUNCTION__);
     }

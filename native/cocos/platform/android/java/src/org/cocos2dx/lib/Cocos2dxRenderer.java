@@ -123,7 +123,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(final GL10 gl) {
         if (mNeedShowFPS) {
             /////////////////////////////////////////////////////////////////////
-            //FIXME: show FPS in Android Text control rather than outputing log.
+            //IDEA: show FPS in Android Text control rather than outputing log.
             ++mFrameCount;
             long nowFpsTime = System.nanoTime();
             long fpsTimeInterval = nowFpsTime - mOldNanoTime;

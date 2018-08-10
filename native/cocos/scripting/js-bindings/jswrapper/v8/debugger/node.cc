@@ -387,7 +387,7 @@ Local<Value> ErrnoException(Isolate* isolate,
 
     Local<String> path_string;
     if (path != nullptr) {
-        // FIXME(bnoordhuis) It's questionable to interpret the file path as UTF-8.
+        // IDEA(bnoordhuis) It's questionable to interpret the file path as UTF-8.
         path_string = String::NewFromUtf8(env->isolate(), path);
     }
 
@@ -755,7 +755,7 @@ static void ProcessTitleSetter(Local<Name> property,
                                Local<Value> value,
                                const PropertyCallbackInfo<void>& info) {
     node::Utf8Value title(info.GetIsolate(), value);
-    // TODO(piscisaureus): protect with a lock
+    // REFINE(piscisaureus): protect with a lock
     uv_set_process_title(*title);
 }
 
@@ -862,12 +862,12 @@ void SetupProcessObject(Environment* env,
 //#endif
 
     // process.arch
-    READONLY_PROPERTY(process, "arch", OneByteString(env->isolate(), "x64")); //FIXME: cjh
+    READONLY_PROPERTY(process, "arch", OneByteString(env->isolate(), "x64")); //IDEA: cjh
 
     // process.platform
     READONLY_PROPERTY(process,
                       "platform",
-                      OneByteString(env->isolate(), "macOS")); //FIXME: cjh
+                      OneByteString(env->isolate(), "macOS")); //IDEA: cjh
 
     // process.release
     Local<Object> release = Object::New(env->isolate());
@@ -1017,7 +1017,7 @@ void SetupProcessObject(Environment* env,
 //        READONLY_PROPERTY(process, "traceDeprecation", True(env->isolate()));
 //    }
 //
-//    // TODO(refack): move the following 3 to `node_config`
+//    // REFINE(refack): move the following 3 to `node_config`
 //    // --inspect-brk
 //    if (debug_options.wait_for_connect()) {
 //        READONLY_DONT_ENUM_PROPERTY(process,

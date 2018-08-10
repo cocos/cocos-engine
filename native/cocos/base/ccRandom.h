@@ -97,7 +97,7 @@ inline int random() {
  * It can be seeded using std::srand(seed);
  */
 inline float rand_minus1_1() {
-    // FIXME: using the new c++11 random engine generator
+    // IDEA: using the new c++11 random engine generator
     // without a proper way to set a seed is not useful.
     // Resorting to the old random method since it can
     // be seeded using std::srand()
@@ -111,7 +111,7 @@ inline float rand_minus1_1() {
  * It can be seeded using std::srand(seed);
  */
 inline float rand_0_1() {
-    // FIXME: using the new c++11 random engine generator
+    // IDEA: using the new c++11 random engine generator
     // without a proper way to set a seed is not useful.
     // Resorting to the old random method since it can
     // be seeded using std::srand()

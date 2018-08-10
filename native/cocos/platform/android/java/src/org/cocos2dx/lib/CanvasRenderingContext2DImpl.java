@@ -146,7 +146,7 @@ public class CanvasRenderingContext2DImpl {
         }
     }
 
-    // TODO:cjh: native should clear font cache before exiting game.
+    // REFINE:: native should clear font cache before exiting game.
     private static void clearTypefaceCache() {
         sTypefaceCache.clear();
     }

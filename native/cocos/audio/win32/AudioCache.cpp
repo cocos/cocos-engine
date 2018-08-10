@@ -285,7 +285,7 @@ void AudioCache::readDataTask(unsigned int selfId)
         }
     }
 
-    //FIXME: Why to invoke play callback first? Should it be after 'load' callback?
+    //IDEA: Why to invoke play callback first? Should it be after 'load' callback?
     invokingPlayCallbacks();
     invokingLoadCallbacks();
 

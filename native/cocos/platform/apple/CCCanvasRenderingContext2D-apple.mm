@@ -267,7 +267,7 @@ namespace {
                                      kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
     if (nil == _context)
     {
-        CGColorSpaceRelease(_colorSpace); //TODO HOWTO RELEASE?
+        CGColorSpaceRelease(_colorSpace); //REFINE: HOWTO RELEASE?
         _colorSpace = nil;
     }
 
@@ -450,7 +450,7 @@ namespace {
 
     if (rect.size.width < 1 || rect.size.height < 1)
         return;
-    //TODO:
+    //REFINE:
     //    assert(rect.origin.x == 0 && rect.origin.y == 0);
     memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
@@ -758,7 +758,7 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
     }
-    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //TODO:cjh, how to deal with alphabetic, currently we handle it as bottom mode.
+    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
     }

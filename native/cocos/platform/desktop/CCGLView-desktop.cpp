@@ -413,7 +413,7 @@ void GLView::onGLFWKeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/
 
 void GLView::onGLFWCharCallback(GLFWwindow* /*window*/, unsigned int character)
 {
-    // TODO
+    // REFINE
     // char16_t wcharString[2] = { (char16_t) character, 0 };
     // std::string utf8String;
 

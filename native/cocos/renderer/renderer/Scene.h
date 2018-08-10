@@ -70,7 +70,7 @@ public:
     void removeView(View* view);
     
 private:
-    //TODO: optimize speed.
+    //REFINE: optimize speed.
     Vector<Camera*> _cameras;
     Vector<Light*> _lights;
     std::vector<Model*> _models;

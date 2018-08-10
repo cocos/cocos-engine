@@ -1019,7 +1019,7 @@ inline int CodedOutputStream::VarintSize32(uint32 value) {
 
 inline int CodedOutputStream::VarintSize32SignExtended(int32 value) {
   if (value < 0) {
-    return 10;     // TODO(kenton):  Make this a symbolic constant.
+    return 10;     // REFINE(kenton):  Make this a symbolic constant.
   } else {
     return VarintSize32(static_cast<uint32>(value));
   }

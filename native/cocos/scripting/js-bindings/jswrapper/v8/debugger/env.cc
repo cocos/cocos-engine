@@ -26,7 +26,7 @@ namespace node {
 //        // but not all samples are created equal; mark the wall clock time spent in
 //        // epoll_wait() and friends so profiling tools can filter it out.  The samples
 //        // still end up in v8.log but with state=IDLE rather than state=EXTERNAL.
-//        // TODO(bnoordhuis) Depends on a libuv implementation detail that we should
+//        // REFINE(bnoordhuis) Depends on a libuv implementation detail that we should
 //        // probably fortify in the API contract, namely that the last started prepare
 //        // or check watcher runs first.  It's not 100% foolproof; if an add-on starts
 //        // a prepare or check watcher after us, any samples attributed to its callback

@@ -410,7 +410,7 @@ void Application::createView(const std::string& /*name*/, int width, int height)
     bounds.size.width = width;
     bounds.size.height = height;
     
-    //FIXME: iOS only support these pixel format?
+    //IDEA: iOS only support these pixel format?
     // - RGB565
     // - RGBA8
     NSString *pixelString = kEAGLColorFormatRGB565;

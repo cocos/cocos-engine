@@ -764,7 +764,7 @@ void SimulatorWin::parseCocosProjectConfig(ProjectConfig &config)
     {
         if (args.size() && args.at(1).at(0) == '/')
         {
-            // FIXME:
+            // IDEA:
             // for Code IDE before RC2
             tmpConfig.setProjectDir(args.at(1));
         }

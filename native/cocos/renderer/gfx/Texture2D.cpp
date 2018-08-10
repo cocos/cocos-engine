@@ -80,7 +80,7 @@ void Texture2D::update(const Options& options)
 
     if (options.images.size() > 1)
     {
-        genMipmap = false; //TODO: is it true here?
+        genMipmap = false; //REFINE: is it true here?
         uint16_t maxLength = options.width > options.height ? options.width : options.height;
         if (maxLength >> (options.images.size() - 1) != 1)
             RENDERER_LOGE("texture-2d mipmap is invalid, should have a 1x1 mipmap.");
@@ -273,7 +273,7 @@ void Texture2D::setTexInfo()
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint)_wrapS));
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint)_wrapT));
 
-    //TODO:    let ext = this._device.ext('EXT_texture_filter_anisotropic');
+    //REFINE:    let ext = this._device.ext('EXT_texture_filter_anisotropic');
 //    if (ext) {
 //        GL_CHECK(glTexParameteri(GL_TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this._anisotropy));
 //    }

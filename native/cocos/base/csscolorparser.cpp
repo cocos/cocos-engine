@@ -197,7 +197,7 @@ Color parse(const std::string& css_str) {
     // #abc and #abc123 syntax.
     if (str.length() && str.front() == '#') {
         if (str.length() == 4) {
-            int64_t iv = parseInt(str.substr(1), 16);  // TODO(deanm): Stricter parsing.
+            int64_t iv = parseInt(str.substr(1), 16);  // REFINE(deanm): Stricter parsing.
             if (!(iv >= 0 && iv <= 0xfff)) {
                 return {};
             } else {
@@ -209,7 +209,7 @@ Color parse(const std::string& css_str) {
                 );
             }
         } else if (str.length() == 7) {
-            int64_t iv = parseInt(str.substr(1), 16);  // TODO(deanm): Stricter parsing.
+            int64_t iv = parseInt(str.substr(1), 16);  // REFINE(deanm): Stricter parsing.
             if (!(iv >= 0 && iv <= 0xffffff)) {
                 return {};  // Covers NaN.
             } else {

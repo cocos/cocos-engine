@@ -63,7 +63,7 @@ struct lws_vhost;
 // log, CCLOG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
 // is needed. Define the following macros (ALOGV, ALOGD, ALOGI, ALOGW, ALOGE) for threadsafe log output.
 
-//FIXME: Move _winLog, winLog to a separated file
+//IDEA: Move _winLog, winLog to a separated file
 static void _winLog(const char *format, va_list args)
 {
     static const int MAX_LOG_LENGTH = 16 * 1024;
@@ -286,7 +286,7 @@ static lws_context_creation_info convertToContextCreationInfo(const struct lws_p
     info.port = CONTEXT_PORT_NO_LISTEN;
     info.protocols = protocols;
 
-    // FIXME: Disable 'permessage-deflate' extension temporarily because of issues:
+    // IDEA: Disable 'permessage-deflate' extension temporarily because of issues:
     // https://github.com/cocos2d/cocos2d-x/issues/16045, https://github.com/cocos2d/cocos2d-x/issues/15767
     // libwebsockets issue: https://github.com/warmcat/libwebsockets/issues/593
     // Currently, we couldn't find out the exact reason.
@@ -432,7 +432,7 @@ void WsThreadHelper::onSubThreadLoop()
             {
                 auto msg = (*iter);
                 auto ws = (WebSocketImpl*)msg->user;
-                // TODO: ws may be a invalid pointer
+                // REFINE: ws may be a invalid pointer
                 if (msg->what == WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION)
                 {
                     ws->onClientOpenConnectionRequest();

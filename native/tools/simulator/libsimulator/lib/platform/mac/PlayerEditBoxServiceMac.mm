@@ -71,7 +71,7 @@
         NSColor *newColor = [NSColor colorWithCalibratedRed:255 / 255.0f green:0 blue:0 alpha:1.0f];
         self.textField.textColor = newColor;
         
-        NSFont *font = [NSFont systemFontOfSize:10]; //TODO need to delete hard code here.
+        NSFont *font = [NSFont systemFontOfSize:10]; //REFINE: need to delete hard code here.
         textField_.font = font;
         
         [self setupTextField:textField_];

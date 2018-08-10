@@ -33,7 +33,7 @@ NS_CC_BEGIN
 // todo: use gl to get the supported number
 #define MAX_ATTRIBUTE_UNIT  16
 
-//FIXME: Consider to use variable to enable/disable cache state since using macro will not be able to close it if there're serious bugs.
+//IDEA: Consider to use variable to enable/disable cache state since using macro will not be able to close it if there're serious bugs.
 //#undef CC_ENABLE_GL_STATE_CACHE
 //#define CC_ENABLE_GL_STATE_CACHE 0
 
@@ -54,7 +54,7 @@ namespace
 }
 
 
-//FIXME: need to consider invoking this after restarting game.
+//IDEA: need to consider invoking this after restarting game.
 void ccInvalidateStateCache()
 {
     __currentVertexBuffer = -1;
@@ -196,7 +196,7 @@ void ccVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean norm
 
     __enabledVertexAttribArrayInfo[index] = VertexAttributePointerInfo(__currentVertexBuffer, index, size, type, normalized, stride, pointer);
 
-    // FIXME: should check all the values to determine if need to invoke glVertexAttribPointer or not?
+    // IDEA: should check all the values to determine if need to invoke glVertexAttribPointer or not?
     // We don't know if it is a good idea to do it because it needs to compare so many parameters.
     glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 }
@@ -252,7 +252,7 @@ void ccScissor(GLint x, GLint y, GLsizei width, GLsizei height)
     glScissor(x, y, width, height);
 }
 
-//FIXME:cjh: ONLY SUPPORT RGBA format now.
+//IDEA:: ONLY SUPPORT RGBA format now.
 static void flipPixelsY(GLubyte *pixels, int bytesPerRow, int rows)
 {
     if( !pixels ) { return; }

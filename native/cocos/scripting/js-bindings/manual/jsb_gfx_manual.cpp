@@ -339,7 +339,7 @@ SE_BIND_PROP_SET(js_gfx_VertexBuffer_prop_setFormat)
 //    const auto& args = s.args();
 //    size_t argc = args.size();
 //    CC_UNUSED bool ok = true;
-//    assert(false); //FIXME:
+//    assert(false); //IDEA:
 //    if (argc == 0) {
 //        return true;
 //    }

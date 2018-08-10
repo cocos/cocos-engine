@@ -71,7 +71,7 @@ bool IndexBuffer::init(DeviceGraphics* device, IndexFormat format, Usage usage, 
     update(0, data, dataByteLength);
 
     // stats
-    //TODO:    device._stats.ib += _bytes;
+    //REFINE:    device._stats.ib += _bytes;
 
     return true;
 }
@@ -116,7 +116,7 @@ void IndexBuffer::destroy()
         return;
     
     ccDeleteBuffers(1, &_glID);
-    //TODO:    _device._stats.ib -= _bytes;
+    //REFINE:    _device._stats.ib -= _bytes;
     _glID = 0;
 }
 

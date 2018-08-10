@@ -154,7 +154,7 @@ extern uint32_t __jsbInvocationCount;
 #define SE_QUOTEME_(x) #x
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
-//FIXME: implement this macro
+//IDEA: implement this macro
 #define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0

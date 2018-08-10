@@ -165,7 +165,7 @@ public:
         jsize len  = JniHelper::getEnv()->GetArrayLength(arr);
         jbyte* jbarray = (jbyte *)malloc(len * sizeof(jbyte));
         JniHelper::getEnv()->GetByteArrayRegion(arr,0,len,jbarray);
-        _data.fastSet((unsigned char*) jbarray, len); //FIXME: DON'T create new jbarray every time.
+        _data.fastSet((unsigned char*) jbarray, len); //IDEA: DON'T create new jbarray every time.
         JniHelper::getEnv()->DeleteLocalRef(arr);
     }
 
@@ -428,7 +428,7 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl->setTextBaseline(CanvasTextBaseline::MIDDLE);
     }
-    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //TODO:cjh, how to deal with alphabetic, currently we handle it as bottom mode.
+    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl->setTextBaseline(CanvasTextBaseline::BOTTOM);
     }
@@ -457,7 +457,7 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
 }
 
 // transform
-//TODO:
+//REFINE:
 
 void CanvasRenderingContext2D::translate(float x, float y)
 {

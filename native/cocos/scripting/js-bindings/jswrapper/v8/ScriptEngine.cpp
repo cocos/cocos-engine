@@ -346,7 +346,7 @@ namespace se {
     , _isErrorHandleWorking(false)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
-        //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
+        //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //REFINE
         _platform = v8::platform::CreateDefaultPlatform();
         v8::V8::InitializePlatform(_platform);
         bool ok = v8::V8::Initialize();
@@ -709,7 +709,7 @@ namespace se {
 
     void ScriptEngine::clearException()
     {
-        //FIXME:
+        //IDEA:
     }
 
     void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)

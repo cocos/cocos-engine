@@ -31,7 +31,7 @@
 // log, CCLOG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
 // is needed. Define the following macros (ALOGV, ALOGD, ALOGI, ALOGW, ALOGE) for threadsafe log output.
 
-//FIXME:Move the definition of the following macros to a separated file.
+//IDEA:Move the definition of the following macros to a separated file.
 
 void audioLog(const char * format, ...);
 
