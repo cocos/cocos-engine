@@ -41,6 +41,20 @@
     ]
   },
   {
+    "name": "Renderer Texture",
+    "entries": [
+      "./cocos2d/core/assets/CCRenderTexture.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Dynamic Atlas",
+    "entries": [
+      "./cocos2d/core/renderer/utils/dynamic-atlas/manager.js"
+    ],
+    "dependencies": ["Renderer Texture"]
+  },
+  {
     "name": "LabelOutline",
     "entries": [
       "./cocos2d/core/components/CCLabelOutline.js"
