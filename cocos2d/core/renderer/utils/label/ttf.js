@@ -185,6 +185,38 @@ module.exports = {
                     return false;
                 }
             }
+            else if (CC_RUNTIME) {
+                // load from font cache
+                if (CustomFontLoader._fontCache[url]) {
+                    _fontFamily = CustomFontLoader._fontCache[url];
+                    return true;
+                }
+                // load from local font
+                _fontFamily = jsb.loadFont(url);
+                if (_fontFamily) {
+                    CustomFontLoader._fontCache[url] = _fontFamily;
+                }
+                else {
+                    // load from remote font
+                    let item = url;
+                    if (md5Pipe) {
+                        item = {
+                            url: url,
+                            skips: [md5Pipe.id]
+                        };
+                    }                    
+                    cc.loader.load(item, function (err) {
+                        let localPath = loadRuntime().env.USER_DATA_PATH + '/' + url;
+                        _fontFamily = jsb.loadFont(localPath);
+                        if (!_fontFamily) {
+                            _fontFamily = 'Arial';
+                        }
+                        CustomFontLoader._fontCache[url] = _fontFamily;
+                        comp._updateRenderData();
+                    });
+                    return false;
+                }
+            }
             else {
                 _fontFamily = CustomFontLoader._getFontFamily(url);
                 let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
