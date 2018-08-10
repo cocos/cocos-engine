@@ -114,7 +114,6 @@ var game = {
     RENDER_TYPE_OPENGL: 2,
 
     _persistRootNodes: {},
-    _ignoreRemovePersistNode: null,
 
     // states
     _paused: true,//whether the game is paused
@@ -437,12 +436,6 @@ var game = {
     },
 
     /**
-     * !#en cc.game is the singleton object for game related functions.
-     * !#zh cc.game 是 Game 的实例，用来驱动整个游戏。
-     * @class Game
-     */
-
-    /**
      * !#en Run game with configuration object and onStart function.
      * !#zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @method run
@@ -499,12 +492,10 @@ var game = {
      * @param {Node} node - The node to be removed from persistent node list
      */
     removePersistRootNode: function (node) {
-        if (node !== this._ignoreRemovePersistNode) {
-            var id = node.uuid || '';
-            if (node === this._persistRootNodes[id]) {
-                delete this._persistRootNodes[id];
-                node._persistNode = false;
-            }
+        var id = node.uuid || '';
+        if (node === this._persistRootNodes[id]) {
+            delete this._persistRootNodes[id];
+            node._persistNode = false;
         }
     },
 
@@ -671,7 +662,7 @@ var game = {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = wx.getSharedCanvas();
+                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
             else if (CC_JSB) {
                 localCanvas = window.__cccanvas;
@@ -754,7 +745,6 @@ var game = {
             renderer.initCanvas(localCanvas);
             this._renderContext = renderer.device._ctx;
         }
-        cc.renderer = renderer;
 
         this.canvas.oncontextmenu = function () {
             if (!cc._isContextMenuEnable) return false;

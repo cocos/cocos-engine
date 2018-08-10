@@ -9496,7 +9496,10 @@ var Device = function Device(canvasEL, opts) {
   }
 
   try {
-    gl = canvasEL.getContext('webgl', opts);
+    gl = canvasEL.getContext('webgl', opts)
+     || canvasEL.getContext('experimental-webgl', opts)
+     || canvasEL.getContext('webkit-3d', opts)
+     || canvasEL.getContext('moz-webgl', opts);
   } catch (err) {
     console.error(err);
     return;
@@ -10650,7 +10653,7 @@ var View = function View() {
   // clear options
   this._color = color4.new(0.3, 0.3, 0.3, 1);
   this._depth = 1;
-  this._stencil = 1;
+  this._stencil = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // matrix
@@ -10897,7 +10900,7 @@ Light.prototype.extractView = function extractView (out, stages) {
   // clear opts
   color4.set(out._color, 1, 1, 1, 1);
   out._depth = 1;
-  out._stencil = 1;
+  out._stencil = 0;
   out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // stages & framebuffer
@@ -11002,7 +11005,7 @@ var Camera = function Camera() {
   // clear options
   this._color = color4.new(0.2, 0.3, 0.47, 1);
   this._depth = 1;
-  this._stencil = 1;
+  this._stencil = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // culling mask
@@ -12839,7 +12842,7 @@ var ProgramLib = function ProgramLib(device, templates, chunks) {
   if ( chunks === void 0 ) chunks = {};
 
   this._device = device;
-  this._precision = "precision highp float;\n";
+  this._precision = "precision mediump float;\n";
 
   // register templates
   this._templates = {};

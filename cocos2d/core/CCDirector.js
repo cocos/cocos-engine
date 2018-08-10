@@ -414,19 +414,27 @@ cc.Director.prototype = {
         scene._load();  // ensure scene initialized
         CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
 
-        // detach persist nodes
+        // Re-attach or replace persist nodes
+        CC_BUILD && CC_DEBUG && console.time('AttachPersist');
         var persistNodeList = Object.keys(game._persistRootNodes).map(function (x) {
             return game._persistRootNodes[x];
         });
         for (let i = 0; i < persistNodeList.length; i++) {
             let node = persistNodeList[i];
-            game._ignoreRemovePersistNode = node;
-            node.parent = null;
-            game._ignoreRemovePersistNode = null;
+            var existNode = scene.getChildByUuid(node.uuid);
+            if (existNode) {
+                // scene also contains the persist node, select the old one
+                var index = existNode.getSiblingIndex();
+                existNode._destroyImmediate();
+                scene.insertChild(node, index);
+            }
+            else {
+                node.parent = scene;
+            }
         }
+        CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
 
         var oldScene = this._scene;
-
         if (!CC_EDITOR) {
             // auto release assets
             CC_BUILD && CC_DEBUG && console.time('AutoRelease');
@@ -455,22 +463,6 @@ cc.Director.prototype = {
         // Run an Entity Scene
         this._scene = scene;
 
-        // Re-attach or replace persist nodes
-        CC_BUILD && CC_DEBUG && console.time('AttachPersist');
-        for (let i = 0; i < persistNodeList.length; i++) {
-            let node = persistNodeList[i];
-            var existNode = scene.getChildByUuid(node.uuid);
-            if (existNode) {
-                // scene also contains the persist node, select the old one
-                var index = existNode.getSiblingIndex();
-                existNode._destroyImmediate();
-                scene.insertChild(node, index);
-            }
-            else {
-                node.parent = scene;
-            }
-        }
-        CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
         CC_BUILD && CC_DEBUG && console.time('Activate');
         scene._activate();
         CC_BUILD && CC_DEBUG && console.timeEnd('Activate');

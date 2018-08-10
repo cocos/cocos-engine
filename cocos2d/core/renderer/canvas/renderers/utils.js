@@ -109,9 +109,8 @@ let canvasMgr = {
 
 module.exports = {
     getColorizedImage (texture, color) {
-        if (!texture || !texture.url) {
-            return null;
-        }
+        if (!texture) return null;
+        if (texture.width === 0 || texture.height === 0)  return texture._image;
 
         // original image
         let cval = color._val & 0x00ffffff;

@@ -120,9 +120,12 @@ let PrivateNode = cc.Class({
     _updateLocalMatrix() {
         if (!this._localMatDirty) return;
 
-        // Position correction for transform calculation
-        this._position.x = this._originPos.x - (this.parent._anchorPoint.x - 0.5) * this.parent._contentSize.width;
-        this._position.y = this._originPos.y - (this.parent._anchorPoint.y - 0.5) * this.parent._contentSize.height;
+        let parent = this.parent;
+        if (parent) {
+            // Position correction for transform calculation
+            this._position.x = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
+            this._position.y = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
+        }
 
         this._super();
     },

@@ -136,18 +136,18 @@ let tmxAssembler = {
             cols = comp._layerSize.width,
             grids = comp._texGrids,
             tiledTiles = comp._tiledTiles,
-            ox = node._position.x + comp._offset.x,
-            oy = node._position.y + comp._offset.y,
-            mapx = ox * a + oy * c + tx,
-            mapy = ox * b + oy * d + ty,
+            ox = comp._offset.x,
+            oy = comp._offset.y,
             w = tilew * a, h = tileh * d;
 
+        tx += ox * a + oy * c;
+        ty += ox * b + oy * d;
         // Culling
         let startCol = 0, startRow = 0,
             maxCol = cols, maxRow = rows;
 
-        let cullingA = a, cullingD = d, 
-            cullingMapx = mapx, cullingMapy = mapy,
+        let cullingA = a, cullingD = d,
+            cullingMapx = tx, cullingMapy = ty,
             cullingW = w, cullingH = h;
         let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
         
@@ -155,7 +155,7 @@ let tmxAssembler = {
             let camera = cc.Camera.findCamera(comp.node);
             if (camera) {
                 camera.getWorldToCameraMatrix(_mat4_temp2);
-                mat4.mul(_mat4_temp, _mat4_temp, _mat4_temp2);
+                mat4.mul(_mat4_temp, _mat4_temp2, _mat4_temp);
                 cullingA = _mat4_temp.m00;
                 cullingD = _mat4_temp.m05;
                 cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
@@ -168,7 +168,7 @@ let tmxAssembler = {
                 mat4.invert(_mat4_temp, _mat4_temp);
 
                 let rect = cc.visibleRect;
-                let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05, 
+                let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05,
                     tx = _mat4_temp.m12, ty = _mat4_temp.m13;
                 let v0x = rect.topLeft.x * a + rect.topLeft.y * c + tx;
                 let v0y = rect.topLeft.x * b + rect.topLeft.y * d + ty;

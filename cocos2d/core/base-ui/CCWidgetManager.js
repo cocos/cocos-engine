@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventManager = require('../event-manager');
 var Event = require('../CCNode').EventType;
 
 var TOP     = 1 << 0;
@@ -274,15 +273,25 @@ function refreshScene () {
                 animationState.previewing = nowPreviewing;
                 if (nowPreviewing) {
                     animationState.animatedSinceLastFrame = true;
-                    animationState.time = AnimUtils.Cache.animation.time;
+                    let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+                    if (component) {
+                        let animation = component.getAnimationState(AnimUtils.Cache.animation);
+                        animationState.time = animation.time;
+                    }
                 }
                 else {
                     animationState.animatedSinceLastFrame = false;
                 }
             }
-            else if (nowPreviewing && animationState.time !== AnimUtils.Cache.animation.time) {
-                animationState.animatedSinceLastFrame = true;
-                animationState.time = AnimUtils.Cache.animation.time;
+            else if (nowPreviewing) {
+                let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+                if (component) {
+                    let animation = component.getAnimationState(AnimUtils.Cache.animation);
+                    if (animationState.time !== animation.time) {
+                        animationState.animatedSinceLastFrame = true;
+                        animationState.time = AnimUtils.Cache.animation.time;
+                    }
+                }
             }
         }
     }
@@ -301,19 +310,21 @@ function refreshScene () {
             if (CC_EDITOR &&
                 (AnimUtils = Editor.require('scene://utils/animation')) &&
                 AnimUtils.Cache.animation) {
-                var editingNode = AnimUtils.Cache.rNode;
-                for (i = activeWidgets.length - 1; i >= 0; i--) {
-                    widget = activeWidgets[i];
-                    var node = widget.node;
-                    if (widget.alignMode !== AlignMode.ALWAYS &&
-                        animationState.animatedSinceLastFrame &&
-                        node.isChildOf(editingNode)
-                    ) {
-                        // widget contains in activeWidgets should aligned at least once
-                        widget.enabled = false;
-                    }
-                    else {
-                        align(node, widget);
+                var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
+                if (editingNode) {
+                    for (i = activeWidgets.length - 1; i >= 0; i--) {
+                        widget = activeWidgets[i];
+                        var node = widget.node;
+                        if (widget.alignMode !== AlignMode.ALWAYS &&
+                            animationState.animatedSinceLastFrame &&
+                            node.isChildOf(editingNode)
+                        ) {
+                            // widget contains in activeWidgets should aligned at least once
+                            widget.enabled = false;
+                        }
+                        else {
+                            align(node, widget);
+                        }
                     }
                 }
             }

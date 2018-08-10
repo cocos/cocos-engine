@@ -56,14 +56,16 @@ RenderComponentWalker.prototype = {
     visit (scene) {
         let ctx = this._device._ctx;
         let canvas = this._device._canvas;
-        let background = cc.Camera.main.backgroundColor;
-        ctx.fillStyle = 'rgba(' + background.r + ', ' + background.g + ', ' + background.b + ', ' + background.a + ')';
+        let color = cc.Camera.main.backgroundColor;
+        let rgba = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a/255})`;
+        ctx.fillStyle = rgba;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
 
         RenderFlow.render(scene);
     }
-}
+};
 
 module.exports = RenderComponentWalker;

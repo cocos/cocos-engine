@@ -381,7 +381,7 @@ js.getset(cc.macro, 'ENABLE_3D', function () {
 /**
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
- * @enum KEY
+ * @enum macro.KEY
  * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.macro.KEY = {
@@ -1389,7 +1389,7 @@ cc.macro.KEY = {
 
 /**
  * Image formats
- * @enum ImageFormat
+ * @enum macro.ImageFormat
  */
 cc.macro.ImageFormat = cc.Enum({
     /**
@@ -1467,7 +1467,7 @@ cc.macro.ImageFormat = cc.Enum({
  * !#zh
  * 混合因子
  * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
- * @enum BlendFactor
+ * @enum macro.BlendFactor
  */
 cc.macro.BlendFactor = cc.Enum({
     /**
@@ -1533,7 +1533,7 @@ cc.macro.BlendFactor = cc.Enum({
 });
 
 /**
- * @enum TextAlignment
+ * @enum macro.TextAlignment
  */
 cc.macro.TextAlignment = cc.Enum({
     /**

@@ -46,13 +46,51 @@ function _initBuiltins(device) {
     };
 }
 
-module.exports = {
+/**
+ * @module cc
+ */
+
+/**
+ * !#en The renderer object which provide access to render system APIs, 
+ * detailed APIs will be available progressively.
+ * !#zh 提供基础渲染接口的渲染器对象，渲染层的基础接口将逐步开放给用户
+ * @class renderer
+ * @static
+ */
+cc.renderer = module.exports = {
+    /**
+     * !#en The render engine is available only after cc.game.EVENT_ENGINE_INITED event.<br/>
+     * Normally it will be inited as the webgl render engine, but in wechat open context domain,
+     * it will be inited as the canvas render engine. Canvas render engine is no longer available for other use case since v2.0.
+     * !#zh 基础渲染引擎对象只在 cc.game.EVENT_ENGINE_INITED 事件触发后才可获取。<br/>
+     * 大多数情况下，它都会是 WebGL 渲染引擎实例，但是在微信开放数据域当中，它会是 Canvas 渲染引擎实例。请注意，从 2.0 开始，我们在其他平台和环境下都废弃了 Canvas 渲染器。
+     * @property renderEngine
+     * @type {Object}
+     */
     renderEngine: renderEngine,
     Texture2D: null,
 
+    /*
+     * !#en The canvas object which provides the rendering context
+     * !#zh 用于渲染的 Canvas 对象
+     * @property canvas
+     * @type {HTMLCanvasElement}
+     */
     canvas: null,
+    /*
+     * !#en The device object which provides device related rendering functionality, it divers for different render engine type.
+     * !#zh 提供设备渲染能力的对象，它对于不同的渲染环境功能也不相同。
+     * @property device
+     * @type {renderer.renderEngine.Device}
+     */
     device: null,
     scene: null,
+    /**
+     * !#en The total draw call count in last rendered frame.
+     * !#zh 上一次渲染帧所提交的渲染批次总数。
+     * @property drawCalls
+     * @type {Number}
+     */
     drawCalls: 0,
     _walker: null,
     _cameraNode: null,

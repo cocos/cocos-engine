@@ -1,15 +1,28 @@
 [
     "./index.js",
     "./predefine.js",
-    "./CCDebugger.js",
     "./CCBoot.js",
 
-    "./cocos2d/core/CCGame.js",
+    "./cocos2d/actions/**/*",
+
+    "./cocos2d/animation/bezier.js",
+    "./cocos2d/animation/types.js",
+    "./cocos2d/animation/animation-clip.js",
+    "./cocos2d/animation/animators.js",
+    "./cocos2d/animation/animation-manager.js",
+    "./cocos2d/animation/animation-state.js",
+    "./cocos2d/animation/animation-animator.js",
+    "./cocos2d/animation/playable.js",
+
+    "./cocos2d/audio/**/*",
+
+    "./cocos2d/core/CCDebug.js",
     "./cocos2d/core/CCDirector.js",
-    "./cocos2d/core/CCScheduler.js",
-    "./cocos2d/core/CCScene.js",
     "./cocos2d/core/CCNode.js",
     "./cocos2d/core/CCPrivateNode.js",
+    "./cocos2d/core/CCScene.js",
+    "./cocos2d/core/CCGame.js",
+    "./cocos2d/core/CCScheduler.js",
 
     "./cocos2d/core/assets/**/*",
 
@@ -31,7 +44,6 @@
     "./cocos2d/core/physics/**/*",
     
     "./cocos2d/core/platform/**/*",
-    "!./cocos2d/core/platform/_CCClass.js",
     "!./cocos2d/core/platform/BKInputManager.js",
     "!./cocos2d/core/platform/CCAssetLibrary.js",
     "!./cocos2d/core/platform/CCSAXParser.js",
@@ -49,19 +61,6 @@
     "./cocos2d/core/utils/misc.js",
 
     "./cocos2d/core/value-types/**/*",
-
-    "./cocos2d/actions/**/*",
-
-    "./cocos2d/animation/bezier.js",
-    "./cocos2d/animation/types.js",
-    "./cocos2d/animation/animation-clip.js",
-    "./cocos2d/animation/animators.js",
-    "./cocos2d/animation/animation-manager.js",
-    "./cocos2d/animation/animation-state.js",
-    "./cocos2d/animation/animation-animator.js",
-    "./cocos2d/animation/playable.js",
-
-    "./cocos2d/audio/**/*",
 
     "./cocos2d/particle/CCParticleAsset.js",
     "./cocos2d/particle/CCParticleSystem.js",

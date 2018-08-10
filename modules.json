@@ -60,13 +60,6 @@
     ]
   },
   {
-    "name": "RenderTexture",
-    "entries": [
-      "./cocos2d/core/assets/CCRenderTexture.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
     "name": "ParticleSystem",
     "entries": [
       "./cocos2d/particle/index.js"

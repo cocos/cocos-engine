@@ -241,7 +241,7 @@ let TiledLayer = cc.Class({
     },
 
     _updateTileForGID (gid, pos) {
-        if (!this._texGrids[gid]) {
+        if (gid !== 0 && !this._texGrids[gid]) {
             return;
         }
 
@@ -521,7 +521,7 @@ let TiledLayer = cc.Class({
         // offset (after layer orientation is set);
         this._offset = this._calculateLayerOffset(layerInfo.offset);
 
-        if (this.layerOrientation === cc.TiledMap.Orientation.HEX) {
+        if (this._layerOrientation === cc.TiledMap.Orientation.HEX) {
             let width = 0, height = 0;
             if (this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
                 height = mapInfo._tileSize.height * (this._layerSize.height + 0.5);
@@ -543,7 +543,7 @@ let TiledLayer = cc.Class({
 
     _calculateLayerOffset (pos) {
         let ret = cc.v2(0,0);
-        switch (this.layerOrientation) {
+        switch (this._layerOrientation) {
             case cc.TiledMap.Orientation.ORTHO:
                 ret = cc.v2(pos.x * this._mapTileSize.width, -pos.y * this._mapTileSize.height);
                 break;

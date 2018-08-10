@@ -539,7 +539,11 @@ var Node = cc.Class({
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
-        _localZOrder: 0,
+        _localZOrder: {
+            default: 0,
+            serializable: false
+        },
+        _zIndex: 0,
 
         // internal properties
 
@@ -1048,18 +1052,16 @@ var Node = cc.Class({
         },
 
         /**
-         * !#en zIndex is the 'key' used to sort the node relative to its siblings.
-         * The Node's parent will sort all its children based on the zIndex value and the arrival order.                                   <br/>
-         * Nodes with greater zIndex will be sorted after nodes with smaller zIndex.
-         * If two nodes have the same zIndex, then the node that was added first to the children's array              <br/>
-         * will be in front of the other node in the array.
-         * 
-         * Node's order in children list will affect its rendering order.
-         * !#zh zIndex 是用来对节点进行排序的关键属性，它决定一个节点在兄弟节点之间的位置。
-         * 父节点主要根据节点的 zIndex 和添加次序来排序，拥有更高 zIndex 的节点将被排在后面，
-         * 如果两个节点的 zIndex 一致，先添加的节点会稳定排在另一个节点之前。
-         * 
-         * 节点在 children 中的顺序决定了其渲染顺序。
+         * !#en zIndex is the 'key' used to sort the node relative to its siblings.<br/>
+         * The value of zIndex should be in the range between cc.macro.MIN_ZINDEX and cc.macro.MAX_ZINDEX.<br/>
+         * The Node's parent will sort all its children based on the zIndex value and the arrival order.<br/>
+         * Nodes with greater zIndex will be sorted after nodes with smaller zIndex.<br/>
+         * If two nodes have the same zIndex, then the node that was added first to the children's array will be in front of the other node in the array.<br/>
+         * Node's order in children list will affect its rendering order. Parent is always rendering before all children.
+         * !#zh zIndex 是用来对节点进行排序的关键属性，它决定一个节点在兄弟节点之间的位置。<br/>
+         * zIndex 的取值应该介于 cc.macro.MIN_ZINDEX 和 cc.macro.MAX_ZINDEX 之间
+         * 父节点主要根据节点的 zIndex 和添加次序来排序，拥有更高 zIndex 的节点将被排在后面，如果两个节点的 zIndex 一致，先添加的节点会稳定排在另一个节点之前。<br/>
+         * 节点在 children 中的顺序决定了其渲染顺序。父节点永远在所有子节点之前被渲染
          * @property zIndex
          * @type {Number}
          * @example
@@ -1068,8 +1070,7 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                // high bits for zIndex, lower bits for arrival order
-                return (this._localZOrder & 0xffff0000) >> 16;
+                return this._zIndex;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1081,8 +1082,8 @@ var Node = cc.Class({
                     value = macro.MIN_ZINDEX;
                 }
 
-                var zIndex = (this._localZOrder & 0xffff0000) >> 16;
-                if (zIndex !== value) {
+                if (this._zIndex !== value) {
+                    this._zIndex = value;
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
@@ -1230,7 +1231,9 @@ var Node = cc.Class({
         }
         this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
-        cc._widgetManager._nodesOrderDirty = true;
+        if (cc._widgetManager) {
+            cc._widgetManager._nodesOrderDirty = true;
+        }
     },
 
     // INTERNAL
@@ -1246,6 +1249,11 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
+
+        if (this._localZOrder !== 0) {
+            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        }
+
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
@@ -1409,20 +1417,15 @@ var Node = cc.Class({
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
      * @method on
-     * @param {String|Node.EventType} type - A string representing the event type to listen for.<br>
-     *                        See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event|Object} callback.event event or first argument when emit
-     * @param {Event} callback.arg2 arg2
-     * @param {Event} callback.arg3 arg3
-     * @param {Event} callback.arg4 arg4
-     * @param {Event} callback.arg5 arg5
+     * @param {String|Node.EventType} type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event|any} [callback.event] event or first argument when emit
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
-     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
-     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
-     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
-     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
@@ -1475,11 +1478,11 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {Event} callback.event event or first argument when emit
-     * @param {Event} callback.arg2 arg2
-     * @param {Event} callback.arg3 arg3
-     * @param {Event} callback.arg4 arg4
-     * @param {Event} callback.arg5 arg5
+     * @param {Event|any} [callback.event] event or first argument when emit
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @typescript
      * once<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
@@ -1550,10 +1553,7 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
-     *                              If not specified, useCapture defaults to false. If a callback was registered twice,
-     *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
-     *                              does not affect a non-capturing version of the same listener, and vice versa.
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @example
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
@@ -2538,14 +2538,14 @@ var Node = cc.Class({
     
     /**
      * !#en
-     * Get the local transform matrix (4x4), based on parent node coordinates
-     * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
-     * @method getLocalMatrix
+     * Get the world transform matrix (4x4)
+     * !#zh 返回世界空间坐标系的矩阵。
+     * @method getWorldMatrix
      * @param {vmath.Mat4} out The matrix object to be filled with data
      * @return {vmath.Mat4} Same as the out matrix object
      * @example
      * let mat4 = vmath.mat4.create();
-     * node.getLocalMatrix(mat4);
+     * node.getWorldMatrix(mat4);
      */
     getWorldMatrix (out) {
         this._updateWorldMatrix();

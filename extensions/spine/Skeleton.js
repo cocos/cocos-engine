@@ -375,6 +375,19 @@ sp.Skeleton = cc.Class({
         this._updateSkeletonData();
     },
 
+    update (dt) {
+        let skeleton = this._skeleton;
+        let state = this._state;
+        if (skeleton) {
+            skeleton.update(dt);
+            if (state) {
+                dt *= this.timeScale;
+                state.update(dt);
+                state.apply(skeleton);
+            }
+        }
+    },
+
     onRestore () {
         // Destroyed and restored in Editor
         if (!this._material) {
@@ -520,7 +533,7 @@ sp.Skeleton = cc.Class({
      */
     setSkin (skinName) {
         if (this._skeleton) {
-            return this._skeleton.setSkin(skinName);
+            return this._skeleton.setSkinByName(skinName);
         }
         return null;
     },
@@ -541,7 +554,7 @@ sp.Skeleton = cc.Class({
      */
     getAttachment (slotName, attachmentName) {
         if (this._skeleton) {
-            return this._skeleton.getAttachment(slotName, attachmentName);
+            return this._skeleton.getAttachmentByName(slotName, attachmentName);
         }
         return null;
     },
@@ -586,20 +599,7 @@ sp.Skeleton = cc.Class({
      */
     setMix (fromAnimation, toAnimation, duration) {
         if (this._state) {
-            this._state.data.setMixWith(fromAnimation, toAnimation, duration);
-        }
-    },
-
-    /**
-     * !#en Sets event listener.
-     * !#zh 设置动画事件监听器。
-     * @method setAnimationListener
-     * @param {Object} target
-     * @param {Function} callback
-     */
-    setAnimationListener (target, callback) {
-        if (this._skeleton) {
-            this._skeleton.setAnimationListener(target, callback);
+            this._state.data.setMix(fromAnimation, toAnimation, duration);
         }
     },
 
@@ -779,8 +779,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the start event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。（只支持 Web 平台）
+     * !#en Set the start event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
      * @method setTrackStartListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -790,8 +790,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the interrupt event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。（只支持 Web 平台）
+     * !#en Set the interrupt event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
      * @method setTrackInterruptListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -801,8 +801,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the end event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。（只支持 Web 平台）
+     * !#en Set the end event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
      * @method setTrackEndListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -812,8 +812,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the dispose event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。（只支持 Web 平台）
+     * !#en Set the dispose event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
      * @method setTrackDisposeListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -823,8 +823,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the complete event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。（只支持 Web 平台）
+     * !#en Set the complete event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
      * @method setTrackCompleteListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -839,8 +839,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the event listener for specified TrackEntry (only supported on Web).
-     * !#zh 用来为指定的 TrackEntry 设置动画帧事件的监听。（只支持 Web 平台）
+     * !#en Set the event listener for specified TrackEntry.
+     * !#zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
      * @method setTrackEventListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
