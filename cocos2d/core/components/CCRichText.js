@@ -391,8 +391,9 @@ let RichText = cc.Class({
     },
 
     _resetState () {
-        for (let i = this.node.children.length - 1; i >= 0; i--) {
-            let child = this.node.children[i];
+        let children = this.node.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            let child = children[i];
             if (child.name === RichTextChildName) {
                 child.parent = null;
                 pool.put(child);
@@ -401,6 +402,8 @@ let RichText = cc.Class({
                 child.parent = null;
             }
         }
+        // HACK: Tolerate null parent child (upgrade issue may cause this special case)
+        children.length = 0;
 
         this._labelSegments.length = 0;
         this._labelSegmentsCache.length = 0;
