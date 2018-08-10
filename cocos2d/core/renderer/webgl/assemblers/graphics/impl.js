@@ -5,6 +5,8 @@ const MeshBuffer = require('../../mesh-buffer');
 const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
 const renderer = require('../../../index');
 const renderEngine = renderer.renderEngine;
+const IARenderData = renderEngine.IARenderData;
+const InputAssembler = renderEngine.InputAssembler;
 
 let Point = cc.Class({
     name: 'cc.GraphicsPoint',
@@ -216,12 +218,12 @@ cc.js.mixin(Impl.prototype, {
     },
 
     requestRenderData (graphics) {
-        let renderData = new renderEngine.IARenderData();
+        let renderData = new IARenderData();
         let meshbuffer = new MeshBuffer(renderer._walker, vfmtPosColor);
         renderData.meshbuffer = meshbuffer;
         this._renderDatas.push(renderData);
 
-        let ia = new renderEngine.InputAssembler();
+        let ia = new InputAssembler();
         ia._vertexBuffer = meshbuffer._vb;
         ia._indexBuffer = meshbuffer._ib;
         ia._start = 0;

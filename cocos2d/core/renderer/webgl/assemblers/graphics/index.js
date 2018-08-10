@@ -125,7 +125,7 @@ let graphicsAssembler = {
         }
 
         if (maxVertsCount > meshbuffer.vertexOffset) {
-            meshbuffer.request(cverts, cverts*3, true);
+            meshbuffer.requestStatic(cverts, cverts*3);
         }
 
         return renderData;

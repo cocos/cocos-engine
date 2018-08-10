@@ -60,12 +60,7 @@ let MeshBuffer = cc.Class({
         this._dirty = false;
     },
 
-    request (vertexCount, indiceCount, notRender) {
-        if (this._renderer._buffer !== this && !notRender) {
-            this._renderer._flush();
-            this._renderer._buffer = this;
-        }
-
+    requestStatic (vertexCount, indiceCount) {
         let byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
         let indiceOffset = this.indiceOffset + indiceCount;
 
@@ -89,6 +84,15 @@ let MeshBuffer = cc.Class({
         this.byteOffset = byteOffset;
 
         this._dirty = true;
+    },
+
+    request (vertexCount, indiceCount) {
+        if (this._renderer._buffer !== this) {
+            this._renderer._flush();
+            this._renderer._buffer = this;
+        }
+
+        this.requestStatic(vertexCount, indiceCount);
     },
     
     _reallocBuffer () {
