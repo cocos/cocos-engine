@@ -8,6 +8,7 @@ let MeshBuffer = cc.Class({
         this.byteOffset = 0;
         this.indiceStart = 0;
         this.indiceOffset = 0;
+        this.vertexStart = 0;
         this.vertexOffset = 0;
 
         this._vertexFormat = vertexFormat;
@@ -42,7 +43,7 @@ let MeshBuffer = cc.Class({
     },
 
     uploadData () {
-        if (this.byteOffset === 0) {
+        if (this.byteOffset === 0 || !this._dirty) {
             return;
         }
 
@@ -55,14 +56,11 @@ let MeshBuffer = cc.Class({
 
         let ib = this._ib;
         ib.update(0, indicesData);
+
+        this._dirty = false;
     },
 
-    request (vertexCount, indiceCount) {
-        if (this._renderer._buffer !== this) {
-            this._renderer._flush();
-            this._renderer._buffer = this;
-        }
-
+    requestStatic (vertexCount, indiceCount) {
         let byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
         let indiceOffset = this.indiceOffset + indiceCount;
 
@@ -84,16 +82,31 @@ let MeshBuffer = cc.Class({
         this.indiceOffset += indiceCount;
         
         this.byteOffset = byteOffset;
+
+        this._dirty = true;
+    },
+
+    request (vertexCount, indiceCount) {
+        if (this._renderer._buffer !== this) {
+            this._renderer._flush();
+            this._renderer._buffer = this;
+        }
+
+        this.requestStatic(vertexCount, indiceCount);
     },
     
     _reallocBuffer () {
+        this._reallocVData(true);
+        this._reallocIData(true);
+    },
+
+    _reallocVData (copyOldData) {
         let oldVData = this._vData;
 
         this._vData = new Float32Array(this._initVDataCount);
         this._uintVData = new Uint32Array(this._vData.buffer);
-        this._iData = new Uint16Array(this._initIDataCount);
 
-        if (oldVData) {
+        if (oldVData && copyOldData) {
             let vData = this._vData;
             for (let i = 0, l = oldVData.length; i < l; i++) {
                 vData[i] = oldVData[i];
@@ -101,6 +114,20 @@ let MeshBuffer = cc.Class({
         }
 
         this._vb._bytes = this._vData.byteLength;
+    },
+
+    _reallocIData (copyOldData) {
+        let oldIData = this._iData;
+
+        this._iData = new Uint16Array(this._initIDataCount);
+
+        if (oldIData && copyOldData) {
+            let iData = this._iData;
+            for (let i = 0, l = oldIData.length; i < l; i++) {
+                iData[i] = oldIData[i];
+            }
+        }
+
         this._ib._bytes = this._iData.byteLength;
     },
 
@@ -109,8 +136,15 @@ let MeshBuffer = cc.Class({
         this.byteOffset = 0;
         this.indiceStart = 0;
         this.indiceOffset = 0;
+        this.vertexStart = 0;
         this.vertexOffset = 0;
+        this._dirty = false;
+    },
+
+    destroy () {
+        this._ib.destroy();
+        this._vb.destroy();
     }
 });
 
-module.exports = MeshBuffer;
+cc.MeshBuffer = module.exports = MeshBuffer;
