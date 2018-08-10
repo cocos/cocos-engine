@@ -48,7 +48,7 @@ module.exports = {
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
-            if (!frame._original) {
+            if (!frame._original && dynamicAtlasManager) {
                 dynamicAtlasManager.insertSpriteFrame(frame);
             }
             if (!sprite._material || sprite._material._texture !== frame._texture) {

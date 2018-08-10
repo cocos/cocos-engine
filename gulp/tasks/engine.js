@@ -73,7 +73,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
-        bundler.ignore(file);
+        bundler.exclude(file);
     });
 
     bundler = bundler.bundle();
@@ -118,10 +118,10 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
-        bundler.ignore(file);
+        bundler.exclude(file);
     });
 
-    bundler.ignore(Path.resolve(__dirname, '../../DebugInfos.json'));
+    bundler.exclude(Path.resolve(__dirname, '../../DebugInfos.json'));
 
     var Size = null;
     try {
@@ -212,7 +212,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
 
     var bundler = createBundler(sourceFile);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
     bundler.bundle()
         .on('error', HandleErrors.handler)
@@ -249,7 +249,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
     bundler.bundle()
         .on('error', HandleErrors.handler)
@@ -286,10 +286,10 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
 
-    bundler.ignore(Path.resolve(__dirname, '../../DebugInfos.json'));
+    bundler.exclude(Path.resolve(__dirname, '../../DebugInfos.json'));
 
     bundler.bundle()
         .on('error', HandleErrors.handler)
