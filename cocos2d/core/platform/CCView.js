@@ -1077,16 +1077,6 @@ cc.ContainerStrategy = cc.Class({
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
-
-        // set sharedCanvas size
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME && wx.getOpenDataContext) {
-            var openDataContext = wx.getOpenDataContext();
-            var sharedCanvas = openDataContext.canvas;
-            if (sharedCanvas) {
-                sharedCanvas.width = locCanvas.width;
-                sharedCanvas.height = locCanvas.height;
-            }
-        }
     },
 
     _fixContainer: function () {
