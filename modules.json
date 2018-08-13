@@ -64,7 +64,9 @@
   {
     "name": "Mask",
     "entries": [
-      "./cocos2d/core/components/CCMask.js"
+      "./cocos2d/core/components/CCMask.js",
+      "./cocos2d/core/renderer/webgl/assemblers/mask-assembler.js",
+      "./cocos2d/core/renderer/canvas/renderers/mask.js"
     ]
   },
   {
