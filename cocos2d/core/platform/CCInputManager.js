@@ -325,7 +325,7 @@ let inputManager = {
     },
 
     /**
-     * @method getTouchByXY
+     * @method getMouseEvent
      * @param {Vec2} location
      * @param {Vec2} pos
      * @param {Number} eventType

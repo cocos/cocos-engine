@@ -172,7 +172,7 @@ module.exports = {
                             url: url,
                             skips: [md5Pipe.id]
                         };
-                    }                    
+                    }
                     cc.loader.load(item, function (err) {
                         let localPath = wx.env.USER_DATA_PATH + '/' + url;
                         _fontFamily = wx.loadFont(localPath);
