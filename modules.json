@@ -70,7 +70,8 @@
   {
     "name": "Graphics",
     "entries": [
-      "./cocos2d/core/graphics/index.js"
+      "./cocos2d/core/graphics/index.js",
+      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js"
     ]
   },
   {
@@ -111,7 +112,8 @@
   {
     "name": "MotionStreak",
     "entries": [
-      "./cocos2d/core/components/CCMotionStreak.js"
+      "./cocos2d/core/components/CCMotionStreak.js",
+      "./cocos2d/core/renderer/webgl/assemblers/motion-streak.js"
     ],
     "dependencies": ["WebGL Renderer"]
   },
