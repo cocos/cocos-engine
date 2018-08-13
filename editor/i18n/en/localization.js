@@ -22,7 +22,8 @@ module.exports = {
         "pageview": "http://www.cocos.com/docs/creator/components/pageview.html",
         "pageviewIndicator": "http://www.cocos.com/docs/creator/components/pageviewIndicator.html",
         "slider": "http://www.cocos.com/docs/creator/components/slider.html",
-        "block_input_events": "http://www.cocos.com/docs/creator/components/block-input-events.html"
+        "block_input_events": "http://www.cocos.com/docs/creator/components/block-input-events.html",
+        "wx_subcontext_view": "http://www.cocos.com/docs/creator/components/wx-subcontext-view.html"
     },
     "animation": {
         "default_clip": "When checking, the deault animation clip is automatically played.",
