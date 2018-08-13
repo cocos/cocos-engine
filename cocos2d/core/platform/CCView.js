@@ -602,7 +602,6 @@ cc.js.mixin(View.prototype, {
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
         this._resizeEvent();
-        cc.director.setProjection(cc.director.getProjection());
     },
 
     /**
