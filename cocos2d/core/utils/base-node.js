@@ -1133,10 +1133,7 @@ var BaseNode = cc.Class({
                 cc.warnID(1623);
             }
         }
-        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
-        if (this._activeInHierarchy !== shouldActiveNow) {
-            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
-        }
+
         if (CC_EDITOR || CC_TEST) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
@@ -1176,6 +1173,10 @@ var BaseNode = cc.Class({
             _Scene.DetectConflict.afterAddChild(this);
         }
 
+        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
+        if (this._activeInHierarchy !== shouldActiveNow) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
+        }
     },
 
     _instantiate (cloned) {
