@@ -64,13 +64,17 @@
   {
     "name": "Mask",
     "entries": [
-      "./cocos2d/core/components/CCMask.js"
+      "./cocos2d/core/components/CCMask.js",
+      "./cocos2d/core/renderer/webgl/assemblers/mask-assembler.js",
+      "./cocos2d/core/renderer/canvas/renderers/mask.js"
     ]
   },
   {
     "name": "Graphics",
     "entries": [
-      "./cocos2d/core/graphics/index.js"
+      "./cocos2d/core/graphics/graphics.js",
+      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js",
+      "./cocos2d/core/renderer/canvas/renderers/graphics/index.js"
     ]
   },
   {
@@ -111,7 +115,8 @@
   {
     "name": "MotionStreak",
     "entries": [
-      "./cocos2d/core/components/CCMotionStreak.js"
+      "./cocos2d/core/components/CCMotionStreak.js",
+      "./cocos2d/core/renderer/webgl/assemblers/motion-streak.js"
     ],
     "dependencies": ["WebGL Renderer"]
   },
