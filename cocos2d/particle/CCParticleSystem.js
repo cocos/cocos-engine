@@ -710,10 +710,10 @@ var ParticleSystem = cc.Class({
         this._simulator = new ParticleSimulator(this);
 
         // colors
-        this._startColor = {r: 255, g: 255, b: 255, a: 255};
-        this._startColorVar = {r: 0, g: 0, b: 0, a: 0};
-        this._endColor = {r: 255, g: 255, b: 255, a: 0};
-        this._endColorVar = {r: 0, g: 0, b: 0, a: 0};
+        this._startColor = cc.color(255, 255, 255, 255);
+        this._startColorVar = cc.color(0, 0, 0, 0);
+        this._endColor = cc.color(255, 255, 255, 0);
+        this._endColorVar = cc.color(0, 0, 0, 0);
     },
 
     properties: properties,
