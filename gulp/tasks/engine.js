@@ -39,7 +39,7 @@ const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
-    '../../cocos2d/audio/CCAudio'
+    // modules need to skip in jsb
 ];
 var jsbAliasify = {
     replacements: {
