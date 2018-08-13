@@ -33,6 +33,7 @@ namespace {
     se::Object* _jsTouchObjArray = nullptr;
     se::Object* _jsMouseEventObj = nullptr;
     se::Object* _jsKeyboardEventObj = nullptr;
+    se::Object* _jsResizeEventObj = nullptr;
     bool _inited = false;
 }
 
@@ -76,6 +77,13 @@ namespace cocos2d
             _jsKeyboardEventObj->unroot();
             _jsKeyboardEventObj->decRef();
             _jsKeyboardEventObj = nullptr;
+        }
+
+        if (_jsResizeEventObj != nullptr)
+        {
+            _jsResizeEventObj->unroot();
+            _jsResizeEventObj->decRef();
+            _jsResizeEventObj = nullptr;
         }
         _inited = false;
         _tickVal.setUndefined();
@@ -271,6 +279,33 @@ void EventDispatcher::dispatchTickEvent(float dt)
     long long microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
     args.push_back(se::Value((double)(microSeconds * 0.001)));
     _tickVal.toObject()->call(args, nullptr);
+}
+
+void EventDispatcher::dispatchResizeEvent(int width, int height)
+{
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+
+    if (_jsResizeEventObj == nullptr)
+    {
+        _jsResizeEventObj = se::Object::createPlainObject();
+        _jsResizeEventObj->root();
+    }
+
+    se::Value func;
+    __jsbObj->getProperty("onResize", &func);
+    if (func.isObject() && func.toObject()->isFunction())
+    {
+        _jsResizeEventObj->setProperty("width", se::Value(width));
+        _jsResizeEventObj->setProperty("height", se::Value(height));
+
+        se::ValueArray args;
+        args.push_back(se::Value(_jsResizeEventObj));
+        func.toObject()->call(args, nullptr);
+    }
 }
 
 static void dispatchEnterBackgroundOrForegroundEvent(const char* funcName)

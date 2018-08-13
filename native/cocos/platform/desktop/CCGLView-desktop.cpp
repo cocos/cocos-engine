@@ -158,6 +158,7 @@ GLView::GLView(Application* application, const std::string& name, int x, int y, 
     glfwSetCharCallback(_mainWindow, GLFWEventHandler::onGLFWCharCallback);
     glfwSetKeyCallback(_mainWindow, GLFWEventHandler::onGLFWKeyCallback);
     glfwSetWindowIconifyCallback(_mainWindow, GLFWEventHandler::onGLFWWindowIconifyCallback);
+    glfwSetWindowSizeCallback(_mainWindow, GLFWEventHandler::onGLFWWindowSizeFunCallback);
 
     // check OpenGL version at first
     const GLubyte* glVersion = glGetString(GL_VERSION);
@@ -438,6 +439,14 @@ void GLView::onGLFWWindowIconifyCallback(GLFWwindow* /*window*/, int iconified)
         _application->applicationDidEnterBackground();
     else
         _application->applicationWillEnterForeground();
+}
+
+void GLView::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height)
+{
+    if (width && height)
+    {
+        EventDispatcher::dispatchResizeEvent(width, height);
+    }
 }
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

@@ -82,6 +82,7 @@ private:
     void onGLFWKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void onGLFWCharCallback(GLFWwindow* window, unsigned int character);
     void onGLFWWindowIconifyCallback(GLFWwindow* window, int iconified);
+    void onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height);
 
     GLFWwindow* _mainWindow = nullptr;
     GLFWmonitor* _monitor = nullptr;
@@ -144,6 +145,11 @@ public:
     static void onGLFWWindowIconifyCallback(GLFWwindow* window, int iconified)
     {
         _view->onGLFWWindowIconifyCallback(window, iconified);
+    }
+
+    static void onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height)
+    {
+        _view->onGLFWWindowSizeFunCallback(window, width, height);
     }
 
 private:

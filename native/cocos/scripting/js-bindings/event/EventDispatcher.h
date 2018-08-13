@@ -114,6 +114,7 @@ public:
     static void dispatchMouseEvent(const struct MouseEvent& mouseEvent);
     static void dispatchKeyboardEvent(const struct KeyboardEvent& keyboardEvent);
     static void dispatchTickEvent(float dt);
+    static void dispatchResizeEvent(int width, int height);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
 
