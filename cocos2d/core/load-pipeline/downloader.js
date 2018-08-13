@@ -44,12 +44,6 @@ else {
 }
 
 function downloadScript (item, callback, isAsync) {
-    if (sys.platform === sys.WECHAT_GAME) {
-        require(item.url);
-        callback(null, item.url);
-        return;
-    }
-
     var url = item.url,
         d = document,
         s = document.createElement('script');

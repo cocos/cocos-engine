@@ -15,12 +15,6 @@
         if(!module) {
             var moduleData = modules[name];
             if(!moduleData) {
-                // if we cannot find the module within our internal map or
-                // cache jump to the current global require ie. the last bundle
-                // that was added to the page.
-                var currentRequire = typeof require == "function" && require;
-                if (!jumped && currentRequire) return currentRequire(name, true);
-
                 // this module is excluded from engine
                 return undefined;
             }
