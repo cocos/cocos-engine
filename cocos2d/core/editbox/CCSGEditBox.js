@@ -932,7 +932,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 defaultValue: editBox._text,
                 maxLength: 140,
                 multiple: multiline,
-                confirmHold: true,
+                confirmHold: false,  // hide keyboard mannually by wx.onKeyboardConfirm
                 confirmType: "done",
                 success: function (res) {
                     editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
