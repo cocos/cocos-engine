@@ -76,11 +76,11 @@ struct MouseEvent
 
 struct KeyboardEvent
 {
-    enum class Action : int8_t {
-        UNKNOWN = -1,
-        PRESS = 0,
+    enum class Action : uint8_t {
+        PRESS,
         RELEASE,
-        REPEAT
+        REPEAT,
+        UNKNOWN
     };
 
     int key = -1;

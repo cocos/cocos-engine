@@ -47,7 +47,6 @@
 #define KEYCODE_DPAD_LEFT 0x15
 #define KEYCODE_DPAD_RIGHT 0x16
 #define KEYCODE_ENTER 0x42
-#define KEYCODE_PLAY  0x7e
 #define KEYCODE_DPAD_CENTER  0x17
 
 using namespace cocos2d;
@@ -59,19 +58,6 @@ namespace
 {	
     bool __isOpenDebugView = false;
     bool __isGLOptModeEnabled = true;
-//	std::unordered_map<int, cocos2d::EventKeyboard::KeyCode> g_keyCodeMap =
-//	{
-//        { KEYCODE_BACK , cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE },
-//        { KEYCODE_MENU , cocos2d::EventKeyboard::KeyCode::KEY_MENU },
-//        { KEYCODE_DPAD_UP  , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_UP },
-//        { KEYCODE_DPAD_DOWN , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN },
-//        { KEYCODE_DPAD_LEFT , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_LEFT },
-//        { KEYCODE_DPAD_RIGHT , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_RIGHT },
-//        { KEYCODE_ENTER  , cocos2d::EventKeyboard::KeyCode::KEY_ENTER },
-//        { KEYCODE_PLAY  , cocos2d::EventKeyboard::KeyCode::KEY_PLAY },
-//        { KEYCODE_DPAD_CENTER  , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_CENTER },
-//    };
-
     std::string g_apkPath;
     const std::string Cocos2dxHelperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
     const std::string Cocos2dxRendererClassName = "org/cocos2dx/lib/Cocos2dxRenderer";
@@ -377,9 +363,44 @@ extern "C"
         if (g_isGameFinished) {
             return JNI_TRUE;
         }
-        //REFINE
-        return JNI_TRUE;
 
+        int keyInWeb = -1;
+        // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
+        switch(keyCode)
+        {
+            case KEYCODE_BACK:
+                keyInWeb = 6;
+                break;
+            case KEYCODE_ENTER:
+                keyInWeb = 13;
+                break;
+            case KEYCODE_MENU:
+                keyInWeb = 18;
+                break;
+            case KEYCODE_DPAD_UP:
+                keyInWeb = 1003;
+                break;
+            case KEYCODE_DPAD_DOWN:
+                keyInWeb = 1004;
+                break;
+            case KEYCODE_DPAD_LEFT:
+                keyInWeb = 1000;
+                break;
+            case KEYCODE_DPAD_RIGHT:
+                keyInWeb = 1001;
+                break;
+            case KEYCODE_DPAD_CENTER:
+                keyInWeb = 1005;
+                break;
+            default:
+                keyInWeb = 0; // If the key can't be identified, this value is 0
+        }
+        KeyboardEvent event;
+        event.key = keyInWeb;
+        event.action = KeyboardEvent::Action::PRESS;
+        EventDispatcher::dispatchKeyboardEvent(event);
+
+        return JNI_TRUE;
     }
 
     /***********************************************************
