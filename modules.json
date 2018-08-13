@@ -70,8 +70,9 @@
   {
     "name": "Graphics",
     "entries": [
-      "./cocos2d/core/graphics/index.js",
-      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js"
+      "./cocos2d/core/graphics/graphics.js",
+      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js",
+      "./cocos2d/core/renderer/canvas/renderers/graphics/index.js"
     ]
   },
   {
