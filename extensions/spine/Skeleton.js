@@ -384,6 +384,7 @@ sp.Skeleton = cc.Class({
     },
 
     update (dt) {
+        if (CC_EDITOR) return;
         let skeleton = this._skeleton;
         let state = this._state;
         if (skeleton) {
@@ -628,7 +629,7 @@ sp.Skeleton = cc.Class({
             var res = this._state.setAnimationWith(trackIndex, animation, loop);
             if (CC_EDITOR && !cc.engine.isPlaying) {
                 this._state.update(0);
-                this._state.clearTracks();
+                this._state.apply(this._skeleton);
             }
             return res;
         }
