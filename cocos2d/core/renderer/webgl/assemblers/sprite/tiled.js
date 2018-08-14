@@ -72,59 +72,9 @@ module.exports = {
         let data = renderData._data;
         renderData.dataLength = Math.max(8, row+1, col+1);
 
-        let l, b, r, t;
-        if (!frame._rotated) {
-            l = (rect.x) / texw;
-            r = (rect.x + rectWidth) / texw;
-            b = (rect.y + rectHeight) / texh;
-            t = (rect.y) / texh;
-
-            data[0].u = l;
-            data[0].v = b;
-            data[1].u = r;
-            data[1].v = b;
-            data[2].u = l;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = t;
-            
-            data[4].u = l;
-            data[4].v = b;
-            data[5].u = l + (r-l) * Math.min(1, hRepeat - col + 1);
-            data[5].v = b;
-            data[6].u = l;
-            data[6].v = b + (t-b) * Math.min(1, vRepeat - row + 1);
-            data[7].u = data[5].u;
-            data[7].v = data[6].v;
-        } else {
-            l = (rect.x) / texw;
-            r = (rect.x + rectHeight) / texw;
-            b = (rect.y + rectWidth) / texh;
-            t = (rect.y) / texh;
-
-            data[0].u = l;
-            data[0].v = t;
-            data[1].u = l;
-            data[1].v = b;
-            data[2].u = r;
-            data[2].v = t;
-            data[3].u = r;
-            data[3].v = b;
-
-            data[4].u = l;
-            data[4].v = t;
-            data[5].u = l;
-            data[5].v = t + (b - t) * Math.min(1, vRepeat - col + 1);
-            data[6].u = l + (r - l) * Math.min(1, hRepeat - row + 1);
-            data[6].v = t;
-            data[7].u = data[5].u;
-            data[7].v = data[6].v;
-        }
-
         for (let i = 0; i <= col; ++i) {
             data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
         }
-
         for (let i = 0; i <= row; ++i) {
             data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
         }
@@ -154,7 +104,8 @@ module.exports = {
         let vbuf = buffer._vData,
             ibuf = buffer._iData;
 
-        // 
+        let rotated = sprite.spriteFrame._rotated;
+        let uv = sprite.spriteFrame.uv;
         let rect = sprite.spriteFrame._rect;
         let contentWidth = Math.abs(node.width);
         let contentHeight = Math.abs(node.height);
@@ -167,39 +118,60 @@ module.exports = {
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
-        let x, x1, y, y1, lastx, lasty;
+        let x, x1, y, y1, coefu, coefv;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
             y = data[yindex].y;
             y1 = data[yindex+1].y;
+            coefv = Math.min(1, vRepeat - yindex);
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                lasty = yindex + 1 === ylength;
-                lastx = xindex + 1 === xlength;
+                coefu = Math.min(1, hRepeat - xindex);
                 x = data[xindex].x;
                 x1 = data[xindex+1].x;
 
+                // Vertex
                 // lb
-                vbuf[vertexOffset++] = x * a + y * c + tx;
-                vbuf[vertexOffset++] = x * b + y * d + ty;
-                vbuf[vertexOffset++] = lastx ? data[4].u : data[0].u;
-                vbuf[vertexOffset++] = lasty ? data[4].v : data[0].v;
-
+                vbuf[vertexOffset] = x * a + y * c + tx;
+                vbuf[vertexOffset+1] = x * b + y * d + ty;
                 // rb
-                vbuf[vertexOffset++] = x1 * a + y * c + tx;
-                vbuf[vertexOffset++] = x1 * b + y * d + ty;
-                vbuf[vertexOffset++] = lastx ? data[5].u : data[1].u;
-                vbuf[vertexOffset++] = lasty ? data[5].v : data[1].v;
-
+                vbuf[vertexOffset+4] = x1 * a + y * c + tx;
+                vbuf[vertexOffset+5] = x1 * b + y * d + ty;
                 // lt
-                vbuf[vertexOffset++] = x * a + y1 * c + tx;
-                vbuf[vertexOffset++] = x * b + y1 * d + ty;
-                vbuf[vertexOffset++] = lastx ? data[6].u : data[2].u;
-                vbuf[vertexOffset++] = lasty ? data[6].v : data[2].v;
-
+                vbuf[vertexOffset+8] = x * a + y1 * c + tx;
+                vbuf[vertexOffset+9] = x * b + y1 * d + ty;
                 // rt
-                vbuf[vertexOffset++] = x1 * a + y1 * c + tx;
-                vbuf[vertexOffset++] = x1 * b + y1 * d + ty;
-                vbuf[vertexOffset++] = lastx ? data[7].u : data[3].u;
-                vbuf[vertexOffset++] = lasty ? data[7].v : data[3].v;
+                vbuf[vertexOffset+12] = x1 * a + y1 * c + tx;
+                vbuf[vertexOffset+13] = x1 * b + y1 * d + ty;
+
+                // UV
+                if (rotated) {
+                    // lb
+                    vbuf[vertexOffset+2] = uv[0];
+                    vbuf[vertexOffset+3] = uv[1];
+                    // rb
+                    vbuf[vertexOffset+6] = uv[0];
+                    vbuf[vertexOffset+7] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    // lt
+                    vbuf[vertexOffset+10] = uv[0] + (uv[6] - uv[0]) * coefv;
+                    vbuf[vertexOffset+11] = uv[1];
+                    // rt
+                    vbuf[vertexOffset+14] = vbuf[vertexOffset+10];
+                    vbuf[vertexOffset+15] = vbuf[vertexOffset+7];
+                }
+                else {
+                    // lb
+                    vbuf[vertexOffset+2] = uv[0];
+                    vbuf[vertexOffset+3] = uv[1];
+                    // rb
+                    vbuf[vertexOffset+6] = uv[0] + (uv[6] - uv[0]) * coefu;
+                    vbuf[vertexOffset+7] = uv[1];
+                    // lt
+                    vbuf[vertexOffset+10] = uv[0];
+                    vbuf[vertexOffset+11] = uv[1] + (uv[7] - uv[1]) * coefv;
+                    // rt
+                    vbuf[vertexOffset+14] = vbuf[vertexOffset+6];
+                    vbuf[vertexOffset+15] = vbuf[vertexOffset+11];
+                }
+                vertexOffset += 16;
             }
         }
 
