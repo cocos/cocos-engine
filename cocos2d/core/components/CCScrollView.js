@@ -887,6 +887,11 @@ var ScrollView = cc.Class({
             if(layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
+            var widget = this.node.getComponent(cc.Widget);
+            if (widget && widget.enabledInHierarchy) {
+                widget.updateAlignment();
+            }
+
             var scrollViewSize = this.node.getContentSize();
 
             var leftBottomPosition = this._convertToContentParentSpace(cc.p(0, 0));
@@ -906,6 +911,10 @@ var ScrollView = cc.Class({
     _convertToContentParentSpace: function(position) {
         var scrollViewPositionInWorldSpace = this.node.convertToWorldSpace(position);
         var contentParent = this.content.parent;
+        var widget = contentParent.getComponent(cc.Widget);
+        if (widget && widget.enabledInHierarchy) {
+            widget.updateAlignment();
+        }
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
