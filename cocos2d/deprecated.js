@@ -505,9 +505,9 @@ if (CC_DEV) {
         _getError: 'cc.debug.getError',
         _initDebugSetting: 'cc.debug._resetDebugSetting',
         DebugMode: 'cc.debug.DebugMode',
+        BlendFunc: 'cc.macro.BlendFactor',
     }, 'cc');
     markAsRemovedInObject(cc, [
-        'BlendFunc',
         'blendFuncDisable',
 
         'pFromSize',

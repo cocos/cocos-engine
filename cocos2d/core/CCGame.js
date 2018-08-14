@@ -729,7 +729,7 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (isWeChatGame) {
+            if (isWeChatGame || isQQPlay) {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.initWebGL(localCanvas, opts);

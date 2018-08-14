@@ -79,7 +79,9 @@ let EditBox = cc.Class({
                 }
 
                 this._string = value;
-                this._updateString(value);
+                if (this._impl) {
+                    this._updateString(value);
+                }
             }
         },
 
@@ -113,7 +115,9 @@ let EditBox = cc.Class({
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify () {
-                this._impl.returnType = this.returnType;
+                if (this._impl) {
+                    this._impl.returnType = this.returnType;
+                }
             }
         },
 
@@ -128,7 +132,10 @@ let EditBox = cc.Class({
             default: InputFlag.DEFAULT,
             type: InputFlag,
             notify () {
-                this._impl.inputFlag = this.inputFlag;
+                if (this._impl) {
+                    this._impl.setInputFlag(this.inputFlag);
+                    this._updateString(this._string);
+                }
             }
         },
         /**
@@ -145,7 +152,9 @@ let EditBox = cc.Class({
             default: InputMode.ANY,
             type: InputMode,
             notify () {
-                this._impl.setInputMode(this.inputMode);
+                if (this._impl) {
+                    this._impl.setInputMode(this.inputMode);
+                }
             }
         },
 
@@ -206,7 +215,9 @@ let EditBox = cc.Class({
                 if (this._placeholderLabel) {
                     this._placeholderLabel.string = this.placeholder;
                 }
-                this._impl.setPlaceholderText(this.placeholder);
+                if (this._impl) {
+                    this._impl.setPlaceholderText(this.placeholder);
+                }
             }
         },
 
@@ -254,7 +265,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify () {
-                this._impl.setMaxLength(this.maxLength);
+                if (this._impl) {
+                    this._impl.setMaxLength(this.maxLength);
+                }
             }
         },
 
@@ -268,7 +281,9 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify () {
-                this._updateStayOnTop();
+                if (this._impl) {
+                    this._updateStayOnTop();
+                }
             }
         },
 
@@ -286,7 +301,9 @@ let EditBox = cc.Class({
             },
             set (value) {
                 this._tabIndex = value;
-                this._impl.setTabIndex(value);
+                if (this._impl) {
+                    this._impl.setTabIndex(value);
+                }
             }
         },
 

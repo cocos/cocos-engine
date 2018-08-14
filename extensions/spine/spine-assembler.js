@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../cocos2d/core/platform/js');
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
