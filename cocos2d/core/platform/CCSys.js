@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (cc.sys) return;
+if (cc.sys && !CC_RUNTIME) return;
 
 /**
  * System variables
@@ -509,13 +509,13 @@ sys.BROWSER_TYPE_UNKNOWN = "unknown";
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
-sys.isNative = false;
+sys.isNative = CC_JSB;
 
 /**
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
 
 cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     if (opt_contextType) {
@@ -526,11 +526,11 @@ cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
         }
     }
     else {
-        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
-               cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-               cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-               cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
-               null;
+        return cc.create3DContext(canvas, opt_attribs, "webgl") ||
+            cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+            cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+            cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+            null;
     }
 };
 
@@ -550,6 +550,55 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
+} else if (CC_JSB) {
+    var platform = sys.platform = __getPlatform();
+    sys.isMobile = (platform === sys.ANDROID ||
+        platform === sys.IPAD ||
+        platform === sys.IPHONE ||
+        platform === sys.WP8 ||
+        platform === sys.TIZEN ||
+        platform === sys.BLACKBERRY);
+
+    sys.os = __getOS();
+    sys.language = __getCurrentLanguage();
+    sys.osVersion = __getOSVersion();
+    sys.osMainVersion = parseInt(sys.osVersion);
+    sys.browserType = null;
+    sys.browserVersion = null;
+
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var ratio = window.devicePixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    var capabilities;
+    capabilities = sys.capabilities = {
+        "canvas": false,
+        "opengl": true,
+        "webp": true,
+    };
+
+    if (sys.isMobile) {
+        capabilities["accelerometer"] = true;
+        capabilities["touches"] = true;
+    } else {
+        // desktop
+        capabilities["keyboard"] = true;
+        capabilities["mouse"] = false; //TODO: Change to true to support dispatching mouse event for desktop platforms, need to be done in cocos2d-x-lite repo.
+        capabilities["touches"] = true; //TODO: Switch to false after the above TODO is finised!
+    }
+
+    sys.__audioSupport = {
+        ONLY_ONE: false,
+        WEB_AUDIO: false,
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
 }
 else if (CC_WECHATGAME) {
     var env = wx.getSystemInfoSync();
@@ -599,9 +648,9 @@ else if (CC_WECHATGAME) {
         "opengl": true,
         "webp": false
     };
-    sys.__audioSupport = { 
-        ONLY_ONE: false, 
-        WEB_AUDIO: false, 
+    sys.__audioSupport = {
+        ONLY_ONE: false,
+        WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
         format: ['.mp3']
     };
@@ -698,7 +747,7 @@ else {
         iOS = true;
         osVersion = uaResult[2] || '';
         osMainVersion = parseInt(osVersion) || 0;
-    } 
+    }
     else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
         iOS = true;
         osVersion = '';
@@ -735,11 +784,11 @@ else {
      */
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
-    (function(){
+    (function () {
         var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
         var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
-        if(!browserTypes) browserTypes = typeReg2.exec(ua);
+        if (!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
@@ -770,11 +819,11 @@ else {
      */
     sys.browserVersion = "";
     /* Determine the browser version number */
-    (function(){
+    (function () {
         var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
         var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
-        if(!tmp) tmp = ua.match(versionReg2);
+        if (!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
     })();
 
@@ -800,7 +849,7 @@ else {
         _tmpCanvas2 = document.createElement("canvas");
 
     //Whether or not the Canvas BlendModes are supported.
-    sys._supportCanvasNewBlendModes = (function(){
+    sys._supportCanvasNewBlendModes = (function () {
         var canvas = _tmpCanvas1;
         canvas.width = 1;
         canvas.height = 1;
@@ -827,7 +876,7 @@ else {
         document.body.appendChild(fontStyle);
 
         fontStyle.textContent = "body,canvas,div{ -moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;-khtml-user-select: none;"
-                                + "-webkit-tap-highlight-color:rgba(0,0,0,0);}";
+            + "-webkit-tap-highlight-color:rgba(0,0,0,0);}";
     }
 
     /**
@@ -844,10 +893,10 @@ else {
             cc.warnID(5200);
         };
         sys.localStorage = {
-            getItem : warn,
-            setItem : warn,
-            removeItem : warn,
-            clear : warn
+            getItem: warn,
+            setItem: warn,
+            removeItem: warn,
+            clear: warn
         };
     }
 
@@ -861,39 +910,39 @@ else {
         if (_supportWebGL && sys.os === sys.OS_ANDROID) {
             var browserVer = parseFloat(sys.browserVersion);
             switch (sys.browserType) {
-            case sys.BROWSER_TYPE_MOBILE_QQ:
-            case sys.BROWSER_TYPE_BAIDU:
-            case sys.BROWSER_TYPE_BAIDU_APP:
-                // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                if (browserVer >= 6.2) {
-                    _supportWebGL = true;
-                }
-                else {
+                case sys.BROWSER_TYPE_MOBILE_QQ:
+                case sys.BROWSER_TYPE_BAIDU:
+                case sys.BROWSER_TYPE_BAIDU_APP:
+                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                    if (browserVer >= 6.2) {
+                        _supportWebGL = true;
+                    }
+                    else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_ANDROID:
+                    // Android 5+ default browser
+                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                        _supportWebGL = true;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_CHROME:
+                    // Chrome on android supports WebGL from v. 30
+                    if (browserVer >= 30.0) {
+                        _supportWebGL = true;
+                    } else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_UC:
+                    if (browserVer > 11.0) {
+                        _supportWebGL = true;
+                    } else {
+                        _supportWebGL = false;
+                    }
+                case sys.BROWSER_TYPE_360:
                     _supportWebGL = false;
-                }
-                break;
-            case sys.BROWSER_TYPE_ANDROID:
-                // Android 5+ default browser
-                if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                    _supportWebGL = true;
-                }
-                break;
-            case sys.BROWSER_TYPE_CHROME:
-                // Chrome on android supports WebGL from v. 30
-                if (browserVer >= 30.0) {
-                    _supportWebGL = true;
-                } else {
-                    _supportWebGL = false;
-                }
-                break;
-            case sys.BROWSER_TYPE_UC:
-                if (browserVer > 11.0) {
-                    _supportWebGL = true;
-                } else {
-                    _supportWebGL = false;
-                }
-            case sys.BROWSER_TYPE_360:
-                _supportWebGL = false;
             }
         }
     }
@@ -931,7 +980,7 @@ else {
      *
      * May be modifications for a few browser version
      */
-    (function(){
+    (function () {
 
         var DEBUG = false;
 
@@ -961,8 +1010,8 @@ else {
             }
         }
 
-        if(DEBUG){
-            setTimeout(function(){
+        if (DEBUG) {
+            setTimeout(function () {
                 cc.log('browse type: ' + sys.browserType);
                 cc.log('browse version: ' + version);
                 cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
@@ -975,19 +1024,19 @@ else {
     try {
         if (__audioSupport.WEB_AUDIO) {
             __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-            if(__audioSupport.DELAY_CREATE_CTX) {
-                setTimeout(function(){ __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
+            if (__audioSupport.DELAY_CREATE_CTX) {
+                setTimeout(function () { __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
             }
         }
-    } catch(error) {
+    } catch (error) {
         __audioSupport.WEB_AUDIO = false;
         cc.logID(5201);
     }
 
-    function detectAudioFormat () {
+    function detectAudioFormat() {
         var formatSupport = [];
         var audio = document.createElement('audio');
-        if(audio.canPlayType) {
+        if (audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
             if (ogg) formatSupport.push('.ogg');
             var mp3 = audio.canPlayType('audio/mpeg');
@@ -1011,6 +1060,9 @@ else {
  */
 sys.garbageCollect = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __jsc__.garbageCollect();
+    }
 };
 
 /**
@@ -1019,6 +1071,9 @@ sys.garbageCollect = function () {
  */
 sys.dumpRoot = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __jsc__.dumpRoot();
+    }
 };
 
 /**
@@ -1027,6 +1082,9 @@ sys.dumpRoot = function () {
  */
 sys.restartVM = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __restartVM();
+    }
 };
 
 /**
@@ -1036,6 +1094,9 @@ sys.restartVM = function () {
  */
 sys.cleanScript = function (jsfile) {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __cleanScript();
+    }
 };
 
 /**
@@ -1047,8 +1108,14 @@ sys.cleanScript = function (jsfile) {
  * @return {Boolean} Validity of the object
  */
 sys.isObjectValid = function (obj) {
-    if (obj) return true;
-    else return false;
+    if (CC_JSB) {
+        return __isObjectValid(obj);
+    }
+    else if (obj) {
+        return true;
+    }
+
+    return false;
 };
 
 /**
@@ -1076,7 +1143,11 @@ sys.dump = function () {
  * @param {String} url
  */
 sys.openURL = function (url) {
-    window.open(url);
+    if (CC_JSB) {
+        jsb.openURL(url);
+    } else {
+        window.open(url);
+    }
 };
 
 /**

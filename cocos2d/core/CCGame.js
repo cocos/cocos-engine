@@ -672,7 +672,7 @@ var game = {
                 localCanvas = wx.getSharedCanvas();
             }
             else {
-                localCanvas = canvas;
+                localCanvas = CC_JSB ? window.__cccanvas : window.canvas;
             }
             this.canvas = cc._canvas = localCanvas;
         }
@@ -819,11 +819,6 @@ var game = {
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
             wx.onHide && wx.onHide(onHidden);
-        }
-
-        if (CC_JSB) {
-            jsb.onShow = onShow;
-            jsb.onHide = onHidden;
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

@@ -35,16 +35,16 @@ var FOCUS_DELAY_FIREFOX = 0;
 var Utils = require('../platform/utils');
 var sys = require('../platform/CCSys');
 
-function adjustEditBoxPosition (editBox) {
-    var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
+function adjustEditBoxPosition(editBox) {
+    var worldPos = editBox.convertToWorldSpace(cc.p(0, 0));
     var windowHeight = cc.visibleRect.height;
     var windowWidth = cc.visibleRect.width;
     var factor = 0.5;
-    if(windowWidth > windowHeight) {
+    if (windowWidth > windowHeight) {
         factor = 0.7;
     }
-    setTimeout(function() {
-        if(window.scrollY < SCROLLY && worldPos.y < windowHeight * factor) {
+    setTimeout(function () {
+        if (window.scrollY < SCROLLY && worldPos.y < windowHeight * factor) {
             var scrollOffset = windowHeight * factor - worldPos.y - window.scrollY;
             if (scrollOffset < 35) scrollOffset = 35;
             if (scrollOffset > 320) scrollOffset = 320;
@@ -53,8 +53,8 @@ function adjustEditBoxPosition (editBox) {
     }, DELAY_TIME);
 }
 
-var capitalize = function(string) {
-    return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+var capitalize = function (string) {
+    return string.replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
 };
 
 function capitalizeFirstLetter(string) {
@@ -250,6 +250,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     __autoResize: false,
     _placeholderColor: null,
     _className: 'EditBox',
+    _inputMode: InputMode.ANY,
 
     ctor: function (size, normal9SpriteBg) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -278,7 +279,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._updateEditBoxSize(width, height);
     },
 
-    setVisible: function ( visible ) {
+    setVisible: function (visible) {
         _ccsg.Node.prototype.setVisible.call(this, visible);
         this._renderCmd.updateVisibility();
     },
@@ -289,28 +290,28 @@ _ccsg.EditBox = _ccsg.Node.extend({
         }
     },
 
-    setTabIndex: function(index) {
-        if(this._renderCmd._edTxt) {
+    setTabIndex: function (index) {
+        if (this._renderCmd._edTxt) {
             this._renderCmd._edTxt.tabIndex = index;
         }
     },
 
-    getTabIndex: function() {
-        if(this._renderCmd._edTxt) {
+    getTabIndex: function () {
+        if (this._renderCmd._edTxt) {
             return this._renderCmd._edTxt.tabIndex;
         }
         cc.warnID(4700);
         return -1;
     },
 
-    setFocus: function() {
-        if(this._renderCmd._edTxt) {
+    setFocus: function () {
+        if (this._renderCmd._edTxt) {
             this._renderCmd._edTxt.focus();
         }
     },
 
-    isFocused: function() {
-        if(this._renderCmd._edTxt) {
+    isFocused: function () {
+        if (this._renderCmd._edTxt) {
             return document.activeElement === this._renderCmd._edTxt;
         }
         cc.warnID(4700);
@@ -318,7 +319,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     stayOnTop: function (flag) {
-        if(this._alwaysOnTop === flag) return;
+        if (this._alwaysOnTop === flag) return;
 
         this._alwaysOnTop = flag;
         this._renderCmd.stayOnTop(this._alwaysOnTop);
@@ -331,11 +332,14 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
     _onTouchBegan: function (touch) {
         var touchPoint = touch.getLocation();
-        var bb = cc.rect(0,0, this._contentSize.width, this._contentSize.height);
+        var bb = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
         var hitted = cc.rectContainsPoint(bb, this.convertToNodeSpace(touchPoint));
-        if(hitted) {
+        if (hitted) {
             if (CC_QQPLAY) {
                 this._renderCmd._showBKKeyboard();
+            }
+            else if (CC_RUNTIME) {
+                this._renderCmd._createJSBInput();
             }
             return true;
         }
@@ -350,12 +354,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     _updateBackgroundSpriteSize: function (width, height) {
-        if(this._backgroundSprite) {
+        if (this._backgroundSprite) {
             this._backgroundSprite.setContentSize(width, height);
         }
     },
 
-    _updateEditBoxSize: function(size, height) {
+    _updateEditBoxSize: function (size, height) {
         var newWidth = (typeof size.width === 'number') ? size.width : size;
         var newHeight = (typeof size.height === 'number') ? size.height : height;
 
@@ -375,7 +379,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._renderCmd._setFont(fontStyle);
     },
 
-    getBackgroundSprite: function() {
+    getBackgroundSprite: function () {
         return this._backgroundSprite;
     },
 
@@ -402,7 +406,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
     setMaxLength: function (maxLength) {
         if (!isNaN(maxLength)) {
-            if(maxLength < 0) {
+            if (maxLength < 0) {
                 //we can't set Number.MAX_VALUE to input's maxLength property
                 //so we use a magic number here, it should works at most use cases.
                 maxLength = 65535;
@@ -463,13 +467,13 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     initWithSizeAndBackgroundSprite: function (size, normal9SpriteBg) {
-        if(this._backgroundSprite) {
+        if (this._backgroundSprite) {
             this._backgroundSprite.removeFromParent();
         }
         this._backgroundSprite = normal9SpriteBg;
         _ccsg.Node.prototype.setContentSize.call(this, size);
 
-        if(this._backgroundSprite && !this._backgroundSprite.parent) {
+        if (this._backgroundSprite && !this._backgroundSprite.parent) {
             this._backgroundSprite.setAnchorPoint(cc.p(0, 0));
             this.addChild(this._backgroundSprite);
 
@@ -514,7 +518,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._edHeight = size.height;
         this.dom.style.height = this._edHeight.toString() + 'px';
         this.dom.style.backgroundColor = cc.colorToHex(bgColor);
-    }
+    },
 });
 
 var _p = _ccsg.EditBox.prototype;
@@ -573,7 +577,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
-        var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
+        var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         var tx = t.tx * scaleX + offsetX, ty = t.ty * scaleY + offsetY;
 
@@ -601,7 +605,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.stayOnTop = function (flag) {
-        if(flag) {
+        if (flag) {
             this._removeLabels();
             this._edTxt.style.display = '';
         } else {
@@ -647,7 +651,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         window.removeEventListener('orientationchange', this.__orientationChanged);
 
         window.scrollTo(0, 0);
-        if(this.__fullscreen) {
+        if (this.__fullscreen) {
             cc.view.enableAutoFullScreen(true);
         }
         if (this.__autoResize) {
@@ -698,7 +702,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.className = "cocosEditBox";
 
 
-        function _inputValueHandle (target) {
+        function _inputValueHandle(target) {
             var editBox = thisPointer._editBox;
 
             if (target.value.length > target.maxLength) {
@@ -737,7 +741,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             if (e.keyCode === cc.KEY.enter) {
                 e.stopPropagation();
                 e.preventDefault();
-                if(this.value === '') {
+                if (this.value === '') {
                     this.style.fontSize = editBox._placeholderFontSize + 'px';
                     this.style.color = cc.colorToHex(editBox._placeholderColor);
                 }
@@ -812,14 +816,14 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style.className = "cocosEditBox";
 
-        function _inputValueHandle (target) {
+        function _inputValueHandle(target) {
             if (target.value.length > target.maxLength) {
                 target.value = target.value.slice(0, target.maxLength);
             }
 
             var editBox = thisPointer._editBox;
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if(editBox._text.toLowerCase() !== target.value.toLowerCase()) {
+                if (editBox._text.toLowerCase() !== target.value.toLowerCase()) {
                     editBox._text = target.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
@@ -926,7 +930,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var tmpEdTxt = this._edTxt = document.createElement("input");
         tmpEdTxt.type = "text";
 
-        tmpEdTxt.focus = function() {
+        tmpEdTxt.focus = function () {
             var editBox = thisPointer._editBox;
             wx.showKeyboard({
                 defaultValue: editBox._text,
@@ -971,16 +975,58 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
+    proto._createJSBInput = function () {
+        var thisPointer = this;
+        var multiline = this._inputMode === InputMode.ANY;
+        var retrunTypeStrings = ['done', 'done', 'send', 'search', 'go'];
+
+        var inputTypeStrings = ['text', 'email', 'number', 'phone', 'text', 'number', 'text'];
+        var inputTypeString = inputTypeStrings[this._inputMode];
+        if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD)
+            inputTypeString = 'password';
+
+        var editBox = this._editBox;
+        jsb.inputBox.show({
+            defaultValue: editBox._text,
+            maxLength: 140,
+            multiple: multiline,
+            confirmHold: true,
+            confirmType: retrunTypeStrings[thisPointer._editBox._keyboardReturnType],
+            inputType: inputTypeString
+        });
+        editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
+        jsb.inputBox.onConfirm(function (res) {
+            editBox._text = res.value;
+            thisPointer._updateDomTextCases();
+            editBox._delegate && editBox._delegate.editBoxEditingReturn && editBox._delegate.editBoxEditingReturn(editBox);
+            jsb.inputBox.hide();
+        });
+        editBox._delegate && editBox._delegate.editBoxEditingDidEnded && editBox._delegate.editBoxEditingDidEnded(editBox);
+        jsb.inputBox.onInput(function (res) {
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged && editBox._text !== res.value) {
+                editBox._text = res.value;
+                thisPointer._updateDomTextCases();
+                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+            }
+        });
+        jsb.inputBox.onComplete(function () {
+            thisPointer._endEditing();
+            jsb.inputBox.offConfirm();
+            jsb.inputBox.offInput();
+            jsb.inputBox.offComplete();
+        });
+    };
+
     proto._createLabels = function () {
         var editBoxSize = this._editBox.getContentSize();
-        if(!this._textLabel) {
+        if (!this._textLabel) {
             this._textLabel = _ccsg.Label.pool.get();
             this._textLabel.setAnchorPoint(cc.p(0, 1));
             this._textLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
             this._editBox.addChild(this._textLabel, 100);
         }
 
-        if(!this._placeholderLabel) {
+        if (!this._placeholderLabel) {
             this._placeholderLabel = _ccsg.Label.pool.get();
             this._placeholderLabel.setAnchorPoint(cc.p(0, 1));
             this._placeholderLabel.setColor(cc.Color.GRAY);
@@ -991,21 +1037,21 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._removeLabels = function () {
-        if(!this._textLabel) return;
+        if (!this._textLabel) return;
 
         this._editBox.removeChild(this._textLabel);
         this._textLabel = null;
     };
 
     proto._updateLabelPosition = function (editBoxSize) {
-        if(!this._textLabel || !this._placeholderLabel) return;
+        if (!this._textLabel || !this._placeholderLabel) return;
 
         var labelContentSize = cc.size(editBoxSize.width - LEFT_PADDING, editBoxSize.height);
         this._textLabel.setContentSize(labelContentSize);
         this._placeholderLabel.setLineHeight(editBoxSize.height);
         var placeholderLabelSize = this._placeholderLabel.getContentSize();
 
-        if (this._editBox._editBoxInputMode === InputMode.ANY){
+        if (this._editBox._editBoxInputMode === InputMode.ANY) {
             this._textLabel.setPosition(LEFT_PADDING, editBoxSize.height);
             this._placeholderLabel.setPosition(LEFT_PADDING, editBoxSize.height);
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
@@ -1023,22 +1069,22 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setLineHeight = function (lineHeight) {
-        if(this._textLabel) {
+        if (this._textLabel) {
             this._textLabel.setLineHeight(lineHeight);
         }
     };
 
     proto._hiddenLabels = function () {
-        if(this._textLabel) {
+        if (this._textLabel) {
             this._textLabel.setVisible(false);
         }
 
-        if(this._placeholderLabel) {
+        if (this._placeholderLabel) {
             this._placeholderLabel.setVisible(false);
         }
     };
 
-    proto._updateDomTextCases = function() {
+    proto._updateDomTextCases = function () {
         var inputFlag = this._editBox._editBoxInputFlag;
         if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             this._editBox._text = this._editBox._text.toUpperCase();
@@ -1054,19 +1100,19 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
-    proto._updateLabelStringStyle = function() {
+    proto._updateLabelStringStyle = function () {
         if (this._edTxt.type === 'password') {
             var passwordString = '';
             var len = this._editBox._text.length;
             for (var i = 0; i < len; ++i) {
                 passwordString += '\u25CF';
             }
-            if(this._textLabel) {
+            if (this._textLabel) {
                 this._textLabel.setString(passwordString);
             }
         } else {
             this._updateDomTextCases();
-            if(this._textLabel) {
+            if (this._textLabel) {
                 this._textLabel.setString(this._editBox._text);
             }
         }
@@ -1074,15 +1120,15 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = CC_WECHATGAME || CC_QQPLAY ? this._editBox._text : this._edTxt.value;
+        var text = (CC_WECHATGAME || CC_QQPLAY || CC_JSB) ? this._editBox._text : this._edTxt.value;
         if (text === '') {
-            if(this._placeholderLabel) {
+            if (this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
                 this._placeholderLabel.setString(this._editBox._placeholderText);
             }
         }
         else {
-            if(this._textLabel) {
+            if (this._textLabel) {
                 this._textLabel.setVisible(true);
                 this._textLabel.setString(this._editBox._text);
             }
@@ -1099,7 +1145,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             if (self._edTxt.style.display === 'none') {
                 self._edTxt.style.display = '';
 
-                function startFocus () {
+                function startFocus() {
                     self._edTxt.focus();
                 }
 
@@ -1122,13 +1168,13 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         self._editingMode = true;
     };
 
-    proto._endEditing = function() {
+    proto._endEditing = function () {
         if (!this._editBox._alwaysOnTop && sys.platform !== sys.QQ_PLAY) {
             this._edTxt.style.display = 'none';
         }
         this._showLabels();
         if (sys.platform !== sys.WECHAT_GAME &&
-            sys.platform !== sys.QQ_PLAY && sys.isMobile && this._editingMode) {
+            sys.platform !== sys.QQ_PLAY && !CC.JSB && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
@@ -1164,12 +1210,12 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setFontColor = function (color) {
-        if(!this._edTxt) return;
+        if (!this._edTxt) return;
 
         if (this._edTxt.value !== this._editBox._placeholderText) {
             this._edTxt.style.color = cc.colorToHex(color);
         }
-        if(this._textLabel) {
+        if (this._textLabel) {
             this._textLabel.setColor(color);
         }
     };
@@ -1179,7 +1225,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setMaxLength = function (maxLength) {
-        if(!this._edTxt) return;
+        if (!this._edTxt) return;
         this._edTxt.maxLength = maxLength;
     };
 
@@ -1194,23 +1240,23 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._updateDomInputType = function () {
         if (!this._edTxt) {
-           return;
+            return;
         }
         var inputMode = this._editBox._editBoxInputMode;
-        if(inputMode === InputMode.EMAIL_ADDR) {
+        if (inputMode === InputMode.EMAIL_ADDR) {
             this._edTxt.type = 'email';
-        } else if(inputMode === InputMode.NUMERIC ||
-                 inputMode === InputMode.DECIMAL) {
+        } else if (inputMode === InputMode.NUMERIC ||
+            inputMode === InputMode.DECIMAL) {
             this._edTxt.type = 'number';
-        } else if(inputMode === InputMode.PHONE_NUMBER) {
+        } else if (inputMode === InputMode.PHONE_NUMBER) {
             this._edTxt.type = 'number';
             this._edTxt.pattern = '[0-9]*';
-        } else if(inputMode === InputMode.URL) {
+        } else if (inputMode === InputMode.URL) {
             this._edTxt.type = 'url';
         } else {
             this._edTxt.type = 'text';
 
-            if(this._editBox._keyboardReturnType === KeyboardReturnType.SEARCH) {
+            if (this._editBox._keyboardReturnType === KeyboardReturnType.SEARCH) {
                 this._edTxt.type = 'search';
             }
         }
@@ -1221,7 +1267,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputFlag = function (inputFlag) {
-        if(!this._edTxt) return;
+        if (!this._edTxt) return;
 
         this._updateDomInputType();
 
@@ -1250,23 +1296,24 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._createDomInput();
         }
 
+        this._inputMode = inputMode;
         this._updateDomInputType();
         var contentSize = this._node.getContentSize();
         this.updateSize(contentSize.width, contentSize.height);
     };
 
     proto.setString = function (text) {
-        if(!this._edTxt) return;
+        if (!this._edTxt) return;
 
         if (text !== null) {
             this._edTxt.value = text;
 
             if (text === '') {
-                if(this._placeholderLabel) {
+                if (this._placeholderLabel) {
                     this._placeholderLabel.setString(this._editBox._placeholderText);
                     this._placeholderLabel.setColor(this._editBox._placeholderColor);
                 }
-                if(!this._editingMode) {
+                if (!this._editingMode) {
                     if (this._placeholderLabel) {
                         this._placeholderLabel.setVisible(true);
                     }
@@ -1277,14 +1324,14 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
             else {
                 this._edTxt.style.color = cc.colorToHex(this._editBox._textColor);
-                if(this._textLabel) {
+                if (this._textLabel) {
                     this._textLabel.setColor(this._editBox._textColor);
                 }
                 if (!this._editingMode) {
-                    if(this._placeholderLabel) {
+                    if (this._placeholderLabel) {
                         this._placeholderLabel.setVisible(false);
                     }
-                    if(this._textLabel) {
+                    if (this._textLabel) {
                         this._textLabel.setVisible(true);
                     }
                 }
@@ -1294,21 +1341,21 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
-    proto._updateDOMFontStyle = function() {
-        if(!this._edTxt) return;
+    proto._updateDOMFontStyle = function () {
+        if (!this._edTxt) return;
 
         if (this._edTxt.value !== '') {
             this._edTxt.style.fontFamily = this._edFontName;
             this._edTxt.style.fontSize = this._edFontSize + 'px';
         }
-        if(this._textLabel) {
+        if (this._textLabel) {
             this._textLabel.setFontSize(this._edFontSize);
             this._textLabel.setFontFamily(this._edFontName);
         }
     };
 
 
-    proto.updateSize = function(newWidth, newHeight) {
+    proto.updateSize = function (newWidth, newHeight) {
         var editboxDomNode = this._edTxt;
         if (!editboxDomNode) return;
 
@@ -1324,9 +1371,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto.removeDom = function () {
         var editBox = this._edTxt;
-        if(editBox){
+        if (editBox) {
             var hasChild = Utils.contains(cc.game.container, editBox);
-            if(hasChild) {
+            if (hasChild) {
                 cc.game.container.removeChild(editBox);
             }
         }

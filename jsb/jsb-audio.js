@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -12,7 +12,7 @@
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -46,11 +46,16 @@ cc.Audio.Type = {
     // Using the new audioEngine
     cc.audioEngine = audioEngine;
     audioEngine.play = audioEngine.play2d;
-    audioEngine.setMaxWebAudioSize = function () {};
-    // deprecated
-    var Module = require('../cocos2d/audio/deprecated');
-    Module.removed(audioEngine);
-    Module.deprecated(audioEngine);
+    audioEngine.setMaxWebAudioSize = function () { };
+    if (CC_RUNTIME) {
+        audioEngine._break = function () { };
+        audioEngine._restore = function () { };
+    } else {
+        // deprecated
+        var Module = require('../cocos2d/audio/deprecated');
+        Module.removed(audioEngine);
+        Module.deprecated(audioEngine);
+    }
 
     proto.State = audioEngine.AudioState;
 
@@ -131,7 +136,7 @@ cc.Audio.Type = {
     proto.emit = function (event) {
         var list = this._eventList[event];
         if (!list) return;
-        for (var i=0; i<list.length; i++) {
+        for (var i = 0; i < list.length; i++) {
             list[i].call(this, this);
         }
     };
@@ -143,7 +148,7 @@ cc.Audio.Type = {
             return true;
         }
 
-        for (var i=0; i<list.length; i++) {
+        for (var i = 0; i < list.length; i++) {
             if (list[i] === callback) {
                 list.splice(i, 1);
                 break;

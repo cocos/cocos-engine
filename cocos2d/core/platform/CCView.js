@@ -26,18 +26,18 @@
 var eventManager = require('../event-manager');
 
 var __BrowserGetter = {
-    init: function(){
+    init: function () {
         if (!CC_WECHATGAME && !CC_QQPLAY) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
-    availWidth: function(frame){
+    availWidth: function (frame) {
         if (!frame || frame === this.html)
             return window.innerWidth;
         else
             return frame.clientWidth;
     },
-    availHeight: function(frame){
+    availHeight: function (frame) {
         if (!frame || frame === this.html)
             return window.innerHeight;
         else
@@ -68,31 +68,31 @@ if (CC_QQPLAY) {
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta["minimal-ui"] = "true";
-        __BrowserGetter.availWidth = function(frame){
+        __BrowserGetter.availWidth = function (frame) {
             return frame.clientWidth;
         };
-        __BrowserGetter.availHeight = function(frame){
+        __BrowserGetter.availHeight = function (frame) {
             return frame.clientHeight;
         };
         break;
     case cc.sys.BROWSER_TYPE_CHROME:
-        __BrowserGetter.__defineGetter__("target-densitydpi", function(){
+        __BrowserGetter.__defineGetter__("target-densitydpi", function () {
             return cc.view._targetDensityDPI;
         });
         break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
-        __BrowserGetter.availWidth = function(frame){
+        __BrowserGetter.availWidth = function (frame) {
             return frame.clientWidth;
         };
-        __BrowserGetter.availHeight = function(frame){
+        __BrowserGetter.availHeight = function (frame) {
             return frame.clientHeight;
         };
         break;
     case cc.sys.BROWSER_TYPE_MIUI:
-        __BrowserGetter.init = function(view){
-            if(view.__resizeWithBrowserSize) return;
-            var resize = function(){
+        __BrowserGetter.init = function (view) {
+            if (view.__resizeWithBrowserSize) return;
+            var resize = function () {
                 view.setDesignResolutionSize(
                     view._designResolutionSize.width,
                     view._designResolutionSize.height,
@@ -104,19 +104,19 @@ switch (__BrowserGetter.adaptationType) {
         };
         break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME:
-        __BrowserGetter.availWidth = function(){
+        __BrowserGetter.availWidth = function () {
             return window.innerWidth;
         };
-        __BrowserGetter.availHeight = function(){
+        __BrowserGetter.availHeight = function () {
             return window.innerHeight;
         };
         break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
         var sharedCanvas = wx.getSharedCanvas();
-        __BrowserGetter.availWidth = function(){
+        __BrowserGetter.availWidth = function () {
             return sharedCanvas.width;
         };
-        __BrowserGetter.availHeight = function(){
+        __BrowserGetter.availHeight = function () {
             return sharedCanvas.height;
         };
         break;
@@ -159,7 +159,7 @@ var View = cc._Class.extend({
         _t._viewPortRect = cc.rect(0, 0, w, h);
         // The visible rect in content's coordinate in point
         _t._visibleRect = cc.rect(0, 0, w, h);
-        _t._contentTranslateLeftTop = {left: 0, top: 0};
+        _t._contentTranslateLeftTop = { left: 0, top: 0 };
         _t._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         _t._devicePixelRatio = 1;
@@ -205,9 +205,9 @@ var View = cc._Class.extend({
     // Resize helper functions
     _resizeEvent: function () {
         var view;
-        if(this.setDesignResolutionSize){
+        if (this.setDesignResolutionSize) {
             view = this;
-        }else{
+        } else {
             view = cc.view;
         }
 
@@ -260,7 +260,7 @@ var View = cc._Class.extend({
      * @method setTargetDensityDPI
      * @param {String} densityDPI
      */
-    setTargetDensityDPI: function(densityDPI){
+    setTargetDensityDPI: function (densityDPI) {
         this._targetDensityDPI = densityDPI;
         this._adjustViewportMeta();
     },
@@ -270,7 +270,7 @@ var View = cc._Class.extend({
      * @method getTargetDensityDPI
      * @returns {String}
      */
-    getTargetDensityDPI: function(){
+    getTargetDensityDPI: function () {
         return this._targetDensityDPI;
     },
 
@@ -338,7 +338,7 @@ var View = cc._Class.extend({
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
-            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
+            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) ||
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
@@ -372,7 +372,7 @@ var View = cc._Class.extend({
 
     _setViewportMeta: function (metas, overwrite) {
         var vp = document.getElementById("cocosMetaElement");
-        if(vp && overwrite){
+        if (vp && overwrite) {
             document.head.removeChild(vp);
         }
 
@@ -391,11 +391,11 @@ var View = cc._Class.extend({
                 content += "," + key + "=" + metas[key];
             }
             else if (overwrite) {
-                pattern = new RegExp(key+"\s*=\s*[^,]+");
+                pattern = new RegExp(key + "\s*=\s*[^,]+");
                 content.replace(pattern, key + "=" + metas[key]);
             }
         }
-        if(/^,/.test(content))
+        if (/^,/.test(content))
             content = content.substr(1);
 
         vp.content = content;
@@ -407,7 +407,7 @@ var View = cc._Class.extend({
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -446,7 +446,7 @@ var View = cc._Class.extend({
      * @method enableRetina
      * @param {Boolean} enabled - Enable or disable retina display
      */
-    enableRetina: function(enabled) {
+    enableRetina: function (enabled) {
         this._retinaEnabled = !!enabled;
     },
 
@@ -456,7 +456,7 @@ var View = cc._Class.extend({
      * @method isRetinaEnabled
      * @return {Boolean}
      */
-    isRetinaEnabled: function() {
+    isRetinaEnabled: function () {
         return this._retinaEnabled;
     },
 
@@ -471,7 +471,7 @@ var View = cc._Class.extend({
             return;
         }
         this._antiAliasEnabled = enabled;
-        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             var cache = cc.loader._cache;
             for (var key in cache) {
                 var item = cache[key];
@@ -486,7 +486,7 @@ var View = cc._Class.extend({
                 }
             }
         }
-        else if(cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             var ctx = cc._canvas.getContext('2d');
             ctx.imageSmoothingEnabled = enabled;
             ctx.mozImageSmoothingEnabled = enabled;
@@ -516,10 +516,10 @@ var View = cc._Class.extend({
      * @method enableAutoFullScreen
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
-    enableAutoFullScreen: function(enabled) {
-        if (enabled && 
-            enabled !== this._autoFullScreen && 
-            cc.sys.isMobile && 
+    enableAutoFullScreen: function (enabled) {
+        if (enabled &&
+            enabled !== this._autoFullScreen &&
+            cc.sys.isMobile &&
             cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
@@ -536,7 +536,7 @@ var View = cc._Class.extend({
      * @method isAutoFullScreenEnabled
      * @return {Boolean} Auto full screen enabled or not
      */
-    isAutoFullScreenEnabled: function() {
+    isAutoFullScreenEnabled: function () {
         return this._autoFullScreen;
     },
 
@@ -567,7 +567,7 @@ var View = cc._Class.extend({
      * @param {Number} offsetTop
      */
     setContentTranslateLeftTop: function (offsetLeft, offsetTop) {
-        this._contentTranslateLeftTop = {left: offsetLeft, top: offsetTop};
+        this._contentTranslateLeftTop = { left: offsetLeft, top: offsetTop };
     },
 
     /**
@@ -646,7 +646,7 @@ var View = cc._Class.extend({
      * @return {Size}
      */
     getVisibleSize: function () {
-        return cc.size(this._visibleRect.width,this._visibleRect.height);
+        return cc.size(this._visibleRect.width, this._visibleRect.height);
     },
 
     /**
@@ -655,8 +655,8 @@ var View = cc._Class.extend({
      * @return {Size}
      */
     getVisibleSizeInPixel: function () {
-        return cc.size( this._visibleRect.width * this._scaleX,
-                        this._visibleRect.height * this._scaleY );
+        return cc.size(this._visibleRect.width * this._scaleX,
+            this._visibleRect.height * this._scaleY);
     },
 
     /**
@@ -665,7 +665,7 @@ var View = cc._Class.extend({
      * @return {Vec2}
      */
     getVisibleOrigin: function () {
-        return cc.p(this._visibleRect.x,this._visibleRect.y);
+        return cc.p(this._visibleRect.x, this._visibleRect.y);
     },
 
     /**
@@ -675,7 +675,7 @@ var View = cc._Class.extend({
      */
     getVisibleOriginInPixel: function () {
         return cc.p(this._visibleRect.x * this._scaleX,
-                    this._visibleRect.y * this._scaleY);
+            this._visibleRect.y * this._scaleY);
     },
 
     /**
@@ -711,15 +711,15 @@ var View = cc._Class.extend({
         // Ensure compatibility with JSB
         else {
             var _locPolicy = cc.ResolutionPolicy;
-            if(resolutionPolicy === _locPolicy.EXACT_FIT)
+            if (resolutionPolicy === _locPolicy.EXACT_FIT)
                 _t._resolutionPolicy = _t._rpExactFit;
-            if(resolutionPolicy === _locPolicy.SHOW_ALL)
+            if (resolutionPolicy === _locPolicy.SHOW_ALL)
                 _t._resolutionPolicy = _t._rpShowAll;
-            if(resolutionPolicy === _locPolicy.NO_BORDER)
+            if (resolutionPolicy === _locPolicy.NO_BORDER)
                 _t._resolutionPolicy = _t._rpNoBorder;
-            if(resolutionPolicy === _locPolicy.FIXED_HEIGHT)
+            if (resolutionPolicy === _locPolicy.FIXED_HEIGHT)
                 _t._resolutionPolicy = _t._rpFixedHeight;
-            if(resolutionPolicy === _locPolicy.FIXED_WIDTH)
+            if (resolutionPolicy === _locPolicy.FIXED_WIDTH)
                 _t._resolutionPolicy = _t._rpFixedWidth;
         }
     },
@@ -740,7 +740,7 @@ var View = cc._Class.extend({
      */
     setDesignResolutionSize: function (width, height, resolutionPolicy) {
         // Defensive code
-        if( !(width > 0 || height > 0) ){
+        if (!(width > 0 || height > 0)) {
             cc.logID(2200);
             return;
         }
@@ -771,12 +771,12 @@ var View = cc._Class.extend({
 
         var result = policy.apply(this, this._designResolutionSize);
 
-        if(result.scale && result.scale.length === 2){
+        if (result.scale && result.scale.length === 2) {
             this._scaleX = result.scale[0];
             this._scaleY = result.scale[1];
         }
 
-        if(result.viewport){
+        if (result.viewport) {
             var vp = this._viewPortRect,
                 vb = this._visibleRect,
                 rv = result.viewport;
@@ -840,9 +840,9 @@ var View = cc._Class.extend({
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
             // Set viewport's width
-            this._setViewportMeta({"width": width}, true);
+            this._setViewportMeta({ "width": width }, true);
 
             // Set body width to the exact pixel resolution
             document.documentElement.style.width = width + "px";
@@ -981,7 +981,7 @@ var View = cc._Class.extend({
      * @method getDevicePixelRatio
      * @return {Number}
      */
-    getDevicePixelRatio: function() {
+    getDevicePixelRatio: function () {
         return this._devicePixelRatio;
     },
 
@@ -996,7 +996,7 @@ var View = cc._Class.extend({
     convertToLocationInView: function (tx, ty, relatedPos) {
         var x = this._devicePixelRatio * (tx - relatedPos.left);
         var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
+        return this._isRotated ? { x: this._viewPortRect.width - y, y: x } : { x: x, y: y };
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
@@ -1095,7 +1095,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
 
         // set sharedCanvas size
         if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
-            if (wx && wx.getOpenDataContext){
+            if (wx && wx.getOpenDataContext) {
                 var openDataContext = wx.getOpenDataContext();
                 var sharedCanvas = openDataContext.canvas;
                 if (sharedCanvas) {
@@ -1144,11 +1144,11 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         Math.abs(containerH - contentH) < 2 && (contentH = containerH);
 
         var viewport = cc.rect(Math.round((containerW - contentW) / 2),
-                               Math.round((containerH - contentH) / 2),
-                               contentW, contentH);
+            Math.round((containerH - contentH) / 2),
+            contentW, contentH);
 
         // Translate the content
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS){
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             //TODO: modify something for setTransform
             //cc._renderContext.translate(viewport.x, viewport.y + contentH);
         }
@@ -1176,7 +1176,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @return {Object} scaleAndViewportRect
      */
     apply: function (view, designedResolution) {
-        return {"scale": [1, 1]};
+        return { "scale": [1, 1] };
     },
 
     /**
@@ -1190,7 +1190,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
 
 (function () {
 
-// Container scale strategys
+    // Container scale strategys
     /**
      * @class EqualToFrame
      * @extends ContainerStrategy
@@ -1288,18 +1288,18 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-// #NOT STABLE on Android# Alias: Strategy that makes the container's size equals to the window's size
-//    cc.ContainerStrategy.EQUAL_TO_WINDOW = new EqualToWindow();
-// #NOT STABLE on Android# Alias: Strategy that scale proportionally the container's size to window's size
-//    cc.ContainerStrategy.PROPORTION_TO_WINDOW = new ProportionalToWindow();
-// Alias: Strategy that makes the container's size equals to the frame's size
+    // #NOT STABLE on Android# Alias: Strategy that makes the container's size equals to the window's size
+    //    cc.ContainerStrategy.EQUAL_TO_WINDOW = new EqualToWindow();
+    // #NOT STABLE on Android# Alias: Strategy that scale proportionally the container's size to window's size
+    //    cc.ContainerStrategy.PROPORTION_TO_WINDOW = new ProportionalToWindow();
+    // Alias: Strategy that makes the container's size equals to the frame's size
     cc.ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
-// Alias: Strategy that scale proportionally the container's size to frame's size
+    // Alias: Strategy that scale proportionally the container's size to frame's size
     cc.ContainerStrategy.PROPORTION_TO_FRAME = new ProportionalToFrame();
-// Alias: Strategy that keeps the original container's size
+    // Alias: Strategy that keeps the original container's size
     cc.ContainerStrategy.ORIGINAL_CONTAINER = new OriginalContainer();
 
-// Content scale strategys
+    // Content scale strategys
     var ExactFit = cc.ContentStrategy.extend({
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
@@ -1365,15 +1365,15 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-// Alias: Strategy to scale the content's size to container's size, non proportional
+    // Alias: Strategy to scale the content's size to container's size, non proportional
     cc.ContentStrategy.EXACT_FIT = new ExactFit();
-// Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
+    // Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
     cc.ContentStrategy.SHOW_ALL = new ShowAll();
-// Alias: Strategy to scale the content's size proportionally to fill the whole container area
+    // Alias: Strategy to scale the content's size proportionally to fill the whole container area
     cc.ContentStrategy.NO_BORDER = new NoBorder();
-// Alias: Strategy to scale the content's height to container's height and proportionally scale its width
+    // Alias: Strategy to scale the content's height to container's height and proportionally scale its width
     cc.ContentStrategy.FIXED_HEIGHT = new FixedHeight();
-// Alias: Strategy to scale the content's width to container's width and proportionally scale its height
+    // Alias: Strategy to scale the content's width to container's width and proportionally scale its height
     cc.ContentStrategy.FIXED_WIDTH = new FixedWidth();
 
 })();

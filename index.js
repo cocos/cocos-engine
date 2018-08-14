@@ -115,7 +115,7 @@
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
-function defineMacro (name, defaultValue) {
+function defineMacro(name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
     // (use evaled code to prevent mangle by uglify)
@@ -123,7 +123,7 @@ function defineMacro (name, defaultValue) {
         _global[name] = defaultValue;
     }
 }
-function defined (name) {
+function defined(name) {
     return typeof _global[name] === 'object';
 }
 
@@ -136,7 +136,13 @@ defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
 defineMacro('CC_QQPLAY', false);
-defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
+// defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
+if (CC_JSB) {
+    defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues. 
+} else {
+    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
+}
+defineMacro('CC_RUNTIME', true);
 
 // PREDEFINE
 
@@ -205,6 +211,10 @@ if (CC_EDITOR) {
     if (Editor.isMainProcess) {
         Editor.versions['cocos2d'] = require('./package.json').version;
     }
+}
+
+if (CC_JSB) {
+    require('./jsb/jsb-loader.js');
 }
 
 module.exports = cc;
