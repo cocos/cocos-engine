@@ -9,7 +9,7 @@ var pools = [];
 var pointCache = [cc.v2(), cc.v2()];
 
 var b2worldmanifold;
-if (!CC_JSB) {
+if (CC_RUNTIME || !CC_JSB) {
     b2worldmanifold = new b2.WorldManifold();
 }
 
@@ -83,7 +83,7 @@ var worldmanifold = {
  * 切线冲量。
  * @property {Number} tangentImpulse
  */
-function ManifoldPoint () {
+function ManifoldPoint() {
     this.localPoint = cc.v2();
     this.normalImpulse = 0;
     this.tangentImpulse = 0;
@@ -92,7 +92,7 @@ function ManifoldPoint () {
 var manifoldPointCache = [new ManifoldPoint(), new ManifoldPoint()];
 
 var b2manifold;
-if (!CC_JSB) {
+if (CC_RUNTIME || !CC_JSB) {
     b2manifold = new b2.Manifold();
 }
 
@@ -181,7 +181,7 @@ var impulse = {
  * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
  * @class PhysicsContact
  */
-function PhysicsContact () {
+function PhysicsContact() {
 }
 
 PhysicsContact.prototype.init = function (b2contact) {
@@ -220,7 +220,7 @@ PhysicsContact.prototype.getWorldManifold = function () {
     var separations = worldmanifold.separations;
     var normal = worldmanifold.normal;
 
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         var wrapper = cc.PhysicsUtils.getContactWorldManifoldWrapper(this._b2contact);
         var count = wrapper.getCount();
 
@@ -230,11 +230,11 @@ PhysicsContact.prototype.getWorldManifold = function () {
             let p = pointCache[i];
             p.x = wrapper.getX(i);
             p.y = wrapper.getY(i);
-            
+
             points[i] = p;
             separations[i] = wrapper.getSeparation(i);
         }
-        
+
         normal.x = wrapper.getNormalX();
         normal.y = wrapper.getNormalY();
     }
@@ -245,12 +245,12 @@ PhysicsContact.prototype.getWorldManifold = function () {
 
         var count = this._b2contact.GetManifold().pointCount;
         points.length = separations.length = count;
-        
+
         for (var i = 0; i < count; i++) {
             var p = pointCache[i];
             p.x = b2points[i].x * PTM_RATIO;
             p.y = b2points[i].y * PTM_RATIO;
-            
+
             points[i] = p;
             separations[i] = b2separations[i] * PTM_RATIO;
         }
@@ -279,11 +279,11 @@ PhysicsContact.prototype.getManifold = function () {
     var points = manifold.points;
     var localNormal = manifold.localNormal;
     var localPoint = manifold.localPoint;
-    
-    if (CC_JSB) {
+
+    if (!CC_RUNTIME && CC_JSB) {
         var wrapper = cc.PhysicsUtils.getContactManifoldWrapper();
         var count = points.length = wrapper.getCount();
-        
+
         for (var i = 0; i < count; i++) {
             var p = manifoldPointCache[i];
             p.localPoint.x = wrapper.getX(i);
@@ -349,7 +349,7 @@ PhysicsContact.prototype.getImpulse = function () {
     var tangentImpulses = impulse.tangentImpulses;
     var count;
 
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         count = b2impulse.getCount();
         for (var i = 0; i < count; i++) {
             normalImpulses[i] = b2impulse.getNormalImpulse(i);
@@ -429,7 +429,7 @@ PhysicsContact.get = function (b2contact) {
         c = new cc.PhysicsContact();
     }
     else {
-        c = pools.pop(); 
+        c = pools.pop();
     }
 
     c.init(b2contact);
@@ -439,7 +439,7 @@ PhysicsContact.get = function (b2contact) {
 PhysicsContact.put = function (b2contact) {
     var c = b2contact._contact;
     if (!c) return;
-    
+
     pools.push(c);
     c.reset();
 };

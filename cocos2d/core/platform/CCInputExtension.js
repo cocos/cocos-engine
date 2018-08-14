@@ -39,14 +39,14 @@ var _didAccelerateFun;
  * @method setAccelerometerEnabled
  * @param {Boolean} isEnable
  */
-inputManager.setAccelerometerEnabled = function(isEnable){
+inputManager.setAccelerometerEnabled = function (isEnable) {
     var _t = this;
-    if(_t._accelEnabled === isEnable)
+    if (_t._accelEnabled === isEnable)
         return;
 
     _t._accelEnabled = isEnable;
     var scheduler = cc.director.getScheduler();
-    if(_t._accelEnabled){
+    if (_t._accelEnabled) {
         _t._accelCurTime = 0;
         scheduler.scheduleUpdate(_t);
     } else {
@@ -60,13 +60,13 @@ inputManager.setAccelerometerEnabled = function(isEnable){
  * @method setAccelerometerInterval
  * @param {Number} interval
  */
-inputManager.setAccelerometerInterval = function(interval){
+inputManager.setAccelerometerInterval = function (interval) {
     if (this._accelInterval !== interval) {
         this._accelInterval = interval;
     }
 };
 
-inputManager._registerKeyboardEvent = function(){
+inputManager._registerKeyboardEvent = function () {
     cc.game.canvas.addEventListener("keydown", function (e) {
         eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, true));
         e.stopPropagation();
@@ -79,7 +79,7 @@ inputManager._registerKeyboardEvent = function(){
     }, false);
 };
 
-inputManager._registerAccelerometerEvent = function(){
+inputManager._registerAccelerometerEvent = function () {
     var w = window, _t = this;
     _t._acceleration = new cc.Acceleration();
     _t._accelDeviceEvent = w.DeviceMotionEvent || w.DeviceOrientationEvent;
@@ -133,18 +133,18 @@ inputManager.didAccelerate = function (eventData) {
     mAcceleration.timestamp = eventData.timeStamp || Date.now();
 
     var tmpX = mAcceleration.x;
-    if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_RIGHT){
+    if (w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_RIGHT) {
         mAcceleration.x = -mAcceleration.y;
         mAcceleration.y = tmpX;
-    }else if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_LEFT){
+    } else if (w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_LEFT) {
         mAcceleration.x = mAcceleration.y;
         mAcceleration.y = -tmpX;
-    }else if(w.orientation === cc.macro.WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN){
+    } else if (w.orientation === cc.macro.WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN) {
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
     }
     // fix android acc values are opposite
-    if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
+    if ((CC_RUNTIME || !CC_JSB) && cc.sys.os === cc.sys.OS_ANDROID &&
         cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;

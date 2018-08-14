@@ -39,7 +39,7 @@ require('./CCMacro');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./CCAssetLibrary');
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         require('./CCVisibleRect');
     }
 }

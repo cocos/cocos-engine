@@ -38,29 +38,29 @@ var TiledLayer = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: cc._SGComponent,
 
-    onEnable: function() {
+    onEnable: function () {
         if (this._sgNode) {
             this._sgNode.setVisible(true);
         }
     },
-    onDisable: function() {
+    onDisable: function () {
         if (this._sgNode) {
             this._sgNode.setVisible(false);
         }
     },
 
     onDestroy: function () {
-        if ( this.node._sizeProvider === this._sgNode ) {
+        if (this.node._sizeProvider === this._sgNode) {
             this.node._sizeProvider = null;
         }
     },
 
-    _initSgNode: function() {
+    _initSgNode: function () {
         var sgNode = this._sgNode;
-        if ( !sgNode ) {
+        if (!sgNode) {
             return;
         }
-        if ( !this.enabledInHierarchy ) {
+        if (!this.enabledInHierarchy) {
             sgNode.setVisible(false);
         }
         this._registSizeProvider();
@@ -68,20 +68,20 @@ var TiledLayer = cc.Class({
         sgNode.setAnchorPoint(node.getAnchorPoint());
     },
 
-    _replaceSgNode: function(sgNode) {
+    _replaceSgNode: function (sgNode) {
         if (sgNode === this._sgNode) {
             return;
         }
 
         // Remove the sgNode before
         this._removeSgNode();
-        if ( this.node._sizeProvider === this._sgNode ) {
+        if (this.node._sizeProvider === this._sgNode) {
             this.node._sizeProvider = null;
         }
 
         if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
             this._sgNode = sgNode;
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 // retain the new sgNode, it will be released in _removeSgNode
                 sgNode.retain();
             }
@@ -101,7 +101,7 @@ var TiledLayer = cc.Class({
      * var layerName = tiledLayer.getLayerName();
      * cc.log(layerName);
      */
-    getLayerName: function() {
+    getLayerName: function () {
         if (this._sgNode) {
             return this._sgNode.getLayerName();
         }
@@ -116,7 +116,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setLayerName("New Layer");
      */
-    setLayerName:function (layerName) {
+    setLayerName: function (layerName) {
         if (this._sgNode) {
             this._sgNode.setLayerName(layerName);
         }
@@ -132,7 +132,7 @@ var TiledLayer = cc.Class({
      * var property = tiledLayer.getProperty("info");
      * cc.log(property);
      */
-    getProperty:function (propertyName) {
+    getProperty: function (propertyName) {
         if (this._sgNode) {
             return this._sgNode.getProperty(propertyName);
         }
@@ -153,7 +153,7 @@ var TiledLayer = cc.Class({
      * var pos = tiledLayer.getPositionAt(0, 0);
      * cc.log("Pos: " + pos);
      */
-    getPositionAt:function (pos, y) {
+    getPositionAt: function (pos, y) {
         if (this._sgNode) {
             if (y !== undefined)
                 pos = cc.p(pos, y);
@@ -173,7 +173,7 @@ var TiledLayer = cc.Class({
      * tiledLayer.removeTileAt(cc.v2(0, 0));
      * tiledLayer.removeTileAt(0, 0);
      */
-    removeTileAt:function (pos, y) {
+    removeTileAt: function (pos, y) {
         if (this._sgNode) {
             if (y !== undefined)
                 pos = cc.p(pos, y);
@@ -198,9 +198,9 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTileGID(1001, 10, 10, 1)
      */
-    setTileGID: function(gid, posOrX, flagsOrY, flags) {
+    setTileGID: function (gid, posOrX, flagsOrY, flags) {
         if (this._sgNode) {
-            if(posOrX === undefined)
+            if (posOrX === undefined)
                 throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
             var pos;
             if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
@@ -246,7 +246,7 @@ var TiledLayer = cc.Class({
      * @example
      * var tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
-    getTileGIDAt:function (pos, y) {
+    getTileGIDAt: function (pos, y) {
         if (this._sgNode) {
             if (y !== undefined)
                 pos = cc.p(pos, y);
@@ -299,7 +299,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.releaseMap();
      */
-    releaseMap:function () {
+    releaseMap: function () {
         if (this._sgNode) {
             this._sgNode.releaseMap();
         }
@@ -314,7 +314,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setContentSize(100, 100);
      */
-    setContentSize:function (size, height) {
+    setContentSize: function (size, height) {
         if (this._sgNode) {
             if (height !== undefined)
                 size = cc.size(size, height);
@@ -331,7 +331,7 @@ var TiledLayer = cc.Class({
      * var texture = tiledLayer.getTexture();
      * cc.log("Texture: " + texture);
      */
-    getTexture: function(){
+    getTexture: function () {
         if (this._sgNode) {
             return this._sgNode.getTexture();
         }
@@ -346,7 +346,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTexture(texture);
      */
-    setTexture: function(texture){
+    setTexture: function (texture) {
         if (this._sgNode) {
             this._sgNode.setTexture(texture);
         }
@@ -360,9 +360,9 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTileOpacity(128);
      */
-    setTileOpacity: function(opacity) {
+    setTileOpacity: function (opacity) {
         if (this._sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 this._sgNode.setTileOpacity(opacity);
             } else {
                 this._sgNode._opacity = opacity;
@@ -379,7 +379,7 @@ var TiledLayer = cc.Class({
      * var size = tiledLayer.getLayerSize();
      * cc.log("layer size: " + size);
      */
-    getLayerSize:function () {
+    getLayerSize: function () {
         if (this._sgNode) {
             return this._sgNode.getLayerSize();
         }
@@ -394,7 +394,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setLayerSize(new cc.size(5, 5));
      */
-    setLayerSize:function (layerSize) {
+    setLayerSize: function (layerSize) {
         if (this._sgNode) {
             this._sgNode.setLayerSize(layerSize);
         }
@@ -409,7 +409,7 @@ var TiledLayer = cc.Class({
      * var mapTileSize = tiledLayer.getMapTileSize();
      * cc.log("MapTile size: " + mapTileSize);
      */
-    getMapTileSize:function () {
+    getMapTileSize: function () {
         if (this._sgNode) {
             return this._sgNode.getMapTileSize();
         }
@@ -424,7 +424,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setMapTileSize(new cc.size(10, 10));
      */
-    setMapTileSize:function (tileSize) {
+    setMapTileSize: function (tileSize) {
         if (this._sgNode) {
             this._sgNode.setMapTileSize(tileSize);
         }
@@ -438,7 +438,7 @@ var TiledLayer = cc.Class({
      * @example
      * var tiles = tiledLayer.getTiles();
      */
-    getTiles:function () {
+    getTiles: function () {
         if (this._sgNode) {
             return this._sgNode.getTiles();
         }
@@ -453,7 +453,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTiles(tiles);
      */
-    setTiles:function (tiles) {
+    setTiles: function (tiles) {
         if (this._sgNode) {
             this._sgNode.setTiles(tiles);
         }
@@ -467,7 +467,7 @@ var TiledLayer = cc.Class({
      * @example
      * var tileset = tiledLayer.getTileSet();
      */
-    getTileSet:function () {
+    getTileSet: function () {
         if (this._sgNode) {
             return this._sgNode.getTileSet();
         }
@@ -482,7 +482,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTileSet(tileset);
      */
-    setTileSet:function (tileset) {
+    setTileSet: function (tileset) {
         if (this._sgNode) {
             this._sgNode.setTileSet(tileset);
         }
@@ -497,7 +497,7 @@ var TiledLayer = cc.Class({
      * var orientation = tiledLayer.getLayerOrientation();
      * cc.log("Layer Orientation: " + orientation);
      */
-    getLayerOrientation:function () {
+    getLayerOrientation: function () {
         if (this._sgNode) {
             return this._sgNode.getLayerOrientation();
         }
@@ -512,7 +512,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setLayerOrientation(TiledMap.Orientation.ORTHO);
      */
-    setLayerOrientation:function (orientation) {
+    setLayerOrientation: function (orientation) {
         if (this._sgNode) {
             this._sgNode.setLayerOrientation(orientation);
         }
@@ -527,7 +527,7 @@ var TiledLayer = cc.Class({
      * var properties = tiledLayer.getProperties();
      * cc.log("Properties: " + properties);
      */
-    getProperties:function () {
+    getProperties: function () {
         if (this._sgNode) {
             return this._sgNode.getProperties();
         }
@@ -542,7 +542,7 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setLayerOrientation(properties);
      */
-    setProperties:function (properties) {
+    setProperties: function (properties) {
         if (this._sgNode) {
             this._sgNode.setProperties(properties);
         }
@@ -552,7 +552,7 @@ var TiledLayer = cc.Class({
     // and try to remove the node from scene graph.
     // It should only be invoked by cc.TiledMap
     // DO NOT use it manually.
-    _tryRemoveNode: function() {
+    _tryRemoveNode: function () {
         this.node.removeComponent(cc.TiledLayer);
         if (this.node._components.length === 1 &&
             this.node.getChildren().length === 0) {

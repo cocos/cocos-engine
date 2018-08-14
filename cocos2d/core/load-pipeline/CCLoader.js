@@ -39,15 +39,15 @@ var resources = new AssetTable();
 
 var AUDIO_TYPES = ['mp3', 'ogg', 'wav', 'm4a'];
 
-function getXMLHttpRequest () {
+function getXMLHttpRequest() {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
-var _info = {url: null, raw: false};
+var _info = { url: null, raw: false };
 
 // Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url
 // So we gurantee there will be url in result
-function getResWithUrl (res) {
+function getResWithUrl(res) {
     var id, result, isUuid;
     if (typeof res === 'object') {
         result = res;
@@ -84,7 +84,7 @@ var _sharedList = [];
  * @extends Pipeline
  * @static
  */
-function CCLoader () {
+function CCLoader() {
     var assetLoader = new AssetLoader();
     var downloader = new Downloader();
     var loader = new Loader();
@@ -217,7 +217,7 @@ proto.addLoadHandlers = function (extMap) {
  * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
  * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
  */
-proto.load = function(resources, progressCallback, completeCallback) {
+proto.load = function (resources, progressCallback, completeCallback) {
     if (completeCallback === undefined) {
         completeCallback = progressCallback;
         progressCallback = this.onProgress || null;
@@ -279,7 +279,7 @@ proto.flowInDeps = function (owner, urlList, callback) {
     _sharedList.length = 0;
     for (var i = 0; i < urlList.length; ++i) {
         var res = getResWithUrl(urlList[i]);
-        if (!res.url && ! res.uuid)
+        if (!res.url && !res.uuid)
             continue;
         var item = this._cache[res.url];
         if (item) {
@@ -321,7 +321,7 @@ proto._getResUuid = function (url, type, quiet) {
     if (index !== -1)
         url = url.substr(0, index);
     var uuid = resources.getUuid(url, type);
-    if ( !uuid ) {
+    if (!uuid) {
         var extname = cc.path.extname(url);
         if (extname) {
             // strip extname
@@ -767,7 +767,7 @@ proto.release = function (asset) {
             var removed = this.removeItem(id);
             asset = item.content;
             if (asset instanceof cc.Asset) {
-                if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
+                if (!CC_RUNTIME && CC_JSB && asset instanceof cc.SpriteFrame && removed) {
                     // for the "Temporary solution" in deserialize.js
                     asset.release();
                 }

@@ -28,7 +28,7 @@
  */
 
 // implements a simple texture loader like sp._atlasLoader
-var TextureLoader = !CC_JSB && cc.Class({
+var TextureLoader = (CC_RUNTIME || !CC_JSB) && cc.Class({
     ctor: function () {
         // {SkeletonData}
         this.asset = arguments[0];
@@ -192,21 +192,21 @@ var SkeletonData = cc.Class({
      * @param {Boolean} [quiet=false]
      * @return {sp.spine.SkeletonData}
      */
-    getRuntimeData: !CC_JSB && function (quiet) {
+    getRuntimeData: (CC_RUNTIME || !CC_JSB) && function (quiet) {
         if (this._skeletonCache) {
             return this._skeletonCache;
         }
 
 
-        if ( !(this.textures && this.textures.length > 0) ) {
-            if ( !quiet ) {
+        if (!(this.textures && this.textures.length > 0)) {
+            if (!quiet) {
                 cc.errorID(7507, this.name);
             }
             return null;
         }
 
         var atlas = this._getAtlas(quiet);
-        if (! atlas) {
+        if (!atlas) {
             return null;
         }
         var attachmentLoader = new sp.spine.AtlasAttachmentLoader(atlas);
@@ -264,19 +264,19 @@ var SkeletonData = cc.Class({
      * @return {sp.spine.Atlas}
      * @private
      */
-    _getAtlas: !CC_JSB && function (quiet) {
+    _getAtlas: (CC_RUNTIME || !CC_JSB) && function (quiet) {
         if (this._atlasCache) {
             return this._atlasCache;
         }
 
-        if ( !this.atlasText ) {
-            if ( !quiet ) {
+        if (!this.atlasText) {
+            if (!quiet) {
                 cc.errorID(7508, this.name);
             }
             return null;
         }
 
-        var loader =  new TextureLoader(this);
+        var loader = new TextureLoader(this);
         return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
     }
 });

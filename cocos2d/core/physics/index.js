@@ -1,5 +1,5 @@
 
-if (!CC_JSB) {
+if (CC_RUNTIME || !CC_JSB) {
     window.b2 = require('../../../external/box2d/box2d');
     if (CC_QQPLAY) {
         // can only define global variable in this way
@@ -27,7 +27,7 @@ require('./joint/CCWeldJoint');
 require('./joint/CCWheelJoint');
 require('./joint/CCRopeJoint');
 
-if (!CC_JSB) {
+if (CC_RUNTIME || !CC_JSB) {
     require('./platform/CCPhysicsDebugDraw');
     require('./platform/CCPhysicsUtils');
     require('./platform/CCPhysicsContactListner');

@@ -72,18 +72,18 @@ Class.extend = function (props) {
     if (CC_SUPPORT_JIT && cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
         var ctor =
             "return (function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4) {\n" +
-                "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
-                "if (this.ctor) {\n" +
-                    "switch (arguments.length) {\n" +
-                        "case 0: this.ctor(); break;\n" +
-                        "case 1: this.ctor(arg0); break;\n" +
-                        "case 2: this.ctor(arg0,arg1); break;\n" +
-                        "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
-                        "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
-                        "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
-                        "default: this.ctor.apply(this, arguments);\n" +
-                    "}\n" +
-                "}\n" +
+            "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
+            "if (this.ctor) {\n" +
+            "switch (arguments.length) {\n" +
+            "case 0: this.ctor(); break;\n" +
+            "case 1: this.ctor(arg0); break;\n" +
+            "case 2: this.ctor(arg0,arg1); break;\n" +
+            "case 3: this.ctor(arg0,arg1,arg2); break;\n" +
+            "case 4: this.ctor(arg0,arg1,arg2,arg3); break;\n" +
+            "case 5: this.ctor(arg0,arg1,arg2,arg3,arg4); break;\n" +
+            "default: this.ctor.apply(this, arguments);\n" +
+            "}\n" +
+            "}\n" +
             "});";
         TheClass = Function(ctor)();
     }
@@ -115,7 +115,7 @@ Class.extend = function (props) {
         var isFunc = (typeof props[name] === "function");
         var override = isFunc && (typeof _super[name] === "function");
         var hasSuperCall = override && fnTest.test(props[name]);
-        
+
         if (hasSuperCall) {
             desc.value = (function (name, fn) {
                 return function () {
@@ -215,7 +215,7 @@ cc.clone = function (obj) {
         if (typeof copy === "object" &&
             copy &&
             !(copy instanceof _ccsg.Node) &&
-            (CC_JSB || !(copy instanceof HTMLElement))) {
+            ((!CC_RUNTIME && CC_JSB) || !(copy instanceof HTMLElement))) {
             newObj[key] = cc.clone(copy);
         } else {
             newObj[key] = copy;

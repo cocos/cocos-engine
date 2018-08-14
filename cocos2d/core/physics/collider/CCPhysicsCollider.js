@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var getWorldScale = require('../utils').getWorldScale;
 
@@ -45,7 +45,7 @@ var PhysicsCollider = cc.Class({
         _sensor: false,
         _friction: 0.2,
         _restitution: 0,
-        
+
         /**
          * !#en
          * The density.
@@ -73,12 +73,12 @@ var PhysicsCollider = cc.Class({
          * @default false
          */
         sensor: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',        
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',
             get: function () {
                 return this._sensor;
             },
             set: function (value) {
-                this._sensor  = value;
+                this._sensor = value;
             }
         },
 
@@ -91,7 +91,7 @@ var PhysicsCollider = cc.Class({
          * @default 0.2
          */
         friction: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',        
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',
             get: function () {
                 return this._friction;
             },
@@ -223,11 +223,11 @@ var PhysicsCollider = cc.Class({
         var body = this.body._getBody();
         var manager = cc.director.getPhysicsManager();
 
-        for (var i = fixtures.length-1; i >=0 ; i--) {
+        for (var i = fixtures.length - 1; i >= 0; i--) {
             var fixture = fixtures[i];
             fixture.collider = null;
 
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 if (cc.sys.isObjectValid(fixture)) {
                     manager._unregisterContactFixture(fixture);
                 }
@@ -239,14 +239,14 @@ var PhysicsCollider = cc.Class({
                 body.DestroyFixture(fixture);
             }
         }
-        
+
         this.body = null;
-        
+
         this._fixtures.length = 0;
         this._shapes.length = 0;
         this._inited = false;
     },
-    
+
     _createShape: function () {
     },
 
@@ -274,7 +274,7 @@ var PhysicsCollider = cc.Class({
 
         var minX = MAX, minY = MAX;
         var maxX = -MAX, maxY = -MAX;
-        
+
         var fixtures = this._fixtures;
         for (var i = 0; i < fixtures.length; i++) {
             var fixture = fixtures[i];

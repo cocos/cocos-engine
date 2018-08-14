@@ -51,7 +51,7 @@ var _isDomNode = require('./utils').isDomNode;
  * var node = cc.instantiate(targetNode);
  * node.parent = scene;
  */
-function instantiate (original, internal_force) {
+function instantiate(original, internal_force) {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (CC_DEV) {
@@ -118,14 +118,14 @@ var objsToClearTmpVar = [];   // used to reset _iN$t variable
 // * @return {Object}
 // * @private
 // */
-function doInstantiate (obj, parent) {
+function doInstantiate(obj, parent) {
     if (Array.isArray(obj)) {
         if (CC_DEV) {
             cc.errorID(6904);
         }
         return null;
     }
-    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
+    if ((CC_RUNTIME || !CC_JSB) && _isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }
@@ -159,7 +159,7 @@ function doInstantiate (obj, parent) {
 var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
-function enumerateCCClass (klass, obj, clone, parent) {
+function enumerateCCClass(klass, obj, clone, parent) {
     var props = klass.__props__;
     var attrs = Attr.getClassAttrs(klass);
     for (var p = 0; p < props.length; p++) {
@@ -179,7 +179,7 @@ function enumerateCCClass (klass, obj, clone, parent) {
     }
 }
 
-function enumerateObject (obj, clone, parent) {
+function enumerateObject(obj, clone, parent) {
     // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
     obj._iN$t = clone;
@@ -193,7 +193,7 @@ function enumerateObject (obj, clone, parent) {
         for (var key in obj) {
             if (!obj.hasOwnProperty(key) ||
                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
-                 key !== '__type__')
+                    key !== '__type__')
             ) {
                 continue;
             }
@@ -218,7 +218,7 @@ function enumerateObject (obj, clone, parent) {
  * @param {Object|Array} obj - the original non-nil object, typeof must be 'object'
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
-function instantiateObj (obj, parent) {
+function instantiateObj(obj, parent) {
     if (obj instanceof cc.ValueType) {
         return obj.clone();
     }

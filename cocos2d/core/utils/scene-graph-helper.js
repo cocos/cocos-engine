@@ -35,7 +35,7 @@ var SceneGraphUtils = {
             }
             else {
                 // cleanup was skipped when its node was detaching
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     sgNode.cleanup();
                 }
                 else {
@@ -76,7 +76,7 @@ if (CC_DEV) {
     SceneGraphUtils.checkMatchCurrentScene = function () {
         var scene = cc.director.getScene();
         var sgScene = cc.director.getRunningScene();
-        function checkMatch (ent, sgNode) {
+        function checkMatch(ent, sgNode) {
             if (ent._sgNode !== sgNode) {
                 throw new Error('scene graph node not equal: ' + ent.name);
             }

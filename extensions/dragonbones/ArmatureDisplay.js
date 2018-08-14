@@ -30,7 +30,7 @@
 var DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
-function setEnumAttr (obj, propName, enumDef) {
+function setEnumAttr(obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
         type: 'Enum',
         enumList: cc.Enum.getList(enumDef)
@@ -284,7 +284,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // IMPLEMENT
     ctor: function () {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // TODO Fix me
             // If using the getFactory in JSB.
             // There may be throw errors when close the application.
@@ -334,7 +334,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
             var data = this._factory.getDragonBonesData(jsonObj.name);
             if (data) {
-                if (!CC_JSB) {
+                if (CC_RUNTIME || !CC_JSB) {
                     // already added asset
                     var armature, dragonBonesData;
                     for (var i = 0, len = jsonObj.armature.length; i < len; i++) {
@@ -351,7 +351,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                 this._dragonBonesData = data;
             }
             else {
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
                 }
                 else {
@@ -363,7 +363,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _parseDragonAtlasAsset: function () {
         if (this.dragonAtlasAsset) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 // TODO parse the texture atlas data from json string & texture path
                 this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
             }
@@ -412,7 +412,7 @@ dragonBones.ArmatureDisplay = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 sgNode.retain();
             }
             if (!self.enabledInHierarchy) {
@@ -422,7 +422,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             if (listenersBefore) {
                 sgNode._bubblingListeners = listenersBefore; // using the listeners added before
                 sgNode._hasListenerCache = listenersCacheBefore;
-                if (CC_JSB && !sgNode.hasEventCallback()) {
+                if (!CC_RUNTIME && CC_JSB && !sgNode.hasEventCallback()) {
                     // In JSB, should set event callback of the new sgNode
                     // to make the listeners work well.
                     sgNode.setEventCallback(function (eventObject) {

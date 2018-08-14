@@ -220,9 +220,9 @@ var game = {
      */
     onStart: null,
 
-//@Public Methods
+    //@Public Methods
 
-//  @Game play control
+    //  @Game play control
     /**
      * !#en Set frameRate of game.
      * !#zh 设置游戏帧率。
@@ -302,25 +302,31 @@ var game = {
      * @method restart
      */
     restart: function () {
-        cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
-            for (var id in game._persistRootNodes) {
-                game.removePersistRootNode(game._persistRootNodes[id]);
-            }
 
-            // Clear scene
-            cc.director.getScene().destroy();
-            cc.Object._deferredDestroy();
+        if (CC_JSB) {
+            cc.sys.restartVM();
+        }
+        else {
+            cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+                for (var id in game._persistRootNodes) {
+                    game.removePersistRootNode(game._persistRootNodes[id]);
+                }
 
-            cc.director.purgeDirector();
+                // Clear scene
+                cc.director.getScene().destroy();
+                cc.Object._deferredDestroy();
 
-            // Clean up audio
-            if (cc.audioEngine) {
-                cc.audioEngine.uncacheAll();
-            }
+                cc.director.purgeDirector();
 
-            cc.director.reset();
-            game.onStart();
-        });
+                // Clean up audio
+                if (cc.audioEngine) {
+                    cc.audioEngine.uncacheAll();
+                }
+
+                cc.director.reset();
+                game.onStart();
+            });
+        }
     },
 
     /**
@@ -332,7 +338,7 @@ var game = {
         close();
     },
 
-//  @Game loading
+    //  @Game loading
     /**
      * !#en Prepare game.
      * !#zh 准备引擎，请不要直接调用这个函数。
@@ -456,7 +462,7 @@ var game = {
         this.prepare(game.onStart && game.onStart.bind(game));
     },
 
-//  @ Persist root node section
+    //  @ Persist root node section
     /**
      * !#en
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
@@ -479,7 +485,7 @@ var game = {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if ( !(node.parent instanceof cc.Scene) ) {
+                else if (!(node.parent instanceof cc.Scene)) {
                     cc.warnID(3801);
                     return;
                 }
@@ -520,9 +526,9 @@ var game = {
         return node._persistNode;
     },
 
-//@Private Methods
+    //@Private Methods
 
-//  @Time ticker section
+    //  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
         var frameRate = game.config[game.CONFIG_KEY.frameRate];
@@ -533,33 +539,33 @@ var game = {
         }
         else {
             window.requestAnimFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            this._stTime;
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                this._stTime;
             window.cancelAnimFrame = window.cancelAnimationFrame ||
-            window.cancelRequestAnimationFrame ||
-            window.msCancelRequestAnimationFrame ||
-            window.mozCancelRequestAnimationFrame ||
-            window.oCancelRequestAnimationFrame ||
-            window.webkitCancelRequestAnimationFrame ||
-            window.msCancelAnimationFrame ||
-            window.mozCancelAnimationFrame ||
-            window.webkitCancelAnimationFrame ||
-            window.oCancelAnimationFrame ||
-            this._ctTime;
+                window.cancelRequestAnimationFrame ||
+                window.msCancelRequestAnimationFrame ||
+                window.mozCancelRequestAnimationFrame ||
+                window.oCancelRequestAnimationFrame ||
+                window.webkitCancelRequestAnimationFrame ||
+                window.msCancelAnimationFrame ||
+                window.mozCancelAnimationFrame ||
+                window.webkitCancelAnimationFrame ||
+                window.oCancelAnimationFrame ||
+                this._ctTime;
         }
     },
-    _stTime: function(callback){
+    _stTime: function (callback) {
         var currTime = new Date().getTime();
         var timeToCall = Math.max(0, game._frameTime - (currTime - game._lastTime));
-        var id = window.setTimeout(function() { callback(); },
+        var id = window.setTimeout(function () { callback(); },
             timeToCall);
         game._lastTime = currTime + timeToCall;
         return id;
     },
-    _ctTime: function(id){
+    _ctTime: function (id) {
         window.clearTimeout(id);
     },
     //Run game.
@@ -586,7 +592,7 @@ var game = {
         self._paused = false;
     },
 
-//  @Game loading section
+    //  @Game loading section
     _loadConfig: function (cb) {
         // Load config
         // Already loaded
@@ -659,7 +665,7 @@ var game = {
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame) {
+        if (isWeChatGame || CC_JSB) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -702,7 +708,7 @@ var game = {
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-            function addClass (element, name) {
+            function addClass(element, name) {
                 var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
                 if (!hasClass) {
                     if (element.className) {
@@ -728,7 +734,7 @@ var game = {
                 opts['preserveDrawingBuffer'] = true;
             }
             this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, opts);
+                = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
@@ -768,16 +774,16 @@ var game = {
         } else if (typeof document.webkitHidden !== 'undefined') {
             hiddenPropName = "webkitHidden";
         }
-        
+
         var hidden = false;
-        
-        function onHidden () {
+
+        function onHidden() {
             if (!hidden) {
                 hidden = true;
                 game.emit(game.EVENT_HIDE, game);
             }
         }
-        function onShown () {
+        function onShown() {
             if (hidden) {
                 hidden = false;
                 game.emit(game.EVENT_SHOW, game);
@@ -813,6 +819,11 @@ var game = {
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
             wx.onHide && wx.onHide(onHidden);
+        }
+
+        if (CC_JSB) {
+            jsb.onShow = onShow;
+            jsb.onHide = onHidden;
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

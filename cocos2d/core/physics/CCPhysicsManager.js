@@ -113,7 +113,7 @@ var PhysicsManager = cc.Class({
          * @default 1/60
          * @static
          */
-        FIXED_TIME_STEP: 1/60,
+        FIXED_TIME_STEP: 1 / 60,
 
         /**
          * !#en
@@ -125,7 +125,7 @@ var PhysicsManager = cc.Class({
          * @default 1/5
          * @static
          */
-        MAX_ACCUMULATOR: 1/5
+        MAX_ACCUMULATOR: 1 / 5
     },
 
     ctor: function () {
@@ -157,7 +157,7 @@ var PhysicsManager = cc.Class({
          * @default false
          */
         this.enabledAccumulator = false;
-        
+
     },
 
     pushDelayEvent: function (target, func, args) {
@@ -178,7 +178,7 @@ var PhysicsManager = cc.Class({
         if (!world || !this.enabled) return;
 
         this.emit('before-step');
-        
+
         this._steping = true;
 
         var velocityIterations = PhysicsManager.VELOCITY_ITERATIONS;
@@ -201,10 +201,10 @@ var PhysicsManager = cc.Class({
             }
         }
         else {
-            var timeStep = 1/cc.game.config['frameRate'];
+            var timeStep = 1 / cc.game.config['frameRate'];
             world.Step(timeStep, velocityIterations, positionIterations);
         }
-        
+
 
         world.DrawDebugData();
 
@@ -230,14 +230,14 @@ var PhysicsManager = cc.Class({
      * @return {PhysicsCollider}
      */
     testPoint: function (point) {
-        var x = tempB2Vec21.x = point.x/PTM_RATIO;
-        var y = tempB2Vec21.y = point.y/PTM_RATIO;
+        var x = tempB2Vec21.x = point.x / PTM_RATIO;
+        var y = tempB2Vec21.y = point.y / PTM_RATIO;
 
-        var d = 0.2/PTM_RATIO;
-        tempB2AABB.lowerBound.x = x-d;
-        tempB2AABB.lowerBound.y = y-d;
-        tempB2AABB.upperBound.x = x+d;
-        tempB2AABB.upperBound.y = y+d;
+        var d = 0.2 / PTM_RATIO;
+        tempB2AABB.lowerBound.x = x - d;
+        tempB2AABB.lowerBound.y = y - d;
+        tempB2AABB.upperBound.x = x + d;
+        tempB2AABB.upperBound.y = y + d;
 
         var callback = this._aabbQueryCallback;
         callback.init(tempB2Vec21);
@@ -261,10 +261,10 @@ var PhysicsManager = cc.Class({
      * @return {[PhysicsCollider]}
      */
     testAABB: function (rect) {
-        tempB2AABB.lowerBound.x = rect.xMin/PTM_RATIO;
-        tempB2AABB.lowerBound.y = rect.yMin/PTM_RATIO;
-        tempB2AABB.upperBound.x = rect.xMax/PTM_RATIO;
-        tempB2AABB.upperBound.y = rect.yMax/PTM_RATIO;
+        tempB2AABB.lowerBound.x = rect.xMin / PTM_RATIO;
+        tempB2AABB.lowerBound.y = rect.yMin / PTM_RATIO;
+        tempB2AABB.upperBound.x = rect.xMax / PTM_RATIO;
+        tempB2AABB.upperBound.y = rect.yMax / PTM_RATIO;
 
         var callback = this._aabbQueryCallback;
         callback.init();
@@ -297,10 +297,10 @@ var PhysicsManager = cc.Class({
 
         type = type || RayCastType.Closest;
 
-        tempB2Vec21.x = p1.x/PTM_RATIO;
-        tempB2Vec21.y = p1.y/PTM_RATIO;
-        tempB2Vec22.x = p2.x/PTM_RATIO;
-        tempB2Vec22.y = p2.y/PTM_RATIO;
+        tempB2Vec21.x = p1.x / PTM_RATIO;
+        tempB2Vec21.y = p1.y / PTM_RATIO;
+        tempB2Vec22.x = p2.x / PTM_RATIO;
+        tempB2Vec22.y = p2.y / PTM_RATIO;
 
         var callback = this._raycastQueryCallback;
         callback.init(type);
@@ -318,15 +318,15 @@ var PhysicsManager = cc.Class({
                 var collider = fixture.collider;
 
                 if (type === RayCastType.AllClosest) {
-                    var result = results.find(function(result) {
+                    var result = results.find(function (result) {
                         return result.collider === collider;
                     });
 
                     if (result) {
                         if (fractions[i] < result.fraction) {
                             result.fixtureIndex = collider._getFixtureIndex(fixture);
-                            result.point.x = points[i].x*PTM_RATIO;
-                            result.point.y = points[i].y*PTM_RATIO;
+                            result.point.x = points[i].x * PTM_RATIO;
+                            result.point.y = points[i].y * PTM_RATIO;
                             result.normal.x = normals[i].x;
                             result.normal.y = normals[i].y;
                             result.fraction = fractions[i];
@@ -338,7 +338,7 @@ var PhysicsManager = cc.Class({
                 results.push({
                     collider: collider,
                     fixtureIndex: collider._getFixtureIndex(fixture),
-                    point: cc.v2(points[i].x*PTM_RATIO, points[i].y*PTM_RATIO),
+                    point: cc.v2(points[i].x * PTM_RATIO, points[i].y * PTM_RATIO),
                     normal: cc.v2(normals[i]),
                     fraction: fractions[i]
                 });
@@ -349,7 +349,7 @@ var PhysicsManager = cc.Class({
 
         return [];
     },
- 
+
     syncPosition: function () {
         var bodies = this._bodies;
         for (var i = 0; i < bodies.length; i++) {
@@ -361,7 +361,7 @@ var PhysicsManager = cc.Class({
         for (var i = 0; i < bodies.length; i++) {
             bodies[i].syncRotation();
         }
-    },    
+    },
 
     /**
      * !#en
@@ -404,8 +404,8 @@ var PhysicsManager = cc.Class({
 
         body._b2Body = world.CreateBody(bodyDef);
 
-        if (CC_JSB) {
-            body._b2Body.SetUserData( node._sgNode );
+        if (!CC_RUNTIME && CC_JSB) {
+            body._b2Body.SetUserData(node._sgNode);
         }
 
         body._b2Body.body = body;
@@ -418,7 +418,7 @@ var PhysicsManager = cc.Class({
         var world = this._world;
         if (!world) return;
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             body._b2Body.SetUserData(null);
         }
         body._b2Body.body = null;
@@ -465,17 +465,17 @@ var PhysicsManager = cc.Class({
 
     _syncNode: function () {
         this._utils.syncNode();
-        
+
         var bodies = this._bodies;
         for (var i = 0, l = bodies.length; i < l; i++) {
             var body = bodies[i];
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 var node = body.node;
                 node._position.x = node._sgNode.getPositionX();
                 node._position.y = node._sgNode.getPositionY();
                 node._rotationX = node._rotationY = node._sgNode.getRotation();
             }
-            
+
             if (body.type === BodyType.Animated) {
                 body.resetVelocity();
             }
@@ -483,7 +483,7 @@ var PhysicsManager = cc.Class({
     },
 
     _onSceneLaunched: function () {
-        this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
+        this._debugDrawer.AddDrawerToNode(cc.director.getScene()._sgNode);
     },
 
     _onBeginContact: function (b2contact) {
@@ -497,7 +497,7 @@ var PhysicsManager = cc.Class({
             return;
         }
         c.emit(ContactType.END_CONTACT);
-        
+
         cc.PhysicsContact.put(b2contact);
     },
 
@@ -506,7 +506,7 @@ var PhysicsManager = cc.Class({
         if (!c) {
             return;
         }
-        
+
         c.emit(ContactType.PRE_SOLVE);
     },
 
@@ -531,13 +531,13 @@ var PhysicsManager = cc.Class({
  * @property {Boolean} enabled
  * @default false
  */
-cc.js.getset(PhysicsManager.prototype, 'enabled', 
+cc.js.getset(PhysicsManager.prototype, 'enabled',
     function () {
         return this._enabled;
     },
     function (value) {
         if (value && !this._world) {
-            var world = new b2.World( new b2.Vec2(0, -10) );
+            var world = new b2.World(new b2.Vec2(0, -10));
             world.SetAllowSleeping(true);
 
             this._world = world;
@@ -569,7 +569,7 @@ cc.js.getset(PhysicsManager.prototype, 'enabled',
  * // disable debug draw info
  * cc.director.getPhysicsManager().debugDrawFlags = 0;
  */
-cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags', 
+cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
     function () {
         return this._debugDrawFlags;
     },
@@ -577,12 +577,12 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
         if (value && !this._debugDrawFlags) {
             if (!this._debugDrawer) {
                 this._debugDrawer = new cc.PhysicsDebugDraw(PTM_RATIO);
-                this._world.SetDebugDraw( this._debugDrawer );
+                this._world.SetDebugDraw(this._debugDrawer);
             }
 
             var scene = cc.director.getScene();
             if (scene) {
-                this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
+                this._debugDrawer.AddDrawerToNode(cc.director.getScene()._sgNode);
             }
             cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this._onSceneLaunched, this);
         }
@@ -609,14 +609,14 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
     function () {
         if (this._world) {
             var g = this._world.GetGravity();
-            return cc.v2(g.x*PTM_RATIO, g.y*PTM_RATIO);
+            return cc.v2(g.x * PTM_RATIO, g.y * PTM_RATIO);
         }
         return cc.v2();
     },
 
     function (value) {
         if (this._world) {
-            this._world.SetGravity(new b2.Vec2(value.x/PTM_RATIO, value.y/PTM_RATIO));
+            this._world.SetGravity(new b2.Vec2(value.x / PTM_RATIO, value.y / PTM_RATIO));
         }
     }
 );

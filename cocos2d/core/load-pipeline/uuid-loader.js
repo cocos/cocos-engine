@@ -27,17 +27,17 @@ var JS = require('../platform/js');
 require('../platform/deserialize');
 var LoadingItems = require('./loading-items');
 
-function isSceneObj (json) {
+function isSceneObj(json) {
     var SCENE_ID = 'cc.Scene';
     var PREFAB_ID = 'cc.Prefab';
     return json && (
-               (json[0] && json[0].__type__ === SCENE_ID) ||
-               (json[1] && json[1].__type__ === SCENE_ID) ||
-               (json[0] && json[0].__type__ === PREFAB_ID)
-           );
+        (json[0] && json[0].__type__ === SCENE_ID) ||
+        (json[1] && json[1].__type__ === SCENE_ID) ||
+        (json[0] && json[0].__type__ === PREFAB_ID)
+    );
 }
 
-function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
+function loadDepends(pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
     var uuidList = tdInfo.uuidList;
     var objList, propList, depends;
     var i, dependUuid;
@@ -127,7 +127,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                     obj: dependObj,
                     prop: dependProp
                 };
-                function loadCallback (item) {
+                function loadCallback(item) {
                     var value = item.isRawAsset ? item.rawUrl : item.content;
                     this.obj[this.prop] = value;
                     if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
@@ -174,8 +174,8 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
 }
 
 // can deferred load raw assets in runtime
-function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR || CC_JSB) {
+function canDeferredLoad(asset, item, isScene) {
+    if (CC_EDITOR || (!CC_RUNTIME && CC_JSB)) {
         return false;
     }
     var res = item.deferredLoadRaw;
@@ -198,7 +198,7 @@ function canDeferredLoad (asset, item, isScene) {
 
 var MissingClass;
 
-function loadUuid (item, callback) {
+function loadUuid(item, callback) {
     if (CC_EDITOR) {
         MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
     }

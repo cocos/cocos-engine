@@ -40,7 +40,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    none:0,
+    none: 0,
 
     // android
     /**
@@ -50,7 +50,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    back:6,
+    back: 6,
     /**
      * !#en The menu key
      * !#zh 菜单键
@@ -58,7 +58,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    menu:18,
+    menu: 18,
 
     /**
      * !#en The backspace key
@@ -67,7 +67,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    backspace:8,
+    backspace: 8,
 
     /**
      * !#en The tab key
@@ -76,7 +76,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    tab:9,
+    tab: 9,
 
     /**
      * !#en The enter key
@@ -85,7 +85,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    enter:13,
+    enter: 13,
 
     /**
      * !#en The shift key
@@ -94,7 +94,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    shift:16, //should use shiftkey instead
+    shift: 16, //should use shiftkey instead
 
     /**
      * !#en The ctrl key
@@ -103,7 +103,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    ctrl:17, //should use ctrlkey
+    ctrl: 17, //should use ctrlkey
 
     /**
      * !#en The alt key
@@ -112,7 +112,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    alt:18, //should use altkey
+    alt: 18, //should use altkey
 
     /**
      * !#en The pause key
@@ -121,7 +121,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    pause:19,
+    pause: 19,
 
     /**
      * !#en The caps lock key
@@ -130,7 +130,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    capslock:20,
+    capslock: 20,
 
     /**
      * !#en The esc key
@@ -139,7 +139,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    escape:27,
+    escape: 27,
 
     /**
      * !#en The space key
@@ -148,7 +148,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    space:32,
+    space: 32,
 
     /**
      * !#en The page up key
@@ -157,7 +157,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    pageup:33,
+    pageup: 33,
 
     /**
      * !#en The page down key
@@ -166,7 +166,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    pagedown:34,
+    pagedown: 34,
 
     /**
      * !#en The end key
@@ -175,7 +175,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    end:35,
+    end: 35,
 
     /**
      * !#en The home key
@@ -184,7 +184,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    home:36,
+    home: 36,
 
     /**
      * !#en The left key
@@ -193,7 +193,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    left:37,
+    left: 37,
 
     /**
      * !#en The up key
@@ -202,7 +202,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    up:38,
+    up: 38,
 
     /**
      * !#en The right key
@@ -211,7 +211,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    right:39,
+    right: 39,
 
     /**
      * !#en The down key
@@ -220,7 +220,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    down:40,
+    down: 40,
 
     /**
      * !#en The select key
@@ -229,7 +229,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    select:41,
+    select: 41,
 
     /**
      * !#en The insert key
@@ -238,7 +238,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    insert:45,
+    insert: 45,
 
     /**
      * !#en The Delete key
@@ -247,7 +247,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    Delete:46,
+    Delete: 46,
 
     /**
      * !#en The '0' key on the top of the alphanumeric keyboard.
@@ -256,7 +256,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    0:48,
+    0: 48,
 
     /**
      * !#en The '1' key on the top of the alphanumeric keyboard.
@@ -265,7 +265,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    1:49,
+    1: 49,
 
     /**
      * !#en The '2' key on the top of the alphanumeric keyboard.
@@ -274,7 +274,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    2:50,
+    2: 50,
 
     /**
      * !#en The '3' key on the top of the alphanumeric keyboard.
@@ -283,7 +283,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    3:51,
+    3: 51,
 
     /**
      * !#en The '4' key on the top of the alphanumeric keyboard.
@@ -292,7 +292,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    4:52,
+    4: 52,
 
     /**
      * !#en The '5' key on the top of the alphanumeric keyboard.
@@ -301,7 +301,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    5:53,
+    5: 53,
 
     /**
      * !#en The '6' key on the top of the alphanumeric keyboard.
@@ -310,7 +310,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    6:54,
+    6: 54,
 
     /**
      * !#en The '7' key on the top of the alphanumeric keyboard.
@@ -319,7 +319,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    7:55,
+    7: 55,
 
     /**
      * !#en The '8' key on the top of the alphanumeric keyboard.
@@ -328,7 +328,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    8:56,
+    8: 56,
 
     /**
      * !#en The '9' key on the top of the alphanumeric keyboard.
@@ -337,7 +337,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    9:57,
+    9: 57,
 
     /**
      * !#en The a key
@@ -346,7 +346,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    a:65,
+    a: 65,
 
     /**
      * !#en The b key
@@ -355,7 +355,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    b:66,
+    b: 66,
 
     /**
      * !#en The c key
@@ -364,7 +364,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    c:67,
+    c: 67,
 
     /**
      * !#en The d key
@@ -373,7 +373,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    d:68,
+    d: 68,
 
     /**
      * !#en The e key
@@ -382,7 +382,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    e:69,
+    e: 69,
 
     /**
      * !#en The f key
@@ -391,7 +391,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f:70,
+    f: 70,
 
     /**
      * !#en The g key
@@ -400,7 +400,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    g:71,
+    g: 71,
 
     /**
      * !#en The h key
@@ -409,7 +409,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    h:72,
+    h: 72,
 
     /**
      * !#en The i key
@@ -418,7 +418,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    i:73,
+    i: 73,
 
     /**
      * !#en The j key
@@ -427,7 +427,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    j:74,
+    j: 74,
 
     /**
      * !#en The k key
@@ -436,7 +436,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    k:75,
+    k: 75,
 
     /**
      * !#en The l key
@@ -445,7 +445,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    l:76,
+    l: 76,
 
     /**
      * !#en The m key
@@ -454,7 +454,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    m:77,
+    m: 77,
 
     /**
      * !#en The n key
@@ -463,7 +463,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    n:78,
+    n: 78,
 
     /**
      * !#en The o key
@@ -472,7 +472,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    o:79,
+    o: 79,
 
     /**
      * !#en The p key
@@ -481,7 +481,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    p:80,
+    p: 80,
 
     /**
      * !#en The q key
@@ -490,7 +490,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    q:81,
+    q: 81,
 
     /**
      * !#en The r key
@@ -499,7 +499,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    r:82,
+    r: 82,
 
     /**
      * !#en The s key
@@ -508,7 +508,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    s:83,
+    s: 83,
 
     /**
      * !#en The t key
@@ -517,7 +517,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    t:84,
+    t: 84,
 
     /**
      * !#en The u key
@@ -526,7 +526,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    u:85,
+    u: 85,
 
     /**
      * !#en The v key
@@ -535,7 +535,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    v:86,
+    v: 86,
 
     /**
      * !#en The w key
@@ -544,7 +544,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    w:87,
+    w: 87,
 
     /**
      * !#en The x key
@@ -553,7 +553,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    x:88,
+    x: 88,
 
     /**
      * !#en The y key
@@ -562,7 +562,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    y:89,
+    y: 89,
 
     /**
      * !#en The z key
@@ -571,7 +571,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    z:90,
+    z: 90,
 
     /**
      * !#en The numeric keypad 0
@@ -580,7 +580,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num0:96,
+    num0: 96,
 
     /**
      * !#en The numeric keypad 1
@@ -589,7 +589,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num1:97,
+    num1: 97,
 
     /**
      * !#en The numeric keypad 2
@@ -598,7 +598,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num2:98,
+    num2: 98,
 
     /**
      * !#en The numeric keypad 3
@@ -607,7 +607,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num3:99,
+    num3: 99,
 
     /**
      * !#en The numeric keypad 4
@@ -616,7 +616,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num4:100,
+    num4: 100,
 
     /**
      * !#en The numeric keypad 5
@@ -625,7 +625,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num5:101,
+    num5: 101,
 
     /**
      * !#en The numeric keypad 6
@@ -634,7 +634,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num6:102,
+    num6: 102,
 
     /**
      * !#en The numeric keypad 7
@@ -643,7 +643,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num7:103,
+    num7: 103,
 
     /**
      * !#en The numeric keypad 8
@@ -652,7 +652,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num8:104,
+    num8: 104,
 
     /**
      * !#en The numeric keypad 9
@@ -661,7 +661,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    num9:105,
+    num9: 105,
 
     /**
      * !#en The numeric keypad '*'
@@ -670,7 +670,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '*':106,
+    '*': 106,
 
     /**
      * !#en The numeric keypad '+'
@@ -679,7 +679,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '+':107,
+    '+': 107,
 
     /**
      * !#en The numeric keypad '-'
@@ -688,7 +688,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '-':109,
+    '-': 109,
 
     /**
      * !#en The numeric keypad 'delete'
@@ -697,7 +697,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    'numdel':110,
+    'numdel': 110,
 
     /**
      * !#en The numeric keypad '/'
@@ -706,7 +706,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '/':111,
+    '/': 111,
 
     /**
      * !#en The F1 function key
@@ -715,7 +715,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f1:112, //f1-f12 dont work on ie
+    f1: 112, //f1-f12 dont work on ie
 
     /**
      * !#en The F2 function key
@@ -724,7 +724,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f2:113,
+    f2: 113,
 
     /**
      * !#en The F3 function key
@@ -733,7 +733,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f3:114,
+    f3: 114,
 
     /**
      * !#en The F4 function key
@@ -742,7 +742,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f4:115,
+    f4: 115,
 
     /**
      * !#en The F5 function key
@@ -751,7 +751,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f5:116,
+    f5: 116,
 
     /**
      * !#en The F6 function key
@@ -760,7 +760,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f6:117,
+    f6: 117,
 
     /**
      * !#en The F7 function key
@@ -769,7 +769,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f7:118,
+    f7: 118,
 
     /**
      * !#en The F8 function key
@@ -778,7 +778,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f8:119,
+    f8: 119,
 
     /**
      * !#en The F9 function key
@@ -787,7 +787,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f9:120,
+    f9: 120,
 
     /**
      * !#en The F10 function key
@@ -796,7 +796,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f10:121,
+    f10: 121,
 
     /**
      * !#en The F11 function key
@@ -805,7 +805,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f11:122,
+    f11: 122,
 
     /**
      * !#en The F12 function key
@@ -814,7 +814,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    f12:123,
+    f12: 123,
 
     /**
      * !#en The numlock key
@@ -823,7 +823,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    numlock:144,
+    numlock: 144,
 
     /**
      * !#en The scroll lock key
@@ -832,7 +832,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    scrolllock:145,
+    scrolllock: 145,
 
     /**
      * !#en The ';' key.
@@ -841,7 +841,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    ';':186,
+    ';': 186,
 
     /**
      * !#en The ';' key.
@@ -850,7 +850,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    semicolon:186,
+    semicolon: 186,
 
     /**
      * !#en The '=' key.
@@ -859,7 +859,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    equal:187,
+    equal: 187,
 
     /**
      * !#en The '=' key.
@@ -868,7 +868,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '=':187,
+    '=': 187,
 
     /**
      * !#en The ',' key.
@@ -877,7 +877,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    ',':188,
+    ',': 188,
 
     /**
      * !#en The ',' key.
@@ -886,7 +886,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    comma:188,
+    comma: 188,
 
     /**
      * !#en The dash '-' key.
@@ -895,7 +895,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dash:189,
+    dash: 189,
 
     /**
      * !#en The '.' key.
@@ -904,7 +904,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '.':190,
+    '.': 190,
 
     /**
      * !#en The '.' key
@@ -913,7 +913,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    period:190,
+    period: 190,
 
     /**
      * !#en The forward slash key
@@ -922,7 +922,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    forwardslash:191,
+    forwardslash: 191,
 
     /**
      * !#en The grave key
@@ -931,7 +931,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    grave:192,
+    grave: 192,
 
     /**
      * !#en The '[' key
@@ -940,7 +940,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    '[':219,
+    '[': 219,
 
     /**
      * !#en The '[' key
@@ -949,7 +949,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    openbracket:219,
+    openbracket: 219,
 
     /**
      * !#en The '\' key
@@ -958,7 +958,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    backslash:220,
+    backslash: 220,
 
     /**
      * !#en The ']' key
@@ -967,7 +967,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    ']':221,
+    ']': 221,
 
     /**
      * !#en The ']' key
@@ -976,7 +976,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    closebracket:221,
+    closebracket: 221,
 
     /**
      * !#en The quote key
@@ -985,7 +985,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    quote:222,
+    quote: 222,
 
     // gamepad controll
 
@@ -996,7 +996,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadLeft:1000,
+    dpadLeft: 1000,
 
     /**
      * !#en The dpad right key
@@ -1005,7 +1005,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadRight:1001,
+    dpadRight: 1001,
 
     /**
      * !#en The dpad up key
@@ -1014,7 +1014,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadUp:1003,
+    dpadUp: 1003,
 
     /**
      * !#en The dpad down key
@@ -1023,7 +1023,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadDown:1004,
+    dpadDown: 1004,
 
     /**
      * !#en The dpad center key
@@ -1032,7 +1032,7 @@ cc.KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadCenter:1005
+    dpadCenter: 1005
 };
 
 /**
@@ -1209,7 +1209,7 @@ cc.macro = {
      * @property REPEAT_FOREVER
      * @type {Number}
      */
-    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
+    REPEAT_FOREVER: (!CC_RUNTIME && CC_JSB) ? 0xffffffff : (Number.MAX_VALUE - 1),
 
     /**
      * @property FLT_EPSILON
@@ -1395,7 +1395,7 @@ cc.macro = {
      * @property VERTEX_ATTRIB_FLAG_POS_COLOR_TEX
      * @type {Number}
      */
-    VERTEX_ATTRIB_FLAG_POS_COLOR_TEX: ( (1 << 0) | (1 << 1) | (1 << 2) ),
+    VERTEX_ATTRIB_FLAG_POS_COLOR_TEX: ((1 << 0) | (1 << 1) | (1 << 2)),
 
     /**
      * GL server side states
@@ -1962,7 +1962,7 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
         var scene = cc.director.getScene();
         if (!scene) return;
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             scene._sgNode.markCullingDirty();
             cc.director.setCullingEnabled(val);
         }
@@ -1981,9 +1981,9 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
  * @property BLEND_SRC
  * @type {Number}
  */
-cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
+cc.defineGetterSetter(cc.macro, "BLEND_SRC", function () {
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
-         && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
+        && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
         return cc.macro.ONE;
     }
     else {
@@ -2015,7 +2015,7 @@ cc.lerp = function (a, b, r) {
  * @returns {Number}
  */
 cc.rand = function () {
-	return Math.random() * 0xffffff;
+    return Math.random() * 0xffffff;
 };
 
 /**
@@ -2079,12 +2079,12 @@ cc.nodeDrawSetup = function (node) {
  * @method enableDefaultGLStates
  */
 // cc.enableDefaultGLStates = function () {
-    //TODO OPENGL STUFF
-    /*
-     glEnableClientState(GL_VERTEX_ARRAY);
-     glEnableClientState(GL_COLOR_ARRAY);
-     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-     glEnable(GL_TEXTURE_2D);*/
+//TODO OPENGL STUFF
+/*
+ glEnableClientState(GL_VERTEX_ARRAY);
+ glEnableClientState(GL_COLOR_ARRAY);
+ glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+ glEnable(GL_TEXTURE_2D);*/
 // };
 
 /*
@@ -2097,13 +2097,13 @@ cc.nodeDrawSetup = function (node) {
  * @method disableDefaultGLStates
  */
 // cc.disableDefaultGLStates = function () {
-    //TODO OPENGL
-    /*
-     glDisable(GL_TEXTURE_2D);
-     glDisableClientState(GL_COLOR_ARRAY);
-     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-     glDisableClientState(GL_VERTEX_ARRAY);
-     */
+//TODO OPENGL
+/*
+ glDisable(GL_TEXTURE_2D);
+ glDisableClientState(GL_COLOR_ARRAY);
+ glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+ glDisableClientState(GL_VERTEX_ARRAY);
+ */
 // };
 
 /**

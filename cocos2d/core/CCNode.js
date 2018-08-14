@@ -46,7 +46,7 @@ var Event = require('./event/event');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 var ActionManagerExist = !!cc.ActionManager;
-var emptyFunc = function () {};
+var emptyFunc = function () { };
 
 /**
  * !#en The event type supported by Node
@@ -151,14 +151,14 @@ var _touchStartHandler = function (touch, event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             event = Event.EventTouch.pool.get(event);
         }
         event.type = EventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             event.touch = null;
             event._touches = null;
             Event.EventTouch.pool.put(event);
@@ -168,7 +168,7 @@ var _touchStartHandler = function (touch, event) {
     return false;
 };
 var _touchMoveHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var node = this.owner;
@@ -176,14 +176,14 @@ var _touchMoveHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
 var _touchEndHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -198,14 +198,14 @@ var _touchEndHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
 var _touchCancelHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -215,7 +215,7 @@ var _touchCancelHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
@@ -227,7 +227,7 @@ var _mouseDownHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -235,7 +235,7 @@ var _mouseDownHandler = function (event) {
         event.type = EventType.MOUSE_DOWN;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -247,7 +247,7 @@ var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
     var hit = node._hitTest(pos, this);
-    if (CC_JSB && (hit || this._previousIn)) {
+    if (!CC_RUNTIME && CC_JSB && (hit || this._previousIn)) {
         // jsb event will be replaced so can be stopped immediately
         event.stopPropagation();
         event = Event.EventMouse.pool.get(event);
@@ -281,7 +281,7 @@ var _mouseMoveHandler = function (event) {
     }
 
     // Event processed, cleanup
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         Event.EventMouse.pool.put(event);
     }
     else {
@@ -293,7 +293,7 @@ var _mouseUpHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -301,7 +301,7 @@ var _mouseUpHandler = function (event) {
         event.type = EventType.MOUSE_UP;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -315,7 +315,7 @@ var _mouseWheelHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         //FIXME: separate wheel event and other mouse event.
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -323,7 +323,7 @@ var _mouseWheelHandler = function (event) {
         event.type = EventType.MOUSE_WHEEL;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -332,7 +332,7 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-function _searchMaskInParent (node) {
+function _searchMaskInParent(node) {
     var Mask = cc.Mask;
     if (Mask) {
         var index = 0;
@@ -349,9 +349,9 @@ function _searchMaskInParent (node) {
     return null;
 }
 
-function updateOrder (node) {
+function updateOrder(node) {
     node._parent._delaySort();
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         eventManager._setDirtyForNode(node);
     }
 }
@@ -420,11 +420,11 @@ var Node = cc.Class({
          * @type {String}
          */
         group: {
-            get () {
+            get() {
                 return cc.game.groupList[this.groupIndex] || '';
             },
 
-            set (value) {
+            set(value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
                 this.emit('group-changed');
             }
@@ -450,10 +450,10 @@ var Node = cc.Class({
          * cc.log("Node Position X: " + node.x);
          */
         x: {
-            get () {
+            get() {
                 return this._position.x;
             },
-            set (value) {
+            set(value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
                     if (!CC_EDITOR || isFinite(value)) {
@@ -493,10 +493,10 @@ var Node = cc.Class({
          * cc.log("Node Position Y: " + node.y);
          */
         y: {
-            get () {
+            get() {
                 return this._position.y;
             },
-            set (value) {
+            set(value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
                     if (!CC_EDITOR || isFinite(value)) {
@@ -536,12 +536,12 @@ var Node = cc.Class({
          * cc.log("Node Rotation: " + node.rotation);
          */
         rotation: {
-            get () {
+            get() {
                 if (this._rotationX !== this._rotationY)
                     cc.logID(1602);
                 return this._rotationX;
             },
-            set (value) {
+            set(value) {
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
@@ -564,10 +564,10 @@ var Node = cc.Class({
          * cc.log("Node Rotation X: " + node.rotationX);
          */
         rotationX: {
-            get () {
+            get() {
                 return this._rotationX;
             },
-            set (value) {
+            set(value) {
                 if (this._rotationX !== value) {
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
@@ -590,10 +590,10 @@ var Node = cc.Class({
          * cc.log("Node Rotation Y: " + node.rotationY);
          */
         rotationY: {
-            get () {
+            get() {
                 return this._rotationY;
             },
-            set (value) {
+            set(value) {
                 if (this._rotationY !== value) {
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
@@ -616,10 +616,10 @@ var Node = cc.Class({
          * cc.log("Node Scale X: " + node.scaleX);
          */
         scaleX: {
-            get () {
+            get() {
                 return this._scaleX;
             },
-            set (value) {
+            set(value) {
                 if (this._scaleX !== value) {
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
@@ -642,10 +642,10 @@ var Node = cc.Class({
          * cc.log("Node Scale Y: " + node.scaleY);
          */
         scaleY: {
-            get () {
+            get() {
                 return this._scaleY;
             },
-            set (value) {
+            set(value) {
                 if (this._scaleY !== value) {
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
@@ -668,10 +668,10 @@ var Node = cc.Class({
          * cc.log("Node SkewX: " + node.skewX);
          */
         skewX: {
-            get () {
+            get() {
                 return this._skewX;
             },
-            set (value) {
+            set(value) {
                 this._skewX = value;
                 this._sgNode.skewX = value;
             }
@@ -687,10 +687,10 @@ var Node = cc.Class({
          * cc.log("Node SkewY: " + node.skewY);
          */
         skewY: {
-            get () {
+            get() {
                 return this._skewY;
             },
-            set (value) {
+            set(value) {
                 this._skewY = value;
                 this._sgNode.skewY = value;
             }
@@ -705,10 +705,10 @@ var Node = cc.Class({
          * node.opacity = 255;
          */
         opacity: {
-            get () {
+            get() {
                 return this._opacity;
             },
-            set (value) {
+            set(value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
                     this._sgNode.setOpacity(value);
@@ -732,10 +732,10 @@ var Node = cc.Class({
          * cc.log("CascadeOpacity: " + node.cascadeOpacity);
          */
         cascadeOpacity: {
-            get () {
+            get() {
                 return this._cascadeOpacityEnabled;
             },
-            set (value) {
+            set(value) {
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
                     this._sgNode.cascadeOpacity = value;
@@ -758,10 +758,10 @@ var Node = cc.Class({
          * node.color = new cc.Color(255, 255, 255);
          */
         color: {
-            get () {
+            get() {
                 return this._color.clone()
             },
-            set (value) {
+            set(value) {
                 if (!this._color.equals(value)) {
                     this._color.fromColor(value);
                     if (CC_DEV && value.a !== 255) {
@@ -783,10 +783,10 @@ var Node = cc.Class({
          * node.anchorX = 0;
          */
         anchorX: {
-            get () {
+            get() {
                 return this._anchorPoint.x;
             },
-            set (value) {
+            set(value) {
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.x !== value) {
                     anchorPoint.x = value;
@@ -808,10 +808,10 @@ var Node = cc.Class({
          * node.anchorY = 0;
          */
         anchorY: {
-            get () {
+            get() {
                 return this._anchorPoint.y;
             },
-            set (value) {
+            set(value) {
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.y !== value) {
                     anchorPoint.y = value;
@@ -833,7 +833,7 @@ var Node = cc.Class({
          * node.width = 100;
          */
         width: {
-            get () {
+            get() {
                 if (this._sizeProvider) {
                     var w = this._sizeProvider._getWidth();
                     this._contentSize.width = w;
@@ -843,7 +843,7 @@ var Node = cc.Class({
                     return this._contentSize.width;
                 }
             },
-            set (value) {
+            set(value) {
                 if (value !== this._contentSize.width) {
                     var sizeProvider = this._sizeProvider;
                     if (sizeProvider) {
@@ -872,7 +872,7 @@ var Node = cc.Class({
          * node.height = 100;
          */
         height: {
-            get () {
+            get() {
                 if (this._sizeProvider) {
                     var h = this._sizeProvider._getHeight();
                     this._contentSize.height = h;
@@ -882,7 +882,7 @@ var Node = cc.Class({
                     return this._contentSize.height;
                 }
             },
-            set (value) {
+            set(value) {
                 if (value !== this._contentSize.height) {
                     var sizeProvider = this._sizeProvider;
                     if (sizeProvider) {
@@ -912,10 +912,10 @@ var Node = cc.Class({
          * cc.log("Node zIndex: " + node.zIndex);
          */
         zIndex: {
-            get () {
+            get() {
                 return this._localZOrder;
             },
-            set (value) {
+            set(value) {
                 if (this._localZOrder !== value) {
                     this._localZOrder = value;
                     this._sgNode.zIndex = value;
@@ -934,7 +934,7 @@ var Node = cc.Class({
      * @method constructor
      * @param {String} [name]
      */
-    ctor (name) {
+    ctor(name) {
 
         /**
          * Current scene graph node for this node.
@@ -944,7 +944,7 @@ var Node = cc.Class({
          * @private
          */
         var sgNode = this._sgNode = new _ccsg.Node();
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             sgNode.retain();
             sgNode._entity = this;
             sgNode.onEnter = function () {
@@ -981,21 +981,21 @@ var Node = cc.Class({
         this._mouseListener = null;
 
         // Retained actions for JSB
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             this._retainedActions = [];
         }
     },
 
     statics: {
         // is node but not scene
-        isNode (obj) {
+        isNode(obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
         }
     },
 
     // OVERRIDES
 
-    _onSetParent (value) {
+    _onSetParent(value) {
         var sgNode = this._sgNode;
         if (sgNode.parent) {
             sgNode.parent.removeChild(sgNode, false);
@@ -1006,12 +1006,12 @@ var Node = cc.Class({
         }
     },
 
-    _onSiblingIndexChanged (index) {
+    _onSiblingIndexChanged(index) {
         // update rendering scene graph, sort them by arrivalOrder
         var parent = this._parent;
         var siblings = parent._children;
         var i = 0, len = siblings.length, sibling;
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             if (cc.runtime) {
                 for (; i < len; i++) {
                     sibling = siblings[i]._sgNode;
@@ -1048,7 +1048,7 @@ var Node = cc.Class({
         }
     },
 
-    _onPreDestroy () {
+    _onPreDestroy() {
         var destroyByParent = this._onPreDestroyBase();
 
         // Actions
@@ -1061,7 +1061,7 @@ var Node = cc.Class({
             _currentHovered = null;
         }
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
                 this._releaseAllActions();
             }
@@ -1093,13 +1093,13 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
-        else if (CC_JSB) {
+        else if (!CC_RUNTIME && CC_JSB) {
             this._sgNode._entity = null;
             this._sgNode = null;
         }
     },
 
-    _onPostActivated (active) {
+    _onPostActivated(active) {
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // activate
@@ -1122,7 +1122,7 @@ var Node = cc.Class({
         }
     },
 
-    _onHierarchyChanged (oldParent) {
+    _onHierarchyChanged(oldParent) {
         this._onHierarchyChangedBase(oldParent);
         cc._widgetManager._nodesOrderDirty = true;
     },
@@ -1132,7 +1132,7 @@ var Node = cc.Class({
     /*
      * The initializer for Node which will be called before all components onLoad
      */
-    _onBatchCreated () {
+    _onBatchCreated() {
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
             // checks to ensure no recursion, recursion will caused only on old data.
@@ -1197,7 +1197,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      * node.on("anchor-changed", callback, this);
      */
-    on (type, callback, target, useCapture) {
+    on(type, callback, target, useCapture) {
         var newAdded = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
@@ -1211,7 +1211,7 @@ var Node = cc.Class({
                     onTouchEnded: _touchEndHandler,
                     onTouchCancelled: _touchCancelHandler
                 });
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     this._touchListener.retain();
                 }
                 eventManager.addListener(this._touchListener, this);
@@ -1230,7 +1230,7 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     this._mouseListener.retain();
                 }
                 eventManager.addListener(this._mouseListener, this);
@@ -1266,7 +1266,7 @@ var Node = cc.Class({
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off("anchor-changed", callback, this);
      */
-    off (type, callback, target, useCapture) {
+    off(type, callback, target, useCapture) {
         this._EventTargetOff(type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
@@ -1285,7 +1285,7 @@ var Node = cc.Class({
      * @example
      * node.targetOff(target);
      */
-    targetOff (target) {
+    targetOff(target) {
         this._EventTargetTargetOff(target);
 
         this._checkTouchListeners();
@@ -1304,7 +1304,7 @@ var Node = cc.Class({
      * @example
      * node.pauseSystemEvents(true);
      */
-    pauseSystemEvents (recursive) {
+    pauseSystemEvents(recursive) {
         eventManager.pauseTarget(this, recursive);
     },
 
@@ -1320,11 +1320,11 @@ var Node = cc.Class({
      * @example
      * node.resumeSystemEvents(true);
      */
-    resumeSystemEvents (recursive) {
+    resumeSystemEvents(recursive) {
         eventManager.resumeTarget(this, recursive);
     },
 
-    _checkTouchListeners () {
+    _checkTouchListeners() {
         if (!(this._objFlags & Destroying) && this._touchListener) {
             var i = 0;
             if (this._bubblingListeners) {
@@ -1346,7 +1346,7 @@ var Node = cc.Class({
             this._touchListener = null;
         }
     },
-    _checkMouseListeners () {
+    _checkMouseListeners() {
         if (!(this._objFlags & Destroying) && this._mouseListener) {
             var i = 0;
             if (this._bubblingListeners) {
@@ -1373,16 +1373,16 @@ var Node = cc.Class({
         }
     },
 
-    _hitTest (point, listener) {
+    _hitTest(point, listener) {
         var w = this.width,
             h = this.height,
             pt = point;
-        
+
         var Camera = cc.Camera;
         if (Camera && Camera.main && Camera.main.containsNode(this)) {
             pt = Camera.main.getCameraToWorldPoint(pt);
         }
-        
+
         var trans = cc.affineTransformInvertIn(this._sgNode.getNodeToWorldTransform());
         pt = cc.pointApplyAffineTransform(pt, trans);
         pt.x += this._anchorPoint.x * w;
@@ -1419,7 +1419,7 @@ var Node = cc.Class({
     },
 
     // Store all capturing parents that are listening to the same event in the array
-    _getCapturingTargets (type, array) {
+    _getCapturingTargets(type, array) {
         var parent = this.parent;
         while (parent) {
             if (parent.hasEventListener(type, true)) {
@@ -1430,7 +1430,7 @@ var Node = cc.Class({
     },
 
     // Store all bubbling parents that are listening to the same event in the array
-    _getBubblingTargets (type, array) {
+    _getBubblingTargets(type, array) {
         var parent = this.parent;
         while (parent) {
             if (parent.hasEventListener(type)) {
@@ -1441,11 +1441,11 @@ var Node = cc.Class({
     },
 
     // for event manager
-    isRunning () {
+    isRunning() {
         return this._activeInHierarchy;
     },
 
-// ACTIONS
+    // ACTIONS
     /**
      * !#en
      * Executes an action, and returns the action that is executed.<br/>
@@ -1474,7 +1474,7 @@ var Node = cc.Class({
         if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
             this._retainAction(action);
         }
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             this._sgNode._owner = this;
         }
         cc.director.getActionManager().addAction(action, this, false);
@@ -1587,15 +1587,15 @@ var Node = cc.Class({
         return 0;
     },
 
-    _retainAction (action) {
-        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+    _retainAction(action) {
+        if (!CC_RUNTIME && CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
             this._retainedActions.push(action);
             action.retain();
         }
     },
 
-    _releaseAllActions () {
-        if (CC_JSB) {
+    _releaseAllActions() {
+        if (!CC_RUNTIME && CC_JSB) {
             for (var i = 0; i < this._retainedActions.length; ++i) {
                 this._retainedActions[i].release();
             }
@@ -1603,7 +1603,7 @@ var Node = cc.Class({
         }
     },
 
-    setTag (value) {
+    setTag(value) {
         this._tag = value;
         this._sgNode.tag = value;
     },
@@ -1616,7 +1616,7 @@ var Node = cc.Class({
      * @example
      * cc.log("Node Position: " + node.getPosition());
      */
-    getPosition () {
+    getPosition() {
         return new cc.Vec2(this._position);
     },
 
@@ -1635,7 +1635,7 @@ var Node = cc.Class({
      * @param {Number} [y] - Y coordinate for position
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/base-node/setPosition.js}
      */
-    setPosition (newPosOrX, y) {
+    setPosition(newPosOrX, y) {
         var x;
         if (typeof y === 'undefined') {
             x = newPosOrX.x;
@@ -1692,7 +1692,7 @@ var Node = cc.Class({
      * @example
      * cc.log("Node Scale: " + node.getScale());
      */
-    getScale () {
+    getScale() {
         if (this._scaleX !== this._scaleY)
             cc.logID(1603);
         return this._scaleX;
@@ -1708,7 +1708,7 @@ var Node = cc.Class({
      * node.setScale(cc.v2(1, 1));
      * node.setScale(1, 1);
      */
-    setScale (scaleX, scaleY) {
+    setScale(scaleX, scaleY) {
         if (typeof scaleX === 'object') {
             scaleY = scaleX.y;
             scaleX = scaleX.x;
@@ -1740,7 +1740,7 @@ var Node = cc.Class({
      * @example
      * cc.log("Content Size: " + node.getContentSize());
      */
-    getContentSize (ignoreSizeProvider) {
+    getContentSize(ignoreSizeProvider) {
         if (this._sizeProvider && !ignoreSizeProvider) {
             var size = this._sizeProvider.getContentSize();
             this._contentSize = size;
@@ -1764,7 +1764,7 @@ var Node = cc.Class({
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
      */
-    setContentSize (size, height) {
+    setContentSize(size, height) {
         var locContentSize = this._contentSize;
         var clone;
         if (height === undefined) {
@@ -1805,7 +1805,7 @@ var Node = cc.Class({
      * @example
      * node.setOpacityModifyRGB(true);
      */
-    setOpacityModifyRGB (opacityValue) {
+    setOpacityModifyRGB(opacityValue) {
         if (this._opacityModifyRGB !== opacityValue) {
             this._opacityModifyRGB = opacityValue;
             this._sgNode.setOpacityModifyRGB(opacityValue);
@@ -1824,7 +1824,7 @@ var Node = cc.Class({
      * @example
      * var hasChange = node.isOpacityModifyRGB();
      */
-    isOpacityModifyRGB () {
+    isOpacityModifyRGB() {
         return this._opacityModifyRGB;
     },
 
@@ -1860,7 +1860,7 @@ var Node = cc.Class({
      * @example
      * node.setGlobalZOrder(0);
      */
-    setGlobalZOrder (globalZOrder) {
+    setGlobalZOrder(globalZOrder) {
         this._globalZOrder = globalZOrder;
         this._sgNode.setGlobalZOrder(globalZOrder);
     },
@@ -1873,7 +1873,7 @@ var Node = cc.Class({
      * @example
      * cc.log("Global Z Order: " + node.getGlobalZOrder());
      */
-    getGlobalZOrder () {
+    getGlobalZOrder() {
         this._globalZOrder = this._sgNode.getGlobalZOrder();
         return this._globalZOrder;
     },
@@ -1898,7 +1898,7 @@ var Node = cc.Class({
      * @example
      * cc.log("Node AnchorPoint: " + node.getAnchorPoint());
      */
-    getAnchorPoint () {
+    getAnchorPoint() {
         return cc.p(this._anchorPoint);
     },
 
@@ -1924,7 +1924,7 @@ var Node = cc.Class({
      * node.setAnchorPoint(cc.v2(1, 1));
      * node.setAnchorPoint(1, 1);
      */
-    setAnchorPoint (point, y) {
+    setAnchorPoint(point, y) {
         var locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y))
@@ -1957,7 +1957,7 @@ var Node = cc.Class({
      * @example
      * cc.log("AnchorPointInPoints: " + node.getAnchorPointInPoints());
      */
-    getAnchorPointInPoints () {
+    getAnchorPointInPoints() {
         return this._sgNode.getAnchorPointInPoints();
     },
 
@@ -1975,7 +1975,7 @@ var Node = cc.Class({
      * @example
      * var displayOpacity = node.getDisplayedOpacity();
      */
-    getDisplayedOpacity () {
+    getDisplayedOpacity() {
         return this._sgNode.getDisplayedOpacity();
     },
 
@@ -1987,7 +1987,7 @@ var Node = cc.Class({
      * @example
      * node._updateDisplayedOpacity(255);
      */
-    _updateDisplayedOpacity (parentOpacity) {
+    _updateDisplayedOpacity(parentOpacity) {
         this._sgNode.updateDisplayedOpacity(parentOpacity);
     },
 
@@ -2005,7 +2005,7 @@ var Node = cc.Class({
      * @example
      * var displayColor = node.getDisplayedColor();
      */
-    getDisplayedColor () {
+    getDisplayedColor() {
         return this._sgNode.getDisplayedColor();
     },
 
@@ -2023,7 +2023,7 @@ var Node = cc.Class({
      * @example
      * var affineTransform = node.getNodeToParentTransformAR();
      */
-    getNodeToParentTransformAR () {
+    getNodeToParentTransformAR() {
         var contentSize = this.getContentSize();
         var mat = this._sgNode.getNodeToParentTransform();
         if (!this._isSgTransformArToMe(contentSize)) {
@@ -2046,7 +2046,7 @@ var Node = cc.Class({
      * @example
      * var boundingBox = node.getBoundingBox();
      */
-    getBoundingBox () {
+    getBoundingBox() {
         var size = this.getContentSize();
         var rect = cc.rect(0, 0, size.width, size.height);
         return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
@@ -2064,7 +2064,7 @@ var Node = cc.Class({
      * @example
      * var newRect = node.getBoundingBoxToWorld();
      */
-    getBoundingBoxToWorld () {
+    getBoundingBoxToWorld() {
         var trans;
         if (this.parent) {
             trans = this.parent.getNodeToWorldTransformAR();
@@ -2072,7 +2072,7 @@ var Node = cc.Class({
         return this._getBoundingBoxTo(trans);
     },
 
-    _getBoundingBoxTo (parentTransformAR) {
+    _getBoundingBoxTo(parentTransformAR) {
         var size = this.getContentSize();
         var width = size.width;
         var height = size.height;
@@ -2107,7 +2107,7 @@ var Node = cc.Class({
      * @example
      * var affineTransform = node.getNodeToParentTransform();
      */
-    getNodeToParentTransform () {
+    getNodeToParentTransform() {
         var contentSize = this.getContentSize();
         var mat = this._sgNode.getNodeToParentTransform();
         if (this._isSgTransformArToMe(contentSize)) {
@@ -2128,7 +2128,7 @@ var Node = cc.Class({
      * @example
      * var affineTransform = node.getNodeToWorldTransform();
      */
-    getNodeToWorldTransform () {
+    getNodeToWorldTransform() {
         var contentSize = this.getContentSize();
 
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -2161,7 +2161,7 @@ var Node = cc.Class({
      * @example
      * var mat = node.getNodeToWorldTransformAR();
      */
-    getNodeToWorldTransformAR () {
+    getNodeToWorldTransformAR() {
         var contentSize = this.getContentSize();
 
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -2192,7 +2192,7 @@ var Node = cc.Class({
      * @example
      * var affineTransform = node.getParentToNodeTransform();
      */
-    getParentToNodeTransform () {
+    getParentToNodeTransform() {
         return this._sgNode.getParentToNodeTransform();
     },
 
@@ -2204,7 +2204,7 @@ var Node = cc.Class({
      * @example
      * var affineTransform = node.getWorldToNodeTransform();
      */
-    getWorldToNodeTransform () {
+    getWorldToNodeTransform() {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             // ensure transform computed
             cc.director._visitScene();
@@ -2212,7 +2212,7 @@ var Node = cc.Class({
         return this._sgNode.getWorldToNodeTransform();
     },
 
-    _isSgTransformArToMe (myContentSize) {
+    _isSgTransformArToMe(myContentSize) {
         var renderSize = this._sgNode.getContentSize();
         if (renderSize.width === 0 && renderSize.height === 0 &&
             (myContentSize.width !== 0 || myContentSize.height !== 0)) {
@@ -2235,7 +2235,7 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertToNodeSpace(cc.v2(100, 100));
      */
-    convertToNodeSpace (worldPoint) {
+    convertToNodeSpace(worldPoint) {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             // ensure transform computed
             cc.director._visitScene();
@@ -2253,7 +2253,7 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertToWorldSpace(cc.v2(100, 100));
      */
-    convertToWorldSpace (nodePoint) {
+    convertToWorldSpace(nodePoint) {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             // ensure transform computed
             cc.director._visitScene();
@@ -2276,7 +2276,7 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
-    convertToNodeSpaceAR (worldPoint) {
+    convertToNodeSpaceAR(worldPoint) {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             // ensure transform computed
             cc.director._visitScene();
@@ -2303,7 +2303,7 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
-    convertToWorldSpaceAR (nodePoint) {
+    convertToWorldSpaceAR(nodePoint) {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             // ensure transform computed
             cc.director._visitScene();
@@ -2326,7 +2326,7 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertTouchToNodeSpace(touch);
      */
-    convertTouchToNodeSpace (touch) {
+    convertTouchToNodeSpace(touch) {
         return this.convertToNodeSpace(touch.getLocation());
     },
 
@@ -2339,11 +2339,11 @@ var Node = cc.Class({
      * @example
      * var newVec2 = node.convertTouchToNodeSpaceAR(touch);
      */
-    convertTouchToNodeSpaceAR (touch) {
+    convertTouchToNodeSpaceAR(touch) {
         return this.convertToNodeSpaceAR(touch.getLocation());
     },
 
-    setNodeDirty () {
+    setNodeDirty() {
         this._sgNode.setNodeDirty();
     },
 
@@ -2359,7 +2359,7 @@ var Node = cc.Class({
      * @example
      * node.addChild(newNode, 1, 1001);
      */
-    addChild (child, localZOrder, tag) {
+    addChild(child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
         if (typeof tag === 'undefined') {
@@ -2396,7 +2396,7 @@ var Node = cc.Class({
      * @example
      * node.cleanup();
      */
-    cleanup () {
+    cleanup() {
         // actions
         ActionManagerExist && cc.director.getActionManager().removeAllActionsFromTarget(this);
         // event
@@ -2418,7 +2418,7 @@ var Node = cc.Class({
      *
      * @method sortAllChildren
      */
-    sortAllChildren () {
+    sortAllChildren() {
         if (this._reorderChildDirty) {
             this._reorderChildDirty = false;
             var _children = this._children;
@@ -2449,14 +2449,14 @@ var Node = cc.Class({
         }
     },
 
-    _delaySort () {
+    _delaySort() {
         if (!this._reorderChildDirty) {
             this._reorderChildDirty = true;
             cc.director.__fastOn(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
     },
 
-    _updateDummySgNode () {
+    _updateDummySgNode() {
         var self = this;
         var sgNode = self._sgNode;
 
@@ -2473,7 +2473,7 @@ var Node = cc.Class({
 
         sgNode.setGlobalZOrder(self._globalZOrder);
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // fix tintTo and tintBy action for jsb displays err for fireball/issues/4137
             sgNode.setColor(this._color);
         }
@@ -2483,7 +2483,7 @@ var Node = cc.Class({
         sgNode.setTag(self._tag);
     },
 
-    _updateSgNode () {
+    _updateSgNode() {
         this._updateDummySgNode();
         var sgNode = this._sgNode;
         sgNode.setAnchorPoint(this._anchorPoint);
@@ -2506,7 +2506,7 @@ var Node = cc.Class({
 
     onRestore: CC_EDITOR && function () {
         // update dummy sgNode of components
-        for (var i=0; i<this._components.length; i++) {
+        for (var i = 0; i < this._components.length; i++) {
             var comp = this._components[i];
             if (!comp || !comp._sgNode) {
                 continue;
@@ -2569,7 +2569,7 @@ var Node = cc.Class({
 
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
-if (CC_JSB) {
+if (!CC_RUNTIME && CC_JSB) {
     var updateListeners = function () {
         if (!this._activeInHierarchy) {
             eventManager.pauseTarget(this);

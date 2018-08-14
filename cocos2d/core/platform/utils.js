@@ -27,11 +27,11 @@
 
 module.exports = {
     contains: function (refNode, otherNode) {
-        if(typeof refNode.contains == 'function'){
+        if (typeof refNode.contains == 'function') {
             return refNode.contains(otherNode);
-        }else if(typeof refNode.compareDocumentPosition == 'function' ) {
+        } else if (typeof refNode.compareDocumentPosition == 'function') {
             return !!(refNode.compareDocumentPosition(otherNode) & 16);
-        }else {
+        } else {
             var node = otherNode.parentNode;
             if (node) {
                 do {
@@ -40,7 +40,7 @@ module.exports = {
                     } else {
                         node = node.parentNode;
                     }
-                } while (node !==null);
+                } while (node !== null);
             }
             return false;
         }
@@ -54,9 +54,9 @@ module.exports = {
         } :
         function (obj) {
             return obj &&
-                   typeof obj === 'object' &&
-                   typeof obj.nodeType === 'number' &&
-                   typeof obj.nodeName === 'string';
+                typeof obj === 'object' &&
+                typeof obj.nodeType === 'number' &&
+                typeof obj.nodeName === 'string';
         }
     ),
 
@@ -70,7 +70,7 @@ module.exports = {
         }
         :
         (
-            CC_JSB ?
+            (!CC_RUNTIME && CC_JSB) ?
                 function (callback, p1, p2) {
                     if (callback) {
                         cc.director.once(cc.Director._EVENT_NEXT_TICK, function () {
@@ -107,8 +107,8 @@ if (CC_DEV) {
     };
     module.exports.cloneable_DEV = function (obj) {
         return obj &&
-               typeof obj.clone === 'function' &&
-               ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
+            typeof obj.clone === 'function' &&
+            ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
     };
 }
 

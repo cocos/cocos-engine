@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var NIL = function () {};
+var NIL = function () { };
 
 /**
  * !#en
@@ -55,7 +55,7 @@ cc.Scene = cc.Class({
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             sgNode.retain();
         }
         sgNode.setAnchorPoint(0.0, 0.0);
@@ -75,7 +75,7 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
-    _instantiate : null,
+    _instantiate: null,
 
     _load: function () {
         if (!this._inited) {

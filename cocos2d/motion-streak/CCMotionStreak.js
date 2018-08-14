@@ -54,7 +54,7 @@ var MotionStreak = cc.Class({
         executeInEditMode: true
     },
 
-    ctor: function() {
+    ctor: function () {
         this._root = null;
         this._motionStreak = null;
     },
@@ -250,7 +250,7 @@ var MotionStreak = cc.Class({
     },
 
     __preload: function () {
-        if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+        if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && (CC_RUNTIME || !CC_JSB)) {
             cc.warnID(5900);
             return;
         }

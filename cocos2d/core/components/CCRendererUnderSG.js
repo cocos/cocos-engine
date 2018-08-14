@@ -45,7 +45,7 @@ var RendererUnderSG = cc.Class({
          */
         var sgNode = this._sgNode = this._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 // retain immediately
                 // will be released in onDestroy
                 sgNode.retain();
@@ -75,20 +75,20 @@ var RendererUnderSG = cc.Class({
     },
 
     onDestroy: function () {
-        if ( this.node._sizeProvider === this._sgNode ) {
+        if (this.node._sizeProvider === this._sgNode) {
             this.node._sizeProvider = null;
         }
         this._removeSgNode();
     },
 
     _appendSgNode: function (sgNode) {
-        if ( !sgNode ) {
+        if (!sgNode) {
             return;
         }
 
         var node = this.node;
         sgNode.setColor(node._color);
-        if ( !node._cascadeOpacityEnabled ) {
+        if (!node._cascadeOpacityEnabled) {
             sgNode.setOpacity(node._opacity);
         }
         sgNode.setAnchorPoint(node._anchorPoint);

@@ -30,7 +30,7 @@
 var DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
-function setEnumAttr (obj, propName, enumDef) {
+function setEnumAttr(obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
         type: 'Enum',
         enumList: cc.Enum.getList(enumDef)
@@ -225,7 +225,7 @@ sp.Skeleton = cc.Class({
                 if (this.skeletonData) {
                     skinsEnum = this.skeletonData.getSkinsEnum();
                 }
-                if ( !skinsEnum ) {
+                if (!skinsEnum) {
                     return cc.errorID('',
                         this.name);
                 }
@@ -270,7 +270,7 @@ sp.Skeleton = cc.Class({
                 if (this.skeletonData) {
                     animsEnum = this.skeletonData.getAnimsEnum();
                 }
-                if ( !animsEnum ) {
+                if (!animsEnum) {
                     return cc.errorID(7502, this.name);
                 }
                 var animName = animsEnum[value];
@@ -402,9 +402,9 @@ sp.Skeleton = cc.Class({
 
     _createSgNode: function () {
         if (this.skeletonData/* && self.atlasFile*/) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 var uuid = this.skeletonData._uuid;
-                if ( !uuid ) {
+                if (!uuid) {
                     cc.errorID(7504);
                     return null;
                 }
@@ -991,7 +991,7 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackDisposeListener: function(entry, listener){
+    setTrackDisposeListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackDisposeListener(entry, listener);
         }
@@ -1036,7 +1036,7 @@ sp.Skeleton = cc.Class({
 
         // discard exists sgNode
         if (self._sgNode) {
-            if ( self.node._sizeProvider === self._sgNode ) {
+            if (self.node._sizeProvider === self._sgNode) {
                 self.node._sizeProvider = null;
             }
             self._removeSgNode();
@@ -1046,10 +1046,10 @@ sp.Skeleton = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 sgNode.retain();
             }
-            if ( !self.enabledInHierarchy ) {
+            if (!self.enabledInHierarchy) {
                 sgNode.setVisible(false);
             }
             sgNode.setContentSize(0, 0);    // restore content size
