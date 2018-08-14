@@ -464,6 +464,7 @@ let Label = cc.Class({
 
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
         this._updateAssembler();
@@ -473,6 +474,7 @@ let Label = cc.Class({
     onDisable () {
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
     },
 
     onDestroy () {
