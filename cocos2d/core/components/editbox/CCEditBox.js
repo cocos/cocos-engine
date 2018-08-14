@@ -170,6 +170,9 @@ let EditBox = cc.Class({
                 if (this._textLabel) {
                     this._textLabel.fontSize = this.fontSize;
                 }
+                if (this._impl) {
+                    this._impl.setFontSize(this.fontSize);
+                }
             }
         },
 
@@ -198,7 +201,11 @@ let EditBox = cc.Class({
             default: cc.Color.WHITE,
             notify () {
                 if (this._textLabel) {
+                    this._textLabel.node.opacity = this.fontColor.a;
                     this._textLabel.node.color = this.fontColor;
+                }
+                if (this._impl) {
+                    this._impl.setFontColor(this.fontColor);
                 }
             }
         },

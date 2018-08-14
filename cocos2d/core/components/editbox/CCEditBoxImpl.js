@@ -201,7 +201,7 @@ let EditBoxImpl = cc.Class({
     
     setFontColor (color) {
         this._textColor = color;
-        this._edTxt.style.color = color.toHEX();
+        this._edTxt.style.color = color.toCSS('rgba');
     },
     
     setSize (width, height) {
@@ -479,7 +479,7 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.focus = function () {
         this.style.fontSize = editBoxImpl._edFontSize + 'px';
-        this.style.color = editBoxImpl._textColor.toCSS('#rrggbbaa');
+        this.style.color = editBoxImpl._textColor.toCSS('rgba');
         // When stayOnTop, input will swallow touch event
         if (editBoxImpl._alwaysOnTop) {
             editBoxImpl._editing = true;
