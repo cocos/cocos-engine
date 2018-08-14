@@ -522,7 +522,7 @@ var Color = (function () {
         r *= 255;
         g *= 255;
         b *= 255;
-        this._val = ((r << 24) >>> 0) + (g << 16) + (b << 8) + this.a;
+        this._val = ((this.a<<24) >>> 0) + (b<<16) + (g<<8) + r;
         return this;
     };
 

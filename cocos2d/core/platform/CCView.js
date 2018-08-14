@@ -602,7 +602,6 @@ cc.js.mixin(View.prototype, {
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
         this._resizeEvent();
-        cc.director.setProjection(cc.director.getProjection());
     },
 
     /**
@@ -1077,16 +1076,6 @@ cc.ContainerStrategy = cc.Class({
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
-
-        // set sharedCanvas size
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME && wx.getOpenDataContext) {
-            var openDataContext = wx.getOpenDataContext();
-            var sharedCanvas = openDataContext.canvas;
-            if (sharedCanvas) {
-                sharedCanvas.width = locCanvas.width;
-                sharedCanvas.height = locCanvas.height;
-            }
-        }
     },
 
     _fixContainer: function () {

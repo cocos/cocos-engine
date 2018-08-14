@@ -214,7 +214,7 @@ AffineTransform.transformSize = function (out, size, t) {
  * !#en Apply the affine transformation on a rect.
  * This function is memory free, you should create the output Rect by yourself and manage its memory.
  * !#zh 应用仿射变换矩阵到 Rect 上。这个函数不创建任何内存，你需要先创建一个 Rect 对象用来存储结果，并作为第一个参数传入函数。
- * @method transformRecta
+ * @method transformRect
  * @static
  * @param {Rect} out
  * @param {Rect} rect

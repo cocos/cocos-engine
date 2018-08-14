@@ -457,6 +457,10 @@ let Label = cc.Class({
         if (!this.font && !this._isSystemFontUsed) {
             this.useSystemFont = true;
         }
+        // Reapply default font family if necessary
+        if (this.useSystemFont && !this.fontFamily) {
+            this.fontFamily = 'Arial';
+        }
 
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);

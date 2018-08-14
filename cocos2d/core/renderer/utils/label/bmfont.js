@@ -135,6 +135,7 @@ let _maxLineWidth = 0;
 module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
+        if (_comp === comp) return;
 
         _comp = comp;
         

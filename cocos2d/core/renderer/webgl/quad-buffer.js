@@ -22,15 +22,22 @@ let QuadBuffer = cc.Class({
     },
 
     uploadData () {
+        if (this.byteOffset === 0 || !this._dirty) {
+            return;
+        }
+
         // update vertext data
         let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
         this._vb.update(0, vertexsData);
+
+        this._dirty = false;
     },
 
     _reallocBuffer () {
-        MeshBuffer.prototype._reallocBuffer.call(this);
+        this._reallocVData(true);
+        this._reallocIData();
         this._fillQuadBuffer();
     }
 });
 
-module.exports = QuadBuffer;
+cc.QuadBuffer = module.exports = QuadBuffer;

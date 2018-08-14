@@ -27,7 +27,7 @@ const macro = require('../../platform/CCMacro');
 const renderEngine = require('../render-engine');
 const defaultVertexFormat = require('./vertex-format').vfmtPosUv;
 const StencilManager = require('./stencil-manager');
-const atlasManager = require('../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../utils/dynamic-atlas/manager');
 const RenderFlow = require('../render-flow');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
@@ -158,6 +158,7 @@ RenderComponentWalker.prototype = {
            
         buffer.byteStart = buffer.byteOffset;
         buffer.indiceStart = buffer.indiceOffset;
+        buffer.vertexStart = buffer.vertexOffset;
     },
 
     _flushIA (iaRenderData) {
@@ -212,7 +213,10 @@ RenderComponentWalker.prototype = {
 
         RenderFlow.render(scene);
         
-        atlasManager.update();
+        if (dynamicAtlasManager) {
+            dynamicAtlasManager.update();
+        }
+        
         this._flush();
 
         for (let key in _buffers) {

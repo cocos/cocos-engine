@@ -444,7 +444,7 @@ var Sprite = cc.Class({
         }
         
         this._updateAssembler();
-        this._renderData.uvDirty = true;
+        this.markForUpdateRenderData(true);
 
         this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);

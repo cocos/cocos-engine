@@ -44,7 +44,7 @@ let Graphics = cc.Class({
     },
 
     ctor () {
-        this._impl = Graphics._assembler.createImpl();
+        this._impl = Graphics._assembler.createImpl(this);
     },
 
     properties: {
@@ -182,17 +182,27 @@ let Graphics = cc.Class({
 
     onDestroy () {
         this._super();
+        this._impl.clear(this, true);
         this._impl = null;
     },
 
     _activateMaterial () {
         // Ignore material in canvas
-        if (this._material || cc.game.renderType === cc.game.RENDER_TYPE_CANVAS)
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             return;
+        }
+        
+        this.node._renderFlag &= ~cc.RenderFlow.FLAG_RENDER;
+        this.node._renderFlag |= cc.RenderFlow.FLAG_CUSTOM_IA_RENDER;
+
+        if (this._material) {
+            return;
+        }
         
         let material = new SpriteMaterial();
         material.useColor = false;
         material.useTexture = false;
+        material.useModel = true;
         this._updateMaterial(material);
     },
 
@@ -204,6 +214,10 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     moveTo (x, y) {
+        if (CC_DEBUG && x instanceof cc.Vec2) {
+            cc.warn('[moveTo] : Can not pass Vec2 as [x, y] value, please check it.');
+            return;
+        }
         this._impl.moveTo(x, y);
     },
 
@@ -215,6 +229,10 @@ let Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     lineTo (x, y) {
+        if (CC_DEBUG && x instanceof cc.Vec2) {
+            cc.warn('[moveTo] : Can not pass Vec2 as [x, y] value, please check it.');
+            return;
+        }
         this._impl.lineTo(x, y);
     },
 

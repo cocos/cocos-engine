@@ -29,6 +29,7 @@ require('../audio/CCAudioEngine');
 const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
+const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manager');
 
 /**
  * @module cc
@@ -728,15 +729,15 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (isWeChatGame) {
+            if (isWeChatGame || isQQPlay) {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
             
             // Enable dynamic atlas manager by default
-            if (!cc.macro.CLEANUP_IMAGE_CACHE) {
-                cc.dynamicAtlasManager.enabled = true;
+            if (!cc.macro.CLEANUP_IMAGE_CACHE && dynamicAtlasManager) {
+                dynamicAtlasManager.enabled = true;
             }
         }
         if (!this._renderContext) {

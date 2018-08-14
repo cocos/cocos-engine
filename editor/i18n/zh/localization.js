@@ -24,7 +24,8 @@ module.exports = {
         "toggleGroup": "http://www.cocos.com/docs/creator/components/toggleGroup.html",
         "toggleContainer": "http://www.cocos.com/docs/creator/components/toggleContainer.html",
         "slider": "http://www.cocos.com/docs/creator/components/slider.html",
-        "block_input_events": "http://www.cocos.com/docs/creator/components/block-input-events.html"
+        "block_input_events": "http://www.cocos.com/docs/creator/components/block-input-events.html",
+        "wx_subcontext_view": "http://www.cocos.com/docs/creator/components/wx-subcontext-view.html"
     },
     'animation': {
         'default_clip': '在勾选自动播放或调用 play() 时默认播放的动画 clip。',

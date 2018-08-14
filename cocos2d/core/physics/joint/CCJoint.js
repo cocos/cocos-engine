@@ -160,13 +160,14 @@ var Joint = cc.Class({
      * 获取关节的反作用力。
      * @method getReactionForce
      * @param {Number} timeStep - The time to calculate the reaction force for.
-     * @return {Number}
+     * @return {Vec2}
      */
     getReactionForce: function (timeStep) {
+        var out = cc.v2();
         if (this._joint) {
-            return this._joint.GetReactionForce(timeStep);
+            return this._joint.GetReactionForce(timeStep, out);
         }
-        return 0;
+        return out;
     },
 
     /**

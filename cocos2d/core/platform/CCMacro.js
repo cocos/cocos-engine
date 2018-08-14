@@ -29,8 +29,8 @@ const js = require('./js');
 
 /**
  * Predefined constants
- * @enum macro
- * @type {Object}
+ * @class macro
+ * @static
  */
 cc.macro = {
     /**
