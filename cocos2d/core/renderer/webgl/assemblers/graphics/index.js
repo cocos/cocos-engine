@@ -69,7 +69,7 @@ let graphicsAssembler = {
     },
 
     updateRenderData (graphics) {
-        let datas = graphics._impl._renderDatas;
+        let datas = graphics._impl.getRenderDatas();
         for (let i = 0, l = datas.length; i < l; i++) {
             datas[i].material = graphics.getMaterial();
         }
@@ -94,7 +94,7 @@ let graphicsAssembler = {
             nodeA = nodeColor.a / 255;
 
         let impl = graphics._impl;
-        let renderDatas = impl._renderDatas;
+        let renderDatas = impl.getRenderDatas();
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let renderData = renderDatas[index];
             let meshbuffer = renderData.meshbuffer;
@@ -105,7 +105,7 @@ let graphicsAssembler = {
     },
 
     genRenderData (graphics, cverts) {
-        let renderDatas = _impl._renderDatas; 
+        let renderDatas = _impl.getRenderDatas(); 
         let renderData = renderDatas[_impl._dataOffset];
         let meshbuffer = renderData.meshbuffer;
 
@@ -122,6 +122,9 @@ let graphicsAssembler = {
                 renderData = _impl.requestRenderData(graphics);
                 renderDatas[_impl._dataOffset] = renderData;
             }
+
+            renderData.material = graphics.getMaterial();
+            meshbuffer = renderData.meshbuffer;
         }
 
         if (maxVertsCount > meshbuffer.vertexOffset) {

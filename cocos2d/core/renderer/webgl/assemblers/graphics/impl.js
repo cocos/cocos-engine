@@ -67,8 +67,6 @@ function Impl (graphics) {
     this._renderDatas = [];
     
     this._dataOffset = 0;
-
-    this.requestRenderData(graphics);
 }
 
 cc.js.mixin(Impl.prototype, {
@@ -217,7 +215,7 @@ cc.js.mixin(Impl.prototype, {
         pathPoints.push(pt);
     },
 
-    requestRenderData (graphics) {
+    requestRenderData () {
         let renderData = new IARenderData();
         let meshbuffer = new MeshBuffer(renderer._walker, vfmtPosColor);
         renderData.meshbuffer = meshbuffer;
@@ -230,6 +228,14 @@ cc.js.mixin(Impl.prototype, {
         renderData.ia = ia;
 
         return renderData;
+    },
+
+    getRenderDatas () {
+        if (this._renderDatas.length === 0) {
+            this.requestRenderData();
+        }
+
+        return this._renderDatas;
     }
 });
 
