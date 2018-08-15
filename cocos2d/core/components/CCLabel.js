@@ -563,6 +563,9 @@ let Label = cc.Class({
             if (this._texture === this._ttfTexture) {
                 this._srcBlendFactor = cc.macro.ONE;
             }
+            else {
+                this._srcBlendFactor = cc.macro.SRC_ALPHA;
+            }
             material.texture = this._texture;
             this._updateMaterial(material);
         }
