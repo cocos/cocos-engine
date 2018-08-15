@@ -363,11 +363,12 @@ var properties = {
     /**
      * !#en Start color of each particle.
      * !#zh 粒子初始颜色。
-     * @property {Object} startColor
+     * @property {cc.Color} startColor
      * @default {r: 255, g: 255, b: 255, a: 255}
      */
     _startColor: null,
     startColor: {
+        type: cc.Color,
         get () {
             return this._startColor;
         },
@@ -381,11 +382,12 @@ var properties = {
     /**
      * !#en Variation of the start color.
      * !#zh 粒子初始颜色变化范围。
-     * @property {Object} startColorVar
+     * @property {cc.Color} startColorVar
      * @default {r: 0, g: 0, b: 0, a: 0}
      */
     _startColorVar: null,
     startColorVar: {
+        type: cc.Color,
         get () {
             return this._startColorVar;
         },
@@ -399,11 +401,12 @@ var properties = {
     /**
      * !#en Ending color of each particle.
      * !#zh 粒子结束颜色。
-     * @property {Object} endColor
+     * @property {cc.Color} endColor
      * @default {r: 255, g: 255, b: 255, a: 0}
      */
     _endColor: null,
     endColor: {
+        type: cc.Color,
         get () {
             return this._endColor;
         },
@@ -417,11 +420,12 @@ var properties = {
     /**
      * !#en Variation of the end color.
      * !#zh 粒子结束颜色变化范围。
-     * @property {Object} endColorVar
+     * @property {cc.Color} endColorVar
      * @default {r: 0, g: 0, b: 0, a: 0}
      */
     _endColorVar: null,
     endColorVar: {
+        type: cc.Color,
         get () {
             return this._endColorVar;
         },
@@ -810,6 +814,13 @@ var ParticleSystem = cc.Class({
                 this.resetSystem();
             }
         }
+        // Upgrade color type from v2.0.0
+        if (CC_EDITOR && !(this._startColor instanceof cc.Color)) {
+            this._startColor = cc.color(this._startColor);
+            this._startColorVar = cc.color(this._startColorVar);
+            this._endColor = cc.color(this._endColor);
+            this._endColorVar = cc.color(this._endColorVar);
+        }
     },
 
     onLoad () {
@@ -1002,25 +1013,25 @@ var ParticleSystem = cc.Class({
         this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || macro.ONE_MINUS_SRC_ALPHA);
 
         // color
-        var locStartColor = this.startColor;
+        var locStartColor = this._startColor;
         locStartColor.r = parseFloat(dict["startColorRed"] || 1) * 255;
         locStartColor.g = parseFloat(dict["startColorGreen"] || 1) * 255;
         locStartColor.b = parseFloat(dict["startColorBlue"] || 1) * 255;
         locStartColor.a = parseFloat(dict["startColorAlpha"] || 1) * 255;
 
-        var locStartColorVar = this.startColorVar;
+        var locStartColorVar = this._startColorVar;
         locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 1) * 255;
         locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 1) * 255;
         locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 1) * 255;
         locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 1) * 255;
 
-        var locEndColor = this.endColor;
+        var locEndColor = this._endColor;
         locEndColor.r = parseFloat(dict["finishColorRed"] || 1) * 255;
         locEndColor.g = parseFloat(dict["finishColorGreen"] || 1) * 255;
         locEndColor.b = parseFloat(dict["finishColorBlue"] || 1) * 255;
         locEndColor.a = parseFloat(dict["finishColorAlpha"] || 1) * 255;
 
-        var locEndColorVar = this.endColorVar;
+        var locEndColorVar = this._endColorVar;
         locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 1) * 255;
         locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 1) * 255;
         locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 1) * 255;
