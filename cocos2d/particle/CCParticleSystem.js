@@ -756,6 +756,10 @@ var ParticleSystem = cc.Class({
 
         EmitterMode: EmitterMode,
         PositionType: PositionType,
+
+
+        _PNGReader: PNGReader,
+        _TIFFReader: tiffReader,
     },
 
     // EDITOR RELATED METHODS
@@ -1165,3 +1169,4 @@ var ParticleSystem = cc.Class({
 });
 
 cc.ParticleSystem = module.exports = ParticleSystem;
+
