@@ -125,7 +125,7 @@ cc.pool = /** @lends cc.pool# */{
             var list = this._pool[cid];
             _args.length = arguments.length - 1;
             for (var i = 0; i < _args.length; i++) {
-                _args[i] = arguments[i + 1];
+                _args[i] = arguments[i+1];
             }
             var obj = list.pop();
             // User implementation for re-enable the object

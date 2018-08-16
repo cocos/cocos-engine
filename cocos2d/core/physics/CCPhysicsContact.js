@@ -83,7 +83,7 @@ var worldmanifold = {
  * 切线冲量。
  * @property {Number} tangentImpulse
  */
-function ManifoldPoint() {
+function ManifoldPoint () {
     this.localPoint = cc.v2();
     this.normalImpulse = 0;
     this.tangentImpulse = 0;
@@ -181,7 +181,7 @@ var impulse = {
  * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
  * @class PhysicsContact
  */
-function PhysicsContact() {
+function PhysicsContact () {
 }
 
 PhysicsContact.prototype.init = function (b2contact) {
@@ -429,7 +429,7 @@ PhysicsContact.get = function (b2contact) {
         c = new cc.PhysicsContact();
     }
     else {
-        c = pools.pop();
+        c = pools.pop(); 
     }
 
     c.init(b2contact);
@@ -439,7 +439,7 @@ PhysicsContact.get = function (b2contact) {
 PhysicsContact.put = function (b2contact) {
     var c = b2contact._contact;
     if (!c) return;
-
+    
     pools.push(c);
     c.reset();
 };

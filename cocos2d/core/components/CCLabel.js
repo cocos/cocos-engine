@@ -122,11 +122,11 @@ var Overflow = _ccsg.Label.Overflow;
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-function debounce(func, wait, immediate) {
+function debounce (func, wait, immediate) {
     var timeout;
     return function () {
         var context = this;
-        var later = function () {
+        var later = function() {
             timeout = null;
             if (!immediate) func.apply(context, arguments);
         };
@@ -148,8 +148,8 @@ var Label = cc.Class({
     name: 'cc.Label',
     extends: cc._RendererUnderSG,
 
-    ctor: function () {
-        if (CC_EDITOR) {
+    ctor: function() {
+        if(CC_EDITOR) {
             this._userDefinedFontSize = 40;
             this._userDefinedFont = null;
             this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
@@ -163,12 +163,12 @@ var Label = cc.Class({
         inspector: 'packages://inspector/inspectors/comps/label.js',
     },
 
-    _updateSgNodeString: function () {
+    _updateSgNodeString: function() {
         this._sgNode.setString(this.string);
         this._updateNodeSize();
     },
 
-    _updateSgNodeFontSize: function () {
+    _updateSgNodeFontSize: function() {
         if (this._sgNode) {
             this._sgNode.setFontSize(this._fontSize);
             this._updateNodeSize();
@@ -188,7 +188,7 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
             notify: function () {
                 if (this._sgNode) {
-                    if (CC_EDITOR) {
+                    if(CC_EDITOR) {
                         if (this.overflow === cc.Label.Overflow.SHRINK) {
                             this.fontSize = this._userDefinedFontSize;
                         }
@@ -211,7 +211,7 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
             notify: function () {
                 if (this._sgNode) {
-                    this._sgNode.setHorizontalAlign(this.horizontalAlign);
+                    this._sgNode.setHorizontalAlign( this.horizontalAlign );
                 }
             },
             animatable: false
@@ -228,7 +228,7 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
             notify: function () {
                 if (this._sgNode) {
-                    this._sgNode.setVerticalAlign(this.verticalAlign);
+                    this._sgNode.setVerticalAlign( this.verticalAlign );
                 }
             },
             animatable: false
@@ -262,12 +262,12 @@ var Label = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
-            get: function () {
+            get: function(){
                 return this._fontSize;
             },
-            set: function (value) {
+            set: function(value){
                 this._fontSize = value;
-                if (CC_EDITOR) {
+                if(CC_EDITOR) {
                     this._userDefinedFontSize = value;
                     this._debouncedUpdateFontSize();
                 } else {
@@ -300,13 +300,13 @@ var Label = cc.Class({
          * @property {Number} lineHeight
          */
         lineHeight: {
-            get: function () {
+            get: function(){
                 if (this._sgNode) {
                     this._lineHeight = this._sgNode.getLineHeight();
                 }
                 return this._lineHeight;
             },
-            set: function (value) {
+            set: function(value){
                 this._lineHeight = value;
 
                 if (this._sgNode) {
@@ -341,13 +341,13 @@ var Label = cc.Class({
          * @property {Boolean} enableWrapText
          */
         enableWrapText: {
-            get: function () {
+            get: function(){
                 if (this._sgNode) {
                     this._enableWrapText = this._sgNode.isWrapTextEnabled();
                 }
                 return this._enableWrapText;
             },
-            set: function (value) {
+            set: function(value){
                 this._enableWrapText = value;
                 if (this._sgNode) {
                     this._sgNode.enableWrapText(value);
@@ -371,11 +371,11 @@ var Label = cc.Class({
             },
             set: function (value) {
                 //if delete the font, we should change isSystemFontUsed to true
-                if (!value) {
+                if(!value) {
                     this._isSystemFontUsed = true;
                 }
 
-                if (CC_EDITOR && value) {
+                if(CC_EDITOR && value) {
                     this._userDefinedFont = value;
                 }
 
@@ -386,7 +386,7 @@ var Label = cc.Class({
 
                 if (this._sgNode) {
 
-                    if (typeof value === 'string') {
+                    if ( typeof value === 'string' ) {
                         cc.warnID(4000);
                     }
 
@@ -430,12 +430,12 @@ var Label = cc.Class({
          * @property {Boolean} isSystemFontUsed
          */
         useSystemFont: {
-            get: function () {
+            get: function(){
                 return this._isSystemFontUsed;
             },
-            set: function (value) {
-                if (CC_EDITOR) {
-                    if (!value && this._isSystemFontUsed && this._userDefinedFont) {
+            set: function(value){
+                if(CC_EDITOR) {
+                    if(!value && this._isSystemFontUsed && this._userDefinedFont) {
                         this.font = this._userDefinedFont;
                         this.spacingX = this._spacingX;
                         return;
@@ -466,10 +466,10 @@ var Label = cc.Class({
 
         _spacingX: 0,
         spacingX: {
-            get: function () {
+            get: function() {
                 return this._spacingX;
             },
-            set: function (value) {
+            set: function(value) {
                 this._spacingX = value;
                 if (this._sgNode) {
                     this._sgNode.setSpacingX(this.spacingX);
@@ -502,8 +502,8 @@ var Label = cc.Class({
     },
 
     _initSgNode: function () {
-        var font = this.font;
-        if (typeof font === 'string') {
+        var font = this.font; 
+        if (typeof font === 'string' ) {
             cc.warnID(4000);
         }
 
@@ -537,14 +537,14 @@ var Label = cc.Class({
         }
 
         sgNode.setVisible(false);
-        sgNode.setHorizontalAlign(this.horizontalAlign);
-        sgNode.setVerticalAlign(this.verticalAlign);
-        sgNode.setFontSize(this._fontSize);
+        sgNode.setHorizontalAlign( this.horizontalAlign );
+        sgNode.setVerticalAlign( this.verticalAlign );
+        sgNode.setFontSize( this._fontSize );
         if (this.useSystemFont) {
             sgNode.setFontFamily(this.fontFamily);
         }
-        sgNode.setOverflow(this.overflow);
-        sgNode.enableWrapText(this._enableWrapText);
+        sgNode.setOverflow( this.overflow );
+        sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
         if (font instanceof cc.BitmapFont) {
@@ -584,6 +584,6 @@ var Label = cc.Class({
             _ccsg.Label.pool.put(sgNodeBeforeDestroy);
         }
     }
-});
+ });
 
-cc.Label = module.exports = Label;
+ cc.Label = module.exports = Label;

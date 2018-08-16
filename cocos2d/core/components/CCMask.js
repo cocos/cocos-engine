@@ -192,7 +192,7 @@ var Mask = cc.Class({
         _resizeToTarget: {
             animatable: false,
             set: function (value) {
-                if (value) {
+                if(value) {
                     this._resizeNodeToTargetNode();
                 }
             }
@@ -204,13 +204,13 @@ var Mask = cc.Class({
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
-        if (this.spriteFrame) {
+        if(this.spriteFrame) {
             var rect = this.spriteFrame.getRect();
             this.node.setContentSize(rect.width, rect.height);
         }
     },
 
-    _initSgNode: function () { },
+    _initSgNode: function () {},
 
     _createSgNode: function () {
         return new cc.ClippingNode();
@@ -259,9 +259,9 @@ var Mask = cc.Class({
     },
 
     _calculateCircle: function (center, radius, segements) {
-        var polies = [];
+        var polies =[];
         var anglePerStep = Math.PI * 2 / segements;
-        for (var step = 0; step < segements; ++step) {
+        for(var step = 0; step < segements; ++ step) {
             polies.push(cc.v2(radius.x * Math.cos(anglePerStep * step) + center.x,
                 radius.y * Math.sin(anglePerStep * step) + center.y));
         }
@@ -308,9 +308,9 @@ var Mask = cc.Class({
             stencil.clear();
             if (this._type === MaskType.RECT) {
                 var rectangle = [cc.v2(x, y),
-                cc.v2(x + width, y),
-                cc.v2(x + width, y + height),
-                cc.v2(x, y + height)];
+                    cc.v2(x + width, y),
+                    cc.v2(x + width, y + height),
+                    cc.v2(x, y + height)];
                 stencil.drawPoly(rectangle, color, 0, color);
             }
             else if (this._type === MaskType.ELLIPSE) {

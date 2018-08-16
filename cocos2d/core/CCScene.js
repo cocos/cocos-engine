@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var NIL = function () { };
+var NIL = function () {};
 
 /**
  * !#en
@@ -75,7 +75,7 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
-    _instantiate: null,
+    _instantiate : null,
 
     _load: function () {
         if (!this._inited) {

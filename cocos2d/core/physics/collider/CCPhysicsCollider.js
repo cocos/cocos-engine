@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+ 
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 var getWorldScale = require('../utils').getWorldScale;
 
@@ -73,7 +73,7 @@ var PhysicsCollider = cc.Class({
          * @default false
          */
         sensor: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',    
             get: function () {
                 return this._sensor;
             },
@@ -91,7 +91,7 @@ var PhysicsCollider = cc.Class({
          * @default 0.2
          */
         friction: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',    
             get: function () {
                 return this._friction;
             },
@@ -223,7 +223,7 @@ var PhysicsCollider = cc.Class({
         var body = this.body._getBody();
         var manager = cc.director.getPhysicsManager();
 
-        for (var i = fixtures.length - 1; i >= 0; i--) {
+        for (var i = fixtures.length-1; i >=0 ; i--) {
             var fixture = fixtures[i];
             fixture.collider = null;
 
@@ -246,7 +246,7 @@ var PhysicsCollider = cc.Class({
         this._shapes.length = 0;
         this._inited = false;
     },
-
+    
     _createShape: function () {
     },
 

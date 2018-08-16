@@ -10,7 +10,7 @@ if (CC_DEV) {
 
     // Label
     if (cc.Label) {
-        js.obsolete(cc.Label.prototype, 'cc.Label.file', 'font', true);
+        js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
     }
 
     /**
@@ -58,7 +58,7 @@ if (CC_DEV) {
 
     js.get(cc, "isFunction", function () {
         cc.warnID(1400, 'cc.isFunction', '"typeof obj === \'function\'"');
-        return function (obj) {
+        return function(obj) {
             return typeof obj === 'function';
         };
     });
@@ -91,21 +91,21 @@ if (CC_DEV) {
 
     js.get(cc, "isArray", function () {
         cc.warnID(1400, 'cc.isArray', 'cc.js.isArray');
-        return function (obj) {
+        return function(obj) {
             return Array.isArray(obj);
         };
     });
 
     js.get(cc, "isUndefined", function () {
         cc.warnID(1400, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
-        return function (obj) {
+        return function(obj) {
             return typeof obj === 'undefined';
         };
     });
 
     js.get(cc, "isObject", function () {
         cc.warnID(1400, 'cc.isObject', '"typeof obj === \'object\'"');
-        return function (obj) {
+        return function(obj) {
             return typeof obj === 'object';
         };
     });
@@ -173,7 +173,7 @@ if (CC_DEV) {
      * @param {Number} index
      * @return {Array}
      */
-    js.get(cc, 'arrayAppendObjectsToIndex', function () {
+    js.get(cc, 'arrayAppendObjectsToIndex', function() {
         cc.warnID(1400, 'cc.arrayAppendObjectsToIndex', 'cc.js.array.appendObjectsAt');
         return cc.js.array.appendObjectsAt;
     });
@@ -185,7 +185,7 @@ if (CC_DEV) {
      * @param {Array} arr
      * @return {Array}
      */
-    js.get(cc, 'copyArray', function () {
+    js.get(cc, 'copyArray', function() {
         cc.warnID(1400, 'cc.copyArray', 'cc.js.array.copy');
         return cc.js.array.copy;
     });
@@ -226,7 +226,7 @@ if (CC_DEV) {
         }
     });
 
-    function deprecateEnum(obj, oldPath, newPath, hasTypePrefixBefore) {
+    function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         if (!CC_SUPPORT_JIT) {
             return;
         }
@@ -272,21 +272,21 @@ if (CC_DEV) {
         deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
 
-    function markAsRemoved(ownerCtor, removedProps, ownerName) {
+    function markAsRemoved (ownerCtor, removedProps, ownerName) {
         if (!ownerCtor) {
             // 可能被裁剪了
             return;
         }
         ownerName = ownerName || js.getClassName(ownerCtor);
         removedProps.forEach(function (prop) {
-            function error() {
+            function error () {
                 cc.error('Sorry, %s.%s is removed.', ownerName, prop);
             }
             js.getset(ownerCtor.prototype, prop, error, error);
         });
     }
 
-    function provideClearError(owner, obj, ownerName) {
+    function provideClearError (owner, obj, ownerName) {
         if (!owner) {
             // 可能被裁剪了
             return;
@@ -294,8 +294,8 @@ if (CC_DEV) {
         var className = ownerName || cc.js.getClassName(owner);
         var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
-            function define(prop, getset) {
-                function accessor(newProp) {
+            function define (prop, getset) {
+                function accessor (newProp) {
                     cc.error(Info, prop, newProp);
                 }
                 if (!Array.isArray(getset)) {
@@ -307,7 +307,7 @@ if (CC_DEV) {
                 try {
                     js.getset(owner, prop, accessor.bind(null, getset[0]), getset[1] && accessor.bind(null, getset[1]));
                 }
-                catch (e) { }
+                catch (e) {}
             }
             var getset = obj[prop];
             if (prop[0] === '*') {
@@ -331,7 +331,7 @@ if (CC_DEV) {
     // cc.director
 
     provideClearError(cc.Director.prototype, {
-        getSecondsPerFrame: 'getDeltaTime'
+        getSecondsPerFrame : 'getDeltaTime'
     });
 
     // cc.loader
@@ -344,10 +344,10 @@ if (CC_DEV) {
         'register'
     ], 'cc.loader');
     provideClearError(cc.loader, {
-        loadJs: 'load',
-        loadTxt: 'load',
-        loadJson: 'load',
-        loadImg: 'load'
+        loadJs : 'load',
+        loadTxt : 'load',
+        loadJson : 'load',
+        loadImg : 'load'
     }, 'cc.loader');
 
     // cc.Node
@@ -447,7 +447,7 @@ if (CC_DEV) {
 
     // RENDERERS
 
-    function shouldNotUseNodeProp(component) {
+    function shouldNotUseNodeProp (component) {
         var compProto = component.prototype;
         for (var prop in cc.Node.prototype) {
             (function (prop) {
@@ -594,7 +594,7 @@ if (CC_DEV) {
 
     if (cc.ActionManager) {
         js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
-            'numberOfRunningActionsInTarget': 'getNumberOfRunningActionsInTarget'
+            'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
         });
     }
 

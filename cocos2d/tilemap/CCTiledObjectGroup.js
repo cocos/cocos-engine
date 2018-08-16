@@ -36,40 +36,40 @@ var TiledObjectGroup = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: cc._SGComponent,
 
-    onEnable: function () {
+    onEnable: function() {
         if (this._sgNode) {
             this._sgNode.setVisible(true);
         }
     },
-    onDisable: function () {
+    onDisable: function() {
         if (this._sgNode) {
             this._sgNode.setVisible(false);
         }
     },
 
     onDestroy: function () {
-        if (this.node._sizeProvider === this._sgNode) {
+        if ( this.node._sizeProvider === this._sgNode ) {
             this.node._sizeProvider = null;
         }
     },
 
-    _initSgNode: function () {
+    _initSgNode: function() {
         var sgNode = this._sgNode;
-        if (!sgNode) {
+        if ( !sgNode ) {
             return;
         }
         this._registSizeProvider();
         sgNode.setAnchorPoint(this.node.getAnchorPoint());
     },
 
-    _replaceSgNode: function (sgNode) {
+    _replaceSgNode: function(sgNode) {
         if (sgNode === this._sgNode) {
             return;
         }
 
         // Remove the sgNode before
         this._removeSgNode();
-        if (this.node._sizeProvider === this._sgNode) {
+        if ( this.node._sizeProvider === this._sgNode ) {
             this.node._sizeProvider = null;
         }
 
@@ -94,7 +94,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * var offset = tMXObjectGroup.getPositionOffset();
      */
-    getPositionOffset: function () {
+    getPositionOffset:function () {
         if (this._sgNode) {
             return this._sgNode.getPositionOffset();
         }
@@ -110,7 +110,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * tMXObjectGroup.setPositionOffset(cc.v2(5, 5));
      */
-    setPositionOffset: function (offset) {
+    setPositionOffset:function (offset) {
         if (this._sgNode) {
             this._sgNode.setPositionOffset(offset);
         }
@@ -124,7 +124,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * var offset = tMXObjectGroup.getProperties();
      */
-    getProperties: function () {
+    getProperties:function () {
         if (this._sgNode) {
             return this._sgNode.getProperties();
         }
@@ -139,7 +139,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * tMXObjectGroup.setProperties(obj);
      */
-    setProperties: function (Var) {
+    setProperties:function (Var) {
         if (this._sgNode) {
             this._sgNode.setProperties(Var);
         }
@@ -168,7 +168,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * tMXObjectGroup.setGroupName("New Group");
      */
-    setGroupName: function (groupName) {
+    setGroupName:function (groupName) {
         if (this._sgNode) {
             this._sgNode.setGroupName(groupName);
         }
@@ -197,7 +197,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * var object = tMXObjectGroup.getObject("Group");
      */
-    getObject: function (objectName) {
+    getObject: function(objectName){
         if (this._sgNode) {
             return this._sgNode.getObject(objectName);
         }
@@ -213,7 +213,7 @@ var TiledObjectGroup = cc.Class({
      * @example
      * var objects = tMXObjectGroup.getObjects();
      */
-    getObjects: function () {
+    getObjects:function () {
         if (this._sgNode) {
             return this._sgNode.getObjects();
         }
@@ -225,7 +225,7 @@ var TiledObjectGroup = cc.Class({
     // and try to remove the node from scene graph.
     // It should only be invoked by cc.TiledMap
     // DO NOT use it manually.
-    _tryRemoveNode: function () {
+    _tryRemoveNode: function() {
         // remove the component
         this.node.removeComponent(cc.TiledObjectGroup);
 

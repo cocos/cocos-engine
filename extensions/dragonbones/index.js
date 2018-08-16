@@ -41,48 +41,48 @@
 dragonBones = (!CC_RUNTIME && CC_JSB) ? dragonBones : require('./lib/dragonBones');
 
 dragonBones.DisplayType = {
-    Image: 0,
-    Armature: 1,
-    Mesh: 2
+    Image : 0,
+    Armature : 1,
+    Mesh : 2
 };
 
 dragonBones.ArmatureType = {
-    Armature: 0,
-    MovieClip: 1,
-    Stage: 2
+    Armature : 0,
+    MovieClip : 1,
+    Stage : 2
 };
 
 dragonBones.ExtensionType = {
-    FFD: 0,
-    AdjustColor: 10,
-    BevelFilter: 11,
-    BlurFilter: 12,
-    DropShadowFilter: 13,
-    GlowFilter: 14,
-    GradientBevelFilter: 15,
-    GradientGlowFilter: 16
+    FFD : 0,
+    AdjustColor : 10,
+    BevelFilter : 11,
+    BlurFilter : 12,
+    DropShadowFilter : 13,
+    GlowFilter : 14,
+    GradientBevelFilter : 15,
+    GradientGlowFilter : 16
 };
 
 dragonBones.EventType = {
-    Frame: 0,
-    Sound: 1
+    Frame : 0,
+    Sound : 1
 };
 
 dragonBones.ActionType = {
-    Play: 0,
-    Stop: 1,
-    GotoAndPlay: 2,
-    GotoAndStop: 3,
-    FadeIn: 4,
-    FadeOut: 5
+    Play : 0,
+    Stop : 1,
+    GotoAndPlay : 2,
+    GotoAndStop : 3,
+    FadeIn : 4,
+    FadeOut : 5
 };
 
 dragonBones.AnimationFadeOutMode = {
-    None: 0,
-    SameLayer: 1,
-    SameGroup: 2,
-    SameLayerAndGroup: 3,
-    All: 4
+    None : 0,
+    SameLayer : 1,
+    SameGroup : 2,
+    SameLayerAndGroup : 3,
+    All : 4
 };
 
 if (!CC_EDITOR || !Editor.isMainProcess) {

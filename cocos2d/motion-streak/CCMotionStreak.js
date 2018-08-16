@@ -54,7 +54,7 @@ var MotionStreak = cc.Class({
         executeInEditMode: true
     },
 
-    ctor: function () {
+    ctor: function() {
         this._root = null;
         this._motionStreak = null;
     },

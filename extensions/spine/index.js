@@ -59,7 +59,7 @@ sp.ATTACHMENT_TYPE = {
     REGION: 0,
     BOUNDING_BOX: 1,
     MESH: 2,
-    SKINNED_MESH: 3
+    SKINNED_MESH:3
 };
 
 /**
@@ -109,7 +109,7 @@ sp.AnimationEventType = cc.Enum({
  */
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
-
+    
     if (CC_RUNTIME || !CC_JSB) {
         sp.spine = require('./lib/spine');
 

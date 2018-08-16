@@ -256,7 +256,7 @@ let Camera = cc.Class({
      * @param {Node} node - the node which should transform
      * @return {AffineTransform}
      */
-    getNodeToCameraTransform(node) {
+    getNodeToCameraTransform (node) {
         var t = node.getNodeToWorldTransform();
         if (this.containsNode(node)) {
             t = cc.affineTransformConcatIn(t, cc.Camera.main.viewMatrix);
@@ -273,7 +273,7 @@ let Camera = cc.Class({
      * @param {Node} point - the point which should transform
      * @return {Vec2}
      */
-    getCameraToWorldPoint(point) {
+    getCameraToWorldPoint (point) {
         if (cc.Camera.main) {
             point = cc.pointApplyAffineTransform(point, cc.Camera.main.invertViewMatrix);
         }
@@ -412,9 +412,9 @@ let Camera = cc.Class({
             lvm.d !== m.d ||
             lvm.tx !== m.tx ||
             lvm.ty !== m.ty
-        ) {
+            ) {
             this._setSgNodesCullingDirty();
-
+            
             lvm.a = m.a;
             lvm.b = m.b;
             lvm.c = m.c;

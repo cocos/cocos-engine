@@ -112,7 +112,7 @@ var VideoPlayer = cc.Class({
         resourceType: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.resourceType',
             type: ResourceType,
-            set: function (value) {
+            set: function ( value ) {
                 this._resourceType = value;
                 this._updateVideoSource();
             },
@@ -130,7 +130,7 @@ var VideoPlayer = cc.Class({
         remoteURL: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.url',
             type: cc.String,
-            set: function (url) {
+            set: function ( url ) {
                 this._remoteURL = url;
                 this._updateVideoSource();
             },
@@ -153,7 +153,7 @@ var VideoPlayer = cc.Class({
             get: function () {
                 return this._clip;
             },
-            set: function (value) {
+            set: function ( value ) {
                 if (typeof value !== 'string')
                     value = '';
                 this._clip = value;
@@ -170,13 +170,13 @@ var VideoPlayer = cc.Class({
         currentTime: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
-            set: function (time) {
-                if (this._sgNode) {
+            set: function ( time ) {
+                if(this._sgNode) {
                     this._sgNode.seekTo(time);
                 }
             },
             get: function () {
-                if (this._sgNode) {
+                if(this._sgNode) {
                     return this._sgNode.currentTime();
                 }
                 return -1;
@@ -192,7 +192,7 @@ var VideoPlayer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.keepAspectRatio',
             default: true,
             type: cc.Boolean,
-            notify: function () {
+            notify: function() {
                 this._sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
             }
         },
@@ -227,7 +227,7 @@ var VideoPlayer = cc.Class({
         ResourceType: ResourceType
     },
 
-    onLoad: function () {
+    onLoad: function() {
         if (!CC_RUNTIME && CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 this.enabled = false;
@@ -256,7 +256,7 @@ var VideoPlayer = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        if (sgNode) {
+        if(sgNode) {
             if (CC_RUNTIME || !CC_JSB) {
                 sgNode.createDomElementIfNeeded();
             }
@@ -295,22 +295,22 @@ var VideoPlayer = cc.Class({
         this.node.emit('clicked', this);
     },
 
-    onPlaying: function () {
+    onPlaying: function(){
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
         this.node.emit('playing', this);
     },
 
-    onPasued: function () {
+    onPasued: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
     },
 
-    onStopped: function () {
+    onStopped: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
         this.node.emit('stopped', this);
     },
 
-    onCompleted: function () {
+    onCompleted: function() {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
         this.node.emit('completed', this);
     },
@@ -321,7 +321,7 @@ var VideoPlayer = cc.Class({
      * @method play
      */
     play: function () {
-        if (this._sgNode) {
+        if(this._sgNode) {
             this._sgNode.play();
         }
     },
@@ -331,7 +331,7 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
      * @method resume
      */
-    resume: function () {
+    resume: function() {
         if (this._sgNode) {
             this._sgNode.resume();
         }
@@ -343,7 +343,7 @@ var VideoPlayer = cc.Class({
      * @method pause
      */
     pause: function () {
-        if (this._sgNode) {
+        if(this._sgNode) {
             this._sgNode.pause();
         }
     },
@@ -353,8 +353,8 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频正在播放，调用这个接口可以立马停止播放。
      * @method stop
      */
-    stop: function () {
-        if (this._sgNode) {
+    stop: function() {
+        if(this._sgNode) {
             this._sgNode.stop();
         }
     },
@@ -365,8 +365,8 @@ var VideoPlayer = cc.Class({
      * @method getDuration
      * @returns {Number}
      */
-    getDuration: function () {
-        if (this._sgNode) {
+    getDuration: function() {
+        if(this._sgNode) {
             return this._sgNode.duration();
         }
         return -1;
@@ -378,8 +378,8 @@ var VideoPlayer = cc.Class({
      * @method isPlaying
      * @returns {Boolean}
      */
-    isPlaying: function () {
-        if (this._sgNode) {
+    isPlaying: function() {
+        if(this._sgNode) {
             return this._sgNode.isPlaying();
         }
         return false;

@@ -76,7 +76,7 @@ if (CC_DEV) {
     SceneGraphUtils.checkMatchCurrentScene = function () {
         var scene = cc.director.getScene();
         var sgScene = cc.director.getRunningScene();
-        function checkMatch(ent, sgNode) {
+        function checkMatch (ent, sgNode) {
             if (ent._sgNode !== sgNode) {
                 throw new Error('scene graph node not equal: ' + ent.name);
             }

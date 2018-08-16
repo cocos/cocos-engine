@@ -48,7 +48,7 @@ var EventType = _ccsg.WebView.EventType;
  */
 
 //
-function emptyCallback() { }
+function emptyCallback () { }
 
 /**
  * !#en cc.WebView is a component for display web pages in the game

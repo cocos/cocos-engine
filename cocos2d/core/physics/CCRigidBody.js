@@ -300,8 +300,8 @@ var RigidBody = cc.Class({
                 var lv = this._linearVelocity;
                 if (this._b2Body) {
                     var velocity = this._b2Body.GetLinearVelocity();
-                    lv.x = velocity.x * PTM_RATIO;
-                    lv.y = velocity.y * PTM_RATIO;
+                    lv.x = velocity.x*PTM_RATIO;
+                    lv.y = velocity.y*PTM_RATIO;
                 }
                 return lv;
             },
@@ -310,7 +310,7 @@ var RigidBody = cc.Class({
                 var b2body = this._b2Body;
                 if (b2body) {
                     var temp = (!CC_RUNTIME && CC_JSB) ? tempb2Vec21 : b2body.m_linearVelocity;
-                    temp.Set(value.x / PTM_RATIO, value.y / PTM_RATIO);
+                    temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
                     b2body.SetLinearVelocity(temp);
                 }
             }
@@ -335,7 +335,7 @@ var RigidBody = cc.Class({
             set: function (value) {
                 this._angularVelocity = value;
                 if (this._b2Body) {
-                    this._b2Body.SetAngularVelocity(value * ANGLE_TO_PHYSICS_ANGLE);
+                    this._b2Body.SetAngularVelocity( value * ANGLE_TO_PHYSICS_ANGLE );
                 }
             }
         },
@@ -376,7 +376,7 @@ var RigidBody = cc.Class({
             },
             set: function (value) {
                 if (this._b2Body) {
-                    this._b2Body.SetAwake(value);
+                    this._b2Body.SetAwake( value );
                 }
             }
         },
@@ -427,10 +427,10 @@ var RigidBody = cc.Class({
     getLocalPoint: function (worldPoint, out) {
         out = out || cc.v2();
         if (this._b2Body) {
-            tempb2Vec21.Set(worldPoint.x / PTM_RATIO, worldPoint.y / PTM_RATIO);
+            tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
             var pos = this._b2Body.GetLocalPoint(tempb2Vec21);
-            out.x = pos.x * PTM_RATIO;
-            out.y = pos.y * PTM_RATIO;
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
         return out;
     },
@@ -448,10 +448,10 @@ var RigidBody = cc.Class({
     getWorldPoint: function (localPoint, out) {
         out = out || cc.v2();
         if (this._b2Body) {
-            tempb2Vec21.Set(localPoint.x / PTM_RATIO, localPoint.y / PTM_RATIO);
+            tempb2Vec21.Set(localPoint.x/PTM_RATIO, localPoint.y/PTM_RATIO);
             var pos = this._b2Body.GetWorldPoint(tempb2Vec21);
-            out.x = pos.x * PTM_RATIO;
-            out.y = pos.y * PTM_RATIO;
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
         return out;
     },
@@ -465,14 +465,14 @@ var RigidBody = cc.Class({
      * @param {Vec2} localVector - a vector in world coordinates.
      * @param {Vec2} out - optional, the receiving vector
      * @return {Vec2} the same vector expressed in local coordinates.
-     */
+     */ 
     getWorldVector: function (localVector, out) {
         out = out || cc.v2();
         if (this._b2Body) {
-            tempb2Vec21.Set(localVector.x / PTM_RATIO, localVector.y / PTM_RATIO);
+            tempb2Vec21.Set(localVector.x/PTM_RATIO, localVector.y/PTM_RATIO);
             var vector = this._b2Body.GetWorldVector(tempb2Vec21);
-            out.x = vector.x * PTM_RATIO;
-            out.y = vector.y * PTM_RATIO;
+            out.x = vector.x*PTM_RATIO;
+            out.y = vector.y*PTM_RATIO;
         }
         return out;
     },
@@ -490,10 +490,10 @@ var RigidBody = cc.Class({
     getLocalVector: function (worldVector, out) {
         out = out || cc.v2();
         if (this._b2Body) {
-            tempb2Vec21.Set(worldVector.x / PTM_RATIO, worldVector.y / PTM_RATIO);
+            tempb2Vec21.Set(worldVector.x/PTM_RATIO, worldVector.y/PTM_RATIO);
             var vector = this._b2Body.GetLocalVector(tempb2Vec21);
-            out.x = vector.x * PTM_RATIO;
-            out.y = vector.y * PTM_RATIO;
+            out.x = vector.x*PTM_RATIO;
+            out.y = vector.y*PTM_RATIO;
         }
         return out;
     },
@@ -511,8 +511,8 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             var pos = this._b2Body.GetPosition();
-            out.x = pos.x * PTM_RATIO;
-            out.y = pos.y * PTM_RATIO;
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
         return out;
     },
@@ -544,8 +544,8 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             var pos = this._b2Body.GetLocalCenter();
-            out.x = pos.x * PTM_RATIO;
-            out.y = pos.y * PTM_RATIO;
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
         return out;
     },
@@ -562,8 +562,8 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             var pos = this._b2Body.GetWorldCenter();
-            out.x = pos.x * PTM_RATIO;
-            out.y = pos.y * PTM_RATIO;
+            out.x = pos.x*PTM_RATIO;
+            out.y = pos.y*PTM_RATIO;
         }
         return out;
     },
@@ -581,10 +581,10 @@ var RigidBody = cc.Class({
     getLinearVelocityFromWorldPoint: function (worldPoint, out) {
         out = out || cc.v2();
         if (this._b2Body) {
-            tempb2Vec21.Set(worldPoint.x / PTM_RATIO, worldPoint.y / PTM_RATIO);
+            tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
             var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21);
-            out.x = velocity.x * PTM_RATIO;
-            out.y = velocity.y * PTM_RATIO;
+            out.x = velocity.x*PTM_RATIO;
+            out.y = velocity.y*PTM_RATIO;
         }
         return out;
     },
@@ -638,7 +638,7 @@ var RigidBody = cc.Class({
             if (!list) return [];
 
             joints.push(list.joint._joint);
-
+            
             // find prev joint
             var prev = list.prev;
             while (prev) {
@@ -671,8 +671,8 @@ var RigidBody = cc.Class({
      */
     applyForce: function (force, point, wake) {
         if (this._b2Body) {
-            tempb2Vec21.Set(force.x / PTM_RATIO, force.y / PTM_RATIO);
-            tempb2Vec22.Set(point.x / PTM_RATIO, point.y / PTM_RATIO);
+            tempb2Vec21.Set(force.x/PTM_RATIO, force.y/PTM_RATIO);
+            tempb2Vec22.Set(point.x/PTM_RATIO, point.y/PTM_RATIO);
             this._b2Body.ApplyForce(tempb2Vec21, tempb2Vec22, wake);
         }
     },
@@ -688,7 +688,7 @@ var RigidBody = cc.Class({
      */
     applyForceToCenter: function (force, wake) {
         if (this._b2Body) {
-            tempb2Vec21.Set(force.x / PTM_RATIO, force.y / PTM_RATIO);
+            tempb2Vec21.Set(force.x/PTM_RATIO, force.y/PTM_RATIO);
             this._b2Body.ApplyForceToCenter(tempb2Vec21, wake);
         }
     },
@@ -704,7 +704,7 @@ var RigidBody = cc.Class({
      */
     applyTorque: function (torque, wake) {
         if (this._b2Body) {
-            this._b2Body.ApplyTorque(torque / PTM_RATIO, wake);
+            this._b2Body.ApplyTorque(torque/PTM_RATIO, wake);
         }
     },
 
@@ -723,8 +723,8 @@ var RigidBody = cc.Class({
      */
     applyLinearImpulse: function (impulse, point, wake) {
         if (this._b2Body) {
-            tempb2Vec21.Set(impulse.x / PTM_RATIO, impulse.y / PTM_RATIO);
-            tempb2Vec22.Set(point.x / PTM_RATIO, point.y / PTM_RATIO);
+            tempb2Vec21.Set(impulse.x/PTM_RATIO, impulse.y/PTM_RATIO);
+            tempb2Vec22.Set(point.x/PTM_RATIO, point.y/PTM_RATIO);
             this._b2Body.ApplyLinearImpulse(tempb2Vec21, tempb2Vec22, wake);
         }
     },
@@ -740,7 +740,7 @@ var RigidBody = cc.Class({
      */
     applyAngularImpulse: function (impulse, wake) {
         if (this._b2Body) {
-            this._b2Body.ApplyAngularImpulse(impulse / PTM_RATIO / PTM_RATIO, wake);
+            this._b2Body.ApplyAngularImpulse(impulse/PTM_RATIO/PTM_RATIO, wake);
         }
     },
 
@@ -779,8 +779,8 @@ var RigidBody = cc.Class({
             var b2Pos = b2body.GetPosition();
 
             var timeStep = cc.game.config['frameRate'];
-            temp.x = (temp.x - b2Pos.x) * timeStep;
-            temp.y = (temp.y - b2Pos.y) * timeStep;
+            temp.x = (temp.x - b2Pos.x)*timeStep;
+            temp.y = (temp.y - b2Pos.y)*timeStep;
 
             b2body.SetAwake(true);
             b2body.SetLinearVelocity(temp);
@@ -809,7 +809,7 @@ var RigidBody = cc.Class({
             var b2Rotation = b2body.GetAngle();
             var timeStep = cc.game.config['frameRate'];
             b2body.SetAwake(true);
-            b2body.SetAngularVelocity((rotation - b2Rotation) * timeStep);
+            b2body.SetAngularVelocity((rotation - b2Rotation)*timeStep);
         }
         else {
             b2body.SetTransform(b2body.GetPosition(), rotation);
@@ -876,7 +876,7 @@ var RigidBody = cc.Class({
     __init: function () {
         if (this._inited) return;
 
-        this._registerNodeEvents();
+       this._registerNodeEvents();
 
         var bodyDef = new b2.BodyDef();
 
@@ -893,7 +893,7 @@ var RigidBody = cc.Class({
         bodyDef.angularDamping = this.angularDamping;
 
         var linearVelocity = this.linearVelocity;
-        bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x / PTM_RATIO, linearVelocity.y / PTM_RATIO);
+        bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/PTM_RATIO, linearVelocity.y/PTM_RATIO);
 
         bodyDef.angularVelocity = this.angularVelocity * ANGLE_TO_PHYSICS_ANGLE;
 
@@ -914,7 +914,7 @@ var RigidBody = cc.Class({
 
         cc.director.getPhysicsManager()._removeBody(this);
         this._unregisterNodeEvents();
-
+        
         this._inited = false;
     },
 

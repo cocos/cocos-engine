@@ -262,7 +262,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var top = box.top + window.pageYOffset - container.clientTop;
         var x = view._devicePixelRatio * (uiPoint.x - left);
         var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
-        return view._isRotated ? { x: view._viewPortRect.width - y, y: x } : { x: x, y: y };
+        return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
     /**
@@ -281,7 +281,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var box = container.getBoundingClientRect();
         var left = box.left + window.pageXOffset - container.clientLeft;
         var top = box.top + window.pageYOffset - container.clientTop;
-        var uiPoint = { x: 0, y: 0 };
+        var uiPoint = {x: 0, y: 0};
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
             uiPoint.y = top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
@@ -486,7 +486,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             eventManager.setEnabled(true);
 
         // Action manager
-        if (this._actionManager) {
+        if (this._actionManager){
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
@@ -617,7 +617,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Run or replace rendering scene
-        if (!this._runningScene) {
+        if (!this._runningScene ) {
             //start scene
             this.pushScene(sgScene);
             this.startAnimation();

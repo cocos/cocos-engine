@@ -102,7 +102,7 @@ var SystemEvent = cc.Class({
      * @method setAccelerometerInterval
      * @param {Number} interval
      */
-    setAccelerometerInterval: function (interval) {
+    setAccelerometerInterval: function(interval) {
         inputManger.setAccelerometerInterval(interval);
     },
 
@@ -184,15 +184,15 @@ var SystemEvent = cc.Class({
 
 cc.SystemEvent = module.exports = SystemEvent;
 if (!CC_EDITOR) {
-    /** 
-     * @module cc
-     */
+/** 
+ * @module cc
+ */
 
-    /**
-     * !#en The System event singleton for global usage
-     * !#zh 系统事件单例，方便全局使用
-     * @property systemEvent
-     * @type {SystemEvent}
-     */
+/**
+ * !#en The System event singleton for global usage
+ * !#zh 系统事件单例，方便全局使用
+ * @property systemEvent
+ * @type {SystemEvent}
+ */
     cc.systemEvent = new cc.SystemEvent();
 }

@@ -198,15 +198,15 @@ var SkeletonData = cc.Class({
         }
 
 
-        if (!(this.textures && this.textures.length > 0)) {
-            if (!quiet) {
+        if ( !(this.textures && this.textures.length > 0) ) {
+            if ( !quiet ) {
                 cc.errorID(7507, this.name);
             }
             return null;
         }
 
         var atlas = this._getAtlas(quiet);
-        if (!atlas) {
+        if (! atlas) {
             return null;
         }
         var attachmentLoader = new sp.spine.AtlasAttachmentLoader(atlas);
@@ -269,14 +269,14 @@ var SkeletonData = cc.Class({
             return this._atlasCache;
         }
 
-        if (!this.atlasText) {
-            if (!quiet) {
+        if ( !this.atlasText ) {
+            if ( !quiet ) {
                 cc.errorID(7508, this.name);
             }
             return null;
         }
 
-        var loader = new TextureLoader(this);
+        var loader =  new TextureLoader(this);
         return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
     }
 });

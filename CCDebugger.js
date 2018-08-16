@@ -146,7 +146,7 @@ cc._initDebugSetting = function (mode) {
             logList.scrollTop = logList.scrollHeight;
         }
 
-        cc.error = function () {
+        cc.error = function() {
             logToWebPage("ERROR :  " + cc.js.formatStr.apply(null, arguments));
         };
         cc.assert = function (cond, msg) {

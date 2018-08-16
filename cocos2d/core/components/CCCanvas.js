@@ -164,7 +164,7 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
-        if (!this.node._sizeProvider) {
+        if (!this.node._sizeProvider ) {
             this.node._sizeProvider = designResolutionWrapper;
         }
         else if (CC_DEV) {

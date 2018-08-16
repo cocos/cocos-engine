@@ -220,9 +220,9 @@ var game = {
      */
     onStart: null,
 
-    //@Public Methods
+//@Public Methods
 
-    //  @Game play control
+//  @Game play control
     /**
      * !#en Set frameRate of game.
      * !#zh 设置游戏帧率。
@@ -462,7 +462,7 @@ var game = {
         this.prepare(game.onStart && game.onStart.bind(game));
     },
 
-    //  @ Persist root node section
+//  @ Persist root node section
     /**
      * !#en
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
@@ -485,7 +485,7 @@ var game = {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (!(node.parent instanceof cc.Scene)) {
+                else if (!(node.parent instanceof cc.Scene) ) {
                     cc.warnID(3801);
                     return;
                 }
@@ -526,9 +526,9 @@ var game = {
         return node._persistNode;
     },
 
-    //@Private Methods
+//@Private Methods
 
-    //  @Time ticker section
+//  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
         var frameRate = game.config[game.CONFIG_KEY.frameRate];
@@ -539,33 +539,33 @@ var game = {
         }
         else {
             window.requestAnimFrame = window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame ||
-                window.mozRequestAnimationFrame ||
-                window.oRequestAnimationFrame ||
-                window.msRequestAnimationFrame ||
-                this._stTime;
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            this._stTime;
             window.cancelAnimFrame = window.cancelAnimationFrame ||
-                window.cancelRequestAnimationFrame ||
-                window.msCancelRequestAnimationFrame ||
-                window.mozCancelRequestAnimationFrame ||
-                window.oCancelRequestAnimationFrame ||
-                window.webkitCancelRequestAnimationFrame ||
-                window.msCancelAnimationFrame ||
-                window.mozCancelAnimationFrame ||
-                window.webkitCancelAnimationFrame ||
-                window.oCancelAnimationFrame ||
-                this._ctTime;
+            window.cancelRequestAnimationFrame ||
+            window.msCancelRequestAnimationFrame ||
+            window.mozCancelRequestAnimationFrame ||
+            window.oCancelRequestAnimationFrame ||
+            window.webkitCancelRequestAnimationFrame ||
+            window.msCancelAnimationFrame ||
+            window.mozCancelAnimationFrame ||
+            window.webkitCancelAnimationFrame ||
+            window.oCancelAnimationFrame ||
+            this._ctTime;
         }
     },
-    _stTime: function (callback) {
+    _stTime: function(callback){
         var currTime = new Date().getTime();
         var timeToCall = Math.max(0, game._frameTime - (currTime - game._lastTime));
-        var id = window.setTimeout(function () { callback(); },
+        var id = window.setTimeout(function() { callback(); },
             timeToCall);
         game._lastTime = currTime + timeToCall;
         return id;
     },
-    _ctTime: function (id) {
+    _ctTime: function(id){
         window.clearTimeout(id);
     },
     //Run game.
@@ -592,7 +592,7 @@ var game = {
         self._paused = false;
     },
 
-    //  @Game loading section
+//  @Game loading section
     _loadConfig: function (cb) {
         // Load config
         // Already loaded
@@ -708,7 +708,7 @@ var game = {
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-            function addClass(element, name) {
+            function addClass (element, name) {
                 var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
                 if (!hasClass) {
                     if (element.className) {
@@ -734,7 +734,7 @@ var game = {
                 opts['preserveDrawingBuffer'] = true;
             }
             this._renderContext = cc._renderContext = cc.webglContext
-                = cc.create3DContext(localCanvas, opts);
+            = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
@@ -777,13 +777,13 @@ var game = {
 
         var hidden = false;
 
-        function onHidden() {
+        function onHidden () {
             if (!hidden) {
                 hidden = true;
                 game.emit(game.EVENT_HIDE, game);
             }
         }
-        function onShown() {
+        function onShown () {
             if (hidden) {
                 hidden = false;
                 game.emit(game.EVENT_SHOW, game);

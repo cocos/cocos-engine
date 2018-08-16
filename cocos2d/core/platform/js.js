@@ -27,7 +27,7 @@
 const tempCIDGenerater = new (require('./id-generater'))('TmpCId.');
 
 
-function _getPropertyDescriptor(obj, name) {
+function _getPropertyDescriptor (obj, name) {
     while (obj) {
         var pd = Object.getOwnPropertyDescriptor(obj, name);
         if (pd) {
@@ -59,7 +59,7 @@ var js = {
      * @param {*} obj
      * @returns {Boolean}
      */
-    isNumber: function (obj) {
+    isNumber: function(obj) {
         return typeof obj === 'number' || obj instanceof Number;
     },
 
@@ -71,7 +71,7 @@ var js = {
      * @param {*} obj
      * @returns {Boolean}
      */
-    isString: function (obj) {
+    isString: function(obj) {
         return typeof obj === 'string' || obj instanceof String;
     },
 
@@ -94,9 +94,9 @@ var js = {
                     cc.errorID(5402, source);
                     continue;
                 }
-                for (var name in source) {
-                    if (!(name in obj)) {
-                        _copyprop(name, source, obj);
+                for ( var name in source) {
+                    if ( !(name in obj) ) {
+                        _copyprop( name, source, obj);
                     }
                 }
             }
@@ -121,8 +121,8 @@ var js = {
                     cc.errorID(5403, source);
                     continue;
                 }
-                for (var name in source) {
-                    _copyprop(name, source, obj);
+                for ( var name in source) {
+                    _copyprop( name, source, obj);
                 }
             }
         }
@@ -169,7 +169,7 @@ var js = {
      * @param {Function} ctor - the constructor of subclass
      * @return {Function}
      */
-    getSuper(ctor) {
+    getSuper (ctor) {
         if (!CC_RUNTIME && CC_JSB && ctor.hasOwnProperty('$super')) {
             // babel runtime uses Object.setPrototypeOf to inherit static members,
             // so $super will always inheritable even if it is non-enumerable.
@@ -344,7 +344,7 @@ js.getClassName = function (objOrCtor) {
     return '';
 };
 
-function isTempClassId(id) {
+function isTempClassId (id) {
     return typeof id !== 'string' || id.startsWith(tempCIDGenerater.prefix);
 }
 
@@ -353,7 +353,7 @@ function isTempClassId(id) {
     var _idToClass = {};
     var _nameToClass = {};
 
-    function getRegister(key, table) {
+    function getRegister (key, table) {
         return function (id, constructor) {
             // deregister old
             if (constructor.prototype.hasOwnProperty(key)) {
@@ -463,7 +463,7 @@ cc.js.unregisterClass to remove the id of unused class';
      * @private
      */
     js._getClassId = function (obj, allowTempId) {
-        allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
+        allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId: true);
 
         var res;
         if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
@@ -502,7 +502,7 @@ cc.js.unregisterClass to remove the id of unused class';
                 }
             }
         );
-        js.getset(js, '_registeredClassNames',
+        js.getset(js, '_registeredClassNames', 
             function () {
                 var dump = {};
                 for (var id in _nameToClass) {
@@ -531,7 +531,7 @@ cc.js.unregisterClass to remove the id of unused class';
  */
 js.obsolete = function (obj, obsoleted, newPropName, writable) {
     var oldName = /([^.]+)$/.exec(obsoleted)[0];
-    function get() {
+    function get () {
         if (CC_DEV) {
             cc.warnID(5400, obsoleted, newPropName);
         }
@@ -614,7 +614,7 @@ js.formatStr = function () {
 js.shiftArguments = function () {
     var len = arguments.length - 1;
     var args = new Array(len);
-    for (var i = 0; i < len; ++i) {
+    for(var i = 0; i < len; ++i) {
         args[i] = arguments[i + 1];
     }
     return args;
@@ -654,7 +654,7 @@ js.createMap = function (forceDictMode) {
  * @param {any[]} array
  * @param {Number} index
  */
-function removeAt(array, index) {
+function removeAt (array, index) {
     array.splice(index, 1);
 }
 
@@ -665,7 +665,7 @@ function removeAt(array, index) {
  * @param {any[]} array
  * @param {Number} index
  */
-function fastRemoveAt(array, index) {
+function fastRemoveAt (array, index) {
     var length = array.length;
     if (index < 0 || index >= length) {
         return;
@@ -681,7 +681,7 @@ function fastRemoveAt(array, index) {
  * @param {any} value
  * @return {Boolean}
  */
-function remove(array, value) {
+function remove (array, value) {
     var index = array.indexOf(value);
     if (index >= 0) {
         removeAt(array, index);
@@ -699,7 +699,7 @@ function remove(array, value) {
  * @param {any[]} array
  * @param {Number} value
  */
-function fastRemove(array, value) {
+function fastRemove (array, value) {
     var index = array.indexOf(value);
     if (index >= 0) {
         array[index] = array[array.length - 1];
@@ -714,10 +714,10 @@ function fastRemove(array, value) {
  * @param {Function} type
  * @return {Boolean}
  */
-function verifyType(array, type) {
+function verifyType (array, type) {
     if (array && array.length > 0) {
         for (var i = 0; i < array.length; i++) {
-            if (!(array[i] instanceof type)) {
+            if (!(array[i] instanceof  type)) {
                 cc.logID(1300);
                 return false;
             }
@@ -732,7 +732,7 @@ function verifyType(array, type) {
  * @param {Array} array Source Array
  * @param {Array} minusArr minus Array
  */
-function removeArray(array, minusArr) {
+function removeArray (array, minusArr) {
     for (var i = 0, l = minusArr.length; i < l; i++) {
         remove(array, minusArr[i]);
     }
@@ -746,7 +746,7 @@ function removeArray(array, minusArr) {
  * @param {Number} index
  * @return {Array}
  */
-function appendObjectsAt(array, addObjs, index) {
+function appendObjectsAt (array, addObjs, index) {
     array.splice.apply(array, [index, 0].concat(addObjs));
     return array;
 }
@@ -770,7 +770,7 @@ var indexOf = Array.prototype.indexOf;
  * @param {any} value
  * @return {Boolean}
  */
-function contains(array, value) {
+function contains (array, value) {
     return array.indexOf(value) >= 0;
 }
 
@@ -780,7 +780,7 @@ function contains(array, value) {
  * @param {Array} array
  * @return {Array}
  */
-function copy(array) {
+function copy (array) {
     var i, len = array.length, arr_clone = new Array(len);
     for (i = 0; i < len; i += 1)
         arr_clone[i] = array[i];
@@ -867,7 +867,7 @@ js.array = {
  * constructor(cleanupFunc: (obj: any) => void, size: number)
  * constructor(size: number)
  */
-function Pool(cleanupFunc, size) {
+function Pool (cleanupFunc, size) {
     if (typeof cleanupFunc === 'number') {
         size = cleanupFunc;
         cleanupFunc = null;

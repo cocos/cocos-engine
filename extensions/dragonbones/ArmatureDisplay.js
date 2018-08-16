@@ -30,7 +30,7 @@
 var DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
-function setEnumAttr(obj, propName, enumDef) {
+function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
         type: 'Enum',
         enumList: cc.Enum.getList(enumDef)
