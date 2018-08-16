@@ -77,7 +77,11 @@ Audio.State = {
     /**
      * @property {Number} PAUSED
      */
-    PAUSED: 2
+    PAUSED: 2,
+    /**
+     * @property {Number} STOPPED
+     */
+    STOPPED: 3,
 };
 
 (function (proto) {
@@ -171,14 +175,14 @@ Audio.State = {
     };
 
     proto.pause = function () {
-        if (!this._element) return;
+        if (!this._element || this._state !== Audio.State.PLAYING) return;
         this._unbindEnded();
         this._element.pause();
         this._state = Audio.State.PAUSED;
     };
 
     proto.resume = function () {
-        if (!this._element || this._state === Audio.State.PLAYING) return;
+        if (!this._element || this._state !== Audio.State.PAUSED) return;
         this._bindEnded();
         this._element.play();
         this._state = Audio.State.PLAYING;
@@ -199,7 +203,7 @@ Audio.State = {
         }
         this._unbindEnded();
         this.emit('stop');
-        this._state = Audio.State.PAUSED;
+        this._state = Audio.State.STOPPED;
     };
 
     proto.setLoop = function (loop) {
