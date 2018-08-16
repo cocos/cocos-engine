@@ -9642,7 +9642,12 @@ Device.prototype._restoreIndexBuffer = function _restoreIndexBuffer () {
   var gl = this._gl;
 
   var ib = this._current.indexBuffer;
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib ? ib._glID : null);
+  if (ib && ib._glID !== -1) {
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib._glID);
+  }
+  else {
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
 };
 
 /**
