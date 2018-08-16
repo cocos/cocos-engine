@@ -136,13 +136,9 @@ defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
 defineMacro('CC_QQPLAY', false);
-// defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
-if (CC_JSB) {
-    defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues. 
-} else {
-    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
-}
-defineMacro('CC_RUNTIME', true);
+defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
+defineMacro('CC_RUNTIME', typeof loadRuntime() === 'object');
+
 
 // PREDEFINE
 
