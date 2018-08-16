@@ -1,5 +1,6 @@
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
+const gfx = renderEngine.gfx;
 const Texture2D = require('./CCTexture2D');
 
 /**
@@ -24,7 +25,7 @@ let RenderTexture = cc.Class({
      * @param {Number} [height] 
      * @method initWithSize
      */
-    initWithSize (width, height) {
+    initWithSize (width, height, depthStencilFormat) {
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
 
@@ -44,8 +45,20 @@ let RenderTexture = cc.Class({
         }
 
         opts = {
-            colors: [ this._texture ]
+            colors: [ this._texture ],
         };
+        if (depthStencilFormat) {
+            let depthStencilBuffer = new gfx.RenderBuffer(renderer.device, depthStencilFormat, width, height);
+            if (depthStencilFormat === gfx.RB_FMT_D24S8) {
+                opts.depth = opts.stencil = depthStencilBuffer;
+            }
+            else if (depthStencilFormat === gfx.RB_FMT_S8) {
+                opts.stencil = depthStencilBuffer;
+            }
+            else if (depthStencilFormat === gl.RB_FMT_D16) {
+                opts.depth = depthStencilBuffer;
+            }
+        }
 
         if (this._framebuffer) {
             this._framebuffer.destroy();
