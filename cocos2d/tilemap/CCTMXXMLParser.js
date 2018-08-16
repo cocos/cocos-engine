@@ -867,8 +867,8 @@ cc.TMXMapInfo.prototype = {
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
                 objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
 
-                objectProp["x"] = (selObj.getAttribute('x') || 0);
-                objectProp["y"] = (selObj.getAttribute('y') || 0);
+                objectProp["x"] = parseFloat(selObj.getAttribute('x')) || 0;
+                objectProp["y"] = parseFloat(selObj.getAttribute('y')) || 0;
 
                 objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 

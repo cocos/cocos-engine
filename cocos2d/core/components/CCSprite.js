@@ -582,7 +582,7 @@ var Sprite = cc.Class({
         }
     },
 
-    _onTextureLoaded: function (event) {
+    _onTextureLoaded: function () {
         if (!this.isValid) {
             return;
         }
