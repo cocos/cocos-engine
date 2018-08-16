@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
 #include "base/CCRenderTexture.h"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 
 NS_CC_BEGIN
 
@@ -136,7 +137,33 @@ public:
      @return Current language iso 639-1 code.
      */
     std::string getCurrentLanguageCode() const;
-    
+
+    /**
+     @brief Get current display stats.
+     @return bool, is displaying stats or not.
+     */
+    bool isDisplayStats()
+    {
+        se::AutoHandleScope hs;
+
+        se::Value ret;
+        char commandBuf[100] = "cc.debug.isDisplayStats();";
+        se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+        return ret.toBoolean();
+    }
+
+    /**
+     @brief set display stats information.
+     */
+    void setDisplayStats(bool isShow)
+    {
+        se::AutoHandleScope hs;
+
+        char commandBuf[100] = {0};
+        sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+        se::ScriptEngine::getInstance()->evalString(commandBuf);
+    }
+
     void setDevicePixelRatio(uint8_t ratio)
     {
         if (ratio <= 1)

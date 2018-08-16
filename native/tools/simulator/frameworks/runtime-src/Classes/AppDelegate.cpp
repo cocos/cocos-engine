@@ -64,15 +64,15 @@ bool AppDelegate::applicationDidFinishLaunching()
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void AppDelegate::applicationDidEnterBackground()
 {
-    struct CustomEvent event;
+    CustomEvent event;
     event.name = EVENT_COME_TO_BACKGROUND;
-    EventDispatcher::dispatchCustomEvent(&event);
+    EventDispatcher::dispatchCustomEvent(event);
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
-    struct CustomEvent event;
+    CustomEvent event;
     event.name = EVENT_COME_TO_FOREGROUND;
-    EventDispatcher::dispatchCustomEvent(&event);
+    EventDispatcher::dispatchCustomEvent(event);
 }

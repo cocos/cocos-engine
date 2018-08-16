@@ -443,10 +443,7 @@ void GLView::onGLFWWindowIconifyCallback(GLFWwindow* /*window*/, int iconified)
 
 void GLView::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int height)
 {
-    if (width && height)
-    {
-        EventDispatcher::dispatchResizeEvent(width, height);
-    }
+    EventDispatcher::dispatchResizeEvent(width, height);
 }
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

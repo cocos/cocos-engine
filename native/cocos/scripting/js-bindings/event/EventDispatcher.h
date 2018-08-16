@@ -91,8 +91,9 @@ struct KeyboardEvent
     bool shiftKeyActive = false;
 };
 
-struct CustomEvent
+class CustomEvent
 {
+public:
     std::string name;
     union {
         void* ptrVal;
@@ -102,6 +103,9 @@ struct CustomEvent
         char charVal;
         bool boolVal;
     } args[10];
+
+    CustomEvent(){};
+    virtual ~CustomEvent(){};
 };
 
 class EventDispatcher
@@ -118,11 +122,11 @@ public:
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
 
-    using CustomEventListener = std::function<void(struct CustomEvent*)>;
+    using CustomEventListener = std::function<void(const CustomEvent&)>;
     static uint32_t addCustomEventListener(const std::string& eventName, const CustomEventListener& listener);
     static void removeCustomEventListener(const std::string& eventName, uint32_t listenerID);
     static void removeAllCustomEventListeners(const std::string& eventName);
-    static void dispatchCustomEvent(struct CustomEvent* event);
+    static void dispatchCustomEvent(const CustomEvent& event);
 
 private:
     struct Node

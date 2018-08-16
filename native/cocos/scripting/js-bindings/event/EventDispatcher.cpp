@@ -420,10 +420,9 @@ void EventDispatcher::removeAllCustomEventListeners(const std::string& eventName
     }
 }
 
-void EventDispatcher::dispatchCustomEvent(struct CustomEvent* event)
+void EventDispatcher::dispatchCustomEvent(const CustomEvent& event)
 {
-    assert(event);
-    auto iter = _listeners.find(event->name);
+    auto iter = _listeners.find(event.name);
     if (iter != _listeners.end())
     {
         Node* next = nullptr;

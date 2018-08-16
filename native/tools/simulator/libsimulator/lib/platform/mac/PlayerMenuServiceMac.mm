@@ -115,8 +115,8 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
     buf << "{\"data\":\"" << self.macMenuItem->getMenuId().c_str() << "\"";
     buf << ",\"name\":" << "\"menuClicked\"" << "}";
     event.setDataString(buf.str());
-//    event.setUserData((void*)self.macMenuItem);
-//    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
+    event.args[0].ptrVal = (void*)self.macMenuItem;
+    cocos2d::EventDispatcher::dispatchCustomEvent(event);
 }
 
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem
