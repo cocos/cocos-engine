@@ -110,7 +110,7 @@ sp.AnimationEventType = cc.Enum({
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
 
-    if (CC_RUNTIME && !CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         sp.spine = require('./lib/spine');
 
         require('./SGSkeletonTexture');

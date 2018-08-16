@@ -1007,6 +1007,16 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 editBox._text = res.value;
                 thisPointer._updateDomTextCases();
                 editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                let placeholderLabel = thisPointer._placeholderLabel;
+                let textLabel = thisPointer._textLabel;
+                let tmpText = editBox._text;
+                if (editBox._editBoxInputFlag === InputFlag.PASSWORD) {
+                    tmpText = tmpText.replace(/./g, '*');
+                }
+                let show = tmpText !== '';
+                placeholderLabel.setVisible(!show);
+                textLabel.setVisible(show);
+                textLabel.setString(tmpText);
             }
         });
         jsb.inputBox.onComplete(function () {
@@ -1086,6 +1096,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._updateDomTextCases = function () {
         var inputFlag = this._editBox._editBoxInputFlag;
+
         if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             this._editBox._text = this._editBox._text.toUpperCase();
         }
@@ -1174,7 +1185,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
         this._showLabels();
         if (sys.platform !== sys.WECHAT_GAME &&
-            sys.platform !== sys.QQ_PLAY && !CC.JSB && sys.isMobile && this._editingMode) {
+            sys.platform !== sys.QQ_PLAY && !CC_JSB && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {

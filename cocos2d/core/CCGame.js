@@ -821,6 +821,11 @@ var game = {
             wx.onHide && wx.onHide(onHidden);
         }
 
+        if (CC_JSB) {
+            jsb.onShow = onShown;
+            jsb.onHide = onHidden;
+        }
+
         if ("onpageshow" in window && "onpagehide" in window) {
             win.addEventListener("pagehide", onHidden, false);
             win.addEventListener("pageshow", onShown, false);

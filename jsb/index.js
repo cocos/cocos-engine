@@ -38,16 +38,6 @@ function defined(name) {
     return typeof window[name] === 'object';
 }
 
-defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-defineMacro('CC_PREVIEW', !CC_EDITOR);
-defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
-defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-defineMacro('CC_JSB', defined('jsb'));
-defineMacro('CC_BUILD', false);
-defineMacro('CC_WECHATGAME', false);
-defineMacro('CC_QQPLAY', false);
-defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
 defineMacro('CC_RUNTIME', true);
 
 if (CC_RUNTIME) {
@@ -57,6 +47,17 @@ if (CC_RUNTIME) {
     require('./jsb-loader')
 
 } else {
+
+    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+    defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+    defineMacro('CC_PREVIEW', !CC_EDITOR);
+    defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
+    defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb'));
+    defineMacro('CC_BUILD', false);
+    defineMacro('CC_WECHATGAME', false);
+    defineMacro('CC_QQPLAY', false);
+    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
 
     if (!cc.ClassManager) {
         cc.ClassManager = window.ClassManager;
