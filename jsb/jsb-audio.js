@@ -46,10 +46,10 @@ cc.Audio.Type = {
     // Using the new audioEngine
     cc.audioEngine = audioEngine;
     audioEngine.play = audioEngine.play2d;
-    audioEngine.setMaxWebAudioSize = function () { };
+    audioEngine.setMaxWebAudioSize = function () {};
     if (CC_RUNTIME) {
-        audioEngine._break = function () { };
-        audioEngine._restore = function () { };
+        audioEngine._break = function () {};
+        audioEngine._restore = function () {};
     } else {
         // deprecated
         var Module = require('../cocos2d/audio/deprecated');
@@ -136,7 +136,7 @@ cc.Audio.Type = {
     proto.emit = function (event) {
         var list = this._eventList[event];
         if (!list) return;
-        for (var i = 0; i < list.length; i++) {
+        for (var i=0; i<list.length; i++) {
             list[i].call(this, this);
         }
     };
@@ -148,7 +148,7 @@ cc.Audio.Type = {
             return true;
         }
 
-        for (var i = 0; i < list.length; i++) {
+        for (var i=0; i<list.length; i++) {
             if (list[i] === callback) {
                 list.splice(i, 1);
                 break;

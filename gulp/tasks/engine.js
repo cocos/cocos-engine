@@ -131,7 +131,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
-    bundler = bundler.pipe(Sourcemaps.init({ loadMaps: true }));
+    bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
     bundler = bundler.pipe(Minify(uglifyOption));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
@@ -178,7 +178,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     bundler = bundler.pipe(Buffer());
     if (createMap) {
         console.error('Can not use sourcemap with optimize-js');
-        bundler = bundler.pipe(Sourcemaps.init({ loadMaps: true }));
+        bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
     }
     bundler = bundler.pipe(Minify(uglifyOption));
     bundler = bundler.pipe(Optimizejs({
@@ -217,7 +217,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Sourcemaps.init({ loadMaps: true }))
+        .pipe(Sourcemaps.init({loadMaps: true}))
         .pipe(Minify(Utils.getUglifyOptions('preview')))
         .pipe(Optimizejs({
             sourceMap: false

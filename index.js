@@ -115,7 +115,7 @@
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
-function defineMacro(name, defaultValue) {
+function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
     // (use evaled code to prevent mangle by uglify)
@@ -123,7 +123,7 @@ function defineMacro(name, defaultValue) {
         _global[name] = defaultValue;
     }
 }
-function defined(name) {
+function defined (name) {
     return typeof _global[name] === 'object';
 }
 

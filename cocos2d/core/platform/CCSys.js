@@ -527,10 +527,10 @@ cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     }
     else {
         return cc.create3DContext(canvas, opt_attribs, "webgl") ||
-            cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-            cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-            cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
-            null;
+               cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+               cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+               cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+               null;
     }
 };
 
@@ -648,9 +648,9 @@ else if (CC_WECHATGAME) {
         "opengl": true,
         "webp": false
     };
-    sys.__audioSupport = {
-        ONLY_ONE: false,
-        WEB_AUDIO: false,
+    sys.__audioSupport = { 
+        ONLY_ONE: false, 
+        WEB_AUDIO: false, 
         DELAY_CREATE_CTX: false,
         format: ['.mp3']
     };
@@ -747,7 +747,7 @@ else {
         iOS = true;
         osVersion = uaResult[2] || '';
         osMainVersion = parseInt(osVersion) || 0;
-    }
+    } 
     else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
         iOS = true;
         osVersion = '';
@@ -784,11 +784,11 @@ else {
      */
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
-    (function () {
+    (function(){
         var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
         var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
-        if (!browserTypes) browserTypes = typeReg2.exec(ua);
+        if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
@@ -819,11 +819,11 @@ else {
      */
     sys.browserVersion = "";
     /* Determine the browser version number */
-    (function () {
+    (function(){
         var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
         var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
-        if (!tmp) tmp = ua.match(versionReg2);
+        if(!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
     })();
 
@@ -849,7 +849,7 @@ else {
         _tmpCanvas2 = document.createElement("canvas");
 
     //Whether or not the Canvas BlendModes are supported.
-    sys._supportCanvasNewBlendModes = (function () {
+    sys._supportCanvasNewBlendModes = (function(){
         var canvas = _tmpCanvas1;
         canvas.width = 1;
         canvas.height = 1;
@@ -876,7 +876,7 @@ else {
         document.body.appendChild(fontStyle);
 
         fontStyle.textContent = "body,canvas,div{ -moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;-khtml-user-select: none;"
-            + "-webkit-tap-highlight-color:rgba(0,0,0,0);}";
+                                + "-webkit-tap-highlight-color:rgba(0,0,0,0);}";
     }
 
     /**
@@ -893,10 +893,10 @@ else {
             cc.warnID(5200);
         };
         sys.localStorage = {
-            getItem: warn,
-            setItem: warn,
-            removeItem: warn,
-            clear: warn
+            getItem : warn,
+            setItem : warn,
+            removeItem : warn,
+            clear : warn
         };
     }
 
@@ -910,39 +910,39 @@ else {
         if (_supportWebGL && sys.os === sys.OS_ANDROID) {
             var browserVer = parseFloat(sys.browserVersion);
             switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                case sys.BROWSER_TYPE_360:
+            case sys.BROWSER_TYPE_MOBILE_QQ:
+            case sys.BROWSER_TYPE_BAIDU:
+            case sys.BROWSER_TYPE_BAIDU_APP:
+                 // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                 if (browserVer >= 6.2) {
+                     _supportWebGL = true;
+                 }
+                 else {
+                     _supportWebGL = false;
+                 }
+                 break;
+            case sys.BROWSER_TYPE_ANDROID:
+                 // Android 5+ default browser
+                 if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                    _supportWebGL = true;
+                 }
+                 break;
+            case sys.BROWSER_TYPE_CHROME:
+                // Chrome on android supports WebGL from v. 30
+                if (browserVer >= 30.0) {
+                    _supportWebGL = true;
+                } else {
                     _supportWebGL = false;
+                }
+                break;
+            case sys.BROWSER_TYPE_UC:
+                if (browserVer > 11.0) {
+                    _supportWebGL = true;
+                } else {
+                    _supportWebGL = false;
+                }
+            case sys.BROWSER_TYPE_360:
+                _supportWebGL = false;
             }
         }
     }
@@ -980,7 +980,7 @@ else {
      *
      * May be modifications for a few browser version
      */
-    (function () {
+    (function(){
 
         var DEBUG = false;
 
@@ -1010,8 +1010,8 @@ else {
             }
         }
 
-        if (DEBUG) {
-            setTimeout(function () {
+        if(DEBUG){
+            setTimeout(function(){
                 cc.log('browse type: ' + sys.browserType);
                 cc.log('browse version: ' + version);
                 cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
@@ -1024,19 +1024,19 @@ else {
     try {
         if (__audioSupport.WEB_AUDIO) {
             __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-            if (__audioSupport.DELAY_CREATE_CTX) {
-                setTimeout(function () { __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
+            if(__audioSupport.DELAY_CREATE_CTX) {
+                setTimeout(function(){ __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
             }
         }
-    } catch (error) {
+    } catch(error) {
         __audioSupport.WEB_AUDIO = false;
         cc.logID(5201);
     }
 
-    function detectAudioFormat() {
+    function detectAudioFormat () {
         var formatSupport = [];
         var audio = document.createElement('audio');
-        if (audio.canPlayType) {
+        if(audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
             if (ogg) formatSupport.push('.ogg');
             var mp3 = audio.canPlayType('audio/mpeg');

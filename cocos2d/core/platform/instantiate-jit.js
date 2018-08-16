@@ -59,7 +59,7 @@ const DEFAULT_MODULE_CACHE = {
 
 // ('foo', 'bar')
 // -> 'var foo = bar;'
-function Declaration(varName, expression) {
+function Declaration (varName, expression) {
     this.varName = varName;
     this.expression = expression;
 }
@@ -71,7 +71,7 @@ Declaration.prototype.toString = function () {
 // -> 'var b = a = x';
 // ('a =', 'x')
 // -> 'a = x';
-function mergeDeclaration(statement, expression) {
+function mergeDeclaration (statement, expression) {
     if (expression instanceof Declaration) {
         return new Declaration(expression.varName, statement + expression.expression);
     }
@@ -87,7 +87,7 @@ function mergeDeclaration(statement, expression) {
 // -> 'var b = a = x;'
 // ('a', 'x')
 // -> 'a = x;'
-function writeAssignment(codeArray, statement, expression) {
+function writeAssignment (codeArray, statement, expression) {
     if (Array.isArray(expression)) {
         expression[0] = mergeDeclaration(statement, expression[0]);
         codeArray.push(expression);
@@ -104,7 +104,7 @@ function writeAssignment(codeArray, statement, expression) {
 // -> 't = targetExpression;'
 // -> 't.foo1 = bar1;'
 // -> 't.foo2 = bar2;'
-function Assignments(targetExpression) {
+function Assignments (targetExpression) {
     this._exps = [];
     this._targetExp = targetExpression;
 }
@@ -130,9 +130,9 @@ Assignments.prototype.writeCode = function (codeArray) {
 };
 
 Assignments.pool = new JS.Pool(function (obj) {
-    obj._exps.length = 0;
-    obj._targetExp = null;
-}, 1);
+                                obj._exps.length = 0;
+                                obj._targetExp = null;
+                            }, 1);
 Assignments.pool.get = function (targetExpression) {
     var cache = this._get() || new Assignments();
     cache._targetExp = targetExpression;
@@ -141,7 +141,7 @@ Assignments.pool.get = function (targetExpression) {
 
 // HELPER FUNCTIONS
 
-function equalsToDefault(def, value) {
+function equalsToDefault (def, value) {
     if (typeof def === 'function') {
         try {
             def = def();
@@ -170,7 +170,7 @@ function equalsToDefault(def, value) {
     return false;
 }
 
-function getPropAccessor(key) {
+function getPropAccessor (key) {
     return IDENTIFIER_RE.test(key) ? ('.' + key) : ('[' + escapeForJS(key) + ']');
 }
 
@@ -188,7 +188,7 @@ function getPropAccessor(key) {
  * @param {Object} obj - the object to parse
  * @param {Node} [parent]
  */
-function Parser(obj, parent) {
+function Parser (obj, parent) {
     this.parent = parent;
 
     this.objsToClear_iN$t = [];   // used to reset _iN$t variable
@@ -214,15 +214,15 @@ function Parser(obj, parent) {
     //    this.codeArray.push(this.instantiateArray(obj));
     //}
     //else {
-    this.codeArray.push(VAR + LOCAL_OBJ + ',' + LOCAL_TEMP_OBJ + ';',
-        'if(R){',
-        LOCAL_OBJ + '=R;',
-        '}else{',
-        LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
-        '}');
-    obj._iN$t = { globalVar: 'R' };
-    this.objsToClear_iN$t.push(obj);
-    this.enumerateObject(this.codeArray, obj);
+        this.codeArray.push(VAR + LOCAL_OBJ + ',' + LOCAL_TEMP_OBJ + ';',
+                           'if(R){',
+                                LOCAL_OBJ + '=R;',
+                           '}else{',
+                                LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
+                           '}');
+        obj._iN$t = { globalVar: 'R' };
+        this.objsToClear_iN$t.push(obj);
+        this.enumerateObject(this.codeArray, obj);
     //}
 
     // generate code
@@ -231,10 +231,10 @@ function Parser(obj, parent) {
         globalVariablesDeclaration = VAR + this.globalVariables.join(',') + ';';
     }
     var code = Compiler.flattenCodeArray(['return (function(R){',
-        globalVariablesDeclaration || [],
-        this.codeArray,
-        'return o;',
-        '})']);
+                                    globalVariablesDeclaration || [],
+                                    this.codeArray,
+                                    'return o;',
+                                '})']);
 
     // generate method and bind with objs
     this.result = Function('O', 'F', code)(this.objs, this.funcs);
@@ -270,7 +270,7 @@ proto.getFuncModule = function (func, usedInNew) {
                         return clsName;
                     }
                 }
-                catch (e) { }
+                catch (e) {}
             }
         }
     }
@@ -428,7 +428,7 @@ proto.enumerateObject = function (codeArray, obj) {
         for (var key in obj) {
             if (!obj.hasOwnProperty(key) ||
                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
-                    key !== '__type__')
+                 key !== '__type__')
             ) {
                 continue;
             }
@@ -504,12 +504,12 @@ proto.instantiateObj = function (obj) {
 
     this.enumerateObject(codeArray, obj);
     return ['(function(){',
-        codeArray,
-        'return o;})();'];
+                codeArray,
+            'return o;})();'];
 };
 
 
-function compile(node) {
+function compile (node) {
     var root = (node instanceof cc._BaseNode) && node;
     var parser = new Parser(node, root);
     return parser.result;

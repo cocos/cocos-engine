@@ -35,31 +35,31 @@ jsbLabel.prototype.setHorizontalAlign = jsbLabel.prototype.setHorizontalAlignmen
 jsbLabel.prototype.setVerticalAlign = jsbLabel.prototype.setVerticalAlignment;
 //for back compatibility
 if (!jsbLabel.prototype.setBMFontSize) {
-    jsbLabel.prototype.setBMFontSize = function () { };
+    jsbLabel.prototype.setBMFontSize = function(){};
 }
 if (!jsbLabel.prototype.getBMFontSize) {
-    jsbLabel.prototype.getBMFontSize = function () { };
+    jsbLabel.prototype.getBMFontSize = function(){};
 }
 if (!jsbLabel.prototype.setOverflow) {
-    jsbLabel.prototype.setOverflow = function () { };
+    jsbLabel.prototype.setOverflow = function(){};
 }
 if (!jsbLabel.prototype.getOverflow) {
-    jsbLabel.prototype.getOverflow = function () { };
+    jsbLabel.prototype.getOverflow = function(){};
 }
 
 //fix jsb system font overflow
 jsbLabel.prototype._setOverflow = jsbLabel.prototype.setOverflow;
-jsbLabel.prototype.setOverflow = function (overflow) {
+jsbLabel.prototype.setOverflow = function(overflow) {
     this._overFlow = overflow;
     this._setOverflow(this._overFlow);
 };
 
-jsbLabel.prototype.getOverflow = function () {
+jsbLabel.prototype.getOverflow = function() {
     return this._overFlow;
 };
 
 jsbLabel.prototype._enableBold = jsbLabel.prototype.enableBold;
-jsbLabel.prototype.enableBold = function (enabled) {
+jsbLabel.prototype.enableBold = function(enabled) {
     if (enabled) {
         this._enableBold();
     } else {
@@ -68,7 +68,7 @@ jsbLabel.prototype.enableBold = function (enabled) {
 };
 
 jsbLabel.prototype._enableItalics = jsbLabel.prototype.enableItalics;
-jsbLabel.prototype.enableItalics = function (enabled) {
+jsbLabel.prototype.enableItalics = function(enabled) {
     if (enabled) {
         this._enableItalics();
     } else {
@@ -77,7 +77,7 @@ jsbLabel.prototype.enableItalics = function (enabled) {
 };
 
 jsbLabel.prototype._enableUnderline = jsbLabel.prototype.enableUnderline;
-jsbLabel.prototype.enableUnderline = function (enabled) {
+jsbLabel.prototype.enableUnderline = function(enabled) {
     if (enabled) {
         this._enableUnderline();
     } else {
@@ -104,8 +104,8 @@ jsbLabel.prototype.getFontSize = function () {
     return this._fontSize;
 };
 
-jsbLabel.prototype.enableWrapText = jsbLabel.prototype.enableWrap || function () { };
-jsbLabel.prototype.isWrapTextEnabled = jsbLabel.prototype.isWrapEnabled || function () { };
+jsbLabel.prototype.enableWrapText = jsbLabel.prototype.enableWrap || function(){};
+jsbLabel.prototype.isWrapTextEnabled = jsbLabel.prototype.isWrapEnabled || function(){};
 
 jsbLabel.prototype._setLineHeight = jsbLabel.prototype.setLineHeight;
 jsbLabel.prototype.setLineHeight = function (height) {
@@ -122,7 +122,7 @@ jsbLabel.prototype.setLineHeight = function (height) {
 
 jsbLabel.prototype._setColor = jsbLabel.prototype.setColor;
 
-jsbLabel.prototype.setColor = function (color) {
+jsbLabel.prototype.setColor = function(color) {
     if (this._labelType === _ccsg.Label.Type.BMFont) {
         this._setColor(color);
     } else {
@@ -163,7 +163,7 @@ jsbLabel.prototype.setFontAsset = function (fontAsset) {
         this.setFontFamily('Arial');
         return;
     }
-    var fontHandle = isAsset ? fontAsset.rawUrl : '';
+    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
     var extName = cc.path.extname(fontHandle);
 
     if (extName === '.ttf') {
@@ -202,7 +202,7 @@ jsbLabel.prototype.setFontFamily = function (fontFamily) {
     this.getContentSize();
 };
 
-jsbLabel.prototype.setOutlined = function (value) {
+jsbLabel.prototype.setOutlined = function(value) {
     this._outlined = !!value;
     if (this._outlined) {
         this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
@@ -212,7 +212,7 @@ jsbLabel.prototype.setOutlined = function (value) {
     }
 };
 
-jsbLabel.prototype.setOutlineWidth = function (value) {
+jsbLabel.prototype.setOutlineWidth = function(value) {
     this._outlineWidth = value;
     if (this._outlined) {
         var outlineWidth = this.getOutlineWidth();
@@ -229,27 +229,27 @@ jsbLabel.prototype.setOutlineWidth = function (value) {
     }
 };
 
-jsbLabel.prototype.setOutlineColor = function (value) {
+jsbLabel.prototype.setOutlineColor = function(value) {
     this._outlineColor = cc.color(value);
     if (this._outlined) {
         this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
     }
 };
 
-jsbLabel.prototype.setMargin = function () {
+jsbLabel.prototype.setMargin = function() {
     //add an empty here, needed to be implemented by native
 };
 
-jsbLabel.prototype.isOutlined = function () {
+jsbLabel.prototype.isOutlined = function() {
     return this._outlined;
 };
 
-jsbLabel.prototype.getOutlineWidth = function () {
+jsbLabel.prototype.getOutlineWidth = function() {
     return this._outlineWidth || 1;
 };
 
-jsbLabel.prototype.getOutlineColor = function () {
-    return this._outlineColor || cc.color(255, 255, 255, 255);
+jsbLabel.prototype.getOutlineColor = function() {
+    return this._outlineColor || cc.color(255,255,255,255);
 };
 
 
@@ -306,6 +306,6 @@ cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
     if (!isAsset) {
         return new _ccsg.Label(string, null, null, fontSize);
     }
-    var fontHandle = isAsset ? fontAsset.rawUrl : '';
+    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
     return new _ccsg.Label(string, fontHandle, spriteFrame, fontSize);
 };

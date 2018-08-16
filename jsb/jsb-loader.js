@@ -26,16 +26,16 @@
 
 require('../cocos2d/core/load-pipeline');
 
-function empty(item, callback) {
+function empty (item, callback) {
     return null;
 }
 
-function downloadScript(item, callback) {
+function downloadScript (item, callback) {
     require(item.url);
     return null;
 }
 
-function downloadAudio(item, callback) {
+function downloadAudio (item, callback) {
     return item.url;
 }
 
@@ -51,70 +51,70 @@ function downloadImage(item, callback) {
 if (CC_RUNTIME) {
     cc.loader.addDownloadHandlers({
         // JS
-        'js': downloadScript,
-        'jsc': downloadScript,
+        'js' : downloadScript,
+        'jsc' : downloadScript,
 
         // Images
-        'png': downloadImage,
-        'jpg': downloadImage,
-        'bmp': downloadImage,
-        'jpeg': downloadImage,
-        'gif': downloadImage,
-        'ico': downloadImage,
-        'tiff': downloadImage,
-        'webp': downloadImage,
-        'image': downloadImage,
+        'png' : downloadImage,
+        'jpg' : downloadImage,
+        'bmp' : downloadImage,
+        'jpeg' : downloadImage,
+        'gif' : downloadImage,
+        'ico' : downloadImage,
+        'tiff' : downloadImage,
+        'webp' : downloadImage,
+        'image' : downloadImage,
 
 
         // Audio
-        'mp3': downloadAudio,
-        'ogg': downloadAudio,
-        'wav': downloadAudio,
-        'mp4': downloadAudio,
-        'm4a': downloadAudio,
+        'mp3' : downloadAudio,
+        'ogg' : downloadAudio,
+        'wav' : downloadAudio,
+        'mp4' : downloadAudio,
+        'm4a' : downloadAudio,
 
         // Font
-        'font': empty,
-        'eot': empty,
-        'ttf': empty,
-        'woff': empty,
-        'svg': empty,
-        'ttc': empty,
+        'font' : empty,
+        'eot' : empty,
+        'ttf' : empty,
+        'woff' : empty,
+        'svg' : empty,
+        'ttc' : empty,
     });
 
 } else {
 
     cc.loader.addDownloadHandlers({
         // JS
-        'js': downloadScript,
-        'jsc': downloadScript,
+        'js' : downloadScript,
+        'jsc' : downloadScript,
 
         // Images
-        'png': empty,
-        'jpg': empty,
-        'bmp': empty,
-        'jpeg': empty,
-        'gif': empty,
-        'ico': empty,
-        'tiff': empty,
-        'webp': empty,
-        'image': empty,
+        'png' : empty,
+        'jpg' : empty,
+        'bmp' : empty,
+        'jpeg' : empty,
+        'gif' : empty,
+        'ico' : empty,
+        'tiff' : empty,
+        'webp' : empty,
+        'image' : empty,
 
 
         // Audio
-        'mp3': downloadAudio,
-        'ogg': downloadAudio,
-        'wav': downloadAudio,
-        'mp4': downloadAudio,
-        'm4a': downloadAudio,
+        'mp3' : downloadAudio,
+        'ogg' : downloadAudio,
+        'wav' : downloadAudio,
+        'mp4' : downloadAudio,
+        'm4a' : downloadAudio,
 
         // Font
-        'font': empty,
-        'eot': empty,
-        'ttf': empty,
-        'woff': empty,
-        'svg': empty,
-        'ttc': empty,
+        'font' : empty,
+        'eot' : empty,
+        'ttf' : empty,
+        'woff' : empty,
+        'svg' : empty,
+        'ttc' : empty,
     });
 
 
@@ -152,16 +152,16 @@ if (CC_RUNTIME) {
 
     cc.loader.addLoadHandlers({
         // Images
-        'png': loadImage,
-        'jpg': loadImage,
-        'bmp': loadImage,
-        'jpeg': loadImage,
-        'gif': loadImage,
-        'ico': loadImage,
-        'tiff': loadImage,
-        'webp': loadImage,
-        'image': loadImage,
+        'png' : loadImage,
+        'jpg' : loadImage,
+        'bmp' : loadImage,
+        'jpeg' : loadImage,
+        'gif' : loadImage,
+        'ico' : loadImage,
+        'tiff' : loadImage,
+        'webp' : loadImage,
+        'image' : loadImage,
 
-        'default': empty
+        'default' : empty
     });
 }
