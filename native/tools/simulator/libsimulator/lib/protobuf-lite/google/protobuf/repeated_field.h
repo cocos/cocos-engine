@@ -374,7 +374,7 @@ inline const Message& GenericTypeHandler<Message>::default_instance() {
 //   StringTypeHandler is exported.  So, we factor out StringTypeHandlerBase,
 //   export that, then make StringTypeHandler be a subclass which is NOT
 //   exported.
-// TODO(kenton):  There has to be a better way.
+// REFINE(kenton):  There has to be a better way.
 class LIBPROTOBUF_EXPORT StringTypeHandlerBase {
  public:
   typedef string Type;
@@ -887,7 +887,7 @@ inline void** RepeatedPtrFieldBase::raw_mutable_data() const {
 
 template <typename TypeHandler>
 inline typename TypeHandler::Type** RepeatedPtrFieldBase::mutable_data() {
-  // TODO(kenton):  Breaks C++ aliasing rules.  We should probably remove this
+  // REFINE(kenton):  Breaks C++ aliasing rules.  We should probably remove this
   //   method entirely.
   return reinterpret_cast<typename TypeHandler::Type**>(elements_);
 }
@@ -895,7 +895,7 @@ inline typename TypeHandler::Type** RepeatedPtrFieldBase::mutable_data() {
 template <typename TypeHandler>
 inline const typename TypeHandler::Type* const*
 RepeatedPtrFieldBase::data() const {
-  // TODO(kenton):  Breaks C++ aliasing rules.  We should probably remove this
+  // REFINE(kenton):  Breaks C++ aliasing rules.  We should probably remove this
   //   method entirely.
   return reinterpret_cast<const typename TypeHandler::Type* const*>(elements_);
 }

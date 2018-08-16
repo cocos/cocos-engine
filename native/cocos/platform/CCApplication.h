@@ -115,7 +115,8 @@ public:
     
     void start();
     void restart();
-    
+    void end();
+
     /**
      * @brief Sets the preferred frame rate for main loop callback.
      * @param fps The preferred frame rate for main loop callback.
@@ -135,7 +136,18 @@ public:
      @return Current language iso 639-1 code.
      */
     std::string getCurrentLanguageCode() const;
-    
+
+    /**
+     @brief Get current display stats.
+     @return bool, is displaying stats or not.
+     */
+    bool isDisplayStats();
+
+    /**
+     @brief set display stats information.
+     */
+    void setDisplayStats(bool isShow);
+
     void setDevicePixelRatio(uint8_t ratio)
     {
         if (ratio <= 1)

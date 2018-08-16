@@ -421,7 +421,7 @@ void ProjectConfig::parseCommandLine(const vector<string> &args)
         }
         else if (arg.compare("-port") == 0)
         {
-            CCLOG("TODO:");
+            CCLOG("REFINE:");
         }
         else if (arg.compare("-listen") == 0)
         {

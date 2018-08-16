@@ -142,7 +142,7 @@ protected:
     // greater than or equal to the Floor(x) value in int32_t arithmetic; thus this
     // will not necessarily hold for floats).
     //
-    // TODO:
+    // REFINE:
     // Greater accuracy and a tight bound is obtained by:
     // 1) subtract and adjust for the current state of the AudioBufferProvider buffer.
     // 2) using the exact integer formula where (ignoring 64b casting)

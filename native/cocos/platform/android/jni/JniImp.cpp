@@ -35,7 +35,6 @@
 #include "platform/android/CCFileUtils-android.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
-#include "audio/include/AudioEngine.h"
 #include "base/CCGLUtils.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
@@ -48,7 +47,6 @@
 #define KEYCODE_DPAD_LEFT 0x15
 #define KEYCODE_DPAD_RIGHT 0x16
 #define KEYCODE_ENTER 0x42
-#define KEYCODE_PLAY  0x7e
 #define KEYCODE_DPAD_CENTER  0x17
 
 using namespace cocos2d;
@@ -60,19 +58,6 @@ namespace
 {	
     bool __isOpenDebugView = false;
     bool __isGLOptModeEnabled = true;
-//	std::unordered_map<int, cocos2d::EventKeyboard::KeyCode> g_keyCodeMap =
-//	{
-//        { KEYCODE_BACK , cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE },
-//        { KEYCODE_MENU , cocos2d::EventKeyboard::KeyCode::KEY_MENU },
-//        { KEYCODE_DPAD_UP  , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_UP },
-//        { KEYCODE_DPAD_DOWN , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN },
-//        { KEYCODE_DPAD_LEFT , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_LEFT },
-//        { KEYCODE_DPAD_RIGHT , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_RIGHT },
-//        { KEYCODE_ENTER  , cocos2d::EventKeyboard::KeyCode::KEY_ENTER },
-//        { KEYCODE_PLAY  , cocos2d::EventKeyboard::KeyCode::KEY_PLAY },
-//        { KEYCODE_DPAD_CENTER  , cocos2d::EventKeyboard::KeyCode::KEY_DPAD_CENTER },
-//    };
-
     std::string g_apkPath;
     const std::string Cocos2dxHelperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
     const std::string Cocos2dxRendererClassName = "org/cocos2dx/lib/Cocos2dxRenderer";
@@ -123,7 +108,7 @@ extern "C"
 
     JNIEXPORT jintArray JNICALL Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
     {
-        //TODO
+        //REFINE
         int tmp[7] = {8, 8, 8,
                       8, 0, 0, 0};
         jintArray glContextAttrsJava = env->NewIntArray(7);
@@ -161,21 +146,18 @@ extern "C"
         g_isStarted = true;
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeFinish(JNIEnv*  env, jobject thiz)
-    {
-        g_isGameFinished = true;
-        LOGD("CocosRenderer.nativeFinish");
-        g_app->getScheduler()->removeAllFunctionsToBePerformedInCocosThread();
-        EventDispatcher::destroy();
-        se::ScriptEngine::getInstance()->cleanup();
-        cocos2d::experimental::AudioEngine::end();
-        JniHelper::callObjectVoidMethod(thiz, Cocos2dxRendererClassName, "onGameFinished");
-    }
-
 	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender(JNIEnv* env)
 	{
         if (g_isGameFinished)
+        {
+            // with Application destructor called, native resource will be released
+            delete g_app;
+            g_app = nullptr;
+
+            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "endApplication");
             return;
+        }
+
 
         if (!g_isStarted)
         {
@@ -186,7 +168,7 @@ extern "C"
             se::ScriptEngine::getInstance()->cleanup();
             cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
 
-            //TODO: Wait HttpClient, WebSocket, Audio thread to exit
+            //REFINE: Wait HttpClient, WebSocket, Audio thread to exit
 
             ccInvalidateStateCache();
           
@@ -265,22 +247,22 @@ extern "C"
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInsertText(JNIEnv* env, jobject thiz, jstring text)
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeDeleteBackward(JNIEnv* env, jobject thiz)
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT jstring JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeGetContentText()
     {
-        //TODO
+        //REFINE
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNIEnv*  env, jobject thiz, jint w, jint h)
     {
-        //TODO
+        //REFINE
     }
 
     /***********************************************************
@@ -289,7 +271,7 @@ extern "C"
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAccelerometer_onSensorChanged(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp)
     {
-        //TODO
+        //REFINE
     }
 
     /***********************************************************
@@ -381,9 +363,44 @@ extern "C"
         if (g_isGameFinished) {
             return JNI_TRUE;
         }
-        //TODO
-        return JNI_TRUE;
 
+        int keyInWeb = -1;
+        // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
+        switch(keyCode)
+        {
+            case KEYCODE_BACK:
+                keyInWeb = 6;
+                break;
+            case KEYCODE_ENTER:
+                keyInWeb = 13;
+                break;
+            case KEYCODE_MENU:
+                keyInWeb = 18;
+                break;
+            case KEYCODE_DPAD_UP:
+                keyInWeb = 1003;
+                break;
+            case KEYCODE_DPAD_DOWN:
+                keyInWeb = 1004;
+                break;
+            case KEYCODE_DPAD_LEFT:
+                keyInWeb = 1000;
+                break;
+            case KEYCODE_DPAD_RIGHT:
+                keyInWeb = 1001;
+                break;
+            case KEYCODE_DPAD_CENTER:
+                keyInWeb = 1005;
+                break;
+            default:
+                keyInWeb = 0; // If the key can't be identified, this value is 0
+        }
+        KeyboardEvent event;
+        event.key = keyInWeb;
+        event.action = KeyboardEvent::Action::PRESS;
+        EventDispatcher::dispatchKeyboardEvent(event);
+
+        return JNI_TRUE;
     }
 
     /***********************************************************
@@ -580,4 +597,9 @@ void disableBatchGLCommandsToNativeJNI()
     {
         JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
     }
+}
+
+void exitApplication()
+{
+    g_isGameFinished = true;
 }

@@ -1128,7 +1128,7 @@ class LIBPROTOBUF_EXPORT MutexLock {
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(MutexLock);
 };
 
-// TODO(kenton):  Implement these?  Hard to implement portably.
+// REFINE(kenton):  Implement these?  Hard to implement portably.
 typedef MutexLock ReaderMutexLock;
 typedef MutexLock WriterMutexLock;
 

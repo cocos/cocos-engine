@@ -250,7 +250,7 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
                 handle->callback.seek(stream, (long) (chunkSize - minSize), SEEK_CUR);
             }
             unsigned channels = little2u(&fmt[2]);
-            // FIXME FCC_8
+            // IDEA: FCC_8
             if (channels != 1 && channels != 2 && channels != 4 && channels != 6 && channels != 8) {
 #ifdef HAVE_STDERR
                 ALOGE("unsupported channels %u\n", channels);
@@ -439,7 +439,7 @@ sf_count_t sf_readf_float(SNDFILE *handle, float *ptr, sf_count_t desiredFrames)
     switch (format) {
         case SF_FORMAT_PCM_U8:
 #if 0
-            // TODO - implement
+            // REFINE: - implement
             memcpy_to_float_from_u8(ptr, (const unsigned char *) temp,
                                     actualFrames * handle->info.channels);
 #endif
@@ -490,7 +490,7 @@ sf_count_t sf_readf_int(SNDFILE *handle, int *ptr, sf_count_t desiredFrames)
     switch (format) {
         case SF_FORMAT_PCM_U8:
 #if 0
-            // TODO - implement
+            // REFINE: - implement
             memcpy_to_i32_from_u8(ptr, (const unsigned char *) temp,
                                   actualFrames * handle->info.channels);
 #endif

@@ -27,7 +27,7 @@
 #include "audio/android/AudioResampler.h"
 #include "audio/android/audio.h"
 
-// FIXME This is actually unity gain, which might not be max in future, expressed in U.12
+// IDEA: This is actually unity gain, which might not be max in future, expressed in U.12
 #define MAX_GAIN_INT AudioMixer::UNITY_GAIN_INT
 
 namespace cocos2d { namespace experimental {
@@ -93,7 +93,7 @@ public:
         REMOVE          = 0x4102, // Remove the sample rate converter on this track name;
                                   // the track is restored to the mix sample rate.
         // for target RAMP_VOLUME and VOLUME (8 channels max)
-        // FIXME use float for these 3 to improve the dynamic range
+        // IDEA: use float for these 3 to improve the dynamic range
         VOLUME0         = 0x4200,
         VOLUME1         = 0x4201,
         AUXLEVEL        = 0x4210,
@@ -143,7 +143,7 @@ public:
 private:
 
     enum {
-        // FIXME this representation permits up to 8 channels
+        // IDEA: this representation permits up to 8 channels
         NEEDS_CHANNEL_COUNT__MASK   = 0x00000007,
     };
 
@@ -168,7 +168,7 @@ private:
     struct track_t {
         uint32_t    needs;
 
-        // TODO: Eventually remove legacy integer volume settings
+        // REFINE: Eventually remove legacy integer volume settings
         union {
         int16_t     volume[MAX_NUM_VOLUMES]; // U4.12 fixed point (top bit should be zero)
         int32_t     volumeRL;
@@ -214,7 +214,7 @@ private:
 
         /* Buffer providers are constructed to translate the track input data as needed.
          *
-         * TODO: perhaps make a single PlaybackConverterProvider class to move
+         * REFINE: perhaps make a single PlaybackConverterProvider class to move
          * all pre-mixer track buffer conversions outside the AudioMixer class.
          *
          * 1) mInputBufferProvider: The AudioTrack buffer provider.
@@ -285,7 +285,7 @@ private:
         int32_t         *resampleTemp;
 //cjh        NBLog::Writer*  mLog;
         int32_t         reserved[1];
-        // FIXME allocate dynamically to save some memory when maxNumTracks < MAX_NUM_TRACKS
+        // IDEA: allocate dynamically to save some memory when maxNumTracks < MAX_NUM_TRACKS
         track_t         tracks[MAX_NUM_TRACKS] __attribute__((aligned(32)));
     };
 

@@ -146,7 +146,7 @@ public class CanvasRenderingContext2DImpl {
         }
     }
 
-    // TODO:cjh: native should clear font cache before exiting game.
+    // REFINE:: native should clear font cache before exiting game.
     private static void clearTypefaceCache() {
         sTypefaceCache.clear();
     }
@@ -211,6 +211,10 @@ public class CanvasRenderingContext2DImpl {
     private void stroke() {
         if (mLinePaint == null) {
             mLinePaint = new Paint();
+        }
+     
+        if(mLinePath == null) {
+            mLinePath = new Path();
         }
 
         mLinePaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);

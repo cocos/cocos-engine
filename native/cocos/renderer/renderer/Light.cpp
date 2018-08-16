@@ -249,7 +249,7 @@ void Light::computeDirectionalLightViewProjMatrix(Mat4& matView, Mat4& matProj) 
 
 void Light::computePointLightViewProjMatrix(Mat4& matView, Mat4& matProj) const
 {
-    //TODO
+    //REFINE
 }
 
 RENDERER_END

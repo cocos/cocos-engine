@@ -411,7 +411,7 @@ BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, globalComposite
 #define _SE_DEFINE_PROP(cls, property) \
     __jsb_cocos2d_##cls##_proto->defineProperty(#property, _SE(js_cocos2dx_##cls_get_##property), _SE(js_cocos2dx_##cls_set_##property));
 
-//FIXME:cjh  move to auto bindings.
+//IDEA:  move to auto bindings.
 static bool js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State& s)
 {
     cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();

@@ -191,7 +191,7 @@ bool jsb_enable_debugger(const std::string& debuggerServerAddr, uint32_t port)
         }
     };
 //    static SimpleRunLoop runLoop;
-    //cjh FIXME:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
+    //cjh IDEA:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
     return true;
 }
 
@@ -569,14 +569,14 @@ SE_BIND_FUNC(JSB_getOSVersion)
 
 static bool JSB_cleanScript(se::State& s)
 {
-    assert(false); //FIXME:
+    assert(false); //IDEA:
     return true;
 }
 SE_BIND_FUNC(JSB_cleanScript)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-    //TODO: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
+    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     Application::getInstance()->restart();
     return true;
 }
@@ -584,17 +584,7 @@ SE_BIND_FUNC(JSB_core_restartVM)
 
 static bool JSB_closeWindow(se::State& s)
 {
-//cjh    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
-//        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
-//        CC_SAFE_RELEASE(_event);
-//
-//        se::ScriptEngine::getInstance()->cleanup();
-//    });
-//    _event->retain();
-//    Director::getInstance()->end();
-//#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-//    exit(0);
-//#endif
+    Application::getInstance()->end();
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)

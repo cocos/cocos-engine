@@ -407,7 +407,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info)
 {
-    //TODO: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
+    //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
     AudioFileInfo &audioFileInfo = const_cast<AudioFileInfo &>(info);
     size_t judgeCount = sizeof(__audioFileIndicator) / sizeof(__audioFileIndicator[0]);
     size_t pos = audioFileInfo.url.rfind(".");

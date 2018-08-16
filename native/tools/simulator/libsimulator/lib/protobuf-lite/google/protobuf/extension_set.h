@@ -312,7 +312,7 @@ class LIBPROTOBUF_EXPORT ExtensionSet {
   void SwapElements(int number, int index1, int index2);
 
   // -----------------------------------------------------------------
-  // TODO(kenton):  Hardcore memory management accessors
+  // REFINE(kenton):  Hardcore memory management accessors
 
   // =================================================================
   // convenience methods for implementing methods of Message
@@ -474,7 +474,7 @@ class LIBPROTOBUF_EXPORT ExtensionSet {
 
     // For packed fields, the size of the packed data is recorded here when
     // ByteSize() is called then used during serialization.
-    // TODO(kenton):  Use atomic<int> when C++ supports it.
+    // REFINE(kenton):  Use atomic<int> when C++ supports it.
     mutable int cached_size;
 
     // The descriptor for this extension, if one exists and is known.  May be

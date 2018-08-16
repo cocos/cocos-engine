@@ -33,6 +33,7 @@ namespace {
     se::Object* _jsTouchObjArray = nullptr;
     se::Object* _jsMouseEventObj = nullptr;
     se::Object* _jsKeyboardEventObj = nullptr;
+    se::Object* _jsResizeEventObj = nullptr;
     bool _inited = false;
 }
 
@@ -77,6 +78,13 @@ namespace cocos2d
             _jsKeyboardEventObj->decRef();
             _jsKeyboardEventObj = nullptr;
         }
+
+        if (_jsResizeEventObj != nullptr)
+        {
+            _jsResizeEventObj->unroot();
+            _jsResizeEventObj->decRef();
+            _jsResizeEventObj = nullptr;
+        }
         _inited = false;
         _tickVal.setUndefined();
     }
@@ -97,7 +105,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 
     _jsTouchObjArray->setProperty("length", se::Value(touchEvent.touches.size()));
 
-    if (_jsTouchObjPool.size() < touchEvent.touches.size())
+    while (_jsTouchObjPool.size() < touchEvent.touches.size())
     {
         se::Object* touchObj = se::Object::createPlainObject();
         touchObj->root();
@@ -273,6 +281,33 @@ void EventDispatcher::dispatchTickEvent(float dt)
     _tickVal.toObject()->call(args, nullptr);
 }
 
+void EventDispatcher::dispatchResizeEvent(int width, int height)
+{
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+
+    if (_jsResizeEventObj == nullptr)
+    {
+        _jsResizeEventObj = se::Object::createPlainObject();
+        _jsResizeEventObj->root();
+    }
+
+    se::Value func;
+    __jsbObj->getProperty("onResize", &func);
+    if (func.isObject() && func.toObject()->isFunction())
+    {
+        _jsResizeEventObj->setProperty("width", se::Value(width));
+        _jsResizeEventObj->setProperty("height", se::Value(height));
+
+        se::ValueArray args;
+        args.push_back(se::Value(_jsResizeEventObj));
+        func.toObject()->call(args, nullptr);
+    }
+}
+
 static void dispatchEnterBackgroundOrForegroundEvent(const char* funcName)
 {
     if (!se::ScriptEngine::getInstance()->isValid())
@@ -385,10 +420,9 @@ void EventDispatcher::removeAllCustomEventListeners(const std::string& eventName
     }
 }
 
-void EventDispatcher::dispatchCustomEvent(struct CustomEvent* event)
+void EventDispatcher::dispatchCustomEvent(const CustomEvent& event)
 {
-    assert(event);
-    auto iter = _listeners.find(event->name);
+    auto iter = _listeners.find(event.name);
     if (iter != _listeners.end())
     {
         Node* next = nullptr;

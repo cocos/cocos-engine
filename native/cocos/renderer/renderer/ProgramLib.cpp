@@ -162,7 +162,7 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
         ValueMap& oneDefMap = def.asValueMap();
         uint32_t cnt = 1;
 
-        //FIXME: currently we don't use min, max.
+        //IDEA: currently we don't use min, max.
 //        if (def.min != -1 && def.max != -1) {
 //            cnt = (uint32_t)std::ceil((def.max - def.min) * 0.5);
 //
@@ -205,7 +205,7 @@ uint32_t ProgramLib::getKey(const std::string& name, const ValueMap& defines)
             continue;
         }
 //        const auto& value = iter2->second;
-//        key |= tmplDefs._map(100); //FIXME:
+//        key |= tmplDefs._map(100); //IDEA:
         uint32_t offset = tmplDefMap["_offset"].asUnsignedInt();
         key |= 1 << offset;
     }

@@ -27,7 +27,7 @@ class AudioBufferProvider
 {
 public:
 
-    // FIXME merge with AudioTrackShared::Buffer, AudioTrack::Buffer, and AudioRecord::Buffer
+    // IDEA: merge with AudioTrackShared::Buffer, AudioTrack::Buffer, and AudioRecord::Buffer
     //       and rename getNextBuffer() to obtainBuffer()
     struct Buffer {
         Buffer() : raw(NULL), frameCount(0) { }

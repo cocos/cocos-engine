@@ -314,7 +314,7 @@ void Mutex::Unlock() {
 
 void Mutex::AssertHeld() {
   // pthreads dosn't provide a way to check which thread holds the mutex.
-  // TODO(kenton):  Maybe keep track of locking thread ID like with WIN32?
+  // REFINE(kenton):  Maybe keep track of locking thread ID like with WIN32?
 }
 
 #endif
@@ -322,7 +322,7 @@ void Mutex::AssertHeld() {
 // ===================================================================
 // emulates google3/util/endian/endian.h
 //
-// TODO(xiaofeng): PROTOBUF_LITTLE_ENDIAN is unfortunately defined in
+// REFINE(xiaofeng): PROTOBUF_LITTLE_ENDIAN is unfortunately defined in
 // google/protobuf/io/coded_stream.h and therefore can not be used here.
 // Maybe move that macro definition here in the furture.
 uint32 ghtonl(uint32 x) {

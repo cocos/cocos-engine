@@ -48,7 +48,7 @@
 // log, CCLOG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
 // is needed. Define the following macros (ALOGV, ALOGD, ALOGI, ALOGW, ALOGE) for threadsafe log output.
 
-//FIXME: Move _winLog, winLog to a separated file
+//IDEA: Move _winLog, winLog to a separated file
 static void _winLog(const char *format, va_list args)
 {
     static const int MAX_LOG_LENGTH = 16 * 1024;
@@ -491,7 +491,7 @@ void AudioEngineImpl::update(float dt)
             _threadMutex.unlock();
 
             if (player->_finishCallbak) {
-                player->_finishCallbak(audioID, filePath); //FIXME: callback will delay 50ms
+                player->_finishCallbak(audioID, filePath); //IDEA: callback will delay 50ms
             }
             delete player;
             _alSourceUsed[alSource] = false;

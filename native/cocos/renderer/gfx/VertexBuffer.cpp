@@ -58,7 +58,7 @@ bool VertexBuffer::init(DeviceGraphics* device, VertexFormat* format, Usage usag
     update(0, data, dataByteLength);
 
     // stats
-    //TODO:    device._stats.ib += _bytes;
+    //REFINE:    device._stats.ib += _bytes;
 
     return true;
 }
@@ -115,7 +115,7 @@ void VertexBuffer::destroy()
     CC_SAFE_RELEASE_NULL(_format);
     
     ccDeleteBuffers(1, &_glID);
-    //TODO:    _device._stats.ib -= _bytes;
+    //REFINE:    _device._stats.ib -= _bytes;
     
     _glID = 0;
 }

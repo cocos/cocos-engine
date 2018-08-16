@@ -70,7 +70,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 
 -(void) dealloc
 {
-    NSLog(@"WebSocketImpl-apple dealloc: %p, SRWebSocket ref: %ld", self, CFGetRetainCount((__bridge CFTypeRef)_ws));
+    // NSLog(@"WebSocketImpl-apple dealloc: %p, SRWebSocket ref: %ld", self, CFGetRetainCount((__bridge CFTypeRef)_ws));
 }
 
 -(void) sendString:(NSString*) message
@@ -139,7 +139,7 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 {
     if (!_isDestroyed)
     {
-        NSLog(@"Websocket Connected");
+        // NSLog(@"Websocket Connected");
         if (webSocket.protocol != nil)
             _selectedProtocol = [webSocket.protocol UTF8String];
         _delegate->onOpen(_ccws);
@@ -247,7 +247,7 @@ WebSocket::WebSocket()
 
 WebSocket::~WebSocket()
 {
-    NSLog(@"In the destructor of WebSocket-apple (%p).", this);
+    // NSLog(@"In the destructor of WebSocket-apple (%p).", this);
 
     if (__websocketInstances != nullptr)
     {

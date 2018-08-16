@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "base/CCGLUtils.h"
+#include "audio/include/AudioEngine.h"
 
 NS_CC_BEGIN
 
@@ -81,9 +82,11 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
-    // TODO: destroy DeviceGraphics
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    // close audio device
+    cocos2d::experimental::AudioEngine::end();
     
     delete CAST_VIEW(_view);
     _view = nullptr;
@@ -162,6 +165,11 @@ void Application::restart()
     _isStarted = false;
 }
 
+void Application::end()
+{
+    glfwSetWindowShouldClose(CAST_VIEW(_view)->getGLFWWindow(), 1);
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
@@ -185,6 +193,21 @@ std::string Application::getCurrentLanguageCode() const
     [languageCode getCString:code maxLength:3 encoding:NSASCIIStringEncoding];
     code[2]='\0';
     return code;
+}
+
+bool Application::isDisplayStats() {
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
+}
+
+void Application::setDisplayStats(bool isShow) {
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

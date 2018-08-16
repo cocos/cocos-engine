@@ -404,11 +404,11 @@ static bool WebSocket_send(se::State& s)
             std::string data;
             ok = seval_to_std_string(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
-//FIXME: We didn't find a way to get the JS string length in JSB2.0.
+//IDEA: We didn't find a way to get the JS string length in JSB2.0.
 //            if (data.empty() && len > 0)
 //            {
 //                CCLOGWARN("Text message to send is empty, but its length is greater than 0!");
-//                //FIXME: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
+//                //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
 //                // we need to fix that if there is '0x00' in text message,
 //                // since javascript language could support '0x00' inserted at the beginning or the middle of text message
 //            }

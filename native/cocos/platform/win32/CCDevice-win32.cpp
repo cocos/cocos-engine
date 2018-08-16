@@ -66,7 +66,7 @@ Device::Rotation Device::getDeviceRotation()
 
 std::string Device::getDeviceModel()
 {
-  // TODO
+  // REFINE
   return std::string("Windows");
 }
 

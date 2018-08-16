@@ -76,17 +76,6 @@ std::string getCurAppName(void)
     return appName;
 }
 
-#if (PLAYER_SUPPORT_DROP > 0)
-static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
-{
-    AppEvent forwardEvent(kAppEventDropName, APP_EVENT_DROP);
-    std::string firstFile(files[0]);
-    forwardEvent.setDataString(firstFile);
-
-    EventDispatcher::dispatchCustomEvent(&forwardEvent);
-}
-#endif
-
 -(void) dealloc
 {
     delete _app;
@@ -110,12 +99,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     if (isDirectory)
     {
         // check src folder
-        if ([fm fileExistsAtPath:[path stringByAppendingString:@"/src/main.lua"]])
-        {
-            _project.setProjectDir([path cStringUsingEncoding:NSUTF8StringEncoding]);
-            _entryPath = "$(PROJDIR)/src/main.lua";
-        }
-        else if ([fm fileExistsAtPath:[path stringByAppendingString:@"/src/main.js"]])
+        if ([fm fileExistsAtPath:[path stringByAppendingString:@"/src/main.js"]])
         {
             _project.setProjectDir([path cStringUsingEncoding:NSUTF8StringEncoding]);
             _entryPath = "$(PROJDIR)/src/main.js";
@@ -201,7 +185,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
         if (args.size() && args.at(1).at(0) == '/')
         {
-            // FIXME:
+            // IDEA:
             // for Code IDE before RC2
             tmpConfig.setProjectDir(args.at(1));
         }
@@ -297,7 +281,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 {
     NSURL *url = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
     NSMutableDictionary *configuration = [NSMutableDictionary dictionaryWithObject:args forKey:NSWorkspaceLaunchConfigurationArguments];
-    NSError *error = [[[NSError alloc] init] autorelease];
+    NSError *error = nil;
     [[NSWorkspace sharedWorkspace] launchApplicationAtURL:url
                                                   options:NSWorkspaceLaunchNewInstance
                                             configuration:configuration
@@ -394,15 +378,11 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     _window = glfwGetCocoaWindow((GLFWwindow*)glfwWindow);
     [_window center];
 
-    // [self setZoom:_project.getFrameScale()];
+     [self setZoom:_project.getFrameScale()];
     if (pos.x != 0 && pos.y != 0)
     {
         [_window setFrameOrigin:NSMakePoint(pos.x, pos.y)];
     }
-
-#if (PLAYER_SUPPORT_DROP > 0)
-    glfwSetDropCallback((GLFWwindow*)glfwWindow, glfwDropFunc);
-#endif
 }
 
 - (void) adjustEditMenuIndex
@@ -446,9 +426,8 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     FileUtils::getInstance()->addSearchPath(resourcePath.UTF8String);
 
-    // not show the custom menu items
-    // [self setupUI];
-    // [self adjustEditMenuIndex];
+     [self setupUI];
+     [self adjustEditMenuIndex];
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
     _app->start();
@@ -457,7 +436,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     [NSApp terminate: self];
 }
 
-/*
+
 - (void) setupUI
 {
     auto menuBar = player::PlayerProtocol::getInstance()->getMenuService();
@@ -487,13 +466,11 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
     menuBar->addItem("VIEW_SCALE_MENU_SEP", "-", "VIEW_MENU");
 
-    auto displayStats = Director::getInstance()->isDisplayStats();
+    bool displayStats = true; // asume creator default show FPS
     string fpsItemName = displayStats ? tr("Hide FPS") : tr("Show FPS");
-    menuBar->addItem("VIEW_SHOW_FPS", fpsItemName, "VIEW_MENU")
-    ->setChecked(displayStats);
+    menuBar->addItem("VIEW_SHOW_FPS", fpsItemName, "VIEW_MENU");
 
     menuBar->addItem("VIEW_SHOW_FPS_SEP", "-", "VIEW_MENU");
-
 
     std::vector<player::PlayerMenuItem*> scaleMenuVector;
     auto scale100Menu = menuBar->addItem("VIEW_SCALE_MENU_100", tr("Zoom Out").append(" (100%)"), "VIEW_MENU");
@@ -540,116 +517,86 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
     ProjectConfig &project = _project;
 
-    auto dispatcher = Director::getInstance()->getEventDispatcher();
-    auto window = _window;
-    dispatcher->addEventListenerWithFixedPriority(EventListenerCustom::create(kAppEventName, [&project, scaleMenuVector, window](EventCustom* event){
-        auto menuEvent = dynamic_cast<AppEvent*>(event);
-        if (menuEvent)
+    EventDispatcher::CustomEventListener listener = [self, &project, scaleMenuVector](const CustomEvent& event){
+        auto menuEvent = dynamic_cast<const AppEvent&>(event);
+        rapidjson::Document dArgParse;
+        dArgParse.Parse<0>(menuEvent.getDataString().c_str());
+
+        if (dArgParse.HasMember("name"))
         {
-            rapidjson::Document dArgParse;
-            dArgParse.Parse<0>(menuEvent->getDataString().c_str());
-            if (dArgParse.HasMember("name"))
+            string strcmd = dArgParse["name"].GetString();
+
+            if (strcmd == "menuClicked")
             {
-                string strcmd = dArgParse["name"].GetString();
-
-                if (strcmd == "menuClicked")
+                player::PlayerMenuItem *menuItem = static_cast<player::PlayerMenuItem*>(menuEvent.args[0].ptrVal);
+                if (menuItem)
                 {
-                    player::PlayerMenuItem *menuItem = static_cast<player::PlayerMenuItem*>(menuEvent->getUserData());
-                    if (menuItem)
+                    if (menuItem->isChecked())
                     {
-                        if (menuItem->isChecked())
-                        {
-                            return ;
-                        }
-
-                        string data = dArgParse["data"].GetString();
-                        if ((data == "CLOSE_MENU") || (data == "EXIT_MENU"))
-                        {
-                            delete _app;
-                            _app = nullptr
-                        }
-                        else if (data == "REFRESH_MENU")
-                        {
-                            [SIMULATOR relaunch];
-                        }
-                        else if (data.find("VIEW_SCALE_MENU_") == 0) // begin with VIEW_SCALE_MENU_
-                        {
-                            string tmp = data.erase(0, strlen("VIEW_SCALE_MENU_"));
-                            float scale = atof(tmp.c_str()) / 100.0f;
-                            [SIMULATOR setZoom:scale];
-
-                            // update scale menu state
-                            for (auto &it : scaleMenuVector)
-                            {
-                                it->setChecked(false);
-                            }
-                            menuItem->setChecked(true);
-                        }
-                        else if (data.find("VIEWSIZE_ITEM_MENU_") == 0) // begin with VIEWSIZE_ITEM_MENU_
-                        {
-                            string tmp = data.erase(0, strlen("VIEWSIZE_ITEM_MENU_"));
-                            int index = atoi(tmp.c_str());
-                            SimulatorScreenSize size = SimulatorConfig::getInstance()->getScreenSize(index);
-
-                            if (project.isLandscapeFrame())
-                            {
-                                std::swap(size.width, size.height);
-                            }
-
-                            project.setFrameSize(cocos2d::Size(size.width, size.height));
-                            [SIMULATOR relaunch];
-                        }
-                        else if (data == "DIRECTION_PORTRAIT_MENU")
-                        {
-                            project.changeFrameOrientationToPortait();
-                            [SIMULATOR relaunch];
-                        }
-                        else if (data == "DIRECTION_LANDSCAPE_MENU")
-                        {
-                            project.changeFrameOrientationToLandscape();
-                            [SIMULATOR relaunch];
-                        }else if (data == "VIEW_SHOW_FPS")
-                        {
-                            auto director = cocos2d::Director::getInstance();
-                            director->setDisplayStats(director->isDisplayStats() == false);
-                            menuItem->setTitle(director->isDisplayStats() ? tr("Hide FPS") : tr("Show FPS"));
-                            [SIMULATOR relaunch];
-                        }
+                        return ;
                     }
+
+                    string data = dArgParse["data"].GetString();
+                    if ((data == "CLOSE_MENU") || (data == "EXIT_MENU"))
+                    {
+                        _app->end();
+                    }
+                    else if (data == "REFRESH_MENU")
+                    {
+                        [SIMULATOR relaunch];
+                    }
+                    else if (data.find("VIEW_SCALE_MENU_") == 0) // begin with VIEW_SCALE_MENU_
+                    {
+                        string tmp = data.erase(0, strlen("VIEW_SCALE_MENU_"));
+                        float scale = atof(tmp.c_str()) / 100.0f;
+                        [SIMULATOR setZoom:scale];
+
+                        // update scale menu state
+                        for (auto &it : scaleMenuVector)
+                        {
+                            it->setChecked(false);
+                        }
+                        menuItem->setChecked(true);
+                        [SIMULATOR relaunch];
+                    }
+                    else if (data.find("VIEWSIZE_ITEM_MENU_") == 0) // begin with VIEWSIZE_ITEM_MENU_
+                    {
+                        string tmp = data.erase(0, strlen("VIEWSIZE_ITEM_MENU_"));
+                        int index = atoi(tmp.c_str());
+                        SimulatorScreenSize size = SimulatorConfig::getInstance()->getScreenSize(index);
+
+                        if (project.isLandscapeFrame())
+                        {
+                            std::swap(size.width, size.height);
+                        }
+
+                        project.setFrameSize(cocos2d::Size(size.width, size.height));
+                        [SIMULATOR relaunch];
+                    }
+                    else if (data == "DIRECTION_PORTRAIT_MENU")
+                    {
+                        project.changeFrameOrientationToPortait();
+                        [SIMULATOR relaunch];
+                    }
+                    else if (data == "DIRECTION_LANDSCAPE_MENU")
+                    {
+                        project.changeFrameOrientationToLandscape();
+                        [SIMULATOR relaunch];
+                    }
+                    else if (data == "VIEW_SHOW_FPS")
+                    {
+                        bool displayStats = !_app->isDisplayStats();
+                        _app->setDisplayStats(displayStats);
+                        menuItem->setTitle(displayStats ? tr("Hide FPS") : tr("Show FPS"));
+                    }
+
                 }
             }
         }
-    }), 1);
-
-    // drop
-    AppDelegate *app = _app;
-    auto listener = EventListenerCustom::create(kAppEventDropName, [&project, app](EventCustom* event)
-    {
-        AppEvent *dropEvent = dynamic_cast<AppEvent*>(event);
-        if (dropEvent)
-        {
-            string dirPath = dropEvent->getDataString() + "/";
-            string configFilePath = dirPath + CONFIG_FILE;
-
-            if (FileUtils::getInstance()->isDirectoryExist(dirPath) &&
-                FileUtils::getInstance()->isFileExist(configFilePath))
-            {
-                // parse config.json
-                ConfigParser::getInstance()->readConfig(configFilePath);
-
-                project.setProjectDir(dirPath);
-                project.setScriptFile(ConfigParser::getInstance()->getEntryFile());
-                project.setWritablePath(dirPath);
-
-                RuntimeEngine::getInstance()->setProjectConfig(project);
-//                app->setProjectConfig(project);
-//                app->reopenProject();
-            }
-        }
-    });
-    dispatcher->addEventListenerWithFixedPriority(listener, 1);
+    };
+    EventDispatcher::addCustomEventListener(kAppEventName, listener);
 }
-*/
+
 
 - (void) openConsoleWindow
 {
@@ -667,7 +614,6 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     if (dup2(outfd, fileno(stderr)) != fileno(stderr) || dup2(outfd, fileno(stdout)) != fileno(stdout))
     {
         perror("Unable to redirect output");
-        //        [self showAlert:@"Unable to redirect output to console!" withTitle:@"player error"];
     }
     else
     {
@@ -706,16 +652,15 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     }
 }
 
-/*
 - (void) setZoom:(float)scale
 {
-    Director::getInstance()->getOpenGLView()->setFrameZoomFactor(scale);
     _project.setFrameScale(scale);
     std::stringstream title;
     title << "Cocos " << tr("Simulator") << " (" << _project.getFrameScale() * 100 << "%)";
     [_window setTitle:[NSString stringWithUTF8String:title.str().c_str()]];
 }
-*/
+
+
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag
 {
@@ -726,8 +671,8 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
 
 -(IBAction)onFileClose:(id)sender
 {
-    CC_SAFE_DELETE(_app);
-    [[NSApplication sharedApplication] terminate:self];
+    _app->end();
+   [[NSApplication sharedApplication] terminate:self];
 }
 
 -(IBAction)onWindowAlwaysOnTop:(id)sender

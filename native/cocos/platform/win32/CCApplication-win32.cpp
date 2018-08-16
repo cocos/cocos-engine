@@ -31,11 +31,12 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "platform/desktop/CCGLView-desktop.h"
 #include "renderer/gfx/DeviceGraphics.h"
-#include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
+#include "audio/include/AudioEngine.h"
 
 #define CAST_VIEW(view)    ((GLView*)view)
 
@@ -116,12 +117,14 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
-    // TODO: destroy DeviceGraphics
-    
+    EventDispatcher::destroy();
+    se::ScriptEngine::destroyInstance();
+
+    //close audio device
+    cocos2d::experimental::AudioEngine::end();
+
     delete _scheduler;
     _scheduler = nullptr;
-
-    se::ScriptEngine::destroyInstance();
     
     delete CAST_VIEW(_view);
     _view = nullptr;
@@ -240,6 +243,11 @@ void Application::restart()
     _isStarted = false;
 }
 
+void Application::end()
+{
+    glfwSetWindowShouldClose(CAST_VIEW(_view)->getGLFWWindow(), 1);
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
@@ -326,6 +334,21 @@ std::string Application::getCurrentLanguageCode() const
     return code;
 }
 
+bool Application::isDisplayStats() {
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
+}
+
+void Application::setDisplayStats(bool isShow) {
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
+}
+
 float Application::getScreenScale() const
 {
     return CAST_VIEW(_view)->getScale();
@@ -393,7 +416,7 @@ void Application::createView(const std::string& name, int width, int height)
 
 std::string Application::getSystemVersion()
 {
-    // TODO
+    // REFINE
     return std::string("unknown Windows version");
 }
 NS_CC_END

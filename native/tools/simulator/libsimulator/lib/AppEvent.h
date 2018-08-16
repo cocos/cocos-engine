@@ -50,7 +50,6 @@ enum
     APP_EVENT_DROP = 2
 };
 
-#define kAppEventDropName "APP.EVENT.DROP"
 #define kAppEventName     "APP.EVENT"
 
 class CC_LIBSIM_DLL AppEvent : public cocos2d::CustomEvent

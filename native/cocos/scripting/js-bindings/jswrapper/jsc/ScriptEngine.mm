@@ -640,7 +640,7 @@ namespace se {
 
     void ScriptEngine::clearException()
     {
-        //FIXME:
+        //IDEA:
     }
 
     void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)

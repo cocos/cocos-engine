@@ -213,7 +213,7 @@ private:
     std::atomic<bool> _isDone;
     std::atomic<bool> _isStop;
 
-    //FIXME: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
+    //IDEA: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
     // So using a mutex here instead.
     int _idleThreadNum;  // how many threads are waiting
     std::mutex _idleThreadNumMutex;

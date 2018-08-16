@@ -54,7 +54,7 @@
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 #endif
 
-// TODO: Move these macro/inlines to a header file.
+// REFINE: Move these macro/inlines to a header file.
 template <typename T>
 static inline
 T max(const T& x, const T& y) {
@@ -110,7 +110,7 @@ AudioMixer::AudioMixer(size_t frameCount, uint32_t sampleRate, uint32_t maxNumTr
 //cjh    mState.mLog         = &mDummyLog;
     // mState.reserved
 
-    // FIXME Most of the following initialization is probably redundant since
+    // IDEA: Most of the following initialization is probably redundant since
     // tracks[i] should only be referenced if (mTrackNames & (1 << i)) != 0
     // and mTrackNames is initially 0.  However, leave it here until that's verified.
     track_t* t = mState.tracks;
@@ -246,7 +246,7 @@ void AudioMixer::invalidateState(uint32_t mask)
  }
 
 // Called when channel masks have changed for a track name
-// TODO: Fix DownmixerBufferProvider not to (possibly) change mixer input format,
+// REFINE: Fix DownmixerBufferProvider not to (possibly) change mixer input format,
 // which will simplify this logic.
 bool AudioMixer::setChannelMasks(int name,
         audio_channel_mask_t trackChannelMask, audio_channel_mask_t mixerChannelMask) {
@@ -330,7 +330,7 @@ status_t AudioMixer::track_t::prepareForDownmix()
 //            && DownmixerBufferProvider::isMultichannelCapable()) {
 //        DownmixerBufferProvider* pDbp = new DownmixerBufferProvider(channelMask,
 //                mMixerChannelMask,
-//                AUDIO_FORMAT_PCM_16_BIT /* TODO: use mMixerInFormat, now only PCM 16 */,
+//                AUDIO_FORMAT_PCM_16_BIT /* REFINE: use mMixerInFormat, now only PCM 16 */,
 //                sampleRate, sessionId, kCopyBufferFrameCount);
 //
 //        if (pDbp->isValid()) { // if constructor completed properly
@@ -479,11 +479,11 @@ void AudioMixer::disable(int name)
  * Its value is typically one state framecount period, but may also be 0,
  * meaning "immediate."
  *
- * FIXME: 1) Volume ramp is enabled only if there is a nonzero integer increment
+ * IDEA: 1) Volume ramp is enabled only if there is a nonzero integer increment
  * even if there is a nonzero floating point increment (in that case, the volume
  * change is immediate).  This restriction should be changed when the legacy mixer
  * is removed (see #2).
- * FIXME: 2) Integer volume variables are used for Legacy mixing and should be removed
+ * IDEA: 2) Integer volume variables are used for Legacy mixing and should be removed
  * when no longer needed.
  *
  * @param newVolume set volume target in floating point [0.0, 1.0].
@@ -531,7 +531,7 @@ static inline bool setVolumeRampVariables(float newVolume, int32_t ramp,
             // Floating point does not have problems with overflow wrap
             // that integer has.  However, we limit the volume to
             // unity gain here.
-            // TODO: Revisit the volume limitation and perhaps parameterize.
+            // REFINE: Revisit the volume limitation and perhaps parameterize.
             if (newVolume > AudioMixer::UNITY_GAIN_FLOAT) {
                 newVolume = AudioMixer::UNITY_GAIN_FLOAT;
             }
@@ -642,7 +642,7 @@ void AudioMixer::setParameter(int name, int target, int param, void *value)
                 invalidateState(1 << name);
             }
             } break;
-        // FIXME do we want to support setting the downmix type from AudioMixerController?
+        // IDEA: do we want to support setting the downmix type from AudioMixerController?
         //         for a specific track? or per mixer?
         /* case DOWNMIX_TYPE:
             break          */
@@ -760,7 +760,7 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
                         trackSampleRate, devSampleRate);
                 AudioResampler::src_quality quality;
                 // force lowest quality level resampler if use case isn't music or video
-                // FIXME this is flawed for dynamic sample rates, as we choose the resampler
+                // IDEA: this is flawed for dynamic sample rates, as we choose the resampler
                 // quality level based on the initial ratio, but that could change later.
                 // Should have a way to distinguish tracks with static ratios vs. dynamic ratios.
 //cjh                if (isMusicRate(trackSampleRate)) {
@@ -769,7 +769,7 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
 //                    quality = AudioResampler::DYN_LOW_QUALITY;
 //                }
 
-                // TODO: Remove MONO_HACK. Resampler sees #channels after the downmixer
+                // REFINE: Remove MONO_HACK. Resampler sees #channels after the downmixer
                 // but if none exists, it is the channel count (1 for mono).
                 const int resamplerChannelCount = false/*downmixerBufferProvider != NULL*/
                         ? mMixerChannelCount : channelCount;
@@ -798,7 +798,7 @@ bool AudioMixer::track_t::setPlaybackRate(const AudioPlaybackRate &playbackRate)
 //    }
     mPlaybackRate = playbackRate;
 //    if (mTimestretchBufferProvider == NULL) {
-//        // TODO: Remove MONO_HACK. Resampler sees #channels after the downmixer
+//        // REFINE: Remove MONO_HACK. Resampler sees #channels after the downmixer
 //        // but if none exists, it is the channel count (1 for mono).
 //        const int timestretchChannelCount = downmixerBufferProvider != NULL
 //                ? mMixerChannelCount : channelCount;
@@ -815,7 +815,7 @@ bool AudioMixer::track_t::setPlaybackRate(const AudioPlaybackRate &playbackRate)
 /* Checks to see if the volume ramp has completed and clears the increment
  * variables appropriately.
  *
- * FIXME: There is code to handle int/float ramp variable switchover should it not
+ * IDEA: There is code to handle int/float ramp variable switchover should it not
  * complete within a mixer buffer processing call, but it is preferred to avoid switchover
  * due to precision issues.  The switchover code is included for legacy code purposes
  * and can be removed once the integer volume is removed.
@@ -854,7 +854,7 @@ inline void AudioMixer::track_t::adjustVolumeRamp(bool aux, bool useFloat)
             }
         }
     }
-    /* TODO: aux is always integer regardless of output buffer type */
+    /* REFINE: aux is always integer regardless of output buffer type */
     if (aux) {
         if (((auxInc>0) && (((prevAuxLevel+auxInc)>>16) >= auxLevel)) ||
                 ((auxInc<0) && (((prevAuxLevel+auxInc)>>16) <= auxLevel))) {
@@ -929,7 +929,7 @@ void AudioMixer::process__validate(state_t* state, int64_t pts)
 
     // compute everything we need...
     int countActiveTracks = 0;
-    // TODO: fix all16BitsStereNoResample logic to
+    // REFINE: fix all16BitsStereNoResample logic to
     // either properly handle muted tracks (it should ignore them)
     // or remove altogether as an obsolete optimization.
     bool all16BitsStereoNoResample = true;
@@ -943,7 +943,7 @@ void AudioMixer::process__validate(state_t* state, int64_t pts)
         countActiveTracks++;
         track_t& t = state->tracks[i];
         uint32_t n = 0;
-        // FIXME can overflow (mask is only 3 bits)
+        // IDEA: can overflow (mask is only 3 bits)
         n |= NEEDS_CHANNEL_1 + t.channelCount - 1;
         if (t.doesResample()) {
             n |= NEEDS_RESAMPLE;
@@ -975,7 +975,7 @@ void AudioMixer::process__validate(state_t* state, int64_t pts)
             } else {
                 if ((n & NEEDS_CHANNEL_COUNT__MASK) == NEEDS_CHANNEL_1){
                     t.hook = getTrackHook(
-                            (t.mMixerChannelMask == AUDIO_CHANNEL_OUT_STEREO  // TODO: MONO_HACK
+                            (t.mMixerChannelMask == AUDIO_CHANNEL_OUT_STEREO  // REFINE: MONO_HACK
                                     && t.channelMask == AUDIO_CHANNEL_OUT_MONO)
                                 ? TRACKTYPE_NORESAMPLEMONO : TRACKTYPE_NORESAMPLE,
                             t.mMixerChannelCount,
@@ -1496,7 +1496,7 @@ void AudioMixer::process__genericNoResampling(state_t* state, int64_t pts)
 
             convertMixerFormat(out, t1.mMixerFormat, outTemp, t1.mMixerInFormat,
                     BLOCKSIZE * t1.mMixerChannelCount);
-            // TODO: fix ugly casting due to choice of out pointer type
+            // REFINE: fix ugly casting due to choice of out pointer type
             out = reinterpret_cast<int32_t*>((uint8_t*)out
                     + BLOCKSIZE * t1.mMixerChannelCount
                         * audio_bytes_per_sample(t1.mMixerFormat));
@@ -1692,7 +1692,7 @@ int64_t AudioMixer::calculateOutputPTS(const track_t& t, int64_t basePTS,
 //    DownmixerBufferProvider::init(); // for the downmixer
 }
 
-/* TODO: consider whether this level of optimization is necessary.
+/* REFINE: consider whether this level of optimization is necessary.
  * Perhaps just stick with a single for loop.
  */
 
@@ -1822,7 +1822,7 @@ void AudioMixer::volumeMix(TO *out, size_t outFrames,
 
 /* This process hook is called when there is a single track without
  * aux buffer, volume ramp, or resampling.
- * TODO: Update the hook selection: this can properly handle aux and ramp.
+ * REFINE: Update the hook selection: this can properly handle aux and ramp.
  *
  * MIXTYPE     (see AudioMixerOps.h MIXTYPE_* enumeration)
  * TO: int32_t (Q4.27) or float
@@ -1945,7 +1945,7 @@ void AudioMixer::convertMixerFormat(void *out, audio_format_t mixerOutFormat,
     case AUDIO_FORMAT_PCM_FLOAT:
         switch (mixerOutFormat) {
         case AUDIO_FORMAT_PCM_FLOAT:
-            memcpy(out, in, sampleCount * sizeof(float)); // MEMCPY. TODO optimize out
+            memcpy(out, in, sampleCount * sizeof(float)); // MEMCPY. REFINE: optimize out
             break;
         case AUDIO_FORMAT_PCM_16_BIT:
             memcpy_to_i16_from_float((int16_t*)out, (float*)in, sampleCount);
@@ -2048,7 +2048,7 @@ AudioMixer::hook_t AudioMixer::getTrackHook(int trackType, uint32_t channelCount
 /* Returns the proper process hook for mixing tracks. Currently works only for
  * PROCESSTYPE_NORESAMPLEONETRACK, a mix involving one track, no resampling.
  *
- * TODO: Due to the special mixing considerations of duplicating to
+ * REFINE: Due to the special mixing considerations of duplicating to
  * a stereo output track, the input track cannot be MONO.  This should be
  * prevented by the caller.
  */

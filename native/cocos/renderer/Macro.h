@@ -73,7 +73,7 @@
 #endif // (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
 
-#define RENDERER_DEBUG 1 // TODO: remove this
+#define RENDERER_DEBUG 1 // REFINE: remove this
 
 #define RENDERER_SAFE_RELEASE(p) do { if((p) != nullptr) (p)->release(); } while(false)
 #define RENDERER_SAFE_RETAIN(p) do { if((p) != nullptr) (p)->retain(); } while(false)

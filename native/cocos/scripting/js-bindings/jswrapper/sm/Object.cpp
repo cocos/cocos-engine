@@ -606,7 +606,7 @@ namespace se {
 
         JSObject* newPtr = _heap.unbarrieredGet();
 
-        // FIXME: test to see ggc
+        // IDEA: test to see ggc
         if (oldPtr != nullptr && newPtr != nullptr)
         {
             assert(oldPtr == newPtr);

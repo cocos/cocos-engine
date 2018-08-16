@@ -3571,7 +3571,7 @@ static bool JSB_glGetParameter(se::State& s)
         {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 //            GL_CHECK(glGetIntegerv(GL_MAX_VARYING_COMPONENTS, intbuffer));
-            s.rval().setInt32(8);//FIXME:cjh: intbuffer[0] / 4);
+            s.rval().setInt32(8);//IDEA:: intbuffer[0] / 4);
 #else
             GL_CHECK(glGetIntegerv(GL_MAX_VARYING_VECTORS, intbuffer));
             s.rval().setInt32(intbuffer[0]);
@@ -3637,7 +3637,7 @@ static bool JSB_glGetParameter(se::State& s)
         }
             break;
 
-            //FIXME:cjh: WebGLBuffer
+            //IDEA:: WebGLBuffer
         case GL_ARRAY_BUFFER_BINDING:
         case GL_ELEMENT_ARRAY_BUFFER_BINDING:
 //            JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));

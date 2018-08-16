@@ -27,7 +27,7 @@ namespace cocos2d { namespace experimental {
 // In practice, it is not recommended to downsample more than 6:1
 // for best audio quality, even though the audio framework permits a larger
 // downsampling ratio.
-// TODO: replace with an API
+// REFINE: replace with an API
 #define AUDIO_RESAMPLER_DOWN_RATIO_MAX 256
 
 // AUDIO_RESAMPLER_UP_RATIO_MAX is the maximum suggested ratio between the original
@@ -65,7 +65,7 @@ namespace cocos2d { namespace experimental {
 enum AudioTimestretchStretchMode : int32_t {
     AUDIO_TIMESTRETCH_STRETCH_DEFAULT            = 0,
     AUDIO_TIMESTRETCH_STRETCH_SPEECH             = 1,
-    //TODO: add more stretch modes/algorithms
+    //REFINE: add more stretch modes/algorithms
 };
 
 //Limits for AUDIO_TIMESTRETCH_STRETCH_SPEECH mode
@@ -124,7 +124,7 @@ static inline bool isAudioPlaybackRateValid(const AudioPlaybackRate &playbackRat
     }
 }
 
-// TODO: Consider putting these inlines into a class scope
+// REFINE: Consider putting these inlines into a class scope
 
 // Returns the source frames needed to resample to destination frames.  This is not a precise
 // value and depends on the resampler (and possibly how it handles rounding internally).

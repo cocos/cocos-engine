@@ -39,6 +39,7 @@
 #endif
 
 uint32_t __jsbInvocationCount = 0;
+uint32_t __jsbStackFrameLimit = 20;
 
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
@@ -345,7 +346,7 @@ namespace se {
     , _isErrorHandleWorking(false)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
-        //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
+        //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //REFINE
         _platform = v8::platform::CreateDefaultPlatform();
         v8::V8::InitializePlatform(_platform);
         bool ok = v8::V8::Initialize();
@@ -381,7 +382,7 @@ namespace se {
         v8::HandleScope hs(_isolate);
         _isolate->Enter();
 
-        _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 20, v8::StackTrace::kOverview);
+        _isolate->SetCaptureStackTraceForUncaughtExceptions(true, __jsbStackFrameLimit, v8::StackTrace::kOverview);
 
         _isolate->SetFatalErrorHandler(onFatalErrorCallback);
         _isolate->SetOOMErrorHandler(onOOMErrorCallback);
@@ -670,6 +671,16 @@ namespace se {
         return success;
     }
 
+    std::string ScriptEngine::getCurrentStackTrace()
+    {
+        if (!_isValid)
+            return std::string();
+
+        v8::HandleScope hs(_isolate);
+        v8::Local<v8::StackTrace> stack = v8::StackTrace::CurrentStackTrace(_isolate, __jsbStackFrameLimit, v8::StackTrace::kOverview);
+        return stackTraceToString(stack);
+    }
+
     void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
     {
         _fileOperationDelegate = delegate;
@@ -698,7 +709,7 @@ namespace se {
 
     void ScriptEngine::clearException()
     {
-        //FIXME:
+        //IDEA:
     }
 
     void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)

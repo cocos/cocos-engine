@@ -71,7 +71,7 @@ Texture::~Texture()
 
     glDeleteTextures(1, &_glID);
 
-    //TODO:    this._device._stats.tex -= this.bytes;
+    //REFINE:    this._device._stats.tex -= this.bytes;
 }
 
 bool Texture::init(DeviceGraphics* device)

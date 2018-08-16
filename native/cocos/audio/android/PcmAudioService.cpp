@@ -88,7 +88,7 @@ bool PcmAudioService::enqueue()
 
 void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq)
 {
-    // FIXME: PcmAudioService instance may be destroyed, we need to find a way to wait...
+    // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
 }

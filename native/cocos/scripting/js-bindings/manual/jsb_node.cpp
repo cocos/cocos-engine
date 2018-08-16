@@ -1433,7 +1433,7 @@ static void pauseAllSchedulesForTarget(Node* node, se::Object* jsThis)
 
 static void cleanupAllSchedulesForTarget(Node* node, se::Object* jsThis)
 {
-    //FIXME: ?? Do we need this since we have already had a 'UnscheduleNotifier' and 'UnscheduleUpdateWrapper'.
+    //IDEA: ?? Do we need this since we have already had a 'UnscheduleNotifier' and 'UnscheduleUpdateWrapper'.
     node->getScheduler()->unscheduleAllForTarget(jsThis);
 }
 

@@ -400,8 +400,9 @@ public class Cocos2dxHelper {
         return array;
     }
 
-    public static void end() {
-
+    public static void endApplication() {
+        if (sActivity != null)
+            sActivity.finish();
     }
 
     public static void onResume() {

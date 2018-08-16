@@ -47,7 +47,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     // Fields
     // ===========================================================
 
-    // TODO Static handler -> Potential leak!
+    // REFINE: Static handler -> Potential leak!
     private static Handler sHandler;
     private static Cocos2dxGLSurfaceView mCocos2dxGLSurfaceView;
 

@@ -91,7 +91,7 @@ public:
         if (cocos2d::Application::getInstance() == nullptr)
             return;
 
-        auto iter = se::NativePtrToObjectMap::find(client); //FIXME: client probably be a new value with the same address as the old one, it may cause undefined result.
+        auto iter = se::NativePtrToObjectMap::find(client); //IDEA: client probably be a new value with the same address as the old one, it may cause undefined result.
         if (iter == se::NativePtrToObjectMap::end())
             return;
 
@@ -123,7 +123,7 @@ public:
 
         if (eventName == "disconnect")
         {
-            cocos2d::log("disconnect ... "); //FIXME:
+            cocos2d::log("disconnect ... "); //IDEA:
         }
     }
 

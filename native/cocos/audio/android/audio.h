@@ -61,7 +61,7 @@ typedef enum {
 
     /* application does not specify an explicit session ID to be used,
      * and requests a new session ID to be allocated
-     * TODO use unique values for AUDIO_SESSION_OUTPUT_MIX and AUDIO_SESSION_ALLOCATE,
+     * REFINE: use unique values for AUDIO_SESSION_OUTPUT_MIX and AUDIO_SESSION_ALLOCATE,
      * after all uses have been updated from 0 to the appropriate symbol, and have been tested.
      */
             AUDIO_SESSION_ALLOCATE = 0,
@@ -208,7 +208,7 @@ enum {
     AUDIO_CHANNEL_OUT_TOP_BACK_LEFT         = 0x8000,
     AUDIO_CHANNEL_OUT_TOP_BACK_CENTER       = 0x10000,
     AUDIO_CHANNEL_OUT_TOP_BACK_RIGHT        = 0x20000,
-/* TODO: should these be considered complete channel masks, or only bits? */
+/* REFINE: should these be considered complete channel masks, or only bits? */
             AUDIO_CHANNEL_OUT_MONO     = AUDIO_CHANNEL_OUT_FRONT_LEFT,
     AUDIO_CHANNEL_OUT_STEREO   = (AUDIO_CHANNEL_OUT_FRONT_LEFT |
                                   AUDIO_CHANNEL_OUT_FRONT_RIGHT),
@@ -279,7 +279,7 @@ enum {
     AUDIO_CHANNEL_IN_Z_AXIS          = 0x2000,
     AUDIO_CHANNEL_IN_VOICE_UPLINK    = 0x4000,
     AUDIO_CHANNEL_IN_VOICE_DNLINK    = 0x8000,
-/* TODO: should these be considered complete channel masks, or only bits, or deprecated? */
+/* REFINE: should these be considered complete channel masks, or only bits, or deprecated? */
             AUDIO_CHANNEL_IN_MONO   = AUDIO_CHANNEL_IN_FRONT,
     AUDIO_CHANNEL_IN_STEREO = (AUDIO_CHANNEL_IN_LEFT | AUDIO_CHANNEL_IN_RIGHT),
     AUDIO_CHANNEL_IN_FRONT_BACK = (AUDIO_CHANNEL_IN_FRONT | AUDIO_CHANNEL_IN_BACK),
@@ -371,7 +371,7 @@ static inline uint32_t audio_channel_count_from_out_mask(audio_channel_mask_t ch
     uint32_t bits = audio_channel_mask_get_bits(channel);
     switch (audio_channel_mask_get_representation(channel)) {
         case AUDIO_CHANNEL_REPRESENTATION_POSITION:
-            // TODO: We can now merge with from_in_mask and remove anding
+            // REFINE: We can now merge with from_in_mask and remove anding
             bits &= AUDIO_CHANNEL_OUT_ALL;
             // fall through
         case AUDIO_CHANNEL_REPRESENTATION_INDEX:
@@ -494,7 +494,7 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
         case 8:
             bits = AUDIO_CHANNEL_OUT_7POINT1;
             break;
-            // FIXME FCC_8
+            // IDEA: FCC_8
         default:
             return AUDIO_CHANNEL_INVALID;
     }

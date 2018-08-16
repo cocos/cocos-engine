@@ -30,10 +30,12 @@
 #include "base/CCGLUtils.h"
 #include "base/CCConfiguration.h"
 #include "renderer/gfx/DeviceGraphics.h"
-#include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "CCEAGLView-ios.h"
 #include "base/CCGLUtils.h"
+#include "audio/include/AudioEngine.h"
+
 
 namespace
 {
@@ -226,9 +228,11 @@ Application::~Application()
     delete _scheduler;
     _scheduler = nullptr;
     
-    // TODO: destroy DeviceGraphics
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    // close audio device
+    cocos2d::experimental::AudioEngine::end();
     
     // stop main loop
     [(MainLoop*)_delegate stopMainLoop];
@@ -255,6 +259,13 @@ void Application::restart()
     }
 }
 
+void Application::end()
+{
+    delete this;
+
+    exit(0);
+}
+
 void Application::setPreferredFramesPerSecond(int fps)
 {
     [(MainLoop*)_delegate setPreferredFPS: fps];
@@ -273,6 +284,21 @@ std::string Application::getCurrentLanguageCode() const
     [languageCode getCString:code maxLength:3 encoding:NSASCIIStringEncoding];
     code[2]='\0';
     return std::string(code);
+}
+
+bool Application::isDisplayStats() {
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
+}
+
+void Application::setDisplayStats(bool isShow) {
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
@@ -399,7 +425,7 @@ void Application::createView(const std::string& /*name*/, int width, int height)
     bounds.size.width = width;
     bounds.size.height = height;
     
-    //FIXME: iOS only support these pixel format?
+    //IDEA: iOS only support these pixel format?
     // - RGB565
     // - RGBA8
     NSString *pixelString = kEAGLColorFormatRGB565;
