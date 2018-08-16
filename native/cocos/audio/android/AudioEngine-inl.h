@@ -77,8 +77,8 @@ public:
     void setAudioFocusForAllPlayers(bool isFocus);
 private:
 
-    void onEnterBackground(CustomEvent* event);
-    void onEnterForeground(CustomEvent* event);
+    void onEnterBackground(const CustomEvent&);
+    void onEnterForeground(const CustomEvent&);
 
     // engine interfaces
     SLObjectItf _engineObject;

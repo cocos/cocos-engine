@@ -30,8 +30,8 @@
 #include "base/CCGLUtils.h"
 #include "base/CCConfiguration.h"
 #include "renderer/gfx/DeviceGraphics.h"
-#include "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "CCEAGLView-ios.h"
 #include "base/CCGLUtils.h"
 #include "audio/include/AudioEngine.h"
@@ -284,6 +284,21 @@ std::string Application::getCurrentLanguageCode() const
     [languageCode getCString:code maxLength:3 encoding:NSASCIIStringEncoding];
     code[2]='\0';
     return std::string(code);
+}
+
+bool Application::isDisplayStats() {
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
+}
+
+void Application::setDisplayStats(bool isShow) {
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

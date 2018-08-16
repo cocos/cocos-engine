@@ -198,7 +198,7 @@ bool AudioEngineImpl::init()
     return ret;
 }
 
-void AudioEngineImpl::onEnterBackground(CustomEvent* event)
+void AudioEngineImpl::onEnterBackground(const CustomEvent& event)
 {
     // _audioPlayerProvider->pause() pauses AudioMixer and PcmAudioService,
     // but UrlAudioPlayers could not be paused.
@@ -220,7 +220,7 @@ void AudioEngineImpl::onEnterBackground(CustomEvent* event)
     }
 }
 
-void AudioEngineImpl::onEnterForeground(CustomEvent* event)
+void AudioEngineImpl::onEnterForeground(const CustomEvent& event)
 {
     // _audioPlayerProvider->resume() resumes AudioMixer and PcmAudioService,
     // but UrlAudioPlayers could not be resumed.

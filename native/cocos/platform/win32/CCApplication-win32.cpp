@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "platform/desktop/CCGLView-desktop.h"
 #include "renderer/gfx/DeviceGraphics.h"
-#include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
+#include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
@@ -332,6 +332,21 @@ std::string Application::getCurrentLanguageCode() const
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, code, sizeof(code));
     code[2] = '\0';
     return code;
+}
+
+bool Application::isDisplayStats() {
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.toBoolean();
+}
+
+void Application::setDisplayStats(bool isShow) {
+    se::AutoHandleScope hs;
+    char commandBuf[100] = {0};
+    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 float Application::getScreenScale() const
