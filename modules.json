@@ -67,7 +67,8 @@
       "./cocos2d/core/components/CCMask.js",
       "./cocos2d/core/renderer/webgl/assemblers/mask-assembler.js",
       "./cocos2d/core/renderer/canvas/renderers/mask.js"
-    ]
+    ],
+    "dependencies": ["Graphics"]
   },
   {
     "name": "Graphics",
