@@ -1518,6 +1518,11 @@ let ScrollView = cc.Class({
                 this.content.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             }
+            if (this.content && this.content.parent) {
+                this.content.parent.off(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
+                this.content.parent.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
+                this.content.parent.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+            }
         }
         this._hideScrollbar();
         this.stopAutoScroll();
@@ -1531,6 +1536,11 @@ let ScrollView = cc.Class({
             if (this.content) {
                 this.content.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
+            }
+            if (this.content && this.content.parent) {
+                this.content.parent.on(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
+                this.content.parent.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
+                this.content.parent.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
             }
         }
         this._showScrollbar();
