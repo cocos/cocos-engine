@@ -55,11 +55,13 @@
 
 @interface TextFieldDelegate : NSObject<UITextFieldDelegate>
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
--(BOOL) textFieldShouldReturn:(UITextField *)textField;
+- (void)textFieldDidChange:(UITextField *)textField;
+- (BOOL)textFieldShouldReturn:(UITextField *)textField;
 @end
 
 @interface TextViewDelegate : NSObject<UITextViewDelegate>
 - (BOOL) textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+- (void) textViewDidChange:(UITextView *)textView;
 @end
 
 /*************************************************************************
@@ -135,20 +137,6 @@ namespace
         textInputCallback.toObject()->call(args, nullptr);
     }
     
-    void handleTextInput(NSString* string, NSRange& range)
-    {
-        // Control all replace by ourself because in password style, UITextField will clear all characters at first no matter what you set.
-        NSString* text = getCurrentText();
-        NSUInteger newLength = [text length] + [string length] - range.length;
-        if (newLength <= g_maxLength)
-        {
-            NSString* newString = [text stringByReplacingCharactersInRange:range
-                                                                withString:string];
-            callJSFunc("input", [newString UTF8String]);
-            setText(newString);
-        }
-    }
-    
     int getTextInputHeight()
     {
         if (g_isMultiline)
@@ -222,6 +210,7 @@ namespace
             createButton(&g_textFieldConfirmButton, &g_textFieldConfirmButtonHandler, rect, showInfo.confirmType);
             g_textField.rightView = g_textFieldConfirmButton;
             g_textField.rightViewMode = UITextFieldViewModeAlways;
+            [g_textField addTarget:g_textFieldDelegate action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         }
 
         g_textField.frame = rect;
@@ -321,12 +310,24 @@ namespace
 }
 @end
 
-
 @implementation TextFieldDelegate
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    handleTextInput(string, range);
-    return NO;
+    // REFINE: check length limit before text changed
+    return YES;
+}
+
+- (void)textFieldDidChange:(UITextField *)textField
+{
+    if (textField.markedTextRange != nil)
+        return;
+
+    // check length limit after text changed, a little rude
+    if (textField.text.length > g_maxLength)
+        textField.text = [textField.text substringToIndex:g_maxLength];
+
+    callJSFunc("input", [textField.text UTF8String]);
+    setText(textField.text);
 }
 
 -(BOOL) textFieldShouldReturn:(UITextField *)textField
@@ -350,8 +351,21 @@ namespace
 @implementation TextViewDelegate
 - (BOOL) textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-    handleTextInput(text, range);
-    return NO;
+    // REFINE: check length limit before text changed
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    if (textView.markedTextRange != nil)
+        return;
+
+    // check length limit after text changed, a little rude
+    if (textView.text.length > g_maxLength)
+        textView.text = [textView.text substringToIndex:g_maxLength];
+
+    callJSFunc("input", [textView.text UTF8String]);
+    setText(textView.text);
 }
 @end
 
