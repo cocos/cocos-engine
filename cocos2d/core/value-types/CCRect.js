@@ -310,7 +310,7 @@ JS.getset(proto, 'size',
  * !#zh 当前矩形与指定矩形是否相交。
  * @method intersects
  * @param {Rect} rect
- * @type {Boolean}
+ * @return {Boolean}
  * @example
  * var a = new cc.Rect(0, 0, 10, 10);
  * var b = new cc.Rect(0, 0, 20, 20);
@@ -326,7 +326,7 @@ proto.intersects = function (rect) {
  * Returns true if the point inside this rectangle.
  * @method contains
  * @param {Vec2} point
- * @type {Boolean}
+ * @return {Boolean}
  * @example
  * var a = new cc.Rect(0, 0, 10, 10);
  * var b = new cc.Vec2(0, 5);
@@ -344,7 +344,7 @@ proto.contains = function (point) {
  * !#zh 当前矩形是否包含指定矩形。
  * @method containsRect
  * @param {Rect} rect
- * @type {Boolean}
+ * @return {Boolean}
  * @example
  * var a = new cc.Rect(0, 0, 20, 20);
  * var b = new cc.Rect(0, 0, 10, 10);
