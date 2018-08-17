@@ -142,13 +142,14 @@ let TiledObjectGroup = cc.Class({
         let objects = groupInfo._objects;
         for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
+            object.offset = cc.v2(object.x, object.y);
             if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
                 object.y = height - object.y;
             } else {
                 let mapSize = mapInfo.getMapSize();
                 let tileSize = mapInfo.getTileSize();
-                let posIdxX = (this._container.offset.x + offset.x) / tileSize.width * 2;
-                let posIdxY = (this._container.offset.y + offset.y) / tileSize.height;
+                let posIdxX = object.offset.x / tileSize.width * 2;
+                let posIdxY = object.offset.y / tileSize.height;
                 object.x = tileSize.width / 2 * (mapSize.width + posIdxX - posIdxY);
                 object.y = tileSize.height / 2 * (mapSize.height * 2 - posIdxX - posIdxY);
             }
