@@ -37,7 +37,7 @@ else {
     require('./cocos2d/core/components/CCStudioComponent');
     require('./extensions/ccpool/CCNodePool');
     require('./extensions/ccpool/CCPool');
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         require('./cocos2d/actions');
         require('./external/chipmunk/chipmunk');
     }

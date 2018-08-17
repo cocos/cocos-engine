@@ -54,7 +54,7 @@ function adjustEditBoxPosition (editBox) {
 }
 
 var capitalize = function(string) {
-    return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+    return string.replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
 };
 
 function capitalizeFirstLetter(string) {
@@ -250,6 +250,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     __autoResize: false,
     _placeholderColor: null,
     _className: 'EditBox',
+    _inputMode: InputMode.ANY,
 
     ctor: function (size, normal9SpriteBg) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -336,6 +337,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
         if(hitted) {
             if (CC_QQPLAY) {
                 this._renderCmd._showBKKeyboard();
+            }
+            else if (CC_RUNTIME) {
+                this._renderCmd._createJSBInput();
             }
             return true;
         }
@@ -971,6 +975,58 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
+    proto._createJSBInput = function () {
+        var thisPointer = this;
+        var multiline = this._inputMode === InputMode.ANY;
+        var retrunTypeStrings = ['done', 'done', 'send', 'search', 'go'];
+
+        var inputTypeStrings = ['text', 'email', 'number', 'phone', 'text', 'number', 'text'];
+        var inputTypeString = inputTypeStrings[this._inputMode];
+        if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD)
+            inputTypeString = 'password';
+
+        var editBox = this._editBox;
+        jsb.inputBox.show({
+            defaultValue: editBox._text,
+            maxLength: 140,
+            multiple: multiline,
+            confirmHold: true,
+            confirmType: retrunTypeStrings[thisPointer._editBox._keyboardReturnType],
+            inputType: inputTypeString
+        });
+        editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
+        jsb.inputBox.onConfirm(function (res) {
+            editBox._text = res.value;
+            thisPointer._updateDomTextCases();
+            editBox._delegate && editBox._delegate.editBoxEditingReturn && editBox._delegate.editBoxEditingReturn(editBox);
+            jsb.inputBox.hide();
+        });
+        editBox._delegate && editBox._delegate.editBoxEditingDidEnded && editBox._delegate.editBoxEditingDidEnded(editBox);
+        jsb.inputBox.onInput(function (res) {
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged && editBox._text !== res.value) {
+                editBox._text = res.value;
+                thisPointer._updateDomTextCases();
+                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                let placeholderLabel = thisPointer._placeholderLabel;
+                let textLabel = thisPointer._textLabel;
+                let tmpText = editBox._text;
+                if (editBox._editBoxInputFlag === InputFlag.PASSWORD) {
+                    tmpText = tmpText.replace(/./g, '*');
+                }
+                let show = tmpText !== '';
+                placeholderLabel.setVisible(!show);
+                textLabel.setVisible(show);
+                textLabel.setString(tmpText);
+            }
+        });
+        jsb.inputBox.onComplete(function () {
+            thisPointer._endEditing();
+            jsb.inputBox.offConfirm();
+            jsb.inputBox.offInput();
+            jsb.inputBox.offComplete();
+        });
+    };
+
     proto._createLabels = function () {
         var editBoxSize = this._editBox.getContentSize();
         if(!this._textLabel) {
@@ -1040,6 +1096,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._updateDomTextCases = function() {
         var inputFlag = this._editBox._editBoxInputFlag;
+
         if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             this._editBox._text = this._editBox._text.toUpperCase();
         }
@@ -1074,7 +1131,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = CC_WECHATGAME || CC_QQPLAY ? this._editBox._text : this._edTxt.value;
+        var text = (CC_WECHATGAME || CC_QQPLAY || CC_JSB) ? this._editBox._text : this._edTxt.value;
         if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
@@ -1128,7 +1185,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
         this._showLabels();
         if (sys.platform !== sys.WECHAT_GAME &&
-            sys.platform !== sys.QQ_PLAY && sys.isMobile && this._editingMode) {
+            sys.platform !== sys.QQ_PLAY && !CC_JSB && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
@@ -1250,6 +1307,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._createDomInput();
         }
 
+        this._inputMode = inputMode;
         this._updateDomInputType();
         var contentSize = this._node.getContentSize();
         this.updateSize(contentSize.width, contentSize.height);

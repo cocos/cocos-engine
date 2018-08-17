@@ -170,7 +170,7 @@ var js = {
      * @return {Function}
      */
     getSuper (ctor) {
-        if (CC_JSB && ctor.hasOwnProperty('$super')) {
+        if (!CC_RUNTIME && CC_JSB && ctor.hasOwnProperty('$super')) {
             // babel runtime uses Object.setPrototypeOf to inherit static members,
             // so $super will always inheritable even if it is non-enumerable.
             return ctor.$super;

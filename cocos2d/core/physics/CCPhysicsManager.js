@@ -157,7 +157,7 @@ var PhysicsManager = cc.Class({
          * @default false
          */
         this.enabledAccumulator = false;
-        
+
     },
 
     pushDelayEvent: function (target, func, args) {
@@ -178,7 +178,7 @@ var PhysicsManager = cc.Class({
         if (!world || !this.enabled) return;
 
         this.emit('before-step');
-        
+
         this._steping = true;
 
         var velocityIterations = PhysicsManager.VELOCITY_ITERATIONS;
@@ -204,7 +204,7 @@ var PhysicsManager = cc.Class({
             var timeStep = 1/cc.game.config['frameRate'];
             world.Step(timeStep, velocityIterations, positionIterations);
         }
-        
+
 
         world.DrawDebugData();
 
@@ -233,7 +233,7 @@ var PhysicsManager = cc.Class({
         var x = tempB2Vec21.x = point.x/PTM_RATIO;
         var y = tempB2Vec21.y = point.y/PTM_RATIO;
 
-        var d = 0.2/PTM_RATIO;
+        var d = 0.2 / PTM_RATIO;
         tempB2AABB.lowerBound.x = x-d;
         tempB2AABB.lowerBound.y = y-d;
         tempB2AABB.upperBound.x = x+d;
@@ -361,7 +361,7 @@ var PhysicsManager = cc.Class({
         for (var i = 0; i < bodies.length; i++) {
             bodies[i].syncRotation();
         }
-    },    
+    },  
 
     /**
      * !#en
@@ -404,8 +404,8 @@ var PhysicsManager = cc.Class({
 
         body._b2Body = world.CreateBody(bodyDef);
 
-        if (CC_JSB) {
-            body._b2Body.SetUserData( node._sgNode );
+        if (!CC_RUNTIME && CC_JSB) {
+            body._b2Body.SetUserData(node._sgNode);
         }
 
         body._b2Body.body = body;
@@ -418,7 +418,7 @@ var PhysicsManager = cc.Class({
         var world = this._world;
         if (!world) return;
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             body._b2Body.SetUserData(null);
         }
         body._b2Body.body = null;
@@ -465,17 +465,17 @@ var PhysicsManager = cc.Class({
 
     _syncNode: function () {
         this._utils.syncNode();
-        
+
         var bodies = this._bodies;
         for (var i = 0, l = bodies.length; i < l; i++) {
             var body = bodies[i];
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 var node = body.node;
                 node._position.x = node._sgNode.getPositionX();
                 node._position.y = node._sgNode.getPositionY();
                 node._rotationX = node._rotationY = node._sgNode.getRotation();
             }
-            
+
             if (body.type === BodyType.Animated) {
                 body.resetVelocity();
             }
@@ -497,7 +497,7 @@ var PhysicsManager = cc.Class({
             return;
         }
         c.emit(ContactType.END_CONTACT);
-        
+
         cc.PhysicsContact.put(b2contact);
     },
 
@@ -506,7 +506,7 @@ var PhysicsManager = cc.Class({
         if (!c) {
             return;
         }
-        
+
         c.emit(ContactType.PRE_SOLVE);
     },
 

@@ -263,7 +263,7 @@ if (CC_DEV) {
     }
     // deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
     }
     if (_ccsg.EditBox) {
@@ -556,7 +556,7 @@ if (CC_DEV) {
         });
     }
 
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         // _ccsg.Node
         markAsRemoved(_ccsg.Node, [
             '_normalizedPositionDirty',

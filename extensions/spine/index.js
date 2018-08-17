@@ -40,7 +40,7 @@
  * http://en.esotericsoftware.com/spine-using-runtimes
  */
 
-sp = CC_JSB ? sp : {};
+sp = (!CC_RUNTIME && CC_JSB) ? sp : {};
 
 // The vertex index of spine.
 sp.VERTEX_INDEX = {
@@ -110,7 +110,7 @@ sp.AnimationEventType = cc.Enum({
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
     
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         sp.spine = require('./lib/spine');
 
         require('./SGSkeletonTexture');
@@ -119,7 +119,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         require('./SGSkeletonWebGLRenderCmd');
         require('./SGSkeletonAnimation');
     }
-    
+
     require('./SkeletonData');
     require('./Skeleton');
 }

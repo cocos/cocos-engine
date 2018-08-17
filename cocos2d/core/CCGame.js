@@ -302,25 +302,31 @@ var game = {
      * @method restart
      */
     restart: function () {
-        cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
-            for (var id in game._persistRootNodes) {
-                game.removePersistRootNode(game._persistRootNodes[id]);
-            }
 
-            // Clear scene
-            cc.director.getScene().destroy();
-            cc.Object._deferredDestroy();
+        if (CC_JSB) {
+            cc.sys.restartVM();
+        }
+        else {
+            cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+                for (var id in game._persistRootNodes) {
+                    game.removePersistRootNode(game._persistRootNodes[id]);
+                }
 
-            cc.director.purgeDirector();
+                // Clear scene
+                cc.director.getScene().destroy();
+                cc.Object._deferredDestroy();
 
-            // Clean up audio
-            if (cc.audioEngine) {
-                cc.audioEngine.uncacheAll();
-            }
+                cc.director.purgeDirector();
 
-            cc.director.reset();
-            game.onStart();
-        });
+                // Clean up audio
+                if (cc.audioEngine) {
+                    cc.audioEngine.uncacheAll();
+                }
+
+                cc.director.reset();
+                game.onStart();
+            });
+        }
     },
 
     /**
@@ -332,7 +338,7 @@ var game = {
         close();
     },
 
-//  @Game loading
+    //  @Game loading
     /**
      * !#en Prepare game.
      * !#zh 准备引擎，请不要直接调用这个函数。
@@ -479,7 +485,7 @@ var game = {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if ( !(node.parent instanceof cc.Scene) ) {
+                else if (!(node.parent instanceof cc.Scene) ) {
                     cc.warnID(3801);
                     return;
                 }
@@ -659,14 +665,14 @@ var game = {
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame) {
+        if (isWeChatGame || CC_JSB) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = wx.getSharedCanvas();
             }
             else {
-                localCanvas = canvas;
+                localCanvas = CC_JSB ? window.__cccanvas : window.canvas;
             }
             this.canvas = cc._canvas = localCanvas;
         }
@@ -728,7 +734,7 @@ var game = {
                 opts['preserveDrawingBuffer'] = true;
             }
             this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, opts);
+            = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
@@ -768,9 +774,9 @@ var game = {
         } else if (typeof document.webkitHidden !== 'undefined') {
             hiddenPropName = "webkitHidden";
         }
-        
+
         var hidden = false;
-        
+
         function onHidden () {
             if (!hidden) {
                 hidden = true;
@@ -813,6 +819,11 @@ var game = {
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
             wx.onHide && wx.onHide(onHidden);
+        }
+
+        if (CC_JSB) {
+            jsb.onShow = onShown;
+            jsb.onHide = onHidden;
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

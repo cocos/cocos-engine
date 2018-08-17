@@ -402,7 +402,7 @@ sp.Skeleton = cc.Class({
 
     _createSgNode: function () {
         if (this.skeletonData/* && self.atlasFile*/) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 var uuid = this.skeletonData._uuid;
                 if ( !uuid ) {
                     cc.errorID(7504);
@@ -1046,7 +1046,7 @@ sp.Skeleton = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 sgNode.retain();
             }
             if ( !self.enabledInHierarchy ) {

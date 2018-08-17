@@ -142,7 +142,7 @@ var RichText = cc.Class({
                 if (this.font === oldValue) return;
 
                 this._layoutDirty = true;
-                if (!CC_JSB && this.font) {
+                if ((CC_RUNTIME || !CC_JSB) && this.font) {
                     this._onTTFLoaded();
                 }
                 this._updateRichTextStatus();
@@ -269,7 +269,7 @@ var RichText = cc.Class({
 
     _initSgNode: function () {
         this._updateRichText();
-        if (!CC_JSB) {
+        if (CC_RUNTIME || !CC_JSB) {
             this._onTTFLoaded();
         }
     },
@@ -384,7 +384,7 @@ var RichText = cc.Class({
         //in Web platform, the extra pixels will be trimed.
         //so we need to set the overflow to clamp in JSB
         //FIXME: label in jsb should be refactored to keep the behavior the same as web platform.
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             labelSegment.setOverflow(1);
             var size = labelSegment.getContentSize();
             labelSegment.enableWrap(false);

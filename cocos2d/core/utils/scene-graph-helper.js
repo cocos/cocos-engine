@@ -35,7 +35,7 @@ var SceneGraphUtils = {
             }
             else {
                 // cleanup was skipped when its node was detaching
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     sgNode.cleanup();
                 }
                 else {

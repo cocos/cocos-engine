@@ -142,7 +142,7 @@ var RigidBody = cc.Class({
          * @param {PhysicsCollider} selfCollider - the collider belong to this rigidbody
          * @param {PhysicsCollider} otherCollider - the collider belong to another rigidbody
          */
-        
+
         /**
          * !#en
          * Is this a fast moving body that should be prevented from tunneling through
@@ -170,7 +170,7 @@ var RigidBody = cc.Class({
          * 刚体类型： Static, Kinematic, Dynamic or Animated.
          * @property {RigidBodyType} type
          * @default RigidBodyType.Dynamic
-         */        
+         */
         type: {
             type: BodyType,
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.type',
@@ -309,7 +309,7 @@ var RigidBody = cc.Class({
                 this._linearVelocity = value;
                 var b2body = this._b2Body;
                 if (b2body) {
-                    var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+                    var temp = (!CC_RUNTIME && CC_JSB) ? tempb2Vec21 : b2body.m_linearVelocity;
                     temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
                     b2body.SetLinearVelocity(temp);
                 }
@@ -624,7 +624,7 @@ var RigidBody = cc.Class({
     getJointList: function () {
         if (!this._b2Body) return [];
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             var joints = this._b2Body.GetJointList();
             for (var i = 0; i < joints.length; i++) {
                 joints[i] = joints[i]._joint;
@@ -762,7 +762,7 @@ var RigidBody = cc.Class({
         var pos = this.node.convertToWorldSpaceAR(VEC2_ZERO);
 
         var temp;
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             temp = tempb2Vec21;
         }
         else if (this.type === BodyType.Animated) {
@@ -815,12 +815,12 @@ var RigidBody = cc.Class({
             b2body.SetTransform(b2body.GetPosition(), rotation);
         }
     },
-    
+
     resetVelocity: function () {
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+        var temp = (!CC_RUNTIME && CC_JSB) ? tempb2Vec21 : b2body.m_linearVelocity;
         temp.Set(0, 0);
 
         b2body.SetLinearVelocity(temp);
@@ -866,7 +866,7 @@ var RigidBody = cc.Class({
         }
     },
 
-   _init: function () {
+    _init: function () {
         cc.director.getPhysicsManager().pushDelayEvent(this, '__init', []);
     },
     _destroy: function () {
@@ -879,7 +879,7 @@ var RigidBody = cc.Class({
        this._registerNodeEvents();
 
         var bodyDef = new b2.BodyDef();
-        
+
         if (this.type === BodyType.Animated) {
             bodyDef.type = BodyType.Kinematic;
         }
@@ -896,7 +896,7 @@ var RigidBody = cc.Class({
         bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/PTM_RATIO, linearVelocity.y/PTM_RATIO);
 
         bodyDef.angularVelocity = this.angularVelocity * ANGLE_TO_PHYSICS_ANGLE;
-        
+
         bodyDef.fixedRotation = this.fixedRotation;
         bodyDef.bullet = this.bullet;
 

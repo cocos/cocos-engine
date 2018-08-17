@@ -28,7 +28,7 @@
  */
 
 // implements a simple texture loader like sp._atlasLoader
-var TextureLoader = !CC_JSB && cc.Class({
+var TextureLoader = (CC_RUNTIME || !CC_JSB) && cc.Class({
     ctor: function () {
         // {SkeletonData}
         this.asset = arguments[0];
@@ -192,7 +192,7 @@ var SkeletonData = cc.Class({
      * @param {Boolean} [quiet=false]
      * @return {sp.spine.SkeletonData}
      */
-    getRuntimeData: !CC_JSB && function (quiet) {
+    getRuntimeData: (CC_RUNTIME || !CC_JSB) && function (quiet) {
         if (this._skeletonCache) {
             return this._skeletonCache;
         }
@@ -264,7 +264,7 @@ var SkeletonData = cc.Class({
      * @return {sp.spine.Atlas}
      * @private
      */
-    _getAtlas: !CC_JSB && function (quiet) {
+    _getAtlas: (CC_RUNTIME || !CC_JSB) && function (quiet) {
         if (this._atlasCache) {
             return this._atlasCache;
         }

@@ -26,7 +26,7 @@
 require('./CCEvent');
 
 var eventManager;
-if (CC_JSB) {
+if (!CC_RUNTIME && CC_JSB) {
     eventManager = cc.eventManager;
 }
 else {

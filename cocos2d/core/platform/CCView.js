@@ -90,8 +90,8 @@ switch (__BrowserGetter.adaptationType) {
         };
         break;
     case cc.sys.BROWSER_TYPE_MIUI:
-        __BrowserGetter.init = function(view){
-            if(view.__resizeWithBrowserSize) return;
+        __BrowserGetter.init = function(view) {
+            if (view.__resizeWithBrowserSize) return;
             var resize = function(){
                 view.setDesignResolutionSize(
                     view._designResolutionSize.width,
@@ -407,7 +407,7 @@ var View = cc._Class.extend({
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -656,7 +656,7 @@ var View = cc._Class.extend({
      */
     getVisibleSizeInPixel: function () {
         return cc.size( this._visibleRect.width * this._scaleX,
-                        this._visibleRect.height * this._scaleY );
+            this._visibleRect.height * this._scaleY );
     },
 
     /**
@@ -840,7 +840,7 @@ var View = cc._Class.extend({
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 

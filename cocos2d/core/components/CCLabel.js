@@ -188,8 +188,8 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
             notify: function () {
                 if (this._sgNode) {
-                    if (CC_EDITOR) {
-                        if(this.overflow === cc.Label.Overflow.SHRINK) {
+                    if(CC_EDITOR) {
+                        if (this.overflow === cc.Label.Overflow.SHRINK) {
                             this.fontSize = this._userDefinedFontSize;
                         }
                         this._debouncedUpdateSgNodeString();
@@ -393,7 +393,7 @@ var Label = cc.Class({
                     var font = this.font;
                     if (font instanceof cc.BitmapFont) {
                         if (font.spriteFrame) {
-                            if (!CC_JSB) {
+                            if (CC_RUNTIME || !CC_JSB) {
                                 this._sgNode.setFontAsset(font);
                             } else {
                                 if (font.spriteFrame.textureLoaded()) {
@@ -490,7 +490,7 @@ var Label = cc.Class({
         this._super();
 
         // node should be resize whenever font changed, needed only on web
-        if (!CC_JSB) {
+        if (CC_RUNTIME || !CC_JSB) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
 
@@ -502,7 +502,7 @@ var Label = cc.Class({
     },
 
     _initSgNode: function () {
-        var font = this.font;
+        var font = this.font; 
         if (typeof font === 'string' ) {
             cc.warnID(4000);
         }
@@ -510,7 +510,7 @@ var Label = cc.Class({
         var sgNode;
         if (font instanceof cc.BitmapFont) {
             if (font.spriteFrame) {
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     if (font.spriteFrame.textureLoaded()) {
                         sgNode = this._sgNode = new _ccsg.Label(this.string, JSON.stringify(font._fntConfig), font.spriteFrame);
                     } else {
@@ -528,7 +528,7 @@ var Label = cc.Class({
             sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font, null, this._fontSize);
         }
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             sgNode.retain();
         }
 

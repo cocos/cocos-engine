@@ -151,14 +151,14 @@ var _touchStartHandler = function (touch, event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             event = Event.EventTouch.pool.get(event);
         }
         event.type = EventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             event.touch = null;
             event._touches = null;
             Event.EventTouch.pool.put(event);
@@ -168,7 +168,7 @@ var _touchStartHandler = function (touch, event) {
     return false;
 };
 var _touchMoveHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var node = this.owner;
@@ -176,14 +176,14 @@ var _touchMoveHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
 var _touchEndHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -198,14 +198,14 @@ var _touchEndHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
 var _touchCancelHandler = function (touch, event) {
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event = Event.EventTouch.pool.get(event);
     }
     var pos = touch.getLocation();
@@ -215,7 +215,7 @@ var _touchCancelHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         event.touch = null;
         event._touches = null;
         Event.EventTouch.pool.put(event);
@@ -227,7 +227,7 @@ var _mouseDownHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -235,7 +235,7 @@ var _mouseDownHandler = function (event) {
         event.type = EventType.MOUSE_DOWN;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -247,7 +247,7 @@ var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
     var hit = node._hitTest(pos, this);
-    if (CC_JSB && (hit || this._previousIn)) {
+    if (!CC_RUNTIME && CC_JSB && (hit || this._previousIn)) {
         // jsb event will be replaced so can be stopped immediately
         event.stopPropagation();
         event = Event.EventMouse.pool.get(event);
@@ -281,7 +281,7 @@ var _mouseMoveHandler = function (event) {
     }
 
     // Event processed, cleanup
-    if (CC_JSB) {
+    if (!CC_RUNTIME && CC_JSB) {
         Event.EventMouse.pool.put(event);
     }
     else {
@@ -293,7 +293,7 @@ var _mouseUpHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -301,7 +301,7 @@ var _mouseUpHandler = function (event) {
         event.type = EventType.MOUSE_UP;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -315,7 +315,7 @@ var _mouseWheelHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         //FIXME: separate wheel event and other mouse event.
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // jsb event will be replaced so can be stopped immediately
             event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
@@ -323,7 +323,7 @@ var _mouseWheelHandler = function (event) {
         event.type = EventType.MOUSE_WHEEL;
         event.bubbles = true;
         node.dispatchEvent(event);
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             Event.EventMouse.pool.put(event);
         }
         else {
@@ -351,7 +351,7 @@ function _searchMaskInParent (node) {
 
 function updateOrder (node) {
     node._parent._delaySort();
-    if (!CC_JSB) {
+    if (CC_RUNTIME || !CC_JSB) {
         eventManager._setDirtyForNode(node);
     }
 }
@@ -944,7 +944,7 @@ var Node = cc.Class({
          * @private
          */
         var sgNode = this._sgNode = new _ccsg.Node();
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             sgNode.retain();
             sgNode._entity = this;
             sgNode.onEnter = function () {
@@ -981,7 +981,7 @@ var Node = cc.Class({
         this._mouseListener = null;
 
         // Retained actions for JSB
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             this._retainedActions = [];
         }
     },
@@ -1011,7 +1011,7 @@ var Node = cc.Class({
         var parent = this._parent;
         var siblings = parent._children;
         var i = 0, len = siblings.length, sibling;
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             if (cc.runtime) {
                 for (; i < len; i++) {
                     sibling = siblings[i]._sgNode;
@@ -1061,7 +1061,7 @@ var Node = cc.Class({
             _currentHovered = null;
         }
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
                 this._releaseAllActions();
             }
@@ -1093,7 +1093,7 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
-        else if (CC_JSB) {
+        else if (!CC_RUNTIME && CC_JSB) {
             this._sgNode._entity = null;
             this._sgNode = null;
         }
@@ -1211,7 +1211,7 @@ var Node = cc.Class({
                     onTouchEnded: _touchEndHandler,
                     onTouchCancelled: _touchCancelHandler
                 });
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     this._touchListener.retain();
                 }
                 eventManager.addListener(this._touchListener, this);
@@ -1230,7 +1230,7 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     this._mouseListener.retain();
                 }
                 eventManager.addListener(this._mouseListener, this);
@@ -1285,7 +1285,7 @@ var Node = cc.Class({
      * @example
      * node.targetOff(target);
      */
-    targetOff (target) {
+    targetOff(target) {
         this._EventTargetTargetOff(target);
 
         this._checkTouchListeners();
@@ -1377,12 +1377,12 @@ var Node = cc.Class({
         var w = this.width,
             h = this.height,
             pt = point;
-        
+
         var Camera = cc.Camera;
         if (Camera && Camera.main && Camera.main.containsNode(this)) {
             pt = Camera.main.getCameraToWorldPoint(pt);
         }
-        
+
         var trans = cc.affineTransformInvertIn(this._sgNode.getNodeToWorldTransform());
         pt = cc.pointApplyAffineTransform(pt, trans);
         pt.x += this._anchorPoint.x * w;
@@ -1474,7 +1474,7 @@ var Node = cc.Class({
         if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
             this._retainAction(action);
         }
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             this._sgNode._owner = this;
         }
         cc.director.getActionManager().addAction(action, this, false);
@@ -1587,15 +1587,15 @@ var Node = cc.Class({
         return 0;
     },
 
-    _retainAction (action) {
-        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+    _retainAction(action) {
+        if (!CC_RUNTIME && CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
             this._retainedActions.push(action);
             action.retain();
         }
     },
 
-    _releaseAllActions () {
-        if (CC_JSB) {
+    _releaseAllActions() {
+        if (!CC_RUNTIME && CC_JSB) {
             for (var i = 0; i < this._retainedActions.length; ++i) {
                 this._retainedActions[i].release();
             }
@@ -2212,7 +2212,7 @@ var Node = cc.Class({
         return this._sgNode.getWorldToNodeTransform();
     },
 
-    _isSgTransformArToMe (myContentSize) {
+    _isSgTransformArToMe(myContentSize) {
         var renderSize = this._sgNode.getContentSize();
         if (renderSize.width === 0 && renderSize.height === 0 &&
             (myContentSize.width !== 0 || myContentSize.height !== 0)) {
@@ -2473,7 +2473,7 @@ var Node = cc.Class({
 
         sgNode.setGlobalZOrder(self._globalZOrder);
 
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             // fix tintTo and tintBy action for jsb displays err for fireball/issues/4137
             sgNode.setColor(this._color);
         }
@@ -2569,7 +2569,7 @@ var Node = cc.Class({
 
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
-if (CC_JSB) {
+if (!CC_RUNTIME && CC_JSB) {
     var updateListeners = function () {
         if (!this._activeInHierarchy) {
             eventManager.pauseTarget(this);

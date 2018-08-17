@@ -103,14 +103,14 @@ var WebView = cc.Class({
         EventType: EventType,
     },
 
-    onLoad: CC_JSB && function () {
+    onLoad: !CC_RUNTIME && CC_JSB && function () {
         if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
             this.enabled = false;
         }
     },
 
     _createSgNode: function () {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 console.log('WebView is not supported on Mac and Windows!');
                 return null;
@@ -123,7 +123,7 @@ var WebView = cc.Class({
         var sgNode = this._sgNode;
         if (!sgNode) return;
 
-        if (!CC_JSB) {
+        if (CC_RUNTIME || !CC_JSB) {
             sgNode.createDomElementIfNeeded();
         }
 

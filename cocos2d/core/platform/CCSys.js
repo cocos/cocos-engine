@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (cc.sys) return;
+if (cc.sys && !CC_RUNTIME) return;
 
 /**
  * System variables
@@ -509,13 +509,13 @@ sys.BROWSER_TYPE_UNKNOWN = "unknown";
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
-sys.isNative = false;
+sys.isNative = CC_JSB;
 
 /**
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
 
 cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     if (opt_contextType) {
@@ -526,7 +526,7 @@ cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
         }
     }
     else {
-        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+        return cc.create3DContext(canvas, opt_attribs, "webgl") ||
                cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
                cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
                cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
@@ -550,6 +550,55 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
+} else if (CC_JSB) {
+    var platform = sys.platform = __getPlatform();
+    sys.isMobile = (platform === sys.ANDROID ||
+        platform === sys.IPAD ||
+        platform === sys.IPHONE ||
+        platform === sys.WP8 ||
+        platform === sys.TIZEN ||
+        platform === sys.BLACKBERRY);
+
+    sys.os = __getOS();
+    sys.language = __getCurrentLanguage();
+    sys.osVersion = __getOSVersion();
+    sys.osMainVersion = parseInt(sys.osVersion);
+    sys.browserType = null;
+    sys.browserVersion = null;
+
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var ratio = window.devicePixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    var capabilities;
+    capabilities = sys.capabilities = {
+        "canvas": false,
+        "opengl": true,
+        "webp": true,
+    };
+
+    if (sys.isMobile) {
+        capabilities["accelerometer"] = true;
+        capabilities["touches"] = true;
+    } else {
+        // desktop
+        capabilities["keyboard"] = true;
+        capabilities["mouse"] = false; //TODO: Change to true to support dispatching mouse event for desktop platforms, need to be done in cocos2d-x-lite repo.
+        capabilities["touches"] = true; //TODO: Switch to false after the above TODO is finised!
+    }
+
+    sys.__audioSupport = {
+        ONLY_ONE: false,
+        WEB_AUDIO: false,
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
 }
 else if (CC_WECHATGAME) {
     var env = wx.getSystemInfoSync();
@@ -864,20 +913,20 @@ else {
             case sys.BROWSER_TYPE_MOBILE_QQ:
             case sys.BROWSER_TYPE_BAIDU:
             case sys.BROWSER_TYPE_BAIDU_APP:
-                // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                if (browserVer >= 6.2) {
-                    _supportWebGL = true;
-                }
-                else {
-                    _supportWebGL = false;
-                }
-                break;
+                 // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                 if (browserVer >= 6.2) {
+                     _supportWebGL = true;
+                 }
+                 else {
+                     _supportWebGL = false;
+                 }
+                 break;
             case sys.BROWSER_TYPE_ANDROID:
-                // Android 5+ default browser
-                if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                 // Android 5+ default browser
+                 if (sys.osMainVersion && sys.osMainVersion >= 5) {
                     _supportWebGL = true;
-                }
-                break;
+                 }
+                 break;
             case sys.BROWSER_TYPE_CHROME:
                 // Chrome on android supports WebGL from v. 30
                 if (browserVer >= 30.0) {
@@ -1011,6 +1060,9 @@ else {
  */
 sys.garbageCollect = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __jsc__.garbageCollect();
+    }
 };
 
 /**
@@ -1019,6 +1071,9 @@ sys.garbageCollect = function () {
  */
 sys.dumpRoot = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __jsc__.dumpRoot();
+    }
 };
 
 /**
@@ -1027,6 +1082,9 @@ sys.dumpRoot = function () {
  */
 sys.restartVM = function () {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __restartVM();
+    }
 };
 
 /**
@@ -1036,6 +1094,9 @@ sys.restartVM = function () {
  */
 sys.cleanScript = function (jsfile) {
     // N/A in cocos2d-html5
+    if (CC_JSB) {
+        __cleanScript();
+    }
 };
 
 /**
@@ -1047,8 +1108,14 @@ sys.cleanScript = function (jsfile) {
  * @return {Boolean} Validity of the object
  */
 sys.isObjectValid = function (obj) {
-    if (obj) return true;
-    else return false;
+    if (CC_JSB) {
+        return __isObjectValid(obj);
+    }
+    else if (obj) {
+        return true;
+    }
+
+    return false;
 };
 
 /**
@@ -1076,7 +1143,11 @@ sys.dump = function () {
  * @param {String} url
  */
 sys.openURL = function (url) {
-    window.open(url);
+    if (CC_JSB) {
+        jsb.openURL(url);
+    } else {
+        window.open(url);
+    }
 };
 
 /**

@@ -272,7 +272,7 @@ var Mask = cc.Class({
     _refreshStencil: function () {
         // Check whether the conditions are met
         if (this.type === MaskType.IMAGE_STENCIL &&
-            cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+            cc._renderType !== cc.game.RENDER_TYPE_WEBGL && (CC_RUNTIME || !CC_JSB)) {
             cc.warnID(4200);
             return;
         }
@@ -295,7 +295,7 @@ var Mask = cc.Class({
             var isDrawNode = stencil instanceof cc.DrawNode;
             if (!isDrawNode) {
                 stencil = new cc.DrawNode();
-                if (CC_JSB) {
+                if (!CC_RUNTIME && CC_JSB) {
                     stencil.retain();
                 }
                 this._sgNode.setStencil(stencil);
@@ -324,13 +324,13 @@ var Mask = cc.Class({
         }
         this._sgNode.setInverted(this.inverted);
         this._clippingStencil = stencil;
-        if (!CC_JSB) {
+        if (CC_RUNTIME || !CC_JSB) {
             cc.renderer.childrenOrderDirty = true;
         }
     }
 });
 
-if (CC_JSB) {
+if (!CC_RUNTIME && CC_JSB) {
     // override onDestroy
     Mask.prototype.__superOnDestroy = Base.prototype.onDestroy;
     Mask.prototype.onDestroy = function () {

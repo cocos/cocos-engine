@@ -26,7 +26,7 @@
 var EventTarget = require('../event/event-target');
 var eventManager = require('../event-manager');
 var inputManger;
-if (CC_JSB) {
+if (!CC_RUNTIME && CC_JSB) {
     inputManger = cc.inputManager;
 }
 else {
@@ -116,7 +116,7 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.KEYBOARD,
                     onKeyPressed: function (keyCode, event) {
                         event.type = EventType.KEY_DOWN;
-                        if (CC_JSB) {
+                        if (!CC_RUNTIME && CC_JSB) {
                             event.keyCode = keyCode;
                             event.isPressed = true;
                         }
@@ -124,7 +124,7 @@ var SystemEvent = cc.Class({
                     },
                     onKeyReleased: function (keyCode, event) {
                         event.type = EventType.KEY_UP;
-                        if (CC_JSB) {
+                        if (!CC_RUNTIME && CC_JSB) {
                             event.keyCode = keyCode;
                             event.isPressed = false;
                         }
@@ -148,7 +148,7 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.ACCELERATION,
                     callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        if (CC_JSB) {
+                        if (!CC_RUNTIME && CC_JSB) {
                             event.acc = acc;
                         }
                         cc.systemEvent.dispatchEvent(event);
@@ -193,6 +193,6 @@ if (!CC_EDITOR) {
  * !#zh 系统事件单例，方便全局使用
  * @property systemEvent
  * @type {SystemEvent}
- */    
+ */
     cc.systemEvent = new cc.SystemEvent();
 }

@@ -125,7 +125,7 @@ function doInstantiate (obj, parent) {
         }
         return null;
     }
-    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
+    if ((CC_RUNTIME || !CC_JSB) && _isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }
@@ -193,7 +193,7 @@ function enumerateObject (obj, clone, parent) {
         for (var key in obj) {
             if (!obj.hasOwnProperty(key) ||
                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
-                 key !== '__type__')
+                key !== '__type__')
             ) {
                 continue;
             }

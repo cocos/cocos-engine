@@ -385,7 +385,7 @@ var BaseNode = cc.Class({
         this._onSetParent(value);
 
         if (value) {
-            if (!CC_JSB) {
+            if (CC_RUNTIME || !CC_JSB) {
                 eventManager._setDirtyForNode(this);
             }
             value._children.push(this);
@@ -1266,7 +1266,7 @@ if (CC_EDITOR) {
 
 BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 
-if(CC_EDITOR) {
+if (CC_EDITOR) {
     BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
 }
 

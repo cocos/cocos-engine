@@ -31,10 +31,10 @@ function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';
     var PREFAB_ID = 'cc.Prefab';
     return json && (
-               (json[0] && json[0].__type__ === SCENE_ID) ||
-               (json[1] && json[1].__type__ === SCENE_ID) ||
-               (json[0] && json[0].__type__ === PREFAB_ID)
-           );
+            (json[0] && json[0].__type__ === SCENE_ID) ||
+            (json[1] && json[1].__type__ === SCENE_ID) ||
+            (json[0] && json[0].__type__ === PREFAB_ID)
+        );
 }
 
 function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
@@ -175,7 +175,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
 
 // can deferred load raw assets in runtime
 function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR || CC_JSB) {
+    if (CC_EDITOR || (!CC_RUNTIME && CC_JSB)) {
         return false;
     }
     var res = item.deferredLoadRaw;

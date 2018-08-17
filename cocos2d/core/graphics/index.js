@@ -26,7 +26,7 @@
 'use strict';
 
 var GraphicsNode;
-if (!CC_JSB) {
+if (CC_RUNTIME || !CC_JSB) {
     GraphicsNode = _ccsg.GraphicsNode = require('./graphics-node');
 }
 else {

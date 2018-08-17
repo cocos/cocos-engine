@@ -49,7 +49,7 @@ var TiledLayer = cc.Class({
         }
     },
 
-    onDestroy: function () {
+    onDestroy: function() {
         if ( this.node._sizeProvider === this._sgNode ) {
             this.node._sizeProvider = null;
         }
@@ -81,7 +81,7 @@ var TiledLayer = cc.Class({
 
         if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
             this._sgNode = sgNode;
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 // retain the new sgNode, it will be released in _removeSgNode
                 sgNode.retain();
             }
@@ -362,7 +362,7 @@ var TiledLayer = cc.Class({
      */
     setTileOpacity: function(opacity) {
         if (this._sgNode) {
-            if (CC_JSB) {
+            if (!CC_RUNTIME && CC_JSB) {
                 this._sgNode.setTileOpacity(opacity);
             } else {
                 this._sgNode._opacity = opacity;

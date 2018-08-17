@@ -767,7 +767,7 @@ proto.release = function (asset) {
             var removed = this.removeItem(id);
             asset = item.content;
             if (asset instanceof cc.Asset) {
-                if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
+                if (!CC_RUNTIME && CC_JSB && asset instanceof cc.SpriteFrame && removed) {
                     // for the "Temporary solution" in deserialize.js
                     asset.release();
                 }

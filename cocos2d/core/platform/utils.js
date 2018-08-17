@@ -70,7 +70,7 @@ module.exports = {
         }
         :
         (
-            CC_JSB ?
+            (!CC_RUNTIME && CC_JSB) ?
                 function (callback, p1, p2) {
                     if (callback) {
                         cc.director.once(cc.Director._EVENT_NEXT_TICK, function () {

@@ -115,7 +115,7 @@ Class.extend = function (props) {
         var isFunc = (typeof props[name] === "function");
         var override = isFunc && (typeof _super[name] === "function");
         var hasSuperCall = override && fnTest.test(props[name]);
-        
+
         if (hasSuperCall) {
             desc.value = (function (name, fn) {
                 return function () {
@@ -215,7 +215,7 @@ cc.clone = function (obj) {
         if (typeof copy === "object" &&
             copy &&
             !(copy instanceof _ccsg.Node) &&
-            (CC_JSB || !(copy instanceof HTMLElement))) {
+            ((!CC_RUNTIME && CC_JSB) || !(copy instanceof HTMLElement))) {
             newObj[key] = cc.clone(copy);
         } else {
             newObj[key] = copy;

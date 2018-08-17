@@ -70,7 +70,7 @@ cc.pool = /** @lends cc.pool# */{
             this._pool[cid] = [];
         }
         // JSB retain to avoid being auto released
-        CC_JSB && obj.retain && obj.retain();
+        !CC_RUNTIME && CC_JSB && obj.retain && obj.retain();
         // User implementation for disable the object
         obj.unuse && obj.unuse();
         this._pool[cid].push(obj);
@@ -105,7 +105,7 @@ cc.pool = /** @lends cc.pool# */{
                 for (var i = 0; i < list.length; i++) {
                     if (obj === list[i]) {
                         // JSB release to avoid memory leak
-                        CC_JSB && obj.release && obj.release();
+                        !CC_RUNTIME && CC_JSB && obj.release && obj.release();
                         list.splice(i, 1);
                     }
                 }
@@ -131,7 +131,7 @@ cc.pool = /** @lends cc.pool# */{
             // User implementation for re-enable the object
             obj.reuse && obj.reuse.apply(obj, _args);
             // JSB release to avoid memory leak
-            CC_JSB && obj.release && this._autoRelease(obj);
+            !CC_RUNTIME && CC_JSB && obj.release && this._autoRelease(obj);
             _args.length = 0;
             return obj;
         }
@@ -143,7 +143,7 @@ cc.pool = /** @lends cc.pool# */{
      *  @method drainAllPools
      */
     drainAllPools: function () {
-        if (CC_JSB) {
+        if (!CC_RUNTIME && CC_JSB) {
             for (var i in this._pool) {
                 for (var j = 0; j < this._pool[i].length; j++) {
                     var obj = this._pool[i][j];
