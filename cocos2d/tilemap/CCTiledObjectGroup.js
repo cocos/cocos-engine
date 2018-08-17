@@ -146,8 +146,6 @@ let TiledObjectGroup = cc.Class({
             if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
                 object.y = height - object.y;
             } else {
-                let mapSize = mapInfo.getMapSize();
-                let tileSize = mapInfo.getTileSize();
                 let posIdxX = object.offset.x / tileSize.width * 2;
                 let posIdxY = object.offset.y / tileSize.height;
                 object.x = tileSize.width / 2 * (mapSize.width + posIdxX - posIdxY);
