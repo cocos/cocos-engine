@@ -893,7 +893,7 @@ let ScrollView = cc.Class({
             this._leftBoundary = leftBottomPosition.x;
             this._bottomBoundary = leftBottomPosition.y;
 
-            let topRightPosition = this._convertToContentParentSpace(viewSize);
+            let topRightPosition = this._convertToContentParentSpace(cc.v2(viewSize.width, viewSize.height));
             this._rightBoundary = topRightPosition.x;
             this._topBoundary = topRightPosition.y;
 
