@@ -241,6 +241,7 @@ let Mask = cc.Class({
         this._graphics = new Graphics();
         this._graphics.node = this.node;
         this._graphics.lineWidth = 0;
+        this._graphics.strokeColor = cc.color(0, 0, 0, 0);
     },
 
     onRestore () {
@@ -393,7 +394,12 @@ let Mask = cc.Class({
                 ry = height / 2;
             graphics.ellipse(cx, cy, rx, ry);
         }
-        graphics.fill();
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            graphics.stroke();
+        }
+        else {
+            graphics.fill();
+        }
     },
 
     _hitTest (cameraPt) {
