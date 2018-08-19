@@ -82,11 +82,13 @@ else {
                     sharedCanvas.width = this.node.width;
                     sharedCanvas.height = this.node.height;
                 }
+                this._tex.setPremultiplyAlpha(true);
                 this._tex.initWithElement(sharedCanvas);
 
                 this._sprite = this.node.getComponent(cc.Sprite);
                 if (!this._sprite) {
                     this._sprite = this.node.addComponent(cc.Sprite);
+                    this._sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
                 }
                 this._sprite.spriteFrame = new cc.SpriteFrame(this._tex);
             }
