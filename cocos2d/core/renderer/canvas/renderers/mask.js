@@ -23,48 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Node = require('../../../CCNode');
 const Mask = require('../../../components/CCMask');
-const Graphics = require('../../../graphics/graphics');
 const graphicsHandler = require('./graphics');
-
-// for nested mask, we might need multiple graphics component to avoid data conflict
-let _graphicsPool = [];
-
-function getGraphics () {
-    let graphics = _graphicsPool.pop();
-
-    if (!graphics) {
-        let graphicsNode = new Node();
-        graphics = graphicsNode.addComponent(Graphics);
-        graphics.lineWidth = 0;
-    }
-    return graphics;
-}
 
 let beforeHandler = {
     updateRenderData (comp) {},
-    updateGraphics (mask) {
-        let node = mask.node;
-        let graphics = mask._graphics;
-        // Share render data with graphics content
-        graphics.clear(false);
-        let width = node.width;
-        let height = node.height;
-        let x = -width * node.anchorX;
-        let y = -height * node.anchorY;
-        if (mask._type === Mask.Type.RECT) {
-            graphics.rect(x, y, width, height);
-        }
-        else if (mask._type === Mask.Type.ELLIPSE) {
-            let cx = x + width / 2,
-                cy = y + height / 2,
-                rx = width / 2,
-                ry = height / 2;
-            graphics.ellipse(cx, cy, rx, ry);
-        }
-        graphics.stroke();
-    },
 
     draw (ctx, mask) {
         let node = mask.node;
@@ -74,11 +37,8 @@ let beforeHandler = {
             tx = matrix.m12, ty = matrix.m13;
 
         ctx.save();
-        ctx.transform(a, b, c, d, tx, -ty);
 
         // draw stencil
-        mask._graphics = getGraphics();
-        this.updateGraphics(mask);
         graphicsHandler.draw(ctx, mask._graphics);
 
         ctx.clip();
