@@ -751,12 +751,20 @@ var Node = cc.Class({
             }
         },
 
+        /**
+         * !#en The rotation as Euler angles in degrees, used in 2.5D project.
+         * !#zh 该节点的欧拉角度，用于 2.5D 项目。
+         * @property rotation
+         * @type {Vec3}
+         */
         eulerAngles: {
             get () {
-                let quat = this._quat;
-                return cc.v3(quat.getRoll(), quat.getPitch(), quat.getYaw());
+                return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
             },
             set (v) {
+                this._rotationX = v.x;
+                this._rotationY = v.y;
+                this._rotationZ = v.z;
                 math.quat.fromEuler(this._quat, v.x, v.y, v.z);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -1157,6 +1165,8 @@ var Node = cc.Class({
 
         this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
+
+        this._rotationZ = 0;
     },
 
     statics: {
