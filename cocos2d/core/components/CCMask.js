@@ -257,7 +257,17 @@ let Mask = cc.Class({
 
     onEnable () {
         this._super();
-        if (this._type !== MaskType.IMAGE_STENCIL) {
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+                // Do not render when sprite frame is not ready
+                this.markForRender(false);
+                if (this._spriteFrame) {
+                    this._spriteFrame.once('load', this._onTextureLoaded, this);
+                    this._spriteFrame.ensureLoadTexture();
+                }
+            }
+        }
+        else {
             this._updateGraphics();
         }
 
