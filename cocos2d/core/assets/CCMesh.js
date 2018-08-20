@@ -24,36 +24,70 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCComponent');
-require('./CCComponentEventHandler');
-require('./missing-script');
+ /**
+ * @module cc
+ */
+/**
+ * !#en Mesh Asset.
+ * !#zh 网格资源。
+ * @class Mesh
+ * @extends Asset
+ */
+var Mesh = cc.Class({
+    name: 'cc.Mesh',
+    extends: cc.Asset,
 
-var components = [
-    require('./CCSprite'),
-    require('./CCWidget'),
-    require('./CCCanvas'),
-    require('./CCAudioSource'),
-    require('./CCAnimation'),
-    require('./CCButton'),
-    require('./CCLabel'),
-    require('./CCProgressBar'),
-    require('./CCMask'),
-    require('./CCScrollBar'),
-    require('./CCScrollView'),
-    require('./CCPageViewIndicator'),
-    require('./CCPageView'),
-    require('./CCSlider'),
-    require('./CCLayout'),
-    require('./editbox/CCEditBox'),
-    require('./CCLabelOutline'),
-    require('./CCRichText'),
-    require('./CCToggleContainer'),
-    require('./CCToggleGroup'),
-    require('./CCToggle'),
-    require('./CCBlockInputEvents'),
-    require('./CCMotionStreak'),
-    require('./WXSubContextView'),
-    require('./CCMeshRenderer')
-];
+    properties: {
+        _modelSetter: {
+            set: function (model) {
+                this.initWithModel(model);
+            }
+        },
 
-module.exports = components;
+        /**
+         * !#en Get ir set the sub meshes.
+         * !#zh 设置或者获取子网格。
+         * @property {[renderEngine.InputAssembler]} subMeshes
+         */
+        subMeshes: {
+            get () {
+                return this._subMeshes;
+            },
+            set (v) {
+                this._subMeshes = v;
+            }
+        }
+    },
+
+    ctor () {
+        this._modelUuid = '';
+        this._meshID = -1;
+        this._model = null;
+
+        this._subMeshes = [];
+    },
+
+    initWithModel (model) {
+        if (!model) return;
+        this._model = model;
+        this._model.initMesh(this);
+    },
+
+    _serialize: CC_EDITOR && function () {
+        return {
+            modelUuid: this._modelUuid,
+            meshID: this._meshID
+        }
+    },
+
+    _deserialize (data, handle) {
+        this._modelUuid = data.modelUuid;
+        this._meshID = data.meshID;
+
+        if (this._modelUuid) {
+            handle.result.push(this, '_modelSetter', this._modelUuid);
+        }
+    }
+});
+
+cc.Mesh = module.exports = Mesh;

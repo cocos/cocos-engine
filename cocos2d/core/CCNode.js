@@ -66,6 +66,26 @@ let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
 })
 
+function mul (out, a, b) {
+    let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
+    let ba=b.m00, bb=b.m01, bc=b.m04, bd=b.m05, btx=b.m12, bty=b.m13;
+    if (ab !== 0 || ac !== 0) {
+        out.m00 = ba * aa + bb * ac;
+        out.m01 = ba * ab + bb * ad;
+        out.m04 = bc * aa + bd * ac;
+        out.m05 = bc * ab + bd * ad;
+        out.m12 = aa * btx + ac * bty + atx;
+        out.m13 = ab * btx + ad * bty + aty;
+    }
+    else {
+        out.m00 = ba * aa;
+        out.m01 = bb * ad;
+        out.m04 = bc * aa;
+        out.m05 = bd * ad;
+        out.m12 = aa * btx + atx;
+        out.m13 = ad * bty + aty;
+    }
+}
 
 /**
  * !#en Node's local dirty properties flag
@@ -731,6 +751,18 @@ var Node = cc.Class({
             }
         },
 
+        eulerAngles: {
+            get () {
+                let quat = this._quat;
+                return cc.v3(quat.getRoll(), quat.getPitch(), quat.getYaw());
+            },
+            set (v) {
+                math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+            }
+        },
+
         /**
          * !#en Rotation on x axis.
          * !#zh 该节点 X 轴旋转角度。
@@ -1135,7 +1167,9 @@ var Node = cc.Class({
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
         },
 
-        BuiltinGroupIndex
+        BuiltinGroupIndex,
+
+        _mulMat: mul
     },
 
     // OVERRIDES
@@ -2469,33 +2503,15 @@ var Node = cc.Class({
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
-            let pt = parent._worldMatrix;
-            let t = this._matrix;
-            let wt = this._worldMatrix;
-            let aa=t.m00, ab=t.m01, ac=t.m04, ad=t.m05, atx=t.m12, aty=t.m13;
-            let ba=pt.m00, bb=pt.m01, bc=pt.m04, bd=pt.m05, btx=pt.m12, bty=pt.m13;
-            if (bb !== 0 || bc !== 0) {
-                wt.m00 = aa * ba + ab * bc;
-                wt.m01 = aa * bb + ab * bd;
-                wt.m04 = ac * ba + ad * bc;
-                wt.m05 = ac * bb + ad * bd;
-                wt.m12 = ba * atx + bc * aty + btx;
-                wt.m13 = bb * atx + bd * aty + bty;
-            }
-            else {
-                wt.m00 = aa * ba;
-                wt.m01 = ab * bd;
-                wt.m04 = ac * ba;
-                wt.m05 = ad * bd;
-                wt.m12 = ba * atx + btx;
-                wt.m13 = bd * aty + bty;
-            }
+            Node._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
         }
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
     },
+
+    
 
     _updateWorldMatrix () {
         if (this._parent) {
