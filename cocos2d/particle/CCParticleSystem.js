@@ -958,9 +958,15 @@ var ParticleSystem = cc.Class({
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
-            var tex = textureUtil.loadImage(imgPath);
-            // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
-            this.spriteFrame = new cc.SpriteFrame(tex);
+            textureUtil.loadImage(imgPath, function (error, texture) {
+                if (error) {
+                    dict["textureFileName"] = undefined;
+                    this._initTextureWithDictionary(dict);
+                }
+                else {
+                    this.spriteFrame = new cc.SpriteFrame(texture);
+                }
+            }, this);
         } else if (dict["textureImageData"]) {
             var textureData = dict["textureImageData"];
 
