@@ -124,7 +124,7 @@ var spineAssembler = {
             dataOffset++;
         }
 
-        if (CC_DEBUG && comp.debugSlots && vertexCount === 4) {
+        if (comp.debugSlots && vertexCount === 4) {
             let graphics = comp._debugRenderer;
             
             // Debug Slot
@@ -147,7 +147,7 @@ var spineAssembler = {
         let premultiAlpha = comp.premultipliedAlpha;
         let graphics = comp._debugRenderer;
 
-        if (CC_DEBUG && comp.debugBones || comp.debugSlots) {
+        if (comp.debugBones || comp.debugSlots) {
             graphics.clear();
         }
 
@@ -254,7 +254,7 @@ var spineAssembler = {
             datas.length = dataId;
         }
 
-        if (CC_DEBUG && comp.debugBones) {
+        if (comp.debugBones) {
             let bone;
             graphics.lineWidth = 5;
             graphics.strokeColor = _boneColor;
