@@ -40,5 +40,5 @@ require('./CCBitmapFont');
 require('./CCLabelAtlas');
 require('./CCTextAsset');
 require('./CCJsonAsset');
-require('./CCModel3D');
+require('./CCModel');
 require('./CCMesh');
