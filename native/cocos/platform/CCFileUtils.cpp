@@ -574,7 +574,7 @@ FileUtils::~FileUtils()
 bool FileUtils::writeStringToFile(const std::string& dataStr, const std::string& fullPath)
 {
     Data data;
-    data.fastSet((unsigned char*)dataStr.c_str(), dataStr.size());
+    data.copy((unsigned char*)dataStr.c_str(), dataStr.size());
 
     bool rv = writeDataToFile(data, fullPath);
 
