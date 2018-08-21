@@ -189,7 +189,7 @@ cc.TMXTilesetInfo.prototype = {
     }
 };
 
-function getPropertyList (node) {
+function getPropertyList (node, map) {
     let res = [];
     let properties = node.getElementsByTagName("properties");
     for (let i = 0; i < properties.length; ++i) {
@@ -198,7 +198,36 @@ function getPropertyList (node) {
             res.push(property[j]);
         }
     }
-    return res.length ? res : null;
+
+    map = map || {};
+    for (i = 0; i < res.length; i++) {
+        let element = res[i];
+        let name = element.getAttribute('name');
+        let type = element.getAttribute('type') || 'string';
+
+        let value = element.getAttribute('value');
+        if (type === 'int') {
+            value = parseInt(value);
+        }
+        else if (type === 'float') {
+            value = parseFloat(value);
+        }
+        else if (type === 'bool') {
+            value = value === 'true';
+        }
+        else if (type === 'color') {
+            value = (value.indexOf('#') === 0) ? value.substring(1) : value;
+            let a = parseInt(value.substr(0, 2), 16) || 255;
+            let r = parseInt(value.substr(2, 2), 16) || 0;
+            let g = parseInt(value.substr(4, 2), 16) || 0;
+            let b = parseInt(value.substr(6, 2), 16) || 0;
+            value = cc.color(r, g, b, a);
+        }
+
+        map[name] = value;
+    }
+
+    return map;
 }
 
 /**
@@ -624,14 +653,7 @@ cc.TMXMapInfo.prototype = {
             this.setTileSize(mapSize);
 
             // The parent element is the map
-            let propertyArr = getPropertyList(map);
-            if (propertyArr) {
-                let aPropertyDict = {};
-                for (i = 0; i < propertyArr.length; i++) {
-                    aPropertyDict[propertyArr[i].getAttribute('name')] = propertyArr[i].getAttribute('value');
-                }
-                this.properties = aPropertyDict;
-            }
+            this.properties = getPropertyList(map);
         }
 
         // PARSE <tileset>
@@ -692,15 +714,7 @@ cc.TMXMapInfo.prototype = {
                     for (let tIdx = 0; tIdx < tiles.length; tIdx++) {
                         let t = tiles[tIdx];
                         this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
-                        let tp = getPropertyList(t);
-                        if (tp) {
-                            let dict = {};
-                            for (j = 0; j < tp.length; j++) {
-                                let name = tp[j].getAttribute('name');
-                                dict[name] = tp[j].getAttribute('value');
-                            }
-                            this._tileProperties[this.parentGID] = dict;
-                        }
+                        this._tileProperties[this.parentGID] = getPropertyList(t);
                     }
                 }
             }
@@ -839,15 +853,8 @@ cc.TMXMapInfo.prototype = {
         if (draworder)
             objectGroup._draworder = draworder;
 
-        let groupProps = getPropertyList(selGroup);
-        if (groupProps) {
-            let parsedProps = {};
-            for (let j = 0; j < groupProps.length; j++) {
-                parsedProps[groupProps[j].getAttribute('name')] = groupProps[j].getAttribute('value');
-            }
-            // set the properties to the group
-            objectGroup.setProperties(parsedProps);
-        }
+        // set the properties to the group
+        objectGroup.setProperties(getPropertyList(selGroup));
 
         let objects = selGroup.getElementsByTagName('object');
         if (objects) {
@@ -872,11 +879,7 @@ cc.TMXMapInfo.prototype = {
 
                 objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 
-                let docObjProps = getPropertyList(selObj);
-                if (docObjProps) {
-                    for (let k = 0; k < docObjProps.length; k++)
-                        objectProp[docObjProps[k].getAttribute('name')] = docObjProps[k].getAttribute('value');
-                }
+                getPropertyList(selObj, objectProp);
 
                 // visible
                 let visibleAttr = selObj.getAttribute('visible');
