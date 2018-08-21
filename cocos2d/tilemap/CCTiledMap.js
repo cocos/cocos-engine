@@ -501,7 +501,7 @@ let TiledMap = cc.Class({
         this._relseasMapInfo();
 
         let layers = this._layers;
-        let groups = this._layers;
+        let groups = this._groups;
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         if (layerInfos && layerInfos.length > 0) {
