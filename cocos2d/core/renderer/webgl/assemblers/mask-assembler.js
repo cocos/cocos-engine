@@ -113,9 +113,6 @@ let maskFrontAssembler = {
 };
 
 let maskEndAssembler = {
-    updateRenderData (mask) {
-    },
-
     fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
@@ -124,12 +121,9 @@ let maskEndAssembler = {
 
             _graphicsPool.push(mask._clearGraphics);
             mask._clearGraphics = null;
-
-            // vertex buffer
-            // graphicsAssembler.fillBuffers(getGraphics(), renderer);
         }
 
-        mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 };
 
