@@ -423,12 +423,14 @@ let TiledMap = cc.Class({
         return this._tileProperties[GID];
     },
 
-    onEnable () {
+    start () {
         if (this._tmxFile) {
             // refresh layer entities
             this._applyFile();
         }
+    },
 
+    onEnable () {
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
@@ -462,6 +464,24 @@ let TiledMap = cc.Class({
 
             this._buildWithMapInfo(mapInfo);
         }
+        else {
+            this._relseasMapInfo()
+        }
+    },
+
+    _relseasMapInfo () {
+        // remove the layers & object groups added before
+        let layers = this._layers;
+        for (let i = 0, l = layers.length; i < l; i++) {
+            layers[i].node.removeFromParent();
+        }
+        layers.length = 0;
+
+        let groups = this._groups;
+        for (let i = 0, l = groups.length; i < l; i++) {
+            groups[i].node.removeFromParent();
+        }
+        groups.length = 0;
     },
 
     _syncAnchorPoint () {
@@ -478,19 +498,10 @@ let TiledMap = cc.Class({
         this._properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
 
-        // remove the layers & object groups added before
+        this._relseasMapInfo();
+
         let layers = this._layers;
-        for (let i = 0, l = layers.length; i < l; i++) {
-            layers[i].node.removeFromParent();
-        }
-        layers.length = 0;
-
         let groups = this._groups;
-        for (let i = 0, l = groups.length; i < l; i++) {
-            groups[i].node.removeFromParent();
-        }
-        groups.length = 0;
-
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         if (layerInfos && layerInfos.length > 0) {
