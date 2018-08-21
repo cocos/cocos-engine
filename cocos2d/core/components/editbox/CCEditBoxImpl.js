@@ -93,6 +93,25 @@ let EditBoxImpl = cc.Class({
         this.__orientationChanged = null;
     },
 
+    onEnable () {
+        if (!this._edTxt) {
+            return;
+        }
+        if (this._alwaysOnTop) {
+            this._edTxt.style.display = '';
+        } 
+        else {
+            this._edTxt.style.display = 'none';
+        }
+    },
+
+    onDisable () {
+        if (!this._edTxt) {
+            return;
+        }
+        this._edTxt.style.display = 'none';
+    },
+
     setTabIndex (index) {
         if (this._edTxt) {
             this._edTxt.tabIndex = index;

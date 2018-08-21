@@ -577,6 +577,14 @@ let EditBox = cc.Class({
         this._impl.clear();
     },
 
+    onEnable () {
+        this._impl && this._impl.onEnable();
+    },
+
+    onDisable () {
+        this._impl && this._impl.onDisable();
+    },
+
     __preload () {
         if (!CC_EDITOR) {
             this._registerEvent();
