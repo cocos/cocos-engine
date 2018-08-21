@@ -163,7 +163,7 @@ cc._initDebugSetting = function (mode) {
             };
         }
         if (mode === cc.DebugMode.INFO_FOR_WEB_PAGE) {
-            cc.log = cc.info = function () {
+            cc.log = function () {
                 logToWebPage(cc.js.formatStr.apply(null, arguments));
             };
         }
@@ -247,7 +247,6 @@ cc._initDebugSetting = function (mode) {
     }
     if (CC_EDITOR) {
         cc.log = Editor.log;
-        cc.info = Editor.info;
     }
     else if (mode === cc.DebugMode.INFO) {
         /**
@@ -274,29 +273,6 @@ cc._initDebugSetting = function (mode) {
         else {
             cc.log = function () {
                 return console.log.apply(console, arguments);
-            };
-        }
-        /**
-         * !#en
-         * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
-         * - In Cocos Creator, info is blue.
-         * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
-         * !#zh
-         * 输出一条信息消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
-         * - 在 Cocos Creator 中，Info 信息显示是蓝色的。<br/>
-         * - 在 Firefox 和  Chrome 中，Info 信息有着小 “i” 图标。
-         * @method info
-         * @param {any} msg - A JavaScript string containing zero or more substitution strings.
-         * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
-         */
-        if (CC_JSB) {
-            cc.info = (scriptEngineType === "JavaScriptCore") ? function () {
-                (console.info || console.log).apply(console, arguments);
-            } : (console.info || console.log);
-        }
-        else {
-            cc.info = function () {
-                (console.info || console.log).apply(console, arguments);
             };
         }
     }

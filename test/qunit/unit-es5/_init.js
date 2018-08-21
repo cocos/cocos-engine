@@ -156,7 +156,6 @@ cc.engine = new (cc.Class({
 Editor.log = cc.log;
 Editor.warn = cc.warn;
 Editor.error = cc.error;
-Editor.info = cc.info;
 Editor.Utils = Editor.Utils || {};
 Editor.Utils.UuidCache = {};
 
