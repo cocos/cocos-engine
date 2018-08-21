@@ -303,18 +303,23 @@ namespace
 @implementation KeyboardEventHandler
 -(void)keyboardWillShow: (NSNotification*) notification
 {
-    UIView* view = getCurrentView();
-    if (!view)
+    UIView* textView = getCurrentView();
+    if (!textView)
         return;
-    
+
     NSDictionary* keyboardInfo = [notification userInfo];
     NSValue* keyboardFrame = [keyboardInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
     CGSize kbSize = [keyboardFrame CGRectValue].size;
-    CGRect oldFrame = view.frame;
-    view.frame = CGRectMake(oldFrame.origin.x,
-                            oldFrame.origin.y - kbSize.height,
-                            oldFrame.size.width,
-                            getTextInputHeight());
+
+    int textHeight = getTextInputHeight();
+
+    UIView* screenView = (UIView*)cocos2d::Application::getInstance()->getView();
+    CGRect screenRect = screenView.frame;
+
+    textView.frame = CGRectMake(screenRect.origin.x,
+                                screenRect.size.height - textHeight - kbSize.height,
+                                screenRect.size.width,
+                                textHeight);
 }
 
 -(void)keyboardWillHide: (NSNotification*) notification
