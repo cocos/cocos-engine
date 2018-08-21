@@ -76,7 +76,10 @@ namespace
     bool g_confirmHold = false;
     int g_maxLength = INT_MAX;
     KeyboardEventHandler* g_keyboardHandler = nil;
-    
+
+    // "#1fa014", a color of dark green, was used for confirm button background
+    static UIColor* g_darkGreen = [UIColor colorWithRed:31/255.0 green:160/255.0 blue:20/255.0 alpha:0.8];
+
     UITextField* g_textField = nil;
     TextFieldDelegate* g_textFieldDelegate = nil;
     UIButton* g_textFieldConfirmButton = nil;
@@ -86,7 +89,7 @@ namespace
     TextViewDelegate* g_textViewDelegate = nil;
     UIButton* g_textViewConfirmButton = nil;
     ButtonHandler* g_textViewConfirmButtonHander = nil;
-    
+
     UIView* getCurrentView()
     {
         if (g_isMultiline)
@@ -152,9 +155,11 @@ namespace
         [btn addTarget:btnHandler action:@selector(buttonTapped:)
            forControlEvents:UIControlEventTouchUpInside];
         btn.frame = CGRectMake(0, 0, BUTTON_WIDTH, BUTTON_HIGHT);
-        btn.backgroundColor = [UIColor greenColor];
+        btn.backgroundColor = g_darkGreen;
         [btn setTitle: [NSString stringWithUTF8String:title.c_str()]
                 forState:UIControlStateNormal];
+        [btn setTitleColor: [UIColor whiteColor]
+             forState:UIControlStateNormal];
         
         *button = btn;
         *buttonHandler = btnHandler;
@@ -194,6 +199,12 @@ namespace
         else if (0 == returnType.compare("send"))
             textField.returnKeyType = UIReturnKeySend;
     }
+
+    NSString* getConfirmButtonTitle(const std::string& returnType)
+    {
+        NSString* titleKey = [NSString stringWithUTF8String: returnType.c_str()];
+        return NSLocalizedString(titleKey, nil); // get i18n string to be the title
+    }
     
     void initTextField(const CGRect& rect, const cocos2d::EditBox::ShowInfo& showInfo)
     {
@@ -217,6 +228,7 @@ namespace
         setTextFieldReturnType(g_textField, showInfo.confirmType);
         setTexFiledKeyboardType(g_textField, showInfo.inputType);
         g_textField.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
+        [g_textFieldConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
     
     void initTextView(const CGRect& viewRect, const CGRect& btnRect, const cocos2d::EditBox::ShowInfo& showInfo)
@@ -235,6 +247,7 @@ namespace
         
         g_textView.frame = btnRect;
         g_textView.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
+        [g_textViewConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
     
     void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)

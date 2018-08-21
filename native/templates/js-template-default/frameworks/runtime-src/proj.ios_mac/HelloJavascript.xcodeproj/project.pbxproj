@@ -22,11 +22,12 @@
 		1AD7E0A918C9DBE3004817A6 /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A6BF21418C9DB5900FB0E1C /* main.js */; };
 		1AE159EC18C9DF3600FCA372 /* project.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A1A081B18C9DF05005C6854 /* project.json */; };
 		1AFFCD851F7A5DCF00628F2C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AFFCD841F7A5DCD00628F2C /* Images.xcassets */; };
-		1AFFCD861F7A5DCF00628F2C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AFFCD821F7A5DCC00628F2C /* LaunchScreen.storyboard */; };
 		1AFFCD871F7A5DCF00628F2C /* LaunchScreenBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFFCD831F7A5DCD00628F2C /* LaunchScreenBackground.png */; };
 		294D7D7C1D0D667B002CE7B7 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 294D7D7B1D0D667B002CE7B7 /* CoreText.framework */; };
 		4033CDC020E493CF00DAA37B /* jsb-adapter in Resources */ = {isa = PBXBuildFile; fileRef = 4033CDBF20E493CF00DAA37B /* jsb-adapter */; };
 		4033CDC120E493CF00DAA37B /* jsb-adapter in Resources */ = {isa = PBXBuildFile; fileRef = 4033CDBF20E493CF00DAA37B /* jsb-adapter */; };
+		40CEC422212BDAB0004BCE66 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40CEC424212BDAB0004BCE66 /* LaunchScreen.storyboard */; };
+		40CEC429212BDB03004BCE66 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 40CEC42B212BDB03004BCE66 /* Localizable.strings */; };
 		4D3EB2581F8F4A6C007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */; };
 		4D3EB26B1F8F77C9007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */; };
 		4D697BDE1CBD303100A5AF29 /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D697BDC1CBD303100A5AF29 /* libjs_static.a */; };
@@ -119,11 +120,13 @@
 		1AC62C101F4D1E7400F43CB1 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		1AC62C121F4D1E7F00F43CB1 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		1AC6FB34180E9ACB004C840B /* cocos2d_libs.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cocos2d_libs.xcodeproj; path = "../../cocos2d-x/build/cocos2d_libs.xcodeproj"; sourceTree = "<group>"; };
-		1AFFCD821F7A5DCC00628F2C /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ios/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1AFFCD831F7A5DCD00628F2C /* LaunchScreenBackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LaunchScreenBackground.png; path = ios/LaunchScreenBackground.png; sourceTree = "<group>"; };
 		1AFFCD841F7A5DCD00628F2C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ios/Images.xcassets; sourceTree = "<group>"; };
 		294D7D7B1D0D667B002CE7B7 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreText.framework; sourceTree = DEVELOPER_DIR; };
 		4033CDBF20E493CF00DAA37B /* jsb-adapter */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "jsb-adapter"; path = "../../../jsb-adapter"; sourceTree = "<group>"; };
+		40CEC425212BDAC1004BCE66 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		40CEC42C212BDB19004BCE66 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		40CEC42D212BDB36004BCE66 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		4D697BD91CBD301C00A5AF29 /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "../../cocos2d-x/external/ios/libs/libjs_static.a"; sourceTree = "<group>"; };
 		4D697BDC1CBD303100A5AF29 /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "../../cocos2d-x/external/mac/libs/libjs_static.a"; sourceTree = "<group>"; };
@@ -241,6 +244,7 @@
 				1A6BF21418C9DB5900FB0E1C /* main.js */,
 				C0799CB518BAE62000E9C828 /* res */,
 				C03780EA18BEE0E400FE4F13 /* src */,
+				40CEC42B212BDB03004BCE66 /* Localizable.strings */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -335,7 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				1AFFCD841F7A5DCD00628F2C /* Images.xcassets */,
-				1AFFCD821F7A5DCC00628F2C /* LaunchScreen.storyboard */,
+				40CEC424212BDAB0004BCE66 /* LaunchScreen.storyboard */,
 				1AFFCD831F7A5DCD00628F2C /* LaunchScreenBackground.png */,
 				509D4AAB17EBB2AB00697056 /* AppController.h */,
 				509D4AAC17EBB2AB00697056 /* AppController.mm */,
@@ -417,6 +421,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
+				"zh-Hans",
 			);
 			mainGroup = A92275321517C094001B78AA;
 			productRefGroup = A922753E1517C094001B78AA /* Products */;
@@ -474,8 +480,9 @@
 				1AFFCD871F7A5DCF00628F2C /* LaunchScreenBackground.png in Resources */,
 				1AE159EC18C9DF3600FCA372 /* project.json in Resources */,
 				1AD7E0A818C9DB93004817A6 /* main.js in Resources */,
+				40CEC429212BDB03004BCE66 /* Localizable.strings in Resources */,
 				1AFFCD851F7A5DCF00628F2C /* Images.xcassets in Resources */,
-				1AFFCD861F7A5DCF00628F2C /* LaunchScreen.storyboard in Resources */,
+				40CEC422212BDAB0004BCE66 /* LaunchScreen.storyboard in Resources */,
 				C03780EB18BEE0E400FE4F13 /* src in Resources */,
 				C0799CB918BAE62000E9C828 /* res in Resources */,
 			);
@@ -520,6 +527,28 @@
 			targetProxy = 1A67682E180E9C110076BC67 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		40CEC424212BDAB0004BCE66 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				40CEC425212BDAC1004BCE66 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			path = ios;
+			sourceTree = "<group>";
+		};
+		40CEC42B212BDB03004BCE66 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				40CEC42C212BDB19004BCE66 /* zh-Hans */,
+				40CEC42D212BDB36004BCE66 /* Base */,
+			);
+			name = Localizable.strings;
+			path = ios;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		509D4AA817EBB24E00697056 /* Debug */ = {
@@ -573,6 +602,7 @@
 		A92276FE1517C097001B78AA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
@@ -598,6 +628,7 @@
 		A92276FF1517C097001B78AA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				GCC_C_LANGUAGE_STANDARD = c99;

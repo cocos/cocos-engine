@@ -43,9 +43,14 @@ import android.widget.Button;
 import android.view.inputmethod.InputMethodManager;
 
 public class Cocos2dxEditBox {
+
+    // a color of dark green, was used for confirm button background
+    private static final int DARK_GREEN = Color.parseColor("#1fa014");
+
     private static Cocos2dxEditBox sThis = null;
     private Cocos2dxEditText mEditText = null;
     private Button mButton = null;
+    private String mButtonTitle = null;
     private boolean mConfirmHold = true;
     private Cocos2dxActivity mActivity = null;
 
@@ -102,6 +107,7 @@ public class Cocos2dxEditBox {
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
             mIsMultiLine = isMultiline;
             this.setText(defaultValue);
+            this.setSelection(defaultValue.length());
             this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
             this.setConfirmType(confirmType);
             this.setInputType(inputType, mIsMultiLine);
@@ -123,17 +129,22 @@ public class Cocos2dxEditBox {
          **************************************************************************************/
 
         private void setConfirmType(final String confirmType) {
-            if (confirmType.contentEquals("done"))
+            if (confirmType.contentEquals("done")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-            else if (confirmType.contentEquals("next"))
+                mButtonTitle = mActivity.getResources().getString(R.string.done);
+            } else if (confirmType.contentEquals("next")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-            else if (confirmType.contentEquals("search"))
+                mButtonTitle = mActivity.getResources().getString(R.string.next);
+            } else if (confirmType.contentEquals("search")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-            else if (confirmType.contentEquals("go"))
+                mButtonTitle = mActivity.getResources().getString(R.string.search);
+            } else if (confirmType.contentEquals("go")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_GO | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-            else if (confirmType.contentEquals("send"))
+                mButtonTitle = mActivity.getResources().getString(R.string.go);
+            } else if (confirmType.contentEquals("send")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-            else
+                mButtonTitle = mActivity.getResources().getString(R.string.send);
+            } else
                 Log.e(TAG, "unknown confirm type " + confirmType);
         }
 
@@ -238,7 +249,8 @@ public class Cocos2dxEditBox {
         mButton.setVisibility(View.INVISIBLE);
         RelativeLayout.LayoutParams buttonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         buttonParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        mButton.setBackgroundColor(Color.GREEN);
+        mButton.setTextColor(Color.WHITE);
+        mButton.setBackgroundColor(DARK_GREEN);
         layout.addView(mButton, buttonParams);
 
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -264,9 +276,9 @@ public class Cocos2dxEditBox {
 
     private void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
         mConfirmHold = confirmHold;
-        mButton.setText(confirmType);
         mButton.setVisibility(View.VISIBLE);
         mEditText.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+        mButton.setText(mButtonTitle);
         mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
         this.openKeyboard();
     }
