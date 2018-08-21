@@ -24,13 +24,32 @@
  ****************************************************************************/
 
 const StencilManager = require('../stencil-manager');
+const Node = require('../../../CCNode'); 
 const Mask = require('../../../components/CCMask');
+const Graphics = require('../../../graphics/graphics');
 const RenderFlow = require('../../render-flow');
 
 const spriteAssembler = require('./sprite/simple');
 const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
+// for nested mask, we might need multiple graphics component to avoid data conflict 
+let _graphicsPool = [];
+
+function getGraphics () {
+    let graphics = _graphicsPool.pop(); 
+
+    if (!graphics) {
+        let graphicsNode = new Node();
+        graphics = graphicsNode.addComponent(Graphics);
+        graphics._activateMaterial();
+        graphics.lineWidth = 0;
+        graphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+        graphics.fill();
+        graphicsAssembler.updateRenderData(graphics);
+    }
+    return graphics;
+}
 
 let maskFrontAssembler = {
     updateRenderData (mask) {
@@ -70,14 +89,23 @@ let maskFrontAssembler = {
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
             _stencilMgr.pushMask(mask);
+            _stencilMgr.clear();
+
+            mask._clearGraphics = getGraphics();
+            graphicsAssembler.fillBuffers(mask._clearGraphics, renderer);
+
+            _stencilMgr.enterLevel();
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 spriteAssembler.fillBuffers(mask, renderer);
+                renderer._flush();
             }
             else {
                 graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
+            renderer.node = mask.node;
+            renderer.material = mask._material;
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
@@ -86,39 +114,19 @@ let maskFrontAssembler = {
 
 let maskEndAssembler = {
     updateRenderData (mask) {
-        if (mask._type === Mask.Type.IMAGE_STENCIL && !mask.spriteFrame) {
-            mask._material = null;
-        }
-        else {
-            mask._material = mask._endMaterial;
-        }
-        let material = mask._material;
-
-        if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            let data = mask._renderData;
-            data.material = material;
-        }
-        else {
-            let datas = mask._graphics._impl._renderDatas;
-            for (let i = 0; i < datas.length; i++) {
-                datas[i].material = material;
-            }
-        }
     },
 
     fillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillBuffers
-            _stencilMgr.popMask();
+            _stencilMgr.exitMask();
+
+            _graphicsPool.push(mask._clearGraphics);
+            mask._clearGraphics = null;
 
             // vertex buffer
-            if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillBuffers(mask, renderer);
-            }
-            else {
-                graphicsAssembler.fillBuffers(mask._graphics, renderer);
-            }
+            // graphicsAssembler.fillBuffers(getGraphics(), renderer);
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;

@@ -30,12 +30,14 @@ const gfx = renderEngine.gfx;
 var Stage = cc.Enum({
     // Stencil disabled
     DISABLED: 0,
+    // Clear stencil buffer
+    CLEAR: 1,
     // Entering a new level, should handle new stencil
-    ENTER_LEVEL: 1,
-    // In stencil
-    ENABLED: 2,
+    ENTER_LEVEL: 2,
+    // In content
+    ENABLED: 3,
     // Exiting a level, should restore old stencil or disable
-    EXIT_LEVEL: 3,
+    EXIT_LEVEL: 4,
 });
 
 function StencilManager () {
@@ -86,18 +88,26 @@ StencilManager.prototype = {
                 stencilMask = ref;
             }
             failOp = gfx.STENCIL_OP_KEEP;
-            writeMask = 0;
+            writeMask = this.getWriteMask();
         }
         else {
-            func = gfx.DS_FUNC_NEVER;
-            failOp = gfx.STENCIL_OP_REPLACE;
-
-            if (this.stage === Stage.ENTER_LEVEL) {
+            if (this.stage === Stage.CLEAR) {
+                mask = this._maskStack[this._maskStack.length - 1];
+                func = gfx.DS_FUNC_NEVER;
+                ref = this.getWriteMask();
+                stencilMask = ref;
+                writeMask = ref;
+                failOp = mask.inverted ? gfx.STENCIL_OP_REPLACE : gfx.STENCIL_OP_ZERO;
+            }
+            else if (this.stage === Stage.ENTER_LEVEL) {
+                mask = this._maskStack[this._maskStack.length - 1];
                 this.stage = Stage.ENABLED;
                 // Fill stencil mask
-                ref = this.getStencilRef();
-                stencilMask = this.getWriteMask();
-                writeMask = stencilMask;
+                func = gfx.DS_FUNC_NEVER;
+                ref = this.getWriteMask();
+                stencilMask = ref;
+                writeMask = ref;
+                failOp = mask.inverted ? gfx.STENCIL_OP_ZERO : gfx.STENCIL_OP_REPLACE;
             }
             else if (this.stage === Stage.EXIT_LEVEL) {
                 // Pop mask after getting the correct stencil mask
@@ -108,9 +118,11 @@ StencilManager.prototype = {
                     this.stage = Stage.ENABLED;
                 }
                 // Clear stencil mask
-                ref = 0;
-                stencilMask = this.getExitWriteMask();
-                writeMask = stencilMask;
+                func = gfx.DS_FUNC_EQUAL;
+                ref = this.getExitWriteMask();
+                stencilMask = ref;
+                writeMask = ref;
+                failOp = gfx.STENCIL_OP_KEEP;
             }
         }
         
@@ -127,10 +139,17 @@ StencilManager.prototype = {
             cc.errorID(9000, this._maxLevel);
         }
         this._maskStack.push(mask);
+    },
+
+    clear () {
+        this.stage = Stage.CLEAR;
+    },
+
+    enterLevel () {
         this.stage = Stage.ENTER_LEVEL;
     },
 
-    popMask () {
+    exitMask () {
         if (this._maskStack.length === 0) {
             cc.errorID(9001);
         }
