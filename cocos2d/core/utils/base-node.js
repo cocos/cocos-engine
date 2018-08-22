@@ -1170,8 +1170,7 @@ var BaseNode = cc.Class({
             }
 
             // conflict detection
-            var DetectConflict = Editor.require('scene://lib/detect-conflict');
-            DetectConflict.afterAddChild(this);
+            _Scene.DetectConflict.afterAddChild(this);
         }
 
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);

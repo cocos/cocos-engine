@@ -754,7 +754,7 @@ var Node = cc.Class({
         /**
          * !#en The rotation as Euler angles in degrees, used in 2.5D project.
          * !#zh 该节点的欧拉角度，用于 2.5D 项目。
-         * @property rotation
+         * @property eulerAngles
          * @type {Vec3}
          */
         eulerAngles: {
