@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <EGL/egl.h>
 #include <cstring>
 #include "platform/android/jni/JniImp.h"
-#include "platform/Android/CCGL-android.h"
+#include "platform/android/CCGL-android.h"
 #include "base/CCScheduler.h"
 #include "base/CCConfiguration.h"
 #include "audio/include/AudioEngine.h"
