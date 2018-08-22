@@ -29,6 +29,12 @@
 
 #define CLASS_PATH  "org/cocos2dx/lib/Cocos2dxEditBox"
 
+#ifndef ORG_EDITBOX_CLASS_NAME
+#define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBox
+#endif
+#define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME,FUNC)
+
+
 NS_CC_BEGIN
 
 void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
@@ -81,17 +87,17 @@ namespace
 
 extern "C" 
 {
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardInputNative(JNIEnv* env, jclass, jstring text) 
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
 	{
 		callJSFunc("input", text);
 	}
 
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardCompleteNative(JNIEnv* env, jclass, jstring text)
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
 	{
 		callJSFunc("complete", text);
 	}
 
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardConfirmNative(JNIEnv* env, jclass, jstring text) 
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
 	{
         callJSFunc("confirm", text);
 	}
