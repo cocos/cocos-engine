@@ -1130,7 +1130,7 @@ function initSys () {
     sys.garbageCollect = function () {
         // N/A in web
         if (CC_JSB) {
-            __jsc__.garbageCollect();
+            jsb.garbageCollect();
         }
     };
 
@@ -1141,7 +1141,7 @@ function initSys () {
     sys.dumpRoot = function () {
         // N/A in web
         if (CC_JSB) {
-            __jsc__.dumpRoot();
+            jsb.dumpRoot();
         }
     };
 
