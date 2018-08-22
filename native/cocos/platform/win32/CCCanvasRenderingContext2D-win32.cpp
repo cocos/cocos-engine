@@ -547,7 +547,12 @@ private:
                 for (int x = 0; x < _bufferWidth; ++x)
                 {
                     COLORREF& clr = *pPixel;
-                    clr = ((BYTE)(GetRValue(clr) * alpha) << 24) | textColor;
+                    uint8_t dirtyValue = GetGValue(clr);
+                    // "dirtyValue > 0" means pixel was covered when drawing text
+                    if (dirtyValue > 0)
+                    {
+                        clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
+                    }
                     ++pPixel;
                 }
             }
