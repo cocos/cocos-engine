@@ -42,12 +42,14 @@ let TiledTile = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/TiledTile',
     },
 
+    ctor () {
+        this._layer = null;
+    },
+
     properties: {
         _x: 0,
         _y: 0,
-        _gid: 0,
-
-        _layer: null,
+        _gid: -1,
 
         /**
          * !#en Specify the TiledTile horizontal coordinate，use map tile as the unit.
@@ -109,46 +111,14 @@ let TiledTile = cc.Class({
                 this._gid = value;
             },
             type: cc.Integer
-        },
-
-        /**
-         * !#en Specify which TiledLayer the TiledTile belong to.
-         * !#zh 指定 TiledTile 属于哪一个 TiledLayer
-         * @property {TiledLayer} layer
-         */
-        layer: {
-            type: cc.TiledLayer,
-            get () {
-                return this._layer;
-            },
-            set (value) {
-                if (value === this._layer) return;
-                this._resetTile();
-                this._layer = value;
-                this._updateInfo();
-            }
         }
     },
 
     onEnable () {
-        if (CC_EDITOR) {
-            let parent = this.node.parent;
-            if (!this._layer && !(parent instanceof cc.Scene)) {
-                this._layer = parent.getComponent(cc.TiledLayer);
-                this._updateInfo();
-            }
-        }
-        else if (this._layer) {
-            let tile = this._layer.getTiledTileAt(this._x, this._y);
-            if (tile) {
-                if (tile !== this) {
-                    cc.warn('There is already a TiledTile at [%s, %s]', this._x, this._x);
-                }
-            }
-            else {
-                this._layer.setTiledTileAt(this._x, this._y, this);
-            }
-        }
+        let parent = this.node.parent;
+        this._layer = parent.getComponent(cc.TiledLayer);
+        this._resetTile();
+        this._updateInfo();
     },
 
     onDisable () {
@@ -171,7 +141,11 @@ let TiledTile = cc.Class({
         }
 
         this.node.setPosition(this._layer.getPositionAt(x, y));
-        this._gid = this._layer.getTileGIDAt(x, y);
+
+        if (this._gid === -1) {
+            this._gid = this._layer.getTileGIDAt(x, y);
+        }
+
         this._layer.setTiledTileAt(x, y, this);
     },
 });

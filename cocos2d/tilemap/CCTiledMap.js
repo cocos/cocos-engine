@@ -423,7 +423,7 @@ let TiledMap = cc.Class({
         return this._tileProperties[GID];
     },
 
-    start () {
+    __preload () {
         if (this._tmxFile) {
             // refresh layer entities
             this._applyFile();
