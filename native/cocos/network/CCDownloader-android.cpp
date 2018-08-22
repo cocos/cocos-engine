@@ -30,7 +30,9 @@
 
 #include <mutex>
 
+#ifndef JCLS_DOWNLOADER
 #define JCLS_DOWNLOADER "org/cocos2dx/lib/Cocos2dxDownloader"
+#endif
 #define JARG_STR        "Ljava/lang/String;"
 #define JARG_DOWNLOADER "L" JCLS_DOWNLOADER ";"
 

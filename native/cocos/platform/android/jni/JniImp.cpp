@@ -60,6 +60,15 @@
 #endif
 #define JNI_AUDIO(FUNC) JNI_METHOD1(ORG_AUDIOFOCUS_CLASS_NAME,FUNC)
 
+#ifndef JCLS_HELPER
+#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#endif
+
+#ifndef JCLS_RENDERER
+#define JCLS_RENDERER "org/cocos2dx/lib/Cocos2dxRenderer"
+#endif
+
+
 #define KEYCODE_BACK 0x04
 #define KEYCODE_MENU 0x52
 #define KEYCODE_DPAD_UP 0x13
@@ -79,8 +88,6 @@ namespace
     bool __isOpenDebugView = false;
     bool __isGLOptModeEnabled = true;
     std::string g_apkPath;
-    const std::string Cocos2dxHelperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
-    const std::string Cocos2dxRendererClassName = "org/cocos2dx/lib/Cocos2dxRenderer";
     EditTextCallback s_editTextCallback = nullptr;
     void* s_ctx = nullptr;
     int g_deviceSampleRate = 44100;
@@ -174,7 +181,7 @@ extern "C"
             delete g_app;
             g_app = nullptr;
 
-            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "endApplication");
+            JniHelper::callStaticVoidMethod(JCLS_HELPER, "endApplication");
             return;
         }
 
@@ -497,7 +504,7 @@ std::string getApkPathJNI()
 
 std::string getPackageNameJNI() 
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getCocos2dxPackageName");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxPackageName");
 }
 
 int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 
@@ -505,7 +512,7 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     JniMethodInfo methodInfo;
     int fd = 0;
     
-    if (JniHelper::getStaticMethodInfo(methodInfo, Cocos2dxHelperClassName.c_str(), "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) 
+    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J"))
     {
         jstring stringArg = methodInfo.env->NewStringUTF(path.c_str());
         jlongArray newArray = (jlongArray)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg);
@@ -542,7 +549,7 @@ void convertEncodingJNI(const std::string& src, int byteSize, const std::string&
 {
     JniMethodInfo methodInfo;
 
-    if (JniHelper::getStaticMethodInfo(methodInfo, Cocos2dxHelperClassName.c_str(), "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B")) 
+    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B"))
     {
         jbyteArray strArray = methodInfo.env->NewByteArray(byteSize);
         methodInfo.env->SetByteArrayRegion(strArray, 0, byteSize, reinterpret_cast<const jbyte*>(src.c_str()));
@@ -564,36 +571,36 @@ void convertEncodingJNI(const std::string& src, int byteSize, const std::string&
 
 std::string getCurrentLanguageJNI()
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getCurrentLanguage");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
 std::string getSystemVersionJNI()
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getSystemVersion");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");
 }
 
 bool openURLJNI(const std::string& url)
 {
-    return JniHelper::callStaticBooleanMethod(Cocos2dxHelperClassName, "openURL", url);
+    return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
 void setPreferredFramesPerSecondJNI(int fps)
 {
-    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setPreferredFramesPerSecond", fps);
+    JniHelper::callStaticVoidMethod(JCLS_RENDERER, "setPreferredFramesPerSecond", fps);
 }
 
 void setGameInfoDebugViewTextJNI(int index, const std::string& text)
 {
     if (!__isOpenDebugView)
         return;
-    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setGameInfoDebugViewText", index, text);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setGameInfoDebugViewText", index, text);
 }
 
 void setJSBInvocationCountJNI(int count)
 {
     if (!__isOpenDebugView)
         return;
-    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setJSBInvocationCount", count);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setJSBInvocationCount", count);
 }
 
 void openDebugViewJNI()
@@ -602,10 +609,10 @@ void openDebugViewJNI()
     {
         LOGD("openDebugViewJNI ...");
         __isOpenDebugView = true;
-        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "openDebugView");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "openDebugView");
         if (!__isGLOptModeEnabled)
         {
-            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
+            JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
         }
     }
 }
@@ -615,7 +622,7 @@ void disableBatchGLCommandsToNativeJNI()
     __isGLOptModeEnabled = false;
     if (__isOpenDebugView)
     {
-        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
     }
 }
 

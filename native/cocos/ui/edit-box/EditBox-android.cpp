@@ -27,7 +27,9 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
-#define CLASS_PATH  "org/cocos2dx/lib/Cocos2dxEditBox"
+#ifndef JCLS_EDITBOX
+#define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBox"
+#endif
 
 #ifndef ORG_EDITBOX_CLASS_NAME
 #define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBox
@@ -39,7 +41,7 @@ NS_CC_BEGIN
 
 void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
-	JniHelper::callStaticVoidMethod(CLASS_PATH, 
+	JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
 		                            "showNative",
 		                            showInfo.defaultValue,
 		                            showInfo.maxLength,
@@ -51,7 +53,7 @@ void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 
 void EditBox::hide()
 {
-	JniHelper::callStaticVoidMethod(CLASS_PATH, "hideNative");
+	JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
 }
 
 NS_CC_END

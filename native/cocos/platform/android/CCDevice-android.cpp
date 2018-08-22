@@ -36,7 +36,9 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "base/ccUTF8.h"
 
-static const std::string helperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
+#ifndef JCLS_HELPER
+#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#endif
 
 NS_CC_BEGIN
 
@@ -45,7 +47,7 @@ int Device::getDPI()
     static int dpi = -1;
     if (dpi == -1)
     {
-        dpi = JniHelper::callStaticIntMethod(helperClassName, "getDPI");
+        dpi = JniHelper::callStaticIntMethod(JCLS_HELPER, "getDPI");
     }
     return dpi;
 }
@@ -54,23 +56,23 @@ void Device::setAccelerometerEnabled(bool isEnabled)
 {
     if (isEnabled)
     {
-        JniHelper::callStaticVoidMethod(helperClassName, "enableAccelerometer");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "enableAccelerometer");
     }
     else
     {
-        JniHelper::callStaticVoidMethod(helperClassName, "disableAccelerometer");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableAccelerometer");
     }
 }
 
 void Device::setAccelerometerInterval(float interval)
 {
-    JniHelper::callStaticVoidMethod(helperClassName, "setAccelerometerInterval", interval);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setAccelerometerInterval", interval);
 }
 
 const Device::MotionValue& Device::getDeviceMotionValue()
 {
     static MotionValue __motionValue;
-    float* v = JniHelper::callStaticFloatArrayMethod(helperClassName, "getDeviceMotionValue");
+    float* v = JniHelper::callStaticFloatArrayMethod(JCLS_HELPER, "getDeviceMotionValue");
     __motionValue.accelerationX = v[0];
     __motionValue.accelerationY = v[1];
     __motionValue.accelerationZ = v[2];
@@ -88,33 +90,33 @@ const Device::MotionValue& Device::getDeviceMotionValue()
 
 Device::Rotation Device::getDeviceRotation()
 {
-    int rotation = JniHelper::callStaticIntMethod(helperClassName, "getDeviceRotation");
+    int rotation = JniHelper::callStaticIntMethod(JCLS_HELPER, "getDeviceRotation");
     return (Device::Rotation)rotation;
 }
 
 std::string Device::getDeviceModel()
 {
-    return JniHelper::callStaticStringMethod(helperClassName, "getDeviceModel");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
 void Device::setKeepScreenOn(bool value)
 {
-    JniHelper::callStaticVoidMethod(helperClassName, "setKeepScreenOn", value);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
 }
 
 void Device::vibrate(float duration)
 {
-    JniHelper::callStaticVoidMethod(helperClassName, "vibrate", duration);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
 }
 
 float Device::getBatteryLevel()
 {
-    return JniHelper::callStaticFloatMethod(helperClassName, "getBatteryLevel");
+    return JniHelper::callStaticFloatMethod(JCLS_HELPER, "getBatteryLevel");
 }
 
 Device::NetworkType Device::getNetworkType()
 {
-    return (Device::NetworkType)JniHelper::callStaticIntMethod(helperClassName, "getNetworkType");
+    return (Device::NetworkType)JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
 }
 
 NS_CC_END
