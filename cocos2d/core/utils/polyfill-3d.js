@@ -161,7 +161,7 @@ function getQuat () {
  * @param {Number} w w value of quternion
  */
 function setQuat (quat, y, z, w) {
-    let x;
+    let x = quat;
     if (y === undefined) {
         x = quat.x;
         y = quat.y;

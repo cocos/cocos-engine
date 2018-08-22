@@ -1372,7 +1372,8 @@ var Node = cc.Class({
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
             if (ActionManagerExist) {
-                cc.director.getActionManager().pauseTarget(this);
+                let manager = cc.director.getActionManager();
+                manager && manager.pauseTarget(this);
             }
             eventManager.pauseTarget(this);
         }

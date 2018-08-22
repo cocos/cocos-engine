@@ -354,7 +354,7 @@ var BaseNode = cc.Class({
         if (this._parent === value) {
             return;
         }
-        if (CC_EDITOR && !cc.engine.isPlaying) {
+        if (CC_EDITOR && cc.engine && !cc.engine.isPlaying) {
             if (_Scene.DetectConflict.beforeAddChild(this)) {
                 return;
             }
@@ -1170,7 +1170,8 @@ var BaseNode = cc.Class({
             }
 
             // conflict detection
-            _Scene.DetectConflict.afterAddChild(this);
+            var DetectConflict = Editor.require('scene://lib/detect-conflict');
+            DetectConflict.afterAddChild(this);
         }
 
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);

@@ -246,4 +246,4 @@ var Model = cc.Class({
     }
 });
 
-cc.Model = module.exports = Model;
+module.exports = Model;
