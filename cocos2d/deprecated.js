@@ -26,7 +26,7 @@
 
 var js = cc.js;
 
-if (CC_DEV) {
+if (CC_DEBUG) {
 
     // cc.spriteFrameCache
     js.get(cc, "spriteFrameCache", function () {
@@ -229,7 +229,11 @@ if (CC_DEV) {
         cc.errorID(1400, 'cc.PI', 'Math.PI');
         return Math.PI;
     });
-
+    // remove cc.info 
+    js.get(cc, 'info', function () { 
+        cc.warnID(1400, 'cc.info', 'cc.log'); 
+        return cc.log; 
+    });
     if (cc.TiledLayer) {
         /**
          * Get the Tile set information for the layer.
