@@ -248,6 +248,7 @@ var defaultMap = {
 
     // Binary
     'binary' : downloadBinary,
+    'bin': downloadBinary,
 
     'default' : downloadText
 };

@@ -11006,6 +11006,7 @@ var Camera = function Camera() {
   this._color = color4.new(0.2, 0.3, 0.47, 1);
   this._depth = 1;
   this._stencil = 0;
+  this._sortDepth = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // culling mask
@@ -13595,8 +13596,8 @@ var ForwardRenderer = (function (superclass) {
     this._reset();
 
     scene._cameras.sort(function (a, b) {
-      if (a._depth > b._depth) { return 1; }
-      else if (a._depth < b._depth) { return -1; }
+      if (a._sortDepth > b._sortDepth) { return 1; }
+      else if (a._sortDepth < b._sortDepth) { return -1; }
       else { return 0; }
     });
 
@@ -14122,7 +14123,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture');
+    return this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
@@ -14130,7 +14131,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel');
+    return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
@@ -14138,7 +14139,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.use2DPos.get = function () {
-    this._effect.getDefine('use2DPos');
+    return this._effect.getDefine('use2DPos');
   };
 
   prototypeAccessors.use2DPos.set = function (val) {
@@ -14146,7 +14147,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useColor.get = function () {
-    this._effect.getDefine('useColor');
+    return this._effect.getDefine('useColor');
   };
 
   prototypeAccessors.useColor.set = function (val) {

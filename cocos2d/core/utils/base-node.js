@@ -354,7 +354,7 @@ var BaseNode = cc.Class({
         if (this._parent === value) {
             return;
         }
-        if (CC_EDITOR && !cc.engine.isPlaying) {
+        if (CC_EDITOR && cc.engine && !cc.engine.isPlaying) {
             if (_Scene.DetectConflict.beforeAddChild(this)) {
                 return;
             }

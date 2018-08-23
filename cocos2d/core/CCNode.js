@@ -66,7 +66,6 @@ let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
 })
 
-
 /**
  * !#en Node's local dirty properties flag
  * !#zh Node 的本地属性 dirty 状态位
@@ -732,6 +731,26 @@ var Node = cc.Class({
         },
 
         /**
+         * !#en The rotation as Euler angles in degrees, used in 2.5D project.
+         * !#zh 该节点的欧拉角度，用于 2.5D 项目。
+         * @property eulerAngles
+         * @type {Vec3}
+         */
+        eulerAngles: {
+            get () {
+                return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
+            },
+            set (v) {
+                this._rotationX = v.x;
+                this._rotationY = v.y;
+                this._rotationZ = v.z;
+                math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+            }
+        },
+
+        /**
          * !#en Rotation on x axis.
          * !#zh 该节点 X 轴旋转角度。
          * @property rotationX
@@ -1125,6 +1144,8 @@ var Node = cc.Class({
 
         this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
+
+        this._rotationZ = 0;
     },
 
     statics: {
@@ -1327,9 +1348,11 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            if (ActionManagerExist) {
-                cc.director.getActionManager().pauseTarget(this);
-            }
+            
+            // ActionManager may not be inited in the editor worker.
+            let manager = cc.director.getActionManager();
+            manager && manager.pauseTarget(this);
+
             eventManager.pauseTarget(this);
         }
 
@@ -2469,32 +2492,33 @@ var Node = cc.Class({
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
-            let pt = parent._worldMatrix;
-            let t = this._matrix;
-            let wt = this._worldMatrix;
-            let aa=t.m00, ab=t.m01, ac=t.m04, ad=t.m05, atx=t.m12, aty=t.m13;
-            let ba=pt.m00, bb=pt.m01, bc=pt.m04, bd=pt.m05, btx=pt.m12, bty=pt.m13;
-            if (bb !== 0 || bc !== 0) {
-                wt.m00 = aa * ba + ab * bc;
-                wt.m01 = aa * bb + ab * bd;
-                wt.m04 = ac * ba + ad * bc;
-                wt.m05 = ac * bb + ad * bd;
-                wt.m12 = ba * atx + bc * aty + btx;
-                wt.m13 = bb * atx + bd * aty + bty;
-            }
-            else {
-                wt.m00 = aa * ba;
-                wt.m01 = ab * bd;
-                wt.m04 = ac * ba;
-                wt.m05 = ad * bd;
-                wt.m12 = ba * atx + btx;
-                wt.m13 = bd * aty + bty;
-            }
+            this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
         }
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
+    },
+
+    _mulMat (out, a, b) {
+        let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
+        let ba=b.m00, bb=b.m01, bc=b.m04, bd=b.m05, btx=b.m12, bty=b.m13;
+        if (ab !== 0 || ac !== 0) {
+            out.m00 = ba * aa + bb * ac;
+            out.m01 = ba * ab + bb * ad;
+            out.m04 = bc * aa + bd * ac;
+            out.m05 = bc * ab + bd * ad;
+            out.m12 = aa * btx + ac * bty + atx;
+            out.m13 = ab * btx + ad * bty + aty;
+        }
+        else {
+            out.m00 = ba * aa;
+            out.m01 = bb * ad;
+            out.m04 = bc * aa;
+            out.m05 = bd * ad;
+            out.m12 = aa * btx + atx;
+            out.m13 = ad * bty + aty;
+        }
     },
 
     _updateWorldMatrix () {

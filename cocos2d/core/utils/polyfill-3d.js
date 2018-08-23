@@ -161,7 +161,7 @@ function getQuat () {
  * @param {Number} w w value of quternion
  */
 function setQuat (quat, y, z, w) {
-    let x;
+    let x = quat;
     if (y === undefined) {
         x = quat.x;
         y = quat.y;
@@ -250,6 +250,7 @@ cc._polyfill3D = module.exports = {
             proto.setScale = setScale;
             proto.getQuat = getQuat;
             proto.setQuat = setQuat;
+            proto._mulMat = cc.vmath.mat4.mul;
             this.enabled = true;
         }
     },
