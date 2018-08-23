@@ -267,8 +267,9 @@ function refreshScene () {
     // check animation editor
     if (CC_EDITOR && !Editor.isBuilder) {
         var AnimUtils = Editor.require('scene://utils/animation');
-        if (AnimUtils) {
-            var nowPreviewing = !!AnimUtils.Cache.animation;
+        var EditMode = Editor.require('scene://edit-mode');
+        if (AnimUtils && EditMode) {
+            var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
             if (nowPreviewing !== animationState.previewing) {
                 animationState.previewing = nowPreviewing;
                 if (nowPreviewing) {

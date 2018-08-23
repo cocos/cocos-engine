@@ -266,7 +266,7 @@ cc.assertID = function (cond) {
 * !#zh 调试模式
 * @enum debug.DebugMode
 * @memberof cc
- */         
+ */
 var DebugMode = cc.Enum({
     /**
      * !#en The debug mode none.

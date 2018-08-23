@@ -138,7 +138,7 @@ if (CC_DEBUG) {
                     cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, propName, obj[propName]);
                     return originFunc.apply(this, arguments);
                 }
-                
+
                 ownerCtor[propName] = warn;
             })();
         }
@@ -438,7 +438,7 @@ if (CC_DEBUG) {
 
         // Vec2
         pointEqualToPoint: 'cc.Vec2 equals',
-        
+
         // Size
         sizeEqualToSize: 'cc.Size equals',
 
@@ -580,7 +580,7 @@ if (CC_DEBUG) {
         cc.errorID(1407);
         return js.Pool;
     });
-    
+
     // cc.isChildClassOf
     js.get(cc, 'isChildClassOf', function () {
         cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
