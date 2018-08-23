@@ -104,11 +104,15 @@ void Application::start()
 {
     if (!_view)
         return;
-    
+
+    float dt = 0.f;
+    long long frameInternal = 0;
+    long long desiredInterval = 1.0 / _fps * 1000000;
+
     std::chrono::steady_clock::time_point prevTime;
     std::chrono::steady_clock::time_point now;
-    float dt = 0.f;
-    const useconds_t _16ms = 16 * 1000;
+
+    prevTime = std::chrono::steady_clock::now();
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
@@ -133,29 +137,39 @@ void Application::start()
             _isStarted = true;
         }
 
-        prevTime = std::chrono::steady_clock::now();
         // should be invoked at the begin of rendering a frame
         if (_isDownsampleEnabled)
             _renderTexture->prepare();
 
         CAST_VIEW(_view)->pollEvents();
-        _scheduler->update(dt);
 
         if (_isStarted)
         {
-            EventDispatcher::dispatchTickEvent(dt);
-
-            if (_isDownsampleEnabled)
-                _renderTexture->draw();
-
-            CAST_VIEW(_view)->swapBuffers();
-            PoolManager::getInstance()->getCurrentPool()->clear();
             now = std::chrono::steady_clock::now();
-            dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+            frameInternal = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count();
+            if (frameInternal >= desiredInterval)
+            {
+                prevTime = now;
+                dt = (float)frameInternal / 1000000.f;
+                _scheduler->update(dt);
+
+                EventDispatcher::dispatchTickEvent(dt);
+
+                if (_isDownsampleEnabled)
+                    _renderTexture->draw();
+
+                CAST_VIEW(_view)->swapBuffers();
+                PoolManager::getInstance()->getCurrentPool()->clear();
+            }
+            else
+            {
+                // sleep 3ms may make a sleep of 4ms
+                std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval - frameInternal - 1000));
+            }
         }
         else
         {
-            usleep(_16ms);
+            std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval));
         }
     }
 }
