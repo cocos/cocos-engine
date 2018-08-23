@@ -49,7 +49,6 @@ let TiledTile = cc.Class({
     properties: {
         _x: 0,
         _y: 0,
-        _gid: -1,
 
         /**
          * !#en Specify the TiledTile horizontal coordinate，use map tile as the unit.
@@ -105,10 +104,15 @@ let TiledTile = cc.Class({
          */
         gid: {
             get () {
-                return this._gid;
+                if (this._layer) {
+                    return this._layer.getTileGIDAt(this._x, this._y);
+                }
+                return 0;
             },
             set (value) {
-                this._gid = value;
+                if (this._layer) {
+                    this._layer.setTileGIDAt(value, this._x, this._y);
+                }
             },
             type: cc.Integer
         }
@@ -133,19 +137,13 @@ let TiledTile = cc.Class({
 
     _updateInfo () {
         if (!this._layer) return;
-        
+
         let x = this._x,  y = this._y;
         if (this._layer.getTiledTileAt(x, y)) {
             cc.warn('There is already a TiledTile at [%s, %s]', x, y);
             return;
         }
-
         this.node.setPosition(this._layer.getPositionAt(x, y));
-
-        if (this._gid === -1) {
-            this._gid = this._layer.getTileGIDAt(x, y);
-        }
-
         this._layer.setTiledTileAt(x, y, this);
     },
 });
