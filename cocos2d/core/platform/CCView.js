@@ -274,8 +274,8 @@ cc.js.mixin(View.prototype, {
             }
         } else {
             //disable
-            if (this.__resizeWithBrowserSize) {
-                this.__resizeWithBrowserSize = false;
+            if (this._resizeWithBrowserSize) {
+                this._resizeWithBrowserSize = false;
                 window.removeEventListener('resize', this._resizeEvent);
                 window.removeEventListener('orientationchange', this._orientationChange);
             }
