@@ -25,6 +25,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+'use strict';
+
 const codec = require('../compression/ZipUtils');
 const zlib = require('../compression/zlib.min');
 const js = require('../core/platform/js');
@@ -200,7 +202,7 @@ function getPropertyList (node, map) {
     }
 
     map = map || {};
-    for (i = 0; i < res.length; i++) {
+    for (let i = 0; i < res.length; i++) {
         let element = res[i];
         let name = element.getAttribute('name');
         let type = element.getAttribute('type') || 'string';
