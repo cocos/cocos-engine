@@ -97,6 +97,13 @@ const PixelFormat = cc.Enum({
      */
     RGBA8888: gfx.TEXTURE_FMT_RGBA8,
     /**
+     * 32-bit float texture: RGBA32F
+     * @property RGBA32F
+     * @readonly
+     * @type {Number}
+     */
+    RGBA32F: gfx.TEXTURE_FMT_RGBA32F,
+    /**
      * 8-bit textures used as masks
      * @property A8
      * @readonly

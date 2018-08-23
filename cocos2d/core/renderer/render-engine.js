@@ -9567,7 +9567,6 @@ Device.prototype._initExtensions = function _initExtensions (extensions) {
         var ext = gl.getExtension(vendorPrefixes[j] + name);
         if (ext) {
           this$1._extensions[name] = ext;
-          break;
         }
       } catch (e) {
         console.error(e);
@@ -11006,7 +11005,6 @@ var Camera = function Camera() {
   this._color = color4.new(0.2, 0.3, 0.47, 1);
   this._depth = 1;
   this._stencil = 0;
-  this._sortDepth = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // culling mask
@@ -13651,6 +13649,7 @@ var ForwardRenderer = (function (superclass) {
 }(renderer.Base));
 
 var chunks = {
+  'skinning.vert': '\nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[128];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
 };
 
 var templates = [
@@ -13660,6 +13659,16 @@ var templates = [
     frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\nuniform lowp vec4 color;\nvoid main () {\n  vec4 c = color * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
     defines: [
     ],
+  },
+  {
+    name: 'mesh',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useSkinning\n  \nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[128];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef useSkinning\n    mvp = mvp * skinMatrix();\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nuniform vec4 color;\nvoid main () {\n  vec4 o = color;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
+    defines: [
+      { name: 'useTexture', },
+      { name: 'useModel', },
+      { name: 'useSkinning', },
+      { name: 'useJointsTexture', } ],
   },
   {
     name: 'sprite',
@@ -14400,6 +14409,164 @@ var StencilMaterial = (function (Material$$1) {
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
+var MeshMaterial = (function (Material$$1) {
+  function MeshMaterial() {
+    Material$$1.call(this, false);
+
+    var pass = new renderer.Pass('mesh');
+    pass.setDepth(false, false);
+    pass.setCullMode(gfx.CULL_NONE);
+    pass.setBlend(
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+      gfx.BLEND_FUNC_ADD,
+      gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+    );
+
+    var mainTech = new renderer.Technique(
+      ['transparent'],
+      [
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer.PARAM_COLOR4 },
+
+        { name: 'u_jointsTexture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'u_jointsTextureSize', type: renderer.PARAM_FLOAT },
+        { name: 'u_jointMatrices', type: renderer.PARAM_MAT4, size: 4 } ],
+      [
+        pass
+      ]
+    );
+
+    this._effect = new renderer.Effect(
+      [
+        mainTech ],
+      {
+        'color': {r: 1, g: 1, b: 1, a: 1}
+      },
+      [
+        { name: 'useModel', value: false },
+        { name: 'useSkinning', value: false },
+        { name: 'useJointsTexture', valu: true},
+        { name: 'alphaTest', value: false } ]
+    );
+    
+    this._mainTech = mainTech;
+    this._texture = null;
+    this._jointsTexture = null;
+    this._jointsTextureSize = 0;
+    this._color = {r: 1, g: 1, b: 1, a: 1};
+    this._jointMatrices = null;
+  }
+
+  if ( Material$$1 ) MeshMaterial.__proto__ = Material$$1;
+  MeshMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
+  MeshMaterial.prototype.constructor = MeshMaterial;
+
+  var prototypeAccessors = { effect: { configurable: true },useModel: { configurable: true },useSkinning: { configurable: true },useJointsTexture: { configurable: true },texture: { configurable: true },jointMatrices: { configurable: true },jointsTexture: { configurable: true },jointsTextureSize: { configurable: true },color: { configurable: true } };
+
+  prototypeAccessors.effect.get = function () {
+    return this._effect;
+  };
+  
+  prototypeAccessors.useModel.get = function () {
+    return this._effect.getDefine('useModel');
+  };
+
+  prototypeAccessors.useModel.set = function (val) {
+    this._effect.define('useModel', val);
+  };
+
+  prototypeAccessors.useSkinning.get = function () {
+    return this._effect.getDefine('useSkinning');
+  };
+
+  prototypeAccessors.useSkinning.set = function (val) {
+    this._effect.define('useSkinning', val);
+  };
+
+  prototypeAccessors.useJointsTexture.get = function () {
+    return this._effect.getDefine('useJointsTexture');
+  };
+
+  prototypeAccessors.useJointsTexture.set = function (val) {
+    this._effect.define('useJointsTexture', val);
+  };
+
+  prototypeAccessors.texture.get = function () {
+    return this._texture;
+  };
+
+  prototypeAccessors.texture.set = function (val) {
+    if (this._texture !== val) {
+      this._texture = val;
+      this._effect.setProperty('texture', val.getImpl());
+      this._texIds['texture'] = val.getId();
+    }
+  };
+
+  prototypeAccessors.jointMatrices.get = function () {
+    return this._jointMatrices;
+  };
+
+  prototypeAccessors.jointMatrices.set = function (val) {
+    this._jointMatrices = val;
+    this._effect.setProperty('u_jointMatrices', val);
+  };
+
+  prototypeAccessors.jointsTexture.get = function () {
+    return this._jointsTexture;
+  };
+
+  prototypeAccessors.jointsTexture.set = function (val) {
+    if (this._jointsTexture !== val) {
+      this._jointsTexture = val;
+      this._effect.setProperty('u_jointsTexture', val.getImpl());
+      this._texIds['jointsTexture'] = val.getId();
+    }
+  };
+
+  prototypeAccessors.jointsTextureSize.get = function () {
+    return this._jointsTextureSize;
+  };
+
+  prototypeAccessors.jointsTextureSize.set = function (val) {
+    if (this._jointsTextureSize !== val) {
+      this._jointsTextureSize = val;
+      this._effect.setProperty('u_jointsTextureSize', val);
+    }
+  };
+
+  prototypeAccessors.color.get = function () {
+    return this._effect.getProperty('color');
+  };
+
+  prototypeAccessors.color.set = function (val) {
+    var color = this._color;
+    color.r = val.r / 255;
+    color.g = val.g / 255;
+    color.b = val.b / 255;
+    color.a = val.a / 255;
+    this._effect.setProperty('color', color);
+  };
+
+  MeshMaterial.prototype.clone = function clone () {
+    var copy = new MeshMaterial();
+    copy.texture = this.texture;
+    copy.color = this.color;
+    copy.useModel = this.useModel;
+    copu.useSkinning = this.useSkinning;
+    copu.useJointsTexture = this.useJointsTexture;
+    copy.updateHash();
+    return copy;
+  };
+
+  Object.defineProperties( MeshMaterial.prototype, prototypeAccessors );
+
+  return MeshMaterial;
+}(Material));
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
 var Device$2 = function Device(canvasEL) {
   var ctx;
 
@@ -14565,6 +14732,7 @@ var renderEngine = {
   SpriteMaterial: SpriteMaterial,
   GraySpriteMaterial: GraySpriteMaterial,
   StencilMaterial: StencilMaterial,
+  MeshMaterial: MeshMaterial,
 
   // shaders
   shaders: shaders,

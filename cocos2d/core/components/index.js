@@ -53,7 +53,8 @@ var components = [
     require('./CCBlockInputEvents'),
     require('./CCMotionStreak'),
     require('./WXSubContextView'),
-    require('./CCMeshRenderer')
+    require('./CCMeshRenderer'),
+    require('./CCSkinMeshRenderer'),
 ];
 
 module.exports = components;

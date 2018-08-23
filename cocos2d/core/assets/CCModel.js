@@ -42,16 +42,16 @@ var Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
 
-    ctor () {
+    ctor() {
         this._bin = null;
     },
 
     properties: {
         _nativeAsset: {
-            get () {
+            get() {
                 return this._bin;
             },
-            set (bin) {
+            set(bin) {
                 this._bin = bin.buffer;
             },
             override: true
@@ -62,7 +62,7 @@ var Model = cc.Class({
         }
     },
 
-    _createVB (bin, gltf, accessors, attributes) {
+    _createVB(bin, gltf, accessors, attributes) {
         // create vertex-format
         let vfmt = [];
         let vcount = 0;
@@ -213,7 +213,37 @@ var Model = cc.Class({
         return vb;
     },
 
-    initMesh (meshAsset) {
+    createSkinning(index) {
+        let gltf = this._gltf;
+        let bin = this._bin;
+        if (index >= gltf.skins.length) {
+            return null;
+        }
+
+        let gltfSkin = gltf.skins[index];
+
+        // extract bindposes mat4 data
+        let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
+        let bufView = gltf.bufferViews[accessor.bufferView];
+        let data = new Float32Array(bin, bufView.byteOffset + accessor.byteOffset, accessor.count * 16);
+        let bindposes = new Array(accessor.count);
+
+        for (let i = 0; i < accessor.count; ++i) {
+            bindposes[i] = cc.vmath.mat4.new(
+                data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
+                data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
+                data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
+                data[16 * i + 12], data[16 * i + 13], data[16 * i + 14], data[16 * i + 15]
+            );
+        }
+
+        return {
+            jointIndices: gltfSkin.joints,
+            bindposes: bindposes,
+        };
+    },
+
+    initMesh(meshAsset) {
         const index = meshAsset._meshID;
 
         const bin = this._bin;

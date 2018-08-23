@@ -167,7 +167,7 @@ cc.renderer = module.exports = {
         // TODO: remove HACK
         if (!CC_EDITOR && cc.director) {
             let ecScene = cc.director.getScene();
-            ecScene.scaleX = ecScene.scaleY = 1;
+            ecScene.setScale(1, 1, 1);
         }
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
