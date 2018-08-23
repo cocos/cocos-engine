@@ -66,27 +66,6 @@ let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
 })
 
-function mul (out, a, b) {
-    let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
-    let ba=b.m00, bb=b.m01, bc=b.m04, bd=b.m05, btx=b.m12, bty=b.m13;
-    if (ab !== 0 || ac !== 0) {
-        out.m00 = ba * aa + bb * ac;
-        out.m01 = ba * ab + bb * ad;
-        out.m04 = bc * aa + bd * ac;
-        out.m05 = bc * ab + bd * ad;
-        out.m12 = aa * btx + ac * bty + atx;
-        out.m13 = ab * btx + ad * bty + aty;
-    }
-    else {
-        out.m00 = ba * aa;
-        out.m01 = bb * ad;
-        out.m04 = bc * aa;
-        out.m05 = bd * ad;
-        out.m12 = aa * btx + atx;
-        out.m13 = ad * bty + aty;
-    }
-}
-
 /**
  * !#en Node's local dirty properties flag
  * !#zh Node 的本地属性 dirty 状态位
@@ -1177,9 +1156,7 @@ var Node = cc.Class({
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
         },
 
-        BuiltinGroupIndex,
-
-        _mulMat: mul
+        BuiltinGroupIndex
     },
 
     // OVERRIDES
@@ -1371,10 +1348,11 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            if (ActionManagerExist) {
-                let manager = cc.director.getActionManager();
-                manager && manager.pauseTarget(this);
-            }
+            
+            // ActionManager may not be inited in the editor worker.
+            let manager = cc.director.getActionManager();
+            manager && manager.pauseTarget(this);
+
             eventManager.pauseTarget(this);
         }
 
@@ -2514,7 +2492,7 @@ var Node = cc.Class({
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
-            Node._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
+            this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
         }
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
@@ -2522,7 +2500,26 @@ var Node = cc.Class({
         this._worldMatDirty = false;
     },
 
-    
+    _mulMat (out, a, b) {
+        let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
+        let ba=b.m00, bb=b.m01, bc=b.m04, bd=b.m05, btx=b.m12, bty=b.m13;
+        if (ab !== 0 || ac !== 0) {
+            out.m00 = ba * aa + bb * ac;
+            out.m01 = ba * ab + bb * ad;
+            out.m04 = bc * aa + bd * ac;
+            out.m05 = bc * ab + bd * ad;
+            out.m12 = aa * btx + ac * bty + atx;
+            out.m13 = ab * btx + ad * bty + aty;
+        }
+        else {
+            out.m00 = ba * aa;
+            out.m01 = bb * ad;
+            out.m04 = bc * aa;
+            out.m05 = bd * ad;
+            out.m12 = aa * btx + atx;
+            out.m13 = ad * bty + aty;
+        }
+    },
 
     _updateWorldMatrix () {
         if (this._parent) {

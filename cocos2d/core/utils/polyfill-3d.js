@@ -250,7 +250,7 @@ cc._polyfill3D = module.exports = {
             proto.setScale = setScale;
             proto.getQuat = getQuat;
             proto.setQuat = setQuat;
-            cc.Node._mulMat = cc.vmath.mat4.mul;
+            proto._mulMat = cc.vmath.mat4.mul;
             this.enabled = true;
         }
     },

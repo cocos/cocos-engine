@@ -39,7 +39,7 @@ _proto._worldTransform = function (node) {
     t.m12 = position.x;
     t.m13 = position.y;
 
-    cc.Node._mulMat(node._worldMatrix, node._parent._worldMatrix, t);
+    node._mulMat(node._worldMatrix, node._parent._worldMatrix, t);
     node._renderFlag &= ~WORLD_TRANSFORM;
     this._next._func(node);
 
