@@ -1526,11 +1526,17 @@ static bool onReceiveNodeEvent(void* node, ScriptingCore::NodeEventType type)
 bool jsb_register_Node_manual(se::Object* global)
 {
 #if STANDALONE_TEST
-    auto cls = se::Class::create("Node", __ccObj, nullptr, _SE(Node_constructor));
+    se::Object* ccObj = nullptr;
+    getOrCreatePlainObject_r("cc", global, &ccObj);
+    auto cls = se::Class::create("Node", ccObj, nullptr, _SE(Node_constructor));
     cls->defineStaticFunction("create", _SE(Node_create));
     cls->defineProperty("x", _SE(Node_get_x), _SE(Node_set_x));
     cls->defineProperty("y", _SE(Node_get_y), _SE(Node_set_y));
     cls->defineFunction("ctor", _SE(Node_ctor));
+
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+        SAFE_DEC_REF(ccObj);
+    });
 #else
     auto cls = __jsb_cocos2d_Node_proto;
 #endif

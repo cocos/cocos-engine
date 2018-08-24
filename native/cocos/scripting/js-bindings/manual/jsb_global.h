@@ -33,7 +33,6 @@ namespace se {
     class Value;
 }
 
-extern se::Object* __ccObj;
 extern se::Object* __jsbObj;
 extern se::Object* __glObj;
 

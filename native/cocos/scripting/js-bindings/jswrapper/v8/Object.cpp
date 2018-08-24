@@ -143,7 +143,7 @@ namespace se {
             obj->_obj.persistent().Reset();
             obj->_rootCount = 0;
 
-            if (cls != nullptr && cls->_name == "__CCPrivateData")
+            if (cls != nullptr && cls->_name == "__PrivateData")
             {
                 toReleaseObjects.push_back(obj);
             }

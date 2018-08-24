@@ -148,6 +148,7 @@ def main():
                     'cocos2dx_audioengine.ini' : ('cocos2dx_audioengine', 'jsb_cocos2dx_audioengine_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
                     'renderer.ini': ('renderer', 'jsb_renderer_auto'),
+                    'cocos2dx_global.ini' : ('cocos2d-x', 'jsb_cocos2dx_global_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

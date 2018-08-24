@@ -29,6 +29,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_global_auto.hpp"
 
 #include "storage/local-storage/LocalStorage.h"
 #include "cocos2d.h"
@@ -202,7 +203,15 @@ void __JSPlistDelegator::textHandler(void*, const char *ch, int len) {
 static bool register_plist_parser(se::Object* obj)
 {
     se::Value v;
-    __ccObj->getProperty("PlistParser", &v);
+    se::Value jsbVal;
+    if (!obj->getProperty("jsb", &jsbVal))
+    {
+        se::HandleObject jsbObj(se::Object::createPlainObject());
+        jsbVal.setObject(jsbObj);
+        obj->setProperty("jsb", jsbVal);
+    }
+    se::Object* jsb = jsbVal.toObject();
+    jsb->getProperty("PlistParser", &v);
     assert(v.isObject());
     v.toObject()->defineFunction("getInstance", _SE(js_PlistParser_getInstance));
 
@@ -460,6 +469,57 @@ static bool js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(
 }
 SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback)
 
+static se::Object* __deviceMotionObject = nullptr;
+static bool JSB_getDeviceMotionValue(se::State& s)
+{
+    if (__deviceMotionObject == nullptr)
+    {
+        __deviceMotionObject = se::Object::createArrayObject(9);
+        __deviceMotionObject->root();
+    }
+
+    const auto& v = Device::getDeviceMotionValue();
+
+    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
+    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
+    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
+    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
+    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
+    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
+    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
+    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
+    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
+
+    s.rval().setObject(__deviceMotionObject);
+    return true;
+}
+SE_BIND_FUNC(JSB_getDeviceMotionValue)
+
+static bool register_device(se::Object* obj)
+{
+    se::Value device;
+    if (!obj->getProperty("Device", &device))
+    {
+        se::HandleObject deviceObj(se::Object::createPlainObject());
+        obj->setProperty("Device", se::Value(deviceObj));
+        device.setObject(deviceObj);
+    }
+
+    device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
+
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+        if (__deviceMotionObject != nullptr)
+        {
+            __deviceMotionObject->unroot();
+            __deviceMotionObject->decRef();
+            __deviceMotionObject = nullptr;
+        }
+    });
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 static bool register_canvas_context2d(se::Object* obj)
 {
     _SE_DEFINE_PROP(CanvasRenderingContext2D, _width)
@@ -484,6 +544,7 @@ bool register_all_cocos2dx_manual(se::Object* obj)
 {
     register_plist_parser(obj);
     register_sys_localStorage(obj);
+    register_device(obj);
     register_canvas_context2d(obj);
     return true;
 }
