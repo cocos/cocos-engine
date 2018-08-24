@@ -38,7 +38,7 @@ function defined (name) {
     return typeof window[name] === 'object';
 }
 
-defineMacro('CC_RUNTIME', typeof loadRuntime() === 'object');
+defineMacro('CC_RUNTIME', typeof loadRuntime === "function");
 
 if (CC_RUNTIME) {
 
