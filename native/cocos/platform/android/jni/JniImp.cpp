@@ -45,6 +45,11 @@
 #endif
 #define JNI_RENDER(FUNC) JNI_METHOD1(ORG_RENDER_CLASS_NAME,FUNC)
 
+#ifndef ORG_ACTIVITY_CLASS_NAME
+#define ORG_ACTIVITY_CLASS_NAME org_cocos2dx_lib_Cocos2dxActivity
+#endif
+#define JNI_ACTIVITY(FUNC) JNI_METHOD1(ORG_ACTIVITY_CLASS_NAME,FUNC)
+
 #ifndef ORG_ACCELEROMETER_CLASS_NAME
 #define ORG_ACCELEROMETER_CLASS_NAME org_cocos2dx_lib_Cocos2dxAccelerometer
 #endif
@@ -133,7 +138,7 @@ extern "C"
      * Cocos2dxActivity native functions implementation.
      *****************************************************/
 
-    JNIEXPORT jintArray JNICALL JNI_RENDER(getGLContextAttrs)(JNIEnv*  env, jobject thiz)
+    JNIEXPORT jintArray JNICALL JNI_ACTIVITY(getGLContextAttrs)(JNIEnv*  env, jobject thiz)
     {
         //REFINE
         int tmp[7] = {8, 8, 8,
