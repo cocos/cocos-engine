@@ -80,7 +80,6 @@ scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
-scripting/js-bindings/auto/jsb_cocos2dx_global_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
