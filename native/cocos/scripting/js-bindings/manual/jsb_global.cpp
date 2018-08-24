@@ -711,8 +711,9 @@ namespace
 bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal) {
     if (path.empty())
     {
-        SE_REPORT_ERROR("src is empty!");
-        return false;
+        se::ValueArray seArgs;
+        callbackVal.toObject()->call(seArgs, nullptr);
+        return true;
     }
 
     auto initImageFunc = [path, callbackVal](const std::string& fullPath, unsigned char* imageData, int imageBytes){
