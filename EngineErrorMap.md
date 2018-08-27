@@ -230,7 +230,7 @@ cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite fr
 
 ### 1405
 
-The '%s' will be removed in v2.0, please use '%s' instead. 😥
+The '%s' will be removed in v2.0, please use '%s' instead.
 
 ### 1500
 
@@ -1098,7 +1098,7 @@ Unknown editor property '%s' in class '%s'.
 
 ### 3603
 
-Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please. 😂
+Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please.
 
 ### 3604
 
@@ -1303,7 +1303,7 @@ Failed to construct a dummy instance of the "%s" class using `new` behind the sc
 ### 3653
 
 Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.  
-Default value must be initialized at their declaration: 😰
+Default value must be initialized at their declaration:
 ```
 // Before:
 @property({
@@ -1320,7 +1320,7 @@ value = 0;    // <--
 
 ### 3654
 
-Please specifiy a default value for "%s" property at its declaration: 😰
+Please specifiy a default value for "%s" property at its declaration:
 ```
 // Before:
 @property(...)
