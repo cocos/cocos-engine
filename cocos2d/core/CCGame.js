@@ -672,7 +672,7 @@ var game = {
                 localCanvas = wx.getSharedCanvas();
             }
             else {
-                localCanvas = CC_JSB ? window.__cccanvas : window.canvas;
+                localCanvas = CC_JSB ? window.__canvas : window.canvas;
             }
             this.canvas = cc._canvas = localCanvas;
         }

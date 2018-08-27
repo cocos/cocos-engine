@@ -1061,7 +1061,7 @@ else {
 sys.garbageCollect = function () {
     // N/A in cocos2d-html5
     if (CC_JSB) {
-        __jsc__.garbageCollect();
+        jsb.garbageCollect();
     }
 };
 
@@ -1072,7 +1072,7 @@ sys.garbageCollect = function () {
 sys.dumpRoot = function () {
     // N/A in cocos2d-html5
     if (CC_JSB) {
-        __jsc__.dumpRoot();
+        jsb.dumpRoot();
     }
 };
 
