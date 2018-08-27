@@ -97,6 +97,8 @@ let maskFrontAssembler = {
             _stencilMgr.enterLevel();
 
             // vertex buffer
+            renderer.node = mask.node;
+            renderer.material = mask._material;
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 spriteAssembler.fillBuffers(mask, renderer);
                 renderer._flush();
@@ -104,8 +106,6 @@ let maskFrontAssembler = {
             else {
                 graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
-            renderer.node = mask.node;
-            renderer.material = mask._material;
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
