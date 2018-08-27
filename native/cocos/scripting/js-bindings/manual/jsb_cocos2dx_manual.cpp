@@ -202,15 +202,7 @@ void __JSPlistDelegator::textHandler(void*, const char *ch, int len) {
 static bool register_plist_parser(se::Object* obj)
 {
     se::Value v;
-    se::Value jsbVal;
-    if (!obj->getProperty("jsb", &jsbVal))
-    {
-        se::HandleObject jsbObj(se::Object::createPlainObject());
-        jsbVal.setObject(jsbObj);
-        obj->setProperty("jsb", jsbVal);
-    }
-    se::Object* jsb = jsbVal.toObject();
-    jsb->getProperty("PlistParser", &v);
+    __jsbObj->getProperty("PlistParser", &v);
     assert(v.isObject());
     v.toObject()->defineFunction("getInstance", _SE(js_PlistParser_getInstance));
 
