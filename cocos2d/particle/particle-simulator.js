@@ -293,13 +293,8 @@ Simulator.prototype.step = function (dt) {
         }
 
         this.elapsed += dt;
-        if (psys.duration !== -1 && psys.duration < this.elapsed)
-        {
+        if (psys.duration !== -1 && psys.duration < this.elapsed) {
             psys.stopSystem();
-            if (particles.length === 0) {
-                this.finished = true;
-                psys._finishedSimulation();
-            }
         }
     }
 
@@ -408,17 +403,16 @@ Simulator.prototype.step = function (dt) {
             }
             pool.put(deadParticle);
             particles.length--;
-
-            if (particles.length === 0 && !this.active ) {
-                this.finished = true;
-                psys._finishedSimulation();
-            }
         }
     }
 
     if (particles.length > 0) {
         buffer.uploadData();
         psys._ia._count = particles.length * 6;
+    }
+    else if (!this.active) {
+        this.finished = true;
+        psys._finishedSimulation();
     }
 }
 
