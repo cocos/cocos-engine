@@ -624,6 +624,14 @@ if (CC_DEBUG) {
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
     };
+    
+    if (!CC_EDITOR) {
+        Object.keys(logs).forEach(function (prop) {
+                let regexp = /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g;
+                logs[prop] = logs[prop].replace(regexp, '');
+        });
+    }
+
     cc._LogInfos = logs;
 }
 
