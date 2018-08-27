@@ -277,7 +277,7 @@ let Mask = cc.Class({
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
-        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
         this._activateMaterial();
     },
 
@@ -290,7 +290,7 @@ let Mask = cc.Class({
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
-        this.node._renderFlag &= ~(RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+        this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     },
 
     onDestroy () {
@@ -437,17 +437,17 @@ let Mask = cc.Class({
 
     markForUpdateRenderData (enable) {
         if (enable && this.enabledInHierarchy) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
-            this.node._renderFlag &= ~(RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
     },
 
     markForRender (enable) {
         if (enable && this.enabledInHierarchy) {
             this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
-                                      RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+                                      RenderFlow.FLAG_POST_RENDER);
         }
         else if (!enable) {
             this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
@@ -456,7 +456,7 @@ let Mask = cc.Class({
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
-                                   RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+                                   RenderFlow.FLAG_POST_RENDER);
     },
 });
 
