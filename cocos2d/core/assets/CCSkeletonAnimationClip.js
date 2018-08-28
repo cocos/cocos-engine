@@ -58,10 +58,13 @@ var SkeletonAnimationClip = cc.Class({
         this._modelUuid = '';
         this._animationID = -1;
         this._model = null;
+        this._inited = false;
     },
 
-    init (nodes) {
-        this._model.initAnimationClip(this, nodes);
+    init () {
+        if (this._inited) return;
+        this._inited = true;
+        this._model.initAnimationClip(this);
     },
 
     _serialize: CC_EDITOR && function () {

@@ -90,10 +90,14 @@ var Model = cc.Class({
         let nodes = this._gltf.nodes;
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i];
+            
+            node.path = node.parent ? node.parent.path + '/' + node.name : '';
+
             let children = node.children;
             if (children) {
                 for (let j = 0; j < children.length; j++) {
-                    nodes[children[j]].parent = node;
+                    let child = nodes[children[j]];
+                    child.parent = node;
                 }
             }
         }
@@ -321,7 +325,7 @@ var Model = cc.Class({
 
         clip.name = gltfAnimation.name;
         clip.wrapMode = cc.WrapMode.Loop;
-        clip._duration = 1;
+        let duration = 0;
 
         let curveData = clip.curveData;
         let paths = curveData.paths = {};
@@ -331,8 +335,8 @@ var Model = cc.Class({
 
         let samplers = gltfAnimation.samplers;
         let channels = gltfAnimation.channels;
-        for (let j = 0; j < channels.length; ++j) {
-            let gltfChannel = channels[j];
+        for (let i = 0; i < channels.length; ++i) {
+            let gltfChannel = channels[i];
             let sampler = samplers[gltfChannel.sampler];
 
             let inputArray = createArray(gltf, bin, sampler.input);
@@ -343,12 +347,7 @@ var Model = cc.Class({
             let target = gltfChannel.target;
             let node = nodes[target.node];
 
-            let path = node.name;
-            let parent = node.parent;
-            while (parent && parent !== rootNode) {
-                path = parent.name + '/' + path;
-                parent = parent.parent;
-            }
+            let path = node.path;
 
             let curves;
             if (path === '') {
@@ -367,7 +366,11 @@ var Model = cc.Class({
 
             let frames = [];
             for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                frames.push({frame: inputArray[frameIdx]});
+                let frame = inputArray[frameIdx];
+                if (frame > duration) {
+                    duration = frame;
+                }
+                frames.push({frame: frame});
             }
             if (target.path === 'translation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
@@ -378,8 +381,8 @@ var Model = cc.Class({
             }
             else if (target.path === 'rotation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                    let i = frameIdx * 3;
-                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i+1], outputArray[i+2], outputArray[i+4]);
+                    let i = frameIdx * 4;
+                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i+1], outputArray[i+2], outputArray[i+3]);
                 }
                 curves.props.quat = frames;
             }
@@ -391,6 +394,40 @@ var Model = cc.Class({
                 curves.props.scale = frames;
             }
         }
+
+        for (let i = 1; i < nodes.length; i++) {
+            let node = nodes[i];
+            if (paths[node.path]) continue;
+
+            let curves = paths[node.path] = { props: {} };
+            let props = curves.props;
+
+            let rotation = node.rotation;
+            if (rotation) {
+                props.quat = [{
+                    frame: 0,
+                    value: cc.quat(rotation[0], rotation[1], rotation[2], rotation[3])
+                }];
+            }
+
+            let scale = node.scale;
+            if (scale) {
+                props.scale = [{
+                    frame: 0,
+                    value: cc.v3(scale[0], scale[1], scale[2])
+                }];
+            }
+
+            let translation = node.translation;
+            if (translation) {
+                props.position = [{
+                    frame: 0,
+                    value: cc.v3(translation[0], translation[1], translation[2])
+                }];
+            }
+        }
+
+        clip._duration = duration;
     }
 });
 

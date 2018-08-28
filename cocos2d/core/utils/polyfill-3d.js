@@ -183,6 +183,8 @@ function setQuat (quat, y, z, w) {
             this.emit(EventType.ROTATION_CHANGED);
         }
     }
+
+    this._syncEulerAngles();
 }
 
 /**
@@ -233,9 +235,9 @@ function setScale (x, y, z) {
     }
 }
 
-function _upgrade_1x_to_2x () {
-    this._rotationX = this._quat.getPitch();
-    this._rotationY = this._quat.getRoll();
+function _syncEulerAngles () {
+    this._rotationX = this._quat.getRoll();
+    this._rotationY = this._quat.getPitch();
     this._rotationZ = this._quat.getYaw();
 }
 
@@ -258,7 +260,7 @@ cc._polyfill3D = module.exports = {
             proto.getQuat = getQuat;
             proto.setQuat = setQuat;
             proto._mulMat = cc.vmath.mat4.mul;
-            proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
+            proto._upgrade_1x_to_2x = proto._syncEulerAngles = _syncEulerAngles;
 
             cc.js.getset(proto, 'position', getPosition, setPosition);
             cc.js.getset(proto, 'scale', getScale, setScale);
