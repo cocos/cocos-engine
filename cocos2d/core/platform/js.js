@@ -271,8 +271,9 @@ var tmpGetSetDesc = {
  * @param {Function} getter
  * @param {Function} [setter=null]
  * @param {Boolean} [enumerable=false]
+ * @param {Boolean} [configurable=false]
  */
-js.getset = function (obj, prop, getter, setter, enumerable) {
+js.getset = function (obj, prop, getter, setter, enumerable, configurable) {
     if (typeof setter !== 'function') {
         enumerable = setter;
         setter = undefined;
@@ -280,6 +281,7 @@ js.getset = function (obj, prop, getter, setter, enumerable) {
     tmpGetSetDesc.get = getter;
     tmpGetSetDesc.set = setter;
     tmpGetSetDesc.enumerable = enumerable;
+    tmpGetSetDesc.configurable = configurable;
     Object.defineProperty(obj, prop, tmpGetSetDesc);
     tmpGetSetDesc.get = null;
     tmpGetSetDesc.set = null;

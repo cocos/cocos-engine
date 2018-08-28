@@ -55,6 +55,7 @@ var components = [
     require('./WXSubContextView'),
     require('./CCMeshRenderer'),
     require('./CCSkinMeshRenderer'),
+    require('./CCSkeletonAnimation'),
 ];
 
 module.exports = components;

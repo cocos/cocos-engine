@@ -60,10 +60,9 @@ let meshRendererAssembler = {
         let renderDatas = comp._renderDatas;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
-            if (!textures[i]) {
-                continue;
+            if (textures[i]) {
+                renderData.material.texture = textures[i];
             }
-            renderData.material.texture = textures[i];
             renderer.material = renderData.material;
             renderer._flushIA(renderData);
         }

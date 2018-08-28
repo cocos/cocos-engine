@@ -253,7 +253,9 @@ function initClipData (root, state) {
     }
 
     function createPropCurve (target, propPath, keyframes) {
-        var isMotionPathProp = (target instanceof cc.Node) && (propPath === 'position');
+        var isMotionPathProp = (target instanceof cc.Node) 
+            && (propPath === 'position') 
+            && typeof keyframes[0].value === 'number';
         var motionPaths = [];
         
         var curve = new DynamicAnimCurve();

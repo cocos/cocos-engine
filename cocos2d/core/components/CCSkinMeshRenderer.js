@@ -29,7 +29,7 @@ const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
 
-let ALLOW_FLOAT_TEXTURE = false;//true;
+let ALLOW_FLOAT_TEXTURE = true;
 
 let SkinMeshRenderer = cc.Class({
     name: 'cc.SkinMeshRenderer',
@@ -40,7 +40,6 @@ let SkinMeshRenderer = cc.Class({
         this._jointsTexture = null;
         this._skinning = null;
         this._matrices = [];
-        this._jointMatrices = [];
     },
 
     properties: {
@@ -64,7 +63,7 @@ let SkinMeshRenderer = cc.Class({
         }
         else {
             material.useJointsTexture = false;
-            material.jointMatrices = this._jointMatrices;
+            material.jointMatrices = this._jointsTextureData;
         }
 
         return material;
@@ -93,19 +92,20 @@ let SkinMeshRenderer = cc.Class({
 
         let jointCount = skinning.jointIndices.length;
 
-        // set jointsTexture
-        let size;
-        if (jointCount > 256) {
-            size = 64;
-        } else if (jointCount > 64) {
-            size = 32;
-        } else if (jointCount > 16) {
-            size = 16;
-        } else {
-            size = 8;
-        }
-
+        let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
+            // set jointsTexture
+            let size;
+            if (jointCount > 256) {
+                size = 64;
+            } else if (jointCount > 64) {
+                size = 32;
+            } else if (jointCount > 16) {
+                size = 16;
+            } else {
+                size = 8;
+            }
+
             this._jointsTextureData = new Float32Array(size * size * 4);
             
             let texture = new cc.Texture2D();
@@ -113,21 +113,18 @@ let SkinMeshRenderer = cc.Class({
 
             this._jointsTexture = texture;
         }
+        else {
+            this._jointsTextureData = new Float32Array(jointCount * 16);
+        }
     },
 
     _initMatrices() {
         let joints = this._joints;
         let matrices = this._matrices;
-        let jointMatrices = this._jointMatrices;
 
         matrices.length = 0;
-        jointMatrices.length = 0;
         for (let i = 0; i < joints.length; i++) {
             matrices.push(mat4.create());
-
-            if (!ALLOW_FLOAT_TEXTURE) {
-                jointMatrices.push(mat4.create());
-            }
         }
 
         this.updateMatrices();
@@ -166,9 +163,9 @@ let SkinMeshRenderer = cc.Class({
     },
 
     update() {
+        if (!this._skinning) return;
         const bindposes = this._skinning.bindposes;
         const matrices = this._matrices;
-        const jointMatrices = this._jointMatrices;
 
         this.updateMatrices();
 
@@ -176,13 +173,8 @@ let SkinMeshRenderer = cc.Class({
             let bindpose = bindposes[i];
             let worldMatrix = matrices[i];
 
-            if (this._jointsTextureData) {
-                mat4.multiply(_m4_tmp, worldMatrix, bindpose);
-                this._setJointsTextureData(i, _m4_tmp);
-            }
-            else {
-                mat4.multiply(jointMatrices[i], worldMatrix, bindposes[i]);
-            }
+            mat4.multiply(_m4_tmp, worldMatrix, bindpose);
+            this._setJointsTextureData(i, _m4_tmp);
         }
 
         this._commitJointsData();

@@ -28,6 +28,7 @@ const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
 const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
+const misc = require('../utils/misc');
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
@@ -232,6 +233,12 @@ function setScale (x, y, z) {
     }
 }
 
+function _upgrade_1x_to_2x () {
+    this._rotationX = this._quat.getPitch();
+    this._rotationY = this._quat.getRoll();
+    this._rotationZ = this._quat.getYaw();
+}
+
 cc._polyfill3D = module.exports = {
     enabled: false,
     enable () {
@@ -251,6 +258,12 @@ cc._polyfill3D = module.exports = {
             proto.getQuat = getQuat;
             proto.setQuat = setQuat;
             proto._mulMat = cc.vmath.mat4.mul;
+            proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
+
+            cc.js.getset(proto, 'position', getPosition, setPosition);
+            cc.js.getset(proto, 'scale', getScale, setScale);
+            cc.js.getset(proto, 'quat', getQuat, setQuat);
+
             this.enabled = true;
         }
     },

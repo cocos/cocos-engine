@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const AnimationClip = require('../../animation/animation-clip');
+
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 const gfx = renderEngine.gfx;
@@ -37,6 +39,27 @@ const _type2size = {
     MAT3: 9,
     MAT4: 16,
 };
+
+const _compType2Array = {
+    5120: Int8Array,
+    5121: Uint8Array,
+    5122: Int16Array,
+    5123: Uint16Array,
+    5124: Int32Array,
+    5125: Uint32Array,
+    5126: Float32Array,
+};
+
+function createArray(gltf, bin, accessorID) {
+    let acc = gltf.accessors[accessorID];
+    let bufView = gltf.bufferViews[acc.bufferView];
+
+    let num = _type2size[acc.type];
+    let typedArray = _compType2Array[acc.componentType];
+    let result = new typedArray(bin, bufView.byteOffset + acc.byteOffset, acc.count * num);
+
+    return result;
+}
 
 var Model = cc.Class({
     name: 'cc.Model',
@@ -53,12 +76,26 @@ var Model = cc.Class({
             },
             set(bin) {
                 this._bin = bin.buffer;
+                this._initNodes();
             },
             override: true
         },
 
         _gltf: {
             default: {}
+        }
+    },
+
+    _initNodes() {
+        let nodes = this._gltf.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            let children = node.children;
+            if (children) {
+                for (let j = 0; j < children.length; j++) {
+                    nodes[children[j]].parent = node;
+                }
+            }
         }
     },
 
@@ -272,6 +309,87 @@ var Model = cc.Class({
             );
 
             meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb, ib);
+        }
+    },
+
+    initAnimationClip(clip) {
+        let gltf = this._gltf;
+        let bin = this._bin;
+
+        let accessors = gltf.accessors;
+        let gltfAnimation = gltf.animations[clip._animationID];
+
+        clip.name = gltfAnimation.name;
+        clip.wrapMode = cc.WrapMode.Loop;
+        clip._duration = 1;
+
+        let curveData = clip.curveData;
+        let paths = curveData.paths = {};
+
+        let nodes = gltf.nodes;
+        let rootNode = nodes[0];
+
+        let samplers = gltfAnimation.samplers;
+        let channels = gltfAnimation.channels;
+        for (let j = 0; j < channels.length; ++j) {
+            let gltfChannel = channels[j];
+            let sampler = samplers[gltfChannel.sampler];
+
+            let inputArray = createArray(gltf, bin, sampler.input);
+            let outputArray = createArray(gltf, bin, sampler.output);
+
+            let interpolation = sampler.interpolation;
+            
+            let target = gltfChannel.target;
+            let node = nodes[target.node];
+
+            let path = node.name;
+            let parent = node.parent;
+            while (parent && parent !== rootNode) {
+                path = parent.name + '/' + path;
+                parent = parent.parent;
+            }
+
+            let curves;
+            if (path === '') {
+                curves = curveData;
+            }
+            else {
+                if (!paths[path]) {
+                    paths[path] = {};
+                }
+                curves = paths[path];
+            }
+
+            if (!curves.props) {
+                curves.props = {};
+            }
+
+            let frames = [];
+            for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
+                frames.push({frame: inputArray[frameIdx]});
+            }
+            if (target.path === 'translation') {
+                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
+                    let i = frameIdx * 3;
+                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i+1], outputArray[i+2]);
+                }
+                curves.props.position = frames;
+            }
+            else if (target.path === 'rotation') {
+                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
+                    let i = frameIdx * 3;
+                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i+1], outputArray[i+2], outputArray[i+4]);
+                }
+                curves.props.quat = frames;
+            }
+            else if (target.path === 'scale') {
+                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
+                    let i = frameIdx * 3;
+                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i+1], outputArray[i+2]);
+                }
+                curves.props.scale = frames;
+            }
         }
     }
 });

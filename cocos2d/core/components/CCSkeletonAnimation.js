@@ -23,81 +23,74 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Model = require('./CCModel');
+const Animation = require('./CCAnimation');
+const Model = require('../assets/CCModel');
+const SkeletonAnimationClip = require('../assets/CCSkeletonAnimationClip');
+const AnimationClip = require('../../animation/animation-clip');
 
- /**
+/**
  * @module cc
  */
 /**
- * !#en Mesh Asset.
- * !#zh 网格资源。
- * @class Mesh
- * @extends Asset
+ * !#en .
+ * !#zh 。
+ * @class SkeletonAnimation
+ * @extends Animation
  */
-var Mesh = cc.Class({
-    name: 'cc.Mesh',
-    extends: cc.Asset,
+var SkeletonAnimation = cc.Class({
+    name: 'cc.SkeletonAnimation',
+    extends: Animation,
 
     properties: {
-        _modelSetter: {
-            set: function (model) {
-                this.initWithModel(model);
-            }
+        _model: Model,
+        _nodes: [cc.Node],
+
+        _defaultClip: {
+            override: true,
+            default: null,
+            type: SkeletonAnimationClip,
         },
 
-        /**
-         * !#en Get ir set the sub meshes.
-         * !#zh 设置或者获取子网格。
-         * @property {[renderEngine.InputAssembler]} subMeshes
-         */
-        subMeshes: {
+        _clips: {
+            override: true,
+            default: [],
+            type: [SkeletonAnimationClip],
+            visible: true,
+        },
+
+        defaultClip: {
+            override: true,
             get () {
-                return this._subMeshes;
+                return this._defaultClip;
             },
             set (v) {
-                this._subMeshes = v;
-            }
+                this._defaultClip = v;
+            },
+            type: SkeletonAnimationClip,
         },
 
         model: {
             get () {
                 return this._model;
             },
-
             type: Model
-        }
+        },
     },
 
-    ctor () {
-        this._modelUuid = '';
-        this._meshID = -1;
-        this._model = null;
-        this._skinning = null;
-
-        this._subMeshes = [];
+    __preload () {
+        if (!this._model) return;
     },
 
-    initWithModel (model) {
-        if (!model) return;
-        this._model = model;
-        this._model.initMesh(this);
+    getClips () {
+        return [];
     },
 
-    _serialize: CC_EDITOR && function () {
-        return {
-            modelUuid: this._modelUuid,
-            meshID: this._meshID,
-        }
-    },
-
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._meshID = data.meshID;
-
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
-        }
+    getAnimationState (name) {
+        let state = this._super(name);
+        let clip = state.clip;
+        clip.init(this._nodes);
+        return state;
     }
 });
 
-cc.Mesh = module.exports = Mesh;
+cc.SkeletonAnimation = module.exports = SkeletonAnimation;

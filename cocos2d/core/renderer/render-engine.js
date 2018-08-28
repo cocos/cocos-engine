@@ -10075,7 +10075,7 @@ Device.prototype.setTextureArray = function setTextureArray (name, textures, slo
  */
 Device.prototype.setUniform = function setUniform (name, value) {
   var uniform = this._uniforms[name];
-  if (!uniform) {
+  if (!uniform || (uniform.isArray && uniform.value.length < value.length)) {
     var newValue = value;
     var isArray = false;
     if (value instanceof Float32Array || Array.isArray(value)) {
@@ -13439,7 +13439,10 @@ Base.prototype._draw = function _draw (item) {
       }
     } else {
       var convertedValue = (void 0);
-      if (prop.size !== undefined) {
+      if (param instanceof Float32Array || param instanceof Int32Array) {
+        convertedValue = param;
+      }
+      else if (prop.size !== undefined) {
         var convertArray = _type2uniformArrayValue[prop.type];
         if (convertArray.func === undefined) {
           console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
@@ -14431,7 +14434,7 @@ var MeshMaterial = (function (Material$$1) {
 
         { name: 'u_jointsTexture', type: renderer.PARAM_TEXTURE_2D },
         { name: 'u_jointsTextureSize', type: renderer.PARAM_FLOAT },
-        { name: 'u_jointMatrices', type: renderer.PARAM_MAT4, size: 4 } ],
+        { name: 'u_jointMatrices', type: renderer.PARAM_MAT4 } ],
       [
         pass
       ]
