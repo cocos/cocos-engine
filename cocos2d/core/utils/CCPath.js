@@ -95,8 +95,8 @@ cc.path = /** @lends cc.path# */{
     basename: function (pathStr, extname) {
         var index = pathStr.indexOf("?");
         if (index > 0) pathStr = pathStr.substring(0, index);
-        var reg = /(\/|\\\\)([^(\/|\\\\)]+)$/g;
-        var result = reg.exec(pathStr.replace(/(\/|\\\\)$/, ""));
+        var reg = /(\/|\\)([^\/\\]+)$/g;
+        var result = reg.exec(pathStr.replace(/(\/|\\)$/, ""));
         if (!result) return null;
         var baseName = result[2];
         if (extname && pathStr.substring(pathStr.length - extname.length).toLowerCase() === extname.toLowerCase())
