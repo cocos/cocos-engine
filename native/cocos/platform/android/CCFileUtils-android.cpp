@@ -41,6 +41,10 @@ THE SOFTWARE.
 
 #define  ASSETS_FOLDER_NAME          "@assets/"
 
+#ifndef JCLS_HELPER
+#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#endif
+
 NS_CC_BEGIN
 
 AAssetManager* FileUtilsAndroid::assetmanager = nullptr;
@@ -310,7 +314,7 @@ std::string FileUtilsAndroid::getWritablePath() const
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     std::string dir("");
-    std::string tmp = JniHelper::callStaticStringMethod("org/cocos2dx/lib/Cocos2dxHelper", "getCocos2dxWritablePath");
+    std::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxWritablePath");
 
     if (tmp.length() > 0)
     {

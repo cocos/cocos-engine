@@ -27,13 +27,21 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
-#define CLASS_PATH  "org/cocos2dx/lib/Cocos2dxEditBox"
+#ifndef JCLS_EDITBOX
+#define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBox"
+#endif
+
+#ifndef ORG_EDITBOX_CLASS_NAME
+#define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBox
+#endif
+#define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME,FUNC)
+
 
 NS_CC_BEGIN
 
 void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
-	JniHelper::callStaticVoidMethod(CLASS_PATH, 
+	JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
 		                            "showNative",
 		                            showInfo.defaultValue,
 		                            showInfo.maxLength,
@@ -45,7 +53,7 @@ void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 
 void EditBox::hide()
 {
-	JniHelper::callStaticVoidMethod(CLASS_PATH, "hideNative");
+	JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
 }
 
 NS_CC_END
@@ -81,17 +89,17 @@ namespace
 
 extern "C" 
 {
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardInputNative(JNIEnv* env, jclass, jstring text) 
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
 	{
 		callJSFunc("input", text);
 	}
 
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardCompleteNative(JNIEnv* env, jclass, jstring text)
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
 	{
 		callJSFunc("complete", text);
 	}
 
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBox_onKeyboardConfirmNative(JNIEnv* env, jclass, jstring text) 
+	JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
 	{
         callJSFunc("confirm", text);
 	}

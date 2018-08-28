@@ -32,6 +32,11 @@
 
 #include <regex>
 
+#ifndef JCLS_CANVASIMPL
+#define JCLS_CANVASIMPL  "org/cocos2dx/lib/CanvasRenderingContext2DImpl"
+#endif
+
+
 using namespace cocos2d;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
@@ -72,7 +77,7 @@ static bool JSB_loadFont(se::State& s)
             return true;
         }
 
-        JniHelper::callStaticVoidMethod("org/cocos2dx/lib/CanvasRenderingContext2DImpl", "loadTypeface", originalFamilyName, fontFilePath);
+        JniHelper::callStaticVoidMethod(JCLS_CANVASIMPL, "loadTypeface", originalFamilyName, fontFilePath);
 
         s.rval().setString(originalFamilyName);
         

@@ -7,6 +7,10 @@
 
 #include <regex>
 
+#ifndef JCLS_CANVASIMPL
+#define JCLS_CANVASIMPL  "org/cocos2dx/lib/CanvasRenderingContext2DImpl"
+#endif
+
 using namespace cocos2d;
 
 enum class CanvasTextAlign {
@@ -26,7 +30,7 @@ class CanvasRenderingContext2DImpl
 public:
     CanvasRenderingContext2DImpl()
     {
-        jobject obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
+        jobject obj = JniHelper::newObject(JCLS_CANVASIMPL);
         _obj = JniHelper::getEnv()->NewGlobalRef(obj);
         JniHelper::getEnv()->DeleteLocalRef(obj);
     }
@@ -42,28 +46,28 @@ public:
         _bufferHeight = h;
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        JniHelper::callObjectVoidMethod(_obj, _className, "recreateBuffer", w, h);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "recreateBuffer", w, h);
         fillData();
     }
 
     void beginPath()
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "beginPath");
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "beginPath");
     }
 
     void closePath()
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "closePath");
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "closePath");
     }
 
     void moveTo(float x, float y)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "moveTo", x, y);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "moveTo", x, y);
     }
 
     void lineTo(float x, float y)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "lineTo", x, y);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "lineTo", x, y);
     }
 
     void stroke()
@@ -71,25 +75,25 @@ public:
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
 
-        JniHelper::callObjectVoidMethod(_obj, _className, "stroke");
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "stroke");
         fillData();
     }
 
     void saveContext()
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "saveContext");
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "saveContext");
     }
 
     void restoreContext()
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "restoreContext");
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "restoreContext");
     }
 
     void clearRect(float x, float y, float w, float h)
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        JniHelper::callObjectVoidMethod(_obj, _className, "clearRect", x, y, w, h);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "clearRect", x, y, w, h);
         fillData();
     }
 
@@ -97,7 +101,7 @@ public:
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        JniHelper::callObjectVoidMethod(_obj, _className, "fillRect", x, y, w, h);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillRect", x, y, w, h);
         fillData();
     }
 
@@ -105,7 +109,7 @@ public:
     {
         if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        JniHelper::callObjectVoidMethod(_obj, _className, "fillText", text, x, y, maxWidth);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillText", text, x, y, maxWidth);
         fillData();
     }
 
@@ -113,7 +117,7 @@ public:
     {
         if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        JniHelper::callObjectVoidMethod(_obj, _className, "strokeText", text, x, y, maxWidth);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "strokeText", text, x, y, maxWidth);
         fillData();
     }
 
@@ -121,37 +125,37 @@ public:
     {
         if (text.empty())
             return 0.0f;
-        return JniHelper::callObjectFloatMethod(_obj, _className, "measureText", text);
+        return JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     }
 
     void updateFont(const std::string& fontName, float fontSize, bool bold)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "updateFont", fontName, fontSize, bold);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold);
     }
 
     void setTextAlign(CanvasTextAlign align)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "setTextAlign", (int)align);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextAlign", (int)align);
     }
 
     void setTextBaseline(CanvasTextBaseline baseline)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "setTextBaseline", (int)baseline);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextBaseline", (int)baseline);
     }
 
     void setFillStyle(float r, float g, float b, float a)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "setFillStyle", r, g, b, a);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setFillStyle", r, g, b, a);
     }
 
     void setStrokeStyle(float r, float g, float b, float a)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "setStrokeStyle", r, g, b, a);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setStrokeStyle", r, g, b, a);
     }
 
     void setLineWidth(float lineWidth)
     {
-        JniHelper::callObjectVoidMethod(_obj, _className, "setLineWidth", lineWidth);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineWidth", lineWidth);
     }
 
     const Data& getDataRef() const
@@ -161,7 +165,7 @@ public:
 
     void fillData()
     {
-        jbyteArray arr = JniHelper::callObjectByteArrayMethod(_obj, _className, "getDataRef");
+        jbyteArray arr = JniHelper::callObjectByteArrayMethod(_obj, JCLS_CANVASIMPL, "getDataRef");
         jsize len  = JniHelper::getEnv()->GetArrayLength(arr);
         jbyte* jbarray = (jbyte *)malloc(len * sizeof(jbyte));
         JniHelper::getEnv()->GetByteArrayRegion(arr,0,len,jbarray);
@@ -170,16 +174,11 @@ public:
     }
 
 private:
-
-    static const std::string _className;
-
     jobject _obj = nullptr;
     Data _data;
     float _bufferWidth = 0.0f;
     float _bufferHeight = 0.0f;
 };
-
-const std::string CanvasRenderingContext2DImpl::_className = "org/cocos2dx/lib/CanvasRenderingContext2DImpl";
 
 namespace {
     void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)

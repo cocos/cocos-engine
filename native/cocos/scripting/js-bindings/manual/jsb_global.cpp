@@ -42,8 +42,6 @@
 using namespace cocos2d;
 using namespace cocos2d::experimental;
 
-se::Object* __jscObj = nullptr;
-se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
 se::Object* __glObj = nullptr;
 
@@ -1044,32 +1042,6 @@ static bool JSB_hideInputBox(se::State& s)
 }
 SE_BIND_FUNC(JSB_hideInputBox)
 
-static se::Object* __deviceMotionObject = nullptr;
-static bool JSB_getDeviceMotionValue(se::State& s)
-{
-    if (__deviceMotionObject == nullptr)
-    {
-        __deviceMotionObject = se::Object::createArrayObject(9);
-        __deviceMotionObject->root();
-    }
-
-    const auto& v = Device::getDeviceMotionValue();
-
-    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
-    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
-    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
-    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
-    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
-    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
-    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
-    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
-    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
-
-    s.rval().setObject(__deviceMotionObject);
-    return true;
-}
-SE_BIND_FUNC(JSB_getDeviceMotionValue)
-
 bool jsb_register_global_variables(se::Object* global)
 {
     __threadPool = ThreadPool::newFixedThreadPool(3);
@@ -1077,20 +1049,17 @@ bool jsb_register_global_variables(se::Object* global)
     global->defineFunction("require", _SE(require));
     global->defineFunction("requireModule", _SE(moduleRequire));
 
-    getOrCreatePlainObject_r("cc", global, &__ccObj);
-
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
-    getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
 
     auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
     glContextCls->install();
 
     SAFE_DEC_REF(__glObj);
     __glObj = se::Object::createObjectWithClass(glContextCls);
-    global->setProperty("__ccgl", se::Value(__glObj));
+    global->setProperty("__gl", se::Value(__glObj));
 
-    __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
-    __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
+    __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
+    __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
     __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
@@ -1100,7 +1069,6 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
-    __jsbObj->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
@@ -1122,13 +1090,6 @@ bool jsb_register_global_variables(se::Object* global)
         delete __threadPool;
         __threadPool = nullptr;
 
-        if (__deviceMotionObject != nullptr)
-        {
-            __deviceMotionObject->unroot();
-            __deviceMotionObject->decRef();
-            __deviceMotionObject = nullptr;
-        }
-
         PoolManager::getInstance()->getCurrentPool()->clear();
     });
 
@@ -1138,9 +1099,7 @@ bool jsb_register_global_variables(se::Object* global)
 
         __moduleCache.clear();
 
-        SAFE_DEC_REF(__ccObj);
         SAFE_DEC_REF(__jsbObj);
-        SAFE_DEC_REF(__jscObj);
         SAFE_DEC_REF(__glObj);
     });
 
