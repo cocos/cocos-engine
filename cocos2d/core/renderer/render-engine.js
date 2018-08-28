@@ -11005,6 +11005,7 @@ var Camera = function Camera() {
   this._color = color4.new(0.2, 0.3, 0.47, 1);
   this._depth = 1;
   this._stencil = 0;
+  this._sortDepth = 0;
   this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
 
   // culling mask
