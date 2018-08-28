@@ -42,6 +42,7 @@ let FOCUS_DELAY_FIREFOX = 0;
 
 let math = cc.vmath;
 let _matrix = math.mat4.create();
+let _matrix_temp = math.mat4.create();
 let _vec3 = cc.v3();
 
 // polyfill
@@ -360,18 +361,30 @@ let EditBoxImpl = cc.Class({
         _vec3.y = -node._anchorPoint.y * contentSize.height;
     
         math.mat4.translate(_matrix, _matrix, _vec3);
+
+        let camera;
+        // can't find camera in editor
+        if (CC_EDITOR) {
+            camera = cc.Camera.main;
+        }
+        else {
+            camera = cc.Camera.findCamera(node);
+        }
+        
+        camera.getWorldToCameraMatrix(_matrix_temp);
+        math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
     
         scaleX /= dpr;
         scaleY /= dpr;
     
         let container = cc.game.container;
-        let a = _matrix.m00 * scaleX, b = _matrix.m01, c = _matrix.m04, d = _matrix.m05 * scaleY;
+        let a = _matrix_temp.m00 * scaleX, b = _matrix.m01, c = _matrix.m04, d = _matrix_temp.m05 * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         offsetX += viewport.x / dpr;
         let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         offsetY += viewport.y / dpr;
-        let tx = _matrix.m12 * scaleX + offsetX, ty = _matrix.m13 * scaleY + offsetY;
+        let tx = _matrix_temp.m12 * scaleX + offsetX, ty = _matrix_temp.m13 * scaleY + offsetY;
     
         if (polyfill.zoomInvalid) {
             this._updateSize(this._size.width * a, this._size.height * d);
