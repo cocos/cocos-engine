@@ -35,6 +35,7 @@ let _url2id = {};
 let _audioPool = [];
 
 let recycleAudio = function (audio) {
+    audio._finishCallback = null;
     if (_audioPool.length < 32) {
         audio.off('ended');
         audio.off('stop');
