@@ -1,12 +1,8 @@
-/**
- * @module cocos2dx
- */
-var jsb = jsb || {};
 
 /**
  * @class FileUtils
  */
-jsb.FileUtils = {
+FileUtils = {
 
 /**
  * @method writeDataToFile
@@ -515,7 +511,7 @@ getInstance : function (
 /**
  * @class Device
  */
-jsb.Device = {
+Device = {
 
 /**
  * @method getNetworkType
@@ -610,56 +606,9 @@ getDeviceModel : function (
 };
 
 /**
- * @class SAXParser
- */
-jsb.PlistParser = {
-
-/**
- * @method init
- * @param {char} arg0
- * @return {bool}
- */
-init : function (
-char 
-)
-{
-    return false;
-},
-
-};
-
-/**
- * @class CanvasGradient
- */
-jsb.CanvasGradient = {
-
-/**
- * @method addColorStop
- * @param {float} arg0
- * @param {String} arg1
- */
-addColorStop : function (
-float, 
-str 
-)
-{
-},
-
-/**
- * @method CanvasGradient
- * @constructor
- */
-CanvasGradient : function (
-)
-{
-},
-
-};
-
-/**
  * @class CanvasRenderingContext2D
  */
-jsb.CanvasRenderingContext2D = {
+CanvasRenderingContext2D = {
 
 /**
  * @method restore

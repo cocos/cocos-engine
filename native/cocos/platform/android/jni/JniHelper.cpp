@@ -289,7 +289,10 @@ namespace cocos2d {
     }
 
     jstring JniHelper::convert(cocos2d::JniMethodInfo& t, const char* x) {
-        jstring ret = cocos2d::StringUtils::newStringUTFJNI(t.env, x ? x : "");
+        jstring ret = nullptr;
+        if (x)
+          ret = cocos2d::StringUtils::newStringUTFJNI(t.env, x);
+
         localRefs[t.env].push_back(ret);
         return ret;
     }
