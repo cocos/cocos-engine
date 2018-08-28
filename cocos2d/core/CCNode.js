@@ -546,6 +546,11 @@ var Node = cc.Class({
 
         // internal properties
 
+        is3DNode: {
+            default: false,
+            editorOnly: true
+        },
+
         /**
          * !#en
          * Group index of node.<br/>
