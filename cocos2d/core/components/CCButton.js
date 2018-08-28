@@ -433,6 +433,8 @@ let Button = cc.Class({
                 }
             }.bind(this));
         }
+
+        this._sprite && this._sprite._activateMaterial();
     },
 
     onDisable () {
