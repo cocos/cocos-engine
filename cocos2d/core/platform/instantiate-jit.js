@@ -234,7 +234,7 @@ function Parser (obj, parent) {
                                     globalVariablesDeclaration || [],
                                     this.codeArray,
                                     'return o;',
-                                '})']);
+                                 '})']);
 
     // generate method and bind with objs
     this.result = Function('O', 'F', code)(this.objs, this.funcs);

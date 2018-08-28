@@ -101,7 +101,7 @@ let Camera = cc.Class({
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             cc.errorID(8301);
             var sgNode = new _ccsg.Node();
-            sgNode.setTransform = sgNode.addTarget = sgNode.removeTarget = function () { };
+            sgNode.setTransform = sgNode.addTarget = sgNode.removeTarget = function () {};
             return sgNode;
         }
         else {
@@ -293,7 +293,7 @@ let Camera = cc.Class({
         if (node instanceof cc.Node) {
             node = node._sgNode;
         }
-
+        
         let targets = this._sgTarges;
         while (node) {
             if (targets.indexOf(node) !== -1) {

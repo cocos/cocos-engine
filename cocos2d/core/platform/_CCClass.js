@@ -115,7 +115,7 @@ Class.extend = function (props) {
         var isFunc = (typeof props[name] === "function");
         var override = isFunc && (typeof _super[name] === "function");
         var hasSuperCall = override && fnTest.test(props[name]);
-
+        
         if (hasSuperCall) {
             desc.value = (function (name, fn) {
                 return function () {

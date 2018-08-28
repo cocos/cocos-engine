@@ -338,7 +338,7 @@ var game = {
         close();
     },
 
-    //  @Game loading
+//  @Game loading
     /**
      * !#en Prepare game.
      * !#zh 准备引擎，请不要直接调用这个函数。
@@ -485,7 +485,7 @@ var game = {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (!(node.parent instanceof cc.Scene) ) {
+                else if ( !(node.parent instanceof cc.Scene) ) {
                     cc.warnID(3801);
                     return;
                 }
@@ -665,14 +665,14 @@ var game = {
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
             isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame || CC_JSB) {
+        if (isWeChatGame || CC_RUNTIME) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = wx.getSharedCanvas();
             }
             else {
-                localCanvas = CC_JSB ? window.__canvas : window.canvas;
+                localCanvas = CC_RUNTIME ? window.__canvas : window.canvas;
             }
             this.canvas = cc._canvas = localCanvas;
         }
@@ -734,7 +734,7 @@ var game = {
                 opts['preserveDrawingBuffer'] = true;
             }
             this._renderContext = cc._renderContext = cc.webglContext
-            = cc.create3DContext(localCanvas, opts);
+             = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
@@ -776,7 +776,7 @@ var game = {
         }
 
         var hidden = false;
-
+        
         function onHidden () {
             if (!hidden) {
                 hidden = true;
@@ -819,11 +819,6 @@ var game = {
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
             wx.onHide && wx.onHide(onHidden);
-        }
-
-        if (CC_JSB) {
-            jsb.onShow = onShown;
-            jsb.onHide = onHidden;
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

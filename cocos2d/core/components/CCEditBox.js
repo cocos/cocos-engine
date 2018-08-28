@@ -518,12 +518,12 @@ var EditBox = cc.Class({
         this.node.emit('editing-return', this);
     },
 
-    onDestroy: function() {
+    onDestroy: function () {
         this._sgNode.setDelegate(null);
         this._super();
     },
 
-    __preload: function () {
+    __preload: function() {
         this._super();
 
         if (!CC_EDITOR) {
@@ -559,7 +559,7 @@ var EditBox = cc.Class({
      * @method setFocus
      */
     setFocus: function() {
-        if (this._sgNode) {
+        if(this._sgNode) {
             this._sgNode.setFocus();
         }
     },

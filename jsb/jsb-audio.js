@@ -34,6 +34,11 @@ cc.Audio = function (src) {
     this.type = cc.Audio.Type.NATIVE;
 };
 
+if (CC_RUNTIME) {
+    var rt = loadRuntime();
+    jsb.AudioEngine = rt.AudioEngine;
+}
+
 cc.Audio.Type = {
     DOM: 'AUDIO',
     WEBAUDIO: 'WEBAUDIO',

@@ -617,7 +617,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Run or replace rendering scene
-        if (!this._runningScene ) {
+        if ( !this._runningScene ) {
             //start scene
             this.pushScene(sgScene);
             this.startAnimation();

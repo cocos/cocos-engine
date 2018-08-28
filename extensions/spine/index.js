@@ -119,7 +119,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         require('./SGSkeletonWebGLRenderCmd');
         require('./SGSkeletonAnimation');
     }
-
+    
     require('./SkeletonData');
     require('./Skeleton');
 }

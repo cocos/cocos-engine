@@ -2015,7 +2015,7 @@ cc.lerp = function (a, b, r) {
  * @returns {Number}
  */
 cc.rand = function () {
-    return Math.random() * 0xffffff;
+      return Math.random() * 0xffffff;
 };
 
 /**
@@ -2081,10 +2081,10 @@ cc.nodeDrawSetup = function (node) {
 // cc.enableDefaultGLStates = function () {
     //TODO OPENGL STUFF
     /*
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnable(GL_TEXTURE_2D);*/
+     glEnableClientState(GL_VERTEX_ARRAY);
+     glEnableClientState(GL_COLOR_ARRAY);
+     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+     glEnable(GL_TEXTURE_2D);*/
 // };
 
 /*
@@ -2099,10 +2099,10 @@ cc.nodeDrawSetup = function (node) {
 // cc.disableDefaultGLStates = function () {
     //TODO OPENGL
     /*
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+     glDisable(GL_TEXTURE_2D);
+     glDisableClientState(GL_COLOR_ARRAY);
+     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+     glDisableClientState(GL_VERTEX_ARRAY);
     */
 // };
 

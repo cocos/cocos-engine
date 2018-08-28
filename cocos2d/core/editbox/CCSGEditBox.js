@@ -54,7 +54,7 @@ function adjustEditBoxPosition (editBox) {
 }
 
 var capitalize = function(string) {
-    return string.replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+    return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
 };
 
 function capitalizeFirstLetter(string) {
@@ -228,6 +228,50 @@ cc.EditBoxDelegate = cc._Class.extend({
     }
 });
 
+if(CC_RUNTIME) {
+    var rt = loadRuntime();
+    jsb.inputBox = {
+        onConfirm: function (cb) {
+            rt.onKeyboardConfirm(cb);
+        },
+        offConfirm: function (cb) {
+            rt.offKeyboardConfirm(cb);
+        },
+
+        onComplete: function (cb) {
+            rt.onKeyboardComplete(cb);
+        },
+        offComplete: function (cb) {
+            rt.offKeyboardComplete(cb);
+        },
+
+        onInput: function (cb) {
+            rt.onKeyboardInput(cb);
+        },
+        offInput: function (cb) {
+            rt.offKeyboardInput(cb);
+        },
+
+        /**
+         * @param {string}		options.defaultValue
+         * @param {number}		options.maxLength
+         * @param {bool}        options.multiple
+         * @param {bool}        options.confirmHold
+         * @param {string}      options.confirmType
+         * @param {string}      options.inputType
+         * 
+         * Values of options.confirmType can be [done|next|search|go|send].
+         * Values of options.inputType can be [text|email|number|phone|password].
+         */
+        show: function (options) {
+            rt.showKeyboard(options);
+        },
+        hide: function () {
+            rt.hideKeyboard();
+        },
+    };
+}
+
 
 /**
  * <p>cc.EditBox is a brief Class for edit box.<br/>
@@ -339,7 +383,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
                 this._renderCmd._showBKKeyboard();
             }
             else if (CC_RUNTIME) {
-                this._renderCmd._createJSBInput();
+                this._renderCmd._createRuntimeInput();
             }
             return true;
         }
@@ -975,7 +1019,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
     };
 
-    proto._createJSBInput = function () {
+    proto._createRuntimeInput = function () {
         var thisPointer = this;
         var multiline = this._inputMode === InputMode.ANY;
         var retrunTypeStrings = ['done', 'done', 'send', 'search', 'go'];
@@ -1096,7 +1140,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._updateDomTextCases = function() {
         var inputFlag = this._editBox._editBoxInputFlag;
-
         if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             this._editBox._text = this._editBox._text.toUpperCase();
         }
@@ -1131,7 +1174,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = (CC_WECHATGAME || CC_QQPLAY || CC_JSB) ? this._editBox._text : this._edTxt.value;
+        var text = (CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME) ? this._editBox._text : this._edTxt.value;
         if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
@@ -1185,7 +1228,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
         this._showLabels();
         if (sys.platform !== sys.WECHAT_GAME &&
-            sys.platform !== sys.QQ_PLAY && !CC_JSB && sys.isMobile && this._editingMode) {
+            sys.platform !== sys.QQ_PLAY && !CC_RUNTIME && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {

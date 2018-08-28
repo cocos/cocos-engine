@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (cc.sys && !CC_RUNTIME) return;
+if (cc.sys) return;
 
 /**
  * System variables
@@ -509,13 +509,13 @@ sys.BROWSER_TYPE_UNKNOWN = "unknown";
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
-sys.isNative = CC_JSB;
+sys.isNative = CC_RUNTIME;
 
 /**
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_RUNTIME;
 
 cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     if (opt_contextType) {
@@ -526,7 +526,7 @@ cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
         }
     }
     else {
-        return cc.create3DContext(canvas, opt_attribs, "webgl") ||
+        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
                cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
                cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
                cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
@@ -550,7 +550,7 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
-} else if (CC_JSB) {
+} else if (CC_RUNTIME) {
     var platform = sys.platform = __getPlatform();
     sys.isMobile = (platform === sys.ANDROID ||
         platform === sys.IPAD ||
@@ -1060,7 +1060,7 @@ else {
  */
 sys.garbageCollect = function () {
     // N/A in cocos2d-html5
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         jsb.garbageCollect();
     }
 };
@@ -1071,7 +1071,7 @@ sys.garbageCollect = function () {
  */
 sys.dumpRoot = function () {
     // N/A in cocos2d-html5
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         jsb.dumpRoot();
     }
 };
@@ -1082,7 +1082,7 @@ sys.dumpRoot = function () {
  */
 sys.restartVM = function () {
     // N/A in cocos2d-html5
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         __restartVM();
     }
 };
@@ -1094,7 +1094,7 @@ sys.restartVM = function () {
  */
 sys.cleanScript = function (jsfile) {
     // N/A in cocos2d-html5
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         __cleanScript();
     }
 };
@@ -1108,7 +1108,7 @@ sys.cleanScript = function (jsfile) {
  * @return {Boolean} Validity of the object
  */
 sys.isObjectValid = function (obj) {
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         return __isObjectValid(obj);
     }
     else if (obj) {
@@ -1143,7 +1143,7 @@ sys.dump = function () {
  * @param {String} url
  */
 sys.openURL = function (url) {
-    if (CC_JSB) {
+    if (CC_RUNTIME) {
         jsb.openURL(url);
     } else {
         window.open(url);

@@ -192,7 +192,7 @@ var VideoPlayer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.keepAspectRatio',
             default: true,
             type: cc.Boolean,
-            notify: function() {
+            notify: function () {
                 this._sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
             }
         },
@@ -206,7 +206,7 @@ var VideoPlayer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen',
             default: false,
             type: cc.Boolean,
-            notify: function () {
+            notify: function() {
                 this._sgNode.setFullScreenEnabled(this.isFullscreen);
             }
         },

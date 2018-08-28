@@ -283,7 +283,7 @@ PhysicsContact.prototype.getManifold = function () {
     if (!CC_RUNTIME && CC_JSB) {
         var wrapper = cc.PhysicsUtils.getContactManifoldWrapper();
         var count = points.length = wrapper.getCount();
-
+        
         for (var i = 0; i < count; i++) {
             var p = manifoldPointCache[i];
             p.localPoint.x = wrapper.getX(i);

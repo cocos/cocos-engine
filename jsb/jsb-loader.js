@@ -39,16 +39,17 @@ function downloadAudio (item, callback) {
     return item.url;
 }
 
-function downloadImage(item, callback) {
-    let img = new Image();
-    img.src = item.url;
-    img.onload = function (info) {
-        callback(null, img);
-    }
-    // Don't return anything to use async loading. 
-}
-
 if (CC_RUNTIME) {
+
+    function downloadImage(item, callback) {
+        let img = new Image();
+        img.src = item.url;
+        img.onload = function (info) {
+            callback(null, img);
+        }
+        // Don't return anything to use async loading. 
+    }
+    
     cc.loader.addDownloadHandlers({
         // JS
         'js' : downloadScript,
@@ -81,6 +82,36 @@ if (CC_RUNTIME) {
         'svg' : empty,
         'ttc' : empty,
     });
+
+    var rt = loadRuntime();
+    jsb.fileUtils = {
+        getStringFromFile: function (url) {
+            return rt.getFileSystemManager().readFileSync(url, "utf8");
+        },
+
+        getDataFromFile: function (url) {
+            return rt.getFileSystemManager().readFileSync(url);
+        },
+
+        getWritablePath: function () {
+            return `${rt.env.USER_DATA_PATH}/`;
+        },
+
+        writeToFile: function (map, url) {
+            var str = JSON.stringify(map);
+            return rt.getFileSystemManager().writeFileSync(url, str, "utf8")
+        },
+
+        getValueMapFromFile: function (url) {
+            var map_object = {};
+            var read = rt.getFileSystemManager().readFileSync(url, "utf8");
+            if (!read) {
+                return map_object;
+            }
+            map_object = JSON.parse(read);
+            return map_object;
+        },
+    };
 
 } else {
 

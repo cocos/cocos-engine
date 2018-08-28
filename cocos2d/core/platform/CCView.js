@@ -407,7 +407,7 @@ var View = cc._Class.extend({
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB) {
+        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY && !CC_RUNTIME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -656,7 +656,7 @@ var View = cc._Class.extend({
      */
     getVisibleSizeInPixel: function () {
         return cc.size( this._visibleRect.width * this._scaleX,
-            this._visibleRect.height * this._scaleY );
+                        this._visibleRect.height * this._scaleY );
     },
 
     /**

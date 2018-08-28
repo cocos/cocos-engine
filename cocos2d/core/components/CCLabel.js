@@ -188,8 +188,8 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
             notify: function () {
                 if (this._sgNode) {
-                    if(CC_EDITOR) {
-                        if (this.overflow === cc.Label.Overflow.SHRINK) {
+                    if (CC_EDITOR) {
+                        if(this.overflow === cc.Label.Overflow.SHRINK) {
                             this.fontSize = this._userDefinedFontSize;
                         }
                         this._debouncedUpdateSgNodeString();
@@ -502,7 +502,7 @@ var Label = cc.Class({
     },
 
     _initSgNode: function () {
-        var font = this.font; 
+        var font = this.font;
         if (typeof font === 'string' ) {
             cc.warnID(4000);
         }

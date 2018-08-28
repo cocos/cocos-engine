@@ -1285,7 +1285,7 @@ var Node = cc.Class({
      * @example
      * node.targetOff(target);
      */
-    targetOff(target) {
+    targetOff (target) {
         this._EventTargetTargetOff(target);
 
         this._checkTouchListeners();
@@ -1587,14 +1587,14 @@ var Node = cc.Class({
         return 0;
     },
 
-    _retainAction(action) {
+    _retainAction (action) {
         if (!CC_RUNTIME && CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
             this._retainedActions.push(action);
             action.retain();
         }
     },
 
-    _releaseAllActions() {
+    _releaseAllActions () {
         if (!CC_RUNTIME && CC_JSB) {
             for (var i = 0; i < this._retainedActions.length; ++i) {
                 this._retainedActions[i].release();
@@ -2212,7 +2212,7 @@ var Node = cc.Class({
         return this._sgNode.getWorldToNodeTransform();
     },
 
-    _isSgTransformArToMe(myContentSize) {
+    _isSgTransformArToMe (myContentSize) {
         var renderSize = this._sgNode.getContentSize();
         if (renderSize.width === 0 && renderSize.height === 0 &&
             (myContentSize.width !== 0 || myContentSize.height !== 0)) {

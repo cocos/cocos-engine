@@ -73,7 +73,7 @@ var PhysicsCollider = cc.Class({
          * @default false
          */
         sensor: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',    
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.sensor',        
             get: function () {
                 return this._sensor;
             },
@@ -91,7 +91,7 @@ var PhysicsCollider = cc.Class({
          * @default 0.2
          */
         friction: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',    
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.friction',      
             get: function () {
                 return this._friction;
             },
@@ -274,7 +274,7 @@ var PhysicsCollider = cc.Class({
 
         var minX = MAX, minY = MAX;
         var maxX = -MAX, maxY = -MAX;
-
+        
         var fixtures = this._fixtures;
         for (var i = 0; i < fixtures.length; i++) {
             var fixture = fixtures[i];

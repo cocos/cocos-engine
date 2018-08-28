@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var LineCap     = require('./types').LineCap;
-var LineJoin    = require('./types').LineJoin;
+var LineCap      = require('./types').LineCap;
+var LineJoin     = require('./types').LineJoin;
 
 
 /**

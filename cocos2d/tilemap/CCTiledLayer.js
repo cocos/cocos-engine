@@ -49,7 +49,7 @@ var TiledLayer = cc.Class({
         }
     },
 
-    onDestroy: function() {
+    onDestroy: function () {
         if ( this.node._sizeProvider === this._sgNode ) {
             this.node._sizeProvider = null;
         }

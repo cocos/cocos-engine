@@ -112,7 +112,7 @@ cc._initDebugSetting = function (mode) {
     if ((CC_RUNTIME || !CC_JSB) && mode > cc.DebugMode.ERROR) {
         //log to web page
 
-        function logToWebPage(msg) {
+        function logToWebPage (msg) {
             if (!cc._canvas)
                 return;
 
@@ -146,7 +146,7 @@ cc._initDebugSetting = function (mode) {
             logList.scrollTop = logList.scrollHeight;
         }
 
-        cc.error = function() {
+        cc.error = function () {
             logToWebPage("ERROR :  " + cc.js.formatStr.apply(null, arguments));
         };
         cc.assert = function (cond, msg) {

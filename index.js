@@ -209,7 +209,7 @@ if (CC_EDITOR) {
     }
 }
 
-if (CC_JSB) {
+if (CC_RUNTIME) {
     require('./jsb/jsb-loader.js');
 }
 

@@ -170,7 +170,7 @@ var RigidBody = cc.Class({
          * 刚体类型： Static, Kinematic, Dynamic or Animated.
          * @property {RigidBodyType} type
          * @default RigidBodyType.Dynamic
-         */
+         */     
         type: {
             type: BodyType,
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.type',
@@ -866,7 +866,7 @@ var RigidBody = cc.Class({
         }
     },
 
-    _init: function () {
+   _init: function () {
         cc.director.getPhysicsManager().pushDelayEvent(this, '__init', []);
     },
     _destroy: function () {
@@ -896,7 +896,7 @@ var RigidBody = cc.Class({
         bodyDef.linearVelocity = new b2.Vec2(linearVelocity.x/PTM_RATIO, linearVelocity.y/PTM_RATIO);
 
         bodyDef.angularVelocity = this.angularVelocity * ANGLE_TO_PHYSICS_ANGLE;
-
+        
         bodyDef.fixedRotation = this.fixedRotation;
         bodyDef.bullet = this.bullet;
 

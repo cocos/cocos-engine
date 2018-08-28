@@ -233,7 +233,7 @@ var PhysicsManager = cc.Class({
         var x = tempB2Vec21.x = point.x/PTM_RATIO;
         var y = tempB2Vec21.y = point.y/PTM_RATIO;
 
-        var d = 0.2 / PTM_RATIO;
+        var d = 0.2/PTM_RATIO;
         tempB2AABB.lowerBound.x = x-d;
         tempB2AABB.lowerBound.y = y-d;
         tempB2AABB.upperBound.x = x+d;
@@ -361,7 +361,7 @@ var PhysicsManager = cc.Class({
         for (var i = 0; i < bodies.length; i++) {
             bodies[i].syncRotation();
         }
-    },  
+    },    
 
     /**
      * !#en
@@ -405,7 +405,7 @@ var PhysicsManager = cc.Class({
         body._b2Body = world.CreateBody(bodyDef);
 
         if (!CC_RUNTIME && CC_JSB) {
-            body._b2Body.SetUserData(node._sgNode);
+            body._b2Body.SetUserData( node._sgNode );
         }
 
         body._b2Body.body = body;
@@ -497,7 +497,7 @@ var PhysicsManager = cc.Class({
             return;
         }
         c.emit(ContactType.END_CONTACT);
-
+        
         cc.PhysicsContact.put(b2contact);
     },
 

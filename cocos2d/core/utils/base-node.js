@@ -1266,7 +1266,7 @@ if (CC_EDITOR) {
 
 BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 
-if (CC_EDITOR) {
+if(CC_EDITOR) {
     BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
 }
 
