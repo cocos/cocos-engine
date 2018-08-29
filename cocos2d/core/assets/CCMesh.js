@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Model = require('./CCModel');
-
  /**
  * @module cc
  */
@@ -57,14 +55,6 @@ var Mesh = cc.Class({
             set (v) {
                 this._subMeshes = v;
             }
-        },
-
-        model: {
-            get () {
-                return this._model;
-            },
-
-            type: Model
         }
     },
 

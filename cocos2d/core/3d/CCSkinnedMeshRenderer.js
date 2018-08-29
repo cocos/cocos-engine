@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshRenderer = require('./CCMeshRenderer');
+const MeshRenderer = require('../components/CCMeshRenderer');
 const renderEngine = require('../renderer/render-engine');
 const mat4 = cc.vmath.mat4;
 
@@ -31,8 +31,8 @@ let _m4_tmp = mat4.create();
 
 let ALLOW_FLOAT_TEXTURE = true;
 
-let SkinMeshRenderer = cc.Class({
-    name: 'cc.SkinMeshRenderer',
+let SkinnedMeshRenderer = cc.Class({
+    name: 'cc.SkinnedMeshRenderer',
     extends: MeshRenderer,
 
     ctor() {
@@ -40,6 +40,8 @@ let SkinMeshRenderer = cc.Class({
         this._jointsTexture = null;
         this._skinning = null;
         this._matrices = [];
+
+        this._assembler = MeshRenderer._assembler;
     },
 
     properties: {
@@ -181,4 +183,4 @@ let SkinMeshRenderer = cc.Class({
     }
 });
 
-cc.SkinMeshRenderer = module.exports = SkinMeshRenderer;
+cc.SkinnedMeshRenderer = module.exports = SkinnedMeshRenderer;

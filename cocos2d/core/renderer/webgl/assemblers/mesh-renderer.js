@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const MeshRenderer = require('../../../components/CCMeshRenderer');
-const SkinMeshRenderer = require('../../../components/CCSkinMeshRenderer');
+const SkinnedMeshRenderer = require('../../../3d/CCSkinnedMeshRenderer');
 const RenderFlow = require('../../render-flow');
 const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
@@ -52,7 +52,7 @@ let meshRendererAssembler = {
         let tmpMaterial = renderer.material;
 
         let tmpNode = renderer.node;
-        renderer.node = comp instanceof SkinMeshRenderer ? renderer._dummyNode : comp.node;
+        renderer.node = comp._material.useModel ? comp.node : renderer._dummyNode;
 
         let textures = comp.textures;
         let materials = comp._materials;
@@ -62,6 +62,7 @@ let meshRendererAssembler = {
             if (textures[i]) {
                 renderData.material.texture = textures[i];
             }
+
             renderer.material = renderData.material;
             renderer._flushIA(renderData);
         }
@@ -71,4 +72,4 @@ let meshRendererAssembler = {
     }
 };
 
-module.exports = SkinMeshRenderer._assembler = MeshRenderer._assembler = meshRendererAssembler;
+module.exports = MeshRenderer._assembler = meshRendererAssembler;

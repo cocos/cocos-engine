@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Animation = require('./CCAnimation');
-const Model = require('../assets/CCModel');
-const SkeletonAnimationClip = require('../assets/CCSkeletonAnimationClip');
+const Animation = require('../components/CCAnimation');
+const Model = require('./CCModel');
+const SkeletonAnimationClip = require('./CCSkeletonAnimationClip');
 const AnimationClip = require('../../animation/animation-clip');
 
 /**
