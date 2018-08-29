@@ -537,20 +537,22 @@ var Layout = cc.Class({
 
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
+            let childScaleX = Math.abs(child.scaleX);
+            let childScaleY = Math.abs(child.scaleY);
             if (!child.activeInHierarchy) {
                 continue;
             }
             //for resizing children
             if (this._resize === ResizeMode.CHILDREN) {
-                child.width = newChildWidth / child.scaleX;
+                child.width = newChildWidth / childScaleX;
                 if (this.type === Type.GRID) {
-                    child.height = this.cellSize.height / child.scaleY;
+                    child.height = this.cellSize.height / childScaleY;
                 }
             }
 
             var anchorX = child.anchorX;
-            var childBoundingBoxWidth = child.width * child.scaleX;
-            var childBoundingBoxHeight = child.height * child.scaleY;
+            var childBoundingBoxWidth = child.width * childScaleX;
+            var childBoundingBoxHeight = child.height * childScaleY;
 
             if (secondMaxHeight > tempMaxHeight) {
                 tempMaxHeight = secondMaxHeight;
@@ -633,7 +635,7 @@ var Layout = cc.Class({
                 var child = children[i];
                 if (child.activeInHierarchy) {
                     activeChildCount++;
-                    newHeight += child.height * child.scaleY;
+                    newHeight += child.height * Math.abs(child.scaleY);
                 }
             }
 
@@ -681,21 +683,23 @@ var Layout = cc.Class({
 
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
+            let childScaleX = Math.abs(child.scaleX);
+            let childScaleY = Math.abs(child.scaleY);
             if (!child.activeInHierarchy) {
                 continue;
             }
 
             //for resizing children
             if (this.resizeMode === ResizeMode.CHILDREN) {
-                child.height = newChildHeight / child.scaleY;
+                child.height = newChildHeight / childScaleY;
                 if (this.type === Type.GRID) {
-                    child.width = this.cellSize.width / child.scaleX;
+                    child.width = this.cellSize.width / childScaleX;
                 }
             }
 
             var anchorY = child.anchorY;
-            var childBoundingBoxWidth = child.width * child.scaleX;
-            var childBoundingBoxHeight = child.height * child.scaleY;
+            var childBoundingBoxWidth = child.width * childScaleX;
+            var childBoundingBoxHeight = child.height * childScaleY;
 
             if (secondMaxWidth > tempMaxWidth) {
                 tempMaxWidth = secondMaxWidth;
@@ -821,7 +825,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionY = function (child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * child.scaleY + paddingY + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * Math.abs(child.scaleY) + paddingY + row * this.spacingY);
         }.bind(this);
 
 
@@ -862,7 +866,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionX = function (child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * child.scaleX + paddingX + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * Math.abs(child.scaleX) + paddingX + column * this.spacingX);
         }.bind(this);
 
         var newWidth = 0;
@@ -910,7 +914,7 @@ var Layout = cc.Class({
                 var child = children[i];
                 if (child.activeInHierarchy) {
                     activeChildCount++;
-                    newWidth += child.width * child.scaleX;
+                    newWidth += child.width * Math.abs(child.scaleX);
                 }
             }
             newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
