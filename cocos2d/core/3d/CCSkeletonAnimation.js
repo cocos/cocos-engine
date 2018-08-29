@@ -77,10 +77,6 @@ var SkeletonAnimation = cc.Class({
         },
     },
 
-    __preload () {
-        if (!this._model) return;
-    },
-
     getAnimationState (name) {
         let state = this._super(name);
         let clip = state.clip;
