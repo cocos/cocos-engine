@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+if (CC_TEST) return;
+
 const Node = require('../CCNode');
 const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;

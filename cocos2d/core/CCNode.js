@@ -3163,6 +3163,6 @@ misc.propertyDefine(Node, SameNameGetSets);
 
 let _p = Node.prototype;
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
-js.getset(_p, 'scale', _p.getScale, _p.setSCALE, false, true);
+js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
 cc.Node = module.exports = Node;
