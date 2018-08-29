@@ -53,7 +53,6 @@ let meshRendererAssembler = {
 
         let tmpNode = renderer.node;
         renderer.node = comp instanceof SkinMeshRenderer ? renderer._dummyNode : comp.node;
-        // renderer.node = comp.node;
 
         let textures = comp.textures;
         let materials = comp._materials;
