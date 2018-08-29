@@ -137,7 +137,7 @@ proto.getYaw = function () {
 
 proto.lerp = function (to, ratio, out) {
     out = out || new cc.Quat();
-    cc.vmath.quat.lerp(out, this, to, ratio);
+    cc.vmath.quat.slerp(out, this, to, ratio);
     return out;
 };
 

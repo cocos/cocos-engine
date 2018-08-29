@@ -184,7 +184,9 @@ function setQuat (quat, y, z, w) {
         }
     }
 
-    this._syncEulerAngles();
+    if (CC_EDITOR) {
+        this._syncEulerAngles();
+    }
 }
 
 /**
