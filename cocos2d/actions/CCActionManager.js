@@ -145,16 +145,13 @@ cc.ActionManager.prototype = {
      */
     removeAllActions:function () {
         var locTargets = this._arrayTargets;
-
-        // RemoveAllActionsFromTarget changes the length of array _arrayTargets.
-        // So we iterate on the locTargets_clone instead of locTargets.
-        var locTargets_clone = cc.js.array.copy(locTargets);
-        for (var i = 0; i < locTargets_clone.length; i++) {
-            var element = locTargets_clone[i];
+        for (var i = 0; i < locTargets.length; i++) {
+            var element = locTargets[i];
             if (element)
-                this.removeAllActionsFromTarget(element.target, true);
+                this._putElement(element);
         }
-        locTargets_clone.length = 0;
+        this._arrayTargets.length = 0;
+        this._hashTargets = js.createMap(true);
     },
     /**
      * !#en
