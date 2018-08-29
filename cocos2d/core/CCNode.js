@@ -548,6 +548,17 @@ var Node = cc.Class({
 
         /**
          * !#en
+         * Whether the node is 3D node. Used to distinguish the display in the Inspector Panel.
+         * !#zh
+         * 记录此节点是否是 3D 节点，用于区分属性编辑器中的显示。
+         */
+        is3DNode: {
+            default: false,
+            editorOnly: true
+        },
+
+        /**
+         * !#en
          * Group index of node.<br/>
          * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
          * !#zh
