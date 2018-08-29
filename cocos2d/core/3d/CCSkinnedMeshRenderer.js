@@ -29,8 +29,6 @@ const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
 
-let ALLOW_FLOAT_TEXTURE = true;
-
 let SkinnedMeshRenderer = cc.Class({
     name: 'cc.SkinnedMeshRenderer',
     extends: MeshRenderer,
