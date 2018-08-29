@@ -401,7 +401,7 @@ let Button = cc.Class({
         // // Restore button status
         let target = this.target;
         let transition = this.transition;
-        if (transition === Transition.COLOR) {
+        if (transition === Transition.COLOR && this.interactable) {
             target.color = this.normalColor;
         } else if (transition === Transition.SCALE) {
             target.scale = this._originalScale;

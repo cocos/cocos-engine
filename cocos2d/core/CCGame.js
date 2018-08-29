@@ -666,7 +666,7 @@ var game = {
                 localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
             else if (CC_JSB) {
-                localCanvas = window.__cccanvas;
+                localCanvas = window.__canvas;
             }
             else {
                 localCanvas = canvas;

@@ -28,7 +28,6 @@ const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
 const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
-const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 
 /**
@@ -327,9 +326,7 @@ sp.Skeleton = cc.Class({
         this._material = new SpriteMaterial();
         this._renderDatas = [];
 
-        if (CC_DEBUG) {
-            this._debugRenderer = null;
-        }
+        this._debugRenderer = null;
     },
 
     /**
@@ -918,7 +915,7 @@ sp.Skeleton = cc.Class({
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
-    _initDebugDraw: CC_DEBUG && function () {
+    _initDebugDraw: function () {
         if (this.debugBones || this.debugSlots) {
             if (!this._debugRenderer) {
                 let debugDrawNode = new cc.PrivateNode();

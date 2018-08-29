@@ -366,6 +366,7 @@ let EditBox = cc.Class({
     _init () {
         this._createBackgroundSprite();
         this._createLabels();
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
         let impl = this._impl = new EditBoxImpl();
 
@@ -494,6 +495,25 @@ let EditBox = cc.Class({
         }
     },
 
+    _resizeChildNodes () {
+        let textLabelNode = this._textLabel.node,
+            placeholderLabelNode = this._placeholderLabel.node,
+            backgroundNode = this._background.node;
+            
+        textLabelNode.x = -this.node.width/2;
+        textLabelNode.y = this.node.height/2;
+        textLabelNode.width = this.node.width;
+        textLabelNode.height = this.node.height;
+        
+        placeholderLabelNode.x = -this.node.width/2;
+        placeholderLabelNode.y = this.node.height/2;
+        placeholderLabelNode.width = this.node.width;
+        placeholderLabelNode.height = this.node.height;            
+        
+        backgroundNode.width = this.node.width;
+        backgroundNode.height = this.node.height;
+    },
+
     _showLabels () {
         let displayText = this._textLabel.string;
         this._textLabel.node.active = displayText !== '';
@@ -575,6 +595,14 @@ let EditBox = cc.Class({
 
     onDestroy () {
         this._impl.clear();
+    },
+
+    onEnable () {
+        this._impl && this._impl.onEnable();
+    },
+
+    onDisable () {
+        this._impl && this._impl.onDisable();
     },
 
     __preload () {

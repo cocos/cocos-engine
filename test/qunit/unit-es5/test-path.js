@@ -10,3 +10,18 @@ test('dirname', function () {
     ok(cc.path.dirname('aa/bb/.github/.gitignore') === 'aa/bb/.github', 'get success');
 
 });
+
+test('basename', function () {
+    
+    ok(cc.path.basename('aa/bb/cc.js', '.js') === 'cc', 'get success');
+    ok(cc.path.basename('aa/bb/cc_cc.js','.js') === 'cc_cc', 'get success');
+    ok(cc.path.basename('aa/bb/cc/') === 'cc', 'get success');
+    ok(cc.path.basename('D:\\aa\\bb\\cc') === 'cc', 'get success');
+    ok(cc.path.basename('aa/bb/cc(cc).js', '.js') === 'cc(cc)', 'get success');
+    ok(cc.path.basename('aa/bb/cc[cc].js', '.js') === 'cc[cc]', 'get success');
+    ok(cc.path.basename('aa/bb/cc.js/ee.js', '.js') === 'ee', 'get success');
+    ok(cc.path.basename('aa/bb/.github') === '.github', 'get success');
+    // ios only, and linux not suggest
+    ok(cc.path.basename('aa/bb/cc|cc.js', '.js') === 'cc|cc', 'get success');
+
+});

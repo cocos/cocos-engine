@@ -57,7 +57,7 @@ let textureUtil = {
                     return cb && cb.call(target, err || new Error('Unknown error'));
                 }
                 texture.handleLoadedTexture();
-                cb && cb.call(target, texture);
+                cb && cb.call(target, null, texture);
             });
             return tex;
         }

@@ -156,7 +156,7 @@ else {
     defineMacro('CC_JSB', defined('jsb'));
     defineMacro('CC_WECHATGAME', defined('wx') && wx.getSystemInfoSync);
     defineMacro('CC_QQPLAY', defined('bk'));
-    defineMacro('CC_RUNTIME', false);
+    defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
 }
 

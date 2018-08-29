@@ -154,36 +154,36 @@ let TiledLayer = cc.Class({
         );
     },
 
-    _positionForHexAt (x, y) {
-        let xy;
+    _positionForHexAt (row, col) {
+        let tileWidth = this._mapTileSize.width;
+        let tileHeight = this._mapTileSize.height;
+        let cols = this._layerSize.height;
         let offset = this._tileset.tileOffset;
-
+        let centerWidth = this.node.width / 2;
+        let centerHeight = this.node.height / 2;
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        let x = 0, y = 0;
         switch (this._staggerAxis) {
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
                 let diffX = 0;
-                if (y % 2 === 1)
-                {
-                    diffX = this._mapTileSize.width/2 * odd_even;
+                let diffX1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 0 : tileWidth / 2;
+                if (col % 2 === 1) {
+                    diffX = tileWidth / 2 * odd_even;
                 }
-                xy = cc.v2(x * this._mapTileSize.width+diffX+offset.x,
-                    (this._layerSize.height - y - 1) * (this._mapTileSize.height-(this._mapTileSize.height-this._hexSideLength)/2)-offset.y);
+                x = row * tileWidth + diffX + diffX1 + offset.x - centerWidth;
+                y = (cols - col - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y - centerHeight;
                 break;
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
                 let diffY = 0;
-                if (x % 2 === 1)
-                {
-                    diffY = this._mapTileSize.height/2 * -odd_even;
+                let diffY1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? tileHeight / 2 : 0;
+                if (row % 2 === 1) {
+                    diffY = tileHeight / 2 * -odd_even;
                 }
-
-                xy = cc.v2(x * (this._mapTileSize.width-(this._mapTileSize.width-this._hexSideLength)/2)+offset.x,
-                    (this._layerSize.height - y - 1) * this._mapTileSize.height + diffY-offset.y);
-                break;
-            default: 
-                xy = cc.v2(0, 0);
+                x = row * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x - centerWidth;
+                y = (cols - col - 1) * tileHeight + diffY + diffY1 - offset.y - centerHeight;
                 break;
         }
-        return xy;
+        return cc.v2(x, y);
     },
 
     /**

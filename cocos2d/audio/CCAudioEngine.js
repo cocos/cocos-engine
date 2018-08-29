@@ -35,6 +35,7 @@ let _url2id = {};
 let _audioPool = [];
 
 let recycleAudio = function (audio) {
+    audio._finishCallback = null;
     if (_audioPool.length < 32) {
         audio.off('ended');
         audio.off('stop');
@@ -44,7 +45,7 @@ let recycleAudio = function (audio) {
     else {
         audio.destroy();
     }
-}
+};
 
 let getAudioFromPath = function (path) {
     var id = _instanceId++;
@@ -61,6 +62,10 @@ let getAudioFromPath = function (path) {
 
     var audio = _audioPool.pop() || new Audio();
     var callback = function () {
+        if (audio._finishCallback) {
+            audio._finishCallback();
+        }
+
         var audioInList = getAudioFromId(this.id);
         if (audioInList) {
             delete _id2audio[this.id];
@@ -289,10 +294,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (!audio)
             return;
-        audio.off('ended', audio._finishCallback);
-
         audio._finishCallback = callback;
-        audio.on('ended', audio._finishCallback);
     },
 
     /**

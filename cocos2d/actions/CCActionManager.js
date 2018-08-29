@@ -148,8 +148,10 @@ cc.ActionManager.prototype = {
         for (var i = 0; i < locTargets.length; i++) {
             var element = locTargets[i];
             if (element)
-                this.removeAllActionsFromTarget(element.target, true);
+                this._putElement(element);
         }
+        this._arrayTargets.length = 0;
+        this._hashTargets = js.createMap(true);
     },
     /**
      * !#en
