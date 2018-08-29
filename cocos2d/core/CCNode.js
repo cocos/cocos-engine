@@ -544,18 +544,9 @@ var Node = cc.Class({
         },
         _zIndex: 0,
 
-        // internal properties
+        _is3DNode: false,
 
-        /**
-         * !#en
-         * Whether the node is 3D node. Used to distinguish the display in the Inspector Panel.
-         * !#zh
-         * 记录此节点是否是 3D 节点，用于区分属性编辑器中的显示。
-         */
-        is3DNode: {
-            default: false,
-            editorOnly: true
-        },
+        // internal properties
 
         /**
          * !#en

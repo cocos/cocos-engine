@@ -72,7 +72,6 @@ var Mesh = cc.Class({
         this._modelUuid = '';
         this._meshID = -1;
         this._model = null;
-        this._skinning = null;
 
         this._subMeshes = [];
     },

@@ -37,9 +37,6 @@ const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 
-let _updateLocalMatrix2d = null;
-let _calculWorldMatrix2d = null;
-
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
         // Update transform
@@ -243,39 +240,64 @@ function _syncEulerAngles () {
     this._rotationZ = this._quat.getYaw();
 }
 
-cc._polyfill3D = module.exports = {
-    enabled: false,
-    enable () {
-        let proto = cc.Node.prototype;
-        if (!_updateLocalMatrix2d) {
-            _updateLocalMatrix2d = proto._updateLocalMatrix;
-            _calculWorldMatrix2d = proto._calculWorldMatrix;
-        }
-        if (!this.enabled) {
-            proto._updateLocalMatrix = _updateLocalMatrix3d;
-            proto._calculWorldMatrix = _calculWorldMatrix3d;
-
-            proto.getPosition = getPosition;
-            proto.setPosition = setPosition;
-            proto.getScale = getScale;
-            proto.setScale = setScale;
-            proto.getQuat = getQuat;
-            proto.setQuat = setQuat;
-            proto._mulMat = cc.vmath.mat4.mul;
-            proto._upgrade_1x_to_2x = proto._syncEulerAngles = _syncEulerAngles;
-
-            cc.js.getset(proto, 'position', getPosition, setPosition);
-            cc.js.getset(proto, 'scale', getScale, setScale);
-            cc.js.getset(proto, 'quat', getQuat, setQuat);
-
-            this.enabled = true;
-        }
-    },
-    disable () {
-        if (this.enabled) {
-            cc.Node.prototype._updateLocalMatrix = _updateLocalMatrix2d;
-            cc.Node.prototype._calculWorldMatrix = _calculWorldMatrix2d;
-            this.enabled = false;
-        }
+function _update3DFunction () {
+    if (this._is3DNode) {
+        this._updateLocalMatrix = _updateLocalMatrix3d;
+        this._calculWorldMatrix = _calculWorldMatrix3d;
+        this._mulMat = cc.vmath.mat4.mul;
+    }
+    else {
+        this._updateLocalMatrix = _updateLocalMatrix2d;
+        this._calculWorldMatrix = _calculWorldMatrix2d;
+        this._mulMat = _mulMat2d;
     }
 }
+
+function _apply3DNode () {
+    if (CC_EDITOR && this instanceof cc.Scene) {
+        this._is3DNode = true;
+    }
+    
+    if (this._is3DNode) {
+        this._update3DFunction();
+    }
+
+    this._syncEulerAngles();
+}
+
+let proto = cc.Node.prototype;
+const _updateLocalMatrix2d = proto._updateLocalMatrix;
+const _calculWorldMatrix2d = proto._calculWorldMatrix;
+const _mulMat2d = proto._mulMat;
+const _onBatchCreated2d = proto._onBatchCreated;
+
+proto.getQuat = getQuat;
+proto.setQuat = setQuat;
+
+proto.getPosition = getPosition;
+proto.setPosition = setPosition;
+proto.getScale = getScale;
+proto.setScale = setScale;
+
+proto._upgrade_1x_to_2x = _apply3DNode;
+proto._syncEulerAngles = _syncEulerAngles;
+proto._update3DFunction = _update3DFunction;
+
+cc.js.getset(proto, 'position', getPosition, setPosition, false, true);
+cc.js.getset(proto, 'scale', getScale, setScale, false, true);
+
+/**
+ * !en Switch 2D/3D node. The 2D nodes will run faster.
+ * !zh 切换 2D/3D 节点，2D 节点会有更高的运行效率
+ * @property {Boolean} is3DNode
+ * @default false
+*/
+cc.js.getset(proto, 'is3DNode', function () {
+    return this._is3DNode;
+}, function (v) {
+    if (this._is3DNode === v) return;
+    this._is3DNode = v;
+    this._update3DFunction();
+});
+
+cc.js.getset(proto, 'quat', getQuat, setQuat);

@@ -262,5 +262,11 @@
   },
   {
     "name": "Native NetWork"
+  },
+  {
+    "name": "3D",
+    "entries": [
+      "./cocos2d/core/utils/polyfill-3d.js"
+    ]
   }
 ]
