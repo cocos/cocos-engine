@@ -153,28 +153,25 @@ void Application::start()
         wTimerRes = std::min(std::max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
         timeBeginPeriod(wTimerRes);
     }
-
-    LARGE_INTEGER nFreq;
-    QueryPerformanceFrequency(&nFreq);
-    LONGLONG animationInterval = (LONGLONG)(1.0 / _fps * nFreq.QuadPart);
+    
     float dt = 0.f;
     const DWORD _16ms = 16;
 
     // Main message loop:
+    LARGE_INTEGER nFreq;
     LARGE_INTEGER nLast;
     LARGE_INTEGER nNow;
 
-    QueryPerformanceCounter(&nLast);
-
-    LONGLONG interval = 0LL;
+    LONGLONG actualInterval = 0LL; // actual frame internal
+    LONGLONG desiredInterval = 0LL; // desired frame internal, 1 / fps
     LONG waitMS = 0L;
 
-    LARGE_INTEGER freq;
-    QueryPerformanceFrequency(&freq);
-    
+    QueryPerformanceCounter(&nLast);
+    QueryPerformanceFrequency(&nFreq);
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     while (!CAST_VIEW(_view)->windowShouldClose())
     {       
+        desiredInterval = (LONGLONG)(1.0 / _fps * nFreq.QuadPart);
         if (!_isStarted)
         {
             auto scheduler = Application::getInstance()->getScheduler();
@@ -201,11 +198,11 @@ void Application::start()
         if(_isStarted)
         {
             QueryPerformanceCounter(&nNow);
-            interval = nNow.QuadPart - nLast.QuadPart;
-            if (interval >= animationInterval)
+            actualInterval = nNow.QuadPart - nLast.QuadPart;
+            if (actualInterval >= desiredInterval)
             {
                 nLast.QuadPart = nNow.QuadPart;
-                dt = (float)interval / freq.QuadPart;
+                dt = (float)actualInterval / nFreq.QuadPart;
                 _scheduler->update(dt);
 
                 EventDispatcher::dispatchTickEvent(dt);
@@ -222,7 +219,7 @@ void Application::start()
                 // Sleep(3) may make a sleep of 2ms or 4ms. Therefore, we subtract 1ms here to make Sleep time shorter.
                 // If 'waitMS' is equal or less than 1ms, don't sleep and run into next loop to
                 // boost CPU to next frame accurately.
-                waitMS = (animationInterval - interval) * 1000LL / freq.QuadPart - 1L;
+                waitMS = (desiredInterval - actualInterval) * 1000LL / nFreq.QuadPart - 1L;
                 if (waitMS > 1L)
                     Sleep(waitMS);
             } 
