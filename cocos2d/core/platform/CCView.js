@@ -963,7 +963,7 @@ cc.js.mixin(View.prototype, {
         let x = this._devicePixelRatio * (tx - relatedPos.left);
         let y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
         if (this._isRotated) {
-            result.x = this._viewportRect.width - y;
+            result.x = cc.game.canvas.width - y;
             result.y = x;
         }
         else {
