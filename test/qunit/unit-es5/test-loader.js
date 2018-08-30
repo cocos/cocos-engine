@@ -153,7 +153,7 @@ asyncTest('Loading font', function () {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
         else if (item.id === font.url) {
-            strictEqual(item.content, null, 'should set null as content for Font type');
+            strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
         }
         else {
             ok(false, 'should not load an unknown url');
