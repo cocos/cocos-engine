@@ -103,6 +103,14 @@ function CCLoader () {
     this.assetLoader = assetLoader;
 
     /**
+     * The md5 pipe in cc.loader's pipeline, it could be absent if the project isn't build with md5 option.
+     * It's used to modify the url to the real downloadable url with md5 suffix.
+     * @property md5Pipe
+     * @type {Object}
+     */
+    this.md5Pipe = null;
+
+    /**
      * The downloader in cc.loader's pipeline, it's by default the second pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
      * You can add your own download function with addDownloadHandlers
