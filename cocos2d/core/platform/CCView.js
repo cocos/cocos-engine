@@ -997,7 +997,7 @@ var View = cc._Class.extend({
     convertToLocationInView: function (tx, ty, relatedPos) {
         var x = this._devicePixelRatio * (tx - relatedPos.left);
         var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
-        return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
+        return this._isRotated ? {x: cc.game.canvas.width - y, y: x} : {x: x, y: y};
     },
 
     _convertMouseToLocationInView: function (in_out_point, relatedPos) {
