@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const WrapMode = require('./types').WrapMode;
 
 /**
  * !#en Class for animation data handling.
@@ -77,7 +78,7 @@ var AnimationClip = cc.Class({
          * @type {WrapMode}
          */
         wrapMode: {
-            default: cc.WrapMode.Normal
+            default: WrapMode.Normal
         },
 
         /**

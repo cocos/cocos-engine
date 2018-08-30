@@ -544,6 +544,8 @@ var Node = cc.Class({
         },
         _zIndex: 0,
 
+        _is3DNode: false,
+
         // internal properties
 
         /**
@@ -3047,6 +3049,19 @@ var Node = cc.Class({
     },
 });
 
+// 3D Node Property
+
+/**
+ * !en 
+ * Switch 2D/3D node. The 2D nodes will run faster.
+ * !zh 
+ * 切换 2D/3D 节点，2D 节点会有更高的运行效率
+ * @property {Boolean} is3DNode
+ * @default false
+*/
+
+// Node Event
+
 /**
  * @event position-changed
  * @param {Vec2} oldPos - The old position, but this parameter is only available in editor!
@@ -3156,7 +3171,11 @@ var Node = cc.Class({
  * @return {Boolean}
  */
 
-var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
-misc.propertyDefine(Node, SameNameGetSets);
+
+let _p = Node.prototype;
+js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
+js.getset(_p, 'parent', _p.getParent, _p.setParent);
+js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
+js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
 cc.Node = module.exports = Node;

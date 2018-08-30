@@ -263,5 +263,11 @@
   },
   {
     "name": "Native NetWork"
+  },
+  {
+    "name": "3D",
+    "entries": [
+      "./cocos2d/core/3d/index.js"
+    ]
   }
 ]

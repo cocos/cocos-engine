@@ -50,7 +50,7 @@ let MeshRenderer = cc.Class({
             set (v) {
                 if (this._mesh === v) return;
                 this._mesh = v;
-                this.activeMaterials();
+                this.activeMaterials(true);
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
@@ -73,22 +73,36 @@ let MeshRenderer = cc.Class({
         this.activeMaterials();
     },
 
-    activeMaterials () {
+    _createMaterial () {
+        let material = new renderEngine.MeshMaterial();   
+        material.color = cc.Color.WHITE;
+        if (cc.macro.ENABLE_3D) {
+            material._mainTech._passes[0].setDepth(true, true);
+        }
+        material.useModel = true;
+        return material;
+    },
+
+    _reset () {
         this._materials.length = 0;
+        this._material = null;
+    },
+
+    activeMaterials (force) {
         if (!this._mesh) {
             this.disableRender();
             return;
         }
 
+        if (this._material && !force) {
+            return;
+        }
+        
+        this._reset();
+
         let subMeshes = this._mesh._subMeshes;
         for (let i = 0; i < subMeshes.length; i++) {
-            let material = new renderEngine.SpriteMaterial();   
-            material.useModel = true;
-            material.color = cc.Color.WHITE;
-            if (cc.macro.ENABLE_3D) {
-                material.use2DPos = false;
-                material._mainTech._passes[0].setDepth(true, true);
-            }
+            let material = this._createMaterial();
             this._materials.push(material);
         }
         this._material = this._materials[0];

@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const MeshRenderer = require('../../../components/CCMeshRenderer');
+const SkinnedMeshRenderer = require('../../../3d/CCSkinnedMeshRenderer');
 const RenderFlow = require('../../render-flow');
 const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
@@ -48,19 +49,20 @@ let meshRendererAssembler = {
 
         renderer._flush();
 
-        let tmpNode = renderer.node;
         let tmpMaterial = renderer.material;
-        renderer.node = comp.node;
+
+        let tmpNode = renderer.node;
+        renderer.node = comp._material.useModel ? comp.node : renderer._dummyNode;
 
         let textures = comp.textures;
         let materials = comp._materials;
         let renderDatas = comp._renderDatas;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
-            if (!textures[i]) {
-                continue;
+            if (textures[i]) {
+                renderData.material.texture = textures[i];
             }
-            renderData.material.texture = textures[i];
+
             renderer.material = renderData.material;
             renderer._flushIA(renderData);
         }

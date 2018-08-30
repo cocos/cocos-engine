@@ -40,7 +40,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./physics');
     require('./camera/CCCamera');
 
-    require('./utils/polyfill-3d');
+    require('./3d');
 }
 
 require('./base-ui/CCWidgetManager');

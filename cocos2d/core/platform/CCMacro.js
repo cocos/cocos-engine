@@ -367,16 +367,6 @@ if (cc.sys.isMobile) {
  */
 cc.macro.SUPPORT_TEXTURE_FORMATS = SUPPORT_TEXTURE_FORMATS;
 
-js.getset(cc.macro, 'ENABLE_3D', function () {
-    return cc._polyfill3D.enabled;
-}, function (enabled) {
-    if (enabled) {
-        cc._polyfill3D.enable();
-    }
-    else {
-        cc._polyfill3D.disable();
-    }
-});
 
 /**
  * !#en Key map for keyboard event

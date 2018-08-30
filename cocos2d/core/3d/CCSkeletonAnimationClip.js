@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -24,36 +23,67 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCComponent');
-require('./CCComponentEventHandler');
-require('./missing-script');
+const Model = require('./CCModel');
 
-var components = [
-    require('./CCSprite'),
-    require('./CCWidget'),
-    require('./CCCanvas'),
-    require('./CCAudioSource'),
-    require('./CCAnimation'),
-    require('./CCButton'),
-    require('./CCLabel'),
-    require('./CCProgressBar'),
-    require('./CCMask'),
-    require('./CCScrollBar'),
-    require('./CCScrollView'),
-    require('./CCPageViewIndicator'),
-    require('./CCPageView'),
-    require('./CCSlider'),
-    require('./CCLayout'),
-    require('./editbox/CCEditBox'),
-    require('./CCLabelOutline'),
-    require('./CCRichText'),
-    require('./CCToggleContainer'),
-    require('./CCToggleGroup'),
-    require('./CCToggle'),
-    require('./CCBlockInputEvents'),
-    require('./CCMotionStreak'),
-    require('./WXSubContextView'),
-    require('./CCMeshRenderer'),
-];
+ /**
+ * @module cc
+ */
+/**
+ * !#en SkeletonAnimationClip Asset.
+ * !#zh 网格资源。
+ * @class SkeletonAnimationClip
+ * @extends AnimationClip
+ */
+var SkeletonAnimationClip = cc.Class({
+    name: 'cc.SkeletonAnimationClip',
+    extends: cc.AnimationClip,
 
-module.exports = components;
+    properties: {
+        _modelSetter: {
+            set: function (model) {
+                this._model = model;
+            }
+        },
+
+        model: {
+            get () {
+                return this._model;
+            },
+
+            type: Model
+        }
+    },
+
+    ctor () {
+        this._modelUuid = '';
+        this._animationID = -1;
+        this._model = null;
+        this._inited = false;
+    },
+
+    init () {
+        if (this._inited) return;
+        this._inited = true;
+        this._model.initAnimationClip(this);
+    },
+
+    _serialize: CC_EDITOR && function () {
+        return {
+            modelUuid: this._modelUuid,
+            animationID: this._animationID,
+            name: this._name,
+        }
+    },
+
+    _deserialize (data, handle) {
+        this._modelUuid = data.modelUuid;
+        this._animationID = data.animationID;
+        this._name = data.name;
+
+        if (this._modelUuid) {
+            handle.result.push(this, '_modelSetter', this._modelUuid);
+        }
+    }
+});
+
+cc.SkeletonAnimationClip = module.exports = SkeletonAnimationClip;
