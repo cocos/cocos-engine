@@ -74,7 +74,7 @@ let EditBox = cc.Class({
                 return this._string;
             },
             set(value) {
-                if (value.length >= this.maxLength) {
+                if (this.maxLength >= 0 && value.length >= this.maxLength) {
                     value = value.slice(0, this.maxLength);
                 }
 
