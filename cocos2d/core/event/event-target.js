@@ -89,10 +89,9 @@ var proto = EventTarget.prototype;
  * @param {Object} [target] - The target (this object) to invoke the callback, can be null
  * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
  * @typescript
- * on(type: string, callback: (event: Event.EventCustom) => void, target?: any): (event: Event.EventCustom) => void
- * on<T>(type: string, callback: (event: T) => void, target?: any): (event: T) => void
+ * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
  * @example
- * eventTarget.on('fire', function (event) {
+ * eventTarget.on('fire', function () {
  *     cc.log("fire in the hole");
  * }, node);
  */
@@ -124,7 +123,7 @@ proto.on = function (type, callback, target) {
  * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
  * @example
  * // register fire eventListener
- * var callback = eventTarget.on('fire', function (event) {
+ * var callback = eventTarget.on('fire', function () {
  *     cc.log("fire in the hole");
  * }, target);
  * // remove fire event listener
@@ -176,7 +175,7 @@ proto.targetOff = proto.removeAll;
  * @param {any} [callback.arg5] arg5
  * @param {Object} [target] - The target (this object) to invoke the callback, can be null
  * @example
- * eventTarget.once('fire', function (event) {
+ * eventTarget.once('fire', function () {
  *     cc.log("this is the callback and will be invoked only once");
  * }, node);
  */

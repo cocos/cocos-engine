@@ -22,7 +22,8 @@ let RenderTexture = cc.Class({
      * !#zh
      * 初始化 render texture 
      * @param {Number} [width] 
-     * @param {Number} [height] 
+     * @param {Number} [height]
+     * @param {Number} [depthStencilFormat]
      * @method initWithSize
      */
     initWithSize (width, height, depthStencilFormat) {
