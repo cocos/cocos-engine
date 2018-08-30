@@ -3172,10 +3172,9 @@ var Node = cc.Class({
  */
 
 
-var SameNameGetSets = ['parent', 'rotation'];
-misc.propertyDefine(Node, SameNameGetSets);
-
 let _p = Node.prototype;
+js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
+js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
