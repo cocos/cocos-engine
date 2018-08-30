@@ -389,7 +389,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     setString: function (text) {
-        if (text.length >= this._maxLength) {
+        if (this._maxLength >= 0 && text.length >= this._maxLength) {
             text = text.slice(0, this._maxLength);
         }
         this._text = text;
