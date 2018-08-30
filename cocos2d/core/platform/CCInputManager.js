@@ -98,10 +98,10 @@ var inputManager = {
      * @param {Array} touches
      */
     handleTouchesBegin: function (touches) {
-        var selTouch, index, curTouch, touchID, 
+        var selTouch, index, curTouch, touchID,
             handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
             now = sys.now();
-        for(var i = 0, len = touches.length; i< len; i ++){
+        for (let i = 0, len = touches.length; i < len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = locTouchIntDict[touchID];
@@ -133,7 +133,7 @@ var inputManager = {
      * @param {Array} touches
      */
     handleTouchesMove: function(touches){
-        var selTouch, index, touchID, 
+        var selTouch, index, touchID,
             handleTouches = [], locTouches = this._touches,
             now = sys.now();
         for(var i = 0, len = touches.length; i < len; i++){
@@ -172,6 +172,7 @@ var inputManager = {
             touchEvent._eventCode = cc.Event.EventTouch.ENDED;
             eventManager.dispatchEvent(touchEvent);
         }
+        this._preTouchPool.length = 0;
     },
 
     /**
@@ -186,6 +187,7 @@ var inputManager = {
             touchEvent._eventCode = cc.Event.EventTouch.CANCELLED;
             eventManager.dispatchEvent(touchEvent);
         }
+        this._preTouchPool.length = 0;
     },
 
     /**
