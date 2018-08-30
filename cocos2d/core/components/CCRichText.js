@@ -26,16 +26,14 @@
 
 const js = require('../platform/js');
 const macro = require('../platform/CCMacro');
-const utils = require('../utils/text-utils');
-const HtmlTextParser = utils.HtmlTextParser;
-const TextUtils = utils.TextUtils;
-const CustomFontLoader = utils.CustomFontLoader;
+const textUtils = require('../utils/text-utils');
+const HtmlTextParser = require('../utils/html-text-parser');
+const _htmlTextParser = new HtmlTextParser();
 
 const HorizontalAlign = macro.TextAlignment;
 const VerticalAlign = macro.VerticalTextAlignment;
 const RichTextChildName = "RICHTEXT_CHILD";
 const RichTextChildImageName = "RICHTEXT_Image_CHILD";
-const _htmlTextParser = new HtmlTextParser();
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -324,23 +322,14 @@ let RichText = cc.Class({
         return pool.get(string, this.font, this.fontSize);
     },
 
-    _getFontRawUrl () {
-        let isAsset = this.font instanceof cc.TTFFont;
-        return isAsset ? this.font.nativeUrl : '';
-    },
-
     _onTTFLoaded () {
-        let rawUrl = this._getFontRawUrl();
-        if (!rawUrl) return;
+        if (this.font instanceof cc.TTFFont) {
+            this._layoutDirty = true;
+            this._updateRichText();
+        }
 
-        let self = this;
-
-        let callback = function () {
-            self._layoutDirty = true;
-            self._updateRichText();
-        };
-
-        CustomFontLoader.loadTTF(rawUrl, callback);
+        this._layoutDirty = true;
+        this._updateRichText();
     },
 
     _measureText (styleIndex, string) {
@@ -489,7 +478,7 @@ let RichText = cc.Class({
             }
         }
         if (fragmentWidth > this.maxWidth) {
-            let fragments = TextUtils.fragmentText(labelString,
+            let fragments = textUtils.fragmentText(labelString,
                 fragmentWidth,
                 this.maxWidth,
                 this._measureText(styleIndex));
@@ -718,16 +707,16 @@ let RichText = cc.Class({
 
     _getFirstWordLen (text, startIndex, textLen) {
         let character = text.charAt(startIndex);
-        if (TextUtils.isUnicodeCJK(character)
-            || TextUtils.isUnicodeSpace(character)) {
+        if (textUtils.isUnicodeCJK(character)
+            || textUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
         let len = 1;
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            if (TextUtils.isUnicodeSpace(character)
-                || TextUtils.isUnicodeCJK(character)) {
+            if (textUtils.isUnicodeSpace(character)
+                || textUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;

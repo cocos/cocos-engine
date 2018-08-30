@@ -28,7 +28,7 @@ const macro = require('../../../platform/CCMacro');
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
-const TextUtils = require('../../../utils/text-utils').TextUtils;
+const textUtils = require('../../../utils/text-utils');
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -304,7 +304,7 @@ module.exports = {
                     && _maxLineWidth > 0
                     && nextTokenX > 0
                     && letterX + letterDef._width * _bmfontScale > _maxLineWidth
-                    && !TextUtils.isUnicodeSpace(character)) {
+                    && !textUtils.isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
@@ -390,9 +390,9 @@ module.exports = {
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         let character = text.charAt(startIndex);
-        if (TextUtils.isUnicodeCJK(character)
+        if (textUtils.isUnicodeCJK(character)
             || character === "\n"
-            || TextUtils.isUnicodeSpace(character)) {
+            || textUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
@@ -413,14 +413,14 @@ module.exports = {
             letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
 
             if(letterX + letterDef._width * _bmfontScale > _maxLineWidth
-               && !TextUtils.isUnicodeSpace(character)
+               && !textUtils.isUnicodeSpace(character)
                && _maxLineWidth > 0) {
                 return len;
             }
             nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
             if (character === "\n"
-                || TextUtils.isUnicodeSpace(character)
-                || TextUtils.isUnicodeCJK(character)) {
+                || textUtils.isUnicodeSpace(character)
+                || textUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;

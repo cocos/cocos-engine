@@ -24,14 +24,12 @@
  ****************************************************************************/
 
 const macro = require('../../../platform/CCMacro');
-const utils = require('../../../utils/text-utils');
+const textUtils = require('../../../utils/text-utils');
 
 const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
-const TextUtils = utils.TextUtils;
-const CustomFontLoader = utils.CustomFontLoader;
 
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
@@ -120,25 +118,24 @@ module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        if (this._updateFontFamly(comp)) {
-            this._updateProperties(comp);
-            this._calculateLabelFont();
-            this._calculateSplitedStrings();
-            this._updateLabelDimensions();
-            this._calculateTextBaseline();
-            this._updateTexture(comp);
+        this._updateFontFamly(comp);
+        this._updateProperties(comp);
+        this._calculateLabelFont();
+        this._calculateSplitedStrings();
+        this._updateLabelDimensions();
+        this._calculateTextBaseline();
+        this._updateTexture(comp);
 
-            comp._actualFontSize = _fontSize;
-            comp.node.setContentSize(_canvasSize);
+        comp._actualFontSize = _fontSize;
+        comp.node.setContentSize(_canvasSize);
 
-            this._updateVerts(comp);
+        this._updateVerts(comp);
 
-            comp._renderData.vertDirty = comp._renderData.uvDirty = false;
+        comp._renderData.vertDirty = comp._renderData.uvDirty = false;
 
-            _context = null;
-            _canvas = null;
-            _texture = null;
-        }
+        _context = null;
+        _canvas = null;
+        _texture = null;
     },
 
     _updateVerts () {
@@ -146,95 +143,25 @@ module.exports = {
 
     _updateFontFamly (comp) {
         if (!comp.useSystemFont) {
-            if (!comp.font) return false;
-
-            let url = comp.font.nativeUrl;
-            var md5Pipe = cc.loader.md5Pipe;
-            if (md5Pipe) {
-                url = md5Pipe.transformURL(url, true);
-            }
-            if (CC_WECHATGAME) {
-                // load from font cache
-                if (CustomFontLoader._fontCache[url]) {
-                    _fontFamily = CustomFontLoader._fontCache[url];
-                    return true;
-                }
-                // load from local font
-                _fontFamily = wx.loadFont(url);
-                if (_fontFamily) {
-                    CustomFontLoader._fontCache[url] = _fontFamily;
+            if (comp.font) {
+                if (comp.font._nativeAsset) {
+                    _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    // load from remote font
-                    let item = url;
-                    if (md5Pipe) {
-                        item = {
-                            url: url,
-                            skips: [md5Pipe.id]
-                        };
-                    }
-                    cc.loader.load(item, function (err) {
-                        let localPath = wx.env.USER_DATA_PATH + '/' + url;
-                        _fontFamily = wx.loadFont(localPath);
-                        if (!_fontFamily) {
-                            _fontFamily = 'Arial';
-                        }
-                        CustomFontLoader._fontCache[url] = _fontFamily;
-                        comp._updateRenderData();
+                    let self = this;
+                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                        _fontFamily = fontFamily || 'Arial';
+                        self.updateRenderData(comp);
                     });
-                    return false;
-                }
-            } else if (CC_RUNTIME) {
-                // load from font cache
-                if (CustomFontLoader._fontCache[url]) {
-                    _fontFamily = CustomFontLoader._fontCache[url];
-                    return true;
-                }
-                var loaderFontFamily = CustomFontLoader._getFontFamily(url);
-                // load from local font
-                var localPath = "url('" + url + "')";
-                var fontFamily = jsb.loadFont(loaderFontFamily, localPath);
-                if (fontFamily) {
-                    CustomFontLoader._fontCache[url] = fontFamily;
-                    _fontFamily = fontFamily;
-                }
-                else {
-                    // load from remote font
-                    let item = url;
-                    if (md5Pipe) {
-                        item = {
-                            url: url,
-                            skips: [md5Pipe.id]
-                        };
-                    }                    
-                    cc.loader.load(item, function (err) {
-                        var localDownloadPath = "url('" + loadRuntime().env.USER_DATA_PATH + "/" + url + "')";
-                        _fontFamily = jsb.loadFont(loaderFontFamily, localDownloadPath);
-                        if (!_fontFamily) {
-                            _fontFamily = 'Arial';
-                        }
-                        CustomFontLoader._fontCache[url] = _fontFamily;
-                        comp._updateRenderData();
-                    });
-                    return false;
                 }
             }
             else {
-                _fontFamily = CustomFontLoader._getFontFamily(url);
-                let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
-                if (!fontDescriptor || !fontDescriptor.isLoaded()) {
-                    CustomFontLoader.loadTTF(url, function () {
-                        comp._updateRenderData();
-                    });
-                    return false;
-                }
+                _fontFamily = 'Arial';
             }
         }
         else {
             _fontFamily = comp.fontFamily;
         }
-
-        return true;
     },
 
     _updateProperties (comp) {
@@ -380,7 +307,7 @@ module.exports = {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = _splitedStrings.length * this._getLineHeight();
@@ -432,8 +359,8 @@ module.exports = {
             _splitedStrings = [];
             let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
-                let textFragment = TextUtils.fragmentText(paragraphedStrings[i],
+                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                         allWidth,
                                                         canvasWidthNoMargin,
                                                         this._measureText(_context));
@@ -471,7 +398,7 @@ module.exports = {
         let paragraphLength = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let width = TextUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
             paragraphLength.push(width);
         }
 
@@ -480,7 +407,7 @@ module.exports = {
 
     _measureText (ctx) {
         return function (string) {
-            return TextUtils.safeMeasureText(ctx, string);
+            return textUtils.safeMeasureText(ctx, string);
         };
     },
 
@@ -531,13 +458,13 @@ module.exports = {
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        let allWidth = TextUtils.safeMeasureText(_context, paragraphedStrings[i]);
-                        textFragment = TextUtils.fragmentText(paragraphedStrings[i],
+                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                        textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                             allWidth,
                                                             canvasWidthNoMargin,
                                                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            let measureWidth = TextUtils.safeMeasureText(_context, textFragment[j]);
+                            let measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
