@@ -106,18 +106,19 @@ void Application::start()
         return;
 
     float dt = 0.f;
-    long long frameInternal = 0;
-    long long desiredInterval = 1.0 / _fps * 1000000;
+    long long actualInternal = 0; // actual frame internal
+    long long desiredInterval = 0; // desired frame internal, 1 / fps
 
-    std::chrono::steady_clock::time_point prevTime;
+    std::chrono::steady_clock::time_point prev;
     std::chrono::steady_clock::time_point now;
 
-    prevTime = std::chrono::steady_clock::now();
+    prev = std::chrono::steady_clock::now();
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
     while (!CAST_VIEW(_view)->windowShouldClose())
     {
+        desiredInterval = 1.0 / _fps * 1000000;
         if (!_isStarted)
         {
             auto scheduler = Application::getInstance()->getScheduler();
@@ -146,11 +147,11 @@ void Application::start()
         if (_isStarted)
         {
             now = std::chrono::steady_clock::now();
-            frameInternal = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count();
-            if (frameInternal >= desiredInterval)
+            actualInternal = std::chrono::duration_cast<std::chrono::microseconds>(now - prev).count();
+            if (actualInternal >= desiredInterval)
             {
-                prevTime = now;
-                dt = (float)frameInternal / 1000000.f;
+                prev = now;
+                dt = (float)actualInternal / 1000000.f;
                 _scheduler->update(dt);
 
                 EventDispatcher::dispatchTickEvent(dt);
@@ -164,7 +165,7 @@ void Application::start()
             else
             {
                 // sleep 3ms may make a sleep of 4ms
-                std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval - frameInternal - 1000));
+                std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval - actualInternal - 1000));
             }
         }
         else
