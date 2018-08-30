@@ -104,16 +104,21 @@ void Application::start()
 {
     if (!_view)
         return;
-    
-    std::chrono::steady_clock::time_point prevTime;
-    std::chrono::steady_clock::time_point now;
+
     float dt = 0.f;
-    const useconds_t _16ms = 16 * 1000;
+    long long actualInternal = 0; // actual frame internal
+    long long desiredInterval = 0; // desired frame internal, 1 / fps
+
+    std::chrono::steady_clock::time_point prev;
+    std::chrono::steady_clock::time_point now;
+
+    prev = std::chrono::steady_clock::now();
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
     while (!CAST_VIEW(_view)->windowShouldClose())
     {
+        desiredInterval = 1.0 / _fps * 1000000;
         if (!_isStarted)
         {
             auto scheduler = Application::getInstance()->getScheduler();
@@ -133,29 +138,39 @@ void Application::start()
             _isStarted = true;
         }
 
-        prevTime = std::chrono::steady_clock::now();
         // should be invoked at the begin of rendering a frame
         if (_isDownsampleEnabled)
             _renderTexture->prepare();
 
         CAST_VIEW(_view)->pollEvents();
-        _scheduler->update(dt);
 
         if (_isStarted)
         {
-            EventDispatcher::dispatchTickEvent(dt);
-
-            if (_isDownsampleEnabled)
-                _renderTexture->draw();
-
-            CAST_VIEW(_view)->swapBuffers();
-            PoolManager::getInstance()->getCurrentPool()->clear();
             now = std::chrono::steady_clock::now();
-            dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+            actualInternal = std::chrono::duration_cast<std::chrono::microseconds>(now - prev).count();
+            if (actualInternal >= desiredInterval)
+            {
+                prev = now;
+                dt = (float)actualInternal / 1000000.f;
+                _scheduler->update(dt);
+
+                EventDispatcher::dispatchTickEvent(dt);
+
+                if (_isDownsampleEnabled)
+                    _renderTexture->draw();
+
+                CAST_VIEW(_view)->swapBuffers();
+                PoolManager::getInstance()->getCurrentPool()->clear();
+            }
+            else
+            {
+                // sleep 3ms may make a sleep of 4ms
+                std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval - actualInternal - 1000));
+            }
         }
         else
         {
-            usleep(_16ms);
+            std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval));
         }
     }
 }

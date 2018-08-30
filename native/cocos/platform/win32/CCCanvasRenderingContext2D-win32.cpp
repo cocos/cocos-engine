@@ -535,10 +535,8 @@ private:
             GetDIBits(_DC, _bmp, 0, _bufferHeight, dataBuf,
                       (LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-            uint8_t r = _fillStyle.r * 255.0f;
-            uint8_t g = _fillStyle.g * 255.0f;
-            uint8_t b = _fillStyle.b * 255.0f;
-            COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
+
+            uint8_t r, g, b;
             float alpha = 1.0f;
             COLORREF * pPixel = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
@@ -547,7 +545,17 @@ private:
                 for (int x = 0; x < _bufferWidth; ++x)
                 {
                     COLORREF& clr = *pPixel;
-                    clr = ((BYTE)(GetRValue(clr) * alpha) << 24) | textColor;
+                    uint8_t dirtyValue = GetRValue(clr);
+                    // "dirtyValue > 0" means pixel was covered when drawing text
+                    if (dirtyValue > 0)
+                    {
+                        // r = _fillStyle.r * 255 * (dirtyValue / 255);
+                        r = _fillStyle.r * dirtyValue;
+                        g = _fillStyle.g * dirtyValue;
+                        b = _fillStyle.b * dirtyValue;
+                        COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
+                        clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
+                    }
                     ++pPixel;
                 }
             }

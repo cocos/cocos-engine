@@ -40,6 +40,40 @@
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
 
+#ifndef ORG_RENDER_CLASS_NAME
+#define ORG_RENDER_CLASS_NAME org_cocos2dx_lib_Cocos2dxRenderer
+#endif
+#define JNI_RENDER(FUNC) JNI_METHOD1(ORG_RENDER_CLASS_NAME,FUNC)
+
+#ifndef ORG_ACTIVITY_CLASS_NAME
+#define ORG_ACTIVITY_CLASS_NAME org_cocos2dx_lib_Cocos2dxActivity
+#endif
+#define JNI_ACTIVITY(FUNC) JNI_METHOD1(ORG_ACTIVITY_CLASS_NAME,FUNC)
+
+#ifndef ORG_ACCELEROMETER_CLASS_NAME
+#define ORG_ACCELEROMETER_CLASS_NAME org_cocos2dx_lib_Cocos2dxAccelerometer
+#endif
+#define JNI_ACCELEROMETER(FUNC) JNI_METHOD1(ORG_ACCELEROMETER_CLASS_NAME,FUNC)
+
+#ifndef ORG_HELPER_CLASS_NAME
+#define ORG_HELPER_CLASS_NAME org_cocos2dx_lib_Cocos2dxHelper
+#endif
+#define JNI_HELPER(FUNC) JNI_METHOD1(ORG_HELPER_CLASS_NAME,FUNC)
+
+#ifndef ORG_AUDIOFOCUS_CLASS_NAME
+#define ORG_AUDIOFOCUS_CLASS_NAME org_cocos2dx_lib_Cocos2dxAudioFocusManager
+#endif
+#define JNI_AUDIO(FUNC) JNI_METHOD1(ORG_AUDIOFOCUS_CLASS_NAME,FUNC)
+
+#ifndef JCLS_HELPER
+#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#endif
+
+#ifndef JCLS_RENDERER
+#define JCLS_RENDERER "org/cocos2dx/lib/Cocos2dxRenderer"
+#endif
+
+
 #define KEYCODE_BACK 0x04
 #define KEYCODE_MENU 0x52
 #define KEYCODE_DPAD_UP 0x13
@@ -59,8 +93,6 @@ namespace
     bool __isOpenDebugView = false;
     bool __isGLOptModeEnabled = true;
     std::string g_apkPath;
-    const std::string Cocos2dxHelperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
-    const std::string Cocos2dxRendererClassName = "org/cocos2dx/lib/Cocos2dxRenderer";
     EditTextCallback s_editTextCallback = nullptr;
     void* s_ctx = nullptr;
     int g_deviceSampleRate = 44100;
@@ -106,7 +138,7 @@ extern "C"
      * Cocos2dxActivity native functions implementation.
      *****************************************************/
 
-    JNIEXPORT jintArray JNICALL Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
+    JNIEXPORT jintArray JNICALL JNI_ACTIVITY(getGLContextAttrs)(JNIEnv*  env, jobject thiz)
     {
         //REFINE
         int tmp[7] = {8, 8, 8,
@@ -121,7 +153,7 @@ extern "C"
 	 * Cocos2dxRenderer native functions implementation.
 	 *****************************************************/
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeInit)(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
     {
         g_width = w;
         g_height = h;
@@ -146,7 +178,7 @@ extern "C"
         g_isStarted = true;
     }
 
-	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender(JNIEnv* env)
+	JNIEXPORT void JNICALL JNI_RENDER(nativeRender)(JNIEnv* env)
 	{
         if (g_isGameFinished)
         {
@@ -154,7 +186,7 @@ extern "C"
             delete g_app;
             g_app = nullptr;
 
-            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "endApplication");
+            JniHelper::callStaticVoidMethod(JCLS_HELPER, "endApplication");
             return;
         }
 
@@ -227,7 +259,7 @@ extern "C"
         __jsbInvocationCount = 0;
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnPause()
+    JNIEXPORT void JNICALL JNI_RENDER(nativeOnPause)()
     {
         if (g_isGameFinished) {
             return;
@@ -236,7 +268,7 @@ extern "C"
             g_app->applicationDidEnterBackground();
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnResume()
+    JNIEXPORT void JNICALL JNI_RENDER(nativeOnResume)()
     {
         if (g_isGameFinished) {
             return;
@@ -245,22 +277,22 @@ extern "C"
             g_app->applicationWillEnterForeground();
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInsertText(JNIEnv* env, jobject thiz, jstring text)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeInsertText)(JNIEnv* env, jobject thiz, jstring text)
     {
         //REFINE
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeDeleteBackward(JNIEnv* env, jobject thiz)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeDeleteBackward)(JNIEnv* env, jobject thiz)
     {
         //REFINE
     }
 
-    JNIEXPORT jstring JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeGetContentText()
+    JNIEXPORT jstring JNICALL JNI_RENDER(nativeGetContentText)()
     {
         //REFINE
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNIEnv*  env, jobject thiz, jint w, jint h)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeOnSurfaceChanged)(JNIEnv*  env, jobject thiz, jint w, jint h)
     {
         //REFINE
     }
@@ -269,7 +301,7 @@ extern "C"
 	 * Cocos2dxAccelerometer native functions implementation.
 	 ***********************************************************/
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAccelerometer_onSensorChanged(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp)
+    JNIEXPORT void JNICALL JNI_ACCELEROMETER(onSensorChanged)(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp)
     {
         //REFINE
     }
@@ -326,7 +358,7 @@ extern "C"
         cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesBegin)(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
     {
         if (g_isGameFinished) {
             return;
@@ -334,7 +366,7 @@ extern "C"
         dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::BEGAN, id, x, y);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesEnd(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesEnd)(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
     {
         if (g_isGameFinished) {
             return;
@@ -342,7 +374,7 @@ extern "C"
         dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::ENDED, id, x, y);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesMove(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesMove)(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
     {
         if (g_isGameFinished) {
             return;
@@ -350,7 +382,7 @@ extern "C"
         dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::MOVED, ids, xs, ys);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesCancel(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
+    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesCancel)(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
     {
         if (g_isGameFinished) {
             return;
@@ -358,7 +390,7 @@ extern "C"
         dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::CANCELLED, ids, xs, ys);
     }
 
-    JNIEXPORT jboolean JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeKeyEvent(JNIEnv * env, jobject thiz, jint keyCode, jboolean isPressed)
+    JNIEXPORT jboolean JNICALL JNI_RENDER(nativeKeyEvent)(JNIEnv * env, jobject thiz, jint keyCode, jboolean isPressed)
     {
         if (g_isGameFinished) {
             return JNI_TRUE;
@@ -407,25 +439,25 @@ extern "C"
      * Cocos2dxHelper native functions implementation.
      ***********************************************************/
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetApkPath(JNIEnv* env, jobject thiz, jstring apkPath)
+    JNIEXPORT void JNICALL JNI_HELPER(nativeSetApkPath)(JNIEnv* env, jobject thiz, jstring apkPath)
     {
         g_apkPath = JniHelper::jstring2string(apkPath);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext(JNIEnv*  env, jobject thiz, jobject context, jobject assetManager)
+    JNIEXPORT void JNICALL JNI_HELPER(nativeSetContext)(JNIEnv*  env, jobject thiz, jobject context, jobject assetManager)
     {
         JniHelper::setClassLoaderFrom(context);
         FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetManager));
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetAudioDeviceInfo(JNIEnv*  env, jobject thiz, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames)
+    JNIEXPORT void JNICALL JNI_HELPER(nativeSetAudioDeviceInfo)(JNIEnv*  env, jobject thiz, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames)
     {
         g_deviceSampleRate = deviceSampleRate;
         g_deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
         LOGD("nativeSetAudioDeviceInfo: sampleRate: %d, bufferSizeInFrames: %d", g_deviceSampleRate, g_deviceAudioBufferSizeInFrames);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetEditTextDialogResult(JNIEnv* env, jobject obj, jbyteArray text)
+    JNIEXPORT void JNICALL JNI_HELPER(nativeSetEditTextDialogResult)(JNIEnv* env, jobject obj, jbyteArray text)
     {
         jsize  size = env->GetArrayLength(text);
 
@@ -455,7 +487,7 @@ extern "C"
      * Cocos2dxAudioFocusManager native functions implementation.
      ***********************************************************/
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAudioFocusManager_nativeOnAudioFocusChange(JNIEnv* env, jobject thiz, jint focusChange)
+    JNIEXPORT void JNICALL JNI_AUDIO(nativeOnAudioFocusChange)(JNIEnv* env, jobject thiz, jint focusChange)
     {
         // cocos_audioengine_focus_change(focusChange);
     }
@@ -477,7 +509,7 @@ std::string getApkPathJNI()
 
 std::string getPackageNameJNI() 
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getCocos2dxPackageName");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxPackageName");
 }
 
 int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 
@@ -485,7 +517,7 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     JniMethodInfo methodInfo;
     int fd = 0;
     
-    if (JniHelper::getStaticMethodInfo(methodInfo, Cocos2dxHelperClassName.c_str(), "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) 
+    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J"))
     {
         jstring stringArg = methodInfo.env->NewStringUTF(path.c_str());
         jlongArray newArray = (jlongArray)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg);
@@ -522,7 +554,7 @@ void convertEncodingJNI(const std::string& src, int byteSize, const std::string&
 {
     JniMethodInfo methodInfo;
 
-    if (JniHelper::getStaticMethodInfo(methodInfo, Cocos2dxHelperClassName.c_str(), "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B")) 
+    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B"))
     {
         jbyteArray strArray = methodInfo.env->NewByteArray(byteSize);
         methodInfo.env->SetByteArrayRegion(strArray, 0, byteSize, reinterpret_cast<const jbyte*>(src.c_str()));
@@ -544,36 +576,36 @@ void convertEncodingJNI(const std::string& src, int byteSize, const std::string&
 
 std::string getCurrentLanguageJNI()
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getCurrentLanguage");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
 std::string getSystemVersionJNI()
 {
-    return JniHelper::callStaticStringMethod(Cocos2dxHelperClassName, "getSystemVersion");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");
 }
 
 bool openURLJNI(const std::string& url)
 {
-    return JniHelper::callStaticBooleanMethod(Cocos2dxHelperClassName, "openURL", url);
+    return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
 void setPreferredFramesPerSecondJNI(int fps)
 {
-    JniHelper::callStaticVoidMethod(Cocos2dxRendererClassName, "setPreferredFramesPerSecond", fps);
+    JniHelper::callStaticVoidMethod(JCLS_RENDERER, "setPreferredFramesPerSecond", fps);
 }
 
 void setGameInfoDebugViewTextJNI(int index, const std::string& text)
 {
     if (!__isOpenDebugView)
         return;
-    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setGameInfoDebugViewText", index, text);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setGameInfoDebugViewText", index, text);
 }
 
 void setJSBInvocationCountJNI(int count)
 {
     if (!__isOpenDebugView)
         return;
-    JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "setJSBInvocationCount", count);
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setJSBInvocationCount", count);
 }
 
 void openDebugViewJNI()
@@ -582,10 +614,10 @@ void openDebugViewJNI()
     {
         LOGD("openDebugViewJNI ...");
         __isOpenDebugView = true;
-        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "openDebugView");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "openDebugView");
         if (!__isGLOptModeEnabled)
         {
-            JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
+            JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
         }
     }
 }
@@ -595,7 +627,7 @@ void disableBatchGLCommandsToNativeJNI()
     __isGLOptModeEnabled = false;
     if (__isOpenDebugView)
     {
-        JniHelper::callStaticVoidMethod(Cocos2dxHelperClassName, "disableBatchGLCommandsToNative");
+        JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
     }
 }
 

@@ -55,11 +55,13 @@
 
 @interface TextFieldDelegate : NSObject<UITextFieldDelegate>
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
--(BOOL) textFieldShouldReturn:(UITextField *)textField;
+- (void)textFieldDidChange:(UITextField *)textField;
+- (BOOL)textFieldShouldReturn:(UITextField *)textField;
 @end
 
 @interface TextViewDelegate : NSObject<UITextViewDelegate>
 - (BOOL) textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+- (void) textViewDidChange:(UITextView *)textView;
 @end
 
 /*************************************************************************
@@ -74,7 +76,10 @@ namespace
     bool g_confirmHold = false;
     int g_maxLength = INT_MAX;
     KeyboardEventHandler* g_keyboardHandler = nil;
-    
+
+    // "#1fa014", a color of dark green, was used for confirm button background
+    static UIColor* g_darkGreen = [UIColor colorWithRed:31/255.0 green:160/255.0 blue:20/255.0 alpha:0.8];
+
     UITextField* g_textField = nil;
     TextFieldDelegate* g_textFieldDelegate = nil;
     UIButton* g_textFieldConfirmButton = nil;
@@ -84,7 +89,7 @@ namespace
     TextViewDelegate* g_textViewDelegate = nil;
     UIButton* g_textViewConfirmButton = nil;
     ButtonHandler* g_textViewConfirmButtonHander = nil;
-    
+
     UIView* getCurrentView()
     {
         if (g_isMultiline)
@@ -135,20 +140,6 @@ namespace
         textInputCallback.toObject()->call(args, nullptr);
     }
     
-    void handleTextInput(NSString* string, NSRange& range)
-    {
-        // Control all replace by ourself because in password style, UITextField will clear all characters at first no matter what you set.
-        NSString* text = getCurrentText();
-        NSUInteger newLength = [text length] + [string length] - range.length;
-        if (newLength <= g_maxLength)
-        {
-            NSString* newString = [text stringByReplacingCharactersInRange:range
-                                                                withString:string];
-            callJSFunc("input", [newString UTF8String]);
-            setText(newString);
-        }
-    }
-    
     int getTextInputHeight()
     {
         if (g_isMultiline)
@@ -164,9 +155,11 @@ namespace
         [btn addTarget:btnHandler action:@selector(buttonTapped:)
            forControlEvents:UIControlEventTouchUpInside];
         btn.frame = CGRectMake(0, 0, BUTTON_WIDTH, BUTTON_HIGHT);
-        btn.backgroundColor = [UIColor greenColor];
+        btn.backgroundColor = g_darkGreen;
         [btn setTitle: [NSString stringWithUTF8String:title.c_str()]
                 forState:UIControlStateNormal];
+        [btn setTitleColor: [UIColor whiteColor]
+             forState:UIControlStateNormal];
         
         *button = btn;
         *buttonHandler = btnHandler;
@@ -206,6 +199,12 @@ namespace
         else if (0 == returnType.compare("send"))
             textField.returnKeyType = UIReturnKeySend;
     }
+
+    NSString* getConfirmButtonTitle(const std::string& returnType)
+    {
+        NSString* titleKey = [NSString stringWithUTF8String: returnType.c_str()];
+        return NSLocalizedString(titleKey, nil); // get i18n string to be the title
+    }
     
     void initTextField(const CGRect& rect, const cocos2d::EditBox::ShowInfo& showInfo)
     {
@@ -222,12 +221,14 @@ namespace
             createButton(&g_textFieldConfirmButton, &g_textFieldConfirmButtonHandler, rect, showInfo.confirmType);
             g_textField.rightView = g_textFieldConfirmButton;
             g_textField.rightViewMode = UITextFieldViewModeAlways;
+            [g_textField addTarget:g_textFieldDelegate action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         }
 
         g_textField.frame = rect;
         setTextFieldReturnType(g_textField, showInfo.confirmType);
         setTexFiledKeyboardType(g_textField, showInfo.inputType);
         g_textField.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
+        [g_textFieldConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
     
     void initTextView(const CGRect& viewRect, const CGRect& btnRect, const cocos2d::EditBox::ShowInfo& showInfo)
@@ -246,6 +247,7 @@ namespace
         
         g_textView.frame = btnRect;
         g_textView.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
+        [g_textViewConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
     
     void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)
@@ -301,18 +303,23 @@ namespace
 @implementation KeyboardEventHandler
 -(void)keyboardWillShow: (NSNotification*) notification
 {
-    UIView* view = getCurrentView();
-    if (!view)
+    UIView* textView = getCurrentView();
+    if (!textView)
         return;
-    
+
     NSDictionary* keyboardInfo = [notification userInfo];
     NSValue* keyboardFrame = [keyboardInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
     CGSize kbSize = [keyboardFrame CGRectValue].size;
-    CGRect oldFrame = view.frame;
-    view.frame = CGRectMake(oldFrame.origin.x,
-                            oldFrame.origin.y - kbSize.height,
-                            oldFrame.size.width,
-                            getTextInputHeight());
+
+    int textHeight = getTextInputHeight();
+
+    UIView* screenView = (UIView*)cocos2d::Application::getInstance()->getView();
+    CGRect screenRect = screenView.frame;
+
+    textView.frame = CGRectMake(screenRect.origin.x,
+                                screenRect.size.height - textHeight - kbSize.height,
+                                screenRect.size.width,
+                                textHeight);
 }
 
 -(void)keyboardWillHide: (NSNotification*) notification
@@ -321,12 +328,24 @@ namespace
 }
 @end
 
-
 @implementation TextFieldDelegate
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    handleTextInput(string, range);
-    return NO;
+    // REFINE: check length limit before text changed
+    return YES;
+}
+
+- (void)textFieldDidChange:(UITextField *)textField
+{
+    if (textField.markedTextRange != nil)
+        return;
+
+    // check length limit after text changed, a little rude
+    if (textField.text.length > g_maxLength)
+        textField.text = [textField.text substringToIndex:g_maxLength];
+
+    callJSFunc("input", [textField.text UTF8String]);
+    setText(textField.text);
 }
 
 -(BOOL) textFieldShouldReturn:(UITextField *)textField
@@ -350,8 +369,21 @@ namespace
 @implementation TextViewDelegate
 - (BOOL) textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-    handleTextInput(text, range);
-    return NO;
+    // REFINE: check length limit before text changed
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    if (textView.markedTextRange != nil)
+        return;
+
+    // check length limit after text changed, a little rude
+    if (textView.text.length > g_maxLength)
+        textView.text = [textView.text substringToIndex:g_maxLength];
+
+    callJSFunc("input", [textView.text UTF8String]);
+    setText(textView.text);
 }
 @end
 

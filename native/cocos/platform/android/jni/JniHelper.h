@@ -34,6 +34,10 @@ THE SOFTWARE.
 #include "base/ccMacros.h"
 #include "math/Vec3.h"
 
+//The macro must be used this way to find the native method. The principle is not well understood.
+#define JNI_METHOD2(CLASS2,FUNC2) Java_##CLASS2##_##FUNC2
+#define JNI_METHOD1(CLASS1,FUNC1) JNI_METHOD2(CLASS1,FUNC1)
+
 NS_CC_BEGIN
 
 typedef struct JniMethodInfo_
