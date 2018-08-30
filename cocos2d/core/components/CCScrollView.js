@@ -205,6 +205,10 @@ let ScrollView = cc.Class({
             default: undefined,
             type: cc.Node,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.content',
+            formerlySerializedAs: 'content',
+            notify (oldValue) {
+                this._calculateBoundary();
+            }
         },
 
         /**
@@ -897,9 +901,7 @@ let ScrollView = cc.Class({
             this._rightBoundary = topRightPosition.x;
             this._topBoundary = topRightPosition.y;
 
-            if (!CC_EDITOR) {
-                this._moveContentToTopLeft(viewSize);
-            }
+            this._moveContentToTopLeft(viewSize);
         }
     },
 
