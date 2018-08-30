@@ -361,7 +361,7 @@ let TiledMap = cc.Class({
     /**
      * !#en Return All layers array.
      * !#zh 返回包含所有 layer 的数组。
-     * @method allLayers
+     * @method getLayers
      * @returns {TiledLayer[]}
      * @example
      * let layers = titledMap.allLayers();

@@ -2246,8 +2246,8 @@ var Node = cc.Class({
     /*
      * Transforms position from world space to local space.
      * @method _invTransformPoint
-     * @param {vmath.Vec3} out
-     * @param {vmath.Vec3} vec3
+     * @param {Vec3} out
+     * @param {Vec3} vec3
      */
     _invTransformPoint (out, pos) {
         if (this._parent) {
@@ -2324,8 +2324,8 @@ var Node = cc.Class({
      * Calculate and return world rotation
      * This is not a public API yet, its usage could be updated
      * @method getWorldRot
-     * @param {vmath.Quat} out
-     * @return {vmath.Quat}
+     * @param {Quat} out
+     * @return {Quat}
      */
     getWorldRot (out) {
         math.quat.copy(out, this._quat);
@@ -2341,7 +2341,7 @@ var Node = cc.Class({
      * Set world rotation with quaternion
      * This is not a public API yet, its usage could be updated
      * @method setWorldRot
-     * @param {vmath.Quat} rot
+     * @param {Quat} rot
      */
     setWorldRot (quat) {
         if (this._parent) {
