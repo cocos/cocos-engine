@@ -41,6 +41,10 @@ var SkeletonAnimation = cc.Class({
     name: 'cc.SkeletonAnimation',
     extends: Animation,
 
+    editor: CC_EDITOR && {
+        inspector: 'packages://inspector/inspectors/comps/skeleton-animation.js',
+    },
+
     properties: {
         _model: Model,
         _nodes: [cc.Node],
@@ -82,6 +86,29 @@ var SkeletonAnimation = cc.Class({
         let clip = state.clip;
         clip.init(this._nodes);
         return state;
+    },
+
+    searchClips: CC_EDITOR && function () {
+        this._clips.length = 0;
+        Editor.assetdb.queryPathByUuid(this._model._uuid, (err, modelPath) => {
+            if (err) return console.error(err);
+            
+            const Path = require('fire-path');
+            let queryPath = Path.relative(Editor.remote.Project.path, modelPath);
+            queryPath = Path.join(Path.dirname(queryPath), Path.basenameNoExt(queryPath));
+            queryPath = `db://${queryPath}*/*.sac`;
+
+            Editor.assetdb.queryAssets(queryPath, null, (err, results) => {
+                if (results) {
+                    for (let i = 0; i < results.length; i++) {
+                        let clip = new SkeletonAnimationClip();
+                        clip._uuid = results[i].uuid;
+                        this._clips.push(clip);
+                    }
+                    this._defaultClip = this._clips[0];
+                }
+            });
+        });
     }
 });
 
