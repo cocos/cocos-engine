@@ -49,7 +49,12 @@ var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
 MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
-    item.url = this.transformURL(item.url, false);
+    let hashPatchInFolder = false;
+    // HACK: explicitly use folder md5 for ttf files
+    if (item.type === 'ttf') {
+        hashPatchInFolder = true;
+    }
+    item.url = this.transformURL(item.url, hashPatchInFolder);
     return item;
 };
 
