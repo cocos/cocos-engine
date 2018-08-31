@@ -90,7 +90,8 @@ var SkeletonAnimation = cc.Class({
 
     searchClips: CC_EDITOR && function () {
         this._clips.length = 0;
-        Editor.assetdb.queryPathByUuid(this._model._uuid, (err, modelPath) => {
+        let self = this;
+        Editor.assetdb.queryPathByUuid(this._model._uuid, function (err, modelPath) {
             if (err) return console.error(err);
             
             const Path = require('fire-path');
@@ -98,14 +99,14 @@ var SkeletonAnimation = cc.Class({
             queryPath = Path.join(Path.dirname(queryPath), Path.basenameNoExt(queryPath));
             queryPath = `db://${queryPath}*/*.sac`;
 
-            Editor.assetdb.queryAssets(queryPath, null, (err, results) => {
+            Editor.assetdb.queryAssets(queryPath, null, function (err, results) {
                 if (results) {
                     for (let i = 0; i < results.length; i++) {
                         let clip = new SkeletonAnimationClip();
                         clip._uuid = results[i].uuid;
-                        this._clips.push(clip);
+                        self._clips.push(clip);
                     }
-                    this._defaultClip = this._clips[0];
+                    self._defaultClip = self._clips[0];
                 }
             });
         });
