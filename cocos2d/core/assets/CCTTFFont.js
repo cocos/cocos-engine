@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Font = require('./CCFont');
+
 /**
  * @module cc
  */
@@ -36,10 +38,21 @@
  */
 var TTFFont = cc.Class({
     name: 'cc.TTFFont',
-    extends: cc.Font,
-    statics: {
-        preventPreloadNativeObject: true,
-    },
+    extends: Font,
+
+    properties: {
+        _fontFamily: null,
+        _nativeAsset: {
+            type: cc.String,
+            get () {
+                return this._fontFamily;
+            },
+            set (value) {
+                this._fontFamily = value || 'Arial';
+            },
+            override: true
+        }
+    }
 });
 
 cc.TTFFont = module.exports = TTFFont;
