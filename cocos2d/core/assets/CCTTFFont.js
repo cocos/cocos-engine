@@ -41,7 +41,7 @@ var TTFFont = cc.Class({
     extends: Font,
 
     properties: {
-        _fontFamily: 'Arial',
+        _fontFamily: null,
         _nativeAsset: {
             type: cc.String,
             get () {

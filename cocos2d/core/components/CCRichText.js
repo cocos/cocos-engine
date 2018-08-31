@@ -324,12 +324,22 @@ let RichText = cc.Class({
 
     _onTTFLoaded () {
         if (this.font instanceof cc.TTFFont) {
+            if (this.font._nativeAsset) {
+                this._layoutDirty = true;
+                this._updateRichText();
+            }
+            else {
+                let self = this;
+                cc.loader.load(this.font.nativeUrl, function (err, fontFamily) {
+                    self._layoutDirty = true;
+                    self._updateRichText();
+                });
+            }
+        }
+        else {
             this._layoutDirty = true;
             this._updateRichText();
         }
-
-        this._layoutDirty = true;
-        this._updateRichText();
     },
 
     _measureText (styleIndex, string) {
