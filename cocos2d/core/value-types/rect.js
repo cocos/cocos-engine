@@ -273,7 +273,7 @@ proto.union = function (out, rectB) {
  * !#zh 使用 mat4 对矩形进行矩阵转换。
  * @method transformMat4
  * @param out {Rect} The output rect
- * @param mat {vmath.mat4} The matrix4
+ * @param mat {Mat4} The matrix4
  */
 proto.transformMat4 = function (out, mat) {
     let ol = this.x;

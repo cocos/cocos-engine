@@ -27,6 +27,7 @@
 const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
+const math = require('../renderer/render-engine').math;
 const misc = require('../utils/misc');
 
 /**
@@ -140,7 +141,7 @@ proto.toString = function () {
  * @method lerp
  * @param {Vec2} to
  * @param {number} ratio - the interpolation coefficient
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2}
  */
 proto.lerp = function (to, ratio, out) {
@@ -198,7 +199,7 @@ proto.addSelf = function (vector) {
  * !#zh 向量加法，并返回新结果。
  * @method add
  * @param {Vec2} vector
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -235,7 +236,7 @@ proto.subSelf = function (vector) {
  * !#zh 向量减法，并返回新结果。
  * @method sub
  * @param {Vec2} vector
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -272,7 +273,7 @@ proto.mulSelf = function (num) {
  * !#zh 缩放向量，并返回新结果。
  * @method mul
  * @param {number} num
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -309,7 +310,7 @@ proto.scaleSelf = function (vector) {
  * !#zh 分量相乘，并返回新的结果。
  * @method scale
  * @param {Vec2} vector
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -346,7 +347,7 @@ proto.divSelf = function (num) {
  * !#zh 向量除法，并返回新的结果。
  * @method div
  * @param {Vec2} divisor
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -381,7 +382,7 @@ proto.negSelf = function () {
  * !#en Negates the components, and returns the new result.
  * !#zh 返回取反后的新向量。
  * @method neg
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
  * var v = cc.v2(10, 10);
@@ -485,7 +486,7 @@ proto.normalizeSelf = function () {
  * <br/>
  * 注意，当前向量不变，并返回一个新的归一化向量。如果你想来归一化当前向量，可使用 normalizeSelf 函数。
  * @method normalize
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} result
  * var v = cc.v2(10, 10);
  * v.normalize();   // return Vec2 {x: 0.7071067811865475, y: 0.7071067811865475};
@@ -537,7 +538,7 @@ proto.signAngle = function (vector) {
  * !#zh 返回旋转给定弧度后的新向量。
  * @method rotate
  * @param {number} radians
- * @param {Vec2} [out] - optional, the receiving vector
+ * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  */
 proto.rotate = function (radians, out) {
@@ -577,6 +578,18 @@ proto.rotateSelf = function (radians) {
  */
 proto.project = function (vector) {
     return vector.mul(this.dot(vector) / vector.dot(vector));
+};
+
+/**
+ * Transforms the vec2 with a mat4. 3rd vector component is implicitly '0', 4th vector component is implicitly '1'
+ * @method transformMat4
+ * @param {mat4} m matrix to transform with
+ * @param {Vec2} [out] the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+ * @returns {Vec2} out
+ */
+proto.transformMat4 = function (m, out) {
+    out = out || new Vec2();
+    math.vec2.transformMat4(out, this, m);
 };
 
 //_serialize: function () {
