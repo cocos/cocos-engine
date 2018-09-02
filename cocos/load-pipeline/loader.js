@@ -29,6 +29,7 @@ const plistParser = require('../platform/CCSAXParser').plistParser;
 const Pipeline = require('./pipeline');
 const Texture2D = require('../assets/CCTexture2D');
 const loadUuid = require('./uuid-loader');
+const fontLoader = require('./font-loader');
 
 function loadNothing () {
     return null;
@@ -185,6 +186,14 @@ var defaultMap = {
 
     // binary
     'binary' : loadBinary,
+
+    // Font
+    'font' : fontLoader.loadFont,
+    'eot' : fontLoader.loadFont,
+    'ttf' : fontLoader.loadFont,
+    'woff' : fontLoader.loadFont,
+    'svg' : fontLoader.loadFont,
+    'ttc' : fontLoader.loadFont,
 
     'default' : loadNothing
 };

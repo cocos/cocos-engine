@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -25,7 +24,6 @@
  ****************************************************************************/
 
 const js = require('../platform/js');
-const sys = require('../platform/CCSys');
 const debug = require('../CCDebug');
 require('../utils/CCPath');
 const Pipeline = require('./pipeline');
@@ -41,6 +39,10 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
 }
 else {
     downloadAudio = null;
+}
+
+function skip () {
+    return null;
 }
 
 function downloadScript (item, callback, isAsync) {
@@ -118,75 +120,6 @@ function downloadImage (item, callback, isCrossOrigin, img) {
     }
 }
 
-var FONT_TYPE = {
-    '.eot' : 'embedded-opentype',
-    '.ttf' : 'truetype',
-    '.ttc' : 'truetype',
-    '.woff' : 'woff',
-    '.svg' : 'svg'
-};
-function _loadFont (name, srcs, type){
-    var doc = document,
-        fontStyle = document.createElement('style');
-    fontStyle.type = 'text/css';
-    doc.body.appendChild(fontStyle);
-
-    var fontStr = '';
-    if (isNaN(name - 0)) {
-        fontStr += '@font-face { font-family:' + name + '; src:';
-    }
-    else {
-        fontStr += '@font-face { font-family:\'' + name + '\'; src:';
-    }
-    if (srcs instanceof Array) {
-        for (var i = 0, li = srcs.length; i < li; i++) {
-            var src = srcs[i];
-            type = cc.path.extname(src).toLowerCase();
-            fontStr += 'url(\'' + srcs[i] + '\') format(\'' + FONT_TYPE[type] + '\')';
-            fontStr += (i === li - 1) ? ';' : ',';
-        }
-    } else {
-        type = type.toLowerCase();
-        fontStr += 'url(\'' + srcs + '\') format(\'' + FONT_TYPE[type] + '\');';
-    }
-    fontStyle.textContent += fontStr + '}';
-
-    //<div style="font-family: PressStart;">.</div>
-    var preloadDiv = document.createElement('div');
-    var _divStyle =  preloadDiv.style;
-    _divStyle.fontFamily = name;
-    preloadDiv.innerHTML = '.';
-    _divStyle.position = 'absolute';
-    _divStyle.left = '-100px';
-    _divStyle.top = '-100px';
-    doc.body.appendChild(preloadDiv);
-}
-function downloadFont (item, callback) {
-    var url = item.url,
-        type = item.type,
-        name = item.name,
-        srcs = item.srcs;
-    if (name && srcs) {
-        if (srcs.indexOf(url) === -1) {
-            srcs.push(url);
-        }
-        _loadFont(name, srcs);
-    } else {
-        type = cc.path.extname(url);
-        name = cc.path.basename(url, type);
-        _loadFont(name, url, type);
-    }
-    if (document.fonts) {
-        document.fonts.load('1em ' + name).then(function () {
-            callback(null, null);
-        }, function(err){
-            callback(err);
-        });
-    } else {
-        return null;
-    }
-}
-
 function downloadUuid (item, callback) {
     var result = PackDownloader.load(item, callback);
     if (result === undefined) {
@@ -236,12 +169,12 @@ var defaultMap = {
     'fnt' : downloadText,
 
     // Font
-    'font' : downloadFont,
-    'eot' : downloadFont,
-    'ttf' : downloadFont,
-    'woff' : downloadFont,
-    'svg' : downloadFont,
-    'ttc' : downloadFont,
+    'font' : skip,
+    'eot' : skip,
+    'ttf' : skip,
+    'woff' : skip,
+    'svg' : skip,
+    'ttc' : skip,
 
     // Deserializer
     'uuid' : downloadUuid,

@@ -154,7 +154,8 @@ else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHATGAME', defined('wx') && wx.getSystemInfoSync);
+    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
+    defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
     defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));

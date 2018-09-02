@@ -2551,10 +2551,10 @@ var Node = cc.Class({
      * Get the local transform matrix (4x4), based on parent node coordinates
      * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
      * @method getLocalMatrix
-     * @param {vmath.Mat4} out The matrix object to be filled with data
-     * @return {vmath.Mat4} Same as the out matrix object
+     * @param {Mat4} out The matrix object to be filled with data
+     * @return {Mat4} Same as the out matrix object
      * @example
-     * let mat4 = vmath.mat4.create();
+     * let mat4 = cc.mat4();
      * node.getLocalMatrix(mat4);
      */
     getLocalMatrix (out) {
@@ -2567,10 +2567,10 @@ var Node = cc.Class({
      * Get the world transform matrix (4x4)
      * !#zh 返回世界空间坐标系的矩阵。
      * @method getWorldMatrix
-     * @param {vmath.Mat4} out The matrix object to be filled with data
-     * @return {vmath.Mat4} Same as the out matrix object
+     * @param {Mat4} out The matrix object to be filled with data
+     * @return {Mat4} Same as the out matrix object
      * @example
-     * let mat4 = vmath.mat4.create();
+     * let mat4 = cc.mat4();
      * node.getWorldMatrix(mat4);
      */
     getWorldMatrix (out) {

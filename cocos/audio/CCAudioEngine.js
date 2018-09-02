@@ -72,10 +72,10 @@ let getAudioFromPath = function (path) {
     };
 
     audio.on('ended', function () {
-        if (audio._finishCallback) {
-            audio._finishCallback();
+        if (this._finishCallback) {
+            this._finishCallback();
         }
-        callback();
+        callback.call(this);
     }, audio);
 
     audio.on('stop', callback, audio);
