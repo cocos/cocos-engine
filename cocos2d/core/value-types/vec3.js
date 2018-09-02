@@ -117,7 +117,7 @@ proto.equals = function (other) {
  * !#zh
  * 近似判断两个点是否相等。<br/>
  * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
- * @method pFuzzyEqual
+ * @method fuzzyEquals
  * @param {Vec3} other
  * @param {Number} variance
  * @return {Boolean}

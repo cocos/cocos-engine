@@ -69,8 +69,8 @@ var proto = Vec2.prototype;
 
 
 /**
- * !#en clone a Vec2 value
- * !#zh 克隆一个 Vec2 值
+ * !#en clone a Vec2 object
+ * !#zh 克隆一个 Vec2 对象
  * @method clone
  * @return {Vec2}
  */
@@ -79,7 +79,7 @@ proto.clone = function () {
 };
 
 /**
- * !#en TODO
+ * !#en Sets vector with another's value
  * !#zh 设置向量值。
  * @method set
  * @param {Vec2} newValue - !#en new value to set. !#zh 要设置的新值
@@ -108,7 +108,7 @@ proto.equals = function (other) {
  * !#zh
  * 近似判断两个点是否相等。<br/>
  * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
- * @method pFuzzyEqual
+ * @method fuzzyEquals
  * @param {Vec2} other
  * @param {Number} variance
  * @return {Boolean}
