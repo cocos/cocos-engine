@@ -28,6 +28,7 @@ require('./value-type');
 require('./vec2');
 require('./vec3');
 require('./quat');
+require('./mat4');
 require('./size');
 require('./rect');
 require('./color');
