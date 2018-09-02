@@ -713,24 +713,6 @@ var Node = cc.Class({
          * node.rotation = 90;
          * cc.log("Node Rotation: " + node.rotation);
          */
-        rotation: {
-            get () {
-                return this._rotationX;
-            },
-            set (value) {
-                if (this._rotationX !== value || this._rotationY !== value) {
-                    this._rotationX = this._rotationY = value;
-                    // Update quaternion from rotation
-                    math.quat.fromEuler(this._quat, 0, 0, -value);
-                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
-
-                    if (this._eventMask & ROTATION_ON) {
-                        this.emit(EventType.ROTATION_CHANGED);
-                    }
-                }
-            }
-        },
 
         /**
          * !#en The rotation as Euler angles in degrees, used in 2.5D project.
@@ -2132,18 +2114,35 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Set rotation of node (along z axi).
-     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
-     * @method setRotation
-     * @param {Number} rotation Degree rotation value
-     */
-
-    /**
      * !#en Get rotation of node (along z axi).
      * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
      * @method getRotation
      * @param {Number} rotation Degree rotation value
      */
+    getRotation () {
+        return this._rotationX;
+    },
+
+
+    /**
+     * !#en Set rotation of node (along z axi).
+     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method setRotation
+     * @param {Number} rotation Degree rotation value
+     */
+    setRotation (value) {
+        if (this._rotationX !== value || this._rotationY !== value) {
+            this._rotationX = this._rotationY = value;
+            // Update quaternion from rotation
+            math.quat.fromEuler(this._quat, 0, 0, -value);
+            this.setLocalDirty(LocalDirtyFlag.ROTATION);
+            this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+            if (this._eventMask & ROTATION_ON) {
+                this.emit(EventType.ROTATION_CHANGED);
+            }
+        }
+    },
 
     /**
      * !#en
