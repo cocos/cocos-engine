@@ -41,7 +41,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             if (!frame._original && dynamicAtlasManager) {
                 dynamicAtlasManager.insertSpriteFrame(frame);
             }
-            if (!sprite._material || sprite._material._texture !== frame._texture) {
+            if (sprite._material._texture !== frame._texture) {
                 sprite._activateMaterial();
             }
         }
