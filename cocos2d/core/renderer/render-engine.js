@@ -11162,6 +11162,10 @@ Camera.prototype.setFramebuffer = function setFramebuffer (framebuffer) {
   this._framebuffer = framebuffer;
 };
 
+Camera.prototype.getMatView = function getMatView (out) {
+  this._node.getWorldRT(out);
+}
+
 Camera.prototype.extractView = function extractView (out, width, height) {
   // rect
   out._rect.x = this._rect.x * width;
@@ -11183,7 +11187,8 @@ Camera.prototype.extractView = function extractView (out, width, height) {
   out._framebuffer = this._framebuffer;
 
   // view matrix
-  this._node.getWorldRT(out._matView);
+  this.getMatView(out._matView);
+
   mat4.invert(out._matView, out._matView);
 
   // projection matrix

@@ -53,6 +53,15 @@ function repositionDebugCamera () {
     node.lookAt(_vec3_temp_1);
 }
 
+// hack renderEngine.Camera.prototype.getMatView
+// Camera frambuffer is used by render texture, need to flip y to render the correct texture.
+function getMatView (out) {
+    this._node.getWorldRT(out);
+    if (this._framebuffer) {
+        out.m05 *= -1;
+    }
+}
+
 /**
  * !#en Values for Camera.clearFlags, determining what to clear when rendering a Camera.
  * !#zh 摄像机清除标记位，决定摄像机渲染时会清除哪些状态
@@ -343,6 +352,7 @@ let Camera = cc.Class({
             this._camera.setNode(this.node);
             this._camera.setClearFlags(this._clearFlags);
             this._camera._sortDepth = this._depth;
+            this._camera.getMatView = getMatView;
             this._updateBackgroundColor();
             this._updateCameraMask();
             this._updateTargetTexture();
