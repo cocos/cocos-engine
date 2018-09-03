@@ -302,7 +302,7 @@ if (CC_DEBUG) {
         'getTag': 'name',
         'setTag': 'name',
         'getChildByTag': 'getChildByName',
-        'removeChildByTag': 'removeChildByName'
+        'removeChildByTag': 'getChildByName(name).destroy()'
     });
 
     markAsRemoved(cc.Node, [
