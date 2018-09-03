@@ -444,7 +444,7 @@ var Sprite = cc.Class({
         }
         
         this._updateAssembler();
-        this.markForUpdateRenderData(true);
+        this._activateMaterial();
 
         this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
@@ -478,22 +478,11 @@ var Sprite = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (!this.enabledInHierarchy) {
-            this.disableRender();
-            return;
-        }
-
         let spriteFrame = this._spriteFrame;
-        // cannot be activated if texture not loaded yet
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            this.disableRender();
-            return;
-        }
 
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // Get material
-            let texture = spriteFrame.getTexture();
             let material;
             if (this._state === State.GRAY) {
                 if (!this._graySpriteMaterial) {
@@ -509,21 +498,26 @@ var Sprite = cc.Class({
                 }
                 material = this._spriteMaterial;
             }
-            // TODO: old texture in material have been released by loader
-            if (material.texture !== texture) {
-                material.texture = texture;
-                this._updateMaterial(material);
+            // Set texture
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                let texture = spriteFrame.getTexture();
+                if (material.texture !== texture) {
+                    material.texture = texture;
+                    this._updateMaterial(material);
+                }
+                else if (material !== this._material) {
+                    this._updateMaterial(material);
+                }
+                if (this._renderData) {
+                    this._renderData.material = material;
+                }
+                this.markForUpdateRenderData(true);
+                this.markForRender(true);
             }
-            else if (material !== this._material) {
-                this._updateMaterial(material);
-            }
-            if (this._renderData) {
-                this._renderData.material = material;
+            else {
+                this.disableRender();
             }
         }
-        
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
