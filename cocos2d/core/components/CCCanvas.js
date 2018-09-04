@@ -76,6 +76,7 @@ var Canvas = cc.Class({
                 this._designResolution.width = value.width;
                 this._designResolution.height = value.height;
                 this.applySettings();
+                this.alignWithScreen();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
         },
@@ -97,6 +98,7 @@ var Canvas = cc.Class({
                 if (this._fitHeight !== value) {
                     this._fitHeight = value;
                     this.applySettings();
+                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
@@ -116,6 +118,7 @@ var Canvas = cc.Class({
                 if (this._fitWidth !== value) {
                     this._fitWidth = value;
                     this.applySettings();
+                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
@@ -123,7 +126,7 @@ var Canvas = cc.Class({
     },
 
     ctor: function () {
-        this._thisOnResized = this.onResized.bind(this);
+        this._thisOnResized = this.alignWithScreen.bind(this);
     },
 
     __preload: function () {
@@ -138,8 +141,6 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
-        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
@@ -153,7 +154,7 @@ var Canvas = cc.Class({
         }
 
         this.applySettings();
-        this.onResized();
+        this.alignWithScreen();
 
         // Camera could be removed in canvas render mode
         let cameraNode = cc.find('Main Camera', this.node);
@@ -165,7 +166,7 @@ var Canvas = cc.Class({
         let camera = cameraNode.getComponent(Camera);
         if (!camera) {
             camera = cameraNode.addComponent(Camera);
-            
+
             let ClearFlags = Camera.ClearFlags;
             camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
             camera.depth = -1;
@@ -174,8 +175,6 @@ var Canvas = cc.Class({
     },
 
     onDestroy: function () {
-        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
@@ -216,11 +215,6 @@ var Canvas = cc.Class({
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
-    },
-
-    onResized: function () {
-        // TODO - size dirty
-        this.alignWithScreen();
     },
 
     applySettings: function () {
