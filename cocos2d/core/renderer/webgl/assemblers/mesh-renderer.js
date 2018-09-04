@@ -28,6 +28,13 @@ const SkinnedMeshRenderer = require('../../../3d/CCSkinnedMeshRenderer');
 const RenderFlow = require('../../render-flow');
 const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
+const renderEngine = require('../../render-engine');
+const IARenderData = renderEngine.IARenderData;
+const gfx = renderEngine.gfx;
+const InputAssembler = renderEngine.InputAssembler;
+
+const BLACK_COLOR = cc.Color.BLACK;
+
 let meshRendererAssembler = {
     useModel: true,
     updateRenderData (comp) {
@@ -36,7 +43,6 @@ let meshRendererAssembler = {
         if (!comp.mesh) return;
         let submeshes = comp.mesh._subMeshes;
         for (let i = 0; i < submeshes.length; i++) {
-            let IARenderData = cc.renderer.renderEngine.IARenderData;
             let data = new IARenderData();
             data.material = comp._materials[i];
             data.ia = submeshes[i];
@@ -44,10 +50,56 @@ let meshRendererAssembler = {
         }
     },
 
+    createWireFrameData (ia, material, renderer) {
+        let data = new IARenderData();
+        let m = material.clone();
+        m.color = BLACK_COLOR;
+        m.useTexture = false;
+        if (cc.macro.ENABLE_3D) {
+            m._mainTech._passes[0].setDepth(true, true);
+        }
+        data.material = m;
+
+        let array = ia._indexBuffer.data;
+        let indices = [];
+        for (let i = 0; i < array.length; i+=3) {
+            let a = array[ i + 0 ];
+            let b = array[ i + 1 ];
+            let c = array[ i + 2 ];
+            indices.push(a, b, b, c, c, a);
+        }
+
+        let ibData = new Uint16Array(indices);
+        let ib = new gfx.IndexBuffer(
+            renderer._device,
+            gfx.INDEX_FMT_UINT16,
+            gfx.USAGE_STATIC,
+            ibData,
+            ibData.length
+        );
+
+        data.ia = new renderEngine.InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
+        return data;
+    },
+
     fillBuffers (comp, renderer) {
         if (!comp.mesh) return;
 
         renderer._flush();
+
+        let renderDatas = comp._renderDatas;
+        let submeshes = comp.mesh._subMeshes;
+        if (cc.macro.SHOW_MESH_WIREFRAME) {
+            if (renderDatas.length === submeshes.length) {
+                for (let i = 0; i < submeshes.length; i++) {
+                    let data = renderDatas[i];
+                    renderDatas.push( this.createWireFrameData(data.ia, data.material, renderer) );
+                }
+            }
+        }
+        else {
+            renderDatas.length = submeshes.length;
+        }
 
         let tmpMaterial = renderer.material;
 
@@ -56,7 +108,6 @@ let meshRendererAssembler = {
 
         let textures = comp.textures;
         let materials = comp._materials;
-        let renderDatas = comp._renderDatas;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
             if (textures[i]) {

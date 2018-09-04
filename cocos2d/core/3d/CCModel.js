@@ -251,6 +251,8 @@ var Model = cc.Class({
             vcount
         );
 
+        vb.data = vbData;
+
         return vb;
     },
 
@@ -299,11 +301,11 @@ var Model = cc.Class({
 
             if (primitive.indices === undefined) continue;
 
+            let vb = this._createVB(bin, gltf, accessors, primitive.attributes);
+
             let ibAcc = accessors[primitive.indices];
             let ibView = gltf.bufferViews[ibAcc.bufferView];
-            let ibData = new Uint8Array(bin, ibView.byteOffset, ibView.byteLength);
-
-            let vb = this._createVB(bin, gltf, accessors, primitive.attributes);
+            let ibData = new Uint16Array(bin, ibView.byteOffset, ibView.byteLength/2);
             let ib = new gfx.IndexBuffer(
                 renderer.device,
                 ibAcc.componentType,
@@ -311,6 +313,7 @@ var Model = cc.Class({
                 ibData,
                 ibAcc.count
             );
+            ib.data = ibData;
 
             meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb, ib);
         }
