@@ -64,23 +64,7 @@ npm test
 
 3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
 
-#### Visual Test
-
-1. Build for testing.<br>
-
-    ```bash
-    gulp build-test
-    ```
-
-2. Start express in cloned project folder.
-
-    ```
-    node test/visual-tests/server.js
-    ```
-
-3. Open [http://localhost:8512/test/visual-tests/index.html](http://localhost:8512/test/visual-tests/index.html) in your browser.
-
-### DebugInfos  
+### DebugInfos
 
 View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)  
 All the debug infos are defined in file EngineErrorMap.md.  
