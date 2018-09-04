@@ -89,10 +89,10 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(jsb_register_gfx_manual);
     se->addRegisterCallback(register_all_renderer);
     se->addRegisterCallback(jsb_register_renderer_manual);
-    se->addRegisterCallback(register_all_cocos2dx);
+    se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
-    se->addRegisterCallback(register_all_cocos2dx_extension);
+    se->addRegisterCallback(register_all_extension);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -103,12 +103,12 @@ bool jsb_register_all_modules()
 #endif
 
 #if USE_AUDIO
-    se->addRegisterCallback(register_all_cocos2dx_audioengine);
+    se->addRegisterCallback(register_all_audioengine);
 #endif
 
 
 #if USE_NET_WORK
-    se->addRegisterCallback(register_all_cocos2dx_network);
+    se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_cocos2dx_network_manual);
     se->addRegisterCallback(register_all_xmlhttprequest);
     se->addRegisterCallback(register_all_websocket);
