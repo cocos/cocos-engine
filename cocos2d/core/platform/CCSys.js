@@ -1121,9 +1121,6 @@ function initSys () {
      */
     sys.garbageCollect = function () {
         // N/A in web
-        if (CC_JSB) {
-            jsb.garbageCollect();
-        }
     };
 
     /**
@@ -1132,9 +1129,6 @@ function initSys () {
      */
     sys.dumpRoot = function () {
         // N/A in web
-        if (CC_JSB) {
-            jsb.dumpRoot();
-        }
     };
 
     /**
@@ -1143,9 +1137,6 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
-        if (CC_JSB) {
-            __restartVM();
-        }
     };
 
     /**
@@ -1155,9 +1146,6 @@ function initSys () {
      */
     sys.cleanScript = function (jsfile) {
         // N/A in web
-        if (CC_JSB) {
-            __cleanScript(jsfile);
-        }
     };
 
     /**
@@ -1169,13 +1157,9 @@ function initSys () {
      * @return {Boolean} Validity of the object
      */
     sys.isObjectValid = function (obj) {
-        if (CC_JSB) {
-            return __isObjectValid(obj);
-        }
-        else if (obj) {
+        if (obj) {
             return true;
         }
-
         return false;
     };
 
