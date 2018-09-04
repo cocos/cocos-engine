@@ -1124,27 +1124,10 @@ function initSys () {
     };
 
     /**
-     * Dumps rooted objects, only available in JSB
-     * @method dumpRoot
-     */
-    sys.dumpRoot = function () {
-        // N/A in web
-    };
-
-    /**
      * Restart the JS VM, only available in JSB
      * @method restartVM
      */
     sys.restartVM = function () {
-        // N/A in web
-    };
-
-    /**
-     * Clean a script in the JS VM, only available in JSB
-     * @method cleanScript
-     * @param {String} jsfile
-     */
-    sys.cleanScript = function (jsfile) {
         // N/A in web
     };
 
