@@ -2978,7 +2978,7 @@ var Node = cc.Class({
         }
     },
 
-    _restoreProperties () {
+    _restoreProperties: CC_EDITOR && function () {
         /*
          * TODO: Refine this code after completing undo/redo 2.0.
          * The node will be destroyed when deleting in the editor,
@@ -3003,6 +3003,10 @@ var Node = cc.Class({
             else {
                 this._renderComponent.disableRender();
             }
+        }
+
+        if (this._children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
     },
 
