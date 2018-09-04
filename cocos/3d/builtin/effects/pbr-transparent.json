@@ -1,0 +1,213 @@
+{
+  "techniques": [
+    {
+      "stages": ["transparent"],
+      "params": [
+        {
+          "name": "albedo",
+          "type": "color4",
+          "value": [1, 1, 1, 1]
+        },
+        {
+          "name": "mainTiling",
+          "type": "float2",
+          "value": [1, 1]
+        },
+        {
+          "name": "mainOffset",
+          "type": "float2",
+          "value": [0, 0]
+        },
+        {
+          "name": "albedo_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "metallic",
+          "type": "float",
+          "value": 1
+        },
+        {
+          "name": "metallic_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "roughness",
+          "type": "float",
+          "value": 0.5
+        },
+        {
+          "name": "roughness_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "ao",
+          "type": "float",
+          "value": 0.2
+        },
+        {
+          "name": "ao_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "emissive",
+          "type": "color3",
+          "value": [0, 0, 0]
+        },
+        {
+          "name": "emissive_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "normal_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "diffuseEnvTexture",
+          "type": "textureCube",
+          "value": null
+        },
+        {
+          "name": "specularEnvTexture",
+          "type": "textureCube",
+          "value": null
+        },
+        {
+          "name": "brdfLUT",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "maxReflectionLod",
+          "type": "float",
+          "value": 9
+        },
+        {
+          "name": "alphaTestThreshold",
+          "type": "float",
+          "value": 0
+        }
+      ],
+      "passes": [
+       {
+         "program": "pbr",
+         "cullMode": "back",
+         "depthTest": true,
+         "depthWrite": false,
+         "blend": true,
+         "blendEq": "add",
+         "blendSrc": "srcAlpha",
+         "blendDst": "oneMinusSrcAlpha",
+         "blendAlphaEq": "add",
+         "blendSrcAlpha": "one",
+         "blendDstAlpha": "oneMinusSrcAlpha"
+       }
+      ],
+      "layer": 0
+    },
+    {
+      "stages": ["shadowcast"],
+      "params": [],
+      "passes": [
+        {
+          "program": "shadow-depth",
+          "cullMode": "back",
+          "blendMode": "none",
+          "depthTest": true,
+          "depthWrite": true
+        }
+      ],
+      "layer": 0
+    }
+  ],
+
+  "properties": {},
+
+  "defines": [
+    {
+      "name": "USE_NORMAL_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_ALBEDO_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_MRA_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_METALLIC_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_ROUGHNESS_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_AO_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_EMISSIVE",
+      "value": false
+    },
+    {
+      "name": "USE_EMISSIVE_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_IBL",
+      "value": false
+    },
+    {
+      "name": "USE_TEX_LOD",
+      "value": false
+    },
+    {
+      "name": "USE_ALPHA_TEST",
+      "value": false
+    },
+    {
+      "name": "USE_SHADOW_MAP",
+      "value": false
+    },
+    {
+      "name": "USE_SKINNING",
+      "value": false
+    },
+    {
+      "name": "NUM_DIR_LIGHTS",
+      "value": 0
+    },
+    {
+      "name": "NUM_POINT_LIGHTS",
+      "value": 0
+    },
+    {
+      "name": "NUM_SPOT_LIGHTS",
+      "value": 0
+    },
+    {
+      "name": "NUM_SHADOW_LIGHTS",
+      "value": 0
+    }
+  ],
+
+  "dependencies": [
+    {
+      "define": "USE_NORMAL_TEXTURE",
+      "extension": "OES_standard_derivatives"
+    },
+    {
+      "define": "USE_TEX_LOD",
+      "extension": "EXT_shader_texture_lod"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "techniques": [
+    {
+      "stages": ["opaque"],
+      "params": [
+        {
+          "name": "cubeMap",
+          "type": "textureCube",
+          "value": null
+        }
+      ],
+      "passes": [
+       {
+         "program": "skybox",
+         "cullMode": "none"
+       }
+      ],
+      "layer": -1
+    }
+  ],
+
+  "properties": {},
+
+  "defines": [
+    {
+      "name": "USE_RGBE_CUBEMAP",
+      "value": false
+    }
+  ]
+}

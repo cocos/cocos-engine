@@ -1,0 +1,35 @@
+{
+  "techniques": [
+    {
+      "stages": ["opaque"],
+      "params": [
+        {
+          "name": "color",
+          "type": "color4",
+          "value": [0.4, 0.4, 0.4, 1]
+        }
+      ],
+      "passes": [
+       {
+         "program": "simple",
+         "depthTest": true,
+         "depthWrite": true
+       }
+      ],
+      "layer": 0
+    }
+  ],
+
+  "properties": {},
+
+  "defines": [
+    {
+      "name": "USE_TEXTURE",
+      "value": false
+    },
+    {
+      "name": "USE_COLOR",
+      "value": false
+    }
+  ]
+}

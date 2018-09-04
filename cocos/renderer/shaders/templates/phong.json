@@ -1,0 +1,27 @@
+{
+  "USE_NORMAL_TEXTURE": "boolean",
+  "USE_DIFFUSE_TEXTURE": "boolean",
+  "USE_SPECULAR": "boolean",
+  "USE_SPECULAR_TEXTURE": "boolean",
+  "USE_EMISSIVE": "boolean",
+  "USE_EMISSIVE_TEXTURE": "boolean",
+  "USE_ALPHA_TEST": "boolean",
+  "USE_SKINNING": "boolean",
+  "USE_SHADOW_MAP": "boolean",
+  "NUM_DIR_LIGHTS": {
+    "min": 0,
+    "max": 4
+  },
+  "NUM_POINT_LIGHTS": {
+    "min": 0,
+    "max": 4
+  },
+  "NUM_SPOT_LIGHTS": {
+    "min": 0,
+    "max": 4
+  },
+  "NUM_SHADOW_LIGHTS": {
+    "min": 0,
+    "max": 4
+  }
+}

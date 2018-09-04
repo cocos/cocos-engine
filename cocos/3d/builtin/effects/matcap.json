@@ -1,0 +1,50 @@
+{
+  "techniques": [
+    {
+      "stages": ["opaque"],
+      "params": [
+        {
+          "name": "mainTex",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "matcapTex",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "colorFactor",
+          "type": "float",
+          "value": 0.5
+        },
+        {
+          "name": "color",
+          "type": "color4",
+          "value": [1, 1, 1, 1]
+        }
+      ],
+      "passes": [
+       {
+         "program": "matcap",
+         "depthTest": true,
+         "depthWrite": true
+       }
+      ],
+      "layer": 0
+    }
+  ],
+
+  "properties": {},
+
+  "defines": [
+    {
+      "name": "USE_MAIN_TEX",
+      "value": false
+    },
+    {
+      "name": "USE_SKINNING",
+      "value": false
+    }
+  ]
+}

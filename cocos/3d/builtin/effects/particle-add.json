@@ -1,0 +1,89 @@
+{
+  "techniques": [
+    {
+      "stages": ["transparent"],
+      "params": [
+        {
+          "name": "mainTexture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
+          "name": "mainTiling",
+          "type": "float2",
+          "value": [1, 1]
+        },
+        {
+          "name": "mainOffset",
+          "type": "float2",
+          "value": [0, 0]
+        },
+        {
+          "name": "tintColor",
+          "type": "color4",
+          "value": [0.5, 0.5, 0.5, 0.5]
+        },
+        {
+          "name": "frameTile",
+          "type": "float2",
+          "value": [1,1]
+        },
+        {
+          "name": "velocityScale",
+          "type": "float",
+          "value": 0
+        },
+        {
+          "name": "lengthScale",
+          "type": "float",
+          "value": 0
+        }
+      ],
+      "passes": [
+       {
+         "program": "particle-add",
+         "cullMode": "none",
+         "depthTest": true,
+         "depthWrite": false,
+         "blend": true,
+         "blendEq": "add",
+         "blendSrc": "srcAlpha",
+         "blendDst": "one",
+         "blendAlphaEq": "add",
+         "blendSrcAlpha": "srcAlpha",
+         "blendDstAlpha": "one"
+       }
+      ],
+      "layer": 0
+    }
+  ],
+
+  "properties": {},
+
+  "defines": [
+    {
+      "name": "USE_SOFT_PARTICLE",
+      "value": false
+    },
+    {
+      "name": "USE_BILLBOARD",
+      "value": false
+    },
+    {
+      "name": "USE_STRETCHED_BILLBOARD",
+      "value": false
+    },
+    {
+      "name": "USE_HORIZONTAL_BILLBOARD",
+      "value": false
+    },
+    {
+      "name": "USE_VERTICAL_BILLBOARD",
+      "value": false
+    },
+    {
+      "name": "USE_WORLD_SPACE",
+      "value": false
+    }
+  ]
+}

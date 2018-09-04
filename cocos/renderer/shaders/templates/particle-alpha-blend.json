@@ -1,0 +1,8 @@
+{
+  "USE_SOFT_PARTICLE": "boolean",
+  "USE_BILLBOARD": "boolean",
+  "USE_STRETCHED_BILLBOARD": "boolean",
+  "USE_HORIZONTAL_BILLBOARD": "boolean",
+  "USE_VERTICAL_BILLBOARD": "boolean",
+  "USE_WORLD_SPACE": "boolean"
+}
