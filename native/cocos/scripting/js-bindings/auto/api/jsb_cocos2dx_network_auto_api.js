@@ -1,5 +1,5 @@
 /**
- * @module cocos2dx_network
+ * @module network
  */
 var jsb = jsb || {};
 
@@ -26,22 +26,6 @@ setOnTaskProgress : function (
 func 
 )
 {
-},
-
-/**
- * @method createDownloadFileTask
- * @param {String} arg0
- * @param {String} arg1
- * @param {String} arg2
- * @return {std::shared_ptr<cc.network::DownloadTask>}
- */
-createDownloadFileTask : function (
-str, 
-str, 
-str 
-)
-{
-    return std::shared_ptr<cocos2d::network::DownloadTask>;
 },
 
 /**

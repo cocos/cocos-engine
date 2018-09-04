@@ -1,5 +1,5 @@
 /**
- * @module cocos2dx_audioengine
+ * @module audioengine
  */
 var jsb = jsb || {};
 
