@@ -30,6 +30,8 @@ const math = renderEngine.math;
 
 let _mat4_temp = math.mat4.create();
 
+// ios brower need to wait until the video's loadedmetadata event
+// has been fired before calling webkitEnterFullScreen()
 function triggerFullScene (video, enable) {
     if (!video) return;
     if (enable) {
