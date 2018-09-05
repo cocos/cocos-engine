@@ -50,19 +50,19 @@ var SpriteType = cc.Enum({
      * @property {Number} SLICED
      */
     SLICED: 1,
-    /*
+    /**
      * !#en The tiled type.
      * !#zh 平铺类型
      * @property {Number} TILED
      */
     TILED: 2,
-    /*
+    /**
      * !#en The filled type.
      * !#zh 填充类型
      * @property {Number} FILLED
      */
     FILLED: 3,
-    /*
+    /**
      * !#en The mesh type.
      * !#zh 以 Mesh 三角形组成的类型
      * @property {Number} MESH
