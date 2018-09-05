@@ -93,9 +93,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         //     }
         // },
 
-        // insetLeft, insetTop, insetRight, insetBottom
-        _capInsets: [0, 0, 0, 0],
-
         /**
          * !#en Top border of the sprite
          * !#zh sprite 的顶部边框
