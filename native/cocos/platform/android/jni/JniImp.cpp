@@ -509,7 +509,7 @@ std::string getApkPathJNI()
 
 std::string getPackageNameJNI() 
 {
-    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxPackageName");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getPackageName");
 }
 
 int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 

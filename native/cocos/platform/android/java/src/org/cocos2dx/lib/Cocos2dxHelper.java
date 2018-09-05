@@ -216,7 +216,7 @@ public class Cocos2dxHelper {
             
             int versionCode = 1;
             try {
-                versionCode = Cocos2dxActivity.getContext().getPackageManager().getPackageInfo(Cocos2dxHelper.getCocos2dxPackageName(), 0).versionCode;
+                versionCode = Cocos2dxActivity.getContext().getPackageManager().getPackageInfo(Cocos2dxHelper.getPackageName(), 0).versionCode;
             } catch (NameNotFoundException e) {
                 e.printStackTrace();
             }
@@ -291,10 +291,10 @@ public class Cocos2dxHelper {
 
     private static native void nativeSetAudioDeviceInfo(boolean isSupportLowLatency, int deviceSampleRate, int audioBufferSizeInFames);
 
-    public static String getCocos2dxPackageName() {
+    public static String getPackageName() {
         return Cocos2dxHelper.sPackageName;
     }
-    public static String getCocos2dxWritablePath() {
+    public static String getWritablePath() {
         return Cocos2dxHelper.sFileDirectory;
     }
 

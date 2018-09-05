@@ -314,7 +314,7 @@ std::string FileUtilsAndroid::getWritablePath() const
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     std::string dir("");
-    std::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxWritablePath");
+    std::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
 
     if (tmp.length() > 0)
     {

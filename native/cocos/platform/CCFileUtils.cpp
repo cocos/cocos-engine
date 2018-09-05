@@ -811,7 +811,7 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
     }
 
     if(isPopupNotify()){
-        CCLOG("cocos2d: fullPathForFilename: No file found at %s. Possible missing file.", filename.c_str());
+        CCLOG("fullPathForFilename: No file found at %s. Possible missing file.", filename.c_str());
     }
 
     // The file wasn't found, return empty string.
@@ -983,7 +983,7 @@ void FileUtils::loadFilenameLookupDictionaryFromFile(const std::string &filename
             int version = metadata["version"].asInt();
             if (version != 1)
             {
-                CCLOG("cocos2d: ERROR: Invalid filenameLookup dictionary version: %d. Filename: %s", version, filename.c_str());
+                CCLOG("ERROR: Invalid filenameLookup dictionary version: %d. Filename: %s", version, filename.c_str());
                 return;
             }
             setFilenameLookupDictionary( dict["filenames"].asValueMap());
