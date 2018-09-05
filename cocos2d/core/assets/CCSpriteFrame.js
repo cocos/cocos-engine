@@ -28,12 +28,12 @@
 const EventTarget = require("../event/event-target");
 const textureUtil = require('../utils/texture-util');
 
-let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
+const INSET_LEFT = 0;
+const INSET_TOP = 1;
+const INSET_RIGHT = 2;
+const INSET_BOTTOM = 3;
 
-let INSETLEFT = 0;
-let INSETTOP = 1;
-let INSETRIGHT = 2;
-let INSETBOTTOM = 3;
+let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 
 /**
  * !#en
@@ -105,10 +105,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
          */
         insetTop: {
             get: function () {
-                return this._capInsets[INSETTOP];
+                return this._capInsets[INSET_TOP];
             },
             set: function (value) {
-                this._capInsets[INSETTOP] = value;
+                this._capInsets[INSET_TOP] = value;
                 if (this._texture) {
                     this._calculateSlicedUV();
                 }
@@ -124,10 +124,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
          */
         insetBottom: {
             get: function () {
-                return this._capInsets[INSETBOTTOM];
+                return this._capInsets[INSET_BOTTOM];
             },
             set: function (value) {
-                this._capInsets[INSETBOTTOM] = value;
+                this._capInsets[INSET_BOTTOM] = value;
                 if (this._texture) {
                     this._calculateSlicedUV();
                 }
@@ -143,10 +143,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
          */
         insetLeft: {
             get: function () {
-                return this._capInsets[INSETLEFT];
+                return this._capInsets[INSET_LEFT];
             },
             set: function (value) {
-                this._capInsets[INSETLEFT] = value;
+                this._capInsets[INSET_LEFT] = value;
                 if (this._texture) {
                     this._calculateSlicedUV();
                 }
@@ -162,10 +162,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
          */
         insetRight: {
             get: function () {
-                return this._capInsets[INSETRIGHT];
+                return this._capInsets[INSET_RIGHT];
             },
             set: function (value) {
-                this._capInsets[INSETRIGHT] = value;
+                this._capInsets[INSET_RIGHT] = value;
                 if (this._texture) {
                     this._calculateSlicedUV();
                 }
@@ -528,11 +528,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let rect = this._rect;
         let atlasWidth = this._texture.width;
         let atlasHeight = this._texture.height;
-        let leftWidth = this._capInsets[INSETLEFT];
-        let rightWidth = this._capInsets[INSETRIGHT];
+        let leftWidth = this._capInsets[INSET_LEFT];
+        let rightWidth = this._capInsets[INSET_RIGHT];
         let centerWidth = rect.width - leftWidth - rightWidth;
-        let topHeight = this._capInsets[INSETTOP];
-        let bottomHeight = this._capInsets[INSETBOTTOM];
+        let topHeight = this._capInsets[INSET_TOP];
+        let bottomHeight = this._capInsets[INSET_BOTTOM];
         let centerHeight = rect.height - topHeight - bottomHeight;
 
         let uvSliced = this.uvSliced;
@@ -691,7 +691,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         let capInsets = data.capInsets;
         if (capInsets) {
-            this._capInsets = capInsets;
+            this._capInsets[INSET_LEFT] = capInsets[INSET_LEFT];
+            this._capInsets[INSET_TOP] = capInsets[INSET_TOP];
+            this._capInsets[INSET_RIGHT] = capInsets[INSET_RIGHT];
+            this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
         if (CC_EDITOR) {
