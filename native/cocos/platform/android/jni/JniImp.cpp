@@ -163,7 +163,7 @@ extern "C"
         g_isGameFinished = false;
         ccInvalidateStateCache();
         std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
-        LOGD("CocosRenderer.nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
+        LOGD("nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
         
 
         if (!defaultResourcePath.empty())
