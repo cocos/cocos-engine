@@ -511,12 +511,17 @@ var Sprite = cc.Class({
                 if (this._renderData) {
                     this._renderData.material = material;
                 }
+
                 this.markForUpdateRenderData(true);
                 this.markForRender(true);
             }
             else {
                 this.disableRender();
             }
+        }
+        else {
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
         }
     },
 
