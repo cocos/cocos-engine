@@ -77,37 +77,32 @@ StencilManager.prototype = {
             zPassOp = gfx.STENCIL_OP_KEEP;
         
         if (this.stage === Stage.ENABLED) {
-            func = gfx.DS_FUNC_EQUAL;
             mask = this._maskStack[this._maskStack.length - 1];
-            if (mask.inverted) {
-                ref = this.getInvertedRef();
-                stencilMask = this.getStencilRef();
-            }
-            else {
-                ref = this.getStencilRef();
-                stencilMask = ref;
-            }
+            func = gfx.DS_FUNC_EQUAL;
             failOp = gfx.STENCIL_OP_KEEP;
+            ref = this.getStencilRef();
+            stencilMask = ref;
             writeMask = this.getWriteMask();
         }
         else {
             if (this.stage === Stage.CLEAR) {
                 mask = this._maskStack[this._maskStack.length - 1];
                 func = gfx.DS_FUNC_NEVER;
+                failOp = mask.inverted ? gfx.STENCIL_OP_REPLACE : gfx.STENCIL_OP_ZERO;
                 ref = this.getWriteMask();
                 stencilMask = ref;
                 writeMask = ref;
-                failOp = mask.inverted ? gfx.STENCIL_OP_REPLACE : gfx.STENCIL_OP_ZERO;
             }
             else if (this.stage === Stage.ENTER_LEVEL) {
                 mask = this._maskStack[this._maskStack.length - 1];
-                this.stage = Stage.ENABLED;
                 // Fill stencil mask
                 func = gfx.DS_FUNC_NEVER;
+                failOp = mask.inverted ? gfx.STENCIL_OP_ZERO : gfx.STENCIL_OP_REPLACE;
                 ref = this.getWriteMask();
                 stencilMask = ref;
                 writeMask = ref;
-                failOp = mask.inverted ? gfx.STENCIL_OP_ZERO : gfx.STENCIL_OP_REPLACE;
+                
+                this.stage = Stage.ENABLED;
             }
         }
         
