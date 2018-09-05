@@ -30,6 +30,16 @@ const math = renderEngine.math;
 
 let _mat4_temp = math.mat4.create();
 
+function triggerFullScene (video, enable) {
+    if (!video) return;
+    if (enable) {
+        video.webkitEnterFullscreen && video.webkitEnterFullscreen();
+    }
+    else {
+        video.webkitExitFullscreen && video.webkitExitFullscreen();
+    }
+}
+
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',
 
@@ -40,6 +50,9 @@ let VideoPlayerImpl = cc.Class({
         this._video = null;
         this._url = '';
 
+        this._fullScreenEnabled = false;
+
+        this._loadedmeta = false;
         this._loaded = false;
         this._visible = false;
         // 有一些浏览器第一次播放视频需要特殊处理，这个标记用来标识是否播放过
@@ -66,6 +79,10 @@ let VideoPlayerImpl = cc.Class({
         //binding event
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
+            this._loadedmeta = true;
+            if (sys.os === sys.OS_IOS && sys.isBrowser) {
+                triggerFullScene(video, self._fullScreenEnabled);
+            }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
         };
         cbs.ended = function () {
@@ -205,6 +222,7 @@ let VideoPlayerImpl = cc.Class({
         this._loaded = false;
         this._played = false;
         this._playing = false;
+        this._loadedmeta = false;
 
         source = document.createElement("source");
         source.src = path;
@@ -344,15 +362,14 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setFullScreenEnabled: function (enable) {
-        let video = this._video;
-        if (!video) return;
-
+        let video =  this._video;
+        if (!video) {
+            return;
+        }
         if (sys.os === sys.OS_IOS && sys.isBrowser) {
-            if (enable) {
-                video.webkitEnterFullscreen && video.webkitEnterFullscreen();
-            }
-            else {
-                video.webkitExitFullscreen && video.webkitExitFullscreen();
+            this._fullScreenEnabled = enable;
+            if (this._loadedmeta) {
+                triggerFullScene(video, enable);
             }
         }
         else {
@@ -363,11 +380,10 @@ let VideoPlayerImpl = cc.Class({
                 cc.screen.exitFullScreen(video);
             }
         }
-
     },
 
     isFullScreenEnabled: function () {
-        cc.logID(7701);
+        return this._fullScreenEnabled;
     },
 
     setEventListener: function (event, callback) {
