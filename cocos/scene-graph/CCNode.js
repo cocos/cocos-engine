@@ -27,12 +27,10 @@
 
 const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
-const mathPools = require('./utils/math-pools');
 const math = require('./renderer/render-engine').math;
 const AffineTrans = require('./utils/affine-transform');
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
-const misc = require('./utils/misc');
 const js = require('./platform/js');
 const Event = require('./event/event');
 const EventTarget = require('./event/event-target');
@@ -55,12 +53,23 @@ var _globalOrderOfArrival = 1;
 var _cachedArray = new Array(16);
 _cachedArray.length = 0;
 
+var _mat4Pool = new js.Pool(128);
+_mat4Pool.get = function () {
+    var matrix = this._get();
+    if (matrix) {
+        math.mat4.identity(matrix);
+    }
+    else {
+        matrix = math.mat4.create();
+    }
+    return matrix;
+};
+
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
-
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
@@ -1139,8 +1148,8 @@ var Node = cc.Class({
         this._scale.y = 1;
         this._scale.z = 1;
 
-        this._matrix = mathPools.mat4.get();
-        this._worldMatrix = mathPools.mat4.get();
+        this._matrix = _mat4Pool.get();
+        this._worldMatrix = _mat4Pool.get();
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
@@ -1205,8 +1214,8 @@ var Node = cc.Class({
         }
 
         // Recycle math objects
-        mathPools.mat4.put(this._matrix);
-        mathPools.mat4.put(this._worldMatrix);
+        _mat4Pool.put(this._matrix);
+        _mat4Pool.put(this._worldMatrix);
         this._matrix = this._worldMatrix = null;
 
         if (this._reorderChildDirty) {
@@ -3011,10 +3020,10 @@ var Node = cc.Class({
          * but it will be reserved and reused for undo.
         */
         if (!this._matrix) {
-            this._matrix = mathPools.mat4.get();
+            this._matrix = _mat4Pool.get();
         }
         if (!this._worldMatrix) {
-            this._worldMatrix = mathPools.mat4.get();
+            this._worldMatrix = _mat4Pool.get();
         }
 
         this._localMatDirty = LocalDirtyFlag.ALL;

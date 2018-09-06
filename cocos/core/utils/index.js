@@ -23,10 +23,55 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
-require('./CCPath');
-if (!CC_EDITOR) {
-    require('./profiler/CCProfiler');
+
+// ========= cc.js ==========
+import * as array from './array';
+import * as js from './js';
+import Pool from './pool';
+import MutableForwardIterator from './mutable-forward-iterator';
+
+js.Pool = Pool;
+js.array = array;
+js.array.MutableForwardIterator = MutableForwardIterator;
+
+if (CC_DEV) {
+    js.getset(js, '_registeredClassIds',
+        function () {
+            var dump = {};
+            for (var id in _idToClass) {
+                dump[id] = _idToClass[id];
+            }
+            return dump;
+        },
+        function (value) {
+            js.clear(_idToClass);
+            for (var id in value) {
+                _idToClass[id] = value[id];
+            }
+        }
+    );
+    js.getset(js, '_registeredClassNames', 
+        function () {
+            var dump = {};
+            for (var id in _nameToClass) {
+                dump[id] = _nameToClass[id];
+            }
+            return dump;
+        },
+        function (value) {
+            js.clear(_nameToClass);
+            for (var id in value) {
+                _nameToClass[id] = value[id];
+            }
+        }
+    );
 }
-require('./find');
-require('./mutable-forward-iterator');
+cc.js = js;
+
+// ========= cc.path ==========
+import * as path from 'path';
+
+get(path, 'sep', () => {
+    return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
+})
+cc.path = path;
