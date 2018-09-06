@@ -1243,6 +1243,19 @@ var Node = cc.Class({
 
     // INTERNAL
 
+    _syncEulerAngles () {
+        let quat = this._quat;
+        let rotx = quat.getRoll();
+        let roty = quat.getPitch();
+        if (rotx === 0 && roty === 0) {
+            this._rotationX = this._rotationY = -quat.getYaw();
+        }
+        else {
+            this._rotationX = rotx;
+            this._rotationY = roty;
+        }
+    },
+
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1262,25 +1275,19 @@ var Node = cc.Class({
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        if (this._rotationX !== 0 || this._rotationY !== 0) {
+        let quat = this._quat;
+        if ((this._rotationX !== 0 || this._rotationY !== 0) && 
+            (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
-                math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+                math.quat.fromEuler(quat, 0, 0, -this._rotationX);
             }
             else {
-                math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+                math.quat.fromEuler(quat, this._rotationX, this._rotationY, 0);
             }
         }
         // Update rotation from quaternion
         else {
-            let rotx = this._quat.getRoll();
-            let roty = this._quat.getPitch();
-            if (rotx === 0 && roty === 0) {
-                this._rotationX = this._rotationY = -this._quat.getYaw();
-            }
-            else {
-                this._rotationX = rotx;
-                this._rotationY = roty;
-            }
+            this._syncEulerAngles();
         }
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
