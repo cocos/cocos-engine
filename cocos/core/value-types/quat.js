@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -135,7 +135,7 @@ export default class Quat extends ValueType {
     }
 }
 
-Class.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
+CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
 
 /**
  * @module cc

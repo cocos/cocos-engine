@@ -24,11 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CCObject = require('./CCObject');
-var CCValueType = require('../value-types/value-type');
-var Destroyed = CCObject.Flags.Destroyed;
-var PersistentMask = CCObject.Flags.PersistentMask;
-var _isDomNode = require('./utils').isDomNode;
+import CCObject from './object';
+import ValueType from '../value-types/value-type';
+import {isDomNode} from '../utils/misc';
+
+const Destroyed = CCObject.Flags.Destroyed;
+const PersistentMask = CCObject.Flags.PersistentMask;
+
+var objsToClearTmpVar = [];   // used to reset _iN$t variable
 
 /**
  * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
@@ -52,7 +55,7 @@ var _isDomNode = require('./utils').isDomNode;
  * var node = cc.instantiate(targetNode);
  * node.parent = scene;
  */
-function instantiate (original, internal_force) {
+export default function instantiate (original, internal_force) {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (CC_DEV) {
@@ -106,19 +109,17 @@ function instantiate (original, internal_force) {
     return clone;
 }
 
-var objsToClearTmpVar = [];   // used to reset _iN$t variable
-
-///**
-// * Do instantiate object, the object to instantiate must be non-nil.
-// * 这是一个通用的 instantiate 方法，可能效率比较低。
-// * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
-// * 值得注意的是，这个方法不可重入。
-// *
-// * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
-// * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
-// * @return {Object}
-// * @private
-// */
+/*
+ * Do instantiate object, the object to instantiate must be non-nil.
+ * 这是一个通用的 instantiate 方法，可能效率比较低。
+ * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
+ * 值得注意的是，这个方法不可重入。
+ *
+ * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
+ * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
+ * @return {Object}
+ * @private
+ */
 function doInstantiate (obj, parent) {
     if (Array.isArray(obj)) {
         if (CC_DEV) {
@@ -126,7 +127,7 @@ function doInstantiate (obj, parent) {
         }
         return null;
     }
-    if (_isDomNode && _isDomNode(obj)) {
+    if (isDomNode && isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }
@@ -166,7 +167,7 @@ function enumerateCCClass (klass, obj, clone, parent) {
         var value = obj[key];
         if (typeof value === 'object' && value) {
             var initValue = clone[key];
-            if (initValue instanceof CCValueType &&
+            if (initValue instanceof ValueType &&
                 initValue.constructor === value.constructor) {
                 initValue.set(value);
             }
@@ -220,7 +221,7 @@ function enumerateObject (obj, clone, parent) {
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
 function instantiateObj (obj, parent) {
-    if (obj instanceof CCValueType) {
+    if (obj instanceof ValueType) {
         return obj.clone();
     }
     if (obj instanceof cc.Asset) {
@@ -290,4 +291,3 @@ function instantiateObj (obj, parent) {
 
 instantiate._clone = doInstantiate;
 cc.instantiate = instantiate;
-module.exports = instantiate;

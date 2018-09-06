@@ -26,37 +26,43 @@
 
 var requiringFrames = [];  // the requiring frame infos
 
-cc._RF = {
-    push: function (module, uuid, script) {
-        if (script === undefined) {
-            script = uuid;
-            uuid = '';
-        }
-        requiringFrames.push({
-            uuid: uuid,
-            script: script,
-            module: module,
-            exports: module.exports,    // original exports
-            beh: null
-        });
-    },
-    pop: function () {
-        var frameInfo = requiringFrames.pop();
-        // check exports
-        var module = frameInfo.module;
-        var exports = module.exports;
-        if (exports === frameInfo.exports) {
-            for (var anyKey in exports) {
-                // exported
-                return;
-            }
-            // auto export component
-            module.exports = exports = frameInfo.cls;
-        }
-    },
-    peek: function () {
-        return requiringFrames[requiringFrames.length - 1];
+export function push (module, uuid, script) {
+    if (script === undefined) {
+        script = uuid;
+        uuid = '';
     }
+    requiringFrames.push({
+        uuid: uuid,
+        script: script,
+        module: module,
+        exports: module.exports,    // original exports
+        beh: null
+    });
+}
+
+export function pop () {
+    var frameInfo = requiringFrames.pop();
+    // check exports
+    var module = frameInfo.module;
+    var exports = module.exports;
+    if (exports === frameInfo.exports) {
+        for (var anyKey in exports) {
+            // exported
+            return;
+        }
+        // auto export component
+        module.exports = exports = frameInfo.cls;
+    }
+}
+
+export function peek () {
+    return requiringFrames[requiringFrames.length - 1];
+}
+
+cc._RF = {
+    push,
+    pop,
+    peek
 };
 
 if (CC_EDITOR) {

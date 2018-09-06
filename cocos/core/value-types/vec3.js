@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 import {vec3} from '../vmath';
 import {clampf} from '../utils/misc';
 

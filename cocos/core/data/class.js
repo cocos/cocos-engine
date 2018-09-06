@@ -24,20 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('./js');
-var Enum = require('./CCEnum');
-var utils = require('./utils');
-var _isPlainEmptyObj_DEV = utils.isPlainEmptyObj_DEV;
-var _cloneable_DEV = utils.cloneable_DEV;
-var Attr = require('./attribute');
-var DELIMETER = Attr.DELIMETER;
+import * as js from '../utils/js';
+import {isPlainEmptyObj_DEV, cloneable_DEV} from '../utils/misc';
+import Enum from '../value-types/enum';
+import {preprocessAttrs, validateMethodWithProps} from './utils/preprocess-class';
+import * as Attr from './utils/attribute';
+import * as RF from './utils/requiring-frame';
+
+const DELIMETER = Attr.DELIMETER;
+
 var getTypeChecker = Attr.getTypeChecker;
-var preprocess = require('./preprocess-class');
-require('./requiring-frame');
 
-var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
-
-var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
+const BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
+const INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
 
 function pushUnique (array, item) {
@@ -120,9 +119,9 @@ function defineProp (cls, className, propName, val, es6) {
                         return;
                     }
                 }
-                else if (!_isPlainEmptyObj_DEV(defaultValue)) {
+                else if (!isPlainEmptyObj_DEV(defaultValue)) {
                     // check cloneable
-                    if (!_cloneable_DEV(defaultValue)) {
+                    if (!cloneable_DEV(defaultValue)) {
                         cc.errorID(3636, className, propName, propName);
                         return;
                     }
@@ -344,7 +343,7 @@ function doDefine (className, baseClass, mixins, options) {
 
 function define (className, baseClass, mixins, options) {
     var Component = cc.Component;
-    var frame = cc._RF.peek();
+    var frame = RF.peek();
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
@@ -552,7 +551,8 @@ function getInitProps (attrs, propList) {
 }
 
 // simple test variable name
-var IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+
 function compileProps (actualClass) {
     // init deferred properties
     var attrs = Attr.getClassAttrs(actualClass);
@@ -817,7 +817,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
 
     if (properties) {
         // 预处理属性
-        preprocess.preprocessAttrs(properties, className, cls, es6);
+        preprocessAttrs(properties, className, cls, es6);
 
         for (var propName in properties) {
             var val = properties[propName];
@@ -929,7 +929,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  obj.url = 'sprite.png';
  obj.load();
  */
-function CCClass (options) {
+export default function CCClass (options) {
     options = options || {};
 
     var name = options.name;
@@ -990,7 +990,7 @@ function CCClass (options) {
             continue;
         }
         var func = options[funcName];
-        if (!preprocess.validateMethodWithProps(func, funcName, name, cls, base)) {
+        if (!validateMethodWithProps(func, funcName, name, cls, base)) {
             continue;
         }
         // use value to redefine some super method defined as getter
@@ -1027,13 +1027,13 @@ CCClass._isCCClass = function (constructor) {
 //
 // Optimized define function only for internal classes
 //
-// @method _fastDefine
+// @method fastDefine
 // @param {String} className
 // @param {Function} constructor
 // @param {Object} serializableFields
 // @private
 //
-CCClass._fastDefine = function (className, constructor, serializableFields) {
+CCClass.fastDefine = function (className, constructor, serializableFields) {
     js.setClassName(className, constructor);
     //constructor.__ctors__ = constructor.__ctors__ || null;
     var props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
@@ -1044,7 +1044,6 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
         attrProtos[key + DELIMETER + 'default'] = serializableFields[key];
     }
 };
-
 CCClass.Attr = Attr;
 CCClass.attr = Attr.attr;
 
@@ -1106,41 +1105,34 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
             }
         }
         else {
-            if (type === Attr.ScriptUuid) {
-                var attr = Attr.ObjectType(cc.ScriptAsset);
-                attr.type = 'Script';
-                result.push(attr);
-            }
-            else {
-                if (typeof type === 'object') {
-                    if (Enum.isEnum(type)) {
-                        result.push({
-                            type: 'Enum',
-                            enumList: Enum.getList(type)
-                        });
-                    }
-                    else if (CC_DEV) {
-                        cc.errorID(3645, className, propName, type);
-                    }
-                }
-                else if (typeof type === 'function') {
-                    if (attrs.url) {
-                        result.push({
-                            type: 'Object',
-                            ctor: type,
-                            _onAfterProp: getTypeChecker('String', 'cc.String')
-                        });
-                    }
-                    else {
-                        result.push(attrs._short ? {
-                            type: 'Object',
-                            ctor: type
-                        } : Attr.ObjectType(type));
-                    }
+            if (typeof type === 'object') {
+                if (Enum.isEnum(type)) {
+                    result.push({
+                        type: 'Enum',
+                        enumList: Enum.getList(type)
+                    });
                 }
                 else if (CC_DEV) {
-                    cc.errorID(3646, className, propName, type);
+                    cc.errorID(3645, className, propName, type);
                 }
+            }
+            else if (typeof type === 'function') {
+                if (attrs.url) {
+                    result.push({
+                        type: 'Object',
+                        ctor: type,
+                        _onAfterProp: getTypeChecker('String', 'cc.String')
+                    });
+                }
+                else {
+                    result.push(attrs._short ? {
+                        type: 'Object',
+                        ctor: type
+                    } : Attr.ObjectType(type));
+                }
+            }
+            else if (CC_DEV) {
+                cc.errorID(3646, className, propName, type);
             }
         }
     }
@@ -1238,20 +1230,14 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     return result;
 }
 
-cc.Class = CCClass;
-
-module.exports = {
-    isArray: function (defaultVal) {
-        defaultVal = getDefault(defaultVal);
-        return Array.isArray(defaultVal);
-    },
-    fastDefine: CCClass._fastDefine,
-    getNewValueTypeCode: CC_SUPPORT_JIT && getNewValueTypeCodeJit,
-    IDENTIFIER_RE,
-    escapeForJS,
-    getDefault: getDefault
-};
-
-if (CC_TEST) {
-    js.mixin(CCClass, module.exports);
+CCClass.isArray = function (defaultVal) {
+    defaultVal = getDefault(defaultVal);
+    return Array.isArray(defaultVal);
 }
+
+CCClass.getDefault = getDefault;
+CCClass.escapeForJS = escapeForJS;
+CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
+CCClass.getNewValueTypeCode = CC_SUPPORT_JIT && getNewValueTypeCodeJit;
+
+cc.Class = CCClass;

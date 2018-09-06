@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('./js');
+import * as js from '../../utils/js';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -160,7 +160,7 @@ function checkUrl (val, className, propName, url) {
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
         if (CC_EDITOR) {
-            var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
+            var isArray = cc.Class.isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
                 cc.warnID(5507, className, propName);
             }
@@ -216,7 +216,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) {
+export function getFullFormOfProperty (options, propname_dev, classname_dev) {
     var isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
@@ -293,7 +293,7 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
     return null;
 };
 
-exports.preprocessAttrs = function (properties, className, cls, es6) {
+export function preprocessAttrs (properties, className, cls, es6) {
     for (var propName in properties) {
         var val = properties[propName];
         var fullForm = exports.getFullFormOfProperty(val, propName, className);
@@ -353,7 +353,7 @@ exports.preprocessAttrs = function (properties, className, cls, es6) {
 
 if (CC_DEV) {
     const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy\s*\.\s*call\s*\(\s*\w+\s*[,|)]/;
-    exports.doValidateMethodWithProps_DEV = function (func, funcName, className, cls, base) {
+    export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base) {
         if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
             // find class that defines this method as a property
             var baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
@@ -369,7 +369,7 @@ if (CC_DEV) {
     };
 }
 
-exports.validateMethodWithProps = function (func, funcName, className, cls, base) {
+export function validateMethodWithProps (func, funcName, className, cls, base) {
     if (CC_DEV && funcName === 'constructor') {
         cc.errorID(3643, className);
         return false;

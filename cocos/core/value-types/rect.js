@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 
 /**
  * !#en A 2D rectangle defined by x, y position and width, height.
@@ -394,7 +394,7 @@ export default class Rect extends ValueType {
     }
 }
 
-Class.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
+CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 cc.Rect = Rect;
 

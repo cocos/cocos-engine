@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 
 /**
  * !#en
@@ -544,7 +544,7 @@ export default class Color extends ValueType {
     }
 }
 
-Class.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
+CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 
 /**
  * @module cc

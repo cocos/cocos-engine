@@ -120,7 +120,7 @@ if (TestEditorExtends) {
         function Vec3 (x, y, z) {
             this.data = [x, y, z];
         }
-        cc.Class._fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
+        cc.Class.fastDefine('Vec3', Vec3, { x: 0, y: 0, z: 0, });
 
         Object.defineProperties(Vec3.prototype, {
             x: {
