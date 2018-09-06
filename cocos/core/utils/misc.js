@@ -24,16 +24,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
+import {getset, getClassName} from './js';
+
+export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
+
+var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+var values = new Array(123); // max char code in base64Keys
+for (let i = 0; i < 123; ++i) values[i] = 64; // fill with placeholder('=') index
+for (let i = 0; i < 64; ++i) values[BASE64_KEYS.charCodeAt(i)] = i;
+
+// decoded value indexed by base64 char code
+export const BASE64_VALUES = values;
 
 /**
  * misc utilities
  * @class misc
  * @static
  */
-var misc = {};
 
-misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
+/**
+ * @method propertyDefine
+ * @param {Function} ctor
+ * @param {Array} sameNameGetSets
+ * @param {Object} diffNameGetSets
+ */
+export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
         var pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
@@ -43,13 +58,13 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
         else {
             var getterFunc = np[getter];
             if (CC_DEV && !getterFunc) {
-                var clsName = (cc.Class._isCCClass(ctor) && js.getClassName(ctor)) ||
-                              ctor.name ||
-                              '(anonymous class)';
+                var clsName = (cc.Class._isCCClass(ctor) && getClassName(ctor)) ||
+                                ctor.name ||
+                                '(anonymous class)';
                 cc.warnID(5700, propName, getter, clsName);
             }
             else {
-                js.getset(np, propName, getterFunc, np[setter]);
+                getset(np, propName, getterFunc, np[setter]);
             }
         }
     }
@@ -60,17 +75,17 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
         define(np, propName, 'get' + suffix, 'set' + suffix);
     }
     for (propName in diffNameGetSets) {
-        var getset = diffNameGetSets[propName];
-        define(np, propName, getset[0], getset[1]);
+        var gs = diffNameGetSets[propName];
+        define(np, propName, gs[0], gs[1]);
     }
-};
+}
 
 /**
+ * @method nextPOT
  * @param {Number} x
  * @return {Number}
- * Constructor
  */
-misc.NextPOT = function (x) {
+export function nextPOT (x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -80,57 +95,8 @@ misc.NextPOT = function (x) {
     return x + 1;
 };
 
-//var DirtyFlags = m.DirtyFlags = {
-//    TRANSFORM: 1 << 0,
-//    SIZE: 1 << 1,
-//    //Visible:
-//    //Color:
-//    //Opacity
-//    //Cache
-//    //Order
-//    //Text
-//    //Gradient
-//    ALL: (1 << 2) - 1
-//};
-//
-//DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
-
-if (CC_EDITOR) {
-    // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
-
-    misc.tryCatchFunctor_EDITOR = function (funcName, forwardArgs, afterCall, bindArg) {
-        function call_FUNC_InTryCatch (_R_ARGS_) {
-            try {
-                target._FUNC_(_U_ARGS_);
-            }
-            catch (e) {
-                cc._throw(e);
-            }
-            _AFTER_CALL_
-        }
-        // use evaled code to generate named function
-        return Function('arg', 'return ' + call_FUNC_InTryCatch
-                    .toString()
-                    .replace(/_FUNC_/g, funcName)
-                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
-                    .replace('_U_ARGS_', forwardArgs || '')
-                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
-    };
-}
-
-misc.BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
-
-
-var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-var BASE64_VALUES = new Array(123); // max char code in base64Keys
-for (let i = 0; i < 123; ++i) BASE64_VALUES[i] = 64; // fill with placeholder('=') index
-for (let i = 0; i < 64; ++i) BASE64_VALUES[BASE64_KEYS.charCodeAt(i)] = i;
-
-// decoded value indexed by base64 char code
-misc.BASE64_VALUES = BASE64_VALUES;
-
 // set value to map, if key exists, push to array
-misc.pushToMap = function (map, key, value, pushFront) {
+export function pushToMap (map, key, value, pushFront) {
     var exists = map[key];
     if (exists) {
         if (Array.isArray(exists)) {
@@ -168,7 +134,7 @@ misc.pushToMap = function (map, key, value, pushFront) {
  * var v2 = cc.misc.clampf(-1, 0, 20); //  0;
  * var v3 = cc.misc.clampf(10, 0, 20); // 10;
  */
-misc.clampf = function (value, min_inclusive, max_inclusive) {
+export function clampf (value, min_inclusive, max_inclusive) {
     if (min_inclusive > max_inclusive) {
         var temp = min_inclusive;
         min_inclusive = max_inclusive;
@@ -188,7 +154,7 @@ misc.clampf = function (value, min_inclusive, max_inclusive) {
  * var v2 = cc.misc.clamp01(-1);  // 0;
  * var v3 = cc.misc.clamp01(0.5); // 0.5;
  */
-misc.clamp01 = function (value) {
+export function clamp01 (value) {
     return value < 0 ? 0 : value < 1 ? value : 1;
 };
 
@@ -201,7 +167,7 @@ misc.clamp01 = function (value) {
  * @return {Number}
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
  */
-misc.lerp = function (a, b, r) {
+export function lerp (a, b, r) {
     return a + (b - a) * r;
 };
 
@@ -211,7 +177,7 @@ misc.lerp = function (a, b, r) {
  * @return {Number}
  * @method degreesToRadians
  */
-misc.degreesToRadians = function (angle) {
+export function degreesToRadians (angle) {
     return angle * cc.macro.RAD;
 };
 
@@ -221,8 +187,131 @@ misc.degreesToRadians = function (angle) {
  * @return {Number}
  * @method radiansToDegrees
  */
-misc.radiansToDegrees = function (angle) {
+export function radiansToDegrees (angle) {
     return angle * cc.macro.DEG;
 };
 
-cc.misc = module.exports = misc;
+export function contains (refNode, otherNode) {
+    if(typeof refNode.contains == 'function'){
+        return refNode.contains(otherNode);
+    }else if(typeof refNode.compareDocumentPosition == 'function' ) {
+        return !!(refNode.compareDocumentPosition(otherNode) & 16);
+    }else {
+        var node = otherNode.parentNode;
+        if (node) {
+            do {
+                if (node === refNode) {
+                    return true;
+                } else {
+                    node = node.parentNode;
+                }
+            } while (node !==null);
+        }
+        return false;
+    }
+}
+
+export function isDomNode (obj) {
+    if (typeof window === 'object' && typeof Node === 'function') {
+        // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
+        // it should because window.Node was overwritten.
+        return obj instanceof Node;
+    }
+    else {
+        return obj &&
+               typeof obj === 'object' &&
+               typeof obj.nodeType === 'number' &&
+               typeof obj.nodeName === 'string';
+    }
+}
+
+export function callInNextTick (callback, p1, p2) {
+    if (CC_EDITOR) {
+        if (callback) {
+            process.nextTick(function () {
+                callback(p1, p2);
+            });
+        }
+    }
+    else {
+        if (callback) {
+            setTimeout(function () {
+                callback(p1, p2);
+            }, 0);
+        }
+    }
+}
+
+if (CC_EDITOR) {
+    // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
+
+    export function tryCatchFunctor_EDITOR (funcName, forwardArgs, afterCall, bindArg) {
+        function call_FUNC_InTryCatch (_R_ARGS_) {
+            try {
+                target._FUNC_(_U_ARGS_);
+            }
+            catch (e) {
+                cc._throw(e);
+            }
+            _AFTER_CALL_
+        }
+        // use evaled code to generate named function
+        return Function('arg', 'return ' + call_FUNC_InTryCatch
+                    .toString()
+                    .replace(/_FUNC_/g, funcName)
+                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
+                    .replace('_U_ARGS_', forwardArgs || '')
+                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+    };
+
+    export function isPlainEmptyObj_DEV (obj) {
+        if (!obj || obj.constructor !== Object) {
+            return false;
+        }
+        // jshint ignore: start
+        for (var k in obj) {
+            return false;
+        }
+        // jshint ignore: end
+        return true;
+    };
+
+    export function cloneable_DEV (obj) {
+        return obj &&
+               typeof obj.clone === 'function' &&
+               ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
+    };
+}
+
+if (CC_TEST) {
+    // editor mocks using in unit tests
+    if (typeof Editor === 'undefined') {
+        window.Editor = {
+            UuidUtils: {
+                NonUuidMark: '.',
+                uuid: function () {
+                    return '' + ((new Date()).getTime() + Math.random());
+                }
+            }
+        };
+    }
+}
+
+cc.misc = {
+    BUILTIN_CLASSID_RE,
+    BASE64_VALUES,
+    propertyDefine,
+    NextPOT,
+    pushToMap,
+    clampf,
+    clamp01,
+    lerp,
+    degreesToRadians,
+    radiansToDegrees,
+    contains,
+    isDomNode,
+    callInNextTick,
+    tryCatchFunctor_EDITOR,
+    isPlainEmptyObj_DEV,
+    cloneable_DEV
+};

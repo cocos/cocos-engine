@@ -36,7 +36,7 @@
  * @param {Node} [referenceNode]
  * @return {Node|null} the node or null if not found
  */
-cc.find = module.exports = function (path, referenceNode) {
+export default function find (path, referenceNode) {
     if (path == null) {
         cc.errorID(5600);
         return null;
@@ -83,3 +83,5 @@ cc.find = module.exports = function (path, referenceNode) {
 
     return match;
 };
+
+cc.find = find;

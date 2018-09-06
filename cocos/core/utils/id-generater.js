@@ -23,65 +23,33 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
-const renderEngine = require('../renderer/render-engine');
-// const Vec2 = require('../value-types/vec2');
-// const Vec3 = require('../value-types/vec3');
-// const Quat = require('../value-types/quat');
-const math = renderEngine.math;
+// ID generater for runtime
 
-var mat4Pool = new js.Pool(128);
-mat4Pool.get = function () {
-    var matrix = this._get();
-    if (matrix) {
-        math.mat4.identity(matrix);
+let NonUuidMark = '.';
+
+export default class IdGenerater {
+    /*
+     * @constructor
+     * @param {string} [category] - You can specify a unique category to avoid id collision with other instance of IdGenerater
+     */
+    constructor (category) {
+        // init with a random id to emphasize that the returns id should not be stored in persistence data
+        this.id = 0 | (Math.random() * 998);
+        
+        this.prefix = category ? (category + NonUuidMark) : '';
     }
-    else {
-        matrix = math.mat4.create();
+
+    /*
+     * @method getNewId
+     * @return {string}
+     */
+    getNewId () {
+        return this.prefix + (++this.id);
     }
-    return matrix;
-};
+}
 
-// var vec2Pool = new js.Pool(128);
-// vec2Pool.get = function () {
-//     var vec2 = this._get();
-//     if (vec2) {
-//         vec2.x = vec2.y = 0;
-//     }
-//     else {
-//         vec2 = new Vec2();
-//     }
-//     return vec2;
-// };
-
-// var vec3Pool = new js.Pool(128);
-// vec3Pool.get = function () {
-//     var vec3 = this._get();
-//     if (vec3) {
-//         vec3.x = vec3.y = vec3.z = 0;
-//     }
-//     else {
-//         vec3 = new Vec3();
-//     }
-//     return vec3;
-// };
-
-var quatPool = new js.Pool(64);
-quatPool.get = function () {
-    var quat = this._get();
-    if (quat) {
-        quat.x = quat.y = quat.z = 0;
-        quat.w = 1;
-    }
-    else {
-        quat = math.quat.create();
-    }
-    return quat;
-};
-
-module.exports = {
-    mat4: mat4Pool,
-    // vec2: vec2Pool,
-    // vec3: vec3Pool,
-    quat: quatPool
-};
+/*
+ * The global id generater might have a conflict problem once every 365 days,
+ * if the game runs at 60 FPS and each frame 4760273 counts of new id are requested.
+ */
+IdGenerater.global = new IdGenerater('global');

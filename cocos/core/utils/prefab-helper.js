@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var math = require("../renderer").renderEngine.math;
+import math from './vmath';
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
@@ -62,70 +62,67 @@ cc._PrefabInfo = cc.Class({
     // }
 });
 
-// prefab helper function
-module.exports = {
-    // update node to make it sync with prefab
-    syncWithPrefab: function (node) {
-        var _prefab = node._prefab;
-        // non-reentrant
-        _prefab._synced = true;
-        //
-        if (!_prefab.asset) {
-            if (CC_EDITOR) {
-                var NodeUtils = Editor.require('scene://utils/node');
-                var PrefabUtils = Editor.require('scene://utils/prefab');
+// update node to make it sync with prefab
+export default function syncWithPrefab (node) {
+    var _prefab = node._prefab;
+    // non-reentrant
+    _prefab._synced = true;
+    //
+    if (!_prefab.asset) {
+        if (CC_EDITOR) {
+            var NodeUtils = Editor.require('scene://utils/node');
+            var PrefabUtils = Editor.require('scene://utils/prefab');
 
-                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
-                node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
-            }
-            else {
-                cc.errorID(3701, node.name);
-            }
-            node._prefab = null;
-            return;
-        }
-
-        // save root's preserved props to avoid overwritten by prefab
-        var _objFlags = node._objFlags;
-        var _parent = node._parent;
-        var _id = node._id;
-        var _name = node._name;
-        var _active = node._active;
-        var x = node._position.x;
-        var y = node._position.y;
-        var _quat = node._quat;
-        var _localZOrder = node._localZOrder;
-        var _globalZOrder = node._globalZOrder;
-
-        // instantiate prefab
-        cc.game._isCloning = true;
-        if (CC_SUPPORT_JIT) {
-            _prefab.asset._doInstantiate(node);
+            cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
+            node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }
         else {
-            // root in prefab asset is always synced
-            var prefabRoot = _prefab.asset.data;
-            prefabRoot._prefab._synced = true;
-
-            // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
-            prefabRoot._iN$t = node;
-
-            // instantiate prefab and apply to node
-            cc.instantiate._clone(prefabRoot, prefabRoot);
+            cc.errorID(3701, node.name);
         }
-        cc.game._isCloning = false;
-
-        // restore preserved props
-        node._objFlags = _objFlags;
-        node._parent = _parent;
-        node._id = _id;
-        node._prefab = _prefab;
-        node._name = _name;
-        node._active = _active;
-        node._position.x = x;
-        node._position.y = y;
-        math.quat.copy(node._quat, _quat);
-        node._localZOrder = _localZOrder;
-        node._globalZOrder = _globalZOrder;
+        node._prefab = null;
+        return;
     }
-};
+
+    // save root's preserved props to avoid overwritten by prefab
+    var _objFlags = node._objFlags;
+    var _parent = node._parent;
+    var _id = node._id;
+    var _name = node._name;
+    var _active = node._active;
+    var x = node._position.x;
+    var y = node._position.y;
+    var _quat = node._quat;
+    var _localZOrder = node._localZOrder;
+    var _globalZOrder = node._globalZOrder;
+
+    // instantiate prefab
+    cc.game._isCloning = true;
+    if (CC_SUPPORT_JIT) {
+        _prefab.asset._doInstantiate(node);
+    }
+    else {
+        // root in prefab asset is always synced
+        var prefabRoot = _prefab.asset.data;
+        prefabRoot._prefab._synced = true;
+
+        // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
+        prefabRoot._iN$t = node;
+
+        // instantiate prefab and apply to node
+        cc.instantiate._clone(prefabRoot, prefabRoot);
+    }
+    cc.game._isCloning = false;
+
+    // restore preserved props
+    node._objFlags = _objFlags;
+    node._parent = _parent;
+    node._id = _id;
+    node._prefab = _prefab;
+    node._name = _name;
+    node._active = _active;
+    node._position.x = x;
+    node._position.y = y;
+    math.quat.copy(node._quat, _quat);
+    node._localZOrder = _localZOrder;
+    node._globalZOrder = _globalZOrder;
+}

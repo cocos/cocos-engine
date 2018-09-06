@@ -33,45 +33,44 @@
  *     ...
  * }
  */
-function MutableForwardIterator (array) {
-    this.i = 0;
-    this.array = array;
+export default class MutableForwardIterator {
+    constructor (array) {
+        this.i = 0;
+        this.array = array;
+    }
+
+    remove (value) {
+        var index = this.array.indexOf(value);
+        if (index >= 0) {
+            this.removeAt(index);
+        }
+    }
+    removeAt (i) {
+        this.array.splice(i, 1);
+
+        if (i <= this.i) {
+            --this.i;
+        }
+    }
+    fastRemove (value) {
+        var index = this.array.indexOf(value);
+        if (index >= 0) {
+            this.fastRemoveAt(index);
+        }
+    }
+    fastRemoveAt (i) {
+        var array = this.array;
+        array[i] = array[array.length - 1];
+        --array.length;
+
+        if (i <= this.i) {
+            --this.i;
+        }
+    }
+    push (item) {
+        this.array.push(item);
+    }
 }
-
-var proto = MutableForwardIterator.prototype;
-
-proto.remove = function (value) {
-    var index = this.array.indexOf(value);
-    if (index >= 0) {
-        this.removeAt(index);
-    }
-};
-proto.removeAt = function (i) {
-    this.array.splice(i, 1);
-
-    if (i <= this.i) {
-        --this.i;
-    }
-};
-proto.fastRemove = function (value) {
-    var index = this.array.indexOf(value);
-    if (index >= 0) {
-        this.fastRemoveAt(index);
-    }
-};
-proto.fastRemoveAt = function (i) {
-    var array = this.array;
-    array[i] = array[array.length - 1];
-    --array.length;
-
-    if (i <= this.i) {
-        --this.i;
-    }
-};
-
-proto.push = function (item) {
-    this.array.push(item);
-};
 
 //js.getset(proto, 'length',
 //    function () {
@@ -84,5 +83,3 @@ proto.push = function (item) {
 //        }
 //    }
 //);
-
-module.exports = MutableForwardIterator;

@@ -24,24 +24,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventRegx = /^(click)(\s)*=/;
-var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+const EVENT_REGX = /^(click)(\s)*=/;
+const IMAGE_ATTR_REG = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
  */
-var HtmlTextParser = function() {
-    this._parsedObject = {};
-    this._specialSymbolArray = [];
-    this._specialSymbolArray.push([/&lt;/g, '<']);
-    this._specialSymbolArray.push([/&gt;/g, '>']);
-    this._specialSymbolArray.push([/&amp;/g, '&']);
-    this._specialSymbolArray.push([/&quot;/g, '"']);
-    this._specialSymbolArray.push([/&apos;/g, '\'']);
-};
+export default class HtmlTextParser {
+    constructor () {
+        this._parsedObject = {};
+        this._specialSymbolArray = [];
+        this._specialSymbolArray.push([/&lt;/g, '<']);
+        this._specialSymbolArray.push([/&gt;/g, '>']);
+        this._specialSymbolArray.push([/&amp;/g, '&']);
+        this._specialSymbolArray.push([/&quot;/g, '"']);
+        this._specialSymbolArray.push([/&apos;/g, '\'']);
+    }
 
-HtmlTextParser.prototype = {
-    constructor: HtmlTextParser,
-    parse: function(htmlString) {
+    parse (htmlString) {
         this._resultObjectArray = [];
         this._stack = [];
 
@@ -69,12 +69,10 @@ HtmlTextParser.prototype = {
 
             }
         }
-
-
         return this._resultObjectArray;
-    },
+    }
 
-    _attributeToObject: function (attribute) {
+    _attributeToObject (attribute) {
         attribute = attribute.trim();
 
         var obj = {};
@@ -126,7 +124,7 @@ HtmlTextParser.prototype = {
         if(header && header[0].length > 0) {
             tagName = header[0].trim();
             if(tagName.startsWith("img") && tagName[tagName.length-1] === "/") {
-                header = attribute.match(imageAttrReg);
+                header = attribute.match(IMAGE_ATTR_REG);
                 var tagValue;
                 var remainingArgument;
                 var isValidImageTag = false;
@@ -161,7 +159,7 @@ HtmlTextParser.prototype = {
                     } else if (tagName === "click") {
                         obj.event = this._processEventHandler(tagName + "=" + tagValue);
                     }
-                    header = attribute.match(imageAttrReg);
+                    header = attribute.match(IMAGE_ATTR_REG);
                 }
 
                 if( isValidImageTag && obj.isImage )
@@ -231,15 +229,13 @@ HtmlTextParser.prototype = {
             eventObj = this._processEventHandler(attribute);
             obj.event = eventObj;
         }
-
-
         return obj;
-    },
+    }
 
-    _processEventHandler: function (eventString) {
+    _processEventHandler (eventString) {
         var index = 0;
         var obj = {};
-        var eventNames = eventString.match(eventRegx);
+        var eventNames = eventString.match(EVENT_REGX);
         var isValidTag = false;
         while(eventNames) {
             var eventName = eventNames[0];
@@ -277,13 +273,13 @@ HtmlTextParser.prototype = {
             }
 
             eventString = eventString.substring(index).trim();
-            eventNames = eventString.match(eventRegx);
+            eventNames = eventString.match(EVENT_REGX);
         }
 
         return obj;
-    },
+    }
 
-    _addToStack: function(attribute) {
+    _addToStack (attribute) {
         var obj = this._attributeToObject(attribute);
 
         if (this._stack.length === 0){
@@ -301,9 +297,9 @@ HtmlTextParser.prototype = {
             }
             this._stack.push(obj);
         }
-    },
+    }
 
-    _processResult: function(value) {
+    _processResult (value) {
         if (value === "") {
             return;
         }
@@ -314,9 +310,9 @@ HtmlTextParser.prototype = {
         } else {
             this._resultObjectArray.push({text: value});
         }
-    },
+    }
 
-    _escapeSpecialSymbol: function(str) {
+    _escapeSpecialSymbol (str) {
         for(var i = 0; i < this._specialSymbolArray.length; ++i) {
             var key = this._specialSymbolArray[i][0];
             var value = this._specialSymbolArray[i][1];
@@ -330,5 +326,3 @@ HtmlTextParser.prototype = {
 if (CC_TEST) {
     cc._Test.HtmlTextParser = HtmlTextParser;
 }
-
-module.exports = HtmlTextParser;
