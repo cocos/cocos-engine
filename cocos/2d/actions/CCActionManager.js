@@ -30,7 +30,7 @@ var js = require('../core/platform/js');
 
 /*
  * @class HashElement
- * @constructor
+ * @method constructor
  * @private
  */
 var HashElement = function () {

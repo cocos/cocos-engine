@@ -54,7 +54,7 @@ let _vec3_temp = math.vec3.create();
  * 2. 它的定位也是特殊的，对于私有节点来说，父节点包围盒的左下角是它的局部坐标系原点，这个原点相当于父节点的位置减去它锚点的偏移。这样私有节点可以比较容易被控制在包围盒之中。<br/>
  * 目前在引擎中，RichText 和 TileMap 都有可能生成私有节点。
  * @class PrivateNode
- * @constructor
+ * @method constructor
  * @param {String} name
  * @extends Node
  */

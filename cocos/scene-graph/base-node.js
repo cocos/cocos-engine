@@ -129,7 +129,7 @@ function findChildComponents(children, constructor, components) {
  * @class _BaseNode
  * @extends Object
  * @uses EventTarget
- * @constructor
+ * @method constructor
  * @param {String} [name]
  * @private
  */
