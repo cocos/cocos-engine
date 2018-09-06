@@ -251,7 +251,10 @@ var Model = cc.Class({
             vcount
         );
 
-        return vb;
+        return {
+            buffer: vb,
+            data: vbData
+        };
     },
 
     createSkinning(index) {
@@ -293,18 +296,21 @@ var Model = cc.Class({
         const accessors = gltf.accessors;
 
         // create index-buffer
-        meshAsset._subMeshes.length = gltfMesh.primitives.length;
-        for (let i = 0; i < gltfMesh.primitives.length; ++i) {
+        let length = gltfMesh.primitives.length;
+        meshAsset._ibs.length = length;
+        meshAsset._vbs.length = length;
+        meshAsset._subMeshes.length = length;
+        for (let i = 0; i < length; ++i) {
             let primitive = gltfMesh.primitives[i];
 
             if (primitive.indices === undefined) continue;
 
+            let vb = this._createVB(bin, gltf, accessors, primitive.attributes);
+
             let ibAcc = accessors[primitive.indices];
             let ibView = gltf.bufferViews[ibAcc.bufferView];
-            let ibData = new Uint8Array(bin, ibView.byteOffset, ibView.byteLength);
-
-            let vb = this._createVB(bin, gltf, accessors, primitive.attributes);
-            let ib = new gfx.IndexBuffer(
+            let ibData = new Uint16Array(bin, ibView.byteOffset, ibView.byteLength/2);
+            let ibBuffer = new gfx.IndexBuffer(
                 renderer.device,
                 ibAcc.componentType,
                 gfx.USAGE_STATIC,
@@ -312,7 +318,14 @@ var Model = cc.Class({
                 ibAcc.count
             );
 
-            meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb, ib);
+            let ib = {
+                buffer: ibBuffer,
+                data: ibData
+            }
+
+            meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb.buffer, ibBuffer);
+            meshAsset._vbs[i] = vb;
+            meshAsset._ibs[i] = ib;
         }
     },
 

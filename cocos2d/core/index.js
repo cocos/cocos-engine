@@ -40,6 +40,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./physics');
     require('./camera/CCCamera');
 
+    require('./mesh');
     require('./3d');
 }
 

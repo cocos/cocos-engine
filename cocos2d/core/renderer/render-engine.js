@@ -13658,7 +13658,7 @@ var ForwardRenderer = (function (superclass) {
 }(renderer.Base));
 
 var chunks = {
-  'skinning.vert': '\nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[128];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
+  'skinning.vert': '\nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[64];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
 };
 
 var templates = [
@@ -13671,13 +13671,14 @@ var templates = [
   },
   {
     name: 'mesh',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useSkinning\n  \nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[128];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef useSkinning\n    mvp = mvp * skinMatrix();\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
-    frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nuniform vec4 color;\nvoid main () {\n  vec4 o = color;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\n#ifdef useAttributeColor\n  attribute vec4 a_color;\n  varying vec4 v_color;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useSkinning\n  \nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[64];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef useSkinning\n    mvp = mvp * skinMatrix();\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  #ifdef useAttributeColor\n    v_color = a_color;\n  #endif\n  gl_Position = pos;\n}',
+    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef useAttributeColor\n  varying vec4 v_color;\n#endif\nuniform vec4 color;\nvoid main () {\n  vec4 o = color;\n  \n  #ifdef useAttributeColor\n    o *= v_color;\n  #endif\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  gl_FragColor = o;\n}',
     defines: [
       { name: 'useTexture', },
       { name: 'useModel', },
       { name: 'useSkinning', },
-      { name: 'useJointsTexture', } ],
+      { name: 'useJointsTexture', },
+      { name: 'useAttributeColor', } ],
   },
   {
     name: 'sprite',
@@ -14453,10 +14454,11 @@ var MeshMaterial = (function (Material$$1) {
         'color': {r: 1, g: 1, b: 1, a: 1}
       },
       [
+        { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
         { name: 'useSkinning', value: false },
         { name: 'useJointsTexture', valu: true},
-        { name: 'alphaTest', value: false } ]
+        { name: 'useAttributeColor', valu: false} ]
     );
     
     this._mainTech = mainTech;
@@ -14471,7 +14473,7 @@ var MeshMaterial = (function (Material$$1) {
   MeshMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   MeshMaterial.prototype.constructor = MeshMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useModel: { configurable: true },useSkinning: { configurable: true },useJointsTexture: { configurable: true },texture: { configurable: true },jointMatrices: { configurable: true },jointsTexture: { configurable: true },jointsTextureSize: { configurable: true },color: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useModel: { configurable: true },useTexture: { configurable: true },useSkinning: { configurable: true },useJointsTexture: { configurable: true },useAttributeColor: { configurable: true },texture: { configurable: true },jointMatrices: { configurable: true },jointsTexture: { configurable: true },jointsTextureSize: { configurable: true },color: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14483,6 +14485,14 @@ var MeshMaterial = (function (Material$$1) {
 
   prototypeAccessors.useModel.set = function (val) {
     this._effect.define('useModel', val);
+  };
+
+  prototypeAccessors.useTexture.get = function () {
+    return this._effect.getDefine('useTexture');
+  };
+
+  prototypeAccessors.useTexture.set = function (val) {
+    this._effect.define('useTexture', val);
   };
 
   prototypeAccessors.useSkinning.get = function () {
@@ -14499,6 +14509,14 @@ var MeshMaterial = (function (Material$$1) {
 
   prototypeAccessors.useJointsTexture.set = function (val) {
     this._effect.define('useJointsTexture', val);
+  };
+
+  prototypeAccessors.useAttributeColor.get = function () {
+    return this._effect.getDefine('useAttributeColor');
+  };
+
+  prototypeAccessors.useAttributeColor.set = function (val) {
+    this._effect.define('useAttributeColor', val);
   };
 
   prototypeAccessors.texture.get = function () {
@@ -14561,10 +14579,14 @@ var MeshMaterial = (function (Material$$1) {
   MeshMaterial.prototype.clone = function clone () {
     var copy = new MeshMaterial();
     copy.texture = this.texture;
+    copy.jointsTexture = this.jointsTexture;
+    copy.jointsTextureSize = this.jointsTextureSize;
+    copy.useTexture = this.useTexture;
     copy.color = this.color;
     copy.useModel = this.useModel;
-    copu.useSkinning = this.useSkinning;
-    copu.useJointsTexture = this.useJointsTexture;
+    copy.useSkinning = this.useSkinning;
+    copy.useJointsTexture = this.useJointsTexture;
+    copy.useAttributeColor = this.useAttributeColor;
     copy.updateHash();
     return copy;
   };
