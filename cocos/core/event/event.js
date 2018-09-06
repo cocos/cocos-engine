@@ -24,86 +24,82 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require("../platform/js");
-
 /**
  * !#en Base class of all kinds of events.
  * !#zh 包含事件相关信息的对象。
  * @class Event
  */
-
-/**
- * @method constructor
- * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- */
-cc.Event = function(type, bubbles) {
+export default class Event {
     /**
-     * !#en The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
-     * !#zh 事件类型。
-     * @property type
-     * @type {String}
+     * @method constructor
+     * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
+     * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    this.type = type;
+    constructor (type, bubbles) {
+        /**
+         * !#en The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+         * !#zh 事件类型。
+         * @property type
+         * @type {String}
+         */
+        this.type = type;
 
-    /**
-     * !#en Indicate whether the event bubbles up through the tree or not.
-     * !#zh 表示该事件是否进行冒泡。
-     * @property bubbles
-     * @type {Boolean}
-     */
-    this.bubbles = !!bubbles;
+        /**
+         * !#en Indicate whether the event bubbles up through the tree or not.
+         * !#zh 表示该事件是否进行冒泡。
+         * @property bubbles
+         * @type {Boolean}
+         */
+        this.bubbles = !!bubbles;
 
-    /**
-     * !#en A reference to the target to which the event was originally dispatched.
-     * !#zh 最初事件触发的目标
-     * @property target
-     * @type {Object}
-     */
-    this.target = null;
+        /**
+         * !#en A reference to the target to which the event was originally dispatched.
+         * !#zh 最初事件触发的目标
+         * @property target
+         * @type {Object}
+         */
+        this.target = null;
 
-    /**
-     * !#en A reference to the currently registered target for the event.
-     * !#zh 当前目标
-     * @property currentTarget
-     * @type {Object}
-     */
-    this.currentTarget = null;
+        /**
+         * !#en A reference to the currently registered target for the event.
+         * !#zh 当前目标
+         * @property currentTarget
+         * @type {Object}
+         */
+        this.currentTarget = null;
 
-    /**
-     * !#en
-     * Indicates which phase of the event flow is currently being evaluated.
-     * Returns an integer value represented by 4 constants:
-     *  - Event.NONE = 0
-     *  - Event.CAPTURING_PHASE = 1
-     *  - Event.AT_TARGET = 2
-     *  - Event.BUBBLING_PHASE = 3
-     * The phases are explained in the [section 3.1, Event dispatch and DOM event flow]
-     * (http://www.w3.org/TR/DOM-Level-3-Events/#event-flow), of the DOM Level 3 Events specification.
-     * !#zh 事件阶段
-     * @property eventPhase
-     * @type {Number}
-     */
-    this.eventPhase = 0;
+        /**
+         * !#en
+         * Indicates which phase of the event flow is currently being evaluated.
+         * Returns an integer value represented by 4 constants:
+         *  - Event.NONE = 0
+         *  - Event.CAPTURING_PHASE = 1
+         *  - Event.AT_TARGET = 2
+         *  - Event.BUBBLING_PHASE = 3
+         * The phases are explained in the [section 3.1, Event dispatch and DOM event flow]
+         * (http://www.w3.org/TR/DOM-Level-3-Events/#event-flow), of the DOM Level 3 Events specification.
+         * !#zh 事件阶段
+         * @property eventPhase
+         * @type {Number}
+         */
+        this.eventPhase = 0;
 
-    /*
-     * Indicates whether or not event.stopPropagation() has been called on the event.
-     * @property _propagationStopped
-     * @type {Boolean}
-     * @private
-     */
-    this._propagationStopped = false;
+        /*
+        * Indicates whether or not event.stopPropagation() has been called on the event.
+        * @property _propagationStopped
+        * @type {Boolean}
+        * @private
+        */
+        this._propagationStopped = false;
 
-    /*
-     * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
-     * @property _propagationImmediateStopped
-     * @type {Boolean}
-     * @private
-     */
-    this._propagationImmediateStopped = false;
-};
-cc.Event.prototype = {
-    constructor: cc.Event,
+        /*
+        * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
+        * @property _propagationImmediateStopped
+        * @type {Boolean}
+        * @private
+        */
+        this._propagationImmediateStopped = false;
+    }
 
     /**
      * !#en Reset the event for being stored in the object pool.
@@ -111,14 +107,14 @@ cc.Event.prototype = {
      * @method unuse
      * @returns {String}
      */
-    unuse: function () {
+    unuse () {
         this.type = cc.Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = cc.Event.NONE;
         this._propagationStopped = false;
         this._propagationImmediateStopped = false;
-    },
+    }
 
     /**
      * !#en Reuse the event for being used again by the object pool.
@@ -126,19 +122,19 @@ cc.Event.prototype = {
      * @method reuse
      * @returns {String}
      */
-    reuse: function (type, bubbles) {
+    reuse (type, bubbles) {
         this.type = type;
         this.bubbles = bubbles || false;
-    },
+    }
 
     /**
      * !#en Stops propagation for current event.
      * !#zh 停止传递当前事件。
      * @method stopPropagation
      */
-    stopPropagation: function () {
+    stopPropagation () {
         this._propagationStopped = true;
-    },
+    }
 
     /**
      * !#en Stops propagation for current event immediately,
@@ -146,9 +142,9 @@ cc.Event.prototype = {
      * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
      * @method stopPropagationImmediate
      */
-    stopPropagationImmediate: function () {
+    stopPropagationImmediate () {
         this._propagationImmediateStopped = true;
-    },
+    }
 
     /**
      * !#en Checks whether the event has been stopped.
@@ -156,9 +152,9 @@ cc.Event.prototype = {
      * @method isStopped
      * @returns {Boolean}
      */
-    isStopped: function () {
+    isStopped () {
         return this._propagationStopped || this._propagationImmediateStopped;
-    },
+    }
 
     /**
      * !#en
@@ -171,9 +167,9 @@ cc.Event.prototype = {
      * @method getCurrentTarget
      * @returns {Node}  The target with which the event associates.
      */
-    getCurrentTarget: function () {
+    getCurrentTarget () {
         return this.currentTarget;
-    },
+    }
 
     /**
      * !#en Gets the event type.
@@ -181,7 +177,7 @@ cc.Event.prototype = {
      * @method getType
      * @returns {String}
      */
-    getType: function () {
+    getType () {
         return this.type;
     }
 };
@@ -194,7 +190,7 @@ cc.Event.prototype = {
  * @static
  * @type {string}
  */
-cc.Event.NO_TYPE = 'no_type';
+Event.NO_TYPE = 'no_type';
 
 /**
  * !#en The type code of Touch event.
@@ -203,7 +199,7 @@ cc.Event.NO_TYPE = 'no_type';
  * @static
  * @type {String}
  */
-cc.Event.TOUCH = 'touch';
+Event.TOUCH = 'touch';
 /**
  * !#en The type code of Mouse event.
  * !#zh 鼠标事件类型
@@ -211,7 +207,7 @@ cc.Event.TOUCH = 'touch';
  * @static
  * @type {String}
  */
-cc.Event.MOUSE = 'mouse';
+Event.MOUSE = 'mouse';
 /**
  * !#en The type code of Keyboard event.
  * !#zh 键盘事件类型
@@ -219,7 +215,7 @@ cc.Event.MOUSE = 'mouse';
  * @static
  * @type {String}
  */
-cc.Event.KEYBOARD = 'keyboard';
+Event.KEYBOARD = 'keyboard';
 /**
  * !#en The type code of Acceleration event.
  * !#zh 加速器事件类型
@@ -227,7 +223,7 @@ cc.Event.KEYBOARD = 'keyboard';
  * @static
  * @type {String}
  */
-cc.Event.ACCELERATION = 'acceleration';
+Event.ACCELERATION = 'acceleration';
 
 //event phase
 /**
@@ -237,7 +233,7 @@ cc.Event.ACCELERATION = 'acceleration';
  * @type {Number}
  * @static
  */
-cc.Event.NONE = 0;
+Event.NONE = 0;
 /**
  * !#en
  * The capturing phase comprises the journey from the root to the last node before the event target's node
@@ -247,7 +243,7 @@ cc.Event.NONE = 0;
  * @type {Number}
  * @static
  */
-cc.Event.CAPTURING_PHASE = 1;
+Event.CAPTURING_PHASE = 1;
 /**
  * !#en
  * The target phase comprises only the event target node
@@ -257,7 +253,7 @@ cc.Event.CAPTURING_PHASE = 1;
  * @type {Number}
  * @static
  */
-cc.Event.AT_TARGET = 2;
+Event.AT_TARGET = 2;
 /**
  * !#en
  * The bubbling phase comprises any subsequent nodes encountered on the return trip to the root of the hierarchy
@@ -267,81 +263,6 @@ cc.Event.AT_TARGET = 2;
  * @type {Number}
  * @static
  */
-cc.Event.BUBBLING_PHASE = 3;
+Event.BUBBLING_PHASE = 3;
 
-/**
- * !#en The Custom event
- * !#zh 自定义事件
- * @class Event.EventCustom
- *
- * @extends Event
- */
-
-/**
- * @method constructor
- * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- */
-var EventCustom = function (type, bubbles) {
-    cc.Event.call(this, type, bubbles);
-
-    /**
-     * !#en A reference to the detailed data of the event
-     * !#zh 事件的详细数据
-     * @property detail
-     * @type {Object}
-     */
-    this.detail = null;
-};
-
-js.extend(EventCustom, cc.Event);
-
-EventCustom.prototype.reset = EventCustom;
-
-/**
- * !#en Sets user data
- * !#zh 设置用户数据
- * @method setUserData
- * @param {*} data
- */
-EventCustom.prototype.setUserData = function (data) {
-    this.detail = data;
-};
-
-/**
- * !#en Gets user data
- * !#zh 获取用户数据
- * @method getUserData
- * @returns {*}
- */
-EventCustom.prototype.getUserData = function () {
-    return this.detail;
-};
-
-/**
- * !#en Gets event name
- * !#zh 获取事件名称
- * @method getEventName
- * @returns {String}
- */
-EventCustom.prototype.getEventName = cc.Event.prototype.getType;
-
-var MAX_POOL_SIZE = 10;
-var _eventPool = new js.Pool(MAX_POOL_SIZE);
-EventCustom.put = function (event) {
-    _eventPool.put(event);
-};
-EventCustom.get = function (type, bubbles) {
-    var event = _eventPool._get();
-    if (event) {
-        event.reset(type, bubbles);
-    }
-    else {
-        event = new EventCustom(type, bubbles);
-    }
-    return event;
-};
-
-cc.Event.EventCustom = EventCustom;
-
-module.exports = cc.Event;
+cc.Event = Event;
