@@ -23,8 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
-require('./event');
-require('./event-listeners');
-require('./event-target');
-require('./system-event');
+
+export { default as Event } from './event';
+export { default as EventTarget } from './event-target';
