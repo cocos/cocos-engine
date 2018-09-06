@@ -38,7 +38,7 @@
 
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
-require('./CCClass');
+require('./class');
 const Preprocess = require('./preprocess-class');
 const js = require('./js');
 const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;

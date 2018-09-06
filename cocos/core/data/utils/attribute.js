@@ -24,12 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('./js');
-var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
+import * as js from '../../utils/js';
+import {isPlainEmptyObj_DEV} from '../../utils/misc';
 
-const DELIMETER = '$_$';
+export const DELIMETER = '$_$';
 
-function createAttrsSingle (owner, ownerCtor, superAttrs) {
+export function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
     if (CC_DEV && CC_SUPPORT_JIT) {
         var ctorName = ownerCtor.name;
@@ -53,7 +53,7 @@ function createAttrsSingle (owner, ownerCtor, superAttrs) {
 }
 
 // subclass should not have __attrs__
-function createAttrs (subclass) {
+export function createAttrs (subclass) {
     var superClass;
     var chains = cc.Class.getInheritanceChain(subclass);
     for (var i = chains.length - 1; i >= 0; i--) {
@@ -83,7 +83,7 @@ function createAttrs (subclass) {
 //  * @param {Object} [newAttrs] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
 //  * @static
 //  * @private
-function attr (ctor, propName, newAttrs) {
+export function attr (ctor, propName, newAttrs) {
     var attrs, setter, key;
     if (typeof ctor === 'function') {
         // attributes shared between instances
@@ -129,16 +129,16 @@ function attr (ctor, propName, newAttrs) {
 }
 
 // returns a readonly meta object
-function getClassAttrs (ctor) {
+export function getClassAttrs (ctor) {
     return (ctor.hasOwnProperty('__attrs__') && ctor.__attrs__) || createAttrs(ctor);
 }
 
 // returns a writable meta object, used to set multi attributes
-function getClassAttrsProto (ctor) {
+export function getClassAttrsProto (ctor) {
     return getClassAttrs(ctor).constructor.prototype;
 }
 
-function setClassAttr (ctor, propName, key, value) {
+export function setClassAttr (ctor, propName, key, value) {
     var proto = getClassAttrsProto(ctor);
     proto[propName + DELIMETER + key] = value;
 }
@@ -243,7 +243,7 @@ Callbacks: {
 }
  */
 
-function getTypeChecker (type, attrName) {
+export function getTypeChecker (type, attrName) {
     if (CC_DEV) {
         return function (constructor, mainPropName) {
             var propInfo = '"' + js.getClassName(constructor) + '.' + mainPropName + '"';
@@ -265,7 +265,7 @@ function getTypeChecker (type, attrName) {
             if (typeof defaultVal === 'undefined') {
                 return;
             }
-            var isContainer = Array.isArray(defaultVal) || isPlainEmptyObj(defaultVal);
+            var isContainer = Array.isArray(defaultVal) || isPlainEmptyObj_DEV(defaultVal);
             if (isContainer) {
                 return;
             }
@@ -316,7 +316,7 @@ function getTypeChecker (type, attrName) {
     }
 }
 
-function ObjectType (typeCtor) {
+export function ObjectType (typeCtor) {
     return {
         type: 'Object',
         ctor: typeCtor,
@@ -324,7 +324,7 @@ function ObjectType (typeCtor) {
             getTypeChecker('Object', 'type')(classCtor, mainPropName);
             // check ValueType
             var defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
-            var defaultVal = require('./CCClass').getDefault(defaultDef);
+            var defaultVal = cc.Class.getDefault(defaultDef);
             if (!Array.isArray(defaultVal) && js.isChildClassOf(typeCtor, cc.ValueType)) {
                 var typename = js.getClassName(typeCtor);
                 var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
@@ -339,14 +339,3 @@ function ObjectType (typeCtor) {
         }
     };
 }
-
-module.exports = {
-    attr: attr,
-    getClassAttrs: getClassAttrs,
-    getClassAttrsProto: getClassAttrsProto,
-    setClassAttr: setClassAttr,
-    DELIMETER: DELIMETER,
-    getTypeChecker: getTypeChecker,
-    ObjectType: ObjectType,
-    ScriptUuid: {},      // the value will be represented as a uuid string
-};

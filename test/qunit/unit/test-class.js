@@ -521,7 +521,7 @@ largeModule('Class ES6');
         function ctor () {
             this.foo = 0;
         }
-        cc.Class._fastDefine('T', ctor, ['foo']);
+        cc.Class.fastDefine('T', ctor, ['foo']);
         strictEqual(cc.Class._isCCClass(ctor), false, 'fastDefined ctor should not recognized as CCClass');
 
         cc.js.unregisterClass(ctor);

@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,24 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function deepFlatten (strList, array) {
-    for (var i = 0; i < array.length; i++) {
-        var item = array[i];
-        if (Array.isArray(item)) {
-            deepFlatten(strList, item);
-        }
-        // else if (item instanceof Declaration) {
-        //     strList.push(item.toString());
-        // }
-        else {
-            strList.push(item);
-        }
-    }
-}
+import * as decorator from './class-decorator';
+cc._decorator = decorator;
 
-export function flattenCodeArray (array) {
-    var separator = CC_DEV ? '\n' : '';
-    var strList = [];
-    deepFlatten(strList, array);
-    return strList.join(separator);
-}
+export { default as CCClass } from './class';
+export { default as CCObject } from './object';
+export { default as deserialize } from './deserialize';
+export { default as instantiate } from './instantiate';
