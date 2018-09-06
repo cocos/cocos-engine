@@ -120,9 +120,7 @@ let EditBoxImpl = cc.Class({
     },
 
     setFocus () {
-        if (this._edTxt) {
-            this._edTxt.focus();
-        }
+        this._beginEditing();
     },
 
     isFocused() {
@@ -256,24 +254,22 @@ let EditBoxImpl = cc.Class({
     },
 
     _beginEditing () {
-        if (!this._alwaysOnTop) {
-            if (this._edTxt && (this._edTxt.style.display === 'none')) {
-                this._edTxt.style.display = '';
-    
-                let self = this;
-                function startFocus () {
-                    self._edTxt.focus();
-                }
-    
-                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
-                    setTimeout(startFocus, FOCUS_DELAY_UC);
-                }
-                else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
-                    setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
-                }
-                else {
-                    startFocus();
-                }
+        if (this._edTxt) {
+            this._edTxt.style.display = '';
+
+            let self = this;
+            function startFocus () {
+                self._edTxt.focus();
+            }
+
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+                setTimeout(startFocus, FOCUS_DELAY_UC);
+            }
+            else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+                setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
+            }
+            else {
+                startFocus();
             }
         }
     
