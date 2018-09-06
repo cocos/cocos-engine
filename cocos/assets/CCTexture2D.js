@@ -215,6 +215,7 @@ let _sharedOpts = {
     height: undefined,
     minFilter: undefined,
     magFilter: undefined,
+    mipFilter: undefined,
     wrapS: undefined,
     wrapT: undefined,
     format: undefined,
@@ -222,7 +223,8 @@ let _sharedOpts = {
     images: undefined,
     image: undefined,
     flipY: undefined,
-    premultiplyAlpha: undefined
+    premultiplyAlpha: undefined,
+    anisotropy: undefined
 };
 function _getSharedOptions () {
     for (var key in _sharedOpts) {
@@ -268,8 +270,10 @@ var Texture2D = cc.Class({
         _flipY: false,
         _minFilter: Filter.LINEAR,
         _magFilter: Filter.LINEAR,
+        _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE
+        _wrapT: WrapMode.CLAMP_TO_EDGE,
+        _anisotropy: 0
     },
 
     statics: {
@@ -364,9 +368,11 @@ var Texture2D = cc.Class({
      * @param {PixelFormat} options.format
      * @param {Filter} options.minFilter
      * @param {Filter} options.magFilter
+     * @param {Filter} options.mipFilter
      * @param {WrapMode} options.wrapS
      * @param {WrapMode} options.wrapT
      * @param {Boolean} options.premultiplyAlpha
+     * @param {Number} options.anisotropy
      */
     update (options) {
         if (options) {
@@ -385,6 +391,10 @@ var Texture2D = cc.Class({
                 this._magFilter = options.magFilter;
                 options.magFilter = FilterIndex[options.magFilter];
             }
+            if (options.mipFilter !== undefined) {
+                this._mipFilter = options.mipFilter;
+                options.mipFilter = FilterIndex[options.mipFilter];
+            }
             if (options.wrapS !== undefined) {
                 this._wrapS = options.wrapS;
             }
@@ -400,6 +410,10 @@ var Texture2D = cc.Class({
             }
             if (options.premultiplyAlpha !== undefined) {
                 this._premultiplyAlpha = options.premultiplyAlpha;
+                updateImg = true;
+            }
+            if (options.anisotropy !== undefined) {
+                this._anisotropy = options.anisotropy;
                 updateImg = true;
             }
             if (options.mipmap !== undefined) {
@@ -475,9 +489,11 @@ var Texture2D = cc.Class({
         opts.images = [opts.image];
         opts.hasMipmap = this._hasMipmap;
         opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.anisotropy = this._anisotropy;
         opts.flipY = this._flipY;
         opts.minFilter = FilterIndex[this._minFilter];
         opts.magFilter = FilterIndex[this._magFilter];
+        opts.mipFilter = FilterIndex[this._mipFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
         opts.format = pixelFormat;
@@ -550,6 +566,16 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en Anisotropy of the texture.
+     * !#zh 获取纹理的各向异性。
+     * @method getAnisotropy
+     * @return {Number}
+     */
+    getAnisotropy() {
+        return this._anisotropy;
+    },
+
+    /**
      * !#en
      * Whether or not use mipmap.
      * !#zh 检查问题在上传 GPU 时是否生成 mipmap。
@@ -583,9 +609,11 @@ var Texture2D = cc.Class({
         opts.hasMipmap = this._hasMipmap;
         opts.format = this._format;
         opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.anisotropy = this._anisotropy;
         opts.flipY = this._flipY;
         opts.minFilter = FilterIndex[this._minFilter];
         opts.magFilter = FilterIndex[this._magFilter];
+        opts.mipFilter = FilterIndex[this._mipFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
         
@@ -667,6 +695,20 @@ var Texture2D = cc.Class({
     },
 
     /**
+     * !#en Sets the mipFilter options
+     * !#zh 设置纹理Mipmap过滤算法选项。
+     * @method setMipFilter
+     * @param {Texture2D.Filter} mipFilter
+     */
+    setMipFilter (mipFilter) {
+        if (this._mipFilter !== mipFilter) {
+            var opts = _getSharedOptions();
+            opts.mipFilter = mipFilter;
+            this.update(opts);
+        }
+    },
+
+    /**
      * !#en
      * Sets the flipY options
      * !#zh 设置贴图的纵向翻转选项。
@@ -692,6 +734,20 @@ var Texture2D = cc.Class({
         if (this._premultiplyAlpha !== premultiply) {
             var opts = _getSharedOptions();
             opts.premultiplyAlpha = premultiply;
+            this.update(opts);
+        }
+    },
+
+    /**
+     * !#en Sets the anisotropy of the texture
+     * !#zh 设置贴图的各向异性。
+     * @method setAnisotropy
+     * @param {Boolean} anisotropy
+     */
+    setAnisotropy(anisotropy) {
+        if (this._anisotropy != anisotropy) {
+            var opts = _getSharedOptions();
+            opts.anisotropy = anisotropy;
             this.update(opts);
         }
     },
@@ -742,7 +798,9 @@ var Texture2D = cc.Class({
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
                     this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0);
+                    (this._premultiplyAlpha ? 1 : 0) + "," +
+                    this._mipFilter + "," +
+                    this._anisotropy;
         return asset;
     },
 
@@ -785,7 +843,7 @@ var Texture2D = cc.Class({
                 this.url = url;
             }
         }
-        if (fields.length === 6) {
+        if (fields.length >= 6) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -794,6 +852,10 @@ var Texture2D = cc.Class({
             this._wrapT = parseInt(fields[4]);
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
+        }
+        if (fields.length >= 8) {
+            this._mipFilter = parseInt(fields[6]);
+            this._anisotropy = parseInt(fields[7]);
         }
     }
 });
