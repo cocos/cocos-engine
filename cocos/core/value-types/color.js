@@ -24,29 +24,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./value-type');
-var js = require('../platform/js');
+import ValueType from './value-type';
+import Class from '../data/CCClass';
 
-var Color = (function () {
-
-    /**
-     * !#en
-     * Representation of RGBA colors.
-     *
-     * Each color component is a floating point value with a range from 0 to 255.
-     *
-     * You can also use the convenience method {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} to create a new Color.
-     *
-     * !#zh
-     * cc.Color 用于表示颜色。
-     *
-     * 它包含 RGBA 四个以浮点数保存的颜色分量，每个的值都在 0 到 255 之间。
-     *
-     * 您也可以通过使用 {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} 的便捷方法来创建一个新的 Color。
-     *
-     * @class Color
-     * @extends ValueType
-     */
+/**
+ * !#en
+ * Representation of RGBA colors.
+ *
+ * Each color component is a floating point value with a range from 0 to 255.
+ *
+ * You can also use the convenience method {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} to create a new Color.
+ *
+ * !#zh
+ * cc.Color 用于表示颜色。
+ *
+ * 它包含 RGBA 四个以浮点数保存的颜色分量，每个的值都在 0 到 255 之间。
+ *
+ * 您也可以通过使用 {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} 的便捷方法来创建一个新的 Color。
+ *
+ * @class Color
+ * @extends ValueType
+ */
+export default class Color extends ValueType {
     /**
      * @method constructor
      * @param {Number} [r=0] - red component of the color, default value is 0.
@@ -54,7 +53,7 @@ var Color = (function () {
      * @param {Number} [b=0] - blue component of the color, default value is 0.
      * @param {Number} [a=255] - alpha component of the color, default value is 255.
      */
-    function Color( r, g, b, a ) {
+    constructor ( r, g, b, a ) {
         if (typeof r === 'object') {
             g = r.g;
             b = r.b;
@@ -67,109 +66,182 @@ var Color = (function () {
         a = typeof a === 'number' ? a : 255;
         this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    js.extend(Color, ValueType);
-    require('../platform/CCClass').fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 
-    var DefaultColors = {
-        // color: [r, g, b, a]
-        /**
-         * !#en Solid white, RGBA is [255, 255, 255, 255].
-         * !#zh 纯白色，RGBA 是 [255, 255, 255, 255]。
-         * @property WHITE
-         * @type {Color}
-         * @static
-         */
-        WHITE:      [255, 255, 255, 255],
-        /**
-         * !#en Solid black, RGBA is [0, 0, 0, 255].
-         * !#zh 纯黑色，RGBA 是 [0, 0, 0, 255]。
-         * @property BLACK
-         * @type {Color}
-         * @static
-         */
-        BLACK:      [0, 0, 0, 255],
-        /**
-         * !#en Transparent, RGBA is [0, 0, 0, 0].
-         * !#zh 透明，RGBA 是 [0, 0, 0, 0]。
-         * @property TRANSPARENT
-         * @type {Color}
-         * @static
-         */
-        TRANSPARENT:[0, 0, 0, 0],
-        /**
-         * !#en Grey, RGBA is [127.5, 127.5, 127.5].
-         * !#zh 灰色，RGBA 是 [127.5, 127.5, 127.5]。
-         * @property GRAY
-         * @type {Color}
-         * @static
-         */
-        GRAY:       [127.5, 127.5, 127.5],
-        /**
-         * !#en Solid red, RGBA is [255, 0, 0].
-         * !#zh 纯红色，RGBA 是 [255, 0, 0]。
-         * @property RED
-         * @type {Color}
-         * @static
-         */
-        RED:        [255, 0, 0],
-        /**
-         * !#en Solid green, RGBA is [0, 255, 0].
-         * !#zh 纯绿色，RGBA 是 [0, 255, 0]。
-         * @property GREEN
-         * @type {Color}
-         * @static
-         */
-        GREEN:      [0, 255, 0],
-        /**
-         * !#en Solid blue, RGBA is [0, 0, 255].
-         * !#zh 纯蓝色，RGBA 是 [0, 0, 255]。
-         * @property BLUE
-         * @type {Color}
-         * @static
-         */
-        BLUE:       [0, 0, 255],
-        /**
-         * !#en Yellow, RGBA is [255, 235, 4].
-         * !#zh 黄色，RGBA 是 [255, 235, 4]。
-         * @property YELLOW
-         * @type {Color}
-         * @static
-         */
-        YELLOW:     [255, 235, 4],
-        /**
-         * !#en Orange, RGBA is [255, 127, 0].
-         * !#zh 橙色，RGBA 是 [255, 127, 0]。
-         * @property ORANGE
-         * @type {Color}
-         * @static
-         */
-        ORANGE:     [255, 127, 0],
-        /**
-         * !#en Cyan, RGBA is [0, 255, 255].
-         * !#zh 青色，RGBA 是 [0, 255, 255]。
-         * @property CYAN
-         * @type {Color}
-         * @static
-         */
-        CYAN:       [0, 255, 255],
-        /**
-         * !#en Magenta, RGBA is [255, 0, 255].
-         * !#zh 洋红色（品红色），RGBA 是 [255, 0, 255]。
-         * @property MAGENTA
-         * @type {Color}
-         * @static
-         */
-        MAGENTA:    [255, 0, 255]
-    };
-    for (var colorName in DefaultColors) {
-        js.get(Color, colorName, (function (rgba) {
-            return function () {
-                return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
-            };
-        })(DefaultColors[colorName]));
+    // color: [r, g, b, a]
+    /**
+     * !#en Solid white, RGBA is [255, 255, 255, 255].
+     * !#zh 纯白色，RGBA 是 [255, 255, 255, 255]。
+     * @property WHITE
+     * @type {Color}
+     * @static
+     */
+    static get WHITE () {
+        return new Color(255, 255, 255, 255);
     }
 
-    var proto = Color.prototype;
+    /**
+     * !#en Solid black, RGBA is [0, 0, 0, 255].
+     * !#zh 纯黑色，RGBA 是 [0, 0, 0, 255]。
+     * @property BLACK
+     * @type {Color}
+     * @static
+     */
+    static get BLACK () {
+        return new Color(0, 0, 0, 255);
+    }
+
+    /**
+     * !#en Transparent, RGBA is [0, 0, 0, 0].
+     * !#zh 透明，RGBA 是 [0, 0, 0, 0]。
+     * @property TRANSPARENT
+     * @type {Color}
+     * @static
+     */
+    static get TRANSPARENT () {
+         return new Color(0, 0, 0, 0);     }
+    /**
+     * !#en Grey, RGBA is [127.5, 127.5, 127.5].
+     * !#zh 灰色，RGBA 是 [127.5, 127.5, 127.5]。
+     * @property GRAY
+     * @type {Color}
+     * @static
+     */
+    static get GRAY () {
+        return new Color(127.5, 127.5, 127.5, 255);
+    }
+
+    /**
+     * !#en Solid red, RGBA is [255, 0, 0].
+     * !#zh 纯红色，RGBA 是 [255, 0, 0]。
+     * @property RED
+     * @type {Color}
+     * @static
+     */
+    static get RED () {
+        return new Color(255, 0, 0, 255);
+    }
+
+    /**
+     * !#en Solid green, RGBA is [0, 255, 0].
+     * !#zh 纯绿色，RGBA 是 [0, 255, 0]。
+     * @property GREEN
+     * @type {Color}
+     * @static
+     */
+    static get GREEN () {
+        return new Color(0, 255, 0, 255);
+    }
+
+    /**
+     * !#en Solid blue, RGBA is [0, 0, 255].
+     * !#zh 纯蓝色，RGBA 是 [0, 0, 255]。
+     * @property BLUE
+     * @type {Color}
+     * @static
+     */
+    static get BLUE () {
+        return new Color(0, 0, 255, 255);
+    }
+
+    /**
+     * !#en Yellow, RGBA is [255, 235, 4].
+     * !#zh 黄色，RGBA 是 [255, 235, 4]。
+     * @property YELLOW
+     * @type {Color}
+     * @static
+     */
+    static get YELLOW () {
+        return new Color(255, 235, 4, 255);
+    }
+
+    /**
+     * !#en Orange, RGBA is [255, 127, 0].
+     * !#zh 橙色，RGBA 是 [255, 127, 0]。
+     * @property ORANGE
+     * @type {Color}
+     * @static
+     */
+    static get ORANGE () {
+        return new Color(255, 127, 0, 255);
+    }
+
+    /**
+     * !#en Cyan, RGBA is [0, 255, 255].
+     * !#zh 青色，RGBA 是 [0, 255, 255]。
+     * @property CYAN
+     * @type {Color}
+     * @static
+     */
+    static get CYAN () {
+        return new Color(0, 255, 255, 255);
+    }
+
+    /**
+     * !#en Magenta, RGBA is [255, 0, 255].
+     * !#zh 洋红色（品红色），RGBA 是 [255, 0, 255]。
+     * @property MAGENTA
+     * @type {Color}
+     * @static
+     */
+    static get MAGENTA () {
+        return new Color(255, 0, 255, 255);
+    }
+
+    /**
+     * !#en red channel value
+     * !#zh 红色通道值
+     * @property r
+     */
+    get r () {
+        return this._val & 0x000000ff;
+    }
+    set r (red) {
+        red = ~~cc.misc.clampf(red, 0, 255);
+        this._val = ((this._val & 0xffffff00) | red) >>> 0;
+        return this;
+    }
+
+    /**
+     * !#en green channel value
+     * !#zh 绿色通道值
+     * @property g
+     */
+    get g () {
+        return (this._val & 0x0000ff00) >> 8;
+    }
+    set g (green) {
+        green = ~~cc.misc.clampf(green, 0, 255);
+        this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
+        return this;
+    }
+
+    /**
+     * !#en blue channel value
+     * !#zh 蓝色通道值
+     * @property b
+     */
+    get b () {
+        return (this._val & 0x00ff0000) >> 16;
+    }
+    set b (blue) {
+        blue = ~~cc.misc.clampf(blue, 0, 255);
+        this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
+        return this;
+    }
+
+    /**
+     * !#en alpha channel value
+     * !#zh 透明度通道值
+     * @property a
+     */
+    get a () {
+        return (this._val & 0xff000000) >>> 24;
+    }
+    set a (alpha) {
+        alpha = ~~cc.misc.clampf(alpha, 0, 255);
+        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+        return this;
+    }
 
     /**
      * !#en Clone a new color from the current color.
@@ -180,7 +252,7 @@ var Color = (function () {
      * var color = new cc.Color();
      * var newColor = color.clone();// Color {r: 0, g: 0, b: 0, a: 255}
      */
-    proto.clone = function () {
+    clone () {
         var ret = new Color();
         ret._val = this._val;
         return ret;
@@ -199,7 +271,7 @@ var Color = (function () {
      * color2 = cc.Color.RED;
      * cc.log(color2.equals(color1)); // false;
      */
-    proto.equals = function (other) {
+    equals (other) {
         return other && this._val === other._val;
     };
 
@@ -213,7 +285,7 @@ var Color = (function () {
      * @return {Color}
      * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/lerp.js}
      */
-    proto.lerp = function (to, ratio, out) {
+    lerp (to, ratio, out) {
         out = out || new Color();
         var r = this.r;
         var g = this.g;
@@ -235,115 +307,13 @@ var Color = (function () {
      * var color = cc.Color.WHITE;
      * color.toString(); // "rgba(255, 255, 255, 255)"
      */
-    proto.toString = function () {
+    toString () {
         return "rgba(" +
             this.r.toFixed() + ", " +
             this.g.toFixed() + ", " +
             this.b.toFixed() + ", " +
             this.a.toFixed() + ")";
     };
-
-    /**
-     * !#en Gets red channel value
-     * !#zh 获取当前颜色的红色值。
-     * @method getR
-     * @return {Number} red value.
-     */
-    proto.getR = function () {
-        return this._val & 0x000000ff;
-    };
-    /**
-     * !#en Sets red value and return the current color object
-     * !#zh 设置当前的红色值，并返回当前对象。
-     * @method setR
-     * @param {Number} red - the new Red component.
-     * @return {Color} this color.
-     * @example
-     * var color = new cc.Color();
-     * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
-     */
-    proto.setR = function (red) {
-        red = ~~cc.misc.clampf(red, 0, 255);
-        this._val = ((this._val & 0xffffff00) | red) >>> 0;
-        return this;
-    };
-    /**
-     * !#en Gets green channel value
-     * !#zh 获取当前颜色的绿色值。
-     * @method getG
-     * @return {Number} green value.
-     */
-    proto.getG = function () {
-        return (this._val & 0x0000ff00) >> 8;
-    };
-    /**
-     * !#en Sets green value and return the current color object
-     * !#zh 设置当前的绿色值，并返回当前对象。
-     * @method setG
-     * @param {Number} green - the new Green component.
-     * @return {Color} this color.
-     * @example
-     * var color = new cc.Color();
-     * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
-     */
-    proto.setG = function (green) {
-        green = ~~cc.misc.clampf(green, 0, 255);
-        this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
-        return this;
-    };
-    /**
-     * !#en Gets blue channel value
-     * !#zh 获取当前颜色的蓝色值。
-     * @method getB
-     * @return {Number} blue value.
-     */
-    proto.getB = function () {
-        return (this._val & 0x00ff0000) >> 16;
-    };
-    /**
-     * !#en Sets blue value and return the current color object
-     * !#zh 设置当前的蓝色值，并返回当前对象。
-     * @method setB
-     * @param {Number} blue - the new Blue component.
-     * @return {Color} this color.
-     * @example
-     * var color = new cc.Color();
-     * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
-     */
-    proto.setB = function (blue) {
-        blue = ~~cc.misc.clampf(blue, 0, 255);
-        this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
-        return this;
-    };
-    /**
-     * !#en Gets alpha channel value
-     * !#zh 获取当前颜色的透明度值。
-     * @method getA
-     * @return {Number} alpha value.
-     */
-    proto.getA = function () {
-        return (this._val & 0xff000000) >>> 24;
-    };
-    /**
-     * !#en Sets alpha value and return the current color object
-     * !#zh 设置当前的透明度，并返回当前对象。
-     * @method setA
-     * @param {Number} alpha - the new Alpha component.
-     * @return {Color} this color.
-     * @example
-     * var color = new cc.Color();
-     * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
-     */
-    proto.setA = function (alpha) {
-        alpha = ~~cc.misc.clampf(alpha, 0, 255);
-        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
-        return this;
-    };
-
-    js.getset(proto, 'r', proto.getR, proto.setR, true);
-    js.getset(proto, 'g', proto.getG, proto.setG, true);
-    js.getset(proto, 'b', proto.getB, proto.setB, true);
-    js.getset(proto, 'a', proto.getA, proto.setA, true);
 
     /**
      * !#en Convert color to css format.
@@ -353,7 +323,7 @@ var Color = (function () {
      * @return {String}
      * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/toCSS.js}
      */
-    proto.toCSS = function ( opt ) {
+    toCSS ( opt ) {
         if ( opt === 'rgba' ) {
             return "rgba(" +
                 (this.r | 0 ) + "," +
@@ -372,7 +342,7 @@ var Color = (function () {
         else {
             return '#' + this.toHEX(opt);
         }
-    };
+    }
 
     /**
      * !#en Read hex string and store color data into the current color object, the hex string must be formated as rgba or rgb.
@@ -385,7 +355,7 @@ var Color = (function () {
      * var color = cc.Color.BLACK;
      * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
      */
-    proto.fromHEX = function (hexString) {
+    fromHEX (hexString) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         let r = parseInt(hexString.substr(0, 2), 16) || 0;
         let g = parseInt(hexString.substr(2, 2), 16) || 0;
@@ -393,7 +363,7 @@ var Color = (function () {
         let a = parseInt(hexString.substr(6, 2), 16) || 255;
         this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
         return this;
-    };
+    }
 
     /**
      * !#en convert Color to HEX color string.
@@ -407,7 +377,7 @@ var Color = (function () {
      * color.toHEX("#rgb");     // "000";
      * color.toHEX("#rrggbb");  // "000000";
      */
-    proto.toHEX = function ( fmt ) {
+    toHEX ( fmt ) {
         var hex = [
             (this.r | 0 ).toString(16),
             (this.g | 0 ).toString(16),
@@ -437,7 +407,7 @@ var Color = (function () {
             }
         }
         return hex.join('');
-    };
+    }
 
     /**
      * !#en Convert to 24bit rgb value.
@@ -448,9 +418,9 @@ var Color = (function () {
      * var color = cc.Color.YELLOW;
      * color.toRGBValue(); // 16771844;
      */
-    proto.toRGBValue = function () {
+    toRGBValue () {
         return this._val & 0x00ffffff;
-    };
+    }
 
     /**
      * !#en Read HSV model color and convert to RGB color
@@ -465,7 +435,7 @@ var Color = (function () {
      * var color = cc.Color.YELLOW;
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      */
-    proto.fromHSV = function ( h, s, v ) {
+    fromHSV ( h, s, v ) {
         var r, g, b;
         if (s === 0) {
             r = g = b = v;
@@ -528,7 +498,7 @@ var Color = (function () {
         b *= 255;
         this._val = ((this.a<<24) >>> 0) + (b<<16) + (g<<8) + r;
         return this;
-    };
+    }
 
     /**
      * !#en Transform to HSV model color
@@ -539,7 +509,7 @@ var Color = (function () {
      * var color = cc.Color.YELLOW;
      * color.toHSV(); // Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
      */
-    proto.toHSV = function () {
+    toHSV () {
         var r = this.r / 255;
         var g = this.g / 255;
         var b = this.b / 255;
@@ -559,9 +529,9 @@ var Color = (function () {
             if (hsv.h < 0) hsv.h += 1.0;
         }
         return hsv;
-    };
+    }
 
-    proto.set = function (color) {
+    set (color) {
         if (color._val) {
             this._val = color._val;
         }
@@ -571,12 +541,10 @@ var Color = (function () {
             this.b = color.b;
             this.a = color.a;
         }
-    };
+    }
+}
 
-    return Color;
-})();
-
-cc.Color = Color;
+Class.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 
 /**
  * @module cc
@@ -601,13 +569,13 @@ cc.Color = Color;
  */
 cc.color = function color (r, g, b, a) {
     if (typeof r === 'string') {
-        var result = new cc.Color();
+        var result = new Color();
         return result.fromHEX(r);
     }
     if (typeof r === 'object') {
-        return new cc.Color(r.r, r.g, r.b, r.a);
+        return new Color(r.r, r.g, r.b, r.a);
     }
-    return  new cc.Color(r, g, b, a);
+    return  new Color(r, g, b, a);
 };
 
-module.exports = cc.Color;
+cc.Color = Color;

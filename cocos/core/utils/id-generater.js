@@ -29,7 +29,7 @@ let NonUuidMark = '.';
 
 export default class IdGenerater {
     /*
-     * @constructor
+     * @method constructor
      * @param {string} [category] - You can specify a unique category to avoid id collision with other instance of IdGenerater
      */
     constructor (category) {

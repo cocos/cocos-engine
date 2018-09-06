@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('./js');
+import * as js from '../utils/js';
 
 // enum
 
@@ -44,7 +44,7 @@ var js = require('./js');
  * @example {@link cocos2d/core/platform/CCEnum/Enum.js}
  * @typescript Enum<T>(obj: T): T
  */
-function Enum (obj) {
+export default function Enum (obj) {
     if ('__enums__' in obj) {
         return obj;
     }
@@ -118,4 +118,4 @@ if (CC_DEV) {
     }
 }
 
-module.exports = cc.Enum = Enum;
+cc.Enum = Enum;

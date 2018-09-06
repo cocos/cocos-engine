@@ -80,7 +80,7 @@ export default class Pool {
      * You can pass a callback argument for process the cleanup logic when the object is recycled.
      * !#zh
      * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
-     * @constructor
+     * @method constructor
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
      * @param {Object} cleanupFunc.obj
      * @param {Number} size - initializes the length of the array

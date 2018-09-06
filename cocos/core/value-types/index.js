@@ -24,13 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./value-type');
-require('./vec2');
-require('./vec3');
-require('./quat');
-require('./mat4');
-require('./size');
-require('./rect');
-require('./color');
-
-cc.vmath = require('../renderer/render-engine').math;
+export { default as Enum } from './enum';
+export { default as ValueType } from './value-type';
+export { default as Vec2} from './vec2';
+export { default as Vec3} from './vec3';
+export { default as Quat} from './quat';
+export { default as Mat4} from './mat4';
+export { default as AffineTransform} from './affine-transform';
+export { default as Size} from './size';
+export { default as Rect} from './rect';
+export { default as Color} from './color';
