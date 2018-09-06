@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const ValueType = require('./value-type');
-const js = require('../platform/js');
-const CCClass = require('../platform/CCClass');
+import ValueType from './value-type';
+import Class from '../data/CCClass';
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -34,112 +33,113 @@ const CCClass = require('../platform/CCClass');
  * @class Quat
  * @extends ValueType
  */
-
-/**
- * !#en
- * Constructor
- * see {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
- * !#zh
- * 构造函数，可查看 {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
- * @method constructor
- * @param {number} [x=0]
- * @param {number} [y=0]
- * @param {number} [z=0]
- * @param {number} [w=1]
- */
-function Quat (x, y, z, w) {
-    if (x && typeof x === 'object') {
-        z = x.z;
-        y = x.y;
-        x = x.x;
-        w = x.w;
+export default class Quat extends ValueType {
+    /**
+     * !#en
+     * Constructor
+     * see {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
+     * !#zh
+     * 构造函数，可查看 {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
+     * @method constructor
+     * @param {number} [x=0]
+     * @param {number} [y=0]
+     * @param {number} [z=0]
+     * @param {number} [w=1]
+     */
+    constructor (x, y, z, w) {
+        if (x && typeof x === 'object') {
+            z = x.z;
+            y = x.y;
+            x = x.x;
+            w = x.w;
+        }
+        /**
+         * @property {Number} x
+         */
+        this.x = x || 0;
+        /**
+         * @property {Number} y
+         */
+        this.y = y || 0;
+        /**
+         * @property {Number} z
+         */
+        this.z = z || 0;
+        /**
+         * @property {Number} w
+         */
+        this.w = w || 1;
     }
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
-    this.w = w || 1;
+
+    /**
+     * !#en clone a Quat object and return the new object
+     * !#zh 克隆一个四元数并返回
+     * @method clone
+     * @return {Quat}
+     */
+    clone () {
+        return new Quat(this.x, this.y, this.z, this.w);
+    }
+
+    /**
+     * !#en Set values with another quaternion
+     * !#zh 用另一个四元数的值设置到当前对象上。
+     * @method set
+     * @param {Quat} newValue - !#en new value to set. !#zh 要设置的新值
+     * @return {Quat} returns this
+     * @chainable
+     */
+    set (newValue) {
+        this.x = newValue.x;
+        this.y = newValue.y;
+        this.z = newValue.z;
+        this.w = newValue.w;
+        return this;
+    }
+
+    /**
+     * !#en Check whether current quaternion equals another
+     * !#zh 当前的四元数是否与指定的四元数相等。
+     * @method equals
+     * @param {Quat} other
+     * @return {Boolean}
+     */
+    equals (other) {
+        return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
+    }
+
+    getRoll () {
+        var sinr = 2.0 * (this.w * this.x + this.y * this.z);
+        var cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
+        return 180 * Math.atan2(sinr, cosr) / Math.PI;
+    }
+
+    getPitch () {
+        var sinp = 2.0 * (this.w * this.y - this.z * this.x);
+        var pitch = sinp > 1 ? 1 : sinp;
+        pitch = sinp < -1 ? -1 : sinp;
+        pitch = 180 * Math.asin(pitch) / Math.PI;
+        return pitch;
+    }
+
+    getYaw () {
+        var siny = 2.0 * (this.w * this.z + this.x * this.y);
+        var cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);  
+        return 180 * Math.atan2(siny, cosy) / Math.PI;
+    }
+
+    lerp (to, ratio, out) {
+        out = out || new cc.Quat();
+        cc.vmath.quat.slerp(out, this, to, ratio);
+        return out;
+    }
 }
-js.extend(Quat, ValueType);
-CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
+
+Class.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
 
 /**
- * @property {Number} x
+ * @module cc
  */
-/**
- * @property {Number} y
- */
-/**
- * @property {Number} z
- */
-/**
- * @property {Number} w
- */
-
-var proto = Quat.prototype;
-
-
-/**
- * !#en clone a Quat object and return the new object
- * !#zh 克隆一个四元数并返回
- * @method clone
- * @return {Quat}
- */
-proto.clone = function () {
-    return new Quat(this.x, this.y, this.z, this.w);
-};
-
-/**
- * !#en Set values with another quaternion
- * !#zh 用另一个四元数的值设置到当前对象上。
- * @method set
- * @param {Quat} newValue - !#en new value to set. !#zh 要设置的新值
- * @return {Quat} returns this
- * @chainable
- */
-proto.set = function (newValue) {
-    this.x = newValue.x;
-    this.y = newValue.y;
-    this.z = newValue.z;
-    this.w = newValue.w;
-    return this;
-};
-
-/**
- * !#en Check whether current quaternion equals another
- * !#zh 当前的四元数是否与指定的四元数相等。
- * @method equals
- * @param {Quat} other
- * @return {Boolean}
- */
-proto.equals = function (other) {
-    return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
-};
-
-proto.getRoll = function () {
-    var sinr = 2.0 * (this.w * this.x + this.y * this.z);
-    var cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
-    return 180 * Math.atan2(sinr, cosr) / Math.PI;
-};
-
-proto.getPitch = function () {
-    var sinp = 2.0 * (this.w * this.y - this.z * this.x);
-    var pitch = sinp > 1 ? 1 : sinp;
-    pitch = sinp < -1 ? -1 : sinp;
-    pitch = 180 * Math.asin(pitch) / Math.PI;
-    return pitch;
-};
-
-proto.getYaw = function () {
-    var siny = 2.0 * (this.w * this.z + this.x * this.y);
-    var cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);  
-    return 180 * Math.atan2(siny, cosy) / Math.PI;
-};
-
-proto.lerp = function (to, ratio, out) {
-    out = out || new cc.Quat();
-    cc.vmath.quat.slerp(out, this, to, ratio);
-    return out;
-};
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
@@ -155,4 +155,4 @@ cc.quat = function quat (x, y, z, w) {
     return new Quat(x, y, z, w);
 };
 
-module.exports = cc.Quat = Quat;
+cc.Quat = Quat;

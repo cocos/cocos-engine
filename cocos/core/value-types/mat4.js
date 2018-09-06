@@ -23,11 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const ValueType = require('./value-type');
-const js = require('../platform/js');
-const CCClass = require('../platform/CCClass');
-const math = require('../renderer/render-engine').math;
-const mat4 = math.mat4;
+import ValueType from './value-type';
+import Class from '../data/CCClass';
+import {mat4} from '../vmath';
 
 /**
  * !#en Representation of 4*4 matrix.
@@ -36,58 +34,50 @@ const mat4 = math.mat4;
  * @class Mat4
  * @extends ValueType
  */
-
-/**
- * !#en
- * Constructor
- * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
- * !#zh
- * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
- * @method constructor
- * @param {Number} m00 Component in column 0, row 0 position (index 0)
- * @param {Number} m01 Component in column 0, row 1 position (index 1)
- * @param {Number} m02 Component in column 0, row 2 position (index 2)
- * @param {Number} m03 Component in column 0, row 3 position (index 3)
- * @param {Number} m10 Component in column 1, row 0 position (index 4)
- * @param {Number} m11 Component in column 1, row 1 position (index 5)
- * @param {Number} m12 Component in column 1, row 2 position (index 6)
- * @param {Number} m13 Component in column 1, row 3 position (index 7)
- * @param {Number} m20 Component in column 2, row 0 position (index 8)
- * @param {Number} m21 Component in column 2, row 1 position (index 9)
- * @param {Number} m22 Component in column 2, row 2 position (index 10)
- * @param {Number} m23 Component in column 2, row 3 position (index 11)
- * @param {Number} m30 Component in column 3, row 0 position (index 12)
- * @param {Number} m31 Component in column 3, row 1 position (index 13)
- * @param {Number} m32 Component in column 3, row 2 position (index 14)
- * @param {Number} m33 Component in column 3, row 3 position (index 15)
- */
-function Mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-    let t = this;
-    t.m00 = m00;
-    t.m01 = m01;
-    t.m02 = m02;
-    t.m03 = m03;
-    t.m04 = m10;
-    t.m05 = m11;
-    t.m06 = m12;
-    t.m07 = m13;
-    t.m08 = m20;
-    t.m09 = m21;
-    t.m10 = m22;
-    t.m11 = m23;
-    t.m12 = m30;
-    t.m13 = m31;
-    t.m14 = m32;
-    t.m15 = m33;
-}
-js.extend(Mat4, ValueType);
-CCClass.fastDefine('cc.Mat4', Mat4, { 
-    m00: 1, m01: 0, m02: 0, m03: 0,
-    m04: 0, m05: 1, m06: 0, m07: 0,
-    m08: 0, m09: 0, m10: 1, m11: 0,
-    m12: 0, m13: 0, m14: 0, m15: 1 });
-
-js.mixin(Mat4.prototype, {
+export default class Mat4 extends ValueType {
+    /**
+     * !#en
+     * Constructor
+     * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
+     * !#zh
+     * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
+     * @method constructor
+     * @param {Number} m00 Component in column 0, row 0 position (index 0)
+     * @param {Number} m01 Component in column 0, row 1 position (index 1)
+     * @param {Number} m02 Component in column 0, row 2 position (index 2)
+     * @param {Number} m03 Component in column 0, row 3 position (index 3)
+     * @param {Number} m10 Component in column 1, row 0 position (index 4)
+     * @param {Number} m11 Component in column 1, row 1 position (index 5)
+     * @param {Number} m12 Component in column 1, row 2 position (index 6)
+     * @param {Number} m13 Component in column 1, row 3 position (index 7)
+     * @param {Number} m20 Component in column 2, row 0 position (index 8)
+     * @param {Number} m21 Component in column 2, row 1 position (index 9)
+     * @param {Number} m22 Component in column 2, row 2 position (index 10)
+     * @param {Number} m23 Component in column 2, row 3 position (index 11)
+     * @param {Number} m30 Component in column 3, row 0 position (index 12)
+     * @param {Number} m31 Component in column 3, row 1 position (index 13)
+     * @param {Number} m32 Component in column 3, row 2 position (index 14)
+     * @param {Number} m33 Component in column 3, row 3 position (index 15)
+     */
+    constructor (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+        let t = this;
+        t.m00 = m00;
+        t.m01 = m01;
+        t.m02 = m02;
+        t.m03 = m03;
+        t.m04 = m10;
+        t.m05 = m11;
+        t.m06 = m12;
+        t.m07 = m13;
+        t.m08 = m20;
+        t.m09 = m21;
+        t.m10 = m22;
+        t.m11 = m23;
+        t.m12 = m30;
+        t.m13 = m31;
+        t.m14 = m32;
+        t.m15 = m33;
+    }
 
     /**
      * !#en clone a Mat4 object
@@ -102,7 +92,7 @@ js.mixin(Mat4.prototype, {
             t.m04, t.m05, t.m06, t.m07,
             t.m08, t.m09, t.m10, t.m11,
             t.m12, t.m13, t.m14, t.m15);
-    },
+    }
 
     /**
      * !#en Sets the matrix with another one's value
@@ -131,7 +121,7 @@ js.mixin(Mat4.prototype, {
         t.m14 = s.m14;
         t.m15 = s.m15;
         return this;
-    },
+    }
 
     /**
      * !#en Check whether two matrix equal
@@ -142,7 +132,7 @@ js.mixin(Mat4.prototype, {
      */
     equals (other) {
         return mat4.exactEquals(this, other);
-    },
+    }
 
     /**
      * !#en Check whether two matrix equal with default degree of variance.
@@ -155,7 +145,7 @@ js.mixin(Mat4.prototype, {
      */
     fuzzyEquals (other) {
         return mat4.equals(this, other);
-    },
+    }
 
     /**
      * !#en Transform to string with matrix informations
@@ -172,7 +162,7 @@ js.mixin(Mat4.prototype, {
             t.m12 + ", " + t.m13 + ", " + t.m14 + ", " + t.m15 + "\n" +
             "]"
             ;
-    },
+    }
 
     /**
      * Set the matrix to the identity matrix
@@ -182,7 +172,7 @@ js.mixin(Mat4.prototype, {
      */
     identity () {
         return mat4.identity(this);
-    },
+    }
 
     /**
      * Transpose the values of a mat4
@@ -193,7 +183,7 @@ js.mixin(Mat4.prototype, {
     transpose (out) {
         out = out || new cc.Mat4();
         return mat4.transpose(out, this);
-    },
+    }
 
     /**
      * Inverts a mat4
@@ -204,7 +194,7 @@ js.mixin(Mat4.prototype, {
     invert (out) {
         out = out || new cc.Mat4();
         return mat4.invert(out, this);
-    },
+    }
 
     /**
      * Calculates the adjugate of a mat4
@@ -215,7 +205,7 @@ js.mixin(Mat4.prototype, {
     adjoint (out) {
         out = out || new cc.Mat4();
         return mat4.adjoint(out, this);
-    },
+    }
 
     /**
      * Calculates the determinant of a mat4
@@ -224,7 +214,7 @@ js.mixin(Mat4.prototype, {
      */
     determinant () {
         return mat4.determinant(this);
-    },
+    }
 
     /**
      * Adds two Mat4
@@ -236,7 +226,7 @@ js.mixin(Mat4.prototype, {
     add (other, out) {
         out = out || new cc.Mat4();
         return mat4.add(out, this, other);
-    },
+    }
 
     /**
      * Subtracts the current matrix with another one
@@ -248,7 +238,7 @@ js.mixin(Mat4.prototype, {
     sub (other, out) {
         out = out || new cc.Mat4();
         return mat4.subtract(out, this, other);
-    },
+    }
 
     /**
      * Subtracts the current matrix with another one
@@ -260,7 +250,7 @@ js.mixin(Mat4.prototype, {
     mul (other, out) {
         out = out || new cc.Mat4();
         return mat4.multiply(out, this, other)
-    },
+    }
 
     /**
      * Multiply each element of the matrix by a scalar.
@@ -272,7 +262,7 @@ js.mixin(Mat4.prototype, {
     mulScalar (number, out) {
         out = out || new cc.Mat4();
         return mat4.mulScalar(out, this, number);
-    },
+    }
 
     /**
      * Translate a mat4 by the given vector
@@ -284,7 +274,7 @@ js.mixin(Mat4.prototype, {
     translate (v, out) {
         out = out || new cc.Mat4();
         return mat4.translate(out, this, v);
-    },
+    }
 
     /**
      * Scales the mat4 by the dimensions in the given vec3
@@ -296,7 +286,7 @@ js.mixin(Mat4.prototype, {
     scale (v, out) {
         out = out || new cc.Mat4();
         return mat4.scale(out, this, v);
-    },
+    }
 
     /**
      * Rotates a mat4 by the given angle around the given axis
@@ -309,7 +299,7 @@ js.mixin(Mat4.prototype, {
     rotate (rad, axis, out) {
         out = out || new cc.Mat4();
         return mat4.rotate(out, this, rad, axis);
-    },
+    }
 
     /**
      * Returns the translation vector component of a transformation matrix.
@@ -320,7 +310,7 @@ js.mixin(Mat4.prototype, {
     getTranslation (out) {
         out = out || new cc.Vec3();
         return mat4.getTranslation(out, this);
-    },
+    }
 
     /**
      * Returns the scale factor component of a transformation matrix
@@ -331,7 +321,7 @@ js.mixin(Mat4.prototype, {
     getScale (out) {
         out = out || new cc.Vec3();
         return mat4.getScaling(out, this);
-    },
+    }
 
     /**
      * Returns the rotation factor component of a transformation matrix
@@ -342,7 +332,7 @@ js.mixin(Mat4.prototype, {
     getRotation (out) {
         out = out || new cc.Quat();
         return mat4.getRotation(out, this);
-    },
+    }
 
     /**
      * Restore the matrix values from a quaternion rotation, vector translation and vector scale
@@ -355,7 +345,7 @@ js.mixin(Mat4.prototype, {
      */
     fromRTS (q, v, s) {
         return mat4.fromRTS(this, q, v, s);
-    },
+    }
 
     /**
      * Restore the matrix values from a quaternion rotation
@@ -367,7 +357,17 @@ js.mixin(Mat4.prototype, {
     fromQuat (quat) {
         return mat4.fromQuat(this, quat);
     }
-});
+};
+
+Class.fastDefine('cc.Mat4', Mat4, { 
+    m00: 1, m01: 0, m02: 0, m03: 0,
+    m04: 0, m05: 1, m06: 0, m07: 0,
+    m08: 0, m09: 0, m10: 1, m11: 0,
+    m12: 0, m13: 0, m14: 0, m15: 1 });
+
+/**
+ * @module cc
+ */
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}}.

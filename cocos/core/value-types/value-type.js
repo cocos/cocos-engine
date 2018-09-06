@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
+import * as js from '../utils/js';
 
 /**
  * !#en The base class of all value types.
@@ -32,22 +32,17 @@ var js = require('../platform/js');
  * @class ValueType
  *
  */
-function ValueType () {}
-js.setClassName('cc.ValueType', ValueType);
-
-var proto = ValueType.prototype;
-
-if (CC_EDITOR) {
+export default class ValueType {
     /**
      * !#en This method returns an exact copy of current value.
      * !#zh 克隆当前值，该方法返回一个新对象，新对象的值和原对象相等。
      * @method clone
      * @return {ValueType}
      */
-    proto.clone = function () {
+    clone () {
         cc.errorID('0100', js.getClassName(this) + '.clone');
         return null;
-    };
+    }
 
     /**
      * !#en Compares this object with the other one.
@@ -56,10 +51,10 @@ if (CC_EDITOR) {
      * @param {ValueType} other
      * @return {Boolean}
      */
-    proto.equals = function (other) {
+    equals (other) {
         cc.errorID('0100', js.getClassName(this) + '.equals');
         return false;
-    };
+    }
 
     /**
      * !#en
@@ -73,10 +68,10 @@ if (CC_EDITOR) {
      * @param {number} ratio - the interpolation coefficient
      * @return {ValueType}
      */
-    proto.lerp = function (to, ratio) {
+    lerp (to, ratio) {
         cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
-    };
+    }
 
     /**
      * !#en
@@ -86,19 +81,20 @@ if (CC_EDITOR) {
      * @method set
      * @param {ValueType} source - the source to copy
      */
-    proto.set = function (source) {
+    set (source) {
         cc.errorID('0100', js.getClassName(this) + '.set');
-    };
+    }
+
+    /**
+     * !#en TODO
+     * !#zh 转换为方便阅读的字符串。
+     * @method toString
+     * @return {string}
+     */
+    toString () {
+        return '' + {};
+    }
 }
+js.setClassName('cc.ValueType', ValueType);
 
-/**
- * !#en TODO
- * !#zh 转换为方便阅读的字符串。
- * @method toString
- * @return {string}
- */
-proto.toString = function () {
-    return '' + {};
-};
-
-cc.ValueType = module.exports = ValueType;
+cc.ValueType = ValueType;

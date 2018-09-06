@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./value-type');
-var js = require('../platform/js');
+import ValueType from './value-type';
+import Class from '../data/CCClass';
 
 /**
  * !#en
@@ -42,116 +42,115 @@ var js = require('../platform/js');
  *
  * @class Size
  */
-/**
- * @method constructor
- * @param {Number|Size} width
- * @param {Number} [height]
- */
-function Size (width, height) {
-    if (width && typeof width === 'object') {
-        height = width.height;
-        width = width.width;
+export default class Size extends ValueType {
+    /**
+     * @method constructor
+     * @param {Number|Size} width
+     * @param {Number} [height]
+     */
+    constructor (width, height) {
+        if (width && typeof width === 'object') {
+            height = width.height;
+            width = width.width;
+        }
+        /**
+         * @property {Number} width
+         */
+        this.width = width || 0;
+        /**
+         * @property {Number} height
+         */
+        this.height = height || 0;
     }
-    this.width = width || 0;
-    this.height = height || 0;
+
+    /**
+     * !#en return a Size object with width = 0 and height = 0.
+     * !#zh 返回一个宽度为 0 和高度为 0 的 Size 对象。
+     * @property ZERO
+     * @type {Size}
+     * @default new Size(0, 0)
+     * @static
+     */
+    static get ZERO () {
+        return new Size(0.0, 0.0);
+    }
+
+    /**
+     * !#en Clone a new size object from this one.
+     * !#zh 克隆 size 对象。
+     * @method clone
+     * @return {Size}
+     * @example
+     * var a = new cc.size(10, 10);
+     * a.clone();// return Size {width: 0, height: 0};
+     */
+    clone () {
+        return new Size(this.width, this.height);
+    }
+
+    /**
+     * !#en TODO
+     * !#zh 当前 Size 对象是否等于指定 Size 对象。
+     * @method equals
+     * @param {Size} other
+     * @return {Boolean}
+     * @example
+     * var a = new cc.size(10, 10);
+     * a.equals(new cc.size(10, 10));// return true;
+     */
+    equals (other) {
+        return other &&
+            this.width === other.width &&
+            this.height === other.height;
+    }
+
+    /**
+     * !#en TODO
+     * !#zh 线性插值。
+     * @method lerp
+     * @param {Rect} to
+     * @param {Number} ratio - the interpolation coefficient.
+     * @param {Size} [out] - optional, the receiving vector.
+     * @return {Size}
+     * @example
+     * var a = new cc.size(10, 10);
+     * var b = new cc.rect(50, 50, 100, 100);
+     * update (dt) {
+     *    // method 1;
+     *    var c = a.lerp(b, dt * 0.1);
+     *    // method 2;
+     *    a.lerp(b, dt * 0.1, c);
+     * }
+     */
+    lerp (to, ratio, out) {
+        out = out || new Size();
+        var width = this.width;
+        var height = this.height;
+        out.width = width + (to.width - width) * ratio;
+        out.height = height + (to.height - height) * ratio;
+        return out;
+    }
+
+    set (source) {
+        this.width = source.width;
+        this.height = source.height;
+    }
+
+    /**
+     * !#en TODO
+     * !#zh 转换为方便阅读的字符串。
+     * @method toString
+     * @return {String}
+     * @example
+     * var a = new cc.size(10, 10);
+     * a.toString();// return "(10.00, 10.00)";
+     */
+    toString () {
+        return '(' + this.width.toFixed(2) + ', ' + this.height.toFixed(2) + ')';
+    }
 }
-js.extend(Size, ValueType);
-require('../platform/CCClass').fastDefine('cc.Size', Size, { width: 0, height: 0});
 
-/**
- * @property {Number} width
- */
-/**
- * @property {Number} height
- */
-
-/**
- * !#en return a Size object with width = 0 and height = 0.
- * !#zh 返回一个宽度为 0 和高度为 0 的 Size 对象。
- * @property ZERO
- * @type {Size}
- * @default new Size(0, 0)
- * @static
- */
-js.get(Size, 'ZERO', function () {
-    return new Size(0.0, 0.0);
-});
-
-var proto = Size.prototype;
-
-/**
- * !#en TODO
- * !#zh 克隆 size 对象。
- * @method clone
- * @return {Size}
- * @example
- * var a = new cc.size(10, 10);
- * a.clone();// return Size {width: 0, height: 0};
- */
-proto.clone = function () {
-    return new Size(this.width, this.height);
-};
-
-/**
- * !#en TODO
- * !#zh 当前 Size 对象是否等于指定 Size 对象。
- * @method equals
- * @param {Size} other
- * @return {Boolean}
- * @example
- * var a = new cc.size(10, 10);
- * a.equals(new cc.size(10, 10));// return true;
- */
-proto.equals = function (other) {
-    return other &&
-           this.width === other.width &&
-           this.height === other.height;
-};
-
-/**
- * !#en TODO
- * !#zh 线性插值。
- * @method lerp
- * @param {Rect} to
- * @param {Number} ratio - the interpolation coefficient.
- * @param {Size} [out] - optional, the receiving vector.
- * @return {Size}
- * @example
- * var a = new cc.size(10, 10);
- * var b = new cc.rect(50, 50, 100, 100);
- * update (dt) {
- *    // method 1;
- *    var c = a.lerp(b, dt * 0.1);
- *    // method 2;
- *    a.lerp(b, dt * 0.1, c);
- * }
- */
-proto.lerp = function (to, ratio, out) {
-    out = out || new Size();
-    var width = this.width;
-    var height = this.height;
-    out.width = width + (to.width - width) * ratio;
-    out.height = height + (to.height - height) * ratio;
-    return out;
-};
-
-proto.set = function (source) {
-    this.width = source.width;
-    this.height = source.height;
-};
-
-/**
- * !#en TODO
- * !#zh 转换为方便阅读的字符串。
- * @method toString
- * @return {String}
- * @example
- * var a = new cc.size(10, 10);
- * a.toString();// return "(10.00, 10.00)";
- */
-proto.toString = function () {
-    return '(' + this.width.toFixed(2) + ', ' + this.height.toFixed(2) + ')';
-};
+Class.fastDefine('cc.Size', Size, { width: 0, height: 0});
 
 /**
  * @module cc
@@ -174,4 +173,4 @@ cc.size = function (w, h) {
     return new Size(w, h);
 };
 
-cc.Size = module.exports = Size;
+cc.Size = Size;
