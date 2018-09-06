@@ -274,8 +274,7 @@
   {
     "name": "Mesh",
     "entries": [
-      "./cocos2d/core/components/CCMeshRenderer.js",
-      "./cocos2d/core/renderer/mesh-renderer.js"
+      "./cocos2d/core/mesh/index.js"
     ]
   }
 ]
