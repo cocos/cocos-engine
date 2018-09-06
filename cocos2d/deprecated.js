@@ -218,6 +218,12 @@ if (CC_DEBUG) {
         'CONFIG_KEY',
     ], 'cc.game');
 
+    // cc.sys
+    markAsRemovedInObject(cc.sys, [
+        'dumpRoot',
+        'cleanScript',
+    ], 'cc.sys');
+
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',
@@ -302,7 +308,7 @@ if (CC_DEBUG) {
         'getTag': 'name',
         'setTag': 'name',
         'getChildByTag': 'getChildByName',
-        'removeChildByTag': 'removeChildByName'
+        'removeChildByTag': 'getChildByName(name).destroy()'
     });
 
     markAsRemoved(cc.Node, [

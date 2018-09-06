@@ -62,10 +62,6 @@ let getAudioFromPath = function (path) {
 
     var audio = _audioPool.pop() || new Audio();
     var callback = function () {
-        if (audio._finishCallback) {
-            audio._finishCallback();
-        }
-
         var audioInList = getAudioFromId(this.id);
         if (audioInList) {
             delete _id2audio[this.id];
@@ -74,7 +70,14 @@ let getAudioFromPath = function (path) {
         }
         recycleAudio(this);
     };
-    audio.on('ended', callback, audio);
+
+    audio.on('ended', function () {
+        if (this._finishCallback) {
+            this._finishCallback();
+        }
+        callback.call(this);
+    }, audio);
+
     audio.on('stop', callback, audio);
     audio.id = id;
     _id2audio[id] = audio;

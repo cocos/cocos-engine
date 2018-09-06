@@ -1793,6 +1793,10 @@ Download Uuid: can not find type of raw asset[ %s ]: %s
 
 Since v1.10, for any atlas ("%s") in the "resources" directory, it is not possible to find the contained SpriteFrames via `loadRes`, `getRes` or `releaseRes`. Load the SpriteAtlas first and then use `spriteAtlas.getSpriteFrame(name)` instead please.
 
+### 4933
+
+Download Font [ %s ] failed, using Arial or system default font instead
+
 ### 5000
 
 object already destroyed

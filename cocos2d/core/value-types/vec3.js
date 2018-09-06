@@ -117,7 +117,7 @@ proto.equals = function (other) {
  * !#zh
  * 近似判断两个点是否相等。<br/>
  * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
- * @method pFuzzyEqual
+ * @method fuzzyEquals
  * @param {Vec3} other
  * @param {Number} variance
  * @return {Boolean}
@@ -152,7 +152,7 @@ proto.toString = function () {
  * @method lerp
  * @param {Vec3} to
  * @param {number} ratio - the interpolation coefficient
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3}
  */
 proto.lerp = function (to, ratio, out) {
@@ -200,7 +200,7 @@ proto.addSelf = function (vector) {
  * !#zh 向量加法，并返回新结果。
  * @method add
  * @param {Vec3} vector
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.add = function (vector, out) {
@@ -231,7 +231,7 @@ proto.subSelf = function (vector) {
  * !#zh 向量减法，并返回新结果。
  * @method sub
  * @param {Vec3} vector
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.sub = function (vector, out) {
@@ -262,7 +262,7 @@ proto.mulSelf = function (num) {
  * !#zh 缩放向量，并返回新结果。
  * @method mul
  * @param {number} num
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.mul = function (num, out) {
@@ -293,7 +293,7 @@ proto.scaleSelf = function (vector) {
  * !#zh 分量相乘，并返回新的结果。
  * @method scale
  * @param {Vec3} vector
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.scale = function (vector, out) {
@@ -324,7 +324,7 @@ proto.divSelf = function (num) {
  * !#zh 向量除法，并返回新的结果。
  * @method div
  * @param {Vec3} vector
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.div = function (num, out) {
@@ -353,7 +353,7 @@ proto.negSelf = function () {
  * !#en Negates the components, and returns the new result.
  * !#zh 返回取反后的新向量。
  * @method neg
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
 proto.neg = function (out) {
@@ -434,13 +434,25 @@ proto.normalizeSelf = function () {
  * <br/>
  * 注意，当前向量不变，并返回一个新的归一化向量。如果你想来归一化当前向量，可使用 normalizeSelf 函数。
  * @method normalize
- * @param {Vec3} [out] - optional, the receiving vector
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} result
  */
 proto.normalize = function (out) {
     out = out || new Vec3();
     math.vec3.normalize(out, this);
     return out;
+};
+
+/**
+ * Transforms the vec3 with a mat4. 4th vector component is implicitly '1'
+ * @method transformMat4
+ * @param {mat4} m matrix to transform with
+ * @param {vec3} [out] the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
+ * @returns {vec3} out
+ */
+proto.transformMat4 = function (m, out) {
+    out = out || new Vec3();
+    math.vec3.transformMat4(out, this, m);
 };
 
 /**

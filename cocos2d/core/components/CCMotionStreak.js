@@ -190,6 +190,7 @@ var MotionStreak = cc.Class({
             set (value) {
                 this._color = value;
             },
+            type: cc.Color,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
         },
 

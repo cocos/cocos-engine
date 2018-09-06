@@ -51,7 +51,7 @@ var idGenerater = new (require('../platform/id-generater'))('Tex');
 
  * @class Texture2D
  * @uses EventTarget
- * @extends RawAsset
+ * @extends Asset
  */
 
 /**

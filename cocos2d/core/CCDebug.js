@@ -33,9 +33,11 @@ let logList;
  * @module cc
  */
 
+cc.log = cc.warn = cc.error = cc.assert = console.log;
+
 let resetDebugSetting = function (mode) {
     // reset
-    cc.log = cc.warn = cc.error = cc.assert = function () { };
+    cc.log = cc.warn = cc.error = cc.assert = function () {};
 
     if (mode === DebugMode.NONE)
         return;

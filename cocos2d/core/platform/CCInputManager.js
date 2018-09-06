@@ -102,7 +102,7 @@ let inputManager = {
         let selTouch, index, curTouch, touchID,
             handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
             now = sys.now();
-        for (let i = 0, len = touches.length; i< len; i ++) {
+        for (let i = 0, len = touches.length; i < len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = locTouchIntDict[touchID];
@@ -173,6 +173,7 @@ let inputManager = {
             touchEvent._eventCode = cc.Event.EventTouch.ENDED;
             eventManager.dispatchEvent(touchEvent);
         }
+        this._preTouchPool.length = 0;
     },
 
     /**
@@ -187,6 +188,7 @@ let inputManager = {
             touchEvent._eventCode = cc.Event.EventTouch.CANCELLED;
             eventManager.dispatchEvent(touchEvent);
         }
+        this._preTouchPool.length = 0;
     },
 
     /**
