@@ -214,11 +214,7 @@ var Mesh = cc.Class({
      * @method clear
     */
     clear () {
-        let subMeshes = this._subMeshes;
-        for (let i = 0; i < subMeshes.length; i++) {
-            subMeshes[i].destroy();
-        }
-        subMeshes.length = 0;
+        this._subMeshes.length = 0;
 
         let ibs = this._ibs;
         for (let i = 0; i < ibs.length; i++) {
