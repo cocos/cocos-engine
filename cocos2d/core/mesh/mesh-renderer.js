@@ -23,12 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshRenderer = require('../../../components/CCMeshRenderer');
-const SkinnedMeshRenderer = require('../../../3d/CCSkinnedMeshRenderer');
-const RenderFlow = require('../../render-flow');
-const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
+const MeshRenderer = require('./CCMeshRenderer');
 
-const renderEngine = require('../../render-engine');
+const renderEngine = require('../renderer/render-engine');
 const IARenderData = renderEngine.IARenderData;
 const gfx = renderEngine.gfx;
 const InputAssembler = renderEngine.InputAssembler;
@@ -50,7 +47,7 @@ let meshRendererAssembler = {
         }
     },
 
-    createWireFrameData (ia, material, renderer) {
+    createWireFrameData (ia, oldIbData, material, renderer) {
         let data = new IARenderData();
         let m = material.clone();
         m.color = BLACK_COLOR;
@@ -60,12 +57,11 @@ let meshRendererAssembler = {
         }
         data.material = m;
 
-        let array = ia._indexBuffer.data;
         let indices = [];
-        for (let i = 0; i < array.length; i+=3) {
-            let a = array[ i + 0 ];
-            let b = array[ i + 1 ];
-            let c = array[ i + 2 ];
+        for (let i = 0; i < oldIbData.length; i+=3) {
+            let a = oldIbData[ i + 0 ];
+            let b = oldIbData[ i + 1 ];
+            let c = oldIbData[ i + 2 ];
             indices.push(a, b, b, c, c, a);
         }
 
@@ -91,9 +87,10 @@ let meshRendererAssembler = {
         let submeshes = comp.mesh._subMeshes;
         if (cc.macro.SHOW_MESH_WIREFRAME) {
             if (renderDatas.length === submeshes.length) {
+                let ibs = comp.mesh._ibs;
                 for (let i = 0; i < submeshes.length; i++) {
                     let data = renderDatas[i];
-                    renderDatas.push( this.createWireFrameData(data.ia, data.material, renderer) );
+                    renderDatas.push( this.createWireFrameData(data.ia, ibs[i].data, data.material, renderer) );
                 }
             }
         }
@@ -110,13 +107,19 @@ let meshRendererAssembler = {
         let materials = comp._materials;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
+            let material = renderData.material;
             if (textures[i]) {
-                renderData.material.texture = textures[i];
+                material.texture = textures[i];
+            }
+            else {
+                material.useTexture = false;
             }
 
-            renderer.material = renderData.material;
+            renderer.material = material;
             renderer._flushIA(renderData);
         }
+
+        comp.mesh._uploadData();
 
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
