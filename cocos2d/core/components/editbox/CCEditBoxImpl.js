@@ -134,7 +134,7 @@ let EditBoxImpl = cc.Class({
     },
 
     stayOnTop (flag) {
-        if(this._alwaysOnTop === flag) return;
+        if(this._alwaysOnTop === flag || !this._edTxt) return;
 
         this._alwaysOnTop = flag;
         
@@ -153,13 +153,13 @@ let EditBoxImpl = cc.Class({
                 maxLength = 65535;
             }
             this._maxLength = maxLength;
-            this._edTxt.maxLength = maxLength;
+            this._edTxt && (this._edTxt.maxLength = maxLength);
         }
     },
 
     setString (text) {
         this._text = text;
-        this._edTxt.value = text;
+        this._edTxt && (this._edTxt.value = text);
     },
 
     getString () {
@@ -216,12 +216,12 @@ let EditBoxImpl = cc.Class({
 
     setFontSize (fontSize) {
         this._edFontSize = fontSize || this._edFontSize;
-        this._edTxt.style.fontSize = this._edFontSize + 'px';
+        this._edTxt && (this._edTxt.style.fontSize = this._edFontSize + 'px');
     },
     
     setFontColor (color) {
         this._textColor = color;
-        this._edTxt.style.color = color.toCSS('rgba');
+        this._edTxt && (this._edTxt.style.color = color.toCSS('rgba'));
     },
     
     setSize (width, height) {
@@ -257,7 +257,7 @@ let EditBoxImpl = cc.Class({
 
     _beginEditing () {
         if (!this._alwaysOnTop) {
-            if (this._edTxt.style.display === 'none') {
+            if (this._edTxt && (this._edTxt.style.display === 'none')) {
                 this._edTxt.style.display = '';
     
                 let self = this;
@@ -312,6 +312,7 @@ let EditBoxImpl = cc.Class({
     _updateDomInputType () {
         let inputMode = this._inputMode;
         let edTxt = this._edTxt;
+        if (!edTxt) return;
     
         if (this._inputFlag === InputFlag.PASSWORD) {
             edTxt.type = 'password';
