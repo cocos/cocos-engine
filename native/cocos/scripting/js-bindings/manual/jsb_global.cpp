@@ -868,6 +868,36 @@ static bool js_loadImage(se::State& s)
 }
 SE_BIND_FUNC(js_loadImage)
 
+//pixels(RGBA), width, height, filePath(*.png)
+static bool js_saveImageData(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        cocos2d::Data data;
+        ok &= seval_to_Data(args[0], &data);
+
+        uint32_t width, height;
+        ok &= seval_to_uint32(args[1], &width);
+        ok &= seval_to_uint32(args[2], &height);
+
+        std::string filePath;
+        ok &= seval_to_std_string(args[3], &filePath);
+        SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
+
+        Image* img = new Image();
+        img->initWithRawData(data.getBytes(), data.getSize(), width, height, 8);
+        bool ret = img->saveToFile(filePath);
+        s.rval().setBoolean(ret);
+
+        return ret;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_saveImageData)
+
 static bool js_setDebugViewText(se::State& s)
 {
     const auto& args = s.args();
@@ -1062,6 +1092,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
+    __jsbObj->defineFunction("saveImageData", _SE(js_saveImageData));
     __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
     __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));

@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)
     std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag)
     {
-        CCLOG("Cocos2dxJavaScriptJavaBridge_evalString error, invalid string code");
+        CCLOG("JavaScriptJavaBridge_evalString error, invalid string code");
         return 0;
     }
     se::ScriptEngine::getInstance()->evalString(strValue.c_str());
@@ -583,7 +583,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0)
             {
-                SE_REPORT_ERROR("js_cocos2dx_JSJavaBridge : call result code: %d", errorCode);
+                SE_REPORT_ERROR("js_JSJavaBridge : call result code: %d", errorCode);
                 return false;
             }
 

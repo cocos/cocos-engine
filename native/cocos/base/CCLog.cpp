@@ -72,7 +72,7 @@ namespace
         
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
         #include <android/log.h>
-        __android_log_print(ANDROID_LOG_DEBUG, "cocos2d-x debug info", "%s", buf);
+        __android_log_print(ANDROID_LOG_DEBUG, "debug info", "%s", buf);
 #elif CC_TARGET_PLATFORM ==  CC_PLATFORM_WIN32
         int pos = 0;
         int len = strlen(buf);

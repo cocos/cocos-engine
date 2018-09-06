@@ -368,33 +368,33 @@ static bool register_sys_localStorage(se::Object* obj)
 }
 
 #define BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(cls, property, type, convertFunc, returnFunc) \
-static bool js_cocos2dx_##cls_set_##property(se::State& s) \
+static bool js_##cls_set_##property(se::State& s) \
 { \
     cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_#cls_set_#property : Invalid Native Object"); \
+    SE_PRECONDITION2(cobj, false, "js_#cls_set_#property : Invalid Native Object"); \
     const auto& args = s.args(); \
     size_t argc = args.size(); \
     bool ok = true; \
     if (argc == 1) { \
         type arg0; \
         ok &= convertFunc(args[0], &arg0); \
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_#cls_set_#property : Error processing arguments"); \
+        SE_PRECONDITION2(ok, false, "js_#cls_set_#property : Error processing arguments"); \
         cobj->set_##property(arg0); \
         return true; \
     } \
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1); \
     return false; \
 } \
-SE_BIND_PROP_SET(js_cocos2dx_##cls_set_##property) \
+SE_BIND_PROP_SET(js_##cls_set_##property) \
 \
-static bool js_cocos2dx_##cls_get_##property(se::State& s) \
+static bool js_##cls_get_##property(se::State& s) \
 { \
     cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_#cls_get_#property : Invalid Native Object"); \
+    SE_PRECONDITION2(cobj, false, "js_#cls_get_#property : Invalid Native Object"); \
     s.rval().returnFunc(cobj->_##property); \
     return true; \
 } \
-SE_BIND_PROP_GET(js_cocos2dx_##cls_get_##property)
+SE_BIND_PROP_GET(js_##cls_get_##property)
 
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _width, float, seval_to_float, setFloat)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _height, float, seval_to_float, setFloat)
@@ -409,13 +409,13 @@ BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, globalComposite
 
 
 #define _SE_DEFINE_PROP(cls, property) \
-    __jsb_cocos2d_##cls##_proto->defineProperty(#property, _SE(js_cocos2dx_##cls_get_##property), _SE(js_cocos2dx_##cls_set_##property));
+    __jsb_cocos2d_##cls##_proto->defineProperty(#property, _SE(js_##cls_get_##property), _SE(js_##cls_set_##property));
 
 //IDEA:  move to auto bindings.
-static bool js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State& s)
+static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State& s)
 {
     cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -451,14 +451,14 @@ static bool js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(
             }
         } while(false)
             ;
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Error processing arguments");
         cobj->setCanvasBufferUpdatedCallback(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback)
+SE_BIND_FUNC(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback)
 
 static se::Object* __deviceMotionObject = nullptr;
 static bool JSB_getDeviceMotionValue(se::State& s)
@@ -524,7 +524,7 @@ static bool register_canvas_context2d(se::Object* obj)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, strokeStyle)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, globalCompositeOperation)
 
-    __jsb_cocos2d_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_cocos2dx_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    __jsb_cocos2d_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
 
     se::ScriptEngine::getInstance()->clearException();
 

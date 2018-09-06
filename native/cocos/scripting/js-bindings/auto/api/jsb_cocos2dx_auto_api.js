@@ -1,5 +1,5 @@
 /**
- * @module cocos2dx
+ * @module engine
  */
 var jsb = jsb || {};
 

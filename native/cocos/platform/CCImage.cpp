@@ -598,7 +598,7 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
                 }
                 else
                 {
-                    CCLOG("cocos2d: unsupported image format!");
+                    CCLOG("Image: unsupported image format!");
                 }
 
                 free(tgaData);
@@ -1304,26 +1304,26 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     bool flipped = (flags & (unsigned int)PVR2TextureFlag::VerticalFlip) ? true : false;
     if (flipped)
     {
-        CCLOG("cocos2d: WARNING: Image is flipped. Regenerate it using PVRTexTool");
+        CCLOG("initWithPVRv2Data: WARNING: Image is flipped. Regenerate it using PVRTexTool");
     }
 
     if (! configuration->supportsNPOT() &&
         (static_cast<int>(header->width) != utils::nextPOT(header->width)
             || static_cast<int>(header->height) != utils::nextPOT(header->height)))
     {
-        CCLOG("cocos2d: ERROR: Loading an NPOT texture (%dx%d) but is not supported on this device", header->width, header->height);
+        CCLOG("initWithPVRv2Data: ERROR: Loading an NPOT texture (%dx%d) but is not supported on this device", header->width, header->height);
         return false;
     }
 
     if (!testFormatForPvr2TCSupport(formatFlags))
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
+        CCLOG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
     if (v2_pixel_formathash.find(formatFlags) == v2_pixel_formathash.end())
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
+        CCLOG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
@@ -1331,7 +1331,7 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
 
     if (it == getPixelFormatInfoMap().end())
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
+        CCLOG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
@@ -1372,7 +1372,7 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
             case PVR2TexturePixelFormat::BGRA8888:
                 if (Configuration::getInstance()->supportsBGRA8888() == false)
                 {
-                    CCLOG("cocos2d: Image. BGRA8888 not supported on this device");
+                    CCLOG("initWithPVRv2Data: Image. BGRA8888 not supported on this device");
                     return false;
                 }
             default:
@@ -1424,7 +1424,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     // validate version
     if (CC_SWAP_INT32_BIG_TO_HOST(header->version) != 0x50565203)
     {
-        CCLOG("cocos2d: WARNING: pvr file version mismatch");
+        CCLOG("initWithPVRv3Data: WARNING: pvr file version mismatch");
         return false;
     }
 
@@ -1433,7 +1433,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
 
     if (!testFormatForPvr3TCSupport(pixelFormat))
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
+        CCLOG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
         return false;
     }
@@ -1441,7 +1441,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
 
     if (v3_pixel_formathash.find(pixelFormat) == v3_pixel_formathash.end())
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
+        CCLOG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
         return false;
     }
@@ -1450,7 +1450,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
 
     if (it == getPixelFormatInfoMap().end())
     {
-        CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
+        CCLOG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
         return false;
     }
@@ -1512,7 +1512,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
             case PVR3TexturePixelFormat::BGRA8888:
                 if (! Configuration::getInstance()->supportsBGRA8888())
                 {
-                    CCLOG("cocos2d: Image. BGRA8888 not supported on this device");
+                    CCLOG("initWithPVRv3Data: Image. BGRA8888 not supported on this device");
                     return false;
                 }
             default:
@@ -1828,7 +1828,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
     //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
     if (isCompressed() || (_renderFormat != Image::PixelFormat::RGB888 && _renderFormat != Image::PixelFormat::RGBA8888))
     {
-        CCLOG("cocos2d: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
+        CCLOG("saveToFile: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
         return false;
     }
 
@@ -1844,7 +1844,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
     }
     else
     {
-        CCLOG("cocos2d: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
+        CCLOG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
         return false;
     }
 }

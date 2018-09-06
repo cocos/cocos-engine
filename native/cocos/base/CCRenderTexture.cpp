@@ -210,14 +210,14 @@ bool RenderTexture::parseVertexAttribs()
     _vertAttributePositionLocation = glGetAttribLocation(_program, "a_position");
     if (-1 == _vertAttributePositionLocation)
     {
-        CCLOG("Cocos2d: %s: can not find vertex attribute of a_position", __FUNCTION__);
+        CCLOG("RenderTexture: %s: can not find vertex attribute of a_position", __FUNCTION__);
         return false;
     }
     
     _vertAttributeTextureCoordLocation = glGetAttribLocation(_program, "a_texCoord");
     if (-1 == _vertAttributeTextureCoordLocation)
     {
-        CCLOG("Cocos2d: %s: can not find vertex attribute of a_texCoord", __FUNCTION__);
+        CCLOG("RenderTexture: %s: can not find vertex attribute of a_texCoord", __FUNCTION__);
         return false;
     }
     
@@ -229,7 +229,7 @@ bool RenderTexture::parseUniforms()
     _fragUniformTextureLocation = glGetUniformLocation(_program, "u_texture");
     if (-1 == _fragUniformTextureLocation)
     {
-        CCLOG("Cocos2d: %s: can not find uniform location of u_texture", __FUNCTION__);
+        CCLOG("RenderTexture: %s: can not find uniform location of u_texture", __FUNCTION__);
         return false;
     }
     else
@@ -246,8 +246,8 @@ bool RenderTexture::compileShader(GLuint& shader, GLenum type, const GLchar* sou
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (! status)
     {
-        CCLOG("cocos2d: ERROR: Failed to compile shader:\n%s", source);
-        CCLOG("cocos2d: %s", logForOpenGLShader(shader).c_str());
+        CCLOG("RenderTexture: ERROR: Failed to compile shader:\n%s", source);
+        CCLOG("RenderTexture: %s", logForOpenGLShader(shader).c_str());
         
         return false;
     }
@@ -276,7 +276,7 @@ bool RenderTexture::initProgram()
     )";
     if (! compileShader(vertShader, GL_VERTEX_SHADER, vert))
     {
-        CCLOG("cocos2d: ERROR: Failed to compile vertex shader");
+        CCLOG("RenderTexture: ERROR: Failed to compile vertex shader");
         return false;
     }
     
@@ -294,7 +294,7 @@ bool RenderTexture::initProgram()
     )";
     if (! compileShader(fragShader, GL_FRAGMENT_SHADER, frag))
     {
-        CCLOG("cocos2d: ERROR: Failed to compile fragment shader");
+        CCLOG("RenderTexture: ERROR: Failed to compile fragment shader");
         glDeleteShader(vertShader);
         return false;
     }
@@ -318,7 +318,7 @@ bool RenderTexture::initProgram()
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
     if (GL_FALSE == status)
     {
-        CCLOG("cocos2d: ERROR: %s: failed to link program ", __FUNCTION__);
+        CCLOG("RenderTexture: ERROR: %s: failed to link program ", __FUNCTION__);
         glDeleteProgram(_program);
         _program = 0;
         return false;
@@ -485,7 +485,7 @@ void RenderTexture::initFramebuffer()
     
     
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        CCLOG("Cocos2d: %s : frame buffer is not complete.", __FUNCTION__);
+        CCLOG("RenderTexture: %s : frame buffer is not complete.", __FUNCTION__);
     
     glBindFramebuffer(GL_FRAMEBUFFER, _mainFBO);
 }

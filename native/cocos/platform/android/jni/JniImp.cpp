@@ -163,7 +163,7 @@ extern "C"
         g_isGameFinished = false;
         ccInvalidateStateCache();
         std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
-        LOGD("CocosRenderer.nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
+        LOGD("nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
         
 
         if (!defaultResourcePath.empty())
@@ -509,7 +509,7 @@ std::string getApkPathJNI()
 
 std::string getPackageNameJNI() 
 {
-    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCocos2dxPackageName");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getPackageName");
 }
 
 int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 
