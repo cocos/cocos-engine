@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 import {vec2} from '../vmath';
 import {clampf} from '../utils/misc';
 
@@ -640,7 +640,7 @@ export default class Vec2 extends ValueType {
     }
 }
 
-Class.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
+CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 
 cc.Vec2 = Vec2;
 

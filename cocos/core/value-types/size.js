@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 
 /**
  * !#en
@@ -150,7 +150,7 @@ export default class Size extends ValueType {
     }
 }
 
-Class.fastDefine('cc.Size', Size, { width: 0, height: 0});
+CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0});
 
 /**
  * @module cc

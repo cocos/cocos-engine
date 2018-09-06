@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import ValueType from './value-type';
-import Class from '../data/CCClass';
+import CCClass from '../data/class';
 import {mat4} from '../vmath';
 
 /**
@@ -359,7 +359,7 @@ export default class Mat4 extends ValueType {
     }
 };
 
-Class.fastDefine('cc.Mat4', Mat4, { 
+CCClass.fastDefine('cc.Mat4', Mat4, { 
     m00: 1, m01: 0, m02: 0, m03: 0,
     m04: 0, m05: 1, m06: 0, m07: 0,
     m08: 0, m09: 0, m10: 1, m11: 0,
