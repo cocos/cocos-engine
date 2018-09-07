@@ -24,23 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
-
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    require('./CCNode');
-    require('./CCPrivateNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./graphics');
-    require('./collider');
-    // CCIntersection can be used separately.
-    require('./collider/CCIntersection');
-    require('./physics');
-    require('./camera/CCCamera');
-
-    require('./3d');
-}
-
-require('./base-ui/CCWidgetManager');
+import './utils';
+import './data';
+import './event';
+import './platform';
+import './value-types';
+import './vmath';
+import './CCGame';
+import './CCScheduler';
+import './CCDirector';

@@ -24,12 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('./event/event-target');
-require('../audio/CCAudioEngine');
-const debug = require('./CCDebug');
-const renderer = require('./renderer/index.js');
-const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
-const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manager');
+import EventTarget from './event/event-target';
+import inputManager from './platform/event-manager/CCInputManager';
+import debug from './platform/CCDebug';
+import {addon} from './utils/js';
 
 /**
  * @module cc
@@ -282,10 +280,6 @@ var game = {
     pause: function () {
         if (this._paused) return;
         this._paused = true;
-        // Pause audio engine
-        if (cc.audioEngine) {
-            cc.audioEngine._break();
-        }
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -301,10 +295,6 @@ var game = {
     resume: function () {
         if (!this._paused) return;
         this._paused = false;
-        // Resume audio engine
-        if (cc.audioEngine) {
-            cc.audioEngine._restore();
-        }
         // Resume main loop
         this._runMainLoop();
     },
@@ -335,11 +325,6 @@ var game = {
             cc.Object._deferredDestroy();
 
             cc.director.purgeDirector();
-
-            // Clean up audio
-            if (cc.audioEngine) {
-                cc.audioEngine.uncacheAll();
-            }
 
             cc.director.reset();
             game.onStart();
@@ -773,11 +758,6 @@ var game = {
             }
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
-            
-            // Enable dynamic atlas manager by default
-            if (!cc.macro.CLEANUP_IMAGE_CACHE && dynamicAtlasManager) {
-                dynamicAtlasManager.enabled = true;
-            }
         }
         if (!this._renderContext) {
             this.renderType = this.RENDER_TYPE_CANVAS;
@@ -876,10 +856,7 @@ var game = {
 };
 
 EventTarget.call(game);
-cc.js.addon(game, EventTarget.prototype);
+addon(game, EventTarget.prototype);
 
-/**
- * @property game
- * @type Game
- */
-cc.game = module.exports = game;
+cc.game = game;
+export default game;

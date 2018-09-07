@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 import EventTarget from '../event/event-target';
-import * as js from '../utils/js';
 import '../data/class';
 
 var __BrowserGetter = {
@@ -116,7 +115,7 @@ var _scissorRect = null;
  *
  * @class View
  */
-class View {
+class View extends EventTarget {
     constructor () {
         super();
 
