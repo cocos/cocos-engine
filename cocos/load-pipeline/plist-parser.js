@@ -31,27 +31,27 @@ var js = require('../platform/js');
  * A SAX Parser
  * @class saxParser
  */
-cc.SAXParser = function () {
-    if (!(CC_EDITOR && Editor.isMainProcess) && window.DOMParser) {
-        this._isSupportDOMParser = true;
-        this._parser = new DOMParser();
-    } else {
-        this._isSupportDOMParser = false;
-        this._parser = null;
+class SAXParser {
+    constructor () {
+        if (!(CC_EDITOR && Editor.isMainProcess) && window.DOMParser) {
+            this._isSupportDOMParser = true;
+            this._parser = new DOMParser();
+        } else {
+            this._isSupportDOMParser = false;
+            this._parser = null;
+        }
     }
-};
-cc.SAXParser.prototype = {
-    constructor: cc.SAXParser,
+
     /**
      * @method parse
      * @param {String} xmlTxt
      * @return {Document}
      */
-    parse : function(xmlTxt){
+    parse (xmlTxt){
         return this._parseXML(xmlTxt);
-    },
+    }
 
-    _parseXML: function (textxml) {
+    _parseXML (textxml) {
         // get a reference to the requested corresponding xml file
         var xmlDoc;
         if (this._isSupportDOMParser) {
@@ -64,7 +64,7 @@ cc.SAXParser.prototype = {
         }
         return xmlDoc;
     }
-};
+}
 
 /**
  *
@@ -72,17 +72,17 @@ cc.SAXParser.prototype = {
  * @class plistParser
  * @extends SAXParser
  */
-cc.PlistParser = function () {
-    cc.SAXParser.call(this);
-};
-js.extend(cc.PlistParser, cc.SAXParser);
-js.mixin(cc.PlistParser.prototype, {
+class PlistParser extends SAXParser {
+    constructor () {
+        super(this);
+    }
+
     /**
      * parse a xml string as plist object.
      * @param {String} xmlTxt - plist xml contents
      * @return {*} plist object
      */
-    parse : function (xmlTxt) {
+    parse (xmlTxt) {
         var xmlDoc = this._parseXML(xmlTxt);
         var plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
@@ -99,9 +99,9 @@ js.mixin(cc.PlistParser.prototype, {
         }
         xmlDoc = null;
         return this._parseNode(node);
-    },
+    }
 
-    _parseNode: function (node) {
+    _parseNode (node) {
         var data = null, tagName = node.tagName;
         if(tagName === "dict"){
             data = this._parseDict(node);
@@ -126,9 +126,9 @@ js.mixin(cc.PlistParser.prototype, {
             data = parseInt(node.firstChild.nodeValue, 10);
         }
         return data;
-    },
+    }
 
-    _parseArray: function (node) {
+    _parseArray (node) {
         var data = [];
         for (var i = 0, len = node.childNodes.length; i < len; i++) {
             var child = node.childNodes[i];
@@ -137,9 +137,9 @@ js.mixin(cc.PlistParser.prototype, {
             data.push(this._parseNode(child));
         }
         return data;
-    },
+    }
 
-    _parseDict: function (node) {
+    _parseDict (node) {
         var data = {};
         var key = null;
         for (var i = 0, len = node.childNodes.length; i < len; i++) {
@@ -155,17 +155,13 @@ js.mixin(cc.PlistParser.prototype, {
         }
         return data;
     }
-});
+}
 
-cc.saxParser = new cc.SAXParser();
 /**
  * @type {PlistParser}
  * @name plistParser
  * A Plist Parser
  */
-cc.plistParser = new cc.PlistParser();
+var plistParser = new PlistParser();
 
-module.exports = {
-    saxParser: cc.saxParser,
-    plistParser: cc.plistParser
-}
+export default plistParser;

@@ -107,7 +107,7 @@ export default class EventTarget extends CallbacksInvoker {
                 target.__eventTargets.push(this);
         }
         return callback;
-    };
+    }
 
     /**
      * !#en
@@ -141,7 +141,7 @@ export default class EventTarget extends CallbacksInvoker {
                 fastRemove(target.__eventTargets, this);
             }
         }
-    };
+    }
 
     /**
      * !#en Removes all callbacks previously registered with the same target (passed as parameter).
@@ -193,7 +193,7 @@ export default class EventTarget extends CallbacksInvoker {
             this.on(type, onceWrapper, target);
             this.add(eventType_hasOnceListener, callback, target);
         }
-    };
+    }
 
     /**
      * !#en
@@ -225,7 +225,7 @@ export default class EventTarget extends CallbacksInvoker {
      */
     dispatchEvent (event) {
         this.invoke(event.type, event);
-    };
+    }
 }
 
 cc.EventTarget = EventTarget;

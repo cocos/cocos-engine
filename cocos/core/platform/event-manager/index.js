@@ -24,13 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCEvent');
-require('./CCTouch');
-require('./CCEventListener');
-
-var eventManager = require('./CCEventManager');;
-
-module.exports = eventManager;
+export * from './CCEventManager';
+export * from './CCInputManager';
+export * from './system-event';
 
 if (CC_TEST) {
     cc._Test.eventManager = eventManager;

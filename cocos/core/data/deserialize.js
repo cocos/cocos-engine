@@ -67,7 +67,7 @@ class Details {
         this.uuidObjList.length = 0;
         this.uuidPropList.length = 0;
         js.clear(this._stillUseUrl);
-    };
+    }
 
     // /**
     //  * @method getUuidOf

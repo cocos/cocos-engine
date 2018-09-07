@@ -180,7 +180,7 @@ export default class Event {
     getType () {
         return this.type;
     }
-};
+}
 
 //event type
 /**
