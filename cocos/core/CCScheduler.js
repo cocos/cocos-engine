@@ -27,8 +27,9 @@
 /**
  * @module cc
  */
-const js = require('./platform/js');
-const IdGenerater = require('./platform/id-generater');
+import {createMap} from './utils/js';
+import IdGenerater from './utils/id-generater';
+
 const MAX_POOL_SIZE = 20;
 
 var idGenerater = new IdGenerater('Scheduler');
@@ -150,103 +151,106 @@ HashTimerEntry.put = function (entry) {
 
 /*
  * Light weight timer
- * @extends cc.Class
  */
-function CallbackTimer () {
-    this._lock = false;
-    this._scheduler = null;
-    this._elapsed = -1;
-    this._runForever = false;
-    this._useDelay = false;
-    this._timesExecuted = 0;
-    this._repeat = 0;
-    this._delay = 0;
-    this._interval = 0;
-
-    this._target = null;
-    this._callback = null;
-}
-
-var proto = CallbackTimer.prototype;
-
-proto.initWithCallback = function (scheduler, callback, target, seconds, repeat, delay) {
-    this._lock = false;
-    this._scheduler = scheduler;
-    this._target = target;
-    this._callback = callback;
-
-    this._elapsed = -1;
-    this._interval = seconds;
-    this._delay = delay;
-    this._useDelay = (this._delay > 0);
-    this._repeat = repeat;
-    this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
-    return true;
-};
-/**
- * @return {Number} returns interval of timer
- */
-proto.getInterval = function(){return this._interval;};
-/**
- * @param {Number} interval set interval in seconds
- */
-proto.setInterval = function(interval){this._interval = interval;};
-
-/**
- * triggers the timer
- * @param {Number} dt delta time
- */
-proto.update = function (dt) {
-    if (this._elapsed === -1) {
-        this._elapsed = 0;
+class CallbackTimer {
+    constructor () {
+        this._lock = false;
+        this._scheduler = null;
+        this._elapsed = -1;
+        this._runForever = false;
+        this._useDelay = false;
         this._timesExecuted = 0;
-    } else {
-        this._elapsed += dt;
-        if (this._runForever && !this._useDelay) {//standard timer usage
-            if (this._elapsed >= this._interval) {
-                this.trigger();
-                this._elapsed = 0;
-            }
-        } else {//advanced usage
-            if (this._useDelay) {
-                if (this._elapsed >= this._delay) {
-                    this.trigger();
+        this._repeat = 0;
+        this._delay = 0;
+        this._interval = 0;
 
-                    this._elapsed -= this._delay;
-                    this._timesExecuted += 1;
-                    this._useDelay = false;
-                }
-            } else {
+        this._target = null;
+        this._callback = null;
+    }
+
+    initWithCallback (scheduler, callback, target, seconds, repeat, delay) {
+        this._lock = false;
+        this._scheduler = scheduler;
+        this._target = target;
+        this._callback = callback;
+
+        this._elapsed = -1;
+        this._interval = seconds;
+        this._delay = delay;
+        this._useDelay = (this._delay > 0);
+        this._repeat = repeat;
+        this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
+        return true;
+    }
+    /**
+     * @return {Number} returns interval of timer
+     */
+    getInterval () {
+        return this._interval;
+    }
+    /**
+     * @param {Number} interval set interval in seconds
+     */
+    setInterval (interval) {
+        this._interval = interval;
+    }
+
+    /**
+     * triggers the timer
+     * @param {Number} dt delta time
+     */
+    update (dt) {
+        if (this._elapsed === -1) {
+            this._elapsed = 0;
+            this._timesExecuted = 0;
+        } else {
+            this._elapsed += dt;
+            if (this._runForever && !this._useDelay) {//standard timer usage
                 if (this._elapsed >= this._interval) {
                     this.trigger();
-
                     this._elapsed = 0;
-                    this._timesExecuted += 1;
                 }
-            }
+            } else {//advanced usage
+                if (this._useDelay) {
+                    if (this._elapsed >= this._delay) {
+                        this.trigger();
 
-            if (this._callback && !this._runForever && this._timesExecuted > this._repeat)
-                this.cancel();
+                        this._elapsed -= this._delay;
+                        this._timesExecuted += 1;
+                        this._useDelay = false;
+                    }
+                } else {
+                    if (this._elapsed >= this._interval) {
+                        this.trigger();
+
+                        this._elapsed = 0;
+                        this._timesExecuted += 1;
+                    }
+                }
+
+                if (this._callback && !this._runForever && this._timesExecuted > this._repeat)
+                    this.cancel();
+            }
         }
     }
-};
 
-proto.getCallback = function(){
-    return this._callback;
-};
-
-proto.trigger = function () {
-    if (this._target && this._callback) {
-        this._lock = true;
-        this._callback.call(this._target, this._elapsed);
-        this._lock = false;
+    getCallback(){
+        return this._callback;
     }
-};
 
-proto.cancel = function () {
-    //override
-    this._scheduler.unschedule(this._callback, this._target);
-};
+    trigger () {
+        if (this._target && this._callback) {
+            this._lock = true;
+            this._callback.call(this._target, this._elapsed);
+            this._lock = false;
+        }
+    }
+
+    cancel () {
+        //override
+        this._scheduler.unschedule(this._callback, this._target);
+    }
+}
 
 var _timers = [];
 CallbackTimer.get = function () {
@@ -280,26 +284,24 @@ CallbackTimer.put = function (timer) {
  *
  * @class Scheduler
  */
-cc.Scheduler = function () {
-    this._timeScale = 1.0;
-    this._updatesNegList = [];  // list of priority < 0
-    this._updates0List = [];    // list of priority == 0
-    this._updatesPosList = [];  // list of priority > 0
-    this._hashForUpdates = js.createMap(true);  // hash used to fetch quickly the list entries for pause, delete, etc
-    this._hashForTimers = js.createMap(true);   // Used for "selectors with interval"
-    this._currentTarget = null;
-    this._currentTargetSalvaged = false;
-    this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
+export default class Scheduler {
+    constructor () {
+        this._timeScale = 1.0;
+        this._updatesNegList = [];  // list of priority < 0
+        this._updates0List = [];    // list of priority == 0
+        this._updatesPosList = [];  // list of priority > 0
+        this._hashForUpdates = createMap(true);  // hash used to fetch quickly the list entries for pause, delete, etc
+        this._hashForTimers = createMap(true);   // Used for "selectors with interval"
+        this._currentTarget = null;
+        this._currentTargetSalvaged = false;
+        this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
 
-    this._arrayForTimers = [];  // Speed up indexing
-    //this._arrayForUpdates = [];   // Speed up indexing
-};
-
-cc.Scheduler.prototype = {
-    constructor: cc.Scheduler,
+        this._arrayForTimers = [];  // Speed up indexing
+        //this._arrayForUpdates = [];   // Speed up indexing
+    }
+    
     //-----------------------private method----------------------
-
-    _removeHashElement: function (element) {
+    _removeHashElement (element) {
         delete this._hashForTimers[element.target._id];
         var arr = this._arrayForTimers;
         for (var i = 0, l = arr.length; i < l; i++) {
@@ -309,9 +311,9 @@ cc.Scheduler.prototype = {
             }
         }
         HashTimerEntry.put(element);
-    },
+    }
 
-    _removeUpdateFromHash: function (entry) {
+    _removeUpdateFromHash (entry) {
         var targetId = entry.target._id;
         var self = this, element = self._hashForUpdates[targetId];
         if (element) {
@@ -328,9 +330,9 @@ cc.Scheduler.prototype = {
             ListEntry.put(listEntry);
             HashUpdateEntry.put(element);
         }
-    },
+    }
 
-    _priorityIn: function (ppList, listElement, priority) {
+    _priorityIn (ppList, listElement, priority) {
         for (var i = 0; i < ppList.length; i++){
             if (priority < ppList[i].priority) {
                 ppList.splice(i, 0, listElement);
@@ -338,11 +340,11 @@ cc.Scheduler.prototype = {
             }
         }
         ppList.push(listElement);
-    },
+    }
 
-    _appendIn: function (ppList, listElement) {
+    _appendIn (ppList, listElement) {
         ppList.push(listElement);
-    },
+    }
 
     //-----------------------public method-------------------------
     /**
@@ -353,7 +355,7 @@ cc.Scheduler.prototype = {
      * @method enableForTarget
      * @param {Object} target
      */
-    enableForTarget: function (target) {
+    enableForTarget (target) {
         if (!target._id) {
             if (target.__instanceId) {
                 cc.warnID(1513);
@@ -362,7 +364,7 @@ cc.Scheduler.prototype = {
                 target._id = idGenerater.getNewId();
             }
         }
-    },
+    }
 
     /**
      * !#en
@@ -380,9 +382,9 @@ cc.Scheduler.prototype = {
      * @method setTimeScale
      * @param {Number} timeScale
      */
-    setTimeScale: function (timeScale) {
+    setTimeScale (timeScale) {
         this._timeScale = timeScale;
-    },
+    }
 
     /**
      * !#en Returns time scale of scheduler.
@@ -390,9 +392,9 @@ cc.Scheduler.prototype = {
      * @method getTimeScale
      * @return {Number}
      */
-    getTimeScale: function () {
+    getTimeScale () {
         return this._timeScale;
-    },
+    }
 
     /**
      * !#en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
@@ -400,7 +402,7 @@ cc.Scheduler.prototype = {
      * @method update
      * @param {Number} dt delta time
      */
-    update: function (dt) {
+    update (dt) {
         this._updateHashLocked = true;
         if(this._timeScale !== 1)
             dt *= this._timeScale;
@@ -478,7 +480,7 @@ cc.Scheduler.prototype = {
 
         this._updateHashLocked = false;
         this._currentTarget = null;
-    },
+    }
 
     /**
      * !#en
@@ -512,7 +514,7 @@ cc.Scheduler.prototype = {
      * schedule(callback: Function, target: any, interval: number, repeat: number, delay: number, paused?: boolean): void
      * schedule(callback: Function, target: any, interval: number, paused?: boolean): void
      */
-    schedule: function (callback, target, interval, repeat, delay, paused) {
+    schedule (callback, target, interval, repeat, delay, paused) {
         'use strict';
         if (typeof callback !== 'function') {
             var tmp = callback;
@@ -571,7 +573,7 @@ cc.Scheduler.prototype = {
         if (this._currentTarget === element && this._currentTargetSalvaged) {
             this._currentTargetSalvaged = false;
         }
-    },
+    }
 
     /**
      * !#en
@@ -586,7 +588,7 @@ cc.Scheduler.prototype = {
      * @param {Number} priority
      * @param {Boolean} paused
      */
-    scheduleUpdate: function(target, priority, paused) {
+    scheduleUpdate(target, priority, paused) {
         var targetId = target._id;
         if (!targetId) {
             if (target.__instanceId) {
@@ -633,7 +635,7 @@ cc.Scheduler.prototype = {
 
         //update hash entry for quick access
         this._hashForUpdates[targetId] = HashUpdateEntry.get(ppList, listElement, target, null);
-    },
+    }
 
     /**
      * !#en
@@ -646,7 +648,7 @@ cc.Scheduler.prototype = {
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
      */
-    unschedule: function (callback, target) {
+    unschedule (callback, target) {
         //callback, target
 
         // explicity handle nil arguments when removing an object
@@ -690,7 +692,7 @@ cc.Scheduler.prototype = {
                 }
             }
         }
-    },
+    }
 
     /** 
      * !#en Unschedules the update callback for a given target.
@@ -698,7 +700,7 @@ cc.Scheduler.prototype = {
      * @method unscheduleUpdate
      * @param {Object} target The target to be unscheduled.
      */
-    unscheduleUpdate: function (target) {
+    unscheduleUpdate (target) {
         if (!target)
             return;
         var targetId = target._id;
@@ -720,7 +722,7 @@ cc.Scheduler.prototype = {
                 this._removeUpdateFromHash(element.entry);
             }
         }
-    },
+    }
 
     /** 
      * !#en
@@ -730,7 +732,7 @@ cc.Scheduler.prototype = {
      * @method unscheduleAllForTarget
      * @param {Object} target The target to be unscheduled.
      */
-    unscheduleAllForTarget: function (target) {
+    unscheduleAllForTarget (target) {
         // explicit nullptr handling
         if (!target){
             return;
@@ -768,7 +770,7 @@ cc.Scheduler.prototype = {
 
         // update selector
         this.unscheduleUpdate(target);
-    },
+    }
 
     /**
      * !#en
@@ -779,9 +781,9 @@ cc.Scheduler.prototype = {
      * 不用调用此函数，除非你确定你在做什么。
      * @method unscheduleAll
      */
-    unscheduleAll: function(){
+    unscheduleAll(){
         this.unscheduleAllWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
-    },
+    }
 
     /**
      * !#en
@@ -794,7 +796,7 @@ cc.Scheduler.prototype = {
      * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
-    unscheduleAllWithMinPriority: function(minPriority){
+    unscheduleAllWithMinPriority(minPriority){
         // Custom Selectors
         var i, element, arr = this._arrayForTimers;
         for(i=arr.length-1; i>=0; i--){
@@ -835,7 +837,7 @@ cc.Scheduler.prototype = {
             if (temp_length == this._updatesPosList.length)
                 i++;
         }
-    },
+    }
 
     /** 
      * !#en Checks whether a callback for a given target is scheduled.
@@ -845,7 +847,7 @@ cc.Scheduler.prototype = {
      * @param {Object} target The target of the callback.
      * @return {Boolean} True if the specified callback is invoked, false if not.
      */
-    isScheduled: function(callback, target){
+    isScheduled(callback, target){
         //key, target
         //selector, target
         cc.assertID(callback, 1508);
@@ -881,7 +883,7 @@ cc.Scheduler.prototype = {
             }
             return false;
         }
-    },
+    }
 
     /**
      * !#en
@@ -892,9 +894,9 @@ cc.Scheduler.prototype = {
      * 不要调用这个方法，除非你知道你正在做什么。
      * @method pauseAllTargets
      */
-    pauseAllTargets: function () {
+    pauseAllTargets () {
         return this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
-    },
+    }
 
     /**
      * !#en
@@ -906,7 +908,7 @@ cc.Scheduler.prototype = {
      * @method pauseAllTargetsWithMinPriority
      * @param {Number} minPriority
      */
-    pauseAllTargetsWithMinPriority: function (minPriority) {
+    pauseAllTargetsWithMinPriority (minPriority) {
         var idsWithSelectors = [];
 
         var self = this, element, locArrayForTimers = self._arrayForTimers;
@@ -954,7 +956,7 @@ cc.Scheduler.prototype = {
         }
 
         return idsWithSelectors;
-    },
+    }
 
     /**
      * !#en
@@ -966,14 +968,14 @@ cc.Scheduler.prototype = {
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
-    resumeTargets: function (targetsToResume) {
+    resumeTargets (targetsToResume) {
         if (!targetsToResume)
             return;
 
         for (var i = 0; i < targetsToResume.length; i++) {
             this.resumeTarget(targetsToResume[i]);
         }
-    },
+    }
 
     /**
      * !#en
@@ -987,7 +989,7 @@ cc.Scheduler.prototype = {
      * @method pauseTarget
      * @param {Object} target
      */
-    pauseTarget: function (target) {
+    pauseTarget (target) {
         cc.assertID(target, 1503);
         var targetId = target._id;
         if (!targetId) {
@@ -1012,7 +1014,7 @@ cc.Scheduler.prototype = {
         if (elementUpdate) {
             elementUpdate.entry.paused = true;
         }
-    },
+    }
 
     /**
      * !#en
@@ -1026,7 +1028,7 @@ cc.Scheduler.prototype = {
      * @method resumeTarget
      * @param {Object} target
      */
-    resumeTarget: function (target) {
+    resumeTarget (target) {
         cc.assertID(target, 1504);
         var targetId = target._id;
         if (!targetId) {
@@ -1051,7 +1053,7 @@ cc.Scheduler.prototype = {
         if (elementUpdate) {
             elementUpdate.entry.paused = false;
         }
-    },
+    }
 
     /**
      * !#en Returns whether or not the target is paused.
@@ -1060,7 +1062,7 @@ cc.Scheduler.prototype = {
      * @param {Object} target
      * @return {Boolean}
      */
-    isTargetPaused: function (target) {
+    isTargetPaused (target) {
         cc.assertID(target, 1505);
         var targetId = target._id;
         if (!targetId) {
@@ -1083,8 +1085,8 @@ cc.Scheduler.prototype = {
             return elementUpdate.entry.paused;
         }
         return false;
-    },
-};
+    }
+}
 
 /**
  * !#en Priority level reserved for system services.
@@ -1093,7 +1095,7 @@ cc.Scheduler.prototype = {
  * @type {Number}
  * @static
  */
-cc.Scheduler.PRIORITY_SYSTEM = 1 << 31;
+Scheduler.PRIORITY_SYSTEM = 1 << 31;
 
 /**
  * !#en Minimum priority level for user scheduling.
@@ -1102,6 +1104,4 @@ cc.Scheduler.PRIORITY_SYSTEM = 1 << 31;
  * @type {Number}
  * @static
  */
-cc.Scheduler.PRIORITY_NON_SYSTEM = cc.Scheduler.PRIORITY_SYSTEM + 1;
-
-module.exports = cc.Scheduler;
+Scheduler.PRIORITY_NON_SYSTEM = Scheduler.PRIORITY_SYSTEM + 1;

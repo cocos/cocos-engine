@@ -25,15 +25,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require('./event/event-target');
-const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
-const ComponentScheduler = require('./component-scheduler');
-const NodeActivator = require('./node-activator');
-const Obj = require('./platform/CCObject');
-const game = require('./CCGame');
-const renderer = require('./renderer');
-const eventManager = require('./event-manager');
-const Scheduler = require('./CCScheduler');
+import EventTarget from './event/event-target';
+import eventManager from './platform/event-manager/CCEventManager';
+import ccobject from './data/object';
+import game from './CCGame';
+import Scheduler from './CCScheduler';
+
+// const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
+// const ComponentScheduler = require('./component-scheduler');
+// const NodeActivator = require('./node-activator');
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -105,46 +105,45 @@ const Scheduler = require('./CCScheduler');
  * @class Director
  * @extends EventTarget
  */
-cc.Director = function () {
-    EventTarget.call(this);
+class Director extends EventTarget {
+    constructor () {
+        super();
 
-    this.invalid = false;
-    // paused?
-    this._paused = false;
-    // purge?
-    this._purgeDirectorInNextLoop = false;
+        this.invalid = false;
+        // paused?
+        this._paused = false;
+        // purge?
+        this._purgeDirectorInNextLoop = false;
 
-    this._winSizeInPoints = null;
+        this._winSizeInPoints = null;
 
-    // scenes
-    this._loadingScene = '';
-    this._scene = null;
+        // scenes
+        this._loadingScene = '';
+        this._scene = null;
 
-    // FPS
-    this._totalFrames = 0;
-    this._lastUpdate = 0;
-    this._deltaTime = 0.0;
+        // FPS
+        this._totalFrames = 0;
+        this._lastUpdate = 0;
+        this._deltaTime = 0.0;
 
-    // Scheduler for user registration update
-    this._scheduler = null;
-    // Scheduler for life-cycle methods in component
-    this._compScheduler = null;
-    // Node activator
-    this._nodeActivator = null;
-    // Action manager
-    this._actionManager = null;
+        // Scheduler for user registration update
+        this._scheduler = null;
+        // Scheduler for life-cycle methods in component
+        this._compScheduler = null;
+        // Node activator
+        this._nodeActivator = null;
+        // Action manager
+        this._actionManager = null;
 
-    var self = this;
-    game.on(game.EVENT_SHOW, function () {
-        self._lastUpdate = performance.now();
-    });
+        var self = this;
+        game.on(game.EVENT_SHOW, function () {
+            self._lastUpdate = performance.now();
+        });
 
-    game.once(game.EVENT_ENGINE_INITED, this.init, this);
-};
+        game.once(game.EVENT_ENGINE_INITED, this.init, this);
+    }
 
-cc.Director.prototype = {
-    constructor: cc.Director,
-    init: function () {
+    init () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -161,13 +160,13 @@ cc.Director.prototype = {
 
         this.sharedInit();
         return true;
-    },
+    }
 
     /*
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
      */
-    sharedInit: function () {
+    sharedInit () {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
@@ -209,12 +208,12 @@ cc.Director.prototype = {
         }
 
         cc.loader.init(this);
-    },
+    }
 
     /**
      * calculates delta time since last time it was called
      */
-    calculateDeltaTime: function () {
+    calculateDeltaTime () {
         var now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
@@ -222,7 +221,7 @@ cc.Director.prototype = {
             this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
-    },
+    }
 
     /**
      * !#en
@@ -235,7 +234,7 @@ cc.Director.prototype = {
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToGL: function (uiPoint) {
+    convertToGL (uiPoint) {
         var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
@@ -244,7 +243,7 @@ cc.Director.prototype = {
         var x = view._devicePixelRatio * (uiPoint.x - left);
         var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
         return view._isRotated ? cc.v2(view._viewportRect.width - y, x) : cc.v2(x, y);
-    },
+    }
 
     /**
      * !#en
@@ -257,7 +256,7 @@ cc.Director.prototype = {
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToUI: function (glPoint) {
+    convertToUI (glPoint) {
         var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
@@ -273,15 +272,15 @@ cc.Director.prototype = {
             uiPoint.y = top + box.height - glPoint.y * view._devicePixelRatio;
         }
         return uiPoint;
-    },
+    }
 
     /**
      * End the life of director in the next frame
      * @method end
      */
-    end: function () {
+    end () {
         this._purgeDirectorInNextLoop = true;
-    },
+    }
 
     /**
      * !#en
@@ -292,9 +291,9 @@ cc.Director.prototype = {
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSize: function () {
+    getWinSize () {
         return cc.size(cc.winSize);
-    },
+    }
 
     /**
      * !#en
@@ -309,9 +308,9 @@ cc.Director.prototype = {
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSizeInPixels: function () {
+    getWinSizeInPixels () {
         return cc.size(cc.winSize);
-    },
+    }
 
     /**
      * !#en Pause the director's ticker, only involve the game logic execution.
@@ -322,24 +321,24 @@ cc.Director.prototype = {
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
      * @method pause
      */
-    pause: function () {
+    pause () {
         if (this._paused)
             return;
         this._paused = true;
-    },
+    }
 
     /**
      * Removes cached all cocos2d cached data.
      * @deprecated since v2.0
      */
-    purgeCachedData: function () {
+    purgeCachedData () {
         cc.loader.releaseAll();
-    },
+    }
 
     /**
      * Purge the cc.director itself, including unschedule all schedule, remove all event listeners, clean up and exit the running scene, stops all animations, clear cached data.
      */
-    purgeDirector: function () {
+    purgeDirector () {
         //cleanup scheduler
         this._scheduler.unscheduleAll();
         this._compScheduler.unscheduleAll();
@@ -363,12 +362,12 @@ cc.Director.prototype = {
 
         // Clear all caches
         cc.loader.releaseAll();
-    },
+    }
 
     /**
      * Reset the cc.director, can be used to restart the director after purge
      */
-    reset: function () {
+    reset () {
         this.purgeDirector();
 
         if (eventManager)
@@ -395,7 +394,7 @@ cc.Director.prototype = {
         }
 
         this.startAnimation();
-    },
+    }
 
     /**
      * !#en
@@ -407,7 +406,7 @@ cc.Director.prototype = {
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
-    runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
+    runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
         CC_BUILD && CC_DEBUG && console.time('InitScene');
@@ -452,7 +451,7 @@ cc.Director.prototype = {
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
-        Obj._deferredDestroy();
+        ccobject._deferredDestroy();
         CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
@@ -474,7 +473,7 @@ cc.Director.prototype = {
             onLaunched(null, scene);
         }
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
-    },
+    }
 
     /**
      * !#en
@@ -487,7 +486,7 @@ cc.Director.prototype = {
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      * @private
      */
-    runScene: function (scene, onBeforeLoadScene, onLaunched) {
+    runScene (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);
         cc.assertID(scene instanceof cc.Scene, 1216);
 
@@ -498,11 +497,11 @@ cc.Director.prototype = {
         this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         }, this);
-    },
+    }
 
     //  @Scene loading section
 
-    _getSceneUuid: function (key) {
+    _getSceneUuid (key) {
         var scenes = game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.fire')) {
@@ -531,7 +530,7 @@ cc.Director.prototype = {
             cc.errorID(1207, key);
         }
         return null;
-    },
+    }
 
     /**
      * !#en Loads the scene by its name.
@@ -542,7 +541,7 @@ cc.Director.prototype = {
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
      * @return {Boolean} if error, return false
      */
-    loadScene: function (sceneName, onLaunched, _onUnloaded) {
+    loadScene (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
             cc.errorID(1208, sceneName, this._loadingScene);
             return false;
@@ -559,7 +558,7 @@ cc.Director.prototype = {
             cc.errorID(1209, sceneName);
             return false;
         }
-    },
+    }
 
     /**
      * !#en
@@ -580,7 +579,7 @@ cc.Director.prototype = {
      * @param {Function} [onLoaded] - callback, will be called after scene loaded.
      * @param {Error} onLoaded.error - null or the error object.
      */
-    preloadScene: function (sceneName, onProgress, onLoaded) {
+    preloadScene (sceneName, onProgress, onLoaded) {
         if (onLoaded === undefined) {
             onLoaded = onProgress;
             onProgress = null;
@@ -605,7 +604,7 @@ cc.Director.prototype = {
             onLoaded(new Error(error));
             cc.error('preloadScene: ' + error);
         }
-    },
+    }
 
     /**
      * Loads the scene by its uuid.
@@ -617,7 +616,7 @@ cc.Director.prototype = {
      *                                   only take effect in the Editor.
      * @private
      */
-    _loadSceneByUuid: function (uuid, onLaunched, onUnloaded, dontRunScene) {
+    _loadSceneByUuid (uuid, onLaunched, onUnloaded, dontRunScene) {
         if (CC_EDITOR) {
             if (typeof onLaunched === 'boolean') {
                 dontRunScene = onLaunched;
@@ -668,14 +667,14 @@ cc.Director.prototype = {
                 onLaunched(error);
             }
         });
-    },
+    }
 
     /**
      * !#en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
      * !#zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
-    resume: function () {
+    resume () {
         if (!this._paused) {
             return;
         }
@@ -687,7 +686,7 @@ cc.Director.prototype = {
 
         this._paused = false;
         this._deltaTime = 0;
-    },
+    }
 
     /**
      * !#en
@@ -698,12 +697,12 @@ cc.Director.prototype = {
      * @param {Boolean} on
      * @deprecated since v2.0
      */
-    setDepthTest: function (value) {
+    setDepthTest (value) {
         if (!cc.Camera.main) {
             return;
         }
         cc.Camera.main.depth = !!value;
-    },
+    }
 
     /**
      * !#en
@@ -716,12 +715,12 @@ cc.Director.prototype = {
      * @param {Color} clearColor
      * @deprecated since v2.0
      */
-    setClearColor: function (clearColor) {
+    setClearColor (clearColor) {
         if (!cc.Camera.main) {
             return;
         }
         cc.Camera.main.backgroundColor = clearColor;
-    },
+    }
 
     /**
      * !#en Returns current logic Scene.
@@ -731,9 +730,9 @@ cc.Director.prototype = {
      * @return {Scene}
      * @deprecated since v2.0
      */
-    getRunningScene: function () {
+    getRunningScene () {
         return this._scene;
-    },
+    }
 
     /**
      * !#en Returns current logic Scene.
@@ -744,9 +743,9 @@ cc.Director.prototype = {
      *  // This will help you to get the Canvas node in scene
      *  cc.director.getScene().getChildByName('Canvas');
      */
-    getScene: function () {
+    getScene () {
         return this._scene;
-    },
+    }
 
     /**
      * !#en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
@@ -755,9 +754,9 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      * @return {Number}
      */
-    getAnimationInterval: function () {
+    getAnimationInterval () {
         return 1000 / game.getFrameRate();
-    },
+    }
 
     /**
      * Sets animation interval, this doesn't control the main loop.
@@ -766,9 +765,9 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      * @param {Number} value - The animation interval desired.
      */
-    setAnimationInterval: function (value) {
+    setAnimationInterval (value) {
         game.setFrameRate(Math.round(1000 / value));
-    },
+    }
 
     /**
      * !#en Returns the delta time since last frame.
@@ -776,9 +775,9 @@ cc.Director.prototype = {
      * @method getDeltaTime
      * @return {Number}
      */
-    getDeltaTime: function () {
+    getDeltaTime () {
         return this._deltaTime;
-    },
+    }
 
     /**
      * !#en Returns how many frames were called since the director started.
@@ -786,9 +785,9 @@ cc.Director.prototype = {
      * @method getTotalFrames
      * @return {Number}
      */
-    getTotalFrames: function () {
+    getTotalFrames () {
         return this._totalFrames;
-    },
+    }
 
     /**
      * !#en Returns whether or not the Director is paused.
@@ -796,9 +795,9 @@ cc.Director.prototype = {
      * @method isPaused
      * @return {Boolean}
      */
-    isPaused: function () {
+    isPaused () {
         return this._paused;
-    },
+    }
 
     /**
      * !#en Returns the cc.Scheduler associated with this director.
@@ -806,9 +805,9 @@ cc.Director.prototype = {
      * @method getScheduler
      * @return {Scheduler}
      */
-    getScheduler: function () {
+    getScheduler () {
         return this._scheduler;
-    },
+    }
 
     /**
      * !#en Sets the cc.Scheduler associated with this director.
@@ -816,11 +815,11 @@ cc.Director.prototype = {
      * @method setScheduler
      * @param {Scheduler} scheduler
      */
-    setScheduler: function (scheduler) {
+    setScheduler (scheduler) {
         if (this._scheduler !== scheduler) {
             this._scheduler = scheduler;
         }
-    },
+    }
 
     /**
      * !#en Returns the cc.ActionManager associated with this director.
@@ -828,16 +827,16 @@ cc.Director.prototype = {
      * @method getActionManager
      * @return {ActionManager}
      */
-    getActionManager: function () {
+    getActionManager () {
         return this._actionManager;
-    },
+    }
     /**
      * !#en Sets the cc.ActionManager associated with this director.
      * !#zh 设置和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method setActionManager
      * @param {ActionManager} actionManager
      */
-    setActionManager: function (actionManager) {
+    setActionManager (actionManager) {
         if (this._actionManager !== actionManager) {
             if (this._actionManager) {
                 this._scheduler.unscheduleUpdate(this._actionManager);
@@ -845,7 +844,7 @@ cc.Director.prototype = {
             this._actionManager = actionManager;
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
-    },
+    }
 
     /* 
      * !#en Returns the cc.AnimationManager associated with this director.
@@ -853,9 +852,9 @@ cc.Director.prototype = {
      * @method getAnimationManager
      * @return {AnimationManager}
      */
-    getAnimationManager: function () {
+    getAnimationManager () {
         return this._animationManager;
-    },
+    }
 
     /**
      * !#en Returns the cc.CollisionManager associated with this director.
@@ -863,9 +862,9 @@ cc.Director.prototype = {
      * @method getCollisionManager
      * @return {CollisionManager}
      */
-    getCollisionManager: function () {
+    getCollisionManager () {
         return this._collisionManager;
-    },
+    }
 
     /**
      * !#en Returns the cc.PhysicsManager associated with this director.
@@ -873,58 +872,30 @@ cc.Director.prototype = {
      * @method getPhysicsManager
      * @return {PhysicsManager}
      */
-    getPhysicsManager: function () {
+    getPhysicsManager () {
         return this._physicsManager;
-    },
+    }
 
     // Loop management
     /*
      * Starts Animation
      */
-    startAnimation: function () {
+    startAnimation () {
         this.invalid = false;
         this._lastUpdate = performance.now();
-    },
+    }
 
     /*
      * Stops animation
      */
-    stopAnimation: function () {
+    stopAnimation () {
         this.invalid = true;
-    },
+    }
 
     /*
      * Run main loop of director
      */
-    mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
-        this._deltaTime = deltaTime;
-
-        // Update
-        if (!this._paused) {
-            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-
-            this._compScheduler.startPhase();
-            this._compScheduler.updatePhase(deltaTime);
-
-            if (updateAnimate) {
-                this._scheduler.update(deltaTime);
-            }
-
-            this._compScheduler.lateUpdatePhase(deltaTime);
-
-            this.emit(cc.Director.EVENT_AFTER_UPDATE);
-        }
-
-        // Render
-        this.emit(cc.Director.EVENT_BEFORE_DRAW);
-        renderer.render(this._scene);
-        
-        // After draw
-        this.emit(cc.Director.EVENT_AFTER_DRAW);
-
-        this._totalFrames++;
-
-    } : function () {
+    mainLoop () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
@@ -947,7 +918,7 @@ cc.Director.prototype = {
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
-                Obj._deferredDestroy();
+                ccobject._deferredDestroy();
             }
 
             // Render
@@ -960,29 +931,16 @@ cc.Director.prototype = {
             eventManager.frameUpdateListeners();
             this._totalFrames++;
         }
-    },
+    }
 
-    __fastOn: function (type, callback, target) {
+    __fastOn (type, callback, target) {
         this.add(type, callback, target);
-    },
+    }
 
-    __fastOff: function (type, callback, target) {
+    __fastOff (type, callback, target) {
         this.remove(type, callback, target);
-    },
-};
-
-// Event target
-cc.js.addon(cc.Director.prototype, EventTarget.prototype);
-
-/**
- * !#en The event projection changed of cc.Director. This event will not get triggered since v2.0
- * !#zh cc.Director 投影变化的事件。从 v2.0 开始这个事件不会再被触发
- * @property {String} EVENT_PROJECTION_CHANGED
- * @readonly
- * @static
- * @deprecated since v2.0
- */
-cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
+    }
+}
 
 /**
  * !#en The event which will be triggered before loading a new scene.
@@ -997,7 +955,7 @@ cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
  * @readonly
  * @static
  */
-cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
+Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 
 /*
  * !#en The event which will be triggered before launching a new scene.
@@ -1012,7 +970,7 @@ cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
  * @readonly
  * @static
  */
-cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
+Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
  * !#en The event which will be triggered after launching a new scene.
@@ -1027,7 +985,7 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
  * @readonly
  * @static
  */
-cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
+Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
 /**
  * !#en The event which will be triggered at the beginning of every frame.
@@ -1041,7 +999,7 @@ cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
  * @readonly
  * @static
  */
-cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
+Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
 /**
  * !#en The event which will be triggered after engine and components update logic.
@@ -1055,27 +1013,7 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
  * @readonly
  * @static
  */
-cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
-
-/**
- * !#en The event is deprecated since v2.0, please use cc.Director.EVENT_BEFORE_DRAW instead
- * !#zh 这个事件从 v2.0 开始被废弃，请直接使用 cc.Director.EVENT_BEFORE_DRAW
- * @property {String} EVENT_BEFORE_VISIT
- * @readonly
- * @deprecated since v2.0
- * @static
- */
-cc.Director.EVENT_BEFORE_VISIT = "director_before_draw";
-
-/**
- * !#en The event is deprecated since v2.0, please use cc.Director.EVENT_BEFORE_DRAW instead
- * !#zh 这个事件从 v2.0 开始被废弃，请直接使用 cc.Director.EVENT_BEFORE_DRAW
- * @property {String} EVENT_AFTER_VISIT
- * @readonly
- * @deprecated since v2.0
- * @static
- */
-cc.Director.EVENT_AFTER_VISIT = "director_before_draw";
+Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
  * !#en The event which will be triggered before the rendering process.
@@ -1089,7 +1027,7 @@ cc.Director.EVENT_AFTER_VISIT = "director_before_draw";
  * @readonly
  * @static
  */
-cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
+Director.EVENT_BEFORE_DRAW = "director_before_draw";
 
 /**
  * !#en The event which will be triggered after the rendering process.
@@ -1103,49 +1041,7 @@ cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
  * @readonly
  * @static
  */
-cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
-
-//Possible OpenGL projections used by director
-
-/**
- * Constant for 2D projection (orthogonal projection)
- * @property {Number} PROJECTION_2D
- * @default 0
- * @readonly
- * @static
- * @deprecated since v2.0
- */
-cc.Director.PROJECTION_2D = 0;
-
-/**
- * Constant for 3D projection with a fovy=60, znear=0.5f and zfar=1500.
- * @property {Number} PROJECTION_3D
- * @default 1
- * @readonly
- * @static
- * @deprecated since v2.0
- */
-cc.Director.PROJECTION_3D = 1;
-
-/**
- * Constant for custom projection, if cc.Director's projection set to it, it calls "updateProjection" on the projection delegate.
- * @property {Number} PROJECTION_CUSTOM
- * @default 3
- * @readonly
- * @static
- * @deprecated since v2.0
- */
-cc.Director.PROJECTION_CUSTOM = 3;
-
-/**
- * Constant for default projection of cc.Director, default projection is 2D projection
- * @property {Number} PROJECTION_DEFAULT
- * @default cc.Director.PROJECTION_2D
- * @readonly
- * @static
- * @deprecated since v2.0
- */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
+Director.EVENT_AFTER_DRAW = "director_after_draw";
 
 /**
  * @module cc
@@ -1157,6 +1053,6 @@ cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
  * @property director
  * @type {Director}
  */
-cc.director = new cc.Director();
-
-module.exports = cc.director;
+let director = cc.director = new Director();
+cc.Director = Director;
+export default director;
