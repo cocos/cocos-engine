@@ -860,7 +860,7 @@ var Node = cc.Class({
 
         /**
          * !#en Skew x
-         * !#zh 该节点 Y 轴倾斜角度。
+         * !#zh 该节点 X 轴倾斜角度。
          * @property skewX
          * @type {Number}
          * @example
@@ -880,7 +880,7 @@ var Node = cc.Class({
 
         /**
          * !#en Skew y
-         * !#zh 该节点 X 轴倾斜角度。
+         * !#zh 该节点 Y 轴倾斜角度。
          * @property skewY
          * @type {Number}
          * @example
@@ -2296,7 +2296,7 @@ var Node = cc.Class({
      * Set world position.
      * This is not a public API yet, its usage could be updated
      * @method setWorldPos
-     * @param {vec3} pos
+     * @param {Vec3} pos
      */
     setWorldPos (pos) {
         // NOTE: this is faster than invert world matrix and transform the point
