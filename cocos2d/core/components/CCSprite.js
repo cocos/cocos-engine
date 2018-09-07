@@ -487,14 +487,12 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 if (!this._graySpriteMaterial) {
                     this._graySpriteMaterial = new GraySpriteMaterial();
-                    this.node._renderFlag |= RenderFlow.FLAG_COLOR;
                 }
                 material = this._graySpriteMaterial;
             }
             else {
                 if (!this._spriteMaterial) {
                     this._spriteMaterial = new SpriteMaterial();
-                    this.node._renderFlag |= RenderFlow.FLAG_COLOR;
                 }
                 material = this._spriteMaterial;
             }
@@ -512,6 +510,7 @@ var Sprite = cc.Class({
                     this._renderData.material = material;
                 }
 
+                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
                 this.markForUpdateRenderData(true);
                 this.markForRender(true);
             }
