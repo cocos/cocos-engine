@@ -256,7 +256,7 @@ export default class Color extends ValueType {
         var ret = new Color();
         ret._val = this._val;
         return ret;
-    };
+    }
 
     /**
      * !#en TODO
@@ -273,7 +273,7 @@ export default class Color extends ValueType {
      */
     equals (other) {
         return other && this._val === other._val;
-    };
+    }
 
     /**
      * !#en TODO
@@ -296,7 +296,7 @@ export default class Color extends ValueType {
         out.b = b + (to.b - b) * ratio;
         out.a = a + (to.a - a) * ratio;
         return out;
-    };
+    }
 
     /**
      * !#en TODO
@@ -313,7 +313,7 @@ export default class Color extends ValueType {
             this.g.toFixed() + ", " +
             this.b.toFixed() + ", " +
             this.a.toFixed() + ")";
-    };
+    }
 
     /**
      * !#en Convert color to css format.

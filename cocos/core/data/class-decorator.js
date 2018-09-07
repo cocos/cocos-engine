@@ -708,7 +708,7 @@ function mixins () {
     }
 }
 
-cc._decorator = module.exports = {
+cc._decorator = {
     ccclass,
     property,
     executeInEditMode,

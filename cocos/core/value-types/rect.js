@@ -103,7 +103,7 @@ export default class Rect extends ValueType {
      */
     clone () {
         return new Rect(this.x, this.y, this.width, this.height);
-    };
+    }
 
     /**
      * !#en TODO
@@ -122,7 +122,7 @@ export default class Rect extends ValueType {
             this.y === other.y &&
             this.width === other.width &&
             this.height === other.height;
-    };
+    }
 
     /**
      * !#en TODO
@@ -153,14 +153,14 @@ export default class Rect extends ValueType {
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
         return out;
-    };
+    }
 
     set (source) {
         this.x = source.x;
         this.y = source.y;
         this.width = source.width;
         this.height = source.height;
-    };
+    }
 
     /**
      * !#en Check whether the current rectangle intersects with the given one
@@ -179,7 +179,7 @@ export default class Rect extends ValueType {
             maxbx = rect.x + rect.width,
             maxby = rect.y + rect.height;
         return !(maxax < rect.x || maxbx < this.x || maxay < rect.y || maxby < this.y);
-    };
+    }
 
     /**
      * !#en Returns the overlapping portion of 2 rectangles.
@@ -202,7 +202,7 @@ export default class Rect extends ValueType {
         out.width = Math.min(axMax, bxMax) - out.x;
         out.height = Math.min(ayMax, byMax) - out.y;
         return out;
-    };
+    }
 
     /**
      * !#en Check whether the current rect contains the given point
@@ -221,7 +221,7 @@ export default class Rect extends ValueType {
                 this.x + this.width >= point.x &&
                 this.y <= point.y &&
                 this.y + this.height >= point.y);
-    };
+    }
 
     /**
      * !#en Returns true if the other rect totally inside this rectangle.
@@ -239,7 +239,7 @@ export default class Rect extends ValueType {
                 this.x + this.width >= rect.x + rect.width &&
                 this.y <= rect.y &&
                 this.y + this.height >= rect.y + rect.height);
-    };
+    }
 
     /**
      * !#en Returns the smallest rectangle that contains the current rect and the given rect.
@@ -262,7 +262,7 @@ export default class Rect extends ValueType {
         out.width = Math.max(ax + aw, bx + bw) - out.x;
         out.height = Math.max(ay + ah, by + bh) - out.y;
         return out;
-    };
+    }
 
     /**
      * !#en Apply matrix4 to the rect.
@@ -295,7 +295,7 @@ export default class Rect extends ValueType {
         out.width = maxX - minX;
         out.height = maxY - minY;
         return out;
-    };
+    }
 
     /**
      * !#en Output rect informations to string
@@ -309,7 +309,7 @@ export default class Rect extends ValueType {
     toString () {
         return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ', ' + this.width.toFixed(2) +
             ', ' + this.height.toFixed(2) + ')';
-    };
+    }
 
     /**
      * !#en The minimum x value, equals to rect.x

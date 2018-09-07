@@ -357,7 +357,7 @@ export default class Mat4 extends ValueType {
     fromQuat (quat) {
         return mat4.fromQuat(this, quat);
     }
-};
+}
 
 CCClass.fastDefine('cc.Mat4', Mat4, { 
     m00: 1, m01: 0, m02: 0, m03: 0,
