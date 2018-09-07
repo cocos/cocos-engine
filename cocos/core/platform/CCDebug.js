@@ -35,7 +35,7 @@ let logList;
 
 cc.log = cc.warn = cc.error = cc.assert = console.log;
 
-let resetDebugSetting = function (mode) {
+let _resetDebugSetting = function (mode) {
     // reset
     cc.log = cc.warn = cc.error = cc.assert = function () {};
 
@@ -264,10 +264,18 @@ cc.assertID = function (cond) {
 };
 
 /**
-* !#en Enum for debug modes.
-* !#zh 调试模式
-* @enum debug.DebugMode
-* @memberof cc
+ * !#en An object to boot the game.
+ * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
+ * @class debug
+ * @main
+ * @static
+ */
+
+/**
+ * !#en Enum for debug modes.
+ * !#zh 调试模式
+ * @enum debug.DebugMode
+ * @memberof cc
  */
 var DebugMode = cc.Enum({
     /**
@@ -327,17 +335,14 @@ var DebugMode = cc.Enum({
      */
     ERROR_FOR_WEB_PAGE: 6
 });
+
 /**
- * !#en An object to boot the game.
- * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class debug
- * @main
- * @static
+ * @module debug
  */
-module.exports = cc.debug = {
+export default debug = {
     DebugMode: DebugMode,
 
-    _resetDebugSetting: resetDebugSetting,
+    _resetDebugSetting,
 
     /**
      * !#en Gets error message with the error id and possible parameters.
@@ -347,7 +352,7 @@ module.exports = cc.debug = {
      * @param {any} [param]
      * @return {String}
      */
-    getError: getTypedFormatter('ERROR'),
+    getError: errorFormatter,
 
     /**
      * !#en Returns whether or not to display the FPS informations.
@@ -372,3 +377,5 @@ module.exports = cc.debug = {
         }
     },
 }
+
+cc.debug = debug;

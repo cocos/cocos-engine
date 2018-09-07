@@ -24,21 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./js');
-require('./CCClass');
-require('./CCClassDecorator');
-require('./CCEnum');
-require('./CCObject');
-require('./callbacks-invoker');
-require('./url');
-require('./deserialize');
-require('./instantiate');
-require('./instantiate-jit');
-require('./requiring-frame');
-require('./CCSys');
-require('./CCMacro');
-
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./CCAssetLibrary');
-    require('./CCVisibleRect');
-}
+export * from './CCSys';
+export * from './CCMacro';
+export * from './CCVisibleRect';
+export * from './CCView';
+export * from './event-manager';

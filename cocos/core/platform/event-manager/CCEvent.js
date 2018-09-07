@@ -24,182 +24,181 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = cc.js;
-
-require('../event/event');
+import Event from '../../event/event';
 
 /**
  * !#en The mouse event
  * !#zh 鼠标事件类型
  * @class Event.EventMouse
- *
  * @extends Event
- * @param {Number} eventType - The mouse event type, UP, DOWN, MOVE, CANCELED
- * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
  */
-var EventMouse = function (eventType, bubbles) {
-    cc.Event.call(this, cc.Event.MOUSE, bubbles);
-    this._eventType = eventType;
-    this._button = 0;
-    this._x = 0;
-    this._y = 0;
-    this._prevX = 0;
-    this._prevY = 0;
-    this._scrollX = 0;
-    this._scrollY = 0;
-};
+export class EventMouse extends Event {
+    /**
+     * @method constructor
+     * @param {Number} eventType - The mouse event type, UP, DOWN, MOVE, CANCELED
+     * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
+     */
+    constructor (eventType, bubbles) {
+        super(cc.Event.MOUSE, bubbles);
+        this._eventType = eventType;
+        this._button = 0;
+        this._x = 0;
+        this._y = 0;
+        this._prevX = 0;
+        this._prevY = 0;
+        this._scrollX = 0;
+        this._scrollY = 0;
+    }
 
-js.extend(EventMouse, cc.Event);
-var proto = EventMouse.prototype;
+    /**
+     * !#en Sets scroll data.
+     * !#zh 设置鼠标的滚动数据。
+     * @method setScrollData
+     * @param {Number} scrollX
+     * @param {Number} scrollY
+     */
+    setScrollData (scrollX, scrollY) {
+        this._scrollX = scrollX;
+        this._scrollY = scrollY;
+    }
 
-/**
- * !#en Sets scroll data.
- * !#zh 设置鼠标的滚动数据。
- * @method setScrollData
- * @param {Number} scrollX
- * @param {Number} scrollY
- */
-proto.setScrollData = function (scrollX, scrollY) {
-    this._scrollX = scrollX;
-    this._scrollY = scrollY;
-};
+    /**
+     * !#en Returns the x axis scroll value.
+     * !#zh 获取鼠标滚动的X轴距离，只有滚动时才有效。
+     * @method getScrollX
+     * @returns {Number}
+     */
+    getScrollX () {
+        return this._scrollX;
+    }
 
-/**
- * !#en Returns the x axis scroll value.
- * !#zh 获取鼠标滚动的X轴距离，只有滚动时才有效。
- * @method getScrollX
- * @returns {Number}
- */
-proto.getScrollX = function () {
-    return this._scrollX;
-};
+    /**
+     * !#en Returns the y axis scroll value.
+     * !#zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
+     * @method getScrollY
+     * @returns {Number}
+     */
+    getScrollY () {
+        return this._scrollY;
+    }
 
-/**
- * !#en Returns the y axis scroll value.
- * !#zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
- * @method getScrollY
- * @returns {Number}
- */
-proto.getScrollY = function () {
-    return this._scrollY;
-};
+    /**
+     * !#en Sets cursor location.
+     * !#zh 设置当前鼠标位置。
+     * @method setLocation
+     * @param {Number} x
+     * @param {Number} y
+     */
+    setLocation (x, y) {
+        this._x = x;
+        this._y = y;
+    }
 
-/**
- * !#en Sets cursor location.
- * !#zh 设置当前鼠标位置。
- * @method setLocation
- * @param {Number} x
- * @param {Number} y
- */
-proto.setLocation = function (x, y) {
-    this._x = x;
-    this._y = y;
-};
+    /**
+     * !#en Returns cursor location.
+     * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
+     * @method getLocation
+     * @return {Vec2} location
+     */
+    getLocation () {
+        return cc.v2(this._x, this._y);
+    }
 
-/**
- * !#en Returns cursor location.
- * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
- * @method getLocation
- * @return {Vec2} location
- */
-proto.getLocation = function () {
-    return cc.v2(this._x, this._y);
-};
+    /**
+     * !#en Returns the current cursor location in screen coordinates.
+     * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
+     * @method getLocationInView
+     * @return {Vec2}
+     */
+    getLocationInView() {
+        return cc.v2(this._x, cc.view._designResolutionSize.height - this._y);
+    }
 
-/**
- * !#en Returns the current cursor location in screen coordinates.
- * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
- * @method getLocationInView
- * @return {Vec2}
- */
-proto.getLocationInView = function() {
-    return cc.v2(this._x, cc.view._designResolutionSize.height - this._y);
-};
+    _setPrevCursor (x, y) {
+        this._prevX = x;
+        this._prevY = y;
+    }
 
-proto._setPrevCursor = function (x, y) {
-    this._prevX = x;
-    this._prevY = y;
-};
+    /**
+     * !#en Returns the previous touch location.
+     * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @method getPreviousLocation
+     * @return {Vec2}
+     */
+    getPreviousLocation () {
+        return cc.v2(this._prevX, this._prevY);
+    }
 
-/**
- * !#en Returns the previous touch location.
- * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
- * @method getPreviousLocation
- * @return {Vec2}
- */
-proto.getPreviousLocation = function () {
-    return cc.v2(this._prevX, this._prevY);
-};
+    /**
+     * !#en Returns the delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @method getDelta
+     * @return {Vec2}
+     */
+    getDelta () {
+        return cc.v2(this._x - this._prevX, this._y - this._prevY);
+    }
 
-/**
- * !#en Returns the delta distance from the previous location to current location.
- * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
- * @method getDelta
- * @return {Vec2}
- */
-proto.getDelta = function () {
-    return cc.v2(this._x - this._prevX, this._y - this._prevY);
-};
+    /**
+     * !#en Returns the X axis delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
+     * @method getDeltaX
+     * @return {Number}
+     */
+    getDeltaX () {
+        return this._x - this._prevX;
+    }
 
-/**
- * !#en Returns the X axis delta distance from the previous location to current location.
- * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
- * @method getDeltaX
- * @return {Number}
- */
-proto.getDeltaX = function () {
-    return this._x - this._prevX;
-};
+    /**
+     * !#en Returns the Y axis delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
+     * @method getDeltaY
+     * @return {Number}
+     */
+    getDeltaY () {
+        return this._y - this._prevY;
+    }
 
-/**
- * !#en Returns the Y axis delta distance from the previous location to current location.
- * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
- * @method getDeltaY
- * @return {Number}
- */
-proto.getDeltaY = function () {
-    return this._y - this._prevY;
-};
+    /**
+     * !#en Sets mouse button.
+     * !#zh 设置鼠标按键。
+     * @method setButton
+     * @param {Number} button
+     */
+    setButton (button) {
+        this._button = button;
+    }
 
-/**
- * !#en Sets mouse button.
- * !#zh 设置鼠标按键。
- * @method setButton
- * @param {Number} button
- */
-proto.setButton = function (button) {
-    this._button = button;
-};
+    /**
+     * !#en Returns mouse button.
+     * !#zh 获取鼠标按键。
+     * @method getButton
+     * @returns {Number}
+     */
+    getButton () {
+        return this._button;
+    }
 
-/**
- * !#en Returns mouse button.
- * !#zh 获取鼠标按键。
- * @method getButton
- * @returns {Number}
- */
-proto.getButton = function () {
-    return this._button;
-};
+    /**
+     * !#en Returns location X axis data.
+     * !#zh 获取鼠标当前位置 X 轴。
+     * @method getLocationX
+     * @returns {Number}
+     */
+    getLocationX () {
+        return this._x;
+    }
 
-/**
- * !#en Returns location X axis data.
- * !#zh 获取鼠标当前位置 X 轴。
- * @method getLocationX
- * @returns {Number}
- */
-proto.getLocationX = function () {
-    return this._x;
-};
-
-/**
- * !#en Returns location Y axis data.
- * !#zh 获取鼠标当前位置 Y 轴。
- * @method getLocationY
- * @returns {Number}
- */
-proto.getLocationY = function () {
-    return this._y;
-};
+    /**
+     * !#en Returns location Y axis data.
+     * !#zh 获取鼠标当前位置 Y 轴。
+     * @method getLocationY
+     * @returns {Number}
+     */
+    getLocationY () {
+        return this._y;
+    }
+}
 
 //Inner event types of MouseEvent
 /**
@@ -322,168 +321,167 @@ EventMouse.BUTTON_8 = 7;
  * @constructor
  * @extends Event
  */
-/**
- * @method constructor
- * @param {Array} touchArr - The array of the touches
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- */
-var EventTouch = function (touchArr, bubbles) {
-    cc.Event.call(this, cc.Event.TOUCH, bubbles);
-    this._eventCode = 0;
-    this._touches = touchArr || [];
+export class EventTouch extends Event {
     /**
-     * !#en The current touch object
-     * !#zh 当前触点对象
-     * @property touch
-     * @type {Touch}
+     * @method constructor
+     * @param {Array} touchArr - The array of the touches
+     * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    this.touch = null;
-    // Actually duplicated, because of history issue, currentTouch was in the original design, touch was added in creator engine
-    // They should point to the same object
-    this.currentTouch = null;
-};
+    constructor (touchArr, bubbles) {
+        cc.Event.call(this, cc.Event.TOUCH, bubbles);
+        this._eventCode = 0;
+        this._touches = touchArr || [];
+        /**
+         * !#en The current touch object
+         * !#zh 当前触点对象
+         * @property touch
+         * @type {Touch}
+         */
+        this.touch = null;
+        // Actually duplicated, because of history issue, currentTouch was in the original design, touch was added in creator engine
+        // They should point to the same object
+        this.currentTouch = null;
+    }
 
-js.extend(EventTouch, cc.Event);
-proto = EventTouch.prototype;
+    /**
+     * !#en Returns event code.
+     * !#zh 获取事件类型。
+     * @method getEventCode
+     * @returns {Number}
+     */
+    getEventCode () {
+        return this._eventCode;
+    }
 
-/**
- * !#en Returns event code.
- * !#zh 获取事件类型。
- * @method getEventCode
- * @returns {Number}
- */
-proto.getEventCode = function () {
-    return this._eventCode;
-};
+    /**
+     * !#en Returns touches of event.
+     * !#zh 获取触摸点的列表。
+     * @method getTouches
+     * @returns {Array}
+     */
+    getTouches () {
+        return this._touches;
+    }
 
-/**
- * !#en Returns touches of event.
- * !#zh 获取触摸点的列表。
- * @method getTouches
- * @returns {Array}
- */
-proto.getTouches = function () {
-    return this._touches;
-};
+    _setEventCode (eventCode) {
+        this._eventCode = eventCode;
+    }
 
-proto._setEventCode = function (eventCode) {
-    this._eventCode = eventCode;
-};
+    _setTouches (touches) {
+        this._touches = touches;
+    }
 
-proto._setTouches = function (touches) {
-    this._touches = touches;
-};
+    /**
+     * !#en Sets touch location.
+     * !#zh 设置当前触点位置
+     * @method setLocation
+     * @param {Number} x
+     * @param {Number} y
+     */
+    setLocation (x, y) {
+        this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
+    }
 
-/**
- * !#en Sets touch location.
- * !#zh 设置当前触点位置
- * @method setLocation
- * @param {Number} x
- * @param {Number} y
- */
-proto.setLocation = function (x, y) {
-    this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
-};
+    /**
+     * !#en Returns touch location.
+     * !#zh 获取触点位置。
+     * @method getLocation
+     * @return {Vec2} location
+     */
+    getLocation () {
+        return this.touch ? this.touch.getLocation() : cc.v2();
+    }
 
-/**
- * !#en Returns touch location.
- * !#zh 获取触点位置。
- * @method getLocation
- * @return {Vec2} location
- */
-proto.getLocation = function () {
-    return this.touch ? this.touch.getLocation() : cc.v2();
-};
+    /**
+     * !#en Returns the current touch location in screen coordinates.
+     * !#zh 获取当前触点在游戏窗口中的位置。
+     * @method getLocationInView
+     * @return {Vec2}
+     */
+    getLocationInView() {
+        return this.touch ? this.touch.getLocationInView() : cc.v2();
+    }
 
-/**
- * !#en Returns the current touch location in screen coordinates.
- * !#zh 获取当前触点在游戏窗口中的位置。
- * @method getLocationInView
- * @return {Vec2}
- */
-proto.getLocationInView = function() {
-    return this.touch ? this.touch.getLocationInView() : cc.v2();
-};
+    /**
+     * !#en Returns the previous touch location.
+     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @method getPreviousLocation
+     * @return {Vec2}
+     */
+    getPreviousLocation () {
+        return this.touch ? this.touch.getPreviousLocation() : cc.v2();
+    }
 
-/**
- * !#en Returns the previous touch location.
- * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
- * @method getPreviousLocation
- * @return {Vec2}
- */
-proto.getPreviousLocation = function () {
-    return this.touch ? this.touch.getPreviousLocation() : cc.v2();
-};
+    /**
+     * !#en Returns the start touch location.
+     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @method getStartLocation
+     * @returns {Vec2}
+     */
+    getStartLocation() {
+        return this.touch ? this.touch.getStartLocation() : cc.v2();
+    }
 
-/**
- * !#en Returns the start touch location.
- * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
- * @method getStartLocation
- * @returns {Vec2}
- */
-proto.getStartLocation = function() {
-    return this.touch ? this.touch.getStartLocation() : cc.v2();
-};
+    /**
+     * !#en Returns the id of cc.Touch.
+     * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
+     * @method getID
+     * @return {Number}
+     */
+    getID () {
+        return this.touch ? this.touch.getID() : null;
+    }
 
-/**
- * !#en Returns the id of cc.Touch.
- * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
- * @method getID
- * @return {Number}
- */
-proto.getID = function () {
-    return this.touch ? this.touch.getID() : null;
-};
+    /**
+     * !#en Returns the delta distance from the previous location to current location.
+     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @method getDelta
+     * @return {Vec2}
+     */
+    getDelta () {
+        return this.touch ? this.touch.getDelta() : cc.v2();
+    }
 
-/**
- * !#en Returns the delta distance from the previous location to current location.
- * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
- * @method getDelta
- * @return {Vec2}
- */
-proto.getDelta = function () {
-    return this.touch ? this.touch.getDelta() : cc.v2();
-};
+    /**
+     * !#en Returns the X axis delta distance from the previous location to current location.
+     * !#zh 获取触点距离上一次事件移动的 x 轴距离。
+     * @method getDeltaX
+     * @return {Number}
+     */
+    getDeltaX () {
+        return this.touch ? this.touch.getDelta().x : 0;
+    }
 
-/**
- * !#en Returns the X axis delta distance from the previous location to current location.
- * !#zh 获取触点距离上一次事件移动的 x 轴距离。
- * @method getDeltaX
- * @return {Number}
- */
-proto.getDeltaX = function () {
-    return this.touch ? this.touch.getDelta().x : 0;
-};
+    /**
+     * !#en Returns the Y axis delta distance from the previous location to current location.
+     * !#zh 获取触点距离上一次事件移动的 y 轴距离。
+     * @method getDeltaY
+     * @return {Number}
+     */
+    getDeltaY () {
+        return this.touch ? this.touch.getDelta().y : 0;
+    }
 
-/**
- * !#en Returns the Y axis delta distance from the previous location to current location.
- * !#zh 获取触点距离上一次事件移动的 y 轴距离。
- * @method getDeltaY
- * @return {Number}
- */
-proto.getDeltaY = function () {
-    return this.touch ? this.touch.getDelta().y : 0;
-};
+    /**
+     * !#en Returns location X axis data.
+     * !#zh 获取当前触点 X 轴位置。
+     * @method getLocationX
+     * @returns {Number}
+     */
+    getLocationX () {
+        return this.touch ? this.touch.getLocationX() : 0;
+    }
 
-/**
- * !#en Returns location X axis data.
- * !#zh 获取当前触点 X 轴位置。
- * @method getLocationX
- * @returns {Number}
- */
-proto.getLocationX = function () {
-    return this.touch ? this.touch.getLocationX() : 0;
-};
-
-/**
- * !#en Returns location Y axis data.
- * !#zh 获取当前触点 Y 轴位置。
- * @method getLocationY
- * @returns {Number}
- */
-proto.getLocationY = function () {
-    return this.touch ? this.touch.getLocationY() : 0;
-};
+    /**
+     * !#en Returns location Y axis data.
+     * !#zh 获取当前触点 Y 轴位置。
+     * @method getLocationY
+     * @returns {Number}
+     */
+    getLocationY () {
+        return this.touch ? this.touch.getLocationY() : 0;
+    }
+}
 
 /**
  * !#en The maximum touch numbers
@@ -527,50 +525,54 @@ EventTouch.CANCELED = 3;
  * !#zh 加速度事件
  * @class Event.EventAcceleration
  * @extends Event
- *
- * @param {Object} acc - The acceleration
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
-var EventAcceleration = function (acc, bubbles) {
-    cc.Event.call(this, cc.Event.ACCELERATION, bubbles);
-    this.acc = acc;
-};
-js.extend(EventAcceleration, cc.Event);
+export class EventAcceleration extends Event {
+    /**
+     * @method constructor
+     * @param {Object} acc - The acceleration
+     * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
+     */
+    constructor (acc, bubbles) {
+        cc.Event.call(this, cc.Event.ACCELERATION, bubbles);
+        this.acc = acc;
+    }
+}
 
 /**
  * !#en The keyboard event
  * !#zh 键盘事件
  * @class Event.EventKeyboard
  * @extends Event
- *
- * @param {Number} keyCode - The key code of which triggered this event
- * @param {Boolean} isPressed - A boolean indicating whether the key have been pressed
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
-var EventKeyboard = function (keyCode, isPressed, bubbles) {
-    cc.Event.call(this, cc.Event.KEYBOARD, bubbles);
+export class EventKeyboard extends Event {
     /**
-     * !#en
-     * The keyCode read-only property represents a system and implementation dependent numerical code identifying the unmodified value of the pressed key.
-     * This is usually the decimal ASCII (RFC 20) or Windows 1252 code corresponding to the key.
-     * If the key can't be identified, this value is 0.
-     *
-     * !#zh
-     * keyCode 是只读属性它表示一个系统和依赖于实现的数字代码，可以识别按键的未修改值。
-     * 这通常是十进制 ASCII (RFC20) 或者 Windows 1252 代码，所对应的密钥。
-     * 如果无法识别该键，则该值为 0。
-     *
-     * @property keyCode
-     * @type {Number}
+     * @method constructor
+     * @param {Number} keyCode - The key code of which triggered this event
+     * @param {Boolean} isPressed - A boolean indicating whether the key have been pressed
+     * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    this.keyCode = keyCode;
-    this.isPressed = isPressed;
-};
-js.extend(EventKeyboard, cc.Event);
+    constructor (keyCode, isPressed, bubbles) {
+        cc.Event.call(this, cc.Event.KEYBOARD, bubbles);
+        /**
+         * !#en
+         * The keyCode read-only property represents a system and implementation dependent numerical code identifying the unmodified value of the pressed key.
+         * This is usually the decimal ASCII (RFC 20) or Windows 1252 code corresponding to the key.
+         * If the key can't be identified, this value is 0.
+         *
+         * !#zh
+         * keyCode 是只读属性它表示一个系统和依赖于实现的数字代码，可以识别按键的未修改值。
+         * 这通常是十进制 ASCII (RFC20) 或者 Windows 1252 代码，所对应的密钥。
+         * 如果无法识别该键，则该值为 0。
+         *
+         * @property keyCode
+         * @type {Number}
+         */
+        this.keyCode = keyCode;
+        this.isPressed = isPressed;
+    }
+}
 
-cc.Event.EventMouse = EventMouse;
-cc.Event.EventTouch = EventTouch;
-cc.Event.EventAcceleration = EventAcceleration;
-cc.Event.EventKeyboard = EventKeyboard;
-
-module.exports = cc.Event;
+Event.EventMouse = EventMouse;
+Event.EventTouch = EventTouch;
+Event.EventAcceleration = EventAcceleration;
+Event.EventKeyboard = EventKeyboard;

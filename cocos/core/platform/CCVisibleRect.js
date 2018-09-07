@@ -30,8 +30,9 @@
  * it should represent the same rect as cc.view.getViewportRect()
  *
  * @class visibleRect
+ * @static
  */
-cc.visibleRect = {
+var visibleRect = {
     topLeft:cc.v2(0,0),
     topRight:cc.v2(0,0),
     top:cc.v2(0,0),
@@ -49,7 +50,7 @@ cc.visibleRect = {
      * @method init
      * @param {Rect} visibleRect
      */
-    init:function(visibleRect){
+    init: function(visibleRect){
 
         var w = this.width = visibleRect.width;
         var h = this.height = visibleRect.height;
@@ -142,4 +143,7 @@ cc.visibleRect = {
  * Height of the screen.
  * @property {Number} height
  */
+
+cc.visibleRect = visibleRect;
+export default visibleRect;
 

@@ -30,7 +30,7 @@
  * It's invalid on safari, QQbrowser and android browser
  * @class screen
  */
-cc.screen = /** @lends cc.screen# */{
+var screen = {
     _supportsFullScreen: false,
     // the pre fullscreenchange function
     _preOnFullScreenChange: null,
@@ -162,4 +162,8 @@ cc.screen = /** @lends cc.screen# */{
         touchTarget.addEventListener(this._touchEvent, callback);
     }
 };
-cc.screen.init();
+screen.init();
+
+cc.screen = screen;
+
+export default screen;

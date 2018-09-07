@@ -24,13 +24,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('./CCMacro');
-const sys = require('./CCSys');
-const eventManager = require('../event-manager');
+import macro from '../CCMacro';
+import sys from '../CCSys';
+import eventManager from './event-manager';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
+const PORTRAIT = 0;
+const LANDSCAPE_LEFT = -90;
+const PORTRAIT_UPSIDE_DOWN = 180;
+const LANDSCAPE_RIGHT = 90;
+
+let _didAccelerateFun;
 let _vec2 = cc.v2();
+
+/**
+ * !#en the device accelerometer reports values for each axis in units of g-force.
+ * !#zh 设备重力传感器传递的各个轴的数据。
+ * @class Acceleration
+ * @method constructor
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Number} timestamp
+ */
+let Acceleration = function (x, y, z, timestamp) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.timestamp = timestamp || 0;
+};
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
@@ -590,9 +613,130 @@ let inputManager = {
         this._isRegisterEvent = true;
     },
 
-    _registerKeyboardEvent () {},
+    /**
+     * whether enable accelerometer event
+     * @method setAccelerometerEnabled
+     * @param {Boolean} isEnable
+     */
+    setAccelerometerEnabled (isEnable) {
+        let _t = this;
+        if(_t._accelEnabled === isEnable)
+            return;
 
-    _registerAccelerometerEvent () {},
+        _t._accelEnabled = isEnable;
+        let scheduler = cc.director.getScheduler();
+        scheduler.enableForTarget(_t);
+        if (_t._accelEnabled) {
+            _t._registerAccelerometerEvent();
+            _t._accelCurTime = 0;
+            scheduler.scheduleUpdate(_t);
+        } else {
+            _t._unregisterAccelerometerEvent();
+            _t._accelCurTime = 0;
+            scheduler.unscheduleUpdate(_t);
+        }
+    },
+
+    /**
+     * set accelerometer interval value
+     * @method setAccelerometerInterval
+     * @param {Number} interval
+     */
+    setAccelerometerInterval (interval) {
+        if (this._accelInterval !== interval) {
+            this._accelInterval = interval;
+        }
+    },
+
+    _registerKeyboardEvent () {
+        cc.game.canvas.addEventListener("keydown", function (e) {
+            eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, true));
+            e.stopPropagation();
+            e.preventDefault();
+        }, false);
+        cc.game.canvas.addEventListener("keyup", function (e) {
+            eventManager.dispatchEvent(new cc.Event.EventKeyboard(e.keyCode, false));
+            e.stopPropagation();
+            e.preventDefault();
+        }, false);
+    },
+
+    _registerAccelerometerEvent () {
+        let w = window, _t = this;
+        _t._acceleration = new Acceleration();
+        _t._accelDeviceEvent = w.DeviceMotionEvent || w.DeviceOrientationEvent;
+
+        //TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_MOBILE_QQ)
+            _t._accelDeviceEvent = window.DeviceOrientationEvent;
+
+        let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+        let ua = navigator.userAgent;
+        if (/Android/.test(ua) || (/Adr/.test(ua) && cc.sys.browserType === cc.BROWSER_TYPE_UC)) {
+            _t._minus = -1;
+        }
+
+        _didAccelerateFun = _t.didAccelerate.bind(_t);
+        w.addEventListener(_deviceEventType, _didAccelerateFun, false);
+    },
+
+    _unregisterAccelerometerEvent () {
+        let w = window, _t = this;
+        let _deviceEventType = (_t._accelDeviceEvent === w.DeviceMotionEvent) ? "devicemotion" : "deviceorientation";
+        if (_didAccelerateFun) {
+            w.removeEventListener(_deviceEventType, _didAccelerateFun, false);
+        }
+    },
+
+    didAccelerate (eventData) {
+        let _t = this, w = window;
+        if (!_t._accelEnabled)
+            return;
+
+        let mAcceleration = _t._acceleration;
+
+        let x, y, z;
+
+        if (_t._accelDeviceEvent === window.DeviceMotionEvent) {
+            let eventAcceleration = eventData["accelerationIncludingGravity"];
+            x = _t._accelMinus * eventAcceleration.x * 0.1;
+            y = _t._accelMinus * eventAcceleration.y * 0.1;
+            z = eventAcceleration.z * 0.1;
+        } else {
+            x = (eventData["gamma"] / 90) * 0.981;
+            y = -(eventData["beta"] / 90) * 0.981;
+            z = (eventData["alpha"] / 90) * 0.981;
+        }
+
+        if (cc.view._isRotated) {
+            let tmp = x;
+            x = -y;
+            y = tmp;
+        }
+        mAcceleration.x = x;
+        mAcceleration.y = y;
+        mAcceleration.z = z;
+
+        mAcceleration.timestamp = eventData.timeStamp || Date.now();
+
+        let tmpX = mAcceleration.x;
+        if (w.orientation === LANDSCAPE_RIGHT) {
+            mAcceleration.x = -mAcceleration.y;
+            mAcceleration.y = tmpX;
+        } else if (w.orientation === LANDSCAPE_LEFT) {
+            mAcceleration.x = mAcceleration.y;
+            mAcceleration.y = -tmpX;
+        } else if (w.orientation === PORTRAIT_UPSIDE_DOWN) {
+            mAcceleration.x = -mAcceleration.x;
+            mAcceleration.y = -mAcceleration.y;
+        }
+        // fix android acc values are opposite
+        if (cc.sys.os === cc.sys.OS_ANDROID &&
+            cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
+            mAcceleration.x = -mAcceleration.x;
+            mAcceleration.y = -mAcceleration.y;
+        }
+    },
 
     /**
      * @method update
@@ -607,4 +751,5 @@ let inputManager = {
     }
 };
 
-module.exports = _cc.inputManager = inputManager;
+_cc.inputManager = inputManager;
+export default inputManager;

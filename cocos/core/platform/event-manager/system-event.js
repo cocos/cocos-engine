@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('../event/event-target');
-var eventManager = require('../event-manager');
-var inputManger = require('../platform/CCInputManager');;
+import EventTarget from '../../event/event-target';
+import eventManager from './CCEventManager';
+import inputManger from './CCInputManager';
 
 /**
  * !#en The event type supported by SystemEvent
@@ -63,15 +63,15 @@ var EventType = cc.Enum({
 
 });
 
+var keyboardListener = null;
+var accelerationListener = null;
+
 /**
  * !#en The System event, it currently supports the key events and accelerometer events
  * !#zh 系统事件，它目前支持按键事件和重力感应事件
  * @class SystemEvent
  * @extends EventTarget
  */
-
-var keyboardListener = null;
-var accelerationListener = null;
 var SystemEvent = cc.Class({
     name: 'SystemEvent',
     extends: EventTarget,
@@ -161,7 +161,7 @@ var SystemEvent = cc.Class({
 
 });
 
-cc.SystemEvent = module.exports = SystemEvent;
+cc.SystemEvent = SystemEvent;
 if (!CC_EDITOR) {
 /** 
  * @module cc
