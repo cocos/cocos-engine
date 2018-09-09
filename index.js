@@ -31,4 +31,6 @@ import cc from './predefine';
 // LOAD ENGINE CORE
 import './cocos/core';
 
+import './cocos/assets';
+
 export default cc;

@@ -25,8 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require("../event/event-target");
-const textureUtil = require('../utils/texture-util');
+const EventTarget = require("../core/event/event-target");
+const textureUtil = require('./texture-util');
+const Asset = require('./CCAsset');
 
 let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 
@@ -57,7 +58,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  */
 let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
-    extends: require('../assets/CCAsset'),
+    extends: Asset,
     mixins: [EventTarget],
 
     properties: {

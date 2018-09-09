@@ -24,11 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require('../event/event-target');
-const renderEngine = require('../renderer/render-engine');
-const renderer = require('../renderer');
-require('../platform/CCClass');
-const gfx = renderEngine.gfx;
+const EventTarget = require('../core/event/event-target');
+const Tex_GFX = require('../renderer/gfx/texture-2d');
+const CCClass = require('../core/data/class');
+const IDGenerator = require('../core/utils/id-generater');
+const Enums_GFX = require('../renderer/gfx/enums');
+const enums = Enums_GFX.enums;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -39,7 +40,7 @@ const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
 const CHAR_CODE_0 = 48;    // '0'
 const CHAR_CODE_1 = 49;    // '1'
 
-var idGenerater = new (require('../platform/id-generater'))('Tex');
+var idGenerator = new IDGenerator('Tex');
 
 /**
  * <p>
@@ -67,63 +68,63 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
-    RGB565: gfx.TEXTURE_FMT_R5_G6_B5,
+    RGB565: enums.TEXTURE_FMT_R5_G6_B5,
     /**
      * 16-bit textures: RGB5A1
      * @property RGB5A1
      * @readonly
      * @type {Number}
      */
-    RGB5A1: gfx.TEXTURE_FMT_R5_G5_B5_A1,
+    RGB5A1: enums.TEXTURE_FMT_R5_G5_B5_A1,
     /**
      * 16-bit textures: RGBA4444
      * @property RGBA4444
      * @readonly
      * @type {Number}
      */
-    RGBA4444: gfx.TEXTURE_FMT_R4_G4_B4_A4,
+    RGBA4444: enums.TEXTURE_FMT_R4_G4_B4_A4,
     /**
      * 24-bit texture: RGB888
      * @property RGB888
      * @readonly
      * @type {Number}
      */
-    RGB888: gfx.TEXTURE_FMT_RGB8,
+    RGB888: enums.TEXTURE_FMT_RGB8,
     /**
      * 32-bit texture: RGBA8888
      * @property RGBA8888
      * @readonly
      * @type {Number}
      */
-    RGBA8888: gfx.TEXTURE_FMT_RGBA8,
+    RGBA8888: enums.TEXTURE_FMT_RGBA8,
     /**
      * 32-bit float texture: RGBA32F
      * @property RGBA32F
      * @readonly
      * @type {Number}
      */
-    RGBA32F: gfx.TEXTURE_FMT_RGBA32F,
+    RGBA32F: enums.TEXTURE_FMT_RGBA32F,
     /**
      * 8-bit textures used as masks
      * @property A8
      * @readonly
      * @type {Number}
      */
-    A8: gfx.TEXTURE_FMT_A8,
+    A8: enums.TEXTURE_FMT_A8,
     /**
      * 8-bit intensity texture
      * @property I8
      * @readonly
      * @type {Number}
      */
-    I8: gfx.TEXTURE_FMT_L8,
+    I8: enums.TEXTURE_FMT_L8,
     /**
      * 16-bit textures used as masks
      * @property AI88
      * @readonly
      * @type {Number}
      */
-    AI8: gfx.TEXTURE_FMT_L8_A8,
+    AI8: enums.TEXTURE_FMT_L8_A8,
 
     /**
      * rgb 2 bpp pvrtc
@@ -131,28 +132,28 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
-    RGB_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
+    RGB_PVRTC_2BPPV1: enums.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
     /**
      * rgba 2 bpp pvrtc
      * @property RGBA_PVRTC_2BPPV1
      * @readonly
      * @type {Number}
      */
-    RGBA_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
+    RGBA_PVRTC_2BPPV1: enums.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
     /**
      * rgb 4 bpp pvrtc
      * @property RGB_PVRTC_4BPPV1
      * @readonly
      * @type {Number}
      */
-    RGB_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
+    RGB_PVRTC_4BPPV1: enums.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
     /**
      * rgba 4 bpp pvrtc
      * @property RGBA_PVRTC_4BPPV1
      * @readonly
      * @type {Number}
      */
-    RGBA_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
+    RGBA_PVRTC_4BPPV1: enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
 });
 
 /**
@@ -243,7 +244,7 @@ function _getSharedOptions () {
  * @uses EventTarget
  * @extends Asset
  */
-var Texture2D = cc.Class({
+var Texture2D = CCClass({
     name: 'cc.Texture2D',
     extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
@@ -290,7 +291,7 @@ var Texture2D = cc.Class({
 
     ctor () {
         // Id for generate hash in material
-        this._id = idGenerater.getNewId();
+        this._id = idGenerator.getNewId();
         
         /**
          * !#en
@@ -500,7 +501,7 @@ var Texture2D = cc.Class({
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
         if (!this._texture) {
-            this._texture = new renderer.Texture2D(renderer.device, opts);
+            this._texture = new Tex_GFX(cc.renderer.device, opts);
         }
         else {
             this._texture.update(opts);
@@ -618,7 +619,7 @@ var Texture2D = cc.Class({
         opts.wrapT = this._wrapT;
         
         if (!this._texture) {
-            this._texture = new renderer.Texture2D(renderer.device, opts);
+            this._texture = new Tex_GFX(cc.renderer.device, opts);
         }
         else {
             this._texture.update(opts);

@@ -24,14 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Asset = require('../assets/CCAsset');
-var callInNextTick = require('./utils').callInNextTick;
-var Loader = require('../load-pipeline/CCLoader');
-var PackDownloader = require('../load-pipeline/pack-downloader');
-var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
-var decodeUuid = require('../utils/decode-uuid');
-var MD5Pipe = require('../load-pipeline/md5-pipe');
-var js = require('./js');
+const js = require('../core/utils/js');
+const Asset = require('./CCAsset');
+const callInNextTick = require('../core/utils/misc').callInNextTick;
+const decodeUuid = require('../core/utils/decode-uuid');
+// var Loader = require('./load-pipeline/CCLoader');
+// var PackDownloader = require('../load-pipeline/pack-downloader');
+// var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
+// var MD5Pipe = require('../load-pipeline/md5-pipe');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -89,7 +89,7 @@ var AssetLibrary = {
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }
-        Loader.load(item, function (error, asset) {
+        cc.loader.load(item, function (error, asset) {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + (error ? error.message : 'Unknown error'));
             }
@@ -105,7 +105,7 @@ var AssetLibrary = {
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     var id = cc.loader._getReferenceKey(uuid);
-                    Loader.removeItem(id);
+                    cc.loader.removeItem(id);
                 }
             }
             if (callback) {
@@ -223,9 +223,9 @@ var AssetLibrary = {
             uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ Loader.assetLoader.id, Loader.downloader.id ]
+            skips: [ cc.loader.assetLoader.id, cc.loader.downloader.id ]
         };
-        Loader.load(item, function (error, asset) {
+        cc.loader.load(item, function (error, asset) {
             if (error) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
@@ -236,7 +236,7 @@ var AssetLibrary = {
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     var id = cc.loader._getReferenceKey(randomUuid);
-                    Loader.removeItem(id);
+                    cc.loader.removeItem(id);
                 }
             }
             asset._uuid = '';
@@ -309,7 +309,7 @@ var AssetLibrary = {
 
         // init raw assets
 
-        var resources = Loader._resources;
+        var resources = cc.loader._resources;
         resources.reset();
         var rawAssets = options.rawAssets;
         if (rawAssets) {

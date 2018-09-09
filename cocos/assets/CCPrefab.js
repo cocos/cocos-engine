@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const jit = require('../core/data/instantiate-jit');
+
 /**
  * !#zh
  * Prefab 创建实例所用的优化策略，配合 {{#crossLink "Prefab.optimizationPolicy"}}cc.Prefab#optimizationPolicy{{/crossLink}} 使用。
@@ -137,7 +139,6 @@ var Prefab = cc.Class({
      * @method compileCreateFunction
      */
     compileCreateFunction: function () {
-        var jit = require('../platform/instantiate-jit');
         this._createFunction = jit.compile(this.data);
     },
 

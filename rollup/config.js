@@ -1,7 +1,7 @@
 'use strict';
 
 const fsJetpack = require('fs-jetpack');
-const pjson = require('../package.json');
+const commonjs = require('rollup-plugin-commonjs');
 const resolve = require('rollup-plugin-node-resolve');
 const buble = require('rollup-plugin-buble');
 
@@ -27,6 +27,7 @@ module.exports = {
       jsnext: true,
       main: true,
     }),
+    commonjs(),
     buble()
   ],
 };
