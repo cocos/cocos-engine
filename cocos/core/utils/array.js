@@ -28,6 +28,8 @@
  * @static
  */
 
+export {default as MutableForwardIterator} from './mutable-forward-iterator';
+
 /**
  * Removes the array item at the specified index.
  * @method removeAt
@@ -165,4 +167,17 @@ export function copy (array) {
     for (i = 0; i < len; i += 1)
         arr_clone[i] = array[i];
     return arr_clone;
+}
+
+export default {
+    MutableForwardIterator,
+    removeAt,
+    fastRemoveAt,
+    remove,
+    fastRemove,
+    verifyType,
+    removeArray,
+    appendObjectsAt,
+    contains,
+    copy
 }

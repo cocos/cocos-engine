@@ -26,7 +26,7 @@
 
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
-import {CCClass} from './class';
+import CCClass from './class';
 import * as Attr from './utils/attribute';
 
 // HELPERS

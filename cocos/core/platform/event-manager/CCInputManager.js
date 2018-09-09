@@ -26,7 +26,7 @@
 
 import macro from '../CCMacro';
 import sys from '../CCSys';
-import eventManager from './event-manager';
+import eventManager from './CCEventManager';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 

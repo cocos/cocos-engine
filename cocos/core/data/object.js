@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import * as js from '../utils/js';
-import {CCClass} from './class';
+import CCClass from './class';
 
 // definitions for CCObject.Flags
 

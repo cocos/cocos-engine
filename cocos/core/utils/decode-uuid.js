@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {BASE64_VALUES} from 'misc';
+import {BASE64_VALUES} from './misc';
 
 var HexChars = '0123456789abcdef'.split('');
 
