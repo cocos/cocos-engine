@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Font from './CCFont';
+import SpriteFrame from './CCSpriteFrame';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 /**
  * @module cc
  */
@@ -32,29 +37,23 @@
  * !#zh 位图字体资源类。
  * @class BitmapFont
  * @extends Font
- *
  */
-var BitmapFont = cc.Class({
-    name: 'cc.BitmapFont',
-    extends: cc.Font,
+@ccclass
+export default class BitmapFont extends Font {
+    @property()
+    fntDataStr = '';
 
-    properties: {
-        fntDataStr: {
-            default: ''
-        },
+    @property({
+        type: SpriteFrame
+    })
+    spriteFrame = null;
 
-        spriteFrame: {
-            default: null,
-            type: cc.SpriteFrame
-        },
+    @property()
+    fontSize = -1;
 
-        fontSize: {
-            default: -1
-        },
-        //用来缓存 BitmapFont 解析之后的数据
-        _fntConfig: null
-    }
-});
+    @property()
+    _fntConfig = null;
+}
+BitmapFont.prototype.name = "BitmapFont";
 
 cc.BitmapFont = BitmapFont;
-module.exports = BitmapFont;

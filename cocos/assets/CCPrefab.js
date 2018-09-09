@@ -24,7 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const jit = require('../core/data/instantiate-jit');
+import {compile} from '../core/data/instantiate-jit';
+import Enum from '../core/value-types/enum';
+import {obsolete} from '../core/utils/js';
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
 /**
  * !#zh
@@ -36,7 +41,7 @@ const jit = require('../core/data/instantiate-jit');
  * @enum Prefab.OptimizationPolicy
  * @since 1.10.0
  */
-var OptimizationPolicy = cc.Enum({
+var OptimizationPolicy = Enum({
     /**
      * !#zh
      * 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
@@ -77,10 +82,9 @@ var OptimizationPolicy = cc.Enum({
  * @class Prefab
  * @extends Asset
  */
-var Prefab = cc.Class({
-    name: 'cc.Prefab',
-    extends: cc.Asset,
-    ctor () {
+@ccclass
+export default class Prefab extends Asset {
+    constructor () {
         /**
          * Cache function to optimize instance creaton.
          * @property {Function} _createFunction
@@ -89,48 +93,48 @@ var Prefab = cc.Class({
         this._createFunction = null;
 
         this._instantiatedTimes = 0;
-    },
+    }
 
-    properties: {
-        /**
-         * @property {Node} data - the main cc.Node in the prefab
-         */
-        data: null,
+    /**
+     * @property {Node} data - the main cc.Node in the prefab
+     */
+    @property()
+    data = null;
 
-        /**
-         * !#zh
-         * 设置实例化这个 prefab 时所用的优化策略。根据使用情况设置为合适的值，能优化该 prefab 实例化所用的时间。
-         * !#en
-         * Indicates the optimization policy for instantiating this prefab.
-         * Set to a suitable value based on usage, can optimize the time it takes to instantiate this prefab.
-         *
-         * @property {Prefab.OptimizationPolicy} optimizationPolicy
-         * @default Prefab.OptimizationPolicy.AUTO
-         * @since 1.10.0
-         * @example
-         * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
-         */
-        optimizationPolicy: OptimizationPolicy.AUTO,
+    /**
+     * !#zh
+     * 设置实例化这个 prefab 时所用的优化策略。根据使用情况设置为合适的值，能优化该 prefab 实例化所用的时间。
+     * !#en
+     * Indicates the optimization policy for instantiating this prefab.
+     * Set to a suitable value based on usage, can optimize the time it takes to instantiate this prefab.
+     *
+     * @property {Prefab.OptimizationPolicy} optimizationPolicy
+     * @default Prefab.OptimizationPolicy.AUTO
+     * @since 1.10.0
+     * @example
+     * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
+     */
+    @property()
+    optimizationPolicy = OptimizationPolicy.AUTO;
 
-        /**
-         * !#en Indicates the raw assets of this prefab can be load after prefab loaded.
-         * !#zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
-         * @property {Boolean} asyncLoadAssets
-         * @default false
-         */
-        asyncLoadAssets: false,
-    },
+    /**
+     * !#en Indicates the raw assets of this prefab can be load after prefab loaded.
+     * !#zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
+     * @property {Boolean} asyncLoadAssets
+     * @default false
+     */
+    @property()
+    asyncLoadAssets = false;
 
-    statics: {
-        OptimizationPolicy,
-        OptimizationPolicyThreshold: 3,
-    },
+    static OptimizationPolicy = OptimizationPolicy;
 
-    createNode: CC_EDITOR && function (cb) {
+    static OptimizationPolicyThreshold = 3;
+
+    createNode (cb) {
         var node = cc.instantiate(this);
         node.name = this.name;
         cb(null, node);
-    },
+    }
 
     /**
      * Dynamically translation prefab data into minimized code.<br/>
@@ -138,14 +142,14 @@ var Prefab = cc.Class({
      * but you can re-call to refresh the create function once you modified the original prefab data in script.
      * @method compileCreateFunction
      */
-    compileCreateFunction: function () {
-        this._createFunction = jit.compile(this.data);
-    },
+    compileCreateFunction () {
+        this._createFunction = compile(this.data);
+    }
 
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
     // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
     //                                  will redirect to
-    _doInstantiate: function (rootToRedirect) {
+    _doInstantiate (rootToRedirect) {
         if (this.data._prefab) {
             // prefab asset is always synced
             this.data._prefab._synced = true;
@@ -158,9 +162,9 @@ var Prefab = cc.Class({
             this.compileCreateFunction();
         }
         return this._createFunction(rootToRedirect);  // this.data._instantiate();
-    },
+    }
 
-    _instantiate: function () {
+    _instantiate () {
         var node, useJit = false;
         if (CC_SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
@@ -196,7 +200,8 @@ var Prefab = cc.Class({
         }
         return node;
     }
-});
+}
 
-cc.Prefab = module.exports = Prefab;
-cc.js.obsolete(cc, 'cc._Prefab', 'Prefab');
+Prefab.prototype.name = "Enum";
+cc.Prefab = Prefab;
+obsolete(cc, 'cc._Prefab', 'Prefab');

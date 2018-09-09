@@ -24,12 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require('../core/event/event-target');
-const Tex_GFX = require('../renderer/gfx/texture-2d');
-const CCClass = require('../core/data/class');
-const IDGenerator = require('../core/utils/id-generater');
-const Enums_GFX = require('../renderer/gfx/enums');
-const enums = Enums_GFX.enums;
+import EventTarget from '../core/event/event-target';
+import Tex_GFX from '../renderer/gfx/texture-2d';
+import IDGenerator from '../core/utils/id-generater';
+import Enum from '../core/value-types/enum';
+import {addon} from '../core/utils/js';
+import {enums} from '../renderer/gfx/enums';
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -61,7 +64,7 @@ var idGenerator = new IDGenerator('Tex');
  * other formats are supported by compressed file types or raw data.
  * @enum Texture2D.PixelFormat
  */
-const PixelFormat = cc.Enum({
+const PixelFormat = Enum({
     /**
      * 16-bit texture without Alpha channel
      * @property RGB565
@@ -160,7 +163,7 @@ const PixelFormat = cc.Enum({
  * The texture wrap mode
  * @enum Texture2D.WrapMode
  */
-const WrapMode = cc.Enum({
+const WrapMode = Enum({
     /**
      * The constant variable equals gl.REPEAT for texture
      * @property REPEAT
@@ -188,7 +191,7 @@ const WrapMode = cc.Enum({
  * The texture filter mode
  * @enum Texture2D.Filter
  */
-const Filter = cc.Enum({
+const Filter = Enum({
     /**
      * The constant variable equals gl.LINEAR for texture
      * @property LINEAR
@@ -244,52 +247,70 @@ function _getSharedOptions () {
  * @uses EventTarget
  * @extends Asset
  */
-var Texture2D = CCClass({
-    name: 'cc.Texture2D',
-    extends: require('../assets/CCAsset'),
-    mixins: [EventTarget],
-
-    properties: {
-        _nativeAsset: {
-            get () {
-                // maybe returned to pool in webgl
-                return this._image;
-            },
-            set (data) {
-                if (data._compressed && data._data) {
-                    this.initWithData(data._data, this._format, data.width, data.height);
-                }
-                else {
-                    this.initWithElement(data);
-                }
-            },
-            override: true
-        },
-        _hasMipmap: false,
-        _format: PixelFormat.RGBA8888,
-        _premultiplyAlpha: false,
-        _flipY: false,
-        _minFilter: Filter.LINEAR,
-        _magFilter: Filter.LINEAR,
-        _mipFilter: Filter.LINEAR,
-        _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE,
-        _anisotropy: 0
-    },
-
-    statics: {
-        PixelFormat: PixelFormat,
-        WrapMode: WrapMode,
-        Filter: Filter,
-        // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'],
-
-        _isCompressed (texture) {
-            return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+@ccclass
+export default class Texture2D extends Asset {
+    @property({
+        override: true
+    })
+    get _nativeAsset () {
+        // maybe returned to pool in webgl
+        return this._image;
+    }
+    set _nativeAsset (data) {
+        if (data._compressed && data._data) {
+            this.initWithData(data._data, this._format, data.width, data.height);
         }
-    },
+        else {
+            this.initWithElement(data);
+        }
+    }
 
-    ctor () {
+    @property()
+    _hasMipmap = false;
+
+    @property()
+    _format = PixelFormat.RGBA8888;
+
+    @property()
+    _premultiplyAlpha = false;
+
+    @property()
+    _flipY = false;
+
+    @property()
+    _minFilter = Filter.LINEAR;
+
+    @property()
+    _magFilter = Filter.LINEAR;
+
+    @property()
+    _mipFilter = Filter.LINEAR;
+
+    @property()
+    _wrapS = WrapMode.CLAMP_TO_EDGE;
+
+    @property()
+    _wrapT = WrapMode.CLAMP_TO_EDGE;
+
+    @property()
+    _anisotropy = 0;
+
+    static PixelFormat = PixelFormat;
+
+    static WrapMode = WrapMode;
+
+    static Filter = Filter;
+
+    static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'];
+
+    static _isCompressed (texture) {
+        return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+    }
+
+    constructor () {
+        super();
+        EventTarget.call(this);
+
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
         
@@ -338,7 +359,7 @@ var Texture2D = CCClass({
         if (CC_EDITOR) {
             this._exportedExts = null;
         }
-    },
+    }
 
     /**
      * !#en
@@ -349,15 +370,15 @@ var Texture2D = CCClass({
      */
     getImpl () {
         return this._texture;
-    },
+    }
 
     getId () {
         return this._id;
-    },
+    }
 
     toString () {
         return this.url || '';
-    },
+    }
 
     /**
      * Update texture options, not available in Canvas render mode.
@@ -441,7 +462,7 @@ var Texture2D = CCClass({
                 this._texture.update(options);
             }
         }
-    },
+    }
 
     /**
      * !#en
@@ -470,7 +491,7 @@ var Texture2D = CCClass({
                 cc.warnID(3119, err.message);
             });
         }
-    },
+    }
 
     /**
      * !#en
@@ -511,7 +532,7 @@ var Texture2D = CCClass({
         this.loaded = true;
         this.emit("load");
         return true;
-    },
+    }
 
     /**
      * !#en
@@ -522,7 +543,7 @@ var Texture2D = CCClass({
      */
     getHtmlElementObj () {
         return this._image;
-    },
+    }
     
     /**
      * !#en
@@ -541,7 +562,7 @@ var Texture2D = CCClass({
         // TODO cc.textureUtil ?
         // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
-    },
+    }
 
     /**
      * !#en
@@ -553,7 +574,7 @@ var Texture2D = CCClass({
     getPixelFormat () {
         //support only in WebGl rendering mode
         return this._format;
-    },
+    }
 
     /**
      * !#en
@@ -564,7 +585,7 @@ var Texture2D = CCClass({
      */
     hasPremultipliedAlpha () {
         return this._premultiplyAlpha || false;
-    },
+    }
 
     /**
      * !#en Anisotropy of the texture.
@@ -574,7 +595,7 @@ var Texture2D = CCClass({
      */
     getAnisotropy() {
         return this._anisotropy;
-    },
+    }
 
     /**
      * !#en
@@ -585,7 +606,7 @@ var Texture2D = CCClass({
      */
     hasMipmap () {
         return this._hasMipmap || false;
-    },
+    }
 
     /**
      * !#en
@@ -636,7 +657,7 @@ var Texture2D = CCClass({
             // Release image in loader cache
             cc.loader.removeItem(this._image.id);
         }
-    },
+    }
 
     /**
      * !#en
@@ -647,7 +668,7 @@ var Texture2D = CCClass({
      */
     description () {
         return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
-    },
+    }
 
     /**
      * !#en
@@ -659,7 +680,7 @@ var Texture2D = CCClass({
     releaseTexture () {
         this._image = null;
         this._texture && this._texture.destroy();
-    },
+    }
 
     /**
      * !#en Sets the wrap s and wrap t options. <br/>
@@ -677,7 +698,7 @@ var Texture2D = CCClass({
             opts.wrapT = wrapT;
             this.update(opts);
         }
-    },
+    }
 
     /**
      * !#en Sets the minFilter and magFilter options
@@ -693,7 +714,7 @@ var Texture2D = CCClass({
             opts.magFilter = magFilter;
             this.update(opts);
         }
-    },
+    }
 
     /**
      * !#en Sets the mipFilter options
@@ -707,7 +728,7 @@ var Texture2D = CCClass({
             opts.mipFilter = mipFilter;
             this.update(opts);
         }
-    },
+    }
 
     /**
      * !#en
@@ -722,7 +743,7 @@ var Texture2D = CCClass({
             opts.flipY = flipY;
             this.update(opts);
         }
-    },
+    }
 
     /**
      * !#en
@@ -737,7 +758,7 @@ var Texture2D = CCClass({
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
         }
-    },
+    }
 
     /**
      * !#en Sets the anisotropy of the texture
@@ -751,7 +772,7 @@ var Texture2D = CCClass({
             opts.anisotropy = anisotropy;
             this.update(opts);
         }
-    },
+    }
     
     /**
      * !#en
@@ -766,11 +787,11 @@ var Texture2D = CCClass({
             opts.hasMipmap = mipmap;
             this.update(opts);
         }
-    },
+    }
 
     // SERIALIZATION
 
-    _serialize: (CC_EDITOR || CC_TEST) && function () {
+    _serialize () {
         let extId = "";
         let exportedExts = this._exportedExts;
         if (!exportedExts && this._native) {
@@ -803,9 +824,9 @@ var Texture2D = CCClass({
                     this._mipFilter + "," +
                     this._anisotropy;
         return asset;
-    },
+    }
 
-    _deserialize: function (data, handle) {
+    _deserialize (data, handle) {
         let fields = data.split(',');
         // decode extname
         var extIdStr = fields[0];
@@ -859,7 +880,7 @@ var Texture2D = CCClass({
             this._anisotropy = parseInt(fields[7]);
         }
     }
-});
+}
 
 /**
  * !#zh
@@ -870,4 +891,6 @@ var Texture2D = CCClass({
  * @event load
  */
 
-cc.Texture2D = module.exports = Texture2D;
+Texture2D.prototype.name = 'Texture2D';
+addon(Texture2D.prototype, EventTarget.prototype);
+cc.Texture2D = Texture2D;

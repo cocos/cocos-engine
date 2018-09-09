@@ -23,6 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 /**
  * !#en
  * Class for JSON file. When the JSON file is loaded, this object is returned.
@@ -37,15 +41,15 @@
  * @class JsonAsset
  * @extends Asset
  */
-var JsonAsset = cc.Class({
-    name: 'cc.JsonAsset',
-    extends: cc.Asset,
-    properties: {
-        /**
-         * @property {Object} json - The loaded JSON object.
-         */
-        json: null,
-    },
-});
+@ccclass
+export default class JsonAsset extends Asset {
+    /**
+     * @property {Object} json - The loaded JSON object.
+     */
+    @property()
+    json = null;
+}
+
+JsonAsset.prototype.name = 'JsonAsset';
 
 module.exports = cc.JsonAsset = JsonAsset;

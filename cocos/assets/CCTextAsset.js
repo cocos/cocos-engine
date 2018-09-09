@@ -24,25 +24,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 /**
  * !#en Class for text file.
  * !#zh 文本资源类。
  * @class TextAsset
  * @extends Asset
  */
-var TextAsset = cc.Class({
-    name: 'cc.TextAsset',
-    extends: cc.Asset,
-    properties: {
-        /**
-         * @property {String} text - The text contents of the resource.
-         */
-        text: "",
-    },
+@ccclass
+export default class TextAsset extends Asset {
+    /**
+     * @property {String} text - The text contents of the resource.
+     */
+    @property()
+    text = "";
 
     toString () {
         return this.text;
-    },
-});
+    }
+}
 
-module.exports = cc.TextAsset = TextAsset;
+TextAsset.prototype.name = 'TextAsset';
+cc.TextAsset = TextAsset;

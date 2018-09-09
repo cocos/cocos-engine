@@ -25,9 +25,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require("../core/event/event-target");
-const textureUtil = require('./texture-util');
-const Asset = require('./CCAsset');
+import EventTarget from '../core/event/event-target';
+import textureUtil from './texture-util';
+import {addon} from '../core/utils/js';
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 
 let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 
@@ -56,39 +60,34 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  *  node.parent = self.node
  * });
  */
-let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
-    name: 'cc.SpriteFrame',
-    extends: Asset,
-    mixins: [EventTarget],
+@ccclass
+export default class SpriteFrame extends Asset {
 
-    properties: {
-        // Use this property to set texture when loading dependency
-        _textureSetter: {
-            set: function (texture) {
-                if (texture) {
-                    if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
-                        // just building
-                        this._texture = texture;
-                        return;
-                    }
-                    if (this._texture !== texture) {
-                        this._refreshTexture(texture);
-                    }
-                    this._textureFilename = texture.url;
-                }
+    // Use this property to set texture when loading dependency
+    @property()
+    set _textureSetter (texture) {
+        if (texture) {
+            if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
+                // just building
+                this._texture = texture;
+                return;
             }
-        },
+            if (this._texture !== texture) {
+                this._refreshTexture(texture);
+            }
+            this._textureFilename = texture.url;
+        }
+    }
 
-        // _textureFilename: {
-        //     get () {
-        //         return (this._texture && this._texture.url) || "";
-        //     },
-        //     set (url) {
-        //         let texture = cc.textureCache.addImage(url);
-        //         this._refreshTexture(texture);
-        //     }
-        // }
-    },
+    // _textureFilename: {
+    //     get () {
+    //         return (this._texture && this._texture.url) || "";
+    //     },
+    //     set (url) {
+    //         let texture = cc.textureCache.addImage(url);
+    //         this._refreshTexture(texture);
+    //     }
+    // }
 
     /**
      * !#en
@@ -102,7 +101,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Vec2} [offset] - The offset of the frame in the texture
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
-    ctor: function () {
+    constructor () {
+        super();
         // Init EventTarget data
         EventTarget.call(this);
 
@@ -180,7 +180,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         } else {
             //todo log Error
         }
-    },
+    }
 
     /**
      * !#en Returns whether the texture have been loaded
@@ -188,9 +188,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method textureLoaded
      * @returns {boolean}
      */
-    textureLoaded: function () {
+    textureLoaded () {
         return this._texture && this._texture.loaded;
-    },
+    }
 
     /**
      * !#en Returns whether the sprite frame is rotated in the texture.
@@ -198,9 +198,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method isRotated
      * @return {Boolean}
      */
-    isRotated: function () {
+    isRotated () {
         return this._rotated;
-    },
+    }
 
     /**
      * !#en Set whether the sprite frame is rotated in the texture.
@@ -208,9 +208,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method setRotated
      * @param {Boolean} bRotated
      */
-    setRotated: function (bRotated) {
+    setRotated (bRotated) {
         this._rotated = bRotated;
-    },
+    }
 
     /**
      * !#en Returns the rect of the sprite frame in the texture.
@@ -218,9 +218,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method getRect
      * @return {Rect}
      */
-    getRect: function () {
+    getRect () {
         return cc.rect(this._rect);
-    },
+    }
 
     /**
      * !#en Sets the rect of the sprite frame in the texture.
@@ -228,9 +228,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method setRect
      * @param {Rect} rect
      */
-    setRect: function (rect) {
+    setRect (rect) {
         this._rect = rect;
-    },
+    }
 
     /**
      * !#en Returns the original size of the trimmed image.
@@ -238,9 +238,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method getOriginalSize
      * @return {Size}
      */
-    getOriginalSize: function () {
+    getOriginalSize () {
         return cc.size(this._originalSize);
-    },
+    }
 
     /**
      * !#en Sets the original size of the trimmed image.
@@ -248,14 +248,14 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method setOriginalSize
      * @param {Size} size
      */
-    setOriginalSize: function (size) {
+    setOriginalSize (size) {
         if (!this._originalSize) {
             this._originalSize = cc.size(size);
         } else {
             this._originalSize.width = size.width;
             this._originalSize.height = size.height;
         }
-    },
+    }
 
     /**
      * !#en Returns the texture of the frame.
@@ -263,9 +263,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method getTexture
      * @return {Texture2D}
      */
-    getTexture: function () {
+    getTexture () {
         return this._texture;
-    },
+    }
 
     _textureLoadedCallback () {
         let self = this;
@@ -304,7 +304,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         // dispatch 'load' event of cc.SpriteFrame
         self.emit("load");
-    },
+    }
 
     /*
      * !#en Sets the texture of the frame.
@@ -312,7 +312,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
-    _refreshTexture: function (texture) {
+    _refreshTexture (texture) {
         this._texture = texture;
         if (texture.loaded) {
             this._textureLoadedCallback();
@@ -320,7 +320,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         else {
             texture.once('load', this._textureLoadedCallback, this);
         }
-    },
+    }
 
     /**
      * !#en Returns the offset of the frame in the texture.
@@ -328,9 +328,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method getOffset
      * @return {Vec2}
      */
-    getOffset: function () {
+    getOffset () {
         return cc.v2(this._offset);
-    },
+    }
 
     /**
      * !#en Sets the offset of the frame in the texture.
@@ -338,9 +338,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method setOffset
      * @param {Vec2} offsets
      */
-    setOffset: function (offsets) {
+    setOffset (offsets) {
         this._offset = cc.v2(offsets);
-    },
+    }
 
     /**
      * !#en Clone the sprite frame.
@@ -348,9 +348,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @method clone
      * @return {SpriteFrame}
      */
-    clone: function () {
+    clone () {
         return new SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
-    },
+    }
 
     /**
      * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
@@ -363,7 +363,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
+    setTexture (textureOrTextureFile, rect, rotated, offset, originalSize) {
         if (rect) {
             this.setRect(rect);
         }
@@ -398,14 +398,14 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         return true;
-    },
+    }
 
-    _loadTexture: function () {
+    _loadTexture () {
         if (this._textureFilename) {
             let texture = textureUtil.loadImage(this._textureFilename);
             this._refreshTexture(texture);
         }
-    },
+    }
 
     /**
      * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
@@ -425,7 +425,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      *     spriteFrame.ensureLoadTexture();
      * }
      */
-    ensureLoadTexture: function () {
+    ensureLoadTexture () {
         if (this._texture) {
             if (!this._texture.loaded) {
                 // load exists texture
@@ -437,7 +437,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             // load new texture
             this._loadTexture();
         }
-    },
+    }
 
     /**
      * !#en
@@ -452,11 +452,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * spriteFrame.once('load', onSpriteFrameLoaded);
      * spriteFrame.ensureLoadTexture();
      */
-    clearTexture: function () {
+    clearTexture () {
         this._texture = null;   // TODO - release texture
-    },
+    }
 
-    _checkRect: function (texture) {
+    _checkRect (texture) {
         let rect = this._rect;
         let maxX = rect.x, maxY = rect.y;
         if (this._rotated) {
@@ -473,7 +473,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (maxY > texture.height) {
             cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
         }
-    },
+    }
 
     _calculateSlicedUV () {
         let rect = this._rect;
@@ -530,7 +530,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 }
             }
         }
-    },
+    }
 
     _calculateUV () {
         let rect = this._rect,
@@ -579,11 +579,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
 
         this._calculateSlicedUV();
-    },
+    }
 
     // SERIALIZATION
 
-    _serialize: CC_EDITOR && function (exporting) {
+    _serialize (exporting) {
         let rect = this._rect;
         let offset = this._offset;
         let size = this._originalSize;
@@ -631,9 +631,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             capInsets: capInsets,
             vertices: vertices
         };
-    },
+    }
 
-    _deserialize: function (data, handle) {
+    _deserialize (data, handle) {
         let rect = data.rect;
         if (rect) {
             this.setRect(new cc.Rect(rect[0], rect[1], rect[2], rect[3]));
@@ -670,14 +670,15 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             handle.result.push(this, '_textureSetter', textureUuid);
         }
     }
-});
+}
 
 let proto = SpriteFrame.prototype;
 
+proto.name = 'SpriteFrame';
 proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;
 
-cc.SpriteFrame = SpriteFrame;
+addon(proto, EventTarget.prototype);
 
-module.exports = SpriteFrame;
+cc.SpriteFrame = SpriteFrame;

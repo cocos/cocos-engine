@@ -24,8 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CCObject = require('../core/data/object');
-var js = require('../core/utils/js');
+import {isChildClassOf} from '../core/utils/js';
+import CCObject from '../core/data/object';
+import _decorator from '../core/data/class-decorator';
+const {ccclass} = _decorator;
 
 /**
  * !#en
@@ -36,10 +38,9 @@ var js = require('../core/utils/js');
  * @class RawAsset
  * @extends Object
  */
-cc.RawAsset = cc.Class({
-    name: 'cc.RawAsset', extends: CCObject,
-
-    ctor: function () {
+@ccclass
+export default class RawAsset extends CCObject {
+    constructor () {
         /**
          * @property _uuid
          * @type {String}
@@ -50,26 +51,20 @@ cc.RawAsset = cc.Class({
             writable: true,
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
-    },
-});
+    }
 
-/**
- * @method isRawAssetType
- * @param {Function} ctor
- * @returns {Boolean}
- * @static
- * @private
- */
-js.value(cc.RawAsset, 'isRawAssetType', function (ctor) {
-    return js.isChildClassOf(ctor, cc.RawAsset) && !js.isChildClassOf(ctor, cc.Asset);
-});
+    /**
+     * @method isRawAssetType
+     * @param {Function} ctor
+     * @returns {Boolean}
+     * @static
+     * @private
+     */
+    static get isRawAssetType () {
+        return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
+    }
+}
 
- // TODO - DELME after 2.1
-js.value(cc.RawAsset, 'wasRawAssetType', function (ctor) {
-    return ctor === cc.Texture2D ||
-           ctor === cc.AudioClip ||
-           ctor === cc.ParticleAsset ||
-           ctor === cc.Asset;           // since 1.10, all raw asset will import as cc.Asset
-});
+RawAsset.prototype.name = 'RawAsset';
 
-module.exports = cc.RawAsset;
+cc.RawAsset = RawAsset;

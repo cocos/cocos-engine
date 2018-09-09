@@ -24,7 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var RawAsset = require('./CCRawAsset');
+import _decorator from '../core/data/class-decorator';
+import RawAsset from './CCRawAsset';
+
+const {ccclass, property} = _decorator;
 
 /**
  * !#en
@@ -47,10 +50,10 @@ var RawAsset = require('./CCRawAsset');
  * @class Asset
  * @extends RawAsset
  */
-cc.Asset = cc.Class({
-    name: 'cc.Asset', extends: RawAsset,
-
-    ctor () {
+@ccclass
+export default class Asset extends RawAsset {
+    constructor () {
+        super();
         /**
          * !#en
          * Whether the asset is loaded or not
@@ -61,103 +64,101 @@ cc.Asset = cc.Class({
          * @type {Boolean}
          */
         this.loaded = true;
-    },
+    }
 
-    properties: {
-        /**
-         * !#en
-         * Returns the url of this asset's native object, if none it will returns an empty string.
-         * !#zh
-         * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
-         * @property nativeUrl
-         * @type {String}
-         * @readOnly
-         */
-        nativeUrl: {
-            get: function () {
-                if (this._native) {
-                    var name = this._native;
-                    if (name.charCodeAt(0) === 47) {    // '/'
-                        // remove library tag
-                        // not imported in library, just created on-the-fly
-                        return name.slice(1);
-                    }
-                    if (cc.AssetLibrary) {
-                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
-                        if (name.charCodeAt(0) === 46) {  // '.'
-                            // imported in dir where json exist
-                            return base + name;
-                        }
-                        else {
-                            // imported in an independent dir
-                            return base + '/' + name;
-                        }
-                    }
-                    else {
-                        cc.errorID(6400);
-                    }
+    /**
+     * !#en
+     * Returns the url of this asset's native object, if none it will returns an empty string.
+     * !#zh
+     * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
+     * @property nativeUrl
+     * @type {String}
+     * @readOnly
+     */
+    @property({
+        visible: false
+    })
+    get nativeUrl () {
+        if (this._native) {
+            var name = this._native;
+            if (name.charCodeAt(0) === 47) {    // '/'
+                // remove library tag
+                // not imported in library, just created on-the-fly
+                return name.slice(1);
+            }
+            if (cc.AssetLibrary) {
+                var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+                if (name.charCodeAt(0) === 46) {  // '.'
+                    // imported in dir where json exist
+                    return base + name;
                 }
-                return '';
-            },
-            visible: false
-        },
+                else {
+                    // imported in an independent dir
+                    return base + '/' + name;
+                }
+            }
+            else {
+                cc.errorID(6400);
+            }
+        }
+        return '';
+    }
 
-        /**
-         * Serializable url for native asset.
-         * @property {String} _native
-         * @default undefined
-         * @private
-         */
-        _native: "",
+    /**
+     * Serializable url for native asset.
+     * @property {String} _native
+     * @default ""
+     * @private
+     */
+    @property()
+    _native = ""
 
-        /**
-         * The underlying native asset of this asset if one is available.
-         * This property can be used to access additional details or functionality releated to the asset.
-         * This property will be initialized by the loader if `_native` is available.
-         * @property {Object} _nativeAsset
-         * @default null
-         * @private
-         */
-        _nativeAsset: {
-            get () {},
-            set (obj) {}
-        },
-    },
+    /**
+     * The underlying native asset of this asset if one is available.
+     * This property can be used to access additional details or functionality releated to the asset.
+     * This property will be initialized by the loader if `_native` is available.
+     * @property {Object} _nativeAsset
+     * @default null
+     * @private
+     */
+    @property()
+    get _nativeAsset () {
+    }
+    set _nativeAsset (obj) {
+    }
 
-    statics: {
-        /**
-         * 应 AssetDB 要求提供这个方法
-         *
-         * @method deserialize
-         * @param {String} data
-         * @return {Asset}
-         * @static
-         * @private
-         */
-        deserialize: CC_EDITOR && function (data) {
-            return cc.deserialize(data);
-        },
+    /**
+     * 应 AssetDB 要求提供这个方法
+     *
+     * @method deserialize
+     * @param {String} data
+     * @return {Asset}
+     * @static
+     * @private
+     */
+    static deserialize (data) {
+        return cc.deserialize(data);
+    }
 
-        /**
-         * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
-         *
-         * @property {Boolean} preventDeferredLoadDependents
-         * @default false
-         * @static
-         */
-        preventDeferredLoadDependents: false,
+    /**
+     * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
+     * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+     *
+     * @property {Boolean} preventDeferredLoadDependents
+     * @default false
+     * @static
+     */
+    static preventDeferredLoadDependents = false;
 
-        /**
-         * !#en Indicates whether its native object should be preloaded from native url.
-         * !#zh 禁止预加载原生对象。
-         *
-         * @property {Boolean} preventPreloadNativeObject
-         * @default false
-         * @static
-         */
-        preventPreloadNativeObject: false
-    },
+    /**
+     * !#en Indicates whether its native object should be preloaded from native url.
+     * !#zh 禁止预加载原生对象。
+     *
+     * @property {Boolean} preventPreloadNativeObject
+     * @default false
+     * @static
+     */
+    static preventPreloadNativeObject = false;
 
     /**
      * Returns the asset's url.
@@ -171,7 +172,7 @@ cc.Asset = cc.Class({
      */
     toString () {
         return this.nativeUrl;
-    },
+    }
 
     /**
      * 应 AssetDB 要求提供这个方法
@@ -180,24 +181,9 @@ cc.Asset = cc.Class({
      * @return {String}
      * @private
      */
-    serialize: CC_EDITOR && function () {
+    serialize () {
         return Editor.serialize(this);
-    },
-
-    /**
-     * !#en
-     * Create a new node using this asset in the scene.<br/>
-     * If this type of asset dont have its corresponding node type, this method should be null.
-     * !#zh
-     * 使用该资源在场景中创建一个新节点。<br/>
-     * 如果这类资源没有相应的节点类型，该方法应该是空的。
-     *
-     * @method createNode
-     * @param {Function} callback
-     * @param {String} callback.error - null or the error info
-     * @param {Object} callback.node - the created node or null
-     */
-    createNode: null,
+    }
 
     /**
      * Set native file name for this asset.
@@ -208,7 +194,7 @@ cc.Asset = cc.Class({
      * @param {Boolean} [inLibrary=true]
      * @private
      */
-    _setRawAsset: function (filename, inLibrary) {
+    _setRawAsset (filename, inLibrary) {
         if (inLibrary !== false) {
             this._native = filename || undefined;
         }
@@ -216,6 +202,23 @@ cc.Asset = cc.Class({
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
     }
-});
+}
 
-module.exports = cc.Asset;
+/**
+ * !#en
+ * Create a new node using this asset in the scene.<br/>
+ * If this type of asset dont have its corresponding node type, this method should be null.
+ * !#zh
+ * 使用该资源在场景中创建一个新节点。<br/>
+ * 如果这类资源没有相应的节点类型，该方法应该是空的。
+ *
+ * @method createNode
+ * @param {Function} callback
+ * @param {String} callback.error - null or the error info
+ * @param {Object} callback.node - the created node or null
+ */
+Asset.prototype.createNode = null;
+
+Asset.prototype.name = "Asset";
+
+cc.Asset = Asset;
