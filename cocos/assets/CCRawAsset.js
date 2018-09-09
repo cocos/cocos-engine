@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CCObject = require('../platform/CCObject');
-var js = require('../platform/js');
+var CCObject = require('../core/data/object');
+var js = require('../core/utils/js');
 
 /**
  * !#en

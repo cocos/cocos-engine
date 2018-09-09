@@ -25,8 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import IDGenerater from './id-generater';
-
 let tempCIDGenerater = new IDGenerater('TmpCId.');
 
 const REGEXP_NUM_OR_STR = /(%d)|(%s)/;
@@ -57,6 +55,10 @@ var _tmpSetDesc = {
  * @submodule js
  * @module js
  */
+
+export {default as IDGenerater} from './id-generater';
+export {default as Pool} from './pool';
+export {default as array} from './array';
 
 /**
  * Check the obj whether is number or not

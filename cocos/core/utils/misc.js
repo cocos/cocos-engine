@@ -242,45 +242,42 @@ export function callInNextTick (callback, p1, p2) {
     }
 }
 
-if (CC_EDITOR) {
-    // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
-
-    export function tryCatchFunctor_EDITOR (funcName, forwardArgs, afterCall, bindArg) {
-        function call_FUNC_InTryCatch (_R_ARGS_) {
-            try {
-                target._FUNC_(_U_ARGS_);
-            }
-            catch (e) {
-                cc._throw(e);
-            }
-            _AFTER_CALL_
+// use anonymous function here to ensure it will not being hoisted without CC_EDITOR
+export function tryCatchFunctor_EDITOR (funcName, forwardArgs, afterCall, bindArg) {
+    function call_FUNC_InTryCatch (_R_ARGS_) {
+        try {
+            target._FUNC_(_U_ARGS_);
         }
-        // use evaled code to generate named function
-        return Function('arg', 'return ' + call_FUNC_InTryCatch
-                    .toString()
-                    .replace(/_FUNC_/g, funcName)
-                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
-                    .replace('_U_ARGS_', forwardArgs || '')
-                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
-    };
-
-    export function isPlainEmptyObj_DEV (obj) {
-        if (!obj || obj.constructor !== Object) {
-            return false;
+        catch (e) {
+            cc._throw(e);
         }
-        // jshint ignore: start
-        for (var k in obj) {
-            return false;
-        }
-        // jshint ignore: end
-        return true;
-    };
+        _AFTER_CALL_
+    }
+    // use evaled code to generate named function
+    return Function('arg', 'return ' + call_FUNC_InTryCatch
+                .toString()
+                .replace(/_FUNC_/g, funcName)
+                .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
+                .replace('_U_ARGS_', forwardArgs || '')
+                .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+}
 
-    export function cloneable_DEV (obj) {
-        return obj &&
-               typeof obj.clone === 'function' &&
-               ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
-    };
+export function isPlainEmptyObj_DEV (obj) {
+    if (!obj || obj.constructor !== Object) {
+        return false;
+    }
+    // jshint ignore: start
+    for (var k in obj) {
+        return false;
+    }
+    // jshint ignore: end
+    return true;
+}
+
+export function cloneable_DEV (obj) {
+    return obj &&
+            typeof obj.clone === 'function' &&
+            ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
 }
 
 if (CC_TEST) {

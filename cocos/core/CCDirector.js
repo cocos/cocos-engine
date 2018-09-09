@@ -1055,4 +1055,5 @@ Director.EVENT_AFTER_DRAW = "director_after_draw";
  */
 let director = cc.director = new Director();
 cc.Director = Director;
+cc.director = director;
 export default director;

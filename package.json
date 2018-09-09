@@ -1,16 +1,24 @@
 {
-  "name": "cocos-creator-js",
-  "version": "1.7.0",
-  "description": "Cocos2d-html5 is a cross-platform 2D game engine written in Javascript, based on Cocos2d-X and licensed under MIT. It incorporates the same high level api as “Cocos2d JS-binding engine” and compatible with Cocos2d-X. It currently supports canvas and WebGL renderering.",
-  "homepage": "http://www.cocos2d-x.org",
+  "name": "cocos-creator-3d",
+  "version": "0.1.0",
+  "description": "Cocos Creator 3D is a cross-platform 3D game engine written in Javascript, licensed under MIT.",
+  "homepage": "http://www.cocos.com",
+  "license": "MIT",
   "authors": [
     "AUTHORS.txt"
   ],
-  "license": "MIT",
+  "module": "index.js",
   "scripts": {
-    "test": "gulp test-in-ci"
+    "build": "npm run build:dev && npm run build:min",
+    "build:dev": "rollup -c ./rollup/config.js",
+    "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map url=cocos-3d.min.js.map -o ./bin/cocos-3d.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cocos-creator/engine.git"
   },
   "devDependencies": {
+    "aliasify": "^2.1.0",
     "async": "1.5.2",
     "babel-plugin-parser-opts": "1.0.1",
     "babel-plugin-transform-class-properties": "6.22.0",
@@ -20,11 +28,11 @@
     "babel-plugin-transform-es2015-template-literals": "6.22.0",
     "babel-preset-env": "^1.2.2",
     "babelify": "7.3.0",
-    "browserify": "13.0.0",
     "chalk": "1.1.0",
     "del": "1.2.0",
     "event-stream": "3.3.2",
     "fire-fs": "0.2.1",
+    "fs-jetpack": "^1.1.0",
     "gulp": "^3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-cached": "1.1.0",
@@ -44,8 +52,12 @@
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
-    "aliasify": "^2.1.0",
     "require-dir": "0.3.0",
+    "rollup": "^0.65.2",
+    "rollup-plugin-commonjs": "^9.1.6",
+    "rollup-plugin-buble": "^0.18.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-watch": "^4.3.1",
     "uglify-es": "3.3.7",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",

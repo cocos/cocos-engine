@@ -25,14 +25,7 @@
  ****************************************************************************/
 
 // ========= cc.js ==========
-import * as array from './array';
 import * as js from './js';
-import Pool from './pool';
-import MutableForwardIterator from './mutable-forward-iterator';
-
-js.Pool = Pool;
-js.array = array;
-js.array.MutableForwardIterator = MutableForwardIterator;
 
 if (CC_DEV) {
     js.getset(js, '_registeredClassIds',
@@ -69,9 +62,14 @@ if (CC_DEV) {
 cc.js = js;
 
 // ========= cc.path ==========
-import * as path from 'path';
+import * as path from './path';
 
 get(path, 'sep', () => {
     return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
 })
 cc.path = path;
+
+export default {
+    js,
+    path
+}

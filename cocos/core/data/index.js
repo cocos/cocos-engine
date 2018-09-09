@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as decorator from './class-decorator';
-cc._decorator = decorator;
-
+export { default as _decorator} from './class-decorator';
 export { default as CCClass } from './class';
 export { default as CCObject } from './object';
 export { default as deserialize } from './deserialize';

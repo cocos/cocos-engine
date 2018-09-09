@@ -38,10 +38,9 @@
 
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
-require('./class');
-const Preprocess = require('./preprocess-class');
-const js = require('./js');
-const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;
+import './class';
+import {getFullFormOfProperty, doValidateMethodWithProps_DEV} from './utils/preprocess-class';
+import * as js from'../utils/js';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -149,8 +148,8 @@ function extractActualDefaultValues (ctor) {
 function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
-                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = CC_DEV ? getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
+                               getFullFormOfProperty(options);
         fullOptions = fullOptions || options;
     }
     var existsProperty = properties[propName];
@@ -300,7 +299,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
                 var desc = Object.getOwnPropertyDescriptor(ctor.prototype, prop);
                 var func = desc && desc.value;
                 if (typeof func === 'function') {
-                    Preprocess.doValidateMethodWithProps_DEV(func, prop, js.getClassName(ctor), ctor, base);
+                    doValidateMethodWithProps_DEV(func, prop, js.getClassName(ctor), ctor, base);
                 }
             }
         }
@@ -708,7 +707,7 @@ function mixins () {
     }
 }
 
-cc._decorator = {
+let _decorator = cc._decorator = {
     ccclass,
     property,
     executeInEditMode,
@@ -722,3 +721,5 @@ cc._decorator = {
     help,
     mixins,
 };
+
+export default _decorator;
