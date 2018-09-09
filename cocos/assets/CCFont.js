@@ -24,15 +24,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass} = _decorator;
+
 /**
  * !#en Class for Font handling.
  * !#zh 字体资源类。
  * @class Font
  * @extends Asset
  */
-var Font = cc.Class({
-    name: 'cc.Font',
-    extends: cc.Asset
-});
+@ccclass
+export default class Font extends Asset {
+}
 
-cc.Font = module.exports = Font;
+Font.prototype.name = 'Font';
+
+cc.Font = Font;

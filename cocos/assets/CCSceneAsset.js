@@ -24,6 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 /**
  * !#en Class for scene handling.
  * !#zh 场景资源类。
@@ -31,34 +35,31 @@
  * @extends Asset
  *
  */
-var Scene = cc.Class({
-    name: 'cc.SceneAsset',
-    extends: cc.Asset,
+@ccclass
+export default class SceneAsset extends Asset {
+    /**
+     * @property {Scene} scene
+     * @default null
+     */
+    @property()
+    scene = null;
 
-    properties: {
+    /**
+     * !#en Indicates the raw assets of this scene can be load after scene launched.
+     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
+     * @property {Boolean} asyncLoadAssets
+     * @default false
+     */
+    @property()
+    asyncLoadAssets = false;
 
-        /**
-         * @property {Scene} scene
-         * @default null
-         */
-        scene: null,
+    //// backup prefab assets in editor
+    //// {string} assetUuid: {cc.Node} rootInPrefab
+    //_prefabDatas: {
+    //    default: null,
+    //    editorOnly: true
+    //}
+}
 
-        /**
-         * !#en Indicates the raw assets of this scene can be load after scene launched.
-         * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-         * @property {Boolean} asyncLoadAssets
-         * @default false
-         */
-        asyncLoadAssets: undefined,
-
-        //// backup prefab assets in editor
-        //// {string} assetUuid: {cc.Node} rootInPrefab
-        //_prefabDatas: {
-        //    default: null,
-        //    editorOnly: true
-        //}
-    },
-});
-
-cc.SceneAsset = Scene;
-module.exports = Scene;
+SceneAsset.prototype.name = 'SceneAsset';
+cc.SceneAsset = SceneAsset;

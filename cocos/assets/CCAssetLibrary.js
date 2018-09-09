@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../core/utils/js');
-const Asset = require('./CCAsset');
-const callInNextTick = require('../core/utils/misc').callInNextTick;
-const decodeUuid = require('../core/utils/decode-uuid');
+import {createMap, isChildClassOf, _getClassById} from '../core/utils/js';
+import Asset from './CCAsset';
+import {callInNextTick} from '../core/utils/misc';
+import decodeUuid from '../core/utils/decode-uuid';
 // var Loader = require('./load-pipeline/CCLoader');
 // var PackDownloader = require('../load-pipeline/pack-downloader');
 // var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
@@ -44,7 +44,7 @@ const decodeUuid = require('../core/utils/decode-uuid');
 
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
-var _uuidToRawAsset = js.createMap(true);
+var _uuidToRawAsset = createMap(true);
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
@@ -129,7 +129,7 @@ var AssetLibrary = {
                     Editor.Utils.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
-                        var isRawAsset = !js.isChildClassOf(ctor, Asset);
+                        var isRawAsset = !isChildClassOf(ctor, Asset);
                         callback(null, info.url, isRawAsset, ctor);
                     }
                     else {
@@ -148,7 +148,7 @@ var AssetLibrary = {
     _getAssetInfoInRuntime: function (uuid, result) {
         result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
-        if (info && !js.isChildClassOf(info.type, cc.Asset)) {
+        if (info && !isChildClassOf(info.type, cc.Asset)) {
             // backward compatibility since 1.10
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
@@ -288,14 +288,14 @@ var AssetLibrary = {
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
             var i = 0, uuid = 0;
-            var md5ImportMap = js.createMap(true);
+            var md5ImportMap = createMap(true);
             var md5Entries = md5AssetsMap.import;
             for (i = 0; i < md5Entries.length; i += 2) {
                 uuid = decodeUuid(md5Entries[i]);
                 md5ImportMap[uuid] = md5Entries[i + 1];
             }
 
-            var md5RawAssetsMap = js.createMap(true);
+            var md5RawAssetsMap = createMap(true);
             md5Entries = md5AssetsMap['raw-assets'];
             for (i = 0; i < md5Entries.length; i += 2) {
                 uuid = decodeUuid(md5Entries[i]);
@@ -319,7 +319,7 @@ var AssetLibrary = {
                     var info = assets[uuid];
                     var url = info[0];
                     var typeId = info[1];
-                    var type = cc.js._getClassById(typeId);
+                    var type = _getClassById(typeId);
                     if (!type) {
                         cc.error('Cannot get', typeId);
                         continue;

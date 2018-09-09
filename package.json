@@ -55,7 +55,7 @@
     "require-dir": "0.3.0",
     "rollup": "^0.65.2",
     "rollup-plugin-commonjs": "^9.1.6",
-    "rollup-plugin-buble": "^0.18.0",
+    "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-watch": "^4.3.1",
     "uglify-es": "3.3.7",

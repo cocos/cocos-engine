@@ -24,18 +24,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./texture-util');
-require('./CCAssetLibrary')
+export * from './CCRawAsset';
+export * from './CCAsset';
+export * from './CCFont';
+export * from './CCPrefab';
+export * from './CCScripts';
+export * from './CCSceneAsset';
+export * from './CCSpriteFrame';
+export * from './CCTexture2D';
+export * from './CCTTFFont';
+export * from './CCSpriteAtlas';
+export * from './CCBitmapFont';
+export * from './CCTextAsset';
+export * from './CCJsonAsset';
+export * from './texture-util';
+export * from './CCAssetLibrary';

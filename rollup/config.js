@@ -3,7 +3,7 @@
 const fsJetpack = require('fs-jetpack');
 const commonjs = require('rollup-plugin-commonjs');
 const resolve = require('rollup-plugin-node-resolve');
-const buble = require('rollup-plugin-buble');
+const babel = require('rollup-plugin-babel');
 
 let dest = './bin';
 let file = 'cocos-3d.dev';
@@ -27,7 +27,13 @@ module.exports = {
       jsnext: true,
       main: true,
     }),
-    commonjs(),
-    buble()
+    babel({
+      plugins: [
+        "transform-decorators-legacy",
+        "transform-class-properties"
+      ],
+      exclude: 'node_modules/**'
+    }),
+    commonjs()
   ],
 };

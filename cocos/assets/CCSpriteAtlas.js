@@ -24,27 +24,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
+
 /**
  * !#en Class for sprite atlas handling.
  * !#zh 精灵图集资源类。
  * @class SpriteAtlas
  * @extends Asset
  */
-var SpriteAtlas = cc.Class({
-    name: 'cc.SpriteAtlas',
-    extends: cc.Asset,
-    properties: {
-        _spriteFrames: {
-            default: {}
-        },
-    },
+@ccclass
+export default class SpriteAtlas extends Asset {
+    @property()
+    _spriteFrames = {};
 
     /**
      * Returns the texture of the sprite atlas
      * @method getTexture
      * @returns {Texture2D}
      */
-    getTexture: function () {
+    getTexture () {
         var keys = Object.keys(this._spriteFrames);
         if (keys.length > 0) {
             var spriteFrame = this._spriteFrames[keys[0]];
@@ -53,7 +53,7 @@ var SpriteAtlas = cc.Class({
         else {
             return null;
         }
-    },
+    }
 
     /**
      * Returns the sprite frame correspond to the given key in sprite atlas.
@@ -61,7 +61,7 @@ var SpriteAtlas = cc.Class({
      * @param {String} key
      * @returns {SpriteFrame}
      */
-    getSpriteFrame: function (key) {
+    getSpriteFrame (key) {
         let sf = this._spriteFrames[key];
         if (!sf) {
             return null;
@@ -70,14 +70,14 @@ var SpriteAtlas = cc.Class({
             sf.name = key;
         }
         return sf;
-    },
+    }
 
     /**
      * Returns the sprite frames in sprite atlas.
      * @method getSpriteFrames
      * @returns {[SpriteFrame]}
      */
-    getSpriteFrames: function () {
+    getSpriteFrames () {
         var frames = [];
         var spriteFrames = this._spriteFrames;
 
@@ -87,7 +87,7 @@ var SpriteAtlas = cc.Class({
 
         return frames;
     }
-});
+}
 
+SpriteAtlas.prototype.name = 'SpriteAtlas';
 cc.SpriteAtlas = SpriteAtlas;
-module.exports =  SpriteAtlas;

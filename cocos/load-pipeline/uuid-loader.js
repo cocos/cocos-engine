@@ -132,7 +132,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             function loadCallback (item) {
                 var value = item.content;
                 if (this._stillUseUrl) {
-                    value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
+                    value = value ? value.nativeUrl : item.rawUrl;
                 }
                 this._owner[this._ownerProp] = value;
                 if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Texture2D = require('./CCTexture2D');
+import Texture2D from './CCTexture2D';
 
 /**
  * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously
@@ -107,4 +107,5 @@ let textureUtil = {
     }
 };
 
-cc.textureUtil = module.exports = textureUtil;
+cc.textureUtil = textureUtil;
+export default textureUtil;

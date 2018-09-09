@@ -24,7 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Font = require('./CCFont');
+import Font from './CCFont';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
 /**
  * @module cc
@@ -36,23 +38,23 @@ const Font = require('./CCFont');
  * @extends Font
  *
  */
-var TTFFont = cc.Class({
-    name: 'cc.TTFFont',
-    extends: Font,
+@ccclass
+export default class TTFFont extends Font {
 
-    properties: {
-        _fontFamily: null,
-        _nativeAsset: {
-            type: cc.String,
-            get () {
-                return this._fontFamily;
-            },
-            set (value) {
-                this._fontFamily = value || 'Arial';
-            },
-            override: true
-        }
+    @property()
+    _fontFamily = null;
+
+    @property({
+        type: cc.String,
+        override: true
+    })
+    get _nativeAsset () {
+        return this._fontFamily;
     }
-});
+    set _nativeAsset (value) {
+        this._fontFamily = value || 'Arial';
+    }
+}
 
-cc.TTFFont = module.exports = TTFFont;
+TTFFont.prototype.name = 'TTFFont';
+cc.TTFFont = TTFFont;

@@ -24,6 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass} = _decorator;
+
 /**
  * !#en Class for script handling.
  * !#zh Script 资源类。
@@ -32,11 +36,10 @@
  *
  * @private
  */
-var Script = cc.Class({
-    name: 'cc.Script',
-    extends: cc.Asset,
-});
-
+@ccclass
+class Script extends Asset {
+}
+Script.prototype.name = 'Script';
 cc._Script = Script;
 
 /**
@@ -44,29 +47,13 @@ cc._Script = Script;
  * !#zh JavaScript 资源类。
  * @class _JavaScript
  * @extends Asset
- * @private
  *
  */
-var JavaScript = cc.Class({
-    name: 'cc.JavaScript',
-    extends: Script,
-});
-
+@ccclass
+export class JavaScript extends Script {
+}
+JavaScript.prototype.name = 'JavaScript';
 cc._JavaScript = JavaScript;
-
-/**
- * !#en Class for coffeescript handling.
- * !#zh CoffeeScript 资源类。
- * @class CoffeeScript
- * @extends Asset
- *
- */
-var CoffeeScript = cc.Class({
-    name: 'cc.CoffeeScript',
-    extends: Script,
-});
-
-cc._CoffeeScript = CoffeeScript;
 
 /**
  * !#en Class for TypeScript handling.
@@ -75,9 +62,8 @@ cc._CoffeeScript = CoffeeScript;
  * @extends Asset
  *
  */
-var TypeScript = cc.Class({
-    name: 'cc.TypeScript',
-    extends: Script,
-});
-
+@ccclass
+export class TypeScript extends Script {
+}
+TypeScript.prototype.name = 'TypeScript';
 cc._TypeScript = TypeScript;
