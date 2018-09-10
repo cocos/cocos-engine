@@ -7,7 +7,7 @@ import Asset from "../../assets/CCAsset";
 import vec2 from "../../vmath/vec2";
 
 @ccclass
-export default class Font3D extends Asset {
+export default class Font extends Asset {
     /**
      * @typedef {"unknow" | "bitmap" | "opentype"} FontType
      * @typedef {{char: string, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} BitmapFontGlyph

@@ -29,7 +29,7 @@ import { GLTFAsset } from "../../assets/CCGLTFAsset";
 import { Asset } from "../../../index";
 
 @ccclass
-class Mesh3D extends Asset {
+class Mesh extends Asset {
     /**
      * !#en
      * Gets the native data of this mesh.

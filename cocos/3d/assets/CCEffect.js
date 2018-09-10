@@ -29,7 +29,7 @@ import { Asset } from "../../../index";
 import Technique from "../../renderer/core/technique";
 
 @ccclass
-class Effect3D extends Asset {
+class Effect extends Asset {
 
     /**
      * @typedef {{name: string, value: boolean|number|string}} Definition

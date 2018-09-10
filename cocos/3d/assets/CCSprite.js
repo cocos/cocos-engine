@@ -1,4 +1,9 @@
-import Asset from './asset';
+// @copyright
+
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const { ccclass, property } = _decorator;
+import Asset from "../../assets/CCAsset";
 import { vec3, mat4 } from '../vmath';
 
 let _t_tmp = vec3.create(0, 0, 0);
@@ -6,7 +11,8 @@ let _s_tmp = vec3.create(0, 0, 0);
 let _mat4_tmp = mat4.create();
 let _textureMatrix = mat4.create();
 
-export default class Sprite extends Asset {
+@ccclass
+export class Sprite extends Asset {
   constructor() {
     super();
 

@@ -1,5 +1,9 @@
-import { vec3, quat, clamp } from '../vmath';
-import Asset from './asset';
+// @copyright
+
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const {ccclass, property} = _decorator;
+import Asset from "../../assets/CCAsset";
 
 let tmpvec3 = vec3.create(0, 0, 0);
 let tmpquat = quat.create();
@@ -25,7 +29,8 @@ function _binaryIndexOf(array, key) {
   return lo;
 }
 
-export default class AnimationClip extends Asset {
+@ccclass
+export class AnimationClip extends Asset {
   constructor() {
     super();
 

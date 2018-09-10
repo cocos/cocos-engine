@@ -1,4 +1,10 @@
-import Texture from './texture';
+// @copyright
+
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const { ccclass, property } = _decorator;
+import { Texture } from './CCTexture';
+
 import gfx from '../gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
 
@@ -14,16 +20,10 @@ let _opts = {
   minFilter: gfx.FILTER_LINEAR,
   magFilter: gfx.FILTER_LINEAR,
   mipFilter: gfx.FILTER_LINEAR,
-  premultiplyAlpha: false,
 };
 
 function _updateOpts(out, texture) {
-  if (texture._writable) {
-    out.images = [texture._data];
-  } else {
-    out.images = texture._images;
-  }
-
+  out.images = texture._images;
   out.mipmap = texture._mipmap;
   out.width = texture._width;
   out.height = texture._height;
@@ -34,32 +34,14 @@ function _updateOpts(out, texture) {
   out.minFilter = gfxFilters[texture._minFilter];
   out.magFilter = gfxFilters[texture._magFilter];
   out.mipFilter = gfxFilters[texture._mipFilter];
-  out.premultiplyAlpha = texture._premultiplyAlpha;
 }
 
-function _allocData(texture) {
-  if (texture._format === 'a8') {
-    return new Uint8Array(texture._width * texture._height);
-  } else if (texture._format === 'rgb8') {
-    return new Uint8Array(texture._width * texture._height * 3);
-  } else if (texture._format === 'rgba8') {
-    return new Uint8Array(texture._width * texture._height * 4);
-  } else if (texture._format === 'rgba32f') {
-    return new Float32Array(texture._width * texture._height * 4);
-  }
-
-  return null;
-}
-
-export default class Texture2D extends Texture {
+@ccclass
+export class TextureCube extends Texture {
   constructor(device, width = 2, height = 2, fmt = 'rgba8') {
     super(device);
 
     //
-    this._writable = false;
-    this._data = null;
-
-    // opts
     this._images = [];
     this._mipmap = true;
     this._width = width;
@@ -71,7 +53,6 @@ export default class Texture2D extends Texture {
     this._minFilter = 'linear';
     this._magFilter = 'linear';
     this._mipFilter = 'linear';
-    this._premultiplyAlpha = false;
   }
 
   unload() {
@@ -83,34 +64,14 @@ export default class Texture2D extends Texture {
     super.unload();
   }
 
-  setImage(level, img) {
-    if (
-      img instanceof HTMLCanvasElement ||
-      img instanceof HTMLImageElement ||
-      img instanceof HTMLVideoElement
-    ) {
-      this._images[level] = img;
-
-      if (level === 0) {
-        this.resize(img.width, img.height);
-      }
-
-      // TODO: if writable, get data by canvas.drawImage(), canvas.getImageData();
-    }
-  }
-
   setImages(imgs) {
     this._images = imgs;
-    this.resize(imgs[0].width, imgs[0].height);
+    this.resize(imgs[0][0].width, imgs[0][0].height);
   }
 
   resize(width, height) {
     this._width = width;
     this._height = height;
-
-    if (this._writable) {
-      this._data = _allocData(this);
-    }
   }
 
   get width() {
@@ -119,27 +80,6 @@ export default class Texture2D extends Texture {
 
   get height() {
     return this._height;
-  }
-
-  get format() {
-    return this._format;
-  }
-
-  get data() {
-    return this._data;
-  }
-
-  set writable(val) {
-    this._writable = val;
-
-    if (this._writable) {
-      this._data = _allocData(this);
-    } else {
-      this._data = null;
-    }
-  }
-  get writable() {
-    return this._writable;
   }
 
   set mipmap(val) {
@@ -191,17 +131,10 @@ export default class Texture2D extends Texture {
     return this._mipFilter;
   }
 
-  set premultiplyAlpha(val) {
-    this._premultiplyAlpha = val;
-  }
-  get premultiplyAlpha() {
-    return this._premultiplyAlpha;
-  }
-
   commit() {
     _updateOpts(_opts, this);
     if (!this._texture) {
-      this._texture = new gfx.Texture2D(this._device, _opts);
+      this._texture = new gfx.TextureCube(this._device, _opts);
     } else {
       this._texture.update(_opts);
     }

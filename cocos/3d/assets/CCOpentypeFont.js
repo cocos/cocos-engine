@@ -4,13 +4,13 @@
 
 import { _decorator } from "../../core/data/index";
 const {ccclass, property} = _decorator;
-import Font3D from "./CCFont3D";
+import Font from "./CCFont";
 import vec2 from "../../vmath/vec2";
-import { Texture2D } from "../../../index";
 import ShelfPack from "./utils/shelf-pack";
+import Texture2D from "./texture-2d";
 
 @ccclass
-export default class OpentypeFont3D extends Font3D {
+export default class OpentypeFont extends Font {
     /**
      * @typedef {{id: number, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} OpentypeFontGlyph
      */
