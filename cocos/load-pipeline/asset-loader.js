@@ -24,66 +24,68 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../utils/CCPath');
-const debug = require('../CCDebug');
-const Pipeline = require('./pipeline');
-const LoadingItems = require('./loading-items');
+import {extname} from '../core/utils/path';
+import debug from '../core/platform/CCDebug';
+import Pipeline from './pipeline';
+import LoadingItems from './loading-items';
 
-var ID = 'AssetLoader';
-
-var AssetLoader = function (extMap) {
-    this.id = ID;
-    this.async = true;
-    this.pipeline = null;
-};
-AssetLoader.ID = ID;
-
+const ID = 'AssetLoader';
 var reusedArray = [];
-AssetLoader.prototype.handle = function (item, callback) {
-    var uuid = item.uuid;
-    if (!uuid) {
-        return item.content || null;
+
+export default class AssetLoader {
+    static ID = ID;
+    constructor (extMap) {
+        this.id = ID;
+        this.async = true;
+        this.pipeline = null;
     }
 
-    var self = this;
-    cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
-        if (error) {
-            callback(error);
+    handle (item, callback) {
+        var uuid = item.uuid;
+        if (!uuid) {
+            return item.content || null;
         }
-        else {
-            item.url = item.rawUrl = url;
-            item.isRawAsset = isRawAsset;
-            if (isRawAsset) {
-                var ext = cc.path.extname(url).toLowerCase();
-                if (!ext) {
-                    callback(new Error(debug.getError(4931, uuid, url)));
-                    return;
-                }
-                ext = ext.substr(1);
-                var queue = LoadingItems.getQueue(item);
-                reusedArray[0] = {
-                    queueId: item.queueId,
-                    id: url,
-                    url: url,
-                    type: ext,
-                    error: null,
-                    alias: item,
-                    complete: true
-                };
-                if (CC_EDITOR) {
-                    self.pipeline._cache[url] = reusedArray[0];
-                }
-                queue.append(reusedArray);
-                // Dispatch to other raw type downloader
-                item.type = ext;
-                callback(null, item.content);
+
+        var self = this;
+        cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
+            if (error) {
+                callback(error);
             }
             else {
-                item.type = 'uuid';
-                callback(null, item.content);
+                item.url = item.rawUrl = url;
+                item.isRawAsset = isRawAsset;
+                if (isRawAsset) {
+                    var ext = extname(url).toLowerCase();
+                    if (!ext) {
+                        callback(new Error(debug.getError(4931, uuid, url)));
+                        return;
+                    }
+                    ext = ext.substr(1);
+                    var queue = LoadingItems.getQueue(item);
+                    reusedArray[0] = {
+                        queueId: item.queueId,
+                        id: url,
+                        url: url,
+                        type: ext,
+                        error: null,
+                        alias: item,
+                        complete: true
+                    };
+                    if (CC_EDITOR) {
+                        self.pipeline._cache[url] = reusedArray[0];
+                    }
+                    queue.append(reusedArray);
+                    // Dispatch to other raw type downloader
+                    item.type = ext;
+                    callback(null, item.content);
+                }
+                else {
+                    item.type = 'uuid';
+                    callback(null, item.content);
+                }
             }
-        }
-    });
-};
+        });
+    }
+}
 
-Pipeline.AssetLoader = module.exports = AssetLoader;
+Pipeline.AssetLoader = AssetLoader;

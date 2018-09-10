@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Unpackers = require('./unpackers');
-var pushToMap = require('../utils/misc').pushToMap;
+import {pushToMap} from '../core/utils/misc';
+import {TextureUnpacker, JsonUnpacker} from './unpackers';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -58,141 +58,146 @@ function error (uuid, packUuid) {
     return new Error('Can not retrieve ' + uuid + ' from packer ' + packUuid);
 }
 
-module.exports = {
-    initPacks: function (packs) {
-        packIndices = packs;
-        for (var packUuid in packs) {
-            var uuids = packs[packUuid];
-            for (var i = 0; i < uuids.length; i++) {
-                var uuid = uuids[i];
-                // the smallest pack must be at the beginning of the array to download more first
-                var pushFront = uuids.length === 1;
-                pushToMap(uuidToPack, uuid, packUuid, pushFront);
+export function initPacks (packs) {
+    packIndices = packs;
+    for (var packUuid in packs) {
+        var uuids = packs[packUuid];
+        for (var i = 0; i < uuids.length; i++) {
+            var uuid = uuids[i];
+            // the smallest pack must be at the beginning of the array to download more first
+            var pushFront = uuids.length === 1;
+            pushToMap(uuidToPack, uuid, packUuid, pushFront);
+        }
+    }
+}
+
+export function _loadNewPack (uuid, packUuid, callback) {
+    var self = this;
+    var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
+    cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
+        if (err) {
+            cc.errorID(4916, uuid);
+            return callback(err);
+        }
+        var res = self._doLoadNewPack(uuid, packUuid, packJson);
+        if (res) {
+            callback(null, res);
+        }
+        else {
+            callback(error(uuid, packUuid));
+        }
+    });
+}
+
+export function _doPreload (packUuid, packJson) {
+    var unpackerData = globalUnpackers[packUuid];
+    if (!unpackerData) {
+        unpackerData = globalUnpackers[packUuid] = new UnpackerData();
+        unpackerData.state = PackState.Downloading;
+    }
+    if (unpackerData.state !== PackState.Loaded) {
+        unpackerData.unpacker = new JsonUnpacker();
+        unpackerData.unpacker.load(packIndices[packUuid], packJson);
+        unpackerData.state = PackState.Loaded;
+    }
+}
+
+export function _doLoadNewPack (uuid, packUuid, packedJson) {
+    var unpackerData = globalUnpackers[packUuid];
+    // double check cache after load
+    if (unpackerData.state !== PackState.Loaded) {
+        // init unpacker
+        if (typeof packedJson === 'string') {
+            packedJson = JSON.parse(packedJson);
+        }
+        if (Array.isArray(packedJson)) {
+            unpackerData.unpacker = new JsonUnpacker();
+        }
+        else if (packedJson.type === TextureUnpacker.ID) {
+            unpackerData.unpacker = new TextureUnpacker();
+        }
+        unpackerData.unpacker.load(packIndices[packUuid], packedJson);
+        unpackerData.state = PackState.Loaded;
+    }
+
+    return unpackerData.unpacker.retrieve(uuid);
+}
+
+export function _selectLoadedPack (packUuids) {
+    var existsPackState = PackState.Invalid;
+    var existsPackUuid = '';
+    for (var i = 0; i < packUuids.length; i++) {
+        var packUuid = packUuids[i];
+        var unpackerData = globalUnpackers[packUuid];
+        if (unpackerData) {
+            var state = unpackerData.state;
+            if (state === PackState.Loaded) {
+                return packUuid;
+            }
+            else if (state > existsPackState) {     // load from the package with the largest state value,
+                existsPackState = state;
+                existsPackUuid = packUuid;
             }
         }
-    },
+    }
+                                                    // otherwise the first one (smallest one) will be load
+    return existsPackState !== PackState.Invalid ? existsPackUuid : packUuids[0];
+}
 
-    _loadNewPack: function (uuid, packUuid, callback) {
-        var self = this;
-        var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
-        cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
-            if (err) {
-                cc.errorID(4916, uuid);
-                return callback(err);
-            }
-            var res = self._doLoadNewPack(uuid, packUuid, packJson);
-            if (res) {
-                callback(null, res);
-            }
-            else {
-                callback(error(uuid, packUuid));
-            }
-        });
-    },
+/**
+ * @returns {Object} When returns undefined, the requested item is not in any pack, when returns null, the item is in a loading pack, when item json exists, it will return the result directly.
+ */
+export function load (item, callback) {
+    var uuid = item.uuid;
+    var packUuid = uuidToPack[uuid];
+    if (!packUuid) {
+        // Return undefined to let caller know it's not recognized.
+        // We don't use false here because changing return value type may cause jit fail, 
+        // though return undefined may have the same issue.
+        return;
+    }
 
-    _doPreload (packUuid, packJson) {
-        var unpackerData = globalUnpackers[packUuid];
+    if (Array.isArray(packUuid)) {
+        packUuid = this._selectLoadedPack(packUuid);
+    }
+
+    var unpackerData = globalUnpackers[packUuid];
+    if (unpackerData && unpackerData.state === PackState.Loaded) {
+        // ensure async
+        var json = unpackerData.unpacker.retrieve(uuid);
+        if (json) {
+            return json;
+        }
+        else {
+            return error(uuid, packUuid);
+        }
+    }
+    else {
         if (!unpackerData) {
+            if (!CC_TEST) {
+                console.log('Create unpacker %s for %s', packUuid, uuid);
+            }
             unpackerData = globalUnpackers[packUuid] = new UnpackerData();
             unpackerData.state = PackState.Downloading;
         }
-        if (unpackerData.state !== PackState.Loaded) {
-            unpackerData.unpacker = new Unpackers.JsonUnpacker();
-            unpackerData.unpacker.load(packIndices[packUuid], packJson);
-            unpackerData.state = PackState.Loaded;
-        }
-    },
-
-    _doLoadNewPack: function (uuid, packUuid, packedJson) {
-        var unpackerData = globalUnpackers[packUuid];
-        // double check cache after load
-        if (unpackerData.state !== PackState.Loaded) {
-            // init unpacker
-            if (typeof packedJson === 'string') {
-                packedJson = JSON.parse(packedJson);
-            }
-            if (Array.isArray(packedJson)) {
-                unpackerData.unpacker = new Unpackers.JsonUnpacker();
-            }
-            else if (packedJson.type === Unpackers.TextureUnpacker.ID) {
-                unpackerData.unpacker = new Unpackers.TextureUnpacker();
-            }
-            unpackerData.unpacker.load(packIndices[packUuid], packedJson);
-            unpackerData.state = PackState.Loaded;
-        }
-
-        return unpackerData.unpacker.retrieve(uuid);
-    },
-
-    _selectLoadedPack: function (packUuids) {
-        var existsPackState = PackState.Invalid;
-        var existsPackUuid = '';
-        for (var i = 0; i < packUuids.length; i++) {
-            var packUuid = packUuids[i];
-            var unpackerData = globalUnpackers[packUuid];
-            if (unpackerData) {
-                var state = unpackerData.state;
-                if (state === PackState.Loaded) {
-                    return packUuid;
-                }
-                else if (state > existsPackState) {     // load from the package with the largest state value,
-                    existsPackState = state;
-                    existsPackUuid = packUuid;
-                }
-            }
-        }
-                                                        // otherwise the first one (smallest one) will be load
-        return existsPackState !== PackState.Invalid ? existsPackUuid : packUuids[0];
-    },
-
-    /**
-     * @returns {Object} When returns undefined, the requested item is not in any pack, when returns null, the item is in a loading pack, when item json exists, it will return the result directly.
-     */
-    load: function (item, callback) {
-        var uuid = item.uuid;
-        var packUuid = uuidToPack[uuid];
-        if (!packUuid) {
-            // Return undefined to let caller know it's not recognized.
-            // We don't use false here because changing return value type may cause jit fail, 
-            // though return undefined may have the same issue.
-            return;
-        }
-
-        if (Array.isArray(packUuid)) {
-            packUuid = this._selectLoadedPack(packUuid);
-        }
-
-        var unpackerData = globalUnpackers[packUuid];
-        if (unpackerData && unpackerData.state === PackState.Loaded) {
-            // ensure async
-            var json = unpackerData.unpacker.retrieve(uuid);
-            if (json) {
-                return json;
-            }
-            else {
-                return error(uuid, packUuid);
-            }
-        }
-        else {
-            if (!unpackerData) {
-                if (!CC_TEST) {
-                    console.log('Create unpacker %s for %s', packUuid, uuid);
-                }
-                unpackerData = globalUnpackers[packUuid] = new UnpackerData();
-                unpackerData.state = PackState.Downloading;
-            }
-            this._loadNewPack(uuid, packUuid, callback);
-        }
-        // Return null to let caller know it's loading asynchronously
-        return null;
+        this._loadNewPack(uuid, packUuid, callback);
     }
-};
+    // Return null to let caller know it's loading asynchronously
+    return null;
+}
 
 if (CC_TEST) {
-    cc._Test.PackDownloader = module.exports;
-    cc._Test.PackDownloader.reset = function () {
-        uuidToPack = {};
-        packIndices = {};
-        globalUnpackers = {};
-    };
+    cc._Test.PackDownloader = {
+        initPacks,
+        _loadNewPack,
+        _doPreload,
+        _doLoadNewPack,
+        _selectLoadedPack,
+        load,
+        reset () {
+            uuidToPack = {};
+            packIndices = {};
+            globalUnpackers = {};
+        }
+    }
 }

@@ -30,8 +30,8 @@ import eventManager from './platform/event-manager/CCEventManager';
 import ccobject from './data/object';
 import game from './CCGame';
 import Scheduler from './CCScheduler';
+import {autoRelease} from '../load-pipeline/auto-release-utils';
 
-// const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
 
@@ -438,7 +438,7 @@ class Director extends EventTarget {
             // auto release assets
             CC_BUILD && CC_DEBUG && console.time('AutoRelease');
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
+            autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
             CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
         }
 

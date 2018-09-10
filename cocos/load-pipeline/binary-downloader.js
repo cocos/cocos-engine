@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function downloadBinary (item, callback) {
+export default function downloadBinary (item, callback) {
     var url = item.url;
     var xhr = cc.loader.getXMLHttpRequest(),
         errInfo = 'Load binary data failed: ' + url + '';
@@ -48,5 +48,3 @@ function downloadBinary (item, callback) {
     };
     xhr.send(null);
 }
-
-module.exports = downloadBinary;

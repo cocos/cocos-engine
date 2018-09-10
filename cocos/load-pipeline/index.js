@@ -24,10 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./downloader');
-require('./loader');
-
-require('./loading-items');
-require('./pipeline');
-
-require('./CCLoader');
+export * from './downloader';
+export * from './loader';
+export * from './loading-items';
+export * from './pipeline';
+export * from './CCLoader';

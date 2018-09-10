@@ -28,7 +28,7 @@
  * @class url
  * @static
  */
-cc.url = {
+export default url = {
 
     /**
      * The base url of raw assets.
@@ -85,6 +85,6 @@ cc.url = {
     _init: function (assets) {
         this._rawAssets = cc.path.stripSep(assets) + '/';
     }
-};
+}
 
-module.exports = cc.url;
+cc.url = url;

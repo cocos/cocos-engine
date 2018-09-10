@@ -24,23 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var pushToMap = require('../utils/misc').pushToMap;
-var js = require('../platform/js');
+import {pushToMap} from '../core/utils/misc';
+import {createMap, isChildClassOf} from '../core/utils/js';
 
 function Entry (uuid, type) {
     this.uuid = uuid;
     this.type = type;
-}
-
-/*
- * !#en AssetTable is used to find asset's uuid by url.
- * !#zh AssetTable 用于查找资源的 uuid 和 url。
- * @class AssetTable
- *
- */
-
-function AssetTable () {
-    this._pathToUuid = js.createMap(true);
 }
 
 function isMatchByWord (path, test) {
@@ -51,149 +40,158 @@ function isMatchByWord (path, test) {
     return true;
 }
 
-var proto = AssetTable.prototype;
+/*
+ * !#en AssetTable is used to find asset's uuid by url.
+ * !#zh AssetTable 用于查找资源的 uuid 和 url。
+ * @class AssetTable
+ *
+ */
 
-proto.getUuid = function (path, type) {
-    path = cc.url.normalize(path);
-    var item = this._pathToUuid[path];
-    if (item) {
-        if (Array.isArray(item)) {
-            if (type) {
-                for (var i = 0; i < item.length; i++) {
-                    var entry = item[i];
-                    if (js.isChildClassOf(entry.type, type)) {
-                        return entry.uuid;
+export default class AssetTable {
+    constructor () {
+        this._pathToUuid = createMap(true);
+    }
+
+    getUuid (path, type) {
+        path = cc.url.normalize(path);
+        var item = this._pathToUuid[path];
+        if (item) {
+            if (Array.isArray(item)) {
+                if (type) {
+                    for (var i = 0; i < item.length; i++) {
+                        var entry = item[i];
+                        if (isChildClassOf(entry.type, type)) {
+                            return entry.uuid;
+                        }
                     }
-                }
-                // not found
-                if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame)) {
-                    for (let i = 0; i < item.length; i++) {
-                        let entry = item[i];
-                        if (js.isChildClassOf(entry.type, cc.SpriteAtlas)) {
-                            // not support sprite frame in atlas
-                            cc.errorID(4932, path);
-                            break;
+                    // not found
+                    if (CC_DEBUG && isChildClassOf(type, cc.SpriteFrame)) {
+                        for (let i = 0; i < item.length; i++) {
+                            let entry = item[i];
+                            if (isChildClassOf(entry.type, cc.SpriteAtlas)) {
+                                // not support sprite frame in atlas
+                                cc.errorID(4932, path);
+                                break;
+                            }
                         }
                     }
                 }
+                else {
+                    return item[0].uuid;
+                }
             }
-            else {
-                return item[0].uuid;
+            else if (!type || isChildClassOf(item.type, type)) {
+                return item.uuid;
+            }
+            else if (CC_DEBUG && isChildClassOf(type, cc.SpriteFrame) && isChildClassOf(item.type, cc.SpriteAtlas)) {
+                // not support sprite frame in atlas
+                cc.errorID(4932, path);
             }
         }
-        else if (!type || js.isChildClassOf(item.type, type)) {
-            return item.uuid;
-        }
-        else if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame) && js.isChildClassOf(item.type, cc.SpriteAtlas)) {
-            // not support sprite frame in atlas
-            cc.errorID(4932, path);
-        }
+        return '';
     }
-    return '';
-};
 
-proto.getUuidArray = function (path, type, out_urls) {
-    path = cc.url.normalize(path);
-    if (path[path.length - 1] === '/') {
-        path = path.slice(0, -1);
-    }
-    var path2uuid = this._pathToUuid;
-    var uuids = [];
-    var isChildClassOf = js.isChildClassOf;
-    var _foundAtlasUrl;
-    for (var p in path2uuid) {
-        if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
-            var item = path2uuid[p];
-            if (Array.isArray(item)) {
-                for (var i = 0; i < item.length; i++) {
-                    var entry = item[i];
-                    if (!type || isChildClassOf(entry.type, type)) {
-                        uuids.push(entry.uuid);
+    getUuidArray (path, type, out_urls) {
+        path = cc.url.normalize(path);
+        if (path[path.length - 1] === '/') {
+            path = path.slice(0, -1);
+        }
+        var path2uuid = this._pathToUuid;
+        var uuids = [];
+        var _foundAtlasUrl;
+        for (var p in path2uuid) {
+            if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
+                var item = path2uuid[p];
+                if (Array.isArray(item)) {
+                    for (var i = 0; i < item.length; i++) {
+                        var entry = item[i];
+                        if (!type || isChildClassOf(entry.type, type)) {
+                            uuids.push(entry.uuid);
+                            if (out_urls) {
+                                out_urls.push(p);
+                            }
+                        }
+                        else if (CC_DEBUG && entry.type === cc.SpriteAtlas) {
+                            _foundAtlasUrl = p;
+                        }
+                    }
+                }
+                else {
+                    if (!type || isChildClassOf(item.type, type)) {
+                        uuids.push(item.uuid);
                         if (out_urls) {
                             out_urls.push(p);
                         }
                     }
-                    else if (CC_DEBUG && entry.type === cc.SpriteAtlas) {
+                    else if (CC_DEBUG && item.type === cc.SpriteAtlas) {
                         _foundAtlasUrl = p;
                     }
                 }
             }
-            else {
-                if (!type || isChildClassOf(item.type, type)) {
-                    uuids.push(item.uuid);
-                    if (out_urls) {
-                        out_urls.push(p);
+        }
+        if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && isChildClassOf(type, cc.SpriteFrame)) {
+            // not support sprite frame in atlas
+            cc.errorID(4932, _foundAtlasUrl);
+        }
+        return uuids;
+    }
+
+    // /**
+    //  * !#en Returns all asset paths in the table.
+    //  * !#zh 返回表中的所有资源路径。
+    //  * @method getAllPaths
+    //  * @return {string[]}
+    //  */
+    // getAllPaths () {
+    //     return Object.keys(this._pathToUuid);
+    // }
+
+    /**
+     * !#en TODO
+     * !#zh 以路径为 key，uuid 为值添加到表中。
+     * @method add
+     * @param {String} path - the path to load, should NOT include filename extensions.
+     * @param {String} uuid
+     * @param {Function} type
+     * @param {Boolean} isMainAsset
+     * @private
+     */
+    add (path, uuid, type, isMainAsset) {
+        // remove extname
+        // (can not use path.slice because length of extname maybe 0)
+        path = path.substring(0, path.length - cc.path.extname(path).length);
+        var newEntry = new Entry(uuid, type);
+        pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
+    }
+
+    _getInfo_DEBUG (uuid, out_info) {
+        var path2uuid = this._pathToUuid;
+        var paths = Object.keys(path2uuid);
+        for (var p = 0; p < paths.length; ++p) {
+            var path = paths[p];
+            var item = path2uuid[path];
+            if (Array.isArray(item)) {
+                for (var i = 0; i < item.length; i++) {
+                    var entry = item[i];
+                    if (entry.uuid === uuid) {
+                        out_info.path = path;
+                        out_info.type = entry.type;
+                        return true;
                     }
                 }
-                else if (CC_DEBUG && item.type === cc.SpriteAtlas) {
-                    _foundAtlasUrl = p;
-                }
+            }
+            else if (item.uuid === uuid) {
+                out_info.path = path;
+                out_info.type = item.type;
+                return true;
             }
         }
+        return false;
     }
-    if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && js.isChildClassOf(type, cc.SpriteFrame)) {
-        // not support sprite frame in atlas
-        cc.errorID(4932, _foundAtlasUrl);
+
+    reset () {
+        this._pathToUuid = createMap(true);
     }
-    return uuids;
-};
-
-// /**
-//  * !#en Returns all asset paths in the table.
-//  * !#zh 返回表中的所有资源路径。
-//  * @method getAllPaths
-//  * @return {string[]}
-//  */
-// proto.getAllPaths = function () {
-//     return Object.keys(this._pathToUuid);
-// };
-
-/**
- * !#en TODO
- * !#zh 以路径为 key，uuid 为值添加到表中。
- * @method add
- * @param {String} path - the path to load, should NOT include filename extensions.
- * @param {String} uuid
- * @param {Function} type
- * @param {Boolean} isMainAsset
- * @private
- */
-proto.add = function (path, uuid, type, isMainAsset) {
-    // remove extname
-    // (can not use path.slice because length of extname maybe 0)
-    path = path.substring(0, path.length - cc.path.extname(path).length);
-    var newEntry = new Entry(uuid, type);
-    pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
-};
-
-proto._getInfo_DEBUG = CC_DEBUG && function (uuid, out_info) {
-    var path2uuid = this._pathToUuid;
-    var paths = Object.keys(path2uuid);
-    for (var p = 0; p < paths.length; ++p) {
-        var path = paths[p];
-        var item = path2uuid[path];
-        if (Array.isArray(item)) {
-            for (var i = 0; i < item.length; i++) {
-                var entry = item[i];
-                if (entry.uuid === uuid) {
-                    out_info.path = path;
-                    out_info.type = entry.type;
-                    return true;
-                }
-            }
-        }
-        else if (item.uuid === uuid) {
-            out_info.path = path;
-            out_info.type = item.type;
-            return true;
-        }
-    }
-    return false;
-};
-
-proto.reset = function () {
-    this._pathToUuid = js.createMap(true);
-};
-
+}
 
 module.exports = AssetTable;

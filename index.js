@@ -32,5 +32,6 @@ import cc from './predefine';
 import './cocos/core';
 
 import './cocos/assets';
+import './cocos/load-pipeline';
 
 export default cc;

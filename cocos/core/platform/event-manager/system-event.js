@@ -85,7 +85,7 @@ export default class SystemEvent extends EventTarget {
      */
     setAccelerometerEnabled (isEnable) {
         inputManger.setAccelerometerEnabled(isEnable);
-    },
+    }
 
     /**
      * !#en set accelerometer interval value
@@ -95,7 +95,7 @@ export default class SystemEvent extends EventTarget {
      */
     setAccelerometerInterval (interval) {
         inputManger.setAccelerometerInterval(interval);
-    },
+    }
 
     on (type, callback, target) {
         super.on(type, callback, target);
@@ -135,8 +135,7 @@ export default class SystemEvent extends EventTarget {
                 eventManager.addListener(accelerationListener, 1);
             }
         }
-    },
-
+    }
 
     off (type, callback, target) {
         super.off(type, callback, target);
@@ -155,10 +154,10 @@ export default class SystemEvent extends EventTarget {
             eventManager.removeListener(accelerationListener);
         }
     }
-
-});
+}
 
 cc.SystemEvent = SystemEvent;
+
 if (!CC_EDITOR) {
 /** 
  * @module cc
