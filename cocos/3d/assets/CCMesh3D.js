@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
+import { _decorator } from "../../core/data/index";
+const {ccclass, property} = _decorator;
 import { GLTFAsset } from "../../assets/CCGLTFAsset";
 import { Asset } from "../../../index";
-import { ccclass, property } from "../../core/data/CCClassDecorator";
 
 @ccclass
 class Mesh3D extends Asset {

@@ -1,8 +1,9 @@
 // @copyright
 
 // @ts-check
-import { ccclass, property } from "../../core/data/CCClassDecorator";
-import { Asset } from "../../../index";
+import { _decorator } from "../../core/data/index";
+const {ccclass, property} = _decorator;
+import Asset from "../../assets/CCAsset";
 import vec2 from "../../vmath/vec2";
 
 @ccclass

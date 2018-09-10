@@ -23,8 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
+import { _decorator } from "../../core/data/index";
+const {ccclass, property} = _decorator;
 import { Asset } from "../../../index";
-import { ccclass, property } from "../../core/data/CCClassDecorator";
 import Technique from "../../renderer/core/technique";
 
 @ccclass

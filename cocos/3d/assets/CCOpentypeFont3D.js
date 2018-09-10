@@ -2,7 +2,8 @@
 
 // @ts-check
 
-import { ccclass, property } from "../../core/data/CCClassDecorator";
+import { _decorator } from "../../core/data/index";
+const {ccclass, property} = _decorator;
 import Font3D from "./CCFont3D";
 import vec2 from "../../vmath/vec2";
 import { Texture2D } from "../../../index";
