@@ -561,7 +561,7 @@ export default class Texture2D extends Asset {
         this._texture && this._texture.destroy();
         // TODO cc.textureUtil ?
         // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
-        this._super();
+        return super.destroy();
     }
 
     /**
