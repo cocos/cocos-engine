@@ -47,12 +47,7 @@ _debugMaterial.useTexture = false;
 _debugMaterial.updateHash();
 
 function _updateKeyWithStencilRef (key, stencilRef) {
-    try {
-        return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
-    }
-    catch (e) {
-        return key;
-    }
+    return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
 }
 
 function _getSlotMaterial (slot, tex, premultiAlpha) {
