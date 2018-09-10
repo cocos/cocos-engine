@@ -317,10 +317,9 @@ Simulator.prototype.step = function (dt) {
 
         let particle = particles[particleIdx];
 
+        // life
+        particle.timeToLive -= dt;
         if (particle.timeToLive > 0) {
-            // life
-            particle.timeToLive -= dt;
-
             // Mode A: gravity, direction, tangential accel & radial accel
             if (psys.emitterMode === cc.ParticleSystem.EmitterMode.GRAVITY) {
                 let tmp = _tpc, radial = _tpa, tangential = _tpb;
