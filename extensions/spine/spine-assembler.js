@@ -33,7 +33,7 @@ const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
-const KEYWORD = '@';
+const STENCIL_SEP = '@';
 
 let _sharedMaterials = {};
 
@@ -46,16 +46,13 @@ _debugMaterial.useColor = false;
 _debugMaterial.useTexture = false;
 _debugMaterial.updateHash();
 
-
 function _updateKeyWithStencilRef (key, stencilRef) {
-    let arr = key.split(KEYWORD);
-    if (arr.length > 0) {
-        return arr[0] + KEYWORD + stencilRef;
+    try {
+        return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
     }
-    else {
-        cc.warn('Slot Material key is Unkonwn');
+    catch (e) {
+        return key;
     }
-    return '';
 }
 
 function _getSlotMaterial (slot, tex, premultiAlpha) {
@@ -80,7 +77,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             break;
     }
 
-    let key = tex.url + src + dst + KEYWORD + '0';
+    let key = tex.url + src + dst + STENCIL_SEP + '0';
     let material = _sharedMaterials[key];
     if (!material) {
         material = new SpriteMaterial();
@@ -312,6 +309,8 @@ var spineAssembler = {
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
 
+            // For generate new material for skeleton render data nested in mask,
+            // otherwise skeleton inside/outside mask with same material will interfere each other
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
