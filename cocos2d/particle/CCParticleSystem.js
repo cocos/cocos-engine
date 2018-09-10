@@ -708,7 +708,6 @@ var ParticleSystem = cc.Class({
     ctor: function () {
         this._previewTimer = null;
         this._focused = false;
-        this._willStart = false;
         this._texture = null;
 
         this._simulator = new ParticleSimulator(this);
@@ -768,20 +767,6 @@ var ParticleSystem = cc.Class({
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
-
-            var self = this;
-            this._previewTimer = setInterval(function () {
-                // attemptToReplay
-                if (!self._willStart && self.particleCount === 0) {
-                    self._willStart = true;
-                    setTimeout(function () {
-                        self._willStart = false;
-                        if (self.preview && self._focused && !self.active && !cc.engine.isPlaying) {
-                            self.resetSystem();
-                        }
-                    }, 600);
-                }
-            }, 100);
         }
     },
 
@@ -1164,7 +1149,9 @@ var ParticleSystem = cc.Class({
     
     _finishedSimulation: function () {
         if (CC_EDITOR) {
-            this.stopSystem();
+            if (this.preview && this._focused && !this.active && !cc.engine.isPlaying) {
+                this.resetSystem();
+            }
             return;
         }
         this.disableRender();
