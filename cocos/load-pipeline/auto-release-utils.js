@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
+import {createMap} from '../core/utils/js';
 
 function parseDepends (key, parsed) {
     var item = cc.loader.getItem(key);
@@ -92,49 +92,47 @@ function visitNode (node, excludeMap) {
     }
 }
 
-module.exports = {
-    // do auto release
-    autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodes) {
-        var releaseSettings = cc.loader._autoReleaseSetting;
-        var excludeMap = js.createMap();
+// do auto release
+export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
+    var releaseSettings = cc.loader._autoReleaseSetting;
+    var excludeMap = createMap();
 
-        // collect next scene assets
-        if (nextSceneAssets) {
-            for (let i = 0; i < nextSceneAssets.length; i++) {
-                excludeMap[nextSceneAssets[i]] = true;
-            }
+    // collect next scene assets
+    if (nextSceneAssets) {
+        for (let i = 0; i < nextSceneAssets.length; i++) {
+            excludeMap[nextSceneAssets[i]] = true;
         }
+    }
 
-        // collect assets used by persist nodes
-        for (let i = 0; i < persistNodes.length; i++) {
-            visitNode(persistNodes[i], excludeMap)
-        }
+    // collect assets used by persist nodes
+    for (let i = 0; i < persistNodes.length; i++) {
+        visitNode(persistNodes[i], excludeMap)
+    }
 
-        // remove ununsed scene assets
-        if (oldSceneAssets) {
-            for (let i = 0; i < oldSceneAssets.length; i++) {
-                let key = oldSceneAssets[i];
-                if (releaseSettings[key] !== false && !excludeMap[key]) {
-                    cc.loader.release(key);
-                }
-            }
-        }
-
-        // remove auto release assets
-        // (releasing asset will change _autoReleaseSetting, so don't use for-in)
-        var keys = Object.keys(releaseSettings);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            if (releaseSettings[key] === true && !excludeMap[key]) {
+    // remove ununsed scene assets
+    if (oldSceneAssets) {
+        for (let i = 0; i < oldSceneAssets.length; i++) {
+            let key = oldSceneAssets[i];
+            if (releaseSettings[key] !== false && !excludeMap[key]) {
                 cc.loader.release(key);
             }
         }
-    },
-
-    // get dependencies not including self
-    getDependsRecursively: function (key) {
-        var depends = {};
-        parseDepends(key, depends);
-        return Object.keys(depends);
     }
-};
+
+    // remove auto release assets
+    // (releasing asset will change _autoReleaseSetting, so don't use for-in)
+    var keys = Object.keys(releaseSettings);
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        if (releaseSettings[key] === true && !excludeMap[key]) {
+            cc.loader.release(key);
+        }
+    }
+}
+
+// get dependencies not including self
+export function getDependsRecursively (key) {
+    var depends = {};
+    parseDepends(key, depends);
+    return Object.keys(depends);
+}

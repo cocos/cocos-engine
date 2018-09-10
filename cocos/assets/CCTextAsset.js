@@ -36,6 +36,8 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class TextAsset extends Asset {
+    get name () { return 'TextAsset'; }
+
     /**
      * @property {String} text - The text contents of the resource.
      */
@@ -47,5 +49,4 @@ export default class TextAsset extends Asset {
     }
 }
 
-TextAsset.prototype.name = 'TextAsset';
 cc.TextAsset = TextAsset;

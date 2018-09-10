@@ -24,12 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
-const debug = require('../CCDebug');
-require('../platform/deserialize');
-const LoadingItems = require('./loading-items');
+import {_getClassById} from '../core/utils/js';
+import debug from '../core/platform/CCDebug';
+import deserialize from '../core/data/deserialize';
+import LoadingItems from './loading-items';
 
-function isSceneObj (json) {
+export function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';
     var PREFAB_ID = 'cc.Prefab';
     return json && (
@@ -207,7 +207,7 @@ function canDeferredLoad (asset, item, isScene) {
 
 var MissingClass;
 
-function loadUuid (item, callback) {
+export function loadUuid (item, callback) {
     if (CC_EDITOR) {
         MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
     }
@@ -290,5 +290,4 @@ function loadUuid (item, callback) {
     loadDepends(this.pipeline, item, asset, depends, callback);
 }
 
-module.exports = loadUuid;
 loadUuid.isSceneObj = isSceneObj;

@@ -249,6 +249,8 @@ function _getSharedOptions () {
  */
 @ccclass
 export default class Texture2D extends Asset {
+    get name () { return 'Texture2D'; }
+
     @property({
         override: true
     })
@@ -561,7 +563,7 @@ export default class Texture2D extends Asset {
         this._texture && this._texture.destroy();
         // TODO cc.textureUtil ?
         // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
-        this._super();
+        return super.destroy();
     }
 
     /**
@@ -891,6 +893,5 @@ export default class Texture2D extends Asset {
  * @event load
  */
 
-Texture2D.prototype.name = 'Texture2D';
 addon(Texture2D.prototype, EventTarget.prototype);
 cc.Texture2D = Texture2D;

@@ -84,6 +84,8 @@ var OptimizationPolicy = Enum({
  */
 @ccclass
 export default class Prefab extends Asset {
+    get name () { return 'Prefab'; }
+
     constructor () {
         /**
          * Cache function to optimize instance creaton.
@@ -202,6 +204,5 @@ export default class Prefab extends Asset {
     }
 }
 
-Prefab.prototype.name = "Enum";
 cc.Prefab = Prefab;
 obsolete(cc, 'cc._Prefab', 'Prefab');

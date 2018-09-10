@@ -23,23 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
-const debug = require('../CCDebug');
-require('../utils/CCPath');
-const Pipeline = require('./pipeline');
-const PackDownloader = require('./pack-downloader');
-
-let downloadBinary = require('./binary-downloader');
-let downloadText = require('./text-downloader');
-let urlAppendTimestamp = require('./utils').urlAppendTimestamp;
-
-var downloadAudio;
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    downloadAudio = require('./audio-downloader');
-}
-else {
-    downloadAudio = null;
-}
+import {mixin} from '../core/utils/js';
+import debug from '../core/platform/CCDebug';
+import Pipeline from './pipeline';
+import * as PackDownloader from './pack-downloader';
+import downloadBinary from './binary-downloader';
+import downloadText from './text-downloader';
+import downloadAudio from './audio-downloader';
+import {urlAppendTimestamp} from './utils';
 
 function skip () {
     return null;
@@ -210,106 +201,109 @@ var ID = 'Downloader';
  *      'scene' : function (url, callback) {}
  *  });
  */
-var Downloader = function (extMap) {
-    this.id = ID;
-    this.async = true;
-    this.pipeline = null;
-    this._curConcurrent = 0;
-    this._loadQueue = [];
+export default class Downloader {
+    static ID = ID;
+    static PackDownloader = PackDownloader;
 
-    this._subpackages = {};
+    constructor (extMap) {
+        this.id = ID;
+        this.async = true;
+        this.pipeline = null;
+        this._curConcurrent = 0;
+        this._loadQueue = [];
 
-    this.extMap = js.mixin(extMap, defaultMap);
-};
-Downloader.ID = ID;
-Downloader.PackDownloader = PackDownloader;
+        this._subpackages = {};
 
-/**
- * Add custom supported types handler or modify existing type handler.
- * @method addHandlers
- * @param {Object} extMap Custom supported types with corresponded handler
- */
-Downloader.prototype.addHandlers = function (extMap) {
-    js.mixin(this.extMap, extMap);
-};
+        this.extMap = mixin(extMap, defaultMap);
+    }
 
-Downloader.prototype._handleLoadQueue = function () {
-    while (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-        var nextOne = this._loadQueue.shift();
-        if (!nextOne) {
-            break;
-        }
-        var syncRet = this.handle(nextOne.item, nextOne.callback);
-        if (syncRet !== undefined) {
-            if (syncRet instanceof Error) {
-                nextOne.callback(syncRet);
+    /**
+     * Add custom supported types handler or modify existing type handler.
+     * @method addHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
+     */
+    addHandlers (extMap) {
+        mixin(this.extMap, extMap);
+    }
+
+    _handleLoadQueue () {
+        while (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+            var nextOne = this._loadQueue.shift();
+            if (!nextOne) {
+                break;
             }
-            else {
-                nextOne.callback(null, syncRet);
+            var syncRet = this.handle(nextOne.item, nextOne.callback);
+            if (syncRet !== undefined) {
+                if (syncRet instanceof Error) {
+                    nextOne.callback(syncRet);
+                }
+                else {
+                    nextOne.callback(null, syncRet);
+                }
             }
         }
     }
-};
 
-Downloader.prototype.handle = function (item, callback) {
-    var self = this;
-    var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-    var syncRet = undefined;
-    if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-        this._curConcurrent++;
-        syncRet = downloadFunc.call(this, item, function (err, result) {
-            self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-            self._handleLoadQueue();
-            callback && callback(err, result);
-        });
-        if (syncRet !== undefined) {
-            this._curConcurrent = Math.max(0, this._curConcurrent - 1);
-            this._handleLoadQueue();
-            return syncRet;
+    handle (item, callback) {
+        var self = this;
+        var downloadFunc = this.extMap[item.type] || this.extMap['default'];
+        var syncRet = undefined;
+        if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
+            this._curConcurrent++;
+            syncRet = downloadFunc.call(this, item, function (err, result) {
+                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+                self._handleLoadQueue();
+                callback && callback(err, result);
+            });
+            if (syncRet !== undefined) {
+                this._curConcurrent = Math.max(0, this._curConcurrent - 1);
+                this._handleLoadQueue();
+                return syncRet;
+            }
         }
-    }
-    else if (item.ignoreMaxConcurrency) {
-        syncRet = downloadFunc.call(this, item, callback);
-        if (syncRet !== undefined) {
-            return syncRet;
-        }
-    }
-    else {
-        this._loadQueue.push({
-            item: item,
-            callback: callback
-        });
-    }
-};
-
-/**
- * !#en
- * Load subpackage with name.
- * !#zh
- * 通过子包名加载子包代码。
- * @method loadSubpackage
- * @param {String} name - Subpackage name
- * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
- * @param {Error} completeCallback.error - error information
- */
-Downloader.prototype.loadSubpackage = function (name, completeCallback) {
-    let pac = this._subpackages[name];
-    if (pac) {
-        if (pac.loaded) {
-            if (completeCallback) completeCallback();
+        else if (item.ignoreMaxConcurrency) {
+            syncRet = downloadFunc.call(this, item, callback);
+            if (syncRet !== undefined) {
+                return syncRet;
+            }
         }
         else {
-            downloadScript({url: pac.path}, function (err) {
-                if (!err) {
-                    pac.loaded = true;
-                }
-                if (completeCallback) completeCallback(err);
+            this._loadQueue.push({
+                item: item,
+                callback: callback
             });
         }
     }
-    else if (completeCallback) {
-        completeCallback(new Error(`Can't find subpackage ${name}`));
-    }
-};
 
-Pipeline.Downloader = module.exports = Downloader;
+    /**
+     * !#en
+     * Load subpackage with name.
+     * !#zh
+     * 通过子包名加载子包代码。
+     * @method loadSubpackage
+     * @param {String} name - Subpackage name
+     * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+     * @param {Error} completeCallback.error - error information
+     */
+    loadSubpackage (name, completeCallback) {
+        let pac = this._subpackages[name];
+        if (pac) {
+            if (pac.loaded) {
+                if (completeCallback) completeCallback();
+            }
+            else {
+                downloadScript({url: pac.path}, function (err) {
+                    if (!err) {
+                        pac.loaded = true;
+                    }
+                    if (completeCallback) completeCallback(err);
+                });
+            }
+        }
+        else if (completeCallback) {
+            completeCallback(new Error(`Can't find subpackage ${name}`));
+        }
+    }
+}
+
+Pipeline.Downloader = Downloader;

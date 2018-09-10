@@ -40,6 +40,7 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class TTFFont extends Font {
+    get name () { return 'TTFFont'; }
 
     @property()
     _fontFamily = null;
@@ -56,5 +57,4 @@ export default class TTFFont extends Font {
     }
 }
 
-TTFFont.prototype.name = 'TTFFont';
 cc.TTFFont = TTFFont;

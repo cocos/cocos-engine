@@ -37,6 +37,8 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class SceneAsset extends Asset {
+    get name () { return 'SceneAsset'; }
+
     /**
      * @property {Scene} scene
      * @default null
@@ -61,5 +63,4 @@ export default class SceneAsset extends Asset {
     //}
 }
 
-SceneAsset.prototype.name = 'SceneAsset';
 cc.SceneAsset = SceneAsset;

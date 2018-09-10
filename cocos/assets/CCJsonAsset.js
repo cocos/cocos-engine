@@ -43,13 +43,13 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class JsonAsset extends Asset {
+    get name () { return 'JsonAsset'; }
+
     /**
      * @property {Object} json - The loaded JSON object.
      */
     @property()
     json = null;
 }
-
-JsonAsset.prototype.name = 'JsonAsset';
 
 module.exports = cc.JsonAsset = JsonAsset;

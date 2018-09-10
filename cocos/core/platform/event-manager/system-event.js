@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Enum from '../../value-types/enum';
 import EventTarget from '../../event/event-target';
 import eventManager from './CCEventManager';
 import inputManger from './CCInputManager';
@@ -35,7 +36,7 @@ import inputManger from './CCInputManager';
  * @static
  * @namespace SystemEvent
  */
-var EventType = cc.Enum({
+var EventType = Enum({
     /**
      * !#en The event type for press the key down event, you can use its value directly: 'keydown'
      * !#zh 当按下按键时触发的事件
@@ -72,13 +73,9 @@ var accelerationListener = null;
  * @class SystemEvent
  * @extends EventTarget
  */
-var SystemEvent = cc.Class({
-    name: 'SystemEvent',
-    extends: EventTarget,
-
-    statics: {
-        EventType: EventType
-    },
+export default class SystemEvent extends EventTarget {
+    name = 'SystemEvent';
+    static EventType = EventType;
 
     /**
      * !#en whether enable accelerometer event
@@ -86,9 +83,9 @@ var SystemEvent = cc.Class({
      * @method setAccelerometerEnabled
      * @param {Boolean} isEnable
      */
-    setAccelerometerEnabled: function (isEnable) {
+    setAccelerometerEnabled (isEnable) {
         inputManger.setAccelerometerEnabled(isEnable);
-    },
+    }
 
     /**
      * !#en set accelerometer interval value
@@ -96,23 +93,23 @@ var SystemEvent = cc.Class({
      * @method setAccelerometerInterval
      * @param {Number} interval
      */
-    setAccelerometerInterval: function(interval) {
+    setAccelerometerInterval (interval) {
         inputManger.setAccelerometerInterval(interval);
-    },
+    }
 
-    on: function (type, callback, target) {
-        this._super(type, callback, target);
+    on (type, callback, target) {
+        super.on(type, callback, target);
 
         // Keyboard
         if (type === EventType.KEY_DOWN || type === EventType.KEY_UP) {
             if (!keyboardListener) {
                 keyboardListener = cc.EventListener.create({
                     event: cc.EventListener.KEYBOARD,
-                    onKeyPressed: function (keyCode, event) {
+                    onKeyPressed (keyCode, event) {
                         event.type = EventType.KEY_DOWN;
                         cc.systemEvent.dispatchEvent(event);
                     },
-                    onKeyReleased: function (keyCode, event) {
+                    onKeyReleased (keyCode, event) {
                         event.type = EventType.KEY_UP;
                         cc.systemEvent.dispatchEvent(event);
                     }
@@ -128,7 +125,7 @@ var SystemEvent = cc.Class({
             if (!accelerationListener) {
                 accelerationListener = cc.EventListener.create({
                     event: cc.EventListener.ACCELERATION,
-                    callback: function (acc, event) {
+                    callback (acc, event) {
                         event.type = EventType.DEVICEMOTION;
                         cc.systemEvent.dispatchEvent(event);
                     }
@@ -138,11 +135,10 @@ var SystemEvent = cc.Class({
                 eventManager.addListener(accelerationListener, 1);
             }
         }
-    },
+    }
 
-
-    off: function (type, callback, target) {
-        this._super(type, callback, target);
+    off (type, callback, target) {
+        super.off(type, callback, target);
 
         // Keyboard
         if (keyboardListener && (type === EventType.KEY_DOWN || type === EventType.KEY_UP)) {
@@ -158,10 +154,10 @@ var SystemEvent = cc.Class({
             eventManager.removeListener(accelerationListener);
         }
     }
-
-});
+}
 
 cc.SystemEvent = SystemEvent;
+
 if (!CC_EDITOR) {
 /** 
  * @module cc

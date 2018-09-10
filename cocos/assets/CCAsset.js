@@ -52,6 +52,8 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class Asset extends RawAsset {
+    get name () { return 'Asset'; }
+    
     constructor () {
         super();
         /**
@@ -218,7 +220,5 @@ export default class Asset extends RawAsset {
  * @param {Object} callback.node - the created node or null
  */
 Asset.prototype.createNode = null;
-
-Asset.prototype.name = "Asset";
 
 cc.Asset = Asset;

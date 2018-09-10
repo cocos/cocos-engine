@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
+import {urlAppendTimestamp} from './utils';
 
-module.exports = function (item, callback) {
+export default function (item, callback) {
     var url = item.url;
     url = urlAppendTimestamp(url);
 
@@ -53,4 +53,4 @@ module.exports = function (item, callback) {
         callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
     };
     xhr.send(null);
-};
+}
