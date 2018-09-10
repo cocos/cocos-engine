@@ -36,8 +36,7 @@ const {ccclass} = _decorator;
  */
 @ccclass
 export default class Font extends Asset {
+    get name () { return 'Font'; }
 }
-
-Font.prototype.name = 'Font';
 
 cc.Font = Font;
