@@ -593,6 +593,12 @@ export default class Device {
       return;
     }
 
+    // No errors are thrown using try catch
+    // Tested through ios baidu browser 4.14.1
+    if (!gl) {
+      console.error('This device does not support webgl');
+    }
+
     // statics
     this._gl = gl;
     this._extensions = {};

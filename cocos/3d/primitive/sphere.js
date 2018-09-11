@@ -7,7 +7,7 @@ import { vec3 } from '../vmath';
  * @param {Object} opts
  * @param {Number} opts.segments
  */
-export default function (radius = 1, opts = {}) {
+export default function (radius = 0.5, opts = {}) {
   let segments = opts.segments !== undefined ? opts.segments : 16;
 
   // lat === latitude
@@ -19,6 +19,7 @@ export default function (radius = 1, opts = {}) {
   let indices = [];
   let minPos = vec3.create(-radius, -radius, -radius);
   let maxPos = vec3.create(radius, radius, radius);
+  let boundingRadius = radius;
 
   for (let lat = 0; lat <= segments; ++lat) {
     let theta = lat * Math.PI / segments;
@@ -55,11 +56,12 @@ export default function (radius = 1, opts = {}) {
   }
 
   return {
-    positions: positions,
-    indices: indices,
-    normals: normals,
-    uvs: uvs,
-    minPos: minPos,
-    maxPos: maxPos
+    positions,
+    indices,
+    normals,
+    uvs,
+    minPos,
+    maxPos,
+    boundingRadius
   };
 }

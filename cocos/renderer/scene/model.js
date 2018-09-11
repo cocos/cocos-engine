@@ -1,6 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-import { box } from '../../geom-utils';
-import { vec3 } from '../../vmath';
+import { aabb } from '../../geom-utils';
 
 /**
  * A representation of a model
@@ -21,34 +20,25 @@ export default class Model {
     this._cameraID = -1;
     this._userKey = -1;
     this._castShadow = false;
-
-    // TODO: we calculate aabb based on vertices
-    // this._aabb
-    this._boundingBox = null;
-    this._updateTransform = part => {
-      this._node.updateWorldTransform();
-      if (part === 'pos') {
-        this._bbModelSpace.translate(this._node._pos, this._boundingBox);
-      } else if (part === 'rot') {
-        this._bbModelSpace.rotate(this._node._rot, this._boundingBox);
-      } else {
-        this._bbModelSpace.scale(this._node._scale, this._boundingBox);
-      }
-    };
+    this._boundingShape = null;
   }
 
+  _updateTransform() {
+    if (!this._node._hasChanged || !this._boundingShape) return;
+    this._node.updateWorldTransformFull();
+    this._bsModelSpace.transform(this._node._mat, this._node._pos,
+      this._node._rot, this._node._scale, this._boundingShape);
+  }
+  
   /**
-   * Create the bounding box of this model
+   * Create the bounding shape of this model
    * @param {number} minPos the min position of the model
    * @param {number} maxPos the max position of the model
    */
-  createBoundingBox(minPos, maxPos) {
+  createBoundingShape(minPos, maxPos) {
     if (!minPos || !maxPos) return;
-    this._bbModelSpace = box.fromPoints(minPos, maxPos);
-    this._boundingBox = box.clone(this._bbModelSpace);
-    if (this._node) {
-      this._initTransform();
-    }
+    this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
+    this._boundingShape = aabb.clone(this._bsModelSpace);
   }
 
   /**
@@ -57,9 +47,6 @@ export default class Model {
    */
   setNode(node) {
     this._node = node;
-    if (this._boundingBox) {
-      this._initTransform();
-    }
   }
 
   /**
@@ -105,14 +92,5 @@ export default class Model {
     out.effect = this._effect;
     out.defines = this._effect.extractDefines(this._defines);
     out.dependencies = this._effect.extractDependencies(this._dependencies);
-  }
-
-  _initTransform() {
-    this._updateTransform('pos');
-    this._updateTransform('rot');
-    this._updateTransform('scale');
-    if (this._node.on) {
-      this._node.on('transformChanged', this._updateTransform);
-    }
   }
 }

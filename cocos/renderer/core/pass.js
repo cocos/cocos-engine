@@ -24,8 +24,8 @@ export default class Pass {
     this._depthWrite = false;
     this._depthFunc = gfx.DS_FUNC_LESS,
 
-      // stencil
-      this._stencilTest = false;
+    // stencil
+    this._stencilTest = false;
     // front
     this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
     this._stencilRefFront = 0;

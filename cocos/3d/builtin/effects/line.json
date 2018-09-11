@@ -6,8 +6,7 @@
       "passes": [
        {
          "program": "line",
-         "depthTest": true,
-         "depthWrite": true
+         "depthTest": true
        }
       ],
       "layer": 0

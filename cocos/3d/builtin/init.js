@@ -7,8 +7,7 @@ import Texture2D from '../assets/texture-2d';
 import TextureCube from '../assets/texture-cube';
 import Effect from '../assets/effect';
 import Sprite from '../assets/sprite';
-import vec3 from '../vmath/vec3';
-import { EPSILON } from '../vmath/utils';
+import { vec3 } from '../vmath';
 
 import effectJsons from './effects/index';
 

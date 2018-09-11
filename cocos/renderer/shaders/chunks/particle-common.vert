@@ -18,17 +18,17 @@ uniform mat4 viewProj;
 varying vec2 uv;
 varying vec4 color;
 
-void computeVertPos(inout vec4 pos,vec2 vertOffset
+void computeVertPos(inout vec4 pos, vec2 vertOffset
 #if USE_BILLBOARD || USE_VERTICAL_BILLBOARD
-  ,mat4 view
+  , mat4 view
 #endif
 #if USE_STRETCHED_BILLBOARD
-  ,vec3 eye
-  ,vec4 velocity
-  ,float velocityScale
-  ,float lengthScale
-  ,float size
-  ,float xIndex
+  , vec3 eye
+  , vec4 velocity
+  , float velocityScale
+  , float lengthScale
+  , float size
+  , float xIndex
 #endif
 ) {
 #if USE_BILLBOARD
@@ -54,9 +54,16 @@ void computeVertPos(inout vec4 pos,vec2 vertOffset
 }
 
 
-vec2 computeUV(float frameIndex,vec2 vertIndex,vec2 frameTile) {
+vec2 computeUV(float frameIndex, vec2 vertIndex, vec2 frameTile) {
   vec2 aniUV = vec2(0, floor(frameIndex * frameTile.y));
   aniUV.x = floor(frameIndex * frameTile.x * frameTile.y - aniUV.y * frameTile.x);
   aniUV.y = frameTile.y - aniUV.y - 1.0;
   return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
+}
+
+void rotateCorner(inout vec2 corner, float angle) {
+  float xOS = cos(angle) * corner.x - sin(angle) * corner.y;
+  float yOS = sin(angle) * corner.x + cos(angle) * corner.y;
+  corner.x = xOS;
+  corner.y = yOS;
 }

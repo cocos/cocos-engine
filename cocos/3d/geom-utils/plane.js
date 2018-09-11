@@ -1,10 +1,12 @@
+import enums from './enums';
 import { vec3 } from '../vmath';
 
-/**
- * @access public
- */
-class plane {
-  constructor(nx, ny, nz, d) {
+let v1 = vec3.create(0, 0, 0);
+let v2 = vec3.create(0, 0, 0);
+
+export default class plane {
+  constructor(nx = 0, ny = 1, nz = 0, d = 0) {
+    this._type = enums.SHAPE_PLANE;
     this.n = vec3.create(nx, ny, nz);
     this.d = d;
   }
@@ -12,22 +14,13 @@ class plane {
   /**
    * create a new plane
    *
+   * @param {number} nx normal X component
+   * @param {number} ny normal Y component
+   * @param {number} nz normal Z component
+   * @param {number} d distance to the origin
    * @return {plane}
    */
-  static create() {
-    return new plane(0, 1, 0, 0);
-  }
-
-  /**
-   * create a new plane
-   *
-   * @param {Number} nx normal X component
-   * @param {Number} ny normal Y component
-   * @param {Number} nz normal Z component
-   * @param {Number} d the constant d
-   * @return {plane}
-   */
-  static new(nx, ny, nz, d) {
+  static create(nx, ny, nz, d) {
     return new plane(nx, ny, nz, d);
   }
 
@@ -49,10 +42,27 @@ class plane {
    * @return {plane}
    */
   static copy(out, p) {
-    out.n.x = p.n.x;
-    out.n.y = p.n.y;
-    out.n.z = p.n.z;
+    vec3.copy(out.n, p.n);
     out.d = p.d;
+
+    return out;
+  }
+
+  /**
+   * create a plane from three points
+   *
+   * @param {plane} out the receiving plane
+   * @param {vec3} a
+   * @param {vec3} b
+   * @param {vec3} c
+   * @return {plane}
+   */
+  static fromPoints(out, a, b, c) {
+    vec3.sub(v1, b, a);
+    vec3.sub(v2, c, a);
+
+    vec3.normalize(out.n, vec3.cross(out.n, v1, v2));
+    out.d = vec3.dot(out.n, a);
 
     return out;
   }
@@ -61,12 +71,11 @@ class plane {
    * Set the components of a plane to the given values
    *
    * @param {plane} out the receiving plane
-   * @param {Number} nx X component of n
-   * @param {Number} ny Y component of n
-   * @param {Number} nz Z component of n
-   * @param {Number} d
-   * @returns {plane} out
-   * @function
+   * @param {number} nx X component of n
+   * @param {number} ny Y component of n
+   * @param {number} nz Z component of n
+   * @param {number} d
+   * @return {plane} out
    */
   static set(out, nx, ny, nz, d) {
     out.n.x = nx;
@@ -83,8 +92,7 @@ class plane {
    * @param {plane} out the receiving plane
    * @param {vec3} normal
    * @param {vec3} point
-   * @returns {plane} out
-   * @function
+   * @return {plane} out
    */
   static fromNormalAndPoint(out, normal, point) {
     vec3.copy(out.n, normal);
@@ -98,7 +106,7 @@ class plane {
  *
  * @param {plane} out the receiving plane
  * @param {plane} a plane to normalize
- * @returns {plane} out
+ * @return {plane} out
  */
   static normalize(out, a) {
     let len = vec3.magnitude(a.n);
@@ -109,30 +117,3 @@ class plane {
     return out;
   }
 }
-
-/**
- * create plane from 3 points
- *
- * @param {plane} out the receiving plane
- * @param {vec3} a
- * @param {vec3} b
- * @param {vec3} c
- * @returns {plane} out
- * @function
- */
-plane.fromPoints = (function () {
-  let v1 = vec3.create(0, 0, 0);
-  let v2 = vec3.create(0, 0, 0);
-
-  return function (out, a, b, c) {
-    vec3.sub(v1, b, a);
-    vec3.sub(v2, c, a);
-
-    vec3.normalize(out.n, vec3.cross(out.n, v1, v2));
-    out.d = vec3.dot(out.n, a);
-
-    return out;
-  };
-})();
-
-export default plane;

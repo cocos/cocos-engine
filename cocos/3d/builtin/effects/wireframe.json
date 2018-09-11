@@ -12,8 +12,7 @@
       "passes": [
        {
          "program": "wireframe",
-         "depthTest": true,
-         "depthWrite": true
+         "depthTest": true
        }
       ],
       "layer": 0

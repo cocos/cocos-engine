@@ -106,6 +106,22 @@
     {
       "name": "FORCE_OVERTIME_MODULE_ENABLE",
       "value": false
+    },
+    {
+      "name": "SIZE_OVERTIME_MODULE_ENABLE",
+      "value": false
+    },
+    {
+      "name": "COLOR_OVERTIME_MODULE_ENABLE",
+      "value": false
+    },
+    {
+      "name": "TEXTURE_ANIMATION_ENABLE",
+      "value": false
+    },
+    {
+      "name": "ROTATE_OVERTIME_MODULE_ENABLE",
+      "value": false
     }
   ]
 }
