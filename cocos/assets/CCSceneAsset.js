@@ -35,15 +35,13 @@ const {ccclass, property} = _decorator;
  * @extends Asset
  *
  */
-@ccclass
+@ccclass('cc.SceneAsset')
 export default class SceneAsset extends Asset {
-    get name () { return 'SceneAsset'; }
-
     /**
      * @property {Scene} scene
      * @default null
      */
-    @property()
+    @property
     scene = null;
 
     /**
@@ -52,7 +50,7 @@ export default class SceneAsset extends Asset {
      * @property {Boolean} asyncLoadAssets
      * @default false
      */
-    @property()
+    @property
     asyncLoadAssets = false;
 
     //// backup prefab assets in editor

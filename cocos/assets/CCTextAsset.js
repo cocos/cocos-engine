@@ -34,14 +34,12 @@ const {ccclass, property} = _decorator;
  * @class TextAsset
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.TextAsset')
 export default class TextAsset extends Asset {
-    get name () { return 'TextAsset'; }
-
     /**
      * @property {String} text - The text contents of the resource.
      */
-    @property()
+    @property
     text = "";
 
     /**

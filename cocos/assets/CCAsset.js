@@ -50,10 +50,8 @@ const {ccclass, property} = _decorator;
  * @class Asset
  * @extends RawAsset
  */
-@ccclass
+@ccclass('cc.Asset')
 export default class Asset extends RawAsset {
-    get name () { return 'Asset'; }
-    
     constructor () {
         super();
         /**
@@ -112,7 +110,7 @@ export default class Asset extends RawAsset {
      * @default ""
      * @private
      */
-    @property()
+    @property
     _native = ""
 
     /**
@@ -123,7 +121,7 @@ export default class Asset extends RawAsset {
      * @default null
      * @private
      */
-    @property()
+    @property
     get _nativeAsset () {
     }
     set _nativeAsset (obj) {

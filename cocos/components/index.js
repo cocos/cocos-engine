@@ -24,36 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCComponent');
-require('./CCComponentEventHandler');
-require('./missing-script');
-
-var components = [
-    require('./CCSprite'),
-    require('./CCWidget'),
-    require('./CCCanvas'),
-    require('./CCAudioSource'),
-    require('./CCAnimation'),
-    require('./CCButton'),
-    require('./CCLabel'),
-    require('./CCProgressBar'),
-    require('./CCMask'),
-    require('./CCScrollBar'),
-    require('./CCScrollView'),
-    require('./CCPageViewIndicator'),
-    require('./CCPageView'),
-    require('./CCSlider'),
-    require('./CCLayout'),
-    require('./editbox/CCEditBox'),
-    require('./CCLabelOutline'),
-    require('./CCRichText'),
-    require('./CCToggleContainer'),
-    require('./CCToggleGroup'),
-    require('./CCToggle'),
-    require('./CCBlockInputEvents'),
-    require('./CCMotionStreak'),
-    require('./WXSubContextView'),
-    require('./CCMeshRenderer'),
-];
-
-module.exports = components;
+export * from './CCComponent';
+export * from './CCComponentEventHandler';
+export * from './missing-script';
+export * from './CCCanvas';

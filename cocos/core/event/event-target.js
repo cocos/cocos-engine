@@ -57,10 +57,6 @@ var fastRemove = js.array.fastRemove;
  * @extends CallbacksInvoker
  */
 export default class EventTarget extends CallbacksInvoker {
-    constructor () {
-        super();
-    }
-
     /**
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。

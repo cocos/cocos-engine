@@ -36,9 +36,8 @@ const {ccclass} = _decorator;
  *
  * @private
  */
-@ccclass
+@ccclass('cc.Script')
 class Script extends Asset {
-    get name () { return 'Script'; }
 }
 cc._Script = Script;
 
@@ -49,9 +48,8 @@ cc._Script = Script;
  * @extends Asset
  *
  */
-@ccclass
+@ccclass('cc.JavaScript')
 export class JavaScript extends Script {
-    get name () { return 'JavaScript'; }
 }
 cc._JavaScript = JavaScript;
 
@@ -62,8 +60,7 @@ cc._JavaScript = JavaScript;
  * @extends Asset
  *
  */
-@ccclass
+@ccclass('cc.TypeScript')
 export class TypeScript extends Script {
-    get name () { return 'TypeScript'; }
 }
 cc._TypeScript = TypeScript;

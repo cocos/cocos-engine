@@ -82,11 +82,10 @@ var OptimizationPolicy = Enum({
  * @class Prefab
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.Prefab')
 export default class Prefab extends Asset {
-    get name () { return 'Prefab'; }
-
     constructor () {
+        super();
         /**
          * Cache function to optimize instance creaton.
          * @property {Function} _createFunction
@@ -100,7 +99,7 @@ export default class Prefab extends Asset {
     /**
      * @property {Node} data - the main cc.Node in the prefab
      */
-    @property()
+    @property
     data = null;
 
     /**
@@ -116,7 +115,7 @@ export default class Prefab extends Asset {
      * @example
      * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
      */
-    @property()
+    @property
     optimizationPolicy = OptimizationPolicy.AUTO;
 
     /**
@@ -125,7 +124,7 @@ export default class Prefab extends Asset {
      * @property {Boolean} asyncLoadAssets
      * @default false
      */
-    @property()
+    @property
     asyncLoadAssets = false;
 
     static OptimizationPolicy = OptimizationPolicy;

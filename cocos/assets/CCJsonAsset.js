@@ -41,14 +41,12 @@ const {ccclass, property} = _decorator;
  * @class JsonAsset
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.JsonAsset')
 export default class JsonAsset extends Asset {
-    get name () { return 'JsonAsset'; }
-
     /**
      * @property {Object} json - The loaded JSON object.
      */
-    @property()
+    @property
     json = null;
 }
 
