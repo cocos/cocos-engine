@@ -25,7 +25,7 @@
 //@ts-check
 import { _decorator } from "../core/data/index";
 const {ccclass, property} = _decorator;
-import { JsonAsset } from "./CCJsonAsset";
+import JsonAsset from "./CCJsonAsset";
 import { BufferAsset } from "./CCBufferAsset";
 
 /**
@@ -65,6 +65,6 @@ export class GLTFAsset extends cc.Asset {
         return this._buffers;
     }
 
-    _description: = null;
+    _description = null;
     _buffers = [];
 }
