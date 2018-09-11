@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const sys = require('../platform/CCSys');
-const debug = require('../CCDebug');
+import sys from '../core/platform/CCSys';
+import debug from '../core/platform/CCDebug';
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
@@ -95,7 +95,7 @@ function loadWebAudio (item, callback) {
     request.send();
 }
 
-function downloadAudio (item, callback) {
+export default function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
         return new Error(debug.getError(4927));
     }
@@ -116,5 +116,3 @@ function downloadAudio (item, callback) {
     }
     loader(item, callback);
 }
-
-module.exports = downloadAudio;

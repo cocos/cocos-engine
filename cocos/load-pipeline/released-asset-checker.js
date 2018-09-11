@@ -24,25 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (CC_DEBUG) {
-
-var js = require('../platform/js');
-
-// checks if asset was releasable
-
-function ReleasedAssetChecker () {
-    // { dependKey: true }
-    this._releasedKeys = js.createMap(true);
-    this._dirty = false;
-}
-
-// mark as released for further checking dependencies
-ReleasedAssetChecker.prototype.setReleased = function (item, releasedKey) {
-    this._releasedKeys[releasedKey] = true;
-    this._dirty = true;
-};
+import {createMap, getClassName, clear} from '../core/utils/js';
 
 var tmpInfo = null;
+
 function getItemDesc (item) {
     if (item.uuid) {
         if (!tmpInfo) {
@@ -50,7 +35,7 @@ function getItemDesc (item) {
         }
         if (cc.loader._resources._getInfo_DEBUG(item.uuid, tmpInfo)) {
             tmpInfo.path = 'resources/' + tmpInfo.path;
-            return `"${tmpInfo.path}" (type: ${js.getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
+            return `"${tmpInfo.path}" (type: ${getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
         }
         else {
             return `"${item.rawUrl}" (${item.uuid})`;
@@ -68,47 +53,59 @@ function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
     }
 }
 
-// check dependencies
-ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
-    if (!this._dirty) {
-        return;
+// checks if asset was releasable
+
+export default class ReleasedAssetChecker {
+    constructor () {
+        // { dependKey: true }
+        this._releasedKeys = createMap(true);
+        this._dirty = false;
     }
-    this._dirty = false;
 
-    var released = this._releasedKeys;
+    // mark as released for further checking dependencies
+    setReleased (item, releasedKey) {
+        this._releasedKeys[releasedKey] = true;
+        this._dirty = true;
+    }
 
-    // check loader cache
-    for (let id in caches) {
-        var item = caches[id];
-        if (item.alias) {
-            item = item.alias;
+    // check dependencies
+    checkCouldRelease (caches) {
+        if (!this._dirty) {
+            return;
         }
-        let depends = item.dependKeys;
-        if (depends) {
-            for (let i = 0; i < depends.length; ++i) {
-                let depend = depends[i];
-                if (released[depend]) {
-                    doCheckCouldRelease(depend, item, caches);
-                    delete released[depend];
+        this._dirty = false;
+
+        var released = this._releasedKeys;
+
+        // check loader cache
+        for (let id in caches) {
+            var item = caches[id];
+            if (item.alias) {
+                item = item.alias;
+            }
+            let depends = item.dependKeys;
+            if (depends) {
+                for (let i = 0; i < depends.length; ++i) {
+                    let depend = depends[i];
+                    if (released[depend]) {
+                        doCheckCouldRelease(depend, item, caches);
+                        delete released[depend];
+                    }
                 }
             }
         }
+
+        // // check current scene
+        // let depends = cc.director.getScene().dependAssets;
+        // for (let i = 0; i < depends.length; ++i) {
+        //     let depend = depends[i];
+        //     if (released[depend]) {
+        //         doCheckCouldRelease(depend, item, caches);
+        //         delete released[depend];
+        //     }
+        // }
+
+        // clear released
+        clear(released);
     }
-
-    // // check current scene
-    // let depends = cc.director.getScene().dependAssets;
-    // for (let i = 0; i < depends.length; ++i) {
-    //     let depend = depends[i];
-    //     if (released[depend]) {
-    //         doCheckCouldRelease(depend, item, caches);
-    //         delete released[depend];
-    //     }
-    // }
-
-    // clear released
-    js.clear(released);
-};
-
-module.exports = ReleasedAssetChecker;
-
 }

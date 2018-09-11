@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Pipeline = require('./pipeline');
+import Pipeline from './pipeline';
 
 const ID = 'MD5Pipe';
 const ExtnameRegex = /(\.[^.\n\\/]*)$/;
@@ -38,51 +38,53 @@ function getUuidFromURL (url) {
     return "";
 }
 
-var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
-    this.id = ID;
-    this.async = false;
-    this.pipeline = null;
-    this.md5AssetsMap = md5AssetsMap;
-    this.md5NativeAssetsMap = md5NativeAssetsMap;
-    this.libraryBase = libraryBase;
-};
-MD5Pipe.ID = ID;
+export default class MD5Pipe {
+    static ID = ID;
 
-MD5Pipe.prototype.handle = function(item) {
-    let hashPatchInFolder = false;
-    // HACK: explicitly use folder md5 for ttf files
-    if (item.type === 'ttf') {
-        hashPatchInFolder = true;
+    constructor (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
+        this.id = ID;
+        this.async = false;
+        this.pipeline = null;
+        this.md5AssetsMap = md5AssetsMap;
+        this.md5NativeAssetsMap = md5NativeAssetsMap;
+        this.libraryBase = libraryBase;
     }
-    item.url = this.transformURL(item.url, hashPatchInFolder);
-    return item;
-};
 
-MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {
-    var uuid = getUuidFromURL(url);
-    if (uuid) {
-        var isNativeAsset = !url.startsWith(this.libraryBase);
-        var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
-        let hashValue = map[uuid];
-        if (hashValue) {
-            if (hashPatchInFolder) {
-                var dirname = cc.path.dirname(url);
-                var basename = cc.path.basename(url);
-                url = `${dirname}.${hashValue}/${basename}`;
-            } else {
-                var matched = false;
-                url = url.replace(ExtnameRegex, (function(match, p1) {
-                    matched = true;
-                    return "." + hashValue + p1;
-                }));
-                if (!matched) {
-                    url = url + "." + hashValue;
+    handle (item) {
+        let hashPatchInFolder = false;
+        // HACK: explicitly use folder md5 for ttf files
+        if (item.type === 'ttf') {
+            hashPatchInFolder = true;
+        }
+        item.url = this.transformURL(item.url, hashPatchInFolder);
+        return item;
+    }
+
+    transformURL (url, hashPatchInFolder) {
+        var uuid = getUuidFromURL(url);
+        if (uuid) {
+            var isNativeAsset = !url.startsWith(this.libraryBase);
+            var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+            let hashValue = map[uuid];
+            if (hashValue) {
+                if (hashPatchInFolder) {
+                    var dirname = cc.path.dirname(url);
+                    var basename = cc.path.basename(url);
+                    url = `${dirname}.${hashValue}/${basename}`;
+                } else {
+                    var matched = false;
+                    url = url.replace(ExtnameRegex, (function(match, p1) {
+                        matched = true;
+                        return "." + hashValue + p1;
+                    }));
+                    if (!matched) {
+                        url = url + "." + hashValue;
+                    }
                 }
             }
         }
+        return url;
     }
-    return url;
-};
+}
 
-
-Pipeline.MD5Pipe = module.exports = MD5Pipe;
+Pipeline.MD5Pipe = MD5Pipe;

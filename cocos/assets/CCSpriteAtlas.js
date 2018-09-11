@@ -36,6 +36,8 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export default class SpriteAtlas extends Asset {
+    get name () { return 'SpriteAtlas'; }
+
     @property()
     _spriteFrames = {};
 
@@ -89,5 +91,4 @@ export default class SpriteAtlas extends Asset {
     }
 }
 
-SpriteAtlas.prototype.name = 'SpriteAtlas';
 cc.SpriteAtlas = SpriteAtlas;

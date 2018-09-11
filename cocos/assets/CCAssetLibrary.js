@@ -28,10 +28,10 @@ import {createMap, isChildClassOf, _getClassById} from '../core/utils/js';
 import Asset from './CCAsset';
 import {callInNextTick} from '../core/utils/misc';
 import decodeUuid from '../core/utils/decode-uuid';
-// var Loader = require('./load-pipeline/CCLoader');
-// var PackDownloader = require('../load-pipeline/pack-downloader');
-// var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
-// var MD5Pipe = require('../load-pipeline/md5-pipe');
+import Loader from '../load-pipeline/CCLoader';
+import {initPacks} from '../load-pipeline/pack-downloader';
+import {getDependsRecursively} from '../load-pipeline/auto-release-utils';
+import MD5Pipe from '../load-pipeline/md5-pipe';
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -59,7 +59,23 @@ function RawAssetEntry (url, type) {
 
 // publics
 
-var AssetLibrary = {
+export default AssetLibrary = {
+    /**
+     * !#en Caches uuid to all loaded assets in scenes.
+     *
+     * !#zh 这里保存所有已经加载的场景资源，防止同一个资源在内存中加载出多份拷贝。
+     *
+     * 这里用不了WeakMap，在浏览器中所有加载过的资源都只能手工调用 unloadAsset 释放。
+     *
+     * 参考：
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
+     * https://github.com/TooTallNate/node-weak
+     *
+     * @property {object} _uuidToAsset
+     * @private
+     */
+    _uuidToAsset: {},
+
     /**
      * @callback loadCallback
      * @param {String} error - null or the error info
@@ -100,7 +116,7 @@ var AssetLibrary = {
                     }
                     else {
                         var key = cc.loader._getReferenceKey(uuid);
-                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
+                        asset.scene.dependAssets = getDependsRecursively(key);
                     }
                 }
                 if (CC_EDITOR || isScene(asset)) {
@@ -232,7 +248,7 @@ var AssetLibrary = {
             else {
                 if (asset.constructor === cc.SceneAsset) {
                     var key = cc.loader._getReferenceKey(randomUuid);
-                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
+                    asset.scene.dependAssets = getDependsRecursively(key);
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     var id = cc.loader._getReferenceKey(randomUuid);
@@ -342,31 +358,13 @@ var AssetLibrary = {
         }
 
         if (options.packedAssets) {
-            PackDownloader.initPacks(options.packedAssets);
+            initPacks(options.packedAssets);
         }
 
         // init cc.url
         cc.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
     }
-};
-
-// unload asset if it is destoryed
-
-/**
- * !#en Caches uuid to all loaded assets in scenes.
- *
- * !#zh 这里保存所有已经加载的场景资源，防止同一个资源在内存中加载出多份拷贝。
- *
- * 这里用不了WeakMap，在浏览器中所有加载过的资源都只能手工调用 unloadAsset 释放。
- *
- * 参考：
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
- * https://github.com/TooTallNate/node-weak
- *
- * @property {object} _uuidToAsset
- * @private
- */
-AssetLibrary._uuidToAsset = {};
+}
 
 //暂时屏蔽，因为目前没有缓存任何asset
 //if (CC_DEV && Asset.prototype._onPreDestroy) {
@@ -378,4 +376,4 @@ AssetLibrary._uuidToAsset = {};
 //    }
 //};
 
-module.exports = cc.AssetLibrary = AssetLibrary;
+cc.AssetLibrary = AssetLibrary;

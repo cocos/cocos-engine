@@ -62,6 +62,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  */
 @ccclass
 export default class SpriteFrame extends Asset {
+    get name () { return 'SpriteFrame'; }
 
     // Use this property to set texture when loading dependency
     @property()
@@ -674,7 +675,6 @@ export default class SpriteFrame extends Asset {
 
 let proto = SpriteFrame.prototype;
 
-proto.name = 'SpriteFrame';
 proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;

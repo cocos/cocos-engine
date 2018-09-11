@@ -24,12 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../platform/js');
-const plistParser = require('../platform/CCSAXParser').plistParser;
-const Pipeline = require('./pipeline');
-const Texture2D = require('../assets/CCTexture2D');
-const loadUuid = require('./uuid-loader');
-const fontLoader = require('./font-loader');
+import {mixin} from '../core/utils/js';
+import Texture2D from '../assets/CCTexture2D';
+import plistParser from './plist-parser';
+import Pipeline from './pipeline';
+import {loadUuid} from './uuid-loader';
+import {loadFont} from './font-loader';
 
 function loadNothing () {
     return null;
@@ -188,12 +188,12 @@ var defaultMap = {
     'binary' : loadBinary,
 
     // Font
-    'font' : fontLoader.loadFont,
-    'eot' : fontLoader.loadFont,
-    'ttf' : fontLoader.loadFont,
-    'woff' : fontLoader.loadFont,
-    'svg' : fontLoader.loadFont,
-    'ttc' : fontLoader.loadFont,
+    'font' : loadFont,
+    'eot' : loadFont,
+    'ttf' : loadFont,
+    'woff' : loadFont,
+    'svg' : loadFont,
+    'ttc' : loadFont,
 
     'default' : loadNothing
 };
@@ -223,27 +223,30 @@ var ID = 'Loader';
  *    'scene' : function (url, callback) {}
  *});
  */
-var Loader = function (extMap) {
-    this.id = ID;
-    this.async = true;
-    this.pipeline = null;
+export default class Loader {
+    static ID = ID;
 
-    this.extMap = js.mixin(extMap, defaultMap);
-};
-Loader.ID = ID;
+    constructor (extMap) {
+        this.id = ID;
+        this.async = true;
+        this.pipeline = null;
 
-/**
- * Add custom supported types handler or modify existing type handler.
- * @method addHandlers
- * @param {Object} extMap Custom supported types with corresponded handler
- */
-Loader.prototype.addHandlers = function (extMap) {
-    this.extMap = js.mixin(this.extMap, extMap);
-};
+        this.extMap = js.mixin(extMap, defaultMap);
+    }
 
-Loader.prototype.handle = function (item, callback) {
-    var loadFunc = this.extMap[item.type] || this.extMap['default'];
-    return loadFunc.call(this, item, callback);
-};
+    /**
+     * Add custom supported types handler or modify existing type handler.
+     * @method addHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
+     */
+    addHandlers (extMap) {
+        this.extMap = js.mixin(this.extMap, extMap);
+    }
 
-Pipeline.Loader = module.exports = Loader;
+    handle (item, callback) {
+        var loadFunc = this.extMap[item.type] || this.extMap['default'];
+        return loadFunc.call(this, item, callback);
+    }
+}
+
+Pipeline.Loader = Loader;

@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { _decorator } from "../core/data/index";
-const {ccclass, property} = _decorator;
 import Asset from './CCAsset';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
 /**
  * !#en
@@ -42,14 +42,14 @@ import Asset from './CCAsset';
  * @extends Asset
  */
 @ccclass
-export class JsonAsset extends Asset {
+export default class JsonAsset extends Asset {
+    get name () { return 'JsonAsset'; }
+
     /**
      * @property {Object} json - The loaded JSON object.
      */
     @property()
     json = null;
 }
-
-JsonAsset.prototype.name = 'JsonAsset';
 
 module.exports = cc.JsonAsset = JsonAsset;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const textUtils = require('../utils/text-utils');
+import {safeMeasureText} from '../core/utils/text-utils';
 
 let _canvasContext = null;
 let _testString = "BES bswy:->@";
@@ -51,7 +51,7 @@ function _checkFontLoaded () {
 
         let oldWidth = fontLoadHandle.refWidth;
         _canvasContext.font = '40px ' + fontFamily;
-        let newWidth = textUtils.safeMeasureText(_canvasContext, _testString);
+        let newWidth = safeMeasureText(_canvasContext, _testString);
         // loaded successfully
         if (oldWidth !== newWidth) {
             _loadingFonts.splice(i, 1);
@@ -68,81 +68,77 @@ function _checkFontLoaded () {
     }
 }
 
-var fontLoader = {
-    loadFont: function (item, callback) {
-        let url = item.url;
-        let fontFamilyName = fontLoader._getFontFamily(url);
+export function loadFont (item, callback) {
+    let url = item.url;
+    let fontFamilyName = _getFontFamily(url);
 
-        // Already loaded fonts
-        if (_fontFaces[fontFamilyName]) {
-            return fontFamilyName;
-        }
-
-        if (!_canvasContext) {
-            let labelCanvas = document.createElement('canvas');
-            labelCanvas.width = 100;
-            labelCanvas.height = 100;
-            _canvasContext = labelCanvas.getContext('2d');
-        }
-        
-        // Default width reference to test whether new font is loaded correctly
-        let fontDesc = '40px ' + fontFamilyName;
-        _canvasContext.font = fontDesc;
-        let refWidth = textUtils.safeMeasureText(_canvasContext, _testString);
-
-        // Setup font face style
-        let fontStyle = document.createElement("style");
-        fontStyle.type = "text/css";
-        let fontStr = "";
-        if (isNaN(fontFamilyName - 0))
-            fontStr += "@font-face { font-family:" + fontFamilyName + "; src:";
-        else
-            fontStr += "@font-face { font-family:'" + fontFamilyName + "'; src:";
-        fontStr += "url('" + url + "');";
-        fontStyle.textContent = fontStr + "}";
-        document.body.appendChild(fontStyle);
-
-        // Preload font with div
-        let preloadDiv = document.createElement("div");
-        let divStyle = preloadDiv.style;
-        divStyle.fontFamily = fontFamilyName;
-        preloadDiv.innerHTML = ".";
-        divStyle.position = "absolute";
-        divStyle.left = "-100px";
-        divStyle.top = "-100px";
-        document.body.appendChild(preloadDiv);
-
-        // Save loading font
-        let fontLoadHandle = {
-            fontFamilyName,
-            refWidth,
-            callback,
-            startTime: Date.now()
-        }
-        _loadingFonts.push(fontLoadHandle);
-        _fontFaces[fontFamilyName] = fontStyle;
-
-        if (_intervalId === -1) {
-            _intervalId = setInterval(_checkFontLoaded, 100);
-        }
-    },
-
-    _getFontFamily: function (fontHandle) {
-        var ttfIndex = fontHandle.lastIndexOf(".ttf");
-        if (ttfIndex === -1) return fontHandle;
-
-        var slashPos = fontHandle.lastIndexOf("/");
-        var fontFamilyName;
-        if (slashPos === -1) {
-            fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
-        } else {
-            fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
-        }
-        if (fontFamilyName.indexOf(' ') !== -1) {
-            fontFamilyName = '"' + fontFamilyName + '"';
-        }
+    // Already loaded fonts
+    if (_fontFaces[fontFamilyName]) {
         return fontFamilyName;
     }
-};
 
-module.exports = fontLoader
+    if (!_canvasContext) {
+        let labelCanvas = document.createElement('canvas');
+        labelCanvas.width = 100;
+        labelCanvas.height = 100;
+        _canvasContext = labelCanvas.getContext('2d');
+    }
+    
+    // Default width reference to test whether new font is loaded correctly
+    let fontDesc = '40px ' + fontFamilyName;
+    _canvasContext.font = fontDesc;
+    let refWidth = safeMeasureText(_canvasContext, _testString);
+
+    // Setup font face style
+    let fontStyle = document.createElement("style");
+    fontStyle.type = "text/css";
+    let fontStr = "";
+    if (isNaN(fontFamilyName - 0))
+        fontStr += "@font-face { font-family:" + fontFamilyName + "; src:";
+    else
+        fontStr += "@font-face { font-family:'" + fontFamilyName + "'; src:";
+    fontStr += "url('" + url + "');";
+    fontStyle.textContent = fontStr + "}";
+    document.body.appendChild(fontStyle);
+
+    // Preload font with div
+    let preloadDiv = document.createElement("div");
+    let divStyle = preloadDiv.style;
+    divStyle.fontFamily = fontFamilyName;
+    preloadDiv.innerHTML = ".";
+    divStyle.position = "absolute";
+    divStyle.left = "-100px";
+    divStyle.top = "-100px";
+    document.body.appendChild(preloadDiv);
+
+    // Save loading font
+    let fontLoadHandle = {
+        fontFamilyName,
+        refWidth,
+        callback,
+        startTime: Date.now()
+    }
+    _loadingFonts.push(fontLoadHandle);
+    _fontFaces[fontFamilyName] = fontStyle;
+
+    if (_intervalId === -1) {
+        _intervalId = setInterval(_checkFontLoaded, 100);
+    }
+}
+
+export function _getFontFamily (fontHandle) {
+    var ttfIndex = fontHandle.lastIndexOf(".ttf");
+    if (ttfIndex === -1) return fontHandle;
+
+    var slashPos = fontHandle.lastIndexOf("/");
+    var fontFamilyName;
+    if (slashPos === -1) {
+        fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
+    } else {
+        fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
+    }
+    if (fontFamilyName.indexOf(' ') !== -1) {
+        fontFamilyName = '"' + fontFamilyName + '"';
+    }
+    return fontFamilyName;
+}

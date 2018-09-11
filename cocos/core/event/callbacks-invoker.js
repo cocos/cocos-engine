@@ -221,7 +221,7 @@ export class CallbacksHandler {
  *
  * @extends _CallbacksHandler
  */
-export class CallbacksInvoker extends CallbacksHandler{
+export class CallbacksInvoker extends CallbacksHandler {
     constructor () {
         CallbacksHandler.call(this);
     }

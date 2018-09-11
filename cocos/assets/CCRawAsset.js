@@ -40,6 +40,8 @@ const {ccclass} = _decorator;
  */
 @ccclass
 export default class RawAsset extends CCObject {
+    get name () { return 'RawAsset'; }
+
     constructor () {
         super();
         
@@ -66,7 +68,5 @@ export default class RawAsset extends CCObject {
         return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
     }
 }
-
-RawAsset.prototype.name = 'RawAsset';
 
 cc.RawAsset = RawAsset;
