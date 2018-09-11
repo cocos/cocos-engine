@@ -24,12 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CCObject = require('../platform/CCObject');
-var js = require('../platform/js');
-var idGenerater = new (require('../platform/id-generater'))('Comp');
+import CCObject from '../core/data/object';
+import {getClassName, value} from '../core/utils/js';
+import IDGenerater from '../core/utils/id-generater';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
-var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-var IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
+let idGenerater = new IDGenerater('Comp');
+const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
+const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 /**
  * !#en
@@ -45,15 +48,159 @@ var IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
  * @class Component
  * @extends Object
  */
-var Component = cc.Class({
-    name: 'cc.Component',
-    extends: CCObject,
+@ccclass('cc.Component')
+export default class Component extends CCObject {
+    /**
+     * !#en The node this component is attached to. A component is always attached to a node.
+     * !#zh 该组件被附加到的节点。组件总会附加到一个节点。
+     * @property node
+     * @type {Node}
+     * @example
+     * cc.log(comp.node);
+     */
+    @property({
+        visible: false
+    })
+    node = null;
 
-    ctor: CC_EDITOR ? function () {
-        if (window._Scene && _Scene.AssetsWatcher) {
-            _Scene.AssetsWatcher.initComponent(this);
+    @property({
+        visible: false
+    })
+    get name () {
+        if (this._name) {
+            return this._name;
         }
-        this._id = Editor.Utils.UuidUtils.uuid();
+        var className = getClassName(this);
+        var trimLeft = className.lastIndexOf('.');
+        if (trimLeft >= 0) {
+            className = className.slice(trimLeft + 1);
+        }
+        return this.node.name + '<' + className + '>';
+    }
+    set name (value) {
+        this._name = value;
+    }
+
+    /**
+     * !#en The uuid for editor.
+     * !#zh 组件的 uuid，用于编辑器。
+     * @property uuid
+     * @type {String}
+     * @readOnly
+     * @example
+     * cc.log(comp.uuid);
+     */
+    @property({
+        visible: false
+    })
+    get uuid () {
+        return this._id;
+    }
+
+    @property({
+        displayName: 'Script',
+        type: cc._Script,
+        tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
+    })
+    get __scriptAsset () {}
+    //set __scriptAsset (value) {
+    //    if (this.__scriptUuid !== value) {
+    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+    //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
+    //            var NewComp = cc.js._getClassById(classId);
+    //            if (cc.js.isChildClassOf(NewComp, cc.Component)) {
+    //                cc.warn('Sorry, replacing component script is not yet implemented.');
+    //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
+    //            }
+    //            else {
+    //                cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
+    //            }
+    //        }
+    //        else {
+    //            cc.error('Invalid Script');
+    //        }
+    //    }
+    //}
+
+    /**
+     * @property _enabled
+     * @type {Boolean}
+     * @private
+     */
+    @property
+    _enabled = true;
+
+    /**
+     * !#en indicates whether this component is enabled or not.
+     * !#zh 表示该组件自身是否启用。
+     * @property enabled
+     * @type {Boolean}
+     * @default true
+     * @example
+     * comp.enabled = true;
+     * cc.log(comp.enabled);
+     */
+    @property({
+        visible: false
+    })
+    get enabled () {
+        return this._enabled;
+    }
+    set enabled (value) {
+        if (this._enabled !== value) {
+            this._enabled = value;
+            if (this.node._activeInHierarchy) {
+                var compScheduler = cc.director._compScheduler;
+                if (value) {
+                    compScheduler.enableComp(this);
+                }
+                else {
+                    compScheduler.disableComp(this);
+                }
+            }
+        }
+    }
+
+    /**
+     * !#en indicates whether this component is enabled and its node is also active in the hierarchy.
+     * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。
+     * @property enabledInHierarchy
+     * @type {Boolean}
+     * @readOnly
+     * @example
+     * cc.log(comp.enabledInHierarchy);
+     */
+    @property({
+        visible: false
+    })
+    get enabledInHierarchy () {
+        return (this._objFlags & IsOnEnableCalled) > 0;
+    }
+
+    /**
+     * !#en Returns a value which used to indicate the onLoad get called or not.
+     * !#zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
+     * @property _isOnLoadCalled
+     * @type {Number}
+     * @readOnly
+     * @example
+     * cc.log(this._isOnLoadCalled > 0);
+     */
+    get _isOnLoadCalled () {
+        return this._objFlags & IsOnLoadCalled;
+    }
+
+    constructor () {
+        super();
+        if (CC_EDITOR) {
+            if (window._Scene && _Scene.AssetsWatcher) {
+                _Scene.AssetsWatcher.initComponent(this);
+            }
+            this._id = Editor.Utils.UuidUtils.uuid();
+        }
+        else {
+            this._id = idGenerater.getNewId();
+        }
 
         /**
          * Register all related EventTargets,
@@ -62,265 +209,7 @@ var Component = cc.Class({
          * @private
          */
         this.__eventTargets = [];
-    } : function () {
-        this._id = idGenerater.getNewId();
-
-        this.__eventTargets = [];
-    },
-
-    properties: {
-        /**
-         * !#en The node this component is attached to. A component is always attached to a node.
-         * !#zh 该组件被附加到的节点。组件总会附加到一个节点。
-         * @property node
-         * @type {Node}
-         * @example
-         * cc.log(comp.node);
-         */
-        node: {
-            default: null,
-            visible: false
-        },
-
-        name: {
-            get () {
-                if (this._name) {
-                    return this._name;
-                }
-                var className = cc.js.getClassName(this);
-                var trimLeft = className.lastIndexOf('.');
-                if (trimLeft >= 0) {
-                    className = className.slice(trimLeft + 1);
-                }
-                return this.node.name + '<' + className + '>';
-            },
-            set (value) {
-                this._name = value;
-            },
-            visible: false
-        },
-
-        /**
-         * !#en The uuid for editor.
-         * !#zh 组件的 uuid，用于编辑器。
-         * @property uuid
-         * @type {String}
-         * @readOnly
-         * @example
-         * cc.log(comp.uuid);
-         */
-        uuid: {
-            get () {
-                return this._id;
-            },
-            visible: false
-        },
-
-        __scriptAsset: CC_EDITOR && {
-            get () {},
-            //set (value) {
-            //    if (this.__scriptUuid !== value) {
-            //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-            //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
-            //            var NewComp = cc.js._getClassById(classId);
-            //            if (js.isChildClassOf(NewComp, cc.Component)) {
-            //                cc.warn('Sorry, replacing component script is not yet implemented.');
-            //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
-            //            }
-            //            else {
-            //                cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
-            //            }
-            //        }
-            //        else {
-            //            cc.error('Invalid Script');
-            //        }
-            //    }
-            //},
-            displayName: 'Script',
-            type: cc._Script,
-            tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
-        },
-
-        /**
-         * @property _enabled
-         * @type {Boolean}
-         * @private
-         */
-        _enabled: true,
-
-        /**
-         * !#en indicates whether this component is enabled or not.
-         * !#zh 表示该组件自身是否启用。
-         * @property enabled
-         * @type {Boolean}
-         * @default true
-         * @example
-         * comp.enabled = true;
-         * cc.log(comp.enabled);
-         */
-        enabled: {
-            get () {
-                return this._enabled;
-            },
-            set (value) {
-                if (this._enabled !== value) {
-                    this._enabled = value;
-                    if (this.node._activeInHierarchy) {
-                        var compScheduler = cc.director._compScheduler;
-                        if (value) {
-                            compScheduler.enableComp(this);
-                        }
-                        else {
-                            compScheduler.disableComp(this);
-                        }
-                    }
-                }
-            },
-            visible: false
-        },
-
-        /**
-         * !#en indicates whether this component is enabled and its node is also active in the hierarchy.
-         * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。
-         * @property enabledInHierarchy
-         * @type {Boolean}
-         * @readOnly
-         * @example
-         * cc.log(comp.enabledInHierarchy);
-         */
-        enabledInHierarchy: {
-            get () {
-                return (this._objFlags & IsOnEnableCalled) > 0;
-            },
-            visible: false
-        },
-
-        /**
-         * !#en Returns a value which used to indicate the onLoad get called or not.
-         * !#zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
-         * @property _isOnLoadCalled
-         * @type {Number}
-         * @readOnly
-         * @example
-         * cc.log(this._isOnLoadCalled > 0);
-         */
-        _isOnLoadCalled: {
-            get () {
-                return this._objFlags & IsOnLoadCalled;
-            }
-        },
-    },
-
-    // LIFECYCLE METHODS
-
-    // Fireball provides lifecycle methods that you can specify to hook into this process.
-    // We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
-
-    /**
-     * !#en Update is called every frame, if the Component is enabled.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 如果该组件启用，则每帧调用 update。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method update
-     * @param {Number} dt - the delta time in seconds it took to complete the last frame
-     * @protected
-     */
-    update: null,
-
-    /**
-     * !#en LateUpdate is called every frame, if the Component is enabled.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method lateUpdate
-     * @protected
-     */
-    lateUpdate: null,
-
-    /**
-     * `__preload` is called before every onLoad.
-     * It is used to initialize the builtin components internally,
-     * to avoid checking whether onLoad is called before every public method calls.
-     * This method should be removed if script priority is supported.
-     *
-     * @method __preload
-     * @private
-     */
-    __preload: null,
-
-    /**
-     * !#en
-     * When attaching to an active node or its node first activated.
-     * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh
-     * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method onLoad
-     * @protected
-     */
-    onLoad: null,
-
-    /**
-     * !#en
-     * Called before all scripts' update if the Component is enabled the first time.
-     * Usually used to initialize some logic which need to be called after all components' `onload` methods called.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh
-     * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method start
-     * @protected
-     */
-    start: null,
-
-    /**
-     * !#en Called when this component becomes enabled and its node is active.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被启用，并且它的节点也激活时。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method onEnable
-     * @protected
-     */
-    onEnable: null,
-
-    /**
-     * !#en Called when this component becomes disabled or its node becomes inactive.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被禁用或节点变为无效时调用。<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method onDisable
-     * @protected
-     */
-    onDisable: null,
-
-    /**
-     * !#en Called when this component will be destroyed.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被销毁时调用<br/>
-     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
-     * @method onDestroy
-     * @protected
-     */
-    onDestroy: null,
-
-    /**
-     * @method onFocusInEditor
-     * @protected
-     */
-    onFocusInEditor: null,
-    /**
-     * @method onLostFocusInEditor
-     * @protected
-     */
-    onLostFocusInEditor: null,
-    /**
-     * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used. This function is only called in editor.
-     * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
-     * @method resetInEditor
-     * @protected
-     */
-    resetInEditor: null,
+    }
 
     // PUBLIC
 
@@ -340,7 +229,7 @@ var Component = cc.Class({
      */
     addComponent (typeOrClassName) {
         return this.node.addComponent(typeOrClassName);
-    },
+    }
 
     /**
      * !#en
@@ -364,7 +253,7 @@ var Component = cc.Class({
      */
     getComponent (typeOrClassName) {
         return this.node.getComponent(typeOrClassName);
-    },
+    }
 
     /**
      * !#en Returns all components of supplied Type in the node.
@@ -382,7 +271,7 @@ var Component = cc.Class({
      */
     getComponents (typeOrClassName) {
         return this.node.getComponents(typeOrClassName);
-    },
+    }
 
     /**
      * !#en Returns the component of supplied type in any of its children using depth first search.
@@ -400,7 +289,7 @@ var Component = cc.Class({
      */
     getComponentInChildren (typeOrClassName) {
         return this.node.getComponentInChildren(typeOrClassName);
-    },
+    }
 
     /**
      * !#en Returns the components of supplied type in self or any of its children using depth first search.
@@ -418,65 +307,7 @@ var Component = cc.Class({
      */
     getComponentsInChildren (typeOrClassName) {
         return this.node.getComponentsInChildren(typeOrClassName);
-    },
-
-    // VIRTUAL
-
-    /**
-     * !#en
-     * If the component's bounding box is different from the node's, you can implement this method to supply
-     * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
-     * !#zh
-     * 如果组件的包围盒与节点不同，您可以实现该方法以提供自定义的轴向对齐的包围盒（AABB），
-     * 以便编辑器的场景视图可以正确地执行点选测试。
-     *
-     * @method _getLocalBounds
-     * @param {Rect} out_rect - the Rect to receive the bounding box
-     */
-    _getLocalBounds: null,
-
-    /**
-     * !#en
-     * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
-     * an undo operation on this component.<br/>
-     * <br/>
-     * If the component contains the "internal state", short for "temporary member variables which not included<br/>
-     * in its CCClass properties", then you may need to implement this function.<br/>
-     * <br/>
-     * The editor will call the getset accessors of your component to record/restore the component's state<br/>
-     * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement<br/>
-     * this function to manually synchronize your component's "internal states" with its public properties.<br/>
-     * Once you implement this function, all the getset accessors of your component will not be called when<br/>
-     * the user performs an undo/redo operation. Which means that only the properties with default value<br/>
-     * will be recorded or restored by editor.<br/>
-     * <br/>
-     * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need<br/>
-     * to support the reset menu, you should manually synchronize your component's "internal states" with its<br/>
-     * properties in this function. Once you implement this function, all the getset accessors of your component<br/>
-     * will not be called during reset operation. Which means that only the properties with default value<br/>
-     * will be reset by editor.
-     *
-     * This function is only called in editor mode.
-     * !#zh
-     * onRestore 是用户在检查器菜单点击 Reset 时，对此组件执行撤消操作后调用的。<br/>
-     * <br/>
-     * 如果组件包含了“内部状态”（不在 CCClass 属性中定义的临时成员变量），那么你可能需要实现该方法。<br/>
-     * <br/>
-     * 编辑器执行撤销/重做操作时，将调用组件的 get set 来录制和还原组件的状态。
-     * 然而，在极端的情况下，它可能无法良好运作。<br/>
-     * 那么你就应该实现这个方法，手动根据组件的属性同步“内部状态”。
-     * 一旦你实现这个方法，当用户撤销或重做时，组件的所有 get set 都不会再被调用。
-     * 这意味着仅仅指定了默认值的属性将被编辑器记录和还原。<br/>
-     * <br/>
-     * 同样的，编辑可能无法在极端情况下正确地重置您的组件。<br/>
-     * 于是如果你需要支持组件重置菜单，你需要在该方法中手工同步组件属性到“内部状态”。<br/>
-     * 一旦你实现这个方法，组件的所有 get set 都不会在重置操作时被调用。
-     * 这意味着仅仅指定了默认值的属性将被编辑器重置。
-     * <br/>
-     * 此方法仅在编辑器下会被调用。
-     * @method onRestore
-     */
-    onRestore: null,
+    }
 
     // OVERRIDE
 
@@ -485,7 +316,7 @@ var Component = cc.Class({
             var depend = this.node._getDependComponent(this);
             if (depend) {
                 return cc.errorID(3626,
-                    cc.js.getClassName(this), cc.js.getClassName(depend));
+                    getClassName(this), getClassName(depend));
             }
         }
         if (this._super()) {
@@ -493,7 +324,7 @@ var Component = cc.Class({
                 cc.director._compScheduler.disableComp(this);
             }
         }
-    },
+    }
 
     _onPreDestroy () {
         // Schedules
@@ -517,7 +348,7 @@ var Component = cc.Class({
 
         // do remove component
         this.node._removeComponent(this);
-    },
+    }
 
     _instantiate (cloned) {
         if (!cloned) {
@@ -525,7 +356,7 @@ var Component = cc.Class({
         }
         cloned.node = null;
         return cloned;
-    },
+    }
 
 // Scheduler
 
@@ -564,7 +395,7 @@ var Component = cc.Class({
         var paused = scheduler.isTargetPaused(this);
 
         scheduler.schedule(callback, this, interval, repeat, delay, paused);
-    },
+    }
 
     /**
      * !#en Schedules a callback function that runs only once, with a delay of 0 or larger.
@@ -581,7 +412,7 @@ var Component = cc.Class({
      */
     scheduleOnce (callback, delay) {
         this.schedule(callback, 0, 0, delay);
-    },
+    }
 
     /**
      * !#en Unschedules a custom callback function.
@@ -597,7 +428,7 @@ var Component = cc.Class({
             return;
 
         cc.director.getScheduler().unschedule(callback_fn, this);
-    },
+    }
 
     /**
      * !#en
@@ -610,8 +441,179 @@ var Component = cc.Class({
      */
     unscheduleAllCallbacks () {
         cc.director.getScheduler().unscheduleAllForTarget(this);
-    },
-});
+    }
+}
+
+let proto = Component.prototype;
+
+// LIFECYCLE METHODS
+
+// Fireball provides lifecycle methods that you can specify to hook into this process.
+// We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
+
+/**
+ * !#en Update is called every frame, if the Component is enabled.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh 如果该组件启用，则每帧调用 update。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method update
+ * @param {Number} dt - the delta time in seconds it took to complete the last frame
+ * @protected
+ */
+proto.update = null;
+
+/**
+ * !#en LateUpdate is called every frame, if the Component is enabled.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method lateUpdate
+ * @protected
+ */
+proto.lateUpdate = null;
+
+/**
+ * `__preload` is called before every onLoad.
+ * It is used to initialize the builtin components internally,
+ * to avoid checking whether onLoad is called before every public method calls.
+ * This method should be removed if script priority is supported.
+ *
+ * @method __preload
+ * @private
+ */
+proto.__preload = null;
+
+/**
+ * !#en
+ * When attaching to an active node or its node first activated.
+ * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh
+ * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method onLoad
+ * @protected
+ */
+proto.onLoad = null;
+
+/**
+ * !#en
+ * Called before all scripts' update if the Component is enabled the first time.
+ * Usually used to initialize some logic which need to be called after all components' `onload` methods called.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh
+ * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method start
+ * @protected
+ */
+proto.start = null;
+
+/**
+ * !#en Called when this component becomes enabled and its node is active.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh 当该组件被启用，并且它的节点也激活时。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method onEnable
+ * @protected
+ */
+proto.onEnable = null;
+
+/**
+ * !#en Called when this component becomes disabled or its node becomes inactive.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh 当该组件被禁用或节点变为无效时调用。<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method onDisable
+ * @protected
+ */
+proto.onDisable = null;
+
+/**
+ * !#en Called when this component will be destroyed.<br/>
+ * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+ * !#zh 当该组件被销毁时调用<br/>
+ * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+ * @method onDestroy
+ * @protected
+ */
+proto.onDestroy = null;
+
+/**
+ * @method onFocusInEditor
+ * @protected
+ */
+proto.onFocusInEditor = null;
+/**
+ * @method onLostFocusInEditor
+ * @protected
+ */
+proto.onLostFocusInEditor = null;
+/**
+ * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used. This function is only called in editor.
+ * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
+ * @method resetInEditor
+ * @protected
+ */
+proto.resetInEditor = null;
+
+// VIRTUAL
+
+/**
+ * !#en
+ * If the component's bounding box is different from the node's, you can implement this method to supply
+ * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
+ * !#zh
+ * 如果组件的包围盒与节点不同，您可以实现该方法以提供自定义的轴向对齐的包围盒（AABB），
+ * 以便编辑器的场景视图可以正确地执行点选测试。
+ *
+ * @method _getLocalBounds
+ * @param {Rect} out_rect - the Rect to receive the bounding box
+ */
+proto._getLocalBounds = null;
+
+/**
+ * !#en
+ * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
+ * an undo operation on this component.<br/>
+ * <br/>
+ * If the component contains the "internal state", short for "temporary member variables which not included<br/>
+ * in its CCClass properties", then you may need to implement this function.<br/>
+ * <br/>
+ * The editor will call the getset accessors of your component to record/restore the component's state<br/>
+ * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement<br/>
+ * this function to manually synchronize your component's "internal states" with its public properties.<br/>
+ * Once you implement this function, all the getset accessors of your component will not be called when<br/>
+ * the user performs an undo/redo operation. Which means that only the properties with default value<br/>
+ * will be recorded or restored by editor.<br/>
+ * <br/>
+ * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need<br/>
+ * to support the reset menu, you should manually synchronize your component's "internal states" with its<br/>
+ * properties in this function. Once you implement this function, all the getset accessors of your component<br/>
+ * will not be called during reset operation. Which means that only the properties with default value<br/>
+ * will be reset by editor.
+ *
+ * This function is only called in editor mode.
+ * !#zh
+ * onRestore 是用户在检查器菜单点击 Reset 时，对此组件执行撤消操作后调用的。<br/>
+ * <br/>
+ * 如果组件包含了“内部状态”（不在 CCClass 属性中定义的临时成员变量），那么你可能需要实现该方法。<br/>
+ * <br/>
+ * 编辑器执行撤销/重做操作时，将调用组件的 get set 来录制和还原组件的状态。
+ * 然而，在极端的情况下，它可能无法良好运作。<br/>
+ * 那么你就应该实现这个方法，手动根据组件的属性同步“内部状态”。
+ * 一旦你实现这个方法，当用户撤销或重做时，组件的所有 get set 都不会再被调用。
+ * 这意味着仅仅指定了默认值的属性将被编辑器记录和还原。<br/>
+ * <br/>
+ * 同样的，编辑可能无法在极端情况下正确地重置您的组件。<br/>
+ * 于是如果你需要支持组件重置菜单，你需要在该方法中手工同步组件属性到“内部状态”。<br/>
+ * 一旦你实现这个方法，组件的所有 get set 都不会在重置操作时被调用。
+ * 这意味着仅仅指定了默认值的属性将被编辑器重置。
+ * <br/>
+ * 此方法仅在编辑器下会被调用。
+ * @method onRestore
+ */
+proto.onRestore = null;
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
@@ -628,8 +630,8 @@ if (CC_EDITOR || CC_TEST) {
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)
 
-    js.value(Component, '_inspector', '', true);
-    js.value(Component, '_icon', '', true);
+    value(Component, '_inspector', '', true);
+    value(Component, '_icon', '', true);
 
     // COMPONENT HELPERS
 
@@ -645,7 +647,7 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-js.value(Component, '_registerEditorProps', function (cls, props) {
+value(Component, '_registerEditorProps', function (cls, props) {
     var reqComp = props.requireComponent;
     if (reqComp) {
         cls._requireComponent = reqComp;
@@ -655,7 +657,7 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
         cls._executionOrder = order;
     }
     if (CC_EDITOR || CC_TEST) {
-        var name = cc.js.getClassName(cls);
+        var name = getClassName(cls);
         for (var key in props) {
             var val = props[key];
             switch (key) {
@@ -676,11 +678,11 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 case 'inspector':
-                    js.value(cls, '_inspector', val, true);
+                    value(cls, '_inspector', val, true);
                     break;
 
                 case 'icon':
-                    js.value(cls, '_icon', val, true);
+                    value(cls, '_icon', val, true);
                     break;
 
                 case 'menu':
@@ -710,4 +712,4 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
 
 Component.prototype.__scriptUuid = '';
 
-cc.Component = module.exports = Component;
+cc.Component = Component;

@@ -223,7 +223,7 @@ export class CallbacksHandler {
  */
 export class CallbacksInvoker extends CallbacksHandler {
     constructor () {
-        CallbacksHandler.call(this);
+        super();
     }
 
     /**

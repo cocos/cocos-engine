@@ -34,11 +34,9 @@ const {ccclass, property} = _decorator;
  * @class SpriteAtlas
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.SpriteAtlas')
 export default class SpriteAtlas extends Asset {
-    get name () { return 'SpriteAtlas'; }
-
-    @property()
+    @property
     _spriteFrames = {};
 
     /**

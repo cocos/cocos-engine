@@ -25,8 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
-
 /**
  * A SAX Parser
  * @class saxParser
@@ -73,10 +71,6 @@ class SAXParser {
  * @extends SAXParser
  */
 class PlistParser extends SAXParser {
-    constructor () {
-        super(this);
-    }
-
     /**
      * parse a xml string as plist object.
      * @param {String} xmlTxt - plist xml contents

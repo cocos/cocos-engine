@@ -24,105 +24,108 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = cc.js;
-var BUILTIN_CLASSID_RE = require('../utils/misc').BUILTIN_CLASSID_RE;
+import {_getClassById} from '../core/utils/js';
+import {BUILTIN_CLASSID_RE} from '../core/utils/misc';
+import Component from './CCComponent';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property, inspector} = _decorator;
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.
  */
-var MissingClass = cc.Class({
-    name: 'cc.MissingClass',
-    properties: {
-        // the serialized data for original object
-        _$erialized: {
-            default: null,
-            visible: false,
-            editorOnly: true
-        }
-    },
-});
+@ccclass('cc.MissingClass')
+class MissingClass {
+    // the serialized data for original object
+    @property({
+        visible: false,
+        editorOnly: true
+    })
+    _$erialized = null;
+}
 
 /*
  * A temp fallback to contain the original component which can not be loaded.
  */
-var MissingScript = cc.Class({
-    name: 'cc.MissingScript', 
-    extends: cc.Component,
-    editor: {
-        inspector: 'packages://inspector/inspectors/comps/missing-script.js',
-    },
-    properties: {
-        //_scriptUuid: {
-        //    get: function () {
-        //        var id = this._$erialized.__type__;
-        //        if (Editor.Utils.UuidUtils.isUuid(id)) {
-        //            return Editor.Utils.UuidUtils.decompressUuid(id);
-        //        }
-        //        return '';
-        //    },
-        //    set: function (value) {
-        //        if ( !sandbox.compiled ) {
-        //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
-        //            return;
-        //        }
-        //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-        //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
-        //            if (cc.js._getClassById(classId)) {
-        //                this._$erialized.__type__ = classId;
-        //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
-        //            }
-        //            else {
-        //                cc.error('Can not find a component in the script which uuid is "%s".', value);
-        //            }
-        //        }
-        //        else {
-        //            cc.error('invalid script');
-        //        }
-        //    }
-        //},
-        compiled: {
-            default: false,
-            serializable: false
-        },
-        // the serialized data for original script object
-        _$erialized: {
-            default: null,
-            visible: false,
-            editorOnly: true
+@ccclass('cc.MissingScript')
+@inspector('packages://inspector/inspectors/comps/missing-script.js')
+export default class MissingScript extends Component {
+    
+    //_scriptUuid: {
+    //    get: function () {
+    //        var id = this._$erialized.__type__;
+    //        if (Editor.Utils.UuidUtils.isUuid(id)) {
+    //            return Editor.Utils.UuidUtils.decompressUuid(id);
+    //        }
+    //        return '';
+    //    },
+    //    set: function (value) {
+    //        if ( !sandbox.compiled ) {
+    //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
+    //            return;
+    //        }
+    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+    //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
+    //            if (_getClassById(classId)) {
+    //                this._$erialized.__type__ = classId;
+    //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
+    //            }
+    //            else {
+    //                cc.error('Can not find a component in the script which uuid is "%s".', value);
+    //            }
+    //        }
+    //        else {
+    //            cc.error('invalid script');
+    //        }
+    //    }
+    //},
+
+    @property({
+        serializable: false
+    })
+    compiled = false;
+
+    // the serialized data for original script object
+    @property({
+        visible: false,
+        editorOnly: true
+    })
+    _$erialized = null;
+
+    constructor () {
+        super();
+        if (CC_EDITOR) {
+            this.compiled = _Scene.Sandbox.compiled;
         }
-    },
-    ctor: CC_EDITOR && function () {
-        this.compiled = _Scene.Sandbox.compiled;
-    },
-    statics: {
-        /*
-         * @param {string} id
-         * @return {function} constructor
-         */
-        safeFindClass: function (id, data) {
-            var cls = js._getClassById(id);
-            if (cls) {
-                return cls;
-            }
-            if (id) {
-                cc.deserialize.reportMissingClass(id);
-                return MissingScript.getMissingWrapper(id, data);
-            }
-            return null;
-        },
-        getMissingWrapper: function (id, data) {
-            if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
-                // is component
-                return MissingScript;
-            }
-            else {
-                return MissingClass;
-            }
+    }
+
+    /*
+     * @param {string} id
+     * @return {function} constructor
+     */
+    static safeFindClass (id, data) {
+        var cls = _getClassById(id);
+        if (cls) {
+            return cls;
         }
-    },
-    onLoad: function () {
+        if (id) {
+            cc.deserialize.reportMissingClass(id);
+            return MissingScript.getMissingWrapper(id, data);
+        }
+        return null;
+    }
+    static getMissingWrapper (id, data) {
+        if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
+            // is component
+            return MissingScript;
+        }
+        else {
+            return MissingClass;
+        }
+    }
+
+    onLoad () {
         cc.warnID(4600, this.node.name);
     }
-});
+}
 
-cc._MissingScript = module.exports = MissingScript;
+cc._MissingScript = MissingScript;

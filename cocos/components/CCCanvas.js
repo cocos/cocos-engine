@@ -24,8 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Camera = require('../camera/CCCamera');
-var Component = require('./CCComponent');
+import Camera from '../camera/CCCamera';
+import Component from './CCComponent';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property, executeInEditMode, menu, help, disallowMultiple} = _decorator;
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -34,99 +36,94 @@ var Component = require('./CCComponent');
  * @class Canvas
  * @extends Component
  */
-var Canvas = cc.Class({
-    name: 'cc.Canvas',
-    extends: Component,
+@ccclass('cc.Canvas')
+@menu('i18n:MAIN_MENU.component.ui/Canvas')
+@help('i18n:COMPONENT.help_url.canvas')
+@executeInEditMode
+@disallowMultiple
+export default class Canvas extends Component {
+    /**
+     * !#en Current active canvas, the scene should only have one active canvas at the same time.
+     * !#zh 当前激活的画布组件，场景同一时间只能有一个激活的画布。
+     * @property {Canvas} instance
+     * @static
+     */
+    static instance = null;
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/Canvas',
-        help: 'i18n:COMPONENT.help_url.canvas',
-        executeInEditMode: true,
-        disallowMultiple: true,
-    },
+    /**
+     * !#en The desigin resolution for current scene.
+     * !#zh 当前场景设计分辨率。
+     * @property {Size} designResolution
+     * @default new cc.Size(960, 640)
+     */
+    @property
+    _designResolution = cc.size(960, 640);
+    @property({
+        tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution',
+        type: cc.Size
+    })
+    get designResolution () {
+        return cc.size(this._designResolution);
+    }
+    set designResolution (value) {
+        this._designResolution.width = value.width;
+        this._designResolution.height = value.height;
+        this.applySettings();
+    }
 
-    resetInEditor: CC_EDITOR && function () {
-        _Scene._applyCanvasPreferences(this);
-    },
+    @property
+    _fitWidth = false;
+    @property
+    _fitHeight = true;
 
-    statics: {
-        /**
-         * !#en Current active canvas, the scene should only have one active canvas at the same time.
-         * !#zh 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-         * @property {Canvas} instance
-         * @static
-         */
-        instance: null
-    },
-
-    properties: {
-
-        /**
-         * !#en The desigin resolution for current scene.
-         * !#zh 当前场景设计分辨率。
-         * @property {Size} designResolution
-         * @default new cc.Size(960, 640)
-         */
-        _designResolution: cc.size(960, 640),
-        designResolution: {
-            get: function () {
-                return cc.size(this._designResolution);
-            },
-            set: function (value) {
-                this._designResolution.width = value.width;
-                this._designResolution.height = value.height;
-                this.applySettings();
-            },
-            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
-        },
-
-        _fitWidth: false,
-        _fitHeight: true,
-
-        /**
-         * !#en TODO
-         * !#zh: 是否优先将设计分辨率高度撑满视图高度。
-         * @property {Boolean} fitHeight
-         * @default false
-         */
-        fitHeight: {
-            get: function () {
-                return this._fitHeight;
-            },
-            set: function (value) {
-                if (this._fitHeight !== value) {
-                    this._fitHeight = value;
-                    this.applySettings();
-                }
-            },
-            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
-        },
-
-        /**
-         * !#en TODO
-         * !#zh: 是否优先将设计分辨率宽度撑满视图宽度。
-         * @property {Boolean} fitWidth
-         * @default false
-         */
-        fitWidth: {
-            get: function () {
-                return this._fitWidth;
-            },
-            set: function (value) {
-                if (this._fitWidth !== value) {
-                    this._fitWidth = value;
-                    this.applySettings();
-                }
-            },
-            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
+    /**
+     * !#en TODO
+     * !#zh: 是否优先将设计分辨率高度撑满视图高度。
+     * @property {Boolean} fitHeight
+     * @default false
+     */
+    @property({
+        tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
+    })
+    get fitHeight () {
+        return this._fitHeight;
+    }
+    set fitHeight (value) {
+        if (this._fitHeight !== value) {
+            this._fitHeight = value;
+            this.applySettings();
         }
-    },
+    }
 
-    ctor: function () {
+    /**
+     * !#en TODO
+     * !#zh: 是否优先将设计分辨率宽度撑满视图宽度。
+     * @property {Boolean} fitWidth
+     * @default false
+     */
+    @property({
+        tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
+    })
+    get fitWidth () {
+        return this._fitWidth;
+    }
+    set fitWidth (value) {
+        if (this._fitWidth !== value) {
+            this._fitWidth = value;
+            this.applySettings();
+        }
+    }
+
+    constructor () {
+        super();
         this._thisOnResized = this.onResized.bind(this);
-    },
+    }
 
-    __preload: function () {
+    resetInEditor () {
+        _Scene._applyCanvasPreferences(this);
+    }
+
+    __preload () {
         if (CC_DEV) {
             var Flags = cc.Object.Flags;
             this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
@@ -171,9 +168,9 @@ var Canvas = cc.Class({
             camera.depth = -1;
         }
         Camera.main = camera;
-    },
+    }
 
-    onDestroy: function () {
+    onDestroy () {
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
@@ -191,11 +188,11 @@ var Canvas = cc.Class({
         if (Canvas.instance === this) {
             Canvas.instance = null;
         }
-    },
+    }
 
     //
 
-    alignWithScreen: function () {
+    alignWithScreen () {
         var designSize, nodeSize;
         if (CC_EDITOR) {
             nodeSize = designSize = cc.engine.getDesignResolutionSize();
@@ -216,14 +213,14 @@ var Canvas = cc.Class({
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
-    },
+    }
 
-    onResized: function () {
+    onResized () {
         // TODO - size dirty
         this.alignWithScreen();
-    },
+    }
 
-    applySettings: function () {
+    applySettings () {
         var ResolutionPolicy = cc.ResolutionPolicy;
         var policy;
 
@@ -248,7 +245,6 @@ var Canvas = cc.Class({
             cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
         }
     }
-});
+}
 
-
-cc.Canvas = module.exports = Canvas;
+cc.Canvas = Canvas;

@@ -50,10 +50,8 @@ const {ccclass, property} = _decorator;
  * @class Asset
  * @extends RawAsset
  */
-@ccclass
+@ccclass('cc.Asset')
 export default class Asset extends RawAsset {
-    get name () { return 'Asset'; }
-    
     constructor () {
         super();
         /**
@@ -112,7 +110,7 @@ export default class Asset extends RawAsset {
      * @default ""
      * @private
      */
-    @property()
+    @property
     _native = ""
 
     /**
@@ -123,7 +121,7 @@ export default class Asset extends RawAsset {
      * @default null
      * @private
      */
-    @property()
+    @property
     get _nativeAsset () {
     }
     set _nativeAsset (obj) {
@@ -163,11 +161,14 @@ export default class Asset extends RawAsset {
     static preventPreloadNativeObject = false;
 
     /**
-     * Returns the asset's url.
+     * Returns the string representation of the object.
      *
      * The `Asset` object overrides the `toString()` method of the `Object` object.
-     * For `Asset` objects, the toString() method returns a string representation of the object.
      * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     *
+     * For assets of the native type, it will return `this.nativeUrl`.
+     * Otherwise, an empty string is returned.
+     * This method may be overwritten by subclasses.
      *
      * @method toString
      * @return {String}

@@ -24,10 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AffineTrans = require('../utils/affine-transform');
-const renderEngine = require('../renderer/render-engine');
-const renderer = require('../renderer/index');
-const game = require('../CCGame');
+import game from '../core/CCGame';
+import AffineTrans from '../core/value-types/affine-transform';
+import Component from '../components/CCComponent';
+// TODO fix import from renderer
+// import Renderer_Camera from '../renderer/scene/camera';
+// import Renderer_View from '../renderer/core/view';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property, executeInEditMode, menu, inspector} = _decorator;
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -74,13 +78,15 @@ let ClearFlags = cc.Enum({
  * @class Camera
  * @extends Component
  */
-let Camera = cc.Class({
-    name: 'cc.Camera',
-    extends: cc.Component,
-    
-    ctor () {
+@ccclass('cc.Camera')
+@menu('i18n:MAIN_MENU.component.others/Camera')
+@inspector('packages://inspector/inspectors/comps/camera.js')
+@executeInEditMode
+export default class Camera extends Component {
+    constructor () {
+        super();
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
-            let camera = new renderEngine.Camera();
+            let camera = new Renderer_Camera();
 
             camera.setStages([
                 'transparent'
@@ -91,7 +97,7 @@ let Camera = cc.Class({
             camera.setNear(0.1);
             camera.setFar(4096);
 
-            let view = new renderEngine.View();
+            let view = new Renderer_View();
             camera.view = view;
             camera.dirty = true;
 
@@ -102,207 +108,203 @@ let Camera = cc.Class({
         else {
             this._inited = true;
         }
-    },
+    }
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/Camera',
-        inspector: 'packages://inspector/inspectors/comps/camera.js',
-        executeInEditMode: false
-    },
+    @property
+    _cullingMask = 0xffffffff;
 
-    properties: {
-        _cullingMask: 0xffffffff,
-        _clearFlags: 0,
-        _backgroundColor: cc.color(0, 0, 0, 255),
-        _depth: 0,
-        _zoomRatio: 1,
-        _targetTexture: null,
+    @property
+    _clearFlags = 0;
 
-        /**
-         * !#en
-         * The camera zoom ratio.
-         * !#zh
-         * 摄像机缩放比率
-         * @property {Number} zoomRatio
-         */
-        zoomRatio: {
-            get () {
-                return this._zoomRatio;
-            },
-            set (value) {
-                this._zoomRatio = value;
-                this._matrixDirty = true;
-            }
-        },
+    @property
+    _backgroundColor = cc.color(0, 0, 0, 255);
 
-        /**
-         * !#en
-         * This is used to render parts of the scene selectively.
-         * !#zh
-         * 决定摄像机会渲染场景的哪一部分。
-         * @property {Number} cullingMask
-         */
-        cullingMask: {
-            get () {
-                return this._cullingMask;
-            },
-            set (value) {
-                this._cullingMask = value;
-                this._updateCameraMask();
-            }
-        },
+    @property
+    _depth = 0;
 
-        /**
-         * !#en
-         * Determining what to clear when camera rendering.
-         * !#zh
-         * 决定摄像机渲染时会清除哪些状态。
-         * @property {Camera.ClearFlags} clearFlags
-         */
-        clearFlags: {
-            get () {
-                return this._clearFlags;
-            },
-            set (value) {
-                this._clearFlags = value;
-                if (this._camera) {
-                    this._camera.setClearFlags(value);
-                }
-            }
-        },
+    @property
+    _zoomRatio = 1;
 
-        /**
-         * !#en
-         * The color with which the screen will be cleared.
-         * !#zh
-         * 摄像机用于清除屏幕的背景色。
-         * @property {Color} backgroundColor
-         */
-        backgroundColor: {
-            get () {
-                return this._backgroundColor;
-            },
-            set (value) {
-                this._backgroundColor = value;
-                this._updateBackgroundColor();
-            }
-        },
+    @property
+    _targetTexture = null;
 
-        /**
-         * !#en
-         * Camera's depth in the camera rendering order.
-         * !#zh
-         * 摄像机深度，用于决定摄像机的渲染顺序。
-         * @property {Number} depth
-         */
-        depth: {
-            get () {
-                return this._depth;
-            },
-            set (value) {
-                this._depth = value;
-                if (this._camera) {
-                    this._camera._sortDepth = value;
-                }
-            }
-        },
+    /**
+     * !#en
+     * The camera zoom ratio.
+     * !#zh
+     * 摄像机缩放比率
+     * @property {Number} zoomRatio
+     */
+    @property
+    get zoomRatio () {
+        return this._zoomRatio;
+    }
+    set zoomRatio (value) {
+        this._zoomRatio = value;
+        this._matrixDirty = true;
+    }
 
-        /**
-         * !#en
-         * Destination render texture.
-         * Usually cameras render directly to screen, but for some effects it is useful to make a camera render into a texture.
-         * !#zh
-         * 摄像机渲染的目标 RenderTexture。
-         * 一般摄像机会直接渲染到屏幕上，但是有一些效果可以使用摄像机渲染到 RenderTexture 上再对 RenderTexture 进行处理来实现。
-         * @property {RenderTexture} targetTexture
-         */
-        targetTexture: {
-            get () {
-                return this._targetTexture;
-            },
-            set (value) {
-                this._targetTexture = value;
-                this._updateTargetTexture();
+    /**
+     * !#en
+     * This is used to render parts of the scene selectively.
+     * !#zh
+     * 决定摄像机会渲染场景的哪一部分。
+     * @property {Number} cullingMask
+     */
+    @property
+    get cullingMask () {
+        return this._cullingMask;
+    }
+    set cullingMask (value) {
+        this._cullingMask = value;
+        this._updateCameraMask();
+    }
+
+    /**
+     * !#en
+     * Determining what to clear when camera rendering.
+     * !#zh
+     * 决定摄像机渲染时会清除哪些状态。
+     * @property {Camera.ClearFlags} clearFlags
+     */
+    @property
+    get clearFlags () {
+        return this._clearFlags;
+    }
+    set clearFlags (value) {
+        this._clearFlags = value;
+        if (this._camera) {
+            this._camera.setClearFlags(value);
+        }
+    }
+
+    /**
+     * !#en
+     * The color with which the screen will be cleared.
+     * !#zh
+     * 摄像机用于清除屏幕的背景色。
+     * @property {Color} backgroundColor
+     */
+    @property
+    get backgroundColor () {
+        return this._backgroundColor;
+    }
+    set backgroundColor (value) {
+        this._backgroundColor = value;
+        this._updateBackgroundColor();
+    }
+
+    /**
+     * !#en
+     * Camera's depth in the camera rendering order.
+     * !#zh
+     * 摄像机深度，用于决定摄像机的渲染顺序。
+     * @property {Number} depth
+     */
+    @property
+    get depth () {
+        return this._depth;
+    }
+    set depth (value) {
+        this._depth = value;
+        if (this._camera) {
+            this._camera._sortDepth = value;
+        }
+    }
+
+    /**
+     * !#en
+     * Destination render texture.
+     * Usually cameras render directly to screen, but for some effects it is useful to make a camera render into a texture.
+     * !#zh
+     * 摄像机渲染的目标 RenderTexture。
+     * 一般摄像机会直接渲染到屏幕上，但是有一些效果可以使用摄像机渲染到 RenderTexture 上再对 RenderTexture 进行处理来实现。
+     * @property {RenderTexture} targetTexture
+     */
+    @property
+    get targetTexture () {
+        return this._targetTexture;
+    }
+    set targetTexture (value) {
+        this._targetTexture = value;
+        this._updateTargetTexture();
+    }
+
+    /**
+     * !#en
+     * The first enabled camera.
+     * !#zh
+     * 第一个被激活的摄像机。
+     * @property {Camera} main
+     * @static
+     */
+    static main = null;
+
+    /**
+     * !#en
+     * All enabled cameras.
+     * !#zh
+     * 激活的所有摄像机。
+     * @property {[Camera]} cameras
+     * @static
+     */
+    static cameras = _cameras
+
+    static ClearFlags = ClearFlags
+
+    /**
+     * !#en
+     * Get the first camera which the node belong to.
+     * !#zh
+     * 获取节点所在的第一个摄像机。
+     * @method findCamera
+     * @param {Node} node 
+     * @return {Camera}
+     * @static
+     */
+    static findCamera (node) {
+        for (let i = 0, l = _cameras.length; i < l; i++) {
+            let camera = _cameras[i];
+            if (camera.containsNode(node)) {
+                return camera;
             }
         }
-    },
 
-    statics: {
-        /**
-         * !#en
-         * The first enabled camera.
-         * !#zh
-         * 第一个被激活的摄像机。
-         * @property {Camera} main
-         * @static
-         */
-        main: null,
+        return null;
+    }
 
-        /**
-         * !#en
-         * All enabled cameras.
-         * !#zh
-         * 激活的所有摄像机。
-         * @property {[Camera]} cameras
-         * @static
-         */
-        cameras: _cameras,
+    static _setupDebugCamera () {
+        if (_debugCamera) return;
+        if (game.renderType === game.RENDER_TYPE_CANVAS) return;
+        let camera = new Renderer_Camera();
+        _debugCamera = camera;
+        
+        camera.setStages([
+            'transparent'
+        ]);
 
-        ClearFlags: ClearFlags,
+        camera.setFov(Math.PI * 60 / 180);
+        camera.setNear(0.1);
+        camera.setFar(4096);
 
-        /**
-         * !#en
-         * Get the first camera which the node belong to.
-         * !#zh
-         * 获取节点所在的第一个摄像机。
-         * @method findCamera
-         * @param {Node} node 
-         * @return {Camera}
-         * @static
-         */
-        findCamera (node) {
-            for (let i = 0, l = _cameras.length; i < l; i++) {
-                let camera = _cameras[i];
-                if (camera.containsNode(node)) {
-                    return camera;
-                }
-            }
+        let view = new Renderer_View();
+        camera.view = view;
+        camera.dirty = true;
 
-            return null;
-        },
+        camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+        camera._sortDepth = cc.macro.MAX_ZINDEX;
+        camera.setClearFlags(0);
+        camera.setColor(0,0,0,0);
 
-        _setupDebugCamera () {
-            if (_debugCamera) return;
-            if (game.renderType === game.RENDER_TYPE_CANVAS) return;
-            let camera = new renderEngine.Camera();
-            _debugCamera = camera;
-            
-            camera.setStages([
-                'transparent'
-            ]);
+        let node = new cc.Node();
+        camera.setNode(node);
 
-            camera.setFov(Math.PI * 60 / 180);
-            camera.setNear(0.1);
-            camera.setFar(4096);
+        repositionDebugCamera();
+        cc.view.on('design-resolution-changed', repositionDebugCamera);
 
-            let view = new renderEngine.View();
-            camera.view = view;
-            camera.dirty = true;
-
-            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
-            camera._sortDepth = cc.macro.MAX_ZINDEX;
-            camera.setClearFlags(0);
-            camera.setColor(0,0,0,0);
-
-            let node = new cc.Node();
-            camera.setNode(node);
-
-            repositionDebugCamera();
-            cc.view.on('design-resolution-changed', repositionDebugCamera);
-
-            renderer.scene.addCamera(camera);
-        }
-    },
+        // TODO Add Camera to scene
+        // renderer.scene.addCamera(camera);
+    }
 
     _updateCameraMask () {
         if (this._camera) {
@@ -310,7 +312,7 @@ let Camera = cc.Class({
             this._camera._cullingMask = mask;
             this._camera.view._cullingMask = mask;
         }
-    },
+    }
 
     _updateBackgroundColor () {
         if (this._camera) {
@@ -322,18 +324,18 @@ let Camera = cc.Class({
                 color.a / 255,
             );
         }
-    },
+    }
 
     _updateTargetTexture () {
         let texture = this._targetTexture;
         if (this._camera) {
             this._camera._framebuffer = texture ? texture._framebuffer : null;
         }
-    },
+    }
 
     _onMatrixDirty () {
         this._matrixDirty = true;
-    },
+    }
 
     _init () {
         if (this._inited) return;
@@ -347,28 +349,30 @@ let Camera = cc.Class({
             this._updateCameraMask();
             this._updateTargetTexture();
         }
-    },
+    }
 
     onLoad () {
         this._init();
-    },
+    }
 
     onEnable () {
         this._matrixDirty = true;
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            renderer.scene.addCamera(this._camera);
+            // TODO Add Camera to scene
+            // renderer.scene.addCamera(this._camera);
         }
         _cameras.push(this);
-    },
+    }
 
     onDisable () {
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            renderer.scene.removeCamera(this._camera);
+            // TODO Add Camera to scene
+            // renderer.scene.removeCamera(this._camera);
         }
         cc.js.array.remove(_cameras, this);
-    },
+    }
 
     /**
      * !#en
@@ -388,7 +392,7 @@ let Camera = cc.Class({
         }
         AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;
-    },
+    }
 
     /**
      * !#en
@@ -405,7 +409,7 @@ let Camera = cc.Class({
         this.getCameraToWorldMatrix(_mat4_temp_1);
         vec2.transformMat4(out, point, _mat4_temp_1);
         return out;
-    },
+    }
 
     /**
      * !#en
@@ -422,7 +426,7 @@ let Camera = cc.Class({
         this.getWorldToCameraMatrix(_mat4_temp_1);
         vec2.transformMat4(out, point, _mat4_temp_1);
         return out;
-    },
+    }
 
     /**
      * !#en
@@ -437,8 +441,7 @@ let Camera = cc.Class({
         this.getWorldToCameraMatrix(out);
         mat4.invert(out, out);
         return out;
-    },
-
+    }
 
     /**
      * !#en
@@ -469,7 +472,7 @@ let Camera = cc.Class({
             mat4.copy(out, _mat4_temp_1);
         }
         return out;
-    },
+    }
 
     /**
      * !#en
@@ -482,7 +485,7 @@ let Camera = cc.Class({
      */
     containsNode (node) {
         return node._cullingMask & this.cullingMask;
-    },
+    }
 
     /**
      * !#en
@@ -499,11 +502,12 @@ let Camera = cc.Class({
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        renderer._walker.visit(root);
-        renderer._forward.renderCamera(this._camera, renderer.scene);
-    },
+        // TODO
+        // renderer._walker.visit(root);
+        // renderer._forward.renderCamera(this._camera, renderer.scene);
+    }
 
-    beforeDraw: function () {
+    beforeDraw () {
         let node = this.node;
         
         if (!this._matrixDirty && !node._worldMatDirty)
@@ -531,6 +535,6 @@ let Camera = cc.Class({
         this._matrixDirty = false;
         camera.dirty = true;
     }
-});
+}
 
-module.exports = cc.Camera = Camera;
+cc.Camera = Camera;
