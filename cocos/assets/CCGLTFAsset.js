@@ -43,14 +43,28 @@ export class GLTFAsset extends cc.Asset {
     @property(JsonAsset)
     /**
      * The underlying GlTf file asset.
-     * @property {JsonAsset} description
+     * @type {JsonAsset} description
      */
-    description = null;
+    set description(value) {
+        this._description = value;
+    }
 
-    @property([BufferAsset])
+    /**
+     * The underlying GlTf file asset.
+     * @type {JsonAsset} description
+     */
+    get description() {
+        return this._description;
+    }
+
     /**
      * The buffers this GLTF Asset associated.
-     * @property {BufferAsset[]} buffers
      */
-    buffers = [];
+    @property([BufferAsset])
+    get buffers() {
+        return this._buffers;
+    }
+
+    _description: = null;
+    _buffers = [];
 }

@@ -22,39 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
 import { _decorator } from "../../core/data/index";
-const {ccclass, property} = _decorator;
+const { ccclass, property } = _decorator;
 import { GLTFAsset } from "../../assets/CCGLTFAsset";
-import { Asset } from "../../../index";
+import Asset from "../../assets/CCAsset";
+import { default as GLTFUtils } from "./utils/gltf-utils";
 
 @ccclass
-class Mesh extends Asset {
+export default class Mesh extends Asset {
     /**
      * !#en
      * Gets the native data of this mesh.
-     * @return {GLTFAsset | Null} The native data, or null if it had never been assigned.
+     * @return {GLTFAsset | Null} The native data, or null if this is an empty mesh.
      */
-    @property(GLTFAsset)
-    get native() {
-        return this._native;
+    getNativeAsset() {
+        return this._gltfAsset;
     }
 
     /**
      * !#en
-     * Sets the native data to this mesh.
-     * @param {GLTFAsset} value The native data.
+     * Gets the index into the native data of this mesh.
+     * @return {number} The index into the native data.
      */
-    set native(value) {
-        this._native = value;
-        this._onLoaded();
+    getNativeAssetIndex() {
+        return this._gltfIndex;
     }
 
     /**
      * !#en
-     * Destory this mesh and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
-     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+     * Sets the native data of this mesh.
+     * @param {GLTFAsset} gltfAsset The GLTF asset.
+     * @param {number} gltfIndex An index to the GLTF meshes.
+     */
+    setNative(gltfAsset, gltfIndex) {
+        this._gltfAsset = gltfAsset;
+        this._gltfIndex = gltfIndex;
+    }
+
+    /**
+     * !#en
+     * Destory this mesh and immediately release its video memory.
      */
     destroy() {
         if (this._subMeshes !== null) {
@@ -108,14 +115,36 @@ class Mesh extends Asset {
     //   }
     // }
 
-    _onLoaded() {
+    _onDeserialized(app) {
+        this._update();
+    }
 
+    _update(app) {
+        if (!this._gltfAsset) {
+            return;
+        }
+        const result = GLTFUtils.createMesh(app, this._gltfAsset, this._gltfIndex);
+        if (!result) {
+            return;
+        }
+        this.name = result.name;
+        this._subMeshes = result.subMeshes;
+        this._minPos = result.minPos;
+        this._maxPos = result.maxPos;
+        this._skinning = result.skinning;
     }
 
     /**
      * @type {GLTFAsset}
      */
-    _native = null;
+    @property(GLTFAsset)
+    _gltfAsset = null;
+
+    /**
+     * @type {number}
+     */
+    @property(Number)
+    _gltfIndex = -1;
 
     /**
      * @type {renderer.InputAssemblers}
@@ -126,4 +155,14 @@ class Mesh extends Asset {
      * @type {{jointIndices, bindposes}}
      */
     _skinning = null;
+
+    /**
+     * @type {vec3}
+     */
+    _minPos = null;
+
+    /**
+     * @type {vec3}
+     */
+    _maxPos = null;
 }

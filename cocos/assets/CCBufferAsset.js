@@ -38,4 +38,15 @@ const {ccclass, property} = _decorator;
  */
 @ccclass
 export class BufferAsset extends cc.Asset {
+    /**
+     * @type {ArrayBuffer}
+     */
+    get data() {
+        return this._data;
+    }
+
+    /**
+     * @type {ArrayBuffer}
+     */
+    _data = null;
 }

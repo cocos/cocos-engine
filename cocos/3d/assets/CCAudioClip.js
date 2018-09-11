@@ -3,8 +3,8 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 import Asset from "../../assets/CCAsset";
-import { EventEmitter } from "";
-const { ccclass, property, mixins } = _decorator;
+import { EventTarget } from "../../core/event/index";
+const { ccclass, mixins } = _decorator;
 
 /**
  * @typedef {number} PlayingState
@@ -35,10 +35,11 @@ export const AudioSourceType = {
 };
 
 /**
- * The base class for audio clip asset
+ * The base class for audio clip asset.
+ * @mixes {EventTarget}
  */
 @ccclass
-@mixins(EventEmitter)
+@mixins(EventTarget)
 export class AudioClip extends Asset {
   /**
    * @typedef {AudioBuffer|HTMLAudioElement} AudioSource
