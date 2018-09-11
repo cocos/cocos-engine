@@ -106,11 +106,13 @@ public class Cocos2dxHelper {
         }
 
         public void setBatteryLevelByIntent(Intent intent) {
-            int current = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            int total = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 1);
-            float level = current * 1.0f / total;
-            // clamp to 0~1
-            sBatteryLevel = Math.min(Math.max(level, 0.0f), 1.0f);
+            if (null != intent) {
+                int current = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                int total = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 1);
+                float level = current * 1.0f / total;
+                // clamp to 0~1
+                sBatteryLevel = Math.min(Math.max(level, 0.0f), 1.0f);
+            }
         }
     }
 
