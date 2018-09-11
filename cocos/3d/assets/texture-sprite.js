@@ -2,8 +2,8 @@
 
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const { ccclass, property } = _decorator;
-import { Texture2D } from './CCTexture2D';
+const { ccclass } = _decorator;
+import { Texture2D } from './texture-2d';
 
 @ccclass
 export default class TextureSprite extends Texture2D {

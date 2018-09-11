@@ -2,7 +2,7 @@
 
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const {ccclass, property} = _decorator;
+const {ccclass} = _decorator;
 import Asset from "../../assets/CCAsset";
 
 let tmpvec3 = vec3.create(0, 0, 0);

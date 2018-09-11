@@ -25,8 +25,8 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const {ccclass, property} = _decorator;
-import { Asset } from "../../../index";
 import Technique from "../../renderer/core/technique";
+import Asset from "../../assets/CCAsset";
 
 @ccclass
 class Effect extends Asset {

@@ -3,7 +3,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import { AudioClip, AudioSourceType, PlayingState } from "./CCAudioClip";
+import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
 
 @ccclass
 export default class WebAudioClip extends AudioClip {

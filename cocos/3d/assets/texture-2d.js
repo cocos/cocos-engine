@@ -2,8 +2,8 @@
 
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const { ccclass, property } = _decorator;
-import { Texture } from './CCTexture';
+const { ccclass } = _decorator;
+import { Texture } from './texture';
 import gfx from '../gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
 
@@ -57,7 +57,7 @@ function _allocData(texture) {
 }
 
 @ccclass
-export class Texture2D extends Texture {
+export default class Texture2D extends Texture {
   constructor(device, width = 2, height = 2, fmt = 'rgba8') {
     super(device);
 

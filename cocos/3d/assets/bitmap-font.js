@@ -1,11 +1,11 @@
 // @copyright
 
 // @ts-check
-import { _decorator } from "../../core/data";
-const { ccclass, property } = _decorator;
-import Font from "./CCFont";
+import { _decorator } from "../../core/data/index";
+const {ccclass} = _decorator;
+import Font from "./font";
 import vec2 from "../../vmath/vec2";
-import Texture2D from "../../assets/CCTexture2D";
+import Texture2D from "./texture-2d";
 
 @ccclass
 export class BitmapFont extends Font {

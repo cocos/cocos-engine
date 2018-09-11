@@ -2,8 +2,8 @@
 
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const { ccclass, property } = _decorator;
-import { Texture } from './CCTexture';
+const { ccclass } = _decorator;
+import { Texture } from './texture';
 
 import gfx from '../gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';

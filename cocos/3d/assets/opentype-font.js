@@ -3,8 +3,8 @@
 // @ts-check
 
 import { _decorator } from "../../core/data/index";
-const {ccclass, property} = _decorator;
-import Font from "./CCFont";
+const {ccclass} = _decorator;
+import Font from "./font";
 import vec2 from "../../vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
 import Texture2D from "./texture-2d";
