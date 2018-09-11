@@ -247,10 +247,8 @@ function _getSharedOptions () {
  * @uses EventTarget
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.Texture2D')
 export default class Texture2D extends Asset {
-    get name () { return 'Texture2D'; }
-
     @property({
         override: true
     })

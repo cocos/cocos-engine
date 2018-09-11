@@ -35,10 +35,8 @@ const {ccclass, property} = _decorator;
  * @extends Asset
  *
  */
-@ccclass
+@ccclass('cc.SceneAsset')
 export default class SceneAsset extends Asset {
-    get name () { return 'SceneAsset'; }
-
     /**
      * @property {Scene} scene
      * @default null
