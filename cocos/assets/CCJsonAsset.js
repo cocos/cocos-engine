@@ -46,7 +46,7 @@ export default class JsonAsset extends Asset {
     /**
      * @property {Object} json - The loaded JSON object.
      */
-    @property()
+    @property
     json = null;
 }
 

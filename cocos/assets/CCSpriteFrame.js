@@ -63,7 +63,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 @ccclass('cc.SpriteFrame')
 export default class SpriteFrame extends Asset {
     // Use this property to set texture when loading dependency
-    @property()
+    @property
     set _textureSetter (texture) {
         if (texture) {
             if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {

@@ -41,6 +41,7 @@ const {ccclass} = _decorator;
 @ccclass('cc.RawAsset')
 export default class RawAsset extends CCObject {
     constructor () {
+        super();
         /**
          * @property _uuid
          * @type {String}

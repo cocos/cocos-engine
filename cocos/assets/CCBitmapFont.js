@@ -40,7 +40,7 @@ const {ccclass, property} = _decorator;
  */
 @ccclass('cc.BitmapFont')
 export default class BitmapFont extends Font {
-    @property()
+    @property
     fntDataStr = '';
 
     @property({
@@ -48,10 +48,10 @@ export default class BitmapFont extends Font {
     })
     spriteFrame = null;
 
-    @property()
+    @property
     fontSize = -1;
 
-    @property()
+    @property
     _fntConfig = null;
 }
 

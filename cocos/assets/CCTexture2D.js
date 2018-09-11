@@ -265,34 +265,34 @@ export default class Texture2D extends Asset {
         }
     }
 
-    @property()
+    @property
     _hasMipmap = false;
 
-    @property()
+    @property
     _format = PixelFormat.RGBA8888;
 
-    @property()
+    @property
     _premultiplyAlpha = false;
 
-    @property()
+    @property
     _flipY = false;
 
-    @property()
+    @property
     _minFilter = Filter.LINEAR;
 
-    @property()
+    @property
     _magFilter = Filter.LINEAR;
 
-    @property()
+    @property
     _mipFilter = Filter.LINEAR;
 
-    @property()
+    @property
     _wrapS = WrapMode.CLAMP_TO_EDGE;
 
-    @property()
+    @property
     _wrapT = WrapMode.CLAMP_TO_EDGE;
 
-    @property()
+    @property
     _anisotropy = 0;
 
     static PixelFormat = PixelFormat;

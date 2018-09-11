@@ -39,7 +39,7 @@ export default class TextAsset extends Asset {
     /**
      * @property {String} text - The text contents of the resource.
      */
-    @property()
+    @property
     text = "";
 
     toString () {
