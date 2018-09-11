@@ -26,7 +26,8 @@ import { CCClass } from "../core/data";
  THE SOFTWARE.
  ****************************************************************************/
 
-import {ccclass, property} from '../core/data/class-decorator';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property} = _decorator;
 
 /**
  * !#en

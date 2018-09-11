@@ -27,9 +27,11 @@
 import game from '../core/CCGame';
 import AffineTrans from '../core/value-types/affine-transform';
 import Component from '../components/CCComponent';
-import Renderer_Camera from '../renderer/scene/camera';
-import Renderer_View from '../renderer/core/view';
-import {ccclass, property, executeInEditMode, menu, inspector} from '../core/data/class-decorator';
+// TODO fix import from renderer
+// import Renderer_Camera from '../renderer/scene/camera';
+// import Renderer_View from '../renderer/core/view';
+import _decorator from '../core/data/class-decorator';
+const {ccclass, property, executeInEditMode, menu, inspector} = _decorator;
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;

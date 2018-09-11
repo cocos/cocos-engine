@@ -25,8 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = require('../platform/js');
-
 /**
  * A SAX Parser
  * @class saxParser

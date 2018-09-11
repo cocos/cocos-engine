@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { vec3, color4, mat4 } from '../../vmath';
+import { vec3, color4, mat4 } from '../../core/vmath';
 import enums from '../enums';
-import { plane } from '../../geom-utils';
+import { plane } from '../../3d/geom-utils';
 
 let _m4_tmp = mat4.create();
 let _v3 = vec3.create(0, 0, 0);
