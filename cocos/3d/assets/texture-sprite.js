@@ -3,7 +3,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import { Texture2D } from './texture-2d';
+import Texture2D from './texture-2d';
 
 @ccclass
 export default class TextureSprite extends Texture2D {
