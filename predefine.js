@@ -139,14 +139,14 @@ defineMacro('CC_BUILD', false);
 if (CC_BUILD) {
     // Supports dynamically access from external scripts such as adapters and debugger.
     // So macros should still defined in global even if inlined in engine.
+    _global.CC_BUILD = CC_BUILD;
     _global.CC_TEST = CC_TEST;
     _global.CC_EDITOR = CC_EDITOR;
     _global.CC_PREVIEW = CC_PREVIEW;
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_JSB = CC_JSB;
-    _global.CC_BUILD = CC_BUILD;
-    _global.CC_WECHATGAME_SUB = CC_WECHATGAME_SUB;
+    _global.CC_WECHATGAMESUB = CC_WECHATGAMESUB;
     _global.CC_WECHATGAME = CC_WECHATGAME;
     _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_RUNTIME = CC_RUNTIME;
@@ -161,7 +161,7 @@ else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
+    defineMacro('CC_WECHATGAMESUB', !!(defined('wx') && wx.getSharedCanvas));
     defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
     defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
