@@ -44,6 +44,14 @@ export default class TextAsset extends Asset {
     @property()
     text = "";
 
+    /**
+     * Returns the text content of the asset.
+     *
+     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     *
+     * @method toString
+     * @return {String}
+     */
     toString () {
         return this.text;
     }
