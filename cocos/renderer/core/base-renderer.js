@@ -315,7 +315,7 @@ export default class BaseRenderer {
     this._stage2fn = {};
     this._modelType2fn = {};
     this._usedTextureUnits = 0;
-    this.frustum_test_func = intersect.box_frustum;
+    this.frustum_test_func = intersect.aabb_frustum;
     this._accurateFrustumCulling = false;
 
     this._viewPools = new RecyclePool(() => {
@@ -380,14 +380,14 @@ export default class BaseRenderer {
 
   _requestView() {
     let view = this._viewPools.add();
-    view.fullUpdate = this._accurateFrustumCulling;
+    view._frustum.accurate = this._accurateFrustumCulling;
     return view;
   }
 
   set accurateFrustumCulling(accurate) {
     this._accurateFrustumCulling = accurate;
-    if (!accurate) this.frustum_test_func = intersect.box_frustum;
-    else this.frustum_test_func = intersect.box_frustum_accurate;
+    if (!accurate) this.frustum_test_func = intersect.aabb_frustum;
+    else this.frustum_test_func = intersect.aabb_frustum_accurate;
   }
 
   _render(view, scene) {
@@ -445,8 +445,8 @@ export default class BaseRenderer {
       }
 
       // frustum culling
-      if (model._boundingBox !== null) { // if model does not have boundingBox, skip culling.
-        if (!this.frustum_test_func(model._boundingBox, view._frustum)) {
+      if (model._boundingShape !== null) { // if model does not have boundingBox, skip culling.
+        if (!this.frustum_test_func(model._boundingShape, view._frustum)) {
           // console.log('model is not in view frustum.');
           continue;
         }

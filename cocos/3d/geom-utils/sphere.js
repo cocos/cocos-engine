@@ -1,12 +1,12 @@
+import enums from './enums';
 import { vec3 } from '../vmath';
 
+let _v3_tmp = vec3.create();
 function maxComponent(v) { return Math.max(Math.max(v.x, v.y), v.z); }
 
-/**
- * @access public
- */
-class sphere {
-  constructor(cx, cy, cz, r) {
+export default class sphere {
+  constructor(cx = 0, cy = 0, cz = 0, r = 1) {
+    this._type = enums.SHAPE_SPHERE;
     this.c = vec3.create(cx, cy, cz);
     this.r = r;
   }
@@ -16,20 +16,7 @@ class sphere {
    *
    * @return {plane}
    */
-  static create () {
-    return new sphere(0, 0, 0, 1);
-  }
-
-  /**
-   * create a new sphere
-   *
-   * @param {Number} cx normal X component
-   * @param {Number} cy normal Y component
-   * @param {Number} cz normal Z component
-   * @param {Number} r the radius r
-   * @return {sphere}
-   */
-  static new (cx, cy, cz, r) {
+  static create(cx, cy, cz, r) {
     return new sphere(cx, cy, cz, r);
   }
 
@@ -51,23 +38,35 @@ class sphere {
    * @return {sphere}
    */
   static copy (out, p) {
-    out.c.x = p.c.x;
-    out.c.y = p.c.y;
-    out.c.z = p.c.z;
+    vec3.copy(out, p.c);
     out.r = p.r;
 
     return out;
   }
 
   /**
+   * create a new bounding sphere from two corner points
+   *
+   * @param {sphere} out the receiving sphere
+   * @param {vec3} minPos lower corner of the original shape
+   * @param {vec3} maxPos upper corner of the original shape
+   * @return {sphere}
+   */
+  static fromPoints(out, minPos, maxPos) {
+    vec3.scale(out.c, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
+    out.r = vec3.mag(vec3.sub(_v3_tmp, maxPos, minPos)) * 0.5;
+    return out;
+  }
+  
+  /**
    * Set the components of a sphere to the given values
    *
    * @param {sphere} out the receiving sphere
-   * @param {Number} cx X component of c
-   * @param {Number} cy Y component of c
-   * @param {Number} cz Z component of c
-   * @param {Number} r
-   * @returns {sphere} out
+   * @param {number} cx X component of c
+   * @param {number} cy Y component of c
+   * @param {number} cz Z component of c
+   * @param {number} r
+   * @return {sphere} out
    * @function
    */
   static set (out, cx, cy, cz, r) {
@@ -90,33 +89,16 @@ class sphere {
   }
 
   /**
-   * Translate this shape and apply the effect to a target shape
-   * @param {vec3} pos the translation factor
-   * @param {sphere?} out the target shape
+   * Transform this shape
+   * @param {mat4} m the transform matrix
+   * @param {vec3} pos the position part of the transform
+   * @param {quat} rot the rotation part of the transform
+   * @param {vec3} scale the scale part of the transform
+   * @param {sphere} [out] the target shape
    */
-  translate(pos, out) {
+  transform(m, pos, rot, scale, out) {
     if (!out) out = this;
-    vec3.add(out.c, this.c, pos);
-  }
-
-  /**
-   * Rotate this shape and apply the effect to a target shape
-   * @param {quat} rot the rotation factor
-   * @param {sphere?} out the target shape
-   */
-  rotate(/* rot, out */) {
-    // doesn't influence spheres
-  }
-
-  /**
-   * Scale this shape and apply the effect to a target shape
-   * @param {vec3} scale the scaling factor
-   * @param {sphere?} out the target shape
-   */
-  scale(scale, out) {
-    if (!out) out = this;
+    vec3.transformMat4(out.c, this.c, m);
     out.r = this.r * maxComponent(scale);
   }
 }
-
-export default sphere;

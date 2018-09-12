@@ -20,6 +20,7 @@ export default function (radius = 0.5, tube = 0.2, opts = {}) {
   let indices = [];
   let minPos = vec3.create(-radius - tube, -tube, -radius - tube);
   let maxPos = vec3.create(radius + tube, tube, radius + tube);
+  let boundingRadius = radius + tube;
 
   for (let j = 0; j <= radialSegments; j++) {
     for (let i = 0; i <= tubularSegments; i++) {
@@ -62,6 +63,7 @@ export default function (radius = 0.5, tube = 0.2, opts = {}) {
     uvs,
     indices,
     minPos,
-    maxPos
+    maxPos,
+    boundingRadius
   };
 }

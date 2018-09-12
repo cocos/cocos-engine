@@ -31,14 +31,16 @@ let indices = [
 // TODO: ?
 let minPos = vec3.create(-0.5, -0.5, 0);
 let maxPos = vec3.create(0.5, 0.5, 0);
+let boundingRadius = Math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 
 export default function () {
   return {
-    positions: positions,
-    indices: indices,
-    normals: normals,
-    uvs: uvs,
-    minPos: minPos,
-    maxPos: maxPos
+    positions,
+    indices,
+    normals,
+    uvs,
+    minPos,
+    maxPos,
+    boundingRadius
   };
 }

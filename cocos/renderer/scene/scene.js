@@ -1,9 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { FixedArray } from '../../memop';
-import { vec3 } from '../../vmath';
-import { intersect } from '../../geom-utils';
-import { Layers } from '../../scene-graph';
 
 /**
  * A representation of the scene
@@ -12,11 +9,12 @@ export default class Scene {
   /**
    * Setup a default empty scene
    */
-  constructor() {
+  constructor(app) {
     this._lights = new FixedArray(16);
     this._models = new FixedArray(16);
     this._cameras = new FixedArray(16);
     this._debugCamera = null;
+    this._app = app;
 
     // NOTE: we don't use pool for views (because it's less changed and it doesn't have poolID)
     this._views = [];
@@ -39,6 +37,17 @@ export default class Scene {
     pool.data[pool.length-1]._poolID = item._poolID;
     pool.fastRemove(item._poolID);
     item._poolID = -1;
+  }
+
+  /**
+   * update built-in bounding shapes if needed,
+   * used in the frustum culling process
+   */
+  tick() {
+    for (let i = 0; i < this._models.length; ++i) {
+      let model = this._models.data[i];
+      model._updateTransform();
+    }
   }
 
   /**
@@ -123,29 +132,6 @@ export default class Scene {
    */
   removeModel(model) {
     this._remove(this._models, model);
-  }
-
-  /**
-   * cast a ray in the scene, find the nearest intersection
-   * @param {Object} hitInfo the output intersection information
-   * @param {Ray} ray the testing ray
-   * @param {number} maxDistance max intersection distance
-   * @returns {boolean} is there any intersection?
-   */
-  raycast(hitInfo, ray, maxDistance = Infinity) {
-    let dist = Infinity, cur = dist;
-    // fixme: brute-force traversal
-    let its = vec3.create(0, 0, 0);
-    for (let i = 0; i < this.getModelCount(); i++) {
-      let model = this.getModel(i);
-      if (!Layers.check(model._node.layer, Layers.RaycastMask)) continue;
-      if (!intersect.ray_box(ray, model._boundingBox, its)) continue;
-      cur = vec3.sqrDist(its, ray.o);
-      if (cur > maxDistance * maxDistance || cur > dist) continue;
-      dist = cur;
-      hitInfo.entity = model._node;
-    }
-    return dist < Infinity;
   }
 
   /**

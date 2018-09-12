@@ -102,7 +102,7 @@ export default class DrawMng {
     }, 2000);
 
     let linePass = new renderer.Pass('line');
-    linePass.setDepth(true, true);
+    linePass.setDepth(true, false);
     let lineTech = new renderer.Technique(
       ['opaque'],
       [],

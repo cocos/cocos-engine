@@ -39,6 +39,7 @@ export const PlayingState = {
 };
 
 /**
+ * Enums indicating the load mode of an audio clip
  * @typedef {number} AudioSourceType
  * @enum {number}
  */
@@ -54,6 +55,8 @@ export const AudioSourceType = {
    * load through an audio DOM element
    */
   DOM_AUDIO: 1,
+
+  WX_GAME_AUDIO: 2,
 };
 
 /**

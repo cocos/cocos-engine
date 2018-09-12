@@ -30,6 +30,7 @@ export default function (width, length, opts = {}) {
   let indices = [];
   let minPos = vec3.create(-hw, 0, -hl);
   let maxPos = vec3.create(hw, 0, hl);
+  let boundingRadius = Math.sqrt(width * width + length * length);
 
   vec3.set(c00, -hw, 0,  hl);
   vec3.set(c10,  hw, 0,  hl);
@@ -68,6 +69,7 @@ export default function (width, length, opts = {}) {
     uvs,
     indices,
     minPos,
-    maxPos
+    maxPos,
+    boundingRadius
   };
 }

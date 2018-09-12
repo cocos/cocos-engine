@@ -58,7 +58,7 @@ export default class SkinningModelComponent extends ModelComponent {
     this._models = new Array(meshCount);
     for (let i = 0; i < meshCount; ++i) {
       let model = new renderer.SkinningModel();
-      model.createBoundingBox(this._mesh._minPos, this._mesh._maxPos);
+      model.createBoundingShape(this._mesh._minPos, this._mesh._maxPos);
       this._models[i] = model;
     }
 
