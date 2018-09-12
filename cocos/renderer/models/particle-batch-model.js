@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../../gfx';
+import gfx from '../gfx';
 import InputAssembler from '../core/input-assembler';
 
 import Model from '../scene/model';

@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../../gfx';
-import { CircularPool } from '../../memop';
+import gfx from '../gfx';
+import { CircularPool } from '../../3d/memop';
 import InputAssembler from './input-assembler';
 import BufferPool from './buffer-pool';
 import enums from '../enums';

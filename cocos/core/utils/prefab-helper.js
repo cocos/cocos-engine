@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import math from './vmath';
+import * as math from '../vmath';
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',

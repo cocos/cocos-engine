@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../../gfx';
-import { vec3, mat4 } from '../../vmath';
+import gfx from '../gfx';
+import { vec3, mat4 } from '../../core/vmath';
 
 import BaseRenderer from '../core/base-renderer';
 import DynamicIAPool from '../core/dynamic-ia-pool';

@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color4, vec3, mat4 } from '../../vmath';
-import { ray } from '../../geom-utils';
+import { color4, vec3, mat4 } from '../../core/vmath';
+import { ray } from '../../3d/geom-utils';
 import enums from '../enums';
 
 let _matView = mat4.create();

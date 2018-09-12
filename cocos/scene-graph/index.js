@@ -24,16 +24,5 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// PREDEFINE
-
-import cc from './predefine';
-
-// LOAD ENGINE CORE
-import './cocos/core';
-import './cocos/scene-graph';
-
-import './cocos/assets';
-import './cocos/load-pipeline';
-import './cocos/components';
-
-export default cc;
+export { default as BaseNode } from './base-node';
+export { default as Node } from './node';

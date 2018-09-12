@@ -1,5 +1,6 @@
-import { aabb, intersect } from '.';
-import { vec3 } from '../vmath';
+import aabb from './aabb';
+import intersect from './intersect';
+import { vec3 } from '../../core/vmath';
 import { FixedArray } from '../memop';
 
 let mul = function(out, v, x, y, z) {
