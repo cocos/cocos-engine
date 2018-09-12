@@ -1,5 +1,6 @@
-import { enums, plane } from '.';
-import { vec3 } from '../vmath';
+import enums from './enums';
+import plane from './plane';
+import { vec3 } from '../../core/vmath';
 
 let _v = new Array(8);
 _v[0] = vec3.create( 1,  1,  1);

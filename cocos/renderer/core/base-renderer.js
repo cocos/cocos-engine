@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { RecyclePool } from '../../memop';
-import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../vmath';
-import { intersect } from '../../geom-utils';
+import { RecyclePool } from '../../3d/memop';
+import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
+import { intersect } from '../../3d/geom-utils';
 
 import enums from '../enums';
 import shaderChunks from '../shaders/chunks/index';

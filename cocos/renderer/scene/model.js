@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../3d/geom-utils';
 
 /**
  * A representation of a model

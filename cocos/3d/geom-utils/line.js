@@ -1,5 +1,5 @@
 import enums from './enums';
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 export default class line {
   constructor(sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {

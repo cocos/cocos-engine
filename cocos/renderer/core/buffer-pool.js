@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { bits } from '../../vmath';
+import { bits } from '../../core/vmath';
 import ArrayBufferHelper from './array-buffer-helper';
 import enums from '../enums';
 

@@ -1,5 +1,5 @@
 import enums from './enums';
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 let _v3_tmp = vec3.create();
 function maxComponent(v) { return Math.max(Math.max(v.x, v.y), v.z); }

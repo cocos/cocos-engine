@@ -82,6 +82,6 @@ export default function find (path, referenceNode) {
     }
 
     return match;
-};
+}
 
 cc.find = find;

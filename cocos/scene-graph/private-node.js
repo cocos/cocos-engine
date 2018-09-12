@@ -25,14 +25,12 @@
 
 'use strict';
 
-const Node = require('./CCNode');
-const RenderFlow = require('./renderer/render-flow');
-const math = require('./renderer/render-engine').math;
+import Node from './node';
+import _decorator from '../core/data/class-decorator';
+const { ccclass, property } = _decorator;
 
 const LocalDirtyFlag = Node._LocalDirtyFlag;
 const POSITION_ON = 1 << 0;
-
-let _vec3_temp = math.vec3.create();
 
 /**
  * !#en
@@ -58,64 +56,62 @@ let _vec3_temp = math.vec3.create();
  * @param {String} name
  * @extends Node
  */
-let PrivateNode = cc.Class({
-    name: 'cc.PrivateNode',
-    extends: Node,
+ @ccclass("cc.PrivateNode")
+export default class PrivateNode extends Node {
+    @property({
+        override: true
+    })
+    get x() {
+        return this._originPos.x;
+    }
+    set x(value) {
+        var localPosition = this._originPos;
+        if (value !== localPosition.x) {
+            localPosition.x = value;
+            this._posDirty(true);
+        }
+    }
 
-    properties: {
-        x: {
-            get () {
-                return this._originPos.x;
-            },
-            set (value) {
-                var localPosition = this._originPos;
-                if (value !== localPosition.x) {
-                    localPosition.x = value;
-                    this._posDirty(true);
-                }
-            },
-            override: true
-        },
-        y: {
-            get () {
-                return this._originPos.y;
-            },
-            set (value) {
-                var localPosition = this._originPos;
-                if (value !== localPosition.y) {
-                    localPosition.y = value;
-                    this._posDirty(true);
-                }
-            },
-            override: true
-        },
-        zIndex: {
-            get () {
-                return cc.macro.MIN_ZINDEX;
-            },
-            set () {
-                cc.warnID(1638);
-            },
-            override: true
-        },
-    },
+    @property({
+        override: true
+    })
+    get y() {
+        return this._originPos.y;
+    }
+    set y(value) {
+        var localPosition = this._originPos;
+        if (value !== localPosition.y) {
+            localPosition.y = value;
+            this._posDirty(true);
+        }
+    }
+
+    @property({
+        override: true
+    })
+    get zIndex() {
+        return cc.macro.MIN_ZINDEX;
+    }
+    set zIndex(val) {
+        cc.warnID(1638);
+    }
 
     /**
      * @method constructor
      * @param {String} [name]
      */
-    ctor (name) {
+    constructor (name) {
+        super(name);
         this._localZOrder = cc.macro.MIN_ZINDEX << 16;
         this._originPos = cc.v2();
-    },
+    }
 
     _posDirty (sendEvent) {
         this.setLocalDirty(LocalDirtyFlag.POSITION);
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (sendEvent === true && (this._eventMask & POSITION_ON)) {
             this.emit(Node.EventType.POSITION_CHANGED);
         }
-    },
+    }
 
     _updateLocalMatrix() {
         if (!this._localMatDirty) return;
@@ -128,11 +124,11 @@ let PrivateNode = cc.Class({
         }
 
         this._super();
-    },
+    }
 
     getPosition () {
         return new cc.Vec2(this._originPos);
-    },
+    }
 
     setPosition (x, y) {
         if (y === undefined) {
@@ -147,7 +143,7 @@ let PrivateNode = cc.Class({
         pos.x = x;
         pos.y = y;
         this._posDirty(true);
-    },
+    }
 
     setParent(value) {
         let oldParent = this._parent;
@@ -160,13 +156,13 @@ let PrivateNode = cc.Class({
                 value.on(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
             }
         }
-    },
+    }
 
     // do not update order of arrival
-    _updateOrderOfArrival() {},
-});
+    _updateOrderOfArrival() {}
+}
 
 cc.js.getset(PrivateNode.prototype, "parent", PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
 cc.js.getset(PrivateNode.prototype, "position", PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
 
-cc.PrivateNode = module.exports = PrivateNode;
+cc.PrivateNode = PrivateNode;

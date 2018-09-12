@@ -11,7 +11,8 @@
   "scripts": {
     "build": "npm run build:dev && npm run build:min",
     "build:dev": "rollup -c ./rollup/config.js",
-    "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map url=cocos-3d.min.js.map -o ./bin/cocos-3d.min.js"
+    "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map url=cocos-3d.min.js.map -o ./bin/cocos-3d.min.js",
+    "dev": "rollup -w -c ./rollup/config.js"
   },
   "repository": {
     "type": "git",

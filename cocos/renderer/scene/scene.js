@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { FixedArray } from '../../memop';
+import { FixedArray } from '../../3d/memop';
 
 /**
  * A representation of the scene

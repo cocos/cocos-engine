@@ -36,10 +36,20 @@
     "expect",
     "it",
     "cc",
-    "CC_JSB",
+    "wx",
     "CC_EDITOR",
     "CC_DEV",
-    "CC_TEST",
+    "CC_JSB",
+    "CC_PREVIEW",
+    "CC_DEBUG",
+    "CC_BUILD",
+    "CC_WECHATGAME",
+    "CC_QQPLAY",
+    "CC_RUNTIME",
+    "CC_SUPPORT_JIT",
+    "CC_PREVIEW",
+    "CC_PREVIEW",
+    "CC_PREVIEW",
     "_ccsg"
   ]
 }

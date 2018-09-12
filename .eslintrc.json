@@ -1,5 +1,6 @@
 {
   "extends": "eslint:recommended",
+  "parser": "babel-eslint",
   "rules": {
     "comma-dangle": 0,
     "no-console": 0,
@@ -16,9 +17,20 @@
   ],
   "globals": {
     "cc": false,
+    "wx": false,
     "CC_EDITOR": false,
     "CC_DEV": false,
     "CC_JSB": false,
+    "CC_PREVIEW": false,
+    "CC_DEBUG": false,
+    "CC_BUILD": false,
+    "CC_WECHATGAME": false,
+    "CC_QQPLAY": false,
+    "CC_RUNTIME": false,
+    "CC_SUPPORT_JIT": false,
+    "CC_PREVIEW": false,
+    "CC_PREVIEW": false,
+    "CC_PREVIEW": false,
     "_ccsg": false
   }
 }

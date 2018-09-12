@@ -801,7 +801,7 @@ export default class Texture2D extends Asset {
             let exts = [];
             for (let i = 0; i < exportedExts.length; i++) {
                 let extId = "";
-                let ext = exportedExts[i]
+                let ext = exportedExts[i];
                 if (ext) {
                     // ext@format
                     let extFormat = ext.split('@');

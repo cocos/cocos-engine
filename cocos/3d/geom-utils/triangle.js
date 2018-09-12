@@ -1,5 +1,5 @@
 import enums from './enums';
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 export default class triangle {
   constructor(ax = 0, ay = 0, az = 0, bx = 1, by = 0, bz = 0, cx = 0, cy = 1, cz = 0) {
