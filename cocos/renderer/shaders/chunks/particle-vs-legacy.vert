@@ -11,7 +11,7 @@ attribute vec3 a_color0; // velocity.x, velocity.y, velocity.z, scale
 void lpvs_main() {
   vec4 pos = vec4(a_position, 1);
 #if USE_STRETCHED_BILLBOARD
-  vec4 velocity = vec4(a_color0.xyz,0);
+  vec4 velocity = vec4(a_color0.xyz, 0);
 #endif
 
 #if !USE_WORLD_SPACE
@@ -23,34 +23,31 @@ void lpvs_main() {
   #endif
 #endif
 
-  vec2 cornerOffset = vec2((a_uv.x - 0.5) * a_uv0.x, (a_uv.y - 0.5) * a_uv0.x);
+  vec2 cornerOffset = vec2((a_uv.xy - 0.5) * a_uv0.x);
 #if !USE_STRETCHED_BILLBOARD
 //   // rotation will not be applied in stretchedBillboard mode(Unity).
 // #else
   // rotation
-  float xOS = cos(a_uv0.y) * cornerOffset.x - sin(a_uv0.y) * cornerOffset.y;
-  float yOS = sin(a_uv0.y) * cornerOffset.x + cos(a_uv0.y) * cornerOffset.y;
-  cornerOffset.x = xOS;
-  cornerOffset.y = yOS;
+  rotateCorner(cornerOffset, a_uv0.y);
 #endif
 
-  computeVertPos(pos,cornerOffset
+  computeVertPos(pos, cornerOffset
   #if USE_BILLBOARD || USE_VERTICAL_BILLBOARD
-    ,view
+    , view
   #endif
   #if USE_STRETCHED_BILLBOARD
-    ,eye
-    ,velocity
-    ,velocityScale
-    ,lengthScale
-    ,a_uv0.x
-    ,a_uv.x
+    , eye
+    , velocity
+    , velocityScale
+    , lengthScale
+    , a_uv0.x
+    , a_uv.x
   #endif
   );
 
   pos = viewProj * pos;
 
-  uv = computeUV(a_uv.z,a_uv.xy,frameTile) * mainTiling + mainOffset;
+  uv = computeUV(a_uv.z, a_uv.xy, frameTile) * mainTiling + mainOffset;
 
   color = a_color;
 

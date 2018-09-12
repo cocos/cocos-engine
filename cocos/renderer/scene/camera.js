@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color4, vec3, mat4 } from '../../core/vmath';
-import { ray } from '../../3d/geom-utils';
+import { color4, vec3, mat4 } from '../../vmath';
+import { ray } from '../../geom-utils';
 import enums from '../enums';
 
 let _matView = mat4.create();
@@ -345,7 +345,7 @@ export default class Camera {
     mat4.invert(out._matInvViewProj, out._matViewProj);
 
     // update view's frustum
-    out.updateFrustum();
+    out._frustum.update(out._matViewProj, out._matInvViewProj);
   }
 
   /**
@@ -429,8 +429,8 @@ export default class Camera {
   screenPointToRay(screenPos, width, height) {
     this._node.getWorldPos(_tmp3_v3);
     this.screenToWorld(_tmp2_v3, screenPos, width, height);
-    vec3.sub(_tmp2_v3, _tmp2_v3, _tmp3_v3);
-    return ray.new(_tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);
+    vec3.normalize(_tmp2_v3, vec3.sub(_tmp2_v3, _tmp2_v3, _tmp3_v3));
+    return ray.create(_tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);
   }
 
   /**

@@ -284,5 +284,5 @@ export function createIA(device, data) {
     );
   }
 
-  return new InputAssembler(vb, ib);
+  return new InputAssembler(vb, ib, data.primitiveType);
 }

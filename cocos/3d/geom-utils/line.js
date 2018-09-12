@@ -1,34 +1,25 @@
+import enums from './enums';
 import { vec3 } from '../vmath';
 
-/**
- * @access public
- */
-class line {
-  constructor(sx, sy, sz, ex, ey, ez) {
+export default class line {
+  constructor(sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
+    this._type = enums.SHAPE_LINE;
     this.s = vec3.create(sx, sy, sz);
     this.e = vec3.create(ex, ey, ez);
-  }
-  /**
- * create a new line
- *
- * @return {line}
- */
-  static create() {
-    return new line(0, 0, 0, 0, 0, -1);
   }
 
   /**
    * create a new line
    *
-   * @param {Number} sx start X component
-   * @param {Number} sy start Y component
-   * @param {Number} sz start Z component
-   * @param {Number} ex end X component
-   * @param {Number} ey end Y component
-   * @param {Number} ez end Z component
+   * @param {number} sx start X component
+   * @param {number} sy start Y component
+   * @param {number} sz start Z component
+   * @param {number} ex end X component
+   * @param {number} ey end Y component
+   * @param {number} ez end Z component
    * @return {line}
    */
-  static new(sx, sy, sz, ex, ey, ez) {
+  static create(sx, sy, sz, ex, ey, ez) {
     return new line(sx, sy, sz, ex, ey, ez);
   }
 
@@ -36,7 +27,7 @@ class line {
    * Creates a new line initialized with values from an existing line
    *
    * @param {line} a line to clone
-   * @returns {line} a new line
+   * @return {line} a new line
    */
   static clone(a) {
     return new line(
@@ -50,16 +41,26 @@ class line {
    *
    * @param {line} out the receiving line
    * @param {line} a the source line
-   * @returns {line} out
+   * @return {line} out
    */
   static copy(out, a) {
-    out.s.x = a.s.x;
-    out.s.y = a.s.y;
-    out.s.z = a.s.z;
-    out.e.x = a.e.x;
-    out.e.y = a.e.y;
-    out.e.z = a.e.z;
+    vec3.copy(out.s, a.s);
+    vec3.copy(out.e, a.e);
 
+    return out;
+  }
+
+  /**
+   * create a line from two points
+   *
+   * @param {line} out the receiving line
+   * @param {vec3} start line start
+   * @param {vec3} end target position
+   * @return {line} out
+   */
+  static fromPoints(out, start, end) {
+    vec3.copy(out.s, start);
+    vec3.copy(out.e, end);
     return out;
   }
 
@@ -67,13 +68,13 @@ class line {
    * Set the components of a vec3 to the given values
    *
    * @param {vec3} out the receiving vector
-   * @param {Number} sx start X component
-   * @param {Number} sy start Y component
-   * @param {Number} sz start Z component
-   * @param {Number} ex end X component
-   * @param {Number} ey end Y component
-   * @param {Number} ez end Z component
-   * @returns {vec3} out
+   * @param {number} sx start X component
+   * @param {number} sy start Y component
+   * @param {number} sz start Z component
+   * @param {number} ex end X component
+   * @param {number} ey end Y component
+   * @param {number} ez end Z component
+   * @return {vec3} out
    */
   static set(out, sx, sy, sz, ex, ey, ez) {
     out.s.x = sx;
@@ -90,7 +91,7 @@ class line {
    * create line from 2 points
    *
    * @param {line} line
-   * @returns {number}
+   * @return {number}
    */
   static magnitude(line) {
     return vec3.distance(line.s, line.e);
@@ -103,5 +104,3 @@ class line {
     return line.magnitude(line);
   }
 }
-
-export default line;

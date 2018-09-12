@@ -24,7 +24,7 @@ let c7 = vec3.create(0, 0, 0);
  * @param {Number} opts.heightSegments
  * @param {Number} opts.lengthSegments
  */
-export default function (width = 2, height = 2, length = 2, opts = {}) {
+export default function (width = 1, height = 1, length = 1, opts = {}) {
   let ws = opts.widthSegments !== undefined ? opts.widthSegments : 1;
   let hs = opts.heightSegments !== undefined ? opts.heightSegments : 1;
   let ls = opts.lengthSegments !== undefined ? opts.lengthSegments : 1;
@@ -69,6 +69,7 @@ export default function (width = 2, height = 2, length = 2, opts = {}) {
   let indices = [];
   let minPos = vec3.create(-hw, -hh, -hl);
   let maxPos = vec3.create(hw, hh, hl);
+  let boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
 
   function _buildPlane (side, uSegments, vSegments) {
     let u, v;
@@ -123,6 +124,7 @@ export default function (width = 2, height = 2, length = 2, opts = {}) {
     uvs,
     indices,
     minPos,
-    maxPos
+    maxPos,
+    boundingRadius
   };
 }

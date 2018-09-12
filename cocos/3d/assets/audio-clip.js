@@ -10,6 +10,7 @@ const enums = {
   UNKNOWN_AUDIO: -1,
   WEB_AUDIO: 0,
   DOM_AUDIO: 1,
+  WX_GAME_AUDIO: 2,
 
   INITIALIZING: 0,
   PLAYING: 1,

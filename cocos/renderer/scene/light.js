@@ -427,7 +427,7 @@ export default class Light {
     mat4.invert(out._matInvViewProj, out._matViewProj);
 
     // update view's frustum
-    out.updateFrustum();
+    out._frustum.update(out._matViewProj, out._matInvViewProj);
   }
 
   _updateLightPositionAndDirection() {

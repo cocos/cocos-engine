@@ -39,6 +39,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let maxRadius = Math.max(radiusTop, radiusBottom);
   let minPos = vec3.create(-maxRadius, -height / 2, -maxRadius);
   let maxPos = vec3.create(maxRadius, height / 2, maxRadius);
+  let boundingRadius = height / 2;
 
   let index = 0;
   let indexArray = [];
@@ -55,7 +56,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     uvs,
     indices,
     minPos,
-    maxPos
+    maxPos,
+    boundingRadius
   };
 
   // =======================

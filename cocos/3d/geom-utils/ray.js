@@ -1,10 +1,9 @@
+import enums from './enums';
 import { vec3 } from '../vmath';
 
-/**
- * @access public
- */
-class ray {
-  constructor(ox, oy, oz, dx, dy, dz) {
+export default class ray {
+  constructor(ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = -1) {
+    this._type = enums.SHAPE_RAY;
     this.o = vec3.create(ox, oy, oz);
     this.d = vec3.create(dx, dy, dz);
   }
@@ -12,24 +11,15 @@ class ray {
   /**
    * create a new ray
    *
+   * @param {number} ox origin X component
+   * @param {number} oy origin Y component
+   * @param {number} oz origin Z component
+   * @param {number} dx dir X component
+   * @param {number} dy dir Y component
+   * @param {number} dz dir Z component
    * @return {ray}
    */
-  static create() {
-    return new ray(0, 0, 0, 0, 0, -1);
-  }
-
-  /**
-   * create a new ray
-   *
-   * @param {Number} ox origin X component
-   * @param {Number} oy origin Y component
-   * @param {Number} oz origin Z component
-   * @param {Number} dx dir X component
-   * @param {Number} dy dir Y component
-   * @param {Number} dz dir Z component
-   * @return {ray}
-   */
-  static new(ox, oy, oz, dx, dy, dz) {
+  static create(ox, oy, oz, dx, dy, dz) {
     return new ray(ox, oy, oz, dx, dy, dz);
   }
 
@@ -37,7 +27,7 @@ class ray {
    * Creates a new ray initialized with values from an existing ray
    *
    * @param {ray} a ray to clone
-   * @returns {ray} a new ray
+   * @return {ray} a new ray
    */
   static clone(a) {
     return new ray(
@@ -51,30 +41,40 @@ class ray {
    *
    * @param {ray} out the receiving ray
    * @param {ray} a the source ray
-   * @returns {ray} out
+   * @return {ray} out
    */
   static copy(out, a) {
-    out.o.x = a.o.x;
-    out.o.y = a.o.y;
-    out.o.z = a.o.z;
-    out.d.x = a.d.x;
-    out.d.y = a.d.y;
-    out.d.z = a.d.z;
+    vec3.copy(out.o, a.o);
+    vec3.copy(out.d, a.d);
 
     return out;
   }
 
   /**
-   * Set the components of a vec3 to the given values
+   * create a ray from two points
    *
-   * @param {vec3} out the receiving vector
-   * @param {Number} ox origin X component
-   * @param {Number} oy origin Y component
-   * @param {Number} oz origin Z component
-   * @param {Number} dx dir X component
-   * @param {Number} dy dir Y component
-   * @param {Number} dz dir Z component
-   * @returns {vec3} out
+   * @param {ray} out the receiving ray
+   * @param {vec3} origin ray origin
+   * @param {vec3} target target position
+   * @return {ray} out
+   */
+  static fromPoints(out, origin, target) {
+    vec3.copy(out.o, origin);
+    vec3.normalize(out.d, vec3.sub(out.d, target, origin));
+    return out;
+  }
+
+  /**
+   * Set the components of a ray to the given values
+   *
+   * @param {ray} out the receiving ray
+   * @param {number} ox origin X component
+   * @param {number} oy origin Y component
+   * @param {number} oz origin Z component
+   * @param {number} dx dir X component
+   * @param {number} dy dir Y component
+   * @param {number} dz dir Z component
+   * @return {ray} out
    */
   static set(out, ox, oy, oz, dx, dy, dz) {
     out.o.x = ox;
@@ -86,22 +86,4 @@ class ray {
 
     return out;
   }
-
-  /**
-   * create ray from 2 points
-   *
-   * @param {ray} out the receiving plane
-   * @param {vec3} origin
-   * @param {vec3} lookAt
-   * @returns {ray} out
-   * @function
-   */
-  static fromPoints(out, origin, lookAt) {
-    vec3.copy(out.o, origin);
-    vec3.normalize(out.d, vec3.sub(out.d, lookAt, origin));
-
-    return out;
-  }
 }
-
-export default ray;

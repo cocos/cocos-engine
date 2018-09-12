@@ -15,7 +15,7 @@ export default [
   },
   {
     name: 'line',
-    techniques: [{"stages":["opaque"],"params":[],"passes":[{"program":"line","depthTest":true,"depthWrite":true}],"layer":0}],
+    techniques: [{"stages":["opaque"],"params":[],"passes":[{"program":"line","depthTest":true}],"layer":0}],
     properties: {},
     defines: [],
     dependencies: undefined
@@ -25,6 +25,13 @@ export default [
     techniques: [{"stages":["opaque"],"params":[{"name":"mainTex","type":13,"value":null},{"name":"matcapTex","type":13,"value":null},{"name":"colorFactor","type":4,"value":0.5},{"name":"color","type":9,"value":[1,1,1,1]}],"passes":[{"program":"matcap","depthTest":true,"depthWrite":true}],"layer":0}],
     properties: {},
     defines: [{"name":"USE_MAIN_TEX","value":false},{"name":"USE_SKINNING","value":false}],
+    dependencies: undefined
+  },
+  {
+    name: 'particle-add-gpu',
+    techniques: [{"stages":["transparent"],"params":[{"name":"mainTexture","type":13,"value":null},{"name":"mainTiling","type":5,"value":[1,1]},{"name":"mainOffset","type":5,"value":[0,0]},{"name":"tintColor","type":9,"value":[0.5,0.5,0.5,0.5]},{"name":"frameTile","type":5,"value":[1,1]},{"name":"velocityScale","type":4,"value":0},{"name":"lengthScale","type":4,"value":0}],"passes":[{"program":"particle-add-gpu","cullMode":0,"depthTest":true,"depthWrite":false,"blend":true,"blendEq":32774,"blendSrc":770,"blendDst":1,"blendAlphaEq":32774,"blendSrcAlpha":770,"blendDstAlpha":1}],"layer":0}],
+    properties: {},
+    defines: [{"name":"USE_SOFT_PARTICLE","value":false},{"name":"USE_BILLBOARD","value":false},{"name":"USE_STRETCHED_BILLBOARD","value":false},{"name":"USE_HORIZONTAL_BILLBOARD","value":false},{"name":"USE_VERTICAL_BILLBOARD","value":false},{"name":"USE_WORLD_SPACE","value":false},{"name":"VELOCITY_OVERTIME_MODULE_ENABLE","value":false},{"name":"FORCE_OVERTIME_MODULE_ENABLE","value":false},{"name":"SIZE_OVERTIME_MODULE_ENABLE","value":false},{"name":"COLOR_OVERTIME_MODULE_ENABLE","value":false},{"name":"TEXTURE_ANIMATION_ENABLE","value":false},{"name":"ROTATE_OVERTIME_MODULE_ENABLE","value":false}],
     dependencies: undefined
   },
   {
@@ -127,7 +134,7 @@ export default [
   },
   {
     name: 'wireframe',
-    techniques: [{"stages":["opaque"],"params":[{"name":"color","type":8,"value":[1,1,1]}],"passes":[{"program":"wireframe","depthTest":true,"depthWrite":true}],"layer":0}],
+    techniques: [{"stages":["opaque"],"params":[{"name":"color","type":8,"value":[1,1,1]}],"passes":[{"program":"wireframe","depthTest":true}],"layer":0}],
     properties: {},
     defines: [],
     dependencies: undefined
