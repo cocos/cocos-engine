@@ -112,7 +112,7 @@ let Camera = cc.Class({
 
     properties: {
         _cullingMask: 0xffffffff,
-        _clearFlags: 0,
+        _clearFlags: ClearFlags.DEPTH | ClearFlags.STENCIL,
         _backgroundColor: cc.color(0, 0, 0, 255),
         _depth: 0,
         _zoomRatio: 1,

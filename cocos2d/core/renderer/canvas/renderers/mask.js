@@ -30,12 +30,6 @@ let beforeHandler = {
     updateRenderData (comp) {},
 
     draw (ctx, mask) {
-        let node = mask.node;
-        // Transform
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
         ctx.save();
 
         // draw stencil

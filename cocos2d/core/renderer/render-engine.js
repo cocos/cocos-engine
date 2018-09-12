@@ -14148,7 +14148,7 @@ var SpriteMaterial = (function (Material$$1) {
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
   };
-  
+
   prototypeAccessors.useModel.get = function () {
     return this._effect.getDefine('useModel');
   };
@@ -14460,7 +14460,7 @@ var MeshMaterial = (function (Material$$1) {
         { name: 'useJointsTexture', valu: true},
         { name: 'useAttributeColor', valu: false} ]
     );
-    
+
     this._mainTech = mainTech;
     this._texture = null;
     this._jointsTexture = null;
@@ -14478,7 +14478,7 @@ var MeshMaterial = (function (Material$$1) {
   prototypeAccessors.effect.get = function () {
     return this._effect;
   };
-  
+
   prototypeAccessors.useModel.get = function () {
     return this._effect.getDefine('useModel');
   };
@@ -14596,8 +14596,8 @@ var MeshMaterial = (function (Material$$1) {
   return MeshMaterial;
 }(Material));
 
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
 var Device$2 = function Device(canvasEL) {
   var ctx;
 
