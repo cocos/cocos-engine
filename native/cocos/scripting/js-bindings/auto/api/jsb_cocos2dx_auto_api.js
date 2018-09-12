@@ -598,6 +598,16 @@ getDPI : function (
 },
 
 /**
+ * @method getSafeAreaEdge
+ * @return {vec4_object}
+ */
+getSafeAreaEdge : function (
+)
+{
+    return cc.Vec4;
+},
+
+/**
  * @method getDeviceModel
  * @return {String}
  */

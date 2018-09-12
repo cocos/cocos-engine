@@ -34,7 +34,7 @@ bool seval_to_int32(const se::Value& v, int32_t* ret)
     assert(ret != nullptr);
     if (v.isNumber())
     {
-        *ret = v.toInt32(); //IDEA: need to check isNan?
+        *ret = v.toInt32();
         return true;
     }
     else if (v.isBoolean())
@@ -169,7 +169,8 @@ bool seval_to_float(const se::Value& v, float* ret)
     if (v.isNumber())
     {
         *ret = v.toFloat();
-        return true;
+        if (!std::isnan(*ret))
+            return true;
     }
     *ret = 0.0f;
     return false;
@@ -180,7 +181,8 @@ bool seval_to_double(const se::Value& v, double* ret)
     if (v.isNumber())
     {
         *ret = v.toNumber();
-        return true;
+        if (!std::isnan(*ret))
+            return true;
     }
     *ret = 0.0;
     return false;

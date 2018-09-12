@@ -26,6 +26,7 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
 
 namespace {
     se::Value _tickVal;
@@ -326,11 +327,23 @@ static void dispatchEnterBackgroundOrForegroundEvent(const char* funcName)
 
 void EventDispatcher::dispatchEnterBackgroundEvent()
 {
+    // dispatch to Native
+    CustomEvent event;
+    event.name = EVENT_COME_TO_BACKGROUND;
+    EventDispatcher::dispatchCustomEvent(event);
+
+    // dispatch to JavaScript
     dispatchEnterBackgroundOrForegroundEvent("onHide");
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent()
 {
+    // dispatch to Native
+    CustomEvent event;
+    event.name = EVENT_COME_TO_FOREGROUND;
+    EventDispatcher::dispatchCustomEvent(event);
+
+    // dispatch to JavaScript
     dispatchEnterBackgroundOrForegroundEvent("onShow");
 }
 

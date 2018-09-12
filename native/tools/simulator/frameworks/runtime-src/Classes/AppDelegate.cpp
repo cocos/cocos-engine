@@ -27,7 +27,6 @@
 
 #include "cocos2d.h"
 #include "cocos/scripting/js-bindings/event/EventDispatcher.h"
-#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
 
 #include "ide-support/CodeIDESupport.h"
 #include "runtime/Runtime.h"
@@ -64,15 +63,11 @@ bool AppDelegate::applicationDidFinishLaunching()
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void AppDelegate::applicationDidEnterBackground()
 {
-    CustomEvent event;
-    event.name = EVENT_COME_TO_BACKGROUND;
-    EventDispatcher::dispatchCustomEvent(event);
+    EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
-    CustomEvent event;
-    event.name = EVENT_COME_TO_FOREGROUND;
-    EventDispatcher::dispatchCustomEvent(event);
+    EventDispatcher::dispatchEnterForegroundEvent();
 }

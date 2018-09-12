@@ -119,6 +119,12 @@ Device::NetworkType Device::getNetworkType()
     return (Device::NetworkType)JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
 }
 
+cocos2d::Vec4 Device::getSafeAreaEdge()
+{
+    // no SafeArea concept on android, return ZERO Vec4.
+    return cocos2d::Vec4();
+}
+
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
