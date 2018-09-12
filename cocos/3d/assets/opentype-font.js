@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-
 import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Font from "./font";
@@ -147,6 +146,7 @@ export default class OpentypeFont extends Font {
                 xoffset: 0,
                 yoffset: 0,
                 xadvance: 0,
+                uvs: []
             };
             glyph.width = (bbox.x2 - bbox.x1) * this._fontScale;
             glyph.height = (bbox.y2 - bbox.y1) * this._fontScale;

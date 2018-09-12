@@ -34,7 +34,7 @@ let _mat4_tmp = mat4.create();
 let _textureMatrix = mat4.create();
 
 @ccclass
-export class Sprite extends Asset {
+export default class Sprite extends Asset {
   constructor() {
     super();
 

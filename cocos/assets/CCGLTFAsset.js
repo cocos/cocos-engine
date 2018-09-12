@@ -65,6 +65,10 @@ export class GLTFAsset extends cc.Asset {
         return this._buffers;
     }
 
-    _description = null;
+    /**
+     * @type {JsonAsset}
+     */
+    _description;
+
     _buffers = [];
 }
