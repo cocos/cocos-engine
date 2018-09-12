@@ -26,6 +26,8 @@
 
 import CCObject from '../core/data/object';
 import { array } from '../core/utils/js';
+import _decorator from '../core/data/class-decorator';
+const { ccclass } = _decorator;
 
 var IsStartCalled = CCObject.Flags.IsStartCalled;
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -99,8 +101,9 @@ function stableRemoveInactive (iterator, flagToClear) {
 }
 
 // This class contains some queues used to invoke life-cycle methods by script execution order
-var LifeCycleInvoker = cc.Class({
-    __ctor__ (invokeFunc) {
+@ccclass
+class LifeCycleInvoker {
+    constructor (invokeFunc) {
         var Iterator = array.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
@@ -113,35 +116,40 @@ var LifeCycleInvoker = cc.Class({
             cc.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
         }
         this._invoke = invokeFunc;
-    },
-    statics: {
-        stableRemoveInactive
-    },
-    add: null,
-    remove: null,
-    invoke: null,
-});
+    }
+
+    static stableRemoveInactive = stableRemoveInactive;
+
+    add = null;
+
+    remove = null;
+
+    invoke = null;
+}
 
 function compareOrder (a, b) {
     return a.constructor._executionOrder - b.constructor._executionOrder;
 }
 
 // for onLoad: sort once all components registered, invoke once
-var OneOffInvoker = cc.Class({
-    extends: LifeCycleInvoker,
+@ccclass
+class OneOffInvoker extends LifeCycleInvoker {
     add (comp) {
         var order = comp.constructor._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).array.push(comp);
-    },
+    }
+
     remove (comp) {
         var order = comp.constructor._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
-    },
+    }
+
     cancelInactive (flagToClear) {
         stableRemoveInactive(this._zero, flagToClear);
         stableRemoveInactive(this._neg, flagToClear);
         stableRemoveInactive(this._pos, flagToClear);
-    },
+    }
+
     invoke () {
         var compsNeg = this._neg;
         if (compsNeg.array.length > 0) {
@@ -159,12 +167,12 @@ var OneOffInvoker = cc.Class({
             this._invoke(compsPos);
             compsPos.array.length = 0;
         }
-    },
-});
+    }
+}
 
 // for update: sort every time new component registered, invoke many times
-var ReusableInvoker = cc.Class({
-    extends: LifeCycleInvoker,
+@ccclass
+class ReusableInvoker extends LifeCycleInvoker {
     add (comp) {
         var order = comp.constructor._executionOrder;
         if (order === 0) {
@@ -180,7 +188,8 @@ var ReusableInvoker = cc.Class({
                 cc.error('component already added');
             }
         }
-    },
+    }
+
     remove (comp) {
         var order = comp.constructor._executionOrder;
         if (order === 0) {
@@ -193,7 +202,8 @@ var ReusableInvoker = cc.Class({
                 iterator.removeAt(i);
             }
         }
-    },
+    }
+    
     invoke (dt) {
         if (this._neg.array.length > 0) {
             this._invoke(this._neg, dt);
@@ -204,8 +214,8 @@ var ReusableInvoker = cc.Class({
         if (this._pos.array.length > 0) {
             this._invoke(this._pos, dt);
         }
-    },
-});
+    }
+}
 
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
@@ -261,57 +271,58 @@ function createInvokeImpl (funcOrCode, useDt) {
 /**
  * The Manager for Component's life-cycle methods.
  */
-function ctor () {
-    // invokers
-    this.startInvoker = new OneOffInvoker(createInvokeImpl(
-        CC_EDITOR ? callStartInTryCatch : callStart));
-    this.updateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callUpdateInTryCatch : callUpdate, true));
-    this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
+@ccclass
+export default class ComponentScheduler {
+    constructor() {
+        this.unscheduleAll();
+    }
 
-    // components deferred to next frame
-    this.scheduleInNextFrame = [];
+    unscheduleAll() {
+        // invokers
+        this.startInvoker = new OneOffInvoker(createInvokeImpl(
+            CC_EDITOR ? callStartInTryCatch : callStart));
+        this.updateInvoker = new ReusableInvoker(createInvokeImpl(
+            CC_EDITOR ? callUpdateInTryCatch : callUpdate, true));
+        this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
+            CC_EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
 
-    // during a loop
-    this._updating = false;
-}
-var ComponentScheduler = cc.Class({
-    ctor: ctor,
-    unscheduleAll: ctor,
+        // components deferred to next frame
+        this.scheduleInNextFrame = [];
 
-    statics: {
-        LifeCycleInvoker,
-        OneOffInvoker,
-        createInvokeImpl,
-        invokeOnEnable: CC_EDITOR ? function (iterator) {
-            var compScheduler = cc.director._compScheduler;
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                if (comp._enabled) {
-                    callOnEnableInTryCatch(comp);
-                    var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                    if (!deactivatedDuringOnEnable) {
-                        compScheduler._onEnabled(comp);
-                    }
-                }
-            }
-        } : function (iterator) {
-            var compScheduler = cc.director._compScheduler;
-            var array = iterator.array;
-            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
-                if (comp._enabled) {
-                    comp.onEnable();
-                    var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                    if (!deactivatedDuringOnEnable) {
-                        compScheduler._onEnabled(comp);
-                    }
+        // during a loop
+        this._updating = false;
+    }
+
+    static LifeCycleInvoker = LifeCycleInvoker;
+    static OneOffInvoker = OneOffInvoker;
+    static createInvokeImpl = createInvokeImpl;
+    static invokeOnEnable = CC_EDITOR ? function (iterator) {
+        var compScheduler = cc.director._compScheduler;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            if (comp._enabled) {
+                callOnEnableInTryCatch(comp);
+                var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                if (!deactivatedDuringOnEnable) {
+                    compScheduler._onEnabled(comp);
                 }
             }
         }
-    },
+    } : function (iterator) {
+        var compScheduler = cc.director._compScheduler;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            let comp = array[iterator.i];
+            if (comp._enabled) {
+                comp.onEnable();
+                var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                if (!deactivatedDuringOnEnable) {
+                    compScheduler._onEnabled(comp);
+                }
+            }
+        }
+    }
 
     _onEnabled (comp) {
         cc.director.getScheduler().resumeTarget(comp);
@@ -324,7 +335,7 @@ var ComponentScheduler = cc.Class({
         else {
             this._scheduleImmediate(comp);
         }
-    },
+    }
 
     _onDisabled (comp) {
         cc.director.getScheduler().pauseTarget(comp);
@@ -347,31 +358,9 @@ var ComponentScheduler = cc.Class({
         if (comp.lateUpdate) {
             this.lateUpdateInvoker.remove(comp);
         }
-    },
+    }
 
-    enableComp: CC_EDITOR ? function (comp, invoker) {
-        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
-            if (!(comp._objFlags & IsOnEnableCalled)) {
-                if (comp.onEnable) {
-                    if (invoker) {
-                        invoker.add(comp);
-                        enableInEditor(comp);
-                        return;
-                    }
-                    else {
-                        callOnEnableInTryCatch(comp);
-
-                        var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                        if (deactivatedDuringOnEnable) {
-                            return;
-                        }
-                    }
-                }
-                this._onEnabled(comp);
-            }
-        }
-        enableInEditor(comp);
-    } : function (comp, invoker) {
+    enableComp (comp, invoker) {
         if (!(comp._objFlags & IsOnEnableCalled)) {
             if (comp.onEnable) {
                 if (invoker) {
@@ -389,29 +378,16 @@ var ComponentScheduler = cc.Class({
             }
             this._onEnabled(comp);
         }
-    },
+    }
 
-    disableComp: CC_EDITOR ? function (comp) {
-        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
-            if (comp._objFlags & IsOnEnableCalled) {
-                if (comp.onDisable) {
-                    callOnDisableInTryCatch(comp);
-                }
-                this._onDisabled(comp);
-            }
-        }
-        if (comp._objFlags & IsEditorOnEnableCalled) {
-            cc.engine.emit('component-disabled', comp.uuid);
-            comp._objFlags &= ~IsEditorOnEnableCalled;
-        }
-    } : function (comp) {
+    disableComp (comp) {
         if (comp._objFlags & IsOnEnableCalled) {
             if (comp.onDisable) {
                 comp.onDisable();
             }
             this._onDisabled(comp);
         }
-    },
+    }
 
     _scheduleImmediate (comp) {
         if (comp.start && !(comp._objFlags & IsStartCalled)) {
@@ -423,7 +399,7 @@ var ComponentScheduler = cc.Class({
         if (comp.lateUpdate) {
             this.lateUpdateInvoker.add(comp);
         }
-    },
+    }
 
     _deferredSchedule () {
         var comps = this.scheduleInNextFrame;
@@ -432,7 +408,7 @@ var ComponentScheduler = cc.Class({
             this._scheduleImmediate(comp);
         }
         comps.length = 0;
-    },
+    }
 
     startPhase () {
         // Start of this frame
@@ -459,11 +435,11 @@ var ComponentScheduler = cc.Class({
         // else {
         //     this.startInvoker.invoke();
         // }
-    },
+    }
 
     updatePhase (dt) {
         this.updateInvoker.invoke(dt);
-    },
+    }
 
     lateUpdatePhase (dt) {
         this.lateUpdateInvoker.invoke(dt);
@@ -471,6 +447,45 @@ var ComponentScheduler = cc.Class({
         // End of this frame
         this._updating = false;
     }
-});
+}
 
-export default ComponentScheduler;
+if (CC_EDITOR) {
+    ComponentScheduler.prototype.enableComp = function (comp, invoker) {
+        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+            if (!(comp._objFlags & IsOnEnableCalled)) {
+                if (comp.onEnable) {
+                    if (invoker) {
+                        invoker.add(comp);
+                        enableInEditor(comp);
+                        return;
+                    }
+                    else {
+                        callOnEnableInTryCatch(comp);
+
+                        var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                        if (deactivatedDuringOnEnable) {
+                            return;
+                        }
+                    }
+                }
+                this._onEnabled(comp);
+            }
+        }
+        enableInEditor(comp);
+    };
+
+    ComponentScheduler.prototype.disableComp = function (comp) {
+        if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
+            if (comp._objFlags & IsOnEnableCalled) {
+                if (comp.onDisable) {
+                    callOnDisableInTryCatch(comp);
+                }
+                this._onDisabled(comp);
+            }
+        }
+        if (comp._objFlags & IsEditorOnEnableCalled) {
+            cc.engine.emit('component-disabled', comp.uuid);
+            comp._objFlags &= ~IsEditorOnEnableCalled;
+        }
+    };
+}
