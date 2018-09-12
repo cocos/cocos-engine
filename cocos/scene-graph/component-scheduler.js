@@ -101,7 +101,6 @@ function stableRemoveInactive (iterator, flagToClear) {
 }
 
 // This class contains some queues used to invoke life-cycle methods by script execution order
-@ccclass
 class LifeCycleInvoker {
     constructor (invokeFunc) {
         var Iterator = array.MutableForwardIterator;
@@ -132,7 +131,6 @@ function compareOrder (a, b) {
 }
 
 // for onLoad: sort once all components registered, invoke once
-@ccclass
 class OneOffInvoker extends LifeCycleInvoker {
     add (comp) {
         var order = comp.constructor._executionOrder;
@@ -171,7 +169,6 @@ class OneOffInvoker extends LifeCycleInvoker {
 }
 
 // for update: sort every time new component registered, invoke many times
-@ccclass
 class ReusableInvoker extends LifeCycleInvoker {
     add (comp) {
         var order = comp.constructor._executionOrder;
@@ -271,7 +268,6 @@ function createInvokeImpl (funcOrCode, useDt) {
 /**
  * The Manager for Component's life-cycle methods.
  */
-@ccclass
 export default class ComponentScheduler {
     constructor() {
         this.unscheduleAll();

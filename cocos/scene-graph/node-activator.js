@@ -53,7 +53,6 @@ var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) 
 };
 
 // for __preload: used internally, no sort
-@ccclass
 class UnsortedInvoker extends CompScheduler.LifeCycleInvoker {
     add (comp) {
         this._zero.array.push(comp);
@@ -130,7 +129,6 @@ function _onLoadInEditor (comp) {
 /**
  * The class used to perform activating and deactivating operations of node and component.
  */
- @ccclass
 export default class NodeActivator {
     constructor() {
         this.reset();
