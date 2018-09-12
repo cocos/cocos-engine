@@ -46,8 +46,20 @@ var textUtils = {
     },
 
     safeMeasureText: function (ctx, string) {
+        if (!string) {
+            return 0;
+        }
         var metric = ctx.measureText(string);
-        return metric && metric.width || 0;
+        if (metric) {
+            return metric.width;
+        }
+        if (ctx.font && ctx.font.match) {
+            var match = ctx.font.match(/\d+/);
+            var fontSize = match ? match[0] : 20;
+            return string.length * fontSize;
+        } else {
+            return 20 * string.length;
+        }
     },
 
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
