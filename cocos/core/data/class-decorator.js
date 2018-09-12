@@ -697,7 +697,7 @@ function mixins () {
         if (cache) {
             getSubDict(cache, 'proto').mixins = mixins;
         }
-    }
+    };
 }
 
 let _decorator = cc._decorator = {

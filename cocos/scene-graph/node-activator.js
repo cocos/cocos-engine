@@ -24,25 +24,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CompScheduler = require('./component-scheduler');
-var Flags = require('./platform/CCObject').Flags;
-var js = require('./platform/js');
-var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
+import CompScheduler from './component-scheduler';
+import CCObject from '../core/data/object';
+import { Pool, array } from '../core/utils/js';
+import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import _decorator from '../core/data/class-decorator';
+const { ccclass } = _decorator;
 
 var MAX_POOL_SIZE = 4;
 
-var IsPreloadStarted = Flags.IsPreloadStarted;
-var IsOnLoadStarted = Flags.IsOnLoadStarted;
-var IsOnLoadCalled = Flags.IsOnLoadCalled;
-var Deactivating = Flags.Deactivating;
+var IsPreloadStarted = CCObject.Flags.IsPreloadStarted;
+var IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
+var IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
+var Deactivating = CCObject.Flags.Deactivating;
 
-var callPreloadInTryCatch = CC_EDITOR && callerFunctor('__preload');
-var callOnLoadInTryCatch = CC_EDITOR && callerFunctor('onLoad', null,
+var callPreloadInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('__preload');
+var callOnLoadInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onLoad', null,
         'target._objFlags |= ' + IsOnLoadCalled + '; arg(target);', _onLoadInEditor);
-var callOnDestroyInTryCatch = CC_EDITOR && callerFunctor('onDestroy');
-var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
-var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
-var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
+var callOnDestroyInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onDestroy');
+var callResetInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
+var callOnFocusInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
+var callOnLostFocusInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
 var callPreload = CC_SUPPORT_JIT ? 'c.__preload();' : function (c) { c.__preload(); };
 var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
@@ -50,23 +52,23 @@ var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) 
     c._objFlags |= IsOnLoadCalled;
 };
 
-// for __preload: use internally, no sort
-var UnsortedInvoker = cc.Class({
-    extends: CompScheduler.LifeCycleInvoker,
+// for __preload: used internally, no sort
+@ccclass
+class UnsortedInvoker extends CompScheduler.LifeCycleInvoker {
     add (comp) {
         this._zero.array.push(comp);
-    },
+    }
     remove (comp) {
         this._zero.fastRemove(comp);
-    },
+    }
     cancelInactive (flagToClear) {
         CompScheduler.LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
-    },
+    }
     invoke () {
         this._invoke(this._zero);
         this._zero.array.length = 0;
-    },
-});
+    }
+}
 
 var invokePreload = CompScheduler.createInvokeImpl(
     CC_EDITOR ? callPreloadInTryCatch : callPreload
@@ -75,7 +77,7 @@ var invokeOnLoad = CompScheduler.createInvokeImpl(
     CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
 );
 
-var activateTasksPool = new js.Pool(MAX_POOL_SIZE);
+var activateTasksPool = new Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     var task = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
@@ -106,7 +108,7 @@ function _componentCorrupted (node, comp, index) {
         node._removeComponent(comp);
     }
     else {
-        js.array.removeAt(node._components, index);
+        array.removeAt(node._components, index);
     }
 }
 
@@ -128,13 +130,16 @@ function _onLoadInEditor (comp) {
 /**
  * The class used to perform activating and deactivating operations of node and component.
  */
-function ctor () {
-    // a stack of node's activating tasks
-    this._activatingStack = [];
-}
-var NodeActivator = cc.Class({
-    ctor: ctor,
-    reset: ctor,
+ @ccclass
+export default class NodeActivator {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        // a stack of node's activating tasks
+        this._activatingStack = [];
+    }
 
     _activateNodeRecursively (node, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (node._objFlags & Deactivating) {
@@ -174,7 +179,7 @@ var NodeActivator = cc.Class({
         }
 
         node._onPostActivated(true);
-    },
+    }
 
     _deactivateNodeRecursively (node) {
         if (CC_DEV) {
@@ -215,7 +220,7 @@ var NodeActivator = cc.Class({
 
         node._onPostActivated(false);
         node._objFlags &= ~Deactivating;
-    },
+    }
 
     activateNode (node, active) {
         if (active) {
@@ -244,9 +249,56 @@ var NodeActivator = cc.Class({
             }
         }
         node.emit('active-in-hierarchy-changed', node);
-    },
+    }
 
-    activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+    activateComp (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!(comp._objFlags & IsPreloadStarted)) {
+            comp._objFlags |= IsPreloadStarted;
+            if (comp.__preload) {
+                if (preloadInvoker) {
+                    preloadInvoker.add(comp);
+                }
+                else {
+                    comp.__preload();
+                }
+            }
+        }
+        if (!(comp._objFlags & IsOnLoadStarted)) {
+            comp._objFlags |= IsOnLoadStarted;
+            if (comp.onLoad) {
+                if (onLoadInvoker) {
+                    onLoadInvoker.add(comp);
+                }
+                else {
+                    comp.onLoad();
+                    comp._objFlags |= IsOnLoadCalled;
+                }
+            }
+            else {
+                comp._objFlags |= IsOnLoadCalled;
+            }
+        }
+        if (comp._enabled) {
+            var deactivatedOnLoading = !comp.node._activeInHierarchy;
+            if (deactivatedOnLoading) {
+                return;
+            }
+            cc.director._compScheduler.enableComp(comp, onEnableInvoker);
+        }
+    }
+
+    destroyComp (comp) {
+        // ensure onDisable called
+        cc.director._compScheduler.disableComp(comp);
+
+        if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
+            comp.onDestroy();
+        }
+    }
+}
+
+if (CC_EDITOR) {
+    NodeActivator.prototype.activateComp = function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
@@ -282,43 +334,9 @@ var NodeActivator = cc.Class({
             }
             cc.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
-    } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
-        if (!(comp._objFlags & IsPreloadStarted)) {
-            comp._objFlags |= IsPreloadStarted;
-            if (comp.__preload) {
-                if (preloadInvoker) {
-                    preloadInvoker.add(comp);
-                }
-                else {
-                    comp.__preload();
-                }
-            }
-        }
-        if (!(comp._objFlags & IsOnLoadStarted)) {
-            comp._objFlags |= IsOnLoadStarted;
-            if (comp.onLoad) {
-                if (onLoadInvoker) {
-                    onLoadInvoker.add(comp);
-                }
-                else {
-                    comp.onLoad();
-                    comp._objFlags |= IsOnLoadCalled;
-                }
-            }
-            else {
-                comp._objFlags |= IsOnLoadCalled;
-            }
-        }
-        if (comp._enabled) {
-            var deactivatedOnLoading = !comp.node._activeInHierarchy;
-            if (deactivatedOnLoading) {
-                return;
-            }
-            cc.director._compScheduler.enableComp(comp, onEnableInvoker);
-        }
-    },
+    };
 
-    destroyComp: CC_EDITOR ? function (comp) {
+    NodeActivator.prototype.destroyComp = function (comp) {
         // ensure onDisable called
         cc.director._compScheduler.disableComp(comp);
 
@@ -327,20 +345,11 @@ var NodeActivator = cc.Class({
                 callOnDestroyInTryCatch(comp);
             }
         }
-    } : function (comp) {
-        // ensure onDisable called
-        cc.director._compScheduler.disableComp(comp);
+    };
 
-        if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            comp.onDestroy();
-        }
-    },
-
-    resetComp: CC_EDITOR && function (comp) {
+    NodeActivator.prototype.resetComp = function (comp) {
         if (comp.resetInEditor) {
             callResetInTryCatch(comp);
         }
-    }
-});
-
-module.exports = NodeActivator;
+    };
+}

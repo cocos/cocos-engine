@@ -24,13 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform/CCClass');
-var Flags = require('./platform/CCObject').Flags;
-var jsArray = require('./platform/js').array;
+import CCObject from '../core/data/object';
+import { array } from '../core/utils/js';
 
-var IsStartCalled = Flags.IsStartCalled;
-var IsOnEnableCalled = Flags.IsOnEnableCalled;
-var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
+var IsStartCalled = CCObject.Flags.IsStartCalled;
+var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
+var IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
 var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
@@ -102,7 +101,7 @@ function stableRemoveInactive (iterator, flagToClear) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
-        var Iterator = jsArray.MutableForwardIterator;
+        var Iterator = array.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0
@@ -334,7 +333,7 @@ var ComponentScheduler = cc.Class({
         // cancel schedule task
         var index = this.scheduleInNextFrame.indexOf(comp);
         if (index >= 0) {
-            jsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            array.fastRemoveAt(this.scheduleInNextFrame, index);
             return;
         }
 
@@ -474,4 +473,4 @@ var ComponentScheduler = cc.Class({
     }
 });
 
-module.exports = ComponentScheduler;
+export default ComponentScheduler;
