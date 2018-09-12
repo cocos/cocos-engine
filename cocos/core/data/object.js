@@ -149,13 +149,13 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 export default class CCObject {
-    constructor () {
+    constructor (name = '') {
         /**
          * @property {String} _name
          * @default ""
          * @private
          */
-        this._name = '';
+        this._name = name;
 
         /**
          * @property {Number} _objFlags

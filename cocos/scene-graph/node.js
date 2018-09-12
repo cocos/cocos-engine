@@ -1124,7 +1124,8 @@ export default class Node extends BaseNode {
      * @method constructor
      * @param {String} [name]
      */
-    ctor () {
+    constructor (name) {
+        super(name);
         this._reorderChildDirty = false;
         
         // cache component

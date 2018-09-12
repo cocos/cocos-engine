@@ -312,7 +312,8 @@ export default class BaseNode extends CCObject {
      * @method constructor
      * @param {String} [name]
      */
-    ctor (name) {
+    constructor (name) {
+        super(name);
         this._name = name !== undefined ? name : 'New Node';
         this._activeInHierarchy = false;
         this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();

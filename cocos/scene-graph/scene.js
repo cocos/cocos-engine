@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var NIL = function () {};
+import Node from './node';
+import _decorator from '../core/data/class-decorator';
+const { ccclass, property } = _decorator;
 
 /**
  * !#en
@@ -35,26 +37,10 @@ var NIL = function () {};
  * @class Scene
  * @extends Node
  */
-cc.Scene = cc.Class({
-    name: 'cc.Scene',
-    extends: require('./CCNode'),
-
-    properties: {
-
-        /**
-         * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
-         * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
-         * @property {Boolean} autoReleaseAssets
-         * @default false
-         */
-        autoReleaseAssets: {
-            default: undefined,
-            type: cc.Boolean
-        },
-
-    },
-
-    ctor: function () {
+@ccclass("cc.Scene")
+export default class Scene extends Node {
+    constructor(name) {
+        super(name);
         this._anchorPoint.x = 0.0;
         this._anchorPoint.y = 0.0;
 
@@ -67,17 +53,28 @@ cc.Scene = cc.Class({
 
         // cache all depend assets for auto release
         this.dependAssets = null;
-    },
+    }
 
-    destroy: function () {
+    /**
+     * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
+     * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
+     * @property {Boolean} autoReleaseAssets
+     * @default false
+     */
+     @property({
+        type: cc.Boolean
+     })
+    autoReleaseAssets = undefined;
+
+    destroy () {
         this._super();
         this._activeInHierarchy = false;
-    },
+    }
 
-    _onHierarchyChanged: NIL,
-    _instantiate : null,
+    _onHierarchyChanged() {}
+    _instantiate() {}
 
-    _load: function () {
+    _load () {
         if (!this._inited) {
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
@@ -90,9 +87,9 @@ cc.Scene = cc.Class({
             }
             this._inited = true;
         }
-    },
+    }
 
-    _activate: function (active) {
+    _activate (active) {
         active = (active !== false);
         if (CC_EDITOR || CC_TEST) {
             // register all nodes to editor
@@ -100,6 +97,6 @@ cc.Scene = cc.Class({
         }
         cc.director._nodeActivator.activateNode(this, active);
     }
-});
+}
 
-module.exports = cc.Scene;
+cc.Scene = Scene;
