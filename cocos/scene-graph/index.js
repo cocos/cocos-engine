@@ -27,3 +27,4 @@
 export { default as BaseNode } from './base-node';
 export { default as Node } from './node';
 export { default as NodeActivator } from './node-activator';
+export { default as find } from './find';
