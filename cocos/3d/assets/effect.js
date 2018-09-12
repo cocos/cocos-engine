@@ -29,7 +29,30 @@ import Technique from "../../renderer/core/technique";
 import Asset from "../../assets/CCAsset";
 
 @ccclass
-class Effect extends Asset {
+export default class Effect extends Asset {
+    /**
+     * @type {Technique[]}
+     */
+    @property([Technique])
+    _techniques = [];
+
+    /**
+     * @type {Object}
+     */
+    @property(Object)
+    _properties = {};
+
+    /**
+     * @type {Definition[]}
+     */
+    @property([Object])
+    _defines = [];
+
+    /**
+     * @type {Dependency[]}
+     */
+    @property([Object])
+    _dependencies = [];
 
     /**
      * @typedef {{name: string, value: boolean|number|string}} Definition
@@ -39,7 +62,6 @@ class Effect extends Asset {
     /**
      * @param {Technique[]} val
      */
-    @property([Technique])
     set techniques(val) {
         this._techniques = val;
     }
@@ -54,7 +76,6 @@ class Effect extends Asset {
     /**
      * @param {Object} val
      */
-    @property(Object)
     set properties(val) {
         this._properties = val;
     }
@@ -69,7 +90,6 @@ class Effect extends Asset {
     /**
      * @param {Definition[]} val
      */
-    @property(Object)
     set defines(val) {
         this._defines = val;
     }
@@ -99,24 +119,4 @@ class Effect extends Asset {
         // TODO: what should we do here ???
         return super.destroy();
     }
-
-    /**
-     * @type {Technique[]}
-     */
-    _techniques = [];
-
-    /**
-     * @type {Object}
-     */
-    _properties = {};
-
-    /**
-     * @type {Definition[]}
-     */
-    _defines = [];
-
-    /**
-     * @type {Dependency[]}
-     */
-    _dependencies = [];
 }

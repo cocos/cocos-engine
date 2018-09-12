@@ -29,6 +29,31 @@ import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
 
 @ccclass
 export default class WebAudioClip extends AudioClip {
+    /**
+     * @type {number}
+     */
+    _startTime;
+
+    /**
+     * @type {number}
+     */
+    _offset;
+
+    /**
+     * @type {number}
+     */
+    _volume;
+
+    /**
+     * @type {boolean}
+     */
+    _loop;
+
+    /**
+     * @type {WindowTimers}
+     */
+    _currentTimer;
+    
     constructor(context, app) {
         super();
 
@@ -49,6 +74,7 @@ export default class WebAudioClip extends AudioClip {
             this._offset = 0;
             this._startTime = this._context.currentTime;
             if (this._sourceNode.loop) return;
+            // @ts-ignore
             this.emit('ended');
             this._state = PlayingState.STOPPED;
         };
@@ -62,6 +88,7 @@ export default class WebAudioClip extends AudioClip {
             this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
+            // @ts-ignore
             this._app.once('tick', () => { this.emit('started'); });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
@@ -163,29 +190,4 @@ export default class WebAudioClip extends AudioClip {
     getLoop() {
         return this._loop;
     }
-
-    /**
-     * @type {number}
-     */
-    _startTime;
-
-    /**
-     * @type {number}
-     */
-    _offset;
-
-    /**
-     * @type {number}
-     */
-    _volume;
-
-    /**
-     * @type {boolean}
-     */
-    _loop;
-
-    /**
-     * @type {WindowTimers}
-     */
-    _currentTimer;
 }

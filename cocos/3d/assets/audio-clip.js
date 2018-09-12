@@ -60,6 +60,10 @@ export const AudioSourceType = {
 };
 
 /**
+ * @typedef {AudioBuffer|HTMLAudioElement} AudioSource
+ */
+
+/**
  * The base class for audio clip asset.
  * @mixes {EventTarget}
  */
@@ -67,8 +71,24 @@ export const AudioSourceType = {
 @mixins(EventTarget)
 export class AudioClip extends Asset {
   /**
-   * @typedef {AudioBuffer|HTMLAudioElement} AudioSource
+   * @type {AudioSource}
    */
+  _audio = null;
+
+  /**
+   * @type {number}
+   */
+  _duration = 0;
+
+  /**
+   * @type { PlayingState }
+   */
+  _state = PlayingState.INITIALIZING;
+
+  /**
+   * @type { AudioSourceType }
+   */
+  loadMode = AudioSourceType.UNKNOWN_AUDIO;
 
   /**
    * Set the actual audio clip asset
@@ -95,24 +115,4 @@ export class AudioClip extends Asset {
   getState() {
     return this._state;
   }
-
-  /**
-   * @type {AudioSource}
-   */
-  _audio = null;
-
-  /**
-   * @type {number}
-   */
-  _duration = 0;
-
-  /**
-   * @type { PlayingState }
-   */
-  _state = PlayingState.INITIALIZING;
-
-  /**
-   * @type { AudioSourceType }
-   */
-  loadMode = AudioSourceType.UNKNOWN_AUDIO;
 }

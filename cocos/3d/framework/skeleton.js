@@ -1,5 +1,8 @@
 import { utils } from '../scene-graph';
 import { vec3, quat, mat4 } from '../vmath';
+/**
+ * @typedef {import("../../scene-graph/CCNode").default} Joint
+ */
 
 let _v3_tmp = vec3.create();
 let _qt_tmp = quat.create();
@@ -12,8 +15,17 @@ export default class Skeleton {
   }
 
   setRoot(root) {
+    /**
+     * @type {Joint}
+     */
     this._root = root;
+    /**
+     * @type {Joint[]}
+     */
     this._joints = utils.flat(this._root);
+    /**
+     * @type {mat4[]}
+     */
     this._matrices = new Array(this._joints.length);
 
     for (let i = 0; i < this._joints.length; ++i) {

@@ -26,34 +26,15 @@
 import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Font from "./font";
-import vec2 from "../../vmath/vec2";
+import vec2 from "../../core/vmath/vec2";
 import Texture2D from "./texture-2d";
+
+/**
+ * @typedef {{char: string, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} BitmapFontGlyph
+ */
 
 @ccclass
 export class BitmapFont extends Font {
-    /**
-     * @typedef {{char: string, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} BitmapFontGlyph
-     */
-
-    constructor() {
-        super();
-        super._type = "bitmap";
-    }
-
-    /**
-     * @return {Texture2D}
-     */
-    get texture() {
-        return this._texture;
-    }
-
-    /**
-     * @return {string}
-     */
-    get face() {
-        return this._face;
-    }
-
     /**
      * @type {Texture2D}
      */
@@ -83,4 +64,23 @@ export class BitmapFont extends Font {
             vec2.create(0, 0)
         ],
     };
+
+    constructor() {
+        super();
+        super._type = "bitmap";
+    }
+
+    /**
+     * @return {Texture2D}
+     */
+    get texture() {
+        return this._texture;
+    }
+
+    /**
+     * @return {string}
+     */
+    get face() {
+        return this._face;
+    }
 }

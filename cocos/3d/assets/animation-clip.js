@@ -26,6 +26,15 @@
 import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Asset from "../../assets/CCAsset";
+import vec3 from "../../core/vmath/vec3";
+import quat from "../../core/vmath/quat";
+import { clamp } from "../../core/vmath/utils";
+
+/** 
+ * @typedef {import("../framework/skeleton").SkeletonMask} SkeletonMask
+ * @typedef {import("../framework/skeleton").default} Skeleton
+ * @typedef {import("../../scene-graph/CCNode").default} Joint 
+ */
 
 let tmpvec3 = vec3.create(0, 0, 0);
 let tmpquat = quat.create();
@@ -74,6 +83,11 @@ export class AnimationClip extends Asset {
     return this._length;
   }
 
+  /**
+   * 
+   * @param {Skeleton} skeleton 
+   * @param {number} t 
+   */
   sample(skeleton, t) {
     clamp(t, 0, this._length);
 

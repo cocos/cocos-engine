@@ -24,9 +24,10 @@
  ****************************************************************************/
 //@ts-check
 import { _decorator } from "../core/data/index";
-const {ccclass, property} = _decorator;
+const { ccclass, property } = _decorator;
 import JsonAsset from "./CCJsonAsset";
 import { BufferAsset } from "./CCBufferAsset";
+import Asset from "./CCAsset";
 
 /**
  * !#en
@@ -39,19 +40,30 @@ import { BufferAsset } from "./CCBufferAsset";
  * @extends Asset
  */
 @ccclass
-export class GLTFAsset extends cc.Asset {
-    @property(JsonAsset)
+export class GLTFAsset extends Asset {
     /**
-     * The underlying GlTf file asset.
-     * @type {JsonAsset} description
+     * @type {JsonAsset}
+     */
+    @property(JsonAsset)
+    _description;
+
+    /**
+     * @type {BufferAsset[]}
+     */
+    @property([BufferAsset])
+    _buffers = [];
+
+    /**
+     * Sets the underlying GlTf file asset.
+     * @param {JsonAsset} value
      */
     set description(value) {
         this._description = value;
     }
 
     /**
-     * The underlying GlTf file asset.
-     * @type {JsonAsset} description
+     * Gets the underlying GlTf file asset.
+     * @return {JsonAsset} description
      */
     get description() {
         return this._description;
@@ -60,15 +72,7 @@ export class GLTFAsset extends cc.Asset {
     /**
      * The buffers this GLTF Asset associated.
      */
-    @property([BufferAsset])
     get buffers() {
         return this._buffers;
     }
-
-    /**
-     * @type {JsonAsset}
-     */
-    _description;
-
-    _buffers = [];
 }

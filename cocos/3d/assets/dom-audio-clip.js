@@ -29,6 +29,26 @@ import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
 
 @ccclass
 export class DOMAudioClip extends AudioClip {
+    /**
+     * @type {number}
+     */
+    _volume = 1;
+
+    /**
+     * @type {boolean}
+     */
+    _loop = false;
+
+    /**
+     * @type {number}
+     */
+    _currentTimer = 0;
+
+    /**
+     * @type {boolean}
+     */
+    _oneShoting = false;
+    
     constructor() {
         super();
 
@@ -36,6 +56,7 @@ export class DOMAudioClip extends AudioClip {
 
         this._post_play = () => {
             this._state = AudioSourceType.PLAYING;
+            // @ts-ignore
             this.emit('started');
         };
 
@@ -63,6 +84,7 @@ export class DOMAudioClip extends AudioClip {
             if (this._oneShoting) return;
             this._state = PlayingState.STOPPED;
             this._audio.currentTime = 0;
+            // @ts-ignore
             this.emit('ended');
         });
         /* play & stop immediately after receiving a gesture so that
@@ -150,24 +172,4 @@ export class DOMAudioClip extends AudioClip {
     getLoop() {
         return this._loop;
     }
-
-    /**
-     * @type {number}
-     */
-    _volume = 1;
-
-    /**
-     * @type {boolean}
-     */
-    _loop = false;
-
-    /**
-     * @type {number}
-     */
-    _currentTimer = 0;
-
-    /**
-     * @type {boolean}
-     */
-    _oneShoting = false;
 }

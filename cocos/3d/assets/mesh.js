@@ -28,9 +28,42 @@ const { ccclass, property } = _decorator;
 import { GLTFAsset } from "../../assets/CCGLTFAsset";
 import Asset from "../../assets/CCAsset";
 import { default as GLTFUtils } from "./utils/gltf-utils";
+/** @typedef {import("../../core/vmath/index").vec3} vec3 */
 
 @ccclass
 export default class Mesh extends Asset {
+    /**
+     * @type {GLTFAsset}
+     */
+    @property(GLTFAsset)
+    _gltfAsset;
+
+    /**
+     * @type {number}
+     */
+    @property(Number)
+    _gltfIndex = -1;
+
+    /**
+     * @type {renderer.InputAssemblers}
+     */
+    _subMeshes = null;
+
+    /**
+     * @type {{jointIndices, bindposes}}
+     */
+    _skinning = null;
+
+    /**
+     * @type {vec3}
+     */
+    _minPos = null;
+
+    /**
+     * @type {vec3}
+     */
+    _maxPos = null;
+    
     /**
      * !#en
      * Gets the native data of this mesh.
@@ -58,6 +91,7 @@ export default class Mesh extends Asset {
     setNative(gltfAsset, gltfIndex) {
         this._gltfAsset = gltfAsset;
         this._gltfIndex = gltfIndex;
+        this._update();
     }
 
     /**
@@ -116,10 +150,6 @@ export default class Mesh extends Asset {
     //   }
     // }
 
-    _onDeserialized(app) {
-        this._update();
-    }
-
     _update(app) {
         if (!this._gltfAsset) {
             return;
@@ -134,36 +164,4 @@ export default class Mesh extends Asset {
         this._maxPos = result.maxPos;
         this._skinning = result.skinning;
     }
-
-    /**
-     * @type {GLTFAsset}
-     */
-    @property(GLTFAsset)
-    _gltfAsset = null;
-
-    /**
-     * @type {number}
-     */
-    @property(Number)
-    _gltfIndex = -1;
-
-    /**
-     * @type {renderer.InputAssemblers}
-     */
-    _subMeshes = null;
-
-    /**
-     * @type {{jointIndices, bindposes}}
-     */
-    _skinning = null;
-
-    /**
-     * @type {vec3}
-     */
-    _minPos = null;
-
-    /**
-     * @type {vec3}
-     */
-    _maxPos = null;
 }

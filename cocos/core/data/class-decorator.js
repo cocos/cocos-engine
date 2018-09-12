@@ -308,23 +308,26 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * 定义 [CCClass](/docs/creator/scripting/class/) 所用的属性。
  *
  * @method property
- * @param {Object} [options] - an object with some property attributes
- * @param {Any} [options.type]
- * @param {Boolean|Function} [options.visible]
- * @param {String} [options.displayName]
- * @param {String} [options.tooltip]
- * @param {Boolean} [options.multiline]
- * @param {Boolean} [options.readonly]
- * @param {Number} [options.min]
- * @param {Number} [options.max]
- * @param {Number} [options.step]
- * @param {Number[]} [options.range]
- * @param {Boolean} [options.slide]
- * @param {Boolean} [options.serializable]
- * @param {Boolean} [options.editorOnly]
- * @param {Boolean} [options.override]
- * @param {Boolean} [options.animatable]
- * @param {String} [options.formerlySerializedAs]
+ * @param {Object | Function} [ctorProtoOrOptions] - an object with some property attributes
+ * @param {Any} [ctorProtoOrOptions.type]
+ * @param {Boolean|Function} [ctorProtoOrOptions.visible]
+ * @param {String} [ctorProtoOrOptions.displayName]
+ * @param {String} [ctorProtoOrOptions.tooltip]
+ * @param {Boolean} [ctorProtoOrOptions.multiline]
+ * @param {Boolean} [ctorProtoOrOptions.readonly]
+ * @param {Number} [ctorProtoOrOptions.min]
+ * @param {Number} [ctorProtoOrOptions.max]
+ * @param {Number} [ctorProtoOrOptions.step]
+ * @param {Number[]} [ctorProtoOrOptions.range]
+ * @param {Boolean} [ctorProtoOrOptions.slide]
+ * @param {Boolean} [ctorProtoOrOptions.serializable]
+ * @param {Boolean} [ctorProtoOrOptions.editorOnly]
+ * @param {Boolean} [ctorProtoOrOptions.override]
+ * @param {Boolean} [ctorProtoOrOptions.animatable]
+ * @param {String} [ctorProtoOrOptions.formerlySerializedAs]
+ * @param {*} [propName]
+ * @param {*} [desc]
+ * @return {*}
  * @example
  * const {ccclass, property} = cc._decorator;
  *
@@ -697,7 +700,7 @@ function mixins () {
         if (cache) {
             getSubDict(cache, 'proto').mixins = mixins;
         }
-    }
+    };
 }
 
 let _decorator = cc._decorator = {

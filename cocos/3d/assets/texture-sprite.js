@@ -30,6 +30,12 @@ import Sprite from "./sprite";
 
 @ccclass
 export default class TextureSprite extends Texture2D {
+  /**
+   * @type {Sprite[]}
+   */
+  @property([Sprite])
+  _sprites = [];
+
   constructor(device) {
     super(device);
   }
@@ -44,10 +50,4 @@ export default class TextureSprite extends Texture2D {
     }
     super.destroy();
   }
-
-  /**
-   * @type {Sprite[]}
-   */
-  @property([Sprite])
-  _sprites = [];
 }

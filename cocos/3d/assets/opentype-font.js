@@ -26,15 +26,71 @@
 import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Font from "./font";
-import vec2 from "../../vmath/vec2";
+import vec2 from "../../core/vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
 import Texture2D from "./texture-2d";
+
+/**
+ * @typedef {{id: number, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} OpentypeFontGlyph
+ */
 
 @ccclass
 export default class OpentypeFont extends Font {
     /**
-     * @typedef {{id: number, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} OpentypeFontGlyph
+     * opentype.Font
+     * @type {any}
      */
+    _font = null;
+
+    /**
+     * @type {number}
+     */
+    _padding = 2;
+
+    /**
+     * @type {number}
+     */
+    _fontScale = 1;
+
+    /**
+     * @type {Object}
+     */
+    _textCache = {};
+
+    /**
+     * @type {ShelfPack}
+     */
+    _packer;
+
+    /**
+     * @type {HTMLCanvasElement}
+     */
+    _packCanvas;
+
+    /**
+     * @type {Texture2D}
+     */
+    _fontAtlas;
+
+    /**
+     * @type {OpentypeFontGlyph}
+     */
+    _defaultGlyph = {
+        id: 32, // space charCode
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16,
+        xoffset: 0,
+        yoffset: 0,
+        xadvance: 16,
+        uvs: [
+            vec2.create(0, 0),
+            vec2.create(0, 0),
+            vec2.create(0, 0),
+            vec2.create(0, 0)
+        ],
+    };
 
     constructor(device, width = 1024, height = 1024) {
         super();
@@ -213,60 +269,4 @@ export default class OpentypeFont extends Font {
             this._fontAtlas.commit();
         }
     }
-
-    /**
-     * opentype.Font
-     * @type {any}
-     */
-    _font = null;
-
-    /**
-     * @type {number}
-     */
-    _padding = 2;
-
-    /**
-     * @type {number}
-     */
-    _fontScale = 1;
-
-    /**
-     * @type {Object}
-     */
-    _textCache = {};
-
-    /**
-     * @type {ShelfPack}
-     */
-    _packer;
-
-    /**
-     * @type {HTMLCanvasElement}
-     */
-    _packCanvas;
-
-    /**
-     * @type {Texture2D}
-     */
-    _fontAtlas;
-
-    /**
-     * @type {OpentypeFontGlyph}
-     */
-    _defaultGlyph = {
-        id: 32, // space charCode
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16,
-        xoffset: 0,
-        yoffset: 0,
-        xadvance: 16,
-        uvs: [
-            vec2.create(0, 0),
-            vec2.create(0, 0),
-            vec2.create(0, 0),
-            vec2.create(0, 0)
-        ],
-    };
 }
