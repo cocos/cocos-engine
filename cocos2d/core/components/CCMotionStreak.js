@@ -26,6 +26,7 @@
 
 const RenderComponent = require('../components/CCRenderComponent');
 const SpriteMaterial = require('../renderer/render-engine').SpriteMaterial;
+const textureUtil = require('../utils/texture-util');
 
 /**
  * !#en
@@ -159,13 +160,12 @@ var MotionStreak = cc.Class({
 
                 this._texture = value;
 
-                if (!value) {
+                if (!value || !value.loaded) {
                     this.disableRender();
+                    this._ensureLoadTexture();
                 }
                 else {
-                    this.markForRender(true);
-                    this.markForUpdateRenderData(true);
-                    this._activateMaterial(true);
+                    this._activateMaterial();
                 }
             },
             type: cc.Texture2D,
@@ -190,6 +190,7 @@ var MotionStreak = cc.Class({
             set (value) {
                 this._color = value;
             },
+            type: cc.Color,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
         },
 
@@ -220,6 +221,7 @@ var MotionStreak = cc.Class({
 
         if (!this._texture || !this._texture.loaded) {
             this.disableRender();
+            this._ensureLoadTexture();
         }
         else {
             this._activateMaterial();
@@ -227,18 +229,29 @@ var MotionStreak = cc.Class({
         this.reset();
     },
 
-    _activateMaterial (force) {
+    _ensureLoadTexture: function () {
+        if (this._texture && !this._texture.loaded) {
+            // load exists texture
+            let self = this;
+            textureUtil.postLoadTexture(this._texture, function () {
+                self._activateMaterial();
+            });
+        }
+    },
+
+    _activateMaterial () {
         let material = this._material;
         if (!material) {
             material = this._material = new SpriteMaterial();
             material.useColor = false;
         }
-        else if (!force) {
-            return;
-        }
         
-        material.texture = this._texture;
-        this._updateMaterial(material);
+        if (this._texture && this._texture.loaded) {
+            material.texture = this._texture;
+            this._updateMaterial(material);
+            this.markForRender(true);
+            this.markForUpdateRenderData(true);
+        }
     },
 
     onFocusInEditor: CC_EDITOR && function () {

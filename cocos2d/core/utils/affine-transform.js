@@ -153,7 +153,7 @@ AffineTransform.invert = function (out, t) {
  * @method invert
  * @static
  * @param {AffineTransform} out
- * @param {AffineTransform} t
+ * @param {Mat4} mat
  * @return {AffineTransform} Out object with inverted result.
  */
 AffineTransform.fromMat4 = function (out, mat) {

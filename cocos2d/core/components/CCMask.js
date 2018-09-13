@@ -176,11 +176,9 @@ let Mask = cc.Class({
                     cc.warnID(4201);
                     return;
                 }
-                if (this._frontMaterial) {
-                    this._frontMaterial.alphaThreshold = this.alphaThreshold;
-                    this._endMaterial.alphaThreshold = this.alphaThreshold;
-                    this._frontMaterial.updateHash();
-                    this._endMaterial._hash = -this._frontMaterial._hash;
+                if (this._material) {
+                    this._material.alphaThreshold = this.alphaThreshold;
+                    this._material.updateHash();
                 }
             }
         },
@@ -257,7 +255,17 @@ let Mask = cc.Class({
 
     onEnable () {
         this._super();
-        if (this._type !== MaskType.IMAGE_STENCIL) {
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+                // Do not render when sprite frame is not ready
+                this.markForRender(false);
+                if (this._spriteFrame) {
+                    this._spriteFrame.once('load', this._onTextureLoaded, this);
+                    this._spriteFrame.ensureLoadTexture();
+                }
+            }
+        }
+        else {
             this._updateGraphics();
         }
 
@@ -267,7 +275,7 @@ let Mask = cc.Class({
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
-        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
         this._activateMaterial();
     },
 
@@ -280,14 +288,12 @@ let Mask = cc.Class({
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
-        this.node._renderFlag &= ~(RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+        this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     },
 
     onDestroy () {
         this._super();
         this._graphics.destroy();
-        this._frontMaterial = null;
-        this._endMaterial = null;
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -336,40 +342,24 @@ let Mask = cc.Class({
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // Init material
-            if (!this._frontMaterial) {
-                this._frontMaterial = new StencilMaterial();
-                this._endMaterial = new StencilMaterial();
+            if (!this._material) {
+                this._material = new StencilMaterial();
             }
 
             // Reset material
             if (this._type === MaskType.IMAGE_STENCIL) {
                 let texture = this.spriteFrame.getTexture();
-                this._frontMaterial.useModel = false;
-                this._frontMaterial.useTexture = true;
-                this._frontMaterial.useColor = true;
-                this._frontMaterial.texture = texture;
-                this._frontMaterial.alphaThreshold = this.alphaThreshold;
-                this._endMaterial.useModel = false;
-                this._endMaterial.useTexture = true;
-                this._endMaterial.useColor = true;
-                this._endMaterial.texture = texture;
-                this._endMaterial.alphaThreshold = this.alphaThreshold;
+                this._material.useModel = false;
+                this._material.useTexture = true;
+                this._material.useColor = true;
+                this._material.texture = texture;
+                this._material.alphaThreshold = this.alphaThreshold;
             }
             else {
-                this._frontMaterial.useModel = true;
-                this._frontMaterial.useTexture = false;
-                this._frontMaterial.useColor = false;
-                this._endMaterial.useModel = true;
-                this._endMaterial.useTexture = false;
-                this._endMaterial.useColor = false;
+                this._material.useModel = true;
+                this._material.useTexture = false;
+                this._material.useColor = false;
             }
-            
-            if (!this._material) {
-                this._updateMaterial(this._frontMaterial);
-            }
-
-            // Avoid next up mask material to be batch with the exit one
-            this._endMaterial._hash = -this._frontMaterial._hash;
         }
 
         this.markForRender(true);
@@ -427,17 +417,17 @@ let Mask = cc.Class({
 
     markForUpdateRenderData (enable) {
         if (enable && this.enabledInHierarchy) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA;
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
-            this.node._renderFlag &= ~(RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
     },
 
     markForRender (enable) {
         if (enable && this.enabledInHierarchy) {
             this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
-                                      RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+                                      RenderFlow.FLAG_POST_RENDER);
         }
         else if (!enable) {
             this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
@@ -446,7 +436,7 @@ let Mask = cc.Class({
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
-                                   RenderFlow.FLAG_POST_RENDER | RenderFlow.FLAG_POST_UPDATE_RENDER_DATA);
+                                   RenderFlow.FLAG_POST_RENDER);
     },
 });
 

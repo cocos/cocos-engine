@@ -860,7 +860,7 @@ var Node = cc.Class({
 
         /**
          * !#en Skew x
-         * !#zh 该节点 Y 轴倾斜角度。
+         * !#zh 该节点 X 轴倾斜角度。
          * @property skewX
          * @type {Number}
          * @example
@@ -880,7 +880,7 @@ var Node = cc.Class({
 
         /**
          * !#en Skew y
-         * !#zh 该节点 X 轴倾斜角度。
+         * !#zh 该节点 Y 轴倾斜角度。
          * @property skewY
          * @type {Number}
          * @example
@@ -2246,8 +2246,8 @@ var Node = cc.Class({
     /*
      * Transforms position from world space to local space.
      * @method _invTransformPoint
-     * @param {vmath.Vec3} out
-     * @param {vmath.Vec3} vec3
+     * @param {Vec3} out
+     * @param {Vec3} vec3
      */
     _invTransformPoint (out, pos) {
         if (this._parent) {
@@ -2296,7 +2296,7 @@ var Node = cc.Class({
      * Set world position.
      * This is not a public API yet, its usage could be updated
      * @method setWorldPos
-     * @param {vec3} pos
+     * @param {Vec3} pos
      */
     setWorldPos (pos) {
         // NOTE: this is faster than invert world matrix and transform the point
@@ -2324,8 +2324,8 @@ var Node = cc.Class({
      * Calculate and return world rotation
      * This is not a public API yet, its usage could be updated
      * @method getWorldRot
-     * @param {vmath.Quat} out
-     * @return {vmath.Quat}
+     * @param {Quat} out
+     * @return {Quat}
      */
     getWorldRot (out) {
         math.quat.copy(out, this._quat);
@@ -2341,7 +2341,7 @@ var Node = cc.Class({
      * Set world rotation with quaternion
      * This is not a public API yet, its usage could be updated
      * @method setWorldRot
-     * @param {vmath.Quat} rot
+     * @param {Quat} rot
      */
     setWorldRot (quat) {
         if (this._parent) {
@@ -2525,10 +2525,10 @@ var Node = cc.Class({
      * Get the local transform matrix (4x4), based on parent node coordinates
      * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
      * @method getLocalMatrix
-     * @param {vmath.Mat4} out The matrix object to be filled with data
-     * @return {vmath.Mat4} Same as the out matrix object
+     * @param {Mat4} out The matrix object to be filled with data
+     * @return {Mat4} Same as the out matrix object
      * @example
-     * let mat4 = vmath.mat4.create();
+     * let mat4 = cc.mat4();
      * node.getLocalMatrix(mat4);
      */
     getLocalMatrix (out) {
@@ -2541,10 +2541,10 @@ var Node = cc.Class({
      * Get the world transform matrix (4x4)
      * !#zh 返回世界空间坐标系的矩阵。
      * @method getWorldMatrix
-     * @param {vmath.Mat4} out The matrix object to be filled with data
-     * @return {vmath.Mat4} Same as the out matrix object
+     * @param {Mat4} out The matrix object to be filled with data
+     * @return {Mat4} Same as the out matrix object
      * @example
-     * let mat4 = vmath.mat4.create();
+     * let mat4 = cc.mat4();
      * node.getWorldMatrix(mat4);
      */
     getWorldMatrix (out) {
@@ -2978,7 +2978,7 @@ var Node = cc.Class({
         }
     },
 
-    _restoreProperties () {
+    _restoreProperties: CC_EDITOR && function () {
         /*
          * TODO: Refine this code after completing undo/redo 2.0.
          * The node will be destroyed when deleting in the editor,
@@ -3003,6 +3003,10 @@ var Node = cc.Class({
             else {
                 this._renderComponent.disableRender();
             }
+        }
+
+        if (this._children.length > 0) {
+            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
     },
 

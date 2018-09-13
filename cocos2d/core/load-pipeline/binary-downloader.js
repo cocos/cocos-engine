@@ -24,23 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (CC_JSB) {
-    module.exports = function (item, callback) {
-        var url = item.url;
-
-        var result = jsb.fileUtils.getDataFromFile(url);
-        if (result) {
-            return result;
-        }
-        else {
-            return new Error('Download binary file failed: ' + url);
-        }
-    };
-}
-else {
 function downloadBinary (item, callback) {
     var url = item.url;
-    var self = this;
     var xhr = cc.loader.getXMLHttpRequest(),
         errInfo = 'Load binary data failed: ' + url + '';
     xhr.open('GET', url, true);
@@ -65,4 +50,3 @@ function downloadBinary (item, callback) {
 }
 
 module.exports = downloadBinary;
-}

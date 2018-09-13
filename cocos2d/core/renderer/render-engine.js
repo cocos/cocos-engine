@@ -14126,15 +14126,15 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture');
+    return this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
   };
-  
+
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel');
+    return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
@@ -14142,7 +14142,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.use2DPos.get = function () {
-    this._effect.getDefine('use2DPos');
+    return this._effect.getDefine('use2DPos');
   };
 
   prototypeAccessors.use2DPos.set = function (val) {
@@ -14150,7 +14150,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useColor.get = function () {
-    this._effect.getDefine('useColor');
+    return  this._effect.getDefine('useColor');
   };
 
   prototypeAccessors.useColor.set = function (val) {

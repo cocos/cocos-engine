@@ -26,7 +26,7 @@
 
 var js = cc.js;
 
-if (CC_DEV) {
+if (CC_DEBUG) {
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         if (!CC_SUPPORT_JIT) {
@@ -138,12 +138,16 @@ if (CC_DEV) {
                     cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, propName, obj[propName]);
                     return originFunc.apply(this, arguments);
                 }
-                
+
                 ownerCtor[propName] = warn;
             })();
         }
     }
-
+    // remove cc.info
+    js.get(cc, 'info', function () {
+        cc.warnID(1400, 'cc.info', 'cc.log');
+        return cc.log;
+    });
     // cc.spriteFrameCache
     js.get(cc, "spriteFrameCache", function () {
         cc.errorID(1404);
@@ -213,6 +217,12 @@ if (CC_DEV) {
     markAsRemovedInObject(cc.game, [
         'CONFIG_KEY',
     ], 'cc.game');
+
+    // cc.sys
+    markAsRemovedInObject(cc.sys, [
+        'dumpRoot',
+        'cleanScript',
+    ], 'cc.sys');
 
     // cc.Director
     provideClearError(cc.Director, {
@@ -298,7 +308,7 @@ if (CC_DEV) {
         'getTag': 'name',
         'setTag': 'name',
         'getChildByTag': 'getChildByName',
-        'removeChildByTag': 'removeChildByName'
+        'removeChildByTag': 'getChildByName(name).destroy()'
     });
 
     markAsRemoved(cc.Node, [
@@ -434,7 +444,7 @@ if (CC_DEV) {
 
         // Vec2
         pointEqualToPoint: 'cc.Vec2 equals',
-        
+
         // Size
         sizeEqualToSize: 'cc.Size equals',
 
@@ -576,7 +586,7 @@ if (CC_DEV) {
         cc.errorID(1407);
         return js.Pool;
     });
-    
+
     // cc.isChildClassOf
     js.get(cc, 'isChildClassOf', function () {
         cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');

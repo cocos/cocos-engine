@@ -28,6 +28,11 @@
 const EventTarget = require("../event/event-target");
 const textureUtil = require('../utils/texture-util');
 
+const INSET_LEFT = 0;
+const INSET_TOP = 1;
+const INSET_RIGHT = 2;
+const INSET_BOTTOM = 3;
+
 let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 
 /**
@@ -86,7 +91,83 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         //         let texture = cc.textureCache.addImage(url);
         //         this._refreshTexture(texture);
         //     }
-        // }
+        // },
+
+        /**
+         * !#en Top border of the sprite
+         * !#zh sprite 的顶部边框
+         * @property insetTop
+         * @type {Number}
+         * @default 0
+         */
+        insetTop: {
+            get: function () {
+                return this._capInsets[INSET_TOP];
+            },
+            set: function (value) {
+                this._capInsets[INSET_TOP] = value;
+                if (this._texture) {
+                    this._calculateSlicedUV();
+                }
+            }
+        },
+
+        /**
+         * !#en Bottom border of the sprite
+         * !#zh sprite 的底部边框
+         * @property insetBottom
+         * @type {Number}
+         * @default 0
+         */
+        insetBottom: {
+            get: function () {
+                return this._capInsets[INSET_BOTTOM];
+            },
+            set: function (value) {
+                this._capInsets[INSET_BOTTOM] = value;
+                if (this._texture) {
+                    this._calculateSlicedUV();
+                }
+            }
+        },
+
+        /**
+         * !#en Left border of the sprite
+         * !#zh sprite 的左边边框
+         * @property insetLeft
+         * @type {Number}
+         * @default 0
+         */
+        insetLeft: {
+            get: function () {
+                return this._capInsets[INSET_LEFT];
+            },
+            set: function (value) {
+                this._capInsets[INSET_LEFT] = value;
+                if (this._texture) {
+                    this._calculateSlicedUV();
+                }
+            }
+        },
+
+        /**
+         * !#en Right border of the sprite
+         * !#zh sprite 的左边边框
+         * @property insetRight
+         * @type {Number}
+         * @default 0
+         */
+        insetRight: {
+            get: function () {
+                return this._capInsets[INSET_RIGHT];
+            },
+            set: function (value) {
+                this._capInsets[INSET_RIGHT] = value;
+                if (this._texture) {
+                    this._calculateSlicedUV();
+                }
+            }
+        },
     },
 
     /**
@@ -122,43 +203,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = false;
 
-        /**
-         * !#en Top border of the sprite
-         * !#zh sprite 的顶部边框
-         * @property insetTop
-         * @type {Number}
-         * @default 0
-         */
-        this.insetTop = 0;
-
-        /**
-         * !#en Bottom border of the sprite
-         * !#zh sprite 的底部边框
-         * @property insetBottom
-         * @type {Number}
-         * @default 0
-         */
-        this.insetBottom = 0;
-
-        /**
-         * !#en Left border of the sprite
-         * !#zh sprite 的左边边框
-         * @property insetLeft
-         * @type {Number}
-         * @default 0
-         */
-        this.insetLeft = 0;
-
-        /**
-         * !#en Right border of the sprite
-         * !#zh sprite 的左边边框
-         * @property insetRight
-         * @type {Number}
-         * @default 0
-         */
-        this.insetRight = 0;
-
         this.vertices = null;
+
+        this._capInsets = [0, 0, 0, 0];
 
         this.uv = [];
         this.uvSliced = [];
@@ -478,11 +525,11 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let rect = this._rect;
         let atlasWidth = this._texture.width;
         let atlasHeight = this._texture.height;
-        let leftWidth = this.insetLeft;
-        let rightWidth = this.insetRight;
+        let leftWidth = this._capInsets[INSET_LEFT];
+        let rightWidth = this._capInsets[INSET_RIGHT];
         let centerWidth = rect.width - leftWidth - rightWidth;
-        let topHeight = this.insetTop;
-        let bottomHeight = this.insetBottom;
+        let topHeight = this._capInsets[INSET_TOP];
+        let bottomHeight = this._capInsets[INSET_BOTTOM];
         let centerHeight = rect.height - topHeight - bottomHeight;
 
         let uvSliced = this.uvSliced;
@@ -600,13 +647,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
         }
-        let capInsets;
-        if (this.insetLeft !== 0 ||
-            this.insetTop !== 0 ||
-            this.insetRight !== 0 ||
-            this.insetBottom !== 0) {
-            capInsets = [this.insetLeft, this.insetTop, this.insetRight, this.insetBottom];
-        }
 
         let vertices;
         if (this.vertices) {
@@ -627,7 +667,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             offset: offset ? [offset.x, offset.y] : undefined,
             originalSize: size ? [size.width, size.height] : undefined,
             rotated: this._rotated ? 1 : undefined,
-            capInsets: capInsets,
+            capInsets: this._capInsets,
             vertices: vertices
         };
     },
@@ -645,13 +685,15 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         this._rotated = data.rotated === 1;
         this._name = data.name;
+
         let capInsets = data.capInsets;
         if (capInsets) {
-            this.insetLeft = capInsets[0];
-            this.insetTop = capInsets[1];
-            this.insetRight = capInsets[2];
-            this.insetBottom = capInsets[3];
+            this._capInsets[INSET_LEFT] = capInsets[INSET_LEFT];
+            this._capInsets[INSET_TOP] = capInsets[INSET_TOP];
+            this._capInsets[INSET_RIGHT] = capInsets[INSET_RIGHT];
+            this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
+
         if (CC_EDITOR) {
             this._atlasUuid = data.atlas;
         }

@@ -74,7 +74,7 @@ let EditBox = cc.Class({
                 return this._string;
             },
             set(value) {
-                if (value.length >= this.maxLength) {
+                if (this.maxLength >= 0 && value.length >= this.maxLength) {
                     value = value.slice(0, this.maxLength);
                 }
 
@@ -366,6 +366,7 @@ let EditBox = cc.Class({
     _init () {
         this._createBackgroundSprite();
         this._createLabels();
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
         let impl = this._impl = new EditBoxImpl();
 
@@ -494,6 +495,25 @@ let EditBox = cc.Class({
         }
     },
 
+    _resizeChildNodes () {
+        let textLabelNode = this._textLabel.node,
+            placeholderLabelNode = this._placeholderLabel.node,
+            backgroundNode = this._background.node;
+            
+        textLabelNode.x = -this.node.width/2;
+        textLabelNode.y = this.node.height/2;
+        textLabelNode.width = this.node.width;
+        textLabelNode.height = this.node.height;
+        
+        placeholderLabelNode.x = -this.node.width/2;
+        placeholderLabelNode.y = this.node.height/2;
+        placeholderLabelNode.width = this.node.width;
+        placeholderLabelNode.height = this.node.height;            
+        
+        backgroundNode.width = this.node.width;
+        backgroundNode.height = this.node.height;
+    },
+
     _showLabels () {
         let displayText = this._textLabel.string;
         this._textLabel.node.active = displayText !== '';
@@ -577,6 +597,14 @@ let EditBox = cc.Class({
         this._impl.clear();
     },
 
+    onEnable () {
+        this._impl && this._impl.onEnable();
+    },
+
+    onDisable () {
+        this._impl && this._impl.onDisable();
+    },
+
     __preload () {
         if (!CC_EDITOR) {
             this._registerEvent();
@@ -611,9 +639,8 @@ let EditBox = cc.Class({
     },
 
     /**
-     * !#en Let the EditBox get focus, only valid when stayOnTop is true.
-     * !#zh 让当前 EditBox 获得焦点，只有在 stayOnTop 为 true 的时候设置有效
-     * Note: only available on Web at the moment.
+     * !#en Let the EditBox get focus
+     * !#zh 让当前 EditBox 获得焦点
      * @method setFocus
      */
     setFocus () {

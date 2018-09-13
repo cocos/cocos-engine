@@ -708,7 +708,6 @@ var ParticleSystem = cc.Class({
     ctor: function () {
         this._previewTimer = null;
         this._focused = false;
-        this._willStart = false;
         this._texture = null;
 
         this._simulator = new ParticleSimulator(this);
@@ -768,20 +767,6 @@ var ParticleSystem = cc.Class({
         this._focused = true;
         if (this.preview) {
             this.resetSystem();
-
-            var self = this;
-            this._previewTimer = setInterval(function () {
-                // attemptToReplay
-                if (!self._willStart && self.particleCount === 0) {
-                    self._willStart = true;
-                    setTimeout(function () {
-                        self._willStart = false;
-                        if (self.preview && self._focused && !self.active && !cc.engine.isPlaying) {
-                            self.resetSystem();
-                        }
-                    }, 600);
-                }
-            }, 100);
         }
     },
 
@@ -958,9 +943,15 @@ var ParticleSystem = cc.Class({
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
-            var tex = textureUtil.loadImage(imgPath);
-            // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
-            this.spriteFrame = new cc.SpriteFrame(tex);
+            textureUtil.loadImage(imgPath, function (error, texture) {
+                if (error) {
+                    dict["textureFileName"] = undefined;
+                    this._initTextureWithDictionary(dict);
+                }
+                else {
+                    this.spriteFrame = new cc.SpriteFrame(texture);
+                }
+            }, this);
         } else if (dict["textureImageData"]) {
             var textureData = dict["textureImageData"];
 
@@ -1018,28 +1009,28 @@ var ParticleSystem = cc.Class({
 
         // color
         var locStartColor = this._startColor;
-        locStartColor.r = parseFloat(dict["startColorRed"] || 1) * 255;
-        locStartColor.g = parseFloat(dict["startColorGreen"] || 1) * 255;
-        locStartColor.b = parseFloat(dict["startColorBlue"] || 1) * 255;
-        locStartColor.a = parseFloat(dict["startColorAlpha"] || 1) * 255;
+        locStartColor.r = parseFloat(dict["startColorRed"] || 0) * 255;
+        locStartColor.g = parseFloat(dict["startColorGreen"] || 0) * 255;
+        locStartColor.b = parseFloat(dict["startColorBlue"] || 0) * 255;
+        locStartColor.a = parseFloat(dict["startColorAlpha"] || 0) * 255;
 
         var locStartColorVar = this._startColorVar;
-        locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 1) * 255;
-        locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 1) * 255;
-        locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 1) * 255;
-        locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 1) * 255;
+        locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 0) * 255;
+        locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 0) * 255;
+        locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 0) * 255;
+        locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 0) * 255;
 
         var locEndColor = this._endColor;
-        locEndColor.r = parseFloat(dict["finishColorRed"] || 1) * 255;
-        locEndColor.g = parseFloat(dict["finishColorGreen"] || 1) * 255;
-        locEndColor.b = parseFloat(dict["finishColorBlue"] || 1) * 255;
-        locEndColor.a = parseFloat(dict["finishColorAlpha"] || 1) * 255;
+        locEndColor.r = parseFloat(dict["finishColorRed"] || 0) * 255;
+        locEndColor.g = parseFloat(dict["finishColorGreen"] || 0) * 255;
+        locEndColor.b = parseFloat(dict["finishColorBlue"] || 0) * 255;
+        locEndColor.a = parseFloat(dict["finishColorAlpha"] || 0) * 255;
 
         var locEndColorVar = this._endColorVar;
-        locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 1) * 255;
-        locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 1) * 255;
-        locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 1) * 255;
-        locEndColorVar.a = parseFloat(dict["finishColorVarianceAlpha"] || 1) * 255;
+        locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 0) * 255;
+        locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 0) * 255;
+        locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 0) * 255;
+        locEndColorVar.a = parseFloat(dict["finishColorVarianceAlpha"] || 0) * 255;
 
         // particle size
         this.startSize = parseFloat(dict["startParticleSize"] || 0);
@@ -1158,7 +1149,9 @@ var ParticleSystem = cc.Class({
     
     _finishedSimulation: function () {
         if (CC_EDITOR) {
-            this.stopSystem();
+            if (this.preview && this._focused && !this.active && !cc.engine.isPlaying) {
+                this.resetSystem();
+            }
             return;
         }
         this.disableRender();

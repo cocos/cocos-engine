@@ -293,8 +293,9 @@ Simulator.prototype.step = function (dt) {
         }
 
         this.elapsed += dt;
-        if (psys.duration !== -1 && psys.duration < this.elapsed)
+        if (psys.duration !== -1 && psys.duration < this.elapsed) {
             psys.stopSystem();
+        }
     }
 
     // Request buffer for particles
@@ -315,9 +316,9 @@ Simulator.prototype.step = function (dt) {
         _tpa.x = _tpa.y = _tpb.x = _tpb.y = _tpc.x = _tpc.y = 0;
 
         let particle = particles[particleIdx];
+
         // life
         particle.timeToLive -= dt;
-
         if (particle.timeToLive > 0) {
             // Mode A: gravity, direction, tangential accel & radial accel
             if (psys.emitterMode === cc.ParticleSystem.EmitterMode.GRAVITY) {
@@ -401,17 +402,16 @@ Simulator.prototype.step = function (dt) {
             }
             pool.put(deadParticle);
             particles.length--;
-
-            if (particles.length === 0) {
-                this.finished = true;
-                psys._finishedSimulation();
-            }
         }
     }
 
     if (particles.length > 0) {
         buffer.uploadData();
         psys._ia._count = particles.length * 6;
+    }
+    else if (!this.active) {
+        this.finished = true;
+        psys._finishedSimulation();
     }
 }
 

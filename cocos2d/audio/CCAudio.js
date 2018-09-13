@@ -190,10 +190,10 @@ Audio.State = {
 
     proto.stop = function () {
         if (!this._element) return;
+        this._element.pause();
         try {
             this._element.currentTime = 0;
         } catch (error) {}
-        this._element.pause();
         // remove touchPlayList
         for (let i = 0; i < touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {

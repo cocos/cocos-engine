@@ -50,6 +50,7 @@ RenderComponentWalker.prototype = {
         let ctx = this._device._ctx;
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
+        ctx.scale(1, -1);
         assembler.draw(ctx, comp);
     },
 

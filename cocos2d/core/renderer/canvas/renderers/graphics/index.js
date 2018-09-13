@@ -36,10 +36,8 @@ module.exports = {
         let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        ctx.transform(a, b, c, d, tx, -ty);
-
+        ctx.transform(a, b, c, d, tx, ty);
         ctx.save();
-        ctx.scale(1, -1);
 
         // TODO: handle blend function
 

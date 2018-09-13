@@ -390,6 +390,27 @@ var game = {
     eventTargetOn: EventTarget.prototype.on,
     eventTargetOnce: EventTarget.prototype.once,
 
+    /**
+     * !#en
+     * Register an callback of a specific event type on the game object.
+     * This type of event should be triggered via `emit`.
+     * !#zh
+     * 注册 game 的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
+     *
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {any} [callback.arg1] arg1
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     */
     on (type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
@@ -399,6 +420,24 @@ var game = {
             this.eventTargetOn(type, callback, target);
         }
     },
+    /**
+     * !#en
+     * Register an callback of a specific event type on the game object,
+     * the callback will remove itself after the first time it is triggered.
+     * !#zh
+     * 注册 game 的特定事件类型回调，回调会在第一时间被触发后删除自身。
+     *
+     * @method once
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {any} [callback.arg1] arg1
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
     once (type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
@@ -572,7 +611,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (frameRate === 30) {
+                if (!CC_JSB && frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
@@ -666,7 +705,7 @@ var game = {
                 localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
             else if (CC_JSB) {
-                localCanvas = window.__cccanvas;
+                localCanvas = window.__canvas;
             }
             else {
                 localCanvas = canvas;
