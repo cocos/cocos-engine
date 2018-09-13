@@ -821,14 +821,8 @@ cc.TMXMapInfo.prototype = {
         }
 
         // The parent element is the last layer
-        let layerProps = getPropertyList(selLayer);
-        if (layerProps) {
-            let layerProp = {};
-            for (let j = 0; j < layerProps.length; j++) {
-                layerProp[layerProps[j].getAttribute('name')] = layerProps[j].getAttribute('value');
-            }
-            layer.properties = layerProp;
-        }
+        layer.properties = getPropertyList(selLayer);
+
         return layer;
     },
 
