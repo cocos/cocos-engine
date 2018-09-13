@@ -674,7 +674,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (!key.endsWith('.fire')) {
                 key += '.fire';
             }
-            if (key[0] !== '/' && !key.startsWith('db://assets/')) {
+            if (key[0] !== '/' && !key.startsWith('db://')) {
                 key = '/' + key;    // 使用全名匹配
             }
             // search scene
