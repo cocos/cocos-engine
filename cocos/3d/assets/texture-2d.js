@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import { Texture } from './texture';
+import Texture from './texture';
 import gfx from '../gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
 
@@ -102,13 +102,9 @@ export default class Texture2D extends Texture {
     this._premultiplyAlpha = false;
   }
 
-  unload() {
-    if (!this._loaded) {
-      return;
-    }
-
+  destroy() {
     this._texture.destroy();
-    super.unload();
+    return super.destroy();
   }
 
   setImage(level, img) {

@@ -1,7 +1,7 @@
 import { utils } from '../scene-graph';
 import { vec3, quat, mat4 } from '../vmath';
 /**
- * @typedef {import("../../scene-graph/CCNode").default} Joint
+ * @typedef {import("../../scene-graph/node").default} Joint
  */
 
 let _v3_tmp = vec3.create();

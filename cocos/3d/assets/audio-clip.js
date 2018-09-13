@@ -60,7 +60,7 @@ export const AudioSourceType = {
 };
 
 /**
- * @typedef {AudioBuffer|HTMLAudioElement} AudioSource
+ * @typedef {AudioBuffer|HTMLAudioElement|any} AudioSource
  */
 
 /**

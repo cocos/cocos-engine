@@ -27,14 +27,6 @@ import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Asset from "../../assets/CCAsset";
 
-/**
- * @typedef {import("../../core/vmath/index").vec2} vec2
- * @typedef {"unknow" | "bitmap" | "opentype"} FontType
- * @typedef {{char: string, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} BitmapFontGlyph
- * @typedef {{id: number, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} OpentypeFontGlyph
- * @typedef {BitmapFontGlyph | OpentypeFontGlyph} Glyph
- */
-
 @ccclass
 export default class Font extends Asset {
      /** Font size.
@@ -43,7 +35,7 @@ export default class Font extends Asset {
     _size = 32;
 
     /** Font type.
-     * @type {FontType}
+     * @type {cc.d3.font.FontType}
      */
     _type = "unknow";
 
@@ -60,7 +52,7 @@ export default class Font extends Asset {
     _useKerning = false;
 
     /**
-     * @type {Glyph[]}
+     * @type {cc.d3.font.Glyph[]}
      */
     _glyphs = [];
 
@@ -79,7 +71,7 @@ export default class Font extends Asset {
     }
 
     /**
-     * @return {FontType}
+     * @return {cc.d3.font.FontType}
      */
     get type() {
         return this._type;

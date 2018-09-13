@@ -48,7 +48,7 @@ export class DOMAudioClip extends AudioClip {
      * @type {boolean}
      */
     _oneShoting = false;
-    
+
     constructor() {
         super();
 

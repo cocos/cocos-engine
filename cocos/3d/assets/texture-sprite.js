@@ -48,6 +48,6 @@ export default class TextureSprite extends Texture2D {
     for (let name in this._sprites) {
       this._sprites[name].destroy();
     }
-    super.destroy();
+    return super.destroy();
   }
 }
