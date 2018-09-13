@@ -1,12 +1,40 @@
-import AudioClip from './audio-clip';
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const { ccclass } = _decorator;
+import { AudioClip, AudioSourceType, PlayingState } from './audio-clip';
 
 /**
  * WeChat audio to port. https://developers.weixin.qq.com/minigame/dev/document/media/audio/InnerAudioContext.html
  */
+@ccclass
 export default class WxGameAudioClip extends AudioClip {
   constructor() {
     super();
-    this.loadMode = AudioClip.WX_GAME_AUDIO;
+    this.loadMode = AudioSourceType.WX_GAME_AUDIO;
     this._volume = 1;
     this._loop = false;
     this._oneShoting = false;
@@ -28,25 +56,27 @@ export default class WxGameAudioClip extends AudioClip {
 
   _initEventsListener() {
     this._audio.onPlay(() => {
-      this._state = AudioClip.PLAYING;
+      this._state = PlayingState.PLAYING;
       this._currentTime = this._audio.currentTime;
+      // @ts-ignore
       this.emit('started');
     });
 
     this._audio.onPause(() => {
-      this._state = AudioClip.STOPPED;
+      this._state = PlayingState.STOPPED;
       this._oneShoting = false;
     });
 
     this._audio.onStop(() => {
-      this._state = AudioClip.STOPPED;
+      this._state = PlayingState.STOPPED;
       this._oneShoting = false;
       this._currentTime = 0;
     });
 
     this._audio.onEnded(() => {
-      this._state = AudioClip.STOPPED;
+      this._state = PlayingState.STOPPED;
       this._currentTime = 0;
+      // @ts-ignore
       this.emit('ended');
       if (this._oneShoting) {
         this._audio.volume = this._volume;
@@ -57,7 +87,7 @@ export default class WxGameAudioClip extends AudioClip {
   }
 
   play() {
-    if (!this._audio || this._state === AudioClip.PLAYING) {
+    if (!this._audio || this._state === PlayingState.PLAYING) {
       return;
     }
 
@@ -65,7 +95,7 @@ export default class WxGameAudioClip extends AudioClip {
   }
 
   pause() {
-    if (this._state !== AudioClip.PLAYING) {
+    if (this._state !== PlayingState.PLAYING) {
       return;
     }
 
@@ -73,7 +103,7 @@ export default class WxGameAudioClip extends AudioClip {
   }
 
   stop() {
-    if (this._state === AudioClip.STOPPED) {
+    if (this._state === PlayingState.STOPPED) {
       return;
     }
 

@@ -1,5 +1,40 @@
-import { vec3, quat, clamp } from '../vmath';
-import Asset from './asset';
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const {ccclass} = _decorator;
+import Asset from "../../assets/CCAsset";
+import vec3 from "../../core/vmath/vec3";
+import quat from "../../core/vmath/quat";
+import { clamp } from "../../core/vmath/utils";
+
+/** 
+ * @typedef {import("../framework/skeleton").SkeletonMask} SkeletonMask
+ * @typedef {import("../framework/skeleton").default} Skeleton
+ * @typedef {import("../../scene-graph/CCNode").default} Joint 
+ */
 
 let tmpvec3 = vec3.create(0, 0, 0);
 let tmpquat = quat.create();
@@ -25,7 +60,8 @@ function _binaryIndexOf(array, key) {
   return lo;
 }
 
-export default class AnimationClip extends Asset {
+@ccclass
+export class AnimationClip extends Asset {
   constructor() {
     super();
 
@@ -47,6 +83,11 @@ export default class AnimationClip extends Asset {
     return this._length;
   }
 
+  /**
+   * 
+   * @param {Skeleton} skeleton 
+   * @param {number} t 
+   */
   sample(skeleton, t) {
     clamp(t, 0, this._length);
 

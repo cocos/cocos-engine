@@ -1,20 +1,58 @@
-import Asset from './asset';
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const { ccclass, property } = _decorator;
+import Asset from "../../assets/CCAsset";
 import Texture from './texture';
 import renderer from '../renderer';
-import { vec2, vec3, vec4, color3, color4 } from '../vmath';
+import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
+import Effect from "./effect";
 
 function _objArrayClone(val) {
   return val.map(obj => Object.assign({}, obj));
 }
 
+@ccclass
 export default class Material extends Asset {
-  constructor() {
-    super();
+  /**
+   * @type {Effect}
+   */
+  @property(Effect)
+  _effect = null;
 
-    this._props = {};
-    this._effectInst = null; // renderer.effect
-    this._effect = null; // effect asset
-  }
+  /**
+   * @type {Object}
+   */
+  @property
+  _props = {};
+
+  /**
+   * @type {renderer.effect}
+   */
+  _effecInst = null;
 
   _updateEffectInst() {
     let techNum = this._effect.techniques.length;
@@ -26,7 +64,7 @@ export default class Material extends Asset {
 
       for (let k = 0; k < tech.params.length; ++k) {
         let param = tech.params[k];
-        switch(param.type) {
+        switch (param.type) {
           case renderer.PARAM_FLOAT:
             props[param.name] = param.value;
             break;
@@ -92,9 +130,16 @@ export default class Material extends Asset {
     }
   }
 
+  /**
+   * @return {Effect}
+   */
   get effect() {
     return this._effect;
   }
+
+  /**
+   * @param {Effect} val
+   */
   set effect(val) {
     if (this._effect !== val) {
       this._effect = val;
@@ -102,10 +147,17 @@ export default class Material extends Asset {
     }
   }
 
+  /**
+   * @return {renderer.effect}
+   */
   get effectInst() {
     return this._effectInst;
   }
 
+  /**
+   * 
+   * @param {Material} mat 
+   */
   copy(mat) {
     if (this._effect !== mat._effect) {
       this._effect = mat._effect;
@@ -119,6 +171,11 @@ export default class Material extends Asset {
     }
   }
 
+  /**
+   * 
+   * @param {string} name 
+   * @param {*} val 
+   */
   setProperty(name, val) {
     this._props[name] = val;
 
@@ -129,17 +186,17 @@ export default class Material extends Asset {
     }
   }
 
+  /**
+   * 
+   * @param {string} name 
+   * @param {*} val 
+   */
   define(name, val) {
     this._effectInst.define(name, val);
   }
 
-  unload() {
-    if (!this._loaded) {
-      return;
-    }
-
+  destroy() {
     // TODO: what should we do here ???
-
-    super.unload();
+    super.destroy();
   }
 }
