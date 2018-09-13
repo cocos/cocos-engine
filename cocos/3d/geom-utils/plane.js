@@ -1,5 +1,5 @@
 import enums from './enums';
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 let v1 = vec3.create(0, 0, 0);
 let v2 = vec3.create(0, 0, 0);

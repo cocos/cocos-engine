@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../gfx';
+import gfx from './gfx';
 import enums from './enums';
 import InputAssembler from './core/input-assembler';
 import Pass from './core/pass';

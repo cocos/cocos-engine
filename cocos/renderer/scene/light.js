@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color3, color4, mat4, mat3, vec3, toRadian } from '../../vmath';
-import gfx from '../../gfx';
+import { color3, color4, mat4, mat3, vec3, toRadian } from '../../core/vmath';
+import gfx from '../gfx';
 
 import enums from '../enums';
 

@@ -1,5 +1,5 @@
 import enums from './enums';
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 export default class ray {
   constructor(ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = -1) {

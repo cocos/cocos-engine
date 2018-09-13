@@ -1,4 +1,4 @@
-import { repeat, pingPong, inverseLerp, clamp } from '../vmath';
+import { repeat, pingPong, inverseLerp, clamp } from '../../core/vmath';
 
 const LOOK_FORWARD = 3;
 

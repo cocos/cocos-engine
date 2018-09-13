@@ -1,4 +1,4 @@
-import { mat3, vec3 } from '../vmath';
+import { mat3, vec3 } from '../../core/vmath';
 import distance from './distance';
 import enums from './enums';
 

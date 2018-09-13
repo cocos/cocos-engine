@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { vec3, color3 } from '../../vmath';
-import { RecyclePool } from '../../memop';
+import { vec3, color3 } from '../../core/vmath';
+import { RecyclePool } from '../../3d/memop';
 
 import Model from '../scene/model';
 
