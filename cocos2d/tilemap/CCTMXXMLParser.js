@@ -818,14 +818,8 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         }
 
         // The parent element is the last layer
-        var layerProps = getPropertyList(selLayer);
-        if (layerProps) {
-            var layerProp = {};
-            for (let j = 0; j < layerProps.length; j++) {
-                layerProp[layerProps[j].getAttribute('name')] = layerProps[j].getAttribute('value');
-            }
-            layer.properties = layerProp;
-        }
+        layer.properties = getPropertyList(selLayer);
+
         return layer;
     },
 
