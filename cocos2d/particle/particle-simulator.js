@@ -294,13 +294,7 @@ Simulator.prototype.step = function (dt) {
 
         this.elapsed += dt;
         if (psys.duration !== -1 && psys.duration < this.elapsed)
-        {
             psys.stopSystem();
-            if (particles.length === 0) {
-                this.finished = true;
-                psys._finishedSimulation();
-            }
-        }
     }
 
     // Request buffer for particles
@@ -321,11 +315,10 @@ Simulator.prototype.step = function (dt) {
         _tpa.x = _tpa.y = _tpb.x = _tpb.y = _tpc.x = _tpc.y = 0;
 
         let particle = particles[particleIdx];
+        // life
+        particle.timeToLive -= dt;
 
         if (particle.timeToLive > 0) {
-            // life
-            particle.timeToLive -= dt;
-
             // Mode A: gravity, direction, tangential accel & radial accel
             if (psys.emitterMode === cc.ParticleSystem.EmitterMode.GRAVITY) {
                 let tmp = _tpc, radial = _tpa, tangential = _tpb;
@@ -409,7 +402,7 @@ Simulator.prototype.step = function (dt) {
             pool.put(deadParticle);
             particles.length--;
 
-            if (particles.length === 0 && !this.active ) {
+            if (particles.length === 0) {
                 this.finished = true;
                 psys._finishedSimulation();
             }
