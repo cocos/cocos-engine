@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const RenderComponent = require('./CCRenderComponent');
-const Mesh = require('../assets/CCMesh');
+const RenderComponent = require('../components/CCRenderComponent');
+const Mesh = require('./CCMesh');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const RenderFlow = require('../renderer/render-flow');
@@ -73,13 +73,18 @@ let MeshRenderer = cc.Class({
         this.activeMaterials();
     },
 
-    _createMaterial () {
+    _createMaterial (subMesh) {
         let material = new renderEngine.MeshMaterial();   
         material.color = cc.Color.WHITE;
         if (cc.macro.ENABLE_3D) {
             material._mainTech._passes[0].setDepth(true, true);
         }
         material.useModel = true;
+
+        if (subMesh._vertexBuffer._format._attr2el[gfx.ATTR_COLOR]) {
+            material.useAttributeColor = true;
+        }
+
         return material;
     },
 
@@ -89,7 +94,7 @@ let MeshRenderer = cc.Class({
     },
 
     activeMaterials (force) {
-        if (!this._mesh) {
+        if (!this._mesh || this._mesh.subMeshes.length === 0) {
             this.disableRender();
             return;
         }
@@ -102,7 +107,7 @@ let MeshRenderer = cc.Class({
 
         let subMeshes = this._mesh._subMeshes;
         for (let i = 0; i < subMeshes.length; i++) {
-            let material = this._createMaterial();
+            let material = this._createMaterial(subMeshes[i]);
             this._materials.push(material);
         }
         this._material = this._materials[0];

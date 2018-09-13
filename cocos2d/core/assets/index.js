@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -23,70 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
- /**
- * @module cc
- */
-/**
- * !#en Mesh Asset.
- * !#zh 网格资源。
- * @class Mesh
- * @extends Asset
- */
-var Mesh = cc.Class({
-    name: 'cc.Mesh',
-    extends: cc.Asset,
-
-    properties: {
-        _modelSetter: {
-            set: function (model) {
-                this.initWithModel(model);
-            }
-        },
-
-        /**
-         * !#en Get ir set the sub meshes.
-         * !#zh 设置或者获取子网格。
-         * @property {[renderEngine.InputAssembler]} subMeshes
-         */
-        subMeshes: {
-            get () {
-                return this._subMeshes;
-            },
-            set (v) {
-                this._subMeshes = v;
-            }
-        }
-    },
-
-    ctor () {
-        this._modelUuid = '';
-        this._meshID = -1;
-        this._model = null;
-
-        this._subMeshes = [];
-    },
-
-    initWithModel (model) {
-        if (!model) return;
-        this._model = model;
-        this._model.initMesh(this);
-    },
-
-    _serialize: CC_EDITOR && function () {
-        return {
-            modelUuid: this._modelUuid,
-            meshID: this._meshID,
-        }
-    },
-
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._meshID = data.meshID;
-
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
-        }
-    }
-});
-
-cc.Mesh = module.exports = Mesh;
+require('./CCRawAsset');
+require('./CCAsset');
+require('./CCFont');
+require('./CCPrefab');
+require('./CCAudioClip');
+require('./CCScripts');
+require('./CCSceneAsset');
+require('./CCSpriteFrame');
+require('./CCTexture2D');
+require('./CCRenderTexture');
+require('./CCTTFFont');
+require('./CCSpriteAtlas');
+require('./CCBitmapFont');
+require('./CCLabelAtlas');
+require('./CCTextAsset');
+require('./CCJsonAsset');

@@ -331,18 +331,25 @@ export default class BaseNode extends CCObject {
     }
 
     /**
-     * !#en The parent of the node.
-     * !#zh 该节点的父节点。
-     * @property parent
-     * @type {Node}
-     * @default null
+     * !#en Get parent of the node.
+     * !#zh 获取该节点的父节点。
+     * @method getParent
+     * @return {Node}
      * @example
-     * node.parent = newNode;
+     * var parent = this.node.getParent();
      */
     getParent () {
         return this._parent;
     }
 
+    /**
+     * !#en Set parent of the node.
+     * !#zh 设置该节点的父节点。
+     * @method setParent
+     * @param {Node} value
+     * @example
+     * node.setParent(newNode);
+     */
     setParent (value) {
         if (this._parent === value) {
             return;
@@ -489,7 +496,7 @@ export default class BaseNode extends CCObject {
      * !#en Get the sibling index.
      * !#zh 获取同级索引。
      * @method getSiblingIndex
-     * @return {number}
+     * @return {Number}
      * @example
      * var index = node.getSiblingIndex();
      */

@@ -313,7 +313,6 @@ export function get (obj, prop, getter, enumerable, configurable) {
 };
 
 
-
 /**
  * Define set accessor, just help to call Object.defineProperty(...)
  * @method set
