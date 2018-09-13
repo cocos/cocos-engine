@@ -24,50 +24,45 @@
  ****************************************************************************/
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const {ccclass} = _decorator;
+const { ccclass } = _decorator;
 import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
 import Texture2D from "./texture-2d";
 
-/**
- * @typedef {{char: string, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} BitmapFontGlyph
- */
-
 @ccclass
 export class BitmapFont extends Font {
-    /**
-     * @type {Texture2D}
-     */
-    _texture = null;
-
-    /**
-     * @type {string}
-     */
-    _face = "";
-
-    /**
-     * @type {BitmapFontGlyph}
-     */
-    _defaultGlyph = {
-        char: "",
-        x: 0,
-        y: 0,
-        width: 16,
-        height: 16,
-        xoffset: 0,
-        yoffset: 0,
-        xadvance: 16,
-        uvs: [
-            vec2.create(0, 0),
-            vec2.create(0, 0),
-            vec2.create(0, 0),
-            vec2.create(0, 0)
-        ],
-    };
-
     constructor() {
         super();
         super._type = "bitmap";
+        /**
+         * @type {Texture2D}
+         */
+        this._texture = null;
+
+        /**
+         * @type {string}
+         */
+        this._face = "";
+
+        /**
+         * @type {cc.d3.font.BitmapFontGlyph}
+         */
+        this._defaultGlyph = {
+            char: "",
+            x: 0,
+            y: 0,
+            width: 16,
+            height: 16,
+            xoffset: 0,
+            yoffset: 0,
+            xadvance: 16,
+            uvs: [
+                vec2.create(0, 0),
+                vec2.create(0, 0),
+                vec2.create(0, 0),
+                vec2.create(0, 0)
+            ],
+        };
     }
 
     /**

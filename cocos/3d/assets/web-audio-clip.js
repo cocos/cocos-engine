@@ -50,7 +50,7 @@ export default class WebAudioClip extends AudioClip {
     _loop;
 
     /**
-     * @type {WindowTimers}
+     * @type {number}
      */
     _currentTimer;
     

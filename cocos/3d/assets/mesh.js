@@ -22,13 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import { GLTFAsset } from "../../assets/CCGLTFAsset";
+import GLTFAsset from "../../assets/CCGLTFAsset";
 import Asset from "../../assets/CCAsset";
 import { default as GLTFUtils } from "./utils/gltf-utils";
-/** @typedef {import("../../core/vmath/index").vec3} vec3 */
+/**
+ * @typedef {import("../../renderer/core/input-assembler").default} InputAssemblers
+ * */
 
 @ccclass
 export default class Mesh extends Asset {
@@ -45,7 +48,7 @@ export default class Mesh extends Asset {
     _gltfIndex = -1;
 
     /**
-     * @type {renderer.InputAssemblers}
+     * @type {InputAssemblers[]}
      */
     _subMeshes = null;
 
@@ -55,12 +58,12 @@ export default class Mesh extends Asset {
     _skinning = null;
 
     /**
-     * @type {vec3}
+     * @type {cc.core.math.vec3}
      */
     _minPos = null;
 
     /**
-     * @type {vec3}
+     * @type {cc.core.math.vec3}
      */
     _maxPos = null;
     
@@ -92,6 +95,13 @@ export default class Mesh extends Asset {
         this._gltfAsset = gltfAsset;
         this._gltfIndex = gltfIndex;
         this._update();
+    }
+
+    _update(app) {
+        if (!this._gltfAsset) {
+            return;
+        }
+        GLTFUtils.createMesh(app, this._gltfAsset, this._gltfIndex, this);
     }
 
     /**
@@ -149,19 +159,4 @@ export default class Mesh extends Asset {
     //     }
     //   }
     // }
-
-    _update(app) {
-        if (!this._gltfAsset) {
-            return;
-        }
-        const result = GLTFUtils.createMesh(app, this._gltfAsset, this._gltfIndex);
-        if (!result) {
-            return;
-        }
-        this.name = result.name;
-        this._subMeshes = result.subMeshes;
-        this._minPos = result.minPos;
-        this._maxPos = result.maxPos;
-        this._skinning = result.skinning;
-    }
 }

@@ -25,15 +25,14 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const {ccclass, property} = _decorator;
-import Technique from "../../renderer/core/technique";
 import Asset from "../../assets/CCAsset";
 
 @ccclass
 export default class Effect extends Asset {
     /**
-     * @type {Technique[]}
+     * @type {cc.d3.effect.Technique[]}
      */
-    @property([Technique])
+    @property(Object)
     _techniques = [];
 
     /**
@@ -43,31 +42,26 @@ export default class Effect extends Asset {
     _properties = {};
 
     /**
-     * @type {Definition[]}
+     * @type {cc.d3.effect.Definition[]}
      */
     @property([Object])
     _defines = [];
 
     /**
-     * @type {Dependency[]}
+     * @type {cc.d3.effect.Dependency[]}
      */
     @property([Object])
     _dependencies = [];
 
     /**
-     * @typedef {{name: string, value: boolean|number|string}} Definition
-     * @typedef {{define: string, extension: string}} Dependency
-     */
-
-    /**
-     * @param {Technique[]} val
+     * @param {cc.d3.effect.Technique[]} val
      */
     set techniques(val) {
         this._techniques = val;
     }
 
     /**
-     * @return {Technique[]}
+     * @return {cc.d3.effect.Technique[]}
      */
     get techniques() {
         return this._techniques;
@@ -88,28 +82,28 @@ export default class Effect extends Asset {
     }
 
     /**
-     * @param {Definition[]} val
+     * @param {cc.d3.effect.Definition[]} val
      */
     set defines(val) {
         this._defines = val;
     }
 
     /**
-     * @return {Definition[]}}
+     * @return {cc.d3.effect.Definition[]}}
      */
     get defines() {
         return this._defines;
     }
 
     /**
-     * @param {Dependency[]} val
+     * @param {cc.d3.effect.Dependency[]} val
      */
     set dependencies(val) {
         this._dependencies = val;
     }
 
     /**
-     * @return {Dependency[]}
+     * @return {cc.d3.effect.Dependency[]}
      */
     get dependencies() {
         return this._dependencies;

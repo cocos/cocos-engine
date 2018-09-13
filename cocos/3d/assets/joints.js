@@ -3,6 +3,8 @@ import gltfUtils from '../loaders/utils/gltf-utils';
 import Skeleton from '../framework/skeleton';
 
 export default class Joints extends Asset {
+  native;
+
   constructor() {
     super();
 

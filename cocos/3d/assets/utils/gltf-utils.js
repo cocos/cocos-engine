@@ -1,10 +1,18 @@
-/* @flow */
-import gfx from '../../gfx';
-import renderer from '../../renderer';
-import { vec3, quat, mat4 } from '../../vmath';
-import { Node } from '../../scene-graph';
-import AnimationClip from '../../assets/animation-clip';
+// @ts-check
+import gfx from "../../../renderer/gfx";
+import renderer from "../../../renderer";
+import { vec3, quat, mat4 } from "../../../core/vmath";
+import Node from "../../../scene-graph/node";
 import Joints from '../../assets/joints';
+
+
+/**
+ * @typedef {import("../../../assets/CCGLTFAsset").default} GLTFAsset
+ * @typedef {import("../mesh").default} Mesh
+ * @typedef {import("../animation-clip").AnimationClip} AnimationClip
+ * @typedef {import("../../../../types/glTF/glTF").GlTf} GLTFFormat
+ * 
+*/
 
 const _type2size = {
     SCALAR: 1,
@@ -96,7 +104,7 @@ function createNodes(gltfNodes) {
 }
 
 /**
- * @param {App} app
+ * @param {*} app
  * @param {Array} gltfNodes
  */
 function createEntities(app, gltfNodes) {
@@ -150,20 +158,20 @@ function createEntities(app, gltfNodes) {
 }
 
 /**
- * @param {App} app
+ * @param {*} app
  * @param {GLTFAsset} gltfAsset
  * @param {number} index
- * @return {{ name: string, subMeshes: any[], minPos: vec3, maxPos: vec3, skinning: any }}
+ * @param {Mesh} mesh
  */
-function createMesh(app, gltfAsset, index) {
-    /** @type {import("../../../../types/glTF/glTF").GlTf} */
-    const gltf = gltfAsset._description;
+function createMesh(app, gltfAsset, index, mesh) {
+    /** @type GLTFFormat */
+    const gltf = gltfAsset.description.json;
     if (index >= gltf.meshes.length) {
-        return null;
+        return;
     }
 
-    const gltfMesh = gltf.meshes[index];
     const bin = gltfAsset.buffers[0].data;
+    const gltfMesh = gltf.meshes[index];
     const accessors = gltf.accessors;
     const attributes = gltfMesh.primitives[0].attributes;
     let vbView = null;
@@ -276,7 +284,11 @@ function createMesh(app, gltfAsset, index) {
         }
     }
 
-    return { name, subMeshes, minPos, maxPos, skinning};
+    mesh.name = name;
+    mesh._subMeshes = subMeshes;
+    mesh._minPos = minPos;
+    mesh._maxPos = maxPos;
+    mesh._skinning = skinning;
 }
 
 /**
@@ -313,16 +325,22 @@ function createSkinning(gltf, bin, index) {
 }
 
 /**
- * @param {Object} gltf
- * @param {ArrayBuffer} bin
+ * @param {*} app
+ * @param {GLTFAsset} gltfAsset
  * @param {number} index
+ * @param {AnimationClip} animationClip
+ * @return
  */
-function createAnimationClip(gltf, bin, index) {
+function createAnimationClip(app, gltfAsset, index, animationClip) {
+    /** @type GLTFFormat */
+    const gltf = gltfAsset.description.json;
     if (index >= gltf.animations.length) {
-        return null;
+        return;
     }
-
+    
+    const bin = gltfAsset.buffers[0].data;
     let gltfAnimation = gltf.animations[index];
+    /** @type {cc.d3.animation.Frame[]} */
     let framesList = [];
     let maxLength = -1;
 
@@ -331,6 +349,7 @@ function createAnimationClip(gltf, bin, index) {
         let inputAcc = gltf.accessors[gltfChannel.input];
 
         // find frames by input name
+        /** @type {cc.d3.animation.Frame} */
         let frames;
         for (let j = 0; j < framesList.length; ++j) {
             if (framesList[j].name === inputAcc.name) {
@@ -342,6 +361,7 @@ function createAnimationClip(gltf, bin, index) {
         // if not found, create one
         if (!frames) {
             let inArray = createArray(gltf, bin, gltfChannel.input);
+            /** @type {number[]} */
             let inputs = new Array(inArray.length);
             for (let i = 0; i < inArray.length; ++i) {
                 let t = inArray[i];
@@ -361,6 +381,7 @@ function createAnimationClip(gltf, bin, index) {
         }
 
         // find output frames by node id
+        /** @type {cc.d3.animation.JointFrame} */
         let jointFrames;
         for (let j = 0; j < frames.joints.length; ++j) {
             if (frames.joints[j].id === gltfChannel.node) {
@@ -412,18 +433,18 @@ function createAnimationClip(gltf, bin, index) {
         }
     }
 
-    let animClip = new AnimationClip();
-    animClip._name = gltfAnimation.name;
-    animClip._framesList = framesList;
-    animClip._length = maxLength;
-
-    return animClip;
+    animationClip.name = gltfAnimation.name;
+    animationClip._framesList = framesList;
+    animationClip._length = maxLength;
 }
 
 /**
- * @param {object} gltf
+ * @param {GLTFAsset} gltfAsset
  */
-function createJoints(gltf) {
+function createJoints(gltfAsset) {
+    /** @type GLTFFormat */
+    const gltf = gltfAsset.description.json;
+
     let joints = new Joints();
     joints._name = gltf.joints[0].name;
     joints._nodes = gltf.joints;

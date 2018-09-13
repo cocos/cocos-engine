@@ -28,7 +28,7 @@ const { ccclass } = _decorator;
 import Asset from "../../assets/CCAsset";
 
 @ccclass
-export class Texture extends Asset {
+export default class Texture extends Asset {
   constructor(device) {
     super();
 
