@@ -45,6 +45,8 @@ let _matrix = math.mat4.create();
 let _matrix_temp = math.mat4.create();
 let _vec3 = cc.v3();
 
+let _currentEditBoxImpl = null;
+
 // polyfill
 let polyfill = {
     zoomInvalid: false
@@ -120,9 +122,7 @@ let EditBoxImpl = cc.Class({
     },
 
     setFocus () {
-        if (this._edTxt) {
-            this._edTxt.focus();
-        }
+        this._beginEditing();
     },
 
     isFocused() {
@@ -134,7 +134,7 @@ let EditBoxImpl = cc.Class({
     },
 
     stayOnTop (flag) {
-        if(this._alwaysOnTop === flag) return;
+        if(this._alwaysOnTop === flag || !this._edTxt) return;
 
         this._alwaysOnTop = flag;
         
@@ -153,13 +153,13 @@ let EditBoxImpl = cc.Class({
                 maxLength = 65535;
             }
             this._maxLength = maxLength;
-            this._edTxt.maxLength = maxLength;
+            this._edTxt && (this._edTxt.maxLength = maxLength);
         }
     },
 
     setString (text) {
         this._text = text;
-        this._edTxt.value = text;
+        this._edTxt && (this._edTxt.value = text);
     },
 
     getString () {
@@ -216,12 +216,12 @@ let EditBoxImpl = cc.Class({
 
     setFontSize (fontSize) {
         this._edFontSize = fontSize || this._edFontSize;
-        this._edTxt.style.fontSize = this._edFontSize + 'px';
+        this._edTxt && (this._edTxt.style.fontSize = this._edFontSize + 'px');
     },
     
     setFontColor (color) {
         this._textColor = color;
-        this._edTxt.style.color = color.toCSS('rgba');
+        this._edTxt && (this._edTxt.style.color = color.toCSS('rgba'));
     },
     
     setSize (width, height) {
@@ -256,31 +256,30 @@ let EditBoxImpl = cc.Class({
     },
 
     _beginEditing () {
-        if (!this._alwaysOnTop) {
-            if (this._edTxt.style.display === 'none') {
-                this._edTxt.style.display = '';
-    
-                let self = this;
-                function startFocus () {
-                    self._edTxt.focus();
-                }
-    
-                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
-                    setTimeout(startFocus, FOCUS_DELAY_UC);
-                }
-                else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
-                    setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
-                }
-                else {
-                    startFocus();
-                }
+        if (cc.sys.isMobile && !this._editing) {
+            // Pre adaptation
+            this._beginEditingOnMobile();
+        }
+
+        if (this._edTxt) {
+            this._edTxt.style.display = '';
+
+            let self = this;
+            function startFocus () {
+                self._edTxt.focus();
+            }
+
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+                setTimeout(startFocus, FOCUS_DELAY_UC);
+            }
+            else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+                setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
+            }
+            else {
+                startFocus();
             }
         }
     
-        if (cc.sys.isMobile && !this._editing) {
-            // Pre adaptation and
-            this._beginEditingOnMobile();
-        }
         this._editing = true;
     },
     
@@ -312,6 +311,7 @@ let EditBoxImpl = cc.Class({
     _updateDomInputType () {
         let inputMode = this._inputMode;
         let edTxt = this._edTxt;
+        if (!edTxt) return;
     
         if (this._inputFlag === InputFlag.PASSWORD) {
             edTxt.type = 'password';
@@ -447,6 +447,7 @@ _p._beginEditingOnMobile = function () {
     }
     this.__autoResize = cc.view._resizeWithBrowserSize;
     cc.view.resizeWithBrowserSize(false);
+    _currentEditBoxImpl = this;
 };
 
 // Called after keyboard disappeared to readapte the game view
@@ -466,11 +467,15 @@ _p._endEditingOnMobile = function () {
 
     window.removeEventListener('orientationchange', this.__orientationChanged);
 
-    window.scrollTo && window.scrollTo(0, 0);
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
     }
-    if (this.__autoResize) {
+
+    // In case focus on editBox A from editBox B
+    // A disable resizeWithBrowserSize
+    // whilte B enable resizeWithBrowserSize
+    // Only _currentEditBoxImpl can enable resizeWithBrowserSize
+    if (this.__autoResize && _currentEditBoxImpl === this) {
         cc.view.resizeWithBrowserSize(true);
     }
 };
@@ -518,7 +523,7 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
         }
 
         if (cc.sys.isMobile) {
-            editBoxImpl._onFocusOnMobile();
+            editBoxImpl._beginEditingOnMobile();
         }
 
         if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan) {
@@ -552,24 +557,6 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     editBoxImpl._addDomToGameContainer();
 }
-
-// Called after editbox focus to readapte the game view
-_p._onFocusOnMobile = function (editBox) {
-    if (cc.view._isRotated) {
-        cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
-        cc.game.container.style.transform = 'rotate(0deg)';
-        cc.view._isRotated = false;
-        let policy = cc.view.getResolutionPolicy();
-        policy.apply(cc.view, cc.view.getDesignResolutionSize());
-        cc.view._isRotated = true;
-        //use window scrollTo to adjust the input area
-        window.scrollTo(35, 35);
-        this.__rotateScreen = true;
-    } else {
-        this.__rotateScreen = false;
-    }
-    this._adjustEditBoxPosition();
-};
 
 _p._createDomInput = function () {
     this.removeDom();

@@ -114,7 +114,7 @@ export default class Camera extends Component {
     _cullingMask = 0xffffffff;
 
     @property
-    _clearFlags = 0;
+    _clearFlags = ClearFlags.DEPTH | ClearFlags.STENCIL;
 
     @property
     _backgroundColor = cc.color(0, 0, 0, 255);

@@ -1489,6 +1489,16 @@ var macro = {
      * @default false
      */
     CLEANUP_IMAGE_CACHE: false,
+
+    /**
+     * !#en
+     * Whether or not show mesh wire frame.
+     * !#zh
+     * 是否显示网格的线框。
+     * @property {Boolean} SHOW_MESH_WIREFRAME
+     * @default false
+     */
+    SHOW_MESH_WIREFRAME: false,
 }
 
 cc.macro = macro;

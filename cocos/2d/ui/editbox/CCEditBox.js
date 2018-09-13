@@ -639,9 +639,8 @@ let EditBox = cc.Class({
     },
 
     /**
-     * !#en Let the EditBox get focus, only valid when stayOnTop is true.
-     * !#zh 让当前 EditBox 获得焦点，只有在 stayOnTop 为 true 的时候设置有效
-     * Note: only available on Web at the moment.
+     * !#en Let the EditBox get focus
+     * !#zh 让当前 EditBox 获得焦点
      * @method setFocus
      */
     setFocus () {

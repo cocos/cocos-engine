@@ -393,16 +393,19 @@ let RichText = cc.Class({
         let children = this.node.children;
         for (let i = children.length - 1; i >= 0; i--) {
             let child = children[i];
-            if (child.name === RichTextChildName) {
-                child.parent = null;
-                pool.put(child);
-            }
-            else if (child.name === RichTextChildImageName) {
-                child.parent = null;
+            if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
+                if (child.parent === this.node) {
+                    child.parent = null;
+                }
+                else {
+                    // In case child.parent !== this.node, child cannot be removed from children
+                    children.splice(i, 1);
+                }
+                if (child.name === RichTextChildName) {
+                    pool.put(child);
+                }
             }
         }
-        // HACK: Tolerate null parent child (upgrade issue may cause this special case)
-        children.length = 0;
 
         this._labelSegments.length = 0;
         this._labelSegmentsCache.length = 0;
