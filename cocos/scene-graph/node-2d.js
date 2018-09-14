@@ -1253,19 +1253,6 @@ export default class Node extends BaseNode {
 
     // INTERNAL
 
-    _syncEulerAngles () {
-        let quat = this._quat;
-        let rotx = quat.getRoll();
-        let roty = quat.getPitch();
-        if (rotx === 0 && roty === 0) {
-            this._rotationX = this._rotationY = -quat.getYaw();
-        }
-        else {
-            this._rotationX = rotx;
-            this._rotationY = roty;
-        }
-    }
-
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1285,19 +1272,25 @@ export default class Node extends BaseNode {
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        let quat = this._quat;
-        if ((this._rotationX !== 0 || this._rotationY !== 0) && 
-            (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
+        if (this._rotationX !== 0 || this._rotationY !== 0) {
             if (this._rotationX === this._rotationY) {
-                math.quat.fromEuler(quat, 0, 0, -this._rotationX);
+                math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
             }
             else {
-                math.quat.fromEuler(quat, this._rotationX, this._rotationY, 0);
+                math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
             }
         }
         // Update rotation from quaternion
         else {
-            this._syncEulerAngles();
+            let rotx = this._quat.getRoll();
+            let roty = this._quat.getPitch();
+            if (rotx === 0 && roty === 0) {
+                this._rotationX = this._rotationY = -this._quat.getYaw();
+            }
+            else {
+                this._rotationX = rotx;
+                this._rotationY = roty;
+            }
         }
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
@@ -1982,33 +1975,18 @@ export default class Node extends BaseNode {
     }
 
     /**
-     * !#en Get rotation of node (along z axi).
-     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
-     * @method getRotation
-     * @param {Number} rotation Degree rotation value
-     */
-    getRotation () {
-        return this._rotationX;
-    }
-
-    /**
      * !#en Set rotation of node (along z axi).
      * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
      * @method setRotation
      * @param {Number} rotation Degree rotation value
      */
-    setRotation (value) {
-        if (this._rotationX !== value || this._rotationY !== value) {
-            this._rotationX = this._rotationY = value;
-            // Update quaternion from rotation
-            math.quat.fromEuler(this._quat, 0, 0, -value);
-            this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
-            if (this._eventMask & ROTATION_ON) {
-                this.emit(EventType.ROTATION_CHANGED);
-            }
-        }
-    }
+    /**
+     * !#en Get rotation of node (along z axi).
+     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method getRotation
+     * @param {Number} rotation Degree rotation value
+     */
 
     /**
      * !#en
@@ -2186,7 +2164,7 @@ export default class Node extends BaseNode {
      * Set world position.
      * This is not a public API yet, its usage could be updated
      * @method setWorldPos
-     * @param {Vec3} pos
+     * @param {vec3} pos
      */
     setWorldPos (pos) {
         // NOTE: this is faster than invert world matrix and transform the point
@@ -3039,7 +3017,6 @@ if (CC_EDITOR) {
 
 let _p = Node.prototype;
 js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
-js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 

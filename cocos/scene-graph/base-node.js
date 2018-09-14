@@ -26,7 +26,6 @@
 
 import * as js from '../core/utils/js';
 import IdGenerater from '../core/utils/id-generater';
-import eventManager from '../core/platform/event-manager/CCEventManager';
 import CCObject from '../core/data/object';
 import _decorator from '../core/data/class-decorator';
 const { ccclass, property } = _decorator;
@@ -341,6 +340,9 @@ export default class BaseNode extends CCObject {
     getParent () {
         return this._parent;
     }
+    get parent() {
+        return this._parent;
+    }
 
     /**
      * !#en Set parent of the node.
@@ -365,14 +367,13 @@ export default class BaseNode extends CCObject {
         }
         this._parent = value || null;
 
-        this._onSetParent(value);
+        this._onSetParent(oldParent);
 
         if (value) {
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
             this._level = value._level + 1;
-            eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit && value.emit(CHILD_ADDED, this);
         }
@@ -384,12 +385,12 @@ export default class BaseNode extends CCObject {
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent.emit && oldParent.emit(CHILD_REMOVED, this);
-                this._onHierarchyChanged(oldParent);
             }
         }
-        else if (value) {
-            this._onHierarchyChanged(null);
-        }
+        this._onHierarchyChanged(oldParent);
+    }
+    set parent(value) {
+        this.setParent(value);
     }
 
     // ABSTRACT INTERFACES
@@ -648,10 +649,6 @@ export default class BaseNode extends CCObject {
         }
         stack.length = 0;
         BaseNode._stackId--;
-    }
-
-    cleanup () {
-
     }
 
     /**
@@ -1034,7 +1031,8 @@ export default class BaseNode extends CCObject {
         }
     }
 
-    _onSetParent (/*value*/) {}
+    cleanup () {}
+    _onSetParent (/*oldParent*/) {}
     _onPostActivated () {}
     _onBatchRestored () {}
     _onBatchCreated () {}
@@ -1263,6 +1261,18 @@ if (CC_EDITOR) {
             cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     };
+
+    BaseNode.prototype._onPreDestroy = function () {
+        var destroyByParent = this._onPreDestroyBase();
+        if (!destroyByParent) {
+            // ensure this node can reattach to scene by undo system
+            // (simulate some destruct logic to make undo system work correctly)
+            this._parent = null;
+        }
+        return destroyByParent;
+    };
+
+    BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
 }
 
 if (CC_EDITOR || CC_TEST) {
@@ -1292,32 +1302,6 @@ if (CC_EDITOR || CC_TEST) {
     };
 }
 
-
-BaseNode.idGenerater = idGenerater;
-
-// For walk
-BaseNode._stacks = [[]];
-BaseNode._stackId = 0;
-
-BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
-if (CC_EDITOR) {
-    BaseNode.prototype._onPreDestroy = function () {
-       var destroyByParent = this._onPreDestroyBase();
-       if (!destroyByParent) {
-           // ensure this node can reattach to scene by undo system
-           // (simulate some destruct logic to make undo system work correctly)
-           this._parent = null;
-       }
-       return destroyByParent;
-   };
-}
-
-BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
-
-if(CC_EDITOR) {
-    BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
-}
-
 if (CC_DEV) {
     // promote debug info
     js.get(BaseNode.prototype, ' INFO ', function () {
@@ -1335,6 +1319,16 @@ if (CC_DEV) {
         return this.name + ', path: ' + path;
     });
 }
+
+BaseNode.idGenerater = idGenerater;
+
+// For walk
+BaseNode._stacks = [[]];
+BaseNode._stackId = 0;
+
+BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
+
+BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 
 /**
  * !#en
