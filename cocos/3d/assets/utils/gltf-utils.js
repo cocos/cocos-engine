@@ -5,7 +5,6 @@ import gfx from "../../../renderer/gfx";
 import renderer from "../../../renderer";
 import { vec3, quat, mat4 } from "../../../core/vmath";
 import Node from "../../../scene-graph/node";
-import Joints from '../skeleton';
 import { MeshResource } from "../mesh";
 import { AnimationResource } from "../animation-clip";
 import GLTFAsset from "../../../assets/CCGLTFAsset";

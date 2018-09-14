@@ -122,7 +122,7 @@ export default class AnimationClip extends Asset {
 
   /**
    * 
-   * @param {Skeleton} skeleton 
+   * @param {SkeletonInstance} skeleton 
    * @param {number} t 
    */
   sample(skeleton, t) {
@@ -294,11 +294,11 @@ export default class AnimationClip extends Asset {
 export class SamplingState {
   /**
    * 
-   * @param {Skeleton} skeleton 
+   * @param {SkeletonInstance} skeleton 
    */
   constructor(skeleton) {
     /**
-     * @type {Skeleton}
+     * @type {SkeletonInstance}
      * @ignore
      */
     this._skeleton = skeleton;
