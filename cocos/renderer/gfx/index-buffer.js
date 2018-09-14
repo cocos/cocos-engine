@@ -6,7 +6,7 @@ export default class IndexBuffer {
    * @param {Device} device
    * @param {INDEX_FMT_*} format
    * @param {USAGE_*} usage
-   * @param {ArrayBuffer} data
+   * @param {ArrayBuffer | Uint8Array} data
    * @param {Number} numIndices
    */
   constructor(device, format, usage, data, numIndices) {
@@ -66,6 +66,7 @@ export default class IndexBuffer {
       return;
     }
 
+    /** @type{WebGLRenderingContext} */
     let gl = this._device._gl;
     let glUsage = this._usage;
 

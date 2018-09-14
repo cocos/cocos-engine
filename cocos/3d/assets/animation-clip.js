@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
@@ -29,12 +30,10 @@ import Asset from "../../assets/CCAsset";
 import vec3 from "../../core/vmath/vec3";
 import quat from "../../core/vmath/quat";
 import { clamp } from "../../core/vmath/utils";
-import GLTFAsset from "../../assets/CCGLTFAsset";
-import { default as GLTFUtils } from "./utils/gltf-utils";
 
 /** 
- * @typedef {import("../framework/skeleton").SkeletonMask} SkeletonMask
- * @typedef {import("../framework/skeleton").default} Skeleton
+ * @typedef {import("../framework/skeleton-instance").SkeletonMask} SkeletonMask
+ * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
  * @typedef {import("../../scene-graph/node").default} Joint
  */
 
@@ -62,19 +61,36 @@ function _binaryIndexOf(array, key) {
   return lo;
 }
 
+/**
+ * @interface
+ */
 @ccclass
-export class AnimationClip extends Asset {
+export class AnimationResource {
   /**
-   * @type {GLTFAsset}
+   * 
+   * @param {AnimationClip} animationClip 
    */
-  @property(GLTFAsset)
-  _gltfAsset;
+  update(animationClip) {
 
+  }
+}
+
+@ccclass
+export default class AnimationClip extends Asset {
   /**
-   * @type {number}
-   */
-  @property(Number)
-  _gltfIndex = -1;
+     * @type {AnimationResource}
+     */
+  @property(AnimationResource)
+  _resource = null;
+
+  get resource() {
+    return this._resource;
+  }
+
+  set resource(value) {
+    this._resource = value;
+    this.update();
+  }
 
   constructor() {
     super();
@@ -94,40 +110,10 @@ export class AnimationClip extends Asset {
   }
 
   /**
-     * !#en
-     * Gets the native data of this mesh.
-     * @return {GLTFAsset | Null} The native data, or null if this is an empty mesh.
-     */
-  getNativeAsset() {
-    return this._gltfAsset;
-  }
-
-  /**
-   * !#en
-   * Gets the index into the native data of this animation clip.
-   * @return {number} The index into the native data.
+   * 
    */
-  getNativeAssetIndex() {
-    return this._gltfIndex;
-  }
-
-  /**
-   * !#en
-   * Sets the native data of this animation clip.
-   * @param {GLTFAsset} gltfAsset The GLTF asset.
-   * @param {number} gltfIndex An index to the GLTF animations.
-   */
-  setNative(gltfAsset, gltfIndex) {
-    this._gltfAsset = gltfAsset;
-    this._gltfIndex = gltfIndex;
-    this._update();
-  }
-
-  _update(app) {
-    if (!this._gltfAsset) {
-      return;
-    }
-    GLTFUtils.createAnimationClip(app, this._gltfAsset, this._gltfIndex, this);
+  update() {
+    this._resource.update(this);
   }
 
   get length() {

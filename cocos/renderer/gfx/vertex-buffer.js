@@ -4,7 +4,7 @@ export default class VertexBuffer {
    * @param {Device} device
    * @param {VertexFormat} format
    * @param {USAGE_*} usage
-   * @param {ArrayBuffer} data
+   * @param {ArrayBuffer | Uint8Array} data
    * @param {Number} numVertices
    */
   constructor(device, format, usage, data, numVertices) {

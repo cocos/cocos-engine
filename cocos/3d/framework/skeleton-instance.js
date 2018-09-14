@@ -7,7 +7,7 @@ import { vec3, quat, mat4 } from '../vmath';
 let _v3_tmp = vec3.create();
 let _qt_tmp = quat.create();
 
-export default class Skeleton {
+export default class SkeletonInstance {
   constructor() {
     this._root = null;
     this._joints = null;
@@ -72,7 +72,7 @@ export default class Skeleton {
   }
 
   clone() {
-    let newSkeleton = new Skeleton();
+    let newSkeleton = new SkeletonInstance();
     newSkeleton.setRoot(utils.deepClone(this._root));
 
     return newSkeleton;
