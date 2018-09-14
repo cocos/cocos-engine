@@ -76,9 +76,7 @@ let MeshRenderer = cc.Class({
     _createMaterial (subMesh) {
         let material = new renderEngine.MeshMaterial();   
         material.color = cc.Color.WHITE;
-        if (cc.macro.ENABLE_3D) {
-            material._mainTech._passes[0].setDepth(true, true);
-        }
+        material._mainTech._passes[0].setDepth(true, true);
         material.useModel = true;
 
         if (subMesh._vertexBuffer._format._attr2el[gfx.ATTR_COLOR]) {

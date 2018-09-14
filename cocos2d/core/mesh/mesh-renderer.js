@@ -52,9 +52,7 @@ let meshRendererAssembler = {
         let m = material.clone();
         m.color = BLACK_COLOR;
         m.useTexture = false;
-        if (cc.macro.ENABLE_3D) {
-            m._mainTech._passes[0].setDepth(true, true);
-        }
+        m._mainTech._passes[0].setDepth(true, true);
         data.material = m;
 
         let indices = [];
