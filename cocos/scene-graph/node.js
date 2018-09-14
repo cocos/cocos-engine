@@ -1,0 +1,399 @@
+import { vec3, mat4, quat } from '../core/vmath';
+import BaseNode from './base-node';
+import { EventTarget } from "../core/event";
+import _decorator from '../core/data/class-decorator';
+const { ccclass, property, mixins } = _decorator;
+
+let v3_a = cc.v3();
+let q_a = cc.quat();
+let array_a = new Array(10);
+
+@ccclass('cc.Node')
+@mixins(EventTarget)
+export default class Node extends BaseNode {
+    // local transform
+    @property
+    _lpos = cc.v3();
+    @property
+    _lrot = cc.quat();
+    @property
+    _lscale = cc.v3();
+
+    // world transform
+    @property
+    _pos = cc.v3();
+    @property
+    _rot = cc.quat();
+    @property
+    _scale = cc.v3();
+    @property
+    _mat = cc.mat4();
+
+    @property
+    _dirty = false; // does the world transform need to update?
+    @property
+    _hasChanged = false; // has the transform changed in this frame?
+
+    // ===============================
+    // hierarchy
+    // ===============================
+
+    /**
+     * invalidate all children after parent changed
+     */
+    _onSetParent(/*oldParent*/) {
+        this.invalidateChildren();
+    }
+
+    // ===============================
+    // transform helper
+    // ===============================
+
+    /**
+     * Set rotation by lookAt target point
+     * @param {vec3} pos target position
+     * @param {vec3} up the up vector, default to (0,1,0)
+     */
+    lookAt(pos, up) {
+        this.getWorldPos(v3_a);
+        vec3.sub(v3_a, v3_a, pos); // NOTE: we use -z for view-dir
+        vec3.normalize(v3_a, v3_a);
+        quat.fromViewUp(q_a, v3_a, up);
+
+        this.setWorldRot(q_a);
+    }
+
+    /**
+     * Reset the `hasChanged` flag recursively
+     */
+    resetHasChanged() {
+        this._hasChanged = false;
+        let len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i].resetHasChanged();
+        }
+    }
+
+    /**
+     * invalidate the world transform information
+     * for this node and all its children recursively
+     */
+    invalidateChildren() {
+        if (this._dirty) return;
+        this._dirty = true;
+        this._hasChanged = true;
+
+        let len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i].invalidateChildren();
+        }
+    }
+
+    /**
+     * update the world transform information if outdated
+     */
+    updateWorldTransform() {
+        if (!this._dirty) return;
+        let cur = this, child, i = 0;
+        while (cur._dirty) {
+            // top level node
+            array_a[i++] = cur;
+            cur = cur._parent;
+            if (!cur || cur.isLevel) {
+                cur = null;
+                break;
+            }
+        }
+        while (i) {
+            child = array_a[--i];
+            if (cur) {
+              vec3.mul(child._pos, child._lpos, cur._scale);
+              vec3.transformQuat(child._pos, child._pos, cur._rot);
+              vec3.add(child._pos, child._pos, cur._pos);
+              quat.mul(child._rot, cur._rot, child._lrot);
+              vec3.mul(child._scale, cur._scale, child._lscale);
+            }
+            child._mat._dirty = true; // further deferred eval
+            child._dirty = false;
+            cur = child;
+        }
+    }
+
+    updateWorldTransformFull() {
+        this.updateWorldTransform();
+        if (!this._mat._dirty) return;
+        mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
+        this._mat._dirty = false;
+    }
+
+
+    // ===============================
+    // transform
+    // ===============================
+
+    /**
+     * set local position
+     * @param {vec3|number} val the new local position, or the x component of it
+     * @param {?number} y the y component of the new local position
+     * @param {?number} z the z component of the new local position
+     */
+    setLocalPos(val, y, z) {
+        if (arguments.length === 1) {
+            vec3.copy(this._lpos, val);
+        } else if (arguments.length === 3) {
+            vec3.set(this._lpos, val, y, z);
+        }
+        vec3.copy(this._pos, this._lpos);
+        this.invalidateChildren();
+    }
+
+    /**
+     * get local position
+     * @param {?vec3} out the receiving vector
+     * @return {vec3} the resulting vector
+     */
+    getLocalPos(out) {
+        if (out) {
+            return vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
+        } else {
+            return vec3.clone(this._lpos);
+        }
+    }
+
+    /**
+     * set local rotation
+     * @param {quat|number} val the new local rotation, or the x component of it
+     * @param {?number} y the y component of the new local rotation
+     * @param {?number} z the z component of the new local rotation
+     * @param {?number} w the w component of the new local rotation
+     */
+    setLocalRot(val, y, z, w) {
+        if (arguments.length === 1) {
+            quat.copy(this._lrot, val);
+        } else if (arguments.length === 4) {
+            quat.set(this._lrot, val, y, z, w);
+        }
+        quat.copy(this._rot, this._lrot);
+        this.invalidateChildren();
+    }
+
+    /**
+     * set local rotation from euler angles
+     * @param {?number} x the x component of the new local rotation
+     * @param {?number} y the y component of the new local rotation
+     * @param {?number} z the z component of the new local rotation
+     */
+    setLocalRotFromEuler(x, y, z) {
+        quat.fromEuler(this._lrot, x, y, z);
+        quat.copy(this._rot, this._lrot);
+        this.invalidateChildren();
+    }
+
+    /**
+     * get local rotation
+     * @param {?quat} out the receiving quaternion
+     * @return {quat} the resulting quaternion
+     */
+    getLocalRot(out) {
+        if (out) {
+            return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z);
+        } else {
+            return quat.clone(this._lrot);
+        }
+    }
+
+    /**
+     * set local scale
+     * @param {vec3|number} val the new local scale, or the x component of it
+     * @param {?number} y the y component of the new local scale
+     * @param {?number} z the z component of the new local scale
+     */
+    setLocalScale(val, y, z) {
+        if (arguments.length === 1) {
+            vec3.copy(this._lscale, val);
+        } else if (arguments.length === 3) {
+            vec3.set(this._lscale, val, y, z);
+        }
+        vec3.copy(this._scale, this._lscale);
+        this.invalidateChildren();
+    }
+
+    /**
+     * get local scale
+     * @param {?vec3} out the receiving vector
+     * @return {vec3} the resulting vector
+     */
+    getLocalScale(out) {
+        if (out) {
+            return vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
+        } else {
+            return vec3.clone(this._lscale);
+        }
+    }
+
+    /**
+     * set world position
+     * @param {vec3|number} val the new world position, or the x component of it
+     * @param {?number} y the y component of the new world position
+     * @param {?number} z the z component of the new world position
+     */
+    setWorldPos(val, y, z) {
+        if (arguments.length === 1) {
+            vec3.copy(this._pos, val);
+        } else if (arguments.length === 3) {
+            vec3.set(this._pos, val, y, z);
+        }
+        if (this._parent) {
+            this._parent.getWorldPos(v3_a);
+            vec3.sub(this._lpos, this._pos, v3_a);
+        } else {
+            vec3.copy(this._lpos, this._pos);
+        }
+        this.invalidateChildren();
+    }
+
+    /**
+     * get world position
+     * @param {?vec3} out the receiving vector
+     * @return {vec3} the resulting vector
+     */
+    getWorldPos(out) {
+        this.updateWorldTransform();
+        if (out) {
+            return vec3.copy(out, this._pos);
+        } else {
+            return vec3.clone(this._pos);
+        }
+    }
+
+    /**
+     * set world rotation
+     * @param {quat|number} val the new world rotation, or the x component of it
+     * @param {?number} y the y component of the new world rotation
+     * @param {?number} z the z component of the new world rotation
+     * @param {?number} w the w component of the new world rotation
+     */
+    setWorldRot(val, y, z, w) {
+        if (arguments.length === 1) {
+            quat.copy(this._rot, val);
+        } else if (arguments.length === 4) {
+            quat.set(this._rot, val, y, z, w);
+        }
+        if (this._parent) {
+            this._parent.getWorldRot(q_a);
+            quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
+        } else {
+            quat.copy(this._lrot, this._rot);
+        }
+        this.invalidateChildren();
+    }
+
+    /**
+     * set world rotation from euler angles
+     * @param {?number} x the x component of the new world rotation
+     * @param {?number} y the y component of the new world rotation
+     * @param {?number} z the z component of the new world rotation
+     */
+    setWorldRotFromEuler(x, y, z) {
+        quat.fromEuler(this._rot, x, y, z);
+        if (this._parent) {
+            this._parent.getWorldRot(q_a);
+            quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
+        } else {
+            quat.copy(this._lrot, this._rot);
+        }
+        this.invalidateChildren();
+    }
+
+    /**
+     * get world rotation
+     * @param {?quat} out the receiving quaternion
+     * @return {quat} the resulting quaternion
+     */
+    getWorldRot(out) {
+        this.updateWorldTransform();
+        if (out) {
+            return quat.copy(out, this._rot);
+        } else {
+            return quat.clone(this._rot);
+        }
+    }
+
+    /**
+     * set world scale
+     * @param {vec3|number} val the new world scale, or the x component of it
+     * @param {?number} y the y component of the new world scale
+     * @param {?number} z the z component of the new world scale
+     */
+    setWorldScale(val, y, z) {
+        if (arguments.length === 1) {
+            vec3.copy(this._scale, val);
+        } else if (arguments.length === 3) {
+            vec3.set(this._scale, val, y, z);
+        }
+        if (this._parent) {
+            this._parent.getWorldScale(v3_a);
+            vec3.div(this._lscale, this._scale, v3_a);
+        } else {
+            vec3.copy(this._lscale, this._scale);
+        }
+        this.invalidateChildren();
+    }
+
+    /**
+     * get world scale
+     * @param {?vec3} out the receiving vector
+     * @return {vec3} the resulting vector
+     */
+    getWorldScale(out) {
+        this.updateWorldTransform();
+        if (out) {
+            return vec3.copy(out, this._scale);
+        } else {
+            return vec3.clone(this._scale);
+        }
+    }
+
+    /**
+     * get the matrix that transforms a point from local space into world space 
+     * @param {?mat4} out the receiving matrix
+     * @return {mat4} the resulting matrix
+     */
+    getWorldMatrix(out) {
+        this.updateWorldTransformFull();
+        if (out) {
+            return mat4.copy(out, this._mat);
+        } else {
+            return mat4.clone(this._mat);
+        }
+    }
+
+    /**
+     * get world transform matrix (with only rotation and scale)
+     * @param {?mat4} out the receiving matrix
+     * @return {mat4} the resulting matrix
+     */
+    getWorldRS(out) {
+        this.updateWorldTransformFull();
+        if (out) {
+            mat4.copy(out, this._mat);
+        } else {
+            out = mat4.clone(this._mat);
+        }
+        out.m12 = 0; out.m13 = 0; out.m14 = 0;
+        return out;
+    }
+
+    /**
+     * get world transform matrix (with only rotation and translation)
+     * @param {?mat4} out the receiving matrix
+     * @return {mat4} the resulting matrix
+     */
+    getWorldRT(out) {
+        this.updateWorldTransform();
+        if (!out) {
+            out = mat4.create();
+        }
+        return mat4.fromRT(out, this._rot, this._pos);
+    }
+}
