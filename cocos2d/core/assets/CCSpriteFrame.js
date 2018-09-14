@@ -70,7 +70,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         _textureSetter: {
             set: function (texture) {
                 if (texture) {
-                    if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
+                    if (CC_EDITOR && Editor.isBuilder) {
                         // just building
                         this._texture = texture;
                         return;

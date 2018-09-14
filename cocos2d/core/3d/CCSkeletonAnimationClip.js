@@ -67,9 +67,13 @@ var SkeletonAnimationClip = cc.Class({
         this._model.initAnimationClip(this);
     },
 
-    _serialize: CC_EDITOR && function () {
+    _serialize: CC_EDITOR && function (exporting) {
+        let modelUuid = this._modelUuid;
+        if (exporting) {
+            modelUuid = Editor.Utils.UuidUtils.compressUuid(modelUuid, true);
+        }
         return {
-            modelUuid: this._modelUuid,
+            modelUuid: modelUuid,
             animationID: this._animationID,
             name: this._name,
         }

@@ -1,9 +1,12 @@
 
-if (!CC_TEST) {
+if (!CC_TEST && (!CC_EDITOR || !Editor.isMainProcess)) {
     require('./polyfill-3d');
 }
 
 require('./CCModel');
 require('./CCSkeletonAnimationClip');
-require('./CCSkeletonAnimation');
-require('./CCSkinnedMeshRenderer');
+
+if (!CC_EDITOR || !Editor.isMainProcess) {
+    require('./CCSkeletonAnimation');
+    require('./CCSkinnedMeshRenderer');
+}
