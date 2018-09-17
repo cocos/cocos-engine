@@ -59,6 +59,10 @@ var Mesh = cc.Class({
     properties: {
         _modelSetter: {
             set: function (model) {
+                if (CC_EDITOR && Editor.isBuilder) {
+                    // just building
+                    return;
+                }
                 this._initWithModel(model);
             }
         },
@@ -261,11 +265,15 @@ var Mesh = cc.Class({
         this._model.initMesh(this);
     },
 
-    _serialize: CC_EDITOR && function () {
-        return {
-            modelUuid: this._modelUuid,
-            meshID: this._meshID,
+    _serialize: CC_EDITOR && function (exporting) {
+        let modelUuid = this._modelUuid;
+        if (exporting) {
+            modelUuid = Editor.Utils.UuidUtils.compressUuid(modelUuid, true);
         }
+        return {
+            modelUuid: modelUuid,
+            meshID: this._meshID,
+        };
     },
 
     _deserialize (data, handle) {

@@ -39,9 +39,9 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./collider/CCIntersection');
     require('./physics');
     require('./camera/CCCamera');
-
-    require('./mesh');
-    require('./3d');
 }
+
+require('./mesh');
+require('./3d');
 
 require('./base-ui/CCWidgetManager');
