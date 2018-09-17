@@ -250,9 +250,8 @@ let Mask = cc.Class({
         }
 
         if (!this._clearGraphics) {
-            let graphicsNode = new cc.Node();
             this._clearGraphics = new Graphics();
-            this._clearGraphics.node = graphicsNode;
+            this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
             this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);

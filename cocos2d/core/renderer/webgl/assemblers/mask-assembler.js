@@ -27,7 +27,6 @@ const StencilManager = require('../stencil-manager');
 const Mask = require('../../../components/CCMask');
 const Graphics = require('../../../graphics/graphics');
 const RenderFlow = require('../../render-flow');
-
 const spriteAssembler = require('./sprite/simple');
 const graphicsAssembler = require('./graphics');
 
