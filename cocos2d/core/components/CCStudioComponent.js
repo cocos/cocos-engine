@@ -316,3 +316,13 @@ StudioComponent.PlaceHolder = cc.Class({
 
 cc.StudioComponent = module.exports = StudioComponent;
 
+
+var StudioWidget = cc.Class({
+    name: 'cc.StudioWidget',
+    extends: cc.Widget,
+    _validateTargetInDEV () {}
+});
+
+cc.StudioWidget = module.exports = StudioWidget;
+
+
