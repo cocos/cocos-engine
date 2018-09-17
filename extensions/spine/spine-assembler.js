@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
@@ -31,6 +32,8 @@ const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format'
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
+
+const STENCIL_SEP = '@';
 
 let _sharedMaterials = {};
 
@@ -42,6 +45,10 @@ _debugMaterial.useModel = true;
 _debugMaterial.useColor = false;
 _debugMaterial.useTexture = false;
 _debugMaterial.updateHash();
+
+function _updateKeyWithStencilRef (key, stencilRef) {
+    return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
+}
 
 function _getSlotMaterial (slot, tex, premultiAlpha) {
     let src, dst;
@@ -64,7 +71,8 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             dst = cc.macro.ONE_MINUS_SRC_ALPHA;
             break;
     }
-    let key = tex.url + src + dst;
+
+    let key = tex.url + src + dst + STENCIL_SEP + '0';
     let material = _sharedMaterials[key];
     if (!material) {
         material = new SpriteMaterial();
@@ -72,7 +80,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         // update texture
         material.texture = tex;
         material.useColor = false;
-        
+
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -82,11 +90,11 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             src, dst
         );
         _sharedMaterials[key] = material;
-        material.updateHash();
+        material.updateHash(key);
     }
     else if (material.texture !== tex) {
         material.texture = tex;
-        material.updateHash();
+        material.updateHash(key);
     }
     return material;
 }
@@ -126,7 +134,7 @@ var spineAssembler = {
 
         if (comp.debugSlots && vertexCount === 4) {
             let graphics = comp._debugRenderer;
-            
+
             // Debug Slot
             let VERTEX = spine.RegionAttachment;
             graphics.strokeColor = _slotColor;
@@ -269,7 +277,7 @@ var spineAssembler = {
                 graphics.moveTo(bone.worldX, bone.worldY);
                 graphics.lineTo(x, y);
                 graphics.stroke();
-                
+
                 // Bone origins.
                 graphics.circle(bone.worldX, bone.worldY, Math.PI * 2);
                 graphics.fill();
@@ -295,6 +303,18 @@ var spineAssembler = {
         let renderDatas = comp._renderDatas;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
+
+            // For generate new material for skeleton render data nested in mask,
+            // otherwise skeleton inside/outside mask with same material will interfere each other
+            let key = data.material._hash;
+            let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
+            if (key !== newKey) {
+                data.material = _sharedMaterials[newKey] || data.material.clone();
+                data.material.updateHash(newKey);
+                if (!_sharedMaterials[newKey]) {
+                    _sharedMaterials[newKey] = data.material;
+                }
+            }
 
             if (data.material !== renderer.material) {
                 renderer._flush();

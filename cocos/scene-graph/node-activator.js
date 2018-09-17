@@ -28,8 +28,6 @@ import CompScheduler from './component-scheduler';
 import CCObject from '../core/data/object';
 import { Pool, array } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
-import _decorator from '../core/data/class-decorator';
-const { ccclass } = _decorator;
 
 var MAX_POOL_SIZE = 4;
 

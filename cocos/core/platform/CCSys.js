@@ -659,7 +659,6 @@ else if (CC_QQPLAY) {
     sys.isMobile = true;
     sys.platform = sys.QQ_PLAY;
     sys.language = sys.LANGUAGE_UNKNOWN;
-    var system = env.system.toLowerCase();
     if (env.platform === "android") {
         sys.os = sys.OS_ANDROID;
     }
@@ -669,14 +668,7 @@ else if (CC_QQPLAY) {
     else {
         sys.os = sys.OS_UNKNOWN;
     }
-
-    // Adaptation to Android P
-    if (system === 'android p') {
-        system = 'android p 9.0';
-    }
-
-    var version = /[\d\.]+/.exec(system);
-    sys.osVersion = version ? version[0] : system;
+    sys.osVersion = env.version;
     sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
@@ -1127,9 +1119,6 @@ sys.getBatteryLevel = function() {
  */
 sys.garbageCollect = function () {
     // N/A in web
-    if (CC_JSB) {
-        jsb.garbageCollect();
-    }
 };
 
 /**
@@ -1138,9 +1127,6 @@ sys.garbageCollect = function () {
  */
 sys.dumpRoot = function () {
     // N/A in web
-    if (CC_JSB) {
-        jsb.dumpRoot();
-    }
 };
 
 /**
@@ -1149,9 +1135,6 @@ sys.dumpRoot = function () {
  */
 sys.restartVM = function () {
     // N/A in web
-    if (CC_JSB) {
-        __restartVM();
-    }
 };
 
 /**
@@ -1161,9 +1144,6 @@ sys.restartVM = function () {
  */
 sys.cleanScript = function (jsfile) {
     // N/A in web
-    if (CC_JSB) {
-        __cleanScript(jsfile);
-    }
 };
 
 /**
@@ -1175,13 +1155,9 @@ sys.cleanScript = function (jsfile) {
  * @return {Boolean} Validity of the object
  */
 sys.isObjectValid = function (obj) {
-    if (CC_JSB) {
-        return __isObjectValid(obj);
-    }
-    else if (obj) {
+    if (obj) {
         return true;
     }
-
     return false;
 };
 

@@ -35,6 +35,7 @@ const graphicsAssembler = require('./graphics');
 let _stencilMgr = StencilManager.sharedManager;
 // for nested mask, we might need multiple graphics component to avoid data conflict 
 let _graphicsPool = [];
+let _graphicsUsing = [];
 
 function getGraphics () {
     let graphics = _graphicsPool.pop(); 
@@ -117,9 +118,17 @@ let maskEndAssembler = {
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillBuffers
             _stencilMgr.exitMask();
-
-            _graphicsPool.push(mask._clearGraphics);
+            
+            _graphicsUsing.push(mask._clearGraphics);
             mask._clearGraphics = null;
+
+            // Clear graphics can only be recycled after the mask stack exits entirely.
+            if (_stencilMgr.stage === StencilManager.Stage.DISABLED) {
+                for (let i = 0; i < _graphicsUsing.length; i++) {
+                    _graphicsPool.push(_graphicsUsing[i]);
+                }
+                _graphicsUsing.length = 0;
+            }
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
