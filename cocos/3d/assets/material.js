@@ -31,11 +31,6 @@ import renderer from "../../renderer";
 import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
 import Effect from "./effect";
 
-/**
- * @typedef {import("../../renderer/core/effect").default} RendererEffect
- * @typedef {import("../../renderer/core/technique").default} RendererTechnique
- */
-
 function _objArrayClone(val) {
   return val.map(obj => Object.assign({}, obj));
 }
@@ -55,13 +50,13 @@ export default class Material extends Asset {
   _props = {};
 
   /**
-   * @type {RendererEffect}
+   * @type {cc.renderer.Effect}
    */
   _effecInst = null;
 
   _updateEffectInst() {
     let techNum = this._effect.techniques.length;
-    /** @type {RendererTechnique[]} */
+    /** @type {cc.renderer.Technique[]} */
     let techniques = new Array(techNum);
     let props = {};
 
@@ -99,6 +94,7 @@ export default class Material extends Asset {
       }
 
       let passNum = tech.passes.length;
+      /** @type {cc.renderer.Pass[]} */
       let passes = new Array(passNum);
       for (let k = 0; k < passNum; ++k) {
         let pass = tech.passes[k];
@@ -154,7 +150,7 @@ export default class Material extends Asset {
   }
 
   /**
-   * @return {RendererEffect}
+   * @return {cc.renderer.Effect}
    */
   get effectInst() {
     return this._effectInst;
