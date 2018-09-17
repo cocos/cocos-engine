@@ -25,7 +25,7 @@ module.exports = {
         "toggleContainer": "http://www.cocos.com/docs/creator/components/toggleContainer.html",
         "slider": "http://www.cocos.com/docs/creator/components/slider.html",
         "block_input_events": "http://www.cocos.com/docs/creator/components/block-input-events.html",
-        "wx_subcontext_view": "http://www.cocos.com/docs/creator/components/wx-subcontext-view.html"
+        "wx_subcontext_view": "http://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html"
     },
     'animation': {
         'default_clip': '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
