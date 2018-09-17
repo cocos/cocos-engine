@@ -241,29 +241,6 @@ let Mask = cc.Class({
         Type: MaskType,
     },
 
-    _createGraphics () {
-        if (!this._graphics) {
-            this._graphics = new Graphics();
-            this._graphics.node = this.node;
-            this._graphics.lineWidth = 0;
-            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-        }
-
-        if (!this._clearGraphics) {
-            this._clearGraphics = new Graphics();
-            this._clearGraphics.node = new Node();
-            this._clearGraphics._activateMaterial();
-            this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-            this._clearGraphics.fill();
-        }
-    },
-
-    _clearGraphics () {
-        this._graphics.destroy();
-        this._clearGraphics.destroy();
-    },
-
     onLoad () {
         this._createGraphics();
     },
@@ -315,7 +292,7 @@ let Mask = cc.Class({
 
     onDestroy () {
         this._super();
-        this._clearGraphics();
+        this._removeGraphics();
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -387,6 +364,24 @@ let Mask = cc.Class({
         this.markForRender(true);
     },
 
+    _createGraphics () {
+        if (!this._graphics) {
+            this._graphics = new Graphics();
+            this._graphics.node = this.node;
+            this._graphics.lineWidth = 0;
+            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+        }
+
+        if (!this._clearGraphics) {
+            this._clearGraphics = new Graphics();
+            this._clearGraphics.node = new Node();
+            this._clearGraphics._activateMaterial();
+            this._clearGraphics.lineWidth = 0;
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+        }
+    },
+
     _updateGraphics () {
         let node = this.node;
         let graphics = this._graphics;
@@ -411,6 +406,16 @@ let Mask = cc.Class({
         }
         else {
             graphics.fill();
+        }
+    },
+
+    _removeGraphics () {
+        if (this._graphics) {
+            this._graphics.destroy();
+        }
+
+        if (this._clearGraphics) {
+            this._clearGraphics.destroy();
         }
     },
 
