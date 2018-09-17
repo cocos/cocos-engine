@@ -31,6 +31,7 @@ const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
+const Node = require('../CCNode');
 
 let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
@@ -78,6 +79,11 @@ let Mask = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',
         help: 'i18n:COMPONENT.help_url.mask',
         inspector: 'packages://inspector/inspectors/comps/mask.js'
+    },
+
+    ctor () {
+        this._graphics = null;
+        this._clearGraphics = null;
     },
 
     properties: {
@@ -235,19 +241,36 @@ let Mask = cc.Class({
         Type: MaskType,
     },
 
-    onLoad () {
-        this._graphics = new Graphics();
-        this._graphics.node = this.node;
-        this._graphics.lineWidth = 0;
-        this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-    },
-
-    onRestore () {
+    _createGraphics () {
         if (!this._graphics) {
             this._graphics = new Graphics();
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
+            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
         }
+
+        if (!this._clearGraphics) {
+            let graphicsNode = new cc.Node();
+            this._clearGraphics = new Graphics();
+            this._clearGraphics.node = graphicsNode;
+            this._clearGraphics._activateMaterial();
+            this._clearGraphics.lineWidth = 0;
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+        }
+    },
+
+    _clearGraphics () {
+        this._graphics.destroy();
+        this._clearGraphics.destroy();
+    },
+
+    onLoad () {
+        this._createGraphics();
+    },
+
+    onRestore () {
+        this._createGraphics();
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
@@ -293,7 +316,7 @@ let Mask = cc.Class({
 
     onDestroy () {
         this._super();
-        this._graphics.destroy();
+        this._clearGraphics();
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {

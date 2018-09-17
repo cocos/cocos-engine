@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const StencilManager = require('../stencil-manager');
-const Node = require('../../../CCNode'); 
 const Mask = require('../../../components/CCMask');
 const Graphics = require('../../../graphics/graphics');
 const RenderFlow = require('../../render-flow');
@@ -33,24 +32,6 @@ const spriteAssembler = require('./sprite/simple');
 const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
-// for nested mask, we might need multiple graphics component to avoid data conflict 
-let _graphicsPool = [];
-let _graphicsUsing = [];
-
-function getGraphics () {
-    let graphics = _graphicsPool.pop(); 
-
-    if (!graphics) {
-        let graphicsNode = new Node();
-        graphics = graphicsNode.addComponent(Graphics);
-        graphics._activateMaterial();
-        graphics.lineWidth = 0;
-        graphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-        graphics.fill();
-        graphicsAssembler.updateRenderData(graphics);
-    }
-    return graphics;
-}
 
 let maskFrontAssembler = {
     updateRenderData (mask) {
@@ -61,6 +42,7 @@ let maskFrontAssembler = {
             else {
                 // for updateGraphics calculation
                 mask._renderData = mask.requestRenderData();
+                graphicsAssembler.updateRenderData(mask._clearGraphics);
             }
         }
         let renderData = mask._renderData;
@@ -91,7 +73,6 @@ let maskFrontAssembler = {
             _stencilMgr.pushMask(mask);
             _stencilMgr.clear();
 
-            mask._clearGraphics = getGraphics();
             graphicsAssembler.fillBuffers(mask._clearGraphics, renderer);
 
             _stencilMgr.enterLevel();
@@ -118,17 +99,6 @@ let maskEndAssembler = {
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillBuffers
             _stencilMgr.exitMask();
-            
-            _graphicsUsing.push(mask._clearGraphics);
-            mask._clearGraphics = null;
-
-            // Clear graphics can only be recycled after the mask stack exits entirely.
-            if (_stencilMgr.stage === StencilManager.Stage.DISABLED) {
-                for (let i = 0; i < _graphicsUsing.length; i++) {
-                    _graphicsPool.push(_graphicsUsing[i]);
-                }
-                _graphicsUsing.length = 0;
-            }
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
@@ -141,4 +111,4 @@ Mask._postAssembler = maskEndAssembler;
 module.exports = {
     front: maskFrontAssembler,
     end: maskEndAssembler
-}
+};
