@@ -199,3 +199,5 @@ export default class Sprite extends Asset {
     }
   }
 }
+
+cc.Sprite = Sprite;

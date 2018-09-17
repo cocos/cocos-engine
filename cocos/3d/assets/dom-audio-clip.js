@@ -48,7 +48,7 @@ export class DOMAudioClip extends AudioClip {
      * @type {boolean}
      */
     _oneShoting = false;
-    
+
     constructor() {
         super();
 
@@ -173,3 +173,5 @@ export class DOMAudioClip extends AudioClip {
         return this._loop;
     }
 }
+
+cc.DOMAudioClip = DOMAudioClip;

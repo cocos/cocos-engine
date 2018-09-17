@@ -1,6 +1,6 @@
 'use strict';
 
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 /**
  * @param {Number} radius

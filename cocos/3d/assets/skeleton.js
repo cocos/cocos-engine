@@ -22,60 +22,28 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 // @ts-check
-import { _decorator } from "../../core/data/index";
-const {ccclass} = _decorator;
+import { _decorator, instantiate } from "../../core/data";
+const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
+import SkeletonInstance from '../framework/skeleton-instance';
+import { Node } from "../../scene-graph";
 
 @ccclass
-export default class Font extends Asset {
-     /** Font size.
-     * @type {number}
-     */
-    _size = 32;
+export default class Skeleton extends Asset {
+  /**
+   * @type {Node}
+   */
+  @property(Node)
+  _rootNode = null;
 
-    /** Font type.
-     * @type {cc.d3.font.FontType}
-     */
-    _type = "unknow";
-
-    /**
-     * Line height.
-     * @type {number}
-     */
-    _lineHeight = 32;
-
-    /**
-     * 
-     * @type {boolean}
-     */
-    _useKerning = false;
-
-    /**
-     * @type {cc.d3.font.Glyph[]}
-     */
-    _glyphs = [];
-
-    /**
-     * @return {number}
-     */
-    get size() {
-        return this._size;
-    }
-
-    /**
-     * @return {number}
-     */
-    get lineHeight() {
-        return this._lineHeight;
-    }
-
-    /**
-     * @return {cc.d3.font.FontType}
-     */
-    get type() {
-        return this._type;
-    }
+  instantiate() {
+    let rootNode = instantiate(this._rootNode, undefined);
+    let skeleton = new SkeletonInstance();
+    skeleton.setRoot(rootNode);
+    return skeleton;
+  }
 }
 
-cc.Font = Font;
+cc.Skeleton = Skeleton;

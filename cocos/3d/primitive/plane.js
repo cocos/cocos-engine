@@ -1,6 +1,6 @@
 'use strict';
 
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 let temp1 = vec3.create(0, 0, 0);
 let temp2 = vec3.create(0, 0, 0);

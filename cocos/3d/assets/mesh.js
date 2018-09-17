@@ -22,76 +22,72 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import { GLTFAsset } from "../../assets/CCGLTFAsset";
 import Asset from "../../assets/CCAsset";
-import { default as GLTFUtils } from "./utils/gltf-utils";
-/** @typedef {import("../../core/vmath/index").vec3} vec3 */
+
+/**
+ * @interface
+ */
+@ccclass
+export class MeshResource {
+    /**
+     * 
+     * @param {Mesh} mesh 
+     */
+    flush(mesh) {
+
+    }
+}
 
 @ccclass
 export default class Mesh extends Asset {
     /**
-     * @type {GLTFAsset}
+     * @type {MeshResource}
      */
-    @property(GLTFAsset)
-    _gltfAsset;
+    @property(MeshResource)
+    _resource = null;
 
-    /**
-     * @type {number}
-     */
-    @property(Number)
-    _gltfIndex = -1;
+    get resource() {
+        return this._resource;
+    }
 
-    /**
-     * @type {renderer.InputAssemblers}
-     */
-    _subMeshes = null;
+    set resource(value) {
+        this._resource = value;
+        this.update();
+    }
 
-    /**
-     * @type {{jointIndices, bindposes}}
-     */
-    _skinning = null;
+    constructor() {
+        super();
 
-    /**
-     * @type {vec3}
-     */
-    _minPos = null;
+        /**
+         * @type {cc.renderer.InputAssembler[]}
+         */
+        this._subMeshes = null;
 
-    /**
-     * @type {vec3}
-     */
-    _maxPos = null;
-    
-    /**
-     * !#en
-     * Gets the native data of this mesh.
-     * @return {GLTFAsset | Null} The native data, or null if this is an empty mesh.
-     */
-    getNativeAsset() {
-        return this._gltfAsset;
+        /**
+         * @type {cc.d3.asset.MeshSkinning}
+         */
+        this._skinning = null;
+
+        /**
+         * @type {cc.core.math.vec3}
+         */
+        this._minPos = null;
+
+        /**
+         * @type {cc.core.math.vec3}
+         */
+        this._maxPos = null;
     }
 
     /**
-     * !#en
-     * Gets the index into the native data of this mesh.
-     * @return {number} The index into the native data.
+     * 
      */
-    getNativeAssetIndex() {
-        return this._gltfIndex;
-    }
-
-    /**
-     * !#en
-     * Sets the native data of this mesh.
-     * @param {GLTFAsset} gltfAsset The GLTF asset.
-     * @param {number} gltfIndex An index to the GLTF meshes.
-     */
-    setNative(gltfAsset, gltfIndex) {
-        this._gltfAsset = gltfAsset;
-        this._gltfIndex = gltfIndex;
-        this._update();
+    flush() {
+        this._resource.flush(this);
     }
 
     /**
@@ -149,19 +145,6 @@ export default class Mesh extends Asset {
     //     }
     //   }
     // }
-
-    _update(app) {
-        if (!this._gltfAsset) {
-            return;
-        }
-        const result = GLTFUtils.createMesh(app, this._gltfAsset, this._gltfIndex);
-        if (!result) {
-            return;
-        }
-        this.name = result.name;
-        this._subMeshes = result.subMeshes;
-        this._minPos = result.minPos;
-        this._maxPos = result.maxPos;
-        this._skinning = result.skinning;
-    }
 }
+
+cc.Mesh = Mesh;

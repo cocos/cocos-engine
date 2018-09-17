@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import { Texture } from './texture';
+import Texture from './texture';
 
 import gfx from '../gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
@@ -77,13 +77,9 @@ export class TextureCube extends Texture {
     this._mipFilter = 'linear';
   }
 
-  unload() {
-    if (!this._loaded) {
-      return;
-    }
-
-    this._texture.destroy();
-    super.unload();
+  destroy() {
+    this._texture.destory();
+    return super.destroy();
   }
 
   setImages(imgs) {

@@ -30,10 +30,6 @@ import vec2 from "../../core/vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
 import Texture2D from "./texture-2d";
 
-/**
- * @typedef {{id: number, x: number, y: number, width: number, height: number, xoffset: number, yoffset: number, xadvance: number, uvs: vec2[]}} OpentypeFontGlyph
- */
-
 @ccclass
 export default class OpentypeFont extends Font {
     /**
@@ -73,7 +69,7 @@ export default class OpentypeFont extends Font {
     _fontAtlas;
 
     /**
-     * @type {OpentypeFontGlyph}
+     * @type {cc.d3.font.OpentypeFontGlyph}
      */
     _defaultGlyph = {
         id: 32, // space charCode
@@ -270,3 +266,5 @@ export default class OpentypeFont extends Font {
         }
     }
 }
+
+cc.OpentypeFont = OpentypeFont;

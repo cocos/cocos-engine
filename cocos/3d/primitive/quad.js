@@ -1,6 +1,6 @@
 'use strict';
 
-import { vec3 } from '../vmath';
+import { vec3 } from '../../core/vmath';
 
 let positions = [
   -0.5, -0.5, 0, // bottom-left

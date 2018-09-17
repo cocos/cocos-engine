@@ -27,7 +27,7 @@ import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import Texture from './texture';
-import renderer from '../renderer';
+import renderer from "../../renderer";
 import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
 import Effect from "./effect";
 
@@ -50,12 +50,13 @@ export default class Material extends Asset {
   _props = {};
 
   /**
-   * @type {renderer.effect}
+   * @type {cc.renderer.Effect}
    */
   _effecInst = null;
 
   _updateEffectInst() {
     let techNum = this._effect.techniques.length;
+    /** @type {cc.renderer.Technique[]} */
     let techniques = new Array(techNum);
     let props = {};
 
@@ -93,6 +94,7 @@ export default class Material extends Asset {
       }
 
       let passNum = tech.passes.length;
+      /** @type {cc.renderer.Pass[]} */
       let passes = new Array(passNum);
       for (let k = 0; k < passNum; ++k) {
         let pass = tech.passes[k];
@@ -148,7 +150,7 @@ export default class Material extends Asset {
   }
 
   /**
-   * @return {renderer.effect}
+   * @return {cc.renderer.Effect}
    */
   get effectInst() {
     return this._effectInst;
@@ -197,6 +199,8 @@ export default class Material extends Asset {
 
   destroy() {
     // TODO: what should we do here ???
-    super.destroy();
+    return super.destroy();
   }
 }
+
+cc.Material = Material;

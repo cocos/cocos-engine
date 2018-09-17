@@ -60,7 +60,7 @@ export const AudioSourceType = {
 };
 
 /**
- * @typedef {AudioBuffer|HTMLAudioElement} AudioSource
+ * @typedef {AudioBuffer|HTMLAudioElement|any} AudioSource
  */
 
 /**
@@ -116,3 +116,5 @@ export class AudioClip extends Asset {
     return this._state;
   }
 }
+
+cc.AudioClip = AudioClip;

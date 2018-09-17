@@ -40,7 +40,7 @@ import Asset from "./CCAsset";
  * @extends Asset
  */
 @ccclass
-export class GLTFAsset extends Asset {
+export default class GLTFAsset extends Asset {
     /**
      * @type {JsonAsset}
      */
