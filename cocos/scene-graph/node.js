@@ -134,8 +134,8 @@ export default class Node extends BaseNode {
     /**
      * set local position
      * @param {vec3|number} val the new local position, or the x component of it
-     * @param {?number} y the y component of the new local position
-     * @param {?number} z the z component of the new local position
+     * @param {?number} [y] the y component of the new local position
+     * @param {?number} [z] the z component of the new local position
      */
     setLocalPos(val, y, z) {
         if (arguments.length === 1) {
@@ -163,9 +163,9 @@ export default class Node extends BaseNode {
     /**
      * set local rotation
      * @param {quat|number} val the new local rotation, or the x component of it
-     * @param {?number} y the y component of the new local rotation
-     * @param {?number} z the z component of the new local rotation
-     * @param {?number} w the w component of the new local rotation
+     * @param {?number} [y] the y component of the new local rotation
+     * @param {?number} [z] the z component of the new local rotation
+     * @param {?number} [w] the w component of the new local rotation
      */
     setLocalRot(val, y, z, w) {
         if (arguments.length === 1) {
@@ -205,8 +205,8 @@ export default class Node extends BaseNode {
     /**
      * set local scale
      * @param {vec3|number} val the new local scale, or the x component of it
-     * @param {?number} y the y component of the new local scale
-     * @param {?number} z the z component of the new local scale
+     * @param {?number} [y] the y component of the new local scale
+     * @param {?number} [z] the z component of the new local scale
      */
     setLocalScale(val, y, z) {
         if (arguments.length === 1) {
