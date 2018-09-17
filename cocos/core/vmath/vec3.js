@@ -566,27 +566,27 @@ class vec3 {
   }
 
   /**
-   * Generates a random vector with the given scale.
+   * Generates a random vector uniformly distributed on a sphere centered at the origin.
    *
    * @param {vec3} out - Vector to store result.
-   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned.
+   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
    * @returns {vec3} out.
    */
   static random(out, scale) {
     scale = scale || 1.0;
 
-    let r = random() * 2.0 * Math.PI;
-    let z = (random() * 2.0) - 1.0;
-    let zScale = Math.sqrt(1.0 - z * z) * scale;
+    let phi = random() * 2.0 * Math.PI;
+    let theta = Math.acos(random() * 2 - 1);
 
-    out.x = Math.cos(r) * zScale;
-    out.y = Math.sin(r) * zScale;
-    out.z = z * scale;
+    out.x = Math.sin(theta) * Math.cos(phi) * scale;
+    out.y = Math.sin(theta) * Math.sin(phi) * scale;
+    out.z = Math.cos(theta) * scale;
     return out;
   }
 
   /**
-   * Transforms a vector with a 4x4 matrix. 4th vector component is implicitly '1'.
+   * Transforms a point vector with a 4x4 matrix,
+   * i.e. 4th vector component is implicitly '1'.
    *
    * @param {vec3} out - Vector to store result.
    * @param {vec3} a - Vector to transform.
@@ -595,11 +595,30 @@ class vec3 {
    */
   static transformMat4(out, a, m) {
     let x = a.x, y = a.y, z = a.z,
-      w = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-    w = w || 1.0;
-    out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) / w;
-    out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) / w;
-    out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) / w;
+      rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
+    rhw = rhw ? 1 / rhw : 1;
+    out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
+    out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
+    out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
+    return out;
+  }
+
+  /**
+   * Transforms a normal vector with a 4x4 matrix,
+   * i.e. 4th vector component is implicitly '0'.
+   *
+   * @param {vec3} out - Vector to store result.
+   * @param {vec3} a - Vector to transform.
+   * @param {mat4} m - The matrix.
+   * @returns {vec3} out.
+   */
+  static transformMat4Normal(out, a, m) {
+    let x = a.x, y = a.y, z = a.z,
+      rhw = m.m03 * x + m.m07 * y + m.m11 * z;
+    rhw = rhw ? 1 / rhw : 1;
+    out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
+    out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
+    out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
     return out;
   }
 
