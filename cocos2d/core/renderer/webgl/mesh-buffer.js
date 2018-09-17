@@ -101,15 +101,18 @@ let MeshBuffer = cc.Class({
     },
 
     _reallocVData (copyOldData) {
-        let oldVData = this._vData;
+        let oldVData;
+        if (this._vData) {
+            oldVData = new Uint8Array(oldVData.buffer);
+        }
 
         this._vData = new Float32Array(this._initVDataCount);
         this._uintVData = new Uint32Array(this._vData.buffer);
+        let newData = new Uint8Array(this._uintVData.buffer);
 
         if (oldVData && copyOldData) {
-            let vData = this._vData;
             for (let i = 0, l = oldVData.length; i < l; i++) {
-                vData[i] = oldVData[i];
+                newData[i] = oldVData[i];
             }
         }
 
