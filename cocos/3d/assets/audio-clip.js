@@ -116,3 +116,5 @@ export class AudioClip extends Asset {
     return this._state;
   }
 }
+
+cc.AudioClip = AudioClip;

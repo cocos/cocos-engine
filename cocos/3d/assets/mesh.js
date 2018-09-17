@@ -37,7 +37,7 @@ export class MeshResource {
      * 
      * @param {Mesh} mesh 
      */
-    update(mesh) {
+    flush(mesh) {
 
     }
 }
@@ -86,8 +86,8 @@ export default class Mesh extends Asset {
     /**
      * 
      */
-    update() {
-        this._resource.update(this);
+    flush() {
+        this._resource.flush(this);
     }
 
     /**
@@ -146,3 +146,5 @@ export default class Mesh extends Asset {
     //   }
     // }
 }
+
+cc.Mesh = Mesh;

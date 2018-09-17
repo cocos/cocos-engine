@@ -202,3 +202,5 @@ export default class Material extends Asset {
     return super.destroy();
   }
 }
+
+cc.Material = Material;

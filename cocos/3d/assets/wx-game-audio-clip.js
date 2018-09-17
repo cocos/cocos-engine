@@ -152,3 +152,5 @@ export default class WxGameAudioClip extends AudioClip {
     if (this._audio) this._audio.loop = val;
   }
 }
+
+cc.WxGameAudioClip = WxGameAudioClip;

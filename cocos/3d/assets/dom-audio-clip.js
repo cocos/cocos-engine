@@ -173,3 +173,5 @@ export class DOMAudioClip extends AudioClip {
         return this._loop;
     }
 }
+
+cc.DOMAudioClip = DOMAudioClip;

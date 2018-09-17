@@ -266,3 +266,5 @@ export default class OpentypeFont extends Font {
         }
     }
 }
+
+cc.OpentypeFont = OpentypeFont;

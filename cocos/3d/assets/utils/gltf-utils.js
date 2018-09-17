@@ -37,7 +37,7 @@ export class GltfMeshResource extends MeshResource {
      * shall be tighly interleaved, with no extra head data, in same buffer view.
      * @param {cc.d3.asset.Mesh} mesh 
      */
-    update(mesh) {
+    flush(mesh) {
         if (!this.gltfAsset) {
             return;
         }
@@ -191,7 +191,7 @@ export class GltfAnimationResource extends AnimationResource {
      * 
      * @param {cc.d3.asset.AnimationClip} animationClip 
      */
-    update(animationClip) {
+    flush(animationClip) {
         if (!this.gltfAsset) {
             return;
         }

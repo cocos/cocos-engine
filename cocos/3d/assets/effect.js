@@ -114,3 +114,5 @@ export default class Effect extends Asset {
         return super.destroy();
     }
 }
+
+cc.Effect = Effect;

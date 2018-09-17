@@ -79,3 +79,5 @@ export class BitmapFont extends Font {
         return this._face;
     }
 }
+
+cc.BitmapFont = BitmapFont;

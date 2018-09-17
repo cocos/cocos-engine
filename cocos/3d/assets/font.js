@@ -77,3 +77,5 @@ export default class Font extends Asset {
         return this._type;
     }
 }
+
+cc.Font = Font;

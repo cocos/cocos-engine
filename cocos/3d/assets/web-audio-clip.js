@@ -191,3 +191,5 @@ export default class WebAudioClip extends AudioClip {
         return this._loop;
     }
 }
+
+cc.WebAudioClip = WebAudioClip;

@@ -70,7 +70,7 @@ export class AnimationResource {
    * 
    * @param {AnimationClip} animationClip 
    */
-  update(animationClip) {
+  flush(animationClip) {
 
   }
 }
@@ -112,8 +112,8 @@ export default class AnimationClip extends Asset {
   /**
    * 
    */
-  update() {
-    this._resource.update(this);
+  flush() {
+    this._resource.flush(this);
   }
 
   get length() {
@@ -408,3 +408,5 @@ class SamplingStateJointState {
       this.blendRotation(this._originalRot, 1.0 - this._sumRotWeight);
   }
 }
+
+cc.AnimationClip = AnimationClip;
