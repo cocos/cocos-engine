@@ -61,7 +61,9 @@ function computeSiblingTrans (target, out_inverseTranslate, out_inverseScale, ou
 
 function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale, out_targetScale) {
 
-    out_targetScale.x = out_targetScale.y = 1;
+    if (out_targetScale) {
+        out_targetScale.x = out_targetScale.y = 1;
+    }
 
     var scaleX = widgetNode._parent._scale.x;
     var scaleY = widgetNode._parent._scale.y;
@@ -105,13 +107,14 @@ function align (node, widget) {
     var hasTarget = widget._target;
     var target;
     var inverseTranslate, inverseScale, targetScale;
+    var isParent = false;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
         inverseScale = tInverseScale;
         targetScale = tTargetScale;
 
-        var isParent = widget.node !== target && widget.node.isChildOf(target);
+        isParent = widget.node !== target && widget.node.isChildOf(target);
         if (isParent) {
             computeInverseTransForTarget(node, target, inverseTranslate, inverseScale, targetScale);
         }
@@ -141,9 +144,16 @@ function align (node, widget) {
             localRight = localLeft + targetWidth;
         }
 
+        var _left = widget._left, _right = widget._right;
+        if (!isParent) {
+            // 兄弟节点停靠策略不同
+            _left *= -1;
+            _right *= -1;
+        }
+
         // adjust borders according to offsets
-        localLeft += widget._isAbsLeft ? widget._left : widget._left * targetWidth;
-        localRight -= widget._isAbsRight ? widget._right : widget._right * targetWidth;
+        localLeft += widget._isAbsLeft ? _left : _left * targetWidth;
+        localRight -= widget._isAbsRight ? _right : _right * targetWidth;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -197,9 +207,16 @@ function align (node, widget) {
             localTop = localBottom + targetHeight;
         }
 
+        var _bottom = widget._bottom, _top = widget._top;
+        if (!isParent) {
+            // 兄弟节点停靠策略不同
+            _bottom *= -1;
+            _top *= -1;
+        }
+
         // adjust borders according to offsets
-        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * targetHeight;
-        localTop -= widget._isAbsTop ? widget._top : widget._top * targetHeight;
+        localBottom += widget._isAbsBottom ? _bottom : _bottom * targetHeight;
+        localTop -= widget._isAbsTop ? _top : _top * targetHeight;
 
         if (hasTarget) {
             // transform
@@ -372,7 +389,7 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (oldPos) {
 
     if (this._target) {
         target = this._target;
-        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale, new cc.Vec2());
     }
 
     var targetSize = getReadonlyNodeSize(target);
@@ -415,7 +432,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
     var inverseScale = cc.Vec2.ONE;
     if (this._target) {
         target = this._target;
-        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale, new cc.Vec2());
     }
 
     var targetSize = getReadonlyNodeSize(target);
