@@ -51,7 +51,20 @@ function getReadonlyNodeSize (parent) {
     }
 }
 
-function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
+function computeSiblingTrans (target, out_inverseTranslate, out_inverseScale, out_targetScale) {
+    out_inverseTranslate.x = target._position.x;
+    out_inverseTranslate.y = target._position.y;
+    out_targetScale.x = target._scale.x;
+    out_targetScale.y = target._scale.y;
+    out_inverseScale.x = out_inverseScale.y = 1;
+}
+
+function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale, out_targetScale) {
+
+    if (out_targetScale) {
+        out_targetScale.x = out_targetScale.y = 1;
+    }
+
     var scaleX = widgetNode._parent._scale.x;
     var scaleY = widgetNode._parent._scale.y;
     var translateX = 0;
@@ -87,17 +100,27 @@ function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate,
 
 var tInverseTranslate = cc.Vec2.ZERO;
 var tInverseScale = cc.Vec2.ONE;
+var tTargetScale = cc.Vec2.ONE;// 只在非父节点时需要缩放
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node, widget) {
     var hasTarget = widget._target;
     var target;
-    var inverseTranslate, inverseScale;
+    var inverseTranslate, inverseScale, targetScale;
+    var isParent = false;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
         inverseScale = tInverseScale;
-        computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
+        targetScale = tTargetScale;
+
+        isParent = widget.node !== target && widget.node.isChildOf(target);
+        if (isParent) {
+            computeInverseTransForTarget(node, target, inverseTranslate, inverseScale, targetScale);
+        }
+        else {
+            computeSiblingTrans(target, inverseTranslate, inverseScale, targetScale);
+        }
     }
     else {
         target = node._parent;
@@ -117,13 +140,20 @@ function align (node, widget) {
             localRight = cc.visibleRect.right.x;
         }
         else {
-            localLeft = -targetAnchor.x * targetWidth;
+            localLeft = -(targetAnchor.x * targetWidth) * targetScale.x;
             localRight = localLeft + targetWidth;
         }
 
+        var _left = widget._left, _right = widget._right;
+        if (!isParent) {
+            // 兄弟节点停靠策略不同
+            _left *= -1;
+            _right *= -1;
+        }
+
         // adjust borders according to offsets
-        localLeft += widget._isAbsLeft ? widget._left : widget._left * targetWidth;
-        localRight -= widget._isAbsRight ? widget._right : widget._right * targetWidth;
+        localLeft += widget._isAbsLeft ? _left : _left * targetWidth;
+        localRight -= widget._isAbsRight ? _right : _right * targetWidth;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -173,13 +203,20 @@ function align (node, widget) {
             localTop = cc.visibleRect.top.y;
         }
         else {
-            localBottom = -targetAnchor.y * targetHeight;
+            localBottom = -(targetAnchor.y * targetHeight) * targetScale.y;
             localTop = localBottom + targetHeight;
         }
 
+        var _bottom = widget._bottom, _top = widget._top;
+        if (!isParent) {
+            // 兄弟节点停靠策略不同
+            _bottom *= -1;
+            _top *= -1;
+        }
+
         // adjust borders according to offsets
-        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * targetHeight;
-        localTop -= widget._isAbsTop ? widget._top : widget._top * targetHeight;
+        localBottom += widget._isAbsBottom ? _bottom : _bottom * targetHeight;
+        localTop -= widget._isAbsTop ? _top : _top * targetHeight;
 
         if (hasTarget) {
             // transform
@@ -352,7 +389,7 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (oldPos) {
 
     if (this._target) {
         target = this._target;
-        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale, new cc.Vec2());
     }
 
     var targetSize = getReadonlyNodeSize(target);
@@ -395,7 +432,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
     var inverseScale = cc.Vec2.ONE;
     if (this._target) {
         target = this._target;
-        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale, new cc.Vec2());
     }
 
     var targetSize = getReadonlyNodeSize(target);
