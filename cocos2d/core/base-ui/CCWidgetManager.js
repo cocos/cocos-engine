@@ -229,14 +229,7 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         if (CC_DEV) {
-            var target = widget._target;
-            if (target) {
-                var isParent = node !== target && node.isChildOf(target);
-                if (!isParent) {
-                    cc.errorID(6500);
-                    widget._target = null;
-                }
-            }
+            widget._validateTargetInDEV();
         }
         align(node, widget);
         if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {

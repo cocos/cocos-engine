@@ -739,12 +739,14 @@ proto.destroy = function () {
 
     // Reinitialize CallbacksInvoker, generate three new objects, could be improved
     CallbacksInvoker.call(this);
-
-    _queues[this._id] = null;
+    
     if (_queueDeps[this._id]) {
         _queueDeps[this._id].completed.length = 0;
         _queueDeps[this._id].deps.length = 0;
     }
+    delete _queues[this._id];
+    delete _queueDeps[this._id];
+
     if (_pool.indexOf(this) === -1 && _pool.length < _POOL_MAX_LENGTH) {
         _pool.push(this);
     }

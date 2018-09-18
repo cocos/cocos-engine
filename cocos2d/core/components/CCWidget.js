@@ -576,9 +576,21 @@ var Widget = cc.Class({
         WidgetManager.remove(this);
     },
 
+    _validateTargetInDEV: CC_DEV && function () {
+        var target = this._target;
+        if (target) {
+            var isParent = this.node !== target && this.node.isChildOf(target);
+            if (!isParent) {
+                cc.errorID(6500);
+                this._target = null;
+            }
+        }
+
+    },
+
     _setAlign: function (flag, isAlign) {
         var current = (this._alignFlags & flag) > 0;
-        if (isAlign == current) {
+        if (isAlign === current) {
             return;
         }
         var isHorizontal = (flag & LEFT_RIGHT) > 0;
