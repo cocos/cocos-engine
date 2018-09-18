@@ -210,7 +210,12 @@ export class GltfAnimationResource extends AnimationResource {
 
         for (let i = 0; i < gltfAnimation.channels.length; ++i) {
             let gltfChannel = gltfAnimation.channels[i];
-            let inputAcc = gltf.accessors[gltfChannel.input];
+            if (gltfChannel.target.node === undefined) {
+                // When node isn't defined, channel should be ignored.
+                continue;
+            }
+            let gltfSampler = gltf.samplers[gltfChannel.sampler];
+            let inputAcc = gltf.accessors[gltfSampler.input];
 
             // find frames by input name
             /** @type {cc.d3.animation.Frame} */
@@ -224,7 +229,7 @@ export class GltfAnimationResource extends AnimationResource {
 
             // if not found, create one
             if (!frames) {
-                let inArray = _createArray(gltf, bin, gltfChannel.input);
+                let inArray = _createArray(gltf, bin, gltfSampler.input);
                 /** @type {number[]} */
                 let inputs = new Array(inArray.length);
                 for (let i = 0; i < inArray.length; ++i) {
@@ -248,7 +253,7 @@ export class GltfAnimationResource extends AnimationResource {
             /** @type {cc.d3.animation.JointFrame} */
             let jointFrames;
             for (let j = 0; j < frames.joints.length; ++j) {
-                if (frames.joints[j].id === gltfChannel.node) {
+                if (frames.joints[j].id === gltfChannel.target.node) {
                     jointFrames = frames.joints[j];
                     break;
                 }
@@ -257,13 +262,13 @@ export class GltfAnimationResource extends AnimationResource {
             // if not found, create one
             if (!jointFrames) {
                 jointFrames = {
-                    id: gltfChannel.node
+                    id: gltfChannel.target.node
                 };
                 frames.joints.push(jointFrames);
             }
 
             let outArray = _createArray(gltf, bin, gltfChannel.output);
-            if (gltfChannel.path === 'translation') {
+            if (gltfChannel.target.path === 'translation') {
                 let cnt = outArray.length / 3;
                 jointFrames.translations = new Array(cnt);
                 for (let i = 0; i < cnt; ++i) {
@@ -273,7 +278,7 @@ export class GltfAnimationResource extends AnimationResource {
                         outArray[3 * i + 2]
                     );
                 }
-            } else if (gltfChannel.path === 'rotation') {
+            } else if (gltfChannel.target.path === 'rotation') {
                 let cnt = outArray.length / 4;
                 jointFrames.rotations = new Array(cnt);
                 for (let i = 0; i < cnt; ++i) {
@@ -284,7 +289,7 @@ export class GltfAnimationResource extends AnimationResource {
                         outArray[4 * i + 3]
                     );
                 }
-            } else if (gltfChannel.path === 'scale') {
+            } else if (gltfChannel.target.path === 'scale') {
                 let cnt = outArray.length / 3;
                 jointFrames.scales = new Array(cnt);
                 for (let i = 0; i < cnt; ++i) {
@@ -339,6 +344,7 @@ const _gltfAttribMap = {
  * @param {GLTFFormat} gltf
  * @param {ArrayBuffer} bin
  * @param {number} accessorID
+ * @return {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array}
  */
 function _createArray(gltf, bin, accessorID) {
     let acc = gltf.accessors[accessorID];
@@ -446,8 +452,10 @@ export function createSkeleton(gltfAsset, index) {
     const gltfSkin = gltf.skins[index];
     const skeleton = new Skeleton();
     skeleton.name = gltfSkin.name;
-    const rootNode = _createNodeRecursive(gltf, gltfSkin.skeleton);
+    const rootIndex = gltfSkin.skeleton === undefined ? 0 : gltfSkin.skeleton;
+    const rootNode = _createNodeRecursive(gltf, rootIndex);
     skeleton._rootNode = rootNode;
+    skeleton._indexDelta = rootIndex;
     return skeleton;
 }
 
