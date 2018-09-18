@@ -1,56 +1,150 @@
-import Asset from './asset';
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-export default class Mesh extends Asset {
-  constructor() {
-    super();
+ http://www.cocos.com
 
-    this._subMeshes = null; // [renderer.InputAssemblers]
-    this._skinning = null; // {jointIndices, bindposes}
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
 
-    this._minPos = null; // vec3
-    this._maxPos = null; // vec3
-  }
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-  unload() {
-    if (!this._loaded) {
-      return;
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const { ccclass, property } = _decorator;
+import Asset from "../../assets/CCAsset";
+
+/**
+ * @interface
+ */
+@ccclass
+export class MeshResource {
+    /**
+     * 
+     * @param {Mesh} mesh 
+     */
+    flush(mesh) {
+
     }
-
-    // destroy vertex buffer
-    this._subMeshes[0]._vertexBuffer.destroy();
-
-    // destroy index buffers
-    for (let i = 0; i < this._subMeshes.length; ++i) {
-      let mesh = this._subMeshes[i];
-      mesh._indexBuffer.destroy();
-    }
-
-    this._subMeshes = null;
-
-    super.unload();
-  }
-
-  get skinning() {
-    return this._skinning;
-  }
-
-  get subMeshCount() {
-    return this._subMeshes.length;
-  }
-
-  getSubMesh(idx) {
-    return this._subMeshes[idx];
-  }
-
-  // TODO
-  // updateData () {
-  //   // store the data
-  //   if (this._persist) {
-  //     if (this._data) {
-  //       this._data.set(data, offset);
-  //     } else {
-  //       this._data = data;
-  //     }
-  //   }
-  // }
 }
+
+@ccclass
+export default class Mesh extends Asset {
+    /**
+     * @type {MeshResource}
+     */
+    @property(MeshResource)
+    _resource = null;
+
+    get resource() {
+        return this._resource;
+    }
+
+    set resource(value) {
+        this._resource = value;
+        this.update();
+    }
+
+    constructor() {
+        super();
+
+        /**
+         * @type {cc.renderer.InputAssembler[]}
+         */
+        this._subMeshes = null;
+
+        /**
+         * @type {cc.d3.asset.MeshSkinning}
+         */
+        this._skinning = null;
+
+        /**
+         * @type {cc.core.math.vec3}
+         */
+        this._minPos = null;
+
+        /**
+         * @type {cc.core.math.vec3}
+         */
+        this._maxPos = null;
+    }
+
+    /**
+     * 
+     */
+    flush() {
+        this._resource.flush(this);
+    }
+
+    /**
+     * !#en
+     * Destory this mesh and immediately release its video memory.
+     */
+    destroy() {
+        if (this._subMeshes !== null) {
+            // Destroy vertex buffer
+            this._subMeshes[0]._vertexBuffer.destroy();
+            // Destroy index buffers
+            for (let i = 0; i < this._subMeshes.length; ++i) {
+                this._subMeshes[i]._indexBuffer.destroy();
+            }
+            this._subMeshes = null;
+        }
+
+        return super.destroy();
+    }
+
+    /**
+     * !#en
+     * Submeshes count of this mesh.
+     * @property {number}
+     */
+    get subMeshCount() {
+        return this._subMeshes.length;
+    }
+
+    /**
+     * !#en
+     * Gets the specified submesh.
+     * @param {number} index Index of the specified submesh.
+     */
+    getSubMesh(index) {
+        return this._subMeshes[index];
+    }
+
+    /**
+     * !#en
+     * Gets the skinning data associated with this mesh.
+     */
+    get skinning() {
+        return this._skinning;
+    }
+
+    // TODO
+    // updateData () {
+    //   // store the data
+    //   if (this._persist) {
+    //     if (this._data) {
+    //       this._data.set(data, offset);
+    //     } else {
+    //       this._data = data;
+    //     }
+    //   }
+    // }
+}
+
+cc.Mesh = Mesh;

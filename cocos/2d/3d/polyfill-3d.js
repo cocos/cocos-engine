@@ -246,15 +246,17 @@ function _update3DFunction () {
         this._updateLocalMatrix = _updateLocalMatrix3d;
         this._calculWorldMatrix = _calculWorldMatrix3d;
         this._mulMat = cc.vmath.mat4.mul;
+        this._syncEulerAngles = _syncEulerAngles;
     }
     else {
         this._updateLocalMatrix = _updateLocalMatrix2d;
         this._calculWorldMatrix = _calculWorldMatrix2d;
         this._mulMat = _mulMat2d;
+        this._syncEulerAngles = _syncEulerAngles2d;
     }
 }
 
-function _apply3DNode () {
+function _upgrade_1x_to_2x () {
     if (CC_EDITOR && this instanceof cc.Scene) {
         this._is3DNode = true;
     }
@@ -263,12 +265,15 @@ function _apply3DNode () {
         this._update3DFunction();
     }
 
-    this._syncEulerAngles();
+    _upgrade_1x_to_2x_2d.call(this);
 }
+
 
 let proto = cc.Node.prototype;
 const _updateLocalMatrix2d = proto._updateLocalMatrix;
 const _calculWorldMatrix2d = proto._calculWorldMatrix;
+const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
+const _syncEulerAngles2d = proto._syncEulerAngles;
 const _mulMat2d = proto._mulMat;
 const _onBatchCreated2d = proto._onBatchCreated;
 
@@ -280,8 +285,7 @@ proto.setPosition = setPosition;
 proto.getScale = getScale;
 proto.setScale = setScale;
 
-proto._upgrade_1x_to_2x = _apply3DNode;
-proto._syncEulerAngles = _syncEulerAngles;
+proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
 proto._update3DFunction = _update3DFunction;
 
 cc.js.getset(proto, 'position', getPosition, setPosition, false, true);
@@ -293,6 +297,7 @@ cc.js.getset(proto, 'is3DNode', function () {
     if (this._is3DNode === v) return;
     this._is3DNode = v;
     this._update3DFunction();
+    this._syncEulerAngles();
 });
 
 cc.js.getset(proto, 'quat', getQuat, setQuat);

@@ -26,8 +26,6 @@
 
 import CCObject from '../core/data/object';
 import { array } from '../core/utils/js';
-import _decorator from '../core/data/class-decorator';
-const { ccclass } = _decorator;
 
 var IsStartCalled = CCObject.Flags.IsStartCalled;
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;

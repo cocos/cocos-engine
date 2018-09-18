@@ -99,6 +99,9 @@ class AnimationCtrl {
   }
 }
 
+
+@executionOrder(200)
+@ccclass('AnimationComponent')
 export default class AnimationComponent extends Component {
   onInit() {
     this._name2states = {};
@@ -110,7 +113,7 @@ export default class AnimationComponent extends Component {
      */
     this.clips = this._clips;
 
-    this._system.add(this);
+    AnimationComponent.system.add(this);
 
     if (this._playAutomatically != undefined &&
       this._playAutomatically &&
@@ -121,7 +124,7 @@ export default class AnimationComponent extends Component {
   }
 
   onDestroy() {
-    this._system.remove(this);
+    AnimationComponent.system.remove(this);
   }
 
   get skeleton () {

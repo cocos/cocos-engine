@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshRenderer = require('../components/CCMeshRenderer');
+const MeshRenderer = require('../mesh/CCMeshRenderer');
 const renderEngine = require('../renderer/render-engine');
 const mat4 = cc.vmath.mat4;
 

@@ -30,7 +30,7 @@ const Model = require('./CCModel');
  */
 /**
  * !#en SkeletonAnimationClip Asset.
- * !#zh 网格资源。
+ * !#zh 骨骼动画剪辑。
  * @class SkeletonAnimationClip
  * @extends AnimationClip
  */

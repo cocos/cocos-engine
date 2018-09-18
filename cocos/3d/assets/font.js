@@ -1,28 +1,81 @@
-import Asset from './asset';
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+// @ts-check
+import { _decorator } from "../../core/data/index";
+const {ccclass} = _decorator;
+import Asset from "../../assets/CCAsset";
+
+@ccclass
 export default class Font extends Asset {
-  constructor() {
-    super();
+     /** Font size.
+     * @type {number}
+     */
+    _size = 32;
 
-    this._size = 32; // font size
-    this._type = 'unknow'; // font type: bitmap or opentype
-    // bitmap font glyph: {char, x, y, width, height, xoffset, yoffset, xadvance}
-    // opentype font glyph: {id, x, y, width, height, xoffset, yoffset, xadvance}
-    this._glyphs = {};
-    this._lineHeight = 32;
-    this._useKerning = false;
-  }
+    /** Font type.
+     * @type {cc.d3.font.FontType}
+     */
+    _type = "unknow";
 
-  get size() {
-    return this._size;
-  }
+    /**
+     * Line height.
+     * @type {number}
+     */
+    _lineHeight = 32;
 
-  get lineHeight() {
-    return this._lineHeight;
-  }
+    /**
+     * 
+     * @type {boolean}
+     */
+    _useKerning = false;
 
-  get type() {
-    return this._type;
-  }
+    /**
+     * @type {cc.d3.font.Glyph[]}
+     */
+    _glyphs = [];
 
+    /**
+     * @return {number}
+     */
+    get size() {
+        return this._size;
+    }
+
+    /**
+     * @return {number}
+     */
+    get lineHeight() {
+        return this._lineHeight;
+    }
+
+    /**
+     * @return {cc.d3.font.FontType}
+     */
+    get type() {
+        return this._type;
+    }
 }
+
+cc.Font = Font;

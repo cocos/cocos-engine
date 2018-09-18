@@ -22,71 +22,31 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+//@ts-check
+import { _decorator } from "../core/data/index";
+const {ccclass, property} = _decorator;
 
- /**
- * @module cc
- */
 /**
- * !#en Mesh Asset.
- * !#zh 网格资源。
- * @class Mesh
+ * !#en
+ * Class for buffer asset.
+ *
+ * !#zh
+ * Buffer 资源类。<br>
+ *
+ * @class BufferAsset
  * @extends Asset
  */
-var Mesh = cc.Class({
-    name: 'cc.Mesh',
-    extends: cc.Asset,
-
-    properties: {
-        _modelSetter: {
-            set: function (model) {
-                this.initWithModel(model);
-            }
-        },
-
-        /**
-         * !#en Get ir set the sub meshes.
-         * !#zh 设置或者获取子网格。
-         * @property {[renderEngine.InputAssembler]} subMeshes
-         */
-        subMeshes: {
-            get () {
-                return this._subMeshes;
-            },
-            set (v) {
-                this._subMeshes = v;
-            }
-        }
-    },
-
-    ctor () {
-        this._modelUuid = '';
-        this._meshID = -1;
-        this._model = null;
-
-        this._subMeshes = [];
-    },
-
-    initWithModel (model) {
-        if (!model) return;
-        this._model = model;
-        this._model.initMesh(this);
-    },
-
-    _serialize: CC_EDITOR && function () {
-        return {
-            modelUuid: this._modelUuid,
-            meshID: this._meshID,
-        }
-    },
-
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._meshID = data.meshID;
-
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
-        }
+@ccclass
+export class BufferAsset extends cc.Asset {
+    /**
+     * @type {ArrayBuffer}
+     */
+    get data() {
+        return this._data;
     }
-});
 
-cc.Mesh = module.exports = Mesh;
+    /**
+     * @type {ArrayBuffer}
+     */
+    _data = null;
+}

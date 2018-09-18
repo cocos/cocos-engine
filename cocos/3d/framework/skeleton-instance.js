@@ -1,10 +1,33 @@
-import { utils } from '../scene-graph';
-import { vec3, quat, mat4 } from '../vmath';
+// @ts-check
+import { vec3, quat, mat4 } from '../../core/vmath';
 
 let _v3_tmp = vec3.create();
 let _qt_tmp = quat.create();
 
-export default class Skeleton {
+/**
+ * 
+ * @param {cc.Node} node 
+ * @param {(node: cc.Node)=>void} fx 
+ */
+function _walk(node, fx) {
+  fx(node);
+  for (let i = 0; i < node.childrenCount; ++i) {
+    _walk(node.children[i], fx);
+  }
+}
+
+/**
+ * 
+ * @param {cc.Node} node 
+ * @param {cc.Node[]} result
+ */
+function _flat(node, result) {
+  _walk(node, (childNode) => {
+    result.push(childNode);
+  });
+}
+
+export default class SkeletonInstance {
   constructor() {
     this._root = null;
     this._joints = null;
@@ -12,8 +35,18 @@ export default class Skeleton {
   }
 
   setRoot(root) {
+    /**
+     * @type {cc.Node}
+     */
     this._root = root;
-    this._joints = utils.flat(this._root);
+    /**
+     * @type {cc.Node[]}
+     */
+    this._joints = [];
+    _flat(this._root, this._joints);
+    /**
+     * @type {mat4[]}
+     */
     this._matrices = new Array(this._joints.length);
 
     for (let i = 0; i < this._joints.length; ++i) {
@@ -60,8 +93,8 @@ export default class Skeleton {
   }
 
   clone() {
-    let newSkeleton = new Skeleton();
-    newSkeleton.setRoot(utils.deepClone(this._root));
+    let newSkeleton = new SkeletonInstance();
+    newSkeleton.setRoot(cc.instantiate(this._root));
 
     return newSkeleton;
   }
@@ -73,6 +106,7 @@ export default class Skeleton {
 
 export class SkeletonMask {
   constructor(skeleton) {
+    /** @type {SkeletonInstance} */
     this._skeleton = skeleton;
 
     this._isMaskedArray = new Array(skeleton._joints.length);
@@ -91,7 +125,7 @@ export class SkeletonMask {
     }
 
     this._isMaskedArray[jointIndex] = masked;
-    utils.walk(this._skeleton._joints[jointIndex], (joint) => {
+    _walk(this._skeleton._joints[0], joint => {
       let idx = this._skeleton._joints.indexOf(joint);
       if (idx >= 0) {
         this._isMaskedArray[idx] = masked;

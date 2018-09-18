@@ -69,6 +69,7 @@ export default class Canvas extends Component {
         this._designResolution.width = value.width;
         this._designResolution.height = value.height;
         this.applySettings();
+        this.alignWithScreen();
     }
 
     @property
@@ -92,6 +93,7 @@ export default class Canvas extends Component {
         if (this._fitHeight !== value) {
             this._fitHeight = value;
             this.applySettings();
+            this.alignWithScreen();
         }
     }
 
@@ -111,12 +113,8 @@ export default class Canvas extends Component {
         if (this._fitWidth !== value) {
             this._fitWidth = value;
             this.applySettings();
+            this.alignWithScreen();
         }
-    }
-
-    constructor () {
-        super();
-        this._thisOnResized = this.onResized.bind(this);
     }
 
     resetInEditor () {
@@ -135,8 +133,6 @@ export default class Canvas extends Component {
         }
         Canvas.instance = this;
 
-        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
@@ -150,7 +146,7 @@ export default class Canvas extends Component {
         }
 
         this.applySettings();
-        this.onResized();
+        this.alignWithScreen();
 
         // Camera could be removed in canvas render mode
         let cameraNode = cc.find('Main Camera', this.node);
@@ -162,7 +158,7 @@ export default class Canvas extends Component {
         let camera = cameraNode.getComponent(Camera);
         if (!camera) {
             camera = cameraNode.addComponent(Camera);
-            
+
             let ClearFlags = Camera.ClearFlags;
             camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
             camera.depth = -1;
@@ -171,8 +167,6 @@ export default class Canvas extends Component {
     }
 
     onDestroy () {
-        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
@@ -213,11 +207,6 @@ export default class Canvas extends Component {
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
-    }
-
-    onResized () {
-        // TODO - size dirty
-        this.alignWithScreen();
     }
 
     applySettings () {
