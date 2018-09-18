@@ -53,7 +53,7 @@ function loadImage (item) {
     var loadByDeserializedAsset = (item._owner instanceof cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
-        return null;
+        return item._owner;
     }
 
     var image = item.content;
