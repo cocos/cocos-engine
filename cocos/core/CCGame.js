@@ -27,7 +27,10 @@
 import EventTarget from './event/event-target';
 import inputManager from './platform/event-manager/CCInputManager';
 import debug from './platform/CCDebug';
-import {addon} from './utils/js';
+import { addon } from './utils/js';
+
+import renderer from '../renderer';
+import gfx from '../renderer/gfx';
 
 /**
  * @module cc
@@ -80,7 +83,7 @@ var game = {
     EVENT_GAME_INITED: "game_inited",
 
     /**
-     * Event triggered after engine inited, at this point you will be able to use all engine classes. 
+     * Event triggered after engine inited, at this point you will be able to use all engine classes.
      * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
      * @property EVENT_ENGINE_INITED
      * @constant
@@ -231,9 +234,9 @@ var game = {
      */
     onStart: null,
 
-//@Public Methods
+    //@Public Methods
 
-//  @Game play control
+    //  @Game play control
     /**
      * !#en Set frame rate of game.
      * !#zh 设置游戏帧率。
@@ -340,9 +343,9 @@ var game = {
         close();
     },
 
-//  @Game loading
+    //  @Game loading
 
-    _initEngine () {
+    _initEngine() {
         if (this._rendererInitialized) {
             return;
         }
@@ -356,7 +359,7 @@ var game = {
         this.emit(this.EVENT_ENGINE_INITED);
     },
 
-    _prepareFinished (cb) {
+    _prepareFinished(cb) {
         this._prepared = true;
 
         // Init engine
@@ -396,7 +399,7 @@ var game = {
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
-    on (type, callback, target) {
+    on(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -423,7 +426,7 @@ var game = {
      * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    once (type, callback, target) {
+    once(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -439,7 +442,7 @@ var game = {
      * @param {Function} cb
      * @method prepare
      */
-    prepare (cb) {
+    prepare(cb) {
         // Already prepared
         if (this._prepared) {
             if (cb) cb();
@@ -473,7 +476,7 @@ var game = {
         this.prepare(game.onStart && game.onStart.bind(game));
     },
 
-//  @ Persist root node section
+    //  @ Persist root node section
     /**
      * !#en
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
@@ -496,7 +499,7 @@ var game = {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if ( !(node.parent instanceof cc.Scene) ) {
+                else if (!(node.parent instanceof cc.Scene)) {
                     cc.warnID(3801);
                     return;
                 }
@@ -535,9 +538,9 @@ var game = {
         return node._persistNode;
     },
 
-//@Private Methods
+    //@Private Methods
 
-//  @Time ticker section
+    //  @Time ticker section
     _setAnimFrame: function () {
         this._lastTime = new Date();
         var frameRate = game.config.frameRate;
@@ -555,34 +558,34 @@ var game = {
             }
             else {
                 window.requestAnimFrame = window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame ||
-                window.mozRequestAnimationFrame ||
-                window.oRequestAnimationFrame ||
-                window.msRequestAnimationFrame ||
-                this._stTime;
+                    window.webkitRequestAnimationFrame ||
+                    window.mozRequestAnimationFrame ||
+                    window.oRequestAnimationFrame ||
+                    window.msRequestAnimationFrame ||
+                    this._stTime;
                 window.cancelAnimFrame = window.cancelAnimationFrame ||
-                window.cancelRequestAnimationFrame ||
-                window.msCancelRequestAnimationFrame ||
-                window.mozCancelRequestAnimationFrame ||
-                window.oCancelRequestAnimationFrame ||
-                window.webkitCancelRequestAnimationFrame ||
-                window.msCancelAnimationFrame ||
-                window.mozCancelAnimationFrame ||
-                window.webkitCancelAnimationFrame ||
-                window.oCancelAnimationFrame ||
-                this._ctTime;
+                    window.cancelRequestAnimationFrame ||
+                    window.msCancelRequestAnimationFrame ||
+                    window.mozCancelRequestAnimationFrame ||
+                    window.oCancelRequestAnimationFrame ||
+                    window.webkitCancelRequestAnimationFrame ||
+                    window.msCancelAnimationFrame ||
+                    window.mozCancelAnimationFrame ||
+                    window.webkitCancelAnimationFrame ||
+                    window.oCancelAnimationFrame ||
+                    this._ctTime;
             }
         }
     },
-    _stTime: function(callback){
+    _stTime: function (callback) {
         var currTime = new Date().getTime();
         var timeToCall = Math.max(0, game._frameTime - (currTime - game._lastTime));
-        var id = window.setTimeout(function() { callback(); },
+        var id = window.setTimeout(function () { callback(); },
             timeToCall);
         game._lastTime = currTime + timeToCall;
         return id;
     },
-    _ctTime: function(id){
+    _ctTime: function (id) {
         window.clearTimeout(id);
     },
     //Run game.
@@ -609,8 +612,8 @@ var game = {
         self._paused = false;
     },
 
-//  @Game loading section
-    _initConfig (config) {
+    //  @Game loading section
+    _initConfig(config) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
             config.debugMode = 0;
@@ -641,14 +644,14 @@ var game = {
         this._configLoaded = true;
     },
 
-    _determineRenderType () {
+    _determineRenderType() {
         let config = this.config,
             userRenderMode = parseInt(config.renderMode) || 0;
-    
+
         // Determine RenderType
         this.renderType = this.RENDER_TYPE_CANVAS;
         let supportRender = false;
-    
+
         if (userRenderMode === 0) {
             if (cc.sys.capabilities['opengl']) {
                 this.renderType = this.RENDER_TYPE_WEBGL;
@@ -667,13 +670,13 @@ var game = {
             this.renderType = this.RENDER_TYPE_WEBGL;
             supportRender = true;
         }
-    
+
         if (!supportRender) {
             throw new Error(debug.getError(3820, userRenderMode));
         }
     },
 
-    _initRenderer () {
+    _initRenderer() {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
@@ -729,7 +732,7 @@ var game = {
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-            function addClass (element, name) {
+            function addClass(element, name) {
                 var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
                 if (!hasClass) {
                     if (element.className) {
@@ -756,14 +759,27 @@ var game = {
             if (isWeChatGame || isQQPlay) {
                 opts['preserveDrawingBuffer'] = true;
             }
-            renderer.initWebGL(localCanvas, opts);
-            this._renderContext = renderer.device._gl;
+
+            {
+                // todo, adjust opts here
+                let device = this._renderContext = new gfx.Device(localCanvas, {});
+                // todo, fix builtins here
+                this._renderer = new renderer.ForwardRenderer(device);
+            }
+            // renderer.initWebGL(localCanvas, opts);
+            // this._renderContext = renderer.device._gl;
         }
         if (!this._renderContext) {
+            // todo fix here for wechat game
+            console.error('can not support canvas rendering in 3D');
+            this._renderer = null;
+            this._renderContext = null;
             this.renderType = this.RENDER_TYPE_CANVAS;
+            return;
+            // this.renderType = this.RENDER_TYPE_CANVAS;
             // Could be ignored by module settings
-            renderer.initCanvas(localCanvas);
-            this._renderContext = renderer.device._ctx;
+            // renderer.initCanvas(localCanvas);
+            // this._renderContext = renderer.device._ctx;
         }
 
         this.canvas.oncontextmenu = function () {
@@ -792,13 +808,13 @@ var game = {
 
         var hidden = false;
 
-        function onHidden () {
+        function onHidden() {
             if (!hidden) {
                 hidden = true;
                 game.emit(game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        function onShown() {
             if (hidden) {
                 hidden = false;
                 game.emit(game.EVENT_SHOW);
