@@ -322,8 +322,6 @@ var StudioWidget = cc.Class({
     extends: cc.Widget,
     editor: CC_EDITOR && {
         inspector: 'packages://inspector/inspectors/comps/ccwidget.js',
-        executeInEditMode: true,
-        disallowMultiple: true,
     },
     _validateTargetInDEV () {}
 });
