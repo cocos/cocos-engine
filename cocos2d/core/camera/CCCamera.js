@@ -182,7 +182,7 @@ let Camera = cc.Class({
          * The near clipping plane.
          * !#zh
          * 摄像机的近剪裁面。
-         * @property {Number} near
+         * @property {Number} nearClip
          * @default 0.1
          */
         nearClip: {
@@ -200,7 +200,7 @@ let Camera = cc.Class({
          * The far clipping plane.
          * !#zh
          * 摄像机的远剪裁面。
-         * @property {Number} far
+         * @property {Number} farClip
          * @default 4096
          */
         farClip: {
@@ -215,11 +215,11 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * The camera projection mode.
+         * Is the camera orthographic (true) or perspective (false)?
          * !#zh
-         * 摄像机的投影模式。
-         * @property {Camera.Projection} projection
-         * @default Camera.Projection.PERSPECTIVE
+         * 设置摄像机的投影模式是正交还是透视模式。
+         * @property {Boolean} ortho
+         * @default false
          */
         ortho: {
             get () {
