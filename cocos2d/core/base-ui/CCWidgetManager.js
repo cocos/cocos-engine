@@ -51,7 +51,18 @@ function getReadonlyNodeSize (parent) {
     }
 }
 
-function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
+function computeSiblingTrans (target, out_inverseTranslate, out_inverseScale, out_targetScale) {
+    out_inverseTranslate.x = target._position.x;
+    out_inverseTranslate.y = target._position.y;
+    out_targetScale.x = target._scale.x;
+    out_targetScale.y = target._scale.y;
+    out_inverseScale.x = out_inverseScale.y = 1;
+}
+
+function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale, out_targetScale) {
+
+    out_targetScale.x = out_targetScale.y = 1;
+
     var scaleX = widgetNode._parent._scale.x;
     var scaleY = widgetNode._parent._scale.y;
     var translateX = 0;
@@ -87,17 +98,26 @@ function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate,
 
 var tInverseTranslate = cc.Vec2.ZERO;
 var tInverseScale = cc.Vec2.ONE;
+var tTargetScale = cc.Vec2.ONE;// 只在非父节点时需要缩放
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node, widget) {
     var hasTarget = widget._target;
     var target;
-    var inverseTranslate, inverseScale;
+    var inverseTranslate, inverseScale, targetScale;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
         inverseScale = tInverseScale;
-        computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
+        targetScale = tTargetScale;
+
+        var isParent = widget.node !== target && widget.node.isChildOf(target);
+        if (isParent) {
+            computeInverseTransForTarget(node, target, inverseTranslate, inverseScale, targetScale);
+        }
+        else {
+            computeSiblingTrans(target, inverseTranslate, inverseScale, targetScale);
+        }
     }
     else {
         target = node._parent;
@@ -117,7 +137,7 @@ function align (node, widget) {
             localRight = cc.visibleRect.right.x;
         }
         else {
-            localLeft = -targetAnchor.x * targetWidth;
+            localLeft = -(targetAnchor.x * targetWidth) * targetScale.x;
             localRight = localLeft + targetWidth;
         }
 
@@ -173,7 +193,7 @@ function align (node, widget) {
             localTop = cc.visibleRect.top.y;
         }
         else {
-            localBottom = -targetAnchor.y * targetHeight;
+            localBottom = -(targetAnchor.y * targetHeight) * targetScale.y;
             localTop = localBottom + targetHeight;
         }
 
