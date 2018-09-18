@@ -210,6 +210,25 @@ var Mesh = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Set the sub mesh primitive type.
+     * !#zh
+     * 设置子网格绘制线条的方式。
+     * @method setPrimitiveType
+     * @param {Number} type 
+     * @param {Number} index 
+     */
+    setPrimitiveType (type, index) {
+        index = index || 0;
+        let subMesh = this._subMeshes[index];
+        if (!subMesh) {
+            cc.warn(`Do not have sub mesh at index ${index}`);
+            return;
+        }
+        this._subMeshes[index]._primitiveType = type;
+    },
+
     /** 
      * !#en
      * Clear the buffer data.
@@ -285,5 +304,6 @@ var Mesh = cc.Class({
         }
     }
 });
+
 
 cc.Mesh = module.exports = Mesh;
