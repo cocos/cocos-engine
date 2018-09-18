@@ -5,6 +5,8 @@ import utils from '../misc/utils';
 
 let _m4_tmp = mat4.create();
 
+@executionOrder(100)
+@ccclass('SkinningModelComponent')
 export default class SkinningModelComponent extends ModelComponent {
   onInit() {
     this._models = [];
@@ -17,13 +19,13 @@ export default class SkinningModelComponent extends ModelComponent {
     this._updateCastShadow();
     this._updateReceiveShadow();
 
-    this._system.add(this);
+    SkinningModelComponent.system.add(this);
 
     this.joints = this._joints;
   }
 
   onDestroy() {
-    this._system.remove(this);
+    SkinningModelComponent.system.remove(this);
   }
 
   _updateMatrices() {
