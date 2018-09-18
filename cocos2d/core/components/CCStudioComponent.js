@@ -320,6 +320,11 @@ cc.StudioComponent = module.exports = StudioComponent;
 var StudioWidget = cc.Class({
     name: 'cc.StudioWidget',
     extends: cc.Widget,
+    editor: CC_EDITOR && {
+        inspector: 'packages://inspector/inspectors/comps/ccwidget.js',
+        executeInEditMode: true,
+        disallowMultiple: true,
+    },
     _validateTargetInDEV () {}
 });
 
