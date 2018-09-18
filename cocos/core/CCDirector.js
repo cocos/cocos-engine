@@ -31,6 +31,11 @@ import ccobject from './data/object';
 import game from './CCGame';
 import Scheduler from './CCScheduler';
 import {autoRelease} from '../load-pipeline/auto-release-utils';
+import ComponentScheduler from '../scene-graph/component-scheduler';
+import NodeActivator from '../scene-graph/node-activator';
+import AnimationSystem from '../3d/framework/animation-system';
+import SkinningModelSystem from '../3d/framework/skinning-model-system';
+import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -115,8 +120,6 @@ class Director extends EventTarget {
         // purge?
         this._purgeDirectorInNextLoop = false;
 
-        this._winSizeInPoints = null;
-
         // scenes
         this._loadingScene = '';
         this._scene = null;
@@ -135,6 +138,8 @@ class Director extends EventTarget {
         // Action manager
         this._actionManager = null;
 
+        this._systems = [];
+
         var self = this;
         game.on(game.EVENT_SHOW, function () {
             self._lastUpdate = performance.now();
@@ -148,7 +153,6 @@ class Director extends EventTarget {
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
-        this._winSizeInPoints = cc.size(0, 0);
         this._scheduler = new Scheduler();
 
         if (cc.ActionManager) {
@@ -170,42 +174,8 @@ class Director extends EventTarget {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
-
-        // Animation manager
-        if (cc.AnimationManager) {
-            this._animationManager = new cc.AnimationManager();
-            this._scheduler.scheduleUpdate(this._animationManager, Scheduler.PRIORITY_SYSTEM, false);
-        }
-        else {
-            this._animationManager = null;
-        }
-
-        // collision manager
-        if (cc.CollisionManager) {
-            this._collisionManager = new cc.CollisionManager();
-            this._scheduler.scheduleUpdate(this._collisionManager, Scheduler.PRIORITY_SYSTEM, false);
-        }
-        else {
-            this._collisionManager = null;
-        }
-
-        // physics manager
-        if (cc.PhysicsManager) {
-            this._physicsManager = new cc.PhysicsManager();
-            this._scheduler.scheduleUpdate(this._physicsManager, Scheduler.PRIORITY_SYSTEM, false);
-        }
-        else {
-            this._physicsManager = null;
-        }
-
-        // WidgetManager
-        if (cc._widgetManager) {
-            cc._widgetManager.init(this);
-        }
+        this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
+        this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
 
         cc.loader.init(this);
     }
@@ -315,7 +285,7 @@ class Director extends EventTarget {
     /**
      * !#en Pause the director's ticker, only involve the game logic execution.
      * It won't pause the rendering process nor the event manager.
-     * If you want to pause the entier game including rendering, audio and event, 
+     * If you want to pause the entier game including rendering, audio and event,
      * please use {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}
      * !#zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
@@ -373,25 +343,9 @@ class Director extends EventTarget {
         if (eventManager)
             eventManager.setEnabled(true);
 
-        // Action manager
-        if (this._actionManager){
-            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
-
-        // Animation manager
-        if (this._animationManager) {
-            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
-
-        // Collider manager
-        if (this._collisionManager) {
-            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
-
-        // Physics manager
-        if (this._physicsManager) {
-            this._scheduler.scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
+        this._systems.forEach((sys) => {
+            this._scheduler.scheduleUpdate(sys, sys._priority, false);
+        });
 
         this.startAnimation();
     }
@@ -588,8 +542,8 @@ class Director extends EventTarget {
         var info = this._getSceneUuid(sceneName);
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, 
-                onProgress,    
+            cc.loader.load({ uuid: info.uuid, type: 'uuid' },
+                onProgress,
                 function (error, asset) {
                     if (error) {
                         cc.errorID(1210, sceneName, error.message);
@@ -597,7 +551,7 @@ class Director extends EventTarget {
                     if (onLoaded) {
                         onLoaded(error, asset);
                     }
-                });       
+                });
         }
         else {
             var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
@@ -822,6 +776,41 @@ class Director extends EventTarget {
     }
 
     /**
+     * !#en register a system.
+     * !#zh 注册一个system。
+     * @method registerSystem
+     * @param {string} name
+     * @param {function} cls
+     * @param {Array} compClsNames
+     * @param {number} priority
+     * @return {System}
+     */
+    registerSystem(name, cls, compClsNames, priority) {
+        let sys = new cls();
+        sys._id = name;
+        sys._priority = priority;
+        compClsNames.forEach((compName) => {
+            getClassByName(compName).system = sys;
+        });
+        this._scheduler.scheduleUpdate(sys, priority, false);
+        sys.init();
+        this._systems.push(sys);
+        return sys;
+    }
+
+    /**
+     * !#en get a system.
+     * !#zh 获取一个system。
+     * @param {string} name
+     * @return {System}
+     */
+    getSystem(name) {
+        return this._systems.find((sys) => {
+            return sys._id === name;
+        });
+    }
+
+    /**
      * !#en Returns the cc.ActionManager associated with this director.
      * !#zh 获取和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method getActionManager
@@ -844,36 +833,6 @@ class Director extends EventTarget {
             this._actionManager = actionManager;
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
-    }
-
-    /* 
-     * !#en Returns the cc.AnimationManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
-     * @method getAnimationManager
-     * @return {AnimationManager}
-     */
-    getAnimationManager () {
-        return this._animationManager;
-    }
-
-    /**
-     * !#en Returns the cc.CollisionManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.CollisionManager （碰撞管理器）。
-     * @method getCollisionManager
-     * @return {CollisionManager}
-     */
-    getCollisionManager () {
-        return this._collisionManager;
-    }
-
-    /**
-     * !#en Returns the cc.PhysicsManager associated with this director.
-     * !#zh 返回与 director 相关联的 cc.PhysicsManager （物理管理器）。
-     * @method getPhysicsManager
-     * @return {PhysicsManager}
-     */
-    getPhysicsManager () {
-        return this._physicsManager;
     }
 
     // Loop management
