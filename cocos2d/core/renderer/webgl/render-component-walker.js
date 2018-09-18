@@ -149,7 +149,7 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : this.cullingMask;
+        model._cullingMask = this.cullingMask;
         model.setNode(this.node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
@@ -177,7 +177,7 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._cullingMask = CC_EDITOR ? 1 : this.cullingMask;
+        model._cullingMask = this.cullingMask;
         model.setNode(this.node);
         model.addEffect(effect);
         model.addInputAssembler(iaRenderData.ia);

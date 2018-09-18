@@ -98,6 +98,11 @@ let PrivateNode = cc.Class({
             },
             override: true
         },
+        showInEditor: {
+            default: false,
+            editorOnly: true,
+            override: true
+        }
     },
 
     /**
