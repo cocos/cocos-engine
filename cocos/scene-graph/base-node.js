@@ -32,7 +32,7 @@ const { ccclass, property } = _decorator;
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
-const Deactivating = CCObject.Flags.Deactivating; 
+const Deactivating = CCObject.Flags.Deactivating;
 
 const CHILD_ADDED = 'child-added';
 const CHILD_REMOVED = 'child-removed';
@@ -591,7 +591,7 @@ export default class BaseNode extends CCObject {
                 // post call
                 postfunc(curr);
             }
-            
+
             // Avoid memory leak
             stack[index] = null;
             // Do not repeatly visit child tree, just do post call and continue walk

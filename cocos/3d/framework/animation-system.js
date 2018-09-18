@@ -17,7 +17,7 @@ export default class AnimationSystem extends System {
     this._anims.fastRemove(this._anims.indexOf(comp));
   }
 
-  tick() {
+  update() {
     for (let i = 0; i < this._anims.length; ++i) {
       let anim = this._anims.data[i];
       if (!anim.enabled) {

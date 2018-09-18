@@ -16,7 +16,7 @@ export default class SkinningModelSystem extends System {
     this._comps.fastRemove(this._comps.indexOf(comp));
   }
 
-  tick() {
+  update() {
     for (let i = 0; i < this._comps.length; ++i) {
       let comp = this._comps.data[i];
       if (comp.enabled === false) {
