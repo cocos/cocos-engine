@@ -70,24 +70,6 @@ let ClearFlags = cc.Enum({
     STENCIL: 4,
 });
 
-/** 
- * !#en
- * Camera Projection
- * !#zh
- * 摄像机的投影模式
- * @enum Camera.Projection
-*/
-let Projection = cc.Enum({
-    /**
-     * @property PERSPECTIVE
-     */
-    PERSPECTIVE: 0,
-    /**
-     * @property ORTHO
-     */
-    ORTHO: 1
-});
-
 /**
  * !#en
  * Camera is usefull when making reel game or other games which need scroll screen.
@@ -137,9 +119,9 @@ let Camera = cc.Class({
         _targetTexture: null,
         _fov: 60,
         _orthoSize: 10,
-        _near: 0.1,
-        _far: 4096,
-        _projection: Projection.PERSPECTIVE,
+        _nearClip: 0.1,
+        _farClip: 4096,
+        _ortho: false,
         _rect: cc.rect(0,0,1,1),
 
         /**
@@ -161,7 +143,7 @@ let Camera = cc.Class({
 
         /**
          * !#en 
-         * The width of the Camera’s view angle, measured in degrees along the local Y axis.
+         * Field of view. The width of the Camera’s view angle, measured in degrees along the local Y axis.
          * !#zh 
          * 决定摄像机视角的宽度，当摄像机处于透视投影模式下这个属性才会生效。
          * @property {Number} fov
@@ -179,7 +161,7 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * The viewport size of the Camera when set to Orthographic.
+         * The viewport size of the Camera when set to orthographic projection.
          * !#zh
          * 摄像机在正交投影模式下的视窗大小。
          * @property {Number} orthoSize
@@ -197,37 +179,37 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * The near clipping planes.
+         * The near clipping plane.
          * !#zh
          * 摄像机的近剪裁面。
          * @property {Number} near
          * @default 0.1
          */
-        near: {
+        nearClip: {
             get () {
-                return this._near;
+                return this._nearClip;
             },
             set (v) {
-                this._near = v;
-                this._updateNearFar();
+                this._nearClip = v;
+                this._updateClippingpPlanes();
             }
         },
 
         /**
          * !#en
-         * The far clipping planes.
+         * The far clipping plane.
          * !#zh
          * 摄像机的远剪裁面。
          * @property {Number} far
          * @default 4096
          */
-        far: {
+        farClip: {
             get () {
-                return this._far;
+                return this._farClip;
             },
             set (v) {
-                this._far = v;
-                this._updateNearFar();
+                this._farClip = v;
+                this._updateClippingpPlanes();
             }
         },
 
@@ -239,15 +221,14 @@ let Camera = cc.Class({
          * @property {Camera.Projection} projection
          * @default Camera.Projection.PERSPECTIVE
          */
-        projection: {
+        ortho: {
             get () {
-                return this._projection;
+                return this._ortho;
             },
             set (v) {
-                this._projection = v;
+                this._ortho = v;
                 this._updateProjection();
-            },
-            type: Projection
+            }
         },
 
         /**
@@ -357,6 +338,12 @@ let Camera = cc.Class({
                 this._targetTexture = value;
                 this._updateTargetTexture();
             }
+        },
+
+        is3D: {
+            get () {
+                return this.node._is3DNode;
+            }
         }
     },
 
@@ -382,7 +369,6 @@ let Camera = cc.Class({
         cameras: _cameras,
 
         ClearFlags: ClearFlags,
-        Projection: Projection,
 
         /**
          * !#en
@@ -478,15 +464,16 @@ let Camera = cc.Class({
         this._camera.setOrthoHeight(this._orthoSize);
     },
 
-    _updateNearFar () {
+    _updateClippingpPlanes () {
         if (!this._camera) return;
-        this._camera.setNear(this._near);
-        this._camera.setFar(this._far);
+        this._camera.setNear(this._nearClip);
+        this._camera.setFar(this._farClip);
     },
 
     _updateProjection () {
         if (!this._camera) return;
-        this._camera.setType(this._projection);
+        let type = this._ortho ? 1 : 0;
+        this._camera.setType(type);
     },
 
     _updateRect () {
@@ -508,7 +495,7 @@ let Camera = cc.Class({
         this._updateTargetTexture();
         this._updateFov();
         this._updateOrthoSize();
-        this._updateNearFar();
+        this._updateClippingpPlanes();
         this._updateProjection();
     },
 
