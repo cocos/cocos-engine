@@ -1095,6 +1095,11 @@ var Node = cc.Class({
                 }
             }
         },
+
+        showInEditor: {
+            default: true,
+            editorOnly: true
+        }
     },
 
     /**
