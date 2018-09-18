@@ -38,6 +38,9 @@ export default class Skeleton extends Asset {
   @property(Node)
   _rootNode = null;
 
+  @property(Number)
+  _indexDelta = 0;
+
   instantiate() {
     let rootNode = instantiate(this._rootNode, undefined);
     let skeleton = new SkeletonInstance();

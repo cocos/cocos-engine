@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import Texture2D from './texture-2d';
+import Texture2D from '../../assets/CCTexture2D';
 import Sprite from "./sprite";
 
 @ccclass
@@ -35,10 +35,6 @@ export default class TextureSprite extends Texture2D {
    */
   @property([Sprite])
   _sprites = [];
-
-  constructor(device) {
-    super(device);
-  }
 
   get sprites() {
     return this._sprites;

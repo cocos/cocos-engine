@@ -24,20 +24,22 @@
  ****************************************************************************/
 // @ts-check
 import { _decorator } from "../../core/data/index";
-const { ccclass } = _decorator;
+const { ccclass, property } = _decorator;
 import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
-import Texture2D from "./texture-2d";
+import Texture2D from "../../assets/CCTexture2D";
 
 @ccclass
 export class BitmapFont extends Font {
+    /**
+     * @type {Texture2D}
+     */
+    @property(Texture2D)
+    _texture = null;
+
     constructor() {
         super();
         super._type = "bitmap";
-        /**
-         * @type {Texture2D}
-         */
-        this._texture = null;
 
         /**
          * @type {string}

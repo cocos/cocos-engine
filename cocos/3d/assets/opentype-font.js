@@ -28,7 +28,7 @@ const {ccclass} = _decorator;
 import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
-import Texture2D from "./texture-2d";
+import Texture2D from "../../assets/CCTexture2D";
 
 @ccclass
 export default class OpentypeFont extends Font {
@@ -99,9 +99,10 @@ export default class OpentypeFont extends Font {
         this._packCanvas.width = width;
         this._packCanvas.height = height;
 
-        this._fontAtlas = new Texture2D(device, width, height);
-        this._fontAtlas.mipmap = false;
-        this._fontAtlas.premultiplyAlpha = true;
+        this._fontAtlas = new Texture2D();
+        this._fontAtlas.initWithData(null, Texture2D.PixelFormat.RGBA8888, width, height);
+        this._fontAtlas.setMipmap(false);
+        this._fontAtlas.setPremultiplyAlpha(true);
     }
 
     /**
@@ -172,8 +173,7 @@ export default class OpentypeFont extends Font {
         this._packer.clear();
         let ctx = this._packCanvas.getContext('2d');
         ctx.clearRect(0, 0, this._packCanvas.width, this._packCanvas.height);
-        this._fontAtlas.setImages([this._packCanvas]);
-        this._fontAtlas.commit();
+        this._fontAtlas.initWithElement(this._packCanvas);
     }
 
     _addTextToFontAtlas(text) {
@@ -235,8 +235,7 @@ export default class OpentypeFont extends Font {
 
         if (fontAtlasDirty) {
             // update font atlas
-            this._fontAtlas.setImages([this._packCanvas]);
-            this._fontAtlas.commit();
+            this._fontAtlas.initWithElement(this._packCanvas);
         }
     }
 
@@ -261,8 +260,7 @@ export default class OpentypeFont extends Font {
 
         if (fontAtlasDirty) {
             // update font atlas
-            this._fontAtlas.setImages([this._packCanvas]);
-            this._fontAtlas.commit();
+            this._fontAtlas.initWithElement(this._packCanvas);
         }
     }
 }
