@@ -35,7 +35,6 @@ const vec3 = cc.vmath.vec3;
 
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
-let _vec3_temp_1 = vec3.create();
 
 let _cameras = [];
 
@@ -45,12 +44,10 @@ function repositionDebugCamera () {
     if (!_debugCamera) return;
 
     let node = _debugCamera._node;
-    let visibleRect = cc.visibleRect;
-    node.z = visibleRect.height / 1.1566;
-    node.x = _vec3_temp_1.x = visibleRect.width / 2;
-    node.y = _vec3_temp_1.y = visibleRect.height / 2;
-    _vec3_temp_1.z = 0;
-    node.lookAt(_vec3_temp_1);
+    let canvas = cc.game.canvas;
+    node.z = canvas.height / 1.1566;
+    node.x = canvas.width / 2;
+    node.y = canvas.height / 2;
 }
 
 /**
@@ -59,9 +56,36 @@ function repositionDebugCamera () {
  * @enum Camera.ClearFlags
  */
 let ClearFlags = cc.Enum({
+    /**
+     * @property COLOR
+     */
     COLOR: 1,
+    /**
+     * @property DEPTH
+     */
     DEPTH: 2,
+    /**
+     * @property STENCIL
+     */
     STENCIL: 4,
+});
+
+/** 
+ * !#en
+ * Camera Projection
+ * !#zh
+ * 摄像机的投影模式
+ * @enum Camera.Projection
+*/
+let Projection = cc.Enum({
+    /**
+     * @property PERSPECTIVE
+     */
+    PERSPECTIVE: 0,
+    /**
+     * @property ORTHO
+     */
+    ORTHO: 1
 });
 
 /**
@@ -86,16 +110,10 @@ let Camera = cc.Class({
                 'transparent'
             ]);
 
-            this._fov = Math.PI * 60 / 180;
-            camera.setFov(this._fov);
-            camera.setNear(0.1);
-            camera.setFar(4096);
-
             let view = new renderEngine.View();
             camera.view = view;
             camera.dirty = true;
 
-            this._matrixDirty = true;
             this._inited = false;
             this._camera = camera;
         }
@@ -117,6 +135,12 @@ let Camera = cc.Class({
         _depth: 0,
         _zoomRatio: 1,
         _targetTexture: null,
+        _fov: 60,
+        _orthoSize: 10,
+        _near: 0.1,
+        _far: 4096,
+        _projection: Projection.PERSPECTIVE,
+        _rect: cc.rect(0,0,1,1),
 
         /**
          * !#en
@@ -131,7 +155,116 @@ let Camera = cc.Class({
             },
             set (value) {
                 this._zoomRatio = value;
-                this._matrixDirty = true;
+                this._updateFov();
+            }
+        },
+
+        /**
+         * !#en 
+         * The width of the Camera’s view angle, measured in degrees along the local Y axis.
+         * !#zh 
+         * 决定摄像机视角的宽度，当摄像机处于透视投影模式下这个属性才会生效。
+         * @property {Number} fov
+         * @default 60
+         */
+        fov: {
+            get () {
+                return this._fov;
+            },
+            set (v) {
+                this._fov = v;
+                this._updateFov();
+            }
+        },
+
+        /**
+         * !#en
+         * The viewport size of the Camera when set to Orthographic.
+         * !#zh
+         * 摄像机在正交投影模式下的视窗大小。
+         * @property {Number} orthoSize
+         * @default 10
+         */
+        orthoSize: {
+            get () {
+                return this._orthoSize;
+            },
+            set (v) {
+                this._orthoSize = v;
+                this._updateOrthoSize();
+            }
+        },
+
+        /**
+         * !#en
+         * The near clipping planes.
+         * !#zh
+         * 摄像机的近剪裁面。
+         * @property {Number} near
+         * @default 0.1
+         */
+        near: {
+            get () {
+                return this._near;
+            },
+            set (v) {
+                this._near = v;
+                this._updateNearFar();
+            }
+        },
+
+        /**
+         * !#en
+         * The far clipping planes.
+         * !#zh
+         * 摄像机的远剪裁面。
+         * @property {Number} far
+         * @default 4096
+         */
+        far: {
+            get () {
+                return this._far;
+            },
+            set (v) {
+                this._far = v;
+                this._updateNearFar();
+            }
+        },
+
+        /**
+         * !#en
+         * The camera projection mode.
+         * !#zh
+         * 摄像机的投影模式。
+         * @property {Camera.Projection} projection
+         * @default Camera.Projection.PERSPECTIVE
+         */
+        projection: {
+            get () {
+                return this._projection;
+            },
+            set (v) {
+                this._projection = v;
+                this._updateProjection();
+            },
+            type: Projection
+        },
+
+        /**
+         * !#en
+         * Four values (0-1) that indicate where on the screen this camera view will be drawn.
+         * !#zh
+         * 决定摄像机绘制在屏幕上哪个位置，值为 0-1。
+         * @property {Rect} rect
+         * @default cc.rect(0,0,1,1)
+         */
+        rect: {
+            get () {
+                return this._rect;
+            },
+            set (v) {
+                this._rect = v;
+                this._updateRect();
             }
         },
 
@@ -249,6 +382,7 @@ let Camera = cc.Class({
         cameras: _cameras,
 
         ClearFlags: ClearFlags,
+        Projection: Projection,
 
         /**
          * !#en
@@ -313,40 +447,69 @@ let Camera = cc.Class({
     },
 
     _updateBackgroundColor () {
-        if (this._camera) {
-            let color = this._backgroundColor;
-            this._camera.setColor(
-                color.r / 255,
-                color.g / 255,
-                color.b / 255,
-                color.a / 255,
-            );
-        }
+        if (!this._camera) return;
+        
+        let color = this._backgroundColor;
+        this._camera.setColor(
+            color.r / 255,
+            color.g / 255,
+            color.b / 255,
+            color.a / 255,
+        );
     },
 
     _updateTargetTexture () {
+        if (!this._camera) return;
+
         let texture = this._targetTexture;
-        if (this._camera) {
-            this._camera._framebuffer = texture ? texture._framebuffer : null;
-        }
+        this._camera._framebuffer = texture ? texture._framebuffer : null;
     },
 
-    _onMatrixDirty () {
-        this._matrixDirty = true;
+    _updateFov () {
+        if (!this._camera) return;
+
+        let fov = this._fov * cc.macro.RAD;
+        fov = Math.atan(Math.tan(fov/2) / this.zoomRatio)*2;
+        this._camera.setFov(fov);
+    },
+
+    _updateOrthoSize () {
+        if (!this._camera) return;
+        this._camera.setOrthoHeight(this._orthoSize);
+    },
+
+    _updateNearFar () {
+        if (!this._camera) return;
+        this._camera.setNear(this._near);
+        this._camera.setFar(this._far);
+    },
+
+    _updateProjection () {
+        if (!this._camera) return;
+        this._camera.setType(this._projection);
+    },
+
+    _updateRect () {
+        if (!this._camera) return;
+        this._camera.setRect(this._rect);
     },
 
     _init () {
         if (this._inited) return;
         this._inited = true;
 
-        if (this._camera) {
-            this._camera.setNode(this.node);
-            this._camera.setClearFlags(this._clearFlags);
-            this._camera._sortDepth = this._depth;
-            this._updateBackgroundColor();
-            this._updateCameraMask();
-            this._updateTargetTexture();
-        }
+        let camera = this._camera;
+        if (!camera) return;
+        camera.setNode(this.node);
+        camera.setClearFlags(this._clearFlags);
+        camera._sortDepth = this._depth;
+        this._updateBackgroundColor();
+        this._updateCameraMask();
+        this._updateTargetTexture();
+        this._updateFov();
+        this._updateOrthoSize();
+        this._updateNearFar();
+        this._updateProjection();
     },
 
     onLoad () {
@@ -354,7 +517,6 @@ let Camera = cc.Class({
     },
 
     onEnable () {
-        this._matrixDirty = true;
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.addCamera(this._camera);
@@ -505,30 +667,19 @@ let Camera = cc.Class({
 
     beforeDraw: function () {
         let node = this.node;
-        
-        if (!this._matrixDirty && !node._worldMatDirty)
-            return;
-
         let camera = this._camera;
-        let fov = Math.atan(Math.tan(this._fov/2) / this.zoomRatio)*2;
-        camera.setFov(fov);
+        
+        if (!node._is3DNode) {
+            let height = cc.game.canvas.height / cc.view._scaleY;
 
-        let height = cc.game.canvas.height / cc.view._scaleY;
+            let targetTexture = this._targetTexture;
+            if (targetTexture) {
+                height = targetTexture.height;
+            }
 
-        let targetTexture = this._targetTexture;
-        if (targetTexture) {
-            height = targetTexture.height;
+            node.z = height / (Math.tan( this._camera._fov/2) * 2);
         }
 
-        node._updateWorldMatrix();
-        _vec3_temp_1.x = node._worldMatrix.m12;
-        _vec3_temp_1.y = node._worldMatrix.m13;
-        _vec3_temp_1.z = 0;
-
-        node.z = height / 1.1566;
-        node.lookAt(_vec3_temp_1);
-
-        this._matrixDirty = false;
         camera.dirty = true;
     }
 });
