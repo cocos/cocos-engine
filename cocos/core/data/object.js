@@ -148,7 +148,7 @@ function compileDestruct (obj, ctor) {
  * @main
  * @private
  */
-export default class CCObject {
+class CCObject {
     constructor (name = '') {
         /**
          * @property {String} _name
@@ -165,7 +165,7 @@ export default class CCObject {
         this._objFlags = 0;
     }
 
-    _deferredDestroy  () {
+    static _deferredDestroy () {
         var deleteCount = objectsToDestroy.length;
         for (var i = 0; i < deleteCount; ++i) {
             var obj = objectsToDestroy[i];
@@ -259,7 +259,7 @@ export default class CCObject {
 
         if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            deferredDestroyTimer = setImmediate(this.deferredDestroy);
+            deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
         }
         return true;
     }
@@ -536,3 +536,4 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 cc.Object = CCObject;
+export default CCObject;

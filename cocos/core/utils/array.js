@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+export {default as MutableForwardIterator} from './mutable-forward-iterator';
+
 /**
  * @class js.array
  * @static

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CompScheduler from './component-scheduler';
+import ComponentScheduler from './component-scheduler';
 import CCObject from '../core/data/object';
 import { Pool, array } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
@@ -51,7 +51,7 @@ var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) 
 };
 
 // for __preload: used internally, no sort
-class UnsortedInvoker extends CompScheduler.LifeCycleInvoker {
+class UnsortedInvoker extends ComponentScheduler.LifeCycleInvoker {
     add (comp) {
         this._zero.array.push(comp);
     }
@@ -59,7 +59,7 @@ class UnsortedInvoker extends CompScheduler.LifeCycleInvoker {
         this._zero.fastRemove(comp);
     }
     cancelInactive (flagToClear) {
-        CompScheduler.LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
+        ComponentScheduler.LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
     }
     invoke () {
         this._invoke(this._zero);
@@ -67,10 +67,10 @@ class UnsortedInvoker extends CompScheduler.LifeCycleInvoker {
     }
 }
 
-var invokePreload = CompScheduler.createInvokeImpl(
+var invokePreload = ComponentScheduler.createInvokeImpl(
     CC_EDITOR ? callPreloadInTryCatch : callPreload
 );
-var invokeOnLoad = CompScheduler.createInvokeImpl(
+var invokeOnLoad = ComponentScheduler.createInvokeImpl(
     CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
 );
 
@@ -78,8 +78,8 @@ var activateTasksPool = new Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     var task = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
-        onLoad: new CompScheduler.OneOffInvoker(invokeOnLoad),
-        onEnable: new CompScheduler.OneOffInvoker(CompScheduler.invokeOnEnable)
+        onLoad: new ComponentScheduler.OneOffInvoker(invokeOnLoad),
+        onEnable: new ComponentScheduler.OneOffInvoker(ComponentScheduler.invokeOnEnable)
     };
 
     // reset index to -1 so we can skip invoked component in cancelInactive

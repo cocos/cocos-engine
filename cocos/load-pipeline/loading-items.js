@@ -653,7 +653,7 @@ export default class LoadingItems extends CallbacksInvoker {
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
     
-        this.invoke(id, item);
+        this.emit(id, item);
         this.removeAll(id);
     
         // All completed
@@ -749,6 +749,5 @@ proto.removeListener = CallbacksInvoker.prototype.remove;
  * @param {String|Object} key - The event key to be removed or the target to be removed
  */
 proto.removeAllListeners = CallbacksInvoker.prototype.removeAll;
-
 
 cc.LoadingItems = LoadingItems;

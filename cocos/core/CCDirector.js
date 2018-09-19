@@ -180,10 +180,10 @@ class Director extends EventTarget {
         // init renderSystem
         {
             this._renderSystem = new RenderSystem();
-            let renderComps = ['CameraComponent'];
-            renderComps.forEach((compName) => {
-                getClassByName(compName).system = this._renderSystem;
-            });
+            // let renderComps = ['CameraComponent'];
+            // renderComps.forEach((compName) => {
+            //     getClassByName(compName).system = this._renderSystem;
+            // });
         }
 
         cc.loader.init(this);
@@ -891,7 +891,7 @@ class Director extends EventTarget {
 
             // Render
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            this._renderSystem.update(this._deltaTime);
+            // this._renderSystem.update(this._deltaTime);
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 

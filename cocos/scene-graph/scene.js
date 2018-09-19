@@ -65,7 +65,7 @@ export default class Scene extends Node {
     autoReleaseAssets = undefined;
 
     destroy () {
-        this._super();
+        super.destroy();
         this._activeInHierarchy = false;
     }
 

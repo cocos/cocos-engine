@@ -775,7 +775,6 @@ class View extends EventTarget {
 
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
-        cc.renderer.updateCameraViewport();
         this.emit('design-resolution-changed');
     }
 
