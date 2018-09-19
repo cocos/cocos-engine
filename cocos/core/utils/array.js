@@ -28,8 +28,6 @@
  * @static
  */
 
-export {default as MutableForwardIterator} from './mutable-forward-iterator';
-
 /**
  * Removes the array item at the specified index.
  * @method removeAt
@@ -99,7 +97,7 @@ export function fastRemove (array, value) {
 export function verifyType (array, type) {
     if (array && array.length > 0) {
         for (var i = 0; i < array.length; i++) {
-            if (!(array[i] instanceof  type)) {
+            if (!(array[i] instanceof type)) {
                 cc.logID(1300);
                 return false;
             }

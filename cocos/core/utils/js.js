@@ -24,6 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import IdGenerater from './id-generater';
 
 import * as jsarray from './array';
 import IDGenerater from './id-generater';
