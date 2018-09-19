@@ -761,10 +761,10 @@ var game = {
             }
 
             {
-                // todo, adjust opts here
-                let device = this._renderContext = new gfx.Device(localCanvas, {});
-                // todo, fix builtins here
-                this._renderer = new renderer.ForwardRenderer(device);
+                // // todo, adjust opts here
+                // let device = this._renderContext = new gfx.Device(localCanvas, {});
+                // // todo, fix builtins here
+                // this._renderer = new renderer.ForwardRenderer(device);
             }
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
