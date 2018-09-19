@@ -86,7 +86,7 @@ callbackListPool.get = function () {
  *
  * @private
  */
-export function CallbacksHandler () {
+function CallbacksHandler () {
     this._callbackTable = js.createMap(true);
 }
 CallbacksHandler.prototype = {
@@ -221,7 +221,7 @@ CallbacksHandler.prototype = {
  *
  * @extends _CallbacksHandler
  */
-export function CallbacksInvoker () {
+function CallbacksInvoker () {
     CallbacksHandler.call(this);
 }
 js.extend(CallbacksInvoker, CallbacksHandler);
@@ -268,4 +268,9 @@ js.mixin(CallbacksInvoker.prototype, {
 
 if (CC_TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;
+}
+
+export {
+    CallbacksHandler,
+    CallbacksInvoker
 }

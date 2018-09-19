@@ -10,6 +10,8 @@ export default class CameraComponent extends RenderableComponent {
 
     constructor() {
         super();
+        this._system = CameraComponent.system;
+        this._scene = this._system.scene;
         this._projection = 'perspective';
         this._priority = 0;
         this._fov = 45;

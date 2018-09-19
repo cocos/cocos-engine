@@ -25,7 +25,7 @@
 
 import "./assets";
 import "./builtin";
-import "./debugger";
+// import "./debugger";
 import "./framework";
 import "./geom-utils";
 import "./memop";

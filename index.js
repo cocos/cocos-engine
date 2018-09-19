@@ -36,5 +36,6 @@ import './cocos/assets';
 import './cocos/load-pipeline';
 import './cocos/components';
 import './cocos/animation';
+import './cocos/3d';
 
 export default cc;

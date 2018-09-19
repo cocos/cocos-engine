@@ -27,6 +27,8 @@
 export * from './CCEventManager';
 export * from './CCInputManager';
 export * from './system-event';
+export * from './CCEvent';
+export * from './CCTouch';
 
 if (CC_TEST) {
     cc._Test.eventManager = eventManager;
