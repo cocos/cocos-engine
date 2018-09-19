@@ -558,25 +558,24 @@ export function obsolete (obj, obsoleted, newExpr, writable) {
     var extractPropName = /([^.]+)$/;
     var oldProp = extractPropName.exec(obsoleted)[0];
     var newProp = extractPropName.exec(newExpr)[0];
-    function get () {
+    function getter () {
         if (CC_DEV) {
             cc.warnID(5400, obsoleted, newExpr);
         }
         return this[newProp];
     }
+    function setter (value) {
+        if (CC_DEV) {
+            cc.warnID(5401, obsoleted, newExpr);
+        }
+        this[newProp] = value;
+    }
+
     if (writable) {
-        getset(obj, oldProp,
-            get,
-            function (value) {
-                if (CC_DEV) {
-                    cc.warnID(5401, obsoleted, newExpr);
-                }
-                this[newProp] = value;
-            }
-        );
+        getset(obj, oldProp,getter,setter);
     }
     else {
-        get(obj, oldProp, get);
+        get(obj, oldProp, getter);
     }
 };
 

@@ -28,7 +28,7 @@
  * @class url
  * @static
  */
-export default url = {
+let url = {
 
     /**
      * The base url of raw assets.
@@ -88,3 +88,5 @@ export default url = {
 }
 
 cc.url = url;
+
+export default url;

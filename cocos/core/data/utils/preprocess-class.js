@@ -232,7 +232,7 @@ export function getFullFormOfProperty (options, propname_dev, classname_dev) {
 export function preprocessAttrs (properties, className, cls, es6) {
     for (var propName in properties) {
         var val = properties[propName];
-        var fullForm = exports.getFullFormOfProperty(val, propName, className);
+        var fullForm = getFullFormOfProperty(val, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
