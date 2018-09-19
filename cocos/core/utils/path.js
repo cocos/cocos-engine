@@ -42,7 +42,7 @@ const NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
  * @example {@link cocos2d/core/utils/CCPath/join.js}
  * @returns {String}
  */
-export function join () {
+function join () {
     let l = arguments.length;
     let result = "";
     for (let i = 0; i < l; i++) {
@@ -59,7 +59,7 @@ export function join () {
  * @param {String} pathStr
  * @returns {*}
  */
-export function extname (pathStr) {
+function extname (pathStr) {
     let temp = EXTNAME_RE.exec(pathStr);
     return temp ? temp[1] : '';
 }
@@ -72,7 +72,7 @@ export function extname (pathStr) {
  * @returns {String}
  * @deprecated
  */
-export function mainFileName (fileName) {
+function mainFileName (fileName) {
     if (fileName) {
         let idx = fileName.lastIndexOf(".");
         if (idx !== -1)
@@ -90,7 +90,7 @@ export function mainFileName (fileName) {
  * @param {String} [extname]
  * @returns {*}
  */
-export function basename (pathStr, extname) {
+function basename (pathStr, extname) {
     let index = pathStr.indexOf("?");
     if (index > 0) pathStr = pathStr.substring(0, index);
     let reg = /(\/|\\)([^\/\\]+)$/g;
@@ -110,7 +110,7 @@ export function basename (pathStr, extname) {
  * @param {String} pathStr
  * @returns {*}
  */
-export function dirname (pathStr) {
+function dirname (pathStr) {
     let temp = DIRNAME_RE.exec(pathStr);
     return temp ? temp[2] : '';
 }
@@ -124,7 +124,7 @@ export function dirname (pathStr) {
  * @param {String} [extname]
  * @returns {String}
  */
-export function changeExtname (pathStr, extname) {
+function changeExtname (pathStr, extname) {
     extname = extname || "";
     let index = pathStr.indexOf("?");
     let tempStr = "";
@@ -146,7 +146,7 @@ export function changeExtname (pathStr, extname) {
  * @param {Boolean} [isSameExt]
  * @returns {String}
  */
-export function changeBasename (pathStr, basename, isSameExt) {
+function changeBasename (pathStr, basename, isSameExt) {
     if (basename.indexOf(".") === 0) return this.changeExtname(pathStr, basename);
     let index = pathStr.indexOf("?");
     let tempStr = "";
@@ -161,7 +161,7 @@ export function changeBasename (pathStr, basename, isSameExt) {
 }
 
 //todo make public after verification
-export function _normalize (url) {
+function _normalize (url) {
     let oldUrl = url = String(url);
 
     //removing all ../
@@ -173,11 +173,11 @@ export function _normalize (url) {
 }
 
 // @param {string} path
-export function stripSep (path) {
+function stripSep (path) {
     return path.replace(/[\/\\]$/, '');
 }
 
-cc.path = {
+var path = cc.path = {
     join,
     extname,
     mainFileName,
@@ -186,5 +186,10 @@ cc.path = {
     changeExtname,
     changeBasename,
     _normalize,
-    stripSep
+    stripSep,
+    get sep () {
+        return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
+    }
 };
+
+export default path;

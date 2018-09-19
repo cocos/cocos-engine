@@ -24,10 +24,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import IdGenerater from './id-generater';
 
-import * as jsarray from './array';
+import * as array from './array';
 import IDGenerater from './id-generater';
+import Pool from './pool';
 
 let tempCIDGenerater = new IDGenerater('TmpCId.');
 
@@ -66,10 +66,6 @@ var _tmpSetDesc = {
  * @module js
  */
 
-export {default as IDGenerater} from './id-generater';
-export {default as Pool} from './pool';
-export const array = jsarray;
-
 /**
  * Check the obj whether is number or not
  * If a number is created by using 'new Number(10086)', the typeof it will be "object"...
@@ -78,7 +74,7 @@ export const array = jsarray;
  * @param {*} obj
  * @returns {Boolean}
  */
-export function isNumber (obj) {
+function isNumber (obj) {
     return typeof obj === 'number' || obj instanceof Number;
 };
 
@@ -90,7 +86,7 @@ export function isNumber (obj) {
  * @param {*} obj
  * @returns {Boolean}
  */
-export function isString (obj) {
+function isString (obj) {
     return typeof obj === 'string' || obj instanceof String;
 };
 
@@ -101,7 +97,7 @@ export function isString (obj) {
  * @param {String} name
  * @return {Object}
  */
-export function getPropertyDescriptor  (obj, name) {
+function getPropertyDescriptor  (obj, name) {
     while (obj) {
         var pd = Object.getOwnPropertyDescriptor(obj, name);
         if (pd) {
@@ -124,7 +120,7 @@ function _copyprop(name, source, target) {
  * @param {Object} ...sourceObj source object to copy properties from
  * @return {Object} the result obj
  */
-export function addon (obj) {
+function addon (obj) {
     'use strict';
     obj = obj || {};
     for (var i = 1, length = arguments.length; i < length; i++) {
@@ -151,7 +147,7 @@ export function addon (obj) {
  * @param {Object} ...sourceObj
  * @return {Object} the result obj
  */
-export function mixin (obj) {
+function mixin (obj) {
     'use strict';
     obj = obj || {};
     for (var i = 1, length = arguments.length; i < length; i++) {
@@ -178,7 +174,7 @@ export function mixin (obj) {
  * @param {Function} base - the baseclass to inherit
  * @return {Function} the result class
  */
-export function extend (cls, base) {
+function extend (cls, base) {
     if (CC_DEV) {
         if (!base) {
             cc.errorID(5404);
@@ -209,7 +205,7 @@ export function extend (cls, base) {
  * @param {Function} ctor - the constructor of subclass
  * @return {Function}
  */
-export function getSuper (ctor) {
+function getSuper (ctor) {
     var proto = ctor.prototype; // binded function do not have prototype
     var dunderProto = proto && Object.getPrototypeOf(proto);
     return dunderProto && dunderProto.constructor;
@@ -223,7 +219,7 @@ export function getSuper (ctor) {
  * @param {Function} superclass
  * @return {Boolean}
  */
-export function isChildClassOf (subclass, superclass) {
+function isChildClassOf (subclass, superclass) {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;
@@ -255,7 +251,7 @@ export function isChildClassOf (subclass, superclass) {
  * @method clear
  * @param {any} obj
  */
-export function clear (obj) {
+function clear (obj) {
     var keys = Object.keys(obj);
     for (var i = 0; i < keys.length; i++) {
         delete obj[keys[i]];
@@ -272,7 +268,7 @@ export function clear (obj) {
  * @param {Boolean} [writable=false]
  * @param {Boolean} [enumerable=false]
  */
-export function value (obj, prop, value, writable, enumerable) {
+function value (obj, prop, value, writable, enumerable) {
     _tmpValueDesc.value = value;
     _tmpValueDesc.writable = writable;
     _tmpValueDesc.enumerable = enumerable;
@@ -290,7 +286,7 @@ export function value (obj, prop, value, writable, enumerable) {
  * @param {Boolean} [enumerable=false]
  * @param {Boolean} [configurable=false]
  */
-export function getset (obj, prop, getter, setter, enumerable, configurable) {
+function getset (obj, prop, getter, setter, enumerable, configurable) {
     if (typeof setter !== 'function') {
         enumerable = setter;
         setter = undefined;
@@ -314,7 +310,7 @@ export function getset (obj, prop, getter, setter, enumerable, configurable) {
  * @param {Boolean} [enumerable=false]
  * @param {Boolean} [configurable=false]
  */
-export function get (obj, prop, getter, enumerable, configurable) {
+function get (obj, prop, getter, enumerable, configurable) {
     _tmpGetDesc.get = getter;
     _tmpGetDesc.enumerable = enumerable;
     _tmpGetDesc.configurable = configurable;
@@ -332,7 +328,7 @@ export function get (obj, prop, getter, enumerable, configurable) {
  * @param {Boolean} [enumerable=false]
  * @param {Boolean} [configurable=false]
  */
-export function set (obj, prop, setter, enumerable, configurable) {
+function set (obj, prop, setter, enumerable, configurable) {
     _tmpSetDesc.set = setter;
     _tmpSetDesc.enumerable = enumerable;
     _tmpSetDesc.configurable = configurable;
@@ -347,7 +343,7 @@ export function set (obj, prop, setter, enumerable, configurable) {
  * @param {Object|Function} objOrCtor - instance or constructor
  * @return {String}
  */
-export function getClassName (objOrCtor) {
+function getClassName (objOrCtor) {
     if (typeof objOrCtor === 'function') {
         var prototype = objOrCtor.prototype;
         if (prototype && prototype.hasOwnProperty('__classname__') && prototype.__classname__) {
@@ -395,7 +391,7 @@ let _nameToClass = {};
  * @param {Function} constructor
  * @private
  */
-export function _setClassId (id, constructor) {
+function _setClassId (id, constructor) {
     let key = '__cid__';
     let table = _idToClass;
     // deregister old
@@ -459,7 +455,7 @@ cc.js.unregisterClass to remove the id of unused class';
  * @param {String} className
  * @param {Function} constructor
  */
-export function setClassName (className, constructor) {
+function setClassName (className, constructor) {
     doSetClassName(className, constructor);
     // auto set class id
     if (!constructor.prototype.hasOwnProperty('__cid__')) {
@@ -479,7 +475,7 @@ export function setClassName (className, constructor) {
  * @method unregisterClass
  * @param {Function} ...constructor - the class you will want to unregister, any number of classes can be added
  */
-export function unregisterClass () {
+function unregisterClass () {
     for (var i = 0; i < arguments.length; i++) {
         var p = arguments[i].prototype;
         var classId = p.__cid__;
@@ -500,7 +496,7 @@ export function unregisterClass () {
  * @return {Function} constructor
  * @private
  */
-export function _getClassById (classId) {
+function _getClassById (classId) {
     return _idToClass[classId];
 };
 
@@ -510,7 +506,7 @@ export function _getClassById (classId) {
  * @param {String} classname
  * @return {Function} constructor
  */
-export function getClassByName (classname) {
+function getClassByName (classname) {
     return _nameToClass[classname];
 };
 
@@ -522,7 +518,7 @@ export function getClassByName (classname) {
  * @return {String}
  * @private
  */
-export function _getClassId (obj, allowTempId) {
+function _getClassId (obj, allowTempId) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId: true);
 
     var res;
@@ -554,7 +550,7 @@ export function _getClassId (obj, allowTempId) {
  * @param {String} newExpr - "NewParam" or "YourClass.NewParam"
  * @param {Boolean} [writable=false]
  */
-export function obsolete (obj, obsoleted, newExpr, writable) {
+function obsolete (obj, obsoleted, newExpr, writable) {
     var extractPropName = /([^.]+)$/;
     var oldProp = extractPropName.exec(obsoleted)[0];
     var newProp = extractPropName.exec(newExpr)[0];
@@ -588,7 +584,7 @@ export function obsolete (obj, obsoleted, newExpr, writable) {
  * @param {Object} props
  * @param {Boolean} [writable=false]
  */
-export function obsoletes (obj, objName, props, writable) {
+function obsoletes (obj, objName, props, writable) {
     for (var obsoleted in props) {
         var newName = props[obsoleted];
         obsolete(obj, objName + '.' + obsoleted, newName, writable);
@@ -605,7 +601,7 @@ export function obsoletes (obj, objName, props, writable) {
  * cc.js.formatStr("a: %s, b: %s", a, b);
  * cc.js.formatStr(a, b, c);
  */
-export function formatStr () {
+function formatStr () {
     var argLen = arguments.length;
     if (argLen === 0) {
         return '';
@@ -635,7 +631,7 @@ export function formatStr () {
 };
 
 // see https://github.com/petkaantonov/bluebird/issues/1389
-export function shiftArguments () {
+function shiftArguments () {
     var len = arguments.length - 1;
     var args = new Array(len);
     for(var i = 0; i < len; ++i) {
@@ -654,7 +650,7 @@ export function shiftArguments () {
  * @param {Boolean} [forceDictMode=false] - Apply the delete operator to newly created map object. This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes which are very expensive for objects that are constantly changing shape.
  * @return {Object}
  */
-export function createMap (forceDictMode) {
+function createMap (forceDictMode) {
     var map = Object.create(null);
     if (forceDictMode) {
         const INVALID_IDENTIFIER_1 = '.';
@@ -671,3 +667,69 @@ export function createMap (forceDictMode) {
 /**
  * @submodule cc
  */
+
+var js = cc.js = {
+    IDGenerater,
+    Pool,
+    array,
+    isNumber,
+    isString,
+    getPropertyDescriptor,
+    addon,
+    mixin,
+    extend,
+    getSuper,
+    isChildClassOf,
+    clear,
+    value,
+    getset,
+    get,
+    set,
+    unregisterClass,
+    getClassName,
+    setClassName,
+    getClassByName,
+    _getClassId,
+    _setClassId,
+    _getClassById,
+    obsolete,
+    obsoletes,
+    formatStr,
+    shiftArguments,
+    createMap
+};
+
+if (CC_DEV) {
+    js.getset(js, '_registeredClassIds',
+        function () {
+            var dump = {};
+            for (var id in _idToClass) {
+                dump[id] = _idToClass[id];
+            }
+            return dump;
+        },
+        function (value) {
+            js.clear(_idToClass);
+            for (var id in value) {
+                _idToClass[id] = value[id];
+            }
+        }
+    );
+    js.getset(js, '_registeredClassNames', 
+        function () {
+            var dump = {};
+            for (var id in _nameToClass) {
+                dump[id] = _nameToClass[id];
+            }
+            return dump;
+        },
+        function (value) {
+            js.clear(_nameToClass);
+            for (var id in value) {
+                _nameToClass[id] = value[id];
+            }
+        }
+    );
+}
+
+export default js;
