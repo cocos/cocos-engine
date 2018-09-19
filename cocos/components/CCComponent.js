@@ -26,11 +26,11 @@
 
 import CCObject from '../core/data/object';
 import {getClassName, value} from '../core/utils/js';
-import IDGenerater from '../core/utils/id-generater';
+import IDGenerator from '../core/utils/id-generator';
 import _decorator from '../core/data/class-decorator';
 const {ccclass, property} = _decorator;
 
-let idGenerater = new IDGenerater('Comp');
+let idGenerator = new IDGenerator('Comp');
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
@@ -199,7 +199,7 @@ export default class Component extends CCObject {
             this._id = Editor.Utils.UuidUtils.uuid();
         }
         else {
-            this._id = idGenerater.getNewId();
+            this._id = idGenerator.getNewId();
         }
 
         /**
