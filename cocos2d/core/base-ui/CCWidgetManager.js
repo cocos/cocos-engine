@@ -106,13 +106,12 @@ var tTargetScale = cc.Vec2.ONE;// 只在非父节点时需要缩放
 function align (node, widget) {
     var hasTarget = widget._target;
     var target;
-    var inverseTranslate, inverseScale, targetScale;
+    var inverseTranslate, inverseScale, targetScale = tTargetScale;
     var isParent = false;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
         inverseScale = tInverseScale;
-        targetScale = tTargetScale;
 
         isParent = widget.node !== target && widget.node.isChildOf(target);
         if (isParent) {
@@ -125,6 +124,7 @@ function align (node, widget) {
     else {
         target = node._parent;
     }
+
     var targetSize = getReadonlyNodeSize(target);
     var targetAnchor = target._anchorPoint;
 
@@ -144,16 +144,16 @@ function align (node, widget) {
             localRight = localLeft + targetWidth;
         }
 
-        var _left = widget._left, _right = widget._right;
-        if (!isParent) {
-            // 兄弟节点停靠策略不同
-            _left *= -1;
-            _right *= -1;
-        }
-
         // adjust borders according to offsets
-        localLeft += widget._isAbsLeft ? _left : _left * targetWidth;
-        localRight -= widget._isAbsRight ? _right : _right * targetWidth;
+        localLeft += widget._isAbsLeft ? widget._left : widget._left * targetWidth;
+        localRight -= widget._isAbsRight ? widget._right : widget._right * targetWidth;
+
+        // If it is studio widget, set the margin
+        var _leftMargin = widget._leftMargin, _rightMargin = widget._rightMargin;
+        if (_leftMargin !== undefined) {
+            localLeft += _leftMargin;
+            localRight -= _rightMargin;
+        }
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -207,16 +207,16 @@ function align (node, widget) {
             localTop = localBottom + targetHeight;
         }
 
-        var _bottom = widget._bottom, _top = widget._top;
-        if (!isParent) {
-            // 兄弟节点停靠策略不同
-            _bottom *= -1;
-            _top *= -1;
-        }
-
         // adjust borders according to offsets
-        localBottom += widget._isAbsBottom ? _bottom : _bottom * targetHeight;
-        localTop -= widget._isAbsTop ? _top : _top * targetHeight;
+        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * targetHeight;
+        localTop -= widget._isAbsTop ? widget._top : widget._top * targetHeight;
+
+        // If it is studio widget, set the margin
+        var _bottomMargin = widget._bottomMargin, _topMargin = widget._topMargin;
+        if (_bottomMargin !== undefined) {
+            localBottom += _bottomMargin;
+            localTop -= _topMargin;
+        }
 
         if (hasTarget) {
             // transform

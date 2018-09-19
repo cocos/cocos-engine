@@ -321,8 +321,83 @@ var StudioWidget = cc.Class({
     name: 'cc.StudioWidget',
     extends: cc.Widget,
     editor: CC_EDITOR && {
-        inspector: 'packages://inspector/inspectors/comps/ccwidget.js',
+        menu: 'i18n:MAIN_MENU.component.ui/StudioWidget',
+        inspector: 'unpack://engine/cocos2d/core/components/ccstudiowidget.js',
     },
+
+    properties: {
+
+        _leftMargin: 0,
+        _rightMargin: 0,
+        _topMargin: 0,
+        _bottomMargin: 0,
+
+        /*
+         * !#zh 左边缘
+         * @property leftMargin
+         * @type {Number}
+         * @default 0
+         */
+        leftMargin: {
+            get: function () {
+                return this._leftMargin;
+            },
+            set: function (value) {
+                this._leftMargin = value;
+            },
+            tooltip: CC_DEV && '左边缘',
+        },
+
+        /*
+         * !#zh 右边缘
+         * @property rightMargin
+         * @type {Number}
+         * @default 0
+         */
+        rightMargin: {
+            get: function () {
+                return this._rightMargin;
+            },
+            set: function (value) {
+                this._rightMargin = value;
+            },
+            tooltip: CC_DEV && '右边缘',
+        },
+
+        /*
+         * !#zh 上边缘
+         * @property topMargin
+         * @type {Number}
+         * @default 0
+         */
+        topMargin: {
+            get: function () {
+                return this._topMargin;
+            },
+            set: function (value) {
+                this._topMargin = value;
+            },
+            tooltip: CC_DEV && '上边缘',
+        },
+
+        /*
+         * !#zh 下边缘
+         * @property bottomMargin
+         * @type {Number}
+         * @default 0
+         */
+        bottomMargin: {
+            get: function () {
+                return this._bottomMargin;
+            },
+            set: function (value) {
+                this._bottomMargin = value;
+            },
+            tooltip: CC_DEV && '下边缘',
+        }
+
+    },
+
     _validateTargetInDEV () {}
 });
 
