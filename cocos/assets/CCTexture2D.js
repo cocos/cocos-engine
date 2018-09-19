@@ -26,7 +26,7 @@
 
 import EventTarget from '../core/event/event-target';
 import Tex_GFX from '../renderer/gfx/texture-2d';
-import IDGenerator from '../core/utils/id-generater';
+import IDGenerator from '../core/utils/id-generator';
 import Enum from '../core/value-types/enum';
 import {addon} from '../core/utils/js';
 import {enums} from '../renderer/gfx/enums';

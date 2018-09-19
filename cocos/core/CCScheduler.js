@@ -28,11 +28,11 @@
  * @module cc
  */
 import {createMap} from './utils/js';
-import IdGenerater from './utils/id-generater';
+import IdGenerator from './utils/id-generator';
 
 const MAX_POOL_SIZE = 20;
 
-var idGenerater = new IdGenerater('Scheduler');
+var idGenerator = new IdGenerator('Scheduler');
 
 //data structures
 /*
@@ -361,7 +361,7 @@ export default class Scheduler {
                 cc.warnID(1513);
             }
             else {
-                target._id = idGenerater.getNewId();
+                target._id = idGenerator.getNewId();
             }
         }
     }

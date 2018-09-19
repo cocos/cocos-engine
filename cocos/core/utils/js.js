@@ -26,8 +26,10 @@
  ****************************************************************************/
 
 import * as jsarray from './array';
+import IDGenerator from './id-generator';
+import Pool from './pool';
 
-let tempCIDGenerater = new IDGenerater('TmpCId.');
+let tempCIDGenerator = new IDGenerator('TmpCId.');
 
 const REGEXP_NUM_OR_STR = /(%d)|(%s)/;
 const REGEXP_STR = /%s/;
@@ -64,7 +66,7 @@ var _tmpSetDesc = {
  * @module js
  */
 
-export {default as IDGenerater} from './id-generater';
+export {default as IDGenerator} from './id-generator';
 export {default as Pool} from './pool';
 export const array = jsarray;
 
@@ -379,7 +381,7 @@ export function getClassName (objOrCtor) {
 };
 
 function isTempClassId (id) {
-    return typeof id !== 'string' || id.startsWith(tempCIDGenerater.prefix);
+    return typeof id !== 'string' || id.startsWith(tempCIDGenerator.prefix);
 }
 
 // id 注册
@@ -461,7 +463,7 @@ export function setClassName (className, constructor) {
     doSetClassName(className, constructor);
     // auto set class id
     if (!constructor.prototype.hasOwnProperty('__cid__')) {
-        var id = className || tempCIDGenerater.getNewId();
+        var id = className || tempCIDGenerator.getNewId();
         if (id) {
             _setClassId(id, constructor);
         }
@@ -671,7 +673,7 @@ export function createMap (forceDictMode) {
  */
 
 cc.js = {
-    IDGenerater,
+    IDGenerator,
     Pool,
     array,
     isNumber,
@@ -702,7 +704,7 @@ cc.js = {
 };
 
 if (CC_DEV) {
-    cc.js.getset(js, '_registeredClassIds',
+    cc.js.getset(cc.js, '_registeredClassIds',
         function () {
             var dump = {};
             for (var id in _idToClass) {
@@ -711,13 +713,13 @@ if (CC_DEV) {
             return dump;
         },
         function (value) {
-            js.clear(_idToClass);
+            clear(_idToClass);
             for (var id in value) {
                 _idToClass[id] = value[id];
             }
         }
     );
-    cc.js.getset(js, '_registeredClassNames', 
+    cc.js.getset(cc.js, '_registeredClassNames', 
         function () {
             var dump = {};
             for (var id in _nameToClass) {
@@ -726,7 +728,7 @@ if (CC_DEV) {
             return dump;
         },
         function (value) {
-            js.clear(_nameToClass);
+            clear(_nameToClass);
             for (var id in value) {
                 _nameToClass[id] = value[id];
             }
