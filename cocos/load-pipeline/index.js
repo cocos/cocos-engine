@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+export {default as url} from './url';
 export {default as Downloader} from './downloader';
 export {default as Loader} from './loader';
 export {default as LoadingItems} from './loading-items';

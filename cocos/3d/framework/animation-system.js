@@ -1,6 +1,5 @@
 import { System } from '../ecs';
 import { FixedArray } from '../memop';
-import findSkeleton from './animation/utils';
 
 export default class AnimationSystem extends System {
   constructor() {
@@ -17,20 +16,20 @@ export default class AnimationSystem extends System {
     this._anims.fastRemove(this._anims.indexOf(comp));
   }
 
-  update() {
-    for (let i = 0; i < this._anims.length; ++i) {
-      let anim = this._anims.data[i];
-      if (!anim.enabled) {
-        continue;
-      }
-      if (!anim.skeleton) {
-        // console.error(`Animation component depends on skinning model component.`);
-        let skeleton = findSkeleton(anim._entity);
-        anim.skeleton = skeleton;
-      }
-      if (anim.skeleton) {
-        anim._animCtrl.tick(this._app.deltaTime);
-      }
-    }
-  }
+//   update() {
+//     for (let i = 0; i < this._anims.length; ++i) {
+//       let anim = this._anims.data[i];
+//       if (!anim.enabled) {
+//         continue;
+//       }
+//       if (!anim.skeleton) {
+//         // console.error(`Animation component depends on skinning model component.`);
+//         let skeleton = findSkeleton(anim._entity);
+//         anim.skeleton = skeleton;
+//       }
+//       if (anim.skeleton) {
+//         anim._animCtrl.tick(this._app.deltaTime);
+//       }
+//     }
+//   }
 }

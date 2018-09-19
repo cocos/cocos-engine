@@ -310,7 +310,7 @@ export function validateMethodWithProps (func, funcName, className, cls, base) {
     }
     if (typeof func === 'function' || func === null) {
         if (CC_DEV) {
-            this.doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
+            doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
         }
     }
     else {

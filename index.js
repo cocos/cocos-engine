@@ -35,5 +35,6 @@ import './cocos/scene-graph';
 import './cocos/assets';
 import './cocos/load-pipeline';
 import './cocos/components';
+import './cocos/animation';
 
 export default cc;
