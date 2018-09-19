@@ -28,6 +28,10 @@ export default class SkinningModelComponent extends ModelComponent {
     SkinningModelComponent.system.remove(this);
   }
 
+  update(dt) {
+    this._updateMatrices();
+  }
+
   _updateMatrices() {
     if (!this._mesh || !this._mesh.skinning || ! this._skeleton) {
       return;

@@ -1,4 +1,5 @@
-import { Component } from '../ecs';
+import Component from "../../components/CCComponent";
+import findSkeleton from './animation/utils';
 
 class AnimationState {
   constructor(clip) {
@@ -125,6 +126,17 @@ export default class AnimationComponent extends Component {
 
   onDestroy() {
     AnimationComponent.system.remove(this);
+  }
+
+  update(dt) {
+    if (!this.skeleton) {
+      // console.error(`Animation component depends on skinning model component.`);
+      let skeleton = findSkeleton(this.node);
+      this.skeleton = skeleton;
+    }
+    if (this.skeleton) {
+      this._animCtrl.tick(dt);
+    }
   }
 
   get skeleton () {
