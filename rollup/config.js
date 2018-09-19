@@ -17,7 +17,7 @@ module.exports = {
   output: [
     {
       file: `${dest}/${file}.js`,
-      format: 'cjs',
+      format: 'iife',
       name: moduleName,
       sourcemap: false,
     },

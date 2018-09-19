@@ -59,7 +59,7 @@ function RawAssetEntry (url, type) {
 
 // publics
 
-export default AssetLibrary = {
+let AssetLibrary = {
     /**
      * !#en Caches uuid to all loaded assets in scenes.
      *
@@ -377,3 +377,4 @@ export default AssetLibrary = {
 //};
 
 cc.AssetLibrary = AssetLibrary;
+export default AssetLibrary;

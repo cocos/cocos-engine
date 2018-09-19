@@ -992,7 +992,6 @@ class CCLoader extends Pipeline {
 CCLoader.prototype.getXMLHttpRequest = getXMLHttpRequest;
 
 let loader = cc.loader = new CCLoader();
-export default loader;
 
 if (CC_EDITOR) {
     cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
@@ -1010,3 +1009,5 @@ if (CC_EDITOR) {
         }
     };
 }
+
+export default loader;

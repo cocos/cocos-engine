@@ -193,5 +193,3 @@ export default class AssetTable {
         this._pathToUuid = createMap(true);
     }
 }
-
-module.exports = AssetTable;
