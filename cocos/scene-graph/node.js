@@ -34,6 +34,11 @@ export default class Node extends BaseNode {
     @property
     _hasChanged = false; // has the transform changed in this frame?
 
+    constructor (name) {
+        super(name);
+        EventTarget.call(this);
+    }
+
     // ===============================
     // hierarchy
     // ===============================

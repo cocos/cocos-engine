@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import CCObject from '../core/data/object';
-import { array } from '../core/utils/js';
+import { MutableForwardIterator } from '../core/utils/array';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 
 var IsStartCalled = CCObject.Flags.IsStartCalled;
@@ -102,7 +102,7 @@ function stableRemoveInactive (iterator, flagToClear) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 class LifeCycleInvoker {
     constructor (invokeFunc) {
-        var Iterator = array.MutableForwardIterator;
+        var Iterator = MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0
@@ -117,12 +117,6 @@ class LifeCycleInvoker {
     }
 
     static stableRemoveInactive = stableRemoveInactive;
-
-    add = null;
-
-    remove = null;
-
-    invoke = null;
 }
 
 function compareOrder (a, b) {
@@ -267,7 +261,7 @@ function createInvokeImpl (funcOrCode, useDt) {
 /**
  * The Manager for Component's life-cycle methods.
  */
-export default class ComponentScheduler {
+class ComponentScheduler {
     constructor() {
         this.unscheduleAll();
     }
@@ -484,3 +478,5 @@ if (CC_EDITOR) {
         }
     };
 }
+
+export default ComponentScheduler;

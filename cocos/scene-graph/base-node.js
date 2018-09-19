@@ -1172,6 +1172,9 @@ export default class BaseNode extends CCObject {
     }
 }
 
+BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
+BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
+
 if (CC_EDITOR) {
     BaseNode.prototype._checkMultipleComp = function (ctor) {
         var existing = this.getComponent(ctor._disallowMultiple);
@@ -1325,10 +1328,6 @@ BaseNode.idGenerator = idGenerator;
 // For walk
 BaseNode._stacks = [[]];
 BaseNode._stackId = 0;
-
-BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
-
-BaseNode.prototype._onHierarchyChangedBase = BaseNode.prototype._onHierarchyChanged;
 
 /**
  * !#en
