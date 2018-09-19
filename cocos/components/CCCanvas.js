@@ -195,7 +195,7 @@ export default class Canvas extends Component {
         var designSize, nodeSize;
         if (CC_EDITOR) {
             nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
+            this.node.setLocalPos(designSize.width * 0.5, designSize.height * 0.5);
         }
         else {
             var canvasSize = nodeSize = cc.visibleRect;
@@ -208,7 +208,7 @@ export default class Canvas extends Component {
                 offsetX = (designSize.width - canvasSize.width) * 0.5;
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
-            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
+            this.node.setLocalPos(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
