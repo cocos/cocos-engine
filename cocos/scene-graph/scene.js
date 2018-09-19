@@ -41,8 +41,6 @@ const { ccclass, property } = _decorator;
 export default class Scene extends Node {
     constructor(name) {
         super(name);
-        this._anchorPoint.x = 0.0;
-        this._anchorPoint.y = 0.0;
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;

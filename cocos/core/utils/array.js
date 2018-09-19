@@ -28,7 +28,7 @@
  * @static
  */
 
-export {default as MutableForwardIterator} from './mutable-forward-iterator';
+import MutableForwardIterator from './mutable-forward-iterator';
 
 /**
  * Removes the array item at the specified index.
@@ -36,7 +36,7 @@ export {default as MutableForwardIterator} from './mutable-forward-iterator';
  * @param {any[]} array
  * @param {Number} index
  */
-export function removeAt (array, index) {
+export function removeAt(array, index) {
     array.splice(index, 1);
 }
 
@@ -47,7 +47,7 @@ export function removeAt (array, index) {
  * @param {any[]} array
  * @param {Number} index
  */
-export function fastRemoveAt (array, index) {
+export function fastRemoveAt(array, index) {
     var length = array.length;
     if (index < 0 || index >= length) {
         return;
@@ -63,7 +63,7 @@ export function fastRemoveAt (array, index) {
  * @param {any} value
  * @return {Boolean}
  */
-export function remove (array, value) {
+export function remove(array, value) {
     var index = array.indexOf(value);
     if (index >= 0) {
         removeAt(array, index);
@@ -81,7 +81,7 @@ export function remove (array, value) {
  * @param {any[]} array
  * @param {Number} value
  */
-export function fastRemove (array, value) {
+export function fastRemove(array, value) {
     var index = array.indexOf(value);
     if (index >= 0) {
         array[index] = array[array.length - 1];
@@ -96,10 +96,10 @@ export function fastRemove (array, value) {
  * @param {Function} type
  * @return {Boolean}
  */
-export function verifyType (array, type) {
+export function verifyType(array, type) {
     if (array && array.length > 0) {
         for (var i = 0; i < array.length; i++) {
-            if (!(array[i] instanceof  type)) {
+            if (!(array[i] instanceof type)) {
                 cc.logID(1300);
                 return false;
             }
@@ -114,7 +114,7 @@ export function verifyType (array, type) {
  * @param {Array} array Source Array
  * @param {Array} minusArr minus Array
  */
-export function removeArray (array, minusArr) {
+export function removeArray(array, minusArr) {
     for (var i = 0, l = minusArr.length; i < l; i++) {
         remove(array, minusArr[i]);
     }
@@ -128,7 +128,7 @@ export function removeArray (array, minusArr) {
  * @param {Number} index
  * @return {Array}
  */
-export function appendObjectsAt (array, addObjs, index) {
+export function appendObjectsAt(array, addObjs, index) {
     array.splice.apply(array, [index, 0].concat(addObjs));
     return array;
 }
@@ -152,7 +152,7 @@ export function appendObjectsAt (array, addObjs, index) {
  * @param {any} value
  * @return {Boolean}
  */
-export function contains (array, value) {
+export function contains(array, value) {
     return array.indexOf(value) >= 0;
 }
 
@@ -162,7 +162,7 @@ export function contains (array, value) {
  * @param {Array} array
  * @return {Array}
  */
-export function copy (array) {
+export function copy(array) {
     var i, len = array.length, arr_clone = new Array(len);
     for (i = 0; i < len; i += 1)
         arr_clone[i] = array[i];

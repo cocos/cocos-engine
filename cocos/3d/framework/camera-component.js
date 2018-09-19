@@ -1,12 +1,12 @@
-import Component from '../../Components/CCComponent';
+import RenderableComponent from './renderable-component';
 import _decorator from '../../core/data/class-decorator';
 import renderer from '../../renderer';
 import { toRadian, color4 } from '../../core/vmath';
 import Rect from '../../core/value-types/rect';
 const { ccclass, property } = _decorator;
 
-@ccclass('cc.Camera')
-export default class CameraComponent extends Component {
+@ccclass('CameraComponent')
+export default class CameraComponent extends RenderableComponent {
 
     constructor() {
         super();
@@ -201,11 +201,11 @@ export default class CameraComponent extends Component {
     }
 
     onEnable() {
-        // this._app.scene.addCamera(this._camera);
+        this.scene.addCamera(this._camera);
     }
 
     onDisable() {
-        // this._app.scene.removeCamera(this._camera);
+        this.scene.removeCamera(this._camera);
     }
 }
 

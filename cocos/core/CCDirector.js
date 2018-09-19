@@ -30,11 +30,12 @@ import eventManager from './platform/event-manager/CCEventManager';
 import ccobject from './data/object';
 import game from './CCGame';
 import Scheduler from './CCScheduler';
-import {autoRelease} from '../load-pipeline/auto-release-utils';
+import { autoRelease } from '../load-pipeline/auto-release-utils';
 import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 // import AnimationSystem from '../3d/framework/animation-system';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
+import RenderSystem from '../3d/framework/render-system';
 import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -111,7 +112,7 @@ import { getClassByName } from './utils/js';
  * @extends EventTarget
  */
 class Director extends EventTarget {
-    constructor () {
+    constructor() {
         super();
 
         this.invalid = false;
@@ -148,7 +149,7 @@ class Director extends EventTarget {
         game.once(game.EVENT_ENGINE_INITED, this.init, this);
     }
 
-    init () {
+    init() {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -170,12 +171,20 @@ class Director extends EventTarget {
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
      */
-    sharedInit () {
+    sharedInit() {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
         // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
         // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
+        // init renderSystem
+        {
+            this._renderSystem = new RenderSystem();
+            let renderComps = ['CameraComponent'];
+            renderComps.forEach((compName) => {
+                getClassByName(compName).system = this._renderSystem;
+            });
+        }
 
         cc.loader.init(this);
     }
@@ -183,7 +192,7 @@ class Director extends EventTarget {
     /**
      * calculates delta time since last time it was called
      */
-    calculateDeltaTime () {
+    calculateDeltaTime() {
         var now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
@@ -204,7 +213,7 @@ class Director extends EventTarget {
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToGL (uiPoint) {
+    convertToGL(uiPoint) {
         var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
@@ -226,7 +235,7 @@ class Director extends EventTarget {
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToUI (glPoint) {
+    convertToUI(glPoint) {
         var container = game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
@@ -248,7 +257,7 @@ class Director extends EventTarget {
      * End the life of director in the next frame
      * @method end
      */
-    end () {
+    end() {
         this._purgeDirectorInNextLoop = true;
     }
 
@@ -261,7 +270,7 @@ class Director extends EventTarget {
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSize () {
+    getWinSize() {
         return cc.size(cc.winSize);
     }
 
@@ -278,7 +287,7 @@ class Director extends EventTarget {
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSizeInPixels () {
+    getWinSizeInPixels() {
         return cc.size(cc.winSize);
     }
 
@@ -291,7 +300,7 @@ class Director extends EventTarget {
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
      * @method pause
      */
-    pause () {
+    pause() {
         if (this._paused)
             return;
         this._paused = true;
@@ -301,14 +310,14 @@ class Director extends EventTarget {
      * Removes cached all cocos2d cached data.
      * @deprecated since v2.0
      */
-    purgeCachedData () {
+    purgeCachedData() {
         cc.loader.releaseAll();
     }
 
     /**
      * Purge the cc.director itself, including unschedule all schedule, remove all event listeners, clean up and exit the running scene, stops all animations, clear cached data.
      */
-    purgeDirector () {
+    purgeDirector() {
         //cleanup scheduler
         this._scheduler.unscheduleAll();
         this._compScheduler.unscheduleAll();
@@ -319,7 +328,7 @@ class Director extends EventTarget {
         if (eventManager)
             eventManager.setEnabled(false);
 
-        cc.renderer.clear();
+        // cc.renderer.clear();
 
         if (!CC_EDITOR) {
             if (cc.isValid(this._scene)) {
@@ -337,7 +346,7 @@ class Director extends EventTarget {
     /**
      * Reset the cc.director, can be used to restart the director after purge
      */
-    reset () {
+    reset() {
         this.purgeDirector();
 
         if (eventManager)
@@ -360,7 +369,7 @@ class Director extends EventTarget {
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
-    runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
+    runSceneImmediate(scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
         CC_BUILD && CC_DEBUG && console.time('InitScene');
@@ -440,7 +449,7 @@ class Director extends EventTarget {
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      * @private
      */
-    runScene (scene, onBeforeLoadScene, onLaunched) {
+    runScene(scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);
         cc.assertID(scene instanceof cc.Scene, 1216);
 
@@ -455,7 +464,7 @@ class Director extends EventTarget {
 
     //  @Scene loading section
 
-    _getSceneUuid (key) {
+    _getSceneUuid(key) {
         var scenes = game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.fire')) {
@@ -495,7 +504,7 @@ class Director extends EventTarget {
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
      * @return {Boolean} if error, return false
      */
-    loadScene (sceneName, onLaunched, _onUnloaded) {
+    loadScene(sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
             cc.errorID(1208, sceneName, this._loadingScene);
             return false;
@@ -533,7 +542,7 @@ class Director extends EventTarget {
      * @param {Function} [onLoaded] - callback, will be called after scene loaded.
      * @param {Error} onLoaded.error - null or the error object.
      */
-    preloadScene (sceneName, onProgress, onLoaded) {
+    preloadScene(sceneName, onProgress, onLoaded) {
         if (onLoaded === undefined) {
             onLoaded = onProgress;
             onProgress = null;
@@ -570,7 +579,7 @@ class Director extends EventTarget {
      *                                   only take effect in the Editor.
      * @private
      */
-    _loadSceneByUuid (uuid, onLaunched, onUnloaded, dontRunScene) {
+    _loadSceneByUuid(uuid, onLaunched, onUnloaded, dontRunScene) {
         if (CC_EDITOR) {
             if (typeof onLaunched === 'boolean') {
                 dontRunScene = onLaunched;
@@ -628,7 +637,7 @@ class Director extends EventTarget {
      * !#zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
-    resume () {
+    resume() {
         if (!this._paused) {
             return;
         }
@@ -651,7 +660,7 @@ class Director extends EventTarget {
      * @param {Boolean} on
      * @deprecated since v2.0
      */
-    setDepthTest (value) {
+    setDepthTest(value) {
         if (!cc.Camera.main) {
             return;
         }
@@ -669,7 +678,7 @@ class Director extends EventTarget {
      * @param {Color} clearColor
      * @deprecated since v2.0
      */
-    setClearColor (clearColor) {
+    setClearColor(clearColor) {
         if (!cc.Camera.main) {
             return;
         }
@@ -684,7 +693,7 @@ class Director extends EventTarget {
      * @return {Scene}
      * @deprecated since v2.0
      */
-    getRunningScene () {
+    getRunningScene() {
         return this._scene;
     }
 
@@ -697,7 +706,7 @@ class Director extends EventTarget {
      *  // This will help you to get the Canvas node in scene
      *  cc.director.getScene().getChildByName('Canvas');
      */
-    getScene () {
+    getScene() {
         return this._scene;
     }
 
@@ -708,7 +717,7 @@ class Director extends EventTarget {
      * @deprecated since v2.0
      * @return {Number}
      */
-    getAnimationInterval () {
+    getAnimationInterval() {
         return 1000 / game.getFrameRate();
     }
 
@@ -719,7 +728,7 @@ class Director extends EventTarget {
      * @deprecated since v2.0
      * @param {Number} value - The animation interval desired.
      */
-    setAnimationInterval (value) {
+    setAnimationInterval(value) {
         game.setFrameRate(Math.round(1000 / value));
     }
 
@@ -729,7 +738,7 @@ class Director extends EventTarget {
      * @method getDeltaTime
      * @return {Number}
      */
-    getDeltaTime () {
+    getDeltaTime() {
         return this._deltaTime;
     }
 
@@ -739,7 +748,7 @@ class Director extends EventTarget {
      * @method getTotalFrames
      * @return {Number}
      */
-    getTotalFrames () {
+    getTotalFrames() {
         return this._totalFrames;
     }
 
@@ -749,7 +758,7 @@ class Director extends EventTarget {
      * @method isPaused
      * @return {Boolean}
      */
-    isPaused () {
+    isPaused() {
         return this._paused;
     }
 
@@ -759,7 +768,7 @@ class Director extends EventTarget {
      * @method getScheduler
      * @return {Scheduler}
      */
-    getScheduler () {
+    getScheduler() {
         return this._scheduler;
     }
 
@@ -769,7 +778,7 @@ class Director extends EventTarget {
      * @method setScheduler
      * @param {Scheduler} scheduler
      */
-    setScheduler (scheduler) {
+    setScheduler(scheduler) {
         if (this._scheduler !== scheduler) {
             this._scheduler = scheduler;
         }
@@ -816,7 +825,7 @@ class Director extends EventTarget {
      * @method getActionManager
      * @return {ActionManager}
      */
-    getActionManager () {
+    getActionManager() {
         return this._actionManager;
     }
     /**
@@ -825,7 +834,7 @@ class Director extends EventTarget {
      * @method setActionManager
      * @param {ActionManager} actionManager
      */
-    setActionManager (actionManager) {
+    setActionManager(actionManager) {
         if (this._actionManager !== actionManager) {
             if (this._actionManager) {
                 this._scheduler.unscheduleUpdate(this._actionManager);
@@ -839,7 +848,7 @@ class Director extends EventTarget {
     /*
      * Starts Animation
      */
-    startAnimation () {
+    startAnimation() {
         this.invalid = false;
         this._lastUpdate = performance.now();
     }
@@ -847,14 +856,14 @@ class Director extends EventTarget {
     /*
      * Stops animation
      */
-    stopAnimation () {
+    stopAnimation() {
         this.invalid = true;
     }
 
     /*
      * Run main loop of director
      */
-    mainLoop () {
+    mainLoop() {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
@@ -882,8 +891,7 @@ class Director extends EventTarget {
 
             // Render
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            renderer.render(this._scene);
-
+            this._renderSystem.update(this._deltaTime);
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
@@ -892,11 +900,11 @@ class Director extends EventTarget {
         }
     }
 
-    __fastOn (type, callback, target) {
+    __fastOn(type, callback, target) {
         this.add(type, callback, target);
     }
 
-    __fastOff (type, callback, target) {
+    __fastOff(type, callback, target) {
         this.remove(type, callback, target);
     }
 }
