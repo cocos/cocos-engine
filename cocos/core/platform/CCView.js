@@ -1462,6 +1462,10 @@ ResolutionPolicy.FIXED_WIDTH = 4;
  */
 ResolutionPolicy.UNKNOWN = 5;
 
+ResolutionPolicy.ContainerStrategy = ContainerStrategy;
+ResolutionPolicy.ContentStrategy = ContentStrategy;
+cc.ResolutionPolicy = ResolutionPolicy;
+
 /**
  * @module cc
  */

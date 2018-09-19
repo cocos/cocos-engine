@@ -397,3 +397,5 @@ export default class Node extends BaseNode {
         return mat4.fromRT(out, this._rot, this._pos);
     }
 }
+
+cc.Node = Node;

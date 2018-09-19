@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AnimationAnimator = require('../../animation/animation-animator');
-const AnimationClip = require('../../animation/animation-clip');
-const EventTarget = require('../event/event-target');
-const js = require('../platform/js');
+const AnimationAnimator = require('./animation-animator');
+const AnimationClip = require('./animation-clip');
+const EventTarget = require('../core/event/event-target');
+const js = require('../core/utils/js');
 
 function equalClips (clip1, clip2) {
     if (clip1 === clip2) {

@@ -3020,4 +3020,4 @@ js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
-cc.Node = Node;
+cc.Node2D = Node;

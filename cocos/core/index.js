@@ -24,12 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import * as vmath from './vmath';
+
+cc.vmath = vmath;
+
 import './utils';
 import './data';
 import './event';
 import './platform';
 import './value-types';
-import './vmath';
 import './CCGame';
 import './CCScheduler';
 import './CCDirector';
