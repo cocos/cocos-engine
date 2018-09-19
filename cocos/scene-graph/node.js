@@ -34,6 +34,11 @@ export default class Node extends BaseNode {
     @property
     _hasChanged = false; // has the transform changed in this frame?
 
+    // is node but not scene
+    static isNode (obj) {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+    }
+
     constructor (name) {
         super(name);
         EventTarget.call(this);
