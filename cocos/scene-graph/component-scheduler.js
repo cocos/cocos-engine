@@ -117,12 +117,6 @@ class LifeCycleInvoker {
     }
 
     static stableRemoveInactive = stableRemoveInactive;
-
-    add = null;
-
-    remove = null;
-
-    invoke = null;
 }
 
 function compareOrder (a, b) {
@@ -267,7 +261,7 @@ function createInvokeImpl (funcOrCode, useDt) {
 /**
  * The Manager for Component's life-cycle methods.
  */
-export default class ComponentScheduler {
+class ComponentScheduler {
     constructor() {
         this.unscheduleAll();
     }
@@ -484,3 +478,5 @@ if (CC_EDITOR) {
         }
     };
 }
+
+export default ComponentScheduler;

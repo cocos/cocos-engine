@@ -123,7 +123,7 @@ export default class PrivateNode extends Node {
             this._position.y = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
         }
 
-        this._super();
+        super._updateLocalMatrix();
     }
 
     getPosition () {
@@ -147,7 +147,7 @@ export default class PrivateNode extends Node {
 
     setParent(value) {
         let oldParent = this._parent;
-        this._super(value);
+        super.setParent(value);
         if (oldParent !== value) {
             if (oldParent) {
                 oldParent.off(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);

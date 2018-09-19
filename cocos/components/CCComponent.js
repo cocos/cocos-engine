@@ -319,7 +319,7 @@ export default class Component extends CCObject {
                     getClassName(this), getClassName(depend));
             }
         }
-        if (this._super()) {
+        if (super.destroy()) {
             if (this._enabled && this.node._activeInHierarchy) {
                 cc.director._compScheduler.disableComp(this);
             }

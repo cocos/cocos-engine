@@ -117,6 +117,11 @@ export default class Canvas extends Component {
         }
     }
 
+    constructor () {
+        super();
+        this._thisOnResized = this.alignWithScreen.bind(this);
+    }
+
     resetInEditor () {
         _Scene._applyCanvasPreferences(this);
     }
