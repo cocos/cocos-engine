@@ -50,4 +50,4 @@ export default class JsonAsset extends Asset {
     json = null;
 }
 
-module.exports = cc.JsonAsset = JsonAsset;
+cc.JsonAsset = JsonAsset;
