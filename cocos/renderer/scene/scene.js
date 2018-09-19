@@ -1,6 +1,10 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { FixedArray } from '../../3d/memop';
+import { FixedArray, RecyclePool } from '../../3d/memop';
+import { ray, triangle, intersect } from '../../3d/geom-utils';
+import { Layers } from '../../scene-graph';
+import { vec3, mat4 } from '../../core/vmath';
+import gfx from '../../renderer/gfx';
 
 /**
  * A representation of the scene
@@ -187,4 +191,80 @@ export default class Scene {
       this._views.splice(idx, 1);
     }
   }
+}
+
+if (CC_EDITOR) {
+  /**
+   * create a raycast result array
+   * @return {RecyclePool}
+   */
+  Scene.prototype.createRaycastResult = function() {
+    return new RecyclePool(() => {
+      return { entity: null, distance: Infinity };
+    }, 16);
+  };
+
+  /**
+   * Cast a ray into the scene, record all the intersected models in the result array
+   * @param {Ray} worldRay the testing ray
+   * @param {RecyclePool} results the result array
+   * @param {number} mask the layer mask to filter the models
+   * @return {boolean} does the ray hit any models?
+   */
+  Scene.prototype.raycast = (function() {
+    let modelRay = ray.create();
+    let m4 = mat4.create();
+    let distance = Infinity;
+    let cmp = (a, b) => {
+      return a.distance - b.distance;
+    };
+    let do_test = tri => {
+      let dist = intersect.ray_triangle(modelRay, tri);
+      if (dist <= 0 || dist > distance) return;
+      distance = dist;
+    };
+    return function(worldRay, results, mask = Layers.Default) {
+      results.reset();
+      for (let i = 0; i < this._models.length; i++) {
+        let m = this._models.data[i];
+        if ((m._node._layer & mask) === 0) continue;
+        // transform ray back to model space
+        mat4.invert(m4, m._node.getWorldMatrix(m4));
+        vec3.transformMat4(modelRay.o, worldRay.o, m4);
+        vec3.normalize(modelRay.d, vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+        // broadphase
+        if (intersect.ray_aabb(modelRay, m._bsModelSpace) <= 0) continue;
+        // narrowphase
+        distance = Infinity;
+        this._forEachTriangleIn(m._inputAssembler, do_test);
+        if (distance < Infinity) {
+          let res = results.add();
+          res.entity = m._node;
+          res.distance = distance;
+        }
+      }
+      results.sort(cmp);
+      return results.length;
+    };
+  })();
+
+  Scene.prototype._forEachTriangleIn = (function() {
+    let tri = triangle.create();
+    return function(ia, callback) {
+      if (ia._primitiveType !== gfx.PT_TRIANGLES) return;
+      let vb = ia._vertexBuffer._data;
+      let ib = ia._indexBuffer._data;
+      let fmt = ia._vertexBuffer._format.element(gfx.ATTR_POSITION);
+      let offset = fmt.arrayOffset, stride = fmt.arrayStride;
+      for (let i = 0; i < ib.length; i += 3) {
+        let idx = ib[i] * stride + offset;
+        vec3.set(tri.a, vb[idx], vb[idx + 1], vb[idx + 2]);
+        idx = ib[i + 1] * stride + offset;
+        vec3.set(tri.b, vb[idx], vb[idx + 1], vb[idx + 2]);
+        idx = ib[i + 2] * stride + offset;
+        vec3.set(tri.c, vb[idx], vb[idx + 1], vb[idx + 2]);
+        if (callback(tri)) break;
+      }
+    };
+  })();
 }
