@@ -572,7 +572,7 @@ export class EventKeyboard extends Event {
     }
 }
 
-Event.EventMouse = EventMouse;
-Event.EventTouch = EventTouch;
-Event.EventAcceleration = EventAcceleration;
-Event.EventKeyboard = EventKeyboard;
+cc.Event.EventMouse = EventMouse;
+cc.Event.EventTouch = EventTouch;
+cc.Event.EventAcceleration = EventAcceleration;
+cc.Event.EventKeyboard = EventKeyboard;
