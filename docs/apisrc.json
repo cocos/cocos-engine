@@ -50,7 +50,7 @@
     "!./cocos2d/core/platform/preprocess-class.js",
     "!./cocos2d/core/platform/requiring-frame.js",
     "!./cocos2d/core/platform/utils.js",
-    "!./cocos2d/core/platform/id-generater.js",
+    "!./cocos2d/core/platform/id-generator.js",
 
     "./cocos2d/core/renderer/index.js",
 

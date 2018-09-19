@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import * as js from '../core/utils/js';
-import IdGenerater from '../core/utils/id-generater';
+import IdGenerator from '../core/utils/id-generator';
 import CCObject from '../core/data/object';
 import _decorator from '../core/data/class-decorator';
 const { ccclass, property } = _decorator;
@@ -37,7 +37,7 @@ const Deactivating = CCObject.Flags.Deactivating;
 const CHILD_ADDED = 'child-added';
 const CHILD_REMOVED = 'child-removed';
 
-var idGenerater = new IdGenerater('Node');
+var idGenerator = new IdGenerator('Node');
 
 function getConstructor(typeOrClassName) {
     if (!typeOrClassName) {
@@ -315,7 +315,7 @@ export default class BaseNode extends CCObject {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
         this._activeInHierarchy = false;
-        this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
+        this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerator.getNewId();
 
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 
@@ -1320,7 +1320,7 @@ if (CC_DEV) {
     });
 }
 
-BaseNode.idGenerater = idGenerater;
+BaseNode.idGenerator = idGenerator;
 
 // For walk
 BaseNode._stacks = [[]];

@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// ID generater for runtime
+// ID generator for runtime
 
 let NonUuidMark = '.';
 
-export default class IdGenerater {
+export default class IDGenerator {
     /*
      * @method constructor
-     * @param {string} [category] - You can specify a unique category to avoid id collision with other instance of IdGenerater
+     * @param {string} [category] - You can specify a unique category to avoid id collision with other instance of IdGenerator
      */
     constructor (category) {
         // init with a random id to emphasize that the returns id should not be stored in persistence data
@@ -49,7 +49,7 @@ export default class IdGenerater {
 }
 
 /*
- * The global id generater might have a conflict problem once every 365 days,
+ * The global id generator might have a conflict problem once every 365 days,
  * if the game runs at 60 FPS and each frame 4760273 counts of new id are requested.
  */
-IdGenerater.global = new IdGenerater('global');
+IDGenerator.global = new IDGenerator('global');
