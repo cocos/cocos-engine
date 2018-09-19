@@ -1,27 +1,27 @@
 import render from '../../renderer';
 export default class RenderSystem {
-    constructor() {
+    constructor () {
         this._scene = new render.Scene();
     }
 
-    init() {
+    init () {
 
     }
 
-    add(comp) {
+    add (comp) {
 
     }
 
-    remove(comp) {
+    remove (comp) {
 
     }
 
-    update(dt) {
+    update (dt) {
         cc.render.render(this._scene);
         this._scene.reset();
     }
 
-    get scene() {
+    get scene () {
         return this._scene;
     }
 }
