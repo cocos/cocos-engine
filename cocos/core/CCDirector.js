@@ -33,8 +33,8 @@ import Scheduler from './CCScheduler';
 import {autoRelease} from '../load-pipeline/auto-release-utils';
 import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import AnimationSystem from '../3d/framework/animation-system';
-import SkinningModelSystem from '../3d/framework/skinning-model-system';
+// import AnimationSystem from '../3d/framework/animation-system';
+// import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -174,8 +174,8 @@ class Director extends EventTarget {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
-        this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
-        this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
+        // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
+        // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
 
         cc.loader.init(this);
     }
