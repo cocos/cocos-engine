@@ -30,11 +30,12 @@ import eventManager from './platform/event-manager/CCEventManager';
 import ccobject from './data/object';
 import game from './CCGame';
 import Scheduler from './CCScheduler';
-import {autoRelease} from '../load-pipeline/auto-release-utils';
+import { autoRelease } from '../load-pipeline/auto-release-utils';
 import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 // import AnimationSystem from '../3d/framework/animation-system';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
+import RenderSystem from '../3d/framework/render-system';
 import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -176,6 +177,14 @@ class Director extends EventTarget {
 
         // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
         // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
+        // init renderSystem
+        {
+            this._renderSystem = new RenderSystem();
+            let renderComps = ['CameraComponent'];
+            renderComps.forEach((compName) => {
+                getClassByName(compName).system = this._renderSystem;
+            });
+        }
 
         cc.loader.init(this);
     }
@@ -319,7 +328,7 @@ class Director extends EventTarget {
         if (eventManager)
             eventManager.setEnabled(false);
 
-        cc.renderer.clear();
+        // cc.renderer.clear();
 
         if (!CC_EDITOR) {
             if (cc.isValid(this._scene)) {
@@ -785,7 +794,7 @@ class Director extends EventTarget {
      * @param {number} priority
      * @return {System}
      */
-    registerSystem(name, cls, compClsNames, priority) {
+    registerSystem (name, cls, compClsNames, priority) {
         let sys = new cls();
         sys._id = name;
         sys._priority = priority;
@@ -804,7 +813,7 @@ class Director extends EventTarget {
      * @param {string} name
      * @return {System}
      */
-    getSystem(name) {
+    getSystem (name) {
         return this._systems.find((sys) => {
             return sys._id === name;
         });
@@ -882,8 +891,7 @@ class Director extends EventTarget {
 
             // Render
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            renderer.render(this._scene);
-
+            this._renderSystem.update(this._deltaTime);
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
