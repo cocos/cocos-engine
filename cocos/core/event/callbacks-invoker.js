@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -86,11 +86,11 @@ callbackListPool.get = function () {
  *
  * @private
  */
-export class CallbacksHandler {
-    constructor () {
-        this._callbackTable = js.createMap(true);
-    }
-
+export function CallbacksHandler () {
+    this._callbackTable = js.createMap(true);
+}
+CallbacksHandler.prototype = {
+    constructor: CallbacksHandler,
     /**
      * @method add
      * @param {String} key
@@ -104,7 +104,7 @@ export class CallbacksHandler {
         }
         list.callbacks.push(callback);
         list.targets.push(target || null);
-    }
+    },
 
     /**
      * Check if the specified key has any registered callback. If a callback is also specified,
@@ -146,7 +146,7 @@ export class CallbacksHandler {
             }
         }
         return false;
-    }
+    },
 
     /**
      * Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
@@ -184,7 +184,7 @@ export class CallbacksHandler {
                 }
             }
         }
-    }
+    },
 
     /**
      * @method remove
@@ -221,11 +221,11 @@ export class CallbacksHandler {
  *
  * @extends _CallbacksHandler
  */
-export class CallbacksInvoker extends CallbacksHandler {
-    constructor () {
-        super();
-    }
-
+export function CallbacksInvoker () {
+    CallbacksHandler.call(this);
+}
+js.extend(CallbacksInvoker, CallbacksHandler);
+js.mixin(CallbacksInvoker.prototype, {
     /**
      * @method emit
      * @param {String} key
@@ -264,8 +264,8 @@ export class CallbacksInvoker extends CallbacksHandler {
             }
         }
     }
-}
-    
+});
+
 if (CC_TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;
 }

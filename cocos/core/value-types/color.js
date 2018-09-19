@@ -54,6 +54,7 @@ export default class Color extends ValueType {
      * @param {Number} [a=255] - alpha component of the color, default value is 255.
      */
     constructor ( r, g, b, a ) {
+        super();
         if (typeof r === 'object') {
             g = r.g;
             b = r.b;

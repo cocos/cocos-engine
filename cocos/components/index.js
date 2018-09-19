@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export * from './CCComponent';
-export * from './CCComponentEventHandler';
-export * from './missing-script';
-export * from './CCCanvas';
+export {default as Component} from './CCComponent';
+export {default as EventHandler} from './CCComponentEventHandler';
+export {default as MissingScript} from './missing-script';
+export {default as Canvas} from './CCCanvas';

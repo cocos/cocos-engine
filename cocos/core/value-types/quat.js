@@ -47,6 +47,7 @@ export default class Quat extends ValueType {
      * @param {number} [w=1]
      */
     constructor (x, y, z, w) {
+        super();
         if (x && typeof x === 'object') {
             z = x.z;
             y = x.y;

@@ -60,6 +60,7 @@ export default class Mat4 extends ValueType {
      * @param {Number} m33 Component in column 3, row 3 position (index 15)
      */
     constructor (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+        super();
         let t = this;
         t.m00 = m00;
         t.m01 = m01;

@@ -27,7 +27,7 @@
 import * as js from '../utils/js';
 import {CallbacksInvoker} from './callbacks-invoker';
 
-var fastRemove = js.array.fastRemove;
+const fastRemove = js.array.fastRemove;
 
 /**
  * !#en
@@ -56,7 +56,11 @@ var fastRemove = js.array.fastRemove;
  * @class EventTarget
  * @extends CallbacksInvoker
  */
-export default class EventTarget extends CallbacksInvoker {
+export default function EventTarget () {
+    CallbacksInvoker.call(this);
+}
+js.extend(EventTarget, CallbacksInvoker);
+js.mixin(EventTarget.prototype, {
     /**
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
@@ -103,7 +107,7 @@ export default class EventTarget extends CallbacksInvoker {
                 target.__eventTargets.push(this);
         }
         return callback;
-    }
+    },
 
     /**
      * !#en
@@ -137,7 +141,7 @@ export default class EventTarget extends CallbacksInvoker {
                 fastRemove(target.__eventTargets, this);
             }
         }
-    }
+    },
 
     /**
      * !#en Removes all callbacks previously registered with the same target (passed as parameter).
@@ -152,7 +156,7 @@ export default class EventTarget extends CallbacksInvoker {
      */
     targetOff () {
         this.removeAll();
-    }
+    },
 
     /**
      * !#en
@@ -189,7 +193,7 @@ export default class EventTarget extends CallbacksInvoker {
             this.on(type, onceWrapper, target);
             this.add(eventType_hasOnceListener, callback, target);
         }
-    }
+    },
 
     /**
      * !#en
@@ -222,6 +226,6 @@ export default class EventTarget extends CallbacksInvoker {
     dispatchEvent (event) {
         this.invoke(event.type, event);
     }
-}
+});
 
 cc.EventTarget = EventTarget;

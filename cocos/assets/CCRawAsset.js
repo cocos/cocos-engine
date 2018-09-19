@@ -61,7 +61,7 @@ export default class RawAsset extends CCObject {
      * @static
      * @private
      */
-    static get isRawAssetType () {
+    static isRawAssetType (ctor) {
         return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
     }
 }

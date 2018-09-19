@@ -49,6 +49,7 @@ export default class Vec3 extends ValueType {
      * @param {number} [z=0]
      */
     constructor (x, y, z) {
+        super();
         if (x && typeof x === 'object') {
             z = x.z;
             y = x.y;
