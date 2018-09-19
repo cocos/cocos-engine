@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// ========= cc.js ==========
-export {default as js} from './js';
+import './js';
+import './path';
 
-// ========= cc.path ==========
-export {default as path} from './path';
+export const js = cc.js;
+export const path = cc.path;
