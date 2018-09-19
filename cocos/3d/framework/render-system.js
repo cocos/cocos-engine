@@ -17,7 +17,7 @@ export default class RenderSystem {
     }
 
     update (dt) {
-        cc.render.render(this._scene);
+        cc.game._renderer.render(this._scene);
         this._scene.reset();
     }
 

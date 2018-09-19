@@ -56,7 +56,7 @@ const fastRemove = js.array.fastRemove;
  * @class EventTarget
  * @extends CallbacksInvoker
  */
-export default function EventTarget () {
+function EventTarget () {
     CallbacksInvoker.call(this);
 }
 js.extend(EventTarget, CallbacksInvoker);
@@ -209,7 +209,7 @@ js.mixin(EventTarget.prototype, {
      * @param {*} [arg4] - Fourth argument
      * @param {*} [arg5] - Fifth argument
      * @example
-     * 
+     *
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
@@ -229,3 +229,4 @@ js.mixin(EventTarget.prototype, {
 });
 
 cc.EventTarget = EventTarget;
+export default EventTarget;

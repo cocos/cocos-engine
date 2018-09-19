@@ -2,8 +2,9 @@ import Component from '../../Components/CCComponent';
 
 export default class RenderableComponent extends Component {
     constructor() {
-        this._system = RenderableComponent.system;
-        this._scene = this._system.scene;
+        super();
+        this._system = null;
+        this._scene = null;
     }
 
     // todo add implementation
