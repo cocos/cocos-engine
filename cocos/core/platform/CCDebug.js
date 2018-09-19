@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const debugInfos = require('../../DebugInfos') || {};
+const debugInfos = require('../../../DebugInfos') || {};
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
 // the html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)

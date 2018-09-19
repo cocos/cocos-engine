@@ -49,6 +49,7 @@ export default class Size extends ValueType {
      * @param {Number} [height]
      */
     constructor (width, height) {
+        super();
         if (width && typeof width === 'object') {
             height = width.height;
             width = width.width;

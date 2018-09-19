@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export * from './downloader';
-export * from './loader';
-export * from './loading-items';
-export * from './pipeline';
-export * from './CCLoader';
+export {default as Downloader} from './downloader';
+export {default as Loader} from './loader';
+export {default as LoadingItems} from './loading-items';
+export {default as Pipeline} from './pipeline';
+export {default as loader} from './CCLoader';

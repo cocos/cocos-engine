@@ -138,7 +138,7 @@ export default class AnimationClip extends Asset {
       if (idx == 0) {
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          let joint = skeleton._joints[jointFrames.id];
+          let joint = skeleton._joints[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
           if (!joint) {
             continue;
           }
@@ -162,7 +162,7 @@ export default class AnimationClip extends Asset {
 
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          let joint = skeleton._joints[jointFrames.id];
+          let joint = skeleton._joints[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
           if (!joint) {
             continue;
           }
@@ -221,11 +221,12 @@ export default class AnimationClip extends Asset {
       if (idx == 0) {
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          if (isJointMaksed(jointFrames.id)) {
+          const realJointID = state.skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id);
+          if (isJointMaksed(realJointID)) {
             continue;
           }
 
-          let jointState = state._jointStates[jointFrames.id];
+          let jointState = state._jointStates[realJointID];
           if (!jointState) {
             continue;
           }
@@ -250,11 +251,12 @@ export default class AnimationClip extends Asset {
 
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          if (isJointMaksed(jointFrames.id)) {
+          const realJointID = state.skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id);
+          if (isJointMaksed(realJointID)) {
             continue;
           }
 
-          let jointState = state._jointStates[jointFrames.id];
+          let jointState = state._jointStates[realJointID];
           if (!jointState) {
             continue;
           }
@@ -309,6 +311,10 @@ export class SamplingState {
     this._jointStates = new Array(skeleton._joints.length);
     for (let i = 0; i < this._jointStates.length; ++i)
       this._jointStates[i] = new SamplingStateJointState(skeleton._joints[i]);
+  }
+
+  get skeleton() {
+    return this._skeleton;
   }
 
   /**

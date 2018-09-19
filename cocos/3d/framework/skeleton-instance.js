@@ -34,7 +34,7 @@ export default class SkeletonInstance {
     this._matrices = null;
   }
 
-  setRoot(root) {
+  setRoot(root, indexDelta = 0) {
     /**
      * @type {cc.Node}
      */
@@ -52,6 +52,12 @@ export default class SkeletonInstance {
     for (let i = 0; i < this._joints.length; ++i) {
       this._matrices[i] = mat4.create();
     }
+
+    /**
+     * @type {number}
+     */
+    this._indexDelta = indexDelta;
+
     this.updateMatrices();
   }
 
@@ -90,6 +96,10 @@ export default class SkeletonInstance {
       }
     }
     return -1;
+  }
+
+  getJointIndexFromOrignalNodeIndex(index) {
+    return index - this._indexDelta;
   }
 
   clone() {
