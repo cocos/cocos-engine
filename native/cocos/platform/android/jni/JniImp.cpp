@@ -429,7 +429,7 @@ extern "C"
         }
         KeyboardEvent event;
         event.key = keyInWeb;
-        event.action = KeyboardEvent::Action::PRESS;
+        event.action = isPressed ? KeyboardEvent::Action::PRESS : KeyboardEvent::Action::RELEASE;
         EventDispatcher::dispatchKeyboardEvent(event);
 
         return JNI_TRUE;
