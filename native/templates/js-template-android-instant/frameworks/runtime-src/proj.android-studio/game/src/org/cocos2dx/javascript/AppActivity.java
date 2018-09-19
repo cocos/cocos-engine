@@ -40,6 +40,7 @@ public class AppActivity extends Cocos2dxActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SDKWrapper.getInstance().init(this);
         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
         if (!isTaskRoot()) {
             // Android launched another instance of the root activity into an existing task
@@ -50,7 +51,6 @@ public class AppActivity extends Cocos2dxActivity {
         }
         // DO OTHER INITIALIZATION BELOW
         
-        SDKWrapper.getInstance().init(this);
         CAAgent.enableDebug(false);
     }
 	

@@ -42,6 +42,7 @@ public class InstantHelper {
     public static InstantHelper getInstance() {
         if (null == mHelper) {
             mHelper = new InstantHelper();
+            mHelper.init(SDKWrapper.getInstance().getContext());
         }
         return mHelper;
     }
