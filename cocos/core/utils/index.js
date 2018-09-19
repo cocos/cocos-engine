@@ -25,51 +25,7 @@
  ****************************************************************************/
 
 // ========= cc.js ==========
-import * as js from './js';
-
-if (CC_DEV) {
-    js.getset(js, '_registeredClassIds',
-        function () {
-            var dump = {};
-            for (var id in _idToClass) {
-                dump[id] = _idToClass[id];
-            }
-            return dump;
-        },
-        function (value) {
-            js.clear(_idToClass);
-            for (var id in value) {
-                _idToClass[id] = value[id];
-            }
-        }
-    );
-    js.getset(js, '_registeredClassNames', 
-        function () {
-            var dump = {};
-            for (var id in _nameToClass) {
-                dump[id] = _nameToClass[id];
-            }
-            return dump;
-        },
-        function (value) {
-            js.clear(_nameToClass);
-            for (var id in value) {
-                _nameToClass[id] = value[id];
-            }
-        }
-    );
-}
-cc.js = js;
+export {default as js} from './js';
 
 // ========= cc.path ==========
-import * as path from './path';
-
-js.get(path, 'sep', () => {
-    return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
-})
-cc.path = path;
-
-export default {
-    js,
-    path
-}
+export {default as path} from './path';

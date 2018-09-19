@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var js = cc.js;
-const debug = require('../core/CCDebug');
+const debug = require('../core/platform/CCDebug');
 
 /**
  * @class Playable
