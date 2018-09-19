@@ -298,7 +298,7 @@ cc.misc = {
     BUILTIN_CLASSID_RE,
     BASE64_VALUES,
     propertyDefine,
-    NextPOT,
+    nextPOT,
     pushToMap,
     clampf,
     clamp01,

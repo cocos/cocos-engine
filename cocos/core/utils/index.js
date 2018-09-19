@@ -64,7 +64,7 @@ cc.js = js;
 // ========= cc.path ==========
 import * as path from './path';
 
-get(path, 'sep', () => {
+js.get(path, 'sep', () => {
     return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
 })
 cc.path = path;

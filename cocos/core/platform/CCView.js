@@ -27,6 +27,10 @@
 
 import EventTarget from '../event/event-target';
 import '../data/class';
+import macro from '../platform/CCMacro';
+import game from '../CCGame';
+import Size from '../value-types/size';
+import Rect from '../value-types/rect';
 
 var __BrowserGetter = {
     init(){
@@ -121,20 +125,18 @@ class View extends EventTarget {
 
         var _t = this, _strategyer = ContainerStrategy, _strategy = ContentStrategy;
 
-        __BrowserGetter.init(this);
-
         // Size of parent node that contains cc.game.container and cc.game.canvas
-        _t._frameSize = cc.size(0, 0);
+        _t._frameSize = new Size(0, 0);
 
         // resolution size, it is the size appropriate for the app resources.
-        _t._designResolutionSize = cc.size(0, 0);
-        _t._originalDesignResolutionSize = cc.size(0, 0);
+        _t._designResolutionSize = new Size(0, 0);
+        _t._originalDesignResolutionSize = new Size(0, 0);
         _t._scaleX = 1;
         _t._scaleY = 1;
         // Viewport is the container's rect related to content's coordinates in pixel
-        _t._viewportRect = cc.rect(0, 0, 0, 0);
+        _t._viewportRect = new Rect(0, 0, 0, 0);
         // The visible rect in content's coordinate in point
-        _t._visibleRect = cc.rect(0, 0, 0, 0);
+        _t._visibleRect = new Rect(0, 0, 0, 0);
         // Auto full screen disabled by default
         _t._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
@@ -147,7 +149,7 @@ class View extends EventTarget {
         _t._resizeWithBrowserSize = false;
         _t._orientationChanging = true;
         _t._isRotated = false;
-        _t._orientation = cc.macro.ORIENTATION_AUTO;
+        _t._orientation = macro.ORIENTATION_AUTO;
         _t._isAdjustViewport = true;
         _t._antiAliasEnabled = false;
 
@@ -159,14 +161,16 @@ class View extends EventTarget {
         _t._rpFixedHeight = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         _t._rpFixedWidth = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-        cc.game.once(cc.game.EVENT_ENGINE_INITED, this.init, this);
+        game.once(game.EVENT_ENGINE_INITED, this.init, this);
     }
 
    init () {
+        __BrowserGetter.init(this);
+        
         this._initFrameSize();
         this.enableAntiAlias(true);
 
-        var w = cc.game.canvas.width, h = cc.game.canvas.height;
+        var w = game.canvas.width, h = game.canvas.height;
         this._designResolutionSize.width = w;
         this._designResolutionSize.height = h;
         this._originalDesignResolutionSize.width = w;
@@ -193,7 +197,7 @@ class View extends EventTarget {
         // Check frame size changed or not
         var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height, prevRotated = view._isRotated;
         if (cc.sys.isMobile) {
-            var containerStyle = cc.game.container.style,
+            var containerStyle = game.container.style,
                 margin = containerStyle.margin;
             containerStyle.margin = '0';
             containerStyle.display = 'none';
@@ -229,10 +233,10 @@ class View extends EventTarget {
     /**
      * !#en
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
-     *   1. cc.macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
-     *   2. cc.macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
-     *   3. cc.macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
-     *   4. cc.macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
+     *   1. macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
+     *   2. macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
+     *   3. macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
+     *   4. macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
      *   5. Custom value, e.g: "480"                                                         <br/>
      * !#zh 设置目标内容的每英寸像素点密度。
      *
@@ -308,10 +312,10 @@ class View extends EventTarget {
      * cc.view 会自动用 CSS 旋转游戏场景的 canvas，
      * 这个方法不会对 native 部分产生任何影响，对于 native 而言，你需要在应用设置中的设置排版。
      * @method setOrientation
-     * @param {Number} orientation - Possible values: cc.macro.ORIENTATION_LANDSCAPE | cc.macro.ORIENTATION_PORTRAIT | cc.macro.ORIENTATION_AUTO
+     * @param {Number} orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */
     setOrientation (orientation) {
-        orientation = orientation & cc.macro.ORIENTATION_AUTO;
+        orientation = orientation & macro.ORIENTATION_AUTO;
         if (orientation && this._orientation !== orientation) {
             this._orientation = orientation;
             var designWidth = this._originalDesignResolutionSize.width;
@@ -322,26 +326,26 @@ class View extends EventTarget {
 
     _initFrameSize () {
         var locFrameSize = this._frameSize;
-        var w = __BrowserGetter.availWidth(cc.game.frame);
-        var h = __BrowserGetter.availHeight(cc.game.frame);
+        var w = __BrowserGetter.availWidth(game.frame);
+        var h = __BrowserGetter.availHeight(game.frame);
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
-            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
-            (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
+            (isLandscape && this._orientation & macro.ORIENTATION_LANDSCAPE) || 
+            (!isLandscape && this._orientation & macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
-            cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
-            cc.game.container.style.transform = 'rotate(0deg)';
+            game.container.style['-webkit-transform'] = 'rotate(0deg)';
+            game.container.style.transform = 'rotate(0deg)';
             this._isRotated = false;
         }
         else {
             locFrameSize.width = h;
             locFrameSize.height = w;
-            cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
-            cc.game.container.style.transform = 'rotate(90deg)';
-            cc.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
-            cc.game.container.style.transformOrigin = '0px 0px 0px';
+            game.container.style['-webkit-transform'] = 'rotate(90deg)';
+            game.container.style.transform = 'rotate(90deg)';
+            game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
+            game.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
 
             // Fix for issue: https://github.com/cocos-creator/fireball/issues/8365
@@ -350,8 +354,8 @@ class View extends EventTarget {
             // Because 'transform' style adds canvas (the top-element of container) to a new stack context.
             // That causes the DOM Input was hidden under canvas.
             // This should be done after container rotated, instead of in style-mobile.css.
-            cc.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
-            cc.game.canvas.style.transform = 'translateZ(0px)';
+            game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
+            game.canvas.style.transform = 'translateZ(0px)';
         }
         if (this._orientationChanging) {
             setTimeout(function () {
@@ -467,7 +471,7 @@ class View extends EventTarget {
             return;
         }
         this._antiAliasEnabled = enabled;
-        if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
+        if(game.renderType === game.RENDER_TYPE_WEBGL) {
             var cache = cc.loader._cache;
             for (var key in cache) {
                 var item = cache[key];
@@ -483,8 +487,8 @@ class View extends EventTarget {
                 }
             }
         }
-        else if(cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            var ctx = cc.game.canvas.getContext('2d');
+        else if(game.renderType === game.RENDER_TYPE_CANVAS) {
+            var ctx = game.canvas.getContext('2d');
             ctx.imageSmoothingEnabled = enabled;
             ctx.mozImageSmoothingEnabled = enabled;
         }
@@ -516,7 +520,7 @@ class View extends EventTarget {
             cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
-            cc.screen.autoFullScreen(cc.game.frame);
+            cc.screen.autoFullScreen(game.frame);
         }
         else {
             this._autoFullScreen = false;
@@ -545,8 +549,8 @@ class View extends EventTarget {
      * @param {Number} height
      */
     setCanvasSize (width, height) {
-        var canvas = cc.game.canvas;
-        var container = cc.game.container;
+        var canvas = game.canvas;
+        var container = game.container;
 
         canvas.width = width * this._devicePixelRatio;
         canvas.height = height * this._devicePixelRatio;
@@ -572,7 +576,7 @@ class View extends EventTarget {
      * @return {Size}
      */
     getCanvasSize () {
-        return cc.size(cc.game.canvas.width, cc.game.canvas.height);
+        return cc.size(game.canvas.width, game.canvas.height);
     }
 
     /**
@@ -603,8 +607,8 @@ class View extends EventTarget {
     setFrameSize (width, height) {
         this._frameSize.width = width;
         this._frameSize.height = height;
-        cc.game.frame.style.width = width + "px";
-        cc.game.frame.style.height = height + "px";
+        game.frame.style.width = width + "px";
+        game.frame.style.height = height + "px";
         this._resizeEvent();
     }
 
@@ -834,7 +838,7 @@ class View extends EventTarget {
      */
     setViewportInPoints (x, y, w, h) {
         var locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc.game._renderContext.viewport((x * locScaleX + this._viewportRect.x),
+        game._renderContext.viewport((x * locScaleX + this._viewportRect.x),
             (y * locScaleY + this._viewportRect.y),
             (w * locScaleX),
             (h * locScaleY));
@@ -857,11 +861,11 @@ class View extends EventTarget {
         let sy = Math.ceil(y * scaleY + this._viewportRect.y);
         let sw = Math.ceil(w * scaleX);
         let sh = Math.ceil(h * scaleY);
-        let gl = cc.game._renderContext;
+        let gl = game._renderContext;
 
         if (!_scissorRect) {
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
-            _scissorRect = cc.rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
+            _scissorRect = new Rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
         }
 
         if (_scissorRect.x !== sx || _scissorRect.y !== sy || _scissorRect.width !== sw || _scissorRect.height !== sh) {
@@ -882,7 +886,7 @@ class View extends EventTarget {
      * @return {Boolean}
      */
     isScissorEnabled () {
-        return cc.game._renderContext.isEnabled(gl.SCISSOR_TEST);
+        return game._renderContext.isEnabled(gl.SCISSOR_TEST);
     }
 
     /**
@@ -896,11 +900,11 @@ class View extends EventTarget {
     getScissorRect () {
         if (!_scissorRect) {
             var boxArr = gl.getParameter(gl.SCISSOR_BOX);
-            _scissorRect = cc.rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
+            _scissorRect = new Rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
         }
         var scaleXFactor = 1 / this._scaleX;
         var scaleYFactor = 1 / this._scaleY;
-        return cc.rect(
+        return new Rect(
             (_scissorRect.x - this._viewportRect.x) * scaleXFactor,
             (_scissorRect.y - this._viewportRect.y) * scaleYFactor,
             _scissorRect.width * scaleXFactor,
@@ -967,7 +971,7 @@ class View extends EventTarget {
         let x = this._devicePixelRatio * (tx - relatedPos.left);
         let y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
         if (this._isRotated) {
-            result.x = cc.game.canvas.width - y;
+            result.x = game.canvas.width - y;
             result.y = x;
         }
         else {
@@ -1061,7 +1065,7 @@ class ContainerStrategy {
     }
 
     _setupContainer (view, w, h) {
-        var locCanvas = cc.game.canvas, locContainer = cc.game.container;
+        var locCanvas = game.canvas, locContainer = game.container;
 
         if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
@@ -1083,14 +1087,14 @@ class ContainerStrategy {
 
     _fixContainer () {
         // Add container to document body
-        document.body.insertBefore(cc.game.container, document.body.firstChild);
+        document.body.insertBefore(game.container, document.body.firstChild);
         // Set body's width height to window's size, and forbid overflow, so that game will be centered
         var bs = document.body.style;
         bs.width = window.innerWidth + "px";
         bs.height = window.innerHeight + "px";
         bs.overflow = "hidden";
         // Body size solution doesn't work on all mobile browser so this is the aleternative: fixed container
-        var contStyle = cc.game.container.style;
+        var contStyle = game.container.style;
         contStyle.position = "fixed";
         contStyle.left = contStyle.top = "0px";
         // Reposition body
@@ -1118,14 +1122,14 @@ class ContentStrategy {
         Math.abs(containerW - contentW) < 2 && (contentW = containerW);
         Math.abs(containerH - contentH) < 2 && (contentH = containerH);
 
-        var viewport = cc.rect(Math.round((containerW - contentW) / 2),
+        var viewport = new Rect(Math.round((containerW - contentW) / 2),
                                Math.round((containerH - contentH) / 2),
                                contentW, contentH);
 
         // Translate the content
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){
+        if (game.renderType === game.RENDER_TYPE_CANVAS){
             //TODO: modify something for setTransform
-            //cc.game._renderContext.translate(viewport.x, viewport.y + contentH);
+            //game._renderContext.translate(viewport.x, viewport.y + contentH);
         }
 
         this._result.scale = [scaleX, scaleY];
@@ -1145,7 +1149,7 @@ class ContentStrategy {
 
     /**
      * !#en Function to apply this strategy
-     * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
+     * The return value is {scale: [scaleX, scaleY], viewport: {new Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * !#zh 调用策略方法
      * @method apply
@@ -1178,7 +1182,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
      */
     class EqualToFrame extends ContainerStrategy {
         apply (view) {
-            var frameH = view._frameSize.height, containerStyle = cc.game.container.style;
+            var frameH = view._frameSize.height, containerStyle = game.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
             // Setup container's margin and padding
             if (view._isRotated) {
@@ -1198,7 +1202,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
      */
     class ProportionalToFrame extends ContainerStrategy {
         apply (view, designedResolution) {
-            var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.game.container.style,
+            var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = game.container.style,
                 designW = designedResolution.width, designH = designedResolution.height,
                 scaleX = frameW / designW, scaleY = frameH / designH,
                 containerW, containerH;
@@ -1237,7 +1241,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
 // Content scale strategys
     class ExactFit extends ContentStrategy {
         apply (view, designedResolution) {
-            var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
+            var containerW = game.canvas.width, containerH = game.canvas.height,
                 scaleX = containerW / designedResolution.width, scaleY = containerH / designedResolution.height;
 
             return this._buildResult(containerW, containerH, containerW, containerH, scaleX, scaleY);
@@ -1247,7 +1251,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
 
     class ShowAll extends ContentStrategy {
         apply (view, designedResolution) {
-            var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
+            var containerW = game.canvas.width, containerH = game.canvas.height,
                 designW = designedResolution.width, designH = designedResolution.height,
                 scaleX = containerW / designW, scaleY = containerH / designH, scale = 0,
                 contentW, contentH;
@@ -1262,7 +1266,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
 
     class NoBorder extends ContentStrategy {
         apply (view, designedResolution) {
-            var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
+            var containerW = game.canvas.width, containerH = game.canvas.height,
                 designW = designedResolution.width, designH = designedResolution.height,
                 scaleX = containerW / designW, scaleY = containerH / designH, scale,
                 contentW, contentH;
@@ -1277,7 +1281,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
 
     class FixedHeight extends ContentStrategy {
         apply (view, designedResolution) {
-            var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
+            var containerW = game.canvas.width, containerH = game.canvas.height,
                 designH = designedResolution.height, scale = containerH / designH,
                 contentW = containerW, contentH = containerH;
 
@@ -1288,7 +1292,7 @@ ContentStrategy.prototype.name = "ContentStrategy";
 
     class FixedWidth extends ContentStrategy {
         apply (view, designedResolution) {
-            var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
+            var containerW = game.canvas.width, containerH = game.canvas.height,
                 designW = designedResolution.width, scale = containerW / designW,
                 contentW = containerW, contentH = containerH;
 
@@ -1335,7 +1339,7 @@ class ResolutionPolicy {
     }
 
     get canvasSize () {
-        return cc.v2(cc.game.canvas.width, cc.game.canvas.height);
+        return cc.v2(game.canvas.width, game.canvas.height);
     }
 
     /**
@@ -1351,7 +1355,7 @@ class ResolutionPolicy {
 
     /**
      * !#en Function to apply this resolution policy
-     * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
+     * The return value is {scale: [scaleX, scaleY], viewport: {new Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * !#zh 调用策略方法
      * @method apply

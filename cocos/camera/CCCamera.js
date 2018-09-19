@@ -26,16 +26,15 @@
 
 import game from '../core/CCGame';
 import AffineTrans from '../core/value-types/affine-transform';
+import mat4 from '../core/vmath/mat4';
+import vec2 from '../core/vmath/vec2';
+import vec3 from '../core/vmath/vec3';
 import Component from '../components/CCComponent';
 // TODO fix import from renderer
 // import Renderer_Camera from '../renderer/scene/camera';
 // import Renderer_View from '../renderer/core/view';
 import _decorator from '../core/data/class-decorator';
 const {ccclass, property, executeInEditMode, menu, inspector} = _decorator;
-
-const mat4 = cc.vmath.mat4;
-const vec2 = cc.vmath.vec2;
-const vec3 = cc.vmath.vec3;
 
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();

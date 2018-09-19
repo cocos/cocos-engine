@@ -48,6 +48,7 @@ export default class Rect extends ValueType {
      * @param {Number} [h=0]
      */
     constructor (x, y, w, h) {
+        super();
         if (x && typeof x === 'object') {
             y = x.y;
             w = x.width;

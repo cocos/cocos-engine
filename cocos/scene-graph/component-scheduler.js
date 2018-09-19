@@ -26,12 +26,13 @@
 
 import CCObject from '../core/data/object';
 import { array } from '../core/utils/js';
+import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 
 var IsStartCalled = CCObject.Flags.IsStartCalled;
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 var IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
-var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
+var callerFunctor = CC_EDITOR && tryCatchFunctor_EDITOR;
 var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
 var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
 var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');

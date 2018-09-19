@@ -48,6 +48,7 @@ export default class Vec2 extends ValueType {
      * @param {number} [y=0]
      */
     constructor (x, y) {
+        super();
         if (x && typeof x === 'object') {
             y = x.y;
             x = x.x;

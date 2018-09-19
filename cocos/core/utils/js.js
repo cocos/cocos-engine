@@ -25,6 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import * as jsarray from './array';
+import IDGenerater from './id-generater';
+
 let tempCIDGenerater = new IDGenerater('TmpCId.');
 
 const REGEXP_NUM_OR_STR = /(%d)|(%s)/;
@@ -43,6 +46,12 @@ var _tmpGetSetDesc = {
     enumerable: false,
 };
 
+var _tmpGetDesc = {
+    get: null,
+    enumerable: false,
+    configurable: false
+};
+
 var _tmpSetDesc = {
     set: null,
     enumerable: false,
@@ -58,7 +67,7 @@ var _tmpSetDesc = {
 
 export {default as IDGenerater} from './id-generater';
 export {default as Pool} from './pool';
-export {default as array} from './array';
+export const array = jsarray;
 
 /**
  * Check the obj whether is number or not
@@ -305,11 +314,11 @@ export function getset (obj, prop, getter, setter, enumerable, configurable) {
  * @param {Boolean} [configurable=false]
  */
 export function get (obj, prop, getter, enumerable, configurable) {
-    tmpGetDesc.get = getter;
-    tmpGetDesc.enumerable = enumerable;
-    tmpGetDesc.configurable = configurable;
-    Object.defineProperty(obj, prop, tmpGetDesc);
-    tmpGetDesc.get = null;
+    _tmpGetDesc.get = getter;
+    _tmpGetDesc.enumerable = enumerable;
+    _tmpGetDesc.configurable = configurable;
+    Object.defineProperty(obj, prop, _tmpGetDesc);
+    _tmpGetDesc.get = null;
 };
 
 

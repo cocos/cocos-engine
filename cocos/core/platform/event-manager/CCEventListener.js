@@ -276,7 +276,8 @@ var ListenerID = EventListener.ListenerID = {
 
 export class Mouse extends EventListener {
     constructor () {
-        super(EventListener.MOUSE, ListenerID.MOUSE, this._callback);
+        super(EventListener.MOUSE, ListenerID.MOUSE);
+        this._onEvent = this._callback;
         this.onMouseDown = null;
         this.onMouseUp = null;
         this.onMouseMove = null;
@@ -323,7 +324,7 @@ export class Mouse extends EventListener {
 
 export class TouchOneByOne extends EventListener {
     constructor () {
-        super(EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);
+        super(EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE);
         this._claimedTouches = [];
 
         this._claimedTouches = null;
@@ -363,7 +364,7 @@ export class TouchOneByOne extends EventListener {
 
 export class TouchAllAtOnce extends EventListener {
     constructor () {
-        super(EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE, null);
+        super(EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE);
 
         this.onTouchesBegan = null;
         this.onTouchesMoved = null;
@@ -393,8 +394,9 @@ export class TouchAllAtOnce extends EventListener {
 //Acceleration
 export class Acceleration extends EventListener {
     constructor (callback) {
+        super(EventListener.ACCELERATION, ListenerID.ACCELERATION);
+        this._onEvent = this._callback;
         this._onAccelerationEvent = callback;
-        super(EventListener.ACCELERATION, ListenerID.ACCELERATION, this._callback);
         this_onAccelerationEvent = null;
     }
 
@@ -416,7 +418,8 @@ export class Acceleration extends EventListener {
 //Keyboard
 export class Keyboard extends EventListener {
     constructor () {
-        super(EventListener.KEYBOARD, ListenerID.KEYBOARD, this._callback);
+        super(EventListener.KEYBOARD, ListenerID.KEYBOARD);
+        this._onEvent = this._callback;
         this.onKeyPressed = null;
         this.onKeyReleased = null;
     }

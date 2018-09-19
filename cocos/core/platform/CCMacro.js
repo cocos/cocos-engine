@@ -25,6 +25,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec2 from '../value-types/vec2';
+
 /**
  * Predefined constants
  * @class macro
@@ -1354,7 +1356,7 @@ var macro = {
      * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * @property {Vec2} DIRECTOR_STATS_POSITION
      */
-    DIRECTOR_STATS_POSITION: cc.v2(0, 0),
+    DIRECTOR_STATS_POSITION: new Vec2(0, 0),
 
     /**
      * <p>

@@ -231,7 +231,7 @@ export default class Loader {
         this.async = true;
         this.pipeline = null;
 
-        this.extMap = js.mixin(extMap, defaultMap);
+        this.extMap = mixin(extMap, defaultMap);
     }
 
     /**
@@ -240,7 +240,7 @@ export default class Loader {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers (extMap) {
-        this.extMap = js.mixin(this.extMap, extMap);
+        this.extMap = mixin(this.extMap, extMap);
     }
 
     handle (item, callback) {

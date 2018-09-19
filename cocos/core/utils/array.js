@@ -168,16 +168,3 @@ export function copy (array) {
         arr_clone[i] = array[i];
     return arr_clone;
 }
-
-export default {
-    MutableForwardIterator,
-    removeAt,
-    fastRemoveAt,
-    remove,
-    fastRemove,
-    verifyType,
-    removeArray,
-    appendObjectsAt,
-    contains,
-    copy
-}
