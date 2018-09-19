@@ -37,6 +37,7 @@ public class SDKWrapper {
 	private final static String TAG = "SDKWrapper";
 	private final static String CLASS_PATH = "com.anysdk.framework.PluginWrapper";
 	private static Class<?> mClass = null;
+	private static Context mCtx = null;
 
 	private static SDKWrapper mInstace = null;
 	public static SDKWrapper getInstance() {
@@ -54,6 +55,7 @@ public class SDKWrapper {
 	}
 	
 	public void init(Context context) {
+	    mCtx = context;
 		if (PACKAGE_AS) {
 			try {
 				if (null != mClass)
@@ -64,6 +66,10 @@ public class SDKWrapper {
 			SDKWrapper.nativeLoadAllPlugins();
 		}
 		
+	}
+
+	public Context getContext(){
+	    return mCtx;
 	}
 	
 	public void setGLSurfaceView(GLSurfaceView view) {

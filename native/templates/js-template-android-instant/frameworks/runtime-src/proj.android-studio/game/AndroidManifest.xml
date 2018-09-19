@@ -32,9 +32,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
-                    android:host="@string/host"
-                    android:pathPattern="@string/path_pattern"
-                    android:scheme="@string/scheme" />
+                    android:host="${host}"
+                    android:pathPattern="${pathPattern}"
+                    android:scheme="${scheme}" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
