@@ -26,6 +26,8 @@
  ****************************************************************************/
 
 import * as jsarray from './array';
+import IDGenerator from './id-generator';
+import Pool from './pool';
 
 let tempCIDGenerator = new IDGenerator('TmpCId.');
 
@@ -702,7 +704,7 @@ cc.js = {
 };
 
 if (CC_DEV) {
-    cc.js.getset(js, '_registeredClassIds',
+    cc.js.getset(cc.js, '_registeredClassIds',
         function () {
             var dump = {};
             for (var id in _idToClass) {
@@ -711,13 +713,13 @@ if (CC_DEV) {
             return dump;
         },
         function (value) {
-            js.clear(_idToClass);
+            clear(_idToClass);
             for (var id in value) {
                 _idToClass[id] = value[id];
             }
         }
     );
-    cc.js.getset(js, '_registeredClassNames', 
+    cc.js.getset(cc.js, '_registeredClassNames', 
         function () {
             var dump = {};
             for (var id in _nameToClass) {
@@ -726,7 +728,7 @@ if (CC_DEV) {
             return dump;
         },
         function (value) {
-            js.clear(_nameToClass);
+            clear(_nameToClass);
             for (var id in value) {
                 _nameToClass[id] = value[id];
             }
