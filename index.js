@@ -37,13 +37,10 @@ var _global = typeof window === 'undefined' ? global : window;
  * @module cc
  * @main cc
  */
-cc = _global.cc || {};
+_global.cc = _global.cc || {};
 
 // For internal usage
-_cc = _global._cc || {};
-
-// For internal usage
-_cc = {};
+_global._cc = _global._cc || {};
 
 require('./predefine');
 
@@ -74,4 +71,4 @@ if (CC_EDITOR) {
     }
 }
 
-module.exports = cc;
+module.exports = _global.cc;
