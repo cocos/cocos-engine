@@ -314,8 +314,8 @@ export default class DrawMng {
   addSphere(pos, radius, color, duration = 0.0, depthTest = true) {
     let primitive = this._primitives.add();
     primitive.model.setInputAssembler(this._sphereIA);
-    primitive.model._node.setLocalPos(pos);
-    primitive.model._node.setLocalScale(radius, radius, radius);
+    primitive.model._node.setPosition(pos);
+    primitive.model._node.setScale(radius, radius, radius);
 
     primitive.duration = duration;
     primitive.depthTest = depthTest;

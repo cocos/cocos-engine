@@ -22,7 +22,7 @@ export default class OrbitCamera {
   constructor(input) {
     this._input = input;
     this._node = new Node('debug-camera');
-    this._node.setLocalPos(10, 10, 10);
+    this._node.setPosition(10, 10, 10);
     this._node.lookAt(vec3.create(0, 0, 0));
 
     this._df = 0;
@@ -39,10 +39,10 @@ export default class OrbitCamera {
     this._curEye = vec3.create(0, 0, 0);
     this._destEye = vec3.create(0, 0, 0);
 
-    this._node.getWorldRot(this._curRot);
+    this._node.getWorldRotation(this._curRot);
     this._destRot = quat.clone(this._curRot);
 
-    this._node.getWorldPos(this._curEye);
+    this._node.getWorldPosition(this._curEye);
     this._destEye = vec3.clone(this._curEye);
   }
 
@@ -56,10 +56,10 @@ export default class OrbitCamera {
     this._rotX = 0;
     this._rotY = 0;
 
-    this._node.getWorldRot(this._curRot);
+    this._node.getWorldRotation(this._curRot);
     this._destRot = quat.clone(this._curRot);
 
-    this._node.getWorldPos(this._curEye);
+    this._node.getWorldPosition(this._curEye);
     this._destEye = vec3.clone(this._curEye);
   }
 
@@ -238,8 +238,8 @@ export default class OrbitCamera {
     vec3.lerp(this._curEye, this._curEye, eye, dt * damping);
 
     //
-    this._node.setWorldPos(this._curEye);
-    this._node.setWorldRot(this._curRot);
+    this._node.setWorldPosition(this._curEye);
+    this._node.setWorldRotation(this._curRot);
   }
 
 }

@@ -68,12 +68,12 @@ export default class Node extends BaseNode {
      * @param {vec3} up the up vector, default to (0,1,0)
      */
     lookAt(pos, up) {
-        this.getWorldPos(v3_a);
+        this.getWorldPosition(v3_a);
         vec3.sub(v3_a, v3_a, pos); // NOTE: we use -z for view-dir
         vec3.normalize(v3_a, v3_a);
         quat.fromViewUp(q_a, v3_a, up);
 
-        this.setWorldRot(q_a);
+        this.setWorldRotation(q_a);
     }
 
     /**
@@ -150,7 +150,7 @@ export default class Node extends BaseNode {
      * @param {?number} [y] the y component of the new local position
      * @param {?number} [z] the z component of the new local position
      */
-    setLocalPos(val, y, z) {
+    setPosition(val, y, z) {
         if (arguments.length === 1) {
             vec3.copy(this._lpos, val);
         } else if (arguments.length === 3) {
@@ -165,7 +165,7 @@ export default class Node extends BaseNode {
      * @param {?vec3} out the receiving vector
      * @return {vec3} the resulting vector
      */
-    getLocalPos(out) {
+    getPosition(out) {
         if (out) {
             return vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
         } else {
@@ -180,7 +180,7 @@ export default class Node extends BaseNode {
      * @param {?number} [z] the z component of the new local rotation
      * @param {?number} [w] the w component of the new local rotation
      */
-    setLocalRot(val, y, z, w) {
+    setRotation(val, y, z, w) {
         if (arguments.length === 1) {
             quat.copy(this._lrot, val);
         } else if (arguments.length === 4) {
@@ -196,7 +196,7 @@ export default class Node extends BaseNode {
      * @param {?number} y the y component of the new local rotation
      * @param {?number} z the z component of the new local rotation
      */
-    setLocalRotFromEuler(x, y, z) {
+    setRotationFromEuler(x, y, z) {
         quat.fromEuler(this._lrot, x, y, z);
         quat.copy(this._rot, this._lrot);
         this.invalidateChildren();
@@ -207,7 +207,7 @@ export default class Node extends BaseNode {
      * @param {?quat} out the receiving quaternion
      * @return {quat} the resulting quaternion
      */
-    getLocalRot(out) {
+    getRotation(out) {
         if (out) {
             return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z);
         } else {
@@ -221,7 +221,7 @@ export default class Node extends BaseNode {
      * @param {?number} [y] the y component of the new local scale
      * @param {?number} [z] the z component of the new local scale
      */
-    setLocalScale(val, y, z) {
+    setScale(val, y, z) {
         if (arguments.length === 1) {
             vec3.copy(this._lscale, val);
         } else if (arguments.length === 3) {
@@ -236,7 +236,7 @@ export default class Node extends BaseNode {
      * @param {?vec3} out the receiving vector
      * @return {vec3} the resulting vector
      */
-    getLocalScale(out) {
+    getScale(out) {
         if (out) {
             return vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
         } else {
@@ -250,14 +250,14 @@ export default class Node extends BaseNode {
      * @param {?number} y the y component of the new world position
      * @param {?number} z the z component of the new world position
      */
-    setWorldPos(val, y, z) {
+    setWorldPosition(val, y, z) {
         if (arguments.length === 1) {
             vec3.copy(this._pos, val);
         } else if (arguments.length === 3) {
             vec3.set(this._pos, val, y, z);
         }
         if (this._parent) {
-            this._parent.getWorldPos(v3_a);
+            this._parent.getWorldPosition(v3_a);
             vec3.sub(this._lpos, this._pos, v3_a);
         } else {
             vec3.copy(this._lpos, this._pos);
@@ -270,7 +270,7 @@ export default class Node extends BaseNode {
      * @param {?vec3} out the receiving vector
      * @return {vec3} the resulting vector
      */
-    getWorldPos(out) {
+    getWorldPosition(out) {
         this.updateWorldTransform();
         if (out) {
             return vec3.copy(out, this._pos);
@@ -286,14 +286,14 @@ export default class Node extends BaseNode {
      * @param {?number} z the z component of the new world rotation
      * @param {?number} w the w component of the new world rotation
      */
-    setWorldRot(val, y, z, w) {
+    setWorldRotation(val, y, z, w) {
         if (arguments.length === 1) {
             quat.copy(this._rot, val);
         } else if (arguments.length === 4) {
             quat.set(this._rot, val, y, z, w);
         }
         if (this._parent) {
-            this._parent.getWorldRot(q_a);
+            this._parent.getWorldRotation(q_a);
             quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
         } else {
             quat.copy(this._lrot, this._rot);
@@ -307,10 +307,10 @@ export default class Node extends BaseNode {
      * @param {?number} y the y component of the new world rotation
      * @param {?number} z the z component of the new world rotation
      */
-    setWorldRotFromEuler(x, y, z) {
+    setWorldRotationFromEuler(x, y, z) {
         quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
-            this._parent.getWorldRot(q_a);
+            this._parent.getWorldRotation(q_a);
             quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
         } else {
             quat.copy(this._lrot, this._rot);
@@ -323,7 +323,7 @@ export default class Node extends BaseNode {
      * @param {?quat} out the receiving quaternion
      * @return {quat} the resulting quaternion
      */
-    getWorldRot(out) {
+    getWorldRotation(out) {
         this.updateWorldTransform();
         if (out) {
             return quat.copy(out, this._rot);
