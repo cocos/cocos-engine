@@ -534,22 +534,22 @@ class vec4 {
   }
 
   /**
-   * Generates a random vector with the given scale.
+   * Generates a random vector uniformly distributed on a sphere centered at the origin.
    *
    * @param {vec4} out - Vector to store result.
-   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned.
+   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
    * @returns {vec4} out.
    */
   static random(out, scale) {
     scale = scale || 1.0;
 
-    //TODO: This is a pretty awful way of doing this. Find something better.
-    out.x = random();
-    out.y = random();
-    out.z = random();
-    out.w = random();
-    vec4.normalize(out, out);
-    vec4.scale(out, out, scale);
+    let phi = random() * 2.0 * Math.PI;
+    let theta = Math.acos(random() * 2 - 1);
+
+    out.x = Math.sin(theta) * Math.cos(phi) * scale;
+    out.y = Math.sin(theta) * Math.sin(phi) * scale;
+    out.z = Math.cos(theta) * scale;
+    out.w = 0;
     return out;
   }
 
