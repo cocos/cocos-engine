@@ -571,6 +571,10 @@ let TiledLayer = cc.Class({
 
     _fillTextureGrids (tileset, texId) {
         let tex = this._textures[texId];
+        if (!tex) {
+            return;
+        }
+
         if (!tex.loaded) {
             tex.once('load', function () {
                 this._fillTextureGrids(tileset, texId);
