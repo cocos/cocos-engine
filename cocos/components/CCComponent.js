@@ -35,6 +35,10 @@ const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 /**
+ * @typedef {import('../scene-graph/index').Node} Node
+ */
+
+/**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
  * <br/>
@@ -189,6 +193,8 @@ class Component extends CCObject {
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
     }
+
+    static system = null;
 
     constructor () {
         super();

@@ -1,71 +1,154 @@
-import RenderableComponent from './renderable-component';
-import _decorator from '../../core/data/class-decorator';
-import renderer from '../../renderer';
-import { toRadian, color4 } from '../../core/vmath';
-import Rect from '../../core/value-types/rect';
+/****************************************************************************
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+// @ts-check
+import Component from '../../components/CCComponent';
+import renderer from '../../renderer/index';
+import { toRadian } from '../../core/vmath';
+import { Color, Enum } from '../../core/value-types/index';
+import { _decorator } from '../../core/data/index';
 const { ccclass, property } = _decorator;
+/**
+ * @typedef {import('../../core/value-types/index').Color} Color
+ */
+/**
+ * !#en The Camera Component
+ *
+ * !#ch 相机组件
+ * @class CameraComponent
+ * @extends Component
+ */
+@ccclass('cc.CameraComponent')
+export default class CameraComponent extends Component {
+    @property
+    _projection = CameraComponent.Projection.Perspective;
 
-@ccclass('CameraComponent')
-export default class CameraComponent extends RenderableComponent {
+    @property
+    _priority = 0;
 
-    constructor() {
-        super();
-        this._system = CameraComponent.system;
-        this._scene = this._system.scene;
-        this._projection = 'perspective';
-        this._priority = 0;
-        this._fov = 45;
-        this._orthoHeight = 10;
-        this._near = 0.01;
-        this._far = 1000.0;
-        this._color = new color4(0.2, 0.3, 0.47, 1.0);
-        this._depth = 1.0;
-        this._stencil = 0;
-        this._clearFlags = renderer.CLEAR_COLOR | renderer.CLEAR_DEPTH;
-        this._rect = new Rect(0, 0, 1, 1);
-        this._camera = new renderer.Camera();
-    }
+    @property
+    _fov = 45;
 
+    @property
+    _orthoHeight = 10;
+
+    @property
+    _near = 0.01;
+
+    @property
+    _far = 1000.0;
+
+    @property
+    _color = Color.WHITE;
+
+    @property
+    _depth = 1;
+
+    @property
+    _stencil = 0;
+
+    @property
+    _clearFlags = 3;
+
+    @property
+    _rect = [0, 0, 1, 1];
+
+    /**
+     * !#en The projection type of the camera
+     *
+     * !#ch 相机的投影类型
+     * @type {String}
+     */
     @property
     get projection() {
         return this._projection;
     }
+
     set projection(val) {
         this._projection = val;
+
         let type = renderer.PROJ_PERSPECTIVE;
         if (this._projection === 'ortho') {
             type = renderer.PROJ_ORTHO;
         }
-        this._camera.setType(this._projection);
+        this._camera.setType(type);
     }
 
+    /**
+     * !#en The camera priority
+     *
+     * !#ch 相机的优先级，优先级低的优先渲染
+     * @type {Number}
+     */
     @property
     get priority() {
         return this._priority;
     }
+
     set priority(val) {
         this._priority = val;
-        this._camera.setPriority(this._priority);
+        this._camera.setPriority(val);
     }
 
+    /**
+     * !#en The camera field of view
+     *
+     * !#ch 相机的视野
+     * @type {Number}
+     */
     @property
     get fov() {
         return this._fov;
     }
+
     set fov(val) {
         this._fov = val;
-        this._camera.setFov(toRadian(this._fov));
+        this._camera.setFov(toRadian(val));
     }
 
+    /**
+     * !#en The camera height when in orthogonal mode
+     *
+     * !#ch 在正交模式下的相机高度
+     * @type {Number}
+     */
     @property
     get orthoHeight() {
         return this._orthoHeight;
     }
+
     set orthoHeight(val) {
         this._orthoHeight = val;
-        this._camera.setOrthoHeight(this._orthoHeight);
+        this._camera.setOrthoHeight(val);
     }
 
+    /**
+     * !#en The near clipping distance of the camera
+     *
+     * !#ch 相机的最近剪切距离
+     * @type {Number}
+     */
     @property
     get near() {
         return this._near;
@@ -73,41 +156,63 @@ export default class CameraComponent extends RenderableComponent {
 
     set near(val) {
         this._near = val;
-        this._camera.setNear(this._near);
+        this._camera.setNear(val);
     }
 
+    /**
+     * !#en The far clipping distance of the camera
+     *
+     * !#ch 相机的最近剪切距离
+     * @type {Number}
+     */
     @property
     get far() {
         return this._far;
     }
+
     set far(val) {
         this._far = val;
-        this._camera.setFar(this._far);
+        this._camera.setFar(val);
     }
 
+    /**
+     * !#en The clearing color of the camera
+     *
+     * !#ch 在没有天空盒的情况下的屏幕颜色
+     * @type {Color}
+     */
     @property
     get color() {
         return this._color;
     }
 
     set color(val) {
-        this._color.r = val.r;
-        this._color.g = val.g;
-        this._color.b = val.b;
-        this._color.a = val.a;
-        let color = this._color;
-        this._camera.setColor(color.r, color.g, color.b, color.a);
+        this._color = val;
+        this._camera.setColor(val.r, val.g, val.b, val.a);
     }
 
+    /**
+     * !#en The clearing depth value of the camera
+     *
+     * !#ch 清除相机的深度值
+     * @type {Number}
+     */
     @property
     get depth() {
         return this._depth;
     }
+
     set depth(val) {
         this._depth = val;
-        this._camera.setDepth(this._depth);
+        this._camera.setDepth(val);
     }
 
+    /**
+     * !#en The clearing stencil value of the camera
+     *
+     * !#ch 清除相机的模板值
+     * @type {Number}
+     */
     @property
     get stencil() {
         return this._stencil;
@@ -115,9 +220,15 @@ export default class CameraComponent extends RenderableComponent {
 
     set stencil(val) {
         this._stencil = val;
-        this._camera.setStencil(this._stencil);
+        this._camera.setStencil(val);
     }
 
+    /**
+     * !#en The clearing flags of this camera
+     *
+     * !#ch 清除相机标志位
+     * @type {Number}
+     */
     @property
     get clearFlags() {
         return this._clearFlags;
@@ -125,17 +236,58 @@ export default class CameraComponent extends RenderableComponent {
 
     set clearFlags(val) {
         this._clearFlags = val;
-        this._camera.setClearFlags(this._clearFlags);
+        this._camera.setClearFlags(val);
     }
 
+    /**
+     * !#en The screen rect of the camera
+     *
+     * !#ch 相机的屏幕矩形
+     * @type {Array}
+     */
     @property
     get rect() {
         return this._rect;
     }
 
     set rect(val) {
-        this._rect.set(val);
-        this._camera.setRect(this._rect);
+        this._rect = val;
+        this._camera.setRect(val[0], val[1], val[2], val[3]);
+    }
+
+    /**
+     * !#en The light source type
+     *
+     * !#ch 光源类型
+     * @static
+     * @enum CameraComponent.Projection
+     */
+    static Projection = Enum({
+        /**
+         * !#en The orthogonal camera
+         *
+         * !#ch 正交相机
+         * @property Ortho
+         * @readonly
+         * @type {String}
+         */
+        Ortho: 'ortho',
+        /**
+         * !#en The perspective camera
+         *
+         * !#ch 透视相机
+         * @property Perspective
+         * @readonly
+         * @type {String}
+         */
+        Perspective: 'perspective',
+    });
+
+    constructor() {
+        super();
+        this._system = CameraComponent.system;
+        this._scene = this._system.scene;
+        this._camera = new renderer.Camera();
     }
 
     onLoad() {
@@ -144,71 +296,13 @@ export default class CameraComponent extends RenderableComponent {
             'transparent'
         ]);
         this._camera.setNode(this.node);
-
-        /**
-         * **@schema** The projection type of the camera
-         * @type {string}
-         */
-        this.projection = this._projection;
-        /**
-         * **@schema** The camera priority
-         * @type {number}
-         */
-        this.priority = this._priority;
-        /**
-         * **@schema** The camera field of view
-         * @type {number}
-         */
-        this.fov = this._fov;
-        /**
-         * **@schema** The camera height when in orthogonal mode
-         * @type {number}
-         */
-        this.orthoHeight = this._orthoHeight;
-        /**
-         * **@schema** The near clipping distance of the camera
-         * @type {number}
-         */
-        this.near = this._near;
-        /**
-         * **@schema** The far clipping distance of the camera
-         * @type {number}
-         */
-        this.far = this._far;
-        /**
-         * **@schema** The clearing color of the camera
-         * @type {color4}
-         */
-        this.color = this._color;
-        /**
-         * **@schema** The clearing depth value of the camera
-         * @type {number}
-         */
-        this.depth = this._depth;
-        /**
-         * **@schema** The clearing stencil value of the camera
-         * @type {number}
-         */
-        this.stencil = this._stencil;
-        /**
-         * **@schema** The clearing flags of this camera
-         * @type {number}
-         */
-        this.clearFlags = this._clearFlags;
-        /**
-         * **@schema** The screen rect of the camera
-         * @type {Object}
-         */
-        this.rect = this._rect;
     }
 
     onEnable() {
-        this.scene.addCamera(this._camera);
+        // this._app.scene.addCamera(this._camera);
     }
 
     onDisable() {
-        this.scene.removeCamera(this._camera);
+        // this._app.scene.removeCamera(this._camera);
     }
 }
-
-

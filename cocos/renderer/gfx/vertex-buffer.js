@@ -19,6 +19,7 @@ export default class VertexBuffer {
     // update
     this._glID = device._gl.createBuffer();
     this.update(0, data);
+    if (CC_EDITOR) this._data = data || 0;
 
     // stats
     device._stats.vb += this._bytes;

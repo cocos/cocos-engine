@@ -471,10 +471,10 @@ class vec2 {
   }
 
   /**
-   * Generates a random vector with the given scale.
+   * Generates a random vector uniformly distributed on a circle centered at the origin.
    *
    * @param {vec2} out - Vector to store result.
-   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned.
+   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
    * @returns {vec2} out.
    */
   static random(out, scale) {
