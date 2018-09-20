@@ -2,14 +2,14 @@
 
 import { FixedArray, RecyclePool } from '../../3d/memop';
 import { ray, triangle, intersect } from '../../3d/geom-utils';
-import { Layers } from '../../scene-graph';
+import Layers from '../../scene-graph/layers';
 import { vec3, mat4 } from '../../core/vmath';
 import gfx from '../../renderer/gfx';
 
 /**
  * A representation of the scene
  */
-export default class Scene {
+class Scene {
   /**
    * Setup a default empty scene
    */
@@ -223,7 +223,7 @@ if (CC_EDITOR) {
       if (dist <= 0 || dist > distance) return;
       distance = dist;
     };
-    return function(worldRay, results, mask = Layers.Default) {
+    return function(worldRay, results, mask = Layers.RaycastMask) {
       results.reset();
       for (let i = 0; i < this._models.length; i++) {
         let m = this._models.data[i];
@@ -268,3 +268,5 @@ if (CC_EDITOR) {
     };
   })();
 }
+
+export default Scene;

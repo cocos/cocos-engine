@@ -2,7 +2,7 @@
 /**
  * Entity layer system
  */
-export default class Layers {
+class Layers {
   /**
    * Add a new layer
    * @param {string} name name of the new layer
@@ -56,3 +56,5 @@ Layers.IgnoreRaycast = (1 << 1);
 // masks
 Layers.All = ~0;
 Layers.RaycastMask = Layers.makeExclusiveMask([Layers.IgnoreRaycast]);
+
+export default Layers;
