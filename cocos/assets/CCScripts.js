@@ -25,8 +25,7 @@
  ****************************************************************************/
 
 import Asset from './CCAsset';
-import _decorator from '../core/data/class-decorator';
-const {ccclass} = _decorator;
+import {ccclass} from '../core/data/class-decorator';
 
 /**
  * !#en Class for script handling.

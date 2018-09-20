@@ -29,8 +29,7 @@ import EventTarget from '../core/event/event-target';
 import textureUtil from './texture-util';
 import {addon} from '../core/utils/js';
 import Asset from './CCAsset';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property} = _decorator;
+import {ccclass, property} from '../core/data/class-decorator';
 
 
 const INSET_LEFT = 0;

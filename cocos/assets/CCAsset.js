@@ -24,10 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import _decorator from '../core/data/class-decorator';
+import { ccclass, property } from '../core/data/class-decorator';
 import RawAsset from './CCRawAsset';
-
-const {ccclass, property} = _decorator;
 
 /**
  * !#en

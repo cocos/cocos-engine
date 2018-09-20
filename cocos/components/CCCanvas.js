@@ -26,8 +26,7 @@
 
 import Camera from '../camera/CCCamera';
 import Component from './CCComponent';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property, executeInEditMode, menu, help, disallowMultiple} = _decorator;
+import {ccclass, property, executeInEditMode, menu, help, disallowMultiple} from '../core/data/class-decorator';
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
