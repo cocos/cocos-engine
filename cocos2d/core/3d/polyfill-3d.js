@@ -125,7 +125,7 @@ function setPosition (newPosOrX, y, z) {
     }
 
     if (CC_EDITOR) {
-        let oldPosition = new cc.Vec3(pos);
+        var oldPosition = new cc.Vec3(pos);
     }
 
     pos.x = x;
@@ -136,7 +136,12 @@ function setPosition (newPosOrX, y, z) {
 
     // fast check event
     if (this._eventMask & POSITION_ON) {
-        this.emit(EventType.POSITION_CHANGED);
+        if (CC_EDITOR) {
+            this.emit(EventType.POSITION_CHANGED, oldPosition);
+        }
+        else {
+            this.emit(EventType.POSITION_CHANGED);
+        }
     }
 }
 
@@ -185,17 +190,6 @@ function setQuat (quat, y, z, w) {
     if (CC_EDITOR) {
         this._syncEulerAngles();
     }
-}
-
-/**
- * !#en
- * Returns the scale of the node.
- * !#zh 获取节点的缩放。
- * @method getScale
- * @return {cc.Vec3} The scale factor
- */
-function getScale () {
-    return cc.v3(this._scale);
 }
 
 /**
@@ -282,14 +276,13 @@ proto.setQuat = setQuat;
 
 proto.getPosition = getPosition;
 proto.setPosition = setPosition;
-proto.getScale = getScale;
 proto.setScale = setScale;
 
 proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
 proto._update3DFunction = _update3DFunction;
 
 cc.js.getset(proto, 'position', getPosition, setPosition, false, true);
-cc.js.getset(proto, 'scale', getScale, setScale, false, true);
+cc.js.getset(proto, 'scale', proto.getScale, setScale, false, true);
 
 cc.js.getset(proto, 'is3DNode', function () {
     return this._is3DNode;
