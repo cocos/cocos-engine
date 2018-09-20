@@ -175,3 +175,5 @@ export default class Touch {
             this._prevPoint = cc.v2(x || 0, y || 0);
     }
 }
+
+cc.Touch = Touch;
