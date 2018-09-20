@@ -31,8 +31,8 @@ import vec2 from '../core/vmath/vec2';
 import vec3 from '../core/vmath/vec3';
 import Component from '../components/CCComponent';
 // TODO fix import from renderer
-// import Renderer_Camera from '../renderer/scene/camera';
-// import Renderer_View from '../renderer/core/view';
+import {default as Renderer_Camera} from '../renderer/scene/camera';
+import {default as Renderer_View} from '../renderer/core/view';
 import _decorator from '../core/data/class-decorator';
 const {ccclass, property, executeInEditMode, menu, inspector} = _decorator;
 
