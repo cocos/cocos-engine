@@ -9,5 +9,6 @@
         "node_modules": true,
         ".github": true,
         "bin": true
-    }
+    },
+    "javascript.implicitProjectConfig.experimentalDecorators": true
 }
