@@ -49,7 +49,7 @@ const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
  * @extends Object
  */
 @ccclass('cc.Component')
-export default class Component extends CCObject {
+class Component extends CCObject {
     /**
      * !#en The node this component is attached to. A component is always attached to a node.
      * !#zh 该组件被附加到的节点。组件总会附加到一个节点。
@@ -713,3 +713,4 @@ value(Component, '_registerEditorProps', function (cls, props) {
 Component.prototype.__scriptUuid = '';
 
 cc.Component = Component;
+export default Component;
