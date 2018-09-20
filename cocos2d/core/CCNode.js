@@ -624,7 +624,7 @@ var Node = cc.Class({
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(oldValue, localPosition.y, localPosition.z));
                             }
                             else {
                                 this.emit(EventType.POSITION_CHANGED);
@@ -667,7 +667,7 @@ var Node = cc.Class({
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(localPosition.x, oldValue, localPosition.z));
                             }
                             else {
                                 this.emit(EventType.POSITION_CHANGED);
@@ -2045,7 +2045,7 @@ var Node = cc.Class({
         }
 
         if (CC_EDITOR) {
-            var oldPosition = new cc.Vec2(locPosition);
+            var oldPosition = new cc.Vec3(locPosition);
         }
         if (!CC_EDITOR || isFinite(x)) {
             locPosition.x = x;
@@ -2330,6 +2330,9 @@ var Node = cc.Class({
      * @param {Vec3} pos
      */
     setWorldPos (pos) {
+        if (CC_EDITOR) {
+            var oldPosition = new cc.Vec3(this._position);
+        }
         // NOTE: this is faster than invert world matrix and transform the point
         if (this._parent) {
             this._parent._invTransformPoint(this._position, pos);
