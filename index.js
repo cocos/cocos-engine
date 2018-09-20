@@ -31,6 +31,7 @@ import cc from './predefine';
 // LOAD ENGINE CORE
 import './cocos/core';
 import './cocos/scene-graph';
+import './cocos/renderer';
 
 import './cocos/assets';
 import './cocos/load-pipeline';

@@ -1,5 +1,6 @@
 import { vec3, mat4, quat } from '../core/vmath';
 import BaseNode from './base-node';
+import Layers from './layers';
 import { EventTarget } from "../core/event";
 import _decorator from '../core/data/class-decorator';
 const { ccclass, property, mixins } = _decorator;
@@ -33,6 +34,8 @@ export default class Node extends BaseNode {
     _dirty = false; // does the world transform need to update?
     @property
     _hasChanged = false; // has the transform changed in this frame?
+    @property
+    _layer = Layers.Default; // the layer this node belongs to
 
     // is node but not scene
     static isNode (obj) {

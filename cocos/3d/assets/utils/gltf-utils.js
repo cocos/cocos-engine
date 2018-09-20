@@ -60,6 +60,7 @@ export class GltfMeshResource extends MeshResource {
             let iVertexBufferView = -1;
             let vertexCount = -1;
             let expectedOffset = 0;
+            let positionType = gfx.ATTR_TYPE_FLOAT32;
             const vfmt = [];
             for (const gltfAttribName in primitive.attributes) {
                 const gfxAttribName = _gltfAttribMap[gltfAttribName];
@@ -92,6 +93,7 @@ export class GltfMeshResource extends MeshResource {
                 if (gltfAttribName === "POSITION") {
                     mesh._minPos = vec3.create(gltfAccessor.min[0], gltfAccessor.min[1], gltfAccessor.min[2]);
                     mesh._maxPos = vec3.create(gltfAccessor.max[0], gltfAccessor.max[1], gltfAccessor.max[2]);
+                    positionType = gltfAccessor.componentType;
                 }
                 vfmt.push({ name: gfxAttribName, type: gltfAccessor.componentType, num: _type2size[gltfAccessor.type] });
             }
@@ -102,7 +104,8 @@ export class GltfMeshResource extends MeshResource {
                 return;
             }
 
-            const vbData = new Uint8Array(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
+            const vbData = new _compType2Array[positionType](this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset,
+                vertexBufferView.byteLength / gfx.attrTypeBytes(positionType));
             const vb = new gfx.VertexBuffer(
                 app.device,
                 new gfx.VertexFormat(vfmt),
@@ -115,7 +118,8 @@ export class GltfMeshResource extends MeshResource {
             if (primitive.indices !== undefined) {
                 let ibAcc = gltfAccessors[primitive.indices];
                 let ibView = gltf.bufferViews[ibAcc.bufferView];
-                let ibData = new Uint8Array(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
+                let ibData = new _compType2Array[ibAcc.componentType](this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset,
+                    ibView.byteLength / gfx.attrTypeBytes(ibAcc.componentType));
 
                 ib = new gfx.IndexBuffer(
                     app.device,
@@ -319,16 +323,17 @@ const _type2size = {
 };
 
 const _compType2Array = {
-    5120: Int8Array,
-    5121: Uint8Array,
-    5122: Int16Array,
-    5123: Uint16Array,
-    5124: Int32Array,
-    5125: Uint32Array,
-    5126: Float32Array,
+  [gfx.ATTR_TYPE_INT8]: Int8Array,
+  [gfx.ATTR_TYPE_UINT8]: Uint8Array,
+  [gfx.ATTR_TYPE_INT16]: Int16Array,
+  [gfx.ATTR_TYPE_UINT16]: Uint16Array,
+  [gfx.ATTR_TYPE_INT32]: Int32Array,
+  [gfx.ATTR_TYPE_UINT32]: Uint32Array,
+  [gfx.ATTR_TYPE_FLOAT32]: Float32Array,
 };
 
 const _gltfAttribMap = {
+    POSITION: gfx.ATTR_POSITION,
     NORMAL: gfx.ATTR_NORMAL,
     TANGENT: gfx.ATTR_TANGENT,
     COLOR_0: gfx.ATTR_COLOR0,
