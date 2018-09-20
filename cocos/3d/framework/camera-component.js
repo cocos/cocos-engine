@@ -299,10 +299,10 @@ export default class CameraComponent extends Component {
     }
 
     onEnable() {
-        // this._app.scene.addCamera(this._camera);
+        this._scene.addCamera(this._camera);
     }
 
     onDisable() {
-        // this._app.scene.removeCamera(this._camera);
+        this._scene.removeCamera(this._camera);
     }
 }

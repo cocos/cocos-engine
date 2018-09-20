@@ -180,7 +180,7 @@ class Director extends EventTarget {
         // init renderSystem
         {
             this._renderSystem = new RenderSystem();
-            let renderComps = ['CameraComponent'];
+            let renderComps = ['cc.CameraComponent'];
             renderComps.forEach((compName) => {
                 getClassByName(compName).system = this._renderSystem;
             });

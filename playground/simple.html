@@ -32,7 +32,7 @@
         let scene = new cc.Scene();
         let node = new cc.Node();
         scene.addChild(node);
-        let comp = node.addComponent('CameraComponent');
+        let comp = node.addComponent('cc.CameraComponent');
         cc.director.runSceneImmediate(scene);
     };
     cc.game.run({id:'canvas'}, onStart);
