@@ -29,7 +29,7 @@
  * !#zh 包含事件相关信息的对象。
  * @class Event
  */
-export default class Event {
+class Event {
     /**
      * @method constructor
      * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
@@ -266,3 +266,4 @@ Event.AT_TARGET = 2;
 Event.BUBBLING_PHASE = 3;
 
 cc.Event = Event;
+export default Event;

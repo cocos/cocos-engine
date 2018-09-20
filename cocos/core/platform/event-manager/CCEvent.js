@@ -39,7 +39,7 @@ export class EventMouse extends Event {
      * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
      */
     constructor (eventType, bubbles) {
-        super(cc.Event.MOUSE, bubbles);
+        super(Event.MOUSE, bubbles);
         this._eventType = eventType;
         this._button = 0;
         this._x = 0;
@@ -328,7 +328,7 @@ export class EventTouch extends Event {
      * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
     constructor (touchArr, bubbles) {
-        cc.Event.call(this, cc.Event.TOUCH, bubbles);
+        super(Event.TOUCH, bubbles);
         this._eventCode = 0;
         this._touches = touchArr || [];
         /**
@@ -533,7 +533,7 @@ export class EventAcceleration extends Event {
      * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
     constructor (acc, bubbles) {
-        cc.Event.call(this, cc.Event.ACCELERATION, bubbles);
+        super(Event.ACCELERATION, bubbles);
         this.acc = acc;
     }
 }
@@ -552,7 +552,7 @@ export class EventKeyboard extends Event {
      * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
     constructor (keyCode, isPressed, bubbles) {
-        cc.Event.call(this, cc.Event.KEYBOARD, bubbles);
+        super(Event.KEYBOARD, bubbles);
         /**
          * !#en
          * The keyCode read-only property represents a system and implementation dependent numerical code identifying the unmodified value of the pressed key.
@@ -572,7 +572,7 @@ export class EventKeyboard extends Event {
     }
 }
 
-cc.Event.EventMouse = EventMouse;
-cc.Event.EventTouch = EventTouch;
-cc.Event.EventAcceleration = EventAcceleration;
-cc.Event.EventKeyboard = EventKeyboard;
+Event.EventMouse = EventMouse;
+Event.EventTouch = EventTouch;
+Event.EventAcceleration = EventAcceleration;
+Event.EventKeyboard = EventKeyboard;
