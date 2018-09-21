@@ -325,7 +325,7 @@ export default class ForwardRenderer extends BaseRenderer {
       let item = items.data[i];
 
       // TODO: we should use mesh center instead!
-      item.node.getWorldPos(_v3_tmp1);
+      item.node.getWorldPosition(_v3_tmp1);
 
       vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
       item.sortKey = vec3.dot(_v3_tmp1, _camFwd);

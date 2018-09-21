@@ -400,7 +400,7 @@ export function createEntities(app, gltfNodes) {
         let node = app.createEntity(gltfNode.name);
 
         if (gltfNode.translation) {
-            node.setLocalPos(
+            node.setPosition(
                 gltfNode.translation[0],
                 gltfNode.translation[1],
                 gltfNode.translation[2]
@@ -408,7 +408,7 @@ export function createEntities(app, gltfNodes) {
         }
 
         if (gltfNode.rotation) {
-            node.setLocalRot(
+            node.setRotation(
                 gltfNode.rotation[0],
                 gltfNode.rotation[1],
                 gltfNode.rotation[2],
@@ -417,7 +417,7 @@ export function createEntities(app, gltfNodes) {
         }
 
         if (gltfNode.scale) {
-            node.setLocalScale(
+            node.setScale(
                 gltfNode.scale[0],
                 gltfNode.scale[1],
                 gltfNode.scale[2]
@@ -489,7 +489,7 @@ function _createNode(gltfNode) {
     let node = new Node(gltfNode.name);
 
     if (gltfNode.translation) {
-        node.setLocalPos(
+        node.setPosition(
             gltfNode.translation[0],
             gltfNode.translation[1],
             gltfNode.translation[2]
@@ -497,7 +497,7 @@ function _createNode(gltfNode) {
     }
 
     if (gltfNode.rotation) {
-        node.setLocalRot(
+        node.setRotation(
             gltfNode.rotation[0],
             gltfNode.rotation[1],
             gltfNode.rotation[2],
@@ -506,7 +506,7 @@ function _createNode(gltfNode) {
     }
 
     if (gltfNode.scale) {
-        node.setLocalScale(
+        node.setScale(
             gltfNode.scale[0],
             gltfNode.scale[1],
             gltfNode.scale[2]

@@ -136,9 +136,9 @@ export default class Debugger {
     this._debugInput.enabled = true;
 
     // setup debug camera
-    this._orbit._node.setLocalPos(mainCam._entity._lpos);
-    this._orbit._node.setLocalRot(mainCam._entity._lrot);
-    this._orbit._node.setLocalScale(mainCam._entity._lscale);
+    this._orbit._node.setPosition(mainCam._entity._lpos);
+    this._orbit._node.setRotation(mainCam._entity._lrot);
+    this._orbit._node.setScale(mainCam._entity._lscale);
     this._orbit.reset();
     this._app.scene.setDebugCamera(this._camera);
 
