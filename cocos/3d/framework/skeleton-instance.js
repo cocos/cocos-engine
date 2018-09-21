@@ -68,13 +68,13 @@ export default class SkeletonInstance {
       let jointTo = toSkel._joints[i];
 
       vec3.lerp(_v3_tmp, jointFrom._lpos, jointTo._lpos, alpha);
-      joint.setLocalPos(_v3_tmp);
+      joint.setPosition(_v3_tmp);
 
       vec3.lerp(_v3_tmp, jointFrom._lscale, jointTo._lscale, alpha);
-      joint.setLocalScale(_v3_tmp);
+      joint.setScale(_v3_tmp);
 
       quat.lerp(_qt_tmp, jointFrom._lrot, jointTo._lrot, alpha);
-      joint.setLocalRot(_qt_tmp);
+      joint.setRotation(_qt_tmp);
     }
   }
 
