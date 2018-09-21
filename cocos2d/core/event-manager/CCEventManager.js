@@ -484,7 +484,7 @@ var eventManager = {
 
     _onTouchEventCallback: function (listener, argsObj) {
         // Skip if the listener was removed.
-        if (!listener._isRegistered)
+        if (!listener._isRegistered())
             return false;
 
         var event = argsObj.event, selTouch = event.currentTouch;
@@ -522,7 +522,7 @@ var eventManager = {
             return true;
         }
 
-        if (isClaimed && listener._registered && listener.swallowTouches) {
+        if (isClaimed && listener.swallowTouches) {
             if (argsObj.needsMutableSet)
                 argsObj.touches.splice(selTouch, 1);
             return true;
