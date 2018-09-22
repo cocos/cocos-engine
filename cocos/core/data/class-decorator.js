@@ -703,21 +703,6 @@ function mixins () {
     };
 }
 
-cc._decorator = {
-    ccclass,
-    property,
-    executeInEditMode,
-    requireComponent,
-    menu,
-    executionOrder,
-    disallowMultiple,
-    playOnFocus,
-    inspector,
-    icon,
-    help,
-    mixins,
-};
-
 export {
     ccclass,
     property,

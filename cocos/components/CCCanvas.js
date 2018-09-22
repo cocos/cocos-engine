@@ -153,21 +153,21 @@ export default class Canvas extends Component {
         this.alignWithScreen();
 
         // Camera could be removed in canvas render mode
-        let cameraNode = cc.find('Main Camera', this.node);
-        if (!cameraNode) {
-            cameraNode = new cc.Node('Main Camera');
-            cameraNode.parent = this.node;
-            cameraNode.setSiblingIndex(0);
-        }
-        let camera = cameraNode.getComponent(Camera);
-        if (!camera) {
-            camera = cameraNode.addComponent(Camera);
+        // let cameraNode = cc.find('Main Camera', this.node);
+        // if (!cameraNode) {
+        //     cameraNode = new cc.Node('Main Camera');
+        //     cameraNode.parent = this.node;
+        //     cameraNode.setSiblingIndex(0);
+        // }
+        // let camera = cameraNode.getComponent(Camera);
+        // if (!camera) {
+        //     camera = cameraNode.addComponent(Camera);
 
-            let ClearFlags = Camera.ClearFlags;
-            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
-            camera.depth = -1;
-        }
-        Camera.main = camera;
+        //     let ClearFlags = Camera.ClearFlags;
+        //     camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
+        //     camera.depth = -1;
+        // }
+        // Camera.main = camera;
     }
 
     onDestroy () {
