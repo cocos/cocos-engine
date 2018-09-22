@@ -26,8 +26,7 @@
 
 import {isChildClassOf} from '../core/utils/js';
 import CCObject from '../core/data/object';
-import _decorator from '../core/data/class-decorator';
-const {ccclass} = _decorator;
+import {ccclass} from '../core/data/class-decorator';
 
 /**
  * !#en

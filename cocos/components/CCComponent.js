@@ -27,8 +27,7 @@
 import CCObject from '../core/data/object';
 import {getClassName, value} from '../core/utils/js';
 import IDGenerator from '../core/utils/id-generator';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property} = _decorator;
+import {ccclass, property} from '../core/data/class-decorator';
 
 let idGenerator = new IDGenerator('Comp');
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;

@@ -2,8 +2,7 @@ import { vec3, mat4, quat } from '../core/vmath';
 import BaseNode from './base-node';
 import Layers from './layers';
 import { EventTarget } from "../core/event";
-import _decorator from '../core/data/class-decorator';
-const { ccclass, property, mixins } = _decorator;
+import { ccclass, property, mixins } from '../core/data/class-decorator';
 
 let v3_a = cc.v3();
 let q_a = cc.quat();
