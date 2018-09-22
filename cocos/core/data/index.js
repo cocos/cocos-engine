@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 import * as _decorator from './class-decorator';
+cc._decorator = _decorator;
 export { _decorator };
 export { default as CCClass } from './class';
 export { default as CCObject } from './object';
