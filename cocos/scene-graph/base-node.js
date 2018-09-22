@@ -27,8 +27,7 @@
 import * as js from '../core/utils/js';
 import IdGenerator from '../core/utils/id-generator';
 import CCObject from '../core/data/object';
-import _decorator from '../core/data/class-decorator';
-const { ccclass, property } = _decorator;
+import { ccclass, property } from '../core/data/class-decorator';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;

@@ -33,8 +33,7 @@ import macro from '../core/platform/CCMacro';
 import * as js from '../core/utils/js';
 import EventTarget from '../core/event/event-target';
 import BaseNode from './base-node';
-import _decorator from '../core/data/class-decorator';
-const { ccclass, property } = _decorator;
+import { ccclass, property } from '../core/data/class-decorator';
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;

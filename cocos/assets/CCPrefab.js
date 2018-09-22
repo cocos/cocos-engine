@@ -28,8 +28,7 @@ import {compile} from '../core/data/instantiate-jit';
 import Enum from '../core/value-types/enum';
 import {obsolete} from '../core/utils/js';
 import Asset from './CCAsset';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property} = _decorator;
+import {ccclass, property} from '../core/data/class-decorator';
 
 /**
  * !#zh

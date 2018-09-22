@@ -703,7 +703,7 @@ function mixins () {
     };
 }
 
-let _decorator = cc._decorator = {
+cc._decorator = {
     ccclass,
     property,
     executeInEditMode,
@@ -718,4 +718,17 @@ let _decorator = cc._decorator = {
     mixins,
 };
 
-export default _decorator;
+export {
+    ccclass,
+    property,
+    executeInEditMode,
+    requireComponent,
+    menu,
+    executionOrder,
+    disallowMultiple,
+    playOnFocus,
+    inspector,
+    icon,
+    help,
+    mixins
+};

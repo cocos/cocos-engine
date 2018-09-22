@@ -26,8 +26,7 @@
 
 import Font from './CCFont';
 import SpriteFrame from './CCSpriteFrame';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property} = _decorator;
+import {ccclass, property} from '../core/data/class-decorator';
 
 /**
  * @module cc

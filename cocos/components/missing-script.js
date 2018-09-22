@@ -27,8 +27,7 @@
 import {_getClassById} from '../core/utils/js';
 import {BUILTIN_CLASSID_RE} from '../core/utils/misc';
 import Component from './CCComponent';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property, inspector} = _decorator;
+import {ccclass, property, inspector} from '../core/data/class-decorator';
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.

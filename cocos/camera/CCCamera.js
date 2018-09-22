@@ -33,8 +33,7 @@ import Component from '../components/CCComponent';
 // TODO fix import from renderer
 import {default as Renderer_Camera} from '../renderer/scene/camera';
 import {default as Renderer_View} from '../renderer/core/view';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property, executeInEditMode, menu, inspector} = _decorator;
+import {ccclass, property, executeInEditMode, menu, inspector} from '../core/data/class-decorator';
 
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
