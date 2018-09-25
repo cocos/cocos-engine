@@ -29,7 +29,6 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
-#include "cocos/network/WebSocket.h"
 #include "base/ccUTF8.h"
 #include "platform/CCApplication.h"
 
@@ -64,185 +63,138 @@ using namespace cocos2d::network;
 
 se::Class* __jsb_WebSocket_class = nullptr;
 
-class JSB_WebSocketDelegate : public Ref, public WebSocket::Delegate
+JSB_WebSocketDelegate::JSB_WebSocketDelegate()
 {
-public:
-    JSB_WebSocketDelegate()
+}
+
+JSB_WebSocketDelegate::~JSB_WebSocketDelegate()
+{
+    CCLOGINFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
+}
+
+void JSB_WebSocketDelegate::onOpen(WebSocket* ws)
+{
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
+    if (cocos2d::Application::getInstance() == nullptr)
+        return;
+
+    auto iter = se::NativePtrToObjectMap::find(ws);
+    if (iter == se::NativePtrToObjectMap::end())
+        return;
+
+    se::Object* wsObj = iter->second;
+    wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
+
+    se::HandleObject jsObj(se::Object::createPlainObject());
+    jsObj->setProperty("type", se::Value("open"));
+    se::Value target;
+    native_ptr_to_seval<WebSocket>(ws, &target);
+    jsObj->setProperty("target", target);
+
+    se::Value func;
+    bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
+    if (ok && func.isObject() && func.toObject()->isFunction())
     {
+        se::ValueArray args;
+        args.push_back(se::Value(jsObj));
+        func.toObject()->call(args, wsObj);
     }
-
-private:
-    virtual ~JSB_WebSocketDelegate()
+    else
     {
-        CCLOGINFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
+        SE_REPORT_ERROR("Can't get onopen function!");
     }
+}
 
-public:
-    virtual void onOpen(WebSocket* ws) override
+void JSB_WebSocketDelegate::onMessage(WebSocket* ws, const WebSocket::Data& data)
+{
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
+    if (cocos2d::Application::getInstance() == nullptr)
+        return;
+
+    auto iter = se::NativePtrToObjectMap::find(ws);
+    if (iter == se::NativePtrToObjectMap::end())
+        return;
+
+    se::Object* wsObj = iter->second;
+    se::HandleObject jsObj(se::Object::createPlainObject());
+    jsObj->setProperty("type", se::Value("message"));
+    se::Value target;
+    native_ptr_to_seval<WebSocket>(ws, &target);
+    jsObj->setProperty("target", target);
+
+    se::Value func;
+    bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
+    if (ok && func.isObject() && func.toObject()->isFunction())
     {
-        se::ScriptEngine::getInstance()->clearException();
-        se::AutoHandleScope hs;
+        se::ValueArray args;
+        args.push_back(se::Value(jsObj));
 
-        if (cocos2d::Application::getInstance() == nullptr)
-            return;
-
-        auto iter = se::NativePtrToObjectMap::find(ws);
-        if (iter == se::NativePtrToObjectMap::end())
-            return;
-
-        se::Object* wsObj = iter->second;
-        wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
-
-        se::HandleObject jsObj(se::Object::createPlainObject());
-        jsObj->setProperty("type", se::Value("open"));
-        se::Value target;
-        native_ptr_to_seval<WebSocket>(ws, &target);
-        jsObj->setProperty("target", target);
-
-        se::Value func;
-        bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
-        if (ok && func.isObject() && func.toObject()->isFunction())
+        if (data.isBinary)
         {
-            se::ValueArray args;
-            args.push_back(se::Value(jsObj));
-            func.toObject()->call(args, wsObj);
+            se::HandleObject dataObj(se::Object::createArrayBufferObject(data.bytes, data.len));
+            jsObj->setProperty("data", se::Value(dataObj));
         }
         else
         {
-            SE_REPORT_ERROR("Can't get onopen function!");
-        }
-    }
+            se::Value dataVal;
+            if (strlen(data.bytes) == 0 && data.len > 0)
+            {// String with 0x00 prefix
+                std::string str(data.bytes, data.len);
+                dataVal.setString(str);
+            }
+            else
+            {// Normal string
+                dataVal.setString(data.bytes);
+            }
 
-    virtual void onMessage(WebSocket* ws, const WebSocket::Data& data) override
-    {
-        se::ScriptEngine::getInstance()->clearException();
-        se::AutoHandleScope hs;
-
-        if (cocos2d::Application::getInstance() == nullptr)
-            return;
-
-        auto iter = se::NativePtrToObjectMap::find(ws);
-        if (iter == se::NativePtrToObjectMap::end())
-            return;
-
-        se::Object* wsObj = iter->second;
-        se::HandleObject jsObj(se::Object::createPlainObject());
-        jsObj->setProperty("type", se::Value("message"));
-        se::Value target;
-        native_ptr_to_seval<WebSocket>(ws, &target);
-        jsObj->setProperty("target", target);
-
-        se::Value func;
-        bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
-        if (ok && func.isObject() && func.toObject()->isFunction())
-        {
-            se::ValueArray args;
-            args.push_back(se::Value(jsObj));
-
-            if (data.isBinary)
+            if (dataVal.isNullOrUndefined())
             {
-                se::HandleObject dataObj(se::Object::createArrayBufferObject(data.bytes, data.len));
-                jsObj->setProperty("data", se::Value(dataObj));
+                ws->closeAsync();
             }
             else
             {
-                se::Value dataVal;
-                if (strlen(data.bytes) == 0 && data.len > 0)
-                {// String with 0x00 prefix
-                    std::string str(data.bytes, data.len);
-                    dataVal.setString(str);
-                }
-                else
-                {// Normal string
-                    dataVal.setString(data.bytes);
-                }
-
-                if (dataVal.isNullOrUndefined())
-                {
-                    ws->closeAsync();
-                }
-                else
-                {
-                    jsObj->setProperty("data", se::Value(dataVal));
-                }
+                jsObj->setProperty("data", se::Value(dataVal));
             }
-
-            func.toObject()->call(args, wsObj);
         }
-        else
-        {
-            SE_REPORT_ERROR("Can't get onmessage function!");
-        }
+
+        func.toObject()->call(args, wsObj);
     }
-
-    virtual void onClose(WebSocket* ws) override
+    else
     {
-        se::ScriptEngine::getInstance()->clearException();
-        se::AutoHandleScope hs;
-
-        if (cocos2d::Application::getInstance() == nullptr)
-            return;
-
-        auto iter = se::NativePtrToObjectMap::find(ws);
-        do
-        {
-            if (iter == se::NativePtrToObjectMap::end())
-            {
-                CCLOGINFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
-                break;
-            }
-
-            se::Object* wsObj = iter->second;
-            se::HandleObject jsObj(se::Object::createPlainObject());
-            jsObj->setProperty("type", se::Value("close"));
-            se::Value target;
-            native_ptr_to_seval<WebSocket>(ws, &target);
-            jsObj->setProperty("target", target);
-
-            se::Value func;
-            bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
-            if (ok && func.isObject() && func.toObject()->isFunction())
-            {
-                se::ValueArray args;
-                args.push_back(se::Value(jsObj));
-                func.toObject()->call(args, wsObj);
-            }
-            else
-            {
-                SE_REPORT_ERROR("Can't get onclose function!");
-            }
-
-            // Websocket instance is attached to global object in 'WebSocket_close'
-            // It's safe to detach it here since JS 'onclose' method has been already invoked.
-            se::ScriptEngine::getInstance()->getGlobalObject()->detachObject(wsObj);
-
-        } while(false);
-
-        ws->release();
-        release(); // Release delegate self at last
+        SE_REPORT_ERROR("Can't get onmessage function!");
     }
+}
 
-    virtual void onError(WebSocket* ws, const WebSocket::ErrorCode& error) override
+void JSB_WebSocketDelegate::onClose(WebSocket* ws)
+{
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
+    if (cocos2d::Application::getInstance() == nullptr)
+        return;
+
+    auto iter = se::NativePtrToObjectMap::find(ws);
+    do
     {
-        se::ScriptEngine::getInstance()->clearException();
-        se::AutoHandleScope hs;
-
-        if (cocos2d::Application::getInstance() == nullptr)
-            return;
-
-        auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
-            return;
+        {
+            CCLOGINFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
+            break;
+        }
 
         se::Object* wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
-        jsObj->setProperty("type", se::Value("error"));
+        jsObj->setProperty("type", se::Value("close"));
         se::Value target;
         native_ptr_to_seval<WebSocket>(ws, &target);
         jsObj->setProperty("target", target);
 
         se::Value func;
-        bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
+        bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
         if (ok && func.isObject() && func.toObject()->isFunction())
         {
             se::ValueArray args;
@@ -251,18 +203,57 @@ public:
         }
         else
         {
-            SE_REPORT_ERROR("Can't get onerror function!");
+            SE_REPORT_ERROR("Can't get onclose function!");
         }
-    }
 
-    void setJSDelegate(const se::Value& jsDelegate)
+        // Websocket instance is attached to global object in 'WebSocket_close'
+        // It's safe to detach it here since JS 'onclose' method has been already invoked.
+        se::ScriptEngine::getInstance()->getGlobalObject()->detachObject(wsObj);
+
+    } while(false);
+
+    ws->release();
+    release(); // Release delegate self at last
+}
+
+void JSB_WebSocketDelegate::onError(WebSocket* ws, const WebSocket::ErrorCode& error)
+{
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
+    if (cocos2d::Application::getInstance() == nullptr)
+        return;
+
+    auto iter = se::NativePtrToObjectMap::find(ws);
+    if (iter == se::NativePtrToObjectMap::end())
+        return;
+
+    se::Object* wsObj = iter->second;
+    se::HandleObject jsObj(se::Object::createPlainObject());
+    jsObj->setProperty("type", se::Value("error"));
+    se::Value target;
+    native_ptr_to_seval<WebSocket>(ws, &target);
+    jsObj->setProperty("target", target);
+
+    se::Value func;
+    bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
+    if (ok && func.isObject() && func.toObject()->isFunction())
     {
-        assert(jsDelegate.isObject());
-        _JSDelegate = jsDelegate;
+        se::ValueArray args;
+        args.push_back(se::Value(jsObj));
+        func.toObject()->call(args, wsObj);
     }
-private:
-    se::Value _JSDelegate;
-};
+    else
+    {
+        SE_REPORT_ERROR("Can't get onerror function!");
+    }
+}
+
+void JSB_WebSocketDelegate::setJSDelegate(const se::Value& jsDelegate)
+{
+    assert(jsDelegate.isObject());
+    _JSDelegate = jsDelegate;
+}
 
 static bool WebSocket_finalize(se::State& s)
 {
