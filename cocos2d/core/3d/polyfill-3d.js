@@ -254,6 +254,7 @@ function _update3DFunction () {
         this._mulMat = _mulMat2d;
         this._syncEulerAngles = _syncEulerAngles2d;
     }
+    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 }
 
 function _upgrade_1x_to_2x () {

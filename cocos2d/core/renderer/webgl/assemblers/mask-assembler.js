@@ -86,6 +86,7 @@ let maskFrontAssembler = {
             else {
                 graphicsAssembler.fillBuffers(mask._graphics, renderer);
             }
+            _stencilMgr.enableMask();
         }
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;

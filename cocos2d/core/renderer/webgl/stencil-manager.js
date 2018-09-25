@@ -101,8 +101,6 @@ StencilManager.prototype = {
                 ref = this.getWriteMask();
                 stencilMask = ref;
                 writeMask = ref;
-                
-                this.stage = Stage.ENABLED;
             }
         }
         
@@ -127,6 +125,10 @@ StencilManager.prototype = {
 
     enterLevel () {
         this.stage = Stage.ENTER_LEVEL;
+    },
+
+    enableMask () {
+        this.stage = Stage.ENABLED;
     },
 
     exitMask () {

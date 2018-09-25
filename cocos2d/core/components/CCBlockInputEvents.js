@@ -49,7 +49,7 @@ const BlockInputEvents = cc.Class({
     editor: {
         menu: 'i18n:MAIN_MENU.component.ui/Block Input Events',
         inspector: 'packages://inspector/inspectors/comps/block-input-events.js',
-        help: 'i18n:COMPONENT.help_url.block-input-events',
+        help: 'i18n:COMPONENT.help_url.block_input_events',
     },
 
     onEnable () {
