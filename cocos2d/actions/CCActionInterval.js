@@ -2429,7 +2429,7 @@ cc.DelayTime = cc.Class({
 
 /**
  * !#en Delays the action a certain amount of seconds.
- * !#en 延迟指定的时间量。
+ * !#zh 延迟指定的时间量。
  * @method delayTime
  * @param {Number} d duration in seconds
  * @return {ActionInterval}

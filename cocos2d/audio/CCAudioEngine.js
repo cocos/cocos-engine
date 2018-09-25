@@ -693,7 +693,8 @@ var audioEngine = {
         var musicId = this._music.id;
         this._effect.volume = volume;
         for (var id in _id2audio) {
-            if (id === musicId) continue;
+            var audio = _id2audio[id];
+            if (!audio || audio.id === musicId) continue;
             audioEngine.setVolume(id, volume);
         }
     },
@@ -735,8 +736,8 @@ var audioEngine = {
         effect.pauseCache.length = 0;
 
         for (var id in _id2audio) {
-            if (id === musicId) continue;
             var audio = _id2audio[id];
+            if (!audio || audio.id === musicId) continue;
             var state = audio.getState();
             if (state === this.AudioState.PLAYING) {
                 effect.pauseCache.push(id);
@@ -796,8 +797,8 @@ var audioEngine = {
     stopAllEffects: function () {
         var musicId = this._music.id;
         for (var id in _id2audio) {
-            if (id === musicId) continue;
             var audio = _id2audio[id];
+            if (!audio || audio.id === musicId) continue;
             var state = audio.getState();
             if (state === audioEngine.AudioState.PLAYING) {
                 audio.stop();
