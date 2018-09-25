@@ -725,10 +725,10 @@ class quat {
     let sz = Math.sin(z);
     let cz = Math.cos(z);
 
-    out.x = sx * cy * cz - cx * sy * sz;
+    out.x = sx * cy * cz + cx * sy * sz;
     out.y = cx * sy * cz + sx * cy * sz;
     out.z = cx * cy * sz - sx * sy * cz;
-    out.w = cx * cy * cz + sx * sy * sz;
+    out.w = cx * cy * cz - sx * sy * sz;
 
     return out;
   }
@@ -741,17 +741,31 @@ class quat {
    * @returns {vec3} out.
    */
   static toEuler(out, q) {
-    let siny = 2.0 * (q.w * q.x + q.y * q.z);
-    let cosy = 1 - 2 * (q.x * q.x + q.y * q.y);
-    out.x = toDegree(Math.atan2(siny, cosy));
+    let x = q.x, y = q.y, z = q.z, w = q.w;
+    let heading, attitude, bank;
+    let test = x * y + z * w;
+    if (test > 0.499) { // singularity at north pole
+      heading = 2 * Math.atan2(x,w);
+      attitude = Math.PI/2;
+      bank = 0;
+    }
+    if (test < -0.499) { // singularity at south pole
+      heading = -2 * Math.atan2(x,w);
+      attitude = - Math.PI/2;
+      bank = 0;
+    }
+    if(isNaN(heading)){
+      let sqx = x*x;
+      let sqy = y*y;
+      let sqz = z*z;
+      heading = Math.atan2(2*y*w - 2*x*z , 1 - 2*sqy - 2*sqz); // heading
+      attitude = Math.asin(2*test); // attitude
+      bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
+    }
 
-    let sinp = 2 * (q.w * q.y - q.z * q.x);
-    if (Math.abs(sinp) >= 1) out.y = 90 * Math.sign(sinp);
-    else out.y = toDegree(Math.asin(sinp));
-
-    let sinr = 2 * (q.w * q.z + q.x * q.y);
-    let cosr = 1 - 2 * (q.y * q.y + q.z * q.z);
-    out.z = toDegree(Math.atan2(sinr, cosr));
+    out.y = toDegree(heading);
+    out.z = toDegree(attitude);
+    out.x = toDegree(bank);
 
     return out;
   }
