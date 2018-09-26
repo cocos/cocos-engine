@@ -144,15 +144,15 @@ export default class AnimationClip extends Asset {
           }
 
           if (jointFrames.translations) {
-            joint.setLocalPos(jointFrames.translations[0]);
+            joint.setPosition(jointFrames.translations[0]);
           }
 
           if (jointFrames.rotations) {
-            joint.setLocalRot(jointFrames.rotations[0]);
+            joint.setRotation(jointFrames.rotations[0]);
           }
 
           if (jointFrames.scales) {
-            joint.setLocalScale(jointFrames.scales[0]);
+            joint.setScale(jointFrames.scales[0]);
           }
         }
       } else {
@@ -172,7 +172,7 @@ export default class AnimationClip extends Asset {
             let b = jointFrames.translations[hiIdx];
 
             vec3.lerp(tmpvec3, a, b, ratio);
-            joint.setLocalPos(tmpvec3);
+            joint.setPosition(tmpvec3);
           }
 
           if (jointFrames.rotations) {
@@ -180,7 +180,7 @@ export default class AnimationClip extends Asset {
             let b = jointFrames.rotations[hiIdx];
 
             quat.slerp(tmpquat, a, b, ratio);
-            joint.setLocalRot(tmpquat);
+            joint.setRotation(tmpquat);
           }
 
           if (jointFrames.scales) {
@@ -188,7 +188,7 @@ export default class AnimationClip extends Asset {
             let b = jointFrames.scales[hiIdx];
 
             vec3.lerp(tmpvec3, a, b, ratio);
-            joint.setLocalScale(tmpvec3);
+            joint.setScale(tmpvec3);
           }
         }
       }
@@ -345,17 +345,17 @@ class SamplingStateJointState {
     /**
      * @type {vec3}
      */
-    this._originalPos = joint.getLocalPos();
+    this._originalPos = joint.getPosition();
 
     /**
      * @type {vec3}
      */
-    this._originalScale = joint.getLocalScale();
+    this._originalScale = joint.getScale();
 
     /**
      * @type {quat}
      */
-    this._originalRot = joint.getLocalRot();
+    this._originalRot = joint.getRotation();
 
     /**
      * @type {Number}
@@ -374,9 +374,9 @@ class SamplingStateJointState {
   }
 
   reset() {
-    this._joint.setLocalPos(0, 0, 0);
-    this._joint.setLocalScale(1, 1, 1);
-    this._joint.setLocalRot(0, 0, 0, 1);
+    this._joint.setPosition(0, 0, 0);
+    this._joint.setScale(1, 1, 1);
+    this._joint.setRotation(0, 0, 0, 1);
     this._sumPosWeight = 0.0;
     this._sumScaleWeight = 0.0;
     this._sumRotWeight = 0.0;
@@ -384,13 +384,13 @@ class SamplingStateJointState {
 
   blendPosition(pos, weight) {
     vec3.scaleAndAdd(tmpvec3, this._joint._lpos, pos, weight);
-    this._joint.setLocalPos(tmpvec3);
+    this._joint.setPosition(tmpvec3);
     this._sumPosWeight += weight;
   }
 
   blendScale(scale, weight) {
     vec3.scaleAndAdd(tmpvec3, this._joint._lscale, scale, weight);
-    this._joint.setLocalScale(tmpvec3);
+    this._joint.setScale(tmpvec3);
     this._sumScaleWeight += weight;
   }
 
@@ -401,7 +401,7 @@ class SamplingStateJointState {
   blendRotation(rot, weight) {
     let t = weight / (this._sumRotWeight + weight);
     quat.slerp(tmpquat, this._joint._lrot, rot, t);
-    this._joint.setLocalRot(tmpquat);
+    this._joint.setRotation(tmpquat);
     this._sumRotWeight += weight;
   }
 

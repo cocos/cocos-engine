@@ -402,7 +402,7 @@ export default class Camera {
       vec3.transformMat4(out, out, _matInvViewProj);
 
       //
-      this._node.getWorldPos(_tmp_v3);
+      this._node.getWorldPosition(_tmp_v3);
       vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
     } else {
       let range = this._farClip - this._nearClip;
@@ -427,7 +427,7 @@ export default class Camera {
    * @returns {Ray} the resulting ray
    */
   screenPointToRay(screenPos, width, height) {
-    this._node.getWorldPos(_tmp3_v3);
+    this._node.getWorldPosition(_tmp3_v3);
     this.screenToWorld(_tmp2_v3, screenPos, width, height);
     vec3.normalize(_tmp2_v3, vec3.sub(_tmp2_v3, _tmp2_v3, _tmp3_v3));
     return ray.create(_tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);

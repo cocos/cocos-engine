@@ -26,8 +26,7 @@
 
 import Camera from '../camera/CCCamera';
 import Component from './CCComponent';
-import _decorator from '../core/data/class-decorator';
-const {ccclass, property, executeInEditMode, menu, help, disallowMultiple} = _decorator;
+import {ccclass, property, executeInEditMode, menu, help, disallowMultiple} from '../core/data/class-decorator';
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -154,21 +153,21 @@ export default class Canvas extends Component {
         this.alignWithScreen();
 
         // Camera could be removed in canvas render mode
-        let cameraNode = cc.find('Main Camera', this.node);
-        if (!cameraNode) {
-            cameraNode = new cc.Node('Main Camera');
-            cameraNode.parent = this.node;
-            cameraNode.setSiblingIndex(0);
-        }
-        let camera = cameraNode.getComponent(Camera);
-        if (!camera) {
-            camera = cameraNode.addComponent(Camera);
+        // let cameraNode = cc.find('Main Camera', this.node);
+        // if (!cameraNode) {
+        //     cameraNode = new cc.Node('Main Camera');
+        //     cameraNode.parent = this.node;
+        //     cameraNode.setSiblingIndex(0);
+        // }
+        // let camera = cameraNode.getComponent(Camera);
+        // if (!camera) {
+        //     camera = cameraNode.addComponent(Camera);
 
-            let ClearFlags = Camera.ClearFlags;
-            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
-            camera.depth = -1;
-        }
-        Camera.main = camera;
+        //     let ClearFlags = Camera.ClearFlags;
+        //     camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
+        //     camera.depth = -1;
+        // }
+        // Camera.main = camera;
     }
 
     onDestroy () {
@@ -195,7 +194,7 @@ export default class Canvas extends Component {
         var designSize, nodeSize;
         if (CC_EDITOR) {
             nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            this.node.setLocalPos(designSize.width * 0.5, designSize.height * 0.5);
+            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5, 1);
         }
         else {
             var canvasSize = nodeSize = cc.visibleRect;
@@ -208,7 +207,7 @@ export default class Canvas extends Component {
                 offsetX = (designSize.width - canvasSize.width) * 0.5;
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
-            this.node.setLocalPos(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
+            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
