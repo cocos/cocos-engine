@@ -815,7 +815,7 @@ var ScrollView = cc.Class({
 
         anchor = cc.pClamp(anchor, cc.p(0, 0), cc.p(1, 1));
 
-        var scrollSize = this.node.getContentSize();
+        var scrollSize = this.content.parent.getContentSize();
         var contentSize = this.content.getContentSize();
         var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDeta = -bottomDeta;
@@ -1329,11 +1329,6 @@ var ScrollView = cc.Class({
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
-            var afterOutOfBoundary = this._getHowMuchOutOfBoundary(adjustedDeltaMove);
-            if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 ||
-                currentOutOfBoundary.y * afterOutOfBoundary.y > 0) {
-                this._autoScrollBraking = true;
-            }
         }
     },
 
