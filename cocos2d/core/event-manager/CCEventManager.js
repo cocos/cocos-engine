@@ -515,6 +515,19 @@ var eventManager = {
                     listener._claimedTouches.splice(removedIdx, 1);
             }
         }
+        else if (listener._target) {
+            // cc.BlockInputEvents component should receive all touch events, then stop propagating them.
+            // In case it doesn't receive touchBegan event, the other touch events are ignored.
+            if (listener._target.getComponent(cc.BlockInputEvents)) {
+                if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
+                    listener.onTouchMoved(selTouch, event);
+                } else if (getCode === EventTouch.ENDED && listener.onTouchEnded) {
+                    listener.onTouchEnded(selTouch, event);
+                } else if (getCode === EventTouch.CANCELLED && listener.onTouchCancelled) {
+                    listener.onTouchCancelled(selTouch, event);
+                }
+            }
+        }
 
         // If the event was stopped, return directly.
         if (event.isStopped()) {
