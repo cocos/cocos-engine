@@ -388,7 +388,7 @@ proto._urlNotFound = function (url, type, completeCallback) {
  */
 proto._parseLoadResArgs = function (type, onProgress, onComplete) {
     if (onComplete === undefined) {
-        var isValidType = js.isChildClassOf(type, cc.RawAsset);
+        var isValidType = (type instanceof Array) || js.isChildClassOf(type, cc.RawAsset);
         if (onProgress) {
             onComplete = onProgress;
             if (isValidType) {
@@ -581,12 +581,13 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
     var uuids = [];
     for (var i = 0; i < urls.length; i++) {
         var url = urls[i];
-        var uuid = this._getResUuid(url, type);
+        var assetType = (type instanceof Array) ? type[i] : type;
+        var uuid = this._getResUuid(url, assetType);
         if (uuid) {
             uuids.push(uuid);
         }
         else {
-            this._urlNotFound(url, type, completeCallback);
+            this._urlNotFound(url, assetType, completeCallback);
             return;
         }
     }
