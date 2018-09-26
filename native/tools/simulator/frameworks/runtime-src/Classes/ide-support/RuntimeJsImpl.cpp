@@ -172,7 +172,7 @@ bool RuntimeJsImpl::initJsEnv()
 
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     // Enable debugger here
-    jsb_enable_debugger("0.0.0.0", 5086);
+    jsb_enable_debugger("127.0.0.1", JSB_DEFAULT_DEBUGGER_PORT);
 #endif
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){

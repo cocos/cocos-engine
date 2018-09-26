@@ -30,12 +30,16 @@
 #define SCRIPT_ENGINE_JSC            3
 #define SCRIPT_ENGINE_CHAKRACORE     4
 
+#define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
+#define V8_DEBUG_WAIT_FOR_CONNECT    0 // the program will be hung up until debug attach if you enable it, set 1 to enable
+#define JSB_DEFAULT_DEBUGGER_PORT    5086
+
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
-    #if TARGET_OS_OSX
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC // SCRIPT_ENGINE_V8 optional on macOS
-    #elif TARGET_OS_IPHONE
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC // only SCRIPT_ENGINE_JSC on iPhone
+    #if TARGET_OS_OSX && SCRIPT_ENGINE_V8_ON_MAC
+        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+    #else
+        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
     #endif
 #elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8

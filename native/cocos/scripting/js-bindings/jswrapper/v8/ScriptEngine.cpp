@@ -562,7 +562,7 @@ namespace se {
             _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
 
             node::DebugOptions options;
-            options.set_wait_for_connect(false); // Don't wait for connect, otherwise, the program will be hung up.
+            options.set_wait_for_connect(V8_DEBUG_WAIT_FOR_CONNECT);
             options.set_inspector_enabled(true);
             options.set_port((int)_debuggerServerPort);
             options.set_host_name(_debuggerServerAddr.c_str());
