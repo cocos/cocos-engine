@@ -18,7 +18,7 @@ export default class Node extends BaseNode {
     @property
     _lrot = cc.quat();
     @property
-    _lscale = cc.v3();
+    _lscale = cc.v3(1, 1, 1);
 
     // world transform
     @property
@@ -26,7 +26,7 @@ export default class Node extends BaseNode {
     @property
     _rot = cc.quat();
     @property
-    _scale = cc.v3();
+    _scale = cc.v3(1, 1, 1);
     @property
     _mat = cc.mat4();
 
@@ -368,7 +368,7 @@ export default class Node extends BaseNode {
     }
 
     /**
-     * get the matrix that transforms a point from local space into world space 
+     * get the matrix that transforms a point from local space into world space
      * @param {?mat4} out the receiving matrix
      * @return {mat4} the resulting matrix
      */

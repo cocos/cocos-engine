@@ -59,7 +59,7 @@ var idGenerator = new IDGenerator('Tex');
  */
 
 /**
- * The texture pixel format, default value is RGBA8888, 
+ * The texture pixel format, default value is RGBA8888,
  * you should note that textures loaded by normal image files (png, jpg) can only support RGBA8888 format,
  * other formats are supported by compressed file types or raw data.
  * @enum Texture2D.PixelFormat
@@ -313,7 +313,7 @@ export default class Texture2D extends Asset {
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
-        
+
         /**
          * !#en
          * The url of the texture, this could be empty if the texture wasn't created via a file.
@@ -355,7 +355,7 @@ export default class Texture2D extends Asset {
         this.height = 0;
 
         this._texture = null;
-        
+
         if (CC_EDITOR) {
             this._exportedExts = null;
         }
@@ -522,7 +522,7 @@ export default class Texture2D extends Asset {
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
         if (!this._texture) {
-            this._texture = new Tex_GFX(cc.renderer.device, opts);
+            this._texture = new Tex_GFX(cc.game._renderContext, opts);
         }
         else {
             this._texture.update(opts);
@@ -544,7 +544,7 @@ export default class Texture2D extends Asset {
     getHtmlElementObj () {
         return this._image;
     }
-    
+
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
@@ -619,7 +619,7 @@ export default class Texture2D extends Asset {
     handleLoadedTexture () {
         if (!this._image || !this._image.width || !this._image.height)
             return;
-        
+
         this.width = this._image.width;
         this.height = this._image.height;
         let opts = _getSharedOptions();
@@ -638,9 +638,9 @@ export default class Texture2D extends Asset {
         opts.mipFilter = FilterIndex[this._mipFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
-        
+
         if (!this._texture) {
-            this._texture = new Tex_GFX(cc.renderer.device, opts);
+            this._texture = new Tex_GFX(cc.game._renderContext, opts);
         }
         else {
             this._texture.update(opts);
@@ -651,7 +651,7 @@ export default class Texture2D extends Asset {
         this.emit("load");
 
         if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            // wechat game platform will cache image parsed data, 
+            // wechat game platform will cache image parsed data,
             // so image will consume much more memory than web, releasing it
             this._image.src = "";
             // Release image in loader cache
@@ -773,7 +773,7 @@ export default class Texture2D extends Asset {
             this.update(opts);
         }
     }
-    
+
     /**
      * !#en
      * Sets whether generate mipmaps for the texture
@@ -817,9 +817,9 @@ export default class Texture2D extends Asset {
             }
             extId = exts.join('_');
         }
-        let asset = "" + extId + "," + 
-                    this._minFilter + "," + this._magFilter + "," + 
-                    this._wrapS + "," + this._wrapT + "," + 
+        let asset = "" + extId + "," +
+                    this._minFilter + "," + this._magFilter + "," +
+                    this._wrapS + "," + this._wrapT + "," +
                     (this._premultiplyAlpha ? 1 : 0) + "," +
                     this._mipFilter + "," +
                     this._anisotropy;

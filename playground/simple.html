@@ -33,6 +33,16 @@
         let node = new cc.Node();
         scene.addChild(node);
         let comp = node.addComponent('cc.CameraComponent');
+        let modelNode = new cc.Node();
+        modelNode.setLocalPos(0, 0, -10);
+        scene.addChild(modelNode);
+        let model = modelNode.addComponent('cc.ModelComponent');
+        // init mesh
+        model.mesh = cc.game._builtins['builtin-cube'];
+        // init effect
+        let mtl = new cc.Material();
+        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        model.material = mtl;
         cc.director.runSceneImmediate(scene);
     };
     cc.game.run({id:'canvas'}, onStart);

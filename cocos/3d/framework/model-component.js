@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import Component from '../../components/CCComponent';
+import RenderableComponent from './renderable-component';
 import renderer from '../../renderer/index';
 import { _decorator } from '../../core/data/index';
 import Material from '../assets/material';
@@ -41,7 +41,7 @@ const { ccclass, property } = _decorator;
  * @extends Component
  */
 @ccclass('cc.ModelComponent')
-export default class ModelComponent extends Component {
+export default class ModelComponent extends RenderableComponent {
     @property
     _materials = [];
 
@@ -165,15 +165,15 @@ export default class ModelComponent extends Component {
     });
 
     onEnable() {
-        // for (let i = 0; i < this._models.length; ++i) {
-        //     this._app.scene.addModel(this._models[i]);
-        // }
+        for (let i = 0; i < this._models.length; ++i) {
+            this.scene.addModel(this._models[i]);
+        }
     }
 
     onDisable() {
-        // for (let i = 0; i < this._models.length; ++i) {
-        //     this._app.scene.removeModel(this._models[i]);
-        // }
+        for (let i = 0; i < this._models.length; ++i) {
+            this.scene.removeModel(this._models[i]);
+        }
     }
 
     /**
