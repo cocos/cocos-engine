@@ -321,12 +321,37 @@ var _touchEndHandler = function (touch, event) {
     var pos = touch.getLocation();
     var node = this.owner;
 
-    if (node._hitTest(pos, this)) {
-        event.type = EventType.TOUCH_END;
+    // get sceneGraphListeners
+    let listeners;
+    let touchOneByOne;
+    if (touchOneByOne = eventManager._listenersMap[cc.EventListener.ListenerID.TOUCH_ONE_BY_ONE]) {
+        listeners = touchOneByOne._sceneGraphListeners;
+    }
+    
+    if (listeners && listeners.includes(this)) {
+        for (let i = 0; i < listeners.length; ++i) {
+            let listener = listeners[i];
+            let target = listener._target;
+            if (target._hitTest(pos, listener)) {
+                if (target === node) {
+                    event.type = EventType.TOUCH_END;
+                }
+                else {
+                    event.type = EventType.TOUCH_CANCEL;
+                }
+                break;
+            }
+        }
     }
     else {
-        event.type = EventType.TOUCH_CANCEL;
+        if (node._hitTest(pos, this)) {
+            event.type = EventType.TOUCH_END;
+        }
+        else {
+            event.type = EventType.TOUCH_CANCEL;
+        }
     }
+
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
