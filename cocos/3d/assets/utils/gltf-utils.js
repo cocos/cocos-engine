@@ -91,14 +91,13 @@ export class GltfMeshResource extends MeshResource {
 
             const vertexBufferView = gltf.bufferViews[iVertexBufferView];
             const vbData = new Uint8Array(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
-            const vb = null;
-            // const vb = new gfx.VertexBuffer(
-            //     cc.game._renderContext,
-            //     new gfx.VertexFormat(vfmt),
-            //     gfx.USAGE_STATIC,
-            //     vbData,
-            //     vertexCount
-            // );
+            const vb = new gfx.VertexBuffer(
+                cc.game._renderContext,
+                new gfx.VertexFormat(vfmt),
+                gfx.USAGE_STATIC,
+                vbData,
+                vertexCount
+            );
 
             let ib = null;
             if (primitive.indices !== undefined) {
@@ -106,13 +105,13 @@ export class GltfMeshResource extends MeshResource {
                 let ibView = gltf.bufferViews[ibAcc.bufferView];
                 let ibData = new Uint8Array(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
 
-                // ib = new gfx.IndexBuffer(
-                //     cc.game._renderContext,
-                //     ibAcc.componentType,
-                //     gfx.USAGE_STATIC,
-                //     ibData,
-                //     ibAcc.count
-                // );
+                ib = new gfx.IndexBuffer(
+                    cc.game._renderContext,
+                    ibAcc.componentType,
+                    gfx.USAGE_STATIC,
+                    ibData,
+                    ibAcc.count
+                );
             }
 
             mesh._subMeshes[i] = new renderer.InputAssembler(vb, ib);
