@@ -30,8 +30,13 @@
 #define SCRIPT_ENGINE_JSC            3
 #define SCRIPT_ENGINE_CHAKRACORE     4
 
-#if defined(__APPLE__) // macOS and iOS use JavaScriptCore
-    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+#if defined(__APPLE__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_OSX
+        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC // SCRIPT_ENGINE_V8 optional on macOS
+    #elif TARGET_OS_IPHONE
+        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC // only SCRIPT_ENGINE_JSC on iPhone
+    #endif
 #elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #else
