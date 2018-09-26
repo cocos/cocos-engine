@@ -128,9 +128,9 @@ public:
         return JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     }
 
-    void updateFont(const std::string& fontName, float fontSize, bool bold)
+    void updateFont(const std::string& fontName, float fontSize, bool bold, bool italic)
     {
-        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold, italic);
     }
 
     void setTextAlign(CanvasTextAlign align)
@@ -381,7 +381,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex re("(bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold|italic|bold italic|italic bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
@@ -391,7 +391,9 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         }
 
         float fontSize = atof(fontSizeStr.c_str());
-        _impl->updateFont(fontName, fontSize, !boldStr.empty());
+        bool isBold = boldStr.find("bold", 0) != std::string::npos;
+        bool isItalic = boldStr.find("italic", 0) != std::string::npos;
+        _impl->updateFont(fontName, fontSize, isBold, isItalic);
     }
 }
 

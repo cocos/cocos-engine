@@ -73,6 +73,7 @@ public class CanvasRenderingContext2DImpl {
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
     private boolean mIsBoldFont = false;
+    private boolean mIsItalicFont = false;
 
     private class Size {
         Size(float w, float h) {
@@ -151,7 +152,7 @@ public class CanvasRenderingContext2DImpl {
         sTypefaceCache.clear();
     }
 
-    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold) {
+    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold, boolean enableItalic) {
         TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
@@ -160,16 +161,23 @@ public class CanvasRenderingContext2DImpl {
         if (enableBold) {
             key += "-Bold";
         }
-        
+        if (enableItalic) {
+            key += "-Italic";
+        }
+
         Typeface typeFace;
         if (sTypefaceCache.containsKey(key)) {
             typeFace = sTypefaceCache.get(key);
         } else {
-            if (enableBold) {
-                typeFace = Typeface.create(fontName, Typeface.BOLD);
-            } else {
-                typeFace = Typeface.create(fontName, Typeface.NORMAL);
+            int style = Typeface.NORMAL;
+            if (enableBold && enableItalic) {
+                style = Typeface.BOLD_ITALIC;
+            } else if (enableBold) {
+                style = Typeface.BOLD;
+            } else if (enableItalic) {
+                style = Typeface.ITALIC;
             }
+            typeFace = Typeface.create(fontName, style);
         }
 
         paint.setTypeface(typeFace);
@@ -212,7 +220,7 @@ public class CanvasRenderingContext2DImpl {
         if (mLinePaint == null) {
             mLinePaint = new Paint();
         }
-     
+
         if(mLinePath == null) {
             mLinePath = new Path();
         }
@@ -248,7 +256,7 @@ public class CanvasRenderingContext2DImpl {
 
     private void createTextPaintIfNeeded() {
         if (mTextPaint == null) {
-            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont);
+            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont, mIsItalicFont);
         }
     }
 
@@ -296,11 +304,12 @@ public class CanvasRenderingContext2DImpl {
         return new Size(measureText(text), fm.descent - fm.ascent);
     }
 
-    private void updateFont(String fontName, float fontSize, boolean bold) {
+    private void updateFont(String fontName, float fontSize, boolean bold, boolean italic) {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
         mIsBoldFont = bold;
+        mIsItalicFont = italic;
         mTextPaint = null; // Reset paint to re-create paint object in createTextPaintIfNeeded
     }
 
