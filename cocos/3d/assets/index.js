@@ -35,3 +35,4 @@ import "./skeleton";
 import "./sprite";
 import "./web-audio-clip";
 import "./wx-game-audio-clip";
+import "./utils/gltf-utils.js";

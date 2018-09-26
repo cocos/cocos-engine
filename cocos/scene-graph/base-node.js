@@ -1081,7 +1081,7 @@ export default class BaseNode extends CCObject {
             }
 
             // conflict detection
-            _Scene.DetectConflict.afterAddChild(this);
+            //_Scene.DetectConflict.afterAddChild(this);
         }
 
         var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);

@@ -30,7 +30,7 @@ import Asset from "../../assets/CCAsset";
 import SkeletonInstance from '../framework/skeleton-instance';
 import { Node } from "../../scene-graph";
 
-@ccclass
+@ccclass('cc.Skeleton')
 export default class Skeleton extends Asset {
   /**
    * @type {Node}

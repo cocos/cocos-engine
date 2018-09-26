@@ -26,7 +26,7 @@
 import { _decorator } from "../core/data/index";
 const { ccclass, property } = _decorator;
 import JsonAsset from "./CCJsonAsset";
-import { BufferAsset } from "./CCBufferAsset";
+import BufferAsset from "./CCBufferAsset";
 import Asset from "./CCAsset";
 
 /**
@@ -39,13 +39,13 @@ import Asset from "./CCAsset";
  * @class GLTFAsset
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.GLTFAsset')
 export default class GLTFAsset extends Asset {
     /**
      * @type {JsonAsset}
      */
     @property(JsonAsset)
-    _description;
+    _description = null;
 
     /**
      * @type {BufferAsset[]}
@@ -76,3 +76,5 @@ export default class GLTFAsset extends Asset {
         return this._buffers;
     }
 }
+
+cc.GLTFAsset = GLTFAsset;

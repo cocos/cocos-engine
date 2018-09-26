@@ -67,7 +67,7 @@ export const AudioSourceType = {
  * The base class for audio clip asset.
  * @mixes {EventTarget}
  */
-@ccclass
+@ccclass('cc.AudioClip')
 @mixins(EventTarget)
 export class AudioClip extends Asset {
   /**
