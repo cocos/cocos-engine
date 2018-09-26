@@ -33,7 +33,7 @@ let _s_tmp = vec3.create(0, 0, 0);
 let _mat4_tmp = mat4.create();
 let _textureMatrix = mat4.create();
 
-@ccclass
+@ccclass('cc.Sprite')
 export default class Sprite extends Asset {
   constructor() {
     super();

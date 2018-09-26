@@ -64,7 +64,7 @@ function _binaryIndexOf(array, key) {
 /**
  * @interface
  */
-@ccclass
+@ccclass('cc.AnimationResource')
 export class AnimationResource {
   /**
    * 
@@ -74,8 +74,9 @@ export class AnimationResource {
 
   }
 }
+cc.AnimationResource = AnimationResource;
 
-@ccclass
+@ccclass('cc.AnimationClip')
 export default class AnimationClip extends Asset {
   /**
      * @type {AnimationResource}
@@ -89,7 +90,7 @@ export default class AnimationClip extends Asset {
 
   set resource(value) {
     this._resource = value;
-    this.update();
+    this.flush();
   }
 
   constructor() {

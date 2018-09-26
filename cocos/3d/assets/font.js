@@ -27,7 +27,7 @@ import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
 import Asset from "../../assets/CCAsset";
 
-@ccclass
+@ccclass('cc.Font')
 export default class Font extends Asset {
      /** Font size.
      * @type {number}

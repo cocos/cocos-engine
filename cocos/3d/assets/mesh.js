@@ -31,7 +31,7 @@ import Asset from "../../assets/CCAsset";
 /**
  * @interface
  */
-@ccclass
+@ccclass('cc.MeshResource')
 export class MeshResource {
     /**
      * 
@@ -41,8 +41,9 @@ export class MeshResource {
 
     }
 }
+cc.MeshResource = MeshResource;
 
-@ccclass
+@ccclass('cc.Mesh')
 export default class Mesh extends Asset {
     /**
      * @type {MeshResource}
@@ -56,7 +57,7 @@ export default class Mesh extends Asset {
 
     set resource(value) {
         this._resource = value;
-        this.update();
+        this.flush();
     }
 
     constructor() {
@@ -146,5 +147,4 @@ export default class Mesh extends Asset {
     //   }
     // }
 }
-
 cc.Mesh = Mesh;

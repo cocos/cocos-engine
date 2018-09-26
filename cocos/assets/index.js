@@ -37,4 +37,6 @@ export {default as SpriteAtlas} from './CCSpriteAtlas';
 export {default as BitmapFont} from './CCBitmapFont';
 export {default as TextAsset} from './CCTextAsset';
 export {default as JsonAsset} from './CCJsonAsset';
+export {default as GLTFAsset} from './CCGLTFAsset';
+export {default as BufferAsset} from './CCBufferAsset';
 export {default as AssetLibrary} from './CCAssetLibrary';

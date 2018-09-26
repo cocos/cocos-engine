@@ -30,7 +30,7 @@ import vec2 from "../../core/vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
 import Texture2D from "../../assets/CCTexture2D";
 
-@ccclass
+@ccclass('cc.OpentypeFont')
 export default class OpentypeFont extends Font {
     /**
      * opentype.Font

@@ -58,7 +58,6 @@ function _updateOpts(out, texture) {
   out.mipFilter = gfxFilters[texture._mipFilter];
 }
 
-@ccclass
 export class TextureCube extends Texture {
   constructor(device, width = 2, height = 2, fmt = 'rgba8') {
     super(device);

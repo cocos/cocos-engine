@@ -28,7 +28,7 @@ const { ccclass, property } = _decorator;
 import Texture2D from '../../assets/CCTexture2D';
 import Sprite from "./sprite";
 
-@ccclass
+@ccclass('cc.TextureSprite')
 export default class TextureSprite extends Texture2D {
   /**
    * @type {Sprite[]}
@@ -47,3 +47,4 @@ export default class TextureSprite extends Texture2D {
     return super.destroy();
   }
 }
+cc.TextureSprite = TextureSprite;

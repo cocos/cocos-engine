@@ -36,8 +36,8 @@ const {ccclass, property} = _decorator;
  * @class BufferAsset
  * @extends Asset
  */
-@ccclass
-export class BufferAsset extends cc.Asset {
+@ccclass('cc.BufferAsset')
+export default class BufferAsset extends cc.Asset {
     /**
      * @type {ArrayBuffer}
      */
@@ -48,5 +48,8 @@ export class BufferAsset extends cc.Asset {
     /**
      * @type {ArrayBuffer}
      */
+    @property
     _data = null;
 }
+
+cc.BufferAsset = BufferAsset;
