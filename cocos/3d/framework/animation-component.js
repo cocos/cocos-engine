@@ -24,9 +24,8 @@
  ****************************************************************************/
 // @ts-check
 import Component from '../../components/CCComponent';
-import { Enum } from '../../core/value-types/index';
-import { _decorator } from '../../core/data/index';
-const { ccclass, property, executionOrder } = _decorator;
+import { ccclass, property, executionOrder, menu } from '../../core/data/class-decorator';
+
 /**
  * @typedef {import("../assets/animation-clip").default} AnimationClip
  * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
@@ -102,7 +101,7 @@ class AnimationState {
      * @static
      * @enum AnimationState.BlendMode
      */
-    static BlendMode = Enum({
+    static BlendMode = cc.Enum({
         /**
          * !#en Animations will be blended.
          *
@@ -130,7 +129,7 @@ class AnimationState {
      * @static
      * @enum AnimationState.WrapMode
      */
-    static WrapMode = Enum({
+    static WrapMode = cc.Enum({
         /**
          * !#en Only once
          *
@@ -299,6 +298,7 @@ class AnimationCtrl {
  */
 @executionOrder(200)
 @ccclass('cc.AnimationComponent')
+@menu('Components/AnimationComponent')
 export default class AnimationComponent extends Component {
     @property
     _clips = [];

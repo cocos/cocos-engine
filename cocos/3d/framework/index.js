@@ -25,9 +25,15 @@
  ****************************************************************************/
 
 import CameraComponent from './camera-component';
+import AnimationComponent from './animation-component';
 import LightComponent from './light-component';
 import ModelComponent from './model-component';
+import SkinnedModelComponent from './skinning-model-component';
+import SkyBoxComponent from './skybox-component';
 
 cc.CameraComponent = CameraComponent;
+cc.AnimationComponent = AnimationComponent;
 cc.LightComponent = LightComponent;
 cc.ModelComponent = ModelComponent;
+cc.SkinnedModelComponent = SkinnedModelComponent;
+cc.SkyBoxComponent = SkyBoxComponent;

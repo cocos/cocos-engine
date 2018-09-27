@@ -26,23 +26,53 @@
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
-import { Color, Enum } from '../../core/value-types/index';
-import { _decorator } from '../../core/data/index';
-const { ccclass, property } = _decorator;
+import { Color } from '../../core/value-types/index';
+import { ccclass, menu, property } from "../../core/data/class-decorator";
+
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
  */
+
+/**
+ * !#en The light source type
+ *
+ * !#ch 光源类型
+ * @static
+ * @enum CameraComponent.Projection
+ */
+let CameraProjection = cc.Enum({
+    /**
+     * !#en The orthogonal camera
+     *
+     * !#ch 正交相机
+     * @property Ortho
+     * @readonly
+     * @type {Number}
+     */
+    Ortho: 0,
+    /**
+     * !#en The perspective camera
+     *
+     * !#ch 透视相机
+     * @property Perspective
+     * @readonly
+     * @type {Number}
+     */
+    Perspective: 1,
+});
+
 /**
  * !#en The Camera Component
  *
  * !#ch 相机组件
  * @class CameraComponent
- * @extends Component
+ * @extends RenderableComponent
  */
 @ccclass('cc.CameraComponent')
+@menu('Components/CameraComponent')
 export default class CameraComponent extends RenderSystemActor{
     @property
-    _projection = CameraComponent.Projection.Perspective;
+    _projection = CameraProjection.Perspective;
 
     @property
     _priority = 0;
@@ -78,9 +108,11 @@ export default class CameraComponent extends RenderSystemActor{
      * !#en The projection type of the camera
      *
      * !#ch 相机的投影类型
-     * @type {String}
+     * @type {Number}
      */
-    @property
+    @property({
+        type: CameraProjection
+    })
     get projection() {
         return this._projection;
     }
@@ -255,33 +287,7 @@ export default class CameraComponent extends RenderSystemActor{
         this._camera.setRect(val[0], val[1], val[2], val[3]);
     }
 
-    /**
-     * !#en The light source type
-     *
-     * !#ch 光源类型
-     * @static
-     * @enum CameraComponent.Projection
-     */
-    static Projection = Enum({
-        /**
-         * !#en The orthogonal camera
-         *
-         * !#ch 正交相机
-         * @property Ortho
-         * @readonly
-         * @type {String}
-         */
-        Ortho: 'ortho',
-        /**
-         * !#en The perspective camera
-         *
-         * !#ch 透视相机
-         * @property Perspective
-         * @readonly
-         * @type {String}
-         */
-        Perspective: 'perspective',
-    });
+    static Projection = CameraProjection;
 
     constructor() {
         super();
