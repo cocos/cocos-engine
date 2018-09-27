@@ -121,8 +121,6 @@ var Mesh = cc.Class({
         this._vbs[0] = {
             buffer: vb,
             data: data,
-            float32Data: new Float32Array(data.buffer),
-            uint32Data: new Uint32Array(data.buffer),
             dirty: true
         };
     },
@@ -147,20 +145,31 @@ var Mesh = cc.Class({
             return cc.warn(`Cannot find ${name} attribute in vertex defines.`);
         }
 
-        let stride = el.stride / 4;
-        let offset = el.offset / 4;
 
         // whether the values is expanded
         let isFlatMode = typeof values[0] === 'number';
         let elNum = el.num;
 
-        let data;
+        let reader = Float32Array;
+        let bytes = 4;
         if (name === gfx.ATTR_COLOR) {
-            data = isFlatMode ? new Uint8Array(vb.uint32Data.buffer) : vb.uint32Data;
+            if (isFlatMode) {
+                reader = Float32Array;
+                bytes = 1;
+            }
+            else {
+                reader = Uint32Array;
+            }
         }
-        else {
-            data = vb.float32Data;
+
+        let data = vb[reader.name];
+        if (!data) {
+            let vbData = vb.data;
+            data = vb[reader.name] = new reader(vbData.buffer, vbData.byteOffset, vbData.byteLength/bytes);
         }
+
+        let stride = el.stride / bytes;
+        let offset = el.offset / bytes;
 
         if (isFlatMode) {
             for (let i = 0, l = (values.length / elNum); i < l; i++) {
