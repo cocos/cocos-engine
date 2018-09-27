@@ -162,9 +162,7 @@ var Model = cc.Class({
 
         return {
             buffer: vb,
-            data: vbData,
-            float32Data: new Float32Array(vbData.buffer),
-            uint32Data: new Uint32Array(vbData.buffer),
+            data: vbData
         };
     },
 

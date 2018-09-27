@@ -112,9 +112,26 @@ Intersection3D.rayMesh = (function () {
             if (subMeshes[i]._primitiveType !== gfx.PT_TRIANGLES) continue;
 
             let vb = (mesh._vbs[i] || mesh._vbs[0]);
-            let vbData = vb.float32Data;
-            let ibData = mesh._ibs[i].data;
-            forEachTriangleIn(ray, vbData, ibData, vb.buffer._format);
+            let vbData = vb.data;
+            let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
+            let ib = mesh._ibs[i].data;
+
+            let format = vb.buffer._format;
+            let fmt = format.element(gfx.ATTR_POSITION);
+            let offset = fmt.offset, stride = fmt.stride;
+            for (let i = 0; i < ib.length; i += 3) {
+                let idx = ib[i] * stride + offset;
+                vec3.set(tri.a, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+                idx = ib[i + 1] * stride + offset;
+                vec3.set(tri.b, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+                idx = ib[i + 2] * stride + offset;
+                vec3.set(tri.c, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+
+                let dist = Intersection3D.rayTriangle(ray, tri);
+                if (dist > 0 && dist < minDist) {
+                    minDist = dist;
+                }
+            }
         }
         return minDist;
     };
