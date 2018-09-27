@@ -643,7 +643,7 @@ namespace se {
         //IDEA:
     }
 
-    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port, bool isWait)
     {
         // empty implementation
         _isDebuggerEnabled = true;

@@ -235,6 +235,15 @@
 		403ACADB20CE4EB000BB433D /* jsb_module_register.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */; };
 		403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */; };
 		403ACADD20CE542900BB433D /* jsb_module_register.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */; };
+		403EE7B12159E8F300B8FD62 /* libv8_base.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7AB2159E8F200B8FD62 /* libv8_base.a */; };
+		403EE7B22159E8F300B8FD62 /* libv8_libplatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7AC2159E8F200B8FD62 /* libv8_libplatform.a */; };
+		403EE7B32159E8F300B8FD62 /* libv8_nosnapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7AD2159E8F200B8FD62 /* libv8_nosnapshot.a */; };
+		403EE7B42159E8F300B8FD62 /* libinspector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7AE2159E8F200B8FD62 /* libinspector.a */; };
+		403EE7B52159E8F300B8FD62 /* libv8_libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7AF2159E8F300B8FD62 /* libv8_libbase.a */; };
+		403EE7B62159E8F300B8FD62 /* libv8_libsampler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7B02159E8F300B8FD62 /* libv8_libsampler.a */; };
+		403EE7B8215A051E00B8FD62 /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7B7215A051E00B8FD62 /* libuv_a.a */; };
+		403EE7BB215A070B00B8FD62 /* libv8_builtins_setup.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7B9215A070B00B8FD62 /* libv8_builtins_setup.a */; };
+		403EE7BC215A070B00B8FD62 /* libv8_builtins_generators.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7BA215A070B00B8FD62 /* libv8_builtins_generators.a */; };
 		4043D65E20D2132E00C55611 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */; };
 		4043D65F20D2132E00C55611 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4043D65D20D2132E00C55611 /* CCGLView-desktop.h */; };
 		40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */; };
@@ -1145,6 +1154,15 @@
 		4037F5CB2108751E001C205C /* CCAsyncTaskPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAsyncTaskPool.cpp; sourceTree = "<group>"; };
 		403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_module_register.hpp; sourceTree = "<group>"; };
+		403EE7AB2159E8F200B8FD62 /* libv8_base.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_base.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_base.a"; sourceTree = "<group>"; };
+		403EE7AC2159E8F200B8FD62 /* libv8_libplatform.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libplatform.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_libplatform.a"; sourceTree = "<group>"; };
+		403EE7AD2159E8F200B8FD62 /* libv8_nosnapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_nosnapshot.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_nosnapshot.a"; sourceTree = "<group>"; };
+		403EE7AE2159E8F200B8FD62 /* libinspector.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libinspector.a; path = "../../../cocos2d-x-lite-external/mac/libs/libinspector.a"; sourceTree = "<group>"; };
+		403EE7AF2159E8F300B8FD62 /* libv8_libbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libbase.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_libbase.a"; sourceTree = "<group>"; };
+		403EE7B02159E8F300B8FD62 /* libv8_libsampler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libsampler.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_libsampler.a"; sourceTree = "<group>"; };
+		403EE7B7215A051E00B8FD62 /* libuv_a.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libuv_a.a; path = "../../../cocos2d-x-lite-external/mac/libs/libuv_a.a"; sourceTree = "<group>"; };
+		403EE7B9215A070B00B8FD62 /* libv8_builtins_setup.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_builtins_setup.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_builtins_setup.a"; sourceTree = "<group>"; };
+		403EE7BA215A070B00B8FD62 /* libv8_builtins_generators.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_builtins_generators.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_builtins_generators.a"; sourceTree = "<group>"; };
 		4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CCGLView-desktop.cpp"; sourceTree = "<group>"; };
 		4043D65D20D2132E00C55611 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCGLView-desktop.h"; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
@@ -1582,6 +1600,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				403EE7BB215A070B00B8FD62 /* libv8_builtins_setup.a in Frameworks */,
+				403EE7BC215A070B00B8FD62 /* libv8_builtins_generators.a in Frameworks */,
+				403EE7B8215A051E00B8FD62 /* libuv_a.a in Frameworks */,
+				403EE7B12159E8F300B8FD62 /* libv8_base.a in Frameworks */,
+				403EE7B22159E8F300B8FD62 /* libv8_libplatform.a in Frameworks */,
+				403EE7B32159E8F300B8FD62 /* libv8_nosnapshot.a in Frameworks */,
+				403EE7B42159E8F300B8FD62 /* libinspector.a in Frameworks */,
+				403EE7B52159E8F300B8FD62 /* libv8_libbase.a in Frameworks */,
+				403EE7B62159E8F300B8FD62 /* libv8_libsampler.a in Frameworks */,
 				40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */,
 				A679D0DA1C71D93200620A6C /* libcrypto.a in Frameworks */,
 				A679D0D91C71D90A00620A6C /* libssl.a in Frameworks */,
@@ -1657,6 +1684,15 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				403EE7BA215A070B00B8FD62 /* libv8_builtins_generators.a */,
+				403EE7B9215A070B00B8FD62 /* libv8_builtins_setup.a */,
+				403EE7B7215A051E00B8FD62 /* libuv_a.a */,
+				403EE7AE2159E8F200B8FD62 /* libinspector.a */,
+				403EE7AB2159E8F200B8FD62 /* libv8_base.a */,
+				403EE7AF2159E8F300B8FD62 /* libv8_libbase.a */,
+				403EE7AC2159E8F200B8FD62 /* libv8_libplatform.a */,
+				403EE7B02159E8F300B8FD62 /* libv8_libsampler.a */,
+				403EE7AD2159E8F200B8FD62 /* libv8_nosnapshot.a */,
 				40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */,
 				1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */,
 				1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */,
