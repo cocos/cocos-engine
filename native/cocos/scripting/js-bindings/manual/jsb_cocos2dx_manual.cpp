@@ -489,12 +489,7 @@ SE_BIND_FUNC(JSB_getDeviceMotionValue)
 static bool register_device(se::Object* obj)
 {
     se::Value device;
-    if (!obj->getProperty("Device", &device))
-    {
-        se::HandleObject deviceObj(se::Object::createPlainObject());
-        obj->setProperty("Device", se::Value(deviceObj));
-        device.setObject(deviceObj);
-    }
+    __jsbObj->getProperty("Device", &device);
 
     device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
