@@ -206,22 +206,21 @@ Intersection3D.raycast = (function () {
 
             // raycast with bounding box
             let distance = Infinity;
-            let boundingBox = nodeAabb;
             let component = node._renderComponent;
             if (component && component._boundingBox) {
-                boundingBox = component._boundingBox;
+                distance = Intersection3D.rayAabb(modelRay, component._boundingBox);
             }
             else if (node.width && node.height) {
                 vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
                 vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
                 aabb.fromPoints(nodeAabb, minPos, maxPos);
+                distance = Intersection3D.rayAabb(modelRay, nodeAabb);
             }
 
-            distance = Intersection3D.rayAabb(modelRay, boundingBox);
             if (!distanceValid(distance)) return;
 
             if (handler) {
-                distance = handler(modelRay, node);
+                distance = handler(modelRay, node, distance);
             }
 
             if (distanceValid(distance)) {
