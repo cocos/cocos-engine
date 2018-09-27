@@ -43,7 +43,7 @@ export class GltfMeshResource extends MeshResource {
         }
 
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (this.gltfIndex >= gltf.meshes.length) {
             return;
         }
@@ -132,7 +132,7 @@ export class GltfMeshResource extends MeshResource {
      */
     createSkinning(index) {
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (index >= gltf.skins.length) {
             return null;
         }
@@ -186,7 +186,7 @@ export class GltfAnimationResource extends AnimationResource {
         }
 
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (this.gltfIndex >= gltf.animations.length) {
             return;
         }
@@ -437,7 +437,7 @@ export function createEntities(app, gltfNodes) {
  */
 export function createSkeleton(gltfAsset, index) {
     /** @type GLTFFormat */
-    const gltf = gltfAsset.description.json;
+    const gltf = gltfAsset.description;
 
     if (!gltf.skins || index >= gltf.skins.length) {
         return;
