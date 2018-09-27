@@ -187,7 +187,7 @@ module.exports = {
         },
         "layout": {
             "layout_type": "Automatic layout mode: \n 1. NONE, no automatic arrangement of child Nodes \n 2. HORIZONTAL, automatic horizontal arrangement of child Nodes \n 3. VERTICAL, automatic vertical arrangement of child Nodes\n 4. GRID, automatic grid arrangement of child Nodes",
-            "resize_mode": "Automatic resize mode: \n 1. NONE, no resize of both child Nodes and container. \n 2. CHILDREN, resize child Nodes. \n 3. CONTAINER, resize container Node.",
+            "resize_mode": "Automatic resize mode: \n 1. NONE, no resize of both child Nodes and container. \n 2. CONTAINER, resize container Node. \n 3. CHILDREN, resize child Nodes.",
             'padding_left': 'Use a padding between left sides of the Node',
             'padding_right': 'Use a padding between right sides of the Node',
             'padding_top': 'Use a padding between top sides of the Node',

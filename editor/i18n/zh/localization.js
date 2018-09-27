@@ -191,7 +191,7 @@ module.exports = {
         },
         'layout': {
             'layout_type': '自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
-            'resize_mode': '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CHILD, 对子节点的大小进行缩放 \n 3. CONTAINER, 对容器的大小进行缩放',
+            'resize_mode': '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILD, 对子节点的大小进行缩放',
             'padding_left': 'Layout 节点左边界和子节点的内边距',
             'padding_right': 'Layout 节点右边界和子节点的内边距',
             'padding_top': 'Layout 节点上边界和子节点的内边距',
