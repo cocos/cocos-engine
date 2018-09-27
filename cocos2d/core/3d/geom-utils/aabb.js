@@ -22,7 +22,7 @@ let transform_extent_m4 = function (out, extent, m4) {
  * @param {Number} h 
  * @param {Number} l 
  */
-function aabb(px = 0, py = 0, pz = 0, w = 1, h = 1, l = 1) {
+function aabb(px, py, pz, w, h, l) {
     this.center = vec3.create(px, py, pz);
     this.halfExtents = vec3.create(w, h, l);
 }

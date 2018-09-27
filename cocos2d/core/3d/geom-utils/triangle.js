@@ -1,6 +1,6 @@
 const vec3 = cc.vmath.vec3;
 
-function triangle(ax = 0, ay = 0, az = 0, bx = 1, by = 0, bz = 0, cx = 0, cy = 1, cz = 0) {
+function triangle(ax, ay, az, bx, by, bz, cx, cy, cz) {
     this.a = vec3.create(ax, ay, az);
     this.b = vec3.create(bx, by, bz);
     this.c = vec3.create(cx, cy, cz);
