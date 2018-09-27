@@ -27,25 +27,25 @@ const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 
-function applyColor (data, offset, value) {
+function applyColor(data, offset, value) {
     data[offset] = value._val;
 }
 
-function applyVec2 (data, offset, value) {
+function applyVec2(data, offset, value) {
     data[offset] = value.x;
-    data[offset+1] = value.y;
+    data[offset + 1] = value.y;
 }
 
-function applyVec3 (data, offset, value) {
+function applyVec3(data, offset, value) {
     data[offset] = value.x;
-    data[offset+1] = value.y;
-    data[offset+2] = value.z;
+    data[offset + 1] = value.y;
+    data[offset + 2] = value.z;
 }
 
 
- /**
- * @module cc
- */
+/**
+* @module cc
+*/
 /**
  * !#en Mesh Asset.
  * !#zh 网格资源。
@@ -73,16 +73,16 @@ var Mesh = cc.Class({
          * @property {[renderEngine.InputAssembler]} subMeshes
          */
         subMeshes: {
-            get () {
+            get() {
                 return this._subMeshes;
             },
-            set (v) {
+            set(v) {
                 this._subMeshes = v;
             }
         }
     },
 
-    ctor () {
+    ctor() {
         this._modelUuid = '';
         this._meshID = -1;
         this._model = null;
@@ -91,6 +91,9 @@ var Mesh = cc.Class({
 
         this._ibs = [];
         this._vbs = [];
+
+        this._minPos = cc.v3();
+        this._maxPos = cc.v3();
     },
 
     /**
@@ -103,10 +106,10 @@ var Mesh = cc.Class({
      * @param {Number} vertexCount - how much vertex should be create in this buffer.
      * @param {Boolean} dynamic - whether or not to use dynamic buffer.
      */
-    init (vertexFormat, vertexCount, dynamic) {
+    init(vertexFormat, vertexCount, dynamic) {
         this.clear();
-        
-        let data = new Uint8Array(vertexFormat._bytes*vertexCount);
+
+        let data = new Uint8Array(vertexFormat._bytes * vertexCount);
         let vb = new gfx.VertexBuffer(
             renderer.device,
             vertexFormat,
@@ -123,7 +126,7 @@ var Mesh = cc.Class({
             dirty: true
         };
     },
-    
+
     /**
      * !#en
      * Set the vertex values.
@@ -131,10 +134,10 @@ var Mesh = cc.Class({
      * 设置顶点数据
      * @method setVertexes
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
-     * @param {[Vec2|Vec3|Color]} values - the vertex values
+     * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      * @param {Number} [index] 
      */
-    setVertexes (name, values, index) {
+    setVertexes(name, values, index) {
         index = index || 0;
         let vb = this._vbs[index];
 
@@ -144,29 +147,50 @@ var Mesh = cc.Class({
             return cc.warn(`Cannot find ${name} attribute in vertex defines.`);
         }
 
-        let stride = el.stride/4;
-        let offset = el.offset/4;
+        let stride = el.stride / 4;
+        let offset = el.offset / 4;
+
+        // whether the values is expanded
+        let isFlatMode = typeof values[0] === 'number';
+        let elNum = el.num;
 
         let data;
-        let applyFunc;
         if (name === gfx.ATTR_COLOR) {
-            data = vb.uint32Data;
-            applyFunc = applyColor;
+            data = isFlatMode ? new Uint8Array(vb.uint32Data.buffer) : vb.uint32Data;
         }
         else {
             data = vb.float32Data;
-            if (el.num === 2) {
-                applyFunc = applyVec2;
-            }
-            else {
-                applyFunc = applyVec3;
-            }
         }
 
-        for (let i = 0, l = values.length; i < l; i++) {
-            let v = values[i];
-            let vOffset = i * stride + offset;
-            applyFunc(data, vOffset, v);
+        if (isFlatMode) {
+            for (let i = 0, l = (values.length / elNum); i < l; i++) {
+                let sOffset = i * elNum;
+                let dOffset = i * stride + offset;
+                for (let j = 0; j < elNum; j++) {
+                    data[dOffset + j] = values[sOffset + j];
+                }
+            }
+        }
+        else {
+            let applyFunc;
+            if (name === gfx.ATTR_COLOR) {
+                applyFunc = applyColor;
+            }
+            else {
+
+                if (elNum === 2) {
+                    applyFunc = applyVec2;
+                }
+                else {
+                    applyFunc = applyVec3;
+                }
+            }
+
+            for (let i = 0, l = values.length; i < l; i++) {
+                let v = values[i];
+                let vOffset = i * stride + offset;
+                applyFunc(data, vOffset, v);
+            }
         }
         vb.dirty = true;
     },
@@ -180,7 +204,7 @@ var Mesh = cc.Class({
      * @param {[Number]} indices - the sub mesh indices.
      * @param {Number} index - sub mesh index.
      */
-    setIndices (indices, index) {
+    setIndices(indices, index) {
         index = index || 0;
 
         let data = new Uint16Array(indices);
@@ -219,7 +243,7 @@ var Mesh = cc.Class({
      * @param {Number} type 
      * @param {Number} index 
      */
-    setPrimitiveType (type, index) {
+    setPrimitiveType(type, index) {
         index = index || 0;
         let subMesh = this._subMeshes[index];
         if (!subMesh) {
@@ -236,7 +260,7 @@ var Mesh = cc.Class({
      * 清除网格创建的内存数据。
      * @method clear
     */
-    clear () {
+    clear() {
         this._subMeshes.length = 0;
 
         let ibs = this._ibs;
@@ -252,11 +276,11 @@ var Mesh = cc.Class({
         vbs.length = 0;
     },
 
-    destroy () {
+    destroy() {
         this.clear();
     },
 
-    _uploadData () {
+    _uploadData() {
         let vbs = this._vbs;
         for (let i = 0; i < vbs.length; i++) {
             let vb = vbs[i];
@@ -278,7 +302,7 @@ var Mesh = cc.Class({
         }
     },
 
-    _initWithModel (model) {
+    _initWithModel(model) {
         if (!model) return;
         this._model = model;
         this._model.initMesh(this);
@@ -295,7 +319,7 @@ var Mesh = cc.Class({
         };
     },
 
-    _deserialize (data, handle) {
+    _deserialize(data, handle) {
         this._modelUuid = data.modelUuid;
         this._meshID = data.meshID;
 
