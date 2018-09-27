@@ -104,8 +104,7 @@ export class GltfMeshResource extends MeshResource {
                 return;
             }
 
-            const vbData = new _compType2Array[positionType](this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset,
-                vertexBufferView.byteLength / gfx.attrTypeBytes(positionType));
+            const vbData = new DataView(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
             const vb = new gfx.VertexBuffer(
                 app.device,
                 new gfx.VertexFormat(vfmt),
@@ -118,8 +117,7 @@ export class GltfMeshResource extends MeshResource {
             if (primitive.indices !== undefined) {
                 let ibAcc = gltfAccessors[primitive.indices];
                 let ibView = gltf.bufferViews[ibAcc.bufferView];
-                let ibData = new _compType2Array[ibAcc.componentType](this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset,
-                    ibView.byteLength / gfx.attrTypeBytes(ibAcc.componentType));
+                let ibData = new DataView(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
 
                 ib = new gfx.IndexBuffer(
                     app.device,
