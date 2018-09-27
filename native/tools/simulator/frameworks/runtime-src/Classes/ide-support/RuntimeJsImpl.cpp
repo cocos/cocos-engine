@@ -36,6 +36,7 @@
 #include "runtime/ConfigParser.h"   // config
 #include "runtime/Runtime.h"
 #include "runtime/FileServer.h"
+#include "runtime/ConfigParser.h"
 
 // js
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
@@ -172,7 +173,8 @@ bool RuntimeJsImpl::initJsEnv()
 
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     // Enable debugger here
-    jsb_enable_debugger("127.0.0.1", JSB_DEFAULT_DEBUGGER_PORT);
+    auto parser = ConfigParser::getInstance();
+    jsb_enable_debugger("0.0.0.0", parser->getDebugPort(), parser->isWaitForConnect());
 #endif
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){

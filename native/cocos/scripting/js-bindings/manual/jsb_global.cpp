@@ -171,13 +171,13 @@ void jsb_init_file_operation_delegate()
     }
 }
 
-bool jsb_enable_debugger(const std::string& debuggerServerAddr, uint32_t port)
+bool jsb_enable_debugger(const std::string& debuggerServerAddr, uint32_t port, bool isWaitForConnect)
 {
     if (debuggerServerAddr.empty() || port == 0)
         return false;
 
     auto se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr.c_str(), port);
+    se->enableDebugger(debuggerServerAddr.c_str(), port, isWaitForConnect);
 
     // For debugger main loop
     class SimpleRunLoop

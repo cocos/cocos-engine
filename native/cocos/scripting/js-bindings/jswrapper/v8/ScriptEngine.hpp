@@ -263,9 +263,9 @@ namespace se {
         /**
          *  @brief Enables JavaScript debugger
          *  @param[in] serverAddr The address of debugger server.
-         *  @param[in] port The port of debugger server will use.
+         *  @param[in] isWait Whether wait debugger attach when loading.
          */
-        void enableDebugger(const std::string& serverAddr, uint32_t port);
+        void enableDebugger(const std::string& serverAddr, uint32_t port, bool isWait = false);
 
         /**
          *  @brief Tests whether JavaScript debugger is enabled
@@ -325,6 +325,7 @@ namespace se {
 
         std::string _debuggerServerAddr;
         uint32_t _debuggerServerPort;
+        bool _isWaitForConnect;
 
         uint32_t _vmId;
 

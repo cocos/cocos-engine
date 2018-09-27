@@ -562,7 +562,7 @@ namespace se {
             _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
 
             node::DebugOptions options;
-            options.set_wait_for_connect(V8_DEBUG_WAIT_FOR_CONNECT);
+            options.set_wait_for_connect(_isWaitForConnect);// the program will be hung up until debug attach if _isWaitForConnect = true
             options.set_inspector_enabled(true);
             options.set_port((int)_debuggerServerPort);
             options.set_host_name(_debuggerServerAddr.c_str());
@@ -722,10 +722,11 @@ namespace se {
         return _context.Get(_isolate);
     }
 
-    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port, bool isWait)
     {
         _debuggerServerAddr = serverAddr;
         _debuggerServerPort = port;
+        _isWaitForConnect = isWait;
     }
 
     bool ScriptEngine::isDebuggerEnabled() const

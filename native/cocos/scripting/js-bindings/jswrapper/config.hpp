@@ -31,8 +31,6 @@
 #define SCRIPT_ENGINE_CHAKRACORE     4
 
 #define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
-#define V8_DEBUG_WAIT_FOR_CONNECT    0 // the program will be hung up until debug attach if you enable it, set 1 to enable
-#define JSB_DEFAULT_DEBUGGER_PORT    5086
 
 #if defined(__APPLE__)
     #include <TargetConditionals.h>

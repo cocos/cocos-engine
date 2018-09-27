@@ -1213,7 +1213,7 @@ namespace se {
         _exceptionCallback = cb;
     }
 
-    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port, bool isWait)
     {
         _debuggerServerAddr = serverAddr;
         _debuggerServerPort = port;
