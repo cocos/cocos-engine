@@ -105,21 +105,27 @@ let VideoPlayerImpl = cc.Class({
         cbs.click = function () {
             self._dispatchEvent(VideoPlayerImpl.EventType.CLICKED);
         };
+        cbs.stoped = function () {
+            self._dispatchEvent(VideoPlayerImpl.EventType.STOPPED);
+            self._ignorePause = false;
+        };
 
         video.addEventListener("loadedmetadata", cbs.loadedmetadata);
         video.addEventListener("ended", cbs.ended);
         video.addEventListener("play", cbs.play);
         video.addEventListener("pause", cbs.pause);
         video.addEventListener("click", cbs.click);
+        video.addEventListener("stoped", cbs.stoped);
 
         function onCanPlay () {
             if (this._loaded)
                 return;
             let video = this._video;
-            if (video.readyState === 4) {
+            if (video.readyState === 4 || CC_JSB) {
                 this._loaded = true;
                 // node.setContentSize(node._contentSize.width, node._contentSize.height);
-                video.currentTime = 0;
+                if (!CC_JSB)
+                    video.currentTime = 0;
                 this._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
                 this._updateVisibility();
             }
@@ -135,10 +141,16 @@ let VideoPlayerImpl = cc.Class({
         if (!this._video) return;
         let video = this._video;
         if (this._visible) {
-            video.style.visibility = 'visible';
+            if(CC_JSB)
+                this._video.setVisible(true);
+            else
+                video.style.visibility = 'visible';
         }
         else {
-            video.style.visibility = 'hidden';
+            if(CC_JSB)
+                this._video.setVisible(false);
+            else
+                video.style.visibility = 'hidden';
             video.pause();
             this._playing = false;
         }
@@ -148,6 +160,12 @@ let VideoPlayerImpl = cc.Class({
     _updateSize (width, height) {
         let video = this._video;
         if (!video) return;
+
+        if (CC_JSB)
+        {
+            video.setViewSize(width, height)
+            return;
+        }
 
         video.style.width = width + 'px';
         video.style.height = height + 'px';
@@ -175,6 +193,11 @@ let VideoPlayerImpl = cc.Class({
 
     createDomElementIfNeeded: function () {
         if (!this._video) {
+            if (CC_JSB) {
+                this._video = new VideoPlayerCore();
+                return;
+            }
+
             this._createDom();
         }
     },
@@ -182,9 +205,17 @@ let VideoPlayerImpl = cc.Class({
     removeDom () {
         let video = this._video;
         if (video) {
-            let hasChild = utils.contains(cc.game.container, video);
-            if (hasChild)
-                cc.game.container.removeChild(video);
+            if (CC_JSB) 
+            {
+                this._video.stop()             
+                this._video.setVisible(false)                
+            }
+            else{
+                let hasChild = utils.contains(cc.game.container, video);
+                if (hasChild)
+                    cc.game.container.removeChild(video);
+            }
+
             let cbs = this.__eventListeners;
             video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
             video.removeEventListener("ended", cbs.ended);
@@ -194,6 +225,7 @@ let VideoPlayerImpl = cc.Class({
             video.removeEventListener("canplay", cbs.onCanPlay);
             video.removeEventListener("canplaythrough", cbs.onCanPlay);
             video.removeEventListener("suspend", cbs.onCanPlay);
+            video.removeEventListener("stoped", cbs.stoped);
 
             cbs.loadedmetadata = null;
             cbs.ended = null;
@@ -214,29 +246,39 @@ let VideoPlayerImpl = cc.Class({
             return;
         }
 
-        this._url = path;
         this.removeDom();
+
+        this._url = path;
         this.createDomElementIfNeeded();
         this._bindEvent();
 
         let video = this._video;
-        video.style["visibility"] = "hidden";
+        if (CC_JSB)
+            video.setVisible(this._visible);
+        else
+            video.style["visibility"] = "hidden";
+
         this._loaded = false;
         this._played = false;
         this._playing = false;
         this._loadedmeta = false;
 
-        source = document.createElement("source");
-        source.src = path;
-        video.appendChild(source);
+        if (CC_JSB) {
+            video.setURL(this._url);
+        }
+        else {
+            source = document.createElement("source");
+            source.src = path;
+            video.appendChild(source);
 
-        extname = cc.path.extname(path);
-        let polyfill = VideoPlayerImpl._polyfill;
-        for (let i = 0; i < polyfill.canPlayType.length; i++) {
-            if (extname !== polyfill.canPlayType[i]) {
-                source = document.createElement("source");
-                source.src = path.replace(extname, polyfill.canPlayType[i]);
-                video.appendChild(source);
+            extname = cc.path.extname(path);
+            let polyfill = VideoPlayerImpl._polyfill;
+            for (let i = 0; i < polyfill.canPlayType.length; i++) {
+                if (extname !== polyfill.canPlayType[i]) {
+                    source = document.createElement("source");
+                    source.src = path.replace(extname, polyfill.canPlayType[i]);
+                    video.appendChild(source);
+                }
             }
         }
     },
@@ -286,21 +328,34 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video || !this._visible) return;
         this._ignorePause = true;
-        video.pause();
+
+        if(CC_JSB)
+            video.stop();
+        else
+            video.pause();
+
         let self = this;
-        setTimeout(function () {
-            self._dispatchEvent(VideoPlayerImpl.EventType.STOPPED);
-            self._ignorePause = false;
-        }, 0);
+        if(!CC_JSB){
+            setTimeout(function () {
+                self._dispatchEvent(VideoPlayerImpl.EventType.STOPPED);
+                self._ignorePause = false;
+            }, 0);
+        }
+
         // 恢复到视频起始位置
-        video.currentTime = 0;
+        if(!CC_JSB)
+            video.currentTime = 0;
+
         this._playing = false;
     },
 
     setVolume: function (volume) {
         let video = this._video;
         if (video) {
-            video.volume = volume;
+            if (CC_JSB)
+                console.log("video player no has this function in native.")
+            else
+                video.volume = volume;
         }
     },
 
@@ -309,11 +364,17 @@ let VideoPlayerImpl = cc.Class({
         if (!video) return;
 
         if (this._loaded) {
-            video.currentTime = time;
+            if (CC_JSB)
+                video.seekTo(time)
+            else
+                video.currentTime = time;
         }
         else {
             let cb = function () {
-                video.currentTime = time;
+                if (CC_JSB)
+                    video.seekTo(time)
+                else
+                    video.currentTime = time;
                 video.removeEventListener(VideoPlayerImpl._polyfill.event, cb);
             };
             video.addEventListener(VideoPlayerImpl._polyfill.event, cb);
@@ -340,7 +401,11 @@ let VideoPlayerImpl = cc.Class({
         let duration = -1;
         if (!video) return duration;
 
-        duration = video.duration;
+        if (CC_JSB)
+            duration = video.duration();
+        else
+            duration = video.duration;
+
         if (duration <= 0) {
             cc.logID(7702);
         }
@@ -352,14 +417,23 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return -1;
 
+        if (CC_JSB)
+            return video.currentTime();
+
         return video.currentTime;
     },
 
-    setKeepAspectRatioEnabled: function () {
+    setKeepAspectRatioEnabled: function (isEnabled) {
+        if (CC_JSB)
+            return this._video.setKeepAspectRatioEnabled(isEnabled);
+
         cc.logID(7700);
     },
 
     isKeepAspectRatioEnabled: function () {
+        if (CC_JSB)
+            return this._video.isKeepAspectRatioEnabled();
+
         return true;
     },
 
@@ -368,6 +442,13 @@ let VideoPlayerImpl = cc.Class({
         if (!video) {
             return;
         }
+
+        if (CC_JSB) {
+            this._fullScreenEnabled = enable;
+            video.setFullScreenEnabled(enable);
+            return;
+        }
+
         if (sys.os === sys.OS_IOS && sys.isBrowser) {
             this._fullScreenEnabled = enable;
             if (this._loadedmeta) {
@@ -484,6 +565,12 @@ let VideoPlayerImpl = cc.Class({
         let appx = (w * _mat4_temp.m00) * node._anchorPoint.x;
         let appy = (h * _mat4_temp.m05) * node._anchorPoint.y;
         let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
+
+        if (CC_JSB) {
+            var height = cc.view.getFrameSize().height;
+            this._video.setFrame(tx, height - h - ty, this._w * a, this._h * d)
+            return;
+        }
 
         let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
         this._video.style['transform'] = matrix;
