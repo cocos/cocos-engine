@@ -24,6 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
- import CameraComponent from './camera-component';
+import CameraComponent from './camera-component';
+import LightComponent from './light-component';
+import ModelComponent from './model-component';
 
- cc.CameraComponent = CameraComponent;
+cc.CameraComponent = CameraComponent;
+cc.LightComponent = LightComponent;
+cc.ModelComponent = ModelComponent;
