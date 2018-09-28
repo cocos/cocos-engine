@@ -1,4 +1,4 @@
-import gfx from '../gfx';
+import gfx from '../../renderer/gfx';
 
 export const gfxFilters = {
   'linear': gfx.FILTER_LINEAR,

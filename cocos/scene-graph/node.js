@@ -17,7 +17,7 @@ class Node extends BaseNode {
     @property
     _lrot = cc.quat();
     @property
-    _lscale = cc.v3();
+    _lscale = cc.v3(1, 1, 1);
 
     // world transform
     @property
@@ -25,7 +25,7 @@ class Node extends BaseNode {
     @property
     _rot = cc.quat();
     @property
-    _scale = cc.v3();
+    _scale = cc.v3(1, 1, 1);
     @property
     _mat = cc.mat4();
 

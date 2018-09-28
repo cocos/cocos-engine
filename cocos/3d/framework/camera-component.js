@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import Component from '../../components/CCComponent';
+import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { Color, Enum } from '../../core/value-types/index';
@@ -40,7 +40,7 @@ const { ccclass, property } = _decorator;
  * @extends Component
  */
 @ccclass('cc.CameraComponent')
-export default class CameraComponent extends Component {
+export default class CameraComponent extends RenderSystemActor{
     @property
     _projection = CameraComponent.Projection.Perspective;
 
@@ -285,8 +285,6 @@ export default class CameraComponent extends Component {
 
     constructor() {
         super();
-        this._system = CameraComponent.system;
-        this._scene = this._system.scene;
         this._camera = new renderer.Camera();
     }
 
@@ -299,10 +297,10 @@ export default class CameraComponent extends Component {
     }
 
     onEnable() {
-        // this._app.scene.addCamera(this._camera);
+        this.scene.addCamera(this._camera);
     }
 
     onDisable() {
-        // this._app.scene.removeCamera(this._camera);
+        this.scene.removeCamera(this._camera);
     }
 }

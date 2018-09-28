@@ -31,6 +31,7 @@ import { addon } from './utils/js';
 
 import renderer from '../renderer';
 import gfx from '../renderer/gfx';
+import initBuiltins from '../3d/builtin/init';
 
 /**
  * @module cc
@@ -345,7 +346,7 @@ var game = {
 
     //  @Game loading
 
-    _initEngine () {
+    _initEngine() {
         if (this._rendererInitialized) {
             return;
         }
@@ -359,7 +360,7 @@ var game = {
         this.emit(this.EVENT_ENGINE_INITED);
     },
 
-    _prepareFinished (cb) {
+    _prepareFinished(cb) {
         this._prepared = true;
 
         // Init engine
@@ -399,7 +400,7 @@ var game = {
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
-    on (type, callback, target) {
+    on(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -426,7 +427,7 @@ var game = {
      * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    once (type, callback, target) {
+    once(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === this.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -442,7 +443,7 @@ var game = {
      * @param {Function} cb
      * @method prepare
      */
-    prepare (cb) {
+    prepare(cb) {
         // Already prepared
         if (this._prepared) {
             if (cb) cb();
@@ -613,7 +614,7 @@ var game = {
     },
 
     //  @Game loading section
-    _initConfig (config) {
+    _initConfig(config) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
             config.debugMode = 0;
@@ -644,7 +645,7 @@ var game = {
         this._configLoaded = true;
     },
 
-    _determineRenderType () {
+    _determineRenderType() {
         let config = this.config,
             userRenderMode = parseInt(config.renderMode) || 0;
 
@@ -676,7 +677,7 @@ var game = {
         }
     },
 
-    _initRenderer () {
+    _initRenderer() {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
@@ -732,7 +733,7 @@ var game = {
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-            function addClass (element, name) {
+            function addClass(element, name) {
                 var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
                 if (!hasClass) {
                     if (element.className) {
@@ -764,7 +765,15 @@ var game = {
                 // todo, adjust opts here
                 let device = this._renderContext = new gfx.Device(localCanvas, {});
                 // todo, fix builtins here
-                this._renderer = new renderer.ForwardRenderer(device, {});
+                let builtins = this._builtins = initBuiltins(device);
+                renderer.addStage('opaque');
+                renderer.addStage('transparent');
+                renderer.addStage('ui');
+                renderer.addStage('shadowcast');
+                this._renderer = new renderer.ForwardRenderer(device, {
+                    defaultTexture: builtins['default-texture']._texture,
+                    defaultTextureCube: null,
+                });
             }
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
@@ -808,13 +817,13 @@ var game = {
 
         var hidden = false;
 
-        function onHidden () {
+        function onHidden() {
             if (!hidden) {
                 hidden = true;
                 game.emit(game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        function onShown() {
             if (hidden) {
                 hidden = false;
                 game.emit(game.EVENT_SHOW);

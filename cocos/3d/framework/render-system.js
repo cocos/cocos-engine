@@ -8,14 +8,6 @@ export default class RenderSystem {
 
     }
 
-    add (comp) {
-
-    }
-
-    remove (comp) {
-
-    }
-
     update (dt) {
         cc.game._renderer.render(this._scene);
         this._scene.reset();
