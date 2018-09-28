@@ -2085,8 +2085,6 @@ var Node = cc.Class({
      * cc.log("Node Scale: " + node.getScale());
      */
     getScale () {
-        if (this._scale.x !== this._scale.y)
-            cc.logID(1603);
         return this._scale.x;
     },
 
