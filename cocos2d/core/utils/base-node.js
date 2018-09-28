@@ -1326,7 +1326,7 @@ if(CC_EDITOR) {
 }
 
 // Define public getter and setter methods to ensure api compatibility.
-var SameNameGetSets = ['name', 'children', 'childrenCount',];
+var SameNameGetSets = ['parent', 'name', 'children', 'childrenCount',];
 misc.propertyDefine(BaseNode, SameNameGetSets, {});
 
 if (CC_DEV) {

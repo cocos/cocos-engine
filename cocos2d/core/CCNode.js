@@ -3139,7 +3139,7 @@ var Node = cc.Class({
  * @return {Boolean}
  */
 
-var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
+var SameNameGetSets = ['position', 'scale', 'rotation'];
 misc.propertyDefine(Node, SameNameGetSets);
 
 cc.Node = module.exports = Node;
