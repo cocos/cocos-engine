@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderableComponent from './renderable-component';
+import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { _decorator } from '../../core/data/index';
 import Material from '../assets/material';
@@ -41,7 +41,7 @@ const { ccclass, property } = _decorator;
  * @extends Component
  */
 @ccclass('cc.ModelComponent')
-export default class ModelComponent extends RenderableComponent {
+export default class ModelComponent extends RenderSystemActor {
     @property
     _materials = [];
 

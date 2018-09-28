@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderableComponent from './renderable-component';
+import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { Color, Enum } from '../../core/value-types/index';
@@ -40,7 +40,7 @@ const { ccclass, property } = _decorator;
  * @extends Component
  */
 @ccclass('cc.CameraComponent')
-export default class CameraComponent extends RenderableComponent{
+export default class CameraComponent extends RenderSystemActor{
     @property
     _projection = CameraComponent.Projection.Perspective;
 

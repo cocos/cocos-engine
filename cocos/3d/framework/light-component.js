@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderableComponent from './renderable-component';
+import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types/index';
 import { toRadian } from '../../core/vmath';;
@@ -38,7 +38,7 @@ const { ccclass, property } = _decorator;
  * @extends Component
  */
 @ccclass('cc.LightComponent')
-export default class LightComponent extends RenderableComponent {
+export default class LightComponent extends RenderSystemActor {
     @property
     _type = LightComponent.Type.Directional;
 

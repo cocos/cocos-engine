@@ -1,6 +1,6 @@
 import Component from '../../Components/CCComponent';
 
-class RenderableCreateListener {
+class RenderSystemActorListener {
     constructor() {
         this._renderSystem = null;
     }
@@ -14,9 +14,9 @@ class RenderableCreateListener {
     }
 }
 
-let listener = new RenderableCreateListener();
+let listener = new RenderSystemActorListener();
 
-export default class RenderableComponent extends Component {
+export default class RenderSystemActor extends Component {
     constructor() {
         super();
         this._system = null;
