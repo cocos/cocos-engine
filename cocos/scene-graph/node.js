@@ -10,7 +10,7 @@ let array_a = new Array(10);
 
 @ccclass('cc.Node')
 @mixins(EventTarget)
-export default class Node extends BaseNode {
+class Node extends BaseNode {
     // local transform
     @property
     _lpos = cc.v3();
@@ -146,8 +146,8 @@ export default class Node extends BaseNode {
     /**
      * set local position
      * @param {vec3|number} val the new local position, or the x component of it
-     * @param {?number} [y] the y component of the new local position
-     * @param {?number} [z] the z component of the new local position
+     * @param {number} [y] the y component of the new local position
+     * @param {number} [z] the z component of the new local position
      */
     setPosition(val, y, z) {
         if (arguments.length === 1) {
@@ -161,7 +161,7 @@ export default class Node extends BaseNode {
 
     /**
      * get local position
-     * @param {?vec3} out the receiving vector
+     * @param {vec3} [out] the receiving vector
      * @return {vec3} the resulting vector
      */
     getPosition(out) {
@@ -175,9 +175,9 @@ export default class Node extends BaseNode {
     /**
      * set local rotation
      * @param {quat|number} val the new local rotation, or the x component of it
-     * @param {?number} [y] the y component of the new local rotation
-     * @param {?number} [z] the z component of the new local rotation
-     * @param {?number} [w] the w component of the new local rotation
+     * @param {number} [y] the y component of the new local rotation
+     * @param {number} [z] the z component of the new local rotation
+     * @param {number} [w] the w component of the new local rotation
      */
     setRotation(val, y, z, w) {
         if (arguments.length === 1) {
@@ -191,9 +191,9 @@ export default class Node extends BaseNode {
 
     /**
      * set local rotation from euler angles
-     * @param {?number} x the x component of the new local rotation
-     * @param {?number} y the y component of the new local rotation
-     * @param {?number} z the z component of the new local rotation
+     * @param {number} x - Angle to rotate around X axis in degrees.
+     * @param {number} y - Angle to rotate around Y axis in degrees.
+     * @param {number} z - Angle to rotate around Z axis in degrees.
      */
     setRotationFromEuler(x, y, z) {
         quat.fromEuler(this._lrot, x, y, z);
@@ -203,7 +203,7 @@ export default class Node extends BaseNode {
 
     /**
      * get local rotation
-     * @param {?quat} out the receiving quaternion
+     * @param {quat} [out] the receiving quaternion
      * @return {quat} the resulting quaternion
      */
     getRotation(out) {
@@ -217,8 +217,8 @@ export default class Node extends BaseNode {
     /**
      * set local scale
      * @param {vec3|number} val the new local scale, or the x component of it
-     * @param {?number} [y] the y component of the new local scale
-     * @param {?number} [z] the z component of the new local scale
+     * @param {number} [y] the y component of the new local scale
+     * @param {number} [z] the z component of the new local scale
      */
     setScale(val, y, z) {
         if (arguments.length === 1) {
@@ -232,7 +232,7 @@ export default class Node extends BaseNode {
 
     /**
      * get local scale
-     * @param {?vec3} out the receiving vector
+     * @param {vec3} [out] the receiving vector
      * @return {vec3} the resulting vector
      */
     getScale(out) {
@@ -246,8 +246,8 @@ export default class Node extends BaseNode {
     /**
      * set world position
      * @param {vec3|number} val the new world position, or the x component of it
-     * @param {?number} y the y component of the new world position
-     * @param {?number} z the z component of the new world position
+     * @param {number} [y] the y component of the new world position
+     * @param {number} [z] the z component of the new world position
      */
     setWorldPosition(val, y, z) {
         if (arguments.length === 1) {
@@ -266,7 +266,7 @@ export default class Node extends BaseNode {
 
     /**
      * get world position
-     * @param {?vec3} out the receiving vector
+     * @param {vec3} [out] the receiving vector
      * @return {vec3} the resulting vector
      */
     getWorldPosition(out) {
@@ -281,9 +281,9 @@ export default class Node extends BaseNode {
     /**
      * set world rotation
      * @param {quat|number} val the new world rotation, or the x component of it
-     * @param {?number} y the y component of the new world rotation
-     * @param {?number} z the z component of the new world rotation
-     * @param {?number} w the w component of the new world rotation
+     * @param {number} [y] the y component of the new world rotation
+     * @param {number} [z] the z component of the new world rotation
+     * @param {number} [w] the w component of the new world rotation
      */
     setWorldRotation(val, y, z, w) {
         if (arguments.length === 1) {
@@ -302,9 +302,9 @@ export default class Node extends BaseNode {
 
     /**
      * set world rotation from euler angles
-     * @param {?number} x the x component of the new world rotation
-     * @param {?number} y the y component of the new world rotation
-     * @param {?number} z the z component of the new world rotation
+     * @param {number} x - Angle to rotate around X axis in degrees.
+     * @param {number} y - Angle to rotate around Y axis in degrees.
+     * @param {number} z - Angle to rotate around Z axis in degrees.
      */
     setWorldRotationFromEuler(x, y, z) {
         quat.fromEuler(this._rot, x, y, z);
@@ -319,7 +319,7 @@ export default class Node extends BaseNode {
 
     /**
      * get world rotation
-     * @param {?quat} out the receiving quaternion
+     * @param {quat} [out] the receiving quaternion
      * @return {quat} the resulting quaternion
      */
     getWorldRotation(out) {
@@ -334,8 +334,8 @@ export default class Node extends BaseNode {
     /**
      * set world scale
      * @param {vec3|number} val the new world scale, or the x component of it
-     * @param {?number} y the y component of the new world scale
-     * @param {?number} z the z component of the new world scale
+     * @param {number} [y] the y component of the new world scale
+     * @param {number} [z] the z component of the new world scale
      */
     setWorldScale(val, y, z) {
         if (arguments.length === 1) {
@@ -354,7 +354,7 @@ export default class Node extends BaseNode {
 
     /**
      * get world scale
-     * @param {?vec3} out the receiving vector
+     * @param {vec3} [out] the receiving vector
      * @return {vec3} the resulting vector
      */
     getWorldScale(out) {
@@ -367,8 +367,8 @@ export default class Node extends BaseNode {
     }
 
     /**
-     * get the matrix that transforms a point from local space into world space
-     * @param {?mat4} out the receiving matrix
+     * get the matrix that transforms a point from local space into world space 
+     * @param {mat4} [out] the receiving matrix
      * @return {mat4} the resulting matrix
      */
     getWorldMatrix(out) {
@@ -382,7 +382,7 @@ export default class Node extends BaseNode {
 
     /**
      * get world transform matrix (with only rotation and scale)
-     * @param {?mat4} out the receiving matrix
+     * @param {mat4} [out] the receiving matrix
      * @return {mat4} the resulting matrix
      */
     getWorldRS(out) {
@@ -398,7 +398,7 @@ export default class Node extends BaseNode {
 
     /**
      * get world transform matrix (with only rotation and translation)
-     * @param {?mat4} out the receiving matrix
+     * @param {mat4} [out] the receiving matrix
      * @return {mat4} the resulting matrix
      */
     getWorldRT(out) {
@@ -410,4 +410,17 @@ export default class Node extends BaseNode {
     }
 }
 
+if (CC_EDITOR) {
+    let v3 = vec3.create();
+    property(Node, 'eulerAngles', {
+        get() {
+            return quat.toEuler(v3, this._lrot);
+        },
+        set(val) {
+            this.setRotationFromEuler(val.x, val.y, val.z);
+        }
+    });
+}
+
 cc.Node = Node;
+export default Node;
