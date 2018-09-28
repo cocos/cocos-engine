@@ -26,7 +26,7 @@
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
-import Texture from './texture';
+import Texture from '../../assets/CCTexture2D';
 import renderer from "../../renderer";
 import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
 import Effect from "./effect";
