@@ -25,22 +25,96 @@
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { Color, Enum } from '../../core/value-types/index';
-import { toRadian } from '../../core/vmath';;
-import { _decorator } from '../../core/data/index';
-const { ccclass, property } = _decorator;
+import { Color, Enum } from '../../core/value-types';
+import { toRadian } from '../../core/vmath';
+import { ccclass, menu, property } from "../../core/data/class-decorator";
+
+/**
+ * !#en The light source type
+ *
+ * !#ch 光源类型
+ * @static
+ * @enum LightComponent.Type
+ */
+const LightType = Enum({
+    /**
+     * !#en The direction of light
+     *
+     * !#ch 平行光
+     * @property Directional
+     * @readonly
+     * @type {Number}
+     */
+    Directional: 0,
+    /**
+     * !#en The point of light
+     *
+     * !#ch 点光源
+     * @property Point
+     * @readonly
+     * @type {Number}
+     */
+    Point: 1,
+    /**
+     * !#en The spot of light
+     *
+     * !#ch 聚光灯
+     * @property Spot
+     * @readonly
+     * @type {Number}
+     */
+    Spot: 2,
+});
+
+/**
+ * !#en The shadow type
+ *
+ * !#ch 阴影类型
+ * @static
+ * @enum LightComponent.ShadowType
+ */
+const LightShadowType = Enum({
+    /**
+     * !#en No shadows
+     *
+     * !#ch 阴影关闭
+     * @property None
+     * @readonly
+     * @type {Number}
+     */
+    None: 0,
+    /**
+     * !#en Soft shadows
+     *
+     * !#ch 软阴影
+     * @property Soft
+     * @readonly
+     * @type {Number}
+     */
+    Soft: 1,
+    /**
+     * !#en Hard shadows
+     *
+     * !#ch 阴硬影
+     * @property Hard
+     * @readonly
+     * @type {Number}
+     */
+    Hard: 2,
+});
 
 /**
  * !#en The Light Component
  *
  * !#ch 光源组件
  * @class LightComponent
- * @extends Component
+ * @extends RenderSystemActor
  */
 @ccclass('cc.LightComponent')
+@menu('Components/LightComponent')
 export default class LightComponent extends RenderSystemActor {
     @property
-    _type = LightComponent.Type.Directional;
+    _type = LightType.Directional;
 
     @property
     _color = Color.WHITE;
@@ -58,7 +132,7 @@ export default class LightComponent extends RenderSystemActor {
     _spotExp = 1;
 
     @property
-    _shadowType = LightComponent.ShadowType.None;
+    _shadowType = LightShadowType.None;
 
     @property
     _shadowResolution = 1024;
@@ -86,9 +160,11 @@ export default class LightComponent extends RenderSystemActor {
      *
      * !#ch 光源类型
      *
-     * @type {String}
+     * @type {Number}
      */
-    @property
+    @property({
+        type: LightType
+    })
     get type() {
         return this._type;
     }
@@ -189,9 +265,11 @@ export default class LightComponent extends RenderSystemActor {
      * !#en The shadow type
      *
      * !#ch 阴影类型
-     * @type {String} shadowType
+     * @type {Number} shadowType
      */
-    @property
+    @property({
+        type: LightShadowType
+    })
     get shadowType() {
         return this._shadowType;
     }
@@ -327,79 +405,9 @@ export default class LightComponent extends RenderSystemActor {
         this._light.setShadowBias(val);
     }
 
-    /**
-     * !#en The light source type
-     *
-     * !#ch 光源类型
-     * @static
-     * @enum LightComponent.Type
-     */
-    static Type = Enum({
-        /**
-         * !#en The direction of light
-         *
-         * !#ch 平行光
-         * @property Directional
-         * @readonly
-         * @type {String}
-         */
-        Directional: 'directional',
-        /**
-         * !#en The point of light
-         *
-         * !#ch 点光源
-         * @property Point
-         * @readonly
-         * @type {String}
-         */
-        Point: 'point',
-        /**
-         * !#en The spot of light
-         *
-         * !#ch 聚光灯
-         * @property Spot
-         * @readonly
-         * @type {String}
-         */
-        Spot: 'spot',
-    });
+    static Type = LightType;
 
-    /**
-     * !#en The shadow type
-     *
-     * !#ch 阴影类型
-     * @static
-     * @enum LightComponent.ShadowType
-     */
-    static ShadowType = Enum({
-        /**
-         * !#en No shadows
-         *
-         * !#ch 阴影关闭
-         * @property None
-         * @readonly
-         * @type {String}
-         */
-        None: 'none',
-        /**
-         * !#en Soft shadows
-         *
-         * !#ch 软阴影
-         * @property Soft
-         * @readonly
-         * @type {String}
-         */
-        Soft: 'soft',
-        /**
-         * !#en Hard shadows
-         *
-         * !#ch 阴硬影
-         * @property Hard
-         * @readonly
-         * @type {String}
-         */
-        Hard: 'hard',
-    });
+    static ShadowType = LightShadowType;
 
     constructor() {
         super();
@@ -412,10 +420,10 @@ export default class LightComponent extends RenderSystemActor {
     }
 
     onEnable() {
-        // this._app.scene.addLight(this._light);
+        this.scene.addLight(this._light);
     }
 
     onDisable() {
-        // this._app.scene.removeLight(this._light);
+        this.scene.removeLight(this._light);
     }
 }

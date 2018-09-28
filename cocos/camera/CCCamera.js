@@ -70,7 +70,7 @@ let ClearFlags = cc.Enum({
  * !#en
  * Camera is usefull when making reel game or other games which need scroll screen.
  * Using camera will be more efficient than moving node to scroll screen.
- * Camera 
+ * Camera
  * !#zh
  * 摄像机在制作卷轴或是其他需要移动屏幕的游戏时比较有用，使用摄像机将会比移动节点来移动屏幕更加高效。
  * @class Camera
@@ -256,7 +256,7 @@ export default class Camera extends Component {
      * !#zh
      * 获取节点所在的第一个摄像机。
      * @method findCamera
-     * @param {Node} node 
+     * @param {Node} node
      * @return {Camera}
      * @static
      */
@@ -276,7 +276,7 @@ export default class Camera extends Component {
         if (game.renderType === game.RENDER_TYPE_CANVAS) return;
         let camera = new Renderer_Camera();
         _debugCamera = camera;
-        
+
         camera.setStages([
             'transparent'
         ]);
@@ -415,7 +415,7 @@ export default class Camera extends Component {
      * !#zh
      * 将一个世界坐标系下的点转换到摄像机坐标系下。
      * @method getWorldToCameraPoint
-     * @param {Vec2} point 
+     * @param {Vec2} point
      * @param {Vec2} out - the point to receive the result
      * @return {Vec2}
      */
@@ -491,7 +491,7 @@ export default class Camera extends Component {
      * !#zh
      * 手动渲染摄像机。
      * @method render
-     * @param {Node} root 
+     * @param {Node} root
      */
     render (root) {
         root = root || cc.director.getScene();
@@ -507,7 +507,7 @@ export default class Camera extends Component {
 
     beforeDraw () {
         let node = this.node;
-        
+
         if (!this._matrixDirty && !node._worldMatDirty)
             return;
 
@@ -522,10 +522,10 @@ export default class Camera extends Component {
             height = targetTexture.height;
         }
 
-        node._updateWorldMatrix();
-        _vec3_temp_1.x = node._worldMatrix.m12;
-        _vec3_temp_1.y = node._worldMatrix.m13;
-        _vec3_temp_1.z = 0;
+        node.getWorldMatrix(_vec3_temp_1);
+        // _vec3_temp_1.x = node._worldMatrix.m12;
+        // _vec3_temp_1.y = node._worldMatrix.m13;
+        // _vec3_temp_1.z = 0;
 
         node.z = height / 1.1566;
         node.lookAt(_vec3_temp_1);

@@ -674,24 +674,24 @@ class _Deserializer {
     }
 
     _deserializeTypedObject (instance, serialized, klass) {
-        if (klass === cc.Vec2) {
-            instance.x = serialized.x || 0;
-            instance.y = serialized.y || 0;
-            return;
-        }
-        else if (klass === cc.Color) {
-            instance.r = serialized.r || 0;
-            instance.g = serialized.g || 0;
-            instance.b = serialized.b || 0;
-            var a = serialized.a;
-            instance.a = (a === undefined ? 255 : a);
-            return;
-        }
-        else if (klass === cc.Size) {
-            instance.width = serialized.width || 0;
-            instance.height = serialized.height || 0;
-            return;
-        }
+        // if (klass === cc.Vec2) {
+        //     instance.x = serialized.x || 0;
+        //     instance.y = serialized.y || 0;
+        //     return;
+        // }
+        // else if (klass === cc.Color) {
+        //     instance.r = serialized.r || 0;
+        //     instance.g = serialized.g || 0;
+        //     instance.b = serialized.b || 0;
+        //     var a = serialized.a;
+        //     instance.a = (a === undefined ? 255 : a);
+        //     return;
+        // }
+        // else if (klass === cc.Size) {
+        //     instance.width = serialized.width || 0;
+        //     instance.height = serialized.height || 0;
+        //     return;
+        // }
 
         var fastDefinedProps = klass.__props__;
         if (!fastDefinedProps) {
