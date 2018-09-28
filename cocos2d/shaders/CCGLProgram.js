@@ -94,7 +94,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         var status = this._glContext.getShaderParameter(shader, this._glContext.COMPILE_STATUS);
 
         if (!status) {
-            cc.logID(8100, this._glContext.getShaderSource(shader));
+            cc.warnID(8100, this._glContext.getShaderSource(shader));
             if (type === this._glContext.VERTEX_SHADER)
                 cc.log("cocos2d: \n" + this.vertexShaderLog());
             else
@@ -150,7 +150,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if (vertShaderStr) {
             this._vertShader = locGL.createShader(locGL.VERTEX_SHADER);
             if (!this._compileShader(this._vertShader, locGL.VERTEX_SHADER, vertShaderStr)) {
-                cc.logID(8101);
+                cc.warnID(8101);
             }
         }
 
@@ -158,7 +158,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if (fragShaderStr) {
             this._fragShader = locGL.createShader(locGL.FRAGMENT_SHADER);
             if (!this._compileShader(this._fragShader, locGL.FRAGMENT_SHADER, fragShaderStr)) {
-                cc.logID(8102);
+                cc.warnID(8102);
             }
         }
 
