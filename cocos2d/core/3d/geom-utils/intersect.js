@@ -1,6 +1,5 @@
 
 const renderEngine = require('../../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const aabb = require('./aabb');
 const ray = require('./ray');
@@ -48,6 +47,15 @@ Intersection3D.rayAabb = (function () {
     };
 })();
 
+/** 
+ * !#en
+ * Check whether ray intersect with a 3D triangle
+ * !#zh
+ * 检测射线是否与 3D 三角形相交
+ * @method rayTriangle
+ * @param {Ray} ray
+ * @param {Triangle3D} triangle
+*/
 Intersection3D.rayTriangle = (function () {
     let ab = vec3.create(0, 0, 0);
     let ac = vec3.create(0, 0, 0);
@@ -84,26 +92,30 @@ Intersection3D.rayTriangle = (function () {
     };
 })();
 
-Intersection3D.rayMesh = (function () {
-    let tri = triangle.create();
-    let minDist = Infinity;
-    function forEachTriangleIn(ray, vb, ib, format) {
-        let fmt = format.element(gfx.ATTR_POSITION);
-        let offset = fmt.offset / 4, stride = fmt.stride / 4;
-        for (let i = 0; i < ib.length; i += 3) {
-            let idx = ib[i] * stride + offset;
-            vec3.set(tri.a, vb[idx], vb[idx + 1], vb[idx + 2]);
-            idx = ib[i + 1] * stride + offset;
-            vec3.set(tri.b, vb[idx], vb[idx + 1], vb[idx + 2]);
-            idx = ib[i + 2] * stride + offset;
-            vec3.set(tri.c, vb[idx], vb[idx + 1], vb[idx + 2]);
 
-            let dist = Intersection3D.rayTriangle(ray, tri);
-            if (dist > 0 && dist < minDist) {
-                minDist = dist;
-            }
-        }
+Intersection3D.rayMesh = (function () {
+    const gfx = renderEngine.gfx;
+
+    let tri = cc.Triangle3D.create();
+    let minDist = Infinity;
+
+    const _compType2fn = {
+        [gfx.ATTR_TYPE_INT8]: 'getInt8',
+        [gfx.ATTR_TYPE_UINT8]: 'getUint8',
+        [gfx.ATTR_TYPE_INT16]: 'getInt16',
+        [gfx.ATTR_TYPE_UINT16]: 'getUint16',
+        [gfx.ATTR_TYPE_INT32]: 'getInt32',
+        [gfx.ATTR_TYPE_UINT32]: 'getUint32',
+        [gfx.ATTR_TYPE_FLOAT32]: 'getFloat32',
     };
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView#Endianness
+    const littleEndian = (function () {
+        let buffer = new ArrayBuffer(2);
+        new DataView(buffer).setInt16(0, 256, true);
+        // Int16Array uses the platform's endianness.
+        return new Int16Array(buffer)[0] === 256;
+    })();
 
     return function (ray, mesh) {
         minDist = Infinity;
@@ -119,15 +131,16 @@ Intersection3D.rayMesh = (function () {
             let format = vb.buffer._format;
             let fmt = format.element(gfx.ATTR_POSITION);
             let offset = fmt.offset, stride = fmt.stride;
+            let fn = _compType2fn[fmt.type];
             for (let i = 0; i < ib.length; i += 3) {
                 let idx = ib[i] * stride + offset;
-                vec3.set(tri.a, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+                vec3.set(tri.a, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
                 idx = ib[i + 1] * stride + offset;
-                vec3.set(tri.b, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+                vec3.set(tri.b, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
                 idx = ib[i + 2] * stride + offset;
-                vec3.set(tri.c, dv.getFloat32([idx], true), dv.getFloat32([idx + 4], true), dv.getFloat32([idx + 8], true));
+                vec3.set(tri.c, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
 
-                let dist = Intersection3D.rayTriangle(ray, tri);
+                let dist = cc.Intersection3D.rayTriangle(ray, tri);
                 if (dist > 0 && dist < minDist) {
                     minDist = dist;
                 }
@@ -136,6 +149,7 @@ Intersection3D.rayMesh = (function () {
         return minDist;
     };
 })();
+
 
 /** 
  * !#en
@@ -188,7 +202,7 @@ Intersection3D.raycast = (function () {
     let modelRay = ray.create();
     let m4 = mat4.create();
 
-    function distanceValid (distance) {
+    function distanceValid(distance) {
         return distance > 0 && distance < Infinity;
     }
 

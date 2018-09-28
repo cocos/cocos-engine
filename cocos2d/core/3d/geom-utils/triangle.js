@@ -1,5 +1,17 @@
 const vec3 = cc.vmath.vec3;
 
+/**
+ * @class Triangle3D
+ * @param {Number} ax 
+ * @param {Number} ay 
+ * @param {Number} az 
+ * @param {Number} bx 
+ * @param {Number} by 
+ * @param {Number} bz 
+ * @param {Number} cx 
+ * @param {Number} cy 
+ * @param {Number} cz 
+ */
 function triangle(ax, ay, az, bx, by, bz, cx, cy, cz) {
     this.a = vec3.create(ax, ay, az);
     this.b = vec3.create(bx, by, bz);
@@ -8,7 +20,7 @@ function triangle(ax, ay, az, bx, by, bz, cx, cy, cz) {
 
 /**
  * create a new triangle
- *
+ * @method create
  * @param {number} ax
  * @param {number} ay
  * @param {number} az
@@ -26,7 +38,7 @@ triangle.create = function (ax, ay, az, bx, by, bz, cx, cy, cz) {
 
 /**
  * clone a new triangle
- *
+ * @method clone
  * @param {triangle} t the source plane
  * @return {triangle}
  */
@@ -40,7 +52,7 @@ triangle.clone = function (t) {
 
 /**
  * copy the values from one triangle to another
- *
+ * @method copy
  * @param {triangle} out the receiving triangle
  * @param {triangle} t the source triangle
  * @return {triangle}
@@ -55,7 +67,7 @@ triangle.copy = function (out, t) {
 
 /**
  * Create a triangle from three points
- *
+ * @method fromPoints
  * @param {triangle} out the receiving triangle
  * @param {vec3} a
  * @param {vec3} b
@@ -72,7 +84,8 @@ triangle.fromPoints = function (out, a, b, c) {
 /**
  * Set the components of a triangle to the given values
  *
- * @param {triangle} out the receiving plane
+ * @method set
+ * @param {Triangle3D} out the receiving plane
  * @param {number} ax X component of a
  * @param {number} ay Y component of a
  * @param {number} az Z component of a
@@ -83,7 +96,6 @@ triangle.fromPoints = function (out, a, b, c) {
  * @param {number} cy Y component of c
  * @param {number} cz Z component of c
  * @return {plane}
- * @function
  */
 triangle.set = function (out, ax, ay, az, bx, by, bz, cx, cy, cz) {
     out.a.x = ax;
@@ -101,4 +113,4 @@ triangle.set = function (out, ax, ay, az, bx, by, bz, cx, cy, cz) {
     return out;
 }
 
-module.exports = triangle;
+cc.Triangle3D = module.exports = triangle;
