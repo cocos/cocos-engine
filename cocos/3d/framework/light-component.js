@@ -25,7 +25,7 @@
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { Color } from '../../core/value-types';
+import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property } from "../../core/data/class-decorator";
 
@@ -36,7 +36,7 @@ import { ccclass, menu, property } from "../../core/data/class-decorator";
  * @static
  * @enum LightComponent.Type
  */
-const LightType = cc.Enum({
+const LightType = Enum({
     /**
      * !#en The direction of light
      *
@@ -73,7 +73,7 @@ const LightType = cc.Enum({
  * @static
  * @enum LightComponent.ShadowType
  */
-const LightShadowType = cc.Enum({
+const LightShadowType = Enum({
     /**
      * !#en No shadows
      *
@@ -108,7 +108,7 @@ const LightShadowType = cc.Enum({
  *
  * !#ch 光源组件
  * @class LightComponent
- * @extends RenderableComponent
+ * @extends RenderSystemActor
  */
 @ccclass('cc.LightComponent')
 @menu('Components/LightComponent')

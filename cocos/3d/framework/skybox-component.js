@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderableComponent from '../framework/renderable-component';
+import RenderSystemActor from '../framework/renderSystemActor';
 import renderer from '../../renderer/index';
 import { box } from '../primitive/index';
 import Material from '../assets/material';
@@ -34,11 +34,11 @@ import { ccclass, property, menu } from '../../core/data/class-decorator';
  *
  * !#ch 天空盒组件
  * @class SkyboxComponent
- * @extends RenderableComponent
+ * @extends RenderSystemActor
  */
 @ccclass('cc.SkyboxComponent')
 @menu('Components/SkyboxComponent')
-export default class SkyboxComponent extends RenderableComponent {
+export default class SkyboxComponent extends RenderSystemActor {
   @property
   _material = null;
 

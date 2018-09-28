@@ -27,6 +27,7 @@ import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { ccclass, property, menu } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
+import Enum from '../../core/value-types/enum';
 /**
  * @typedef {import('../assets/material').default} Material
  */
@@ -38,7 +39,7 @@ import Mesh from '../assets/mesh';
  * @static
  * @enum ModelComponent.ShadowCastingMode
  */
-let ModelShadowCastingMode = cc.Enum({
+let ModelShadowCastingMode = Enum({
     /**
      * !#en
      *
@@ -82,7 +83,7 @@ let ModelShadowCastingMode = cc.Enum({
  *
  * !#ch 模型组件
  * @class ModelComponent
- * @extends RenderableComponent
+ * @extends RenderSystemActor
  */
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')

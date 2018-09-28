@@ -26,8 +26,8 @@
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
-import { Color } from '../../core/value-types/index';
 import { ccclass, menu, property } from "../../core/data/class-decorator";
+import { Color, Enum } from '../../core/value-types';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
@@ -40,7 +40,7 @@ import { ccclass, menu, property } from "../../core/data/class-decorator";
  * @static
  * @enum CameraComponent.Projection
  */
-let CameraProjection = cc.Enum({
+let CameraProjection = Enum({
     /**
      * !#en The orthogonal camera
      *
@@ -66,7 +66,7 @@ let CameraProjection = cc.Enum({
  *
  * !#ch 相机组件
  * @class CameraComponent
- * @extends RenderableComponent
+ * @extends RenderSystemActor
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')

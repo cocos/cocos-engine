@@ -25,6 +25,7 @@
 // @ts-check
 import Component from '../../components/CCComponent';
 import { ccclass, property, executionOrder, menu } from '../../core/data/class-decorator';
+import Enum from '../../core/value-types/enum';
 
 /**
  * @typedef {import("../assets/animation-clip").default} AnimationClip
@@ -101,7 +102,7 @@ class AnimationState {
      * @static
      * @enum AnimationState.BlendMode
      */
-    static BlendMode = cc.Enum({
+    static BlendMode = Enum({
         /**
          * !#en Animations will be blended.
          *
@@ -129,7 +130,7 @@ class AnimationState {
      * @static
      * @enum AnimationState.WrapMode
      */
-    static WrapMode = cc.Enum({
+    static WrapMode = Enum({
         /**
          * !#en Only once
          *
