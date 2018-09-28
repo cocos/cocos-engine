@@ -389,6 +389,9 @@ module.exports = {
             'column': '指定 TiledTile 的纵向坐标，以地图块为单位',
             'gid': '指定 TiledTile 的 gid 值',
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
-        }
+        },
+        'skeleton_animation': {
+            'search_animation_clips': '搜索骨骼动画'
+        },
     }
 };

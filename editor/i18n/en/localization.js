@@ -385,6 +385,9 @@ module.exports = {
             'column': 'Specify the TiledTile vertical coordinate，use map tile as the unit.',
             'gid': 'Specify the TiledTile gid.',
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
-        }
+        },
+        'skeleton_animation': {
+            'search_animation_clips': 'Search Animation Clips'
+        },
     }
 };
