@@ -170,6 +170,11 @@ export default class ModelComponent extends RenderSystemActor {
 
     static ShadowCastingMode = ModelShadowCastingMode;
 
+    constructor() {
+        super();
+        this._models = [];
+    }
+
     onEnable() {
         for (let i = 0; i < this._models.length; ++i) {
             this.scene.addModel(this._models[i]);
