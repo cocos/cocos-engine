@@ -20,7 +20,6 @@ export default class VertexFormat {
     this._attr2el = {};
     this._elements = [];
     this._bytes = 0;
-    this._count = 0;
 
     for (let i = 0, len = infos.length; i < len; ++i) {
       let info = infos[i];
@@ -33,21 +32,17 @@ export default class VertexFormat {
         num: info.num,
         normalize: (info.normalize === undefined) ? false : info.normalize,
         bytes: info.num * attrTypeBytes(info.type),
-        arrayOffset: this._count,
-        arrayStride: 0
       };
 
       this._attr2el[el.name] = el;
       this._elements.push(el);
 
-      this._count += el.num;
       this._bytes += el.bytes;
     }
 
     for (let i = 0, len = this._elements.length; i < len; ++i) {
       let el = this._elements[i];
       el.stride = this._bytes;
-      el.arrayStride = this._count;
     }
   }
 
