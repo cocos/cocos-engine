@@ -88,9 +88,6 @@ var SystemEvent = cc.Class({
      */
     setAccelerometerEnabled: function (isEnable) {
         inputManger.setAccelerometerEnabled(isEnable);
-        if (CC_JSB) {
-            jsb.device.setMotionEnabled(isEnable);
-        }
     },
 
     /**
@@ -101,9 +98,6 @@ var SystemEvent = cc.Class({
      */
     setAccelerometerInterval: function(interval) {
         inputManger.setAccelerometerInterval(interval);
-        if (CC_JSB) {
-            jsb.device.setMotionInterval(interval);
-        }
     },
 
     on: function (type, callback, target) {
