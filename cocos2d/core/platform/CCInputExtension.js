@@ -73,6 +73,10 @@ inputManager.setAccelerometerEnabled = function (isEnable) {
         _t._accelCurTime = 0;
         scheduler.unscheduleUpdate(_t);
     }
+
+    if (CC_JSB) {
+        jsb.device.setMotionEnabled(isEnable);
+    }
 };
 
 /**
@@ -83,6 +87,10 @@ inputManager.setAccelerometerEnabled = function (isEnable) {
 inputManager.setAccelerometerInterval = function (interval) {
     if (this._accelInterval !== interval) {
         this._accelInterval = interval;
+
+        if (CC_JSB) {
+            jsb.device.setMotionInterval(interval);
+        }
     }
 };
 
