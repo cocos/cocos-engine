@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import Texture from './texture';
+import Texture from '../../assets/CCTexture2D';
 
 import gfx from '../../renderer/gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
