@@ -25,22 +25,68 @@
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { _decorator } from '../../core/data/index';
-import Material from '../assets/material';
-import { Enum } from '../../core/value-types/index';
-const { ccclass, property } = _decorator;
+import { ccclass, property, menu } from '../../core/data/class-decorator';
+import Mesh from '../assets/mesh';
+import Enum from '../../core/value-types/enum';
 /**
- * @typedef {import ('../assets/mesh').default} Mesh
+ * @typedef {import('../assets/material').default} Material
  */
+
+/**
+ * !#en Shadow projection mode
+ *
+ * !#ch 阴影投射方式
+ * @static
+ * @enum ModelComponent.ShadowCastingMode
+ */
+let ModelShadowCastingMode = Enum({
+    /**
+     * !#en
+     *
+     * !#ch 关闭阴影投射
+     * @property Off
+     * @readonly
+     * @type {Number}
+     */
+    Off: 0,
+    /**
+     * !#en
+     *
+     * !#ch 开启阴影投射，当阴影光产生的时候
+     * @property On
+     * @readonly
+     * @type {Number}
+     */
+    On: 1,
+    /**
+     * !#en
+     *
+     * !#ch 可以从网格的任意一遍投射出阴影
+     * @property TwoSided
+     * @readonly
+     * @type {Number}
+     */
+    TwoSided: 2,
+    /**
+     * !#en
+     *
+     * !#ch 只显示阴影
+     * @property ShadowsOnly
+     * @readonly
+     * @type {Number}
+     */
+    ShadowsOnly: 3,
+});
 
 /**
  * !#en The Model Component
  *
  * !#ch 模型组件
  * @class ModelComponent
- * @extends Component
+ * @extends RenderSystemActor
  */
 @ccclass('cc.ModelComponent')
+@menu('Components/ModelComponent')
 export default class ModelComponent extends RenderSystemActor {
     @property
     _materials = [];
@@ -49,7 +95,7 @@ export default class ModelComponent extends RenderSystemActor {
     _mesh = null;
 
     @property
-    _shadowCastingMode = ModelComponent.ShadowCastingMode.Off;
+    _shadowCastingMode = ModelShadowCastingMode.Off;
 
     @property
     _receiveShadows = false;
@@ -76,7 +122,9 @@ export default class ModelComponent extends RenderSystemActor {
      * !#ch 模型网格
      * @type {Mesh}
      */
-    @property
+    @property({
+        type: Mesh
+    })
     get mesh() {
         return this._mesh;
     }
@@ -90,9 +138,11 @@ export default class ModelComponent extends RenderSystemActor {
      * !#en The shadow casting mode
      *
      * !#ch 投射阴影方式
-     * @type {String}
+     * @type {Number}
      */
-    @property
+    @property({
+        type: ModelShadowCastingMode
+    })
     get shadowCastingMode() {
         return this._shadowCastingMode;
     }
@@ -118,51 +168,7 @@ export default class ModelComponent extends RenderSystemActor {
         this._updateReceiveShadow();
     }
 
-    /**
-     * !#en Shadow projection mode
-     *
-     * !#ch 阴影投射方式
-     * @static
-     * @enum ModelComponent.ShadowCastingMode
-     */
-    static ShadowCastingMode = Enum({
-        /**
-         * !#en
-         *
-         * !#ch 关闭阴影投射
-         * @property Off
-         * @readonly
-         * @type {String}
-         */
-        Off: 'off',
-        /**
-         * !#en
-         *
-         * !#ch 开启阴影投射，当阴影光产生的时候
-         * @property On
-         * @readonly
-         * @type {String}
-         */
-        On: 'on',
-        /**
-         * !#en
-         *
-         * !#ch 可以从网格的任意一遍投射出阴影
-         * @property TwoSided
-         * @readonly
-         * @type {String}
-         */
-        TwoSided: 'twoSided',
-        /**
-         * !#en
-         *
-         * !#ch 只显示阴影
-         * @property ShadowsOnly
-         * @readonly
-         * @type {String}
-         */
-        ShadowsOnly: 'shadowsOnly',
-    });
+    static ShadowCastingMode = ModelShadowCastingMode;
 
     onEnable() {
         for (let i = 0; i < this._models.length; ++i) {
@@ -223,14 +229,14 @@ export default class ModelComponent extends RenderSystemActor {
 
         this._updateModelParams();
 
-        // if (this.enabled) {
-        //     for (let i = 0; i < oldModels.length; ++i) {
-        //         this._app.scene.removeModel(oldModels[i]);
-        //     }
-        //     for (let i = 0; i < this._models.length; ++i) {
-        //         this._app.scene.addModel(this._models[i]);
-        //     }
-        // }
+        if (this.enabled) {
+            for (let i = 0; i < oldModels.length; ++i) {
+                this.scene.removeModel(oldModels[i]);
+            }
+            for (let i = 0; i < this._models.length; ++i) {
+                this.scene.addModel(this._models[i]);
+            }
+        }
     }
 
     _updateModelParams() {

@@ -1,10 +1,10 @@
-import renderer from '../renderer';
-import { utils as sceneUtils, Layers } from '../scene-graph';
+import renderer from '../../renderer';
+import { Layers, find } from '../../scene-graph';
 import Mesh from '../assets/mesh';
-import Texture2D from '../assets/texture-2d';
-import parseLevel from '../loaders/utils/level-parser';
+import gfx from '../../renderer/gfx/index';
+// import parseLevel from '../loaders/utils/level-parser';
 
-function createJointsTexture(app, skinning) {
+function createJointsTexture(skinning) {
   const jointCount = skinning.jointIndices.length;
 
   // Set jointsTexture.
@@ -26,7 +26,7 @@ function createJointsTexture(app, skinning) {
     size = 4;
   }
 
-  let texture = new Texture2D(app.device, size, size, 'rgba32f');
+  let texture = new gfx.Texture2D(cc.game._renderContext, size, size, 'rgba32f');
   texture.minFilter = 'nearest';
   texture.magFilter = 'nearest';
   texture.wrapS = 'clamp';
@@ -39,7 +39,7 @@ function createJointsTexture(app, skinning) {
 }
 
 function createMesh(app, data) {
-  let ia = renderer.createIA(app.device, data);
+  let ia = renderer.createIA(cc.game._renderContext, data);
   let meshAsset = new Mesh();
   meshAsset._subMeshes = [ia];
   meshAsset._minPos = data.minPos;
@@ -52,10 +52,10 @@ export default {
   createJointsTexture,
   createMesh,
 
-  parseLevel,
+//   parseLevel,
 
-  walk: sceneUtils.walk,
-  flat: sceneUtils.flat,
-  find: sceneUtils.find,
+//   walk: sceneUtils.walk,
+//   flat: sceneUtils.flat,
+  find: find,
   Layers: Layers,
 };

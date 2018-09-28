@@ -26,12 +26,12 @@
 import { mat4 } from '../../core/vmath';
 import ModelComponent from './model-component';
 import renderer from '../../renderer/index';
+import { ccclass, property, executionOrder, menu } from '../../core/data/class-decorator';
 import utils from '../misc/utils';
-import { _decorator } from '../../core/data/index';
-const { ccclass, property, executionOrder } = _decorator;
+import Skeleton from '../assets/skeleton';
+
 /**
  * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
- * @typedef {import("../assets/skeleton").default} Skeleton
  */
 let _m4_tmp = mat4.create();
 
@@ -44,6 +44,7 @@ let _m4_tmp = mat4.create();
  */
 @executionOrder(100)
 @ccclass('cc.SkinningModelComponent')
+@menu('Components/SkinningModelComponent')
 export default class SkinningModelComponent extends ModelComponent {
     @property
     _skeleton = null;
@@ -54,18 +55,20 @@ export default class SkinningModelComponent extends ModelComponent {
      * !#ch 骨骼节点
      * @type {Skeleton}
      */
-    @property
+    @property({
+        type: Skeleton
+    })
     get skeleton() {
-        return this._joints;
+        return this._skeleton;
     }
 
     set skeleton(val) {
-        this._joints = val;
+        this._skeleton = val;
 
-        if (this._joints) {
-            this._skeleton = this._joints.instantiate();
+        if (this._skeleton) {
+            this._skeletonInstance = this._skeleton.instantiate();
         } else {
-            this._skeleton = null;
+            this._skeletonInstance = null;
         }
     }
 
@@ -76,7 +79,7 @@ export default class SkinningModelComponent extends ModelComponent {
      * @type {SkeletonInstance}
      */
     get skeletonInstance() {
-        return this._skeleton;
+        return this._skeletonInstance;
     }
 
     onLoad() {
@@ -159,14 +162,11 @@ export default class SkinningModelComponent extends ModelComponent {
             this._jointsMatricesArray = null;
         }
 
-        // if (this._app.device.allowFloatTexture()) {
-        //     this._jointsTexture = utils.createJointsTexture(
-        //         this._app,
-        //         this._mesh.skinning
-        //     );
-        // } else {
-        //     this._jointsMatricesArray = new Float32Array(this._mesh.skinning.jointIndices.length * 16);
-        // }
+        if (cc.game._renderContext.allowFloatTexture()) {
+            this._jointsTexture = utils.createJointsTexture(this._mesh.skinning);
+        } else {
+            this._jointsMatricesArray = new Float32Array(this._mesh.skinning.jointIndices.length * 16);
+        }
     }
 
     _commitJointsData() {

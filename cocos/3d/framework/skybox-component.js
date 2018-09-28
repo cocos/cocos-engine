@@ -23,22 +23,22 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import Component from '../../components/CCComponent';
+import RenderSystemActor from '../framework/renderSystemActor';
 import renderer from '../../renderer/index';
-// import { box } from '../primitive/index';
+import { box } from '../primitive/index';
 import Material from '../assets/material';
-import { _decorator } from '../../core/data/index';
-const { ccclass, property } = _decorator;
+import { ccclass, property, menu } from '../../core/data/class-decorator';
 
 /**
  * !#en The Skybox Component
  *
  * !#ch 天空盒组件
  * @class SkyboxComponent
- * @extends Component
+ * @extends RenderSystemActor
  */
 @ccclass('cc.SkyboxComponent')
-export default class SkyboxComponent extends Component {
+@menu('Components/SkyboxComponent')
+export default class SkyboxComponent extends RenderSystemActor {
   @property
   _material = null;
 
@@ -85,22 +85,22 @@ export default class SkyboxComponent extends Component {
   }
 
   onLoad() {
-    // this._model.setNode(this.node);
+    this._model.setNode(this.node);
 
-    // let ia = renderer.createIA(this._app.device, box(2, 2, 2, {
-    //   widthSegments: 1,
-    //   heightSegments: 1,
-    //   lengthSegments: 1,
-    // }));
-    // this._model.setInputAssembler(ia);
+      let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2, {
+      widthSegments: 1,
+      heightSegments: 1,
+      lengthSegments: 1,
+    }));
+    this._model.setInputAssembler(ia);
 
-    // if (this._material === null) {
-    //   this._material = new Material();
+    if (this._material === null) {
+      this._material = new Material();
     //   this._material.effect = this._app.assets.get('builtin-effect-skybox');
-    // }
+    }
 
-    // this._updateMaterialParams();
-    // this._model.setEffect(this._material.effectInst);
+    this._updateMaterialParams();
+    this._model.setEffect(this._material.effectInst);
   }
 
   onEnable() {
