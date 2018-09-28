@@ -128,6 +128,12 @@ inputManager.didAccelerate = function (eventData) {
         y = -(eventData["beta"] / 90) * 0.981;
         z = (eventData["alpha"] / 90) * 0.981;
     }
+    
+    if (cc.view._isRotated) {
+        let tmp = x;
+        x = -y;
+        y = tmp;
+    }
 
     mAcceleration.x = x;
     mAcceleration.y = y;
