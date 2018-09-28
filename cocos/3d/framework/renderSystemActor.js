@@ -16,6 +16,11 @@ class RenderSystemActorListener {
 
 let listener = new RenderSystemActorListener();
 
+/**
+ * @class RenderSystemActor
+ * @extends Component
+ * RenderSystemActor is used to access Rendersystem
+ */
 export default class RenderSystemActor extends Component {
     constructor() {
         super();
@@ -24,12 +29,10 @@ export default class RenderSystemActor extends Component {
         listener.onRenderableComponentCreated(this);
     }
 
-    // todo add implementation
     get renderSystem() {
         return this._system;
     }
 
-    // todo add scene
     get scene() {
         return this._scene;
     }
