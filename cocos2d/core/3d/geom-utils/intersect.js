@@ -100,13 +100,13 @@ Intersection3D.rayMesh = (function () {
     let minDist = Infinity;
 
     const _compType2fn = {
-        [gfx.ATTR_TYPE_INT8]: 'getInt8',
-        [gfx.ATTR_TYPE_UINT8]: 'getUint8',
-        [gfx.ATTR_TYPE_INT16]: 'getInt16',
-        [gfx.ATTR_TYPE_UINT16]: 'getUint16',
-        [gfx.ATTR_TYPE_INT32]: 'getInt32',
-        [gfx.ATTR_TYPE_UINT32]: 'getUint32',
-        [gfx.ATTR_TYPE_FLOAT32]: 'getFloat32',
+        5120: 'getInt8',
+        5121: 'getUint8',
+        5122: 'getInt16',
+        5123: 'getUint16',
+        5124: 'getInt32',
+        5125: 'getUint32',
+        5126: 'getFloat32',
     };
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView#Endianness
