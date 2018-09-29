@@ -533,8 +533,14 @@ var Node = cc.Class({
             type: cc.Float
         },
         _scale: cc.Vec3,
-        _rotationX: 0.0,
-        _rotationY: 0.0,
+        _rotationX: {
+            default: 0.0,
+            editorOnly: true
+        },
+        _rotationY: {
+            default: 0.0,
+            editorOnly: true
+        },
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -680,39 +686,56 @@ var Node = cc.Class({
                 }
             },
         },
-        
-        z: {
-            get () {
-                return this._position.z;
-            },
-            set (value) {
-                var localPosition = this._position;
-                if (value !== localPosition.z) {
-                    if (!CC_EDITOR || isFinite(value)) {
-                        localPosition.z = value;
-                        this.setLocalDirty(LocalDirtyFlag.POSITION);
-                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
-                        // fast check event
-                        if (this._eventMask & POSITION_ON) {
-                            this.emit(EventType.POSITION_CHANGED);
-                        }
-                    }
-                    else {
-                        cc.error(ERR_INVALID_NUMBER, 'new z');
-                    }
-                }
-            },
-        },
+
+        /**
+         * !#en z axis position of node.
+         * !#zh 节点 Z 轴坐标。
+         * @property z
+         * @type {Number}
+         */
 
         /**
          * !#en Rotation of node.
          * !#zh 该节点旋转角度。
          * @property rotation
          * @type {Number}
+         * @deprecated since v2.0
          * @example
          * node.rotation = 90;
          * cc.log("Node Rotation: " + node.rotation);
          */
+        rotation: {
+            get () {
+                return -this.angle;
+            },
+            set (value) {
+                this.angle = -value;
+            }
+        },
+
+        /**
+         * !#en
+         * Angle of node, the positive value is anti-clockwise direction.
+         * !#zh
+         * 该节点的旋转角度，正值为逆时针方向。
+         * @property angle
+         * @type {Number}
+         */
+        angle: {
+            get () {
+                return this._rotationZ;
+            },
+            set (value) {
+                this._rotationZ = value;
+                math.quat.fromEuler(this._quat, 0, 0, value);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+                if (this._eventMask & ROTATION_ON) {
+                    this.emit(EventType.ROTATION_CHANGED);
+                }
+            }
+        },
 
         /**
          * !#en The rotation as Euler angles in degrees, used in 2.5D project.
@@ -720,19 +743,6 @@ var Node = cc.Class({
          * @property eulerAngles
          * @type {Vec3}
          */
-        eulerAngles: {
-            get () {
-                return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
-            },
-            set (v) {
-                this._rotationX = v.x;
-                this._rotationY = v.y;
-                this._rotationZ = v.z;
-                math.quat.fromEuler(this._quat, v.x, v.y, v.z);
-                this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
-            }
-        },
 
         /**
          * !#en Rotation on x axis.
@@ -740,6 +750,7 @@ var Node = cc.Class({
          * @property rotationX
          * @type {Number}
          * @example
+         * @deprecated since v2.0
          * node.rotationX = 45;
          * cc.log("Node Rotation X: " + node.rotationX);
          */
@@ -773,6 +784,7 @@ var Node = cc.Class({
          * @property rotationY
          * @type {Number}
          * @example
+         * @deprecated since v2.0
          * node.rotationY = 45;
          * cc.log("Node Rotation Y: " + node.rotationY);
          */
@@ -808,6 +820,14 @@ var Node = cc.Class({
          * @example
          * node.scale = 1;
          */
+        scale: {
+            get () {
+                return this._scale.x;
+            },
+            set (v) {
+                this.setScale(v);
+            }
+        },
 
         /**
          * !#en Scale on x axis.
@@ -860,6 +880,13 @@ var Node = cc.Class({
                 }
             },
         },
+
+        /**
+         * !#en Scale on z axis.
+         * !#zh 节点 Z 轴缩放。
+         * @property scaleZ
+         * @type {Number}
+         */
 
         /**
          * !#en Skew x
@@ -1245,15 +1272,9 @@ var Node = cc.Class({
 
     _syncEulerAngles () {
         let quat = this._quat;
-        let rotx = quat.getRoll();
-        let roty = quat.getPitch();
-        if (rotx === 0 && roty === 0) {
-            this._rotationX = this._rotationY = -quat.getYaw();
-        }
-        else {
-            this._rotationX = rotx;
-            this._rotationY = roty;
-        }
+        this._rotationX = quat.getRoll();
+        this._rotationY = quat.getPitch();
+        this._rotationZ = quat.getYaw();
     },
 
     _upgrade_1x_to_2x () {
@@ -2080,12 +2101,19 @@ var Node = cc.Class({
      * Assertion will fail when scale x != scale y.
      * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
      * @method getScale
-     * @return {Number} The scale factor
+     * @param {Vec3} type
+     * @return {Number|Vec3} The scale factor
      * @example
      * cc.log("Node Scale: " + node.getScale());
      */
-    getScale () {
-        return this._scale.x;
+    getScale (type) {
+        if (type === cc.Vec3) {
+            return this._scale;
+        }
+        else {
+            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
+            return this._scale.x;
+        }
     },
 
     /**
@@ -2122,29 +2150,55 @@ var Node = cc.Class({
      * !#en Get rotation of node (along z axi).
      * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
      * @method getRotation
-     * @param {Number} rotation Degree rotation value
+     * @param {Vec3} type
+     * @return {Number|Quat} rotation Degree rotation value
      */
-    getRotation () {
-        return this._rotationX;
+    getRotation (type) {
+        if (type === cc.Quat) {
+            return this._quat;
+        }
+        else {
+            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');
+            return -this.angle;
+        }
     },
-
 
     /**
      * !#en Set rotation of node (along z axi).
      * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
      * @method setRotation
-     * @param {Number} rotation Degree rotation value
+     * @param {Quat} rotation Degree rotation value
      */
-    setRotation (value) {
-        if (this._rotationX !== value || this._rotationY !== value) {
-            this._rotationX = this._rotationY = value;
-            // Update quaternion from rotation
-            math.quat.fromEuler(this._quat, 0, 0, -value);
-            this.setLocalDirty(LocalDirtyFlag.ROTATION);
-            this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    setRotation (quat, y, z, w) {
+        if (typeof quat === 'number' && y === undefined) {
+            cc.warnID(1400, 'cc.Node.setRotation(Number)', 'cc.Node.angle or cc.Node.setRotation(quat)')
+            this.angle = -quat;
+        }
+        else {
+            let x = quat;
+            if (y === undefined) {
+                x = quat.x;
+                y = quat.y;
+                z = quat.z;
+                w = quat.w;
+            }
 
-            if (this._eventMask & ROTATION_ON) {
-                this.emit(EventType.ROTATION_CHANGED);
+            let old = this._quat;
+            if (old.x !== x || old.y !== y || old.z !== z || old.w !== w) {
+                old.x = x;
+                old.y = y;
+                old.z = z;
+                old.w = w;
+                this.setLocalDirty(DirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+                if (this._eventMask & ROTATION_ON) {
+                    this.emit(EventType.ROTATION_CHANGED);
+                }
+            }
+
+            if (CC_EDITOR) {
+                this._syncEulerAngles();
             }
         }
     },
@@ -2434,26 +2488,19 @@ var Node = cc.Class({
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
         if (dirtyFlag & (LocalDirtyFlag.RT | LocalDirtyFlag.SKEW)) {
-            let hasRotation = this._rotationX || this._rotationY;
+            let rotation = -this._rotationZ;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
 
-            if (hasRotation || hasSkew) {
+            if (rotation || hasSkew) {
                 let a = 1, b = 0, c = 0, d = 1;
                 // rotation
-                if (hasRotation) {
-                    let rotationRadiansX = this._rotationX * ONE_DEGREE;
-                    c = Math.sin(rotationRadiansX);
-                    d = Math.cos(rotationRadiansX);
-                    if (this._rotationY === this._rotationX) {
-                        a = d;
-                        b = -c;
-                    }
-                    else {
-                        let rotationRadiansY = this._rotationY * ONE_DEGREE;
-                        a = Math.cos(rotationRadiansY);
-                        b = -Math.sin(rotationRadiansY);
-                    }
+                if (rotation) {
+                    let rotationRadians = rotation * ONE_DEGREE;
+                    c = Math.sin(rotationRadians);
+                    d = Math.cos(rotationRadians);
+                    a = d;
+                    b = -c;
                 }
                 // scale
                 t.m00 = a *= sx;
@@ -3184,9 +3231,7 @@ var Node = cc.Class({
 
 
 let _p = Node.prototype;
-js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
 js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
-js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
 cc.Node = module.exports = Node;

@@ -145,52 +145,6 @@ function setPosition (newPosOrX, y, z) {
     }
 }
 
-/**
- * !#en Get rotation of node (in quaternion).
- * !#zh 获取该节点的 quaternion 旋转角度。
- * @method getQuat
- * @return {cc.Quat} Quaternion object represents the rotation
- */
-function getQuat () {
-    return math.quat.clone(this._quat);
-}
-
-/**
- * !#en Set rotation of node (in quaternion).
- * !#zh 设置该节点的 quaternion 旋转角度。
- * @method setQuat
- * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
- * @param {Number} y y value of quternion
- * @param {Number} z z value of quternion
- * @param {Number} w w value of quternion
- */
-function setQuat (quat, y, z, w) {
-    let x = quat;
-    if (y === undefined) {
-        x = quat.x;
-        y = quat.y;
-        z = quat.z;
-        w = quat.w;
-    }
-
-    let old = this._quat;
-    if (old.x !== x || old.y !== y || old.z !== z || old.w !== w) {
-        old.x = x;
-        old.y = y;
-        old.z = z;
-        old.w = w;
-        this.setLocalDirty(DirtyFlag.ROTATION);
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
-
-        if (this._eventMask & ROTATION_ON) {
-            this.emit(EventType.ROTATION_CHANGED);
-        }
-    }
-
-    if (CC_EDITOR) {
-        this._syncEulerAngles();
-    }
-}
 
 /**
  * !#en Sets the scale of three axis in local coordinates of the node.
@@ -229,33 +183,21 @@ function setScale (x, y, z) {
     }
 }
 
-function _syncEulerAngles () {
-    this._rotationX = this._quat.getRoll();
-    this._rotationY = this._quat.getPitch();
-    this._rotationZ = this._quat.getYaw();
-}
-
 function _update3DFunction () {
     if (this._is3DNode) {
         this._updateLocalMatrix = _updateLocalMatrix3d;
         this._calculWorldMatrix = _calculWorldMatrix3d;
         this._mulMat = cc.vmath.mat4.mul;
-        this._syncEulerAngles = _syncEulerAngles;
     }
     else {
         this._updateLocalMatrix = _updateLocalMatrix2d;
         this._calculWorldMatrix = _calculWorldMatrix2d;
         this._mulMat = _mulMat2d;
-        this._syncEulerAngles = _syncEulerAngles2d;
     }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 }
 
 function _upgrade_1x_to_2x () {
-    if (CC_EDITOR && this instanceof cc.Scene) {
-        this._is3DNode = true;
-    }
-    
     if (this._is3DNode) {
         this._update3DFunction();
     }
@@ -268,12 +210,8 @@ let proto = cc.Node.prototype;
 const _updateLocalMatrix2d = proto._updateLocalMatrix;
 const _calculWorldMatrix2d = proto._calculWorldMatrix;
 const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
-const _syncEulerAngles2d = proto._syncEulerAngles;
 const _mulMat2d = proto._mulMat;
 const _onBatchCreated2d = proto._onBatchCreated;
-
-proto.getQuat = getQuat;
-proto.setQuat = setQuat;
 
 proto.getPosition = getPosition;
 proto.setPosition = setPosition;
@@ -283,7 +221,6 @@ proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
 proto._update3DFunction = _update3DFunction;
 
 cc.js.getset(proto, 'position', getPosition, setPosition, false, true);
-cc.js.getset(proto, 'scale', proto.getScale, setScale, false, true);
 
 cc.js.getset(proto, 'is3DNode', function () {
     return this._is3DNode;
@@ -294,4 +231,55 @@ cc.js.getset(proto, 'is3DNode', function () {
     this._syncEulerAngles();
 });
 
-cc.js.getset(proto, 'quat', getQuat, setQuat);
+cc.js.getset(proto, 'scaleZ', function () {
+    return this._scale.z;
+}, function (v) {
+    if (this._scale.z !== value) {
+        this._scale.z = value;
+        this.setLocalDirty(DirtyFlag.SCALE);
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+        if (this._eventMask & SCALE_ON) {
+            this.emit(EventType.SCALE_CHANGED);
+        }
+    }
+});
+
+cc.js.getset(proto, 'z', function () {
+    return this._position.z;
+}, function (value) {
+    let localPosition = this._position;
+    if (value !== localPosition.z) {
+        if (!CC_EDITOR || isFinite(value)) {
+            localPosition.z = value;
+            this.setLocalDirty(LocalDirtyFlag.POSITION);
+            this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+            // fast check event
+            if (this._eventMask & POSITION_ON) {
+                this.emit(EventType.POSITION_CHANGED);
+            }
+        }
+        else {
+            cc.error(ERR_INVALID_NUMBER, 'new z');
+        }
+    }
+});
+
+cc.js.getset(proto, 'eulerAngles', function () {
+    if (CC_EDITOR) {
+        return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
+    }
+    else {
+        
+    }
+}, function (v) {
+    if (CC_EDITOR) {
+        this._rotationX = v.x;
+        this._rotationY = v.y;
+        this._rotationZ = v.z;
+    }
+
+    math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+    this.setLocalDirty(LocalDirtyFlag.ROTATION);
+    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+});
