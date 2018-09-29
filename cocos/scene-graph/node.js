@@ -412,14 +412,15 @@ class Node extends BaseNode {
 
 if (CC_EDITOR) {
     let v3 = vec3.create();
-    property(Node, 'eulerAngles', {
+    let desc = {
         get() {
             return quat.toEuler(v3, this._lrot);
         },
         set(val) {
             this.setRotationFromEuler(val.x, val.y, val.z);
         }
-    });
+    };
+    Object.defineProperty(Node.prototype, 'eulerAngles', desc);
 }
 
 cc.Node = Node;

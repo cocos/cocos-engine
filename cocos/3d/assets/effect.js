@@ -23,45 +23,40 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data/index";
-const {ccclass, property} = _decorator;
+import { ccclass, property } from "../../core/data/class-decorator";
 import Asset from "../../assets/CCAsset";
+import renderer from "../../renderer";
 
-@ccclass
-export default class Effect extends Asset {
+class AbstractEffect extends Asset {
     /**
-     * @type {cc.d3.effect.Technique[]}
+     * @type {Object[]}
      */
-    @property(Object)
     _techniques = [];
 
     /**
      * @type {Object}
      */
-    @property(Object)
     _properties = {};
 
     /**
-     * @type {cc.d3.effect.Definition[]}
+     * @type {Object[]}
      */
-    @property([Object])
     _defines = [];
 
     /**
-     * @type {cc.d3.effect.Dependency[]}
+     * @type {Object[]}
      */
-    @property([Object])
     _dependencies = [];
 
     /**
-     * @param {cc.d3.effect.Technique[]} val
+     * @param {Object[]}
      */
     set techniques(val) {
         this._techniques = val;
     }
 
     /**
-     * @return {cc.d3.effect.Technique[]}
+     * @return {Object[]}
      */
     get techniques() {
         return this._techniques;
@@ -82,28 +77,28 @@ export default class Effect extends Asset {
     }
 
     /**
-     * @param {cc.d3.effect.Definition[]} val
+     * @param {Object[]}}
      */
     set defines(val) {
         this._defines = val;
     }
 
     /**
-     * @return {cc.d3.effect.Definition[]}}
+     * @return {Object[]}}
      */
     get defines() {
         return this._defines;
     }
 
     /**
-     * @param {cc.d3.effect.Dependency[]} val
+     * @param {Object[]} val
      */
     set dependencies(val) {
         this._dependencies = val;
     }
 
     /**
-     * @return {cc.d3.effect.Dependency[]}
+     * @return {Object[]}
      */
     get dependencies() {
         return this._dependencies;
@@ -115,4 +110,43 @@ export default class Effect extends Asset {
     }
 }
 
-cc.Effect = Effect;
+let toCamelCase = function(dashedString) {
+    return dashedString
+        .replace(/^\w/, c => c.toUpperCase())
+        .replace(/-(\w)/g, (c, l) => l.toUpperCase());
+};
+let _serializeDefines = function(proto, defines) {
+    defines.forEach(function(def) {
+        property(proto, def.name, {
+            initializer: () => { return def.value; }
+        });
+    });
+};
+let _type2value = {
+    [renderer.PARAM_FLOAT]: v => { return v; },
+    [renderer.PARAM_FLOAT2]: v => { return cc.v2(v[0], v[1]); },
+    [renderer.PARAM_FLOAT3]: v => { return cc.v3(v[0], v[1], v[2]); },
+    [renderer.PARAM_FLOAT4]: v => { return cc.v4(v[0], v[1], v[2], v[3]); },
+    [renderer.PARAM_COLOR3]: v => { return cc.color(v[0], v[1], v[2]); },
+    [renderer.PARAM_COLOR4]: v => { return cc.color(v[0], v[1], v[2], v[3]); },
+    [renderer.PARAM_TEXTURE_2D]: v => { return new cc.Texture2D(v); },
+    [renderer.PARAM_TEXTURE_CUBE]: v => { return new cc.Texture2D(v); } // TODO, cube map not ready yet
+};
+let _serializeTechniques = function(proto, techniques) {
+    techniques.forEach(function(tech) {
+        tech.params.forEach(function(param) {
+            property(proto, param.name, {
+                initializer: () => { return _type2value[param.type](param.value); }
+            });
+        });
+    });
+};
+let EffectFactory = function(name, techniques, defines) {
+    class Effect extends AbstractEffect {}
+    _serializeTechniques(Effect.prototype, techniques);
+    _serializeDefines(Effect.prototype, defines);
+    return ccclass(`cc.Effect${toCamelCase(name)}`)(Effect);
+};
+
+cc.Effect = AbstractEffect;
+export { AbstractEffect, EffectFactory };

@@ -4,10 +4,10 @@ import * as primitives from '../primitive';
 import Mesh from '../assets/mesh';
 import Material from '../assets/material';
 import Texture2D from '../../assets/CCTexture2D';
-import TextureCube from '../assets/texture-cube';
-import Effect from '../assets/effect';
-import Technique from '../../renderer/core/technique';
-import Sprite from '../assets/sprite';
+// import TextureCube from '../assets/texture-cube';
+import { EffectFactory } from '../assets/effect';
+// import Technique from '../../renderer/core/technique';
+// import Sprite from '../assets/sprite';
 import { vec3 } from '../../core/vmath';
 
 import effectJsons from './effects/index';
@@ -176,7 +176,8 @@ export default function (device) {
     let effects = {};
     for (let i = 0; i < effectJsons.length; ++i) {
         let effectJson = effectJsons[i];
-        let effect = new Effect();
+        let EffectClass = EffectFactory(effectJson.name, effectJson.techniques, effectJson.defines);
+        let effect = new EffectClass();
         effect._name = effectJson.name;
         effect._uuid = `builtin-effect-${effectJson.name}`;
         effect._loaded = true;

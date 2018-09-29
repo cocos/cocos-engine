@@ -522,10 +522,10 @@ export default class Camera extends Component {
             height = targetTexture.height;
         }
 
-        node.getWorldMatrix(_vec3_temp_1);
-        // _vec3_temp_1.x = node._worldMatrix.m12;
-        // _vec3_temp_1.y = node._worldMatrix.m13;
-        // _vec3_temp_1.z = 0;
+        node.updateWorldTransformFull();
+        _vec3_temp_1.x = node._mat.m12;
+        _vec3_temp_1.y = node._mat.m13;
+        _vec3_temp_1.z = 0;
 
         node.z = height / 1.1566;
         node.lookAt(_vec3_temp_1);

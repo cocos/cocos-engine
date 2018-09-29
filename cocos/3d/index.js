@@ -27,7 +27,10 @@ import "./assets";
 import "./builtin";
 // import "./debugger";
 import "./framework";
-import "./geom-utils";
 import "./memop";
 import "./misc";
-import "./primitive";
+import * as primitives from "./primitive";
+import * as geometry from "./geom-utils";
+
+cc.geometry = geometry;
+cc.primitives = primitives;
