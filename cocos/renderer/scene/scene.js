@@ -200,7 +200,7 @@ if (CC_EDITOR) {
    */
   Scene.prototype.createRaycastResult = function() {
     return new RecyclePool(() => {
-      return { entity: null, distance: Infinity };
+      return { node: null, distance: Infinity };
     }, 16);
   };
 
@@ -243,7 +243,7 @@ if (CC_EDITOR) {
         }
         if (distance < Infinity) {
           let res = results.add();
-          res.entity = m._node;
+          res.node = m._node;
           res.distance = distance;
         }
       }
