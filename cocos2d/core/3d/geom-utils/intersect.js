@@ -157,6 +157,7 @@ Intersection3D.rayMesh = (function () {
  * !#zh
  * 检测射线是否与物体有交集
  * @method raycast
+ * @param {Node} root - If root is null, then traversal nodes from scene node
  * @param {Ray} worldRay
  * @param {Function} handler
  * @param {Function} filter
@@ -206,10 +207,10 @@ Intersection3D.raycast = (function () {
         return distance > 0 && distance < Infinity;
     }
 
-    return function (worldRay, handler, filter) {
+    return function (root, worldRay, handler, filter) {
         results.reset();
 
-        let root = cc.director.getScene();
+        root = root || cc.director.getScene();
         traversal(root, function (node) {
             if (filter && !filter(node)) return;
 
