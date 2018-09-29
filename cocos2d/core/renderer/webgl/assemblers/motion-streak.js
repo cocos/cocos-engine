@@ -187,7 +187,7 @@ var motionStreakAssembler = {
         }
 
         renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = (renderData.vertexCount - 2)*3;
+        renderData.indiceCount = renderData.vertexCount === 0 ? 0 : (renderData.vertexCount - 2)*3;
     },
 
     fillBuffers (comp, renderer) {
