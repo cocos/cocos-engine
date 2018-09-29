@@ -30,6 +30,7 @@ const DirtyFlag = Node._LocalDirtyFlag;
 const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
 const misc = require('../utils/misc');
+const vec3 = cc.vmath.vec3;
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
@@ -228,7 +229,6 @@ cc.js.getset(proto, 'is3DNode', function () {
     if (this._is3DNode === v) return;
     this._is3DNode = v;
     this._update3DFunction();
-    this._syncEulerAngles();
 });
 
 cc.js.getset(proto, 'scaleZ', function () {
@@ -252,7 +252,7 @@ cc.js.getset(proto, 'z', function () {
     if (value !== localPosition.z) {
         if (!CC_EDITOR || isFinite(value)) {
             localPosition.z = value;
-            this.setLocalDirty(LocalDirtyFlag.POSITION);
+            this.setLocalDirty(DirtyFlag.POSITION);
             this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
             // fast check event
             if (this._eventMask & POSITION_ON) {
@@ -267,19 +267,17 @@ cc.js.getset(proto, 'z', function () {
 
 cc.js.getset(proto, 'eulerAngles', function () {
     if (CC_EDITOR) {
-        return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
+        return this._eulerAngles;
     }
     else {
-        
+        return this._quat.getEulerAngles(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
-        this._rotationX = v.x;
-        this._rotationY = v.y;
-        this._rotationZ = v.z;
+        vec3.set(this._eulerAngles, v.x, v.y, v.z);
     }
 
     math.quat.fromEuler(this._quat, v.x, v.y, v.z);
-    this.setLocalDirty(LocalDirtyFlag.ROTATION);
+    this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });

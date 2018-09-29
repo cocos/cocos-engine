@@ -524,23 +524,7 @@ var Node = cc.Class({
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scaleX: {
-            default: undefined,
-            type: cc.Float
-        },
-        _scaleY: {
-            default: undefined,
-            type: cc.Float
-        },
         _scale: cc.Vec3,
-        _rotationX: {
-            default: 0.0,
-            editorOnly: true
-        },
-        _rotationY: {
-            default: 0.0,
-            editorOnly: true
-        },
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -551,6 +535,28 @@ var Node = cc.Class({
         _zIndex: 0,
 
         _is3DNode: false,
+
+        // deprecated
+        _scaleX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _scaleY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
 
         // internal properties
 
@@ -723,10 +729,10 @@ var Node = cc.Class({
          */
         angle: {
             get () {
-                return this._rotationZ;
+                return this._eulerAngles.z;
             },
             set (value) {
-                this._rotationZ = value;
+                this._eulerAngles.z = value;
                 math.quat.fromEuler(this._quat, 0, 0, value);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -1156,7 +1162,7 @@ var Node = cc.Class({
         this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
 
-        this._rotationZ = 0;
+        this._eulerAngles = cc.v3();
     },
 
     statics: {
@@ -1270,13 +1276,6 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    _syncEulerAngles () {
-        let quat = this._quat;
-        this._rotationX = quat.getRoll();
-        this._rotationY = quat.getPitch();
-        this._rotationZ = quat.getYaw();
-    },
-
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1297,7 +1296,7 @@ var Node = cc.Class({
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
         let quat = this._quat;
-        if ((this._rotationX !== 0 || this._rotationY !== 0) && 
+        if ((this._rotationX || this._rotationY) && 
             (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
                 math.quat.fromEuler(quat, 0, 0, -this._rotationX);
@@ -1308,7 +1307,7 @@ var Node = cc.Class({
         }
         // Update rotation from quaternion
         else {
-            this._syncEulerAngles();
+            this._quat.getEulerAngles(this._eulerAngles);
         }
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
@@ -2196,10 +2195,6 @@ var Node = cc.Class({
                     this.emit(EventType.ROTATION_CHANGED);
                 }
             }
-
-            if (CC_EDITOR) {
-                this._syncEulerAngles();
-            }
         }
     },
 
@@ -2488,7 +2483,7 @@ var Node = cc.Class({
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
         if (dirtyFlag & (LocalDirtyFlag.RT | LocalDirtyFlag.SKEW)) {
-            let rotation = -this._rotationZ;
+            let rotation = -this._eulerAngles.z;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
 
@@ -3073,6 +3068,8 @@ var Node = cc.Class({
 
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
+
+        this._quat.getEulerAngles(this._eulerAngles);
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
