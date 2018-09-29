@@ -22,37 +22,130 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
 import { ccclass, property } from "../../core/data/class-decorator";
 import Asset from "../../assets/CCAsset";
 import renderer from "../../renderer";
 
-class AbstractEffect extends Asset {
-    /**
-     * @type {Object[]}
-     */
+@ccclass('cc.Effect.Technique.Param')
+class Param {
+    @property
+    name = '';
+    @property
+    type = renderer.PARAM_FLOAT;
+    @property
+    value = 0;
+
+    constructor(param) {
+        this.name = param.name;
+        this.type = param.type;
+        this.value = param.value;
+    }
+}
+
+@ccclass('cc.Effect.Technique.Pass')
+class Pass {
+    @property
+    program = '';
+    @property
+    cullMode = '';
+    @property
+    depthTest = true;
+    @property
+    depthWrite = true;
+    @property
+    blend = true;
+    @property
+    blendEq = '';
+    @property
+    blendSrc = '';
+    @property
+    blendDst = '';
+    @property
+    blendAlphaEq = '';
+    @property
+    blendSrcAlpha = '';
+    @property
+    blendDstAlpha = '';
+
+    constructor(pass) {
+        this.program = pass.program;
+        this.cullMode = pass.cullMode;
+        this.depthTest = pass.depthTest;
+        this.depthWrite = pass.depthWrite;
+        this.blend = pass.blend;
+        this.blendEq = pass.blendEq;
+        this.blendSrc = pass.blendSrc;
+        this.blendDst = pass.blendDst;
+        this.blendAlphaEq = pass.blendAlphaEq;
+        this.blendSrcAlpha = pass.blendSrcAlpha;
+        this.blendDstAlpha = pass.blendDstAlpha;
+    }
+}
+
+@ccclass('cc.Effect.Technique')
+class Technique {
+    @property(String)
+    stages = [];
+    @property('cc.Effect.Technique.Param')
+    params = [];
+    @property('cc.Effect.Technique.Pass')
+    passes = [];
+    @property
+    layer = 0;
+
+    constructor(tech) {
+        this.stages = tech.stages;
+        tech.params.forEach(v => { this.params.push(new Param(v)); });
+        tech.passes.forEach(v => { this.passes.push(new Pass(v)); });
+        this.layer = tech.layer;
+    }
+}
+
+@ccclass('cc.Effect.Define')
+class Define {
+    @property(String)
+    name = [];
+    @property
+    value = false;
+
+    constructor(def) {
+        this.name = def.name;
+        this.value = def.value;
+    }
+}
+
+@ccclass('cc.Effect.Dependency')
+class Dependency {
+    @property
+    define = '';
+    @property
+    extension = '';
+
+    constructor(dep) {
+        this.define = dep.define;
+        this.extension = dep.extension;
+    }
+}
+
+@ccclass('cc.Effect')
+export default class Effect extends Asset {
+    @property('cc.Effect.Technique')
     _techniques = [];
 
-    /**
-     * @type {Object}
-     */
+    @property
     _properties = {};
 
-    /**
-     * @type {Object[]}
-     */
+    @property('cc.Effect.Define')
     _defines = [];
 
-    /**
-     * @type {Object[]}
-     */
+    @property('cc.Effect.Dependency')
     _dependencies = [];
 
     /**
      * @param {Object[]}
      */
     set techniques(val) {
-        this._techniques = val;
+        val.forEach(v => { this._techniques.push(new Technique(v)); });
     }
 
     /**
@@ -80,7 +173,7 @@ class AbstractEffect extends Asset {
      * @param {Object[]}}
      */
     set defines(val) {
-        this._defines = val;
+        val.forEach(v => { this._defines.push(new Define(v)); });
     }
 
     /**
@@ -94,7 +187,7 @@ class AbstractEffect extends Asset {
      * @param {Object[]} val
      */
     set dependencies(val) {
-        this._dependencies = val;
+        val.forEach(v => { this._dependencies.push(new Dependency(v)); });
     }
 
     /**
@@ -110,43 +203,4 @@ class AbstractEffect extends Asset {
     }
 }
 
-let toCamelCase = function(dashedString) {
-    return dashedString
-        .replace(/^\w/, c => c.toUpperCase())
-        .replace(/-(\w)/g, (c, l) => l.toUpperCase());
-};
-let _serializeDefines = function(proto, defines) {
-    defines.forEach(function(def) {
-        property(proto, def.name, {
-            initializer: () => { return def.value; }
-        });
-    });
-};
-let _type2value = {
-    [renderer.PARAM_FLOAT]: v => { return v; },
-    [renderer.PARAM_FLOAT2]: v => { return cc.v2(v[0], v[1]); },
-    [renderer.PARAM_FLOAT3]: v => { return cc.v3(v[0], v[1], v[2]); },
-    [renderer.PARAM_FLOAT4]: v => { return cc.v4(v[0], v[1], v[2], v[3]); },
-    [renderer.PARAM_COLOR3]: v => { return cc.color(v[0], v[1], v[2]); },
-    [renderer.PARAM_COLOR4]: v => { return cc.color(v[0], v[1], v[2], v[3]); },
-    [renderer.PARAM_TEXTURE_2D]: v => { return new cc.Texture2D(v); },
-    [renderer.PARAM_TEXTURE_CUBE]: v => { return new cc.Texture2D(v); } // TODO, cube map not ready yet
-};
-let _serializeTechniques = function(proto, techniques) {
-    techniques.forEach(function(tech) {
-        tech.params.forEach(function(param) {
-            property(proto, param.name, {
-                initializer: () => { return _type2value[param.type](param.value); }
-            });
-        });
-    });
-};
-let EffectFactory = function(name, techniques, defines) {
-    class Effect extends AbstractEffect {}
-    _serializeTechniques(Effect.prototype, techniques);
-    _serializeDefines(Effect.prototype, defines);
-    return ccclass(`cc.Effect${toCamelCase(name)}`)(Effect);
-};
-
-cc.Effect = AbstractEffect;
-export { AbstractEffect, EffectFactory };
+cc.Effect = Effect;
