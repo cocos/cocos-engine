@@ -142,6 +142,9 @@ namespace {
     const uint32_t GL_COMMAND_VERTEX_ATTRIB_POINTER = 96;
     const uint32_t GL_COMMAND_VIEW_PORT = 97;
 
+    const uint32_t GL_FLOAT_ARRAY = 1;
+    const uint32_t GL_INT_ARRAY = 2;
+
     GLint __defaultFbo = 0;
 
     se::Class* __jsb_WebGLObject_class = nullptr;
@@ -747,7 +750,7 @@ static bool JSB_glBufferData(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     if (args[1].isNumber())
     {
-        count = args[1].toUint32();
+        ok &= seval_to_int32(args[1], &count);
     }
     else
     {
@@ -776,15 +779,7 @@ static bool JSB_glBufferSubData(se::State& s) {
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_int32(args[1], &arg1 );
-
-    if (args[2].isNumber())
-    {
-        count = args[2].toUint32();
-    }
-    else
-    {
-        ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
-    }
+    ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
@@ -1124,7 +1119,7 @@ static bool JSB_glDeleteProgram(se::State& s) {
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteProgram(id));
     safeRemoveElementFromGLObjectMap(__webglProgramMap, id);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteProgram)
@@ -1141,7 +1136,7 @@ static bool JSB_glDeleteShader(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteShader(shaderId));
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
 
     auto iter = __shaders.find(shaderId);
     if (iter != __shaders.end())
@@ -1504,12 +1499,17 @@ static bool JSB_glGetUniformLocation(se::State& s) {
     ok &= seval_to_std_string(args[1], &arg1 );
 
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    int ret_val;
+    int ret_val = 0;
 
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     ret_val = glGetUniformLocation(programId , arg1.c_str());
     JSB_GL_CHECK_ERROR();
-    s.rval().setInt32(ret_val);
+    if (ret_val < 0)
+    {
+        s.rval().setNull();
+    } else {
+        s.rval().setInt32(ret_val);
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetUniformLocation)
@@ -1567,7 +1567,7 @@ static bool JSB_glIsEnabled(se::State& s) {
     GLboolean ret_val;
 
     ret_val = glIsEnabled((GLenum)arg0);
-    s.rval().setInt32((int32_t)ret_val);
+    s.rval().setBoolean(ret_val);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsEnabled)
@@ -1590,7 +1590,7 @@ static bool JSB_glIsFramebuffer(se::State& s) {
         ret_val = glIsFramebuffer(frameBufferId);
     }
 
-    s.rval().setInt32((int32_t)ret_val);
+    s.rval().setBoolean(ret_val);
     return true;
 }
 SE_BIND_FUNC(JSB_glIsFramebuffer)
@@ -2929,7 +2929,7 @@ static bool JSB_glDeleteTextures(se::State& s) {
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteTextures(1, &id));
     safeRemoveElementFromGLObjectMap(__webglTextureMap, id);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteTextures)
@@ -2946,7 +2946,7 @@ static bool JSB_glDeleteBuffer(se::State& s) {
     GLuint bufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(ccDeleteBuffers(1, &bufferId));
     safeRemoveElementFromGLObjectMap(__webglBufferMap, bufferId);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteBuffer)
@@ -2963,7 +2963,7 @@ static bool JSB_glDeleteRenderbuffer(se::State& s) {
     GLuint renderBufferId = arg0 != nullptr ? arg0->_id : 0;
     JSB_GL_CHECK(glDeleteRenderbuffers(1, &renderBufferId));
     safeRemoveElementFromGLObjectMap(__webglRenderbufferMap, renderBufferId);
-    arg0->_id = 0;
+    if (arg0 != nullptr) arg0->_id = 0;
     return true;
 }
 SE_BIND_FUNC(JSB_glDeleteRenderbuffer)
@@ -3181,13 +3181,18 @@ static bool JSB_glGetActiveAttrib(se::State& s) {
 
     JSB_GL_CHECK(glGetActiveAttrib(programId, arg1, length, NULL, &size, &type, buffer));
 
-    se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
-    s.rval().setObject(object, true);
-    object->decRef();
+    if (size == -1 || type == -1){
+        s.rval().setNull();
+    } else {
+        se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
+        s.rval().setObject(object, true);
+        object->decRef();
 
-    object->setProperty("size", se::Value((int32_t)size));
-    object->setProperty("type", se::Value((int32_t)type));
-    object->setProperty("name", se::Value((char*)buffer));
+        object->setProperty("size", se::Value((int32_t)size));
+        object->setProperty("type", se::Value((int32_t)type));
+        object->setProperty("name", se::Value((char*)buffer));
+    }
+
     CC_SAFE_DELETE_ARRAY(buffer);
 
     return true;
@@ -3223,11 +3228,15 @@ static bool JSB_glGetActiveUniform(se::State& s) {
 
     JSB_GL_CHECK(glGetActiveUniform(id, arg1, length, NULL, &size, &type, buffer));
 
-    se::HandleObject object(se::Object::createPlainObject());
-    object->setProperty("size", se::Value((int32_t)size));
-    object->setProperty("type", se::Value((int32_t)type));
-    object->setProperty("name", se::Value((char*)buffer));
-    s.rval().setObject(object);
+    if (size == -1 || type == -1) {
+        s.rval().setNull();
+    } else {
+        se::HandleObject object(se::Object::createPlainObject());
+        object->setProperty("size", se::Value((int32_t)size));
+        object->setProperty("type", se::Value((int32_t)type));
+        object->setProperty("name", se::Value((char*)buffer));
+        s.rval().setObject(object);
+    }
 
     CC_SAFE_DELETE_ARRAY(buffer);
     return true;
@@ -3444,34 +3453,34 @@ static bool JSB_glGetUniformfv(se::State& s) {
     int utype = 0;
     switch(type) {
 
-            // float
+        // float
         case GL_FLOAT:
             usize = 1;
             utype = GL_FLOAT;
             break;
         case GL_FLOAT_MAT2:
             usize = 2 * 2;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
         case GL_FLOAT_MAT3:
             usize = 3 * 3;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
         case GL_FLOAT_MAT4:
             usize = 4 * 4;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
         case GL_FLOAT_VEC2:
             usize = 2;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
         case GL_FLOAT_VEC3:
             usize = 3;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
         case GL_FLOAT_VEC4:
             usize = 4;
-            utype = GL_FLOAT;
+            utype = GL_FLOAT_ARRAY;
             break;
 
             // int
@@ -3481,15 +3490,15 @@ static bool JSB_glGetUniformfv(se::State& s) {
             break;
         case GL_INT_VEC2:
             usize = 2;
-            utype = GL_INT;
+            utype = GL_INT_ARRAY;
             break;
         case GL_INT_VEC3:
             usize = 3;
-            utype = GL_INT;
+            utype = GL_INT_ARRAY;
             break;
         case GL_INT_VEC4:
             usize = 4;
-            utype = GL_INT;
+            utype = GL_INT_ARRAY;
             break;
 
         default:
@@ -3497,7 +3506,7 @@ static bool JSB_glGetUniformfv(se::State& s) {
             return false;
     }
 
-    if( utype == GL_FLOAT)
+    if (utype == GL_FLOAT_ARRAY)
     {
         GLfloat* param = new (std::nothrow) GLfloat[usize];
         JSB_GL_CHECK(glGetUniformfv(id, arg1, param));
@@ -3507,13 +3516,31 @@ static bool JSB_glGetUniformfv(se::State& s) {
         CC_SAFE_DELETE_ARRAY(param);
         return true;
     }
-    else if( utype == GL_INT )
+    else if(utype == GL_INT_ARRAY)
     {
         GLint* param = new (std::nothrow) GLint[usize];
         JSB_GL_CHECK(glGetUniformiv(id, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, param, usize * sizeof(GLint)));
         s.rval().setObject(obj);
+        CC_SAFE_DELETE_ARRAY(param);
+        return true;
+    }
+    if (utype == GL_FLOAT)
+    {
+        GLfloat* param = new (std::nothrow) GLfloat[usize];
+        JSB_GL_CHECK(glGetUniformfv(id, arg1, param));
+
+        s.rval().setFloat(param[0]);
+        CC_SAFE_DELETE_ARRAY(param);
+        return true;
+    }
+    else if( utype == GL_INT )
+    {
+        GLint* param = new (std::nothrow) GLint[usize];
+        JSB_GL_CHECK(glGetUniformiv(id, arg1, param));
+
+        s.rval().setInt32(param[0]);
         CC_SAFE_DELETE_ARRAY(param);
         return true;
     }
