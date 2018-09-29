@@ -2026,12 +2026,14 @@ var Node = cc.Class({
      * !#en Returns a copy of the position (x, y) of the node in its parent's coordinates.
      * !#zh 获取节点在父节点坐标系中的位置（x, y）。
      * @method getPosition
+     * @param {Vec2|Vec3} out - The return value to receive position
      * @return {Vec2} The position (x, y) of the node in its parent's coordinates
      * @example
      * cc.log("Node Position: " + node.getPosition());
      */
-    getPosition () {
-        return new cc.Vec2(this._position);
+    getPosition (out) {
+        out = out || cc.v2();
+        return out.set(this._position);
     },
 
     /**
@@ -2100,14 +2102,14 @@ var Node = cc.Class({
      * Assertion will fail when scale x != scale y.
      * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
      * @method getScale
-     * @param {Vec3} type
+     * @param {Vec3} out
      * @return {Number|Vec3} The scale factor
      * @example
      * cc.log("Node Scale: " + node.getScale());
      */
-    getScale (type) {
-        if (type === cc.Vec3) {
-            return this._scale;
+    getScale (out) {
+        if (out !== undefined) {
+            return out.set(this._scale);
         }
         else {
             cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
@@ -2149,12 +2151,12 @@ var Node = cc.Class({
      * !#en Get rotation of node (along z axi).
      * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
      * @method getRotation
-     * @param {Vec3} type
+     * @param {Quat} out
      * @return {Number|Quat} rotation Degree rotation value
      */
-    getRotation (type) {
+    getRotation (out) {
         if (type === cc.Quat) {
-            return this._quat;
+            return out.set(this._quat);
         }
         else {
             cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');

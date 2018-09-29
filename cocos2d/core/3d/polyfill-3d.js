@@ -82,17 +82,6 @@ function _calculWorldMatrix3d () {
 }
 
 
-    
-/**
- * !#en Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
- * !#zh 获取节点在父节点坐标系中的位置（x, y, z）。
- * @method getPosition
- * @return {Vec3} The position (x, y, z) of the node in its parent's coordinates
- */
-function getPosition () {
-    return new cc.Vec3(this._position);
-}
-
 /**
  * !#en
  * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
@@ -214,14 +203,13 @@ const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
 const _mulMat2d = proto._mulMat;
 const _onBatchCreated2d = proto._onBatchCreated;
 
-proto.getPosition = getPosition;
 proto.setPosition = setPosition;
 proto.setScale = setScale;
 
 proto._upgrade_1x_to_2x = _upgrade_1x_to_2x;
 proto._update3DFunction = _update3DFunction;
 
-cc.js.getset(proto, 'position', getPosition, setPosition, false, true);
+cc.js.getset(proto, 'position', proto.getPosition, setPosition, false, true);
 
 cc.js.getset(proto, 'is3DNode', function () {
     return this._is3DNode;
@@ -274,7 +262,7 @@ cc.js.getset(proto, 'eulerAngles', function () {
     }
 }, function (v) {
     if (CC_EDITOR) {
-        vec3.set(this._eulerAngles, v.x, v.y, v.z);
+        this._eulerAngles.set(v);
     }
 
     math.quat.fromEuler(this._quat, v.x, v.y, v.z);
