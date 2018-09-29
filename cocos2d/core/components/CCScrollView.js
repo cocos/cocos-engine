@@ -193,6 +193,9 @@ let ScrollView = cc.Class({
         this._scrollEventEmitMask = 0;
         this._isBouncing = false;
         this._scrolling = false;
+        
+        // content parent object 
+        this._view = undefined;
     },
 
     properties: {
@@ -207,6 +210,7 @@ let ScrollView = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.content',
             formerlySerializedAs: 'content',
             notify (oldValue) {
+                this._initView();
                 this._calculateBoundary();
             }
         },
@@ -600,10 +604,10 @@ let ScrollView = cc.Class({
      * @return {Vec2} - A Vec2 value indicate the maximize scroll offset in x and y axis.
      */
     getMaxScrollOffset () {
-        let scrollSize = this.node.getContentSize();
+        let viewSize = this._view.getContentSize();
         let contentSize = this.content.getContentSize();
-        let horizontalMaximizeOffset =  contentSize.width - scrollSize.width;
-        let verticalMaximizeOffset = contentSize.height - scrollSize.height;
+        let horizontalMaximizeOffset =  contentSize.width - viewSize.width;
+        let verticalMaximizeOffset = contentSize.height - viewSize.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >=0 ? verticalMaximizeOffset : 0;
 
@@ -819,7 +823,7 @@ let ScrollView = cc.Class({
 
         anchor = anchor.clampf(cc.v2(0, 0), cc.v2(1, 1));
 
-        let scrollSize = this.content.parent.getContentSize();
+        let scrollSize = this._view.getContentSize();
         let contentSize = this.content.getContentSize();
         let bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDeta = -bottomDeta;
@@ -891,7 +895,7 @@ let ScrollView = cc.Class({
             if(layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
-            let viewSize = this.content.parent.getContentSize();
+            let viewSize = this._view.getContentSize();
 
             let leftBottomPosition = this._convertToContentParentSpace(cc.v2(0, 0));
             this._leftBoundary = leftBottomPosition.x;
@@ -906,7 +910,7 @@ let ScrollView = cc.Class({
     },
 
     _convertToContentParentSpace (position) {
-        let contentParent = this.content.parent;
+        let contentParent = this._view;
         let viewPositionInWorldSpace = contentParent.convertToWorldSpace(position);
         return contentParent.convertToNodeSpaceAR(viewPositionInWorldSpace);
     },
@@ -1519,10 +1523,10 @@ let ScrollView = cc.Class({
             if (this.content) {
                 this.content.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
-                if (this.content.parent) {
-                    this.content.parent.off(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
-                    this.content.parent.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
-                    this.content.parent.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+                if (this._view) {
+                    this._view.off(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
+                    this._view.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
+                    this._view.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -1532,16 +1536,17 @@ let ScrollView = cc.Class({
 
     onEnable () {
         if (!CC_EDITOR) {
+            this._initView();
             this._registerEvent();
             this.node.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
             this.node.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             if (this.content) {
                 this.content.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
-                if (this.content.parent) {
-                    this.content.parent.on(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
-                    this.content.parent.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
-                    this.content.parent.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
+                if (this._view) {
+                    this._view.on(NodeEvent.POSITION_CHANGED, this._calculateBoundary, this);
+                    this._view.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
+                    this._view.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -1551,6 +1556,12 @@ let ScrollView = cc.Class({
     update (dt) {
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
+        }
+    },
+
+    _initView () {
+        if (this.content) {
+            this._view = this.content.parent;
         }
     }
 });
