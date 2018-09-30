@@ -163,7 +163,7 @@ intersect.rayMesh = (function () {
  * @param {Function} filter
 */
 intersect.raycast = (function () {
-    function traversal(node, cb) {
+    function traversal (node, cb) {
         var children = node.children;
 
         for (var i = children.length - 1; i >= 0; i--) {
@@ -174,11 +174,11 @@ intersect.raycast = (function () {
         cb(node);
     }
 
-    function cmp(a, b) {
+    function cmp (a, b) {
         return a.distance - b.distance;
     }
 
-    function transformMat4Normal(out, a, m) {
+    function transformMat4Normal (out, a, m) {
         let x = a.x, y = a.y, z = a.z,
             rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -203,7 +203,7 @@ intersect.raycast = (function () {
     let modelRay = ray.create();
     let m4 = mat4.create();
 
-    function distanceValid(distance) {
+    function distanceValid (distance) {
         return distance > 0 && distance < Infinity;
     }
 

@@ -27,16 +27,16 @@ const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 
-function applyColor(data, offset, value) {
+function applyColor (data, offset, value) {
     data[offset] = value._val;
 }
 
-function applyVec2(data, offset, value) {
+function applyVec2 (data, offset, value) {
     data[offset] = value.x;
     data[offset + 1] = value.y;
 }
 
-function applyVec3(data, offset, value) {
+function applyVec3 (data, offset, value) {
     data[offset] = value.x;
     data[offset + 1] = value.y;
     data[offset + 2] = value.z;
@@ -73,16 +73,16 @@ var Mesh = cc.Class({
          * @property {[renderEngine.InputAssembler]} subMeshes
          */
         subMeshes: {
-            get() {
+            get () {
                 return this._subMeshes;
             },
-            set(v) {
+            set (v) {
                 this._subMeshes = v;
             }
         }
     },
 
-    ctor() {
+    ctor () {
         this._modelUuid = '';
         this._meshID = -1;
         this._model = null;
@@ -106,7 +106,7 @@ var Mesh = cc.Class({
      * @param {Number} vertexCount - how much vertex should be create in this buffer.
      * @param {Boolean} dynamic - whether or not to use dynamic buffer.
      */
-    init(vertexFormat, vertexCount, dynamic) {
+    init (vertexFormat, vertexCount, dynamic) {
         this.clear();
 
         let data = new Uint8Array(vertexFormat._bytes * vertexCount);
@@ -135,7 +135,7 @@ var Mesh = cc.Class({
      * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      * @param {Number} [index] 
      */
-    setVertexes(name, values, index) {
+    setVertexes (name, values, index) {
         index = index || 0;
         let vb = this._vbs[index];
 
@@ -165,7 +165,7 @@ var Mesh = cc.Class({
         let data = vb[reader.name];
         if (!data) {
             let vbData = vb.data;
-            data = vb[reader.name] = new reader(vbData.buffer, vbData.byteOffset, vbData.byteLength/bytes);
+            data = vb[reader.name] = new reader(vbData.buffer, vbData.byteOffset, vbData.byteLength / bytes);
         }
 
         let stride = el.stride / bytes;
@@ -213,7 +213,7 @@ var Mesh = cc.Class({
      * @param {[Number]} indices - the sub mesh indices.
      * @param {Number} index - sub mesh index.
      */
-    setIndices(indices, index) {
+    setIndices (indices, index) {
         index = index || 0;
 
         let data = new Uint16Array(indices);
@@ -252,7 +252,7 @@ var Mesh = cc.Class({
      * @param {Number} type 
      * @param {Number} index 
      */
-    setPrimitiveType(type, index) {
+    setPrimitiveType (type, index) {
         index = index || 0;
         let subMesh = this._subMeshes[index];
         if (!subMesh) {
@@ -269,7 +269,7 @@ var Mesh = cc.Class({
      * 清除网格创建的内存数据。
      * @method clear
     */
-    clear() {
+    clear () {
         this._subMeshes.length = 0;
 
         let ibs = this._ibs;
@@ -285,11 +285,11 @@ var Mesh = cc.Class({
         vbs.length = 0;
     },
 
-    destroy() {
+    destroy () {
         this.clear();
     },
 
-    _uploadData() {
+    _uploadData () {
         let vbs = this._vbs;
         for (let i = 0; i < vbs.length; i++) {
             let vb = vbs[i];
@@ -311,7 +311,7 @@ var Mesh = cc.Class({
         }
     },
 
-    _initWithModel(model) {
+    _initWithModel (model) {
         if (!model) return;
         this._model = model;
         this._model.initMesh(this);
@@ -328,7 +328,7 @@ var Mesh = cc.Class({
         };
     },
 
-    _deserialize(data, handle) {
+    _deserialize (data, handle) {
         this._modelUuid = data.modelUuid;
         this._meshID = data.meshID;
 
