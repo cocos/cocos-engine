@@ -1,3 +1,7 @@
-require('./aabb');
-require('./intersect');
-require('./ray');
+
+cc.geomUtils = {
+    Triangle: require('./triangle'),
+    Aabb: require('./aabb'),
+    Ray: require('./ray'),
+    intersect: require('./intersect')
+};

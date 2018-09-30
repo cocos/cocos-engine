@@ -9,12 +9,12 @@ const mat4 = cc.vmath.mat4;
 const vec3 = cc.vmath.vec3;
 
 /**
- * !#en 3D Intersection helper class
+ * !#en 3D intersection helper class
  * !#zh 辅助类，用于测试 3D 物体是否相交
- * @class Intersection3D
+ * @class intersect
  * @static
  */
-let Intersection3D = {};
+let intersect = {};
 
 /** 
  * !#en
@@ -22,11 +22,11 @@ let Intersection3D = {};
  * !#zh
  * 检测射线是否与 3D 包围盒相交
  * @method rayAabb
- * @param {Ray} ray
- * @param {Aabb3D} aabb
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Aabb} aabb
  * @return Number
 */
-Intersection3D.rayAabb = (function () {
+intersect.rayAabb = (function () {
     let min = vec3.create();
     let max = vec3.create();
     return function (ray, aabb) {
@@ -53,10 +53,10 @@ Intersection3D.rayAabb = (function () {
  * !#zh
  * 检测射线是否与 3D 三角形相交
  * @method rayTriangle
- * @param {Ray} ray
- * @param {Triangle3D} triangle
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Triangle} triangle
 */
-Intersection3D.rayTriangle = (function () {
+intersect.rayTriangle = (function () {
     let ab = vec3.create(0, 0, 0);
     let ac = vec3.create(0, 0, 0);
     let pvec = vec3.create(0, 0, 0);
@@ -93,10 +93,10 @@ Intersection3D.rayTriangle = (function () {
 })();
 
 
-Intersection3D.rayMesh = (function () {
+intersect.rayMesh = (function () {
     const gfx = renderEngine.gfx;
 
-    let tri = cc.Triangle3D.create();
+    let tri = triangle.create();
     let minDist = Infinity;
 
     const _compType2fn = {
@@ -140,7 +140,7 @@ Intersection3D.rayMesh = (function () {
                 idx = ib[i + 2] * stride + offset;
                 vec3.set(tri.c, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
 
-                let dist = cc.Intersection3D.rayTriangle(ray, tri);
+                let dist = intersect.rayTriangle(ray, tri);
                 if (dist > 0 && dist < minDist) {
                     minDist = dist;
                 }
@@ -158,11 +158,11 @@ Intersection3D.rayMesh = (function () {
  * 检测射线是否与物体有交集
  * @method raycast
  * @param {Node} root - If root is null, then traversal nodes from scene node
- * @param {Ray} worldRay
+ * @param {geomUtils.Ray} worldRay
  * @param {Function} handler
  * @param {Function} filter
 */
-Intersection3D.raycast = (function () {
+intersect.raycast = (function () {
     function traversal(node, cb) {
         var children = node.children;
 
@@ -223,13 +223,13 @@ Intersection3D.raycast = (function () {
             let distance = Infinity;
             let component = node._renderComponent;
             if (component && component._boundingBox) {
-                distance = Intersection3D.rayAabb(modelRay, component._boundingBox);
+                distance = intersect.rayAabb(modelRay, component._boundingBox);
             }
             else if (node.width && node.height) {
                 vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
                 vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
                 aabb.fromPoints(nodeAabb, minPos, maxPos);
-                distance = Intersection3D.rayAabb(modelRay, nodeAabb);
+                distance = intersect.rayAabb(modelRay, nodeAabb);
             }
 
             if (!distanceValid(distance)) return;
@@ -250,4 +250,4 @@ Intersection3D.raycast = (function () {
     }
 })();
 
-cc.Intersection3D = module.exports = Intersection3D;
+module.exports = intersect;

@@ -1,7 +1,7 @@
 const vec3 = cc.vmath.vec3;
 
 /**
- * @class Triangle3D
+ * @class geomUtils.Triangle
  * @param {Number} ax 
  * @param {Number} ay 
  * @param {Number} az 
@@ -30,7 +30,7 @@ function triangle(ax, ay, az, bx, by, bz, cx, cy, cz) {
  * @param {number} cx
  * @param {number} cy
  * @param {number} cz
- * @return {triangle}
+ * @return {geomUtils.Triangle}
  */
 triangle.create = function (ax, ay, az, bx, by, bz, cx, cy, cz) {
     return new triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
@@ -39,8 +39,8 @@ triangle.create = function (ax, ay, az, bx, by, bz, cx, cy, cz) {
 /**
  * clone a new triangle
  * @method clone
- * @param {triangle} t the source plane
- * @return {triangle}
+ * @param {geomUtils.Triangle} t the source plane
+ * @return {geomUtils.Triangle}
  */
 triangle.clone = function (t) {
     return new triangle(
@@ -53,9 +53,9 @@ triangle.clone = function (t) {
 /**
  * copy the values from one triangle to another
  * @method copy
- * @param {triangle} out the receiving triangle
- * @param {triangle} t the source triangle
- * @return {triangle}
+ * @param {geomUtils.Triangle} out the receiving triangle
+ * @param {geomUtils.Triangle} t the source triangle
+ * @return {geomUtils.Triangle}
  */
 triangle.copy = function (out, t) {
     vec3.copy(out.a, t.a);
@@ -68,11 +68,11 @@ triangle.copy = function (out, t) {
 /**
  * Create a triangle from three points
  * @method fromPoints
- * @param {triangle} out the receiving triangle
+ * @param {geomUtils.Triangle} out the receiving triangle
  * @param {vec3} a
  * @param {vec3} b
  * @param {vec3} c
- * @return {triangle}
+ * @return {geomUtils.Triangle}
  */
 triangle.fromPoints = function (out, a, b, c) {
     vec3.copy(out.a, a);
@@ -85,7 +85,7 @@ triangle.fromPoints = function (out, a, b, c) {
  * Set the components of a triangle to the given values
  *
  * @method set
- * @param {Triangle3D} out the receiving plane
+ * @param {geomUtils.Triangle} out the receiving plane
  * @param {number} ax X component of a
  * @param {number} ay Y component of a
  * @param {number} az Z component of a
@@ -113,4 +113,4 @@ triangle.set = function (out, ax, ay, az, bx, by, bz, cx, cy, cz) {
     return out;
 }
 
-cc.Triangle3D = module.exports = triangle;
+module.exports = triangle;

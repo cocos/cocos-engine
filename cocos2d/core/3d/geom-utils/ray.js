@@ -1,7 +1,7 @@
 const vec3 = cc.vmath.vec3;
 
 /**
- * @class Ray
+ * @class geomUtils.Ray
  * @param {Number} ox 
  * @param {Number} oy 
  * @param {Number} oz 
@@ -23,7 +23,7 @@ function ray(ox, oy, oz, dx, dy, dz) {
  * @param {Number} dx dir X component
  * @param {Number} dy dir Y component
  * @param {Number} dz dir Z component
- * @return {Ray}
+ * @return {geomUtils.Ray}
  */
 ray.create = function (ox, oy, oz, dx, dy, dz) {
     return new ray(ox, oy, oz, dx, dy, dz);
@@ -32,8 +32,8 @@ ray.create = function (ox, oy, oz, dx, dy, dz) {
 /**
  * Creates a new ray initialized with values from an existing ray
  * @method clone
- * @param {Ray} a ray to clone
- * @returns {Ray} a new ray
+ * @param {geomUtils.Ray} a ray to clone
+ * @returns {geomUtils.Ray} a new ray
  */
 ray.clone = function (a) {
     return new ray(
@@ -45,9 +45,9 @@ ray.clone = function (a) {
 /**
  * Copy the values from one ray to another
  * @method copy
- * @param {Ray} out the receiving ray
- * @param {Ray} a the source ray
- * @returns {Ray} out
+ * @param {geomUtils.Ray} out the receiving ray
+ * @param {geomUtils.Ray} a the source ray
+ * @returns {geomUtils.Ray} out
  */
 ray.copy = function (out, a) {
     out.o.x = a.o.x;
@@ -86,10 +86,10 @@ ray.set = function (out, ox, oy, oz, dx, dy, dz) {
 /**
  * create ray from 2 points
  * @method fromPoints
- * @param {Ray} out the receiving plane
+ * @param {geomUtils.Ray} out the receiving plane
  * @param {vec3} origin
  * @param {vec3} lookAt
- * @returns {Ray} out
+ * @returns {geomUtils.Ray} out
  */
 ray.fromPoints = function (out, origin, lookAt) {
     vec3.copy(out.o, origin);
@@ -98,4 +98,4 @@ ray.fromPoints = function (out, origin, lookAt) {
     return out;
 }
 
-cc.Ray = module.exports = ray;
+module.exports = ray;

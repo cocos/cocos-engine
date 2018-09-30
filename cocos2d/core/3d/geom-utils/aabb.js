@@ -14,7 +14,7 @@ let transform_extent_m4 = function (out, extent, m4) {
 };
 
 /**
- * @class Aabb3D
+ * @class geomUtils.Aabb
  * @param {Number} px 
  * @param {Number} py 
  * @param {Number} pz 
@@ -47,7 +47,7 @@ proto.getBoundary = function (minPos, maxPos) {
  * @param {vec3} pos the position part of the transform
  * @param {quat} rot the rotation part of the transform
  * @param {vec3} scale the scale part of the transform
- * @param {Aabb3D} [out] the target shape
+ * @param {geomUtils.Aabb} [out] the target shape
  */
 proto.transform = function (m, pos, rot, scale, out) {
     if (!out) out = this;
@@ -65,7 +65,7 @@ proto.transform = function (m, pos, rot, scale, out) {
  * @param {number} w the half of aabb width
  * @param {number} h the half of aabb height
  * @param {number} l the half of aabb length
- * @return {Aabb3D}
+ * @return {geomUtils.Aabb}
  */
 aabb.create = function (px, py, pz, w, h, l) {
     return new aabb(px, py, pz, w, h, l);
@@ -74,20 +74,20 @@ aabb.create = function (px, py, pz, w, h, l) {
 /**
  * clone a new aabb
  * @method clone
- * @param {Aabb3D} a the source aabb
- * @return {Aabb3D}
+ * @param {geomUtils.Aabb} a the source aabb
+ * @return {geomUtils.Aabb}
  */
 aabb.clone = function (a) {
-    return new Aabb3D(a.center.x, a.center.y, a.center.z,
+    return new Aabb(a.center.x, a.center.y, a.center.z,
         a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
 }
 
 /**
  * copy the values from one aabb to another
  * @method copy
- * @param {Aabb3D} out the receiving aabb
- * @param {Aabb3D} a the source aabb
- * @return {Aabb3D}
+ * @param {geomUtils.Aabb} out the receiving aabb
+ * @param {geomUtils.Aabb} a the source aabb
+ * @return {geomUtils.Aabb}
  */
 aabb.copy = function (out, a) {
     vec3.copy(out.center, a.center);
@@ -99,10 +99,10 @@ aabb.copy = function (out, a) {
 /**
  * create a new aabb from two corner points
  * @method fromPoints
- * @param {Aabb3D} out the receiving aabb
+ * @param {geomUtils.Aabb} out the receiving aabb
  * @param {vec3} minPos lower corner position of the aabb
  * @param {vec3} maxPos upper corner position of the aabb
- * @return {Aabb3D}
+ * @return {geomUtils.Aabb}
  */
 aabb.fromPoints = function (out, minPos, maxPos) {
     vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -113,14 +113,14 @@ aabb.fromPoints = function (out, minPos, maxPos) {
 /**
  * Set the components of a aabb to the given values
  * @method set
- * @param {aabb} out the receiving aabb
+ * @param {geomUtils.Aabb} out the receiving aabb
  * @param {number} px X coordinates for aabb's original point
  * @param {number} py Y coordinates for aabb's original point
  * @param {number} pz Z coordinates for aabb's original point
  * @param {number} w the half of aabb width
  * @param {number} h the half of aabb height
  * @param {number} l the half of aabb length
- * @return {Aabb3D} out
+ * @return {geomUtils.Aabb} out
  */
 aabb.set = function (out, px, py, pz, w, h, l) {
     vec3.set(out.center, px, py, pz);
@@ -128,4 +128,4 @@ aabb.set = function (out, px, py, pz, w, h, l) {
     return out;
 }
 
-cc.Aabb3D = module.exports = aabb;
+module.exports = aabb;
