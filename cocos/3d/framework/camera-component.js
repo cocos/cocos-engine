@@ -26,7 +26,7 @@
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
-import { ccclass, menu, property } from "../../core/data/class-decorator";
+import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 import { Color, Enum } from '../../core/value-types';
 
 /**
@@ -70,6 +70,7 @@ let CameraProjection = Enum({
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
+@executeInEditMode
 export default class CameraComponent extends RenderSystemActor{
     @property
     _projection = CameraProjection.Perspective;
