@@ -40,6 +40,10 @@ cc.Scene = cc.Class({
     extends: require('./CCNode'),
 
     properties: {
+        _is3DNode: {
+            default: true,
+            override: true
+        },
 
         /**
          * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.

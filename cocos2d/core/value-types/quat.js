@@ -135,6 +135,13 @@ proto.getYaw = function () {
     return 180 * Math.atan2(siny, cosy) / Math.PI;
 };
 
+proto.getEulerAngles = function (out) {
+    out = out || cc.v3();
+    out.x = this.getRoll();
+    out.y = this.getPitch();
+    out.z = this.getYaw();
+}
+
 proto.lerp = function (to, ratio, out) {
     out = out || new cc.Quat();
     cc.vmath.quat.slerp(out, this, to, ratio);
