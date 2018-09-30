@@ -67,6 +67,26 @@ if (CC_DEBUG) {
         });
     }
 
+    function markAsDeprecated (ownerCtor, deprecatedProps, ownerName) {
+        if (!ownerCtor) {
+            return;
+        }
+        ownerName = ownerName || js.getClassName(ownerCtor);
+        let descriptors = Object.getOwnPropertyDescriptors(ownerCtor.prototype);
+        deprecatedProps.forEach(function (prop) {
+            let deprecatedProp = prop[0];
+            let newProp = prop[1];
+            let descriptor = descriptors[deprecatedProp];
+            js.getset(ownerCtor.prototype, deprecatedProp, function () {
+                cc.warnID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}.${newProp}`);
+                return descriptor.get.call(this);
+            }, function (v) {
+                cc.warnID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}.${newProp}`);
+                descriptor.set.call(this, v);
+            })
+        })
+    }
+
     function markAsRemovedInObject (ownerObj, removedProps, ownerName) {
         if (!ownerObj) {
             // 可能被裁剪了
@@ -329,6 +349,12 @@ if (CC_DEBUG) {
         'isRunning',
         '_sgNode',
     ]);
+
+    markAsDeprecated(cc.Node, [
+        ['rotationX', 'eulerAngles'],
+        ['rotationY', 'eulerAngles'],
+        ['rotation', 'angle'],
+    ])
 
     markFunctionWarning(cc.Node.prototype, {
         getNodeToParentTransform: 'getLocalMatrix',

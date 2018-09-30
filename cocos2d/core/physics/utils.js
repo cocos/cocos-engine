@@ -24,13 +24,13 @@
  ****************************************************************************/
 
 function getWorldRotation (node) {
-    var rot = node.rotationX;
+    var rot = node.angle;
     var parent = node.parent;
     while(parent.parent){
-        rot += parent.rotationX;
+        rot += parent.angle;
         parent = parent.parent;
     }
-    return rot;
+    return -rot;
 }
 
 function getWorldScale (node) {
@@ -49,10 +49,10 @@ function getWorldScale (node) {
 }
 
 function convertToNodeRotation (node, rotation) {
-    rotation -= node.rotationX;
+    rotation -= -node.angle;
     var parent = node.parent;
     while(parent.parent){
-        rotation -= parent.rotationX;
+        rotation -= -parent.angle;
         parent = parent.parent;
     }
     return rotation;

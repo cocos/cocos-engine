@@ -3,6 +3,7 @@ largeModule('Animation', SetupEngine);
 var color = cc.color;
 var Color = cc.Color;
 var v2 = cc.v2;
+var v3 = cc.v3;
 
 test('curve types', function () {
     var initClipData = cc._Test.initClipData;
@@ -63,7 +64,7 @@ test('DynamicAnimCurve', function () {
     anim.ratios = [0.0, 1.0];
     anim.sample(null, 0.1, null);
 
-    deepEqual(target.position, v2(55, 456), 'The composed position should animated');
+    deepEqual(target.position, v2(55, 456, 0), 'The composed position should animated');
 
     anim.target = target;
     anim.prop = 'foo';
@@ -406,17 +407,17 @@ test('SampledAnimCurve', function () {
     state.time = 0.2;
     state.sample();
 
-    deepEqual(entity.position, v2(0, 0), 'entity position should be (0,0)');
+    deepEqual(entity.position, v3(0, 0, 0), 'entity position should be (0, 0, 0)');
 
     state.time = 0.7;
     state.sample();
 
-    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+    deepEqual(entity.position, v3(100, 100, 0), 'entity position should be (100, 100, 0)');
 
     state.time = 0.9;
     state.sample();
 
-    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+    deepEqual(entity.position, v3(100, 100, 0), 'entity position should be (100, 100, 0)');
 });
 
 

@@ -33,19 +33,19 @@ function applyColor (data, offset, value) {
 
 function applyVec2 (data, offset, value) {
     data[offset] = value.x;
-    data[offset+1] = value.y;
+    data[offset + 1] = value.y;
 }
 
 function applyVec3 (data, offset, value) {
     data[offset] = value.x;
-    data[offset+1] = value.y;
-    data[offset+2] = value.z;
+    data[offset + 1] = value.y;
+    data[offset + 2] = value.z;
 }
 
 
- /**
- * @module cc
- */
+/**
+* @module cc
+*/
 /**
  * !#en Mesh Asset.
  * !#zh 网格资源。
@@ -91,6 +91,9 @@ var Mesh = cc.Class({
 
         this._ibs = [];
         this._vbs = [];
+
+        this._minPos = cc.v3();
+        this._maxPos = cc.v3();
     },
 
     /**
@@ -105,8 +108,8 @@ var Mesh = cc.Class({
      */
     init (vertexFormat, vertexCount, dynamic) {
         this.clear();
-        
-        let data = new Uint8Array(vertexFormat._bytes*vertexCount);
+
+        let data = new Uint8Array(vertexFormat._bytes * vertexCount);
         let vb = new gfx.VertexBuffer(
             renderer.device,
             vertexFormat,
@@ -118,12 +121,10 @@ var Mesh = cc.Class({
         this._vbs[0] = {
             buffer: vb,
             data: data,
-            float32Data: new Float32Array(data.buffer),
-            uint32Data: new Uint32Array(data.buffer),
             dirty: true
         };
     },
-    
+
     /**
      * !#en
      * Set the vertex values.
@@ -131,7 +132,7 @@ var Mesh = cc.Class({
      * 设置顶点数据
      * @method setVertexes
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
-     * @param {[Vec2|Vec3|Color]} values - the vertex values
+     * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      * @param {Number} [index] 
      */
     setVertexes (name, values, index) {
@@ -144,29 +145,61 @@ var Mesh = cc.Class({
             return cc.warn(`Cannot find ${name} attribute in vertex defines.`);
         }
 
-        let stride = el.stride/4;
-        let offset = el.offset/4;
 
-        let data;
-        let applyFunc;
+        // whether the values is expanded
+        let isFlatMode = typeof values[0] === 'number';
+        let elNum = el.num;
+
+        let reader = Float32Array;
+        let bytes = 4;
         if (name === gfx.ATTR_COLOR) {
-            data = vb.uint32Data;
-            applyFunc = applyColor;
-        }
-        else {
-            data = vb.float32Data;
-            if (el.num === 2) {
-                applyFunc = applyVec2;
+            if (isFlatMode) {
+                reader = Float32Array;
+                bytes = 1;
             }
             else {
-                applyFunc = applyVec3;
+                reader = Uint32Array;
             }
         }
 
-        for (let i = 0, l = values.length; i < l; i++) {
-            let v = values[i];
-            let vOffset = i * stride + offset;
-            applyFunc(data, vOffset, v);
+        let data = vb[reader.name];
+        if (!data) {
+            let vbData = vb.data;
+            data = vb[reader.name] = new reader(vbData.buffer, vbData.byteOffset, vbData.byteLength / bytes);
+        }
+
+        let stride = el.stride / bytes;
+        let offset = el.offset / bytes;
+
+        if (isFlatMode) {
+            for (let i = 0, l = (values.length / elNum); i < l; i++) {
+                let sOffset = i * elNum;
+                let dOffset = i * stride + offset;
+                for (let j = 0; j < elNum; j++) {
+                    data[dOffset + j] = values[sOffset + j];
+                }
+            }
+        }
+        else {
+            let applyFunc;
+            if (name === gfx.ATTR_COLOR) {
+                applyFunc = applyColor;
+            }
+            else {
+
+                if (elNum === 2) {
+                    applyFunc = applyVec2;
+                }
+                else {
+                    applyFunc = applyVec3;
+                }
+            }
+
+            for (let i = 0, l = values.length; i < l; i++) {
+                let v = values[i];
+                let vOffset = i * stride + offset;
+                applyFunc(data, vOffset, v);
+            }
         }
         vb.dirty = true;
     },
