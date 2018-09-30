@@ -11,7 +11,7 @@ const vec3 = cc.vmath.vec3;
 /**
  * !#en 3D intersection helper class
  * !#zh 辅助类，用于测试 3D 物体是否相交
- * @class intersect
+ * @class geomUtils.intersect
  * @static
  */
 let intersect = {};
