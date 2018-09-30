@@ -2150,7 +2150,7 @@ let NodeDefines = {
      * @return {Quat} Quaternion object represents the rotation
      */
     getRotation (out) {
-        if (type === cc.Quat) {
+        if (out instanceof cc.Quat) {
             return out.set(this._quat);
         }
         else {

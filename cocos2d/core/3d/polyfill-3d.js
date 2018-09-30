@@ -242,3 +242,9 @@ cc.js.getset(proto, 'eulerAngles', function () {
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });
+
+// This property is used for Mesh Skeleton Animation
+// Should be rememoved when node.rotation upgrade to quaternion value
+cc.js.getset(proto, 'quat', function () {
+    return this._quat;
+}, proto.setRotation);
