@@ -64,7 +64,7 @@ const ANCHOR_ON = 1 << 4;
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
-})
+});
 
 /**
  * !#en Node's local dirty properties flag
@@ -1276,7 +1276,7 @@ var Node = cc.Class({
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
         let quat = this._quat;
-        if ((this._rotationX !== 0 || this._rotationY !== 0) && 
+        if ((this._rotationX !== 0 || this._rotationY !== 0) &&
             (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
                 math.quat.fromEuler(quat, 0, 0, -this._rotationX);
@@ -1339,7 +1339,7 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            
+
             // ActionManager may not be inited in the editor worker.
             let manager = cc.director.getActionManager();
             manager && manager.pauseTarget(this);
@@ -3063,9 +3063,9 @@ var Node = cc.Class({
 // 3D Node Property
 
 /**
- * !en 
+ * !en
  * Switch 2D/3D node. The 2D nodes will run faster.
- * !zh 
+ * !zh
  * 切换 2D/3D 节点，2D 节点会有更高的运行效率
  * @property {Boolean} is3DNode
  * @default false
@@ -3185,7 +3185,6 @@ var Node = cc.Class({
 
 let _p = Node.prototype;
 js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
-js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
