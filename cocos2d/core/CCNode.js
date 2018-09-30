@@ -2115,7 +2115,8 @@ let NodeDefines = {
      * @param {Number} [y]
      * @param {Number} [z]
      * @example
-     * node.setScale(cc.v2(2, 2, 2));
+     * node.setScale(cc.v2(2, 2));
+     * node.setScale(cc.v3(2, 2, 2)); // for 3D node
      * node.setScale(2);
      */
     setScale (x, y) {
