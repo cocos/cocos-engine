@@ -336,6 +336,13 @@ var BaseNode = cc.Class({
 
         this._renderFlag = RenderFlow.FLAG_TRANSFORM;
     },
+    /** 
+     * !#en The parent of the node.
+     * !#zh 该节点的父节点。
+     * @property {Node} parent
+     * @example 
+     * cc.log("Node Parent: " + node.parent);
+     */
 
     /**
      * !#en Get parent of the node.
@@ -1326,7 +1333,7 @@ if(CC_EDITOR) {
 }
 
 // Define public getter and setter methods to ensure api compatibility.
-var SameNameGetSets = ['name', 'children', 'childrenCount',];
+var SameNameGetSets = ['parent', 'name', 'children', 'childrenCount',];
 misc.propertyDefine(BaseNode, SameNameGetSets, {});
 
 if (CC_DEV) {

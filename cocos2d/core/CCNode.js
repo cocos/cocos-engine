@@ -64,7 +64,7 @@ const ANCHOR_ON = 1 << 4;
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
-})
+});
 
 /**
  * !#en Node's local dirty properties flag
@@ -1337,7 +1337,7 @@ let NodeDefines = {
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            
+
             // ActionManager may not be inited in the editor worker.
             let manager = cc.director.getActionManager();
             manager && manager.pauseTarget(this);
@@ -3135,9 +3135,9 @@ let Node = cc.Class(NodeDefines);
 // 3D Node Property
 
 /**
- * !en 
+ * !en
  * Switch 2D/3D node. The 2D nodes will run faster.
- * !zh 
+ * !zh
  * 切换 2D/3D 节点，2D 节点会有更高的运行效率
  * @property {Boolean} is3DNode
  * @default false
@@ -3256,7 +3256,6 @@ let Node = cc.Class(NodeDefines);
 
 
 let _p = Node.prototype;
-js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 
 cc.Node = module.exports = Node;
