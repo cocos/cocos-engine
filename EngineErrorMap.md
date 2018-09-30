@@ -2626,15 +2626,18 @@ Missing StripByteCounts!
 
 ### 8100
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile shader:
- %s
+%s
 
 ### 8101
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile vertex shader
 
 ### 8102
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile fragment shader
 
 ### 8103
