@@ -82,21 +82,6 @@ function _calculWorldMatrix3d () {
 }
 
 
-/**
- * !#en
- * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
- * Usually we use cc.v3(x, y, z) to compose cc.Vec3 object.<br/>
- * and Passing two numbers (x, y, z) is more efficient than passing cc.Vec3 object.
- * !#zh
- * 设置节点在父节点坐标系中的位置。<br/>
- * 可以通过两种方式设置坐标点：<br/>
- * 1. 传入 3 个数值 x, y, z。<br/>
- * 2. 传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
- * @method setPosition
- * @param {Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
- * @param {Number} [y] - Y coordinate for position
- * @param {Number} [z] - Z coordinate for position
- */
 function setPosition (newPosOrX, y, z) {
     let x;
     if (y === undefined) {
@@ -135,18 +120,6 @@ function setPosition (newPosOrX, y, z) {
     }
 }
 
-
-/**
- * !#en Sets the scale of three axis in local coordinates of the node.
- * !#zh 设置节点在本地坐标系中三个坐标轴上的缩放比例。
- * @method setScale
- * @param {Number|Vec3} x - scaleX or scale object
- * @param {Number} [y]
- * @param {Number} [z]
- * @example
- * node.setScale(cc.v2(2, 2, 2));
- * node.setScale(2);
- */
 function setScale (x, y, z) {
     if (x && typeof x !== 'number') {
         y = x.y;

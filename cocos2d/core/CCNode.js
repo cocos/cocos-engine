@@ -743,14 +743,14 @@ let NodeDefines = {
                 return this._eulerAngles.x;
             },
             set (value) {
-                if (this.this._eulerAngles.x !== value) {
-                    this.this._eulerAngles.x = value;
+                if (this._eulerAngles.x !== value) {
+                    this._eulerAngles.x = value;
                     // Update quaternion from rotation
-                    if (this.this._eulerAngles.x === this.this._eulerAngles.y) {
+                    if (this._eulerAngles.x === this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, value, this.this._eulerAngles.y, 0);
+                        math.quat.fromEuler(this._quat, value, this._eulerAngles.y, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -774,17 +774,17 @@ let NodeDefines = {
          */
         rotationY: {
             get () {
-                return this.this._eulerAngles.y;
+                return this._eulerAngles.y;
             },
             set (value) {
-                if (this.this._eulerAngles.y !== value) {
-                    this.this._eulerAngles.y = value;
+                if (this._eulerAngles.y !== value) {
+                    this._eulerAngles.y = value;
                     // Update quaternion from rotation
-                    if (this.this._eulerAngles.x === this.this._eulerAngles.y) {
+                    if (this._eulerAngles.x === this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, this.this._eulerAngles.x, value, 0);
+                        math.quat.fromEuler(this._quat, this._eulerAngles.x, value, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
