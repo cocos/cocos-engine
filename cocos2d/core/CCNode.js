@@ -2021,13 +2021,17 @@ let NodeDefines = {
     /**
      * !#en
      * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
-     * Usually we use cc.v3(x, y, z) to compose cc.Vec3 object.<br/>
-     * and Passing two numbers (x, y, z) is more efficient than passing cc.Vec3 object.
+     * Usually we use cc.v2(x, y) to compose cc.Vec2 object,<br/>
+     * and passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
+     * For 3D node we can use cc.v3(x, y, z) to compose cc.Vec3 object,<br/>
+     * and passing three numbers (x, y, z) is more efficient than passing cc.Vec3 object.
      * !#zh
      * 设置节点在父节点坐标系中的位置。<br/>
-     * 可以通过两种方式设置坐标点：<br/>
-     * 1. 传入 3 个数值 x, y, z。<br/>
-     * 2. 传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
+     * 可以通过下面的方式设置坐标点：<br/>
+     * 1. 传入 2 个数值 x, y。<br/>
+     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
+     * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
+     * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
      * @param {Vec2|Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
      * @param {Number} [y] - Y coordinate for position
@@ -2100,8 +2104,12 @@ let NodeDefines = {
     },
 
     /**
-     * !#en Sets the scale of three axis in local coordinates of the node.
-     * !#zh 设置节点在本地坐标系中三个坐标轴上的缩放比例。
+     * !#en 
+     * Sets the scale of axis in local coordinates of the node.
+     * You can operate 2 axis in 2D node, and 3 axis in 3D node.
+     * !#zh 
+     * 设置节点在本地坐标系中坐标轴上的缩放比例。
+     * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
      * @method setScale
      * @param {Number|Vec2|Vec3} x - scaleX or scale object
      * @param {Number} [y]
