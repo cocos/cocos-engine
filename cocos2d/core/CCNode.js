@@ -513,7 +513,7 @@ function _doDispatchEvent (owner, event) {
  * @class Node
  * @extends _BaseNode
  */
-var Node = cc.Class({
+let NodeDefines = {
     name: 'cc.Node',
     extends: BaseNode,
 
@@ -535,28 +535,6 @@ var Node = cc.Class({
         _zIndex: 0,
 
         _is3DNode: false,
-
-        // deprecated
-        _scaleX: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _scaleY: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationX: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationY: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
 
         // internal properties
 
@@ -705,7 +683,7 @@ var Node = cc.Class({
          * !#zh 该节点旋转角度。
          * @property rotation
          * @type {Number}
-         * @deprecated since v2.0
+         * @deprecated since v2.1
          * @example
          * node.rotation = 90;
          * cc.log("Node Rotation: " + node.rotation);
@@ -756,23 +734,23 @@ var Node = cc.Class({
          * @property rotationX
          * @type {Number}
          * @example
-         * @deprecated since v2.0
+         * @deprecated since v2.1
          * node.rotationX = 45;
          * cc.log("Node Rotation X: " + node.rotationX);
          */
         rotationX: {
             get () {
-                return this._rotationX;
+                return this._eulerAngles.x;
             },
             set (value) {
-                if (this._rotationX !== value) {
-                    this._rotationX = value;
+                if (this.this._eulerAngles.x !== value) {
+                    this.this._eulerAngles.x = value;
                     // Update quaternion from rotation
-                    if (this._rotationX === this._rotationY) {
+                    if (this.this._eulerAngles.x === this.this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, value, this._rotationY, 0);
+                        math.quat.fromEuler(this._quat, value, this.this._eulerAngles.y, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -790,23 +768,23 @@ var Node = cc.Class({
          * @property rotationY
          * @type {Number}
          * @example
-         * @deprecated since v2.0
+         * @deprecated since v2.1
          * node.rotationY = 45;
          * cc.log("Node Rotation Y: " + node.rotationY);
          */
         rotationY: {
             get () {
-                return this._rotationY;
+                return this.this._eulerAngles.y;
             },
             set (value) {
-                if (this._rotationY !== value) {
-                    this._rotationY = value;
+                if (this.this._eulerAngles.y !== value) {
+                    this.this._eulerAngles.y = value;
                     // Update quaternion from rotation
-                    if (this._rotationX === this._rotationY) {
+                    if (this.this._eulerAngles.x === this.this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, this._rotationX, value, 0);
+                        math.quat.fromEuler(this._quat, this.this._eulerAngles.x, value, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -2023,33 +2001,37 @@ var Node = cc.Class({
 
 // TRANSFORM RELATED
     /**
-     * !#en Returns a copy of the position (x, y) of the node in its parent's coordinates.
-     * !#zh 获取节点在父节点坐标系中的位置（x, y）。
+     * !#en 
+     * Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
+     * You can pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
+     * !#zh 
+     * 获取节点在父节点坐标系中的位置（x, y, z）。
+     * 你可以传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getPosition
-     * @param {Vec2|Vec3} out - The return value to receive position
-     * @return {Vec2} The position (x, y) of the node in its parent's coordinates
+     * @param {Vec2|Vec3} [out] - The return value to receive position
+     * @return {Vec2|Vec3} The position (x, y, z) of the node in its parent's coordinates
      * @example
      * cc.log("Node Position: " + node.getPosition());
      */
     getPosition (out) {
-        out = out || cc.v2();
+        out = out || cc.v3();
         return out.set(this._position);
     },
 
     /**
      * !#en
-     * Sets the position (x, y) of the node in its parent's coordinates.<br/>
-     * Usually we use cc.v2(x, y) to compose cc.Vec2 object.<br/>
-     * and Passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
+     * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
+     * Usually we use cc.v3(x, y, z) to compose cc.Vec3 object.<br/>
+     * and Passing two numbers (x, y, z) is more efficient than passing cc.Vec3 object.
      * !#zh
      * 设置节点在父节点坐标系中的位置。<br/>
      * 可以通过两种方式设置坐标点：<br/>
-     * 1. 传入 2 个数值 x 和 y。<br/>
-     * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
+     * 1. 传入 3 个数值 x, y, z。<br/>
+     * 2. 传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
-     * @param {Vec2|Number} newPosOrX - X coordinate for position or the position (x, y) of the node in coordinates
+     * @param {Vec2|Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
      * @param {Number} [y] - Y coordinate for position
-     * @example {@link cocos2d/core/utils/base-node/setPosition.js}
+     * @param {Number} [z] - Z coordinate for position
      */
     setPosition (newPosOrX, y) {
         var x;
@@ -2099,13 +2081,13 @@ var Node = cc.Class({
     /**
      * !#en
      * Returns the scale factor of the node.
-     * Assertion will fail when scale x != scale y.
-     * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
+     * Need pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
+     * !#zh 获取节点的缩放，需要传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getScale
-     * @param {Vec3} out
-     * @return {Number|Vec3} The scale factor
+     * @param {Vec2|Vec3} out
+     * @return {Vec2|Vec3} The scale factor
      * @example
-     * cc.log("Node Scale: " + node.getScale());
+     * cc.log("Node Scale: " + node.getScale(cc.v3()));
      */
     getScale (out) {
         if (out !== undefined) {
@@ -2118,14 +2100,15 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
-     * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
+     * !#en Sets the scale of three axis in local coordinates of the node.
+     * !#zh 设置节点在本地坐标系中三个坐标轴上的缩放比例。
      * @method setScale
-     * @param {Number|Vec2} scaleX - scaleX or scale
-     * @param {Number} [scaleY]
+     * @param {Number|Vec2|Vec3} x - scaleX or scale object
+     * @param {Number} [y]
+     * @param {Number} [z]
      * @example
-     * node.setScale(cc.v2(1, 1));
-     * node.setScale(1);
+     * node.setScale(cc.v2(2, 2, 2));
+     * node.setScale(2);
      */
     setScale (x, y) {
         if (x && typeof x !== 'number') {
@@ -2148,27 +2131,33 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Get rotation of node (along z axi).
-     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * !#en 
+     * Get rotation of node (in quaternion). 
+     * Need pass a cc.Quat as the argument to receive the return values.
+     * !#zh 
+     * 获取该节点的 quaternion 旋转角度，需要传一个 cc.Quat 作为参数来接收返回值。
      * @method getRotation
      * @param {Quat} out
-     * @return {Number|Quat} rotation Degree rotation value
+     * @return {Quat} Quaternion object represents the rotation
      */
     getRotation (out) {
         if (type === cc.Quat) {
             return out.set(this._quat);
         }
         else {
-            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');
+            cc.warnID(1400, 'cc.Node.getRotation', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');
             return -this.angle;
         }
     },
 
     /**
-     * !#en Set rotation of node (along z axi).
-     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * !#en Set rotation of node (in quaternion).
+     * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
-     * @param {Quat} rotation Degree rotation value
+     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion	
+     * @param {Number} y y value of quternion	
+     * @param {Number} z z value of quternion	
+     * @param {Number} w w value of quternion
      */
     setRotation (quat, y, z, w) {
         if (typeof quat === 'number' && y === undefined) {
@@ -3104,7 +3093,35 @@ var Node = cc.Class({
             eventManager.pauseTarget(this);
         }
     },
-});
+};
+
+if (CC_EDITOR) {
+    // deprecated, only used to import old data in editor
+    js.mixin(NodeDefines.properties, {
+        _scaleX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _scaleY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+    });
+}
+
+let Node = cc.Class(NodeDefines);
 
 // 3D Node Property
 
