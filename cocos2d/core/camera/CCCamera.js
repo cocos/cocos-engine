@@ -28,6 +28,7 @@ const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 const game = require('../CCGame');
+const ray = require('../3d/geom-utils/ray');
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -35,6 +36,9 @@ const vec3 = cc.vmath.vec3;
 
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
+
+let _v3_temp_1 = vec3.create();
+let _v3_temp_2 = vec3.create();
 
 let _cameras = [];
 
@@ -618,6 +622,22 @@ let Camera = cc.Class({
             mat4.copy(out, _mat4_temp_1);
         }
         return out;
+    },
+
+    /**
+     * !#en
+     * Get a ray from screen position
+     * !#zh
+     * 从屏幕坐标获取一条射线
+     * @method getRay
+     * @param {Vec3} screenPos 
+     * @return {Ray}
+     */
+    getRay (screenPos) {
+        this.node.getWorldPos(_v3_temp_1);
+        this._camera.screenToWorld(_v3_temp_2, screenPos, cc.visibleRect.width, cc.visibleRect.height);
+        vec3.sub(_v3_temp_2, _v3_temp_2, _v3_temp_1);
+        return ray.create(_v3_temp_1.x, _v3_temp_1.y, _v3_temp_1.z, _v3_temp_2.x, _v3_temp_2.y, _v3_temp_2.z);
     },
 
     /**

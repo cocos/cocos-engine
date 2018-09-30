@@ -50,6 +50,19 @@ const _compType2Array = {
     5126: Float32Array,
 };
 
+const _gltfAttribMap = {
+    POSITION: gfx.ATTR_POSITION,
+    NORMAL: gfx.ATTR_NORMAL,
+    TANGENT: gfx.ATTR_TANGENT,
+    COLOR_0: gfx.ATTR_COLOR0,
+    TEXCOORD_0: gfx.ATTR_UV0,
+    TEXCOORD_1: gfx.ATTR_UV1,
+    TEXCOORD_2: gfx.ATTR_UV2,
+    TEXCOORD_3: gfx.ATTR_UV3,
+    JOINTS_0: gfx.ATTR_JOINTS,
+    WEIGHTS_0: gfx.ATTR_WEIGHTS
+};
+
 function createArray(gltf, bin, accessorID) {
     let acc = gltf.accessors[accessorID];
     let bufView = gltf.bufferViews[acc.bufferView];
@@ -110,122 +123,18 @@ var Model = cc.Class({
 
         let byteOffset = 10e7, maxByteOffset = 0;
 
-        if (attributes.POSITION !== undefined) {
-            let acc = accessors[attributes.POSITION];
+        for (let gltfAttribName in attributes) {
+            const gfxAttribName = _gltfAttribMap[gltfAttribName];
+            if (gfxAttribName === undefined) {
+                console.error(`Found unacceptable GlTf attribute ${gltfAttribName}.`);
+                return;
+            }
+            let acc = accessors[attributes[gltfAttribName]];
             let vbView = gltf.bufferViews[acc.bufferView];
             vcount = acc.count;
 
             vfmt.push({
-                name: gfx.ATTR_POSITION, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.NORMAL !== undefined) {
-            let acc = accessors[attributes.NORMAL];
-            let vbView = gltf.bufferViews[acc.bufferView];
-
-            vfmt.push({
-                name: gfx.ATTR_NORMAL, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.TANGENT !== undefined) {
-            let acc = accessors[attributes.TANGENT];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_TANGENT, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.COLOR_0 !== undefined) {
-            let acc = accessors[attributes.COLOR_0];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_COLOR0, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.TEXCOORD_0 !== undefined) {
-            let acc = accessors[attributes.TEXCOORD_0];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_UV0, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.TEXCOORD_1 !== undefined) {
-            let acc = accessors[attributes.TEXCOORD_1];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_UV1, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.TEXCOORD_2 !== undefined) {
-            let acc = accessors[attributes.TEXCOORD_2];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_UV2, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.TEXCOORD_3 !== undefined) {
-            let acc = accessors[attributes.TEXCOORD_3];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_UV3, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.JOINTS_0 !== undefined) {
-            let acc = accessors[attributes.JOINTS_0];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_JOINTS, type: acc.componentType, num: _type2size[acc.type],
-                byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
-            });
-
-            byteOffset = Math.min(byteOffset, vbView.byteOffset);
-            maxByteOffset = Math.max(maxByteOffset, vbView.byteOffset + vbView.byteLength);
-        }
-
-        if (attributes.WEIGHTS_0 !== undefined) {
-            let acc = accessors[attributes.WEIGHTS_0];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vfmt.push({
-                name: gfx.ATTR_WEIGHTS, type: acc.componentType, num: _type2size[acc.type],
+                name: gfxAttribName, type: acc.componentType, num: _type2size[acc.type],
                 byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
             });
 
@@ -321,6 +230,18 @@ var Model = cc.Class({
             let ib = {
                 buffer: ibBuffer,
                 data: ibData
+            }
+
+            if (primitive.attributes.POSITION) {
+                let gltfAccessor = accessors[primitive.attributes.POSITION];
+                let minPos = meshAsset._minPos, maxPos = meshAsset._maxPos
+                    min = gltfAccessor.min, max = gltfAccessor.max;
+                minPos.x = Math.min(minPos.x, min[0]);
+                minPos.y = Math.min(minPos.y, min[1]);
+                minPos.z = Math.min(minPos.z, min[2]);
+                maxPos.x = Math.max(maxPos.x, max[0]);
+                maxPos.y = Math.max(maxPos.y, max[1]);
+                maxPos.z = Math.max(maxPos.z, max[2]);
             }
 
             meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb.buffer, ibBuffer);
