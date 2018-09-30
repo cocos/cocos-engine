@@ -1210,13 +1210,17 @@ static bool JSB_glDetachShader(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 2, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; uint32_t arg1;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    WebGLProgram* arg0;
+    WebGLShader* arg1;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glDetachShader((GLuint)arg0 , (GLuint)arg1  ));
+    GLuint programId = arg0 != nullptr ? arg0->_id : 0;
+    GLuint shaderId = arg1 != nullptr ? arg1->_id : 0;
+
+    JSB_GL_CHECK(glDetachShader(programId , shaderId  ));
 
     return true;
 }
@@ -3066,7 +3070,13 @@ static bool JSB_glGetProgramParameter(se::State& s) {
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLint ret;
     JSB_GL_CHECK(glGetProgramiv(programId, arg1, &ret));
-    s.rval().setInt32(ret);
+    if (arg1 == GL_ATTACHED_SHADERS || arg1 ==  GL_ACTIVE_ATTRIBUTES || arg1 == GL_ACTIVE_UNIFORMS) {
+        s.rval().setInt32(ret);
+    } else if (arg1 == GL_DELETE_STATUS || arg1 ==  GL_LINK_STATUS || arg1 == GL_VALIDATE_STATUS) {
+        s.rval().setBoolean((ret > 0) ? true : false);
+    } else{
+        s.rval().setNull();
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetProgramParameter)
@@ -3138,15 +3148,16 @@ static bool JSB_glGetShaderSource(se::State& s) {
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0;
 
-    ok &= seval_to_uint32(args[0], &arg0 );
+    WebGLShader* arg0;
+    ok &= seval_to_native_ptr(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
     GLsizei length;
-    JSB_GL_CHECK(glGetShaderiv(arg0, GL_SHADER_SOURCE_LENGTH, &length));
+    JSB_GL_CHECK(glGetShaderiv(shaderId, GL_SHADER_SOURCE_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    JSB_GL_CHECK(glGetShaderSource(arg0, length, NULL, src));
+    JSB_GL_CHECK(glGetShaderSource(shaderId, length, NULL, src));
 
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
@@ -3258,6 +3269,7 @@ static bool JSB_glGetAttachedShaders(se::State& s) {
 
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(id, GL_ATTACHED_SHADERS, &length));
+    SE_PRECONDITION2(glGetError() == 0, false, "Error processing arguments");
     GLuint* buffer = new (std::nothrow) GLuint[length];
     memset(buffer, 0, length * sizeof(GLuint));
     //Fix bug 2448, it seems that glGetAttachedShaders will crash if we send NULL to the third parameter (eg Windows), same as in lua binding

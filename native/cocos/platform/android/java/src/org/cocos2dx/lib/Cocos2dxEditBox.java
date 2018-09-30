@@ -135,9 +135,13 @@ public class Cocos2dxEditBox {
 
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
             mIsMultiLine = isMultiline;
-            this.setText(defaultValue);
-            this.setSelection(defaultValue.length());
             this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
+            this.setText(defaultValue);
+            if (this.getText().length() >= defaultValue.length()) {
+                this.setSelection(defaultValue.length());
+            } else {
+                this.setSelection(this.getText().length());
+            }
             this.setConfirmType(confirmType);
             this.setInputType(inputType, mIsMultiLine);
             this.setVisibility(View.VISIBLE);
