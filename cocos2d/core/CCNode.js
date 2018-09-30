@@ -62,6 +62,7 @@ const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 const COLOR_ON = 1 << 5;
 
+
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
 })
@@ -1485,7 +1486,6 @@ var Node = cc.Class({
                 case EventType.COLOR_CHANGED:
                 this._eventMask |= COLOR_ON;
                 break;
-
             }
             if (!this._bubblingListeners) {
                 this._bubblingListeners = new EventTarget();
