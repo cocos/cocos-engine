@@ -395,6 +395,7 @@ export function createEntities(app, gltfNodes) {
 
     for (let i = 0; i < gltfNodes.length; ++i) {
         let gltfNode = gltfNodes[i];
+        /** @type Node */
         let node = app.createEntity(gltfNode.name);
 
         if (gltfNode.translation) {
