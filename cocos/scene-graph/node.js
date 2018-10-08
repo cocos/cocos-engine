@@ -168,7 +168,7 @@ class Node extends BaseNode {
         if (out) {
             return vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
         } else {
-            return vec3.clone(this._lpos);
+            return vec3.copy(cc.v3(), this._lpos);
         }
     }
 
@@ -210,7 +210,7 @@ class Node extends BaseNode {
         if (out) {
             return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z);
         } else {
-            return quat.clone(this._lrot);
+            return quat.copy(cc.quat(), this._lrot);
         }
     }
 
@@ -239,7 +239,7 @@ class Node extends BaseNode {
         if (out) {
             return vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
         } else {
-            return vec3.clone(this._lscale);
+            return vec3.copy(cc.v3(), this._lscale);
         }
     }
 
@@ -274,7 +274,7 @@ class Node extends BaseNode {
         if (out) {
             return vec3.copy(out, this._pos);
         } else {
-            return vec3.clone(this._pos);
+            return vec3.copy(cc.v3(), this._pos);
         }
     }
 
@@ -327,7 +327,7 @@ class Node extends BaseNode {
         if (out) {
             return quat.copy(out, this._rot);
         } else {
-            return quat.clone(this._rot);
+            return quat.copy(cc.quat(), this._rot);
         }
     }
 
@@ -362,12 +362,12 @@ class Node extends BaseNode {
         if (out) {
             return vec3.copy(out, this._scale);
         } else {
-            return vec3.clone(this._scale);
+            return vec3.copy(cc.v3(), this._scale);
         }
     }
 
     /**
-     * get the matrix that transforms a point from local space into world space 
+     * get the matrix that transforms a point from local space into world space
      * @param {mat4} [out] the receiving matrix
      * @return {mat4} the resulting matrix
      */
@@ -376,7 +376,7 @@ class Node extends BaseNode {
         if (out) {
             return mat4.copy(out, this._mat);
         } else {
-            return mat4.clone(this._mat);
+            return mat4.copy(cc.mat4(), this._mat);
         }
     }
 
@@ -390,7 +390,7 @@ class Node extends BaseNode {
         if (out) {
             mat4.copy(out, this._mat);
         } else {
-            out = mat4.clone(this._mat);
+            out = mat4.copy(cc.mat4(), this._mat);
         }
         out.m12 = 0; out.m13 = 0; out.m14 = 0;
         return out;
@@ -404,22 +404,23 @@ class Node extends BaseNode {
     getWorldRT(out) {
         this.updateWorldTransform();
         if (!out) {
-            out = mat4.create();
+            out = cc.mat4();
         }
         return mat4.fromRT(out, this._rot, this._pos);
     }
 }
 
 if (CC_EDITOR) {
-    let v3 = vec3.create();
-    property(Node, 'eulerAngles', {
+    let v3 = cc.v3();
+    let desc = {
         get() {
             return quat.toEuler(v3, this._lrot);
         },
         set(val) {
             this.setRotationFromEuler(val.x, val.y, val.z);
         }
-    });
+    };
+    Object.defineProperty(Node.prototype, 'eulerAngles', desc);
 }
 
 cc.Node = Node;

@@ -29,7 +29,6 @@ import Asset from "../../assets/CCAsset";
 import Texture from '../../assets/CCTexture2D';
 import renderer from "../../renderer";
 import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
-import Effect from "./effect";
 
 function _objArrayClone(val) {
   return val.map(obj => Object.assign({}, obj));
@@ -38,9 +37,9 @@ function _objArrayClone(val) {
 @ccclass
 export default class Material extends Asset {
   /**
-   * @type {Effect}
+   * @type {cc.Effect}
    */
-  @property(Effect)
+  @property(cc.Effect)
   _effect = null;
 
   /**

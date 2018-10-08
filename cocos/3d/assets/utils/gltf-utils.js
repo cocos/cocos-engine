@@ -103,7 +103,7 @@ export class GltfMeshResource extends MeshResource {
             if (primitive.indices !== undefined) {
                 let ibAcc = gltfAccessors[primitive.indices];
                 let ibView = gltf.bufferViews[ibAcc.bufferView];
-                let ibData = new Uint8Array(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
+                let ibData = new DataView(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
 
                 ib = new gfx.IndexBuffer(
                     cc.game._renderContext,
