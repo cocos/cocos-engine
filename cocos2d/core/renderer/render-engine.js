@@ -10477,6 +10477,14 @@ var Technique = function Technique(stages, parameters, passes, layer) {
 
 var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
 
+Technique.prototype.copy = function copy (technique) {
+    this._id = technique._id;
+    this._stageIDs = technique._stageIDs;
+    this._parameters = technique._parameters;
+    this._passes = technique._passes;
+    this._layer = technique._layer;
+};
+
 Technique.prototype.setStages = function setStages (stages) {
   this._stageIDs = config.stageIDs(stages);
 };
@@ -14184,6 +14192,7 @@ var SpriteMaterial = (function (Material$$1) {
 
   SpriteMaterial.prototype.clone = function clone () {
     var copy = new SpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
