@@ -94,6 +94,7 @@ scripting/js-bindings/manual/jsb_global.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
 scripting/js-bindings/manual/jsb_socketio.cpp \
 scripting/js-bindings/manual/jsb_websocket.cpp \
+scripting/js-bindings/manual/jsb_videoplayer.cpp \
 scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
 scripting/js-bindings/manual/jsb_platform_android.cpp \
 scripting/js-bindings/jswrapper/config.cpp \
@@ -126,6 +127,7 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/sources/ConvertUTF/ConvertUTF.c \
 ui/edit-box/EditBox-android.cpp \
+ui/videoplayer/VideoPlayer-android.cpp \
 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \

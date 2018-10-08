@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#define USE_VIDEO 1
 #define USE_AUDIO 1
 #define USE_NET_WORK 1
 
@@ -54,6 +55,10 @@
 
 #if USE_AUDIO
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
+#endif
+
+#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "cocos/scripting/js-bindings/manual/jsb_videoplayer.hpp"
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
@@ -113,6 +118,10 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_xmlhttprequest);
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
+#endif
+
+#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    se->addRegisterCallback(register_all_videoplayer);
 #endif
 
     se->addAfterCleanupHook([](){

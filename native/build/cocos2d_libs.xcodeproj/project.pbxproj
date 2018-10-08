@@ -252,6 +252,10 @@
 		40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */; };
+		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
+		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
+		40FF7AA3216B29E700E73029 /* jsb_videoplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */; };
+		40FF7AA4216B29EB00E73029 /* jsb_videoplayer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -1167,6 +1171,10 @@
 		4043D65D20D2132E00C55611 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCGLView-desktop.h"; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
 		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_videoplayer.cpp; sourceTree = "<group>"; };
+		40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_videoplayer.hpp; sourceTree = "<group>"; };
+		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
+		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		4617860220522468008256E1 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		4617860420522469008256E1 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -1953,6 +1961,15 @@
 			path = desktop;
 			sourceTree = "<group>";
 		};
+		40FF7A9C216B29CB00E73029 /* videoplayer */ = {
+			isa = PBXGroup;
+			children = (
+				40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */,
+				40FF7A9F216B29CB00E73029 /* VideoPlayer.h */,
+			);
+			path = videoplayer;
+			sourceTree = "<group>";
+		};
 		461785FD20522468008256E1 /* network */ = {
 			isa = PBXGroup;
 			children = (
@@ -1983,6 +2000,7 @@
 		461DCA3220BBFA2D00B22827 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				40FF7A9C216B29CB00E73029 /* videoplayer */,
 				461DCA3320BBFA2D00B22827 /* edit-box */,
 			);
 			name = ui;
@@ -2082,6 +2100,8 @@
 		469302BE2046AE05004A3D6C /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */,
+				40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */,
 				403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */,
 				403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */,
 				4008729220CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp */,
@@ -3069,6 +3089,7 @@
 				46AE3FE82092F3A600F3A228 /* inspector_io.h in Headers */,
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
+				40FF7AA4216B29EB00E73029 /* jsb_videoplayer.hpp in Headers */,
 				1A52DB79205BCDD000350EE3 /* Object.hpp in Headers */,
 				1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */,
 				50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */,
@@ -3087,6 +3108,7 @@
 				46FDDA82202ACC6A00931238 /* RendererUtils.h in Headers */,
 				1A9F0F9A1F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
 				50ABC0101926664800A911A9 /* CCFileUtils.h in Headers */,
+				40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */,
 				1A29D77E2056667800168D9A /* csscolorparser.hpp in Headers */,
 				46FDDA9C202ACC6A00931238 /* Effect.h in Headers */,
 				46AE40062092F3A600F3A228 /* inspector_socket.h in Headers */,
@@ -3701,6 +3723,7 @@
 				1A52DB78205BCDD000350EE3 /* Object.cpp in Sources */,
 				469303A72046AE05004A3D6C /* PlatformUtils.mm in Sources */,
 				46FDDAD4202ACC6A00931238 /* Texture2D.cpp in Sources */,
+				40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */,
 				4DED48751DFFA4AF0070C5C4 /* b2PulleyJoint.cpp in Sources */,
 				40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
@@ -3721,6 +3744,7 @@
 				1A28FF641F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				4693042D2046AE06004A3D6C /* jsb_renderer_manual.cpp in Sources */,
+				40FF7AA3216B29E700E73029 /* jsb_videoplayer.cpp in Sources */,
 				1AAAC8E8205CB6E9005321B9 /* AudioEngine-inl.mm in Sources */,
 				4617862220522469008256E1 /* HttpCookie.cpp in Sources */,
 				46FDDAE2202ACC6A00931238 /* GFXUtils.cpp in Sources */,
