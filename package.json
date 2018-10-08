@@ -10,7 +10,9 @@
   "module": "index.js",
   "scripts": {
     "build": "npm run build:dev && npm run build:min",
-    "build:dev": "rollup -c ./rollup/config.js",
+    "build:shader": "node ./rollup/build-shader.js",
+    "build:effect": "rollup -c ./rollup/mappings.config.js && node ./rollup/build-effect.js",
+    "build:dev": "npm run build:shader && npm run build:effect && rollup -c ./rollup/config.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map url=cocos-3d.min.js.map -o ./bin/cocos-3d.min.js",
     "dev": "rollup -w -c ./rollup/config.js"
   },
@@ -34,6 +36,7 @@
     "event-stream": "3.3.2",
     "fire-fs": "0.2.1",
     "fs-jetpack": "^1.1.0",
+    "glsl-tokenizer": "^2.1.5",
     "gulp": "^3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-cached": "1.1.0",
@@ -45,7 +48,7 @@
     "gulp-optimize-js": "^1.1.0",
     "gulp-plumber": "0.6.6",
     "gulp-rename": "1.2.2",
-    "gulp-shell": "0.4.1",
+    "gulp-shell": "^0.6.5",
     "gulp-size": "2.1.0",
     "gulp-sourcemaps": "1.5.2",
     "gulp-uglify": "^3.0.0",
