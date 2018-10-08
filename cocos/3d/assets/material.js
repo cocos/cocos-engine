@@ -157,8 +157,8 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {Material} mat 
+   *
+   * @param {Material} mat
    */
   copy(mat) {
     if (this._effect !== mat._effect) {
@@ -174,9 +174,9 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {string} name 
-   * @param {*} val 
+   *
+   * @param {string} name
+   * @param {*} val
    */
   setProperty(name, val) {
     this._props[name] = val;
@@ -189,9 +189,9 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {string} name 
-   * @param {*} val 
+   *
+   * @param {string} name
+   * @param {*} val
    */
   define(name, val) {
     this._effectInst.define(name, val);
@@ -201,6 +201,18 @@ export default class Material extends Asset {
     // TODO: what should we do here ???
     return super.destroy();
   }
+
+    static getInstantiatedMaterial(mat, rndCom) {
+        if (mat._owner === rndCom) {
+            return this;
+        }
+        else {
+            let instance = new Material();
+            instance.copy(mat);
+            instance._native = mat._native + ' (Instance)';
+            instance._owner = rndCom;
+        }
+    }
 }
 
 cc.Material = Material;

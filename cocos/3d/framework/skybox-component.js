@@ -28,39 +28,21 @@ import renderer from '../../renderer/index';
 import { box } from '../primitive/index';
 import Material from '../assets/material';
 import { ccclass, property, menu } from '../../core/data/class-decorator';
+import RenderableComponent from './renderable-component';
 
 /**
  * !#en The Skybox Component
  *
  * !#ch 天空盒组件
  * @class SkyboxComponent
- * @extends RenderSystemActor
+ * @extends RenderableComponent
  */
 @ccclass('cc.SkyboxComponent')
 @menu('Components/SkyboxComponent')
-export default class SkyboxComponent extends RenderSystemActor {
-  @property
-  _material = null;
+export default class SkyboxComponent extends RenderableComponent {
 
   @property
   _cubeMap = null;
-
-  /**
-   * !#en The material of the model
-   *
-   * !#ch 模型普通材质
-   * @type {Material}
-   */
-  get material() {
-    return this._material;
-  }
-
-  set material(val) {
-    this._material = val;
-    if (!this._material) return;
-    this._updateMaterialParams();
-    this._model.setEffect(val.effectInst);
-  }
 
   /**
    * !#en The material of the model
@@ -120,12 +102,17 @@ export default class SkyboxComponent extends RenderSystemActor {
     }
   }
 
-  _updateMaterialParams() {
-    if (this._material === null || this._material === undefined) {
+    _onMaterialModified(idx, mat) {
+        this._updateMaterialParams(mat);
+        this._model.setEffect(mat.effectInst);
+    }
+
+  _updateMaterialParams(mat) {
+    if (mat === null || mat === undefined) {
       return;
     }
     if (this._cubeMap !== null && this._cubeMap !== undefined) {
-      this._material.setProperty('cubeMap', this._cubeMap);
+      mat.setProperty('cubeMap', this._cubeMap);
     }
   }
 }
