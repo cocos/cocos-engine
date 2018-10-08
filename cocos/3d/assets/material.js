@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data/index";
+import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import Texture from './texture';
 import renderer from "../../renderer";
-import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
+import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath';
 
 function _objArrayClone(val) {
   return val.map(obj => Object.assign({}, obj));
