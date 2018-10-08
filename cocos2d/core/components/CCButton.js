@@ -421,7 +421,7 @@ let Button = cc.Class({
         let target = this.target;
         let transition = this.transition;
         if (transition === Transition.COLOR && this.interactable) {
-            target.color = this.normalColor;
+            this._setTargetColor(this.normalColor);
         } else if (transition === Transition.SCALE) {
             target.scaleX = this._originalScale.x;
             target.scaleY = this._originalScale.y;
@@ -458,6 +458,15 @@ let Button = cc.Class({
                 }
             }.bind(this));
         }
+    },
+
+    _setTargetColor(color) {
+        let target = this.target;
+        if (!target) {
+            return;
+        }
+        target.color = color;
+        target.opacity = color.a;
     },
 
     _getStateColor (state) {
@@ -553,8 +562,8 @@ let Button = cc.Class({
         }
 
         if (this.transition === Transition.COLOR) {
-            target.color = this._fromColor.lerp(this._toColor, ratio);
-            target.opacity = target.color.a;
+            let color = this._fromColor.lerp(this._toColor, ratio);
+            this._setTargetColor(color);
         } else if (this.transition === Transition.SCALE) {
             target.scale = this._fromScale.lerp(this._toScale, ratio);
         }
@@ -688,15 +697,18 @@ let Button = cc.Class({
         return state;
     },
 
-    _updateColorTransition (state) {
+    _updateColorTransitionImmediately (state) {
         let color = this._getStateColor(state);
-        let target = this.target;
+        this._setTargetColor(color);
+    },
 
-        if (CC_EDITOR) {
-            target.color = color;
-            target.opacity = color.a;
+    _updateColorTransition (state) {
+        if (CC_EDITOR || state === State.DISABLED) {
+            this._updateColorTransitionImmediately(state);
         }
         else {
+            let color = this._getStateColor(state);
+            let target = this.target;
             this._fromColor = target.color.clone();
             this._toColor = color;
             this.time = 0;
@@ -740,7 +752,7 @@ let Button = cc.Class({
     _updateTransition (oldTransition) {
         // Reset to normal data when change transition.
         if (oldTransition === Transition.COLOR) {
-            this._updateColorTransition(State.NORMAL);
+            this._updateColorTransitionImmediately(State.NORMAL);
         }
         else if (oldTransition === Transition.SPRITE) {
             this._updateSpriteTransition(State.NORMAL);
