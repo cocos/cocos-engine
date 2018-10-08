@@ -10515,16 +10515,26 @@ var Technique = function Technique(stages, parameters, passes, layer) {
 var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
 
 Technique.prototype.copy = function (technique) {
-    this._id = technique._id;
-    this._stageIDs = technique._stageIDs;
-    this._parameters = technique._parameters;
-    this._passes = [];
-    for (var i = 0; i < technique._passes.length; ++i) {
-        var pass = new renderer.Pass();
-        pass.copy(technique._passes[i]);
-        this._passes.push(pass);
+  this._id = technique._id;
+  this._stageIDs = technique._stageIDs;
+
+  this._parameters = [];
+  for (let i = 0; i < technique._parameters.length; ++i) {
+    let parameter = technique._parameters[i];
+    this._parameters.push({name: parameter.name, type: parameter.type});
+  }
+
+  for (let i = 0; i < technique._passes.length; ++i) {
+    let pass = this._passes[i];
+    if (!pass) {
+      pass = new renderer.Pass();
+      this._passes.push(pass);
     }
-    this._layer = technique._layer;
+    pass.copy(technique._passes[i]);
+  }
+  this._passes.length = technique._passes.length;
+
+  this._layer = technique._layer;
 };
 
 Technique.prototype.setStages = function setStages (stages) {
