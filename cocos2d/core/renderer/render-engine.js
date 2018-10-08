@@ -10300,7 +10300,8 @@ var Pass = function Pass(name) {
   // depth
   this._depthTest = false;
   this._depthWrite = false;
-  this._depthFunc = gfx.DS_FUNC_LESS, this._stencilTest = false;
+  this._depthFunc = gfx.DS_FUNC_LESS;
+  this._stencilTest = false;
   // front
   this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
   this._stencilRefFront = 0;
@@ -10317,6 +10318,42 @@ var Pass = function Pass(name) {
   this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilWriteMaskBack = 0xff;
+};
+
+Pass.prototype.copy = function (pass) {
+    this._programName = pass._programName;
+    // cullmode
+    this._cullMode = pass._cullMode;
+    // blending
+    this._blend = pass._blend;
+    this._blendEq = pass._blendEq;
+    this._blendAlphaEq = pass._blendAlphaEq;
+    this._blendSrc = pass._blendSrc;
+    this._blendDst = pass._blendDst;
+    this._blendSrcAlpha = pass._blendSrcAlpha;
+    this._blendDstAlpha = pass._blendDstAlpha;
+    this._blendColor = pass._blendColor;
+    // depth
+    this._depthTest = pass._depthTest;
+    this._depthWrite = pass._depthWrite;
+    this._depthFunc = pass._depthFunc;
+    this._stencilTest = pass._stencilTest;
+    // front
+    this._stencilFuncFront = pass._stencilFuncFront;
+    this._stencilRefFront = pass._stencilRefFront;
+    this._stencilMaskFront = pass._stencilMaskFront;
+    this._stencilFailOpFront = pass._stencilFailOpFront;
+    this._stencilZFailOpFront = pass._stencilZFailOpFront;
+    this._stencilZPassOpFront = pass._stencilZPassOpFront;
+    this._stencilWriteMaskFront = pass._stencilWriteMaskFront;
+    // back
+    this._stencilFuncBack = pass._stencilFuncBack;
+    this._stencilRefBack = pass._stencilRefBack;
+    this._stencilMaskBack = pass._stencilMaskBack;
+    this._stencilFailOpBack = pass._stencilFailOpBack;
+    this._stencilZFailOpBack = pass._stencilZFailOpBack;
+    this._stencilZPassOpBack = pass._stencilZPassOpBack;
+    this._stencilWriteMaskBack = pass._stencilWriteMaskBack;
 };
 
 Pass.prototype.setCullMode = function setCullMode (cullMode) {
@@ -10477,11 +10514,16 @@ var Technique = function Technique(stages, parameters, passes, layer) {
 
 var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
 
-Technique.prototype.copy = function copy (technique) {
+Technique.prototype.copy = function (technique) {
     this._id = technique._id;
     this._stageIDs = technique._stageIDs;
     this._parameters = technique._parameters;
-    this._passes = technique._passes;
+    this._passes = [];
+    for (var i = 0; i < technique._passes.length; ++i) {
+        var pass = new renderer.Pass();
+        pass.copy(technique._passes[i]);
+        this._passes.push(pass);
+    }
     this._layer = technique._layer;
 };
 
@@ -14284,6 +14326,7 @@ var GraySpriteMaterial = (function (Material$$1) {
 
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.color = this.color;
     copy.updateHash();
@@ -14396,6 +14439,7 @@ var StencilMaterial = (function (Material$$1) {
 
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
     copy.useColor = this.useColor;
