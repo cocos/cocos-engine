@@ -26,8 +26,12 @@
 import { _decorator } from "../core/data/index";
 const { ccclass, property } = _decorator;
 import JsonAsset from "./CCJsonAsset";
-import { BufferAsset } from "./CCBufferAsset";
+import BufferAsset from "./CCBufferAsset";
 import Asset from "./CCAsset";
+
+/**
+ * @typedef {import("../../../types/glTF/glTF").GlTf} GlTf
+ */
 
 /**
  * !#en
@@ -39,13 +43,13 @@ import Asset from "./CCAsset";
  * @class GLTFAsset
  * @extends Asset
  */
-@ccclass
+@ccclass('cc.GLTFAsset')
 export default class GLTFAsset extends Asset {
     /**
-     * @type {JsonAsset}
+     * @type {GlTf}
      */
-    @property(JsonAsset)
-    _description;
+    @property
+    _description = null;
 
     /**
      * @type {BufferAsset[]}
@@ -54,16 +58,16 @@ export default class GLTFAsset extends Asset {
     _buffers = [];
 
     /**
-     * Sets the underlying GlTf file asset.
-     * @param {JsonAsset} value
+     * Sets the underlying GlTf file content.
+     * @param {GlTf} value
      */
     set description(value) {
         this._description = value;
     }
 
     /**
-     * Gets the underlying GlTf file asset.
-     * @return {JsonAsset} description
+     * Gets the underlying GlTf file content.
+     * @return {GlTf} description
      */
     get description() {
         return this._description;
@@ -76,3 +80,5 @@ export default class GLTFAsset extends Asset {
         return this._buffers;
     }
 }
+
+cc.GLTFAsset = GLTFAsset;

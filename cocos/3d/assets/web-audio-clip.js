@@ -27,7 +27,7 @@ import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
 import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
 
-@ccclass
+@ccclass('cc.WebAudioClip')
 export default class WebAudioClip extends AudioClip {
     /**
      * @type {number}

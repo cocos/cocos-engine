@@ -15,13 +15,13 @@ import Skeleton from "../skeleton";
  * @typedef {import("../../../../types/glTF/glTF").Node} GLTFNode
  */
 
-@ccclass
+@ccclass('cc.GltfMeshResource')
 export class GltfMeshResource extends MeshResource {
     /**
      * @type {GLTFAsset}
      */
     @property(GLTFAsset)
-    gltfAsset;
+    gltfAsset = null;
 
     /**
      * @type {number}
@@ -43,7 +43,7 @@ export class GltfMeshResource extends MeshResource {
         }
 
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (this.gltfIndex >= gltf.meshes.length) {
             return;
         }
@@ -59,8 +59,6 @@ export class GltfMeshResource extends MeshResource {
 
             let iVertexBufferView = -1;
             let vertexCount = -1;
-            let expectedOffset = 0;
-            let positionType = gfx.ATTR_TYPE_FLOAT32;
             const vfmt = [];
             for (const gltfAttribName in primitive.attributes) {
                 const gfxAttribName = _gltfAttribMap[gltfAttribName];
@@ -84,29 +82,17 @@ export class GltfMeshResource extends MeshResource {
                     vertexCount = gltfAccessor.count;
                 }
 
-                if (gltfAccessor.byteOffset !== expectedOffset) {
-                    console.error(`Attributes of one GlTf primitive should be interleaved.`);
-                    return;
-                }
-                expectedOffset += gltfAccessor.byteOffset;
-
                 if (gltfAttribName === "POSITION") {
                     mesh._minPos = vec3.create(gltfAccessor.min[0], gltfAccessor.min[1], gltfAccessor.min[2]);
                     mesh._maxPos = vec3.create(gltfAccessor.max[0], gltfAccessor.max[1], gltfAccessor.max[2]);
-                    positionType = gltfAccessor.componentType;
                 }
                 vfmt.push({ name: gfxAttribName, type: gltfAccessor.componentType, num: _type2size[gltfAccessor.type] });
             }
 
             const vertexBufferView = gltf.bufferViews[iVertexBufferView];
-            if (expectedOffset !== vertexBufferView.byteStride) {
-                console.warn(`There is extra data resides in GlTf primitive's buffer.`);
-                return;
-            }
-
-            const vbData = new DataView(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
+            const vbData = new Uint8Array(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
             const vb = new gfx.VertexBuffer(
-                app.device,
+                cc.game._renderContext,
                 new gfx.VertexFormat(vfmt),
                 gfx.USAGE_STATIC,
                 vbData,
@@ -120,7 +106,7 @@ export class GltfMeshResource extends MeshResource {
                 let ibData = new DataView(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
 
                 ib = new gfx.IndexBuffer(
-                    app.device,
+                    cc.game._renderContext,
                     ibAcc.componentType,
                     gfx.USAGE_STATIC,
                     ibData,
@@ -146,7 +132,7 @@ export class GltfMeshResource extends MeshResource {
      */
     createSkinning(index) {
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (index >= gltf.skins.length) {
             return null;
         }
@@ -174,14 +160,15 @@ export class GltfMeshResource extends MeshResource {
         };
     }
 }
+cc.GltfMeshResource = GltfMeshResource;
 
-@ccclass
+@ccclass('cc.GltfAnimationResource')
 export class GltfAnimationResource extends AnimationResource {
     /**
      * @type {GLTFAsset}
      */
     @property(GLTFAsset)
-    gltfAsset;
+    gltfAsset = null;
 
     /**
      * @type {number}
@@ -199,7 +186,7 @@ export class GltfAnimationResource extends AnimationResource {
         }
 
         /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description.json;
+        const gltf = this.gltfAsset.description;
         if (this.gltfIndex >= gltf.animations.length) {
             return;
         }
@@ -216,7 +203,7 @@ export class GltfAnimationResource extends AnimationResource {
                 // When node isn't defined, channel should be ignored.
                 continue;
             }
-            let gltfSampler = gltf.samplers[gltfChannel.sampler];
+            let gltfSampler = gltfAnimation.samplers[gltfChannel.sampler];
             let inputAcc = gltf.accessors[gltfSampler.input];
 
             // find frames by input name
@@ -269,7 +256,7 @@ export class GltfAnimationResource extends AnimationResource {
                 frames.joints.push(jointFrames);
             }
 
-            let outArray = _createArray(gltf, bin, gltfChannel.output);
+            let outArray = _createArray(gltf, bin, gltfSampler.output);
             if (gltfChannel.target.path === 'translation') {
                 let cnt = outArray.length / 3;
                 jointFrames.translations = new Array(cnt);
@@ -309,6 +296,7 @@ export class GltfAnimationResource extends AnimationResource {
         animationClip._length = maxLength;
     }
 }
+cc.GltfAnimationResource = GltfAnimationResource;
 
 const _type2size = {
     SCALAR: 1,
@@ -321,13 +309,13 @@ const _type2size = {
 };
 
 const _compType2Array = {
-  [gfx.ATTR_TYPE_INT8]: Int8Array,
-  [gfx.ATTR_TYPE_UINT8]: Uint8Array,
-  [gfx.ATTR_TYPE_INT16]: Int16Array,
-  [gfx.ATTR_TYPE_UINT16]: Uint16Array,
-  [gfx.ATTR_TYPE_INT32]: Int32Array,
-  [gfx.ATTR_TYPE_UINT32]: Uint32Array,
-  [gfx.ATTR_TYPE_FLOAT32]: Float32Array,
+    5120: Int8Array,
+    5121: Uint8Array,
+    5122: Int16Array,
+    5123: Uint16Array,
+    5124: Int32Array,
+    5125: Uint32Array,
+    5126: Float32Array,
 };
 
 const _gltfAttribMap = {
@@ -351,6 +339,9 @@ const _gltfAttribMap = {
  */
 function _createArray(gltf, bin, accessorID) {
     let acc = gltf.accessors[accessorID];
+    if (acc.bufferView === undefined) {
+        throw "Unexpect accessor format.";
+    }
     let bufView = gltf.bufferViews[acc.bufferView];
 
     let num = _type2size[acc.type];
@@ -395,6 +386,7 @@ export function createEntities(app, gltfNodes) {
 
     for (let i = 0; i < gltfNodes.length; ++i) {
         let gltfNode = gltfNodes[i];
+        /** @type Node */
         let node = app.createEntity(gltfNode.name);
 
         if (gltfNode.translation) {
@@ -446,7 +438,7 @@ export function createEntities(app, gltfNodes) {
  */
 export function createSkeleton(gltfAsset, index) {
     /** @type GLTFFormat */
-    const gltf = gltfAsset.description.json;
+    const gltf = gltfAsset.description;
 
     if (!gltf.skins || index >= gltf.skins.length) {
         return;

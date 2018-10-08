@@ -29,7 +29,7 @@ import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
 import Texture2D from "../../assets/CCTexture2D";
 
-@ccclass
+@ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
     /**
      * @type {Texture2D}

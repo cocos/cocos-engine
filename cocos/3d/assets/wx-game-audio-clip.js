@@ -30,7 +30,7 @@ import { AudioClip, AudioSourceType, PlayingState } from './audio-clip';
 /**
  * WeChat audio to port. https://developers.weixin.qq.com/minigame/dev/document/media/audio/InnerAudioContext.html
  */
-@ccclass
+@ccclass('cc.WxGameAudioClip')
 export default class WxGameAudioClip extends AudioClip {
   constructor() {
     super();

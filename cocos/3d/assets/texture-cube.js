@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import Texture from './texture';
+import Texture from '../../assets/CCTexture2D';
 
 import gfx from '../../renderer/gfx';
 import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
@@ -58,7 +58,6 @@ function _updateOpts(out, texture) {
   out.mipFilter = gfxFilters[texture._mipFilter];
 }
 
-@ccclass
 export class TextureCube extends Texture {
   constructor(device, width = 2, height = 2, fmt = 'rgba8') {
     super(device);
