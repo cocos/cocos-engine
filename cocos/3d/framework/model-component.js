@@ -28,6 +28,7 @@ import renderer from '../../renderer/index';
 import { ccclass, property, menu } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
+import RenderableComponent from './renderable-component';
 /**
  * @typedef {import('../assets/material').default} Material
  */
@@ -83,13 +84,11 @@ let ModelShadowCastingMode = Enum({
  *
  * !#ch 模型组件
  * @class ModelComponent
- * @extends RenderSystemActor
+ * @extends RenderableComponent
  */
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')
-export default class ModelComponent extends RenderSystemActor {
-    @property
-    _materials = [];
+export default class ModelComponent extends RenderableComponent {
 
     @property
     _mesh = null;
@@ -99,22 +98,6 @@ export default class ModelComponent extends RenderSystemActor {
 
     @property
     _receiveShadows = false;
-
-    /**
-     * !#en The material of the model
-     *
-     * !#ch 模型材质
-     * @type {Material[]}
-     */
-    @property
-    get materials() {
-        return this._materials;
-    }
-
-    set materials(val) {
-        this._materials = val;
-        this._updateModelParams();
-    }
 
     /**
      * !#en The mesh of the model
@@ -187,40 +170,6 @@ export default class ModelComponent extends RenderSystemActor {
         }
     }
 
-    /**
-     * !#en Returns the material corresponding to the sequence number
-     *
-     * !#ch 返回相对应序号的材质
-     * @param {Number} idx - Look for the material list number
-     */
-    getMaterial(idx) {
-        if (this._materials.length === 0) {
-            return null;
-        }
-
-        if (idx < this._materials.length) {
-            return this._materials[idx];
-        }
-
-        return this._materials[this._materials.length - 1];
-    }
-
-    get material() {
-        return this.getMaterial(0);
-    }
-
-    set material(val) {
-        if (this._materials.length === 1 && this._materials[0] === val) {
-            return;
-        }
-
-        this._materials[0] = val;
-
-        if (this._models.length > 0) {
-            this._models[0].setEffect(val.effectInst);
-        }
-    }
-
     _updateModels() {
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
@@ -247,13 +196,25 @@ export default class ModelComponent extends RenderSystemActor {
     _updateModelParams() {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
-            let material = this.getMaterial(i);
+            let material = this._getSubMeshMaterial(i);
             let inputAssembler = this._mesh.getSubMesh(i);
 
             model.setInputAssembler(inputAssembler);
             model.setEffect(material ? material.effectInst : null);
             model.setNode(this.node);
         }
+    }
+
+    _getSubMeshMaterial(idx) {
+        let mat = this.getSharedMaterial(idx);
+        if (mat == null && this._materials.length > 0) {
+            mat = this._materials[this._materials.length - 1];
+        }
+        return mat;
+    }
+
+    _onMaterialModified(idx, mat) {
+        this._models[idx].setEffect(mat.effectInst);
     }
 
     _updateCastShadow() {
