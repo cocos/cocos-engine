@@ -2213,7 +2213,7 @@ let NodeDefines = {
                 old.y = y;
                 old.z = z;
                 old.w = w;
-                this.setLocalDirty(DirtyFlag.ROTATION);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                 if (this._eventMask & ROTATION_ON) {
