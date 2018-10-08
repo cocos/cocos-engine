@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import * as js from '../core/utils/js';
 import {_getClassById} from '../core/utils/js';
 import debug from '../core/platform/CCDebug';
 import deserialize from '../core/data/deserialize';
