@@ -23,26 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { ccclass, property } from "../../core/data/class-decorator";
 import Asset from "../../assets/CCAsset";
-import renderer from "../../renderer";
 
-class AbstractEffect extends Asset {
+export default class Effect extends Asset {
     /**
      * @type {Object[]}
      */
     _techniques = [];
-
     /**
      * @type {Object}
      */
     _properties = {};
-
     /**
      * @type {Object[]}
      */
     _defines = [];
-
     /**
      * @type {Object[]}
      */
@@ -110,43 +105,4 @@ class AbstractEffect extends Asset {
     }
 }
 
-let toCamelCase = function(dashedString) {
-    return dashedString
-        .replace(/^\w/, c => c.toUpperCase())
-        .replace(/-(\w)/g, (c, l) => l.toUpperCase());
-};
-let _serializeDefines = function(proto, defines) {
-    defines.forEach(function(def) {
-        property(proto, def.name, {
-            initializer: () => { return def.value; }
-        });
-    });
-};
-let _type2value = {
-    [renderer.PARAM_FLOAT]: v => { return v; },
-    [renderer.PARAM_FLOAT2]: v => { return cc.v2(v[0], v[1]); },
-    [renderer.PARAM_FLOAT3]: v => { return cc.v3(v[0], v[1], v[2]); },
-    [renderer.PARAM_FLOAT4]: v => { return cc.v4(v[0], v[1], v[2], v[3]); },
-    [renderer.PARAM_COLOR3]: v => { return cc.color(v[0], v[1], v[2]); },
-    [renderer.PARAM_COLOR4]: v => { return cc.color(v[0], v[1], v[2], v[3]); },
-    [renderer.PARAM_TEXTURE_2D]: v => { return new cc.Texture2D(v); },
-    [renderer.PARAM_TEXTURE_CUBE]: v => { return new cc.Texture2D(v); } // TODO, cube map not ready yet
-};
-let _serializeTechniques = function(proto, techniques) {
-    techniques.forEach(function(tech) {
-        tech.params.forEach(function(param) {
-            property(proto, param.name, {
-                initializer: () => { return _type2value[param.type](param.value); }
-            });
-        });
-    });
-};
-let EffectFactory = function(name, techniques, defines) {
-    class Effect extends AbstractEffect {}
-    _serializeTechniques(Effect.prototype, techniques);
-    _serializeDefines(Effect.prototype, defines);
-    return ccclass(`cc.Effect${toCamelCase(name)}`)(Effect);
-};
-
-cc.Effect = AbstractEffect;
-export { AbstractEffect, EffectFactory };
+cc.Effect = Effect;

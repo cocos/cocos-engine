@@ -5,7 +5,7 @@ import Mesh from '../assets/mesh';
 import Material from '../assets/material';
 import Texture2D from '../../assets/CCTexture2D';
 // import TextureCube from '../assets/texture-cube';
-import { EffectFactory } from '../assets/effect';
+import Effect from '../assets/effect';
 // import Technique from '../../renderer/core/technique';
 // import Sprite from '../assets/sprite';
 import { vec3 } from '../../core/vmath';
@@ -176,8 +176,7 @@ export default function (device) {
     let effects = {};
     for (let i = 0; i < effectJsons.length; ++i) {
         let effectJson = effectJsons[i];
-        let EffectClass = EffectFactory(effectJson.name, effectJson.techniques, effectJson.defines);
-        let effect = new EffectClass();
+        let effect = new Effect();
         effect._name = effectJson.name;
         effect._uuid = `builtin-effect-${effectJson.name}`;
         effect._loaded = true;
