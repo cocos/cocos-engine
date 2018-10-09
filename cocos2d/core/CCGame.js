@@ -778,6 +778,10 @@ var game = {
             if (!cc.macro.CLEANUP_IMAGE_CACHE && dynamicAtlasManager) {
                 dynamicAtlasManager.enabled = true;
             }
+            // Disable dynamicAtlasManager to fix rendering residue for transparent images on Chrome69.
+            if (cc.sys.browserType == cc.sys.BROWSER_TYPE_CHROME && parseFloat(cc.sys.browserVersion) >= 69.0) {
+                dynamicAtlasManager.enabled = false;
+            }
         }
         if (!this._renderContext) {
             this.renderType = this.RENDER_TYPE_CANVAS;
