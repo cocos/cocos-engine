@@ -144,8 +144,11 @@ namespace {
 
     const uint32_t GL_FLOAT_ARRAY = 1;
     const uint32_t GL_INT_ARRAY = 2;
+    const uint32_t GL_MAX_STRIDE = 255;
 
     GLint __defaultFbo = 0;
+
+    GLint __glErrorCode = GL_NO_ERROR;
 
     se::Class* __jsb_WebGLObject_class = nullptr;
     se::Class* __jsb_WebGLTexture_class = nullptr;
@@ -709,6 +712,10 @@ static bool JSB_glBlendFunc(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(!((arg0 == GL_CONSTANT_COLOR && arg1 == GL_CONSTANT_ALPHA) || (arg0 == GL_ONE_MINUS_CONSTANT_COLOR && arg1 == GL_CONSTANT_ALPHA)
+                          || (arg0 == GL_CONSTANT_COLOR && arg1 == GL_ONE_MINUS_CONSTANT_ALPHA) || (arg0 == GL_ONE_MINUS_CONSTANT_COLOR && arg1 == GL_ONE_MINUS_CONSTANT_ALPHA)
+                          ||  (arg0 == GL_CONSTANT_ALPHA && arg1 == GL_CONSTANT_COLOR) || (arg0 == GL_CONSTANT_ALPHA && arg1 == GL_ONE_MINUS_CONSTANT_COLOR)
+                          || (arg0 == GL_ONE_MINUS_CONSTANT_ALPHA && arg1 == GL_CONSTANT_COLOR) || (arg0 == GL_ONE_MINUS_CONSTANT_ALPHA && arg1 == GL_ONE_MINUS_CONSTANT_COLOR)), false, GL_INVALID_OPERATION );
     JSB_GL_CHECK(glBlendFunc((GLenum)arg0 , (GLenum)arg1  ));
 
     return true;
@@ -730,6 +737,10 @@ static bool JSB_glBlendFuncSeparate(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(!((arg0 == GL_CONSTANT_COLOR && arg1 == GL_CONSTANT_ALPHA) || (arg0 == GL_ONE_MINUS_CONSTANT_COLOR && arg1 == GL_CONSTANT_ALPHA)
+                      || (arg0 == GL_CONSTANT_COLOR && arg1 == GL_ONE_MINUS_CONSTANT_ALPHA) || (arg0 == GL_ONE_MINUS_CONSTANT_COLOR && arg1 == GL_ONE_MINUS_CONSTANT_ALPHA)
+                      ||  (arg0 == GL_CONSTANT_ALPHA && arg1 == GL_CONSTANT_COLOR) || (arg0 == GL_CONSTANT_ALPHA && arg1 == GL_ONE_MINUS_CONSTANT_COLOR)
+                      || (arg0 == GL_ONE_MINUS_CONSTANT_ALPHA && arg1 == GL_CONSTANT_COLOR) || (arg0 == GL_ONE_MINUS_CONSTANT_ALPHA && arg1 == GL_ONE_MINUS_CONSTANT_COLOR)), false, GL_INVALID_OPERATION );
     JSB_GL_CHECK(glBlendFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  ));
 
     return true;
@@ -1197,6 +1208,7 @@ static bool JSB_glDepthRangef(se::State& s) {
     ok &= seval_to_float(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg0 <= arg1, false, GL_INVALID_OPERATION);
     JSB_GL_CHECK(glDepthRangef((GLclampf)arg0 , (GLclampf)arg1  ));
 
     return true;
@@ -1325,8 +1337,14 @@ static bool JSB_glEnable(se::State& s) {
     bool ok = true;
     uint32_t arg0;
 
+    SE_PRECONDITION4(!args[0].isNullOrUndefined(), false, GL_INVALID_ENUM);
+
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    SE_PRECONDITION4(arg0 == GL_BLEND || arg0 == GL_CULL_FACE || arg0 == GL_DEPTH_TEST || arg0 == GL_DITHER ||
+            arg0 == GL_POLYGON_OFFSET_FILL || arg0 == GL_SAMPLE_ALPHA_TO_COVERAGE || arg0 == GL_SAMPLE_COVERAGE
+        || arg0 == GL_SCISSOR_TEST || arg0 == GL_STENCIL_TEST, false, GL_INVALID_ENUM);
 
     JSB_GL_CHECK(glEnable((GLenum)arg0  ));
 
@@ -1482,8 +1500,13 @@ static bool JSB_glGetError(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     GLenum ret_val;
+    if (__glErrorCode == GL_NO_ERROR) {
+        ret_val = glGetError();
+    } else {
+        ret_val = __glErrorCode;
+        __glErrorCode = GL_NO_ERROR;
+    }
 
-    ret_val = glGetError();
     s.rval().setUint32((uint32_t)ret_val);
     return true;
 }
@@ -2033,7 +2056,7 @@ static bool JSB_glTexImage2D(se::State& s) {
         ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     else
         setUnpackAlignmentByWidthAndFormat(width, format);
-
+    
     JSB_GL_CHECK(glTexImage2D((GLenum)target , (GLint)level , (GLint)internalformat , (GLsizei)width , (GLsizei)height , (GLint)border , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
 
     return true;
@@ -2711,6 +2734,27 @@ static bool JSB_glVertexAttribPointer(se::State& s) {
     ok &= seval_to_int32(args[5], &arg5 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg2 == GL_BYTE || arg2 == GL_UNSIGNED_BYTE || arg2 == GL_SHORT ||
+                             arg2 == GL_UNSIGNED_SHORT || arg2 == GL_FLOAT, false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4(arg4 >= 0 && arg4 <= GL_MAX_STRIDE, false, GL_INVALID_VALUE);
+
+    SE_PRECONDITION4(arg5 >= 0, false, GL_INVALID_VALUE);
+
+    switch (arg2) {
+        case GL_BYTE:
+        case GL_UNSIGNED_BYTE:
+            SE_PRECONDITION4(arg4 % sizeof(GLbyte) == 0 && arg5 % sizeof(GLbyte) == 0, false, GL_INVALID_OPERATION);
+            break;
+        case GL_SHORT:
+        case GL_UNSIGNED_SHORT:
+            SE_PRECONDITION4(arg4 % sizeof(GLshort) == 0 && arg5 % sizeof(GLshort) == 0, false, GL_INVALID_OPERATION);
+            break;
+        case GL_FLOAT:
+            SE_PRECONDITION4(arg4 % sizeof(GLclampf) == 0 && arg5 % sizeof(GLclampf) == 0, false, GL_INVALID_OPERATION);
+            break;
+    }
+
     JSB_GL_CHECK(ccVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)(intptr_t)arg5  ));
 
     return true;
@@ -2740,6 +2784,9 @@ static bool JSB_glGetVertexAttrib(se::State& s)
             if (seObjIter != se::NativePtrToObjectMap::end()) {
                 s.rval().setObject(seObjIter->second);
             }
+            else {
+                s.rval().setNull();
+            }
         }
     }
     else if( pname == GL_CURRENT_VERTEX_ATTRIB ) {
@@ -2755,8 +2802,11 @@ static bool JSB_glGetVertexAttrib(se::State& s)
         if (pname == GL_VERTEX_ATTRIB_ARRAY_ENABLED || pname == GL_VERTEX_ATTRIB_ARRAY_NORMALIZED) {
             s.rval().setBoolean(value == 0 ? false : true);
         }
-        else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE) {
+        else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE || GL_VERTEX_ATTRIB_ARRAY_STRIDE || GL_VERTEX_ATTRIB_ARRAY_TYPE) {
             s.rval().setNumber(value);
+        }
+        else {
+            s.rval().setNull();
         }
     }
     return true;
@@ -3379,7 +3429,6 @@ static bool JSB_glGetFramebufferAttachmentParameter(se::State& s) {
 
     GLint param = 0;
     JSB_GL_CHECK(glGetFramebufferAttachmentParameteriv(target, attachment, pname, &param));
-
     if( pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ) {
         GLint ptype;
         glGetFramebufferAttachmentParameteriv(target, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &ptype);
@@ -3413,6 +3462,7 @@ static bool JSB_glGetFramebufferAttachmentParameter(se::State& s) {
     }
 
     s.rval().setInt32(param);
+
     return true;
 }
 SE_BIND_FUNC(JSB_glGetFramebufferAttachmentParameter)
