@@ -223,6 +223,7 @@ let Mask = cc.Class({
             },
             set: function (value) {
                 this._segments = misc.clampf(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
+                this._updateGraphics();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.segements',
         },
@@ -395,11 +396,22 @@ let Mask = cc.Class({
             graphics.rect(x, y, width, height);
         }
         else if (this._type === MaskType.ELLIPSE) {
-            let cx = x + width / 2,
-                cy = y + height / 2,
-                rx = width / 2,
-                ry = height / 2;
-            graphics.ellipse(cx, cy, rx, ry);
+            let center = cc.v2(x + width / 2, y + height / 2);
+            let radius = {
+                x: width / 2,
+                y: height / 2
+            };
+            let points = this._calculateCircle(center, radius, this._segments);
+            for (let i = 0; i < points.length; ++i) {
+                let point = points[i];
+                if (i === 0) {
+                    graphics.moveTo(point.x, point.y);
+                }
+                else {
+                    graphics.lineTo(point.x, point.y);
+                }
+            }
+            graphics.close();
         }
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             graphics.stroke();
@@ -417,6 +429,17 @@ let Mask = cc.Class({
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
         }
+    },
+
+    _calculateCircle: function (center, radius, segements) {
+        let polies =[];
+        let anglePerStep = Math.PI * 2 / segements;
+        for(let step = 0; step < segements; ++ step) {
+            polies.push(cc.v2(radius.x * Math.cos(anglePerStep * step) + center.x,
+                radius.y * Math.sin(anglePerStep * step) + center.y));
+        }
+
+        return polies;
     },
 
     _hitTest (cameraPt) {
