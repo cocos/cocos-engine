@@ -79,6 +79,7 @@ storage/local-storage/LocalStorage-android.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
+scripting/js-bindings/auto/jsb_webview_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
@@ -128,7 +129,7 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/ConvertUTF/ConvertUTF.c \
 ui/edit-box/EditBox-android.cpp \
 ui/videoplayer/VideoPlayer-android.cpp \
-
+ui/webview/WebViewImpl-android.cpp \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \

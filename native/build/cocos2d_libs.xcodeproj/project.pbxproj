@@ -246,6 +246,12 @@
 		403EE7BC215A070B00B8FD62 /* libv8_builtins_generators.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403EE7BA215A070B00B8FD62 /* libv8_builtins_generators.a */; };
 		4043D65E20D2132E00C55611 /* CCGLView-desktop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */; };
 		4043D65F20D2132E00C55611 /* CCGLView-desktop.h in Headers */ = {isa = PBXBuildFile; fileRef = 4043D65D20D2132E00C55611 /* CCGLView-desktop.h */; };
+		40AEF7AF216D940200729AA5 /* WebViewImpl-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40AEF7A9216D940200729AA5 /* WebViewImpl-ios.mm */; };
+		40AEF7B1216D940200729AA5 /* WebView-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7AB216D940200729AA5 /* WebView-inl.h */; };
+		40AEF7B2216D940200729AA5 /* WebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7AC216D940200729AA5 /* WebView.h */; };
+		40AEF7B3216D940200729AA5 /* WebViewImpl-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7AD216D940200729AA5 /* WebViewImpl-ios.h */; };
+		40AEF7B6216D982600729AA5 /* jsb_webview_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */; };
+		40AEF7B7216D982600729AA5 /* jsb_webview_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */; };
 		40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */; };
 		40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
@@ -1169,6 +1175,12 @@
 		403EE7BA215A070B00B8FD62 /* libv8_builtins_generators.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_builtins_generators.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_builtins_generators.a"; sourceTree = "<group>"; };
 		4043D65C20D2132E00C55611 /* CCGLView-desktop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CCGLView-desktop.cpp"; sourceTree = "<group>"; };
 		4043D65D20D2132E00C55611 /* CCGLView-desktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCGLView-desktop.h"; sourceTree = "<group>"; };
+		40AEF7A9216D940200729AA5 /* WebViewImpl-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "WebViewImpl-ios.mm"; sourceTree = "<group>"; };
+		40AEF7AB216D940200729AA5 /* WebView-inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WebView-inl.h"; sourceTree = "<group>"; };
+		40AEF7AC216D940200729AA5 /* WebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebView.h; sourceTree = "<group>"; };
+		40AEF7AD216D940200729AA5 /* WebViewImpl-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WebViewImpl-ios.h"; sourceTree = "<group>"; };
+		40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_webview_auto.cpp; sourceTree = "<group>"; };
+		40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_webview_auto.hpp; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
 		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_videoplayer.cpp; sourceTree = "<group>"; };
@@ -1961,6 +1973,17 @@
 			path = desktop;
 			sourceTree = "<group>";
 		};
+		40AEF7A7216D940100729AA5 /* webview */ = {
+			isa = PBXGroup;
+			children = (
+				40AEF7A9216D940200729AA5 /* WebViewImpl-ios.mm */,
+				40AEF7AB216D940200729AA5 /* WebView-inl.h */,
+				40AEF7AC216D940200729AA5 /* WebView.h */,
+				40AEF7AD216D940200729AA5 /* WebViewImpl-ios.h */,
+			);
+			path = webview;
+			sourceTree = "<group>";
+		};
 		40FF7A9C216B29CB00E73029 /* videoplayer */ = {
 			isa = PBXGroup;
 			children = (
@@ -2000,6 +2023,7 @@
 		461DCA3220BBFA2D00B22827 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				40AEF7A7216D940100729AA5 /* webview */,
 				40FF7A9C216B29CB00E73029 /* videoplayer */,
 				461DCA3320BBFA2D00B22827 /* edit-box */,
 			);
@@ -2081,6 +2105,8 @@
 		469302512046AE05004A3D6C /* auto */ = {
 			isa = PBXGroup;
 			children = (
+				40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */,
+				40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */,
 				1AAAC871205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp */,
 				1AAAC872205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp */,
 				1A29D767205665BE00168D9A /* jsb_cocos2dx_auto.cpp */,
@@ -3107,11 +3133,13 @@
 				46AE3FFE2092F3A600F3A228 /* util.h in Headers */,
 				46FDDA82202ACC6A00931238 /* RendererUtils.h in Headers */,
 				1A9F0F9A1F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
+				40AEF7B7216D982600729AA5 /* jsb_webview_auto.hpp in Headers */,
 				50ABC0101926664800A911A9 /* CCFileUtils.h in Headers */,
 				40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */,
 				1A29D77E2056667800168D9A /* csscolorparser.hpp in Headers */,
 				46FDDA9C202ACC6A00931238 /* Effect.h in Headers */,
 				46AE40062092F3A600F3A228 /* inspector_socket.h in Headers */,
+				40AEF7B1216D940200729AA5 /* WebView-inl.h in Headers */,
 				503DD8E61926736A00CD74DD /* CCEAGLView-ios.h in Headers */,
 				46FDDAC8202ACC6A00931238 /* GFX.h in Headers */,
 				469303972046AE05004A3D6C /* Class.hpp in Headers */,
@@ -3155,6 +3183,7 @@
 				4DED47E91DFFA4AF0070C5C4 /* b2DynamicTree.h in Headers */,
 				46AE3FF82092F3A600F3A228 /* util-inl.h in Headers */,
 				46FDDADE202ACC6A00931238 /* VertexBuffer.h in Headers */,
+				40AEF7B3216D940200729AA5 /* WebViewImpl-ios.h in Headers */,
 				1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				4DED48031DFFA4AF0070C5C4 /* b2BlockAllocator.h in Headers */,
 				46FDDA86202ACC6A00931238 /* View.h in Headers */,
@@ -3211,6 +3240,7 @@
 				4DED48571DFFA4AF0070C5C4 /* b2PolygonContact.h in Headers */,
 				469303D32046AE05004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				4DED47F51DFFA4AF0070C5C4 /* b2CircleShape.h in Headers */,
+				40AEF7B2216D940200729AA5 /* WebView.h in Headers */,
 				1AAAC8F4205CB6E9005321B9 /* AudioEngine.h in Headers */,
 				46FDDA78202ACC6A00931238 /* Light.h in Headers */,
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
@@ -3768,6 +3798,7 @@
 				469303692046AE05004A3D6C /* State.cpp in Sources */,
 				46FDDAAA202ACC6A00931238 /* Types.cpp in Sources */,
 				1A29D797205666F500168D9A /* jsb_opengl_utils.cpp in Sources */,
+				40AEF7B6216D982600729AA5 /* jsb_webview_auto.cpp in Sources */,
 				5027253D190BF1B900AAF4ED /* cocos2d.cpp in Sources */,
 				1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
@@ -3798,6 +3829,7 @@
 				46FDDAB4202ACC6A00931238 /* VertexBuffer.cpp in Sources */,
 				4DED47DF1DFFA4AF0070C5C4 /* b2Collision.cpp in Sources */,
 				4617864E205224CF008256E1 /* HttpClient-apple.mm in Sources */,
+				40AEF7AF216D940200729AA5 /* WebViewImpl-ios.mm in Sources */,
 				4DED48011DFFA4AF0070C5C4 /* b2BlockAllocator.cpp in Sources */,
 				46FDDB94202ADDCE00931238 /* TGAlib.cpp in Sources */,
 				4DED48171DFFA4AF0070C5C4 /* b2Timer.cpp in Sources */,

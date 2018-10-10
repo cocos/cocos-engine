@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #define USE_VIDEO 1
+#define USE_WEBVIEW 1
 #define USE_AUDIO 1
 #define USE_NET_WORK 1
 
@@ -59,6 +60,10 @@
 
 #if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 #include "cocos/scripting/js-bindings/manual/jsb_videoplayer.hpp"
+#endif
+
+#if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
@@ -122,6 +127,10 @@ bool jsb_register_all_modules()
 
 #if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     se->addRegisterCallback(register_all_videoplayer);
+#endif
+
+#if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    se->addRegisterCallback(register_all_webview);
 #endif
 
     se->addAfterCleanupHook([](){
