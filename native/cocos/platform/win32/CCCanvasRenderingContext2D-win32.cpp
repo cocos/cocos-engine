@@ -537,7 +537,7 @@ private:
 
 
             uint8_t r, g, b;
-            float alpha = 1.0f;
+            float alpha = _fillStyle.a;
             COLORREF * pPixel = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
             {
@@ -549,10 +549,10 @@ private:
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
                     {
-                        // r = _fillStyle.r * 255 * (dirtyValue / 255);
-                        r = _fillStyle.r * dirtyValue;
-                        g = _fillStyle.g * dirtyValue;
-                        b = _fillStyle.b * dirtyValue;
+                        // r = _fillStyle.r * 255 * (dirtyValue / 255) * alpha;
+                        r = _fillStyle.r * dirtyValue * alpha;
+                        g = _fillStyle.g * dirtyValue * alpha;
+                        b = _fillStyle.b * dirtyValue * alpha;
                         COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
                         clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
                     }
