@@ -1,5 +1,6 @@
 // @ts-check
 import { vec3, quat, mat4 } from '../../core/vmath';
+import { Node } from '../../scene-graph';
 
 let _v3_tmp = vec3.create();
 let _qt_tmp = quat.create();
@@ -16,56 +17,67 @@ function _walk(node, fx) {
   }
 }
 
-/**
- * 
- * @param {cc.Node} node 
- * @param {cc.Node[]} result
- */
-function _flat(node, result) {
-  _walk(node, (childNode) => {
-    result.push(childNode);
-  });
-}
-
 export default class SkeletonInstance {
-  constructor() {
-    this._root = null;
-    this._joints = null;
-    this._matrices = null;
-  }
+  /**
+   * 
+   * @param {import("../assets/skeleton").default} skeleton 
+   */
+  constructor(skeleton) {
+    this._skeleton = skeleton;
 
-  setRoot(root, indexDelta = 0) {
-    /**
-     * @type {cc.Node}
-     */
-    this._root = root;
     /**
      * @type {cc.Node[]}
      */
-    this._joints = [];
-    _flat(this._root, this._joints);
+    this._nodes = this._copyNodesForest(skeleton._nodes);
+
     /**
      * @type {mat4[]}
      */
-    this._matrices = new Array(this._joints.length);
-
-    for (let i = 0; i < this._joints.length; ++i) {
+    this._matrices = new Array(this._nodes.length);
+    for (let i = 0; i < this._nodes.length; ++i) {
       this._matrices[i] = mat4.create();
     }
-
-    /**
-     * @type {number}
-     */
-    this._indexDelta = indexDelta;
 
     this.updateMatrices();
   }
 
+  /**
+   * 
+   * @param {cc.Node[]} nodes 
+   */
+  _copyNodesForest(nodes) {
+    /** @type {cc.Node[]} */
+    const newNodes = new Array(nodes.length);
+    nodes.forEach((node, index) => {
+      newNodes[index] = this._copyNode(node);
+    });
+    nodes.forEach((node, index) => {
+      const newNode = newNodes[index];
+      node.children.forEach(childNode => {
+        const childIndex = nodes.indexOf(childNode);
+        newNode.addChild(newNodes[childIndex]);
+      });
+    });
+    return newNodes;
+  }
+
+  /**
+   * 
+   * @param {cc.Node} node 
+   */
+  _copyNode(node) {
+    const newNode = new Node(node.name);
+    newNode.setPosition(node.getPosition());
+    newNode.setScale(node.getScale());
+    newNode.setRotation(node.getRotation());
+    return newNode;
+  }
+
   blend(fromSkel, toSkel, alpha) {
-    for (let i = 0; i < this._joints.length; ++i) {
-      let joint = this._joints[i];
-      let jointFrom = fromSkel._joints[i];
-      let jointTo = toSkel._joints[i];
+    for (let i = 0; i < this._nodes.length; ++i) {
+      let joint = this._nodes[i];
+      let jointFrom = fromSkel._nodes[i];
+      let jointTo = toSkel._nodes[i];
 
       vec3.lerp(_v3_tmp, jointFrom._lpos, jointTo._lpos, alpha);
       joint.setPosition(_v3_tmp);
@@ -79,18 +91,22 @@ export default class SkeletonInstance {
   }
 
   updateMatrices() {
-    for (let i = 0; i < this._joints.length; ++i) {
-      this._joints[i].getWorldMatrix(this._matrices[i]);
+    for (let i = 0; i < this._nodes.length; ++i) {
+      this._nodes[i].getWorldMatrix(this._matrices[i]);
     }
   }
 
+  /**
+   * 
+   * @param {number} i Index of the node. 
+   */
   getWorldMatrix(i) {
     return this._matrices[i];
   }
 
   getJointIndex(jointName) {
-    for (let i = 0; i < this._joints.length; ++i) {
-      let joint = this._joints[i];
+    for (let i = 0; i < this._nodes.length; ++i) {
+      let joint = this._nodes[i];
       if (joint.name == jointName) {
         return i;
       }
@@ -99,14 +115,11 @@ export default class SkeletonInstance {
   }
 
   getJointIndexFromOrignalNodeIndex(index) {
-    return index - this._indexDelta;
+    return index;
   }
 
   clone() {
-    let newSkeleton = new SkeletonInstance();
-    newSkeleton.setRoot(cc.instantiate(this._root));
-
-    return newSkeleton;
+    return new SkeletonInstance(this._skeleton);
   }
 
   createMask() {
@@ -115,11 +128,17 @@ export default class SkeletonInstance {
 }
 
 export class SkeletonMask {
+  /**
+   * 
+   * @param {SkeletonInstance} skeleton 
+   */
   constructor(skeleton) {
-    /** @type {SkeletonInstance} */
+    /**
+     * @type {SkeletonInstance}
+     * */
     this._skeleton = skeleton;
 
-    this._isMaskedArray = new Array(skeleton._joints.length);
+    this._isMaskedArray = new Array(skeleton._nodes.length);
     for (let i = 0; i < this._isMaskedArray.length; ++i) {
       this._isMaskedArray[i] = false;
     }
@@ -130,13 +149,13 @@ export class SkeletonMask {
   }
 
   setMaskedRecursive(jointIndex, masked = true) {
-    if (jointIndex < 0 || jointIndex >= this._skeleton._joints.length) {
+    if (jointIndex < 0 || jointIndex >= this._skeleton._nodes.length) {
       return;
     }
 
     this._isMaskedArray[jointIndex] = masked;
-    _walk(this._skeleton._joints[0], joint => {
-      let idx = this._skeleton._joints.indexOf(joint);
+    _walk(this._skeleton._nodes[0], joint => {
+      let idx = this._skeleton._nodes.indexOf(joint);
       if (idx >= 0) {
         this._isMaskedArray[idx] = masked;
       }

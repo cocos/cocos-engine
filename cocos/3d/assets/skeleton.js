@@ -29,23 +29,68 @@ const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import SkeletonInstance from '../framework/skeleton-instance';
 import { Node } from "../../scene-graph";
+import { Mat4 } from "../../core/value-types";
 
+/**
+ * CLASS Skeleton
+ * The skeleton class represent a kind of deformation.
+ * A skeleton consists of a forest hierachy of nodes.
+ * Some of the nodes, called joints, have special meanings.
+ * Skeletons are not mutable, but they can be instantiated
+ * to produce a skeleton instance. Skeleton instances can be modified,
+ * for example, be animated.
+ */
 @ccclass('cc.Skeleton')
 export default class Skeleton extends Asset {
   /**
-   * @type {Node}
+   * The nodes.
+   * @type {Node[]}
    */
   @property(Node)
-  _rootNode = null;
+  _nodes = [];
 
+  /**
+   * The index of root joint.
+   */
   @property(Number)
-  _indexDelta = 0;
+  _skeleton = 0;
 
-  instantiate() {
-    let rootNode = instantiate(this._rootNode, undefined);
-    let skeleton = new SkeletonInstance();
-    skeleton.setRoot(rootNode);
-    return skeleton;
+  /**
+   * The indices of joints.
+   * @type {number[]}
+   */
+  @property([Number])
+  _jointIndices = [];
+
+  /**
+   * The inverse bind matrices of joints.
+   * @type {Mat4[]}
+   */
+  @property([Mat4])
+  _inverseBindMatrices = [];
+
+  /**
+   * Gets the bind pose matrices of joints.
+   * @return {Mat4[]}
+   */
+  get bindposes() {
+    return this._inverseBindMatrices;
+  }
+
+  /**
+   * Sets the bind pose matrices of joints.
+   * @param {Mat4[]} value
+   */
+  set bindposes(value) {
+    this._inverseBindMatrices = value;
+  }
+
+  /**
+   * Gets the indices of joints.
+   * @return {number[]}
+   */
+  get jointIndices() {
+    return this._jointIndices;
   }
 }
 

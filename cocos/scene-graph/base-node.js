@@ -1061,24 +1061,24 @@ export default class BaseNode extends CCObject {
             // update prefab
             var newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
             var myPrefabInfo = this._prefab;
-            var PrefabUtils = Editor.require('scene://utils/prefab');
-            if (myPrefabInfo) {
-                if (newPrefabRoot) {
-                    if (myPrefabInfo.root !== newPrefabRoot) {
-                        // change prefab
-                        PrefabUtils.unlinkPrefab(this);
-                        PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-                    }
-                }
-                else if (myPrefabInfo.root !== this) {
-                    // detach from prefab
-                    PrefabUtils.unlinkPrefab(this);
-                }
-            }
-            else if (newPrefabRoot) {
-                // attach to prefab
-                PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-            }
+            // var PrefabUtils = Editor.require('scene://utils/prefab');
+            // if (myPrefabInfo) {
+            //     if (newPrefabRoot) {
+            //         if (myPrefabInfo.root !== newPrefabRoot) {
+            //             // change prefab
+            //             PrefabUtils.unlinkPrefab(this);
+            //             PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+            //         }
+            //     }
+            //     else if (myPrefabInfo.root !== this) {
+            //         // detach from prefab
+            //         PrefabUtils.unlinkPrefab(this);
+            //     }
+            // }
+            // else if (newPrefabRoot) {
+            //     // attach to prefab
+            //     PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+            // }
 
             // conflict detection
             //_Scene.DetectConflict.afterAddChild(this);
@@ -1098,8 +1098,8 @@ export default class BaseNode extends CCObject {
         var thisPrefabInfo = this._prefab;
         if (CC_EDITOR && thisPrefabInfo) {
             if (this !== thisPrefabInfo.root) {
-                var PrefabUtils = Editor.require('scene://utils/prefab');
-                PrefabUtils.initClonedChildOfPrefab(cloned);
+                //var PrefabUtils = Editor.require('scene://utils/prefab');
+                //PrefabUtils.initClonedChildOfPrefab(cloned);
             }
         }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;

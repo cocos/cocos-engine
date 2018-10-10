@@ -4,6 +4,10 @@ import Mesh from '../assets/mesh';
 import gfx from '../../renderer/gfx/index';
 // import parseLevel from '../loaders/utils/level-parser';
 
+/**
+ * 
+ * @param {import("../assets/skeleton").default} skinning 
+ */
 function createJointsTexture(skinning) {
   const jointCount = skinning.jointIndices.length;
 
@@ -26,16 +30,16 @@ function createJointsTexture(skinning) {
     size = 4;
   }
 
-  let texture = new gfx.Texture2D(cc.game._renderContext, size, size, 'rgba32f');
-  texture.minFilter = 'nearest';
-  texture.magFilter = 'nearest';
-  texture.wrapS = 'clamp';
-  texture.wrapT = 'clamp';
-  texture.mipmap = false;
-  texture.writable = true;
-  texture.commit();
-
-  return texture;
+  return new gfx.Texture2D(cc.game._renderContext, {
+    width: size,
+    height: size,
+    format: gfx.TEXTURE_FMT_RGBA32F,
+    minFilter: gfx.FILTER_NEAREST,
+    magFilter: gfx.FILTER_NEAREST,
+    wrapS: gfx.WRAP_CLAMP,
+    wrapT: gfx.WRAP_CLAMP,
+    mipmap: false
+  });
 }
 
 function createMesh(app, data) {

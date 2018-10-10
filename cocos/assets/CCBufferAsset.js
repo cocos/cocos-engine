@@ -39,17 +39,31 @@ const {ccclass, property} = _decorator;
 @ccclass('cc.BufferAsset')
 export default class BufferAsset extends cc.Asset {
     /**
-     * @type {ArrayBuffer}
+     * @type {Uint8Array}
      */
-    get data() {
+    @property
+    _data = null;
+    
+    /**
+     * @type {Uint8Array}
+     */
+    get _nativeAsset () {
         return this._data;
     }
 
     /**
-     * @type {ArrayBuffer}
+     * @type {Uint8Array}
      */
-    @property
-    _data = null;
+    set _nativeAsset (value) {
+        this._data = value;
+    }
+
+    /**
+     * @type {Uint8Array}
+     */
+    get data() {
+        return this._data;
+    }
 }
 
 cc.BufferAsset = BufferAsset;

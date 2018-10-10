@@ -9,6 +9,7 @@ import { MeshResource } from "../mesh";
 import { AnimationResource } from "../animation-clip";
 import GLTFAsset from "../../../assets/CCGLTFAsset";
 import Skeleton from "../skeleton";
+import { Mat4 } from "../../../core/value-types";
 
 /**
  * @typedef {import("../../../../types/glTF/glTF").GlTf} GLTFFormat
@@ -90,7 +91,7 @@ export class GltfMeshResource extends MeshResource {
             }
 
             const vertexBufferView = gltf.bufferViews[iVertexBufferView];
-            const vbData = new Uint8Array(this.gltfAsset.buffers[vertexBufferView.buffer].data, vertexBufferView.byteOffset, vertexBufferView.byteLength);
+            const vbData = new Uint8Array(this.gltfAsset.buffers[vertexBufferView.buffer].data.buffer, vertexBufferView.byteOffset, vertexBufferView.byteLength);
             const vb = new gfx.VertexBuffer(
                 cc.game._renderContext,
                 new gfx.VertexFormat(vfmt),
@@ -103,7 +104,7 @@ export class GltfMeshResource extends MeshResource {
             if (primitive.indices !== undefined) {
                 let ibAcc = gltfAccessors[primitive.indices];
                 let ibView = gltf.bufferViews[ibAcc.bufferView];
-                let ibData = new DataView(this.gltfAsset.buffers[ibView.buffer].data, ibView.byteOffset, ibView.byteLength);
+                let ibData = new DataView(this.gltfAsset.buffers[ibView.buffer].data.buffer, ibView.byteOffset, ibView.byteLength);
 
                 ib = new gfx.IndexBuffer(
                     cc.game._renderContext,
@@ -116,48 +117,6 @@ export class GltfMeshResource extends MeshResource {
 
             mesh._subMeshes[i] = new renderer.InputAssembler(vb, ib);
         }
-
-        // create skinning if we found
-        if (gltf.skins !== undefined) {
-            const iSkin = gltf.skins.findIndex(skin => skin.name === gltfMesh.name);
-            if (iSkin >= 0) {
-                mesh._skinning = this.createSkinning(iSkin);
-            }
-        }
-    }
-
-    /**
-     * @param {number} index
-     * @return {cc.d3.asset.MeshSkinning}
-     */
-    createSkinning(index) {
-        /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description;
-        if (index >= gltf.skins.length) {
-            return null;
-        }
-
-        let gltfSkin = gltf.skins[index];
-
-        // extract bindposes mat4 data
-        let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
-        let bufView = gltf.bufferViews[accessor.bufferView];
-        let data = new Float32Array(this.gltfAsset.buffers[bufView.buffer].data, bufView.byteOffset + accessor.byteOffset, accessor.count * 16);
-        let bindposes = new Array(accessor.count);
-
-        for (let i = 0; i < accessor.count; ++i) {
-            bindposes[i] = mat4.create(
-                data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
-                data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
-                data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
-                data[16 * i + 12], data[16 * i + 13], data[16 * i + 14], data[16 * i + 15]
-            );
-        }
-
-        return {
-            jointIndices: gltfSkin.joints,
-            bindposes,
-        };
     }
 }
 cc.GltfMeshResource = GltfMeshResource;
@@ -191,7 +150,7 @@ export class GltfAnimationResource extends AnimationResource {
             return;
         }
 
-        const bin = this.gltfAsset.buffers[0].data;
+        const bin = this.gltfAsset.buffers[0].data.buffer;
         let gltfAnimation = gltf.animations[this.gltfIndex];
         /** @type {cc.d3.animation.Frame[]} */
         let framesList = [];
@@ -433,24 +392,53 @@ export function createEntities(app, gltfNodes) {
 }
 
 /**
- * @param {GLTFAsset} gltfAsset
+ * @param {GLTFFormat} gltf
+ * @param {Buffer[]} buffers
  * @param {number} index
  */
-export function createSkeleton(gltfAsset, index) {
-    /** @type GLTFFormat */
-    const gltf = gltfAsset.description;
-
+export function createSkeleton(gltf, buffers, index) {
     if (!gltf.skins || index >= gltf.skins.length) {
         return;
+    }
+
+    /** @type {cc.Node[]} */
+    let nodes = [];
+    if (gltf.nodes) {
+        nodes = new Array(gltf.nodes.length);
+        gltf.nodes.forEach((gltfNode, index) => {
+            nodes[index] = _createNode(gltfNode);
+        });
+        gltf.nodes.forEach((gltfNode, index) => {
+            if (gltfNode.children) {
+                const node = nodes[index];
+                gltfNode.children.forEach(childIndex => {
+                    node.addChild(nodes[childIndex]);
+                });
+            }
+        });
     }
 
     const gltfSkin = gltf.skins[index];
     const skeleton = new Skeleton();
     skeleton.name = gltfSkin.name;
     const rootIndex = gltfSkin.skeleton === undefined ? 0 : gltfSkin.skeleton;
-    const rootNode = _createNodeRecursive(gltf, rootIndex);
-    skeleton._rootNode = rootNode;
-    skeleton._indexDelta = rootIndex;
+    skeleton._nodes = nodes;
+    skeleton._skeleton = rootIndex;
+    skeleton._jointIndices = gltfSkin.joints.concat([]);
+    // extract bindposes mat4 data
+    let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
+    let bufView = gltf.bufferViews[accessor.bufferView];
+    let data = _createArray(gltf, buffers[bufView.buffer].buffer, gltfSkin.inverseBindMatrices);
+    skeleton._inverseBindMatrices = new Array(accessor.count);
+    for (let i = 0; i < accessor.count; ++i) {
+        skeleton._inverseBindMatrices[i] = new Mat4(
+            data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
+            data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
+            data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
+            data[16 * i + 12], data[16 * i + 13], data[16 * i + 14], data[16 * i + 15]
+        );
+    }
+
     return skeleton;
 }
 

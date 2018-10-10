@@ -89,7 +89,12 @@ let ModelShadowCastingMode = Enum({
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')
 export default class ModelComponent extends RenderableComponent {
+    @property
+    _materials = [];
 
+    /**
+     * @type {Mesh}
+     */
     @property
     _mesh = null;
 
@@ -98,6 +103,22 @@ export default class ModelComponent extends RenderableComponent {
 
     @property
     _receiveShadows = false;
+
+    /**
+     * !#en The material of the model
+     *
+     * !#ch 模型材质
+     * @type {Material[]}
+     */
+    @property
+    get materials() {
+        return this._materials;
+    }
+
+    set materials(val) {
+        this._materials = val;
+        this._updateModelParams();
+    }
 
     /**
      * !#en The mesh of the model
@@ -155,6 +176,9 @@ export default class ModelComponent extends RenderableComponent {
 
     constructor() {
         super();
+        /**
+         * @type {Model[]}
+         */
         this._models = [];
     }
 
@@ -167,6 +191,42 @@ export default class ModelComponent extends RenderableComponent {
     onDisable() {
         for (let i = 0; i < this._models.length; ++i) {
             this.scene.removeModel(this._models[i]);
+        }
+    }
+
+    /**
+     * !#en Returns the material corresponding to the sequence number
+     *
+     * !#ch 返回相对应序号的材质
+     * @param {Number} idx - Look for the material list number
+     */
+    getMaterial(idx) {
+        if (this._materials.length === 0) {
+            return null;
+        }
+
+        if (idx < this._materials.length) {
+            return this._materials[idx];
+        }
+
+        return this._materials[this._materials.length - 1];
+    }
+
+    get material() {
+        return this.getMaterial(0);
+    }
+
+    set material(val) {
+        if (this._materials.length === 1 && this._materials[0] === val) {
+            return;
+        }
+
+        this._materials[0] = val;
+
+        if (this._models.length > 0) {
+            this._models.forEach((model) => {
+                model.setEffect(val.effectInst);
+            });
         }
     }
 
@@ -212,8 +272,8 @@ export default class ModelComponent extends RenderableComponent {
         }
         return mat;
     }
-
-    _onMaterialModified(idx, mat) {
+    
+     _onMaterialModified(idx, mat) {
         this._models[idx].setEffect(mat.effectInst);
     }
 

@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import Component from '../../components/CCComponent';
-import { ccclass, property, executionOrder, menu } from '../../core/data/class-decorator';
+import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
 
 /**
@@ -297,8 +297,9 @@ class AnimationCtrl {
  * @class AnimationComponent
  * @extends Component
  */
-@executionOrder(200)
 @ccclass('cc.AnimationComponent')
+@executionOrder(99)
+@executeInEditMode
 @menu('Components/AnimationComponent')
 export default class AnimationComponent extends Component {
     @property
@@ -381,7 +382,7 @@ export default class AnimationComponent extends Component {
     }
 
     onLoad() {
-        AnimationComponent.system.add(this);
+        // AnimationComponent.system.add(this);
 
         if (this.playAutomatically != undefined &&
             this.playAutomatically &&
@@ -394,8 +395,9 @@ export default class AnimationComponent extends Component {
     update(dt) {
         if (!this.skeletonInstance) {
             // console.error(`Animation component depends on skinning model component.`);
-            let skeleton = this.node.getComponentInChildren('SkinningModel');
-            this.skeletonInstance = skeleton;
+            /** @type {import("./skinning-model-component").default} */
+            let skeleton = this.node.getComponent('cc.SkinningModelComponent') || this.node.getComponentInChildren('cc.SkinningModelComponent');
+            this.skeletonInstance = skeleton.skeletonInstance;
         }
         if (this.skeletonInstance) {
             this._animCtrl.tick(dt);
