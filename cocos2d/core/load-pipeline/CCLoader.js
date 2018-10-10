@@ -571,6 +571,7 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[]): void
+ * loadResArray(url: string[], type: typeof cc.Asset[]): void
  */
 proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
     var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -579,9 +580,10 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
     completeCallback = args.onComplete;
 
     var uuids = [];
+    var isTypesArray = type instanceof Array;
     for (var i = 0; i < urls.length; i++) {
         var url = urls[i];
-        var assetType = (type instanceof Array) ? type[i] : type;
+        var assetType = isTypesArray ? type[i] : type;
         var uuid = this._getResUuid(url, assetType);
         if (uuid) {
             uuids.push(uuid);
