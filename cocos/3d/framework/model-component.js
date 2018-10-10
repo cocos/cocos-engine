@@ -91,6 +91,9 @@ export default class ModelComponent extends RenderSystemActor {
     @property
     _materials = [];
 
+    /**
+     * @type {Mesh}
+     */
     @property
     _mesh = null;
 
@@ -172,6 +175,9 @@ export default class ModelComponent extends RenderSystemActor {
 
     constructor() {
         super();
+        /**
+         * @type {Model[]}
+         */
         this._models = [];
     }
 
@@ -217,7 +223,9 @@ export default class ModelComponent extends RenderSystemActor {
         this._materials[0] = val;
 
         if (this._models.length > 0) {
-            this._models[0].setEffect(val.effectInst);
+            this._models.forEach((model) => {
+                model.setEffect(val.effectInst);
+            });
         }
     }
 

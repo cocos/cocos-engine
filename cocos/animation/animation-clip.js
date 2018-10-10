@@ -32,7 +32,7 @@ const WrapMode = require('./types').WrapMode;
  * @extends Asset
  */
 var AnimationClip = cc.Class({
-    name: 'cc.AnimationClip',
+    name: 'cc.AnimationClip2',
     extends: cc.Asset,
 
     properties: {
@@ -154,4 +154,4 @@ var AnimationClip = cc.Class({
     }
 });
 
-cc.AnimationClip = module.exports = AnimationClip;
+cc.AnimationClip2 = module.exports = AnimationClip;

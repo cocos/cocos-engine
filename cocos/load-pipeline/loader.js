@@ -105,7 +105,7 @@ function loadBinary (item) {
         return item.load(item.content);
     }
     else {
-        return null;
+        return item.content;
     }
 }
 
@@ -186,6 +186,7 @@ var defaultMap = {
 
     // binary
     'binary' : loadBinary,
+    'bin': loadBinary,
 
     // Font
     'font' : loadFont,

@@ -69,11 +69,6 @@ export default class Mesh extends Asset {
         this._subMeshes = null;
 
         /**
-         * @type {cc.d3.asset.MeshSkinning}
-         */
-        this._skinning = null;
-
-        /**
          * @type {cc.core.math.vec3}
          */
         this._minPos = null;
@@ -125,14 +120,6 @@ export default class Mesh extends Asset {
      */
     getSubMesh(index) {
         return this._subMeshes[index];
-    }
-
-    /**
-     * !#en
-     * Gets the skinning data associated with this mesh.
-     */
-    get skinning() {
-        return this._skinning;
     }
 
     // TODO

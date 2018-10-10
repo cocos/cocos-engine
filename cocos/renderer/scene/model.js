@@ -32,8 +32,8 @@ export default class Model {
   
   /**
    * Create the bounding shape of this model
-   * @param {number} minPos the min position of the model
-   * @param {number} maxPos the max position of the model
+   * @param {vec3} minPos the min position of the model
+   * @param {vec3} maxPos the max position of the model
    */
   createBoundingShape(minPos, maxPos) {
     if (!minPos || !maxPos) return;

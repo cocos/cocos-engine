@@ -139,7 +139,7 @@ export default class AnimationClip extends Asset {
       if (idx == 0) {
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          let joint = skeleton._joints[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
+          let joint = skeleton._nodes[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
           if (!joint) {
             continue;
           }
@@ -163,7 +163,7 @@ export default class AnimationClip extends Asset {
 
         for (let j = 0; j < frames.joints.length; ++j) {
           let jointFrames = frames.joints[j];
-          let joint = skeleton._joints[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
+          let joint = skeleton._nodes[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
           if (!joint) {
             continue;
           }
@@ -309,9 +309,9 @@ export class SamplingState {
     /**
      * @type {SamplingStateJointState[]}
      */
-    this._jointStates = new Array(skeleton._joints.length);
+    this._jointStates = new Array(skeleton._nodes.length);
     for (let i = 0; i < this._jointStates.length; ++i)
-      this._jointStates[i] = new SamplingStateJointState(skeleton._joints[i]);
+      this._jointStates[i] = new SamplingStateJointState(skeleton._nodes[i]);
   }
 
   get skeleton() {
@@ -322,7 +322,7 @@ export class SamplingState {
    * Resets this state to get sampling start.
    */
   reset() {
-    for (let i = 0; i < this._skeleton._joints.length; ++i)
+    for (let i = 0; i < this._skeleton._nodes.length; ++i)
       this._jointStates[i].reset();
   }
 
