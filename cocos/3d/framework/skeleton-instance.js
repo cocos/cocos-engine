@@ -55,9 +55,6 @@ export default class SkeletonInstance {
       const newNode = newNodes[index];
       node.children.forEach(childNode => {
         const childIndex = nodes.indexOf(childNode);
-        if (childIndex < 0) {
-          debugger;
-        }
         newNode.addChild(newNodes[childIndex]);
       });
     });
