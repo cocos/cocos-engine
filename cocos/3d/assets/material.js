@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data/index";
+import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import Texture from '../../assets/CCTexture2D';
 import renderer from "../../renderer";
-import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath/index';
+import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath';
 
 function _objArrayClone(val) {
   return val.map(obj => Object.assign({}, obj));
@@ -156,8 +156,8 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {Material} mat 
+   *
+   * @param {Material} mat
    */
   copy(mat) {
     if (this._effect !== mat._effect) {
@@ -173,9 +173,9 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {string} name 
-   * @param {*} val 
+   *
+   * @param {string} name
+   * @param {*} val
    */
   setProperty(name, val) {
     this._props[name] = val;
@@ -188,9 +188,9 @@ export default class Material extends Asset {
   }
 
   /**
-   * 
-   * @param {string} name 
-   * @param {*} val 
+   *
+   * @param {string} name
+   * @param {*} val
    */
   define(name, val) {
     this._effectInst.define(name, val);
@@ -200,6 +200,18 @@ export default class Material extends Asset {
     // TODO: what should we do here ???
     return super.destroy();
   }
+
+    static getInstantiatedMaterial(mat, rndCom) {
+        if (mat._owner === rndCom) {
+            return this;
+        }
+        else {
+            let instance = new Material();
+            instance.copy(mat);
+            instance._native = mat._native + ' (Instance)';
+            instance._owner = rndCom;
+        }
+    }
 }
 
 cc.Material = Material;

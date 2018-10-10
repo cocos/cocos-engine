@@ -54,6 +54,11 @@
           "value": null
         },
         {
+          "name": "mra_texture",
+          "type": "texture2d",
+          "value": null
+        },
+        {
           "name": "emissive",
           "type": "color3",
           "value": [0, 0, 0]
