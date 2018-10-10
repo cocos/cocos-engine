@@ -28,6 +28,7 @@ import renderer from '../../renderer/index';
 import { ccclass, property, menu } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
+import RenderableComponent from './renderable-component';
 /**
  * @typedef {import('../assets/material').default} Material
  */
@@ -83,11 +84,11 @@ let ModelShadowCastingMode = Enum({
  *
  * !#ch 模型组件
  * @class ModelComponent
- * @extends RenderSystemActor
+ * @extends RenderableComponent
  */
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')
-export default class ModelComponent extends RenderSystemActor {
+export default class ModelComponent extends RenderableComponent {
     @property
     _materials = [];
 
@@ -255,13 +256,25 @@ export default class ModelComponent extends RenderSystemActor {
     _updateModelParams() {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
-            let material = this.getMaterial(i);
+            let material = this._getSubMeshMaterial(i);
             let inputAssembler = this._mesh.getSubMesh(i);
 
             model.setInputAssembler(inputAssembler);
             model.setEffect(material ? material.effectInst : null);
             model.setNode(this.node);
         }
+    }
+
+    _getSubMeshMaterial(idx) {
+        let mat = this.getSharedMaterial(idx);
+        if (mat == null && this._materials.length > 0) {
+            mat = this._materials[this._materials.length - 1];
+        }
+        return mat;
+    }
+    
+     _onMaterialModified(idx, mat) {
+        this._models[idx].setEffect(mat.effectInst);
     }
 
     _updateCastShadow() {
