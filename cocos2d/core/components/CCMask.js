@@ -36,6 +36,18 @@ const Node = require('../CCNode');
 let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
 
+let _circlepoints =[];
+function _calculateCircle (center, radius, segements) {
+    _circlepoints.length = 0;
+    let anglePerStep = Math.PI * 2 / segements;
+    for (let step = 0; step < segements; ++step) {
+        _circlepoints.push(cc.v2(radius.x * Math.cos(anglePerStep * step) + center.x,
+            radius.y * Math.sin(anglePerStep * step) + center.y));
+    }
+
+    return _circlepoints;
+}
+
 /**
  * !#en the type for mask.
  * !#zh 遮罩组件类型
@@ -225,6 +237,7 @@ let Mask = cc.Class({
                 this._segments = misc.clampf(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
                 this._updateGraphics();
             },
+            type: cc.Integer,
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.segements',
         },
 
@@ -401,7 +414,7 @@ let Mask = cc.Class({
                 x: width / 2,
                 y: height / 2
             };
-            let points = this._calculateCircle(center, radius, this._segments);
+            let points = _calculateCircle(center, radius, this._segments);
             for (let i = 0; i < points.length; ++i) {
                 let point = points[i];
                 if (i === 0) {
@@ -429,17 +442,6 @@ let Mask = cc.Class({
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
         }
-    },
-
-    _calculateCircle: function (center, radius, segements) {
-        let polies =[];
-        let anglePerStep = Math.PI * 2 / segements;
-        for(let step = 0; step < segements; ++ step) {
-            polies.push(cc.v2(radius.x * Math.cos(anglePerStep * step) + center.x,
-                radius.y * Math.sin(anglePerStep * step) + center.y));
-        }
-
-        return polies;
     },
 
     _hitTest (cameraPt) {
