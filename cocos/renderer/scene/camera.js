@@ -426,11 +426,12 @@ export default class Camera {
    * @param {number} height framebuffer height
    * @returns {Ray} the resulting ray
    */
-  screenPointToRay(screenPos, width, height) {
+  screenPointToRay(screenPos, width, height, out) {
+    if (!out) out = ray.create();
     this._node.getWorldPosition(_tmp3_v3);
     this.screenToWorld(_tmp2_v3, screenPos, width, height);
     vec3.normalize(_tmp2_v3, vec3.sub(_tmp2_v3, _tmp2_v3, _tmp3_v3));
-    return ray.create(_tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);
+    return ray.set(out, _tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);
   }
 
   /**

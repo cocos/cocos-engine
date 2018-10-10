@@ -37,3 +37,4 @@ let gfx = {
 Object.assign(gfx, enums);
 
 export default gfx;
+cc.gfx = gfx;
