@@ -252,6 +252,8 @@
 		40AEF7B3216D940200729AA5 /* WebViewImpl-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7AD216D940200729AA5 /* WebViewImpl-ios.h */; };
 		40AEF7B6216D982600729AA5 /* jsb_webview_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */; };
 		40AEF7B7216D982600729AA5 /* jsb_webview_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */; };
+		40AEF7C1216DF22500729AA5 /* jsb_video_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 40AEF7BE216DF21B00729AA5 /* jsb_video_auto.hpp */; };
+		40AEF7C2216DF22900729AA5 /* jsb_video_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40AEF7BD216DF21B00729AA5 /* jsb_video_auto.cpp */; };
 		40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */; };
 		40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
@@ -260,8 +262,6 @@
 		40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */; };
 		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
 		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
-		40FF7AA3216B29E700E73029 /* jsb_videoplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */; };
-		40FF7AA4216B29EB00E73029 /* jsb_videoplayer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -1181,10 +1181,10 @@
 		40AEF7AD216D940200729AA5 /* WebViewImpl-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WebViewImpl-ios.h"; sourceTree = "<group>"; };
 		40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_webview_auto.cpp; sourceTree = "<group>"; };
 		40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_webview_auto.hpp; sourceTree = "<group>"; };
+		40AEF7BD216DF21B00729AA5 /* jsb_video_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_video_auto.cpp; sourceTree = "<group>"; };
+		40AEF7BE216DF21B00729AA5 /* jsb_video_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_video_auto.hpp; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
 		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_videoplayer.cpp; sourceTree = "<group>"; };
-		40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_videoplayer.hpp; sourceTree = "<group>"; };
 		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
@@ -2105,6 +2105,8 @@
 		469302512046AE05004A3D6C /* auto */ = {
 			isa = PBXGroup;
 			children = (
+				40AEF7BD216DF21B00729AA5 /* jsb_video_auto.cpp */,
+				40AEF7BE216DF21B00729AA5 /* jsb_video_auto.hpp */,
 				40AEF7B4216D982600729AA5 /* jsb_webview_auto.cpp */,
 				40AEF7B5216D982600729AA5 /* jsb_webview_auto.hpp */,
 				1AAAC871205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp */,
@@ -2126,8 +2128,6 @@
 		469302BE2046AE05004A3D6C /* manual */ = {
 			isa = PBXGroup;
 			children = (
-				40FF7A98216B291800E73029 /* jsb_videoplayer.cpp */,
-				40FF7A99216B291800E73029 /* jsb_videoplayer.hpp */,
 				403ACAD820CE4EB000BB433D /* jsb_module_register.cpp */,
 				403ACAD920CE4EB000BB433D /* jsb_module_register.hpp */,
 				4008729220CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp */,
@@ -3115,7 +3115,6 @@
 				46AE3FE82092F3A600F3A228 /* inspector_io.h in Headers */,
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
-				40FF7AA4216B29EB00E73029 /* jsb_videoplayer.hpp in Headers */,
 				1A52DB79205BCDD000350EE3 /* Object.hpp in Headers */,
 				1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */,
 				50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */,
@@ -3162,6 +3161,7 @@
 				50ABBFFE1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
 				46FDDBEA202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
 				461786642052607E008256E1 /* jsb_socketio.hpp in Headers */,
+				40AEF7C1216DF22500729AA5 /* jsb_video_auto.hpp in Headers */,
 				4DED48251DFFA4AF0070C5C4 /* b2Fixture.h in Headers */,
 				46AE40002092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				469303EF2046AE05004A3D6C /* jsb_renderer_auto.hpp in Headers */,
@@ -3681,6 +3681,7 @@
 				4DED48491DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.cpp in Sources */,
 				4693038D2046AE05004A3D6C /* config.cpp in Sources */,
 				4DED48651DFFA4AF0070C5C4 /* b2Joint.cpp in Sources */,
+				40AEF7C2216DF22900729AA5 /* jsb_video_auto.cpp in Sources */,
 				ED30578A1BEC77460083C3ED /* tinyxml2.cpp in Sources */,
 				1A29D76A205665BE00168D9A /* jsb_cocos2dx_auto.cpp in Sources */,
 				4DED48311DFFA4AF0070C5C4 /* b2WorldCallbacks.cpp in Sources */,
@@ -3774,7 +3775,6 @@
 				1A28FF641F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				4693042D2046AE06004A3D6C /* jsb_renderer_manual.cpp in Sources */,
-				40FF7AA3216B29E700E73029 /* jsb_videoplayer.cpp in Sources */,
 				1AAAC8E8205CB6E9005321B9 /* AudioEngine-inl.mm in Sources */,
 				4617862220522469008256E1 /* HttpCookie.cpp in Sources */,
 				46FDDAE2202ACC6A00931238 /* GFXUtils.cpp in Sources */,

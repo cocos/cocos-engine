@@ -79,6 +79,7 @@ storage/local-storage/LocalStorage-android.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
+scripting/js-bindings/auto/jsb_video_auto.cpp \
 scripting/js-bindings/auto/jsb_webview_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
@@ -95,7 +96,6 @@ scripting/js-bindings/manual/jsb_global.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
 scripting/js-bindings/manual/jsb_socketio.cpp \
 scripting/js-bindings/manual/jsb_websocket.cpp \
-scripting/js-bindings/manual/jsb_videoplayer.cpp \
 scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
 scripting/js-bindings/manual/jsb_platform_android.cpp \
 scripting/js-bindings/jswrapper/config.cpp \

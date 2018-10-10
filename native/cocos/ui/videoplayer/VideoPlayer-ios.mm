@@ -542,16 +542,6 @@ void VideoPlayer::onPlayEvent(int event)
     }
 }
 
-void VideoPlayer::setViewPos(float x, float y)
-{
-
-}
-
-void VideoPlayer::setViewSize(float width, float height)
-{
-    
-}
-
 void VideoPlayer::setFrame(float x, float y, float width, float height)
 {
     auto eaglview = (CCEAGLView*)cocos2d::Application::getInstance()->getView();

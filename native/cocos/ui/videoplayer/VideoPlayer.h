@@ -140,9 +140,15 @@ class VideoPlayer : public Ref
      * @param event @see VideoPlayer::EventType.
      */
     virtual void onPlayEvent(int event);
+
+    /**
+     * Toggle visibility of VideoPlayer.
+     */
     virtual void setVisible(bool visible);
-    virtual void setViewPos(float x, float y);
-    virtual void setViewSize(float width, float height);
+
+    /**
+     * Set the rect of VideoPlayer.
+     */
     virtual void setFrame(float x, float y, float width, float height);
     
   protected:

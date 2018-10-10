@@ -209,16 +209,6 @@ void VideoPlayer::onPlayEvent(int event)
     }
 }
 
-void VideoPlayer::setViewPos(float x, float y)
-{
-
-}
-
-void VideoPlayer::setViewSize(float width, float height)
-{
-
-}
-
 void executeVideoCallback(int index,int event)
 {
     auto it = s_allVideoPlayers.find(index);

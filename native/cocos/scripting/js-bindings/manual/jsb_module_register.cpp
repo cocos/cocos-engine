@@ -59,7 +59,7 @@
 #endif
 
 #if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-#include "cocos/scripting/js-bindings/manual/jsb_videoplayer.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
 #endif
 
 #if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -126,7 +126,7 @@ bool jsb_register_all_modules()
 #endif
 
 #if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    se->addRegisterCallback(register_all_videoplayer);
+    se->addRegisterCallback(register_all_video);
 #endif
 
 #if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
