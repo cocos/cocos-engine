@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 module.exports = {
     useModel: false,
@@ -170,7 +171,7 @@ module.exports = {
         }
 
         // buffer
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2;
         
         let indiceOffset = buffer.indiceOffset,

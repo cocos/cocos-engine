@@ -107,6 +107,7 @@ let WebView = cc.Class({
 
     statics: {
         EventType: EventType,
+        Impl: WebViewImpl
     },
 
 

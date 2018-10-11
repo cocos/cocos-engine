@@ -121,7 +121,11 @@ var SizeMode = cc.Enum({
      */
     RAW: 2
 });
-
+/**
+ * !#en Sprite state can choice the normal or grayscale.
+ * !#zh 精灵颜色通道模式。
+ * @enum Sprite.State
+ */
 var State = cc.Enum({
     /**
      * !#en The normal state

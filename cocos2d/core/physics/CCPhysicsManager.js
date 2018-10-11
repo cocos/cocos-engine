@@ -484,7 +484,7 @@ var PhysicsManager = cc.Class({
             node.position = vec2_tmp;
 
             // sync rotation
-            node.rotation = angle;
+            node.angle = -angle;
 
             node._eventMask = tempMask;
             

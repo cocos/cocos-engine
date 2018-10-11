@@ -60,11 +60,12 @@ const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
+const COLOR_ON = 1 << 5;
 
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
-})
+});
 
 /**
  * !#en Node's local dirty properties flag
@@ -249,6 +250,16 @@ var EventType = cc.Enum({
      * @static
      */
     ANCHOR_CHANGED: 'anchor-changed',
+    /**
+    * !#en The event type for color change events.
+    * Performance note, this event will be triggered every time corresponding properties being changed,
+    * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+    * !#zh 当节点颜色改变时触发的事件。
+    * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+    * @property {String} COLOR_CHANGED
+    * @static
+    */
+    COLOR_CHANGED: 'color-changed',
     /**
      * !#en The event type for new child added events.
      * !#zh 当新的子节点被添加时触发的事件。
@@ -513,7 +524,7 @@ function _doDispatchEvent (owner, event) {
  * @class Node
  * @extends _BaseNode
  */
-var Node = cc.Class({
+let NodeDefines = {
     name: 'cc.Node',
     extends: BaseNode,
 
@@ -524,17 +535,7 @@ var Node = cc.Class({
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scaleX: {
-            default: undefined,
-            type: cc.Float
-        },
-        _scaleY: {
-            default: undefined,
-            type: cc.Float
-        },
         _scale: cc.Vec3,
-        _rotationX: 0.0,
-        _rotationY: 0.0,
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -624,7 +625,7 @@ var Node = cc.Class({
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(oldValue, localPosition.y, localPosition.z));
                             }
                             else {
                                 this.emit(EventType.POSITION_CHANGED);
@@ -667,7 +668,7 @@ var Node = cc.Class({
                         if (this._eventMask & POSITION_ON) {
                             // send event
                             if (CC_EDITOR) {
-                                this.emit(EventType.POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(localPosition.x, oldValue, localPosition.z));
                             }
                             else {
                                 this.emit(EventType.POSITION_CHANGED);
@@ -680,39 +681,56 @@ var Node = cc.Class({
                 }
             },
         },
-        
-        z: {
-            get () {
-                return this._position.z;
-            },
-            set (value) {
-                var localPosition = this._position;
-                if (value !== localPosition.z) {
-                    if (!CC_EDITOR || isFinite(value)) {
-                        localPosition.z = value;
-                        this.setLocalDirty(LocalDirtyFlag.POSITION);
-                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
-                        // fast check event
-                        if (this._eventMask & POSITION_ON) {
-                            this.emit(EventType.POSITION_CHANGED);
-                        }
-                    }
-                    else {
-                        cc.error(ERR_INVALID_NUMBER, 'new z');
-                    }
-                }
-            },
-        },
+
+        /**
+         * !#en z axis position of node.
+         * !#zh 节点 Z 轴坐标。
+         * @property z
+         * @type {Number}
+         */
 
         /**
          * !#en Rotation of node.
          * !#zh 该节点旋转角度。
          * @property rotation
          * @type {Number}
+         * @deprecated since v2.1
          * @example
          * node.rotation = 90;
          * cc.log("Node Rotation: " + node.rotation);
          */
+        rotation: {
+            get () {
+                return -this.angle;
+            },
+            set (value) {
+                this.angle = -value;
+            }
+        },
+
+        /**
+         * !#en
+         * Angle of node, the positive value is anti-clockwise direction.
+         * !#zh
+         * 该节点的旋转角度，正值为逆时针方向。
+         * @property angle
+         * @type {Number}
+         */
+        angle: {
+            get () {
+                return this._eulerAngles.z;
+            },
+            set (value) {
+                this._eulerAngles.z = value;
+                math.quat.fromEuler(this._quat, 0, 0, value);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+                if (this._eventMask & ROTATION_ON) {
+                    this.emit(EventType.ROTATION_CHANGED);
+                }
+            }
+        },
 
         /**
          * !#en The rotation as Euler angles in degrees, used in 2.5D project.
@@ -720,19 +738,6 @@ var Node = cc.Class({
          * @property eulerAngles
          * @type {Vec3}
          */
-        eulerAngles: {
-            get () {
-                return cc.v3(this._rotationX, this._rotationY, this._rotationZ);
-            },
-            set (v) {
-                this._rotationX = v.x;
-                this._rotationY = v.y;
-                this._rotationZ = v.z;
-                math.quat.fromEuler(this._quat, v.x, v.y, v.z);
-                this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
-            }
-        },
 
         /**
          * !#en Rotation on x axis.
@@ -740,22 +745,23 @@ var Node = cc.Class({
          * @property rotationX
          * @type {Number}
          * @example
+         * @deprecated since v2.1
          * node.rotationX = 45;
          * cc.log("Node Rotation X: " + node.rotationX);
          */
         rotationX: {
             get () {
-                return this._rotationX;
+                return this._eulerAngles.x;
             },
             set (value) {
-                if (this._rotationX !== value) {
-                    this._rotationX = value;
+                if (this._eulerAngles.x !== value) {
+                    this._eulerAngles.x = value;
                     // Update quaternion from rotation
-                    if (this._rotationX === this._rotationY) {
+                    if (this._eulerAngles.x === this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, value, this._rotationY, 0);
+                        math.quat.fromEuler(this._quat, value, this._eulerAngles.y, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -773,22 +779,23 @@ var Node = cc.Class({
          * @property rotationY
          * @type {Number}
          * @example
+         * @deprecated since v2.1
          * node.rotationY = 45;
          * cc.log("Node Rotation Y: " + node.rotationY);
          */
         rotationY: {
             get () {
-                return this._rotationY;
+                return this._eulerAngles.y;
             },
             set (value) {
-                if (this._rotationY !== value) {
-                    this._rotationY = value;
+                if (this._eulerAngles.y !== value) {
+                    this._eulerAngles.y = value;
                     // Update quaternion from rotation
-                    if (this._rotationX === this._rotationY) {
+                    if (this._eulerAngles.x === this._eulerAngles.y) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, this._rotationX, value, 0);
+                        math.quat.fromEuler(this._quat, this._eulerAngles.x, value, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
                     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -808,6 +815,14 @@ var Node = cc.Class({
          * @example
          * node.scale = 1;
          */
+        scale: {
+            get () {
+                return this._scale.x;
+            },
+            set (v) {
+                this.setScale(v);
+            }
+        },
 
         /**
          * !#en Scale on x axis.
@@ -860,6 +875,13 @@ var Node = cc.Class({
                 }
             },
         },
+
+        /**
+         * !#en Scale on z axis.
+         * !#zh 节点 Z 轴缩放。
+         * @property scaleZ
+         * @type {Number}
+         */
 
         /**
          * !#en Skew x
@@ -943,6 +965,10 @@ var Node = cc.Class({
                     
                     if (this._renderComponent) {
                         this._renderFlag |= RenderFlow.FLAG_COLOR;
+                    }
+
+                    if (this._eventMask & COLOR_ON) {
+                        this.emit(EventType.COLOR_CHANGED, value);
                     }
                 }
             },
@@ -1129,7 +1155,7 @@ var Node = cc.Class({
         this._eventMask = 0;
         this._cullingMask = 1 << this.groupIndex;
 
-        this._rotationZ = 0;
+        this._eulerAngles = cc.v3();
     },
 
     statics: {
@@ -1243,19 +1269,6 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    _syncEulerAngles () {
-        let quat = this._quat;
-        let rotx = quat.getRoll();
-        let roty = quat.getPitch();
-        if (rotx === 0 && roty === 0) {
-            this._rotationX = this._rotationY = -quat.getYaw();
-        }
-        else {
-            this._rotationX = rotx;
-            this._rotationY = roty;
-        }
-    },
-
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1276,7 +1289,7 @@ var Node = cc.Class({
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
         let quat = this._quat;
-        if ((this._rotationX !== 0 || this._rotationY !== 0) && 
+        if ((this._rotationX || this._rotationY) && 
             (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
                 math.quat.fromEuler(quat, 0, 0, -this._rotationX);
@@ -1287,7 +1300,7 @@ var Node = cc.Class({
         }
         // Update rotation from quaternion
         else {
-            this._syncEulerAngles();
+            this._quat.getEulerAngles(this._eulerAngles);
         }
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
@@ -1339,7 +1352,7 @@ var Node = cc.Class({
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            
+
             // ActionManager may not be inited in the editor worker.
             let manager = cc.director.getActionManager();
             manager && manager.pauseTarget(this);
@@ -1450,6 +1463,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_END, callback, this);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
      * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * node.on(cc.Node.EventType.COLOR_CHANGED, callback);
      */
     on (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
@@ -1472,6 +1486,9 @@ var Node = cc.Class({
                 break;
                 case EventType.ANCHOR_CHANGED:
                 this._eventMask |= ANCHOR_ON;
+                break;
+                case EventType.COLOR_CHANGED:
+                this._eventMask |= COLOR_ON;
                 break;
             }
             if (!this._bubblingListeners) {
@@ -1614,6 +1631,9 @@ var Node = cc.Class({
                     case EventType.ANCHOR_CHANGED:
                     this._eventMask &= ~ANCHOR_ON;
                     break;
+                    case EventType.COLOR_CHANGED:
+                    this._eventMask &= ~COLOR_ON;
+                    break;
                 }
             }
         }
@@ -1671,6 +1691,9 @@ var Node = cc.Class({
             }
             if ((this._eventMask & ANCHOR_ON) && !listeners.hasEventListener(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
+            }
+            if ((this._eventMask & COLOR_ON) && !listeners.hasEventListener(EventType.COLOR_CHANGED)) {
+                this._eventMask &= ~COLOR_ON;
             }
         }
         if (this._capturingListeners) {
@@ -2003,31 +2026,41 @@ var Node = cc.Class({
 
 // TRANSFORM RELATED
     /**
-     * !#en Returns a copy of the position (x, y) of the node in its parent's coordinates.
-     * !#zh 获取节点在父节点坐标系中的位置（x, y）。
+     * !#en 
+     * Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
+     * You can pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
+     * !#zh 
+     * 获取节点在父节点坐标系中的位置（x, y, z）。
+     * 你可以传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getPosition
-     * @return {Vec2} The position (x, y) of the node in its parent's coordinates
+     * @param {Vec2|Vec3} [out] - The return value to receive position
+     * @return {Vec2|Vec3} The position (x, y, z) of the node in its parent's coordinates
      * @example
      * cc.log("Node Position: " + node.getPosition());
      */
-    getPosition () {
-        return new cc.Vec2(this._position);
+    getPosition (out) {
+        out = out || cc.v3();
+        return out.set(this._position);
     },
 
     /**
      * !#en
-     * Sets the position (x, y) of the node in its parent's coordinates.<br/>
-     * Usually we use cc.v2(x, y) to compose cc.Vec2 object.<br/>
-     * and Passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
+     * Sets the position (x, y, z) of the node in its parent's coordinates.<br/>
+     * Usually we use cc.v2(x, y) to compose cc.Vec2 object,<br/>
+     * and passing two numbers (x, y) is more efficient than passing cc.Vec2 object.
+     * For 3D node we can use cc.v3(x, y, z) to compose cc.Vec3 object,<br/>
+     * and passing three numbers (x, y, z) is more efficient than passing cc.Vec3 object.
      * !#zh
      * 设置节点在父节点坐标系中的位置。<br/>
-     * 可以通过两种方式设置坐标点：<br/>
-     * 1. 传入 2 个数值 x 和 y。<br/>
+     * 可以通过下面的方式设置坐标点：<br/>
+     * 1. 传入 2 个数值 x, y。<br/>
      * 2. 传入 cc.v2(x, y) 类型为 cc.Vec2 的对象。
+     * 3. 对于 3D 节点可以传入 3 个数值 x, y, z。<br/>
+     * 4. 对于 3D 节点可以传入 cc.v3(x, y, z) 类型为 cc.Vec3 的对象。
      * @method setPosition
-     * @param {Vec2|Number} newPosOrX - X coordinate for position or the position (x, y) of the node in coordinates
+     * @param {Vec2|Vec3|Number} newPosOrX - X coordinate for position or the position (x, y, z) of the node in coordinates
      * @param {Number} [y] - Y coordinate for position
-     * @example {@link cocos2d/core/utils/base-node/setPosition.js}
+     * @param {Number} [z] - Z coordinate for position
      */
     setPosition (newPosOrX, y) {
         var x;
@@ -2045,7 +2078,7 @@ var Node = cc.Class({
         }
 
         if (CC_EDITOR) {
-            var oldPosition = new cc.Vec2(locPosition);
+            var oldPosition = new cc.Vec3(locPosition);
         }
         if (!CC_EDITOR || isFinite(x)) {
             locPosition.x = x;
@@ -2077,28 +2110,39 @@ var Node = cc.Class({
     /**
      * !#en
      * Returns the scale factor of the node.
-     * Assertion will fail when scale x != scale y.
-     * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
+     * Need pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
+     * !#zh 获取节点的缩放，需要传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getScale
-     * @return {Number} The scale factor
+     * @param {Vec2|Vec3} out
+     * @return {Vec2|Vec3} The scale factor
      * @example
-     * cc.log("Node Scale: " + node.getScale());
+     * cc.log("Node Scale: " + node.getScale(cc.v3()));
      */
-    getScale () {
-        if (this._scale.x !== this._scale.y)
-            cc.logID(1603);
-        return this._scale.x;
+    getScale (out) {
+        if (out !== undefined) {
+            return out.set(this._scale);
+        }
+        else {
+            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
+            return this._scale.x;
+        }
     },
 
     /**
-     * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
-     * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
+     * !#en 
+     * Sets the scale of axis in local coordinates of the node.
+     * You can operate 2 axis in 2D node, and 3 axis in 3D node.
+     * !#zh 
+     * 设置节点在本地坐标系中坐标轴上的缩放比例。
+     * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
      * @method setScale
-     * @param {Number|Vec2} scaleX - scaleX or scale
-     * @param {Number} [scaleY]
+     * @param {Number|Vec2|Vec3} x - scaleX or scale object
+     * @param {Number} [y]
+     * @param {Number} [z]
      * @example
-     * node.setScale(cc.v2(1, 1));
-     * node.setScale(1);
+     * node.setScale(cc.v2(2, 2));
+     * node.setScale(cc.v3(2, 2, 2)); // for 3D node
+     * node.setScale(2);
      */
     setScale (x, y) {
         if (x && typeof x !== 'number') {
@@ -2121,32 +2165,60 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Get rotation of node (along z axi).
-     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * !#en 
+     * Get rotation of node (in quaternion). 
+     * Need pass a cc.Quat as the argument to receive the return values.
+     * !#zh 
+     * 获取该节点的 quaternion 旋转角度，需要传一个 cc.Quat 作为参数来接收返回值。
      * @method getRotation
-     * @param {Number} rotation Degree rotation value
+     * @param {Quat} out
+     * @return {Quat} Quaternion object represents the rotation
      */
-    getRotation () {
-        return this._rotationX;
+    getRotation (out) {
+        if (out instanceof cc.Quat) {
+            return out.set(this._quat);
+        }
+        else {
+            cc.warnID(1400, 'cc.Node.getRotation', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');
+            return -this.angle;
+        }
     },
 
-
     /**
-     * !#en Set rotation of node (along z axi).
-     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * !#en Set rotation of node (in quaternion).
+     * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
-     * @param {Number} rotation Degree rotation value
+     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion	
+     * @param {Number} y y value of quternion	
+     * @param {Number} z z value of quternion	
+     * @param {Number} w w value of quternion
      */
-    setRotation (value) {
-        if (this._rotationX !== value || this._rotationY !== value) {
-            this._rotationX = this._rotationY = value;
-            // Update quaternion from rotation
-            math.quat.fromEuler(this._quat, 0, 0, -value);
-            this.setLocalDirty(LocalDirtyFlag.ROTATION);
-            this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    setRotation (quat, y, z, w) {
+        if (typeof quat === 'number' && y === undefined) {
+            cc.warnID(1400, 'cc.Node.setRotation(Number)', 'cc.Node.angle or cc.Node.setRotation(quat)')
+            this.angle = -quat;
+        }
+        else {
+            let x = quat;
+            if (y === undefined) {
+                x = quat.x;
+                y = quat.y;
+                z = quat.z;
+                w = quat.w;
+            }
 
-            if (this._eventMask & ROTATION_ON) {
-                this.emit(EventType.ROTATION_CHANGED);
+            let old = this._quat;
+            if (old.x !== x || old.y !== y || old.z !== z || old.w !== w) {
+                old.x = x;
+                old.y = y;
+                old.z = z;
+                old.w = w;
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+
+                if (this._eventMask & ROTATION_ON) {
+                    this.emit(EventType.ROTATION_CHANGED);
+                }
             }
         }
     },
@@ -2330,6 +2402,9 @@ var Node = cc.Class({
      * @param {Vec3} pos
      */
     setWorldPos (pos) {
+        if (CC_EDITOR) {
+            var oldPosition = new cc.Vec3(this._position);
+        }
         // NOTE: this is faster than invert world matrix and transform the point
         if (this._parent) {
             this._parent._invTransformPoint(this._position, pos);
@@ -2433,26 +2508,19 @@ var Node = cc.Class({
         //math.mat4.fromRTS(t, this._quat, this._position, this._scale);
 
         if (dirtyFlag & (LocalDirtyFlag.RT | LocalDirtyFlag.SKEW)) {
-            let hasRotation = this._rotationX || this._rotationY;
+            let rotation = -this._eulerAngles.z;
             let hasSkew = this._skewX || this._skewY;
             let sx = this._scale.x, sy = this._scale.y;
 
-            if (hasRotation || hasSkew) {
+            if (rotation || hasSkew) {
                 let a = 1, b = 0, c = 0, d = 1;
                 // rotation
-                if (hasRotation) {
-                    let rotationRadiansX = this._rotationX * ONE_DEGREE;
-                    c = Math.sin(rotationRadiansX);
-                    d = Math.cos(rotationRadiansX);
-                    if (this._rotationY === this._rotationX) {
-                        a = d;
-                        b = -c;
-                    }
-                    else {
-                        let rotationRadiansY = this._rotationY * ONE_DEGREE;
-                        a = Math.cos(rotationRadiansY);
-                        b = -Math.sin(rotationRadiansY);
-                    }
+                if (rotation) {
+                    let rotationRadians = rotation * ONE_DEGREE;
+                    c = Math.sin(rotationRadians);
+                    d = Math.cos(rotationRadians);
+                    a = d;
+                    b = -c;
                 }
                 // scale
                 t.m00 = a *= sx;
@@ -3026,6 +3094,8 @@ var Node = cc.Class({
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
+        this._quat.getEulerAngles(this._eulerAngles);
+
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
             if (this._renderComponent.enabled) {
@@ -3057,14 +3127,42 @@ var Node = cc.Class({
             eventManager.pauseTarget(this);
         }
     },
-});
+};
+
+if (CC_EDITOR) {
+    // deprecated, only used to import old data in editor
+    js.mixin(NodeDefines.properties, {
+        _scaleX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _scaleY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationX: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+        _rotationY: {
+            default: undefined,
+            type: cc.Float,
+            editorOnly: true
+        },
+    });
+}
+
+let Node = cc.Class(NodeDefines);
 
 // 3D Node Property
 
 /**
- * !en 
+ * !en
  * Switch 2D/3D node. The 2D nodes will run faster.
- * !zh 
+ * !zh
  * 切换 2D/3D 节点，2D 节点会有更高的运行效率
  * @property {Boolean} is3DNode
  * @default false
@@ -3183,9 +3281,6 @@ var Node = cc.Class({
 
 
 let _p = Node.prototype;
-js.getset(_p, 'rotation', _p.getRotation, _p.setRotation);
-js.getset(_p, 'parent', _p.getParent, _p.setParent);
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
-js.getset(_p, 'scale', _p.getScale, _p.setScale, false, true);
 
 cc.Node = module.exports = Node;

@@ -81,7 +81,7 @@ let VideoPlayerImpl = cc.Class({
         //binding event
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
-            this._loadedmeta = true;
+            self._loadedmeta = true;
             if (sys.os === sys.OS_IOS && sys.isBrowser) {
                 triggerFullScene(video, self._fullScreenEnabled);
             }

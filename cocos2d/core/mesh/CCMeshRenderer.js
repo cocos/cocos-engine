@@ -28,6 +28,7 @@ const Mesh = require('./CCMesh');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const RenderFlow = require('../renderer/render-flow');
+const aabb = require('../3d/geom-utils/aabb');
 
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
@@ -66,6 +67,7 @@ let MeshRenderer = cc.Class({
     ctor () {
         this._renderDatas = [];
         this._materials = [];
+        this._boundingBox = null;
     },
 
     onEnable () {
@@ -99,6 +101,10 @@ let MeshRenderer = cc.Class({
 
         if (this._material && !force) {
             return;
+        }
+
+        if (aabb) {
+            this._boundingBox = aabb.fromPoints(aabb.create(), this._mesh._minPos, this._mesh._maxPos);
         }
         
         this._reset();

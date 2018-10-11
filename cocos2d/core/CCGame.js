@@ -38,7 +38,7 @@ const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manage
 /**
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class game
+ * @class Game
  * @static
  * @extends EventTarget
  */
@@ -883,6 +883,12 @@ EventTarget.call(game);
 cc.js.addon(game, EventTarget.prototype);
 
 /**
+ * @module cc
+ */
+
+/**
+ * !#en This is a Game instance.
+ * !#zh 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。。
  * @property game
  * @type Game
  */

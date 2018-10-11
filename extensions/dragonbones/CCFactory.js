@@ -25,10 +25,24 @@
 
 let BaseObject = dragonBones.BaseObject;
 
+/**
+ * @module dragonBones
+*/
+
+/**
+ * @class CCFactory
+ * @extends BaseFactory
+*/
 var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
     extends: dragonBones.BaseFactory,
-
+    /**
+     * @method getInstance
+     * @return {CCFactory}
+     * @static
+     * @example
+     * let factory = dragonBones.CCFactory.getInstance();
+    */
     statics: {
         _factory: null,
         getInstance () {

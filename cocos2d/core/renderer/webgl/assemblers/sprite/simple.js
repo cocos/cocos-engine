@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 module.exports = {
     useModel: false,
@@ -58,7 +59,7 @@ module.exports = {
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
+        let buffer = renderer.getBuffer('quad', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2;
 
         buffer.request(4, 6);

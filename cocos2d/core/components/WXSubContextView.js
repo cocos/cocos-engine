@@ -64,7 +64,7 @@ else {
 
         editor: CC_EDITOR && {
             menu: 'i18n:MAIN_MENU.component.others/WXSubContextView',
-            help: 'i18n:COMPONENT.help_url.wxSubContextView'
+            help: 'i18n:COMPONENT.help_url.wx_subcontext_view'
         },
 
         ctor () {

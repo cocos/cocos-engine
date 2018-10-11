@@ -31,6 +31,7 @@ const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
+const Node = require('../CCNode');
 
 let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
@@ -78,6 +79,11 @@ let Mask = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',
         help: 'i18n:COMPONENT.help_url.mask',
         inspector: 'packages://inspector/inspectors/comps/mask.js'
+    },
+
+    ctor () {
+        this._graphics = null;
+        this._clearGraphics = null;
     },
 
     properties: {
@@ -236,18 +242,11 @@ let Mask = cc.Class({
     },
 
     onLoad () {
-        this._graphics = new Graphics();
-        this._graphics.node = this.node;
-        this._graphics.lineWidth = 0;
-        this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+        this._createGraphics();
     },
 
     onRestore () {
-        if (!this._graphics) {
-            this._graphics = new Graphics();
-            this._graphics.node = this.node;
-            this._graphics.lineWidth = 0;
-        }
+        this._createGraphics();
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
@@ -293,7 +292,7 @@ let Mask = cc.Class({
 
     onDestroy () {
         this._super();
-        this._graphics.destroy();
+        this._removeGraphics();
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -365,6 +364,24 @@ let Mask = cc.Class({
         this.markForRender(true);
     },
 
+    _createGraphics () {
+        if (!this._graphics) {
+            this._graphics = new Graphics();
+            this._graphics.node = this.node;
+            this._graphics.lineWidth = 0;
+            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+        }
+
+        if (!this._clearGraphics) {
+            this._clearGraphics = new Graphics();
+            this._clearGraphics.node = new Node();
+            this._clearGraphics._activateMaterial();
+            this._clearGraphics.lineWidth = 0;
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+        }
+    },
+
     _updateGraphics () {
         let node = this.node;
         let graphics = this._graphics;
@@ -389,6 +406,16 @@ let Mask = cc.Class({
         }
         else {
             graphics.fill();
+        }
+    },
+
+    _removeGraphics () {
+        if (this._graphics) {
+            this._graphics.destroy();
+        }
+
+        if (this._clearGraphics) {
+            this._clearGraphics.destroy();
         }
     },
 
