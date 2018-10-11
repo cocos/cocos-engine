@@ -219,9 +219,6 @@ RenderFlow.visit = function (scene) {
     _batcher.terminate();
     _batcher.walking = false;
 };
-RenderFlow.reset = function () {
-    _batcher.reset();
-};
 
 RenderFlow.init = function (batcher) {
     _batcher = batcher;
