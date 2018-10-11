@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 module.exports = {
     useModel: false,
@@ -53,28 +54,30 @@ module.exports = {
     fillBuffers (sprite, renderer) {
         let data = sprite._renderData._data,
             node = sprite.node,
+            color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
+        let buffer = renderer.getBuffer('quad', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2;
 
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData;
+        let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
 
         // get uv from sprite frame directly
         let uv = sprite._spriteFrame.uv;
         vbuf[vertexOffset+2] = uv[0];
         vbuf[vertexOffset+3] = uv[1];
-        vbuf[vertexOffset+6] = uv[2];
-        vbuf[vertexOffset+7] = uv[3];
-        vbuf[vertexOffset+10] = uv[4];
-        vbuf[vertexOffset+11] = uv[5];
-        vbuf[vertexOffset+14] = uv[6];
-        vbuf[vertexOffset+15] = uv[7];
+        vbuf[vertexOffset+7] = uv[2];
+        vbuf[vertexOffset+8] = uv[3];
+        vbuf[vertexOffset+12] = uv[4];
+        vbuf[vertexOffset+13] = uv[5];
+        vbuf[vertexOffset+17] = uv[6];
+        vbuf[vertexOffset+18] = uv[7];
 
         let data0 = data[0], data3 = data[3],
             vl = data0.x, vr = data3.x,
@@ -89,14 +92,19 @@ module.exports = {
         vbuf[vertexOffset] = al + cb + tx;
         vbuf[vertexOffset+1] = bl + db + ty;
         // right bottom
-        vbuf[vertexOffset+4] = ar + cb + tx;
-        vbuf[vertexOffset+5] = br + db + ty;
+        vbuf[vertexOffset+5] = ar + cb + tx;
+        vbuf[vertexOffset+6] = br + db + ty;
         // left top
-        vbuf[vertexOffset+8] = al + ct + tx;
-        vbuf[vertexOffset+9] = bl + dt + ty;
+        vbuf[vertexOffset+10] = al + ct + tx;
+        vbuf[vertexOffset+11] = bl + dt + ty;
         // right top
-        vbuf[vertexOffset+12] = ar + ct + tx;
-        vbuf[vertexOffset+13] = br + dt + ty;
+        vbuf[vertexOffset+15] = ar + ct + tx;
+        vbuf[vertexOffset+16] = br + dt + ty;
+        // color
+        uintbuf[vertexOffset+4] = color;
+        uintbuf[vertexOffset+9] = color;
+        uintbuf[vertexOffset+14] = color;
+        uintbuf[vertexOffset+19] = color;
     },
 
     createData (sprite) {
