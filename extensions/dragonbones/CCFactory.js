@@ -24,10 +24,14 @@
  ****************************************************************************/
 
 let BaseObject = dragonBones.BaseObject;
+
+/**
+ * @module dragonBones
+*/
+
 /**
  * @class CCFactory
  * @extends BaseFactory
- * @namespace dragonBones
 */
 var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
