@@ -25,7 +25,6 @@
 
 const js = require('../../../../platform/js');
 const ttfUtls = require('../../../utils/label/ttf');
-const vfmtPosUv = require('../../vertex-format').vfmtPosUv;
 
 module.exports = js.addon({
     createData (comp) {
@@ -50,17 +49,19 @@ module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let data = comp._renderData._data,
             node = comp.node,
+            color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer.getBuffer('quad', vfmtPosUv),
+        let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2;
 
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData;
+        let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
 
         // vertex
         for (let i = 0; i < 4; i++) {
@@ -69,6 +70,7 @@ module.exports = js.addon({
             vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
         }
     },
 
