@@ -38,7 +38,7 @@ var particleSystemAssembler = {
         comp._vertexFormat = vfmtPosUvColor;
 
         // Create quad buffer for vertex and index
-        comp._buffer = new QuadBuffer(renderer._walker, vfmtPosUvColor);
+        comp._buffer = new QuadBuffer(renderer._handle, vfmtPosUvColor);
 
         comp._ia = new renderEngine.InputAssembler();
         comp._ia._vertexBuffer = comp._buffer._vb;

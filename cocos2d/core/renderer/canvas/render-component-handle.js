@@ -23,11 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const RenderFlow = require('../render-flow');
 require('./renderers');
 
-let RenderComponentWalker = function (device, defaultCamera) {
+let RenderComponentHandle = function (device, defaultCamera) {
     this._device = device;
     // let vx = this._device._vx;
     // let vy = this._device._vy;
@@ -37,24 +35,13 @@ let RenderComponentWalker = function (device, defaultCamera) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
-    
-    RenderFlow.init(this);
+    this.walking = false;
 };
 
-RenderComponentWalker.prototype = {
-    constructor: RenderComponentWalker,
+RenderComponentHandle.prototype = {
+    constructor: RenderComponentHandle,
     
-    reset() {},
-
-    _commitComp (comp, assembler) {
-        let ctx = this._device._ctx;
-        let cam = this._camera;
-        ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
-        ctx.scale(1, -1);
-        assembler.draw(ctx, comp);
-    },
-
-    visit (scene) {
+    reset() {
         let ctx = this._device._ctx;
         let canvas = this._device._canvas;
         let color = cc.Camera.main.backgroundColor;
@@ -64,9 +51,19 @@ RenderComponentWalker.prototype = {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
+    },
 
-        RenderFlow.render(scene);
+    terminate () {
+
+    },
+
+    _commitComp (comp, assembler) {
+        let ctx = this._device._ctx;
+        let cam = this._camera;
+        ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
+        ctx.scale(1, -1);
+        assembler.draw(ctx, comp);
     }
 };
 
-module.exports = RenderComponentWalker;
+module.exports = RenderComponentHandle;

@@ -12,7 +12,7 @@ const POST_UPDATE_RENDER_DATA = 1 << 8;
 const POST_RENDER = 1 << 9;
 const FINAL = 1 << 10;
 
-let _walker = null;
+let _batcher;
 let _cullingMask = 0;
 
 // 
@@ -32,7 +32,7 @@ _proto._localTransform = function (node) {
 };
 
 _proto._worldTransform = function (node) {
-    _walker.worldMatDirty ++;
+    _batcher.worldMatDirty ++;
 
     let t = node._matrix;
     let position = node._position;
@@ -43,7 +43,7 @@ _proto._worldTransform = function (node) {
     node._renderFlag &= ~WORLD_TRANSFORM;
     this._next._func(node);
 
-    _walker.worldMatDirty --;
+    _batcher.worldMatDirty --;
 };
 
 _proto._color = function (node) {
@@ -58,12 +58,12 @@ _proto._color = function (node) {
 };
 
 _proto._opacity = function (node) {
-    _walker.parentOpacityDirty++;
+    _batcher.parentOpacityDirty++;
 
     node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
-    _walker.parentOpacityDirty--;
+    _batcher.parentOpacityDirty--;
 };
 
 _proto._updateRenderData = function (node) {
@@ -75,24 +75,25 @@ _proto._updateRenderData = function (node) {
 
 _proto._render = function (node) {
     let comp = node._renderComponent;
-    _walker._commitComp(comp, comp._assembler, node._cullingMask);
+    _batcher._commitComp(comp, comp._assembler, node._cullingMask);
     this._next._func(node);
 };
 
 _proto._customIARender = function (node) {
     let comp = node._renderComponent;
-    _walker._commitIA(comp, comp._assembler, node._cullingMask);
+    _batcher._commitIA(comp, comp._assembler, node._cullingMask);
     this._next._func(node);
 };
 
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
+    let batcher = _batcher;
 
-    let parentOpacity = _walker.parentOpacity;
-    _walker.parentOpacity *= (node._opacity / 255);
+    let parentOpacity = batcher.parentOpacity;
+    batcher.parentOpacity *= (node._opacity / 255);
 
-    let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
-    let worldOpacityFlag = _walker.parentOpacityDirty ? COLOR : 0;
+    let worldTransformFlag = batcher.worldMatDirty ? WORLD_TRANSFORM : 0;
+    let worldOpacityFlag = batcher.parentOpacityDirty ? COLOR : 0;
 
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
@@ -102,12 +103,12 @@ _proto._children = function (node) {
         c._renderFlag |= worldTransformFlag | worldOpacityFlag;
 
         // TODO: Maybe has better way to implement cascade opacity
-        c._color.a = c._opacity * _walker.parentOpacity;
+        c._color.a = c._opacity * batcher.parentOpacity;
         flows[c._renderFlag]._func(c);
         c._color.a = 255;
     }
 
-    _walker.parentOpacity = parentOpacity;
+    batcher.parentOpacity = parentOpacity;
 
     this._next._func(node);
 
@@ -123,7 +124,7 @@ _proto._postUpdateRenderData = function (node) {
 
 _proto._postRender = function (node) {
     let comp = node._renderComponent;
-    _walker._commitComp(comp, comp._postAssembler, node._cullingMask);
+    _batcher._commitComp(comp, comp._postAssembler, node._cullingMask);
     this._next._func(node);
 };
 
@@ -187,24 +188,6 @@ function getFlow (flag) {
     return flow;
 }
 
-
-function render (scene) {
-    _cullingMask = 1 << scene.groupIndex;
-
-    if (scene._renderFlag & WORLD_TRANSFORM) {
-        _walker.worldMatDirty ++;
-        scene._calculWorldMatrix();
-        scene._renderFlag &= ~WORLD_TRANSFORM;
-
-        flows[scene._renderFlag]._func(scene);
-
-        _walker.worldMatDirty --;
-    }
-    else {
-        flows[scene._renderFlag]._func(scene);
-    }
-}
-
 // 
 function init (node) {
     let flag = node._renderFlag;
@@ -214,13 +197,36 @@ function init (node) {
 
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
-RenderFlow.render = render;
+RenderFlow.visit = function (scene) {
+    _batcher.reset();
+    _batcher.walking = true;
 
-RenderFlow.init = function (walker) {
-    _walker = walker;
+    _cullingMask = 1 << scene.groupIndex;
+
+    if (scene._renderFlag & WORLD_TRANSFORM) {
+        _batcher.worldMatDirty ++;
+        scene._calculWorldMatrix();
+        scene._renderFlag &= ~WORLD_TRANSFORM;
+
+        flows[scene._renderFlag]._func(scene);
+
+        _batcher.worldMatDirty --;
+    }
+    else {
+        flows[scene._renderFlag]._func(scene);
+    }
+
+    _batcher.terminate();
+    _batcher.walking = false;
+};
+RenderFlow.reset = function () {
+    _batcher.reset();
+};
+
+RenderFlow.init = function (batcher) {
+    _batcher = batcher;
 
     flows[0] = EMPTY_FLOW;
-
     for (let i = 1; i < FINAL; i++) {
         flows[i] = new RenderFlow();
     }
