@@ -208,7 +208,7 @@ class Node extends BaseNode {
      */
     getRotation(out) {
         if (out) {
-            return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z);
+            return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
         } else {
             return quat.copy(cc.quat(), this._lrot);
         }
