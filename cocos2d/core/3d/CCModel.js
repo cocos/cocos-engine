@@ -88,7 +88,7 @@ var Model = cc.Class({
                 return this._bin;
             },
             set(bin) {
-                this._bin = bin.buffer;
+                this._bin = bin.buffer || bin;
                 this._initNodes();
             },
             override: true
