@@ -25,6 +25,6 @@
 
 module.exports = {
     ForwardRenderer: require('./forward-renderer'),
-    RenderComponentWalker: require('./canvas-render-walker'),
+    RenderComponentHandle: require('./render-component-handle'),
     _renderers: require('./renderers')
 };

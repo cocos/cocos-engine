@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const renderEngine = require('./render-engine');
-const math = renderEngine.math;
+const RenderFlow = require('./render-flow');
 
 function _initBuiltins(device) {
     let defaultTexture = new renderEngine.Texture2D(device, {
@@ -90,14 +90,15 @@ cc.renderer = module.exports = {
      * @type {Number}
      */
     drawCalls: 0,
-    _walker: null,
+    // Render component handler
+    _handle: null,
     _cameraNode: null,
     _camera: null,
     _forward: null,
 
     initWebGL (canvas, opts) {
         require('./webgl/assemblers');
-        const RenderComponentWalker = require('./webgl/render-component-walker');
+        const ModelBatcher = require('./webgl/model-batcher');
 
         this.Texture2D = renderEngine.Texture2D;
 
@@ -112,8 +113,8 @@ cc.renderer = module.exports = {
         
         this.scene = new renderEngine.Scene();
 
-        this._walker = new RenderComponentWalker(this.device, this.scene);
-
+        this._handle = new ModelBatcher(this.device, this.scene);
+        RenderFlow.init(this._handle);
         let builtins = _initBuiltins(this.device);
         this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
@@ -134,7 +135,8 @@ cc.renderer = module.exports = {
         this._camera = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };
-        this._walker = new canvasRenderer.RenderComponentWalker(this.device, this._camera);
+        this._handle = new canvasRenderer.RenderComponentHandle(this.device, this._camera);
+        RenderFlow.init(this._handle);
         this._forward = new canvasRenderer.ForwardRenderer();
     },
 
@@ -159,7 +161,7 @@ cc.renderer = module.exports = {
         this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
-            this._walker.visit(ecScene);
+            RenderFlow.visit(ecScene);
             // Render models in renderer scene
             this._forward.render(this.scene);
             this.drawCalls = this.device._stats.drawcalls;
@@ -167,7 +169,7 @@ cc.renderer = module.exports = {
     },
 
     clear () {
-        this._walker.reset();
+        this._handle.reset();
         this._forward._reset();
     }
 };
