@@ -306,7 +306,7 @@ export default class Camera extends Component {
 
     _updateCameraMask () {
         if (this._camera) {
-            let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
+            let mask = this._cullingMask & (~(1 << 31));
             this._camera._cullingMask = mask;
             this._camera.view._cullingMask = mask;
         }

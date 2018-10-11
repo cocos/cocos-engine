@@ -1,4 +1,4 @@
-import renderer from '../renderer';
+import renderer from '../../renderer';
 import OrbitCamera from './orbit-camera';
 import DrawMng from './draw-mng';
 import { createGrid } from './utils';

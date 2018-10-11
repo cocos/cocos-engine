@@ -70,7 +70,6 @@ let CameraProjection = Enum({
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
-@executeInEditMode
 export default class CameraComponent extends RenderSystemActor{
     @property
     _projection = CameraProjection.Perspective;
@@ -221,7 +220,7 @@ export default class CameraComponent extends RenderSystemActor{
 
     set color(val) {
         this._color = val;
-        this._camera.setColor(val.r, val.g, val.b, val.a);
+        this._camera.setColor(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
     }
 
     /**

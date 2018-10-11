@@ -42,8 +42,8 @@ function createJointsTexture(skinning) {
   });
 }
 
-function createMesh(app, data) {
-  let ia = renderer.createIA(cc.game._renderContext, data);
+function createMesh(context, data) {
+  let ia = renderer.createIA(context, data);
   let meshAsset = new Mesh();
   meshAsset._subMeshes = [ia];
   meshAsset._minPos = data.minPos;
