@@ -154,9 +154,10 @@ namespace
 {
     void getTextInputCallback()
     {
-        if (! g_textInputCallback.isUndefined())
+        se::Value tmpVal;
+        if (! g_textInputCallback.isUndefined() && g_textInputCallback.toObject()->getProperty("input", &tmpVal))
             return;
-        
+
         auto global = se::ScriptEngine::getInstance()->getGlobalObject();
         se::Value jsbVal;
         if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
