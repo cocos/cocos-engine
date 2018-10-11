@@ -25,6 +25,7 @@
 
 const js = require('../../../../platform/js');
 const bmfontUtls = require('../../../utils/label/bmfont');
+const vfmtPosUv = require('../../vertex-format').vfmtPosUv;
 
 module.exports = js.addon({
     createData (comp) {
@@ -41,7 +42,7 @@ module.exports = js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
+        let buffer = renderer.getBuffer('quad', vfmtPosUv),
             vertexOffset = buffer.byteOffset >> 2;
         
         let vertexCount = renderData.vertexCount;

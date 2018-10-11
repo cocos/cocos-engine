@@ -31,7 +31,6 @@ const math = renderEngine.math;
 const js = require('../../cocos2d/core/platform/js');
 
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
 
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
@@ -86,7 +85,7 @@ let armatureAssembler = {
         let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
+        let buffer = renderer._meshBuffer,
             renderData = comp._renderData;
 
         _vertexOffset = buffer.byteOffset >> 2;
