@@ -2219,6 +2219,10 @@ let NodeDefines = {
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
                 }
+
+                if (CC_EDITOR) {
+                    old.getEulerAngles(this._eulerAngles);
+                }
             }
         }
     },
