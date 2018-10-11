@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 module.exports = {
     useModel: false,
@@ -103,9 +104,11 @@ module.exports = {
         }
 
         let renderData = sprite._renderData,
+            node = sprite.node,
+            color = node._color._val,
             data = renderData._data;
 
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2,
             vertexCount = renderData.vertexCount;
         
@@ -118,6 +121,7 @@ module.exports = {
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
         for (let i = 4; i < 20; ++i) {
@@ -128,6 +132,7 @@ module.exports = {
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = uvs.u;
             vbuf[vertexOffset++] = uvs.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         for (let r = 0; r < 3; ++r) {
