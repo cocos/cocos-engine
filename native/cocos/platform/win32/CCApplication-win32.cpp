@@ -100,16 +100,16 @@ namespace
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
+std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
-    _scheduler = new Scheduler();
+    _scheduler = std::make_shared<Scheduler>();
 
     createView(name, width, height);
     
     _renderTexture = new RenderTexture(width, height);
-    _scheduler = new Scheduler();
     
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
@@ -123,8 +123,6 @@ Application::~Application()
     //close audio device
     cocos2d::experimental::AudioEngine::end();
 
-    delete _scheduler;
-    _scheduler = nullptr;
     
     delete CAST_VIEW(_view);
     _view = nullptr;

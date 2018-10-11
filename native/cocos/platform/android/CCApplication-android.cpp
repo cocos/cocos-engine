@@ -53,13 +53,14 @@ PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = 0;
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
+std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
     Configuration::getInstance();
 
-    _scheduler = new Scheduler();
+    _scheduler = std::make_shared<Scheduler>();
 
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
     PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress("glBindVertexArrayOES");
@@ -76,9 +77,6 @@ Application::~Application()
     // close audio device
     cocos2d::experimental::AudioEngine::end();
     
-    delete _scheduler;
-    _scheduler = nullptr;
-
     delete _renderTexture;
     _renderTexture = nullptr;
 
