@@ -83,7 +83,7 @@ if (CC_DEBUG) {
             }, function (v) {
                 cc.warnID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}.${newProp}`);
                 descriptor.set.call(this, v);
-            })
+            });
         })
     }
 
@@ -354,7 +354,7 @@ if (CC_DEBUG) {
         ['rotationX', 'eulerAngles'],
         ['rotationY', 'eulerAngles'],
         ['rotation', 'angle'],
-    ])
+    ]);
 
     markFunctionWarning(cc.Node.prototype, {
         getNodeToParentTransform: 'getLocalMatrix',

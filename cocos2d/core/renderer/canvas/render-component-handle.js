@@ -44,7 +44,7 @@ RenderComponentHandle.prototype = {
     reset() {
         let ctx = this._device._ctx;
         let canvas = this._device._canvas;
-        let color = cc.Camera.main.backgroundColor;
+        var color = cc.Camera.main ? cc.Camera.main.backgroundColor : cc.color();
         let rgba = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a/255})`;
         ctx.fillStyle = rgba;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
