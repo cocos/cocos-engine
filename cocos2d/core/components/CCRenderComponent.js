@@ -181,8 +181,11 @@ let RenderComponent = cc.Class({
     _updateColor () {
         let material = this._material;
         if (material) {
-            material.color = this.node.color;
-            material.updateHash();
+            // For batch rendering, update the color only when useColor is set to true.
+            if (material.useColor) {
+                material.color = this.node.color;
+                material.updateHash();
+            }
 
             // reset flag when set color to material successfully
             this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;

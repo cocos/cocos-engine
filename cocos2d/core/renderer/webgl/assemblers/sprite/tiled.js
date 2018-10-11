@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vfmtPosUvColor = require('../../vertex-format').vfmtPosUvColor;
 
 module.exports = {
     useModel: false,
@@ -88,11 +89,12 @@ module.exports = {
 
     fillBuffers (sprite, renderer) {
         let node = sprite.node,
+            color = node._color._val,
             renderData = sprite._renderData,
             data = renderData._data;
 
         // buffer
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
             vertexOffset = buffer.byteOffset >> 2;
         
         let indiceOffset = buffer.indiceOffset,
@@ -102,6 +104,7 @@ module.exports = {
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
         let rotated = sprite.spriteFrame._rotated;
@@ -133,14 +136,14 @@ module.exports = {
                 vbuf[vertexOffset] = x * a + y * c + tx;
                 vbuf[vertexOffset+1] = x * b + y * d + ty;
                 // rb
-                vbuf[vertexOffset+4] = x1 * a + y * c + tx;
-                vbuf[vertexOffset+5] = x1 * b + y * d + ty;
+                vbuf[vertexOffset+5] = x1 * a + y * c + tx;
+                vbuf[vertexOffset+6] = x1 * b + y * d + ty;
                 // lt
-                vbuf[vertexOffset+8] = x * a + y1 * c + tx;
-                vbuf[vertexOffset+9] = x * b + y1 * d + ty;
+                vbuf[vertexOffset+10] = x * a + y1 * c + tx;
+                vbuf[vertexOffset+11] = x * b + y1 * d + ty;
                 // rt
-                vbuf[vertexOffset+12] = x1 * a + y1 * c + tx;
-                vbuf[vertexOffset+13] = x1 * b + y1 * d + ty;
+                vbuf[vertexOffset+15] = x1 * a + y1 * c + tx;
+                vbuf[vertexOffset+16] = x1 * b + y1 * d + ty;
 
                 // UV
                 if (rotated) {
@@ -148,30 +151,35 @@ module.exports = {
                     vbuf[vertexOffset+2] = uv[0];
                     vbuf[vertexOffset+3] = uv[1];
                     // rb
-                    vbuf[vertexOffset+6] = uv[0];
-                    vbuf[vertexOffset+7] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    vbuf[vertexOffset+7] = uv[0];
+                    vbuf[vertexOffset+8] = uv[1] + (uv[7] - uv[1]) * coefu;
                     // lt
-                    vbuf[vertexOffset+10] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    vbuf[vertexOffset+11] = uv[1];
+                    vbuf[vertexOffset+12] = uv[0] + (uv[6] - uv[0]) * coefv;
+                    vbuf[vertexOffset+13] = uv[1];
                     // rt
-                    vbuf[vertexOffset+14] = vbuf[vertexOffset+10];
-                    vbuf[vertexOffset+15] = vbuf[vertexOffset+7];
+                    vbuf[vertexOffset+17] = vbuf[vertexOffset+12];
+                    vbuf[vertexOffset+18] = vbuf[vertexOffset+8];
                 }
                 else {
                     // lb
                     vbuf[vertexOffset+2] = uv[0];
                     vbuf[vertexOffset+3] = uv[1];
                     // rb
-                    vbuf[vertexOffset+6] = uv[0] + (uv[6] - uv[0]) * coefu;
-                    vbuf[vertexOffset+7] = uv[1];
+                    vbuf[vertexOffset+7] = uv[0] + (uv[6] - uv[0]) * coefu;
+                    vbuf[vertexOffset+8] = uv[1];
                     // lt
-                    vbuf[vertexOffset+10] = uv[0];
-                    vbuf[vertexOffset+11] = uv[1] + (uv[7] - uv[1]) * coefv;
+                    vbuf[vertexOffset+12] = uv[0];
+                    vbuf[vertexOffset+13] = uv[1] + (uv[7] - uv[1]) * coefv;
                     // rt
-                    vbuf[vertexOffset+14] = vbuf[vertexOffset+6];
-                    vbuf[vertexOffset+15] = vbuf[vertexOffset+11];
+                    vbuf[vertexOffset+17] = vbuf[vertexOffset+7];
+                    vbuf[vertexOffset+18] = vbuf[vertexOffset+13];
                 }
-                vertexOffset += 16;
+                // color
+                uintbuf[vertexOffset+4] = color;
+                uintbuf[vertexOffset+9] = color;
+                uintbuf[vertexOffset+14] = color;
+                uintbuf[vertexOffset+19] = color;
+                vertexOffset += 20;
             }
         }
 
