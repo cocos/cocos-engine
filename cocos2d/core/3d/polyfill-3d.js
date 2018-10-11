@@ -29,8 +29,6 @@ const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
 const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
-const misc = require('../utils/misc');
-const vec3 = cc.vmath.vec3;
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;

@@ -151,6 +151,24 @@ if (!Object.assign) {
             return to;
         }
     });
+  }
+
+  if (!Object.getOwnPropertyDescriptors) {
+    Object.defineProperty(Object, 'getOwnPropertyDescriptors', {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function (target) {
+            var res = {};
+            var props = Object.getOwnPropertyNames(target);
+            for (var i = 0; i < props.length; i++) {
+                var name = props[i];
+                res[name] = Object.getOwnPropertyDescriptor(target, name);
+            }
+            return res;
+        }
+    });
+  }
 }
 
 if (!Object.getOwnPropertySymbols) {

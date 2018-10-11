@@ -27,6 +27,7 @@
 const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
+const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 const ray = require('../3d/geom-utils/ray');
 
@@ -659,7 +660,7 @@ let Camera = cc.Class({
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        renderer._walker.visit(root);
+        RenderFlow.visit(root);
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 

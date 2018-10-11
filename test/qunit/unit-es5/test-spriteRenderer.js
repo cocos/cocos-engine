@@ -190,6 +190,7 @@ if (!isPhantomJS) {
             
             sprite._assembler.updateRenderData(sprite);
             var vertices = sprite._renderData._data;
+            var uvs = sprite._spriteFrame.uv;
 
             strictEqual(vertices.length == 8, true, 'have 8 vertices');
             strictEqual(vertices[0].x, 0, 'x0 test success');
@@ -200,14 +201,10 @@ if (!isPhantomJS) {
             strictEqual(vertices[1].y, 60, 'y1 test success');
             strictEqual(vertices[2].y, 100, 'y2 test success');
             //
-            deepClose(vertices[0].u, 10 / 100, 0.01, 'full quad u0 test success');
-            deepClose(vertices[0].v, 70 / 100, 0.01, 'full quad v0 test success');
-            deepClose(vertices[3].u, 50 / 100, 0.01, 'full quad u1 test success');
-            deepClose(vertices[3].v, 10 / 100, 0.01, 'full quad v1 test success');
-            deepClose(vertices[4].u, 10 / 100, 0.01, 'part quad u0 test success');
-            deepClose(vertices[4].v, 70 / 100, 0.01, 'part quad v0 test success');
-            deepClose(vertices[7].u, 30 / 100, 0.01, 'part quad u1 test success');
-            deepClose(vertices[7].v, 30 / 100, 0.01, 'part quad v1 test success');
+            deepClose(uvs[0], 10 / 100, 0.01, 'full quad u0 test success');
+            deepClose(uvs[1], 70 / 100, 0.01, 'full quad v0 test success');
+            deepClose(uvs[6], 50 / 100, 0.01, 'full quad u1 test success');
+            deepClose(uvs[7], 10 / 100, 0.01, 'full quad v1 test success');
         };
         if (spriteFrame.textureLoaded()) {
             testCallBack();
