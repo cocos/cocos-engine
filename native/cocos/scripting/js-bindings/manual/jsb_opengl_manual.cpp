@@ -597,6 +597,7 @@ static bool JSB_glBindFramebuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint frameBufferId = arg1 != nullptr ? arg1->_id : __defaultFbo;
 
+    SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
     JSB_GL_CHECK(glBindFramebuffer((GLenum)arg0 , frameBufferId));
     return true;
 }
@@ -634,6 +635,8 @@ static bool JSB_glBindTexture(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_native_ptr(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    SE_PRECONDITION4(arg0 == GL_TEXTURE_2D || arg0 == GL_TEXTURE_CUBE_MAP, false, GL_INVALID_ENUM);
 
     GLuint textureId = arg1 != nullptr ? arg1->_id : 0;
     JSB_GL_CHECK(glBindTexture((GLenum)arg0 , textureId));
@@ -674,6 +677,9 @@ static bool JSB_glBlendEquation(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg0 == GL_FUNC_ADD || arg0 == GL_FUNC_SUBTRACT || arg0 == GL_FUNC_REVERSE_SUBTRACT,
+                     false, GL_INVALID_ENUM);
+
     JSB_GL_CHECK(glBlendEquation((GLenum)arg0  ));
 
     return true;
@@ -692,6 +698,12 @@ static bool JSB_glBlendEquationSeparate(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    SE_PRECONDITION4(arg0 == GL_FUNC_ADD || arg0 == GL_FUNC_SUBTRACT || arg0 == GL_FUNC_REVERSE_SUBTRACT,
+                     false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4(arg1 == GL_FUNC_ADD || arg1 == GL_FUNC_SUBTRACT || arg1 == GL_FUNC_REVERSE_SUBTRACT,
+                     false, GL_INVALID_ENUM);
 
     JSB_GL_CHECK(glBlendEquationSeparate((GLenum)arg0 , (GLenum)arg1  ));
 
@@ -770,6 +782,10 @@ static bool JSB_glBufferData(se::State& s) {
     ok &= seval_to_uint32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg0 == GL_ARRAY_BUFFER || arg0 == GL_ELEMENT_ARRAY_BUFFER, false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4(arg2 == GL_STREAM_DRAW || arg2 == GL_STATIC_DRAW || arg2 == GL_DYNAMIC_DRAW, false, GL_INVALID_ENUM);
+
     JSB_GL_CHECK(glBufferData((GLenum)arg0 , count, (GLvoid*)arg1 , (GLenum)arg2  ));
 
     return true;
@@ -813,6 +829,7 @@ static bool JSB_glCheckFramebufferStatus(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLenum ret_val;
 
+    SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
     ret_val = glCheckFramebufferStatus((GLenum)arg0);
     s.rval().setUint32((uint32_t)ret_val);
     return true;
@@ -1000,6 +1017,8 @@ static bool JSB_glCopyTexImage2D(se::State& s) {
     ok &= seval_to_int32(args[6], &arg6 );
     ok &= seval_to_int32(args[7], &arg7 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_PRECONDITION4(arg2 == GL_ALPHA || arg2 == GL_RGB || arg2 == GL_RGBA || arg2 == GL_LUMINANCE || arg2 == GL_LUMINANCE_ALPHA,
+                     false, GL_INVALID_ENUM);
 
     JSB_GL_CHECK(glCopyTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLint)arg3 , (GLint)arg4 , (GLsizei)arg5 , (GLsizei)arg6 , (GLint)arg7  ));
 
@@ -1288,6 +1307,22 @@ static bool JSB_glDrawArrays(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg0 == GL_POINTS || arg0 == GL_LINE_STRIP || arg0 == GL_LINE_LOOP ||
+                             arg0 == GL_LINES || arg0 == GL_TRIANGLE_STRIP ||
+                             arg0 == GL_TRIANGLE_FAN || arg0 == GL_TRIANGLES, false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4(arg1 >= 0 && arg2 >= 0, false, GL_INVALID_VALUE);
+
+    int intbuffer[4];
+    JSB_GL_CHECK(glGetIntegerv(GL_CURRENT_PROGRAM, intbuffer));
+    SE_PRECONDITION4(intbuffer[0] > 0, false, GL_INVALID_OPERATION);
+
+    GLint data = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &data);
+    int64_t size = ccGetBufferDataSize(), first = arg1;
+    int64_t total = (int64_t)(size * (arg2 > 0 ? first + arg2 : arg2));
+    SE_PRECONDITION4(total <= data, false, GL_INVALID_OPERATION);
+
     JSB_GL_CHECK(glDrawArrays((GLenum)arg0 , (GLint)arg1 , (GLsizei)arg2  ));
 
     return true;
@@ -1409,6 +1444,8 @@ static bool JSB_glFramebufferRenderbuffer(se::State& s) {
     ok &= seval_to_native_ptr(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint renderBufferId = arg3 != nullptr ? arg3->_id : 0;
+    SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(arg1 == GL_COLOR_ATTACHMENT0 || arg1 == GL_DEPTH_ATTACHMENT || arg1 == GL_STENCIL_ATTACHMENT || arg1 == GL_DEPTH_STENCIL_ATTACHMENT, false, GL_INVALID_ENUM);
     JSB_GL_CHECK(WEBGL_framebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , renderBufferId));
     return true;
 }
@@ -1431,6 +1468,9 @@ static bool JSB_glFramebufferTexture2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLuint textureId = arg3 != nullptr ? arg3->_id : 0;
+    SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(arg1 == GL_COLOR_ATTACHMENT0 || arg1 == GL_DEPTH_ATTACHMENT || arg1 == GL_STENCIL_ATTACHMENT, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(arg4 == 0, false, GL_INVALID_VALUE);
     JSB_GL_CHECK(glFramebufferTexture2D((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , textureId , (GLint)arg4  ));
 
     return true;
@@ -1750,10 +1790,16 @@ static bool JSB_glPixelStorei(se::State& s) {
     bool ok = true;
     uint32_t arg0; int32_t arg1;
 
+    SE_PRECONDITION4(!args[0].isNullOrUndefined(), false, GL_INVALID_ENUM);
+
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg0 == GL_PACK_ALIGNMENT || arg0 == GL_UNPACK_ALIGNMENT || arg0 == GL_UNPACK_FLIP_Y_WEBGL ||
+                             arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL || arg0 == GL_UNPACK_COLORSPACE_CONVERSION_WEBGL,
+                     false, GL_INVALID_ENUM);
+    
     JSB_GL_CHECK(ccPixelStorei((GLenum)arg0 , (GLint)arg1));
     return true;
 }
@@ -1796,6 +1842,7 @@ static bool JSB_glReadPixels(se::State& s) {
     GLsizei count;
     ok &= JSB_get_arraybufferview_dataptr(args[6], &count, &arg6);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_PRECONDITION4(arg4 == GL_ALPHA || arg4 == GL_RGB || arg4 == GL_RGBA,false, GL_INVALID_ENUM);
 
     JSB_GL_CHECK(glReadPixels((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3 , (GLenum)arg4 , (GLenum)arg5 , (GLvoid*)arg6  ));
 
@@ -2050,6 +2097,8 @@ static bool JSB_glTexImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
     ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
+                     false, GL_INVALID_ENUM);
 
     ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
     if (alignment > 0)
@@ -2076,6 +2125,10 @@ static bool JSB_glTexParameterf(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     ok &= seval_to_float(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_PRECONDITION4(arg0 == GL_TEXTURE_2D || arg0 == GL_TEXTURE_CUBE_MAP, false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4((!(arg1 == GL_TEXTURE_MIN_LOD)) || arg1 == GL_TEXTURE_MIN_FILTER || arg1 == GL_TEXTURE_MAG_FILTER ||
+                     arg1 == GL_TEXTURE_WRAP_S || arg1 == GL_TEXTURE_WRAP_T, false, GL_INVALID_ENUM);
 
     JSB_GL_CHECK(glTexParameterf((GLenum)arg0 , (GLenum)arg1 , (GLfloat)arg2  ));
 
@@ -2096,6 +2149,12 @@ static bool JSB_glTexParameteri(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    SE_PRECONDITION4(arg0 == GL_TEXTURE_2D || arg0 == GL_TEXTURE_CUBE_MAP, false, GL_INVALID_ENUM);
+
+    SE_PRECONDITION4((!(arg1 == GL_TEXTURE_MIN_LOD)) || arg1 == GL_TEXTURE_MIN_FILTER || arg1 == GL_TEXTURE_MAG_FILTER ||
+                             arg1 == GL_TEXTURE_WRAP_S || arg1 == GL_TEXTURE_WRAP_T, false, GL_INVALID_ENUM);
+
     JSB_GL_CHECK(glTexParameteri((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2  ));
     return true;
 }
@@ -2122,6 +2181,10 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &pixels);
     ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
+                     false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
+                     false, GL_INVALID_ENUM);
 
     ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
     if (alignment > 0)
@@ -2474,6 +2537,10 @@ static bool JSB_glUniformMatrix2fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg1 == GL_FALSE, false, GL_INVALID_VALUE);
+
+    SE_PRECONDITION4(data.count() % 4 == 0, false, GL_INVALID_VALUE);
+
     JSB_GL_CHECK(glUniformMatrix2fv(arg0, (GLsizei)(data.count()/4), (GLboolean)arg1 , (GLfloat*)data.data()));
 
     return true;
@@ -2495,6 +2562,10 @@ static bool JSB_glUniformMatrix3fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    SE_PRECONDITION4(arg1 == GL_FALSE, false, GL_INVALID_VALUE);
+
+    SE_PRECONDITION4(data.count() % 9 == 0, false, GL_INVALID_VALUE);
+
     JSB_GL_CHECK(glUniformMatrix3fv(arg0, (GLsizei)(data.count()/9), (GLboolean)arg1 , (GLfloat*)data.data()));
 
     return true;
@@ -2515,6 +2586,10 @@ static bool JSB_glUniformMatrix4fv(se::State& s) {
     GLData<float> data;
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    SE_PRECONDITION4(arg1 == GL_FALSE, false, GL_INVALID_VALUE);
+
+    SE_PRECONDITION4(data.count() % 16 == 0, false, GL_INVALID_VALUE);
 
     JSB_GL_CHECK(glUniformMatrix4fv(arg0, (GLsizei)(data.count()/16), (GLboolean)arg1 , (GLfloat*)data.data()));
 
@@ -3403,6 +3478,9 @@ static bool JSB_glGetTexParameterfv(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
 
     SE_PRECONDITION2(ok, false, "JSB_glGetTexParameterfv: Error processing arguments");
+    SE_PRECONDITION4(arg0 == GL_TEXTURE_2D || arg0 == GL_TEXTURE_CUBE_MAP, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4((!(arg1 == GL_TEXTURE_MIN_LOD)) || arg1 == GL_TEXTURE_MIN_FILTER || arg1 == GL_TEXTURE_MAG_FILTER ||
+                     arg1 == GL_TEXTURE_WRAP_S || arg1 == GL_TEXTURE_WRAP_T, false, GL_INVALID_ENUM);
 
     GLfloat param;
     JSB_GL_CHECK(glGetTexParameterfv(arg0, arg1, &param));
@@ -3426,6 +3504,9 @@ static bool JSB_glGetFramebufferAttachmentParameter(se::State& s) {
     ok &= seval_to_uint32(args[2], &pname );
 
     SE_PRECONDITION2(ok, false, "JSB_glGetFramebufferAttachmentParameter: Error processing arguments");
+    SE_PRECONDITION4(target == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(attachment == GL_COLOR_ATTACHMENT0 || attachment == GL_DEPTH_ATTACHMENT || attachment == GL_STENCIL_ATTACHMENT, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE || pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME || pname == GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL || pname == GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, false, GL_INVALID_ENUM);
 
     GLint param = 0;
     JSB_GL_CHECK(glGetFramebufferAttachmentParameteriv(target, attachment, pname, &param));

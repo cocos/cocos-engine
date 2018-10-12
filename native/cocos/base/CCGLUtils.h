@@ -76,5 +76,6 @@ void ccFlipYOrPremultiptyAlphaIfNeeded(GLenum format, GLsizei width, GLsizei hei
 bool ccIsUnpackFlipY();
 bool ccIsPremultiplyAlpha();
 void ccPixelStorei(GLenum pname, GLint param);
+GLint ccGetBufferDataSize();
 
 NS_CC_END
