@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color4, vec3, mat4 } from '../../core/vmath';
+import { color4, vec3, mat4, lerp } from '../../core/vmath';
 import { ray } from '../../3d/geom-utils';
 import enums from '../enums';
 
@@ -8,9 +8,8 @@ let _matView = mat4.create();
 let _matProj = mat4.create();
 let _matViewProj = mat4.create();
 let _matInvViewProj = mat4.create();
-let _tmp_v3 = vec3.create(0, 0, 0);
-let _tmp2_v3 = vec3.create(0, 0, 0);
-let _tmp3_v3 = vec3.create(0, 0, 0);
+let _tmp_v3 = vec3.create();
+let _tmp2_v3 = vec3.create();
 
 /**
  * A representation of a camera instance
@@ -291,6 +290,34 @@ export default class Camera {
     this._framebuffer = framebuffer;
   }
 
+  _calcMatrices(width, height) {
+    // view matrix
+    this._node.getWorldRT(_matView);
+    mat4.invert(_matView, _matView);
+
+    // projection matrix
+    let aspect = width / height;
+    if (this._projection === enums.PROJ_PERSPECTIVE) {
+      mat4.perspective(_matProj,
+        this._fov,
+        aspect,
+        this._near,
+        this._far
+      );
+    } else {
+      let x = this._orthoHeight * aspect;
+      let y = this._orthoHeight;
+      mat4.ortho(_matProj,
+        -x, x, -y, y, this._near, this._far
+      );
+    }
+
+    // view-projection
+    mat4.mul(_matViewProj, _matProj, _matView);
+    // inv view-projection
+    mat4.invert(_matInvViewProj, _matViewProj);
+  }
+
   /**
    * extract a view of this camera
    * @param {View} out the receiving view
@@ -318,34 +345,14 @@ export default class Camera {
     out._stages = this._stages;
     out._framebuffer = this._framebuffer;
 
-    // view matrix
-    this._node.getWorldRT(out._matView);
-    mat4.invert(out._matView, out._matView);
-
-    // projection matrix
-    // TODO: if this._projDirty
-    let aspect = width / height;
-    if (this._projection === enums.PROJ_PERSPECTIVE) {
-      mat4.perspective(out._matProj,
-        this._fov,
-        aspect,
-        this._near,
-        this._far
-      );
-    } else {
-      let x = this._orthoHeight * aspect;
-      let y = this._orthoHeight;
-      mat4.ortho(out._matProj,
-        -x, x, -y, y, this._near, this._far
-      );
-    }
-
-    // view-projection
-    mat4.mul(out._matViewProj, out._matProj, out._matView);
-    mat4.invert(out._matInvViewProj, out._matViewProj);
+    this._calcMatrices(width, height);
+    mat4.copy(out._matView, _matView);
+    mat4.copy(out._matProj, _matProj);
+    mat4.copy(out._matViewProj, _matViewProj);
+    mat4.copy(out._matInvViewProj, _matInvViewProj);
 
     // update view's frustum
-    out._frustum.update(out._matViewProj, out._matInvViewProj);
+    out._frustum.update(_matViewProj, _matInvViewProj);
   }
 
   /**
@@ -357,59 +364,33 @@ export default class Camera {
    * @returns {vec3} the resulting vector
    */
   screenToWorld(out, screenPos, width, height) {
-    let aspect = width / height;
+    this._calcMatrices(width, height);
+
     let cx = this._rect.x * width;
     let cy = this._rect.y * height;
     let cw = this._rect.w * width;
     let ch = this._rect.h * height;
 
-    // view matrix
-    this._node.getWorldRT(_matView);
-    mat4.invert(_matView, _matView);
-
-    // projection matrix
-    if (this._projection === enums.PROJ_PERSPECTIVE) {
-      mat4.perspective(_matProj,
-        this._fov,
-        aspect,
-        this._near,
-        this._far
-      );
-    } else {
-      let x = this._orthoHeight * aspect;
-      let y = this._orthoHeight;
-      mat4.ortho(_matProj,
-        -x, x, -y, y, this._near, this._far
-      );
-    }
-
-    // view-projection
-    mat4.mul(_matViewProj, _matProj, _matView);
-
-    // inv view-projection
-    mat4.invert(_matInvViewProj, _matViewProj);
-
-    //
     if (this._projection === enums.PROJ_PERSPECTIVE) {
       // calculate screen pos in far clip plane
       vec3.set(out,
-        (screenPos.x - cx) * 2.0 / cw - 1.0,
-        (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
+        (screenPos.x - cx) / cw * 2 - 1,
+        (screenPos.y - cy) / ch * 2 - 1,
         1.0
       );
 
       // transform to world
       vec3.transformMat4(out, out, _matInvViewProj);
 
-      //
+      // lerp to depth z
       this._node.getWorldPosition(_tmp_v3);
-      vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
+
+      vec3.lerp(out, _tmp_v3, out, lerp(this._near / this._far, 1, screenPos.z));
     } else {
-      let range = this._farClip - this._nearClip;
       vec3.set(out,
-        (screenPos.x - cx) * 2.0 / cw - 1.0,
-        (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
-        (this._far - screenPos.z) / range * 2.0 - 1.0
+        (screenPos.x - cx) / cw * 2 - 1,
+        (screenPos.y - cy) / ch * 2 - 1,
+        screenPos.z * 2 - 1
       );
 
       // transform to world
@@ -421,17 +402,36 @@ export default class Camera {
 
   /**
    * transform a screen position to a world space ray
-   * @param {vec3} screenPos the screen position to be transformed
+   * @param {number} x the screen x position to be transformed
+   * @param {number} y the screen y position to be transformed
    * @param {number} width framebuffer width
    * @param {number} height framebuffer height
+   * @param {ray} out the resulting ray
    * @returns {Ray} the resulting ray
    */
-  screenPointToRay(screenPos, width, height, out) {
-    if (!out) out = ray.create();
-    this._node.getWorldPosition(_tmp3_v3);
-    this.screenToWorld(_tmp2_v3, screenPos, width, height);
-    vec3.normalize(_tmp2_v3, vec3.sub(_tmp2_v3, _tmp2_v3, _tmp3_v3));
-    return ray.set(out, _tmp3_v3.x, _tmp3_v3.y, _tmp3_v3.z, _tmp2_v3.x, _tmp2_v3.y, _tmp2_v3.z);
+  screenPointToRay(x, y, width, height, out) {
+    out = out || ray.create();
+    this._calcMatrices(width, height);
+
+    let cx = this._rect.x * width;
+    let cy = this._rect.y * height;
+    let cw = this._rect.w * width;
+    let ch = this._rect.h * height;
+
+    // far plane intersection
+    vec3.set(_tmp2_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+    vec3.transformMat4(_tmp2_v3, _tmp2_v3, _matInvViewProj);
+
+    if (this._projection === enums.PROJ_PERSPECTIVE) {
+      // camera origin
+      this._node.getWorldPosition(_tmp_v3);
+    } else {
+      // near plane intersection
+      vec3.set(_tmp_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+      vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
+    }
+
+    return ray.fromPoints(out, _tmp_v3, _tmp2_v3);
   }
 
   /**
@@ -443,46 +443,24 @@ export default class Camera {
    * @returns {vec3} the resulting vector
    */
   worldToScreen(out, worldPos, width, height) {
-    let aspect = width / height;
+    this._calcMatrices(width, height);
+
     let cx = this._rect.x * width;
     let cy = this._rect.y * height;
     let cw = this._rect.w * width;
     let ch = this._rect.h * height;
-
-    // view matrix
-    this._node.getWorldRT(_matView);
-    mat4.invert(_matView, _matView);
-
-    // projection matrix
-    if (this._projection === enums.PROJ_PERSPECTIVE) {
-      mat4.perspective(_matProj,
-        this._fov,
-        aspect,
-        this._near,
-        this._far
-      );
-    } else {
-      let x = this._orthoHeight * aspect;
-      let y = this._orthoHeight;
-      mat4.ortho(_matProj,
-        -x, x, -y, y, this._near, this._far
-      );
-    }
-
-    // view-projection
-    mat4.mul(_matViewProj, _matProj, _matView);
 
     // calculate w
     let w =
       worldPos.x * _matViewProj.m03 +
       worldPos.y * _matViewProj.m07 +
       worldPos.z * _matViewProj.m11 +
-      _matViewProj.m15
-      ;
+      _matViewProj.m15;
 
     vec3.transformMat4(out, worldPos, _matViewProj);
     out.x = cx + (out.x / w + 1) * 0.5 * cw;
     out.y = cy + (out.y / w + 1) * 0.5 * ch;
+    out.z = out.z / w * 0.5 + 0.5;
 
     return out;
   }
