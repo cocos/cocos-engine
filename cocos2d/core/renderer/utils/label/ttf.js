@@ -118,7 +118,7 @@ module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
@@ -141,7 +141,7 @@ module.exports = {
     _updateVerts () {
     },
 
-    _updateFontFamly (comp) {
+    _updateFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
