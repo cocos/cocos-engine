@@ -14148,7 +14148,7 @@ var SpriteMaterial = (function (Material$$1) {
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
   };
-
+  
   prototypeAccessors.useModel.get = function () {
     return this._effect.getDefine('useModel');
   };
@@ -14200,6 +14200,7 @@ var SpriteMaterial = (function (Material$$1) {
 
   SpriteMaterial.prototype.clone = function clone () {
     var copy = new SpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
@@ -14291,6 +14292,7 @@ var GraySpriteMaterial = (function (Material$$1) {
 
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.color = this.color;
     copy.updateHash();
@@ -14358,7 +14360,7 @@ var StencilMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture');
+    return this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
@@ -14366,7 +14368,7 @@ var StencilMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel');
+    return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
@@ -14374,7 +14376,7 @@ var StencilMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useColor.get = function () {
-    this._effect.getDefine('useColor');
+    return this._effect.getDefine('useColor');
   };
 
   prototypeAccessors.useColor.set = function (val) {
@@ -14403,6 +14405,7 @@ var StencilMaterial = (function (Material$$1) {
 
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
     copy.useColor = this.useColor;
@@ -14596,8 +14599,8 @@ var MeshMaterial = (function (Material$$1) {
   return MeshMaterial;
 }(Material));
 
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
 var Device$2 = function Device(canvasEL) {
   var ctx;
 
