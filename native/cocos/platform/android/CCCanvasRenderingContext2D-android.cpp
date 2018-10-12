@@ -379,7 +379,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::string boldStr;
         std::string fontName = "sans-serif";
         std::string fontSizeStr = "30";
-        std::regex re("(bold|italic|bold italic|italic bold)?\\s*(\\d+)px\\s+([^\\r\\n]*)");
+        std::regex re("(bold|italic|bold italic|italic bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([^\\r\\n]*)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
@@ -390,9 +390,9 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
             std::match_results<std::string::const_iterator> fontResults;
             std::regex fontRe("([\\w\\s-]+|\"[\\w\\s-]+\"$)");
-            if(std::regex_match(results[3].str(), fontResults, fontRe))
+            if(std::regex_match(results[5].str(), fontResults, fontRe))
             {
-                fontName = results[3].str();
+                fontName = results[5].str();
             }
         }
 
