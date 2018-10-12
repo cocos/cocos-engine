@@ -905,7 +905,7 @@ cc.RotateTo = cc.Class({
             let dstAngle = this._dstAngle;
             if (dstAngleX instanceof cc.Vec3) {
                 dstAngle.set(dstAngleX);
-                if (dstAngleX.y) {
+                if (dstAngleX.x || dstAngleX.y) {
                     this._need3D = true;
                 }
             }
@@ -963,11 +963,16 @@ cc.RotateTo = cc.Class({
         if (this.target) {
             let angle = this._angle;
             let startAngle = this._startAngle;
-            let rotationX = startAngle.x + angle.x * dt;
-            let rotationY = startAngle.y + angle.y * dt;
-            let rotationZ = startAngle.z + angle.z * dt;
-            quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
-            this.target.setRotation(_quat_tmp);
+            let rotationZ = -(startAngle.z + angle.z * dt);
+            if (this._need3D) {
+                let rotationX = startAngle.x + angle.x * dt;
+                let rotationY = startAngle.y + angle.y * dt;
+                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
+                this.target.setRotation(_quat_tmp);
+            }
+            else {
+                this.target.angle = rotationZ;
+            }
         }
     }
 });
@@ -1024,7 +1029,7 @@ cc.RotateBy = cc.Class({
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
             if (deltaAngleX instanceof cc.Vec3) {
                 this._angle.set(deltaAngleX);
-                if (deltaAngleX.y) {
+                if (deltaAngleX.x || deltaAngleX.y) {
                     this._need3D = true;
                 }
             }
@@ -1063,11 +1068,16 @@ cc.RotateBy = cc.Class({
         if (this.target) {
             let angle = this._angle;
             let startAngle = this._startAngle;
-            let rotationX = startAngle.x + angle.x * dt;
-            let rotationY = startAngle.y + angle.y * dt;
-            let rotationZ = startAngle.z + angle.z * dt;
-            quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
-            this.target.setRotation(_quat_tmp);
+            let rotationZ = -(startAngle.z + angle.z * dt);
+            if (this._need3D) {
+                let rotationX = startAngle.x + angle.x * dt;
+                let rotationY = startAngle.y + angle.y * dt;
+                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
+                this.target.setRotation(_quat_tmp);
+            }
+            else {
+                this.target.angle = rotationZ;
+            }
         }
     },
 
