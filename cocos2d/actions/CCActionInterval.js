@@ -25,6 +25,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const quat = cc.vmath.quat;
+let _quat_tmp = cc.quat();
+let _vec3_tmp = cc.v3();
+
+
 /**
  * @module cc
  */
@@ -871,7 +876,7 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
  * @class RotateTo
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees.
+ * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees.
  * @param {Number} [deltaAngleY] deltaAngleY in degrees.
  * @example
  * var rotateTo = new cc.RotateTo(2, 61.0);
@@ -880,27 +885,40 @@ cc.RotateTo = cc.Class({
     name: 'cc.RotateTo',
     extends: cc.ActionInterval,
 
-    ctor:function (duration, deltaAngleX, deltaAngleY) {
-        this._dstAngleX = 0;
-        this._startAngleX = 0;
-        this._diffAngleX = 0;
-        this._dstAngleY = 0;
-        this._startAngleY = 0;
-        this._diffAngleY = 0;
-		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY);
+    ctor:function (duration, dstAngleX, dstAngleY) {
+        this._angle = cc.v3();
+        this._startAngle = cc.v3();
+        this._dstAngle = cc.v3();
+        this._need3D = false;
+		dstAngleX !== undefined && this.initWithDuration(duration, dstAngleX, dstAngleY);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration
-     * @param {Number} deltaAngleX
-     * @param {Number} deltaAngleY
+     * @param {Number|Vec3} dstAngleX
+     * @param {Number} dstAngleY
      * @return {Boolean}
      */
-    initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
+    initWithDuration:function (duration, dstAngleX, dstAngleY) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            this._dstAngleX = deltaAngleX || 0;
-            this._dstAngleY = deltaAngleY !== undefined ? deltaAngleY : this._dstAngleX;
+            let dstAngle = this._dstAngle;
+            if (dstAngleX instanceof cc.Vec3) {
+                dstAngle.set(dstAngleX);
+                if (dstAngleX.x || dstAngleX.y) {
+                    this._need3D = true;
+                }
+            }
+            else if (dstAngleY !== undefined) {
+                dstAngle.x = dstAngleX;
+                dstAngle.y = dstAngleY;
+                dstAngle.z = 0;
+                this._need3D = true;
+            }
+            else {
+                dstAngle.x = dstAngle.y = 0;
+                dstAngle.z = dstAngleX;
+            }
             return true;
         }
         return false;
@@ -909,31 +927,31 @@ cc.RotateTo = cc.Class({
     clone:function () {
         var action = new cc.RotateTo();
         this._cloneDecoration(action);
-        action.initWithDuration(this._duration, this._dstAngleX, this._dstAngleY);
+        action.initWithDuration(this._duration, this._dstAngle);
         return action;
+    },
+
+    _formatAngle (angle) {
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        return angle;
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
 
-        // Calculate X
-        var locStartAngleX = target.rotationX % 360.0;
-        var locDiffAngleX = this._dstAngleX - locStartAngleX;
-        if (locDiffAngleX > 180)
-            locDiffAngleX -= 360;
-        if (locDiffAngleX < -180)
-            locDiffAngleX += 360;
-        this._startAngleX = locStartAngleX;
-        this._diffAngleX = locDiffAngleX;
+        this._startAngle.set(target.eulerAngles);
 
-        // Calculate Y  It's duplicated from calculating X since the rotation wrap should be the same
-        this._startAngleY = target.rotationY % 360.0;
-        var locDiffAngleY = this._dstAngleY - this._startAngleY;
-        if (locDiffAngleY > 180)
-            locDiffAngleY -= 360;
-        if (locDiffAngleY < -180)
-            locDiffAngleY += 360;
-        this._diffAngleY = locDiffAngleY;
+        let angle = this._angle;
+        cc.vmath.vec3.sub(angle, this._dstAngle, this._startAngle);
+
+        angle.x = this._formatAngle(angle.x);
+        angle.y = this._formatAngle(angle.y);
+        angle.z = this._formatAngle(angle.z);
+
+        if (this._need3D) {
+            target.is3DNode = true;
+        }
     },
 
     reverse:function () {
@@ -943,8 +961,18 @@ cc.RotateTo = cc.Class({
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            this.target.rotationX = this._startAngleX + this._diffAngleX * dt;
-            this.target.rotationY = this._startAngleY + this._diffAngleY * dt;
+            let angle = this._angle;
+            let startAngle = this._startAngle;
+            let rotationZ = -(startAngle.z + angle.z * dt);
+            if (this._need3D) {
+                let rotationX = startAngle.x + angle.x * dt;
+                let rotationY = startAngle.y + angle.y * dt;
+                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
+                this.target.setRotation(_quat_tmp);
+            }
+            else {
+                this.target.angle = rotationZ;
+            }
         }
     }
 });
@@ -974,7 +1002,7 @@ cc.rotateTo = function (duration, deltaAngleX, deltaAngleY) {
  * @class RotateBy
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees
+ * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
  * @param {Number} [deltaAngleY] deltaAngleY in degrees
  * @example
  * var actionBy = new cc.RotateBy(2, 360);
@@ -984,24 +1012,37 @@ cc.RotateBy = cc.Class({
     extends: cc.ActionInterval,
 
     ctor: function (duration, deltaAngleX, deltaAngleY) {
-        this._angleX = 0;
-        this._startAngleX = 0;
-        this._angleY = 0;
-        this._startAngleY = 0;
+        this._angle = cc.v3();
+        this._startAngle = cc.v3();
+        this._need3D = false;
 		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration duration in seconds
-     * @param {Number} deltaAngleX deltaAngleX in degrees
+     * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
      * @param {Number} [deltaAngleY=] deltaAngleY in degrees
      * @return {Boolean}
      */
     initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            this._angleX = deltaAngleX || 0;
-            this._angleY = deltaAngleY !== undefined ? deltaAngleY : this._angleX;
+            if (deltaAngleX instanceof cc.Vec3) {
+                this._angle.set(deltaAngleX);
+                if (deltaAngleX.x || deltaAngleX.y) {
+                    this._need3D = true;
+                }
+            }
+            else if (deltaAngleY !== undefined) {
+                this._angle.x = deltaAngleX;
+                this._angle.y = deltaAngleY;
+                this._angle.z = 0;
+                this._need3D = true;
+            }
+            else {
+                this._angle.x = this._angle.y = 0;
+                this._angle.z = deltaAngleX;
+            }
             return true;
         }
         return false;
@@ -1010,26 +1051,42 @@ cc.RotateBy = cc.Class({
     clone:function () {
         var action = new cc.RotateBy();
         this._cloneDecoration(action);
-        action.initWithDuration(this._duration, this._angleX, this._angleY);
+        action.initWithDuration(this._duration, this._angle);
         return action;
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._startAngleX = target.rotationX;
-        this._startAngleY = target.rotationY;
+        this._startAngle.set(target.eulerAngles);
+        if (this._need3D) {
+            target.is3DNode = true;
+        }
     },
 
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            this.target.rotationX = this._startAngleX + this._angleX * dt;
-            this.target.rotationY = this._startAngleY + this._angleY * dt;
+            let angle = this._angle;
+            let startAngle = this._startAngle;
+            let rotationZ = -(startAngle.z + angle.z * dt);
+            if (this._need3D) {
+                let rotationX = startAngle.x + angle.x * dt;
+                let rotationY = startAngle.y + angle.y * dt;
+                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
+                this.target.setRotation(_quat_tmp);
+            }
+            else {
+                this.target.angle = rotationZ;
+            }
         }
     },
 
     reverse:function () {
-        var action = new cc.RotateBy(this._duration, -this._angleX, -this._angleY);
+        let angle = this._angle;
+        _vec3_tmp.x = -angle.x;
+        _vec3_tmp.y = -angle.y;
+        _vec3_tmp.z = -angle.z;
+        var action = new cc.RotateBy(this._duration, _vec3_tmp);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
