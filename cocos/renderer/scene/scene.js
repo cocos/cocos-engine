@@ -198,7 +198,7 @@ if (CC_EDITOR) {
    * create a raycast result array
    * @return {RecyclePool}
    */
-  Scene.prototype.createRaycastResult = function() {
+  Scene.createRaycastResult = function() {
     return new RecyclePool(() => {
       return { node: null, distance: Infinity };
     }, 16);
