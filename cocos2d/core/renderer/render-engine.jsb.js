@@ -372,6 +372,13 @@ VertexFormat.prototype.element = function element (attrName) {
 var gl$1 = window.__gl;
 var gfx$1 = window.gfx;
 
+var _tmpGetSetDesc = {
+    get: undefined,
+    set: undefined,
+    enumerable: true,
+    configurable: true
+};
+
 window.device = gfx$1.Device.getInstance();
 window.device._gl = window.__gl;
 
@@ -398,14 +405,18 @@ _p._ctor = function(device, format, usage, data, numVertices) {
     this.init(device, format._nativeObj, usage, data, numVertices);
     this._nativePtr = this.self();
 };
-cc.defineGetterSetter(_p, "count", _p.getCount);
+_tmpGetSetDesc.get = _p.getCount;
+_tmpGetSetDesc.set = undefined;
+Object.defineProperty(_p, "count", _tmpGetSetDesc);
 
 _p = gfx$1.IndexBuffer.prototype;
 _p._ctor = function(device, format, usage, data, numIndices) {
     this.init(device, format, usage, data, numIndices);
     this._nativePtr = this.self();
 };
-cc.defineGetterSetter(_p, "count", _p.getCount);
+_tmpGetSetDesc.get = _p.getCount;
+_tmpGetSetDesc.set = undefined;
+Object.defineProperty(_p, "count", _tmpGetSetDesc);
 
 gfx$1.VertexFormat = VertexFormat;
 Object.assign(gfx$1, enums);
@@ -491,8 +502,11 @@ _p.updateSubImage = function(option) {
 
     this.updateSubImageNative(data);
 };
-cc.defineGetterSetter(_p, "_width", _p.getWidth);
-cc.defineGetterSetter(_p, "_height", _p.getHeight);
+_tmpGetSetDesc.get = _p.getWidth;
+_tmpGetSetDesc.set = undefined;
+Object.defineProperty(_p, "_width", _tmpGetSetDesc);
+_tmpGetSetDesc.get = _p.getHeight;
+Object.defineProperty(_p, "_height", _tmpGetSetDesc);
 
 _p = gfx$1.FrameBuffer.prototype;
 _p._ctor = function(device, width, height, options) {
@@ -572,8 +586,106 @@ var config = {
 };
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
+
 var renderer$1 = window.renderer;
+
+var Effect = function Effect(techniques, properties, defines) {
+  if ( properties === void 0 ) properties = {};
+  if ( defines === void 0 ) defines = [];
+
+  this._techniques = techniques;
+  this._properties = properties;
+  this._defines = defines;
+
+  var techniqueObjs = [];
+  var techniqueObj;
+  for (var i = 0, len = techniques.length; i < len; ++i) {
+    techniqueObj = techniques[i]._nativeObj; 
+    techniqueObjs.push(techniqueObj);
+  }
+
+  this._nativeObj = new renderer$1.EffectNative();
+  this._nativeObj.init(techniqueObjs, properties, defines);
+  this._nativePtr = this._nativeObj.self();
+
+  // TODO: check if params is valid for current technique???
+};
+
+Effect.prototype.clear = function clear () {
+  this._techniques.length = 0;
+  this._properties = null;
+  this._defines.length = 0;
+};
+
+Effect.prototype.getTechnique = function getTechnique (stage) {
+    var this$1 = this;
+
+  var stageID = config.stageID(stage);
+  for (var i = 0; i < this._techniques.length; ++i) {
+    var tech = this$1._techniques[i];
+    if (tech.stageIDs & stageID) {
+      return tech;
+    }
+  }
+
+  return null;
+};
+
+Effect.prototype.getProperty = function getProperty (name) {
+  return this._properties[name];
+};
+
+Effect.prototype.setProperty = function setProperty (name, value) {
+  // TODO: check if params is valid for current technique???
+  this._properties[name] = value;
+  this._nativeObj.setProperty(name, value);
+};
+
+Effect.prototype.getDefine = function getDefine (name) {
+    var this$1 = this;
+
+  for (var i = 0; i < this._defines.length; ++i) {
+    var def = this$1._defines[i];
+    if ( def.name === name ) {
+      return def.value;
+    }
+  }
+
+  console.warn(("Failed to get define " + name + ", define not found."));
+  return null;
+};
+
+Effect.prototype.define = function define (name, value) {
+    var this$1 = this;
+
+  for (var i = 0; i < this._defines.length; ++i) {
+    var def = this$1._defines[i];
+    if ( def.name === name ) {
+      def.value = value;
+      return;
+    }
+  }
+
+  this._nativeObj.setDefine(name, value);
+
+  console.warn(("Failed to set define " + name + ", define not found."));
+};
+
+Effect.prototype.extractDefines = function extractDefines (out) {
+    var this$1 = this;
+    if ( out === void 0 ) out = {};
+
+  for (var i = 0; i < this._defines.length; ++i) {
+    var def = this$1._defines[i];
+    out[def.name] = def.value;
+  }
+
+  return out;
+};
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
+var renderer$2 = window.renderer;
 var _genID = 0;
 
 var Technique = function Technique(stages, parameters, passes, layer) {
@@ -593,8 +705,32 @@ var Technique = function Technique(stages, parameters, passes, layer) {
   for (var i = 0, len = passes.length; i < len; ++i) {
     passesNative.push(passes[i]._native);
   }
-  this._nativeObj = new renderer$1.TechniqueNative(stages, parameters, passesNative, layer);
+  this._nativeObj = new renderer$2.TechniqueNative(stages, parameters, passesNative, layer);
 
+};
+
+Technique.prototype.copy = function copy (technique) {
+    var this$1 = this;
+
+  this._id = technique._id;
+  this._stageIDs = technique._stageIDs;
+
+  this._parameters = [];
+  for (var i = 0; i < technique._parameters.length; ++i) {
+    var parameter = technique._parameters[i];
+    this$1._parameters.push({name: parameter.name, type: parameter.type});
+  }
+
+  for (var i$1 = 0; i$1 < technique._passes.length; ++i$1) {
+    var pass = this$1._passes[i$1];
+    if (!pass) {
+      pass = new renderer$2.Pass();
+      this$1._passes.push(pass);
+    }
+      pass.copy(technique._passes[i$1]);
+  }
+  this._passes.length = technique._passes.length;
+  this._layer = technique._layer;
 };
 
 Technique.prototype.setStages = function setStages (stages) {
@@ -607,7 +743,7 @@ Technique.prototype.setStages = function setStages (stages) {
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
 var gfx$4 = window.gfx;
-var renderer$2 = window.renderer;
+var renderer$3 = window.renderer;
 
 var Pass = function Pass(name) {
   this._programName = name;
@@ -628,7 +764,10 @@ var Pass = function Pass(name) {
   // depth
   this._depthTest = false;
   this._depthWrite = false;
-  this._depthFunc = gfx$4.DS_FUNC_LESS, this._stencilTest = false;
+  this._depthFunc = gfx$4.DS_FUNC_LESS;
+
+  // stencil
+  this._stencilTest = false;
   // front
   this._stencilFuncFront = gfx$4.DS_FUNC_ALWAYS;
   this._stencilRefFront = 0;
@@ -672,8 +811,44 @@ var Pass = function Pass(name) {
   binary[22] = this._stencilZFailOpBack;
   binary[23] = this._stencilZPassOpBack;
   binary[24] = this._stencilWriteMaskBack;
-  this._native = new renderer$2.PassNative();
+  this._native = new renderer$3.PassNative();
   this._native.init(this._programName, binary);
+};
+
+Pass.prototype.copy = function copy (pass) {
+  this._programName = pass._programName;
+  // cullmode
+  this._cullMode = pass._cullMode;
+  // blending
+  this._blend = pass._blend;
+  this._blendEq = pass._blendEq;
+  this._blendAlphaEq = pass._blendAlphaEq;
+  this._blendSrc = pass._blendSrc;
+  this._blendDst = pass._blendDst;
+  this._blendSrcAlpha = pass._blendSrcAlpha;
+  this._blendDstAlpha = pass._blendDstAlpha;
+  this._blendColor = pass._blendColor;
+  // depth
+  this._depthTest = pass._depthTest;
+  this._depthWrite = pass._depthWrite;
+  this._depthFunc = pass._depthFunc;
+  this._stencilTest = pass._stencilTest;
+  // front
+  this._stencilFuncFront = pass._stencilFuncFront;
+  this._stencilRefFront = pass._stencilRefFront;
+  this._stencilMaskFront = pass._stencilMaskFront;
+  this._stencilFailOpFront = pass._stencilFailOpFront;
+  this._stencilZFailOpFront = pass._stencilZFailOpFront;
+  this._stencilZPassOpFront = pass._stencilZPassOpFront;
+  this._stencilWriteMaskFront = pass._stencilWriteMaskFront;
+  // back
+  this._stencilFuncBack = pass._stencilFuncBack;
+  this._stencilRefBack = pass._stencilRefBack;
+  this._stencilMaskBack = pass._stencilMaskBack;
+  this._stencilFailOpBack = pass._stencilFailOpBack;
+  this._stencilZFailOpBack = pass._stencilZFailOpBack;
+  this._stencilZPassOpBack = pass._stencilZPassOpBack;
+  this._stencilWriteMaskBack = pass._stencilWriteMaskBack;
 };
 
 Pass.prototype.setCullMode = function setCullMode (cullMode) {
@@ -915,49 +1090,49 @@ Object.defineProperties( Model.prototype, prototypeAccessors );
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
-var renderer$3 = window.renderer;
+var renderer$4 = window.renderer;
 
 // projection
-renderer$3.PROJ_PERSPECTIVE = 0;
-renderer$3.PROJ_ORTHO = 1;
+renderer$4.PROJ_PERSPECTIVE = 0;
+renderer$4.PROJ_ORTHO = 1;
 
 // lights
-renderer$3.LIGHT_DIRECTIONAL = 0;
-renderer$3.LIGHT_POINT = 1;
-renderer$3.LIGHT_SPOT = 2;
+renderer$4.LIGHT_DIRECTIONAL = 0;
+renderer$4.LIGHT_POINT = 1;
+renderer$4.LIGHT_SPOT = 2;
 
 // shadows
-renderer$3.SHADOW_NONE = 0;
-renderer$3.SHADOW_HARD = 1;
-renderer$3.SHADOW_SOFT = 2;
+renderer$4.SHADOW_NONE = 0;
+renderer$4.SHADOW_HARD = 1;
+renderer$4.SHADOW_SOFT = 2;
 
 // parameter type
-renderer$3.PARAM_INT = 0;
-renderer$3.PARAM_INT2 = 1;
-renderer$3.PARAM_INT3 = 2;
-renderer$3.PARAM_INT4 = 3;
-renderer$3.PARAM_FLOAT = 4;
-renderer$3.PARAM_FLOAT2 = 5;
-renderer$3.PARAM_FLOAT3 = 6;
-renderer$3.PARAM_FLOAT4 = 7;
-renderer$3.PARAM_COLOR3 = 8;
-renderer$3.PARAM_COLOR4 = 9;
-renderer$3.PARAM_MAT2 = 10;
-renderer$3.PARAM_MAT3 = 11;
-renderer$3.PARAM_MAT4 = 12;
-renderer$3.PARAM_TEXTURE_2D = 13;
-renderer$3.PARAM_TEXTURE_CUBE = 14;
+renderer$4.PARAM_INT = 0;
+renderer$4.PARAM_INT2 = 1;
+renderer$4.PARAM_INT3 = 2;
+renderer$4.PARAM_INT4 = 3;
+renderer$4.PARAM_FLOAT = 4;
+renderer$4.PARAM_FLOAT2 = 5;
+renderer$4.PARAM_FLOAT3 = 6;
+renderer$4.PARAM_FLOAT4 = 7;
+renderer$4.PARAM_COLOR3 = 8;
+renderer$4.PARAM_COLOR4 = 9;
+renderer$4.PARAM_MAT2 = 10;
+renderer$4.PARAM_MAT3 = 11;
+renderer$4.PARAM_MAT4 = 12;
+renderer$4.PARAM_TEXTURE_2D = 13;
+renderer$4.PARAM_TEXTURE_CUBE = 14;
 
 // clear flags
-renderer$3.CLEAR_COLOR = 1;
-renderer$3.CLEAR_DEPTH = 2;
-renderer$3.CLEAR_STENCIL = 4;
-renderer$3.InputAssembler = InputAssembler;
-renderer$3.config = config;
-renderer$3.Effect = Effect;
-renderer$3.Technique = Technique;
-renderer$3.Pass = Pass;
-renderer$3.Model = Model;
+renderer$4.CLEAR_COLOR = 1;
+renderer$4.CLEAR_DEPTH = 2;
+renderer$4.CLEAR_STENCIL = 4;
+renderer$4.InputAssembler = InputAssembler;
+renderer$4.config = config;
+renderer$4.Effect = Effect;
+renderer$4.Technique = Technique;
+renderer$4.Pass = Pass;
+renderer$4.Model = Model;
 
 var models = [];
 var sizeOfModel = 13;
@@ -1003,7 +1178,7 @@ var fillModelData = function() {
 };
 
 // ForwardRenderer adapter
-var _p$1 = renderer$3.ForwardRenderer.prototype;
+var _p$1 = renderer$4.ForwardRenderer.prototype;
 _p$1._ctor = function(device, builtin) {
   this.init(device, builtin.programTemplates, builtin.defaultTexture, window.innerWidth, window.innerHeight);
 };
@@ -1013,15 +1188,22 @@ _p$1.render = function(scene) {
 
   models.length = 0;
 };
+_p$1.renderCamera = function(camera, scene) {
+  fillModelData();
+  this.renderCameraNative(camera, scene, modelsData);
+
+  models.length = 0;
+};
 
 // Scene 
-_p$1 = renderer$3.Scene.prototype;
+_p$1 = renderer$4.Scene.prototype;
 _p$1.addModel = function(model) {
   models.push(model); 
 };
 _p$1.removeModel = function() {};
 
 var chunks = {
+  'skinning.vert': '\nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[64];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
 };
 
 var templates = [
@@ -1031,6 +1213,17 @@ var templates = [
     frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\nuniform lowp vec4 color;\nvoid main () {\n  vec4 c = color * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
     defines: [
     ],
+  },
+  {
+    name: 'mesh',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\n#ifdef useAttributeColor\n  attribute vec4 a_color;\n  varying vec4 v_color;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useSkinning\n  \nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[64];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef useSkinning\n    mvp = mvp * skinMatrix();\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  #ifdef useAttributeColor\n    v_color = a_color;\n  #endif\n  gl_Position = pos;\n}',
+    frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef useAttributeColor\n  varying vec4 v_color;\n#endif\nuniform vec4 color;\nvoid main () {\n  vec4 o = color;\n  \n  #ifdef useAttributeColor\n    o *= v_color;\n  #endif\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  gl_FragColor = o;\n}',
+    defines: [
+      { name: 'useTexture', },
+      { name: 'useModel', },
+      { name: 'useSkinning', },
+      { name: 'useJointsTexture', },
+      { name: 'useAttributeColor', } ],
   },
   {
     name: 'sprite',
@@ -2549,7 +2742,7 @@ function murmurhash2_32_gc(str, seed) {
   return h >>> 0;
 }
 
-var renderer$5 = window.renderer;
+var renderer$6 = window.renderer;
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
@@ -2622,33 +2815,33 @@ function computeHash(material) {
                     continue;
                 }
                 switch(param.type) {
-                    case renderer$5.PARAM_INT:
-                    case renderer$5.PARAM_FLOAT:
+                    case renderer$6.PARAM_INT:
+                    case renderer$6.PARAM_FLOAT:
                         hashData += prop + ';';
                         break;
-                    case renderer$5.PARAM_INT2:
-                    case renderer$5.PARAM_FLOAT2:
+                    case renderer$6.PARAM_INT2:
+                    case renderer$6.PARAM_FLOAT2:
                         hashData += prop.x + ',' + prop.y + ';';
                         break;
-                    case renderer$5.PARAM_INT4:
-                    case renderer$5.PARAM_FLOAT4:
+                    case renderer$6.PARAM_INT4:
+                    case renderer$6.PARAM_FLOAT4:
                         hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
                         break;
-                    case renderer$5.PARAM_COLOR4:
+                    case renderer$6.PARAM_COLOR4:
                         hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
                         break;
-                    case renderer$5.PARAM_MAT2:
+                    case renderer$6.PARAM_MAT2:
                         hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
                         break;
-                    case renderer$5.PARAM_TEXTURE_2D:
-                    case renderer$5.PARAM_TEXTURE_CUBE:
+                    case renderer$6.PARAM_TEXTURE_2D:
+                    case renderer$6.PARAM_TEXTURE_CUBE:
                         hashData += material._texIds[propKey] + ';';
                         break;
-                    case renderer$5.PARAM_INT3:
-                    case renderer$5.PARAM_FLOAT3:
-                    case renderer$5.PARAM_COLOR3:
-                    case renderer$5.PARAM_MAT3:
-                    case renderer$5.PARAM_MAT4:
+                    case renderer$6.PARAM_INT3:
+                    case renderer$6.PARAM_FLOAT3:
+                    case renderer$6.PARAM_COLOR3:
+                    case renderer$6.PARAM_MAT3:
+                    case renderer$6.PARAM_MAT4:
                         hashData += JSON.stringify(prop) + ';';
                         break;
                     default:
@@ -2700,7 +2893,7 @@ var SpriteMaterial = (function (Material$$1) {
   function SpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer$5.Pass('sprite');
+    var pass = new renderer$6.Pass('sprite');
     pass.setDepth(false, false);
     pass.setCullMode(gfx$5.CULL_NONE);
     pass.setBlend(
@@ -2710,18 +2903,18 @@ var SpriteMaterial = (function (Material$$1) {
       gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer$5.Technique(
+    var mainTech = new renderer$6.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$6.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$6.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer$5.Effect(
+    this._effect = new renderer$6.Effect(
       [
         mainTech ],
       {
@@ -2750,7 +2943,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture');
+    return this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
@@ -2758,7 +2951,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel');
+    return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
@@ -2766,7 +2959,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.use2DPos.get = function () {
-    this._effect.getDefine('use2DPos');
+    return this._effect.getDefine('use2DPos');
   };
 
   prototypeAccessors.use2DPos.set = function (val) {
@@ -2774,7 +2967,7 @@ var SpriteMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useColor.get = function () {
-    this._effect.getDefine('useColor');
+    return this._effect.getDefine('useColor');
   };
 
   prototypeAccessors.useColor.set = function (val) {
@@ -2808,6 +3001,7 @@ var SpriteMaterial = (function (Material$$1) {
 
   SpriteMaterial.prototype.clone = function clone () {
     var copy = new SpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
@@ -2828,7 +3022,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   function GraySpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer$5.Pass('gray_sprite');
+    var pass = new renderer$6.Pass('gray_sprite');
     pass.setDepth(false, false);
     pass.setCullMode(gfx$5.CULL_NONE);
     pass.setBlend(
@@ -2838,18 +3032,18 @@ var GraySpriteMaterial = (function (Material$$1) {
       gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer$5.Technique(
+    var mainTech = new renderer$6.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$6.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$6.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer$5.Effect(
+    this._effect = new renderer$6.Effect(
       [
         mainTech ],
       {
@@ -2899,6 +3093,7 @@ var GraySpriteMaterial = (function (Material$$1) {
 
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.color = this.color;
     copy.updateHash();
@@ -2916,7 +3111,7 @@ var StencilMaterial = (function (Material$$1) {
   function StencilMaterial() {
     Material$$1.call(this, false);
 
-    this._pass = new renderer$5.Pass('sprite');
+    this._pass = new renderer$6.Pass('sprite');
     this._pass.setDepth(false, false);
     this._pass.setCullMode(gfx$5.CULL_NONE);
     this._pass.setBlend(
@@ -2926,18 +3121,18 @@ var StencilMaterial = (function (Material$$1) {
       gfx$5.BLEND_SRC_ALPHA, gfx$5.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer$5.Technique(
+    var mainTech = new renderer$6.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer$5.PARAM_TEXTURE_2D },
-        { name: 'alphaThreshold', type: renderer$5.PARAM_FLOAT },
-        { name: 'color', type: renderer$5.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$6.PARAM_TEXTURE_2D },
+        { name: 'alphaThreshold', type: renderer$6.PARAM_FLOAT },
+        { name: 'color', type: renderer$6.PARAM_COLOR4 } ],
       [
         this._pass
       ]
     );
 
-    this._effect = new renderer$5.Effect(
+    this._effect = new renderer$6.Effect(
       [
         mainTech ],
       {
@@ -2966,7 +3161,7 @@ var StencilMaterial = (function (Material$$1) {
   };
   
   prototypeAccessors.useTexture.get = function () {
-    this._effect.getDefine('useTexture');
+    return this._effect.getDefine('useTexture');
   };
 
   prototypeAccessors.useTexture.set = function (val) {
@@ -2974,7 +3169,7 @@ var StencilMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useModel.get = function () {
-    this._effect.getDefine('useModel');
+    return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
@@ -2982,7 +3177,7 @@ var StencilMaterial = (function (Material$$1) {
   };
 
   prototypeAccessors.useColor.get = function () {
-    this._effect.getDefine('useColor');
+    return this._effect.getDefine('useColor');
   };
 
   prototypeAccessors.useColor.set = function (val) {
@@ -3011,6 +3206,7 @@ var StencilMaterial = (function (Material$$1) {
 
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
     copy.useColor = this.useColor;
@@ -10432,25 +10628,25 @@ var canvas = {
 // intenral
 // deps
 // Add stage to renderer
-renderer$3.config.addStage('transparent');
+renderer$4.config.addStage('transparent');
 
 var renderEngine = {
   // core classes
   Device: gfx$1.Device,
-  ForwardRenderer: renderer$3.ForwardRenderer,
+  ForwardRenderer: renderer$4.ForwardRenderer,
   Texture2D: gfx$1.Texture2D,
 
   // Canvas render support
   canvas: canvas,
 
   // render scene
-  Scene: renderer$3.Scene,
-  Camera: renderer$3.Camera,
-  View: renderer$3.View,
-  Model: renderer$3.Model,
+  Scene: renderer$4.Scene,
+  Camera: renderer$4.Camera,
+  View: renderer$4.View,
+  Model: renderer$4.Model,
   RenderData: RenderData,
   IARenderData: IARenderData,
-  InputAssembler: renderer$3.InputAssembler,
+  InputAssembler: renderer$4.InputAssembler,
   
   // assets
   Asset: Asset,
@@ -10471,7 +10667,7 @@ var renderEngine = {
 
   // modules
   math: math,
-  renderer: renderer$3,
+  renderer: renderer$4,
   gfx: gfx$1,
 };
 

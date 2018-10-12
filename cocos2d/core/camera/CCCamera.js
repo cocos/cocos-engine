@@ -49,7 +49,7 @@ let _debugCamera = null;
 function repositionDebugCamera () {
     if (!_debugCamera) return;
 
-    let node = _debugCamera._node;
+    let node = _debugCamera.getNode();
     let canvas = cc.game.canvas;
     node.z = canvas.height / 1.1566;
     node.x = canvas.width / 2;
