@@ -211,6 +211,7 @@ var MouseJoint = cc.Class({
         mouseRegion.on(cc.Node.EventType.TOUCH_START, this.onTouchBegan, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        mouseRegion.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
     },
 
     onEnable: function () {
@@ -246,6 +247,10 @@ var MouseJoint = cc.Class({
     onTouchEnd: function (event) {
         this._destroy();
         this._pressPoint = null;
+    },
+
+    onTouchCancel: function (event) {
+        this.onTouchEnd(event);
     },
 
     _createJointDef: function () {
