@@ -120,32 +120,41 @@ module.exports = {
             uintbuf = buffer._uintVData;
         // fill vertex buffer.
         let start = 4;
+        let id, vert, uvs;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                let id = start * (i + 1) + j;
+                id = start * (i + 1) + j;
                 // left bottom
-                vbuf[vertexOffset++] = data[id].x;
-                vbuf[vertexOffset++] = data[id].y;
-                vbuf[vertexOffset++] = uvSliced[id - 4].u;
-                vbuf[vertexOffset++] = uvSliced[id - 4].v;
+                vert = data[id];
+                uvs = uvSliced[id - 4];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = uvs.u;
+                vbuf[vertexOffset++] = uvs.v;
                 uintbuf[vertexOffset++] = color;
                 // right bottom
-                vbuf[vertexOffset++] = data[id + 1].x;
-                vbuf[vertexOffset++] = data[id + 1].y;
-                vbuf[vertexOffset++] = uvSliced[id - 3].u;
-                vbuf[vertexOffset++] = uvSliced[id - 3].v;
+                vert = data[id + 1];
+                uvs = uvSliced[id - 3];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = uvs.u;
+                vbuf[vertexOffset++] = uvs.v;
                 uintbuf[vertexOffset++] = color;
                 // left top
-                vbuf[vertexOffset++] = data[id + 4].x;
-                vbuf[vertexOffset++] = data[id + 4].y;
-                vbuf[vertexOffset++] = uvSliced[id].u;
-                vbuf[vertexOffset++] = uvSliced[id].v;
+                vert = data[id + 4];
+                uvs = uvSliced[id];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = uvs.u;
+                vbuf[vertexOffset++] = uvs.v;
                 uintbuf[vertexOffset++] = color;
                 // right top
-                vbuf[vertexOffset++] = data[id + 5].x;
-                vbuf[vertexOffset++] = data[id + 5].y;
-                vbuf[vertexOffset++] = uvSliced[id + 1].u;
-                vbuf[vertexOffset++] = uvSliced[id + 1].v;
+                vert = data[id + 5];
+                uvs = uvSliced[id + 1];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = uvs.u;
+                vbuf[vertexOffset++] = uvs.v;
                 uintbuf[vertexOffset++] = color;
             }
         }
