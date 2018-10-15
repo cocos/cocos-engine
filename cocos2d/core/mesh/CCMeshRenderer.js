@@ -35,7 +35,7 @@ let MeshRenderer = cc.Class({
     extends: RenderComponent,
     
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/MeshRenderer',
+        menu: 'Mesh/MeshRenderer',
     },
 
     properties: {
@@ -94,7 +94,13 @@ let MeshRenderer = cc.Class({
     },
 
     activeMaterials (force) {
-        if (!this._mesh || this._mesh.subMeshes.length === 0) {
+        let mesh = this._mesh;
+        // TODO: should init mesh when mesh loaded, need asset load event support
+        if (mesh) {
+            mesh._initResource();
+        }
+
+        if (!mesh || mesh.subMeshes.length === 0) {
             this.disableRender();
             return;
         }
@@ -104,12 +110,12 @@ let MeshRenderer = cc.Class({
         }
 
         if (aabb) {
-            this._boundingBox = aabb.fromPoints(aabb.create(), this._mesh._minPos, this._mesh._maxPos);
+            this._boundingBox = aabb.fromPoints(aabb.create(), mesh._minPos, mesh._maxPos);
         }
         
         this._reset();
 
-        let subMeshes = this._mesh._subMeshes;
+        let subMeshes = mesh._subMeshes;
         for (let i = 0; i < subMeshes.length; i++) {
             let material = this._createMaterial(subMeshes[i]);
             this._materials.push(material);

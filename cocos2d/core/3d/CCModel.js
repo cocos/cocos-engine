@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const AnimationClip = require('../../animation/animation-clip');
+const BufferAsset = require('../assets/CCBufferAsset');
 
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
@@ -63,47 +64,30 @@ const _gltfAttribMap = {
     WEIGHTS_0: gfx.ATTR_WEIGHTS
 };
 
-function createArray(gltf, bin, accessorID) {
-    let acc = gltf.accessors[accessorID];
-    let bufView = gltf.bufferViews[acc.bufferView];
-
-    let num = _type2size[acc.type];
-    let typedArray = _compType2Array[acc.componentType];
-    let result = new typedArray(bin, bufView.byteOffset + acc.byteOffset, acc.count * num);
-
-    return result;
-}
-
-var Model = cc.Class({
+let Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
 
-    ctor() {
-        this._bin = null;
+    ctor () {
+        this._initedNodes = false;
     },
 
     properties: {
-        _nativeAsset: {
-            get() {
-                return this._bin;
-            },
-            set(bin) {
-                this._bin = bin.buffer || bin;
-                this._initNodes();
-            },
-            override: true
-        },
+        _buffers: [BufferAsset],
 
         _gltf: {
             default: {}
         }
     },
 
-    _initNodes() {
+    _initNodes () {
+        if (this._initedNodes) return;
+        this._initedNodes = true;
+
         let nodes = this._gltf.nodes;
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i];
-            
+
             node.path = node.parent ? node.parent.path + '/' + node.name : '';
 
             let children = node.children;
@@ -116,13 +100,46 @@ var Model = cc.Class({
         }
     },
 
-    _createVB(bin, gltf, accessors, attributes) {
+    initSkeleton (skeleton) {
+        let gltf = this._gltf;
+        let buffers = this._buffers;
+        let skinID = skeleton._skinID;
+        if (skinID >= gltf.skins.length) {
+            return null;
+        }
+
+        let gltfSkin = gltf.skins[skinID];
+
+        // extract bindposes mat4 data
+        let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
+        let bufView = gltf.bufferViews[accessor.bufferView];
+        let bin = buffers[bufView.buffer]._buffer;
+        let data = new Float32Array(bin, bufView.byteOffset + accessor.byteOffset, accessor.count * 16);
+        let bindposes = new Array(accessor.count);
+
+        for (let i = 0; i < accessor.count; ++i) {
+            bindposes[i] = cc.vmath.mat4.new(
+                data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
+                data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
+                data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
+                data[16 * i + 12], data[16 * i + 13], data[16 * i + 14], data[16 * i + 15]
+            );
+        }
+
+        skeleton.jointIndices = gltfSkin.joints;
+        skeleton.bindposes = bindposes;
+    },
+
+    _createVB (gltf, accessors, primitive) {
+        const buffers = this._buffers;
+
         // create vertex-format
         let vfmt = [];
         let vcount = 0;
 
         let byteOffset = 10e7, maxByteOffset = 0;
-
+        let bufferViewIndex = -1;
+        let attributes = primitive.attributes;
         for (let gltfAttribName in attributes) {
             const gfxAttribName = _gltfAttribMap[gltfAttribName];
             if (gfxAttribName === undefined) {
@@ -130,9 +147,10 @@ var Model = cc.Class({
                 return;
             }
             let acc = accessors[attributes[gltfAttribName]];
-            let vbView = gltf.bufferViews[acc.bufferView];
-            vcount = acc.count;
+            vcount = Math.max(acc.count, vcount);
 
+            let vbView = gltf.bufferViews[acc.bufferView];
+            bufferViewIndex = vbView.buffer;
             vfmt.push({
                 name: gfxAttribName, type: acc.componentType, num: _type2size[acc.type],
                 byteLength: vbView.byteLength, byteOffset: vbView.byteOffset
@@ -150,6 +168,8 @@ var Model = cc.Class({
             el.stride = el.bytes;
         }
 
+        let bin = this._buffers[bufferViewIndex]._buffer;
+
         // create vertex-buffer
         let vbData = new Uint8Array(bin, byteOffset, maxByteOffset - byteOffset);
         let vb = new gfx.VertexBuffer(
@@ -166,40 +186,40 @@ var Model = cc.Class({
         };
     },
 
-    createSkinning(index) {
-        let gltf = this._gltf;
-        let bin = this._bin;
-        if (index >= gltf.skins.length) {
-            return null;
-        }
-
-        let gltfSkin = gltf.skins[index];
-
-        // extract bindposes mat4 data
-        let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
-        let bufView = gltf.bufferViews[accessor.bufferView];
-        let data = new Float32Array(bin, bufView.byteOffset + accessor.byteOffset, accessor.count * 16);
-        let bindposes = new Array(accessor.count);
-
-        for (let i = 0; i < accessor.count; ++i) {
-            bindposes[i] = cc.vmath.mat4.new(
-                data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
-                data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
-                data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
-                data[16 * i + 12], data[16 * i + 13], data[16 * i + 14], data[16 * i + 15]
-            );
-        }
+    _createIB (gltf, accessors, primitive) {
+        let ibAcc = accessors[primitive.indices];
+        let ibView = gltf.bufferViews[ibAcc.bufferView];
+        let bin = this._buffers[ibView.buffer]._buffer;
+        let ibData = new Uint16Array(bin, ibView.byteOffset, ibView.byteLength / 2);
+        let ibBuffer = new gfx.IndexBuffer(
+            renderer.device,
+            ibAcc.componentType,
+            gfx.USAGE_STATIC,
+            ibData,
+            ibAcc.count
+        );
 
         return {
-            jointIndices: gltfSkin.joints,
-            bindposes: bindposes,
-        };
+            buffer: ibBuffer,
+            data: ibData
+        }
     },
 
-    initMesh(meshAsset) {
+    _createArray (gltf, accessorID) {
+        let acc = gltf.accessors[accessorID];
+        let bufView = gltf.bufferViews[acc.bufferView];
+        let bin = this._buffers[bufView.buffer]._buffer;
+
+        let num = _type2size[acc.type];
+        let typedArray = _compType2Array[acc.componentType];
+        let result = new typedArray(bin, bufView.byteOffset + acc.byteOffset, acc.count * num);
+
+        return result;
+    },
+
+    initMesh (meshAsset) {
         const index = meshAsset._meshID;
 
-        const bin = this._bin;
         const gltf = this._gltf;
         const gltfMesh = gltf.meshes[index];
         const accessors = gltf.accessors;
@@ -214,28 +234,13 @@ var Model = cc.Class({
 
             if (primitive.indices === undefined) continue;
 
-            let vb = this._createVB(bin, gltf, accessors, primitive.attributes);
-
-            let ibAcc = accessors[primitive.indices];
-            let ibView = gltf.bufferViews[ibAcc.bufferView];
-            let ibData = new Uint16Array(bin, ibView.byteOffset, ibView.byteLength/2);
-            let ibBuffer = new gfx.IndexBuffer(
-                renderer.device,
-                ibAcc.componentType,
-                gfx.USAGE_STATIC,
-                ibData,
-                ibAcc.count
-            );
-
-            let ib = {
-                buffer: ibBuffer,
-                data: ibData
-            }
+            let vb = this._createVB(gltf, accessors, primitive);
+            let ib = this._createIB(gltf, accessors, primitive);
 
             if (primitive.attributes.POSITION) {
                 let gltfAccessor = accessors[primitive.attributes.POSITION];
                 let minPos = meshAsset._minPos, maxPos = meshAsset._maxPos
-                    min = gltfAccessor.min, max = gltfAccessor.max;
+                min = gltfAccessor.min, max = gltfAccessor.max;
                 minPos.x = Math.min(minPos.x, min[0]);
                 minPos.y = Math.min(minPos.y, min[1]);
                 minPos.z = Math.min(minPos.z, min[2]);
@@ -244,13 +249,15 @@ var Model = cc.Class({
                 maxPos.z = Math.max(maxPos.z, max[2]);
             }
 
-            meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb.buffer, ibBuffer);
+            meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb.buffer, ib.buffer);
             meshAsset._vbs[i] = vb;
             meshAsset._ibs[i] = ib;
         }
     },
 
-    initAnimationClip(clip) {
+    initAnimationClip (clip) {
+        this._initNodes();
+        
         let gltf = this._gltf;
         let bin = this._bin;
 
@@ -273,11 +280,11 @@ var Model = cc.Class({
             let gltfChannel = channels[i];
             let sampler = samplers[gltfChannel.sampler];
 
-            let inputArray = createArray(gltf, bin, sampler.input);
-            let outputArray = createArray(gltf, bin, sampler.output);
+            let inputArray = this._createArray(gltf, sampler.input);
+            let outputArray = this._createArray(gltf, sampler.output);
 
             let interpolation = sampler.interpolation;
-            
+
             let target = gltfChannel.target;
             let node = nodes[target.node];
 
@@ -304,26 +311,26 @@ var Model = cc.Class({
                 if (frame > duration) {
                     duration = frame;
                 }
-                frames.push({frame: frame});
+                frames.push({ frame: frame });
             }
             if (target.path === 'translation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 3;
-                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i+1], outputArray[i+2]);
+                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i + 1], outputArray[i + 2]);
                 }
                 curves.props.position = frames;
             }
             else if (target.path === 'rotation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 4;
-                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i+1], outputArray[i+2], outputArray[i+3]);
+                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i + 1], outputArray[i + 2], outputArray[i + 3]);
                 }
                 curves.props.quat = frames;
             }
             else if (target.path === 'scale') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 3;
-                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i+1], outputArray[i+2]);
+                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i + 1], outputArray[i + 2]);
                 }
                 curves.props.scale = frames;
             }
@@ -365,4 +372,4 @@ var Model = cc.Class({
     }
 });
 
-module.exports = Model;
+cc.Model = module.exports = Model;
