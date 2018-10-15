@@ -43,7 +43,7 @@ function traversal (node, cb) {
 function flatNode (rootNode) {
     let nodes = [];
 
-    traversal(rootNode, node => {
+    traversal(rootNode, function (node) {
         nodes.push(node);
     });
 
