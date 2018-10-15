@@ -25,7 +25,6 @@
 
 const StencilManager = require('../stencil-manager');
 const Mask = require('../../../components/CCMask');
-const Graphics = require('../../../graphics/graphics');
 const RenderFlow = require('../../render-flow');
 const spriteAssembler = require('./sprite/simple');
 const graphicsAssembler = require('./graphics');
@@ -35,13 +34,15 @@ let _stencilMgr = StencilManager.sharedManager;
 let maskFrontAssembler = {
     updateRenderData (mask) {
         if (!mask._renderData) {
+            // Update clear graphics material
+            graphicsAssembler.updateRenderData(mask._clearGraphics);
+
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 mask._renderData = spriteAssembler.createData(mask);
             }
             else {
                 // for updateGraphics calculation
                 mask._renderData = mask.requestRenderData();
-                graphicsAssembler.updateRenderData(mask._clearGraphics);
             }
         }
         let renderData = mask._renderData;

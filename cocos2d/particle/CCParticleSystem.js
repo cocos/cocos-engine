@@ -873,12 +873,7 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
-        if (!this._material) {
-            this._activateMaterial();
-        }
-        else {
-            this.markForCustomIARender(true);
-        }
+        this._activateMaterial();
     },
 
     /**
