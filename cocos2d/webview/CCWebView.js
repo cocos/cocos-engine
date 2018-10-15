@@ -107,6 +107,7 @@ let WebView = cc.Class({
 
     statics: {
         EventType: EventType,
+        Impl: WebViewImpl
     },
 
 
@@ -123,13 +124,13 @@ let WebView = cc.Class({
     onEnable () {
         let impl = this._impl;
         impl.createDomElementIfNeeded(this.node.width, this.node.height);
-        impl.loadURL(this._url);
-        impl.setVisible(true);
         if (!CC_EDITOR) {
             impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
             impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
             impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
         }
+        impl.loadURL(this._url);
+        impl.setVisible(true);
     },
 
     onDisable () {

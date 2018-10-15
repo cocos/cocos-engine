@@ -60,6 +60,7 @@ const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
+const COLOR_ON = 1 << 5;
 
 
 let BuiltinGroupIndex = cc.Enum({
@@ -249,6 +250,16 @@ var EventType = cc.Enum({
      * @static
      */
     ANCHOR_CHANGED: 'anchor-changed',
+    /**
+    * !#en The event type for color change events.
+    * Performance note, this event will be triggered every time corresponding properties being changed,
+    * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+    * !#zh 当节点颜色改变时触发的事件。
+    * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+    * @property {String} COLOR_CHANGED
+    * @static
+    */
+    COLOR_CHANGED: 'color-changed',
     /**
      * !#en The event type for new child added events.
      * !#zh 当新的子节点被添加时触发的事件。
@@ -955,6 +966,10 @@ let NodeDefines = {
                     if (this._renderComponent) {
                         this._renderFlag |= RenderFlow.FLAG_COLOR;
                     }
+
+                    if (this._eventMask & COLOR_ON) {
+                        this.emit(EventType.COLOR_CHANGED, value);
+                    }
                 }
             },
         },
@@ -1453,6 +1468,7 @@ let NodeDefines = {
      * node.on(cc.Node.EventType.TOUCH_END, callback, this);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
      * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * node.on(cc.Node.EventType.COLOR_CHANGED, callback);
      */
     on (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
@@ -1475,6 +1491,9 @@ let NodeDefines = {
                 break;
                 case EventType.ANCHOR_CHANGED:
                 this._eventMask |= ANCHOR_ON;
+                break;
+                case EventType.COLOR_CHANGED:
+                this._eventMask |= COLOR_ON;
                 break;
             }
             if (!this._bubblingListeners) {
@@ -1617,6 +1636,9 @@ let NodeDefines = {
                     case EventType.ANCHOR_CHANGED:
                     this._eventMask &= ~ANCHOR_ON;
                     break;
+                    case EventType.COLOR_CHANGED:
+                    this._eventMask &= ~COLOR_ON;
+                    break;
                 }
             }
         }
@@ -1674,6 +1696,9 @@ let NodeDefines = {
             }
             if ((this._eventMask & ANCHOR_ON) && !listeners.hasEventListener(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
+            }
+            if ((this._eventMask & COLOR_ON) && !listeners.hasEventListener(EventType.COLOR_CHANGED)) {
+                this._eventMask &= ~COLOR_ON;
             }
         }
         if (this._capturingListeners) {
@@ -2193,11 +2218,15 @@ let NodeDefines = {
                 old.y = y;
                 old.z = z;
                 old.w = w;
-                this.setLocalDirty(DirtyFlag.ROTATION);
+                this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
+                }
+
+                if (CC_EDITOR) {
+                    old.getEulerAngles(this._eulerAngles);
                 }
             }
         }

@@ -49,6 +49,11 @@ function downloadScript (item, callback, isAsync) {
     var url = item.url,
         d = document,
         s = document.createElement('script');
+
+    if (window.location.protocol !== 'file:') {
+        s.crossOrigin = 'anonymous';
+    }
+
     s.async = isAsync;
     s.src = urlAppendTimestamp(url);
     function loadHandler () {

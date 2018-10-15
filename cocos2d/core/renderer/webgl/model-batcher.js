@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const renderEngine = require('../render-engine');
-const defaultVertexFormat = require('./vertex-format').vfmtPosUv;
+const defaultVertexFormat = require('./vertex-format').vfmtPosUvColor;
 const StencilManager = require('./stencil-manager');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');

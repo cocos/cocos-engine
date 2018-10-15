@@ -25,7 +25,6 @@
 
 const MotionStreak = require('../../../components/CCMotionStreak');
 const RenderFlow = require('../../render-flow');
-const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -195,7 +194,7 @@ var motionStreakAssembler = {
             renderData = comp._renderData,
             data = renderData._data;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vertexCount = renderData.vertexCount;
         

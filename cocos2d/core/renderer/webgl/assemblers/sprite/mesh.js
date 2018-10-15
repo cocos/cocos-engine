@@ -25,7 +25,7 @@
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
- module.exports = {
+module.exports = {
     useModel: false,
 
     createData (sprite) {
@@ -155,6 +155,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
     fillBuffers (sprite, renderer) {
         let node = sprite.node,
+            color = node._color._val,
             renderData = sprite._renderData,
             data = renderData._data;
         
@@ -179,6 +180,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
@@ -187,6 +189,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             vbuf[vertexOffset++] = vertice.y;
             vbuf[vertexOffset++] = vertice.u;
             vbuf[vertexOffset++] = vertice.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         let triangles = vertices.triangles;
