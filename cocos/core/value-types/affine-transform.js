@@ -41,7 +41,7 @@
  * @see AffineTransform.create
  */
 export default class AffineTransform {
-    constructor (a, b, c, d, tx, ty) {
+    constructor (a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
         this.a = a;
         this.b = b;
         this.c = c;
@@ -64,7 +64,7 @@ export default class AffineTransform {
      * @return {AffineTransform}
      */
     static create (a, b, c, d, tx, ty) {
-        return {a: a, b: b, c: c, d: d, tx: tx, ty: ty};
+        return new AffineTransform(a, b, c, d, tx, ty);
     }
 
     /**
@@ -82,7 +82,7 @@ export default class AffineTransform {
      * @return {AffineTransform}
      */
     static identity () {
-        return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
+        return new AffineTransform();
     }
 
     /**
@@ -94,7 +94,7 @@ export default class AffineTransform {
      * @return {AffineTransform}
      */
     static clone (t) {
-        return {a: t.a, b: t.b, c: t.c, d: t.d, tx: t.tx, ty: t.ty};
+        return new AffineTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
     }
 
     /**

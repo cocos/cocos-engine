@@ -59,25 +59,29 @@ export default class Mat4 extends ValueType {
      * @param {Number} m32 Component in column 3, row 2 position (index 14)
      * @param {Number} m33 Component in column 3, row 3 position (index 15)
      */
-    constructor (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+    constructor (
+      m00 = 1, m01 = 0, m02 = 0, m03 = 0,
+      m04 = 0, m05 = 1, m06 = 0, m07 = 0,
+      m08 = 0, m09 = 0, m10 = 1, m11 = 0,
+      m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
         super();
         let t = this;
         t.m00 = m00;
         t.m01 = m01;
         t.m02 = m02;
         t.m03 = m03;
-        t.m04 = m10;
-        t.m05 = m11;
-        t.m06 = m12;
-        t.m07 = m13;
-        t.m08 = m20;
-        t.m09 = m21;
-        t.m10 = m22;
-        t.m11 = m23;
-        t.m12 = m30;
-        t.m13 = m31;
-        t.m14 = m32;
-        t.m15 = m33;
+        t.m04 = m04;
+        t.m05 = m05;
+        t.m06 = m06;
+        t.m07 = m07;
+        t.m08 = m08;
+        t.m09 = m09;
+        t.m10 = m10;
+        t.m11 = m11;
+        t.m12 = m12;
+        t.m13 = m13;
+        t.m14 = m14;
+        t.m15 = m15;
     }
 
     /**
@@ -250,7 +254,7 @@ export default class Mat4 extends ValueType {
      */
     mul (other, out) {
         out = out || new cc.Mat4();
-        return mat4.multiply(out, this, other)
+        return mat4.multiply(out, this, other);
     }
 
     /**
