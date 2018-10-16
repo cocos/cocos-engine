@@ -98,6 +98,9 @@ function quickFindIndex (ratios, ratio) {
     if ((index - floorIndex) < EPSILON) {
         return floorIndex;
     }
+    else if ((index - floorIndex - 1) < EPSILON) {
+        return floorIndex + 1;
+    }
 
     return ~(floorIndex + 1);
 }
