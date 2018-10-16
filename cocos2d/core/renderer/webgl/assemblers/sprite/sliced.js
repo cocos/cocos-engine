@@ -34,7 +34,7 @@ module.exports = {
         // 5-20 for world verts
         renderData.dataLength = 20;
 
-        renderData.vertexCount = 36;
+        renderData.vertexCount = 16;
         renderData.indiceCount = 54;
         return renderData;
     },
@@ -107,9 +107,11 @@ module.exports = {
             color = node._color._val,
             data = renderData._data;
 
-        let buffer = renderer._quadBuffer,
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vertexCount = renderData.vertexCount;       
+            vertexCount = renderData.vertexCount,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
         let uvSliced = sprite.spriteFrame.uvSliced;
             
@@ -117,45 +119,29 @@ module.exports = {
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-        // fill vertex buffer.
-        let start = 4;
-        let id, vert, uvs;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                id = start * (i + 1) + j;
-                // left bottom
-                vert = data[id];
-                uvs = uvSliced[id - 4];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
-                // right bottom
-                vert = data[id + 1];
-                uvs = uvSliced[id - 3];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
-                // left top
-                vert = data[id + 4];
-                uvs = uvSliced[id];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
-                // right top
-                vert = data[id + 5];
-                uvs = uvSliced[id + 1];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
+
+        for (let i = 4; i < 20; ++i) {
+            let vert = data[i];
+            let uvs = uvSliced[i - 4];
+
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = uvs.u;
+            vbuf[vertexOffset++] = uvs.v;
+            uintbuf[vertexOffset++] = color;
+        }
+
+        for (let r = 0; r < 3; ++r) {
+            for (let c = 0; c < 3; ++c) {
+                let start = vertexId + r*4 + c;
+                ibuf[indiceOffset++] = start;
+                ibuf[indiceOffset++] = start + 1;
+                ibuf[indiceOffset++] = start + 4;
+                ibuf[indiceOffset++] = start + 1;
+                ibuf[indiceOffset++] = start + 5;
+                ibuf[indiceOffset++] = start + 4;
             }
         }
     },
