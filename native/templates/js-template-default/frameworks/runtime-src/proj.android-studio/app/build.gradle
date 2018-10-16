@@ -67,7 +67,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.release
@@ -81,6 +85,9 @@ android {
         }
 
         debug {
+            debuggable true
+            jniDebuggable true
+            renderscriptDebuggable true
             externalNativeBuild {
                 ndkBuild {
                     arguments 'NDK_DEBUG=1'

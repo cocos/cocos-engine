@@ -151,10 +151,6 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/../external/sources \
                     $(LOCAL_PATH)/renderer
 
-LOCAL_EXPORT_LDLIBS := -lGLESv2 \
-                       -llog \
-                       -landroid
-
 LOCAL_STATIC_LIBRARIES := cocos_freetype2_static
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static

@@ -27,12 +27,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../Classes/anysdk
 LOCAL_WHOLE_STATIC_LIBRARIES := PluginProtocolStatic
 endif
 
-
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
 
-LOCAL_EXPORT_CFLAGS := -DCOCOS2D_DEBUG=2
-
 include $(BUILD_SHARED_LIBRARY)
-
 
 $(call import-module, cocos)
