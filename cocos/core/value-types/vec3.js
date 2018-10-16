@@ -446,6 +446,7 @@ export default class Vec3 extends ValueType {
     transformMat4 (m, out) {
         out = out || new Vec3();
         vec3.transformMat4(out, this, m);
+        return out;
     }
 }
 
