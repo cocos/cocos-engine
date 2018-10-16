@@ -600,11 +600,11 @@ let Animation = cc.Class({
         this._init();
 
         let ret = this._EventTargetOn(type, callback, target, useCapture);
-
-        let array = this._animator._anims.array;
-        for (let i = 0; i < array.length; ++i) {
-            let state = array[i];
-            if (type === 'lastframe') {
+        
+        if (type === 'lastframe') {
+            let array = this._animator._anims.array;
+            for (let i = 0; i < array.length; ++i) {
+                let state = array[i];
                 state._lastframeEventOn = true;
             }
         }
@@ -634,16 +634,15 @@ let Animation = cc.Class({
     off: function (type, callback, target, useCapture) {
         this._init();
 
-        let nameToState = this._nameToState;
-        for (let name in nameToState) {
-            let state = nameToState[name];
-            if (type === 'lastframe') {
+        if (type === 'lastframe') {
+            let nameToState = this._nameToState;
+            for (let name in nameToState) {
+                let state = nameToState[name];
                 state._lastframeEventOn = false;
             }
         }
 
         this._EventTargetOff(type, callback, target, useCapture);
-
     },
 
     ///////////////////////////////////////////////////////////////////////////////
