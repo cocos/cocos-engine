@@ -77,7 +77,7 @@ let MeshRenderer = cc.Class({
 
     _createMaterial (subMesh) {
         let material = new renderEngine.MeshMaterial();   
-        material.color = cc.Color.WHITE;
+        material.color = this.node.color;
         material._mainTech._passes[0].setDepth(true, true);
         material.useModel = true;
 
@@ -86,6 +86,17 @@ let MeshRenderer = cc.Class({
         }
 
         return material;
+    },
+
+    _updateColor () {
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            let material = materials[i];
+            material.color = this.node.color;
+            material.updateHash();
+        }
+        
+        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
     },
 
     _reset () {
