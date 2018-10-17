@@ -868,7 +868,7 @@ static bool js_loadImage(se::State& s)
 }
 SE_BIND_FUNC(js_loadImage)
 
-//pixels(RGBA), width, height, filePath(*.png)
+//pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
 static bool js_saveImageData(se::State& s)
 {
     const auto& args = s.args();

@@ -117,6 +117,12 @@ Device::NetworkType Device::getNetworkType()
     return ret;
 }
 
+cocos2d::Vec4 Device::getSafeAreaEdge()
+{
+    // no SafeArea concept on mac, return ZERO Vec4.
+    return cocos2d::Vec4();
+}
+
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC

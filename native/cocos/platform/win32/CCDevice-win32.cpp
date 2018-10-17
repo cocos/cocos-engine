@@ -90,6 +90,12 @@ Device::NetworkType Device::getNetworkType()
     return Device::NetworkType::LAN;
 }
 
+cocos2d::Vec4 Device::getSafeAreaEdge()
+{
+    // no SafeArea concept on win32, return ZERO Vec4.
+    return cocos2d::Vec4();
+}
+
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
