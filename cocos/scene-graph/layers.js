@@ -52,9 +52,11 @@ Layers._nextAvailable = 8;
 // built-in layers, reserved up to (1 << 7)
 Layers.Default = (1 << 0);
 Layers.IgnoreRaycast = (1 << 1);
+Layers.Gizmos = (1 << 2);
 
 // masks
-Layers.All = ~0;
-Layers.RaycastMask = Layers.makeExclusiveMask([Layers.IgnoreRaycast]);
+Layers.All = Layers.makeExclusiveMask([Layers.Gizmos]);
+Layers.RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.IgnoreRaycast]);
 
 export default Layers;
+cc.Layers = Layers;

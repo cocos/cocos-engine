@@ -212,7 +212,7 @@ CallbacksHandler.prototype = {
             }
         }
     }
-}
+};
 
 /**
  * !#en The callbacks invoker to handle and invoke callbacks by key.
@@ -273,4 +273,4 @@ if (CC_TEST) {
 export {
     CallbacksHandler,
     CallbacksInvoker
-}
+};

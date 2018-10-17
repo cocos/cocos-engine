@@ -356,6 +356,40 @@ export default class Camera {
   }
 
   /**
+   * transform a screen position to a world space ray
+   * @param {number} x the screen x position to be transformed
+   * @param {number} y the screen y position to be transformed
+   * @param {number} width framebuffer width
+   * @param {number} height framebuffer height
+   * @param {ray} out the resulting ray
+   * @returns {Ray} the resulting ray
+   */
+  screenPointToRay(x, y, width, height, out) {
+    out = out || ray.create();
+    this._calcMatrices(width, height);
+
+    let cx = this._rect.x * width;
+    let cy = this._rect.y * height;
+    let cw = this._rect.w * width;
+    let ch = this._rect.h * height;
+
+    // far plane intersection
+    vec3.set(_tmp2_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+    vec3.transformMat4(_tmp2_v3, _tmp2_v3, _matInvViewProj);
+
+    if (this._projection === enums.PROJ_PERSPECTIVE) {
+      // camera origin
+      this._node.getWorldPosition(_tmp_v3);
+    } else {
+      // near plane intersection
+      vec3.set(_tmp_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+      vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
+    }
+
+    return ray.fromPoints(out, _tmp_v3, _tmp2_v3);
+  }
+
+  /**
    * transform a screen position to world space
    * @param {vec3} out the resulting vector
    * @param {vec3} screenPos the screen position to be transformed
@@ -401,40 +435,6 @@ export default class Camera {
   }
 
   /**
-   * transform a screen position to a world space ray
-   * @param {number} x the screen x position to be transformed
-   * @param {number} y the screen y position to be transformed
-   * @param {number} width framebuffer width
-   * @param {number} height framebuffer height
-   * @param {ray} out the resulting ray
-   * @returns {Ray} the resulting ray
-   */
-  screenPointToRay(x, y, width, height, out) {
-    out = out || ray.create();
-    this._calcMatrices(width, height);
-
-    let cx = this._rect.x * width;
-    let cy = this._rect.y * height;
-    let cw = this._rect.w * width;
-    let ch = this._rect.h * height;
-
-    // far plane intersection
-    vec3.set(_tmp2_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
-    vec3.transformMat4(_tmp2_v3, _tmp2_v3, _matInvViewProj);
-
-    if (this._projection === enums.PROJ_PERSPECTIVE) {
-      // camera origin
-      this._node.getWorldPosition(_tmp_v3);
-    } else {
-      // near plane intersection
-      vec3.set(_tmp_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
-      vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
-    }
-
-    return ray.fromPoints(out, _tmp_v3, _tmp2_v3);
-  }
-
-  /**
    * transform a world space position to screen space
    * @param {vec3} out the resulting vector
    * @param {vec3} worldPos the world space position to be transformed
@@ -450,17 +450,10 @@ export default class Camera {
     let cw = this._rect.w * width;
     let ch = this._rect.h * height;
 
-    // calculate w
-    let w =
-      worldPos.x * _matViewProj.m03 +
-      worldPos.y * _matViewProj.m07 +
-      worldPos.z * _matViewProj.m11 +
-      _matViewProj.m15;
-
     vec3.transformMat4(out, worldPos, _matViewProj);
-    out.x = cx + (out.x / w + 1) * 0.5 * cw;
-    out.y = cy + (out.y / w + 1) * 0.5 * ch;
-    out.z = out.z / w * 0.5 + 0.5;
+    out.x = cx + (out.x + 1) * 0.5 * cw;
+    out.y = cy + (out.y + 1) * 0.5 * ch;
+    out.z = out.z * 0.5 + 0.5;
 
     return out;
   }
