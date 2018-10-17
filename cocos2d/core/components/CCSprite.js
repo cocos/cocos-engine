@@ -145,7 +145,7 @@ var State = cc.Enum({
  * !#en Renders a sprite in the scene.
  * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
- * @extends Component
+ * @extends RenderComponent
  * @example
  *  // Create a new node and add sprite components.
  *  var node = new cc.Node("New Sprite");

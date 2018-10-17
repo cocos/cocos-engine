@@ -693,7 +693,7 @@ var properties = {
  * emitter.startSpin = 0;
  *
  * @class ParticleSystem
- * @extends Component
+ * @extends RenderComponent
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
