@@ -24,20 +24,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCRenderTexture');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./CCBufferAsset');
+/**
+ * @class BufferAsset
+ * @extends Asset
+ */
+var BufferAsset = cc.Class({
+    name: 'cc.BufferAsset',
+    extends: cc.Asset,
+
+    ctor () {
+        this._buffer = null;
+    },
+
+    properties: {
+        _nativeAsset: {
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                this._buffer = bin.buffer || bin;
+            },
+            override: true
+        },
+    }
+});
+
+cc.BufferAsset = module.exports = BufferAsset;
