@@ -69,7 +69,7 @@ let Model = cc.Class({
     extends: cc.Asset,
 
     ctor () {
-        this._initedNodes = false;
+        this._nodesInited = false;
     },
 
     properties: {
@@ -81,8 +81,8 @@ let Model = cc.Class({
     },
 
     _initNodes () {
-        if (this._initedNodes) return;
-        this._initedNodes = true;
+        if (this._nodesInited) return;
+        this._nodesInited = true;
 
         let nodes = this._gltf.nodes;
         for (let i = 0; i < nodes.length; i++) {
@@ -239,8 +239,8 @@ let Model = cc.Class({
 
             if (primitive.attributes.POSITION) {
                 let gltfAccessor = accessors[primitive.attributes.POSITION];
-                let minPos = meshAsset._minPos, maxPos = meshAsset._maxPos
-                min = gltfAccessor.min, max = gltfAccessor.max;
+                let minPos = meshAsset._minPos, maxPos = meshAsset._maxPos,
+                    min = gltfAccessor.min, max = gltfAccessor.max;
                 minPos.x = Math.min(minPos.x, min[0]);
                 minPos.y = Math.min(minPos.y, min[1]);
                 minPos.z = Math.min(minPos.z, min[2]);
@@ -257,7 +257,7 @@ let Model = cc.Class({
 
     initAnimationClip (clip) {
         this._initNodes();
-        
+
         let gltf = this._gltf;
         let bin = this._bin;
 

@@ -86,12 +86,12 @@ let Mesh = cc.Class({
         this._minPos = cc.v3();
         this._maxPos = cc.v3();
 
-        this._initedResource = false;
+        this._resourceInited = false;
     },
 
     _initResource () {
-        if (this._initedResource || !this._resource) return;
-        this._initedResource = true;
+        if (this._resourceInited || !this._resource) return;
+        this._resourceInited = true;
         
         this._resource.flush(this);
     },
