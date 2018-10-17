@@ -193,9 +193,6 @@ let ScrollView = cc.Class({
         this._scrollEventEmitMask = 0;
         this._isBouncing = false;
         this._scrolling = false;
-        
-        // content parent object 
-        this._view = undefined;
     },
 
     properties: {
@@ -342,6 +339,15 @@ let ScrollView = cc.Class({
             default: true,
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.cancelInnerEvents'
+        },
+
+        // private object
+        _view: {
+            get: function () {
+                if (this.content) {
+                    return this.content.parent;
+                }
+            }
         }
     },
 
@@ -1536,7 +1542,6 @@ let ScrollView = cc.Class({
 
     onEnable () {
         if (!CC_EDITOR) {
-            this._initView();
             this._registerEvent();
             this.node.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
             this.node.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
@@ -1556,12 +1561,6 @@ let ScrollView = cc.Class({
     update (dt) {
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
-        }
-    },
-
-    _initView () {
-        if (this.content) {
-            this._view = this.content.parent;
         }
     }
 });

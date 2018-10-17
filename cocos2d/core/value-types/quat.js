@@ -140,6 +140,7 @@ proto.getEulerAngles = function (out) {
     out.x = this.getRoll();
     out.y = this.getPitch();
     out.z = this.getYaw();
+    return out;
 }
 
 proto.lerp = function (to, ratio, out) {

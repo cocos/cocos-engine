@@ -1297,11 +1297,10 @@ let NodeDefines = {
             else {
                 math.quat.fromEuler(quat, this._rotationX, this._rotationY, 0);
             }
+            this._rotationX = this._rotationY = undefined;
         }
-        // Update rotation from quaternion
-        else {
-            this._quat.getEulerAngles(this._eulerAngles);
-        }
+        
+        this._quat.getEulerAngles(this._eulerAngles);
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
         // TODO: Remove after final version
@@ -2218,6 +2217,10 @@ let NodeDefines = {
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
+                }
+
+                if (CC_EDITOR) {
+                    old.getEulerAngles(this._eulerAngles);
                 }
             }
         }
