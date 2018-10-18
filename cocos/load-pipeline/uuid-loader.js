@@ -288,7 +288,12 @@ export function loadUuid (item, callback) {
     if (depends.length === 0) {
         return callback(null, asset);
     }
-    loadDepends(this.pipeline, item, asset, depends, callback);
+    loadDepends(this.pipeline, item, asset, depends, (...args)=> {
+        if (asset.onLoad) {
+            asset.onLoad();
+        }
+        callback(...args);
+    });
 }
 
 loadUuid.isSceneObj = isSceneObj;
