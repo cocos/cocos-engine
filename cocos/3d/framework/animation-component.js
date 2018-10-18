@@ -333,7 +333,7 @@ export default class AnimationComponent extends Component {
 
     _preview = false;
 
-    @property({type: Boolean, editorOnly: true})
+    @property({type: Boolean})
     get preview() {
         return this._preview;
     }
