@@ -161,6 +161,7 @@ intersect.rayMesh = (function () {
  * @param {geomUtils.Ray} worldRay
  * @param {Function} handler
  * @param {Function} filter
+ * @return [{node, distance}]
 */
 intersect.raycast = (function () {
     function traversal (node, cb) {
