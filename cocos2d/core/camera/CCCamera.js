@@ -525,7 +525,7 @@ let Camera = cc.Class({
         _vec3_temp_1.y = node._worldMatrix.m13;
         _vec3_temp_1.z = 0;
 
-        node.z = height / 1.1566;
+        node.z = height / (Math.tan(this._fov/2) * 2);
         node.lookAt(_vec3_temp_1);
 
         this._matrixDirty = false;
