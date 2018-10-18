@@ -33,387 +33,366 @@ import { clamp } from "../../core/vmath/utils";
 
 /** 
  * @typedef {import("../framework/skeleton-instance").SkeletonMask} SkeletonMask
- * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
- * @typedef {import("../../scene-graph/node").default} Joint
+ * @typedef {import("../../scene-graph/node").default} Node
  */
 
 let tmpvec3 = vec3.create(0, 0, 0);
 let tmpquat = quat.create();
 
 function _binaryIndexOf(array, key) {
-  let lo = 0;
-  let hi = array.length - 1;
-  let mid;
+    let lo = 0;
+    let hi = array.length - 1;
+    let mid;
 
-  while (lo <= hi) {
-    mid = ((lo + hi) >> 1);
-    let val = array[mid];
+    while (lo <= hi) {
+        mid = ((lo + hi) >> 1);
+        let val = array[mid];
 
-    if (val < key) {
-      lo = mid + 1;
-    } else if (val > key) {
-      hi = mid - 1;
-    } else {
-      return mid;
+        if (val < key) {
+            lo = mid + 1;
+        } else if (val > key) {
+            hi = mid - 1;
+        } else {
+            return mid;
+        }
     }
-  }
 
-  return lo;
+    return lo;
 }
 
-/**
- * @interface
- */
-@ccclass('cc.AnimationResource')
-export class AnimationResource {
-  /**
-   * 
-   * @param {AnimationClip} animationClip 
-   */
-  flush(animationClip) {
+@ccclass('cc.AnimationChannel')
+export class AnimationChannel {
+    /**
+     * Target node's path into virtual hierarchy.
+     * @type {string}
+     */
+    @property
+    target = "";
 
-  }
+    /**
+     * Target node's position animation curve.
+     * @type {cc.Vec3[]}
+     */
+    @property
+    positionCurve = [];
+
+    /**
+     * Target node's scale animation curve.
+     * @type {cc.Vec3[]}
+     */
+    @property
+    scaleCurve = [];
+
+    /**
+     * Target node's rotation animation curve.
+     * @type {cc.Quat[]}
+     */
+    @property
+    rotationCurve = [];
 }
-cc.AnimationResource = AnimationResource;
+cc.AnimationChannel = AnimationChannel;
+
+@ccclass('cc.AnimationFrame')
+export class AnimationFrame {
+    @property
+    _name = "";
+
+    /**
+     * @type {AnimationChannel[]}
+     */
+    @property
+    _channels = [];
+
+    /**
+     * @type {number[]}
+     */
+    @property
+    _times = [];
+
+    get channels() {
+        return this._channels;
+    }
+
+    get times() {
+        return this._times;
+    }
+}
+cc.AnimationFrame = AnimationFrame;
 
 @ccclass('cc.AnimationClip')
 export default class AnimationClip extends Asset {
-  /**
-     * @type {AnimationResource}
-     */
-  @property(AnimationResource)
-  _resource = null;
-
-  get resource() {
-    return this._resource;
-  }
-
-  set resource(value) {
-    this._resource = value;
-    this.flush();
-  }
-
-  constructor() {
-    super();
-
     /**
-     * @type {cc.d3.animation.Frame[]}
+     * @type {AnimationFrame[]}
      */
-    this._framesList = [];
+    @property
+    _frames = [];
 
     /**
      * @type {number}
      */
-    this._length = 0.0;
+    @property
+    _length = 0.0;
 
-    // TODO:
-    // this._events = []
-  }
-
-  /**
-   * 
-   */
-  flush() {
-    this._resource.flush(this);
-  }
-
-  get length() {
-    return this._length;
-  }
-
-  /**
-   * 
-   * @param {SkeletonInstance} skeleton 
-   * @param {number} t 
-   */
-  sample(skeleton, t) {
-    clamp(t, 0, this._length);
-
-    for (let i = 0; i < this._framesList.length; ++i) {
-      let frames = this._framesList[i];
-
-      let idx = 0;
-      if (frames.times.length != 1) {
-        idx = _binaryIndexOf(frames.times, t);
-      }
-      if (idx == 0) {
-        for (let j = 0; j < frames.joints.length; ++j) {
-          let jointFrames = frames.joints[j];
-          let joint = skeleton._nodes[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
-          if (!joint) {
-            continue;
-          }
-
-          if (jointFrames.translations) {
-            joint.setPosition(jointFrames.translations[0]);
-          }
-
-          if (jointFrames.rotations) {
-            joint.setRotation(jointFrames.rotations[0]);
-          }
-
-          if (jointFrames.scales) {
-            joint.setScale(jointFrames.scales[0]);
-          }
-        }
-      } else {
-        let loIdx = Math.max(idx - 1, 0);
-        let hiIdx = Math.min(idx, frames.times.length);
-        let ratio = (t - frames.times[loIdx]) / (frames.times[hiIdx] - frames.times[loIdx]);
-
-        for (let j = 0; j < frames.joints.length; ++j) {
-          let jointFrames = frames.joints[j];
-          let joint = skeleton._nodes[skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id)];
-          if (!joint) {
-            continue;
-          }
-
-          if (jointFrames.translations) {
-            let a = jointFrames.translations[loIdx];
-            let b = jointFrames.translations[hiIdx];
-
-            vec3.lerp(tmpvec3, a, b, ratio);
-            joint.setPosition(tmpvec3);
-          }
-
-          if (jointFrames.rotations) {
-            let a = jointFrames.rotations[loIdx];
-            let b = jointFrames.rotations[hiIdx];
-
-            quat.slerp(tmpquat, a, b, ratio);
-            joint.setRotation(tmpquat);
-          }
-
-          if (jointFrames.scales) {
-            let a = jointFrames.scales[loIdx];
-            let b = jointFrames.scales[hiIdx];
-
-            vec3.lerp(tmpvec3, a, b, ratio);
-            joint.setScale(tmpvec3);
-          }
-        }
-      }
+    get frames() {
+        return this._frames;
     }
 
-    skeleton.updateMatrices();
-  }
-
-  /** Sample data of this animation clip in a specific time and blend that data
-   *  with a weight together with previous data(if exist, or blank if not exists) sampled before.
-   * 
-   * @param {SamplingState} state Records the sampling state.
-   * @param {Number} t The time.
-   * @param {Number} weight The weight.
-   * @param {SkeletonMask} mask The skeleton mask.
-   */
-  blendedSample(state, t, weight, mask) {
-    clamp(t, 0, this._length);
-
-    let isJointMaksed = (iJoint) => {
-      return mask ? mask.isMasked(iJoint) : false;
-    };
-
-    for (let i = 0; i < this._framesList.length; ++i) {
-      let frames = this._framesList[i];
-
-      let idx = 0;
-      if (frames.times.length != 1)
-        idx = _binaryIndexOf(frames.times, t);
-      if (idx == 0) {
-        for (let j = 0; j < frames.joints.length; ++j) {
-          let jointFrames = frames.joints[j];
-          const realJointID = state.skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id);
-          if (isJointMaksed(realJointID)) {
-            continue;
-          }
-
-          let jointState = state._jointStates[realJointID];
-          if (!jointState) {
-            continue;
-          }
-
-          if (jointFrames.translations) {
-            jointState.blendPosition(jointFrames.translations[0], weight);
-          }
-
-          if (jointFrames.rotations) {
-            jointState.blendRotation(jointFrames.rotations[0], weight);
-          }
-
-          if (jointFrames.scales) {
-            jointState.blendScale(jointFrames.scales[0], weight);
-          }
-        }
-      }
-      else {
-        let loIdx = Math.max(idx - 1, 0);
-        let hiIdx = Math.min(idx, frames.times.length);
-        let ratio = (t - frames.times[loIdx]) / (frames.times[hiIdx] - frames.times[loIdx]);
-
-        for (let j = 0; j < frames.joints.length; ++j) {
-          let jointFrames = frames.joints[j];
-          const realJointID = state.skeleton.getJointIndexFromOrignalNodeIndex(jointFrames.id);
-          if (isJointMaksed(realJointID)) {
-            continue;
-          }
-
-          let jointState = state._jointStates[realJointID];
-          if (!jointState) {
-            continue;
-          }
-
-          if (jointFrames.translations) {
-            let a = jointFrames.translations[loIdx];
-            let b = jointFrames.translations[hiIdx];
-
-            vec3.lerp(tmpvec3, a, b, ratio);
-            jointState.blendPosition(tmpvec3, weight);
-          }
-
-          if (jointFrames.rotations) {
-            let a = jointFrames.rotations[loIdx];
-            let b = jointFrames.rotations[hiIdx];
-
-            quat.slerp(tmpquat, a, b, ratio);
-            jointState.blendRotation(tmpquat, weight);
-          }
-
-          if (jointFrames.scales) {
-            let a = jointFrames.scales[loIdx];
-            let b = jointFrames.scales[hiIdx];
-
-            vec3.lerp(tmpvec3, a, b, ratio);
-            jointState.blendScale(tmpvec3, weight);
-          }
-        }
-      }
+    get length() {
+        return this._length;
     }
-  }
+}
+cc.AnimationClip = AnimationClip;
+
+export class AnimationTarget {
+    constructor() {
+        /**
+         * @type {Node[]}
+         */
+        this._nodes = [];
+
+        /**
+         * @type {Map<string, number>}
+         */
+        this._pathMap = new Map();
+    }
+
+    add(path, node) {
+        if (this._pathMap.has(path)) {
+            return;
+        }
+        const index = this._nodes.length;
+        this._nodes.push(node);
+        this._pathMap.set(path, index);
+    }
+
+    get(path) {
+        return this._pathMap.get(path);
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+
+    getDefaultPosition(nodeIndex) {
+        return this._nodes[nodeIndex].getPosition();
+        //return this._defaultPositions[nodeIndex];
+    }
+
+    getDefaultScale(nodeIndex) {
+        return this._nodes[nodeIndex].getScale();
+        //return this._defaultScales[nodeIndex];
+    }
+
+    getDefaultRotation(nodeIndex) {
+        return this._nodes[nodeIndex].getRotation();
+        //return this._defaultRotations[nodeIndex];
+    }
+
+    _saveDefaultTRS() {
+        this._defaultPositions = new Array(this._nodes.length);
+        this._defaultScales = new Array(this._nodes.length);
+        this._defaultRotations = new Array(this._nodes.length);
+        this._nodes.forEach((node, index) => {
+            this._defaultPositions[index] = node.getPosition();
+            this._defaultScales[index] = node.getScale();
+            this._defaultRotations[index] = node.getRotation();
+        });
+    }
 }
 
 /**
- * The SamplingState class represents the progress of blended sampling.
+ * The AnimationTarget class represents the progress of blended sampling.
  */
-export class SamplingState {
-  /**
-   * 
-   * @param {SkeletonInstance} skeleton 
-   */
-  constructor(skeleton) {
+export class AnimationSampler {
     /**
-     * @type {SkeletonInstance}
-     * @ignore
+     * 
+     * @param {AnimationTarget} animationTarget 
      */
-    this._skeleton = skeleton;
+    constructor(animationTarget) {
+        /**
+         * @type {AnimationTarget}
+         */
+        this._animationTarget = animationTarget;
+
+        const targetNodes = this._animationTarget.nodes;
+        /**
+         * @type {NodeSamplingState[]}
+         */
+        this._nodeSamplingStates = new Array(targetNodes.length);
+        this._animationTarget.nodes.forEach((targetNode, index) => {
+            this._nodeSamplingStates[index] = new NodeSamplingState(
+                targetNode,
+                this._animationTarget.getDefaultPosition(index),
+                this._animationTarget.getDefaultScale(index),
+                this._animationTarget.getDefaultRotation(index));
+        });
+    }
 
     /**
-     * @type {SamplingStateJointState[]}
+     * Resets this state to get sampling start.
      */
-    this._jointStates = new Array(skeleton._nodes.length);
-    for (let i = 0; i < this._jointStates.length; ++i)
-      this._jointStates[i] = new SamplingStateJointState(skeleton._nodes[i]);
-  }
+    reset() {
+        this._nodeSamplingStates.forEach(
+            nodeSamlingState => nodeSamlingState.reset());
+    }
 
-  get skeleton() {
-    return this._skeleton;
-  }
+    /**
+     * Updates the sampling result.
+     */
+    apply() {
+        this._nodeSamplingStates.forEach(
+            nodeSamlingState => nodeSamlingState.apply());
+    }
 
-  /**
-   * Resets this state to get sampling start.
-   */
-  reset() {
-    for (let i = 0; i < this._skeleton._nodes.length; ++i)
-      this._jointStates[i].reset();
-  }
+    /** Sample data of this animation clip in a specific time and blend that data
+     *  with a weight together with previous data(if exist, or blank if not exists) sampled before.
+     * 
+     * @param {AnimationClip} clip
+     * @param {Number} t The time.
+     * @param {Number} weight The weight.
+     * @param {SkeletonMask} [mask] The skeleton mask.
+     */
+    sample(clip, t, weight, mask) {
+        t = clamp(t, 0, clip.length);
 
-  /**
-   * Updates the sampling result.
-   */
-  apply() {
-    for (let i = 0; i < this._jointStates.length; ++i)
-      this._jointStates[i].apply();
-    this._skeleton.updateMatrices();
-  }
+        const getState = /** @param {AnimationChannel} [channel] */(channel) => {
+            return this._nodeSamplingStates[this._animationTarget.get(channel.target)];
+        };
+
+        clip.frames.forEach((frame) => {
+            let idx = 0;
+            if (frame.times.length != 1)
+                idx = _binaryIndexOf(frame.times, t);
+            if (idx == 0) {
+                frame.channels.forEach((channel) => {
+                    const nodeSamlingState = getState(channel);
+                    if (!nodeSamlingState) {
+                        return;
+                    }
+                    if (channel.positionCurve.length != 0) {
+                        nodeSamlingState.blendPosition(channel.positionCurve[0], weight);
+                    }
+                    if (channel.rotationCurve.length != 0) {
+                        nodeSamlingState.blendRotation(channel.rotationCurve[0], weight);
+                    }
+                    if (channel.scaleCurve.length != 0) {
+                        nodeSamlingState.blendScale(channel.scaleCurve[0], weight);
+                    }
+                });
+            }
+            else {
+                let loIdx = Math.max(idx - 1, 0);
+                let hiIdx = Math.min(idx, frame.times.length);
+                let ratio = (t - frame.times[loIdx]) / (frame.times[hiIdx] - frame.times[loIdx]);
+
+                frame.channels.forEach((channel) => {
+                    const nodeSamlingState = getState(channel);
+                    if (!nodeSamlingState) {
+                        return;
+                    }
+                    if (channel.positionCurve.length != 0) {
+                        let a = channel.positionCurve[loIdx];
+                        let b = channel.positionCurve[hiIdx];
+                        vec3.lerp(tmpvec3, a, b, ratio);
+                        nodeSamlingState.blendPosition(tmpvec3, weight);
+                    }
+                    if (channel.rotationCurve.length != 0) {
+                        let a = channel.rotationCurve[loIdx];
+                        let b = channel.rotationCurve[hiIdx];
+                        quat.slerp(tmpquat, a, b, ratio);
+                        nodeSamlingState.blendRotation(tmpquat, weight);
+                    }
+                    if (channel.scaleCurve.length != 0) {
+                        let a = channel.scaleCurve[loIdx];
+                        let b = channel.scaleCurve[hiIdx];
+                        vec3.lerp(tmpvec3, a, b, ratio);
+                        nodeSamlingState.blendScale(tmpvec3, weight);
+                    }
+                });
+            }
+        });
+    }
 }
 
-class SamplingStateJointState {
-  constructor(joint) {
+class NodeSamplingState {
     /**
-     * @type {Joint}
+     * 
+     * @param {Node} target
+     * @param {cc.Vec3} defaultPosition
+     * @param {cc.Vec3} defaultScale
+     * @param {cc.Quat} defaultRotation
      */
-    this._joint = joint;
+    constructor(target, defaultPosition, defaultScale, defaultRotation) {
+        /**
+         * @type {Node}
+         */
+        this._target = target;
+
+        /**
+         * @type {cc.Vec3}
+         */
+        this._defaultPosition = defaultPosition;
+
+        /**
+         * @type {cc.Vec3}
+         */
+        this._defaultScale = defaultScale;
+
+        /**
+         * @type {cc.Quat}
+         */
+        this._defaultRotation = defaultRotation;
+    }
+
+    reset() {
+        /**
+         * @type {Number}
+         */
+        this._sumPosWeight = 0.0;
+
+        /**
+         * @type {Number}
+         */
+        this._sumScaleWeight = 0.0;
+
+        /**
+         * @type {Number}
+         */
+        this._sumRotWeight = 0.0;
+        this._target.setPosition(0, 0, 0);
+        this._target.setScale(0, 0, 0);
+        this._target.setRotation(0, 0, 0, 1);
+    }
+
+    blendPosition(pos, weight) {
+        vec3.scaleAndAdd(tmpvec3, this._target._lpos, pos, weight);
+        this._target.setPosition(tmpvec3);
+        this._sumPosWeight += weight;
+    }
+
+    blendScale(scale, weight) {
+        vec3.scaleAndAdd(tmpvec3, this._target._lscale, scale, weight);
+        this._target.setScale(tmpvec3);
+        this._sumScaleWeight += weight;
+    }
 
     /**
-     * @type {vec3}
+     * Inspired by:
+     * https://gamedev.stackexchange.com/questions/62354/method-for-interpolation-between-3-quaternions
      */
-    this._originalPos = joint.getPosition();
+    blendRotation(rot, weight) {
+        let t = weight / (this._sumRotWeight + weight);
+        quat.slerp(tmpquat, this._target._lrot, rot, t);
+        this._target.setRotation(tmpquat);
+        this._sumRotWeight += weight;
+    }
 
-    /**
-     * @type {vec3}
-     */
-    this._originalScale = joint.getScale();
-
-    /**
-     * @type {quat}
-     */
-    this._originalRot = joint.getRotation();
-
-    /**
-     * @type {Number}
-     */
-    this._sumPosWeight = 0.0;
-
-    /**
-     * @type {Number}
-     */
-    this._sumScaleWeight = 0.0;
-
-    /**
-     * @type {Number}
-     */
-    this._sumRotWeight = 0.0;
-  }
-
-  reset() {
-    this._joint.setPosition(0, 0, 0);
-    this._joint.setScale(1, 1, 1);
-    this._joint.setRotation(0, 0, 0, 1);
-    this._sumPosWeight = 0.0;
-    this._sumScaleWeight = 0.0;
-    this._sumRotWeight = 0.0;
-  }
-
-  blendPosition(pos, weight) {
-    vec3.scaleAndAdd(tmpvec3, this._joint._lpos, pos, weight);
-    this._joint.setPosition(tmpvec3);
-    this._sumPosWeight += weight;
-  }
-
-  blendScale(scale, weight) {
-    vec3.scaleAndAdd(tmpvec3, this._joint._lscale, scale, weight);
-    this._joint.setScale(tmpvec3);
-    this._sumScaleWeight += weight;
-  }
-
-  /**
-   * Inspired by:
-   * https://gamedev.stackexchange.com/questions/62354/method-for-interpolation-between-3-quaternions
-   */
-  blendRotation(rot, weight) {
-    let t = weight / (this._sumRotWeight + weight);
-    quat.slerp(tmpquat, this._joint._lrot, rot, t);
-    this._joint.setRotation(tmpquat);
-    this._sumRotWeight += weight;
-  }
-
-  apply() {
-    if (this._sumPosWeight < 1.0)
-      this.blendPosition(this._originalPos, 1.0 - this._sumPosWeight);
-    if (this._sumScaleWeight < 1.0)
-      this.blendScale(this._originalScale, 1.0 - this._sumScaleWeight);
-    if (this._sumRotWeight < 1.0)
-      this.blendRotation(this._originalRot, 1.0 - this._sumRotWeight);
-  }
+    apply() {
+        if (this._sumPosWeight < 1.0)
+            this.blendPosition(this._defaultPosition, 1.0 - this._sumPosWeight);
+        if (this._sumScaleWeight < 1.0)
+            this.blendScale(this._defaultScale, 1.0 - this._sumScaleWeight);
+        if (this._sumRotWeight < 1.0)
+            this.blendRotation(this._defaultRotation, 1.0 - this._sumRotWeight);
+    }
 }
-
-cc.AnimationClip = AnimationClip;

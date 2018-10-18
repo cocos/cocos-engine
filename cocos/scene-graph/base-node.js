@@ -459,6 +459,27 @@ export default class BaseNode extends CCObject {
         return null;
     }
 
+    /**
+     * !#en Returns a child from the container given its path.
+     * !#zh 通过路径获取节点的子节点。
+     * @method getChildByName
+     * @param {String} path - A name to find the child node.
+     * @return {Node} a CCNode object whose name equals to the input parameter
+     * @example
+     * var child = node.getChildByPath("Test Node");
+     */
+    getChildByPath (path) {
+        const segments = path.split('/');
+        let lastNode = this;
+        for (const segment of segments) {
+            lastNode = lastNode.children.find(childNode => childNode.name === segment);
+            if (!lastNode) {
+                break;
+            }
+        }
+        return lastNode;
+    }
+
     // composition: ADD
 
     addChild (child) {

@@ -6,10 +6,10 @@ import renderer from "../../../renderer";
 import { vec3, quat, mat4 } from "../../../core/vmath";
 import Node from "../../../scene-graph/node";
 import { MeshResource } from "../mesh";
-import { AnimationResource } from "../animation-clip";
 import GLTFAsset from "../../../assets/CCGLTFAsset";
 import Skeleton from "../skeleton";
 import { Mat4 } from "../../../core/value-types";
+import AnimationClip, { AnimationFrame, AnimationChannel } from "../animation-clip";
 
 /**
  * @typedef {import("../../../../types/glTF/glTF").GlTf} GLTFFormat
@@ -121,142 +121,6 @@ export class GltfMeshResource extends MeshResource {
 }
 cc.GltfMeshResource = GltfMeshResource;
 
-@ccclass('cc.GltfAnimationResource')
-export class GltfAnimationResource extends AnimationResource {
-    /**
-     * @type {GLTFAsset}
-     */
-    @property(GLTFAsset)
-    gltfAsset = null;
-
-    /**
-     * @type {number}
-     */
-    @property(Number)
-    gltfIndex = -1;
-
-    /**
-     * 
-     * @param {cc.d3.asset.AnimationClip} animationClip 
-     */
-    flush(animationClip) {
-        if (!this.gltfAsset) {
-            return;
-        }
-
-        /** @type GLTFFormat */
-        const gltf = this.gltfAsset.description;
-        if (this.gltfIndex >= gltf.animations.length) {
-            return;
-        }
-
-        const bin = this.gltfAsset.buffers[0].data.buffer;
-        let gltfAnimation = gltf.animations[this.gltfIndex];
-        /** @type {cc.d3.animation.Frame[]} */
-        let framesList = [];
-        let maxLength = -1;
-
-        for (let i = 0; i < gltfAnimation.channels.length; ++i) {
-            let gltfChannel = gltfAnimation.channels[i];
-            if (gltfChannel.target.node === undefined) {
-                // When node isn't defined, channel should be ignored.
-                continue;
-            }
-            let gltfSampler = gltfAnimation.samplers[gltfChannel.sampler];
-            let inputAcc = gltf.accessors[gltfSampler.input];
-
-            // find frames by input name
-            /** @type {cc.d3.animation.Frame} */
-            let frames;
-            for (let j = 0; j < framesList.length; ++j) {
-                if (framesList[j].name === inputAcc.name) {
-                    frames = framesList[j];
-                    break;
-                }
-            }
-
-            // if not found, create one
-            if (!frames) {
-                let inArray = _createArray(gltf, bin, gltfSampler.input);
-                /** @type {number[]} */
-                let inputs = new Array(inArray.length);
-                for (let i = 0; i < inArray.length; ++i) {
-                    let t = inArray[i];
-                    inputs[i] = t;
-
-                    if (maxLength < t) {
-                        maxLength = t;
-                    }
-                }
-
-                frames = {
-                    name: inputAcc.name,
-                    times: inputs,
-                    joints: [],
-                };
-                framesList.push(frames);
-            }
-
-            // find output frames by node id
-            /** @type {cc.d3.animation.JointFrame} */
-            let jointFrames;
-            for (let j = 0; j < frames.joints.length; ++j) {
-                if (frames.joints[j].id === gltfChannel.target.node) {
-                    jointFrames = frames.joints[j];
-                    break;
-                }
-            }
-
-            // if not found, create one
-            if (!jointFrames) {
-                jointFrames = {
-                    id: gltfChannel.target.node
-                };
-                frames.joints.push(jointFrames);
-            }
-
-            let outArray = _createArray(gltf, bin, gltfSampler.output);
-            if (gltfChannel.target.path === 'translation') {
-                let cnt = outArray.length / 3;
-                jointFrames.translations = new Array(cnt);
-                for (let i = 0; i < cnt; ++i) {
-                    jointFrames.translations[i] = vec3.create(
-                        outArray[3 * i + 0],
-                        outArray[3 * i + 1],
-                        outArray[3 * i + 2]
-                    );
-                }
-            } else if (gltfChannel.target.path === 'rotation') {
-                let cnt = outArray.length / 4;
-                jointFrames.rotations = new Array(cnt);
-                for (let i = 0; i < cnt; ++i) {
-                    jointFrames.rotations[i] = quat.create(
-                        outArray[4 * i + 0],
-                        outArray[4 * i + 1],
-                        outArray[4 * i + 2],
-                        outArray[4 * i + 3]
-                    );
-                }
-            } else if (gltfChannel.target.path === 'scale') {
-                let cnt = outArray.length / 3;
-                jointFrames.scales = new Array(cnt);
-                for (let i = 0; i < cnt; ++i) {
-                    jointFrames.scales[i] = vec3.create(
-                        outArray[3 * i + 0],
-                        outArray[3 * i + 1],
-                        outArray[3 * i + 2]
-                    );
-                }
-            }
-        }
-
-        animationClip.name = gltfAnimation.name;
-        animationClip._framesList = framesList;
-        animationClip._length = maxLength;
-    }
-}
-cc.GltfAnimationResource = GltfAnimationResource;
-
 const _type2size = {
     SCALAR: 1,
     VEC2: 2,
@@ -317,7 +181,7 @@ export function createNodes(gltfNodes) {
     let nodes = new Array(gltfNodes.length);
 
     for (let i = 0; i < gltfNodes.length; ++i) {
-        let node = _createNode(gltfNodes[i]);
+        let node = createNode(gltfNodes[i]);
         nodes[i] = node;
     }
 
@@ -395,8 +259,9 @@ export function createEntities(app, gltfNodes) {
  * @param {GLTFFormat} gltf
  * @param {Buffer[]} buffers
  * @param {number} index
+ * @param {string[]} nodePathTable
  */
-export function createSkeleton(gltf, buffers, index) {
+export function createSkeleton(gltf, buffers, nodePathTable, index) {
     if (!gltf.skins || index >= gltf.skins.length) {
         return;
     }
@@ -406,7 +271,7 @@ export function createSkeleton(gltf, buffers, index) {
     if (gltf.nodes) {
         nodes = new Array(gltf.nodes.length);
         gltf.nodes.forEach((gltfNode, index) => {
-            nodes[index] = _createNode(gltfNode);
+            nodes[index] = createNode(gltfNode);
         });
         gltf.nodes.forEach((gltfNode, index) => {
             if (gltfNode.children) {
@@ -421,10 +286,7 @@ export function createSkeleton(gltf, buffers, index) {
     const gltfSkin = gltf.skins[index];
     const skeleton = new Skeleton();
     skeleton.name = gltfSkin.name;
-    const rootIndex = gltfSkin.skeleton === undefined ? 0 : gltfSkin.skeleton;
-    skeleton._nodes = nodes;
-    skeleton._skeleton = rootIndex;
-    skeleton._jointIndices = gltfSkin.joints.concat([]);
+    skeleton._joints = gltfSkin.joints.map(nodeIndex => nodePathTable[nodeIndex]);
     // extract bindposes mat4 data
     let accessor = gltf.accessors[gltfSkin.inverseBindMatrices];
     let bufView = gltf.bufferViews[accessor.bufferView];
@@ -443,13 +305,118 @@ export function createSkeleton(gltf, buffers, index) {
 }
 
 /**
+ * @param {GLTFFormat} gltf
+ * @param {Buffer[]} buffers
+ * @param {number} index
+ * @param {string[]} nodePathTable
+ */
+export function createAnimation(gltf, buffers, nodePathTable, index) {
+    if (!gltf.animations || index >= gltf.animations.length) {
+        return;
+    }
+
+    const bin = buffers[0].buffer;
+
+    /** @type {AnimationFrame[]} */
+    let frames = [];
+    let maxLength = -1;
+
+    let gltfAnimation = gltf.animations[index];
+    gltfAnimation.channels.forEach(gltfChannel => {
+        if (gltfChannel.target.node === undefined) {
+            // When node isn't defined, channel should be ignored.
+            return;
+        }
+
+        let gltfSampler = gltfAnimation.samplers[gltfChannel.sampler];
+        let inputAcc = gltf.accessors[gltfSampler.input];
+
+        // find frame by input name
+        /** @type {AnimationFrame} */
+        let frame = frames.find((frame) => frame._name === inputAcc.name);
+
+        // if not found, create one
+        if (!frame) {
+            let inArray = _createArray(gltf, bin, gltfSampler.input);
+            /** @type {number[]} */
+            let inputs = new Array(inArray.length);
+            for (let i = 0; i < inArray.length; ++i) {
+                let t = inArray[i];
+                inputs[i] = t;
+
+                if (maxLength < t) {
+                    maxLength = t;
+                }
+            }
+
+            frame = new AnimationFrame();
+            frame._name = inputAcc.name;
+            frame._times = inputs;
+            frame._channels = [];
+            frames.push(frame);
+        }
+
+        // find output frames by node id
+        /** @type {AnimationChannel} */
+        let channel = frame._channels.find((channel) => channel.target ===  nodePathTable[gltfChannel.target.node]);
+
+        // if not found, create one
+        if (!channel) {
+            channel = new AnimationChannel();
+            channel.target = nodePathTable[gltfChannel.target.node];
+            frame._channels.push(channel);
+        }
+
+        let outArray = _createArray(gltf, bin, gltfSampler.output);
+        if (gltfChannel.target.path === 'translation') {
+            let cnt = outArray.length / 3;
+            channel.positionCurve = new Array(cnt);
+            for (let i = 0; i < cnt; ++i) {
+                channel.positionCurve[i] = new cc.Vec3(
+                    outArray[3 * i + 0],
+                    outArray[3 * i + 1],
+                    outArray[3 * i + 2]
+                );
+            }
+        } else if (gltfChannel.target.path === 'rotation') {
+            let cnt = outArray.length / 4;
+            channel.rotationCurve = new Array(cnt);
+            for (let i = 0; i < cnt; ++i) {
+                channel.rotationCurve[i] = new cc.Quat(
+                    outArray[4 * i + 0],
+                    outArray[4 * i + 1],
+                    outArray[4 * i + 2],
+                    outArray[4 * i + 3]
+                );
+            }
+        } else if (gltfChannel.target.path === 'scale') {
+            let cnt = outArray.length / 3;
+            channel.scaleCurve = new Array(cnt);
+            for (let i = 0; i < cnt; ++i) {
+                channel.scaleCurve[i] = new cc.Vec3(
+                    outArray[3 * i + 0],
+                    outArray[3 * i + 1],
+                    outArray[3 * i + 2]
+                );
+            }
+        }
+    });
+
+    const animationClip = new AnimationClip();
+    animationClip.name = gltfAnimation.name;
+    animationClip._frames = frames;
+    animationClip._length = maxLength;
+    return animationClip;
+}
+
+/**
  * 
  * @param {GLTFFormat} gltf 
  * @param {number} index 
  */
 function _createNodeRecursive(gltf, index) {
     let gltfNode = gltf.nodes[index];
-    let node = _createNode(gltfNode);
+    let node = createNode(gltfNode);
     if (gltfNode.children) {
         gltfNode.children.forEach((childGLTFNode) => {
             let childNode = _createNodeRecursive(gltf, childGLTFNode);
@@ -463,7 +430,7 @@ function _createNodeRecursive(gltf, index) {
  * 
  * @param {GLTFNode} gltfNode
  */
-function _createNode(gltfNode) {
+export function createNode(gltfNode) {
     let node = new Node(gltfNode.name);
 
     if (gltfNode.translation) {
@@ -491,4 +458,36 @@ function _createNode(gltfNode) {
         );
     }
     return node;
+}
+
+/**
+ * 
+ * @param {GLTFFormat} gltf 
+ */
+export function createNodePathTable(gltf) {
+    if (!gltf.nodes) {
+        return [];
+    }
+
+    /** @type {string[]} */
+    const result = new Array(gltf.nodes.length);
+    result.fill("");
+    gltf.nodes.forEach((gltfNode, nodeIndex) => {
+        const myPath = result[nodeIndex] + gltfNode.name;
+        result[nodeIndex] = myPath;
+        if (gltfNode.children) {
+            gltfNode.children.forEach(childNodeIndex => {
+                const childPath = result[childNodeIndex];
+                result[childNodeIndex] = `${myPath}/${childPath}`;
+            });
+        }
+    });
+    // Remove root segment
+    result.forEach((path, index) => {
+        let segments = path.split('/');
+        segments.shift();
+        result[index] = segments.join('/');
+    });
+
+    return result;
 }

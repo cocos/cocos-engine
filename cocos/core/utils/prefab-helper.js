@@ -24,31 +24,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { _decorator } from "../data/index";
+const { ccclass, property } = _decorator;
 import * as math from '../vmath';
 
-cc._PrefabInfo = cc.Class({
-    name: 'cc.PrefabInfo',
-    // extends: require('../platform/CCObject'),
-    properties: {
-        // the most top node of this prefab in the scene
-        root: null,
+@ccclass("cc.PrefabInfo")
+export class PrefabInfo {
+    // the most top node of this prefab in the scene
+    @property
+    root = null;
 
-        // 所属的 prefab 资源对象 (cc.Prefab)
-        // In Editor, only asset._uuid is usable because asset will be changed.
-        asset: null,
+    // 所属的 prefab 资源对象 (cc.Prefab)
+    // In Editor, only asset._uuid is usable because asset will be changed.
+    @property
+    asset = null;
 
-        // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
-        fileId: '',
+    // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
+    @property
+    fileId = '';
 
-        // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
-        sync: false,
+    // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
+    @property
+    sync = false;
 
-        // Indicates whether this node is synchronized, only available in the root node
-        _synced: {
-            default: false,
-            serializable: false
-        },
-    },
+    // Indicates whether this node is synchronized, only available in the root node
+    @property
+    _synced = {
+        default: false,
+        serializable: false
+    };
+
     // _instantiate (cloned) {
     //     if (!cloned) {
     //         cloned = new cc._PrefabInfo();
@@ -60,7 +65,9 @@ cc._PrefabInfo = cc.Class({
     //     cloned._synced = this._synced;
     //     return cloned;
     // }
-});
+}
+
+cc._PrefabInfo = PrefabInfo;
 
 // update node to make it sync with prefab
 export default function syncWithPrefab (node) {

@@ -25,7 +25,7 @@
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { ccclass, property, menu } from '../../core/data/class-decorator';
+import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import RenderableComponent from './renderable-component';
@@ -87,6 +87,8 @@ let ModelShadowCastingMode = Enum({
  * @extends RenderableComponent
  */
 @ccclass('cc.ModelComponent')
+@executionOrder(100)
+@executeInEditMode
 @menu('Components/ModelComponent')
 export default class ModelComponent extends RenderableComponent {
     @property
@@ -180,6 +182,18 @@ export default class ModelComponent extends RenderableComponent {
          * @type {Model[]}
          */
         this._models = [];
+    }
+
+    onLoad() {
+        this._updateModels();
+        this._updateCastShadow();
+        this._updateReceiveShadow();
+
+        /** @type {import("../../../engine/cocos/3d/assets/material").default} */
+        let mtl = new cc.Material();
+        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
+        this.material = mtl;
     }
 
     onEnable() {

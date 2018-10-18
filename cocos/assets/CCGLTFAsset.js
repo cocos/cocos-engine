@@ -25,7 +25,6 @@
 //@ts-check
 import { _decorator } from "../core/data/index";
 const { ccclass, property } = _decorator;
-import JsonAsset from "./CCJsonAsset";
 import BufferAsset from "./CCBufferAsset";
 import Asset from "./CCAsset";
 

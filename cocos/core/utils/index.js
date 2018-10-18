@@ -26,6 +26,7 @@
 
 import './js';
 import './path';
+import './prefab-helper';
 
 export const js = cc.js;
 export const path = cc.path;
