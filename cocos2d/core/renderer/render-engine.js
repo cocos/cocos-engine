@@ -11316,13 +11316,12 @@ Camera.prototype.screenToWorld = function screenToWorld (out, screenPos, width, 
 
     //
     this._node.getWorldPos(_tmp_v3);
-    vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
+    vec3.lerp(out, _tmp_v3, out, cc.vmath.lerp(this._near / this._far, 1, screenPos.z));
   } else {
-    var range = this._farClip - this._nearClip;
     vec3.set(out,
       (screenPos.x - cx) * 2.0 / cw - 1.0,
-      (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
-      (this._far - screenPos.z) / range * 2.0 - 1.0
+      (screenPos.y - cy) * 2.0 / ch - 1.0,
+      screenPos.z * 2 - 1
     );
 
     // transform to world

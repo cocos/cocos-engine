@@ -39,6 +39,7 @@ let _mat4_temp_2 = mat4.create();
 
 let _v3_temp_1 = vec3.create();
 let _v3_temp_2 = vec3.create();
+let _v3_temp_3 = vec3.create();
 
 let _cameras = [];
 
@@ -126,7 +127,7 @@ let Camera = cc.Class({
         _nearClip: 0.1,
         _farClip: 4096,
         _ortho: false,
-        _rect: cc.rect(0,0,1,1),
+        _rect: cc.rect(0, 0, 1, 1),
 
         /**
          * !#en
@@ -400,7 +401,7 @@ let Camera = cc.Class({
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
             let camera = new renderEngine.Camera();
             _debugCamera = camera;
-            
+
             camera.setStages([
                 'transparent'
             ]);
@@ -416,7 +417,7 @@ let Camera = cc.Class({
             camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
             camera._sortDepth = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
-            camera.setColor(0,0,0,0);
+            camera.setColor(0, 0, 0, 0);
 
             let node = new cc.Node();
             camera.setNode(node);
@@ -438,7 +439,7 @@ let Camera = cc.Class({
 
     _updateBackgroundColor () {
         if (!this._camera) return;
-        
+
         let color = this._backgroundColor;
         this._camera.setColor(
             color.r / 255,
@@ -459,7 +460,7 @@ let Camera = cc.Class({
         if (!this._camera) return;
 
         let fov = this._fov * cc.macro.RAD;
-        fov = Math.atan(Math.tan(fov/2) / this.zoomRatio)*2;
+        fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
         this._camera.setFov(fov);
     },
 
@@ -630,14 +631,22 @@ let Camera = cc.Class({
      * !#zh
      * 从屏幕坐标获取一条射线
      * @method getRay
-     * @param {Vec3} screenPos 
+     * @param {Vec2} screenPos 
      * @return {Ray}
      */
     getRay (screenPos) {
-        this.node.getWorldPos(_v3_temp_1);
-        this._camera.screenToWorld(_v3_temp_2, screenPos, cc.visibleRect.width, cc.visibleRect.height);
-        vec3.sub(_v3_temp_2, _v3_temp_2, _v3_temp_1);
-        return ray.create(_v3_temp_1.x, _v3_temp_1.y, _v3_temp_1.z, _v3_temp_2.x, _v3_temp_2.y, _v3_temp_2.z);
+        vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
+        this._camera.screenToWorld(_v3_temp_2, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
+
+        if (this.ortho) {
+            vec3.set(_v3_temp_3, screenPos.x, screenPos.y, -1);
+            this._camera.screenToWorld(_v3_temp_1, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
+        }
+        else {
+            this.node.getWorldPos(_v3_temp_1);
+        }
+
+        return ray.fromPoints(ray.create(), _v3_temp_1, _v3_temp_2);
     },
 
     /**
@@ -672,10 +681,10 @@ let Camera = cc.Class({
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 
-    beforeDraw: function () {
+    beforeDraw () {
         let node = this.node;
         let camera = this._camera;
-        
+
         if (!node._is3DNode) {
             let height = cc.game.canvas.height / cc.view._scaleY;
 
@@ -684,7 +693,7 @@ let Camera = cc.Class({
                 height = targetTexture.height;
             }
 
-            node.z = height / (Math.tan( this._camera._fov/2) * 2);
+            node.z = height / (Math.tan(this._camera._fov / 2) * 2);
         }
 
         camera.dirty = true;

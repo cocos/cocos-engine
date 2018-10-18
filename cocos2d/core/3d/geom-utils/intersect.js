@@ -188,7 +188,7 @@ intersect.raycast = (function () {
         return out;
     }
 
-    let results = new RecyclePool(function () {
+    let resultsPool = new RecyclePool(function () {
         return {
             distance: 0,
             node: null
@@ -201,23 +201,26 @@ intersect.raycast = (function () {
     let maxPos = vec3.create();
 
     let modelRay = ray.create();
-    let m4 = mat4.create();
+    let m4_1 = mat4.create();
+    let m4_2 = mat4.create();
+    let d = vec3.create();
 
     function distanceValid (distance) {
         return distance > 0 && distance < Infinity;
     }
 
     return function (root, worldRay, handler, filter) {
-        results.reset();
+        resultsPool.reset();
+        let results = [];
 
         root = root || cc.director.getScene();
         traversal(root, function (node) {
             if (filter && !filter(node)) return;
 
             // transform world ray to model ray
-            mat4.invert(m4, node.getWorldMatrix(m4));
-            vec3.transformMat4(modelRay.o, worldRay.o, m4);
-            vec3.normalize(modelRay.d, transformMat4Normal(modelRay.d, worldRay.d, m4));
+            mat4.invert(m4_2, node.getWorldMatrix(m4_1));
+            vec3.transformMat4(modelRay.o, worldRay.o, m4_2);
+            vec3.normalize(modelRay.d, transformMat4Normal(modelRay.d, worldRay.d, m4_2));
 
             // raycast with bounding box
             let distance = Infinity;
@@ -239,9 +242,12 @@ intersect.raycast = (function () {
             }
 
             if (distanceValid(distance)) {
-                let res = results.add();
+                vec3.set(d, distance, 0, 0);
+                transformMat4Normal(d, d, m4_1);
+                let res = resultsPool.add();
                 res.node = node;
-                res.distance = distance;
+                res.distance = cc.vmath.vec3.length(d);
+                results.push(res);
             }
         });
 
