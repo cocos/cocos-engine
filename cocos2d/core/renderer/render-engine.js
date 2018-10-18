@@ -11361,16 +11361,10 @@ Camera.prototype.worldToScreen = function worldToScreen (out, worldPos, width, h
   // view-projection
   mat4.mul(_matViewProj, _matProj, _matView);
 
-  // calculate w
-  var w =
-    worldPos.x * _matViewProj.m03 +
-    worldPos.y * _matViewProj.m07 +
-    worldPos.z * _matViewProj.m11 +
-    _matViewProj.m15;
-
   vec3.transformMat4(out, worldPos, _matViewProj);
-  out.x = cx + (out.x / w + 1) * 0.5 * cw;
-  out.y = cy + (out.y / w + 1) * 0.5 * ch;
+  out.x = cx + (out.x + 1) * 0.5 * cw;
+  out.y = cy + (out.y + 1) * 0.5 * ch;
+  out.z = out.z * 0.5 + 0.5;
 
   return out;
 };
