@@ -30,8 +30,9 @@
 //  Created by James Chen on 5/15/17.
 //
 //
-
+#include "base/ccConfig.h"
 #include "jsb_xmlhttprequest.hpp"
+#if (USE_NET_WORK > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -1026,3 +1027,4 @@ bool register_all_xmlhttprequest(se::Object* global)
 
     return true;
 }
+#endif //#if (USE_NET_WORK > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

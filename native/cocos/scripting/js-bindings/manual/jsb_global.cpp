@@ -796,6 +796,7 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
     size_t pos = std::string::npos;
     if (path.find("http://") == 0 || path.find("https://") == 0)
     {
+#if USE_NET_WORK
         auto request = new cocos2d::network::HttpRequest();
         request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
         request->setUrl(path);
@@ -815,6 +816,9 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
         });
         cocos2d::network::HttpClient::getInstance()->send(request);
         request->release();
+#else
+        SE_REPORT_ERROR("can't load remote image if you disable network module!");
+#endif // USE_NET_WORK
     }
     else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
     {

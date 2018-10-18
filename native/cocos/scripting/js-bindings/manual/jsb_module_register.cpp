@@ -23,20 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#define USE_VIDEO 1
-#define USE_WEBVIEW 1
-#define USE_AUDIO 1
-#define USE_NET_WORK 1
-
-#define USE_GFX_RENDERER 0
-
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
@@ -46,12 +35,18 @@
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 
+
+
 #if USE_GFX_RENDERER
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_renderer_manual.hpp"
 #endif
 
 #if USE_NET_WORK
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_websocket.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_socketio.hpp"
@@ -66,7 +61,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
 #endif
 
-#if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 #include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
 #endif
 
@@ -137,7 +132,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_video);
 #endif
 
-#if USE_WEBVIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     se->addRegisterCallback(register_all_webview);
 #endif
 

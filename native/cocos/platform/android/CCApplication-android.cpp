@@ -73,13 +73,13 @@ Application::~Application()
 {
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
-    // close audio device
-    cocos2d::experimental::AudioEngine::end();
-    
     delete _renderTexture;
     _renderTexture = nullptr;
 
+#if USE_AUDIO // close audio device
+    cocos2d::experimental::AudioEngine::end();
+#endif
+    
     Application::_instance = nullptr;
 }
 

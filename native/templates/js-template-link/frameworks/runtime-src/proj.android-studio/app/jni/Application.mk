@@ -10,6 +10,21 @@ APP_LDFLAGS := -latomic
 APP_SHORT_COMMANDS := true
 
 USE_ARM_MODE := 1
+
+# MUST be careful to modify this manually
+# disable module will speed up compile time, and reduce package size
+USE_GFX_RENDERER := 0
+USE_VIDEO := 1
+USE_WEB_VIEW := 1
+USE_AUDIO := 1
+USE_NET_WORK := 1
+
+APP_CPPFLAGS += -DUSE_GFX_RENDERER=$(USE_GFX_RENDERER)
+APP_CPPFLAGS += -DUSE_VIDEO=${USE_VIDEO}
+APP_CPPFLAGS += -DUSE_WEB_VIEW=${USE_WEB_VIEW}
+APP_CPPFLAGS += -DUSE_AUDIO=${USE_AUDIO}
+APP_CPPFLAGS += -DUSE_NET_WORK=${USE_NET_WORK}
+
 USE_ANY_SDK := 1
 
 ifeq ($(USE_ANY_SDK),1)

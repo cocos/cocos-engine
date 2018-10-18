@@ -1,5 +1,6 @@
 #pragma once
 #include "base/ccConfig.h"
+#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
@@ -130,3 +131,4 @@ SE_DECLARE_FUNC(js_gfx_Program_init);
 SE_DECLARE_FUNC(js_gfx_Program_link);
 SE_DECLARE_FUNC(js_gfx_Program_Program);
 
+#endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
