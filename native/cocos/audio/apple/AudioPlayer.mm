@@ -42,7 +42,6 @@
 #endif
 
 using namespace cocos2d;
-using namespace cocos2d::experimental;
 
 namespace {
 unsigned int __idIndex = 0;

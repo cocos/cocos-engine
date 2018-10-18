@@ -29,11 +29,11 @@ THE SOFTWARE.
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
 
-namespace cocos2d { namespace experimental {
+namespace cocos2d {
 
 int getSDKVersion()
 {
     return JniHelper::callStaticIntMethod(JCLS_HELPER, "getSDKVersion");
 }
 
-}} // end of namespace cocos2d { namespace experimental
+} // end of namespace cocos2d

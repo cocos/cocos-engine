@@ -228,9 +228,6 @@ Application::~Application()
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
-    // close audio device
-    cocos2d::experimental::AudioEngine::end();
     
     // stop main loop
     [(MainLoop*)_delegate stopMainLoop];
@@ -239,6 +236,10 @@ Application::~Application()
     
     delete _renderTexture;
     _renderTexture = nullptr;
+
+#if USE_AUDIO // close audio device
+    AudioEngine::end();
+#endif
 
     Application::_instance = nullptr;
 }

@@ -38,8 +38,6 @@
 #include "audio/apple/AudioMacros.h"
 
 NS_CC_BEGIN
-namespace experimental{
-
 class AudioEngineImpl;
 class AudioPlayer;
 
@@ -110,7 +108,6 @@ protected:
     friend class AudioPlayer;
 };
 
-}
 NS_CC_END
 
 #endif

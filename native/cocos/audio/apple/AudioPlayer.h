@@ -38,8 +38,6 @@
 #include <OpenAL/al.h>
 
 NS_CC_BEGIN
-namespace experimental{
-
 class AudioCache;
 class AudioEngineImpl;
 
@@ -91,7 +89,6 @@ protected:
     friend class AudioEngineImpl;
 };
 
-}
 NS_CC_END
 
 #endif

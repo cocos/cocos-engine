@@ -110,7 +110,6 @@ static void setTimeout(double seconds, const std::function<void()>& cb)
 }
 
 using namespace cocos2d;
-using namespace cocos2d::experimental;
 
 AudioCache::AudioCache()
 : _format(-1)

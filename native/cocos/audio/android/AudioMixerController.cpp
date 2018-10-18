@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 #include <algorithm>
 
-namespace cocos2d { namespace experimental {
+namespace cocos2d { 
 
 AudioMixerController::AudioMixerController(int bufferSizeInFrames, int sampleRate, int channelCount)
         : _bufferSizeInFrames(bufferSizeInFrames)
@@ -347,4 +347,4 @@ bool AudioMixerController::hasPlayingTacks()
     return false;
 }
 
-}} // namespace cocos2d { namespace experimental {
+} // namespace cocos2d { 
