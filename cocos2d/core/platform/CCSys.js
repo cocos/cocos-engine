@@ -346,6 +346,12 @@ sys.WECHAT_GAME = 104;
  * @default 105
  */
 sys.QQ_PLAY = 105;
+/**
+ * @property {Number} FB_PLAYABLE_ADS
+ * @readOnly
+ * @default 106
+ */
+sys.FB_PLAYABLE_ADS = 106;
 
 /**
  * BROWSER_TYPE_WECHAT
@@ -660,6 +666,9 @@ else {
     if (CC_EDITOR) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
+    } 
+    else if (CC_FB_PLAYABLE_ADS) {
+        sys.platform = sys.FB_PLAYABLE_ADS;
     }
     else {
         /**

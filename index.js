@@ -112,6 +112,9 @@
 /**
  * @property {Boolean} CC_QQPLAY - Running in the bricks.
  */
+/**
+ * @property {Boolean} CC_FB_PLAYABLE_ADS - Running in the Facebook Playable Ads.
+ */
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
@@ -136,6 +139,7 @@ defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
 defineMacro('CC_QQPLAY', false);
+defineMacro('CC_FB_PLAYABLE_ADS', defined('FbPlayableAd'));
 defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY));
 
 // PREDEFINE
