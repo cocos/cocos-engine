@@ -25,7 +25,7 @@
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { ccclass, property, menu } from '../../core/data/class-decorator';
+import { ccclass, property, menu, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import RenderableComponent from './renderable-component';
@@ -88,6 +88,7 @@ let ModelShadowCastingMode = Enum({
  */
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')
+@executeInEditMode
 export default class ModelComponent extends RenderableComponent {
     @property
     _materials = [];

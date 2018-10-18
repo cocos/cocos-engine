@@ -40,7 +40,7 @@ var idGenerator = new IdGenerator('Node');
 
 function getConstructor(typeOrClassName) {
     if (!typeOrClassName) {
-        // cc.errorID(3804);
+        cc.errorID(3804);
         return null;
     }
     if (typeof typeOrClassName === 'string') {

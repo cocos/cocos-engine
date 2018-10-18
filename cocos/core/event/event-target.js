@@ -213,6 +213,19 @@ js.mixin(EventTarget.prototype, {
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
+
+    /**
+     * !#en
+     * Send an event with the event object.
+     * !#zh
+     * 通过事件对象派发事件
+     *
+     * @method dispatchEvent
+     * @param {Event} event
+     */
+    dispatchEvent (event) {
+        this.invoke(event.type, event);
+    }
 });
 
 cc.EventTarget = EventTarget;
