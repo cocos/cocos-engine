@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
-import { ccclass, property, menu } from '../../core/data/class-decorator';
+import { ccclass, property, menu, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import RenderableComponent from './renderable-component';
@@ -88,9 +87,8 @@ let ModelShadowCastingMode = Enum({
  */
 @ccclass('cc.ModelComponent')
 @menu('Components/ModelComponent')
+@executeInEditMode
 export default class ModelComponent extends RenderableComponent {
-    @property
-    _materials = [];
 
     /**
      * @type {Mesh}
@@ -103,22 +101,6 @@ export default class ModelComponent extends RenderableComponent {
 
     @property
     _receiveShadows = false;
-
-    /**
-     * !#en The material of the model
-     *
-     * !#ch 模型材质
-     * @type {Material[]}
-     */
-    @property
-    get materials() {
-        return this._materials;
-    }
-
-    set materials(val) {
-        this._materials = val;
-        this._updateModelParams();
-    }
 
     /**
      * !#en The mesh of the model
@@ -180,6 +162,15 @@ export default class ModelComponent extends RenderableComponent {
          * @type {Model[]}
          */
         this._models = [];
+    }
+
+    onLoad() {
+        if (this.mesh == null) {
+            this.mesh = cc.game._builtins['builtin-cube'];
+            let mtl = new cc.Material();
+            mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+            this.material = mtl;
+        }
     }
 
     onEnable() {
@@ -272,7 +263,7 @@ export default class ModelComponent extends RenderableComponent {
         }
         return mat;
     }
-    
+
      _onMaterialModified(idx, mat) {
         this._models[idx].setEffect(mat.effectInst);
     }

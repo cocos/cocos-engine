@@ -27,7 +27,7 @@ import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
-import { Color, Enum } from '../../core/value-types';
+import { Color, Enum, Rect } from '../../core/value-types';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
@@ -70,6 +70,7 @@ let CameraProjection = Enum({
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
+@executeInEditMode
 export default class CameraComponent extends RenderSystemActor{
     @property
     _projection = CameraProjection.Perspective;
@@ -102,7 +103,7 @@ export default class CameraComponent extends RenderSystemActor{
     _clearFlags = 3;
 
     @property
-    _rect = [0, 0, 1, 1];
+    _rect = new Rect(0, 0, 1, 1);
 
     /**
      * !#en The projection type of the camera
@@ -121,7 +122,7 @@ export default class CameraComponent extends RenderSystemActor{
         this._projection = val;
 
         let type = renderer.PROJ_PERSPECTIVE;
-        if (this._projection === 'ortho') {
+        if (this._projection === CameraProjection.Ortho) {
             type = renderer.PROJ_ORTHO;
         }
         this._camera.setType(type);
@@ -275,7 +276,7 @@ export default class CameraComponent extends RenderSystemActor{
      * !#en The screen rect of the camera
      *
      * !#ch 相机的屏幕矩形
-     * @type {Array}
+     * @type {Rect}
      */
     @property
     get rect() {
@@ -284,7 +285,7 @@ export default class CameraComponent extends RenderSystemActor{
 
     set rect(val) {
         this._rect = val;
-        this._camera.setRect(val[0], val[1], val[2], val[3]);
+        this._camera.setRect(val.x, val.y, val.width, val.height);
     }
 
     static Projection = CameraProjection;
