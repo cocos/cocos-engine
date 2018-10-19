@@ -196,6 +196,8 @@ intersect.raycast = (function () {
         }
     }, 1);
 
+    let results = [];
+
     // temp variable
     let nodeAabb = aabb.create();
     let minPos = vec3.create();
@@ -212,7 +214,7 @@ intersect.raycast = (function () {
 
     return function (root, worldRay, handler, filter) {
         resultsPool.reset();
-        let results = [];
+        results.length = 0;
 
         root = root || cc.director.getScene();
         traversal(root, function (node) {
