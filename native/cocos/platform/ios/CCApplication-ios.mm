@@ -223,8 +223,10 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
-    [(CCEAGLView*)_view release];
-    _view = nullptr;
+
+#if USE_AUDIO
+    AudioEngine::end();
+#endif
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
@@ -234,12 +236,11 @@ Application::~Application()
     [(MainLoop*)_delegate release];
     _delegate = nullptr;
     
+    [(CCEAGLView*)_view release];
+    _view = nullptr;
+
     delete _renderTexture;
     _renderTexture = nullptr;
-
-#if USE_AUDIO // close audio device
-    AudioEngine::end();
-#endif
 
     Application::_instance = nullptr;
 }

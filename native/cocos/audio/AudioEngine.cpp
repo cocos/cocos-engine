@@ -154,6 +154,8 @@ private:
 
 void AudioEngine::end()
 {
+    stopAll();
+
     if (s_threadPool)
     {
         delete s_threadPool;

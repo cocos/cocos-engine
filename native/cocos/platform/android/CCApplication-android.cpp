@@ -71,14 +71,15 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
-    EventDispatcher::destroy();
-    se::ScriptEngine::destroyInstance();
-    delete _renderTexture;
-    _renderTexture = nullptr;
-
-#if USE_AUDIO // close audio device
+#if USE_AUDIO
     AudioEngine::end();
 #endif
+
+    EventDispatcher::destroy();
+    se::ScriptEngine::destroyInstance();
+
+    delete _renderTexture;
+    _renderTexture = nullptr;
 
     Application::_instance = nullptr;
 }
