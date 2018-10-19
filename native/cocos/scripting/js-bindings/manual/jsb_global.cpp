@@ -891,7 +891,8 @@ static bool js_saveImageData(se::State& s)
 
         Image* img = new Image();
         img->initWithRawData(data.getBytes(), data.getSize(), width, height, 8);
-        bool ret = img->saveToFile(filePath);
+        // isToRGB = false, to keep alpha channel
+        bool ret = img->saveToFile(filePath, false);
         s.rval().setBoolean(ret);
 
         return ret;
