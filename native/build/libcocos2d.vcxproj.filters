@@ -227,15 +227,6 @@
     <ClCompile Include="..\external\sources\tinyxml2\tinyxml2.cpp">
       <Filter>external\tinyxml2</Filter>
     </ClCompile>
-    <ClCompile Include="..\external\sources\firefox\mozilla\Assertions.cpp">
-      <Filter>external\firefox</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\firefox\WebGLFormats.cpp">
-      <Filter>external\firefox</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\sources\firefox\WebGLTexelConversions.cpp">
-      <Filter>external\firefox</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c">
       <Filter>external\ConvertUTF</Filter>
     </ClCompile>
@@ -725,63 +716,6 @@
     <ClInclude Include="..\external\sources\tinyxml2\tinyxml2.h">
       <Filter>external\tinyxml2</Filter>
     </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\GLConsts.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Assertions.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Atomics.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Attributes.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Casting.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\CheckedInt.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Compiler.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\IntegerTypeTraits.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Likely.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\MacroArgs.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Move.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Pair.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\StaticAnalysisFunctions.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\Types.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\TypeTraits.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\mozilla\UniquePtr.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\WebGLFormats.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\WebGLTexelConversions.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\sources\firefox\WebGLTypes.h">
-      <Filter>external\firefox</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\sources\ConvertUTF\ConvertUTF.h">
       <Filter>external\ConvertUTF</Filter>
     </ClInclude>
@@ -1050,9 +984,6 @@
     </Filter>
     <Filter Include="external">
       <UniqueIdentifier>{aaf34557-236c-4e37-b157-1b20593e359f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="external\firefox">
-      <UniqueIdentifier>{a2211f5f-b9f5-4991-bae9-daa3f5473a78}</UniqueIdentifier>
     </Filter>
     <Filter Include="external\unzip">
       <UniqueIdentifier>{bb37b797-0707-4912-8e2f-c2b090878e88}</UniqueIdentifier>

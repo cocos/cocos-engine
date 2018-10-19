@@ -72,16 +72,6 @@ scripting/js-bindings/jswrapper/v8/Object.cpp \
 scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp \
 scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp \
 scripting/js-bindings/jswrapper/v8/Utils.cpp \
-scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
-scripting/js-bindings/jswrapper/v8/debugger/util.cc \
-scripting/js-bindings/jswrapper/v8/debugger/env.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc \
-scripting/js-bindings/jswrapper/v8/debugger/node.cc \
-scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc \
-scripting/js-bindings/jswrapper/v8/debugger/http_parser.c \
 scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/xxtea/xxtea.cpp \
 ../external/sources/tinyxml2/tinyxml2.cpp \
@@ -91,6 +81,24 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/sources/ConvertUTF/ConvertUTF.c \
 ui/edit-box/EditBox-android.cpp
+
+# only compile v8 debugger in DEBUG mode
+ifeq ($(NDK_DEBUG),1)
+LOCAL_SRC_FILES += \
+scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
+scripting/js-bindings/jswrapper/v8/debugger/util.cc \
+scripting/js-bindings/jswrapper/v8/debugger/env.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc \
+scripting/js-bindings/jswrapper/v8/debugger/node.cc \
+scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc \
+scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
+# uv_static only used in v8 debugger
+LOCAL_STATIC_LIBRARIES += uv_static
+LOCAL_STATIC_LIBRARIES += v8_inspector
+endif
 
 # opengl bindings depend on GFXUtils "_JSB_GL_CHECK"
 LOCAL_SRC_FILES += \
@@ -183,7 +191,6 @@ LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
-LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
