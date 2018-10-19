@@ -25,7 +25,7 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
 
-            <intent-filter android:order="1">
+            <intent-filter android:order="1" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -34,7 +34,9 @@
                 <data
                     android:host="${host}"
                     android:pathPattern="${pathPattern}"
-                    android:scheme="${scheme}" />
+                    android:scheme="https" />
+
+                <data android:scheme="http"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
