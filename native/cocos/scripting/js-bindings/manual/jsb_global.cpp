@@ -895,6 +895,7 @@ static bool js_saveImageData(se::State& s)
         bool ret = img->saveToFile(filePath, false);
         s.rval().setBoolean(ret);
 
+        img->release();
         return ret;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
