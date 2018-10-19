@@ -304,6 +304,19 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
+     * !#en Returns whether the sprite frame has been add to dynamic atlas.
+     * !#zh 判断贴图是否加入图集
+     * @method 
+     * @return {Boolean}
+    */
+    isInsertToDynamicAtlas: function () {
+        if (!this._original) {
+            return false;
+        }
+        return true;
+    },
+
+    /**
      * !#en Returns the texture of the frame.
      * !#zh 获取使用的纹理实例
      * @method getTexture
