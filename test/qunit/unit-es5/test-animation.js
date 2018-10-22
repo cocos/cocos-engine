@@ -1411,3 +1411,9 @@ test('animation play on load', function () {
 
     entity.parent = null;
 });
+
+test('quickFindIndex', function () {
+    var ratios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+    var ratio = 0.7;
+    strictEqual(cc._Test.quickFindIndex(ratios, ratio), 7, 'should find ratio at index 7');
+});

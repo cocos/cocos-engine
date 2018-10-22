@@ -131,7 +131,7 @@ const Overflow = cc.Enum({
  * !#en The Label Component.
  * !#zh 文字标签组件
  * @class Label
- * @extends Component
+ * @extends RenderComponent
  */
 let Label = cc.Class({
     name: 'cc.Label',

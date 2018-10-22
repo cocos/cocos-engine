@@ -151,9 +151,6 @@ function defineProp (cls, className, propName, val, es6) {
         for (var i = 0; i < attrs.length; i++) {
             var attr = attrs[i];
             Attr.attr(cls, propName, attr);
-            if (attr['serializable'] === false) {
-                pushUnique(cls.__values__, propName);
-            }
             // register callback
             if (attr._onAfterProp) {
                 onAfterProp.push(attr._onAfterProp);

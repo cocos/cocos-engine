@@ -213,7 +213,7 @@ proto.off = function (type, callback, target) {
     }
 };
 
-proto._setListeners = function (target) {
+proto._setEventTarget = function (target) {
     this._target = target;
 };
 

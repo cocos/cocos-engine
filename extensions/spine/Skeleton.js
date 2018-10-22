@@ -58,7 +58,7 @@ function setEnumAttr (obj, propName, enumDef) {
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends Component
+ * @extends RenderComponent
  */
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',

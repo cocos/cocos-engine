@@ -146,9 +146,9 @@ let Camera = cc.Class({
         },
 
         /**
-         * !#en 
+         * !#en
          * Field of view. The width of the Camera’s view angle, measured in degrees along the local Y axis.
-         * !#zh 
+         * !#zh
          * 决定摄像机视角的宽度，当摄像机处于透视投影模式下这个属性才会生效。
          * @property {Number} fov
          * @default 60
@@ -613,7 +613,7 @@ let Camera = cc.Class({
      * !#zh
      * 从屏幕坐标获取一条射线
      * @method getRay
-     * @param {Vec2} screenPos 
+     * @param {Vec2} screenPos
      * @return {Ray}
      */
     getRay (screenPos) {
@@ -681,7 +681,7 @@ let Camera = cc.Class({
 
     beforeDraw () {
         if (!this._camera) return;
-        
+
         if (!this.node._is3DNode) {
             this._layout();
         }
