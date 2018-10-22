@@ -27,7 +27,7 @@ import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
-import { ccclass, menu, property } from "../../core/data/class-decorator";
+import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 
 /**
  * !#en The light source type
@@ -112,6 +112,7 @@ const LightShadowType = Enum({
  */
 @ccclass('cc.LightComponent')
 @menu('Components/LightComponent')
+@executeInEditMode
 export default class LightComponent extends RenderSystemActor {
     @property
     _type = LightType.Directional;
@@ -173,9 +174,9 @@ export default class LightComponent extends RenderSystemActor {
         this._type = val;
 
         let type = renderer.LIGHT_DIRECTIONAL;
-        if (this._type === 'point') {
+        if (this._type === LightType.Point) {
             type = renderer.LIGHT_POINT;
-        } else if (this._type === 'spot') {
+        } else if (this._type === LightType.Spot) {
             type = renderer.LIGHT_SPOT;
         }
         this._light.setType(type);
@@ -194,7 +195,7 @@ export default class LightComponent extends RenderSystemActor {
 
     set color(val) {
         this._color = val;
-        this._light.setColor(val.r, val.g, val.b);
+        this._light.setColor(val.r / 255, val.g / 255, val.b / 255);
     }
 
     /**
@@ -267,9 +268,9 @@ export default class LightComponent extends RenderSystemActor {
      * !#ch 阴影类型
      * @type {Number} shadowType
      */
-    @property({
-        type: LightShadowType
-    })
+    // @property({
+    //     type: LightShadowType
+    // })
     get shadowType() {
         return this._shadowType;
     }
@@ -278,9 +279,9 @@ export default class LightComponent extends RenderSystemActor {
         this._shadowType = val;
 
         let type = renderer.SHADOW_NONE;
-        if (val === 'hard') {
+        if (val === LightShadowType.Hard) {
             type = renderer.SHADOW_HARD;
-        } else if (val === 'soft') {
+        } else if (val === LightShadowType.Soft) {
             type = renderer.SHADOW_SOFT;
         }
         this._light.setShadowType(type);
@@ -293,7 +294,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowResolution() {
         return this._shadowResolution;
     }
@@ -310,7 +311,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowDarkness() {
         return this._shadowDarkness;
     }
@@ -327,7 +328,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowMinDepth() {
         return this._shadowMinDepth;
     }
@@ -344,7 +345,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowMaxDepth() {
         return this._shadowMaxDepth;
     }
@@ -361,7 +362,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowDepthScale() {
         return this._shadowDepthScale;
     }
@@ -378,7 +379,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowFrustumSize() {
         return this._shadowFrustumSize;
     }
@@ -395,7 +396,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    @property
+    // @property
     get shadowBias() {
         return this._shadowBias;
     }
@@ -415,7 +416,7 @@ export default class LightComponent extends RenderSystemActor {
         this._light = new renderer.Light();
     }
 
-    onInit() {
+    onLoad() {
         this._light.setNode(this.node);
     }
 

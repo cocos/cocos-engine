@@ -9,6 +9,7 @@ export default class RenderSystem {
     }
 
     update (dt) {
+        this._scene.tick();
         cc.game._renderer.render(this._scene);
         this._scene.reset();
     }
