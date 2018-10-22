@@ -92,7 +92,7 @@ let Mesh = cc.Class({
     _initResource () {
         if (this._resourceInited || !this._resource) return;
         this._resourceInited = true;
-        
+
         this._resource.flush(this);
     },
 
@@ -295,7 +295,10 @@ let Mesh = cc.Class({
             let vb = vbs[i];
 
             if (vb.dirty) {
-                vb.buffer.update(0, vb.data);
+                let buffer = vb.buffer, data = vb.data;
+                buffer._numVertices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 vb.dirty = false;
             }
         }
@@ -305,7 +308,10 @@ let Mesh = cc.Class({
             let ib = ibs[i];
 
             if (ib.dirty) {
-                ib.buffer.update(0, ib.data);
+                let buffer = ib.buffer, data = ib.data;
+                buffer._numIndices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 ib.dirty = false;
             }
         }
