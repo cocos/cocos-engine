@@ -53,6 +53,7 @@
     "!./cocos2d/core/platform/id-generater.js",
 
     "./cocos2d/core/renderer/index.js",
+    "./cocos2d/core/renderer/utils/dynamic-atlas/*",
 
     "./cocos2d/core/utils/affine-transform.js",
     "./cocos2d/core/utils/base-node.js",

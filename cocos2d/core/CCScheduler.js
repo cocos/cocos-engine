@@ -640,7 +640,7 @@ cc.Scheduler.prototype = {
      * Unschedules a callback for a callback and a given target.
      * If you want to unschedule the "update", use `unscheduleUpdate()`
      * !#zh
-     * 根据指定的回调函数和调用对象。
+     * 取消指定对象定时器。
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
      * @method unschedule
      * @param {Function} callback The callback to be unscheduled

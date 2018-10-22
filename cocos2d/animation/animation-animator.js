@@ -83,7 +83,7 @@ p.addAnimation = function (anim) {
         this._anims.push(anim);
     }
 
-    anim._setListeners(this.animation);
+    anim._setEventTarget(this.animation);
 };
 
 p.removeAnimation = function (anim) {

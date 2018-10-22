@@ -33,7 +33,7 @@ const LineJoin = Types.LineJoin;
 
 /**
  * @class Graphics
- * @extends Component
+ * @extends RenderComponent
  */
 let Graphics = cc.Class({
     name: 'cc.Graphics',

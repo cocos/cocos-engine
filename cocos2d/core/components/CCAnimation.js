@@ -44,7 +44,7 @@ function equalClips (clip1, clip2) {
  * @static
  * @namespace Animationd
  */
-var EventType = cc.Enum({
+let EventType = cc.Enum({
     /**
      * !#en Emit when begin playing animation
      * !#zh 开始播放时触发
@@ -87,7 +87,7 @@ var EventType = cc.Enum({
      * @static
      */
     FINISHED: 'finished'
-})
+});
 
 /**
  * !#en The animation component is used to play back animations.
@@ -114,7 +114,7 @@ var EventType = cc.Enum({
  * @extends Component
  * @uses EventTarget
  */
-var Animation = cc.Class({
+let Animation = cc.Class({
     name: 'cc.Animation',
     extends: require('./CCComponent'),
     mixins: [EventTarget],
@@ -170,9 +170,9 @@ var Animation = cc.Class({
                     return;
                 }
 
-                var clips = this._clips;
+                let clips = this._clips;
 
-                for (var i = 0, l = clips.length; i < l; i++) {
+                for (let i = 0, l = clips.length; i < l; i++) {
                     if (equalClips(value, clips[i])) {
                         return;
                     }
@@ -229,9 +229,9 @@ var Animation = cc.Class({
 
     start: function () {
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
-            var isPlaying = this._animator && this._animator.isPlaying;
+            let isPlaying = this._animator && this._animator.isPlaying;
             if (!isPlaying) {
-                var state = this.getAnimationState(this._defaultClip.name);
+                let state = this.getAnimationState(this._defaultClip.name);
                 this._animator.playState(state);
             }
         }
@@ -279,7 +279,7 @@ var Animation = cc.Class({
      * animCtrl.play("linear");
      */
     play: function (name, startTime) {
-        var state = this.playAdditive(name, startTime);
+        let state = this.playAdditive(name, startTime);
         this._animator.stopStatesExcept(state);
         return state;
     },
@@ -301,12 +301,12 @@ var Animation = cc.Class({
      */
     playAdditive: function (name, startTime) {
         this._init();
-        var state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name));
+        let state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name));
 
         if (state) {
             this.enabled = true;
-            
-            var animator = this._animator;
+
+            let animator = this._animator;
             if (animator.isPlaying && state.isPlaying) {
                 if (state.isPaused) {
                     animator.resumeState(state);
@@ -345,7 +345,7 @@ var Animation = cc.Class({
             return;
         }
         if (name) {
-            var state = this._nameToState[name];
+            let state = this._nameToState[name];
             if (state) {
                 this._animator.stopState(state);
             }
@@ -366,7 +366,7 @@ var Animation = cc.Class({
             return;
         }
         if (name) {
-            var state = this._nameToState[name];
+            let state = this._nameToState[name];
             if (state) {
                 this._animator.pauseState(state);
             }
@@ -387,7 +387,7 @@ var Animation = cc.Class({
             return;
         }
         if (name) {
-            var state = this._nameToState[name];
+            let state = this._nameToState[name];
             if (state) {
                 this._animator.resumeState(state);
             }
@@ -407,7 +407,7 @@ var Animation = cc.Class({
     setCurrentTime: function (time, name) {
         this._init();
         if (name) {
-            var state = this._nameToState[name];
+            let state = this._nameToState[name];
             if (state) {
                 this._animator.setStateTime(state, time);
             }
@@ -426,7 +426,7 @@ var Animation = cc.Class({
      */
     getAnimationState: function (name) {
         this._init();
-        var state = this._nameToState[name];
+        let state = this._nameToState[name];
 
         if (CC_EDITOR && (!state || !cc.js.array.contains(this._clips, state.clip))) {
             this._didInit = false;
@@ -468,7 +468,7 @@ var Animation = cc.Class({
 
         // replace same name clip
         newName = newName || clip.name;
-        var oldState = this._nameToState[newName];
+        let oldState = this._nameToState[newName];
         if (oldState) {
             if (oldState.clip === clip) {
                 return oldState;
@@ -482,7 +482,7 @@ var Animation = cc.Class({
         }
 
         // replace state
-        var newState = new cc.AnimationState(clip, newName);
+        let newState = new cc.AnimationState(clip, newName);
         this._nameToState[newName] = newState;
         return newState;
     },
@@ -507,10 +507,10 @@ var Animation = cc.Class({
         }
         this._init();
 
-        var state;
-        for (var name in this._nameToState) {
+        let state;
+        for (let name in this._nameToState) {
             state = this._nameToState[name];
-            var stateClip = state.clip;
+            let stateClip = state.clip;
             if (stateClip === clip) {
                 break;
             }
@@ -553,7 +553,7 @@ var Animation = cc.Class({
         this._init();
 
         if (name) {
-            var state = this._nameToState[name];
+            let state = this._nameToState[name];
             if (state) {
                 state.sample();
             }
@@ -599,11 +599,14 @@ var Animation = cc.Class({
     on: function (type, callback, target, useCapture) {
         this._init();
 
-        var ret = this._EventTargetOn(type, callback, target, useCapture);
-
-        var array = this._animator._anims.array;
-        for (var i = 0; i < array.length; ++i) {
-            array[i]._setListeners(this);
+        let ret = this._EventTargetOn(type, callback, target, useCapture);
+        
+        if (type === 'lastframe') {
+            let array = this._animator._anims.array;
+            for (let i = 0; i < array.length; ++i) {
+                let state = array[i];
+                state._lastframeEventOn = true;
+            }
         }
 
         return ret;
@@ -631,13 +634,15 @@ var Animation = cc.Class({
     off: function (type, callback, target, useCapture) {
         this._init();
 
-        this._EventTargetOff(type, callback, target, useCapture);
-
-        var nameToState = this._nameToState;
-        for (var name in nameToState) {
-            var state = nameToState[name];
-            state._setListeners(null);
+        if (type === 'lastframe') {
+            let nameToState = this._nameToState;
+            for (let name in nameToState) {
+                let state = nameToState[name];
+                state._lastframeEventOn = false;
+            }
         }
+
+        this._EventTargetOff(type, callback, target, useCapture);
     },
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -660,10 +665,10 @@ var Animation = cc.Class({
         this._nameToState = js.createMap(true);
         
         // create animation states
-        var state = null;
-        var defaultClipState = false;
-        for (var i = 0; i < this._clips.length; ++i) {
-            var clip = this._clips[i];
+        let state = null;
+        let defaultClipState = false;
+        for (let i = 0; i < this._clips.length; ++i) {
+            let clip = this._clips[i];
             if (clip) {
                 state = new cc.AnimationState(clip);
 
