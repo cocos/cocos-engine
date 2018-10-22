@@ -275,12 +275,14 @@ public class Cocos2dxDownloader {
         DownloadTask task = (DownloadTask)_taskMap.get(id);
         if (null == task) return;
         _taskMap.remove(id);
+        _runningTaskCount -= 1;
         Cocos2dxHelper.runOnGLThread(new Runnable() {
             @Override
             public void run() {
                 nativeOnFinish(_id, id, errCode, errStr, data);
             }
         });
+        runNextTaskIfExists();
     }
 
     public static void setResumingSupport(String host, Boolean support) {
@@ -298,6 +300,10 @@ public class Cocos2dxDownloader {
         // downloader._httpClient.setMaxRetriesAndTimeout(3, timeoutInSeconds * 1000);
         downloader._httpClient.allowRetryExceptionClass(javax.net.ssl.SSLException.class);
 
+        //disable url auto decode
+        //fix https://github.com/cocos2d/cocos2d-x/issues/18949
+        downloader._httpClient.setURLEncodingEnabled(false);
+        
         downloader._tempFileNameSufix = tempFileNameSufix;
         downloader._countOfMaxProcessingTasks = countOfMaxProcessingTasks;
         return downloader;
@@ -454,11 +460,12 @@ public class Cocos2dxDownloader {
 
     public void runNextTaskIfExists() {
         synchronized (_taskQueue) {
-            Runnable taskRunnable = Cocos2dxDownloader.this._taskQueue.poll();
-            if (taskRunnable != null) {
+            while (_runningTaskCount < _countOfMaxProcessingTasks && 
+                Cocos2dxDownloader.this._taskQueue.size() > 0) {
+                
+                Runnable taskRunnable = Cocos2dxDownloader.this._taskQueue.poll();
                 Cocos2dxHelper.getActivity().runOnUiThread(taskRunnable);
-            } else {
-                _runningTaskCount--;
+                _runningTaskCount += 1;
             }
         }
     }
