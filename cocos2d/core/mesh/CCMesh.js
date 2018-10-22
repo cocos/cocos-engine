@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const MeshResource = require('./CCMeshResource');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
@@ -42,7 +43,6 @@ function applyVec3 (data, offset, value) {
     data[offset + 2] = value.z;
 }
 
-
 /**
 * @module cc
 */
@@ -52,19 +52,14 @@ function applyVec3 (data, offset, value) {
  * @class Mesh
  * @extends Asset
  */
-var Mesh = cc.Class({
+let Mesh = cc.Class({
     name: 'cc.Mesh',
     extends: cc.Asset,
 
     properties: {
-        _modelSetter: {
-            set: function (model) {
-                if (CC_EDITOR && Editor.isBuilder) {
-                    // just building
-                    return;
-                }
-                this._initWithModel(model);
-            }
+        _resource: {
+            default: null,
+            type: MeshResource
         },
 
         /**
@@ -83,10 +78,6 @@ var Mesh = cc.Class({
     },
 
     ctor () {
-        this._modelUuid = '';
-        this._meshID = -1;
-        this._model = null;
-
         this._subMeshes = [];
 
         this._ibs = [];
@@ -94,6 +85,15 @@ var Mesh = cc.Class({
 
         this._minPos = cc.v3();
         this._maxPos = cc.v3();
+
+        this._resourceInited = false;
+    },
+
+    _initResource () {
+        if (this._resourceInited || !this._resource) return;
+        this._resourceInited = true;
+
+        this._resource.flush(this);
     },
 
     /**
@@ -295,7 +295,10 @@ var Mesh = cc.Class({
             let vb = vbs[i];
 
             if (vb.dirty) {
-                vb.buffer.update(0, vb.data);
+                let buffer = vb.buffer, data = vb.data;
+                buffer._numVertices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 vb.dirty = false;
             }
         }
@@ -305,38 +308,14 @@ var Mesh = cc.Class({
             let ib = ibs[i];
 
             if (ib.dirty) {
-                ib.buffer.update(0, ib.data);
+                let buffer = ib.buffer, data = ib.data;
+                buffer._numIndices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 ib.dirty = false;
             }
         }
-    },
-
-    _initWithModel (model) {
-        if (!model) return;
-        this._model = model;
-        this._model.initMesh(this);
-    },
-
-    _serialize: CC_EDITOR && function (exporting) {
-        let modelUuid = this._modelUuid;
-        if (exporting) {
-            modelUuid = Editor.Utils.UuidUtils.compressUuid(modelUuid, true);
-        }
-        return {
-            modelUuid: modelUuid,
-            meshID: this._meshID,
-        };
-    },
-
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._meshID = data.meshID;
-
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
-        }
     }
 });
-
 
 cc.Mesh = module.exports = Mesh;

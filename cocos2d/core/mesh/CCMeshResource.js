@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -24,20 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCRenderTexture');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./CCBufferAsset');
+let MeshResource = cc.Class({
+    name: 'cc.MeshResource',
+    
+    flush (mesh) {
+
+    }
+});
+
+module.exports = MeshResource;

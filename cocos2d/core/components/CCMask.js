@@ -81,7 +81,7 @@ const SEGEMENTS_MAX = 10000;
  * !#en The Mask Component
  * !#zh 遮罩组件
  * @class Mask
- * @extends Component
+ * @extends RenderComponent
  */
 let Mask = cc.Class({
     name: 'cc.Mask',

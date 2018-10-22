@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -24,20 +23,58 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCRenderTexture');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./CCBufferAsset');
+const Model = require('./CCModel');
+
+let ModelMeshResource = cc.Class({
+    name: 'ModelMeshResource',
+
+    ctor () {
+        this._subMeshes = [];
+        this._ibs = [];
+        this._vbs = [];
+        this._inited = false;
+        this._minPos = cc.v3();
+        this._maxPos = cc.v3();
+    },
+
+    properties: {
+        _meshID: -1,
+        _model: {
+            type: Model,
+            default: null
+        },
+
+        meshID: {
+            get () {
+                return this._meshID;
+            },
+            set (val) {
+                this._meshID = val;
+            }
+        },
+
+        model: {
+            get () {
+                return this._model;
+            },
+            set (val) {
+                this._model = val;
+            }
+        }
+    },
+
+    flush (mesh) {
+        if (!this._inited) {
+            this._inited = true;
+            this.model.initMesh(this);
+        }
+
+        mesh._vbs = this._vbs;
+        mesh._ibs = this._ibs;
+        mesh._subMeshes = this._subMeshes;
+        mesh._minPos = this._minPos;
+        mesh._maxPos = this._maxPos;
+    }
+});
+
+module.exports = ModelMeshResource;

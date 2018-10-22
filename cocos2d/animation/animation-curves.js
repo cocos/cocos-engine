@@ -98,6 +98,9 @@ function quickFindIndex (ratios, ratio) {
     if ((index - floorIndex) < EPSILON) {
         return floorIndex;
     }
+    else if ((floorIndex + 1 - index) < EPSILON) {
+        return floorIndex + 1;
+    }
 
     return ~(floorIndex + 1);
 }
@@ -438,6 +441,7 @@ var EventAnimCurve = cc.Class({
 if (CC_TEST) {
     cc._Test.DynamicAnimCurve = DynamicAnimCurve;
     cc._Test.EventAnimCurve = EventAnimCurve;
+    cc._Test.quickFindIndex = quickFindIndex;
 }
 
 module.exports = {

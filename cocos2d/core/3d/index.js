@@ -5,7 +5,9 @@ if (!CC_TEST && (!CC_EDITOR || !Editor.isMainProcess)) {
 }
 
 require('./CCModel');
+require('./CCSkeleton');
 require('./CCSkeletonAnimationClip');
+require('./CCModelMeshResource');
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCSkeletonAnimation');

@@ -693,7 +693,7 @@ var properties = {
  * emitter.startSpin = 0;
  *
  * @class ParticleSystem
- * @extends Component
+ * @extends RenderComponent
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
@@ -993,7 +993,7 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        this.emissionRate = this.totalParticles / this.life;
+        this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
 
         // duration
         this.duration = parseFloat(dict["duration"] || 0);

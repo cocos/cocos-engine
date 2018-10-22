@@ -37,17 +37,17 @@ const AnimationClip = require('../../animation/animation-clip');
  * @class SkeletonAnimation
  * @extends Animation
  */
-var SkeletonAnimation = cc.Class({
+let SkeletonAnimation = cc.Class({
     name: 'cc.SkeletonAnimation',
     extends: Animation,
 
     editor: CC_EDITOR && {
         inspector: 'packages://inspector/inspectors/comps/skeleton-animation.js',
+        menu: 'i18n:MAIN_MENU.component.others/Skeleton Animation',
     },
 
     properties: {
         _model: Model,
-        _nodes: [cc.Node],
 
         _defaultClip: {
             override: true,
@@ -77,6 +77,9 @@ var SkeletonAnimation = cc.Class({
             get () {
                 return this._model;
             },
+            set (val) {
+                this._model = val;
+            },
             type: Model
         },
     },
@@ -84,7 +87,7 @@ var SkeletonAnimation = cc.Class({
     getAnimationState (name) {
         let state = this._super(name);
         let clip = state.clip;
-        clip.init(this._nodes);
+        clip.init();
         return state;
     },
 
