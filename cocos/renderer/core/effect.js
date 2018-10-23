@@ -109,19 +109,19 @@ export default class Effect {
 
     static parseProperties(json) {
         function processColor(name, type, value) {
-            return `${name}: cc.color(${value[0] * 255}, ${value[1] * 255}, ${value[2] * 255}, ${(value[3] || 1) * 255}),`;
+            return cc.color(value[0] * 255, value[1] * 255, value[2] * 255, (value[3] || 1) * 255);
         }
         function processVec2(name, type, value) {
-            return `${name}: cc.v2(${value[0]}, ${value[1]}),`;
+            return cc.v2(value[0], value[1]);
         }
         function processVec3(name, type, value) {
-            return `${name}: cc.v3(${value[0]},${value[1]},${value[2]}),`;
+            return cc.v3(value[0], value[1], value[2]);
         }
         function processTexture2d(name, type, value) {
-            return `${name}: null,`;
+            return null;
         }
         function processDefault(name, type, value) {
-            return '';
+            return null;
         }
         let processers = {
             [enums.PARAM_COLOR3]: processColor,
@@ -131,12 +131,12 @@ export default class Effect {
             [enums.PARAM_TEXTURE_2D]: processTexture2d,
             default: processDefault
         }
-        let paramCode = '';
+        let properties = {};
         // process params in techniques
         // note: this should be moved to effect later
         json.techniques.forEach(tech => {
             tech.params.forEach(param => {
-                paramCode += `${Effect.paramProcessing(param, processers)}\n`
+                properties[param.name] = Effect.paramProcessing(param, processers);
             });
         });
 
@@ -145,14 +145,12 @@ export default class Effect {
         // 1. only add artistic defines
         // 2. only bool supported, may contains other type
         json.defines.forEach((define) => {
-            paramCode += `${define.name}:false, \n`
+            properties[define.name] = false;
         });
-        return `cc.Class({
-            name: '${Effect.getPropertyClassName(json)}',
-            properties: {
-                ${paramCode}
-            }
-        })`;
+        return {
+            name: Effect.getPropertyClassName(json),
+            properties,
+        };
     }
 
     static parsePass(json) {

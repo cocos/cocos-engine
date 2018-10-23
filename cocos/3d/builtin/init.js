@@ -186,8 +186,7 @@ export default function (device) {
         effect.defines = effectJson.defines;
         effect.dependencies = effectJson.dependencies ? effectJson.dependencies : [];
         effects[effect._uuid] = effect;
-        let properties = Effect.parseProperties(effect);
-        eval(properties);
+        cc.Class(Effect.parseProperties(effect));
     }
 
     // ============================
