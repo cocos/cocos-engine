@@ -26,7 +26,6 @@
 import "./animation-clip";
 import "./audio-clip";
 import "./dom-audio-clip";
-import "./effect";
 import "./bitmap-font";
 import "./material";
 import "./mesh";
