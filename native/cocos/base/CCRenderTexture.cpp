@@ -154,56 +154,56 @@ void RenderTexture::recordPreviousGLStates(bool supportsVOA)
 {
     if (!supportsVOA)
     {
-        prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
-        prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
-        prevVBO = ccGetBoundVertexBuffer();
-        prevVIO = ccGetBoundIndexBuffer();
+        _prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
+        _prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
+        _prevVBO = ccGetBoundVertexBuffer();
+        _prevVIO = ccGetBoundIndexBuffer();
     }
     
-    glGetBooleanv(GL_COLOR_WRITEMASK, prevColorWriteMask);
-    glGetBooleanv(GL_DEPTH_TEST, &prevDepthTest);
-    glGetBooleanv(GL_DEPTH_TEST, &prevBlendTest);
-    glGetBooleanv(GL_CULL_FACE, &prevCullFase);
-    glGetBooleanv(GL_STENCIL_TEST, &prevStencilTest);
-    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
+    glGetBooleanv(GL_COLOR_WRITEMASK, _prevColorWriteMask);
+    glGetBooleanv(GL_DEPTH_TEST, &_prevDepthTest);
+    glGetBooleanv(GL_BLEND, &_prevBlendTest);
+    glGetBooleanv(GL_CULL_FACE, &_prevCullFase);
+    glGetBooleanv(GL_STENCIL_TEST, &_prevStencilTest);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &_prevProgram);
 }
 
 void RenderTexture::resetPreviousGLStates(bool supportsVAO) const
 {
-    glUseProgram(prevProgram);
+    glUseProgram(_prevProgram);
     if (supportsVAO)
         glBindVertexArray(0);
     else
     {
-        if (prevPosLocInfo)
+        if (_prevPosLocInfo)
         {
-            glBindBuffer(GL_ARRAY_BUFFER, prevPosLocInfo->VBO);
-            glVertexAttribPointer(prevPosLocInfo->index,
-                                  prevPosLocInfo->size,
-                                  prevPosLocInfo->type,
-                                  prevPosLocInfo->normalized,
-                                  prevPosLocInfo->stride,
-                                  prevPosLocInfo->pointer);
+            glBindBuffer(GL_ARRAY_BUFFER, _prevPosLocInfo->VBO);
+            glVertexAttribPointer(_prevPosLocInfo->index,
+                                  _prevPosLocInfo->size,
+                                  _prevPosLocInfo->type,
+                                  _prevPosLocInfo->normalized,
+                                  _prevPosLocInfo->stride,
+                                  _prevPosLocInfo->pointer);
         }
-        if (prevTexCoordLocInfo)
+        if (_prevTexCoordLocInfo)
         {
-            glBindBuffer(GL_ARRAY_BUFFER, prevTexCoordLocInfo->VBO);
-            glVertexAttribPointer(prevTexCoordLocInfo->index,
-                                  prevTexCoordLocInfo->size,
-                                  prevTexCoordLocInfo->type,
-                                  prevTexCoordLocInfo->normalized,
-                                  prevTexCoordLocInfo->stride,
-                                  prevTexCoordLocInfo->pointer);
+            glBindBuffer(GL_ARRAY_BUFFER, _prevTexCoordLocInfo->VBO);
+            glVertexAttribPointer(_prevTexCoordLocInfo->index,
+                                  _prevTexCoordLocInfo->size,
+                                  _prevTexCoordLocInfo->type,
+                                  _prevTexCoordLocInfo->normalized,
+                                  _prevTexCoordLocInfo->stride,
+                                  _prevTexCoordLocInfo->pointer);
         }
         
-        glBindBuffer(GL_ARRAY_BUFFER, prevVBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prevVIO);
+        glBindBuffer(GL_ARRAY_BUFFER, _prevVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _prevVIO);
     }
-    glColorMask(prevColorWriteMask[0], prevColorWriteMask[1], prevColorWriteMask[2], prevColorWriteMask[3]);
-    if (GL_TRUE == prevDepthTest) glEnable(GL_DEPTH_TEST);
-    if (GL_TRUE == prevBlendTest) glEnable(GL_BLEND);
-    if (GL_TRUE == prevCullFase) glEnable(GL_CULL_FACE);
-    if (GL_TRUE == prevStencilTest) glEnable(GL_STENCIL_TEST);
+    glColorMask(_prevColorWriteMask[0], _prevColorWriteMask[1], _prevColorWriteMask[2], _prevColorWriteMask[3]);
+    if (GL_TRUE == _prevDepthTest) glEnable(GL_DEPTH_TEST);
+    if (GL_TRUE == _prevBlendTest) glEnable(GL_BLEND);
+    if (GL_TRUE == _prevCullFase) glEnable(GL_CULL_FACE);
+    if (GL_TRUE == _prevStencilTest) glEnable(GL_STENCIL_TEST);
 }
 
 namespace

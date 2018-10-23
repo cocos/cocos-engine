@@ -80,16 +80,16 @@ private:
     Vec2 _deviceResolution;
     
     // record previous gl states
-    GLint prevVBO = 0;
-    GLint prevVIO = 0;
-    const VertexAttributePointerInfo* prevPosLocInfo = nullptr;
-    const VertexAttributePointerInfo* prevTexCoordLocInfo = nullptr;
-    GLboolean prevColorWriteMask[4] = {GL_FALSE};
-    GLboolean prevDepthTest = GL_FALSE;
-    GLboolean prevBlendTest = GL_FALSE;
-    GLboolean prevCullFase = GL_FALSE;
-    GLboolean prevStencilTest = GL_FALSE;
-    GLint prevProgram = 0;
+    GLint _prevVBO = 0;
+    GLint _prevVIO = 0;
+    const VertexAttributePointerInfo* _prevPosLocInfo = nullptr;
+    const VertexAttributePointerInfo* _prevTexCoordLocInfo = nullptr;
+    GLboolean _prevColorWriteMask[4] = {GL_FALSE};
+    GLboolean _prevDepthTest = GL_FALSE;
+    GLboolean _prevBlendTest = GL_FALSE;
+    GLboolean _prevCullFase = GL_FALSE;
+    GLboolean _prevStencilTest = GL_FALSE;
+    GLint _prevProgram = 0;
 };
 
 NS_CC_END
