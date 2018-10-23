@@ -147,10 +147,14 @@ export default class Effect {
         json.defines.forEach((define) => {
             properties[define.name] = false;
         });
-        return {
+        return properties;
+    }
+
+    static registerEffect(json) {
+        cc.Class({
             name: Effect.getPropertyClassName(json),
-            properties,
-        };
+            properties: Effect.parseProperties(json),
+        });
     }
 
     static parsePass(json) {
