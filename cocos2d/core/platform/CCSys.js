@@ -667,8 +667,8 @@ else {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
     } 
-    else if (CC_FB_PLAYABLE_ADS) {
-        sys.platform = sys.FB_PLAYABLE_ADS;
+    else if (typeof FbPlayableAd !== undefined) { 
+        sys.platform = sys.FB_PLAYABLE_ADS; 
     }
     else {
         /**
