@@ -40,6 +40,7 @@ let line_plane = (function () {
 
 /**
  * ray-triangle intersect
+ * based on http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
  *
  * @param {ray} ray
  * @param {triangle} triangle
@@ -52,32 +53,26 @@ let ray_triangle = (function () {
   let tvec = vec3.create(0, 0, 0);
   let qvec = vec3.create(0, 0, 0);
 
-  return function (ray, triangle) {
+  return function (ray, triangle, doubleSided) {
     vec3.sub(ab, triangle.b, triangle.a);
     vec3.sub(ac, triangle.c, triangle.a);
 
     vec3.cross(pvec, ray.d, ac);
     let det = vec3.dot(ab, pvec);
+    if (det < Number.EPSILON && (!doubleSided || det > -Number.EPSILON)) return 0;
 
-    if (det <= 0) {
-      return 0;
-    }
+    let inv_det = 1 / det;
 
     vec3.sub(tvec, ray.o, triangle.a);
-    let u = vec3.dot(tvec, pvec);
-    if (u < 0 || u > det) {
-      return 0;
-    }
+    let u = vec3.dot(tvec, pvec) * inv_det;
+    if (u < 0 || u > 1) return 0;
 
     vec3.cross(qvec, tvec, ab);
-    let v = vec3.dot(ray.d, qvec);
-    if (v < 0 || u + v > det) {
-      return 0;
-    }
+    let v = vec3.dot(ray.d, qvec) * inv_det;
+    if (v < 0 || u + v > 1) return 0;
 
-    let t = vec3.dot(ac, qvec) / det;
-    if (t < 0) return 0;
-    return t;
+    let t = vec3.dot(ac, qvec) * inv_det;
+    return t < 0 ? 0 : t;
   };
 })();
 

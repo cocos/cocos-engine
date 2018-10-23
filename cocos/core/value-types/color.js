@@ -543,6 +543,15 @@ export default class Color extends ValueType {
             this.a = color.a;
         }
     }
+
+    to01(out) {
+      out = out || cc.vmath.color4.create();
+      out.r = this.r / 255;
+      out.g = this.g / 255;
+      out.b = this.b / 255;
+      out.a = this.a / 255;
+      return out;
+    }
 }
 
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
