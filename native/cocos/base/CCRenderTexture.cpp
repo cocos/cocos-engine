@@ -104,36 +104,29 @@ void RenderTexture::prepare()
 
 void RenderTexture::draw()
 {
-    bool supportVAO = Configuration::getInstance()->supportsShareableVAO();
-    
-    GLint prevVBO = 0;
-    GLint prevVIO = 0;
-    const VertexAttributePointerInfo* prevPosLocInfo = nullptr;
-    const VertexAttributePointerInfo* prevTexCoordLocInfo = nullptr;
-    if (!supportVAO)
-    {
-        prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
-        prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
-        prevVBO = ccGetBoundVertexBuffer();
-        prevVIO = ccGetBoundIndexBuffer();
-    }
-    
-    GLint prevProgram = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
+    bool supportsVAO = Configuration::getInstance()->supportsShareableVAO();
+
+    recordPreviousGLStates(supportsVAO);
 
     glBindFramebuffer(GL_FRAMEBUFFER, _mainFBO);
     ccViewport(0, 0, _deviceResolution.x, _deviceResolution.y);
-
+    
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    
+    glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, _texture);
     
     glUseProgram(_program);
     glUniform1i(_fragUniformTextureLocation, 0);
     
-    if (supportVAO)
+    if (supportsVAO)
         glBindVertexArray(_VAO);
     else
     {
@@ -147,10 +140,38 @@ void RenderTexture::draw()
     }
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+    
+    CHECK_GL_ERROR_DEBUG();
 
-    // reset to previous states
+    resetPreviousGLStates(supportsVAO);
+}
+
+//
+// Private functions
+//
+
+void RenderTexture::recordPreviousGLStates(bool supportsVOA)
+{
+    if (!supportsVOA)
+    {
+        prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
+        prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
+        prevVBO = ccGetBoundVertexBuffer();
+        prevVIO = ccGetBoundIndexBuffer();
+    }
+    
+    glGetBooleanv(GL_COLOR_WRITEMASK, prevColorWriteMask);
+    glGetBooleanv(GL_DEPTH_TEST, &prevDepthTest);
+    glGetBooleanv(GL_DEPTH_TEST, &prevBlendTest);
+    glGetBooleanv(GL_CULL_FACE, &prevCullFase);
+    glGetBooleanv(GL_STENCIL_TEST, &prevStencilTest);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
+}
+
+void RenderTexture::resetPreviousGLStates(bool supportsVAO) const
+{
     glUseProgram(prevProgram);
-    if (supportVAO)
+    if (supportsVAO)
         glBindVertexArray(0);
     else
     {
@@ -178,13 +199,12 @@ void RenderTexture::draw()
         glBindBuffer(GL_ARRAY_BUFFER, prevVBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prevVIO);
     }
-
-    CHECK_GL_ERROR_DEBUG();
+    glColorMask(prevColorWriteMask[0], prevColorWriteMask[1], prevColorWriteMask[2], prevColorWriteMask[3]);
+    if (GL_TRUE == prevDepthTest) glEnable(GL_DEPTH_TEST);
+    if (GL_TRUE == prevBlendTest) glEnable(GL_BLEND);
+    if (GL_TRUE == prevCullFase) glEnable(GL_CULL_FACE);
+    if (GL_TRUE == prevStencilTest) glEnable(GL_STENCIL_TEST);
 }
-
-//
-// Private functions
-//
 
 namespace
 {

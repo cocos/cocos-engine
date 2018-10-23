@@ -29,6 +29,8 @@
 
 NS_CC_BEGIN
 
+struct VertexAttributePointerInfo;
+
 class RenderTexture
 {
 public:
@@ -54,6 +56,8 @@ private:
     void initVBOAndVAO();
     void initVBO();
     void initFramebuffer();
+    void recordPreviousGLStates(bool supportsVAO);
+    void resetPreviousGLStates(bool supportsVAO) const;
     
     GLuint _texture = 0;
     GLint _mainFBO = -1;
@@ -74,6 +78,18 @@ private:
     
     // device resolution
     Vec2 _deviceResolution;
+    
+    // record previous gl states
+    GLint prevVBO = 0;
+    GLint prevVIO = 0;
+    const VertexAttributePointerInfo* prevPosLocInfo = nullptr;
+    const VertexAttributePointerInfo* prevTexCoordLocInfo = nullptr;
+    GLboolean prevColorWriteMask[4] = {GL_FALSE};
+    GLboolean prevDepthTest = GL_FALSE;
+    GLboolean prevBlendTest = GL_FALSE;
+    GLboolean prevCullFase = GL_FALSE;
+    GLboolean prevStencilTest = GL_FALSE;
+    GLint prevProgram = 0;
 };
 
 NS_CC_END
