@@ -107,6 +107,34 @@ export default class Effect {
         return `cc.Effect.${json._uuid}.Props`;
     }
 
+    static parseType(json) {
+        let processers = {
+            [enums.PARAM_COLOR3]: cc.Color,
+            [enums.PARAM_COLOR4]: cc.Color,
+            [enums.PARAM_FLOAT2]: cc.Vec2,
+            [enums.PARAM_FLOAT3]: cc.Vec3,
+            [enums.PARAM_TEXTURE_2D]: cc.Texture2D,
+            default: cc.Object
+        }
+        let types = {};
+        // process params in techniques
+        // note: this should be moved to effect later
+        json.techniques.forEach(tech => {
+            tech.params.forEach(param => {
+                types[param.name] = processers[param.type] || processers.default;
+            });
+        });
+
+        // process defines
+        // todo:
+        // 1. only add artistic defines
+        // 2. only bool supported, may contains other type
+        json.defines.forEach((define) => {
+            types[define.name] = Boolean;
+        });
+        return types;
+    }
+
     static parseProperties(json) {
         function processColor(name, type, value) {
             return cc.color(value[0] * 255, value[1] * 255, value[2] * 255, (value[3] || 1) * 255);
