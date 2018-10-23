@@ -667,9 +667,6 @@ else {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
     } 
-    else if (typeof FbPlayableAd !== undefined) { 
-        sys.platform = sys.FB_PLAYABLE_ADS; 
-    }
     else {
         /**
          * Indicate whether system is mobile system
@@ -682,6 +679,10 @@ else {
          * @property {Number} platform
          */
         sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+    }
+
+    if (typeof FbPlayableAd !== undefined) { 
+        sys.platform = sys.FB_PLAYABLE_ADS; 
     }
 
     var currLanguage = nav.language;
