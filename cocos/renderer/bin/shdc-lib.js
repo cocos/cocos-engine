@@ -7,6 +7,7 @@ const tokenizer = require('glsl-tokenizer/string');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
+let newlines = /\n+/g;
 let whitespaces = /\s+/g;
 let ident = /[_a-zA-Z]\w*/;
 let comparators = /[<=>]+/;
@@ -47,7 +48,7 @@ function buildChunks(dest, path, cache) {
     content = glslStripComment(content);
     content = expandStructMacro(content);
     cache[path_.basename(file)] = content;
-    content = content.replace(whitespaces, ' ');
+    content = content.replace(newlines, '\\n');
     code += `  '${path_.basename(file)}': '${content}',\n`;
   }
   code = `export default {\n${code}};`;
@@ -148,8 +149,8 @@ function buildTemplates(dest, path, cache) {
     extractDefines(tokens, defines, defCache);
     extractParams(tokens, defCache, uniforms, attributes, extensions);
 
-    vert = vert.replace(whitespaces, ' ');
-    frag = frag.replace(whitespaces, ' ');
+    vert = vert.replace(newlines, '\\n');
+    frag = frag.replace(newlines, '\\n');
     code += '  {\n';
     code += `    name: '${name}',\n`;
     code += `    vert: '${vert}',\n`;

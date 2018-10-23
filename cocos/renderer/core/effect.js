@@ -158,7 +158,7 @@ export default class Effect {
             [enums.PARAM_FLOAT3]: processVec3,
             [enums.PARAM_TEXTURE_2D]: processTexture2d,
             default: processDefault
-        }
+        };
         let properties = {};
         // process params in techniques
         // note: this should be moved to effect later
@@ -171,7 +171,7 @@ export default class Effect {
         // process defines
         // todo:
         // 1. only add artistic defines
-        // 2. only bool supported, may contains other type
+        // 2. only bool supported, may contain other type
         json.defines.forEach((define) => {
             properties[define.name] = false;
         });
@@ -216,7 +216,7 @@ export default class Effect {
             color4: processColor,
             float2: processVec2,
             float3: processVec3
-        }
+        };
         let stages = json.stages;
         let passes = [];
         json.passes.forEach(pass => {
