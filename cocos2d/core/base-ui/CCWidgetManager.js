@@ -108,6 +108,7 @@ function align (node, widget) {
     var target;
     var inverseTranslate, inverseScale, targetScale = tTargetScale;
     var isParent = false;
+    targetScale.x = targetScale.y = 1;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
