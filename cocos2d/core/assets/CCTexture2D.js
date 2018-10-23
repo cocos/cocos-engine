@@ -276,6 +276,8 @@ var Texture2D = cc.Class({
         PixelFormat: PixelFormat,
         WrapMode: WrapMode,
         Filter: Filter,
+        FilterIndex: FilterIndex,
+
         // predefined most common extnames
         extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'],
 

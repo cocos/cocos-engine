@@ -37,6 +37,9 @@ let RenderTexture = cc.Class({
         opts.images = undefined;
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.minFilter = Texture2D.FilterIndex[this._minFilter];
+        opts.magFilter = Texture2D.FilterIndex[this._magFilter];
 
         if (!this._texture) {
             this._texture = new renderer.Texture2D(renderer.device, opts);
