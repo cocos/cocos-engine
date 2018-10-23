@@ -86,7 +86,8 @@ let RenderTexture = cc.Class({
             width: texture.width,
             height: texture.height,
             level: 0,
-            flipY: false
+            flipY: false,
+            premultiplyAlpha: texture._premultiplyAlpha
         })
     },
 
