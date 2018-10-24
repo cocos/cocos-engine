@@ -195,59 +195,58 @@ class Scene {
 
 if (CC_EDITOR) {
   /**
-   * create a raycast result array
-   * @return {RecyclePool}
-   */
-  Scene.createRaycastResult = function() {
-    return new RecyclePool(() => {
-      return { node: null, distance: Infinity };
-    }, 16);
-  };
-
-  /**
    * Cast a ray into the scene, record all the intersected models in the result array
    * @param {Ray} worldRay the testing ray
-   * @param {RecyclePool} results the result array
+   * @param {Object[]} results the results array
    * @param {number} mask the layer mask to filter the models
-   * @return {boolean} does the ray hit any models?
+   * @return {Object[]} the results array
    */
   Scene.prototype.raycast = (function() {
     let modelRay = ray.create();
+    let v3 = vec3.create();
     let m4 = mat4.create();
     let distance = Infinity;
     let tri = triangle.create();
-    return function(worldRay, results, mask = Layers.RaycastMask) {
-      results.reset();
+    let pool = new RecyclePool(() => {
+      return { node: null, distance: Infinity };
+    }, 8);
+    let results = [];
+    return function(worldRay, mask = Layers.RaycastMask) {
+      pool.reset();
       for (let i = 0; i < this._models.length; i++) {
-        let m = this._models.data[i];
-        if ((m._node._layer & mask) === 0 ||
-          m._inputAssembler._primitiveType !== gfx.PT_TRIANGLES) continue;
+        let m = this._models.data[i], node = m._node;
+        if (!cc.Layers.check(node._layer, mask) || !m._bsModelSpace) continue;
         // transform ray back to model space
-        mat4.invert(m4, m._node.getWorldMatrix(m4));
+        mat4.invert(m4, node.getWorldMatrix(m4));
         vec3.transformMat4(modelRay.o, worldRay.o, m4);
         vec3.normalize(modelRay.d, vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
         // broadphase
-        if (intersect.ray_aabb(modelRay, m._bsModelSpace) <= 0) continue;
-        // narrowphase
-        distance = Infinity;
-        let vb = m._inputAssembler._vertexBuffer[gfx.ATTR_POSITION];
-        let ib = m._inputAssembler._indexBuffer._data;
-        for (let j = 0; j < ib.length; j += 3) {
-          let i0 = ib[j] * 3, i1 = ib[j + 1] * 3, i2 = ib[j + 2] * 3;
-          vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-          vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-          vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-          let dist = intersect.ray_triangle(modelRay, tri);
-          if (dist <= 0 || dist > distance) continue;
-          distance = dist;
+        if ((distance = intersect.ray_aabb(modelRay, m._bsModelSpace)) <= 0) continue;
+        let ia = m._inputAssembler;
+        if (ia._primitiveType == gfx.PT_TRIANGLES) {
+          // narrowphase
+          distance = Infinity;
+          let vb = ia._vertexBuffer[gfx.ATTR_POSITION];
+          let ib = ia._indexBuffer._data, sides = ia.doubleSided;
+          for (let j = 0; j < ib.length; j += 3) {
+            let i0 = ib[j] * 3, i1 = ib[j + 1] * 3, i2 = ib[j + 2] * 3;
+            vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            let dist = intersect.ray_triangle(modelRay, tri, sides);
+            if (dist <= 0 || dist > distance) continue;
+            distance = dist;
+          }
         }
         if (distance < Infinity) {
-          let res = results.add();
-          res.node = m._node;
-          res.distance = distance;
+          let r = pool.add();
+          r.node = node;
+          r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
+          results[pool.length - 1] = r;
         }
       }
-      return results.length;
+      results.length = pool.length;
+      return results;
     };
   })();
 }

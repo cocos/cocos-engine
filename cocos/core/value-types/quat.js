@@ -128,6 +128,14 @@ export default class Quat extends ValueType {
         var cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);  
         return 180 * Math.atan2(siny, cosy) / Math.PI;
     }
+    
+    getEulerAngles (out) {
+        out = out || cc.v3();
+        out.x = this.getRoll();
+        out.y = this.getPitch();
+        out.z = this.getYaw();
+        return out;
+    }
 
     lerp (to, ratio, out) {
         out = out || new cc.Quat();

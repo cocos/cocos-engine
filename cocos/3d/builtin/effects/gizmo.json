@@ -27,12 +27,12 @@
       "passes": [
        {
          "program": "unlit",
-         "cullMode": "back",
-         "depthTest": true,
+         "cullMode": "none",
+         "depthTest": false,
          "depthWrite": false,
          "blend": true,
          "blendEq": "add",
-         "blendSrc": "srcAlpha",
+         "blendSrc": "one",
          "blendDst": "oneMinusSrcAlpha",
          "blendAlphaEq": "add",
          "blendSrcAlpha": "one",

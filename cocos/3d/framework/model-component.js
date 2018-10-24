@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
@@ -90,9 +89,8 @@ let ModelShadowCastingMode = Enum({
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/ModelComponent')
+@executeInEditMode
 export default class ModelComponent extends RenderableComponent {
-    @property
-    _materials = [];
 
     /**
      * @type {Mesh}
@@ -105,22 +103,6 @@ export default class ModelComponent extends RenderableComponent {
 
     @property
     _receiveShadows = false;
-
-    /**
-     * !#en The material of the model
-     *
-     * !#ch 模型材质
-     * @type {Material[]}
-     */
-    @property
-    get materials() {
-        return this._materials;
-    }
-
-    set materials(val) {
-        this._materials = val;
-        this._updateModelParams();
-    }
 
     /**
      * !#en The mesh of the model
@@ -286,7 +268,7 @@ export default class ModelComponent extends RenderableComponent {
         }
         return mat;
     }
-    
+
      _onMaterialModified(idx, mat) {
         this._models[idx].setEffect(mat.effectInst);
     }
