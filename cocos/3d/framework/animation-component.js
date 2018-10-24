@@ -342,9 +342,11 @@ export default class AnimationComponent extends Component {
         this._preview = value;
         if (value) {
             if (this.currentClip) {
+                cc.engine.animatingInEditMode = true;
                 this.play(this.currentClip.name);
             }
         } else {
+            cc.engine.animatingInEditMode = false;
             this._animCtrl.crossFade(null, 0);
         }
     }
