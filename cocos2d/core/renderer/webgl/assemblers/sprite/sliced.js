@@ -109,9 +109,8 @@ module.exports = {
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vertexCount = renderData.vertexCount;
-        
-        let indiceOffset = buffer.indiceOffset,
+            vertexCount = renderData.vertexCount,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         let uvSliced = sprite.spriteFrame.uvSliced;
