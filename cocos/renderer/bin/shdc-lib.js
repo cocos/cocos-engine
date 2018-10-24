@@ -14,6 +14,16 @@ let ident = /[_a-zA-Z]\w*/;
 let comparators = /[<=>]+/;
 let ifprocessor = /#(el)?if/;
 
+// (HACKY) extract all builtin uniforms to the ignore list
+let uniformIgnoreList = (function() {
+  let path = 'cocos/renderer/renderers/forward-renderer.js';
+  let renderer = fs.readFileSync(path, { encoding: 'utf8' });
+  let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
+  let result = [];
+  while (cap) { result.push(cap[2]); cap = re.exec(renderer); }
+  return result;
+})();
+
 function convertType(t) { return mappings.typeParams[t]; }
 
 function unwindIncludes(str, chunks) {
@@ -118,6 +128,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     else continue;
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
+    if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
     if (dest === extensions) param.name = str.split(whitespaces)[1];
     else { param.name = tokens[i+4].data; param.type = convertType(tokens[i+2].data); }
     /**/if (dest === extensions)/**/ param.defines = defines;

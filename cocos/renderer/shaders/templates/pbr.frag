@@ -43,7 +43,7 @@ uniform vec4 albedo;
 #endif
 
 #if USE_MRA_TEXTURE
-  uniform vec2 sampler2D mra_texture;
+  uniform sampler2D mra_texture;
 #endif
 
 uniform float metallic;

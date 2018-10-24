@@ -217,10 +217,11 @@ let _type2uniformArrayValue = {
       let result = _float64_pool.add();
       for (let i = 0; i < values.length; ++i) {
         let v = values[i];
-        result[4 * i] = v.r;
-        result[4 * i + 1] = v.g;
-        result[4 * i + 2] = v.b;
-        result[4 * i + 3] = v.a;
+        let scale = v instanceof cc.Color ? 1 / 255 : 1;
+        result[4 * i] = v.r * scale;
+        result[4 * i + 1] = v.g * scale;
+        result[4 * i + 2] = v.b * scale;
+        result[4 * i + 3] = v.a * scale;
       }
       return result;
     },
@@ -285,16 +286,10 @@ let _type2uniformArrayValue = {
 export default class BaseRenderer {
   /**
    * @param {gfx.Device} device
-   * @param {Object} opts
-   * @param {gfx.Texture2D} opts.defaultTexture
-   * @param {gfx.TextureCube} opts.defaultTextureCube
-   * @param {Array} opts.programTemplates
-   * @param {Object} opts.programChunks
    */
-  constructor(device, opts) {
+  constructor(device) {
     this._device = device;
     this._programLib = new ProgramLib(device, shaderTemplates, shaderChunks);
-    this._opts = opts;
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
       [enums.PARAM_INT2]: vec2.create(0, 0),
@@ -309,8 +304,8 @@ export default class BaseRenderer {
       [enums.PARAM_MAT2]: mat2.create(),
       [enums.PARAM_MAT3]: mat3.create(),
       [enums.PARAM_MAT4]: mat4.create(),
-      [enums.PARAM_TEXTURE_2D]: opts.defaultTexture,
-      [enums.PARAM_TEXTURE_CUBE]: opts.defaultTextureCube,
+      [enums.PARAM_TEXTURE_2D]: null,
+      [enums.PARAM_TEXTURE_CUBE]: null,
     };
     this._stage2fn = {};
     this._modelType2fn = {};
@@ -347,6 +342,17 @@ export default class BaseRenderer {
         };
       }, 100);
     }, 16);
+  }
+
+  /**
+   * @param {Object} opts
+   * @param {gfx.Texture2D} opts.defaultTexture
+   * @param {gfx.TextureCube} opts.defaultTextureCube
+   */
+  setBuiltins(opts) {
+    this._opts = opts;
+    this._type2defaultValue[enums.PARAM_TEXTURE_2D] = opts.defaultTexture;
+    this._type2defaultValue[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube;
   }
 
   _resetTextureUnit() {
@@ -526,70 +532,60 @@ export default class BaseRenderer {
     _int4_pool.reset();
     _int64_pool.reset();
 
-    // set common uniforms
-    // TODO: try commit this depends on effect
-    // {
-    node.getWorldMatrix(_m4_tmp);
-    device.setUniform('model', mat4.array(_float16_pool.add(), _m4_tmp));
-
-    mat3.normalFromMat4(_m3_tmp, _m4_tmp);
-    device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp));
-    // }
-
-    // set technique uniforms
-    for (let i = 0; i < technique._parameters.length; ++i) {
-      let param = technique._parameters[i];
-      let prop = effect.getProperty(param.name);
+    // set uniforms
+    for (let name in effect._properties) {
+      let propInfo = effect._properties[name];
+      let prop = propInfo.value;
 
       if (prop === undefined || prop === null) {
-        prop = param.val;
+        prop = this._type2defaultValue[propInfo.type];
       }
 
-      if (prop === undefined || prop === null) {
-        prop = this._type2defaultValue[param.type];
-      }
+      // set common uniforms
+      if (name === 'model') { node.getWorldMatrix(_m4_tmp); prop = _m4_tmp; }
+      else if (name === 'normalMatrix') { mat3.normalFromMat4(_m3_tmp, _m4_tmp); prop = _m3_tmp; }
 
       if (prop === undefined || prop === null) {
-        console.warn(`Failed to set technique property ${param.name}, value not found.`);
+        console.warn(`Failed to set technique property ${name}, value not found.`);
         continue;
       }
 
       if (
-        param.type === enums.PARAM_TEXTURE_2D ||
-        param.type === enums.PARAM_TEXTURE_CUBE
+        propInfo.type === enums.PARAM_TEXTURE_2D ||
+        propInfo.type === enums.PARAM_TEXTURE_CUBE
       ) {
-        if (defines['USE_'+param.name.toUpperCase()] == false) continue;
-        if (param.size !== undefined) {
-          if (param.size !== prop.length) {
-            console.error(`The length of texture array (${prop.length}) is not corrent(expect ${param.size}).`);
+        if (defines['USE_'+name.toUpperCase()] == false) continue;
+        if (propInfo.size !== undefined) {
+          if (propInfo.size !== prop.length) {
+            console.error(`The length of texture array (${prop.length}) is not corrent(expect ${propInfo.size}).`);
             continue;
           }
           let slots = _int64_pool.add();
           for (let index = 0; index < prop.length; ++index) {
             slots[index] = this._allocTextureUnit();
           }
-          device.setTextureArray(param.name, prop, slots);
+          device.setTextureArray(name, prop, slots);
         } else {
-          device.setTexture(param.name, prop, this._allocTextureUnit());
+          device.setTexture(name, prop, this._allocTextureUnit());
         }
       } else {
         let convertedValue;
-        if (param.size !== undefined) {
-          let convertArray = _type2uniformArrayValue[param.type];
+        if (propInfo.size !== undefined) {
+          let convertArray = _type2uniformArrayValue[propInfo.type];
           if (convertArray.func === undefined) {
             console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
             continue;
           }
-          if (param.size * convertArray.size > 64) {
+          if (propInfo.size * convertArray.size > 64) {
             console.error('Uniform array is too long!');
             continue;
           }
           convertedValue = convertArray.func(prop);
         } else {
-          let convertFn = _type2uniformValue[param.type];
+          let convertFn = _type2uniformValue[propInfo.type];
           convertedValue = convertFn(prop);
         }
-        device.setUniform(param.name, convertedValue);
+        device.setUniform(name, convertedValue);
       }
     }
 

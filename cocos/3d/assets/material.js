@@ -29,10 +29,6 @@ import Asset from "../../assets/CCAsset";
 import Texture from '../../assets/CCTexture2D';
 import Effect from '../../renderer/core/effect';
 
-function _objArrayClone(val) {
-    return val.map(obj => Object.assign({}, obj));
-}
-
 @ccclass('cc.Material')
 export default class Material extends Asset {
     /**
@@ -67,7 +63,7 @@ export default class Material extends Asset {
             this._effectAsset = val;
             this._effect = Effect.parseEffect(this._effectAsset);
             let propCls = cc.js.getClassByName(Effect.getPropertyClassName(this._effectAsset));
-            this._props = propCls ? new propCls() : {}
+            this._props = propCls ? new propCls() : {};
         }
     }
 
@@ -130,7 +126,7 @@ export default class Material extends Asset {
         };
     }
 
-    _deserialize(data, handle) {
+    _deserialize(data/*, handle*/) {
         console.log(`try to deserialize material`);
         if (data.effect.indexOf('builtin-effect') !== -1) {
             this._effectAsset = cc.game._builtins[data.effect];
@@ -138,7 +134,7 @@ export default class Material extends Asset {
             this._props = cc.deserialize(data.props);
         } else {
             // todo: add custom effect
-            console.error('Cannot support custom effect now')
+            console.error('Cannot support custom effect now');
         }
     }
 

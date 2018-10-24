@@ -77,7 +77,7 @@ export default class ProgramLib {
    * @param {Object[]} defines
    *
    * @example:
-   *   // this object should be auto-generated from your actual shaders
+   *   // this object is auto-generated from your actual shaders
    *   let program = {
    *     name: 'foobar',
    *     vert: vertTmpl,
@@ -148,6 +148,10 @@ export default class ProgramLib {
       uniforms: prog.uniforms,
       extensions: prog.extensions
     };
+  }
+
+  getTemplate(name) {
+    return this._templates[name];
   }
 
   /**
