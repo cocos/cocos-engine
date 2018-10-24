@@ -348,6 +348,12 @@ function initSys () {
      */
     sys.QQ_PLAY = 105;
     /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 106
+     */
+    sys.FB_PLAYABLE_ADS = 106;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -718,7 +724,12 @@ function initSys () {
              * Indicate the running platform
              * @property {Number} platform
              */
-            sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            if (typeof FbPlayableAd !== undefined) {
+                sys.platform = sys.FB_PLAYABLE_ADS;
+            }
+            else {
+                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            }
         }
 
         var currLanguage = nav.language;
