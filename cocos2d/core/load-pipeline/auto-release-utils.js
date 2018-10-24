@@ -84,6 +84,10 @@ function visitComponent (comp, excludeMap) {
 }
 
 function visitNode (node, excludeMap) {
+    if (CC_DEV) {
+        cc.assert(node._components, 'Some components of %s go wrong', node._name);
+    }
+    
     for (let i = 0; i < node._components.length; i++) {
         visitComponent(node._components[i], excludeMap);
     }

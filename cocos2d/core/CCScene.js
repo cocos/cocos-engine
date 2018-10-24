@@ -99,6 +99,37 @@ cc.Scene = cc.Class({
     _activate: function (active) {
         active = (active !== false);
         if (CC_EDITOR || CC_TEST) {
+            (function _checkNode (node) {
+                if (!(node instanceof cc.Scene)) {
+                    // if node is not valid or id is null, warn info and return false
+                    if (!cc.isValid(node)) {
+                        cc.warnID(1639, node._name);
+                        return false;
+                    } else if (!node._id) {
+                        cc.warnID(1639, node._name);
+                        return false;
+                    }
+
+                } else {
+                    cc.assertID(cc.isValid(node), 1639, node._name);
+                    cc.assertID(node._id, 1639, node._name);
+                }
+
+                // if node._components is null, set it to empty array
+                if (!node._components) {
+                    cc.warnID(1640, node._name);
+                    node._components = [];
+                }
+                
+                for (let i = node._children.length - 1; i >= 0; --i) {
+                    // if return false, just delete it
+                    if (!_checkNode(node._children[i])) {
+                        node._children.splice(i, 1);
+                    }
+                }
+
+                return true;
+            })(this);
             // register all nodes to editor
             this._registerIfAttached(active);
         }

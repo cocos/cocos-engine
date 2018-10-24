@@ -467,6 +467,14 @@ Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the mi
 
 Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its value
 
+### 1639
+
+%s is damaged
+
+### 1640
+
+The component attached to %s are missing
+
 ### 1700
 
 <!-- DEPRECATED -->

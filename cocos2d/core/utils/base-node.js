@@ -1240,6 +1240,7 @@ var BaseNode = cc.Class({
                 delete attachedObjsForEditor[comp._id];
             }
         }
+
         var children = this._children;
         for (let i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
