@@ -466,7 +466,7 @@ function convertOptions(options) {
         options.glType = gltf.pixelType;
         options.bpp = gltf.bpp;
         options.compressed = options.glFormat >= enums.TEXTURE_FMT_RGB_DXT1 &&
-                             options.gltf <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1;
+                             options.glFormat <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1;
     }
 
     convertImages(options.images);

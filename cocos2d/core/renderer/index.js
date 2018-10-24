@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const renderEngine = require('./render-engine');
-const RenderFlow = require('./render-flow');
 
 function _initBuiltins(device) {
     let defaultTexture = new renderEngine.Texture2D(device, {
@@ -114,7 +113,7 @@ cc.renderer = module.exports = {
         this.scene = new renderEngine.Scene();
 
         this._handle = new ModelBatcher(this.device, this.scene);
-        RenderFlow.init(this._handle);
+        cc.RenderFlow.init(this._handle);
         let builtins = _initBuiltins(this.device);
         this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
@@ -136,7 +135,7 @@ cc.renderer = module.exports = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };
         this._handle = new canvasRenderer.RenderComponentHandle(this.device, this._camera);
-        RenderFlow.init(this._handle);
+        cc.RenderFlow.init(this._handle);
         this._forward = new canvasRenderer.ForwardRenderer();
     },
 
@@ -161,7 +160,7 @@ cc.renderer = module.exports = {
         this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
-            RenderFlow.visit(ecScene);
+            cc.RenderFlow.visit(ecScene);
             // Render models in renderer scene
             this._forward.render(this.scene);
             this.drawCalls = this.device._stats.drawcalls;

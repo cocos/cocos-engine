@@ -32,7 +32,6 @@ const math = require('./renderer/render-engine').math;
 const AffineTrans = require('./utils/affine-transform');
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
-const misc = require('./utils/misc');
 const js = require('./platform/js');
 const Event = require('./event/event');
 const EventTarget = require('./event/event-target');
