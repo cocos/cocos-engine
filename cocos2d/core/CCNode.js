@@ -287,6 +287,13 @@ var EventType = cc.Enum({
      * @static
      */
     GROUP_CHANGED: 'group-changed',
+    /**
+     * !#en The event type for node's sibling order changed.
+     * !#zh 当节点在兄弟节点中的顺序发生变化时触发的事件。
+     * @property {String} SIBLING_ORDER_CHANGED
+     * @static
+     */
+    SIBLING_ORDER_CHANGED: 'sibling-order-changed',
 });
 
 var _touchEvents = [
@@ -1113,6 +1120,7 @@ let NodeDefines = {
                 if (this._zIndex !== value) {
                     this._zIndex = value;
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
+                    this.emit(EventType.SIBLING_ORDER_CHANGED);
 
                     if (this._parent) {
                         this._parent._delaySort();
@@ -1160,6 +1168,12 @@ let NodeDefines = {
         this._cullingMask = 1 << this.groupIndex;
 
         this._eulerAngles = cc.v3();
+
+        // Proxy
+        if (CC_JSB) {
+            this._proxy = new renderer.NodeProxy();
+            this._proxy.bind(this);
+        }
     },
 
     statics: {
@@ -1169,7 +1183,6 @@ let NodeDefines = {
         isNode (obj) {
             return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
         },
-
         BuiltinGroupIndex
     },
 
@@ -1232,6 +1245,10 @@ let NodeDefines = {
                 this._parent = null;
             }
         }
+
+        if (CC_JSB) {
+            this._proxy.unbind();
+        }
     },
 
     _onPostActivated (active) {
@@ -1268,6 +1285,11 @@ let NodeDefines = {
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
             cc._widgetManager._nodesOrderDirty = true;
+        }
+
+        // Node proxy
+        if (CC_JSB) {
+            this._parent && this._proxy.updateParent(this._parent._proxy);
         }
     },
 
@@ -2654,11 +2676,17 @@ let NodeDefines = {
     },
 
     setLocalDirty (flag) {
+        if (CC_JSB) {
+            this._proxy.setMatrixDirty();
+        }
         this._localMatDirty = this._localMatDirty | flag;
         this._worldMatDirty = true;
     },
 
     setWorldDirty () {
+        if (CC_JSB) {
+            this._proxy.setMatrixDirty();
+        }
         this._worldMatDirty = true;
     },
 
@@ -3024,6 +3052,7 @@ let NodeDefines = {
     _updateOrderOfArrival () {
         var arrivalOrder = ++_globalOrderOfArrival;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
+        this.emit(EventType.SIBLING_ORDER_CHANGED);
     },
 
     /**
