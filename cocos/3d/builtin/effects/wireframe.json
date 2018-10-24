@@ -2,13 +2,6 @@
   "techniques": [
     {
       "stages": ["opaque"],
-      "params": [
-        {
-          "name": "color",
-          "type": "color3",
-          "value": [1, 1, 1]
-        }
-      ],
       "passes": [
        {
          "program": "wireframe",
@@ -18,6 +11,10 @@
       "layer": 0
     }
   ],
-  "properties": {},
-  "defines": []
+  "properties": {
+    "color": {
+      "type": "color3",
+      "value": [1, 1, 1]
+    }
+  }
 }

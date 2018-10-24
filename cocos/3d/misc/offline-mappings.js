@@ -4,14 +4,21 @@ import { enums } from '../../renderer/gfx/enums';
 import rendererEnums from '../../renderer/enums';
 
 const typeParams = {
+  int: rendererEnums.PARAM_INT,
+  ivec2: rendererEnums.PARAM_INT2,
+  ivec3: rendererEnums.PARAM_INT3,
+  ivec4: rendererEnums.PARAM_INT4,
   float: rendererEnums.PARAM_FLOAT,
-  float2: rendererEnums.PARAM_FLOAT2,
-  float3: rendererEnums.PARAM_FLOAT3,
-  float4: rendererEnums.PARAM_FLOAT4,
+  vec2: rendererEnums.PARAM_FLOAT2,
+  vec3: rendererEnums.PARAM_FLOAT3,
+  vec4: rendererEnums.PARAM_FLOAT4,
   color3: rendererEnums.PARAM_COLOR3,
   color4: rendererEnums.PARAM_COLOR4,
-  texture2d: rendererEnums.PARAM_TEXTURE_2D,
-  textureCube: rendererEnums.PARAM_TEXTURE_CUBE
+  mat2: rendererEnums.PARAM_MAT2,
+  mat3: rendererEnums.PARAM_MAT3,
+  mat4: rendererEnums.PARAM_MAT4,
+  sampler2D: rendererEnums.PARAM_TEXTURE_2D,
+  samplerCube: rendererEnums.PARAM_TEXTURE_CUBE
 };
 
 const passParams = {

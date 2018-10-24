@@ -18,27 +18,23 @@ function buildEffects(dest, path) {
     // map param's type offline.
     for (let j = 0; j < json.techniques.length; ++j) {
       let jsonTech = json.techniques[j];
-      for (let k = 0; k < jsonTech.params.length; ++k) {
-        let param = jsonTech.params[k];
-        param.type = mappings.typeParams[param.type];
-      }
       for (let k = 0; k < jsonTech.passes.length; ++k) {
         let pass = jsonTech.passes[k];
         for (let key in pass) {
-          if (key === "program") {
-            continue;
-          }
+          if (key === "program") continue;
           pass[key] = mappings.passParams[pass[key]];
         }
       }
+    }
+    for (let prop in json.properties) {
+      let info = json.properties[prop];
+      info.type = mappings.typeParams[info.type];
     }
 
     code += '  {\n';
     code += `    name: '${name}',\n`;
     code += `    techniques: ${JSON.stringify(json.techniques)},\n`;
     code += `    properties: ${JSON.stringify(json.properties)},\n`;
-    code += `    defines: ${JSON.stringify(json.defines)},\n`;
-    code += `    dependencies: ${JSON.stringify(json.dependencies)}\n`;
     code += '  },\n';
   }
   code = `export default [\n${code}];`;

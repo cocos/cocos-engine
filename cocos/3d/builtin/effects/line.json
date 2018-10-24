@@ -2,7 +2,6 @@
   "techniques": [
     {
       "stages": ["opaque"],
-      "params": [],
       "passes": [
        {
          "program": "line",
@@ -12,6 +11,5 @@
       "layer": 0
     }
   ],
-  "properties": {},
-  "defines": []
+  "properties": {}
 }

@@ -2,13 +2,6 @@
   "techniques": [
     {
       "stages": ["ui"],
-      "params": [
-        {
-          "name": "mainTexture",
-          "type": "texture2d",
-          "value": null
-        }
-      ],
       "passes": [
        {
          "program": "sprite",
@@ -27,7 +20,10 @@
     }
   ],
 
-  "properties": {},
-
-  "defines": []
+  "properties": {
+    "mainTexture": {
+      "type": "sampler2D",
+      "value": null
+    }
+  }
 }

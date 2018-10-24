@@ -4,6 +4,7 @@ const path_ = require('path');
 const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
 const tokenizer = require('glsl-tokenizer/string');
+const mappings = require('../../../bin/mappings');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
@@ -12,6 +13,8 @@ let whitespaces = /\s+/g;
 let ident = /[_a-zA-Z]\w*/;
 let comparators = /[<=>]+/;
 let ifprocessor = /#(el)?if/;
+
+function convertType(t) { return mappings.typeParams[t]; }
 
 function unwindIncludes(str, chunks) {
   function replace(match, include) {
@@ -116,7 +119,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
     if (dest === extensions) param.name = str.split(whitespaces)[1];
-    else { param.name = tokens[i+4].data; param.type = tokens[i+2].data; }
+    else { param.name = tokens[i+4].data; param.type = convertType(tokens[i+2].data); }
     /**/if (dest === extensions)/**/ param.defines = defines;
     dest.push(param);
   }

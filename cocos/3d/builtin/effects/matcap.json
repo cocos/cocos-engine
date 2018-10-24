@@ -2,28 +2,6 @@
   "techniques": [
     {
       "stages": ["opaque"],
-      "params": [
-        {
-          "name": "mainTex",
-          "type": "texture2d",
-          "value": null
-        },
-        {
-          "name": "matcapTex",
-          "type": "texture2d",
-          "value": null
-        },
-        {
-          "name": "colorFactor",
-          "type": "float",
-          "value": 0.5
-        },
-        {
-          "name": "color",
-          "type": "color4",
-          "value": [1, 1, 1, 1]
-        }
-      ],
       "passes": [
        {
          "program": "matcap",
@@ -35,16 +13,22 @@
     }
   ],
 
-  "properties": {},
-
-  "defines": [
-    {
-      "name": "USE_MAIN_TEX",
-      "value": false
+  "properties": {
+    "mainTex": {
+      "type": "sampler2D",
+      "value": null
     },
-    {
-      "name": "USE_SKINNING",
-      "value": false
+    "matcapTex": {
+      "type": "sampler2D",
+      "value": null
+    },
+    "colorFactor": {
+      "type": "float",
+      "value": 0.5
+    },
+    "color": {
+      "type": "color4",
+      "value": [1, 1, 1, 1]
     }
-  ]
+  }
 }
