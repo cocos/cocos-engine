@@ -699,6 +699,8 @@ let RichText = cc.Class({
                     if (multilineTexts.length > 1 && j < multilineTexts.length - 1) {
                         this._updateLineInfo();
                     }
+
+                    label.active = this.node.active;
                 }
             }
         }
