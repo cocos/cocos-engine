@@ -172,6 +172,10 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     _updateModels() {
+        if (this._mesh) {
+            this._mesh.flush();
+        }
+
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
 

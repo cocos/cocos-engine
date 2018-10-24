@@ -227,6 +227,9 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
+        if (this._mesh) {
+            this._mesh.flush();
+        }
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
 
@@ -274,12 +277,12 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateCastShadow() {
-        if (this._shadowCastingMode === 'off') {
+        if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
             for (let i = 0; i < this._models.length; ++i) {
                 let model = this._models[i];
                 model._castShadow = false;
             }
-        } else if (this._shadowCastingMode === 'on') {
+        } else if (this._shadowCastingMode === ModelShadowCastingMode.On) {
             for (let i = 0; i < this._models.length; ++i) {
                 let model = this._models[i];
                 model._castShadow = true;

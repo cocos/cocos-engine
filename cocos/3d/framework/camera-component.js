@@ -296,6 +296,17 @@ export default class CameraComponent extends RenderSystemActor{
     }
 
     onLoad() {
+        this.projection = this._projection;
+        this.priority = this._priority;
+        this.fov = this._fov;
+        this.orthoHeight = this._orthoHeight;
+        this.near = this._near;
+        this.far = this._far;
+        this.color = this._color;
+        this.depth = this._depth;
+        this.stencil = this._stencil;
+        this.clearFlags = this._clearFlags;
+        this.rect = this._rect;
         this._camera.setStages([
             'opaque',
             'transparent'

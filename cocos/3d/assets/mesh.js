@@ -60,10 +60,6 @@ export default class Mesh extends Asset {
         this.flush();
     }
 
-    onLoad() {
-        this.flush();
-    }
-
     constructor() {
         super();
 
