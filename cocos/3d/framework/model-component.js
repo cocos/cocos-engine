@@ -172,10 +172,12 @@ export default class ModelComponent extends RenderableComponent {
         this._updateReceiveShadow();
 
         /** @type {import("../../../engine/cocos/3d/assets/material").default} */
-        let mtl = new cc.Material();
-        mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
-        mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
-        this.material = mtl;
+        if (this.material == null) {
+            let mtl = new cc.Material();
+            mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
+            mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
+            this.material = mtl;
+        }
     }
 
     onEnable() {
