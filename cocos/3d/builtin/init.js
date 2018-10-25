@@ -199,7 +199,7 @@ export default function (device) {
     //     'font'
     // ].forEach(name => {
     //     let mat = new Material();
-    //     mat.effect = effects[`builtin-effect-${name}`];
+    //     mat.effectAsset = effects[`builtin-effect-${name}`];
     //     mat._uuid = `builtin-material-${name}`;
     //     mat._loaded = true;
     //     materials[mat._uuid] = mat;

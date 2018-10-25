@@ -27,8 +27,6 @@ import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import Texture from '../../assets/CCTexture2D';
-import renderer from "../../renderer";
-import { vec2, vec3, vec4, color3, color4 } from '../../core/vmath';
 import Effect from '../../renderer/core/effect';
 
 function _objArrayClone(val) {
@@ -38,10 +36,10 @@ function _objArrayClone(val) {
 @ccclass('cc.Material')
 export default class Material extends Asset {
     /**
-     * @type {cc.Effect}
+     * @type {Object}
      */
-    @property(cc.Effect)
-    _effect = null;
+    @property(Object)
+    _effectAsset = null;
 
     /**
      * @type {Object}
@@ -52,23 +50,23 @@ export default class Material extends Asset {
     /**
      * @type {cc.renderer.Effect}
      */
-    _effecInst = null;
+    _effect = null;
 
     /**
- * @return {Effect}
+ * @return {Object}
      */
-    get effect() {
-        return this._effect;
+    get effectAsset() {
+        return this._effectAsset;
     }
 
     /**
-     * @param {Effect} val
+     * @param {Object} val
      */
-    set effect(val) {
-        if (this._effect !== val) {
-            this._effect = val;
-            this._effectInst = Effect.parseEffect(this._effect);
-            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(this._effect));
+    set effectAsset(val) {
+        if (this._effectAsset !== val) {
+            this._effectAsset = val;
+            this._effect = Effect.parseEffect(this._effectAsset);
+            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(this._effectAsset));
             this._props = propCls ? new propCls() : {}
         }
     }
@@ -76,8 +74,8 @@ export default class Material extends Asset {
     /**
      * @return {cc.renderer.Effect}
      */
-    get effectInst() {
-        return this._effectInst;
+    get effect() {
+        return this._effect;
     }
 
     /**
@@ -85,9 +83,9 @@ export default class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
-        if (this._effect !== mat._effect) {
-            this._effect = mat._effect;
-            this._effecInst = Effect.parseEffect(this._effect);
+        if (this._effectAsset !== mat._effectAsset) {
+            this._effectAsset = mat._effectAsset;
+            this._effect = Effect.parseEffect(this._effectAsset);
         }
 
         for (let name in mat._props) {
@@ -104,9 +102,9 @@ export default class Material extends Asset {
         this._props[name] = val;
 
         if (val instanceof Texture) {
-            this._effectInst.setProperty(name, val._texture);
+            this._effect.setProperty(name, val._texture);
         } else {
-            this._effectInst.setProperty(name, val);
+            this._effect.setProperty(name, val);
         }
     }
 
@@ -116,7 +114,7 @@ export default class Material extends Asset {
      * @param {*} val
      */
     define(name, val) {
-        this._effectInst.define(name, val);
+        this._effect.define(name, val);
     }
 
     destroy() {
@@ -127,7 +125,7 @@ export default class Material extends Asset {
     _serialize() {
         // todo: this may be refactored for it is editor only
         return {
-            effect: (this._effect && this._effect._uuid) || 'unknown',
+            effect: (this._effectAsset && this._effectAsset._uuid) || 'unknown',
             props: Editor.serialize(this._props),
         };
     }
@@ -135,8 +133,8 @@ export default class Material extends Asset {
     _deserialize(data, handle) {
         console.log(`try to deserialize material`);
         if (data.effect.indexOf('builtin-effect') !== -1) {
-            this._effect = cc.game._builtins[data.effect];
-            this._effecInst = Effect.parseEffect(this._effect);
+            this._effectAsset = cc.game._builtins[data.effect];
+            this._effect = Effect.parseEffect(this._effectAsset);
             this._props = cc.deserialize(data.props);
         } else {
             // todo: add custom effect
