@@ -247,6 +247,10 @@ var NodeActivator = cc.Class({
     },
 
     activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroied before activating
+            return;
+        }
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
@@ -283,6 +287,10 @@ var NodeActivator = cc.Class({
             cc.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroied before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {
