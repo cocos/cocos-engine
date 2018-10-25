@@ -188,16 +188,16 @@ export class AnimationTarget {
         //return this._defaultRotations[nodeIndex];
     }
 
-    _saveDefaultTRS() {
-        this._defaultPositions = new Array(this._nodes.length);
-        this._defaultScales = new Array(this._nodes.length);
-        this._defaultRotations = new Array(this._nodes.length);
-        this._nodes.forEach((node, index) => {
-            this._defaultPositions[index] = node.getPosition();
-            this._defaultScales[index] = node.getScale();
-            this._defaultRotations[index] = node.getRotation();
-        });
-    }
+    // _saveDefaultTRS() {
+    //     this._defaultPositions = new Array(this._nodes.length);
+    //     this._defaultScales = new Array(this._nodes.length);
+    //     this._defaultRotations = new Array(this._nodes.length);
+    //     this._nodes.forEach((node, index) => {
+    //         this._defaultPositions[index] = node.getPosition();
+    //         this._defaultScales[index] = node.getScale();
+    //         this._defaultRotations[index] = node.getRotation();
+    //     });
+    // }
 }
 
 /**
