@@ -2,8 +2,8 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- render-engine v1.2.0
- https://www.cocos.com/
+ render-engine v1.2.1
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -662,11 +662,10 @@ Effect.prototype.define = function define (name, value) {
     var def = this$1._defines[i];
     if ( def.name === name ) {
       def.value = value;
+      this$1._nativeObj.setDefineValue(name, value);
       return;
     }
   }
-
-  this._nativeObj.setDefine(name, value);
 
   console.warn(("Failed to set define " + name + ", define not found."));
 };

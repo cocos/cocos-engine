@@ -2,8 +2,8 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- render-engine v1.2.0
- https://www.cocos.com/
+ render-engine v1.2.1
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,

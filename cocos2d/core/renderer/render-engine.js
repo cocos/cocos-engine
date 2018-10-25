@@ -2,8 +2,8 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- render-engine v1.2.0
- https://www.cocos.com/
+ render-engine v1.2.1
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -10339,6 +10339,8 @@ var Pass = function Pass(name) {
   this._depthTest = false;
   this._depthWrite = false;
   this._depthFunc = gfx.DS_FUNC_LESS;
+
+  // stencil
   this._stencilTest = false;
   // front
   this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
@@ -10356,42 +10358,6 @@ var Pass = function Pass(name) {
   this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilWriteMaskBack = 0xff;
-};
-
-Pass.prototype.copy = function (pass) {
-    this._programName = pass._programName;
-    // cullmode
-    this._cullMode = pass._cullMode;
-    // blending
-    this._blend = pass._blend;
-    this._blendEq = pass._blendEq;
-    this._blendAlphaEq = pass._blendAlphaEq;
-    this._blendSrc = pass._blendSrc;
-    this._blendDst = pass._blendDst;
-    this._blendSrcAlpha = pass._blendSrcAlpha;
-    this._blendDstAlpha = pass._blendDstAlpha;
-    this._blendColor = pass._blendColor;
-    // depth
-    this._depthTest = pass._depthTest;
-    this._depthWrite = pass._depthWrite;
-    this._depthFunc = pass._depthFunc;
-    this._stencilTest = pass._stencilTest;
-    // front
-    this._stencilFuncFront = pass._stencilFuncFront;
-    this._stencilRefFront = pass._stencilRefFront;
-    this._stencilMaskFront = pass._stencilMaskFront;
-    this._stencilFailOpFront = pass._stencilFailOpFront;
-    this._stencilZFailOpFront = pass._stencilZFailOpFront;
-    this._stencilZPassOpFront = pass._stencilZPassOpFront;
-    this._stencilWriteMaskFront = pass._stencilWriteMaskFront;
-    // back
-    this._stencilFuncBack = pass._stencilFuncBack;
-    this._stencilRefBack = pass._stencilRefBack;
-    this._stencilMaskBack = pass._stencilMaskBack;
-    this._stencilFailOpBack = pass._stencilFailOpBack;
-    this._stencilZFailOpBack = pass._stencilZFailOpBack;
-    this._stencilZPassOpBack = pass._stencilZPassOpBack;
-    this._stencilWriteMaskBack = pass._stencilWriteMaskBack;
 };
 
 Pass.prototype.setCullMode = function setCullMode (cullMode) {
@@ -10497,6 +10463,42 @@ Pass.prototype.disableStencilTest = function disableStencilTest () {
   this._stencilTest = false;
 };
 
+Pass.prototype.copy = function copy (pass) {
+  this._programName = pass._programName;
+  // cullmode
+  this._cullMode = pass._cullMode;
+  // blending
+  this._blend = pass._blend;
+  this._blendEq = pass._blendEq;
+  this._blendAlphaEq = pass._blendAlphaEq;
+  this._blendSrc = pass._blendSrc;
+  this._blendDst = pass._blendDst;
+  this._blendSrcAlpha = pass._blendSrcAlpha;
+  this._blendDstAlpha = pass._blendDstAlpha;
+  this._blendColor = pass._blendColor;
+  // depth
+  this._depthTest = pass._depthTest;
+  this._depthWrite = pass._depthWrite;
+  this._depthFunc = pass._depthFunc;
+  this._stencilTest = pass._stencilTest;
+  // front
+  this._stencilFuncFront = pass._stencilFuncFront;
+  this._stencilRefFront = pass._stencilRefFront;
+  this._stencilMaskFront = pass._stencilMaskFront;
+  this._stencilFailOpFront = pass._stencilFailOpFront;
+  this._stencilZFailOpFront = pass._stencilZFailOpFront;
+  this._stencilZPassOpFront = pass._stencilZPassOpFront;
+  this._stencilWriteMaskFront = pass._stencilWriteMaskFront;
+  // back
+  this._stencilFuncBack = pass._stencilFuncBack;
+  this._stencilRefBack = pass._stencilRefBack;
+  this._stencilMaskBack = pass._stencilMaskBack;
+  this._stencilFailOpBack = pass._stencilFailOpBack;
+  this._stencilZFailOpBack = pass._stencilZFailOpBack;
+  this._stencilZPassOpBack = pass._stencilZPassOpBack;
+  this._stencilWriteMaskBack = pass._stencilWriteMaskBack;
+};
+
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
 
 var _stageOffset = 0;
@@ -10552,39 +10554,41 @@ var Technique = function Technique(stages, parameters, passes, layer) {
 
 var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
 
-Technique.prototype.copy = function (technique) {
-  this._id = technique._id;
-  this._stageIDs = technique._stageIDs;
-
-  this._parameters = [];
-  for (let i = 0; i < technique._parameters.length; ++i) {
-    let parameter = technique._parameters[i];
-    this._parameters.push({name: parameter.name, type: parameter.type});
-  }
-
-  for (let i = 0; i < technique._passes.length; ++i) {
-    let pass = this._passes[i];
-    if (!pass) {
-      pass = new renderer.Pass();
-      this._passes.push(pass);
-    }
-    pass.copy(technique._passes[i]);
-  }
-  this._passes.length = technique._passes.length;
-
-  this._layer = technique._layer;
-};
-
-Technique.prototype.setStages = function setStages (stages) {
-  this._stageIDs = config.stageIDs(stages);
-};
-
 prototypeAccessors$3.passes.get = function () {
   return this._passes;
 };
 
 prototypeAccessors$3.stageIDs.get = function () {
   return this._stageIDs;
+};
+
+Technique.prototype.copy = function copy (technique) {
+    var this$1 = this;
+
+  this._id = technique._id;
+  this._stageIDs = technique._stageIDs;
+  
+  this._parameters = [];
+  for (var i = 0; i < technique._parameters.length; ++i) {
+    var parameter = technique._parameters[i];
+    this$1._parameters.push({name: parameter.name, type: parameter.type});
+  }
+  
+  for (var i$1 = 0; i$1 < technique._passes.length; ++i$1) {
+    var pass = this$1._passes[i$1];
+    if (!pass) {
+      pass = new renderer.Pass();
+      this$1._passes.push(pass);
+    }
+    pass.copy(technique._passes[i$1]);
+  }
+  this._passes.length = technique._passes.length;
+  
+  this._layer = technique._layer;
+};
+
+Technique.prototype.setStages = function setStages (stages) {
+  this._stageIDs = config.stageIDs(stages);
 };
 
 Object.defineProperties( Technique.prototype, prototypeAccessors$3 );
@@ -13644,7 +13648,7 @@ Base.prototype._draw = function _draw (item) {
   }
 };
 
-var renderer = {
+var renderer$1 = {
   // config
   addStage: config.addStage,
 
@@ -13666,7 +13670,7 @@ var renderer = {
   Base: Base,
   ProgramLib: ProgramLib,
 };
-Object.assign(renderer, enums);
+Object.assign(renderer$1, enums);
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
@@ -13746,7 +13750,7 @@ var ForwardRenderer = (function (superclass) {
   };
 
   return ForwardRenderer;
-}(renderer.Base));
+}(renderer$1.Base));
 
 var chunks = {
   'skinning.vert': '\nattribute vec4 a_weights;\nattribute vec4 a_joints;\n#ifdef useJointsTexture\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\n#else\nuniform mat4 u_jointMatrices[64];\nmat4 getBoneMatrix(const in float i) {\n  return u_jointMatrices[int(i)];\n}\n#endif\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
@@ -14107,33 +14111,33 @@ function computeHash(material) {
                     continue;
                 }
                 switch(param.type) {
-                    case renderer.PARAM_INT:
-                    case renderer.PARAM_FLOAT:
+                    case renderer$1.PARAM_INT:
+                    case renderer$1.PARAM_FLOAT:
                         hashData += prop + ';';
                         break;
-                    case renderer.PARAM_INT2:
-                    case renderer.PARAM_FLOAT2:
+                    case renderer$1.PARAM_INT2:
+                    case renderer$1.PARAM_FLOAT2:
                         hashData += prop.x + ',' + prop.y + ';';
                         break;
-                    case renderer.PARAM_INT4:
-                    case renderer.PARAM_FLOAT4:
+                    case renderer$1.PARAM_INT4:
+                    case renderer$1.PARAM_FLOAT4:
                         hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
                         break;
-                    case renderer.PARAM_COLOR4:
+                    case renderer$1.PARAM_COLOR4:
                         hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
                         break;
-                    case renderer.PARAM_MAT2:
+                    case renderer$1.PARAM_MAT2:
                         hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
                         break;
-                    case renderer.PARAM_TEXTURE_2D:
-                    case renderer.PARAM_TEXTURE_CUBE:
+                    case renderer$1.PARAM_TEXTURE_2D:
+                    case renderer$1.PARAM_TEXTURE_CUBE:
                         hashData += material._texIds[propKey] + ';';
                         break;
-                    case renderer.PARAM_INT3:
-                    case renderer.PARAM_FLOAT3:
-                    case renderer.PARAM_COLOR3:
-                    case renderer.PARAM_MAT3:
-                    case renderer.PARAM_MAT4:
+                    case renderer$1.PARAM_INT3:
+                    case renderer$1.PARAM_FLOAT3:
+                    case renderer$1.PARAM_COLOR3:
+                    case renderer$1.PARAM_MAT3:
+                    case renderer$1.PARAM_MAT4:
                         hashData += JSON.stringify(prop) + ';';
                         break;
                     default:
@@ -14183,7 +14187,7 @@ var SpriteMaterial = (function (Material$$1) {
   function SpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer.Pass('sprite');
+    var pass = new renderer$1.Pass('sprite');
     pass.setDepth(false, false);
     pass.setCullMode(gfx.CULL_NONE);
     pass.setBlend(
@@ -14193,18 +14197,18 @@ var SpriteMaterial = (function (Material$$1) {
       gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$1.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$1.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$1.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$1.Effect(
       [
         mainTech ],
       {
@@ -14312,7 +14316,7 @@ var GraySpriteMaterial = (function (Material$$1) {
   function GraySpriteMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer.Pass('gray_sprite');
+    var pass = new renderer$1.Pass('gray_sprite');
     pass.setDepth(false, false);
     pass.setCullMode(gfx.CULL_NONE);
     pass.setBlend(
@@ -14322,18 +14326,18 @@ var GraySpriteMaterial = (function (Material$$1) {
       gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$1.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$1.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$1.PARAM_COLOR4 } ],
       [
         pass
       ]
     );
 
     this._color = {r: 1, g: 1, b: 1, a: 1};
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$1.Effect(
       [
         mainTech ],
       {
@@ -14401,7 +14405,7 @@ var StencilMaterial = (function (Material$$1) {
   function StencilMaterial() {
     Material$$1.call(this, false);
 
-    this._pass = new renderer.Pass('sprite');
+    this._pass = new renderer$1.Pass('sprite');
     this._pass.setDepth(false, false);
     this._pass.setCullMode(gfx.CULL_NONE);
     this._pass.setBlend(
@@ -14411,18 +14415,18 @@ var StencilMaterial = (function (Material$$1) {
       gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$1.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
-        { name: 'color', type: renderer.PARAM_COLOR4 } ],
+        { name: 'texture', type: renderer$1.PARAM_TEXTURE_2D },
+        { name: 'alphaThreshold', type: renderer$1.PARAM_FLOAT },
+        { name: 'color', type: renderer$1.PARAM_COLOR4 } ],
       [
         this._pass
       ]
     );
 
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$1.Effect(
       [
         mainTech ],
       {
@@ -14517,7 +14521,7 @@ var MeshMaterial = (function (Material$$1) {
   function MeshMaterial() {
     Material$$1.call(this, false);
 
-    var pass = new renderer.Pass('mesh');
+    var pass = new renderer$1.Pass('mesh');
     pass.setDepth(false, false);
     pass.setCullMode(gfx.CULL_NONE);
     pass.setBlend(
@@ -14527,21 +14531,21 @@ var MeshMaterial = (function (Material$$1) {
       gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
     );
 
-    var mainTech = new renderer.Technique(
+    var mainTech = new renderer$1.Technique(
       ['transparent'],
       [
-        { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'color', type: renderer.PARAM_COLOR4 },
+        { name: 'texture', type: renderer$1.PARAM_TEXTURE_2D },
+        { name: 'color', type: renderer$1.PARAM_COLOR4 },
 
-        { name: 'u_jointsTexture', type: renderer.PARAM_TEXTURE_2D },
-        { name: 'u_jointsTextureSize', type: renderer.PARAM_FLOAT },
-        { name: 'u_jointMatrices', type: renderer.PARAM_MAT4 } ],
+        { name: 'u_jointsTexture', type: renderer$1.PARAM_TEXTURE_2D },
+        { name: 'u_jointsTextureSize', type: renderer$1.PARAM_FLOAT },
+        { name: 'u_jointMatrices', type: renderer$1.PARAM_MAT4 } ],
       [
         pass
       ]
     );
 
-    this._effect = new renderer.Effect(
+    this._effect = new renderer$1.Effect(
       [
         mainTech ],
       {
@@ -14820,15 +14824,15 @@ var canvas = {
 
 // intenral
 // deps
-var Scene$2 = renderer.Scene;
-var Camera$2 = renderer.Camera;
-var View$2 = renderer.View;
+var Scene$2 = renderer$1.Scene;
+var Camera$2 = renderer$1.Camera;
+var View$2 = renderer$1.View;
 var Texture2D$4 = gfx.Texture2D;
 var Device$4 = gfx.Device;
-var Model$2 = renderer.Model;
-var InputAssembler$2 = renderer.InputAssembler;
+var Model$2 = renderer$1.Model;
+var InputAssembler$2 = renderer$1.InputAssembler;
 
-renderer.addStage('transparent');
+renderer$1.addStage('transparent');
 
 var renderEngine = {
   // core classes
@@ -14868,7 +14872,7 @@ var renderEngine = {
 
   // modules
   math: math,
-  renderer: renderer,
+  renderer: renderer$1,
   gfx: gfx,
 };
 
