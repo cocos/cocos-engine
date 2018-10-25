@@ -9,7 +9,7 @@ import gfx from '../../renderer/gfx/index';
  * @param {import("../assets/skeleton").default} skinning 
  */
 function createJointsTexture(skinning) {
-  const jointCount = skinning.jointIndices.length;
+  const jointCount = skinning.joints.length;
 
   // Set jointsTexture.
   // A squared texture with side length N(N > 1) multiples of 2 can store

@@ -30,7 +30,8 @@ import renderer from '../../renderer/index';
 import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
 import utils from '../misc/utils';
 import Skeleton from '../assets/skeleton';
-import SkeletonInstance from './skeleton-instance';
+import Node from '../../scene-graph/node';
+import { createNode } from '../assets/utils/gltf-utils';
 
 /**
  * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
@@ -52,11 +53,28 @@ export default class SkinningModelComponent extends ModelComponent {
     /**
      * @type {Skeleton}
      */
-    @property
+    @property(Skeleton)
     _skeleton = null;
+
+    /**
+     * @type {Node}
+     */
+    @property(Node)
+    _skinningRoot = null;
+
+    /**
+     * @type {Node}
+     */
+    @property(Node)
+    _skeletonRoot = null;
 
     constructor() {
         super();
+
+        /**
+         * @type {Map<string, Node>}
+         */
+        this._skinningTarget = null;
 
         /**
          * @type {import("../../renderer/gfx/texture-2d").default}
@@ -67,11 +85,6 @@ export default class SkinningModelComponent extends ModelComponent {
          * @type {Float32Array}
          */
         this._jointMatricesData = null;
-
-        /**
-         * @type {SkeletonInstance}
-         */
-        this._skeletonInstance = null;
     }
 
     /**
@@ -80,40 +93,27 @@ export default class SkinningModelComponent extends ModelComponent {
      * !#ch 骨骼节点
      * @type {Skeleton}
      */
-    @property({
-        type: Skeleton
-    })
+    @property(Skeleton)
     get skeleton() {
         return this._skeleton;
     }
 
     set skeleton(val) {
         this._skeleton = val;
-
-        if (this._skeleton) {
-            this._skeletonInstance = new SkeletonInstance(this._skeleton);
-            this._reInitJointsData();
-        } else {
-            this._skeletonInstance = null;
-        }
-    }
-
-    /**
-     * !#en The bone nodes
-     *
-     * !#ch 实例化骨骼节点
-     * @type {SkeletonInstance}
-     */
-    get skeletonInstance() {
-        return this._skeletonInstance;
     }
 
     onLoad() {
+        this._resetTarget();
+        this._reInitJointsData();
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
 
-        //SkinningModelComponent.system.add(this);
+        /** @type {import("../assets/material").default} */
+        let mtl = new cc.Material();
+        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
+        this.material = mtl;
     }
 
     update(dt) {
@@ -126,13 +126,40 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     _updateMatrices() {
-        if (!this._mesh || !this._skeletonInstance) {
+        if (!this._mesh || !this._skinningTarget) {
             return;
         }
 
-        this._skeleton.jointIndices.forEach((jointIndex, index) => {
+        // /** @type {import("../assets/utils/gltf-utils").GltfMeshResource} */
+        // const res = this._mesh.resource;
+        // const gltf = res.gltfAsset.description;
+
+        // /** @type {Node[]} */
+        // const nodes = [];
+        // gltf.nodes.forEach((gltfNode, index) => nodes[index] = createNode(gltfNode));
+        // gltf.nodes.forEach((gltfNode, index) => {
+        //     if (gltfNode.children) {
+        //         const node = nodes[index];
+        //         gltfNode.children.forEach((childIndex) => {
+        //             nodes[childIndex].setParent(node);
+        //         });
+        //     }
+        // });
+
+        const inverseSkinningRootWorldMatrix = this._skinningRoot.getWorldMatrix();
+        mat4.invert(inverseSkinningRootWorldMatrix, inverseSkinningRootWorldMatrix);
+
+        this._skeleton.joints.forEach((joint, index) => {
+            // const debugNode = nodes[this._skeleton._debugjoints[index]];
+            // let wm = debugNode.getWorldMatrix();
+
+            const targetNode = this._skinningTarget.get(joint);
+            if (!targetNode) {
+                return;
+            }
             const bindpose = this._skeleton.bindposes[index];
-            let worldMatrix = this._skeletonInstance.getWorldMatrix(jointIndex);
+            let worldMatrix = targetNode.getWorldMatrix();
+            mat4.multiply(worldMatrix, inverseSkinningRootWorldMatrix, worldMatrix);
             mat4.multiply(_m4_tmp, worldMatrix, bindpose);
             this._setJointMatrix(index, _m4_tmp);
         });
@@ -141,6 +168,10 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     _updateModels() {
+        if (this._mesh) {
+            this._mesh.flush();
+        }
+
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
 
@@ -165,16 +196,20 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     _reInitJointsData() {
-        this._jointMatricesData = null;
         if (this._jointsTexture) {
             this._jointsTexture.destroy();
+        }
+
+        if (!this._skeleton) {
+            this._jointMatricesData = null;
+            return;
         }
 
         if (cc.game._renderContext.allowFloatTexture()) {
             this._jointsTexture = utils.createJointsTexture(this._skeleton);
             this._jointMatricesData = new Float32Array(this._jointsTexture._width * this._jointsTexture._height * 4);
         } else {
-            this._jointMatricesData = new Float32Array(this._skeleton.jointIndices.length * 16);
+            this._jointMatricesData = new Float32Array(this._skeleton.joints.length * 16);
         }
     }
 
@@ -216,5 +251,21 @@ export default class SkinningModelComponent extends ModelComponent {
         this._jointMatricesData[16 * iMatrix + 13] = matrix.m13;
         this._jointMatricesData[16 * iMatrix + 14] = matrix.m14;
         this._jointMatricesData[16 * iMatrix + 15] = matrix.m15;
+    }
+
+    _resetTarget() {
+        this._skinningTarget = new Map();
+        if (!this._skeleton) {
+            return;
+        }
+        const rootNode = this._skinningRoot;
+        this._skeleton.joints.forEach(joint => {
+            const targetNode = rootNode.getChildByPath(joint);
+            if (!targetNode) {
+                console.warn(`Skinning target ${joint} not found in scene graph.`);
+                return;
+            }
+            this._skinningTarget.set(joint, targetNode);
+        });
     }
 }

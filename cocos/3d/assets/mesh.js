@@ -83,7 +83,9 @@ export default class Mesh extends Asset {
      * 
      */
     flush() {
-        this._resource.flush(this);
+        if (this._resource) {
+            this._resource.flush(this);
+        }
     }
 
     /**

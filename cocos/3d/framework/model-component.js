@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import renderer from '../../renderer/index';
-import { ccclass, property, menu, executeInEditMode } from '../../core/data/class-decorator';
+import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import RenderableComponent from './renderable-component';
@@ -86,6 +86,8 @@ let ModelShadowCastingMode = Enum({
  * @extends RenderableComponent
  */
 @ccclass('cc.ModelComponent')
+@executionOrder(100)
+@executeInEditMode
 @menu('Components/ModelComponent')
 @executeInEditMode
 export default class ModelComponent extends RenderableComponent {
@@ -165,12 +167,15 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     onLoad() {
-        if (this.mesh == null) {
-            this.mesh = cc.game._builtins['builtin-cube'];
-            let mtl = new cc.Material();
-            mtl.effect = cc.game._builtins['builtin-effect-unlit'];
-            this.material = mtl;
-        }
+        this._updateModels();
+        this._updateCastShadow();
+        this._updateReceiveShadow();
+
+        /** @type {import("../../../engine/cocos/3d/assets/material").default} */
+        let mtl = new cc.Material();
+        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
+        this.material = mtl;
     }
 
     onEnable() {
@@ -222,6 +227,9 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
+        if (this._mesh) {
+            this._mesh.flush();
+        }
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
 
@@ -269,12 +277,12 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateCastShadow() {
-        if (this._shadowCastingMode === 'off') {
+        if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
             for (let i = 0; i < this._models.length; ++i) {
                 let model = this._models[i];
                 model._castShadow = false;
             }
-        } else if (this._shadowCastingMode === 'on') {
+        } else if (this._shadowCastingMode === ModelShadowCastingMode.On) {
             for (let i = 0; i < this._models.length; ++i) {
                 let model = this._models[i];
                 model._castShadow = true;

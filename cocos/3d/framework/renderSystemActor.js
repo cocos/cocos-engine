@@ -10,7 +10,9 @@ class RenderSystemActorListener {
             this._renderSystem = cc.director._renderSystem;
         }
         comp._system = this._renderSystem;
-        comp._scene = this._renderSystem.scene;
+        if (this._renderSystem) {
+            comp._scene = this._renderSystem.scene;
+        }
     }
 }
 

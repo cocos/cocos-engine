@@ -24,13 +24,9 @@
  ****************************************************************************/
 // @ts-check
 import Component from '../../components/CCComponent';
-import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
+import { ccclass, property, executionOrder, menu, executeInEditMode } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
-
-/**
- * @typedef {import("../assets/animation-clip").default} AnimationClip
- * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
- */
+import AnimationClip, { AnimationTarget, AnimationSampler } from '../assets/animation-clip';
 
 /**
  * !#en Animation State Class
@@ -178,6 +174,16 @@ class AnimationState {
  */
 class AnimationCtrl {
     constructor() {
+        /**
+         * @type {AnimationTarget}
+         */
+        this._animationTarget = null;
+
+        /**
+         * @type {AnimationSampler}
+         */
+        this._animationSampler = null;
+
         this._current = null;
 
         this._next = null;
@@ -185,24 +191,20 @@ class AnimationCtrl {
         this._blendTime = 0.0;
 
         this._blendDuration = 0.3;
-
-        this._skeleton = null;
-
-        this._skelFrom = null;
-
-        this._skelTo = null;
     }
 
     /**
-     * !#en Set up the skeleton
+     * !#en Set up the animation target
      *
-     * !#ch 设置骨架
-     * @param {SkeletonInstance} skel - Skeleton instance
+     * !#ch 设置动画目标
+     * @param {AnimationTarget} animationTarget
      */
-    setSkeletonInstance(skel) {
-        this._skeleton = skel;
-        this._skelFrom = skel.clone();
-        this._skelTo = skel.clone();
+    setAnimationTarget(animationTarget) {
+        this._animationTarget = animationTarget;
+        if (this._animationTarget) {
+            this._animationSampler = new AnimationSampler(this._animationTarget);
+        }
+        this._nodeIndexers = new Map();
     }
 
     /**
@@ -224,6 +226,12 @@ class AnimationCtrl {
     }
 
     tick(dt) {
+        if (!this._animationSampler) {
+            return;
+        }
+
+        this._animationSampler.reset();
+
         // handle blend
         if (this._current && this._next) {
             let t0 = this._getTime(this._current);
@@ -238,26 +246,21 @@ class AnimationCtrl {
             if (alpha > 1.0) {
                 this._current = this._next;
                 this._next = null;
-
-                this._current.clip.sample(this._skeleton, t1);
+                this._animationSampler.sample(this._current.clip, t1, 1.0);
             } else {
-                this._current.clip.sample(this._skelFrom, t0);
-                this._next.clip.sample(this._skelTo, t1);
-
-                this._skeleton.blend(this._skelFrom, this._skelTo, alpha);
-                this._skeleton.updateMatrices();
+                this._animationSampler.sample(this._current.clip, t0, alpha);
+                this._animationSampler.sample(this._next.clip, t1, 1.0 - alpha);
             }
-
-            return;
         }
 
         // handle playing
         if (this._current) {
             let t0 = this._getTime(this._current);
-            this._current.clip.sample(this._skeleton, t0);
-
+            this._animationSampler.sample(this._current.clip, t0, 1.0);
             this._current.time += dt;
         }
+
+        this._animationSampler.apply();
     }
 
     /**
@@ -302,6 +305,9 @@ class AnimationCtrl {
 @executeInEditMode
 @menu('Components/AnimationComponent')
 export default class AnimationComponent extends Component {
+    /**
+     * @type {AnimationClip[]}
+     */
     @property
     _clips = [];
 
@@ -312,7 +318,7 @@ export default class AnimationComponent extends Component {
      * @property currentClip
      * @type {AnimationClip}
      */
-    @property
+    @property(AnimationClip)
     currentClip = null;
 
     /**
@@ -325,6 +331,26 @@ export default class AnimationComponent extends Component {
     @property
     playAutomatically = false;
 
+    _preview = false;
+
+    @property({type: Boolean})
+    get preview() {
+        return this._preview;
+    }
+
+    set preview(value) {
+        this._preview = value;
+        if (value) {
+            if (this.currentClip) {
+                cc.engine.animatingInEditMode = true;
+                this.play(this.currentClip.name);
+            }
+        } else {
+            cc.engine.animatingInEditMode = false;
+            this._animCtrl.crossFade(null, 0);
+        }
+    }
+
     /**
      * !#en Animation state
      *
@@ -333,21 +359,22 @@ export default class AnimationComponent extends Component {
      */
     _name2states = {};
 
-    /**
-     * !#en Animation controller
-     *
-     * !#ch 动画控制器
-     * @type {AnimationCtrl}
-     */
-    _animCtrl = new AnimationCtrl();
+    constructor() {
+        super();
 
-    /**
-     * !#en Instantiate bone nodes
-     *
-     * !#ch 实例化骨骼节点
-     * @type {SkeletonInstance}
-     */
-    _skeletonInstance = null;
+        /**
+         * @type {AnimationTarget}
+         */
+        this._target = null;
+
+        /**
+         * !#en Animation controller
+         *
+         * !#ch 动画控制器
+         * @type {AnimationCtrl}
+         */
+        this._animCtrl = new AnimationCtrl();
+    }
 
     /**
      * !#en Clip required for animation playback
@@ -356,7 +383,7 @@ export default class AnimationComponent extends Component {
      * @property clips
      * @type {AnimationClip[]}
      */
-    @property
+    @property([AnimationClip])
     get clips() {
         return this._clips;
     }
@@ -365,24 +392,12 @@ export default class AnimationComponent extends Component {
         this._clips = val;
     }
 
-    /**
-     * !#en Animation skeleton
-     *
-     * !#ch 动画骨骼
-     * @property skeleton
-     * @type {SkeletonInstance}
-     */
-    get skeletonInstance() {
-        return this._skeletonInstance;
-    }
-
-    set skeletonInstance(value) {
-        this._skeletonInstance = value;
-        this._animCtrl.setSkeletonInstance(this._skeletonInstance);
-    }
-
     onLoad() {
-        // AnimationComponent.system.add(this);
+        this._clips.forEach(clip => {
+            this._name2states[clip.name] = new AnimationState(clip);
+        });
+
+        this._resetTarget();
 
         if (this.playAutomatically != undefined &&
             this.playAutomatically &&
@@ -393,19 +408,18 @@ export default class AnimationComponent extends Component {
     }
 
     update(dt) {
-        if (!this.skeletonInstance) {
-            // console.error(`Animation component depends on skinning model component.`);
-            /** @type {import("./skinning-model-component").default} */
-            let skeleton = this.node.getComponent('cc.SkinningModelComponent') || this.node.getComponentInChildren('cc.SkinningModelComponent');
-            this.skeletonInstance = skeleton.skeletonInstance;
-        }
-        if (this.skeletonInstance) {
-            this._animCtrl.tick(dt);
-        }
+        this._animCtrl.tick(dt);
     }
 
     onDestroy() {
-        AnimationComponent.system.remove(this);
+    }
+
+    onEnable() {
+    }
+
+    onDisable() {
+        this._target = null;
+        this._animCtrl.setAnimationTarget(null);
     }
 
     /**
@@ -443,6 +457,10 @@ export default class AnimationComponent extends Component {
      * @param {Number} fadeDuration - Fade duration
      */
     play(name, fadeDuration = 0.3) {
+        if (!this._target) {
+            return;
+        }
+
         if (!this._name2states[name]) {
             console.warn(`Failed to play animation ${name}, not found.`);
             return;
@@ -452,5 +470,26 @@ export default class AnimationComponent extends Component {
         animState.time = 0.0;
 
         this._animCtrl.crossFade(animState, fadeDuration);
+    }
+
+    _resetTarget() {
+        this._target = new AnimationTarget();
+        this._clips.forEach(clip => {
+            clip.frames.forEach(frame => {
+                frame.channels.forEach(channel => {
+                    const targetPath = channel.target;
+                    if (this._target.get(targetPath)) {
+                        return;
+                    }
+                    const targetNode = this.node.getChildByPath(targetPath);
+                    if (!targetNode) {
+                        console.warn(`Animation target ${targetPath} not found in scene graph.`);
+                        return;
+                    }
+                    this._target.add(targetPath, targetNode);
+                });
+            });
+        });
+        this._animCtrl.setAnimationTarget(this._target);
     }
 }

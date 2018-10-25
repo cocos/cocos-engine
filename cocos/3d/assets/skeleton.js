@@ -24,11 +24,9 @@
  ****************************************************************************/
 
 // @ts-check
-import { _decorator, instantiate } from "../../core/data";
+import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
-import SkeletonInstance from '../framework/skeleton-instance';
-import { Node } from "../../scene-graph";
 import { Mat4 } from "../../core/value-types";
 
 /**
@@ -43,24 +41,11 @@ import { Mat4 } from "../../core/value-types";
 @ccclass('cc.Skeleton')
 export default class Skeleton extends Asset {
   /**
-   * The nodes.
-   * @type {Node[]}
+   * The path of joints.
+   * @type {string[]}
    */
-  @property(Node)
-  _nodes = [];
-
-  /**
-   * The index of root joint.
-   */
-  @property(Number)
-  _skeleton = 0;
-
-  /**
-   * The indices of joints.
-   * @type {number[]}
-   */
-  @property([Number])
-  _jointIndices = [];
+  @property([String])
+  _joints = [];
 
   /**
    * The inverse bind matrices of joints.
@@ -86,12 +71,11 @@ export default class Skeleton extends Asset {
   }
 
   /**
-   * Gets the indices of joints.
-   * @return {number[]}
+   * Gets the paths of joints.
+   * @return {string[]}
    */
-  get jointIndices() {
-    return this._jointIndices;
+  get joints() {
+    return this._joints;
   }
 }
-
 cc.Skeleton = Skeleton;
