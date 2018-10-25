@@ -78,11 +78,11 @@ export default class SkyboxComponent extends RenderableComponent {
 
     if (this._material === null) {
       this._material = new Material();
-    //   this._material.effect = this._app.assets.get('builtin-effect-skybox');
+    //   this._material.effectAsset = this._app.assets.get('builtin-effect-skybox');
     }
 
     this._updateMaterialParams();
-    this._model.setEffect(this._material.effectInst);
+    this._model.setEffect(this._material.effect);
   }
 
   onEnable() {
@@ -104,7 +104,7 @@ export default class SkyboxComponent extends RenderableComponent {
 
     _onMaterialModified(idx, mat) {
         this._updateMaterialParams(mat);
-        this._model.setEffect(mat.effectInst);
+        this._model.setEffect(mat.effect);
     }
 
   _updateMaterialParams(mat) {

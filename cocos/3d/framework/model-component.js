@@ -173,7 +173,7 @@ export default class ModelComponent extends RenderableComponent {
 
         /** @type {import("../../../engine/cocos/3d/assets/material").default} */
         let mtl = new cc.Material();
-        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
         mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
         this.material = mtl;
     }
@@ -221,7 +221,7 @@ export default class ModelComponent extends RenderableComponent {
 
         if (this._models.length > 0) {
             this._models.forEach((model) => {
-                model.setEffect(val.effectInst);
+                model.setEffect(val.effect);
             });
         }
     }
@@ -259,7 +259,7 @@ export default class ModelComponent extends RenderableComponent {
             let inputAssembler = this._mesh.getSubMesh(i);
 
             model.setInputAssembler(inputAssembler);
-            model.setEffect(material ? material.effectInst : null);
+            model.setEffect(material ? material.effect : null);
             model.setNode(this.node);
         }
     }
@@ -273,7 +273,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
      _onMaterialModified(idx, mat) {
-        this._models[idx].setEffect(mat.effectInst);
+        this._models[idx].setEffect(mat.effect);
     }
 
     _updateCastShadow() {
