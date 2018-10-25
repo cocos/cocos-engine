@@ -103,6 +103,7 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     onLoad() {
+        this._resetTarget();
         this._reInitJointsData();
         this._updateModels();
         this._updateCastShadow();
@@ -113,11 +114,6 @@ export default class SkinningModelComponent extends ModelComponent {
         mtl.effect = cc.game._builtins['builtin-effect-unlit'];
         mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
         this.material = mtl;
-    }
-
-    onEnable() {
-        this._resetTarget();
-        super.onEnable();
     }
 
     update(dt) {
