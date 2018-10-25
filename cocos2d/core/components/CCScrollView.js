@@ -207,7 +207,6 @@ let ScrollView = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.content',
             formerlySerializedAs: 'content',
             notify (oldValue) {
-                this._initView();
                 this._calculateBoundary();
             }
         },
