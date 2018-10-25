@@ -27,65 +27,201 @@
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
+import gfx from "../../renderer/gfx";
+import { enums as gfxEnums } from "../../renderer/gfx/enums";
+import renderer from "../../renderer";
+
+cc.internal = cc.internal || {};
 
 /**
- * @interface
+ * The class BufferRange denotes a range of the buffer.
  */
-@ccclass('cc.MeshResource')
-export class MeshResource {
+@ccclass("cc.internal.BufferRange")
+export class BufferRange {
     /**
-     * 
-     * @param {Mesh} mesh 
+     * The offset of the range.
+     * @type {Number}
      */
-    flush(mesh) {
+    @property(Number)
+    _offset = 0;
 
+    /**
+     * The length of the range, in bytes.
+     * @type {Number}
+     */
+    @property(Number)
+    _length = 0;
+
+    constructor(offset, length) {
+        this._offset = offset;
+        this._length = length;
     }
 }
-cc.MeshResource = MeshResource;
+cc.internal.BufferRange = BufferRange;
+
+/**
+ * A vertex bundle describes a serials of vertex attributes.
+ * These vertex attributes occupy a range of the buffer and
+ * are interleaved, no padding bytes, in the range.
+ */
+@ccclass("cc.internal.VertexBundle")
+export class VertexBundle {
+    /**
+     * The data range of this bundle.
+     * This range of data is essentially mapped to a GPU vertex buffer. 
+     * @type {BufferRange}
+     */
+    @property(BufferRange)
+    _data = null;
+
+    /**
+     * This bundle's vertices count.
+     * @type {number}
+     */
+    @property(Number)
+    _verticesCount = 0;
+
+    /**
+     * The attributes's formats.
+     * @type {{name: string, type: number, num: number, normalize: boolean}[]}
+     */
+    @property
+    _formats = [];
+}
+cc.internal.VertexBundle = VertexBundle;
+
+/**
+ * A primitive is a geometry constituted with a list of
+ * same topology primitive graphic(such as points, lines or triangles).
+ */
+@ccclass("cc.internal.Primitive")
+export class Primitive {
+
+    /**
+     * The vertex bundles that this primitive use.
+     * @type {number[]}
+     */
+    @property([Number])
+    _vertexBundelIndices = [];
+
+    /**
+     * The indices data range of this primitive.
+     * @type {BufferRange}
+     */
+    @property(BufferRange)
+    _indices = null;
+
+    /**
+     * The type of this primitive's indices.
+     * @type {number}
+     */
+    @property(Number)
+    _indexUnit = gfxEnums.INDEX_FMT_UINT16;
+
+    /**
+     * This primitive's topology.
+     * @type {number}
+     */
+    @property(Number)
+    _topology = gfxEnums.PT_TRIANGLES;
+}
+cc.internal.Primitive = Primitive;
 
 @ccclass('cc.Mesh')
 export default class Mesh extends Asset {
     /**
-     * @type {MeshResource}
+     * The vertex bundles that this mesh owns.
+     * @type {VertexBundle[]}
      */
-    @property(MeshResource)
-    _resource = null;
+    @property([VertexBundle])
+    _vertexBundles = [];
 
-    get resource() {
-        return this._resource;
-    }
+    /**
+     * @type {Primitive[]}
+     */
+    @property([Primitive])
+    _primitives = [];
 
-    set resource(value) {
-        this._resource = value;
-        this.flush();
-    }
+    /**
+     * The min position of this mesh's vertices.
+     */
+    @property(cc.v3)
+    _minPosition = null;
+
+    /**
+     * The max position of this mesh's vertices.
+     */
+    @property(cc.v3)
+    _maxPosition = null;
 
     constructor() {
         super();
 
         /**
-         * @type {cc.renderer.InputAssembler[]}
+         * @type {renderer.InputAssembler[]}
          */
         this._subMeshes = null;
 
         /**
-         * @type {cc.core.math.vec3}
+         * @type {cc.vmath.vec3}
          */
         this._minPos = null;
 
         /**
-         * @type {cc.core.math.vec3}
+         * @type {cc.vmath.vec3}
          */
         this._maxPos = null;
+
+        /**
+         * @type {Uint8Array}
+         */
+        this._data = null;
+    }
+
+    get _nativeAsset() {
+        return this._data;
+    }
+
+    set _nativeAsset(value) {
+        this._data = value;
     }
 
     /**
      * 
      */
     flush() {
-        if (this._resource) {
-            this._resource.flush(this);
+        if (this._data === null) {
+            return;
         }
+        this._minPos = this._minPosition;
+        this._maxPos = this._maxPosition;
+        const buffer = this._getBuffer();
+        const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
+            return new gfx.VertexBuffer(
+                cc.game._renderContext,
+                new gfx.VertexFormat(vertexBundle._formats),
+                gfx.USAGE_STATIC,
+                new Uint8Array(buffer, vertexBundle._data._offset, vertexBundle._data._length),
+                vertexBundle._verticesCount);
+        });
+        this._subMeshes = this._primitives.map((primitive) => {
+            if (primitive._vertexBundelIndices.length === 0) {
+                return null;
+            }
+
+            // Currently, an IA only has one vertex buffer.
+            const vertexBuffer = vertexBuffers[primitive._vertexBundelIndices[0]];
+
+            const indexBuffer = new gfx.IndexBuffer(
+                cc.game._renderContext,
+                primitive._indexUnit,
+                gfx.USAGE_STATIC,
+                new DataView(buffer, primitive._indices._offset, primitive._indices._length),
+                primitive._indices._length / this._getIndexUnitSize(primitive._indexUnit)
+            );
+
+            return new renderer.InputAssembler(vertexBuffer, indexBuffer);
+        });
     }
 
     /**
@@ -124,6 +260,14 @@ export default class Mesh extends Asset {
         return this._subMeshes[index];
     }
 
+    get minPosition() {
+        return this._minPosition;
+    }
+
+    get maxPosition() {
+        return this._maxPosition;
+    }
+
     // TODO
     // updateData () {
     //   // store the data
@@ -135,5 +279,24 @@ export default class Mesh extends Asset {
     //     }
     //   }
     // }
+
+    /**
+     * @return {ArrayBuffer}
+     */
+    _getBuffer() {
+        return this._data.buffer;
+    }
+
+    _getIndexUnitSize(indexUnit) {
+        switch (indexUnit) {
+        case gfxEnums.INDEX_FMT_UINT8:
+            return 1;
+        case gfxEnums.INDEX_FMT_UINT16:
+            return 2;
+        case gfxEnums.INDEX_FMT_UINT32:
+            return 3;
+        }
+        return 1;
+    }
 }
 cc.Mesh = Mesh;

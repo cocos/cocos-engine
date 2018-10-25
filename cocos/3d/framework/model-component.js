@@ -237,7 +237,7 @@ export default class ModelComponent extends RenderableComponent {
         this._models = new Array(meshCount);
         for (let i = 0; i < meshCount; ++i) {
             let model = new renderer.Model();
-            model.createBoundingShape(this._mesh._minPos, this._mesh._maxPos);
+            model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._models[i] = model;
         }
 
