@@ -175,7 +175,6 @@ export default class ModelComponent extends RenderableComponent {
         if (this.material == null) {
             let mtl = new cc.Material();
             mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
-            mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
             this.material = mtl;
         }
     }

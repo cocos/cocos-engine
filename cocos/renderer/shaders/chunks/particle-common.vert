@@ -4,10 +4,7 @@ uniform vec2 mainTiling;
 uniform vec2 mainOffset;
 uniform mat4 model;
 uniform mat4 viewProj;
-
-#if USE_BILLBOARD || USE_VERTICAL_BILLBOARD
-  uniform mat4 view;
-#endif
+uniform mat4 view;
 
 #if USE_STRETCHED_BILLBOARD
   uniform vec3 eye;
@@ -52,7 +49,6 @@ void computeVertPos(inout vec4 pos, vec2 vertOffset
   pos.y += vertOffset.y;
 #endif
 }
-
 
 vec2 computeUV(float frameIndex, vec2 vertIndex, vec2 frameTile) {
   vec2 aniUV = vec2(0, floor(frameIndex * frameTile.y));

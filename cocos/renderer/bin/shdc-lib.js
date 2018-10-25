@@ -10,8 +10,8 @@ let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
 let newlines = /\n+/g;
 let whitespaces = /\s+/g;
-let ident = /[_a-zA-Z]\w*/;
-let comparators = /[<=>]+/;
+let ident = /^[_a-zA-Z]\w*$/;
+let comparators = /^[<=>]+$/;
 let ifprocessor = /#(el)?if/;
 
 // (HACKY) extract all builtin uniforms to the ignore list
@@ -71,29 +71,34 @@ function buildChunks(dest, path, cache) {
 
 function extractDefines(tokens, defines, cache) {
   let curDefs = [], save = (line) => {
-    cache[line] = curDefs.slice(); let ls = cache.lines;
-    if (ls[ls.length-1] !== line) ls.push(line);
+    cache[line] = curDefs.reduce((acc, val) => acc.concat(val), []);
+    cache.lines.push(line);
   };
   for (let i = 0; i < tokens.length; ++i) {
     let t = tokens[i], str = t.data, id, df;
     if (t.type !== 'preprocessor') continue;
     str = str.split(whitespaces);
     if (str[0] === '#endif') {
-        curDefs.pop(); continue;
+        curDefs.pop(); save(t.line); continue;
+    } else if (str[0] === '#else') {
+      curDefs[curDefs.length - 1].length = 0; save(t.line); continue;
     } else if (str[0] === '#pragma') {
       if (str[1] === 'for') { curDefs.push(0); save(t.line); }
-      else if (str[1] === 'endFor') curDefs.pop();
+      else if (str[1] === 'endFor') { curDefs.pop(); save(t.line); }
       continue;
     } else if (!ifprocessor.test(str[0])) continue;
+    if (str[0] === '#elif') { curDefs.pop(); save(t.line); }
+    let defs = [];
     str.splice(1).forEach(s => {
       id = s.match(ident);
       if (id) { // is identifier
-        curDefs.push(id[0]); save(t.line);
+        defs.push(id[0]); 
         df = defines.find(d => d.name === id[0]);
         if (df) return; // first encounter
         defines.push(df = { name: id[0], type: 'boolean' });
       } else if (comparators.test(s)) df.type = 'number';
     });
+    curDefs.push(defs); save(t.line);
   }
   return defines;
 }
@@ -131,7 +136,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
     if (dest === extensions) param.name = str.split(whitespaces)[1];
     else { param.name = tokens[i+4].data; param.type = convertType(tokens[i+2].data); }
-    /**/if (dest === extensions)/**/ param.defines = defines;
+    param.defines = defines;
     dest.push(param);
   }
 }
