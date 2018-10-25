@@ -397,6 +397,8 @@ export default class AnimationComponent extends Component {
             this._name2states[clip.name] = new AnimationState(clip);
         });
 
+        this._resetTarget();
+
         if (this.playAutomatically != undefined &&
             this.playAutomatically &&
             this.currentClip != undefined &&
@@ -413,7 +415,6 @@ export default class AnimationComponent extends Component {
     }
 
     onEnable() {
-        this._resetTarget();
     }
 
     onDisable() {
