@@ -724,7 +724,6 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
         return true;
     }
 
-    @Override
     public int getAudioSessionId () {
        return mMediaPlayer.getAudioSessionId();
     }
