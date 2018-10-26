@@ -57,6 +57,7 @@ public:
     ~CanvasRenderingContext2D();
 
     // Rect
+    void rect(float x, float y, float width, float height);
     void clearRect(float x, float y, float width, float height);
     void fillRect(float x, float y, float width, float height);
 
@@ -70,6 +71,7 @@ public:
     void closePath();
     void moveTo(float x, float y);
     void lineTo(float x, float y);
+    void fill();
     void stroke();
     void restore();
 
@@ -88,6 +90,9 @@ public:
     void set_fillStyle(const std::string& fillStyle);
     void set_strokeStyle(const std::string& strokeStyle);
     void set_globalCompositeOperation(const std::string& globalCompositeOperation);
+
+    // fill image data into Context2D
+    void _fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY);
 
     // transform
     void translate(float x, float y);

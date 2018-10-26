@@ -122,6 +122,16 @@ public:
         _imageData = _getTextureData();
     }
 
+    void CanvasRenderingContext2D::fill()
+    {
+        // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    }
+
+    void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
+    {
+        // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    }
+
     void saveContext()
     {
         _savedDC = SaveDC(_DC);
@@ -860,6 +870,10 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
+void CanvasRenderingContext2D::_fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
 // transform
 //REFINE:
 

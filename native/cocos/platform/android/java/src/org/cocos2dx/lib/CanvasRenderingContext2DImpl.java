@@ -156,6 +156,7 @@ public class CanvasRenderingContext2DImpl {
         TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
+        paint.setSubpixelText(true);
 
         String key = fontName;
         if (enableBold) {
@@ -231,6 +232,25 @@ public class CanvasRenderingContext2DImpl {
         mCanvas.drawPath(mLinePath, mLinePaint);
     }
 
+    private void fill() {
+        if (mLinePaint == null) {
+            mLinePaint = new Paint();
+        }
+
+        if(mLinePath == null) {
+            mLinePath = new Path();
+        }
+
+        mLinePaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+        mLinePaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawPath(mLinePath, mLinePaint);
+        // workaround: draw a hairline to cover the border
+        mLinePaint.setStrokeWidth(0);
+        mLinePaint.setStyle(Paint.Style.STROKE);
+        mCanvas.drawPath(mLinePath, mLinePaint);
+        mLinePaint.setStrokeWidth(mLineWidth);
+    }
+
     private void saveContext() {
         mCanvas.save();
     }
@@ -242,17 +262,25 @@ public class CanvasRenderingContext2DImpl {
         }
     }
 
+    private void rect(float x, float y, float w, float h) {
+        //        Log.d(TAG, "this: " + this + ", rect: " + x + ", " + y + ", " + w + ", " + h);
+        beginPath();
+        moveTo(x, y);
+        lineTo(x, y + h);
+        lineTo(x + w, y + h);
+        lineTo(x + w, y);
+        closePath();
+    }
+
     private void clearRect(float x, float y, float w, float h) {
-//        Log.d(TAG, "this: " + this + ", clearRect: " + x + ", " + y + ", " + w + ", " + h);
-        int w_ = mBitmap.getWidth();
-        int h_ = mBitmap.getHeight();
-        int size = w_*h_;
-        int[] clearColor = new int[size];
-        for (int i = 0; i < size; ++i) {
+        //        Log.d(TAG, "this: " + this + ", clearRect: " + x + ", " + y + ", " + w + ", " + h);
+        int clearSize = (int)(w * h);
+        int[] clearColor = new int[clearSize];
+        for (int i = 0; i < clearSize; ++i) {
             clearColor[i] = Color.TRANSPARENT;
         }
-        mBitmap.setPixels(clearColor, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
-    }
+        mBitmap.setPixels(clearColor, 0, (int) w, (int) x, (int) y, (int) w, (int) h);
+}
 
     private void createTextPaintIfNeeded() {
         if (mTextPaint == null) {
@@ -262,6 +290,13 @@ public class CanvasRenderingContext2DImpl {
 
     private void fillRect(float x, float y, float w, float h) {
         // Log.d(TAG, "fillRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
+        int pixelValue = (mFillStyleA & 0xff) << 24 | (mFillStyleR & 0xff) << 16 | (mFillStyleG & 0xff) << 8 | (mFillStyleB & 0xff);
+        int fillSize = (int)(w * h);
+        int[] fillColors = new int[fillSize];
+        for (int i = 0; i < fillSize; ++i) {
+            fillColors[i] = pixelValue;
+        }
+        mBitmap.setPixels(fillColors, 0, (int) w, (int)x, (int)y, (int)w, (int)h);
     }
 
     private void fillText(String text, float x, float y, float maxWidth) {
@@ -341,6 +376,22 @@ public class CanvasRenderingContext2DImpl {
 
     private void setLineWidth(float lineWidth) {
         mLineWidth = lineWidth;
+    }
+
+    private void _fillImageData(byte[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+        Log.d(TAG, "_fillImageData: ");
+        int fillSize = (int) (imageWidth * imageHeight);
+        int[] fillColors = new int[fillSize];
+        int r, g, b, a;
+        for (int i = 0; i < fillSize; ++i) {
+            // imageData Pixel (RGBA) -> fillColors int (ARGB)
+            r = ((int)imageData[4 * i + 0]) & 0xff;
+            g = ((int)imageData[4 * i + 1]) & 0xff;
+            b = ((int)imageData[4 * i + 2]) & 0xff;
+            a = ((int)imageData[4 * i + 3]) & 0xff;
+            fillColors[i] = (a & 0xff) << 24 | (r & 0xff) << 16 | (g & 0xff) << 8 | (b & 0xff);
+        }
+        mBitmap.setPixels(fillColors, 0, (int) imageWidth, (int) offsetX, (int) offsetY, (int) imageWidth, (int) imageHeight);
     }
 
     private Point convertDrawPoint(final Point point, String text) {

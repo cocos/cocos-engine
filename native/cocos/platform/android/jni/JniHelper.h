@@ -350,6 +350,10 @@ private:
         return "D";
     }
 
+    static std::string getJNISignature(jbyteArray) {
+        return "[B";
+    }
+
     static std::string getJNISignature(const char*) {
         return "Ljava/lang/String;";
     }

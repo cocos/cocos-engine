@@ -744,6 +744,32 @@ str
 },
 
 /**
+ * @method fill
+ */
+fill : function (
+)
+{
+},
+
+/**
+ * @method _fillImageData
+ * @param {cc.Data} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ */
+_fillImageData : function (
+data, 
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
  * @method scale
  * @param {float} arg0
  * @param {float} arg1
@@ -861,6 +887,22 @@ float
  * @method beginPath
  */
 beginPath : function (
+)
+{
+},
+
+/**
+ * @method rect
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+rect : function (
+float, 
+float, 
+float, 
+float 
 )
 {
 },
