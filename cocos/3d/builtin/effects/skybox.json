@@ -2,13 +2,6 @@
   "techniques": [
     {
       "stages": ["opaque"],
-      "params": [
-        {
-          "name": "cubeMap",
-          "type": "textureCube",
-          "value": null
-        }
-      ],
       "passes": [
        {
          "program": "skybox",
@@ -19,12 +12,10 @@
     }
   ],
 
-  "properties": {},
-
-  "defines": [
-    {
-      "name": "USE_RGBE_CUBEMAP",
-      "value": false
+  "properties": {
+    "cubeMap": {
+      "type": "samplerCube",
+      "value": null
     }
-  ]
+  }
 }

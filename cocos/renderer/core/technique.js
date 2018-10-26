@@ -7,14 +7,12 @@ let _genID = 0;
 export default class Technique {
   /**
    * @param {Array} stages
-   * @param {Array} parameters
    * @param {Array} passes
    * @param {Number} layer
    */
-  constructor(stages, parameters, passes, layer = 0) {
+  constructor(stages, passes, layer = 0) {
     this._id = _genID++;
     this._stageIDs = config.stageIDs(stages);
-    this._parameters = parameters; // {name, type, size, val}
     this._passes = passes;
     this._layer = layer;
     // TODO: this._version = 'webgl' or 'webgl2' // ????

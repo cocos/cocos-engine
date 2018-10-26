@@ -7,19 +7,10 @@ let _shdID = 0;
 function _generateDefines(device, defs, deps) {
   let defines = [];
   for (let def in defs) {
-    if (deps[def] === undefined) { // if define has no dependency
-      if (defs[def] === true) {
-        defines.push(`#define ${def} 1`);
-      } else if (defs[def] === false) {
-        defines.push(`#define ${def} 0`);
-      }
-    } else { // define has dependency, need to check if dependency is supported by current device
-      if (device.ext(deps[def]) && defs[def] === true) {
-        defines.push(`#define ${def} 1`);
-      } else {
-        defines.push(`#define ${def} 0`);
-      }
-    }
+    let result = defs[def] ? 1 : 0;
+    // fallback if extension dependency not supported
+    if (deps[def] && !device.ext(deps[def])) result = 0;
+    defines.push(`#define ${def} ${result}`);
   }
   return defines.join('\n');
 }
@@ -69,8 +60,7 @@ export default class ProgramLib {
     // register templates
     this._templates = {};
     for (let i = 0; i < templates.length; ++i) {
-      let tmpl = templates[i];
-      this.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.defines);
+      this.define(templates[i]);
     }
 
     // register chunks
@@ -87,12 +77,23 @@ export default class ProgramLib {
    * @param {Object[]} defines
    *
    * @example:
-   *   programLib.define('foobar', vertTmpl, fragTmpl, [
-   *     { name: 'shadow' },
-   *     { name: 'lightCount', min: 1, max: 4 }
-   *   ]);
+   *   // this object is auto-generated from your actual shaders
+   *   let program = {
+   *     name: 'foobar',
+   *     vert: vertTmpl,
+   *     frag: fragTmpl,
+   *     defines: [
+   *       { name: 'shadow', type: 'boolean' },
+   *       { name: 'lightCount', type: 'number', min: 1, max: 4 }
+   *     ],
+   *     attributes: [{ name: 'a_position', type: 'vec3' }],
+   *     uniforms: [{ name: 'color', type: 'vec4' }],
+   *     extensions: [{ name: 'GL_OES_standard_derivatives', defines: ['USE_NORMAL_TEXTURE'] }],
+   *   };
+   *   programLib.define(program);
    */
-  define(name, vert, frag, defines) {
+  define(prog) {
+    let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
     if (this._templates[name]) {
       console.warn(`Failed to define shader ${name}: already exists.`);
       return;
@@ -106,13 +107,21 @@ export default class ProgramLib {
       let def = defines[i];
       let cnt = 1;
 
-      if (def.min !== undefined && def.max !== undefined) {
-        cnt = Math.ceil((def.max - def.min) * 0.5);
+      if (def.type === 'number') {
+        // the default value range is true for all built-in programs,
+        // and we assume that it will stay true for all conceivable cases,
+        // to be able to auto-generate relative infos directly from shaders.
+        // so if you really need to have a different range,
+        // change the auto-generated program object
+        // manually before passing into this function.
+        def.min = def.min || 0;
+        def.max = def.max || 4;
+        cnt = Math.ceil(Math.log2(def.max - def.min));
 
         def._map = function (value) {
           return (value - this.min) << this._offset;
         }.bind(def);
-      } else {
+      } else { // boolean
         def._map = function (value) {
           if (value) {
             return 1 << this._offset;
@@ -134,8 +143,15 @@ export default class ProgramLib {
       name,
       vert,
       frag,
-      defines
+      defines,
+      attributes: prog.attributes,
+      uniforms: prog.uniforms,
+      extensions: prog.extensions
     };
+  }
+
+  getTemplate(name) {
+    return this._templates[name];
   }
 
   /**
@@ -170,9 +186,9 @@ export default class ProgramLib {
   /**
    * @param {string} name
    * @param {Object} defines
-   * @param {Object} dependencies
+   * @param {Object} extensions
    */
-  getProgram(name, defines, dependencies) {
+  getProgram(name, defines, extensions) {
     let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
@@ -181,7 +197,7 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(this._device, defines, dependencies) + '\n';
+    let customDef = _generateDefines(this._device, defines, extensions) + '\n';
     let vert = _replaceMacroNums(tmpl.vert, defines);
     vert = customDef + _unrollLoops(vert);
     let frag = _replaceMacroNums(tmpl.frag, defines);

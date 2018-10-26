@@ -44,7 +44,7 @@ export default class Pass {
     this._stencilWriteMaskBack = 0xff;
   }
 
-  setCullMode(cullMode) {
+  setCullMode(cullMode = gfx.CULL_BACK) {
     this._cullMode = cullMode;
   }
 

@@ -764,13 +764,14 @@ var game = {
             {
                 // todo, adjust opts here
                 let device = this._renderContext = new gfx.Device(localCanvas, {});
-                // todo, fix builtins here
-                let builtins = this._builtins = initBuiltins(device);
                 renderer.addStage('opaque');
                 renderer.addStage('transparent');
                 renderer.addStage('ui');
                 renderer.addStage('shadowcast');
-                this._renderer = new renderer.ForwardRenderer(device, {
+                this._renderer = new renderer.ForwardRenderer(device);
+                
+                let builtins = this._builtins = initBuiltins(device);
+                this._renderer.setBuiltins({
                     defaultTexture: builtins['default-texture']._texture,
                     defaultTextureCube: null,
                 });

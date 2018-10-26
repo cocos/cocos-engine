@@ -4,9 +4,29 @@ const path_ = require('path');
 const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
 const tokenizer = require('glsl-tokenizer/string');
+const mappings = require('../../../bin/mappings');
+
+let includeRE = /#include +<([\w-.]+)>/gm;
+let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
+let newlines = /\n+/g;
+let whitespaces = /\s+/g;
+let ident = /^[_a-zA-Z]\w*$/;
+let comparators = /^[<=>]+$/;
+let ifprocessor = /#(el)?if/;
+
+// (HACKY) extract all builtin uniforms to the ignore list
+let uniformIgnoreList = (function() {
+  let path = 'cocos/renderer/renderers/forward-renderer.js';
+  let renderer = fs.readFileSync(path, { encoding: 'utf8' });
+  let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
+  let result = [];
+  while (cap) { result.push(cap[2]); cap = re.exec(renderer); }
+  return result;
+})();
+
+function convertType(t) { return mappings.typeParams[t]; }
 
 function unwindIncludes(str, chunks) {
-  let pattern = /#include +<([\w\d\-_.]+)>/gm;
   function replace(match, include) {
     let replace = chunks[include];
     if (replace === undefined) {
@@ -14,7 +34,7 @@ function unwindIncludes(str, chunks) {
     }
     return unwindIncludes(replace, chunks);
   }
-  return str.replace(pattern, replace);
+  return str.replace(includeRE, replace);
 }
 
 function glslStripComment(code) {
@@ -31,10 +51,6 @@ function glslStripComment(code) {
   return result;
 }
 
-function filterEmptyLine(str) {
-  return str !== '';
-}
-
 function buildChunks(dest, path, cache) {
   let files = fsJetpack.find(path, { matching: ['**/*.vert', '**/*.frag'] });
   let code = '';
@@ -43,16 +59,89 @@ function buildChunks(dest, path, cache) {
     let file = files[i];
     let content = fs.readFileSync(file, { encoding: 'utf8' });
     content = glslStripComment(content);
-    content = content.replace(new RegExp('[\\r\\n]+', 'g'), '\\n');
     content = expandStructMacro(content);
-    code += `  '${path_.basename(file)}': '${content}',\n`;
     cache[path_.basename(file)] = content;
+    content = content.replace(newlines, '\\n');
+    code += `  '${path_.basename(file)}': '${content}',\n`;
   }
   code = `export default {\n${code}};`;
 
   fs.writeFileSync(dest, code, { encoding: 'utf8' });
 }
 
+function extractDefines(tokens, defines, cache) {
+  let curDefs = [], save = (line) => {
+    cache[line] = curDefs.reduce((acc, val) => acc.concat(val), []);
+    cache.lines.push(line);
+  };
+  for (let i = 0; i < tokens.length; ++i) {
+    let t = tokens[i], str = t.data, id, df;
+    if (t.type !== 'preprocessor') continue;
+    str = str.split(whitespaces);
+    if (str[0] === '#endif') {
+        curDefs.pop(); save(t.line); continue;
+    } else if (str[0] === '#else') {
+      curDefs[curDefs.length - 1].length = 0; save(t.line); continue;
+    } else if (str[0] === '#pragma') {
+      if (str[1] === 'for') { curDefs.push(0); save(t.line); }
+      else if (str[1] === 'endFor') { curDefs.pop(); save(t.line); }
+      continue;
+    } else if (!ifprocessor.test(str[0])) continue;
+    if (str[0] === '#elif') { curDefs.pop(); save(t.line); }
+    let defs = [];
+    str.splice(1).forEach(s => {
+      id = s.match(ident);
+      if (id) { // is identifier
+        defs.push(id[0]); 
+        df = defines.find(d => d.name === id[0]);
+        if (df) return; // first encounter
+        defines.push(df = { name: id[0], type: 'boolean' });
+      } else if (comparators.test(s)) df.type = 'number';
+    });
+    curDefs.push(defs); save(t.line);
+  }
+  return defines;
+}
+
+/* here the `define dependency` for some param is interpreted as
+ * the existance of some define ids directly desides the existance of that param.
+ * so basically therer is no logical expression support
+ * (all will be treated as '&&' operator)
+ * for wrapping unifom, attribute and extension declarations.
+ * try to write them in straightforward ways like:
+ *     #ifdef USE_COLOR
+ *         attribute vec4 a_color;
+ *     #endif
+ * or nested when needed:
+ *     #if USE_BILLBOARD && BILLBOARD_STRETCHED
+ *         uniform vec3 stretch_color;
+ *         #ifdef USE_NORMAL_TEXTURE
+ *             uniform sampler2D tex_normal;
+ *         #endif
+ *     #endif // no else branch
+ */
+function extractParams(tokens, cache, uniforms, attributes, extensions) {
+  let getDefs = line => {
+    let idx = cache.lines.findIndex(i => i > line);
+    return cache[cache.lines[idx - 1]] || [];
+  };
+  for (let i = 0; i < tokens.length; i++) {
+    let t = tokens[i], tp = t.type, str = t.data, dest;
+    if (tp === 'keyword' && str === 'uniform') dest = uniforms;
+    else if (tp === 'keyword' && str === 'attribute') dest = attributes;
+    else if (tp === 'preprocessor' && str.startsWith('#extension')) dest = extensions;
+    else continue;
+    let defines = getDefs(t.line), param = {};
+    if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
+    if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
+    if (dest === extensions) param.name = str.split(whitespaces)[1];
+    else { param.name = tokens[i+4].data; param.type = convertType(tokens[i+2].data); }
+    param.defines = defines;
+    dest.push(param);
+  }
+}
+
+let precedingSpaces = '\n      ';
 function buildTemplates(dest, path, cache) {
   let files = fsJetpack.find(path, { matching: ['**/*.vert'] });
   let code = '';
@@ -61,49 +150,42 @@ function buildTemplates(dest, path, cache) {
     let file = files[i];
     let dir = path_.dirname(file);
     let name = path_.basename(file, '.vert');
+    let defines = [], defCache = { lines: [] }, tokens;
+    let uniforms = [], attributes = [], extensions = [];
 
     let vert = fs.readFileSync(path_.join(dir, name + '.vert'), { encoding: 'utf8' });
     vert = glslStripComment(vert);
     vert = unwindIncludes(vert, cache);
-    vert = vert.replace(new RegExp('[\\r\\n]+', 'g'), '\\n');
-    vert = [vert].filter(filterEmptyLine);
+    tokens = tokenizer(vert);
+    extractDefines(tokens, defines, defCache);
+    extractParams(tokens, defCache, uniforms, attributes, extensions);
 
+    defCache = { lines: [] };
     let frag = fs.readFileSync(path_.join(dir, name + '.frag'), { encoding: 'utf8' });
     frag = glslStripComment(frag);
     frag = unwindIncludes(frag, cache);
-    frag = frag.replace(new RegExp('[\\r\\n]+', 'g'), '\\n');
-    frag = [frag].filter(filterEmptyLine);
+    tokens = tokenizer(frag);
+    extractDefines(tokens, defines, defCache);
+    extractParams(tokens, defCache, uniforms, attributes, extensions);
 
-    let jsonPath = path_.join(dir, name + '.json');
-    let defines = '';
-    if (fs.existsSync(jsonPath)) {
-      let json = fs.readFileSync(path_.join(dir, name + '.json'), { encoding: 'utf8' });
-      json = JSON.parse(json);
-
-      if (json) {
-        for (let def in json) {
-          let defCode = '';
-          defCode += `name: '${def}', `;
-          if (json[def] && json[def].min !== undefined) {
-            defCode += `min: ${json[def].min}, `;
-          }
-          if (json[def] && json[def].max !== undefined) {
-            defCode += `max: ${json[def].max}, `;
-          }
-          defCode = `      { ${defCode}},\n`;
-          defines += defCode;
-        }
-      }
-      defines = `[\n${defines}    ],`;
-    } else {
-      defines = '[],';
-    }
-
+    vert = vert.replace(newlines, '\\n');
+    frag = frag.replace(newlines, '\\n');
     code += '  {\n';
     code += `    name: '${name}',\n`;
     code += `    vert: '${vert}',\n`;
     code += `    frag: '${frag}',\n`;
-    code += `    defines: ${defines}\n`;
+    code += '    defines: [';
+    code += defines.map(d => precedingSpaces + JSON.stringify(d));
+    code += defines.length ? '\n    ],\n' : '],\n';
+    code += '    uniforms: [';
+    code += uniforms.map(d => precedingSpaces + JSON.stringify(d));
+    code += uniforms.length ? '\n    ],\n' : '],\n';
+    code += '    attributes: [';
+    code += attributes.map(d => precedingSpaces + JSON.stringify(d));
+    code += attributes.length ? '\n    ],\n' : '],\n';
+    code += '    extensions: [';
+    code += extensions.map(d => precedingSpaces + JSON.stringify(d));
+    code += extensions.length ? '\n    ],\n' : '],\n';
     code += '  },\n';
   }
   code = `export default [\n${code}];`;
@@ -111,16 +193,14 @@ function buildTemplates(dest, path, cache) {
   fs.writeFileSync(dest, code, { encoding: 'utf8' });
 }
 
-// this is just for particle gpu shader usage,the result of applying to other shaders is undefined!
 function expandStructMacro(code) {
-  code = code.replace(new RegExp(/\\\\n/, 'g'), '');
-  let defineRE = new RegExp(/#define\s+([_\w\d]+)\(([\w\d_,\s]+)\)\s+(.*?##.*?)(?=\\n)/, 'g');
+  code = code.replace(/\\\n/g, '');
   let defineCapture = defineRE.exec(code);
-  //defineCapture[1]:the macro name;
-  //defineCapture[2] the macro parameters;
-  //defineCapture[3]:the macro body
+  //defineCapture[1] - the macro name
+  //defineCapture[2] - the macro parameters
+  //defineCapture[3] - the macro body
   while (defineCapture != null) {
-    let macroRE = new RegExp('(?:\\\\n[^\\\\]*?)' + defineCapture[1] + '\\s*\\(', 'g');
+    let macroRE = new RegExp('\\n.*' + defineCapture[1] + '\\s*\\(', 'g');
     let macroCapture = macroRE.exec(code);
     while (macroCapture != null) {
       let macroIndex = macroCapture[0].lastIndexOf(defineCapture[1]);
