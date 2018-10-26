@@ -29,7 +29,7 @@ const { ccclass, property } = _decorator;
 import Asset from "../../assets/CCAsset";
 import gfx from "../../renderer/gfx";
 import { enums as gfxEnums } from "../../renderer/gfx/enums";
-import renderer from "../../renderer";
+import InputAssembler from "../../renderer/core/input-assembler";
 
 cc.internal = cc.internal || {};
 
@@ -158,19 +158,9 @@ export default class Mesh extends Asset {
         super();
 
         /**
-         * @type {renderer.InputAssembler[]}
+         * @type {InputAssembler[]}
          */
         this._subMeshes = null;
-
-        /**
-         * @type {cc.vmath.vec3}
-         */
-        this._minPos = null;
-
-        /**
-         * @type {cc.vmath.vec3}
-         */
-        this._maxPos = null;
 
         /**
          * @type {Uint8Array}
@@ -193,8 +183,6 @@ export default class Mesh extends Asset {
         if (this._data === null) {
             return;
         }
-        this._minPos = this._minPosition;
-        this._maxPos = this._maxPosition;
         const buffer = this._getBuffer();
         const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
             return new gfx.VertexBuffer(
@@ -220,7 +208,7 @@ export default class Mesh extends Asset {
                 primitive._indices._length / this._getIndexUnitSize(primitive._indexUnit)
             );
 
-            return new renderer.InputAssembler(vertexBuffer, indexBuffer);
+            return new InputAssembler(vertexBuffer, indexBuffer);
         });
     }
 
