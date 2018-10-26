@@ -18,23 +18,17 @@ class Node extends BaseNode {
     _lrot = cc.quat();
     @property
     _lscale = cc.v3(1, 1, 1);
-
-    // world transform
-    @property
-    _pos = cc.v3();
-    @property
-    _rot = cc.quat();
-    @property
-    _scale = cc.v3(1, 1, 1);
-    @property
-    _mat = cc.mat4();
-
-    @property
-    _dirty = false; // does the world transform need to update?
-    @property
-    _hasChanged = false; // has the transform changed in this frame?
     @property
     _layer = Layers.Default; // the layer this node belongs to
+
+    // world transform
+    _pos = cc.v3();
+    _rot = cc.quat();
+    _scale = cc.v3(1, 1, 1);
+    _mat = cc.mat4();
+
+    _dirty = false; // does the world transform need to update?
+    _hasChanged = false; // has the transform changed in this frame?
 
     // is node but not scene
     static isNode (obj) {
