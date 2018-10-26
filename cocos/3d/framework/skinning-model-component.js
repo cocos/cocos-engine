@@ -122,7 +122,6 @@ export default class SkinningModelComponent extends ModelComponent {
 
 
     onDestroy() {
-        SkinningModelComponent.system.remove(this);
     }
 
     _updateMatrices() {
