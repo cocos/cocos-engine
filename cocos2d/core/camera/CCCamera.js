@@ -625,7 +625,7 @@ let Camera = cc.Class({
             this._camera.screenToWorld(_v3_temp_1, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
         }
         else {
-            this.node.getWorldPos(_v3_temp_1);
+            this.node.getWorldPosition(_v3_temp_1);
         }
 
         return ray.fromPoints(ray.create(), _v3_temp_1, _v3_temp_2);

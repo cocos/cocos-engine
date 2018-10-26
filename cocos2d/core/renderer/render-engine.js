@@ -11315,7 +11315,7 @@ Camera.prototype.screenToWorld = function screenToWorld (out, screenPos, width, 
     vec3.transformMat4(out, out, _matInvViewProj);
 
     //
-    this._node.getWorldPos(_tmp_v3);
+    this._node.getWorldPosition(_tmp_v3);
     vec3.lerp(out, _tmp_v3, out, cc.vmath.lerp(this._near / this._far, 1, screenPos.z));
   } else {
     vec3.set(out,
