@@ -130,12 +130,12 @@ let Mesh = cc.Class({
      * Set the vertex values.
      * !#zh 
      * 设置顶点数据
-     * @method setVertexes
+     * @method setVertices
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
      * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      * @param {Number} [index] 
      */
-    setVertexes (name, values, index) {
+    setVertices (name, values, index) {
         index = index || 0;
         let vb = this._vbs[index];
 
