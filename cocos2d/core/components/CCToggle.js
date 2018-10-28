@@ -52,6 +52,13 @@ var Toggle = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
             notify: function () {
                 this._updateCheckMark();
+
+                var group = this.toggleGroup || this._toggleContainer;
+                if (group && group.enabled) {
+                    group.updateToggles(this);
+                }
+
+                this._emitToggleEvents();
             }
         },
 
@@ -164,7 +171,7 @@ var Toggle = cc.Class({
             group.updateToggles(this);
         }
 
-        this._emitToggleEvents(event);
+        this._emitToggleEvents();
     },
 
     _emitToggleEvents: function () {
