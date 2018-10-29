@@ -424,10 +424,24 @@ var Texture2D = cc.Class({
     initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
         var opts = _getSharedOptions();
         opts.image = data;
+        // webgl texture 2d uses images
+        opts.images = [opts.image];
+        opts.hasMipmap = this._hasMipmap;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
         opts.format = pixelFormat;
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
-        this.update(opts);
+        if (!this._texture) {
+            this._texture = new renderer.Texture2D(renderer.device, opts);
+        }
+        else {
+            this.update(opts);
+        }
         this.width = pixelsWidth;
         this.height = pixelsHeight;
         this.loaded = true;
