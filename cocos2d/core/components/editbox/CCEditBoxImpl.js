@@ -495,6 +495,7 @@ function _inputValueHandle (input, editBoxImpl) {
 
 function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
+    let blurWhenComposition = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
@@ -503,6 +504,11 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.compositionend = function () {
         inputLock = false;
+        if (blurWhenComposition) {
+            // restore input value when composition not complete and blur input
+            this.value = editBoxImpl._text;
+            blurWhenComposition = false;
+        }
         _inputValueHandle(this, editBoxImpl);
     };
     tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
@@ -551,7 +557,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        if (inputLock) {
+            blurWhenComposition = true;
+        }
+        else {
+            editBoxImpl._text = this.value;
+        }
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);
