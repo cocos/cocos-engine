@@ -23,138 +23,58 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data/index";
-const { ccclass } = _decorator;
-import Texture from '../../assets/CCTexture2D';
-
+import Texture2D from '../../assets/CCTexture2D';
 import gfx from '../../renderer/gfx';
-import { gfxFilters, gfxWraps, gfxTextureFmts } from '../misc/mappings';
 
-let _opts = {
-  images: [],
-  mipmap: true,
-  width: 2,
-  height: 2,
-  format: gfx.TEXTURE_FMT_RGBA8,
-  anisotropy: 1,
-  wrapS: gfx.WRAP_REPEAT,
-  wrapT: gfx.WRAP_REPEAT,
-  minFilter: gfx.FILTER_LINEAR,
-  magFilter: gfx.FILTER_LINEAR,
-  mipFilter: gfx.FILTER_LINEAR,
+let isComplete = function(elements) {
+    return elements.reduce((acc, t) => t = t || acc.complete);
 };
 
-function _updateOpts(out, texture) {
-  out.images = texture._images;
-  out.mipmap = texture._mipmap;
-  out.width = texture._width;
-  out.height = texture._height;
-  out.format = gfxTextureFmts[texture._format];
-  out.anisotropy = texture._anisotropy;
-  out.wrapS = gfxWraps[texture._wrapS];
-  out.wrapT = gfxWraps[texture._wrapT];
-  out.minFilter = gfxFilters[texture._minFilter];
-  out.magFilter = gfxFilters[texture._magFilter];
-  out.mipFilter = gfxFilters[texture._mipFilter];
-}
+export default class TextureCube extends Texture2D {
 
-export class TextureCube extends Texture {
-  constructor(device, width = 2, height = 2, fmt = 'rgba8') {
-    super(device);
-
-    //
-    this._images = [];
-    this._mipmap = true;
-    this._width = width;
-    this._height = height;
-    this._format = fmt;
-    this._anisotropy = 1;
-    this._wrapS = 'repeat';
-    this._wrapT = 'repeat';
-    this._minFilter = 'linear';
-    this._magFilter = 'linear';
-    this._mipFilter = 'linear';
-  }
-
-  destroy() {
-    this._texture.destory();
-    return super.destroy();
-  }
-
-  setImages(imgs) {
-    this._images = imgs;
-    this.resize(imgs[0][0].width, imgs[0][0].height);
-  }
-
-  resize(width, height) {
-    this._width = width;
-    this._height = height;
-  }
-
-  get width() {
-    return this._width;
-  }
-
-  get height() {
-    return this._height;
-  }
-
-  set mipmap(val) {
-    this._mipmap = val;
-  }
-  get mipmap() {
-    return this._mipmap;
-  }
-
-  set anisotropy(val) {
-    this._anisotropy = val;
-  }
-  get anisotropy() {
-    return this._anisotropy;
-  }
-
-  set wrapS(val) {
-    this._wrapS = val;
-  }
-  get wrapS() {
-    return this._wrapS;
-  }
-
-  set wrapT(val) {
-    this._wrapT = val;
-  }
-  get wrapT() {
-    return this._wrapT;
-  }
-
-  set minFilter(val) {
-    this._minFilter = val;
-  }
-  get minFilter() {
-    return this._minFilter;
-  }
-
-  set magFilter(val) {
-    this._magFilter = val;
-  }
-  get magFilter() {
-    return this._magFilter;
-  }
-
-  set mipFilter(val) {
-    this._mipFilter = val;
-  }
-  get mipFilter() {
-    return this._mipFilter;
-  }
-
-  commit() {
-    _updateOpts(_opts, this);
-    if (!this._texture) {
-      this._texture = new gfx.TextureCube(this._device, _opts);
-    } else {
-      this._texture.update(_opts);
+    constructor() {
+        super();
+        this._ctor = gfx.TextureCube;
     }
-    this._images = [];
-  }
+
+    handleLoadedTexture () {
+        let image = this._image[0];
+        if (!image || !image.width || !image.height)
+            return;
+
+        this.width = image.width;
+        this.height = image.height;
+
+        this._updateTexture([this._image]);
+
+        //dispatch load event to listener.
+        this.loaded = true;
+        this.emit("load");
+
+        this._image.forEach(img => {
+            if (cc.macro.CLEANUP_IMAGE_CACHE && image instanceof HTMLImageElement) {
+                // wechat game platform will cache image parsed data,
+                // so image will consume much more memory than web, releasing it
+                img.src = "";
+                // Release image in loader cache
+                cc.loader.removeItem(img.id);
+            }
+        });
+    }
+
+    initWithElement (element) {
+        if (!element) return;
+        this._image = element;
+        if (CC_WECHATGAME || CC_QQPLAY || isComplete(element)
+            || element[0] instanceof HTMLCanvasElement) {
+            this.handleLoadedTexture();
+            return;
+        }
+        element.forEach(() => addEventListener('load', () => {
+            if (isComplete(element)) this.handleLoadedTexture();
+        }));
+        element.forEach(() => addEventListener('error', err => {
+            cc.warnID(3119, err.message);
+        }));
+    }
 }

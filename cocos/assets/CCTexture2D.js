@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import EventTarget from '../core/event/event-target';
-import Tex_GFX from '../renderer/gfx/texture-2d';
+import gfx from '../renderer/gfx';
 import IDGenerator from '../core/utils/id-generator';
 import Enum from '../core/value-types/enum';
 import {addon} from '../core/utils/js';
@@ -292,7 +292,7 @@ export default class Texture2D extends Asset {
     _wrapT = WrapMode.CLAMP_TO_EDGE;
 
     @property
-    _anisotropy = 0;
+    _anisotropy = 1;
 
     static PixelFormat = PixelFormat;
 
@@ -353,6 +353,7 @@ export default class Texture2D extends Asset {
          */
         this.height = 0;
 
+        this._ctor = gfx.Texture2D;
         this._texture = null;
 
         if (CC_EDITOR) {
@@ -463,6 +464,60 @@ export default class Texture2D extends Asset {
         }
     }
 
+    _updateTexture(images) {
+        let opts = _getSharedOptions();
+        opts.images = images;
+        opts.width = this.width;
+        opts.height = this.height;
+        opts.hasMipmap = this._hasMipmap;
+        opts.format = this._format;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.anisotropy = this._anisotropy;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.mipFilter = FilterIndex[this._mipFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
+
+        if (!this._texture) {
+            this._texture = new this._ctor(cc.game._renderContext, opts);
+        }
+        else {
+            this._texture.update(opts);
+        }
+    }
+
+    /**
+     * !#en
+     * Handler of texture loaded event.
+     * Since v2.0, you don't need to invoke this function, it will be invoked automatically after texture loaded.
+     * !#zh 贴图加载事件处理器。v2.0 之后你将不在需要手动执行这个函数，它会在贴图加载成功之后自动执行。
+     * @method handleLoadedTexture
+     * @param {Boolean} [premultiplied]
+     */
+    handleLoadedTexture () {
+        if (!this._image || !this._image.width || !this._image.height)
+            return;
+
+        this.width = this._image.width;
+        this.height = this._image.height;
+
+        this._updateTexture([this._image]);
+
+        //dispatch load event to listener.
+        this.loaded = true;
+        this.emit("load");
+
+        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
+            // wechat game platform will cache image parsed data,
+            // so image will consume much more memory than web, releasing it
+            this._image.src = "";
+            // Release image in loader cache
+            cc.loader.removeItem(this._image.id);
+        }
+    }
+
     /**
      * !#en
      * Init with HTML element.
@@ -504,30 +559,12 @@ export default class Texture2D extends Asset {
      * @return {Boolean}
      */
     initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
-        var opts = _getSharedOptions();
-        opts.image = data;
-        // webgl texture 2d uses images
-        opts.images = [opts.image];
-        opts.hasMipmap = this._hasMipmap;
-        opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.anisotropy = this._anisotropy;
-        opts.flipY = this._flipY;
-        opts.minFilter = FilterIndex[this._minFilter];
-        opts.magFilter = FilterIndex[this._magFilter];
-        opts.mipFilter = FilterIndex[this._mipFilter];
-        opts.wrapS = this._wrapS;
-        opts.wrapT = this._wrapT;
-        opts.format = pixelFormat;
-        opts.width = pixelsWidth;
-        opts.height = pixelsHeight;
-        if (!this._texture) {
-            this._texture = new Tex_GFX(cc.game._renderContext, opts);
-        }
-        else {
-            this._texture.update(opts);
-        }
         this.width = pixelsWidth;
         this.height = pixelsHeight;
+        this._format = pixelFormat;
+
+        this._updateTexture([data]);
+
         this.loaded = true;
         this.emit("load");
         return true;
@@ -605,57 +642,6 @@ export default class Texture2D extends Asset {
      */
     hasMipmap () {
         return this._hasMipmap || false;
-    }
-
-    /**
-     * !#en
-     * Handler of texture loaded event.
-     * Since v2.0, you don't need to invoke this function, it will be invoked automatically after texture loaded.
-     * !#zh 贴图加载事件处理器。v2.0 之后你将不在需要手动执行这个函数，它会在贴图加载成功之后自动执行。
-     * @method handleLoadedTexture
-     * @param {Boolean} [premultiplied]
-     */
-    handleLoadedTexture () {
-        if (!this._image || !this._image.width || !this._image.height)
-            return;
-
-        this.width = this._image.width;
-        this.height = this._image.height;
-        let opts = _getSharedOptions();
-        opts.image = this._image;
-        // webgl texture 2d uses images
-        opts.images = [opts.image];
-        opts.width = this.width;
-        opts.height = this.height;
-        opts.hasMipmap = this._hasMipmap;
-        opts.format = this._format;
-        opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.anisotropy = this._anisotropy;
-        opts.flipY = this._flipY;
-        opts.minFilter = FilterIndex[this._minFilter];
-        opts.magFilter = FilterIndex[this._magFilter];
-        opts.mipFilter = FilterIndex[this._mipFilter];
-        opts.wrapS = this._wrapS;
-        opts.wrapT = this._wrapT;
-
-        if (!this._texture) {
-            this._texture = new Tex_GFX(cc.game._renderContext, opts);
-        }
-        else {
-            this._texture.update(opts);
-        }
-
-        //dispatch load event to listener.
-        this.loaded = true;
-        this.emit("load");
-
-        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            // wechat game platform will cache image parsed data,
-            // so image will consume much more memory than web, releasing it
-            this._image.src = "";
-            // Release image in loader cache
-            cc.loader.removeItem(this._image.id);
-        }
     }
 
     /**
