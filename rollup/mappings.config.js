@@ -11,8 +11,7 @@ let name = 'mappings';
 let sourcemap = true;
 let globals = {};
 
-// clear directory
-fsJetpack.dir(dest, { empty: true });
+fsJetpack.dir(dest);
 
 module.exports = {
   input: './cocos/3d/misc/offline-mappings.js',
