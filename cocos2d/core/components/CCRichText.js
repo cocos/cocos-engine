@@ -449,6 +449,7 @@ let RichText = cc.Class({
         }
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
+        labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
