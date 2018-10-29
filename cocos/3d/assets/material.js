@@ -140,13 +140,14 @@ export default class Material extends Asset {
 
     static getInstantiatedMaterial(mat, rndCom) {
         if (mat._owner === rndCom) {
-            return this;
+            return mat;
         }
         else {
             let instance = new Material();
             instance.copy(mat);
             instance._native = mat._native + ' (Instance)';
             instance._owner = rndCom;
+            return instance;
         }
     }
 }
