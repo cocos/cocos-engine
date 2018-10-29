@@ -188,7 +188,11 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
 
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
+
+ifeq ($(USE_TIFF),1)
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
+endif
+
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += v8_static
