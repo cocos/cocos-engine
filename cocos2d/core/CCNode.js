@@ -1771,7 +1771,7 @@ let NodeDefines = {
      * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 暂停当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method pauseSystemEvents
      * @param {Boolean} recursive - Whether to pause node system events on the sub node tree.
      * @example
@@ -1787,7 +1787,7 @@ let NodeDefines = {
      * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 恢复当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method resumeSystemEvents
      * @param {Boolean} recursive - Whether to resume node system events on the sub node tree.
      * @example

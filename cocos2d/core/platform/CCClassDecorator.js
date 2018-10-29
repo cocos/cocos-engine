@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -240,9 +240,9 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 /**
  * !#en
  * Declare the standard [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
- * as CCClass, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
+ * as CCClass, please see [Class](../../../manual/en/scripting/class.html) for details.
  * !#zh
- * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](/docs/creator/scripting/class/)。
+ * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](../../../manual/zh/scripting/class.html)。
  *
  * @method ccclass
  * @param {String} [name] - The class name used for serialization.
@@ -311,9 +311,9 @@ var ccclass = checkCtorArgument(function (ctor, name) {
 
 /**
  * !#en
- * Declare property for [CCClass](/docs/editors_and_tools/creator-chapters/scripting/class/).
+ * Declare property for [CCClass](../../../manual/en/scripting/reference/attributes.html).
  * !#zh
- * 定义 [CCClass](/docs/creator/scripting/class/) 所用的属性。
+ * 定义 [CCClass](../../../manual/zh/scripting/reference/attributes.html) 所用的属性。
  *
  * @method property
  * @param {Object} [options] - an object with some property attributes

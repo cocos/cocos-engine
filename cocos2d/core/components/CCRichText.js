@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -449,6 +449,7 @@ let RichText = cc.Class({
         }
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
+        labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);

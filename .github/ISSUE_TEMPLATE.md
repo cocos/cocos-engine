@@ -1,6 +1,6 @@
 <!--
     EN: Here only receive bug report or suggestions for improvement. Feature request please send to the forum: http://discuss.cocos2d-x.org/c/creator
-    中: 这里只接收 bug 反馈或改进建议。新功能需求请发到论坛：http://forum.cocos.com/c/Creator
+    中: 这里只接收 bug 反馈或改进建议。新功能需求请发到论坛：https://forum.cocos.com/c/Creator
 -->
 
 ### Creator version?（版本号）
