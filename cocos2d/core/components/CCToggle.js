@@ -57,8 +57,6 @@ var Toggle = cc.Class({
                 if (group && group.enabled) {
                     group.updateToggles(this);
                 }
-
-                this._emitToggleEvents();
             }
         },
 
@@ -175,6 +173,7 @@ var Toggle = cc.Class({
     },
 
     _emitToggleEvents: function () {
+        if (CC_EDITOR) { return; }
         this.node.emit('toggle', this);
         if (this.checkEvents) {
             cc.Component.EventHandler.emitEvents(this.checkEvents, this);
