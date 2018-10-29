@@ -244,7 +244,7 @@ void XMLHttpRequest::abort()
 
     _isAborted = true;
 
-    setReadyState(ReadyState::UNSENT);
+    setReadyState(ReadyState::DONE);
 
     if (onabort != nullptr)
     {
@@ -256,6 +256,8 @@ void XMLHttpRequest::abort()
     {
         onloadend();
     }
+
+    _readyState = ReadyState::UNSENT;
 }
 
 void XMLHttpRequest::setReadyState(ReadyState readyState)
