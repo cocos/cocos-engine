@@ -84,6 +84,7 @@ public:
     void set__height(float height);
     void set_lineWidth(float lineWidth);
     void set_lineJoin(const std::string& lineJoin);
+    void set_lineCap(const std::string& lineCap);
     void set_font(const std::string& font);
     void set_textAlign(const std::string& textAlign);
     void set_textBaseline(const std::string& textBaseline);
@@ -113,6 +114,7 @@ public:
     // Line styles
     float _lineWidth = 1.0f;
     std::string _lineJoin = "miter";
+    std::string _lineCap = "butt";
 
     // Text styles
     std::string _font = "10px sans-serif";

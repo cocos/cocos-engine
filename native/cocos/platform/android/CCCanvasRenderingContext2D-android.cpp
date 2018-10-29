@@ -150,6 +150,14 @@ public:
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold, italic);
     }
 
+    void setLineCap(const std::string& lineCap) {
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineCap", lineCap);
+    }
+
+    void setLineJoin(const std::string& lineJoin) {
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineJoin", lineJoin);
+    }
+
     void setTextAlign(CanvasTextAlign align)
     {
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextAlign", (int)align);
@@ -413,7 +421,14 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    if(lineJoin.empty()) return ;
+    _impl->setLineJoin(lineJoin);
+}
+
+void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
+{
+    if(lineCap.empty()) return ;
+    _impl->setLineCap(lineCap);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
