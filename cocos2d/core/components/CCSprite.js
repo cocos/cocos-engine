@@ -545,7 +545,7 @@ var Sprite = cc.Class({
             if (!this._enabled) return false;
         }
         else {
-            if (!this._enabled || !this._material) return false;
+            if (!this._enabled || !this._material || !this.node._activeInHierarchy) return false;
         }
 
         let spriteFrame = this._spriteFrame;

@@ -130,12 +130,12 @@ let RenderComponent = cc.Class({
     },
     
     _canRender () {
-        return this._enabled;
+        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
+        return this._enabled && this.node._activeInHierarchy;
     },
 
     markForUpdateRenderData (enable) {
-        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
-        if (enable && this._canRender() && this.node._activeInHierarchy) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
@@ -144,8 +144,7 @@ let RenderComponent = cc.Class({
     },
 
     markForRender (enable) {
-        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
-        if (enable && this._canRender() && this.node._activeInHierarchy) {
+        if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
         }
         else if (!enable) {
