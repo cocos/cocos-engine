@@ -130,7 +130,8 @@ let RenderComponent = cc.Class({
     },
     
     _canRender () {
-        return this._enabled;
+        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
+        return this._enabled && this.node._activeInHierarchy;
     },
 
     markForUpdateRenderData (enable) {
