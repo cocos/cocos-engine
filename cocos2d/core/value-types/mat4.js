@@ -394,3 +394,5 @@ js.mixin(Mat4.prototype, {
 cc.mat4 = function mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
     return new Mat4(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 };
+
+module.exports = cc.Mat4 = Mat4;
