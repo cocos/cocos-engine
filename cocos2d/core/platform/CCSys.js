@@ -1143,6 +1143,20 @@ function initSys () {
     };
 
     /**
+     * !#en 
+     * Return the safe area rect. only available on the iOS device. <br/>
+     * when the safeArea rect is unavailable, it will return a rect with design resolution size.
+     * !#zh
+     * 返回手机屏幕安全区域，目前仅在 iOS 设备上有效。其它平台将默认返回设计分辨率尺寸。
+     * @method getSafeAreaRect
+     * @return {Rect}
+    */
+    sys.getSafeAreaRect = function () {
+        let designSize = cc.view.getDesignResolutionSize();
+        return cc.rect(0, 0, designSize.width, designSize.height);
+    };
+
+    /**
      * Check whether an object is valid,
      * In web engine, it will return true if the object exist
      * In native engine, it will return true if the JS object and the correspond native object are both valid
