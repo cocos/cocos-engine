@@ -2476,7 +2476,6 @@ let NodeDefines = {
         math.vec3.copy(out, this._scale);
         let curr = this._parent;
         while (curr) {
-            // out = out + pos
             math.vec3.mul(out, out, curr._scale);
             curr = curr._parent;
         }
