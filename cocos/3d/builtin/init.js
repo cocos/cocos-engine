@@ -167,16 +167,16 @@ export default function (device) {
     // ============================
 
     let materials = {};
-    [
-        'sprite',
-        'font'
-    ].forEach(name => {
-        let mat = new Material();
-        mat.effectAsset = effects[`builtin-effect-${name}`];
-        mat._uuid = `builtin-material-${name}`;
-        mat._loaded = true;
-        materials[mat._uuid] = mat;
-    });
+    // [
+    //     'sprite',
+    //     'font'
+    // ].forEach(name => {
+    //     let mat = new Material();
+    //     mat.effectAsset = effects[`builtin-effect-${name}`];
+    //     mat._uuid = `builtin-material-${name}`;
+    //     mat._loaded = true;
+    //     materials[mat._uuid] = mat;
+    // });
 
     return Object.assign({
         [defaultTexture._uuid]: defaultTexture,

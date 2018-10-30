@@ -4,7 +4,7 @@
       "stages": ["transparent"],
       "passes": [
        {
-         "program": "unlit",
+         "program": "gizmo",
          "cullMode": "none",
          "depthTest": false,
          "depthWrite": false,
@@ -13,7 +13,7 @@
          "blendSrc": "srcAlpha",
          "blendDst": "oneMinusSrcAlpha",
          "blendAlphaEq": "add",
-         "blendSrcAlpha": "srcAlpha",
+         "blendSrcAlpha": "one",
          "blendDstAlpha": "oneMinusSrcAlpha"
        }
       ],
@@ -25,18 +25,6 @@
     "color": {
       "type": "color4",
       "value": [1, 1, 1, 1]
-    },
-    "mainTiling": {
-      "type": "vec2",
-      "value": [1, 1]
-    },
-    "mainOffset": {
-      "type": "vec2",
-      "value": [0, 0]
-    },
-    "mainTexture": {
-      "type": "sampler2D",
-      "value": null
     }
   }
 }

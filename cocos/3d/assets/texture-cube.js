@@ -27,7 +27,7 @@ import Texture2D from '../../assets/CCTexture2D';
 import gfx from '../../renderer/gfx';
 
 let isComplete = function(elements) {
-    return elements.reduce((acc, t) => t = t || acc.complete);
+    return elements.reduce((acc, t) => acc = acc && t.complete, false);
 };
 
 export default class TextureCube extends Texture2D {
