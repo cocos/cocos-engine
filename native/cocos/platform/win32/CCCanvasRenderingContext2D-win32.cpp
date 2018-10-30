@@ -779,6 +779,11 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
     _impl->setLineWidth(lineWidth);
 }
 
+void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
