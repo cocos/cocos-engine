@@ -55,7 +55,7 @@ let SkinnedMeshRenderer = cc.Class({
     extends: MeshRenderer,
 
     editor: CC_EDITOR && {
-        menu: 'Mesh/Skinned Mesh Renderer',
+        menu: 'i18n:MAIN_MENU.component.mesh/Skinned Mesh Renderer',
     },
 
     ctor () {

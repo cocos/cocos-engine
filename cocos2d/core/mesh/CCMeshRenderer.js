@@ -35,7 +35,7 @@ let MeshRenderer = cc.Class({
     extends: RenderComponent,
     
     editor: CC_EDITOR && {
-        menu: 'Mesh/MeshRenderer',
+        menu: 'i18n:MAIN_MENU.component.mesh/MeshRenderer',
     },
 
     properties: {
