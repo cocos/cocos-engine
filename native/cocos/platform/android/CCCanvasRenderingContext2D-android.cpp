@@ -110,6 +110,12 @@ public:
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
+        if (x >= _bufferWidth || y >= _bufferHeight)
+            return;
+        if (x + w > _bufferWidth)
+            w = _bufferWidth - x;
+        if (y + h > _bufferHeight)
+            h = _bufferHeight - y;
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "clearRect", x, y, w, h);
         fillData();
     }
@@ -118,6 +124,12 @@ public:
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
+        if (x >= _bufferWidth || y >= _bufferHeight)
+            return;
+        if (x + w > _bufferWidth)
+            w = _bufferWidth - x;
+        if (y + h > _bufferHeight)
+            h = _bufferHeight - y;
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillRect", x, y, w, h);
         fillData();
     }
