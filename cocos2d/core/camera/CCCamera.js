@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -626,7 +626,7 @@ let Camera = cc.Class({
             this._camera.screenToWorld(_v3_temp_1, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
         }
         else {
-            this.node.getWorldPos(_v3_temp_1);
+            this.node.getWorldPosition(_v3_temp_1);
         }
 
         return ray.fromPoints(ray.create(), _v3_temp_1, _v3_temp_2);

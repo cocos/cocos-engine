@@ -1771,7 +1771,7 @@ let NodeDefines = {
      * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 暂停当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method pauseSystemEvents
      * @param {Boolean} recursive - Whether to pause node system events on the sub node tree.
      * @example
@@ -1787,7 +1787,7 @@ let NodeDefines = {
      * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 恢复当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method resumeSystemEvents
      * @param {Boolean} recursive - Whether to resume node system events on the sub node tree.
      * @example
@@ -2461,7 +2461,42 @@ let NodeDefines = {
         else {
             math.quat.copy(this._quat, quat);
         }
+        this._quat.getEulerAngles(this._eulerAngles);
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
+    },
+
+    /*
+     * Calculate and return world scale
+     * This is not a public API yet, its usage could be updated
+     * @method getWorldScale
+     * @param {Vec3} out
+     * @return {Vec3}
+     */
+    getWorldScale (out) {
+        math.vec3.copy(out, this._scale);
+        let curr = this._parent;
+        while (curr) {
+            math.vec3.mul(out, out, curr._scale);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    /*
+     * Set world scale with vec3
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldScale
+     * @param {Vec3} scale
+     */
+    setWorldScale (scale) {
+        if (this._parent) {
+            this._parent.getWorldScale(this._scale);
+            math.vec3.div(this._scale, scale, this._scale);
+        }
+        else {
+            math.vec3.copy(this._scale, scale);
+        }
+        this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
     getWorldRT (out) {

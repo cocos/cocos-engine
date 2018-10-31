@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -547,7 +547,7 @@ var Sprite = cc.Class({
             if (!this._enabled) return false;
         }
         else {
-            if (!this._enabled || !this._material) return false;
+            if (!this._enabled || !this._material || !this.node._activeInHierarchy) return false;
         }
 
         let spriteFrame = this._spriteFrame;
