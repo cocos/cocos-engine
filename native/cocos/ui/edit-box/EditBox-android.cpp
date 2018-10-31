@@ -41,67 +41,70 @@ NS_CC_BEGIN
 
 void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
-  JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
-                                "showNative",
-                                showInfo.defaultValue,
-                                showInfo.maxLength,
-                                showInfo.isMultiline,
-                                showInfo.confirmHold,
-                                showInfo.confirmType,
-                                showInfo.inputType);
+    JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
+                                    "showNative",
+                                    showInfo.defaultValue,
+                                    showInfo.maxLength,
+                                    showInfo.isMultiline,
+                                    showInfo.confirmHold,
+                                    showInfo.confirmType,
+                                    showInfo.inputType);
 }
 
 void EditBox::hide()
 {
-  JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
+    JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
 }
 
 NS_CC_END
 
 namespace
 {
-  se::Value textInputCallback;
+    se::Value textInputCallback;
 
-  void getTextInputCallback()
-  {
-    se::Value tmpVal;
-    if (! textInputCallback.isUndefined() && textInputCallback.toObject()->getProperty("input", &tmpVal))
-      return;
+    void getTextInputCallback()
+    {
+        if (! textInputCallback.isUndefined())
+            return;
 
-    auto global = se::ScriptEngine::getInstance()->getGlobalObject();
+        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
         se::Value jsbVal;
         if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
         {
             jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);
+            // free globle se::Value before ScriptEngine clean up
+            se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+                textInputCallback.setUndefined();
+            });
         }
-  }
+    }
 
-  void callJSFunc(const std::string& type, const jstring& text)
-  {
-    getTextInputCallback();
+    void callJSFunc(const std::string& type, const jstring& text)
+    {
+        getTextInputCallback();
 
         se::AutoHandleScope scope;
-    se::ValueArray args;
-    args.push_back(se::Value(type));
-    args.push_back(se::Value(cocos2d::JniHelper::jstring2string(text)));
-    textInputCallback.toObject()->call(args, nullptr);
-  }
+        se::ValueArray args;
+        args.push_back(se::Value(type));
+        args.push_back(se::Value(cocos2d::JniHelper::jstring2string(text)));
+        textInputCallback.toObject()->call(args, nullptr);
+    }
 }
 
 extern "C" 
 {
-  JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
-  {
-    callJSFunc("input", text);
-  }
+    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
+    {
+        callJSFunc("input", text);
+    }
 
-  JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
-  {
-    callJSFunc("complete", text);
-  }
+    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
+    {
+        callJSFunc("complete", text);
+    }
 
-  JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
-  {
+    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
+    {
         callJSFunc("confirm", text);
-  }
+    }
 }

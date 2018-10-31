@@ -118,8 +118,7 @@ namespace
     
     void getTextInputCallback()
     {
-        se::Value tmpVal;
-        if (! textInputCallback.isUndefined() && textInputCallback.toObject()->getProperty("input", &tmpVal))
+        if (! textInputCallback.isUndefined())
             return;
         
         auto global = se::ScriptEngine::getInstance()->getGlobalObject();
@@ -127,6 +126,10 @@ namespace
         if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
         {
             jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);
+            // free globle se::Value before ScriptEngine clean up
+            se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+                textInputCallback.setUndefined();
+            });
         }
     }
     
