@@ -2461,7 +2461,42 @@ let NodeDefines = {
         else {
             math.quat.copy(this._quat, quat);
         }
+        this._quat.getEulerAngles(this._eulerAngles);
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
+    },
+
+    /*
+     * Calculate and return world scale
+     * This is not a public API yet, its usage could be updated
+     * @method getWorldScale
+     * @param {Vec3} out
+     * @return {Vec3}
+     */
+    getWorldScale (out) {
+        math.vec3.copy(out, this._scale);
+        let curr = this._parent;
+        while (curr) {
+            math.vec3.mul(out, out, curr._scale);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    /*
+     * Set world scale with vec3
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldScale
+     * @param {Vec3} scale
+     */
+    setWorldScale (scale) {
+        if (this._parent) {
+            this._parent.getWorldScale(this._scale);
+            math.vec3.div(this._scale, scale, this._scale);
+        }
+        else {
+            math.vec3.copy(this._scale, scale);
+        }
+        this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
     getWorldRT (out) {
