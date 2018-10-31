@@ -126,6 +126,10 @@ namespace
         if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
         {
             jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);
+            // free globle se::Value before ScriptEngine clean up
+            se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+                textInputCallback.setUndefined();
+            });
         }
     }
     
