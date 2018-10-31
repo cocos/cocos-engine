@@ -1,5 +1,5 @@
 /****************************************************************************
-  * Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -31,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.TextPaint;
 import android.util.Log;
 
@@ -72,8 +73,11 @@ public class CanvasRenderingContext2DImpl {
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
+    private static float _sApproximatingOblique = -0.25f;//please check paint api documentation
     private boolean mIsBoldFont = false;
     private boolean mIsItalicFont = false;
+    private boolean mIsObliqueFont = false;
+    private boolean mIsSmallCapsFontVariant = false;
     private String mLineCap = "butt";
     private String mLineJoin = "miter";
 
@@ -154,7 +158,7 @@ public class CanvasRenderingContext2DImpl {
         sTypefaceCache.clear();
     }
 
-    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold, boolean enableItalic) {
+    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold, boolean enableItalic, boolean obliqueFont, boolean smallCapsFontVariant) {
         TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
@@ -163,6 +167,7 @@ public class CanvasRenderingContext2DImpl {
         String key = fontName;
         if (enableBold) {
             key += "-Bold";
+            paint.setFakeBoldText(true);
         }
         if (enableItalic) {
             key += "-Italic";
@@ -182,8 +187,13 @@ public class CanvasRenderingContext2DImpl {
             }
             typeFace = Typeface.create(fontName, style);
         }
-
         paint.setTypeface(typeFace);
+        if(obliqueFont) {
+            paint.setTextSkewX(_sApproximatingOblique);
+        }
+        if(smallCapsFontVariant && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            paint.setFontFeatureSettings("smcp");
+        }
         return paint;
     }
 
@@ -327,7 +337,7 @@ public class CanvasRenderingContext2DImpl {
 
     private void createTextPaintIfNeeded() {
         if (mTextPaint == null) {
-            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont, mIsItalicFont);
+            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont, mIsItalicFont, mIsObliqueFont, mIsSmallCapsFontVariant);
         }
     }
 
@@ -342,12 +352,20 @@ public class CanvasRenderingContext2DImpl {
         mBitmap.setPixels(fillColors, 0, (int) w, (int)x, (int)y, (int)w, (int)h);
     }
 
+    private void scaleX(TextPaint textPaint, String text, float maxWidth) {
+        if(maxWidth < Float.MIN_VALUE) return;
+        float measureWidth = this.measureText(text);
+        if((measureWidth - maxWidth) < Float.MIN_VALUE) return;
+        float scaleX = maxWidth/measureWidth;
+        textPaint.setTextScaleX(scaleX);
+    }
+
     private void fillText(String text, float x, float y, float maxWidth) {
 //        Log.d(TAG, "this: " + this + ", fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
         mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
         mTextPaint.setStyle(Paint.Style.FILL);
-
+        scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
@@ -360,7 +378,7 @@ public class CanvasRenderingContext2DImpl {
         mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mTextPaint.setStyle(Paint.Style.STROKE);
         mTextPaint.setStrokeWidth(mLineWidth);
-
+        scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
@@ -382,12 +400,14 @@ public class CanvasRenderingContext2DImpl {
         return new Size(measureText(text), fm.descent - fm.ascent);
     }
 
-    private void updateFont(String fontName, float fontSize, boolean bold, boolean italic) {
+    private void updateFont(String fontName, float fontSize, boolean bold, boolean italic, boolean oblique, boolean smallCaps) {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
         mIsBoldFont = bold;
         mIsItalicFont = italic;
+        mIsObliqueFont = oblique;
+        mIsSmallCapsFontVariant = smallCaps;
         mTextPaint = null; // Reset paint to re-create paint object in createTextPaintIfNeeded
     }
 

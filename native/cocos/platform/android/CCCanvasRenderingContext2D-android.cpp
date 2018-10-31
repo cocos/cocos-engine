@@ -157,9 +157,9 @@ public:
         return JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     }
 
-    void updateFont(const std::string& fontName, float fontSize, bool bold, bool italic)
+    void updateFont(const std::string& fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps)
     {
-        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold, italic);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold, italic, oblique, smallCaps);
     }
 
     void setLineCap(const std::string& lineCap) {
@@ -443,36 +443,44 @@ void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
     _impl->setLineCap(lineCap);
 }
 
+/*
+ * support format e.g.: "oblique bold small-caps 18px Arial"
+ *                      "italic bold small-caps 25px Arial"
+ *                      "italic 25px Arial"
+ * */
 void CanvasRenderingContext2D::set_font(const std::string& font)
 {
     if (_font != font)
     {
         _font = font;
-
-        std::string boldStr;
         std::string fontName = "sans-serif";
         std::string fontSizeStr = "30";
-        std::regex re("(bold|italic|bold italic|italic bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([^\\r\\n]*)");
+        std::regex re("\\s*((\\d+)([\\.]\\d+)?)px\\s+([^\\r\\n]*)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
-            boldStr = results[1].str();
             fontSizeStr = results[2].str();
             // support get font name from `60px American` or `60px "American abc-abc_abc"`
             // support get font name contain space,example `times new roman`
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
             std::match_results<std::string::const_iterator> fontResults;
             std::regex fontRe("([\\w\\s-]+|\"[\\w\\s-]+\"$)");
-            if(std::regex_match(results[5].str(), fontResults, fontRe))
+            if(std::regex_match(results[4].str(), fontResults, fontRe))
             {
-                fontName = results[5].str();
+                fontName = results[4].str();
             }
         }
 
         float fontSize = atof(fontSizeStr.c_str());
-        bool isBold = boldStr.find("bold", 0) != std::string::npos;
-        bool isItalic = boldStr.find("italic", 0) != std::string::npos;
-        _impl->updateFont(fontName, fontSize, isBold, isItalic);
+        bool isBold = font.find("bold", 0) != std::string::npos;
+        bool isItalic = font.find("italic", 0) != std::string::npos;
+        bool isSmallCaps = font.find("small-caps", 0) != std::string::npos;
+        bool isOblique = font.find("oblique", 0) != std::string::npos;
+        //font-style: italic, oblique, normal
+        //font-weight: normal, bold
+        //font-variant: normal, small-caps
+        _impl->updateFont(fontName, fontSize, isBold, isItalic, isOblique, isSmallCaps);
+
     }
 }
 
