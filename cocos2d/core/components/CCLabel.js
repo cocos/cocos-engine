@@ -467,8 +467,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
-        this._updateAssembler();
-        this._activateMaterial();
+        this._updateRenderData(true);
     },
 
     onDisable () {
@@ -485,6 +484,18 @@ let Label = cc.Class({
             this._ttfTexture = null;
         }
         this._super();
+    },
+
+    /**
+     * !#en Update the label content immediately.
+     * !#zh 立即更新渲染 label 内容, 以便获得最新的 contentSize。
+     * @method updateContentImmediately
+     */
+    updateImmediately () {
+        if (!this._canRender()) return;
+        this._updateAssembler();
+        this._activateMaterial(true);
+        this._assembler.updateRenderData(this);
     },
 
     _canRender () {
