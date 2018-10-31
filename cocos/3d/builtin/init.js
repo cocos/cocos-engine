@@ -4,10 +4,9 @@ import * as primitives from '../primitive';
 import Mesh from '../assets/mesh';
 import Material from '../assets/material';
 import Texture2D from '../../assets/CCTexture2D';
-// import TextureCube from '../assets/texture-cube';
+import TextureCube from '../assets/texture-cube';
 import Effect from '../../renderer/core/effect';
-// import Technique from '../../renderer/core/technique';
-// import Sprite from '../assets/sprite';
+import Sprite from '../assets/sprite';
 import { vec3 } from '../../core/vmath';
 
 import effectJsons from './effects/index';
@@ -36,69 +35,51 @@ export default function (device) {
     defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
     defaultTexture._uuid = 'default-texture';
     defaultTexture.initWithElement(canvas);
-    //   defaultTexture.mipmap = true;
-    //   defaultTexture.wrapS = 'repeat';
-    //   defaultTexture.wrapT = 'repeat';
-    //   defaultTexture.setImage(0, canvas);
-    //   defaultTexture.commit();
-    //   defaultTexture._uuid = 'default-texture';
-    //   defaultTexture._loaded = true;
 
     // default-texture-cube
-    // let defaultTextureCube = new TextureCube(device);
-    // defaultTextureCube.setImages(
-    //     [[canvas, canvas, canvas, canvas, canvas, canvas]]
-    // );
-    // defaultTextureCube.commit();
-    // defaultTextureCube._uuid = 'default-texture-cube';
-    // defaultTextureCube._loaded = true;
+    let defaultTextureCube = new TextureCube(device);
+    defaultTextureCube._uuid = 'default-texture-cube';
+    defaultTextureCube.initWithElement(
+        [canvas, canvas, canvas, canvas, canvas, canvas]
+    );
 
-    // // black texture canvas fill
-    // canvas.width = canvas.height = 2;
-    // context.fillStyle = '#000';
-    // context.fillRect(0, 0, 2, 2);
+    // black texture canvas fill
+    canvas.width = canvas.height = 2;
+    context.fillStyle = '#000';
+    context.fillRect(0, 0, 2, 2);
 
-    // // black-texture
-    // let blackTexture = new Texture2D(device);
-    // blackTexture.mipmap = false;
-    // blackTexture.wrapS = 'repeat';
-    // blackTexture.wrapT = 'repeat';
-    // blackTexture.minFilter = 'nearest';
-    // blackTexture.magFilter = 'nearest';
-    // blackTexture.setImage(0, canvas);
-    // blackTexture.commit();
-    // blackTexture._uuid = 'black-texture';
-    // blackTexture._loaded = true;
+    // black-texture
+    let blackTexture = new Texture2D(device);
+    blackTexture.setMipmap(false);
+    blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+    blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+    blackTexture._uuid = 'black-texture';
+    defaultTexture.initWithElement(canvas);
 
-    // // white texture canvas fill
-    // canvas.width = canvas.height = 2;
-    // context.fillStyle = '#fff';
-    // context.fillRect(0, 0, 2, 2);
+    // white texture canvas fill
+    canvas.width = canvas.height = 2;
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, 2, 2);
 
-    // // white-texture
-    // let whiteTexture = new Texture2D(device);
-    // whiteTexture.mipmap = false;
-    // whiteTexture.wrapS = 'repeat';
-    // whiteTexture.wrapT = 'repeat';
-    // whiteTexture.minFilter = 'nearest';
-    // whiteTexture.magFilter = 'nearest';
-    // whiteTexture.setImage(0, canvas);
-    // whiteTexture.commit();
-    // whiteTexture._uuid = 'white-texture';
-    // whiteTexture._loaded = true;
+    // white-texture
+    let whiteTexture = new Texture2D(device);
+    blackTexture.setMipmap(false);
+    blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+    blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+    whiteTexture._uuid = 'white-texture';
+    defaultTexture.initWithElement(canvas);
 
-    // // ============================
-    // // builtin sprites
-    // // ============================
+    // ============================
+    // builtin sprites
+    // ============================
 
-    // // default-sprites
-    // let defaultSprite = new Sprite();
-    // defaultSprite._texture = whiteTexture;
-    // defaultSprite.width = whiteTexture.width;
-    // defaultSprite.height = whiteTexture.height;
-    // defaultSprite.commit();
-    // defaultSprite._uuid = 'default-sprite';
-    // defaultSprite._loaded = true;
+    // default-sprites
+    let defaultSprite = new Sprite();
+    defaultSprite.texture = whiteTexture;
+    defaultSprite.width = whiteTexture.width;
+    defaultSprite.height = whiteTexture.height;
+    defaultSprite._uuid = 'default-sprite';
+    defaultSprite.commit();
 
     // ============================
     // builtin meshes
@@ -175,16 +156,8 @@ export default function (device) {
 
     let effects = {};
     for (let i = 0; i < effectJsons.length; ++i) {
-        let effectJson = effectJsons[i];
-        // let effect = new Effect();
-        let effect = {};
-        effect._name = effectJson.name;
-        effect._uuid = `builtin-effect-${effectJson.name}`;
-        // effect._loaded = true;
-        effect.techniques = effectJson.techniques;
-        effect.properties = effectJson.properties;
-        effect.defines = effectJson.defines;
-        effect.dependencies = effectJson.dependencies ? effectJson.dependencies : [];
+        let effect = effectJsons[i];
+        effect._uuid = `builtin-effect-${effect.name}`;
         effects[effect._uuid] = effect;
         Effect.registerEffect(effect);
     }
@@ -205,13 +178,12 @@ export default function (device) {
     //     materials[mat._uuid] = mat;
     // });
 
-    //
     return Object.assign({
         [defaultTexture._uuid]: defaultTexture,
-        // [defaultTextureCube._uuid]: defaultTextureCube,
-        // [blackTexture._uuid]: blackTexture,
-        // [whiteTexture._uuid]: whiteTexture,
-        // [defaultSprite._uuid]: defaultSprite,
+        [defaultTextureCube._uuid]: defaultTextureCube,
+        [blackTexture._uuid]: blackTexture,
+        [whiteTexture._uuid]: whiteTexture,
+        [defaultSprite._uuid]: defaultSprite,
         [cubeMesh._uuid]: cubeMesh,
         [sphereMesh._uuid]: sphereMesh,
         [cylinderMesh._uuid]: cylinderMesh,

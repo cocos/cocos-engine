@@ -10,8 +10,7 @@ let dest = './bin';
 let file = 'cocos-3d.dev';
 let moduleName = 'cocos3d';
 
-// clear directory
-fsJetpack.dir(dest, { empty: true });
+fsJetpack.dir(dest);
 
 module.exports = {
   input: './index.js',

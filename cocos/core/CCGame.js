@@ -773,7 +773,7 @@ var game = {
                 let builtins = this._builtins = initBuiltins(device);
                 this._renderer.setBuiltins({
                     defaultTexture: builtins['default-texture']._texture,
-                    defaultTextureCube: null,
+                    defaultTextureCube: builtins['default-texture-cube']._texture,
                 });
             }
             // renderer.initWebGL(localCanvas, opts);

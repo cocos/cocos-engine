@@ -84,14 +84,14 @@ class VertexBuffer {
 }
 
 if (CC_EDITOR) {
-  let _type2fn = {
-    [enums.ATTR_TYPE_INT8]: 'getInt8',
-    [enums.ATTR_TYPE_UINT8]: 'getUint8',
-    [enums.ATTR_TYPE_INT16]: 'getInt16',
-    [enums.ATTR_TYPE_UINT16]: 'getUint16',
-    [enums.ATTR_TYPE_INT32]: 'getInt32',
-    [enums.ATTR_TYPE_UINT32]: 'getUint32',
-    [enums.ATTR_TYPE_FLOAT32]: 'getFloat32'
+  let _typeMap = {
+    [enums.ATTR_TYPE_INT8]: 'Int8',
+    [enums.ATTR_TYPE_UINT8]: 'Uint8',
+    [enums.ATTR_TYPE_INT16]: 'Int16',
+    [enums.ATTR_TYPE_UINT16]: 'Uint16',
+    [enums.ATTR_TYPE_INT32]: 'Int32',
+    [enums.ATTR_TYPE_UINT32]: 'Uint32',
+    [enums.ATTR_TYPE_FLOAT32]: 'Float32'
   };
   let littleEndian = (function() {
     let buffer = new ArrayBuffer(2);
@@ -99,27 +99,38 @@ if (CC_EDITOR) {
     // Int16Array uses the platform's endianness.
     return new Int16Array(buffer)[0] === 256;
   })();
-  let getAttrAt = function(data, idx, fmt, out = []) {
+  let createAttrCache = function(fmt, data) {
+    if (!data) return [];
+    let vcount = data.byteLength / fmt.stride;
+    let bytes = fmt.bytes / fmt.num;
+    let fname = `get${_typeMap[fmt.type]}`;
+    let result = new Array(vcount * fmt.num);
+    for (let i = 0; i < vcount; i++) {
+      let offset = i * fmt.stride + fmt.offset;
+      for (let j = 0; j < fmt.num; j++)
+        result[i * fmt.num + j] = data[fname](offset + j * bytes, littleEndian);
+    }
+    return result;
+  };
+  let writeAttrBack = function(fmt, attrData, data) {
+    let vcount = attrData.length / fmt.num;
+    let bytes = fmt.bytes / fmt.num;
+    let fname =`set${_typeMap[fmt.type]}`;
+    for (let i = 0; i < vcount; i++) {
+      let offset = i * fmt.stride + fmt.offset;
+      for (let j = 0; j < fmt.num; j++) {
+        data[fname](offset + j * bytes, attrData[i * fmt.num + j], littleEndian);
+      }
+    }
+  };
+  VertexBuffer.getAttrAt = function(data, idx, fmt, out = []) {
     let offset = idx * fmt.stride + fmt.offset;
     let bytes = fmt.bytes / fmt.num;
-    let fname = _type2fn[fmt.type];
+    let fname = `get${_typeMap[fmt.type]}`;
     for (let i = 0; i < fmt.num; i++) {
       out[i] = data[fname](offset + i * bytes, littleEndian);
     }
     return out;
-  };
-  let createAttrCache = function(vb, data, attr) {
-    if (!data) return [];
-    let fmt = vb._format.element(attr);
-    let vcount = data.byteLength / fmt.stride;
-    let result = new Array(vcount * fmt.num);
-    let t = new Array(fmt.num);
-    for (let i = 0; i < vcount; i++) {
-      getAttrAt(data, i, fmt, t);
-      for (let j = 0; j < fmt.num; j++)
-        result[i * fmt.num + j] = t[j];
-    }
-    return result;
   };
   VertexBuffer.prototype.do_update = VertexBuffer.prototype.update;
   VertexBuffer.prototype.update = function(offset, data) {
@@ -130,7 +141,13 @@ if (CC_EDITOR) {
       data = new DataView(data);
     else if (ArrayBuffer.isView(data) && !(data instanceof DataView))
       data = new DataView(data.buffer, data.byteOffset, data.byteLength);
-    this[enums.ATTR_POSITION] = createAttrCache(this, data, enums.ATTR_POSITION);
+    this.data = data; this.offset = offset;
+    this[enums.ATTR_POSITION] = createAttrCache(this._format.element(enums.ATTR_POSITION), data);
+  };
+  VertexBuffer.prototype.updateAttr = function(attr, data) {
+    if (!data) data = this[attr];
+    writeAttrBack(this._format.element(attr), data, this.data);
+    this.do_update(this.offset, this.data);
   };
 }
 

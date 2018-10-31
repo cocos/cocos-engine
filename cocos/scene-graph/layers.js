@@ -53,6 +53,7 @@ Layers._nextAvailable = 8;
 Layers.Default = (1 << 0);
 Layers.IgnoreRaycast = (1 << 1);
 Layers.Gizmos = (1 << 2);
+Layers.PanPlanes = (1 << 3);
 
 // masks
 Layers.All = Layers.makeExclusiveMask([Layers.Gizmos]);
