@@ -158,6 +158,7 @@ var Sprite = cc.Class({
 
     ctor () {
         this._assembler = null;
+        this._renderData = null;
         this._graySpriteMaterial = null;
         this._spriteMaterial = null;
     },

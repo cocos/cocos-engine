@@ -59,6 +59,7 @@ var MotionStreak = cc.Class({
     },
 
     ctor () {
+        this._renderData = null;
         this._points = [];
     },
 

@@ -98,11 +98,9 @@ let RenderComponent = cc.Class({
     },
     
     ctor () {
-        this._material = null;
-        this._renderData = null;
         this.__allocedDatas = [];
+        this._material = null;
         this._vertexFormat = null;
-        this._toPostHandle = false;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
     },
@@ -126,7 +124,6 @@ let RenderComponent = cc.Class({
         }
         this.__allocedDatas.length = 0;
         this._material = null;
-        this._renderData = null;
     },
     
     _canRender () {

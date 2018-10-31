@@ -94,6 +94,7 @@ let Mask = cc.Class({
     },
 
     ctor () {
+        this._renderData = null;
         this._graphics = null;
         this._clearGraphics = null;
     },

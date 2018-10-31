@@ -45,11 +45,11 @@ let TiledLayer = cc.Class({
         this._texGrids = [];
         this._textures = [];
         this._spriteTiles = {};
-
         this._tiledTiles = [];
 
         this._layerName = '';
         this._layerOrientation = null;
+        this._renderData = null;
     },
 
     /**

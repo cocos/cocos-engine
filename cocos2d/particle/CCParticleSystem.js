@@ -705,10 +705,11 @@ var ParticleSystem = cc.Class({
         executeInEditMode: true
     },
 
-    ctor: function () {
+    ctor () {
         this._previewTimer = null;
         this._focused = false;
         this._texture = null;
+        this._renderData = null;
 
         this._simulator = new ParticleSimulator(this);
 

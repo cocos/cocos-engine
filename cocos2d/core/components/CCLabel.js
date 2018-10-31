@@ -142,6 +142,7 @@ let Label = cc.Class({
             this._userDefinedFont = null;
         }
 
+        this._renderData = null;
         this._actualFontSize = 0;
         this._assemblerData = null;
 
