@@ -40,10 +40,6 @@ let maskFrontAssembler = {
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 mask._renderData = spriteAssembler.createData(mask);
             }
-            else {
-                // for updateGraphics calculation
-                mask._renderData = mask.requestRenderData();
-            }
         }
         let renderData = mask._renderData;
 
