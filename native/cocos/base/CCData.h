@@ -141,7 +141,7 @@ public:
      * @param size Will fill with the data buffer size in bytes, if you do not care buffer size, pass nullptr.
      * @return the internal data buffer, free it after use.
      */
-    unsigned char* takeBuffer(ssize_t* size);
+    unsigned char* takeBuffer(ssize_t* size = nullptr);
 private:
     void move(Data& other);
 

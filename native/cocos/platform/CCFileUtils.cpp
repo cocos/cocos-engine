@@ -574,11 +574,12 @@ FileUtils::~FileUtils()
 bool FileUtils::writeStringToFile(const std::string& dataStr, const std::string& fullPath)
 {
     Data data;
-    data.copy((unsigned char*)dataStr.c_str(), dataStr.size());
+    data.fastSet((unsigned char*)dataStr.c_str(), dataStr.size());
 
     bool rv = writeDataToFile(data, fullPath);
 
-    data.fastSet(nullptr, 0);
+    // need to give up buffer ownership for temp using, or double free will occur
+    data.takeBuffer();
     return rv;
 }
 
