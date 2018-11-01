@@ -89,7 +89,7 @@ function extractDefines(tokens, defines, cache) {
     } else if (!ifprocessor.test(str[0])) continue;
     if (str[0] === '#elif') { curDefs.pop(); save(t.line); }
     let defs = [];
-    str.splice(1).forEach(s => {
+    str.splice(1).some(s => {
       id = s.match(ident);
       if (id) { // is identifier
         defs.push(id[0]); 
@@ -97,6 +97,7 @@ function extractDefines(tokens, defines, cache) {
         if (df) return; // first encounter
         defines.push(df = { name: id[0], type: 'boolean' });
       } else if (comparators.test(s)) df.type = 'number';
+      else if (s === '||') return true;
     });
     curDefs.push(defs); save(t.line);
   }
@@ -141,7 +142,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
   }
 }
 
-let precedingSpaces = '\n      ';
+let toOneLiner = o => '\n      ' + JSON.stringify(o).replace(/([,:])/g, '$1 ');
 function buildTemplates(dest, path, cache) {
   let files = fsJetpack.find(path, { matching: ['**/*.vert'] });
   let code = '';
@@ -175,16 +176,16 @@ function buildTemplates(dest, path, cache) {
     code += `    vert: '${vert}',\n`;
     code += `    frag: '${frag}',\n`;
     code += '    defines: [';
-    code += defines.map(d => precedingSpaces + JSON.stringify(d));
+    code += defines.map(toOneLiner);
     code += defines.length ? '\n    ],\n' : '],\n';
     code += '    uniforms: [';
-    code += uniforms.map(d => precedingSpaces + JSON.stringify(d));
+    code += uniforms.map(toOneLiner);
     code += uniforms.length ? '\n    ],\n' : '],\n';
     code += '    attributes: [';
-    code += attributes.map(d => precedingSpaces + JSON.stringify(d));
+    code += attributes.map(toOneLiner);
     code += attributes.length ? '\n    ],\n' : '],\n';
     code += '    extensions: [';
-    code += extensions.map(d => precedingSpaces + JSON.stringify(d));
+    code += extensions.map(toOneLiner);
     code += extensions.length ? '\n    ],\n' : '],\n';
     code += '  },\n';
   }
