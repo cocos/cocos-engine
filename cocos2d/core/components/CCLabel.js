@@ -350,10 +350,6 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                if (value instanceof cc.BitmapFont) {
-                    this._bmFontOriginalSize = value.fontSize;
-                }
-
                 if (this._renderData) {
                     this.destroyRenderData(this._renderData);
                     this._renderData = null;    
