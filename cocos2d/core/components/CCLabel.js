@@ -413,7 +413,7 @@ let Label = cc.Class({
             displayName: 'BMFont Original Size',
             get () {
                 if (this._N$file instanceof cc.BitmapFont) {
-                    return this._N$file.fontSize || -1;
+                    return this._N$file.fontSize;
                 }
                 else {
                     return -1;
