@@ -40,6 +40,11 @@ class Node extends BaseNode {
         EventTarget.call(this);
     }
 
+    onRestore() {
+      super.onRestore();
+      this.invalidateChildren();
+    }
+
     // ===============================
     // hierarchy
     // ===============================

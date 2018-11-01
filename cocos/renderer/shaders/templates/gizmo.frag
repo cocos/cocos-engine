@@ -18,14 +18,6 @@ mat3 transpose(mat3 v) {
     return tmp;
 }
 
-float IntegrateEdge(vec3 v1, vec3 v2) {
-    float cosTheta = dot(v1, v2);
-    float theta = acos(cosTheta);
-    float res = cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 4.0);
-
-    return res;
-}
-
 void ClipQuadToHorizon(inout vec3 L[5], out int n) {
     // detect clipping config
     int config = 0;
@@ -135,6 +127,13 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n) {
         L[3] = L[0];
     if (n == 4)
         L[4] = L[0];
+}
+
+// https://eheitzresearch.wordpress.com/415-2/
+float IntegrateEdge(vec3 v1, vec3 v2) {
+    float cosTheta = dot(v1, v2);
+    float theta = acos(cosTheta);
+    return cross(v1, v2).z * ((theta > 0.001) ? theta/sin(theta) : 4.0);
 }
 
 vec3 LTC_Evaluate(vec3 N, vec3 V, vec3 P, mat3 Minv, vec3 points[4]) {
