@@ -26,6 +26,7 @@
 #include "base/ccMacros.h"
 #include "math/Vec2.h"
 #include "platform/CCGL.h"
+#include "base/CCGLUtils.h"
 
 NS_CC_BEGIN
 
@@ -90,6 +91,7 @@ private:
     GLboolean _prevCullFase = GL_FALSE;
     GLboolean _prevStencilTest = GL_FALSE;
     GLint _prevProgram = 0;
+    BoundTextureInfo* _preveBoundTextureInfo = nullptr;
 };
 
 NS_CC_END

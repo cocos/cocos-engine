@@ -26,7 +26,6 @@
 #include "CCRenderTexture.h"
 #include <stdlib.h>
 #include <string>
-#include "base/CCGLUtils.h"
 #include "base/ccMacros.h"
 #include "base/CCConfiguration.h"
 #include "platform/CCPlatformConfig.h"
@@ -160,6 +159,8 @@ void RenderTexture::recordPreviousGLStates(bool supportsVOA)
         _prevVIO = ccGetBoundIndexBuffer();
     }
     
+    _preveBoundTextureInfo = getBoundTextureInfo(0);
+    
     glGetBooleanv(GL_COLOR_WRITEMASK, _prevColorWriteMask);
     glGetBooleanv(GL_DEPTH_TEST, &_prevDepthTest);
     glGetBooleanv(GL_BLEND, &_prevBlendTest);
@@ -204,6 +205,9 @@ void RenderTexture::resetPreviousGLStates(bool supportsVAO) const
     if (GL_TRUE == _prevBlendTest) glEnable(GL_BLEND);
     if (GL_TRUE == _prevCullFase) glEnable(GL_CULL_FACE);
     if (GL_TRUE == _prevStencilTest) glEnable(GL_STENCIL_TEST);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(_preveBoundTextureInfo->target, _preveBoundTextureInfo->texture);
 }
 
 namespace

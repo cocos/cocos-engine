@@ -518,7 +518,7 @@ static bool JSB_glActiveTexture(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    JSB_GL_CHECK(glActiveTexture((GLenum)arg0));
+    JSB_GL_CHECK(ccActiveTexture((GLenum)arg0));
 
     return true;
 }
@@ -640,7 +640,7 @@ static bool JSB_glBindTexture(se::State& s) {
     SE_PRECONDITION4(arg0 == GL_TEXTURE_2D || arg0 == GL_TEXTURE_CUBE_MAP, false, GL_INVALID_ENUM);
 
     GLuint textureId = arg1 != nullptr ? arg1->_id : 0;
-    JSB_GL_CHECK(glBindTexture((GLenum)arg0 , textureId));
+    JSB_GL_CHECK(ccBindTexture((GLenum)arg0 , textureId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindTexture)
@@ -4219,7 +4219,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         ++handledCommandCount;
         if (commandID == GL_COMMAND_ACTIVE_TEXTURE) {
             LOG_GL_COMMAND("Flush: ACTIVE_TEXTURE\n");
-            JSB_GL_CHECK_VOID(glActiveTexture((GLenum)p[1]));
+            JSB_GL_CHECK_VOID(ccActiveTexture((GLenum)p[1]));
             p += 2;
         }
         else if (commandID == GL_COMMAND_ATTACH_SHADER) {
@@ -4247,7 +4247,7 @@ static bool JSB_glFlushCommand(se::State& s) {
         }
         else if (commandID == GL_COMMAND_BIND_TEXTURE) {
             LOG_GL_COMMAND("Flush: BIND_TEXTURE\n");
-            JSB_GL_CHECK_VOID(glBindTexture((GLenum)p[1], (GLuint)p[2]));
+            JSB_GL_CHECK_VOID(ccBindTexture((GLenum)p[1], (GLuint)p[2]));
             p += 3;
         }
         else if (commandID == GL_COMMAND_BLEND_COLOR) {

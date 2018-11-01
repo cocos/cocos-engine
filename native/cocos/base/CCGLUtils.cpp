@@ -21,17 +21,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "CCGLUtils.h"
+#include "platform/CCApplication.h"
 #include <stdio.h>
 #include <cfloat>
 #include <cassert>
-#include "platform/CCApplication.h"
+#include <array>
 
 NS_CC_BEGIN
 
 // todo: use gl to get the supported number
 #define MAX_ATTRIBUTE_UNIT  16
+#define MAX_TEXTURE_UNIT 32
 
 //IDEA: Consider to use variable to enable/disable cache state since using macro will not be able to close it if there're serious bugs.
 //#undef CC_ENABLE_GL_STATE_CACHE
@@ -46,6 +47,9 @@ namespace
     
     uint32_t __enabledVertexAttribArrayFlag = 0;
     VertexAttributePointerInfo __enabledVertexAttribArrayInfo[MAX_ATTRIBUTE_UNIT];
+    
+    uint8_t __currentActiveTextureUnit = 0;
+    std::array<BoundTextureInfo, MAX_TEXTURE_UNIT> __boundTextureInfos;
 
     GLint _currentUnpackAlignment = -1;
 
@@ -68,6 +72,38 @@ void ccInvalidateStateCache()
     _currentUnpackAlignment = -1;
     __unpackFlipY = false;
     __premultiplyAlpha = false;
+}
+
+/****************************************************************************************
+ Texture related
+ ***************************************************************************************/
+void ccActiveTexture(GLenum texture)
+{
+#if CC_ENABLE_GL_STATE_CACHE
+    __currentActiveTextureUnit = texture - GL_TEXTURE0;
+    assert(__currentActiveTextureUnit < MAX_TEXTURE_UNIT && __currentActiveTextureUnit >= 0);
+#endif
+    glActiveTexture(texture);
+}
+
+void ccBindTexture(GLenum target, GLuint texture)
+{
+#if CC_ENABLE_GL_STATE_CACHE
+    auto& boundTextureInfo = __boundTextureInfos[__currentActiveTextureUnit];
+    if (boundTextureInfo.texture == texture && boundTextureInfo.target == target)
+        return;
+    
+    boundTextureInfo.texture = texture;
+    boundTextureInfo.target = target;
+    glBindTexture(target, texture);
+#else
+    glBindTexture(target, texture);
+#endif
+}
+
+BoundTextureInfo* getBoundTextureInfo(uint32_t textureUnit)
+{
+    return &__boundTextureInfos[textureUnit];
 }
 
 /****************************************************************************************
