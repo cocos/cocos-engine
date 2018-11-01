@@ -343,7 +343,6 @@ let Label = cc.Class({
                 }
 
                 this._N$file = value;
-                this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
@@ -412,9 +411,14 @@ let Label = cc.Class({
 
         _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
-            default: -1,
-            serializable: false,
-            readonly: true,
+            get () {
+                if (this._N$file instanceof cc.BitmapFont) {
+                    return this._N$file.fontSize || -1;
+                }
+                else {
+                    return -1;
+                }
+            },
             visible: true,
             animatable: false
         },
