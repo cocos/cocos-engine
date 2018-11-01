@@ -122,16 +122,6 @@ public:
         _imageData = _getTextureData();
     }
 
-    void CanvasRenderingContext2D::fill()
-    {
-        // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
-    }
-
-    void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
-    {
-        // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
-    }
-
     void saveContext()
     {
         _savedDC = SaveDC(_DC);
@@ -787,6 +777,15 @@ void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
+void CanvasRenderingContext2D::fill()
+{
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
+{
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
