@@ -489,7 +489,7 @@ let Label = cc.Class({
     /**
      * !#en Update the label content immediately.
      * !#zh 立即更新渲染 label 内容, 以便获得最新的 contentSize。
-     * @method updateContentImmediately
+     * @method updateImmediately
      */
     updateImmediately () {
         if (!this._canRender()) return;
