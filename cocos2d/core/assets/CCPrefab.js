@@ -122,7 +122,10 @@ var Prefab = cc.Class({
          * @property {Boolean} readonly
          * @default false
          */
-        readonly: false
+        readonly: {
+            default: false,
+            editorOnly: true
+        }
     },
 
     statics: {
