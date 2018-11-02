@@ -155,9 +155,9 @@ export default class SkinningModelComponent extends ModelComponent {
 
             const jointMatrix = _m4_tmp;
             mat4.identity(jointMatrix);
-            mat4.multiply(jointMatrix, jointMatrix, cancelThisNoTransform);
-            mat4.multiply(jointMatrix, jointMatrix, targetNode.getWorldMatrix());
-            mat4.multiply(jointMatrix, jointMatrix, bindpose);
+            mat4.multiply(jointMatrix, jointMatrix, cancelThisNoTransform); // 3. because it has been in world space, just cancel this mesh's original local-world transform
+            mat4.multiply(jointMatrix, jointMatrix, targetNode.getWorldMatrix()); // 2. transform from joint' local space to world space
+            mat4.multiply(jointMatrix, jointMatrix, bindpose); // 1. transform mesh to joint's local space
             this._setJointMatrix(index, jointMatrix);
         });
 
