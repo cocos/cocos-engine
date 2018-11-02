@@ -418,6 +418,19 @@ export default class LightComponent extends RenderSystemActor {
 
     onLoad() {
         this._light.setNode(this.node);
+        this.type = this._type;
+        this.color = this._color;
+        this.intensity = this._intensity;
+        this.range = this._range;
+        this.spotAngle = this._spotAngle;
+        this.spotExp = this._spotExp;
+        this.shadowType = this._shadowType;
+        this.shadowResolution = this._shadowResolution;
+        this.shadowDarkness = this._shadowDarkness;
+        this.shadowMaxDepth = this._shadowMaxDepth;
+        this.shadowDepthScale = this._shadowDepthScale;
+        this.shadowFrustumSize = this._shadowFrustumSize;
+        this.shadowBias = this._shadowBias;
     }
 
     onEnable() {

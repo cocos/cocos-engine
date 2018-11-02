@@ -40,19 +40,24 @@ class Node extends BaseNode {
         EventTarget.call(this);
     }
 
-    onRestore() {
-      super.onRestore();
-      this.invalidateChildren();
-    }
 
     // ===============================
     // hierarchy
     // ===============================
 
     /**
-     * invalidate all children after parent changed
+     * invalidate all children after relevant events
      */
+    onRestore() {
+        super.onRestore();
+        this.invalidateChildren();
+    }
+
     _onSetParent(/*oldParent*/) {
+        this.invalidateChildren();
+    }
+
+    _onPostActivated() {
         this.invalidateChildren();
     }
 
