@@ -105,7 +105,7 @@ export default class SkinningModelComponent extends ModelComponent {
 
     set skinningRoot(value) {
         this._skinningRoot = value;
-        this._resetTarget();
+        //this._resetTarget();
     }
 
     onLoad() {
