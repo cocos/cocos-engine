@@ -62,10 +62,6 @@ export default class SkinningModelComponent extends ModelComponent {
     @property(Node)
     _skinningRoot = null;
 
-    /**
-     * @type {Node}
-     */
-    @property(Node)
     _skeletonRoot = null;
 
     constructor() {
@@ -100,6 +96,16 @@ export default class SkinningModelComponent extends ModelComponent {
 
     set skeleton(val) {
         this._skeleton = val;
+    }
+
+    @property(Node)
+    get skinningRoot() {
+        return this._skinningRoot;
+    }
+
+    set skinningRoot(value) {
+        this._skinningRoot = value;
+        this._resetTarget();
     }
 
     onLoad() {
