@@ -8,14 +8,15 @@ uniform mat4 viewProj;
 uniform mat3 normalMatrix;
 
 varying vec3 normal_w;
+varying vec3 pos_w;
+varying vec3 pos_l;
 
 void main () {
   vec4 pos = vec4(a_position, 1);
 
-  pos = viewProj * model * pos;
+  pos_l = a_position;
+  pos_w = (model * pos).xyz;
+  normal_w = normalMatrix * a_normal;
 
-  vec4 normal = vec4(a_normal, 0);
-  normal_w = normalMatrix * normal.xyz;
-
-  gl_Position = pos;
+  gl_Position = viewProj * model * pos;
 }

@@ -23,6 +23,8 @@ let _typeMap = {
     [enums.PARAM_MAT4]: Mat4,
     [enums.PARAM_TEXTURE_2D]: Texture2D,
     [enums.PARAM_TEXTURE_CUBE]: TextureCube,
+    number: Number,
+    boolean: Boolean,
     default: CCObject
 };
 let getInstanceType = function(t) { return _typeMap[t] || _typeMap.default; };
@@ -137,6 +139,7 @@ let cloneObjArray = function(val) { return val.map(obj => Object.assign({}, obj)
 
 let _ctorMap = {
     [Number]: v => v || 0,
+    [Boolean]: v => v || false,
     [Vec2]: v => v ? cc.v2(v[0], v[1]) : cc.v2(),
     [Vec3]: v => v ? cc.v3(v[0], v[1], v[2]) : cc.v3(),
     [Vec4]: v => v ? cc.v4(v[0], v[1], v[2], v[3]) : cc.v4(),
@@ -201,7 +204,7 @@ Effect.parseType = function(json) {
         tech.passes.forEach(pass => {
             let program = lib.getTemplate(pass.program);
             program.defines.forEach(define => {
-                types[define.name] = (define.type === 'boolean' ? Boolean : Number);
+                types[define.name] = getInstanceType(define.type);
             });
             program.uniforms.forEach(uniform => {
                 types[uniform.name] = getInstanceType(uniform.type);
@@ -220,7 +223,7 @@ Effect.registerEffect = function(json) {
     // add all the defines too, for now
     programs.forEach(program => {
         program.defines.forEach(define => {
-            properties[define.name] = define.type === 'boolean' ? false : 0;
+            properties[define.name] = getInstanceCtor(define.type)();
         });
     });
     cc.Class({
@@ -261,7 +264,7 @@ Effect.parseEffect = function(json) {
     // defines
     let defines = programs.reduce((acc, cur) => acc = acc.concat(cur.defines), []);
     defines = cloneObjArray(defines);
-    defines.forEach(d => d.value = (d.type === 'boolean' ? false : 0));
+    defines.forEach(d => d.value = getInstanceCtor(d.type)());
     // extensions
     let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
     extensions = cloneObjArray(extensions);
