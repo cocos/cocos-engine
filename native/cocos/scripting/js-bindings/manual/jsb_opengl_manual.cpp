@@ -599,7 +599,7 @@ static bool JSB_glBindFramebuffer(se::State& s) {
     GLuint frameBufferId = arg1 != nullptr ? arg1->_id : __defaultFbo;
 
     SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
-    JSB_GL_CHECK(glBindFramebuffer((GLenum)arg0 , frameBufferId));
+    JSB_GL_CHECK(ccBindFramebuffer((GLenum)arg0 , frameBufferId));
     return true;
 }
 SE_BIND_FUNC(JSB_glBindFramebuffer)
@@ -4239,7 +4239,7 @@ static bool JSB_glFlushCommand(se::State& s) {
                 GLuint fbo = (GLuint)p[2];
                 if (0 == fbo)
                     fbo = __defaultFbo;
-                JSB_GL_CHECK_VOID(glBindFramebuffer((GLenum)p[1], fbo));
+                JSB_GL_CHECK_VOID(ccBindFramebuffer((GLenum)p[1], fbo));
                 p += 3;
                 break;
             }

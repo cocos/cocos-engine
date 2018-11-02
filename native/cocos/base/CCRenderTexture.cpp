@@ -118,7 +118,8 @@ void RenderTexture::draw()
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    
+    glDisable(GL_SCISSOR_TEST);
+
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, _texture);
     
@@ -166,6 +167,7 @@ void RenderTexture::recordPreviousGLStates(bool supportsVOA)
     glGetBooleanv(GL_BLEND, &_prevBlendTest);
     glGetBooleanv(GL_CULL_FACE, &_prevCullFase);
     glGetBooleanv(GL_STENCIL_TEST, &_prevStencilTest);
+    glGetBooleanv(GL_SCISSOR_TEST,&_prevScissorTest);
     glGetIntegerv(GL_CURRENT_PROGRAM, &_prevProgram);
 }
 
@@ -205,9 +207,12 @@ void RenderTexture::resetPreviousGLStates(bool supportsVAO) const
     if (GL_TRUE == _prevBlendTest) glEnable(GL_BLEND);
     if (GL_TRUE == _prevCullFase) glEnable(GL_CULL_FACE);
     if (GL_TRUE == _prevStencilTest) glEnable(GL_STENCIL_TEST);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(_preveBoundTextureInfo->target, _preveBoundTextureInfo->texture);
+    if (GL_TRUE == _prevScissorTest) glEnable(GL_SCISSOR_TEST);
+
+    if(_preveBoundTextureInfo != nullptr) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(_preveBoundTextureInfo->target, _preveBoundTextureInfo->texture);
+    }
 }
 
 namespace
@@ -464,7 +469,9 @@ void RenderTexture::initFramebuffer()
     glGenFramebuffers(1, &_FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
-    
+
+    ccActiveOffScreenFramebuffer(_FBO);
+
     // set up depth buffer and stencil buffer
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     if(Configuration::getInstance()->supportsOESPackedDepthStencil())

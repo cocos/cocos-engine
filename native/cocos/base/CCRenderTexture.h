@@ -90,6 +90,7 @@ private:
     GLboolean _prevBlendTest = GL_FALSE;
     GLboolean _prevCullFase = GL_FALSE;
     GLboolean _prevStencilTest = GL_FALSE;
+    GLboolean _prevScissorTest = GL_FALSE;
     GLint _prevProgram = 0;
     BoundTextureInfo* _preveBoundTextureInfo = nullptr;
 };
