@@ -3,17 +3,21 @@ import gfx from "../../../renderer/gfx";
 import { enums as gfxEnums } from "../../../renderer/gfx/enums";
 import { vec3 } from "../../../core/vmath";
 import Node from "../../../scene-graph/node";
-import Mesh, { Primitive, VertexBundle, BufferRange } from "../mesh";
+import Texture, { WrapMode, Filter } from "../../../assets/CCTexture2D";
+import Material from "../material";
+import Mesh, { Primitive, VertexBundle } from "../mesh";
+import BufferRange from "./buffer-range";
 import Skeleton from "../skeleton";
 import { Vec3, Mat4 } from "../../../core/value-types";
 import AnimationClip, { AnimationFrame, AnimationChannel } from "../animation-clip";
 
 /**
- * @typedef {import("../../../../types/glTF/glTF").Accessor} Gltf
+ * @typedef {import("../../../../types/glTF/glTF").GlTf} Gltf
  * @typedef {import("../../../../types/glTF/glTF").Accessor} GltfAccessor
  * @typedef {import("../../../../types/glTF/glTF").Buffer} GltfBuffer
  * @typedef {import("../../../../types/glTF/glTF").BufferView} GltfBufferView
  * @typedef {import("../../../../types/glTF/glTF").Node} GLTFNode
+ * @typedef {import("../../../../types/glTF/glTF").Sampler} GltfSampler
  */
 
 /**
@@ -356,6 +360,71 @@ export class GltfConverter {
         return animationClip;
     }
 
+    /**
+     * 
+     * @param {number} index 
+     * @param {Texture} textures 
+     */
+    createMaterial(index, textures) {
+        if (this._gltf.materials === undefined || index >= this._gltf.materials.length) {
+            return null;
+        }
+
+        const gltfMaterial = this._gltf.materials[index];
+
+        const material = new Material();
+        material.name = gltfMaterial.name;
+        material.effectName = "builtin-effect-unlit";
+        if (gltfMaterial.pbrMetallicRoughness) {
+            const pbrMetallicRoughness = gltfMaterial.pbrMetallicRoughness;
+            if (pbrMetallicRoughness.baseColorTexture) {
+                material.define("USE_TEXTURE", true);
+                material.setProperty("mainTexture", textures[pbrMetallicRoughness.baseColorTexture.index]);
+            } else {
+                material.define("USE_COLOR", true);
+                let color = null;
+                if (pbrMetallicRoughness.baseColorFactor) {
+                    const c = pbrMetallicRoughness.baseColorFactor;
+                    color = new cc.Color(c[0] * 255, c[1] * 255, c[2] * 255, c[3] * 255);
+                } else {
+                    color = new cc.Color(255, 255, 255, 255);
+                }
+                material.setProperty("color", color);
+            }
+        }
+
+        return material;
+    }
+
+    /**
+     * 
+     * @param {number} index 
+     */
+    createTexture(index) {
+        if (this._gltf.textures === undefined || index >= this._gltf.textures.length) {
+            return null;
+        }
+
+        const gltfTexture = this._gltf.textures[index];
+        const texture = new Texture();
+        texture.name = gltfTexture.name;
+        if (gltfTexture.sampler === undefined) {
+            texture.setWrapMode(WrapMode.REPEAT, WrapMode.REPEAT);
+        } else {
+            const gltfSampler = this._requireSampler(gltfTexture.sampler);
+            texture.setFilters(
+                gltfSampler.minFilter === undefined ? undefined : this._getFilter(gltfSampler.minFilter),
+                gltfSampler.magFilter === undefined ? undefined : this._getFilter(gltfSampler.magFilter)
+            );
+            texture.setWrapMode(
+                this._getWrapMode(gltfSampler.wrapS === undefined ? 10497 : gltfSampler.wrapS),
+                this._getWrapMode(gltfSampler.wrapT === undefined ? 10497 : gltfSampler.wrapT),
+            );
+        }
+
+        return texture;
+    }
+
     createNodePathTable() {
         if (this._gltf.nodes === undefined) {
             return [];
@@ -554,6 +623,38 @@ export class GltfConverter {
 
     /**
      * 
+     * @param {number} filter 
+     */
+    _getFilter(filter) {
+        switch (filter) {
+            case 9728:
+                return Filter.NEAREST;
+            case 9729:
+                return Filter.LINEAR;
+            default:
+                throw `Unrecognized filter: ${filter}.`;
+        }
+    }
+
+    /**
+     * 
+     * @param {number} wrapMode 
+     */
+    _getWrapMode(wrapMode) {
+        switch (wrapMode) {
+            case 33071:
+                return WrapMode.CLAMP_TO_EDGE;
+            case 33648:
+                return WrapMode.MIRRORED_REPEAT;
+            case 10497:
+                return WrapMode.REPEAT;
+            default:
+                throw `Unrecognized wrapMode: ${wrapMode}.`;
+        }
+    }
+
+    /**
+     * 
      * @param {number} index 
      * @return {GltfBuffer}
      */
@@ -585,5 +686,16 @@ export class GltfConverter {
             throw `Accessors is require but it do not exists.`;
         }
         return this._gltf.accessors[index];
+    }
+
+    /**
+     * @param {number} index 
+     * @return {GltfSampler}
+     */
+    _requireSampler(index) {
+        if (this._gltf.samplers === undefined) {
+            throw `Samplers is require but it do not exists.`;
+        }
+        return this._gltf.samplers[index];
     }
 }

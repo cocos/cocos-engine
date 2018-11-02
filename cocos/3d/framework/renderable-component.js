@@ -5,8 +5,20 @@ const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
 export default class RenderableComponent extends RenderSystemActor {
-    @property
+    /**
+     * @type {Material[]}
+     */
+    @property([Material])
     _materials = [];
+
+    constructor() {
+        super();
+
+        /**
+         * @type {Material[]}
+         */
+        this._hackMaterials = [];
+    }
 
     /**
      * !#en The material of the model
@@ -14,10 +26,10 @@ export default class RenderableComponent extends RenderSystemActor {
      * !#ch 模型材质
      * @type {Material[]}
      */
-    @property
+    @property([Material])
     get materials() {
         for (let i = 0; i < this._materials.length; i++) {
-            this._materials[i] = this.getMaterial(i);
+            this._materials[i] = this.getSharedMaterial(i);
         }
         return this._materials;
     }
@@ -28,6 +40,7 @@ export default class RenderableComponent extends RenderSystemActor {
 
     set materials(val) {
         this._materials = val;
+        this._hackMaterials = val.slice();
         for (let i = 0; i < val.length; i++) {
             this._onMaterialModified(i, val[i]);
         }
@@ -46,8 +59,7 @@ export default class RenderableComponent extends RenderSystemActor {
 
         let instantiated = Material.getInstantiatedMaterial(this._materials[idx], this);
         if (instantiated != this) {
-            this._materials[idx] = instantiated;
-            this._onMaterialModified(idx, instantiated);
+            this._setMaterial(instantiated, idx);
         }
 
         return this._materials[idx];
@@ -72,10 +84,28 @@ export default class RenderableComponent extends RenderSystemActor {
         if (this._materials.length === 1 && this._materials[0] === val) {
             return;
         }
+        this._setMaterial(val, 0);
+    }
 
-        if (val != this._materials[0]) {
-            this._onMaterialModified(0, val);
+    _setMaterial(material, index) {
+        if (this._materials[index] !== material) {
+            this._materials[index] = material;
         }
-        this._materials[0] = val;
+    }
+
+    _setHackMaterial(material, index) {
+        if (this._hackMaterials[index] !== material) {
+            this._hackMaterials[index] = material;
+            this._onMaterialModified(index, material);
+        }
+    }
+
+    update() {
+        for (let i = 0; i < this._materials.length; ++i) {
+            const material = this._materials[i];
+            if (material != this._hackMaterials[i]) {
+                this._setHackMaterial(material, i);
+            }
+        }
     }
 }

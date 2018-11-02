@@ -30,34 +30,7 @@ import Asset from "../../assets/CCAsset";
 import gfx from "../../renderer/gfx";
 import { enums as gfxEnums } from "../../renderer/gfx/enums";
 import InputAssembler from "../../renderer/core/input-assembler";
-
-cc.internal = cc.internal || {};
-
-/**
- * The class BufferRange denotes a range of the buffer.
- */
-@ccclass("cc.internal.BufferRange")
-export class BufferRange {
-    /**
-     * The offset of the range.
-     * @type {Number}
-     */
-    @property(Number)
-    _offset = 0;
-
-    /**
-     * The length of the range, in bytes.
-     * @type {Number}
-     */
-    @property(Number)
-    _length = 0;
-
-    constructor(offset, length) {
-        this._offset = offset;
-        this._length = length;
-    }
-}
-cc.internal.BufferRange = BufferRange;
+import BufferRange from "./utils/buffer-range";
 
 /**
  * A vertex bundle describes a serials of vertex attributes.
@@ -88,7 +61,6 @@ export class VertexBundle {
     @property
     _formats = [];
 }
-cc.internal.VertexBundle = VertexBundle;
 
 /**
  * A primitive is a geometry constituted with a list of
@@ -125,7 +97,6 @@ export class Primitive {
     @property(Number)
     _topology = gfxEnums.PT_TRIANGLES;
 }
-cc.internal.Primitive = Primitive;
 
 @ccclass('cc.Mesh')
 export default class Mesh extends Asset {
@@ -179,7 +150,9 @@ export default class Mesh extends Asset {
     /**
      * 
      */
-    flush() {
+    _createRenderingResource() {
+        this._subMeshes = [];
+
         if (this._data === null) {
             return;
         }
@@ -236,6 +209,9 @@ export default class Mesh extends Asset {
      * @property {number}
      */
     get subMeshCount() {
+        if (this._subMeshes === null) {
+            this._createRenderingResource();
+        }
         return this._subMeshes.length;
     }
 
@@ -245,6 +221,9 @@ export default class Mesh extends Asset {
      * @param {number} index Index of the specified submesh.
      */
     getSubMesh(index) {
+        if (this._subMeshes === null) {
+            this._createRenderingResource();
+        }
         return this._subMeshes[index];
     }
 

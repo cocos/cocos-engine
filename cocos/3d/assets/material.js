@@ -32,10 +32,16 @@ import Effect from '../../renderer/core/effect';
 @ccclass('cc.Material')
 export default class Material extends Asset {
     /**
+     * @type {string}
+     */
+    @property
+    _effectName = "";
+
+    /**
      * @type {Object}
      */
-    @property(Object)
-    _effectAsset = null;
+    @property
+    _defines = {};
 
     /**
      * @type {Object}
@@ -44,34 +50,61 @@ export default class Material extends Asset {
     _props = {};
 
     /**
-     * @type {cc.renderer.Effect}
+     * @type {Effect}
      */
     _effect = null;
 
     /**
- * @return {Object}
+     * @return {string}
      */
-    get effectAsset() {
-        return this._effectAsset;
+    get effectName() {
+        return this._effectName;
     }
 
     /**
-     * @param {Object} val
+     * @param {string} val
      */
-    set effectAsset(val) {
-        if (this._effectAsset !== val) {
-            this._effectAsset = val;
-            this._effect = Effect.parseEffect(this._effectAsset);
-            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(this._effectAsset));
-            this._props = propCls ? new propCls() : {};
+    set effectName(val) {
+        if (this._effectName !== val) {
+            this._effectName = val;
+            if (cc.game._builtins) {
+                const effectAsset = cc.game._builtins[this._effectName];
+                this._effect = Effect.parseEffect(effectAsset);
+                let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
+                this._props = propCls ? new propCls() : {};
+            }
         }
     }
 
     /**
-     * @return {cc.renderer.Effect}
+     * @return {Effect}
      */
     get effect() {
+        if (this._effect === null) {
+            this._instantiateEffect();
+        }
         return this._effect;
+    }
+
+    _instantiateEffect() {
+        if (!cc.game || !cc.game._builtins) {
+            return;
+        }
+
+        const effectAsset = cc.game._builtins[this._effectName];
+        if (!effectAsset) {
+            return;
+        }
+
+        this._effect = Effect.parseEffect(effectAsset);
+        
+        for (let def in this._defines) {
+            this.define(def, this._defines[def]);
+        }
+
+        for (let name in this._props) {
+            this.setProperty(name, this._props[name]);
+        }
     }
 
     /**
@@ -79,9 +112,10 @@ export default class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
-        if (this._effectAsset !== mat._effectAsset) {
-            this._effectAsset = mat._effectAsset;
-            this._effect = Effect.parseEffect(this._effectAsset);
+        this._effectName = mat._effectName;
+
+        for (let def in mat._defines) {
+            this.define(def, mat._defines[def]);
         }
 
         for (let name in mat._props) {
@@ -97,10 +131,12 @@ export default class Material extends Asset {
     setProperty(name, val) {
         this._props[name] = val;
 
-        if (val instanceof Texture) {
-            this._effect.setProperty(name, val._texture);
-        } else {
-            this._effect.setProperty(name, val);
+        if (this._effect) {
+            if (val instanceof Texture) {
+                this._effect.setProperty(name, val._texture);
+            } else {
+                this._effect.setProperty(name, val);
+            }
         }
     }
 
@@ -110,7 +146,10 @@ export default class Material extends Asset {
      * @param {*} val
      */
     define(name, val) {
-        this._effect.define(name, val);
+        this._defines[name] = val;
+        if (this._effect) {
+            this._effect.define(name, val);
+        }
     }
 
     destroy() {
@@ -118,35 +157,16 @@ export default class Material extends Asset {
         return super.destroy();
     }
 
-    _serialize() {
-        // todo: this may be refactored for it is editor only
-        return {
-            effect: (this._effectAsset && this._effectAsset._uuid) || 'unknown',
-            props: Editor.serialize(this._props),
-        };
-    }
-
-    _deserialize(data/*, handle*/) {
-        console.log(`try to deserialize material`);
-        if (data.effect.indexOf('builtin-effect') !== -1) {
-            this._effectAsset = cc.game._builtins[data.effect];
-            this._effect = Effect.parseEffect(this._effectAsset);
-            this._props = cc.deserialize(data.props);
-        } else {
-            // todo: add custom effect
-            console.error('Cannot support custom effect now');
-        }
-    }
-
     static getInstantiatedMaterial(mat, rndCom) {
         if (mat._owner === rndCom) {
-            return this;
+            return mat;
         }
         else {
             let instance = new Material();
             instance.copy(mat);
             instance._native = mat._native + ' (Instance)';
             instance._owner = rndCom;
+            return instance;
         }
     }
 }
