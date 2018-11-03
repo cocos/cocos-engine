@@ -123,6 +123,20 @@ test('activeInHierarchy', function () {
     strictEqual(child.activeInHierarchy, false, 'child should not activeInHierarchy after remove from scene');
 });
 
+test('activeInHierarchy should be false after destroy', function () {
+    var parent = new cc.Node();
+    var child = new cc.Node();
+    child.parent = parent;
+
+    cc.director.getScene().addChild(parent);
+
+    parent.destroy();
+    cc.game.step();
+
+    strictEqual(parent.activeInHierarchy, false, 'parent should not activeInHierarchy after destroy');
+    strictEqual(child.activeInHierarchy, false, 'child should not activeInHierarchy after destroy');
+});
+
 test('activation logic for component', function () {
     // 这里主要测试node，不是测试component
 

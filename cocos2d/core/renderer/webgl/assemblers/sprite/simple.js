@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -58,14 +58,17 @@ module.exports = {
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
         buffer.request(4, 6);
-
+        
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
 
         // get uv from sprite frame directly
         let uv = sprite._spriteFrame.uv;
@@ -104,6 +107,13 @@ module.exports = {
         uintbuf[vertexOffset+9] = color;
         uintbuf[vertexOffset+14] = color;
         uintbuf[vertexOffset+19] = color;
+        // fill indice data
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId+1;
+        ibuf[indiceOffset++] = vertexId+2;
+        ibuf[indiceOffset++] = vertexId+1;
+        ibuf[indiceOffset++] = vertexId+3;
+        ibuf[indiceOffset++] = vertexId+2;
     },
 
     createData (sprite) {

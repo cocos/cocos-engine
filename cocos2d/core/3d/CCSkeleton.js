@@ -4,7 +4,7 @@ let Skeleton = cc.Class({
     extends: cc.Asset,
 
     ctor () {
-        this.jointIndices = [];
+        this.jointPaths = [];
         this.bindposes = [];
     },
 

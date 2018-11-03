@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -347,6 +347,12 @@ function initSys () {
      * @default 105
      */
     sys.QQ_PLAY = 105;
+    /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 106
+     */
+    sys.FB_PLAYABLE_ADS = 106;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -718,7 +724,12 @@ function initSys () {
              * Indicate the running platform
              * @property {Number} platform
              */
-            sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            if (typeof FbPlayableAd !== undefined) {
+                sys.platform = sys.FB_PLAYABLE_ADS;
+            }
+            else {
+                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            }
         }
 
         var currLanguage = nav.language;
@@ -1129,6 +1140,20 @@ function initSys () {
      */
     sys.restartVM = function () {
         // N/A in web
+    };
+
+    /**
+     * !#en 
+     * Return the safe area rect. only available on the iOS device. <br/>
+     * when the safeArea rect is unavailable, it will return a rect with design resolution size.
+     * !#zh
+     * 返回手机屏幕安全区域，目前仅在 iOS 设备上有效。其它平台将默认返回设计分辨率尺寸。
+     * @method getSafeAreaRect
+     * @return {Rect}
+    */
+    sys.getSafeAreaRect = function () {
+        let designSize = cc.view.getDesignResolutionSize();
+        return cc.rect(0, 0, designSize.width, designSize.height);
     };
 
     /**

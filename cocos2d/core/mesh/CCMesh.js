@@ -92,7 +92,7 @@ let Mesh = cc.Class({
     _initResource () {
         if (this._resourceInited || !this._resource) return;
         this._resourceInited = true;
-        
+
         this._resource.flush(this);
     },
 
@@ -130,12 +130,12 @@ let Mesh = cc.Class({
      * Set the vertex values.
      * !#zh 
      * 设置顶点数据
-     * @method setVertexes
+     * @method setVertices
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
      * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      * @param {Number} [index] 
      */
-    setVertexes (name, values, index) {
+    setVertices (name, values, index) {
         index = index || 0;
         let vb = this._vbs[index];
 
@@ -295,7 +295,10 @@ let Mesh = cc.Class({
             let vb = vbs[i];
 
             if (vb.dirty) {
-                vb.buffer.update(0, vb.data);
+                let buffer = vb.buffer, data = vb.data;
+                buffer._numVertices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 vb.dirty = false;
             }
         }
@@ -305,7 +308,10 @@ let Mesh = cc.Class({
             let ib = ibs[i];
 
             if (ib.dirty) {
-                ib.buffer.update(0, ib.data);
+                let buffer = ib.buffer, data = ib.data;
+                buffer._numIndices = data.length;
+                buffer._bytes = data.byteLength;
+                buffer.update(0, data);
                 ib.dirty = false;
             }
         }

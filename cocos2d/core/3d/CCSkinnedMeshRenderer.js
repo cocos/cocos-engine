@@ -30,32 +30,12 @@ const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
 
-function traversal (node, cb) {
-    cb(node);
-
-    let children = node.children;
-    for (let i = 0; i < children.length; i++) {
-        let child = children[i];
-        traversal(child, cb);
-    }
-}
-
-function flatNode (rootNode) {
-    let nodes = [];
-
-    traversal(rootNode, function (node) {
-        nodes.push(node);
-    });
-
-    return nodes;
-}
-
 let SkinnedMeshRenderer = cc.Class({
     name: 'cc.SkinnedMeshRenderer',
     extends: MeshRenderer,
 
     editor: CC_EDITOR && {
-        menu: 'Mesh/Skinned Mesh Renderer',
+        menu: 'i18n:MAIN_MENU.component.mesh/Skinned Mesh Renderer',
     },
 
     ctor () {
@@ -136,13 +116,16 @@ let SkinnedMeshRenderer = cc.Class({
 
         if (!this.skeleton || !this.rootBone) return;
 
-        let jointIndices = this.skeleton.jointIndices;
-        let nodes = flatNode(this.rootBone);
+        let jointPaths = this.skeleton.jointPaths;
+        let rootBone = this.rootBone;
         let matrices = this._matrices;
         matrices.length = 0;
-        for (let i = 0; i < jointIndices.length; i++) {
-            let jointIndex = jointIndices[i];
-            joints.push(nodes[jointIndex]);
+        for (let i = 0; i < jointPaths.length; i++) {
+            let bone = cc.find(jointPaths[i], rootBone);
+            if (!bone) {
+                cc.warn('Can not find joint in root bone [%s] with path [%s]', rootBone.name, jointPaths[i]);
+            }
+            joints.push(bone);
             matrices.push(mat4.create());
         }
 
@@ -150,10 +133,9 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     _initJointsTexture () {
-        let skeleton = this._skeleton;
-        if (!skeleton) return;
+        if (!this._skeleton) return;
 
-        let jointCount = skeleton.jointIndices.length;
+        let jointCount = this._joints.length;
 
         let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
@@ -209,7 +191,9 @@ let SkinnedMeshRenderer = cc.Class({
 
     updateMatrices () {
         for (let i = 0; i < this._joints.length; ++i) {
-            this._joints[i].getWorldMatrix(this._matrices[i]);
+            let joint = this._joints[i];
+            if (!joint || !joint.activeInHierarchy) continue;
+            joint.getWorldMatrix(this._matrices[i]);
         }
     },
 

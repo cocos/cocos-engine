@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -83,7 +83,7 @@ p.addAnimation = function (anim) {
         this._anims.push(anim);
     }
 
-    anim._setListeners(this.animation);
+    anim._setEventTarget(this.animation);
 };
 
 p.removeAnimation = function (anim) {

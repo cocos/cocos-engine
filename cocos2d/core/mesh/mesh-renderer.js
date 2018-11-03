@@ -101,6 +101,8 @@ let meshRendererAssembler = {
         let tmpNode = renderer.node;
         renderer.node = comp._material.useModel ? comp.node : renderer._dummyNode;
 
+        comp.mesh._uploadData();
+
         let textures = comp.textures;
         let materials = comp._materials;
         for (let i = 0; i < renderDatas.length; i++) {
@@ -116,8 +118,6 @@ let meshRendererAssembler = {
             renderer.material = material;
             renderer._flushIA(renderData);
         }
-
-        comp.mesh._uploadData();
 
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;

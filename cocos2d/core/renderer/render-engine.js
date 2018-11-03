@@ -3,7 +3,7 @@
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  render-engine v1.2.0
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -11315,14 +11315,13 @@ Camera.prototype.screenToWorld = function screenToWorld (out, screenPos, width, 
     vec3.transformMat4(out, out, _matInvViewProj);
 
     //
-    this._node.getWorldPos(_tmp_v3);
-    vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
+    this._node.getWorldPosition(_tmp_v3);
+    vec3.lerp(out, _tmp_v3, out, cc.vmath.lerp(this._near / this._far, 1, screenPos.z));
   } else {
-    var range = this._farClip - this._nearClip;
     vec3.set(out,
       (screenPos.x - cx) * 2.0 / cw - 1.0,
-      (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
-      (this._far - screenPos.z) / range * 2.0 - 1.0
+      (screenPos.y - cy) * 2.0 / ch - 1.0,
+      screenPos.z * 2 - 1
     );
 
     // transform to world
@@ -11362,16 +11361,10 @@ Camera.prototype.worldToScreen = function worldToScreen (out, worldPos, width, h
   // view-projection
   mat4.mul(_matViewProj, _matProj, _matView);
 
-  // calculate w
-  var w =
-    worldPos.x * _matViewProj.m03 +
-    worldPos.y * _matViewProj.m07 +
-    worldPos.z * _matViewProj.m11 +
-    _matViewProj.m15;
-
   vec3.transformMat4(out, worldPos, _matViewProj);
-  out.x = cx + (out.x / w + 1) * 0.5 * cw;
-  out.y = cy + (out.y / w + 1) * 0.5 * ch;
+  out.x = cx + (out.x + 1) * 0.5 * cw;
+  out.y = cy + (out.y + 1) * 0.5 * ch;
+  out.z = out.z * 0.5 + 0.5;
 
   return out;
 };

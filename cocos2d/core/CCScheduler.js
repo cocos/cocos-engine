@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -640,7 +640,7 @@ cc.Scheduler.prototype = {
      * Unschedules a callback for a callback and a given target.
      * If you want to unschedule the "update", use `unscheduleUpdate()`
      * !#zh
-     * 根据指定的回调函数和调用对象。
+     * 取消指定对象定时器。
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
      * @method unschedule
      * @param {Function} callback The callback to be unscheduled

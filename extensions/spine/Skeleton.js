@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -58,7 +58,7 @@ function setEnumAttr (obj, propName, enumDef) {
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends Component
+ * @extends RenderComponent
  */
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',

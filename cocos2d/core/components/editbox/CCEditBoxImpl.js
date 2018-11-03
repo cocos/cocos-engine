@@ -4,7 +4,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -349,6 +349,16 @@ let EditBoxImpl = cc.Class({
 
     _updateMatrix () {
         if (!this._edTxt) return;
+
+        let camera;
+        // can't find camera in editor
+        if (CC_EDITOR) {
+            camera = cc.Camera.main;
+        }
+        else {
+            camera = cc.Camera.findCamera(this._node);
+        }
+        if (!camera) return;
     
         let node = this._node, 
             scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
@@ -361,15 +371,6 @@ let EditBoxImpl = cc.Class({
         _vec3.y = -node._anchorPoint.y * contentSize.height;
     
         math.mat4.translate(_matrix, _matrix, _vec3);
-
-        let camera;
-        // can't find camera in editor
-        if (CC_EDITOR) {
-            camera = cc.Camera.main;
-        }
-        else {
-            camera = cc.Camera.findCamera(node);
-        }
         
         camera.getWorldToCameraMatrix(_matrix_temp);
         math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);

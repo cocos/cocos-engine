@@ -1768,10 +1768,10 @@ let NodeDefines = {
     /**
      * !#en Pause node related system events registered with the current Node. Node system events includes touch and mouse events.
      * If recursive is set to true, then this API will pause the node system events for the node and all nodes in its sub node tree.
-     * Reference: http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/scripting/internal-events/
+     * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 暂停当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method pauseSystemEvents
      * @param {Boolean} recursive - Whether to pause node system events on the sub node tree.
      * @example
@@ -1784,10 +1784,10 @@ let NodeDefines = {
     /**
      * !#en Resume node related system events registered with the current Node. Node system events includes touch and mouse events.
      * If recursive is set to true, then this API will resume the node system events for the node and all nodes in its sub node tree.
-     * Reference: http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/scripting/internal-events/
+     * Reference: http://docs.cocos2d-x.org/editors_and_tools/creator-chapters/scripting/internal-events/
      * !#zh 恢复当前节点上注册的所有节点系统事件，节点系统事件包含触摸和鼠标事件。
      * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
-     * 参考：http://cocos.com/docs/creator/scripting/internal-events.html
+     * 参考：https://www.cocos.com/docs/creator/scripting/internal-events.html
      * @method resumeSystemEvents
      * @param {Boolean} recursive - Whether to resume node system events on the sub node tree.
      * @example
@@ -2379,11 +2379,11 @@ let NodeDefines = {
     /*
      * Calculate and return world position.
      * This is not a public API yet, its usage could be updated
-     * @method getWorldPos
+     * @method getWorldPosition
      * @param {Vec3} out
      * @return {Vec3}
      */
-    getWorldPos (out) {
+    getWorldPosition (out) {
         math.vec3.copy(out, this._position);
         let curr = this._parent;
         while (curr) {
@@ -2401,10 +2401,10 @@ let NodeDefines = {
     /*
      * Set world position.
      * This is not a public API yet, its usage could be updated
-     * @method setWorldPos
+     * @method setWorldPosition
      * @param {Vec3} pos
      */
-    setWorldPos (pos) {
+    setWorldPosition (pos) {
         if (CC_EDITOR) {
             var oldPosition = new cc.Vec3(this._position);
         }
@@ -2432,11 +2432,11 @@ let NodeDefines = {
     /*
      * Calculate and return world rotation
      * This is not a public API yet, its usage could be updated
-     * @method getWorldRot
+     * @method getWorldRotation
      * @param {Quat} out
      * @return {Quat}
      */
-    getWorldRot (out) {
+    getWorldRotation (out) {
         math.quat.copy(out, this._quat);
         let curr = this._parent;
         while (curr) {
@@ -2449,19 +2449,54 @@ let NodeDefines = {
     /*
      * Set world rotation with quaternion
      * This is not a public API yet, its usage could be updated
-     * @method setWorldRot
+     * @method setWorldRotation
      * @param {Quat} rot
      */
-    setWorldRot (quat) {
+    setWorldRotation (quat) {
         if (this._parent) {
-            this._parent.getWorldRot(this._quat);
+            this._parent.getWorldRotation(this._quat);
             math.quat.conjugate(this._quat, this._quat);
             math.quat.mul(this._quat, this._quat, quat);
         }
         else {
             math.quat.copy(this._quat, quat);
         }
+        this._quat.getEulerAngles(this._eulerAngles);
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
+    },
+
+    /*
+     * Calculate and return world scale
+     * This is not a public API yet, its usage could be updated
+     * @method getWorldScale
+     * @param {Vec3} out
+     * @return {Vec3}
+     */
+    getWorldScale (out) {
+        math.vec3.copy(out, this._scale);
+        let curr = this._parent;
+        while (curr) {
+            math.vec3.mul(out, out, curr._scale);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    /*
+     * Set world scale with vec3
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldScale
+     * @param {Vec3} scale
+     */
+    setWorldScale (scale) {
+        if (this._parent) {
+            this._parent.getWorldScale(this._scale);
+            math.vec3.div(this._scale, scale, this._scale);
+        }
+        else {
+            math.vec3.copy(this._scale, scale);
+        }
+        this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
     getWorldRT (out) {
@@ -2494,12 +2529,12 @@ let NodeDefines = {
      * @param {Vec3} [up] - default is (0,1,0)
      */
     lookAt (pos, up) {
-        this.getWorldPos(_vec3_temp);
+        this.getWorldPosition(_vec3_temp);
         math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
         math.vec3.normalize(_vec3_temp, _vec3_temp);
         math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
     
-        this.setWorldRot(_quat_temp);
+        this.setWorldRotation(_quat_temp);
     },
 
     _updateLocalMatrix () {

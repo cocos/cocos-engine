@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -247,6 +247,10 @@ var NodeActivator = cc.Class({
     },
 
     activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroied before activating
+            return;
+        }
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
@@ -283,6 +287,10 @@ var NodeActivator = cc.Class({
             cc.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroied before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {

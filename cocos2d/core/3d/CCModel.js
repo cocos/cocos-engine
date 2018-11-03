@@ -101,6 +101,8 @@ let Model = cc.Class({
     },
 
     initSkeleton (skeleton) {
+        this._initNodes();
+
         let gltf = this._gltf;
         let buffers = this._buffers;
         let skinID = skeleton._skinID;
@@ -126,13 +128,19 @@ let Model = cc.Class({
             );
         }
 
-        skeleton.jointIndices = gltfSkin.joints;
+        let jointIndices = gltfSkin.joints;
+        let jointPaths = skeleton.jointPaths;
+        jointPaths.length = 0;
+        let nodes = this._gltf.nodes;
+        for (let i = 0; i < jointIndices.length; i++) {
+            let node = nodes[jointIndices[i]];
+            jointPaths.push(node.path);
+        }
+        skeleton.jointPaths = jointPaths;
         skeleton.bindposes = bindposes;
     },
 
     _createVB (gltf, accessors, primitive) {
-        const buffers = this._buffers;
-
         // create vertex-format
         let vfmt = [];
         let vcount = 0;
