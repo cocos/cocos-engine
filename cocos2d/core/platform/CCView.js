@@ -1125,9 +1125,7 @@ cc.ContentStrategy = cc.Class({
         Math.abs(containerW - contentW) < 2 && (contentW = containerW);
         Math.abs(containerH - contentH) < 2 && (contentH = containerH);
 
-        var viewport = cc.rect(Math.round((containerW - contentW) / 2),
-                               Math.round((containerH - contentH) / 2),
-                               contentW, contentH);
+        var viewport = cc.rect((containerW - contentW) / 2), (containerH - contentH) / 2), contentW, contentH);
 
         // Translate the content
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){
