@@ -485,19 +485,7 @@ let Label = cc.Class({
         }
         this._super();
     },
-
-    /**
-     * !#en Update the label content immediately.
-     * !#zh 立即更新渲染 label 内容, 以便获得最新的 contentSize。
-     * @method updateImmediately
-     */
-    updateImmediately () {
-        if (!this._canRender()) return;
-        this._updateAssembler();
-        this._activateMaterial(true);
-        this._assembler.updateRenderData(this);
-    },
-
+    
     _canRender () {
         let result = this._super();
         let font = this.font;
