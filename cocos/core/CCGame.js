@@ -366,7 +366,7 @@ var game = {
         // Init engine
         this._initEngine();
         // Log engine version
-        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+        console.log('Cocos3D v' + cc.ENGINE_VERSION);
 
         this._setAnimFrame();
         this._runMainLoop();
