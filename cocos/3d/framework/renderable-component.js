@@ -1,3 +1,4 @@
+//@ts-check
 import RenderSystemActor from "./renderSystemActor";
 import { _decorator } from '../../core/data/index';
 import Material from "../assets/material";
@@ -5,8 +6,15 @@ const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
 export default class RenderableComponent extends RenderSystemActor {
-    @property
+    /**
+     * @type {Material[]}
+     */
+    @property([Material])
     _materials = [];
+
+    constructor() {
+        super();
+    }
 
     /**
      * !#en The material of the model
@@ -14,10 +22,10 @@ export default class RenderableComponent extends RenderSystemActor {
      * !#ch 模型材质
      * @type {Material[]}
      */
-    @property
+    @property([Material])
     get materials() {
         for (let i = 0; i < this._materials.length; i++) {
-            this._materials[i] = this.getMaterial(i);
+            this._materials[i] = this.getSharedMaterial(i);
         }
         return this._materials;
     }
@@ -27,10 +35,19 @@ export default class RenderableComponent extends RenderSystemActor {
     }
 
     set materials(val) {
-        this._materials = val;
-        for (let i = 0; i < val.length; i++) {
-            this._onMaterialModified(i, val[i]);
-        }
+        // const dLen = val.length - this._materials.length;
+        // if (dLen > 0) {
+        //     this._materials = this._materials.concat(new Array(dLen).fill(null));
+        // } else if (dLen < 0) {
+        //     for (let i = -dLen; i < this._materials.length; ++i) {
+        //         this._setMaterial(null, i);
+        //     }
+        //     this._materials = this._materials.splice(-dLen);
+        // }
+        // 因为现在编辑器的做法是，当这个val传进来时，内部的materials已经被修改了。
+        // 我们没办法做到上面的最优化，只能先清理ModelComponent里所有Submodel的材质，再重新关联。
+        this._clearMaterials(); 
+        val.forEach((newMaterial, index) => this._setMaterial(newMaterial, index));
     }
 
     /**
@@ -46,8 +63,7 @@ export default class RenderableComponent extends RenderSystemActor {
 
         let instantiated = Material.getInstantiatedMaterial(this._materials[idx], this);
         if (instantiated != this) {
-            this._materials[idx] = instantiated;
-            this._onMaterialModified(idx, instantiated);
+            this._setMaterial(instantiated, idx);
         }
 
         return this._materials[idx];
@@ -72,10 +88,19 @@ export default class RenderableComponent extends RenderSystemActor {
         if (this._materials.length === 1 && this._materials[0] === val) {
             return;
         }
+        this._setMaterial(val, 0);
+    }
 
-        if (val != this._materials[0]) {
-            this._onMaterialModified(0, val);
-        }
-        this._materials[0] = val;
+    _setMaterial(material, index) {
+        this._onMaterialModified(index, material);
+        this._materials[index] = material;
+    }
+
+    _onMaterialModified(index, material) {
+
+    }
+
+    _clearMaterials() {
+
     }
 }

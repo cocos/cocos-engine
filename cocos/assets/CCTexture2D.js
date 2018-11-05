@@ -162,7 +162,7 @@ const PixelFormat = Enum({
  * The texture wrap mode
  * @enum Texture2D.WrapMode
  */
-const WrapMode = Enum({
+export const WrapMode = Enum({
     /**
      * The constant variable equals gl.REPEAT for texture
      * @property REPEAT
@@ -190,7 +190,7 @@ const WrapMode = Enum({
  * The texture filter mode
  * @enum Texture2D.Filter
  */
-const Filter = Enum({
+export const Filter = Enum({
     /**
      * The constant variable equals gl.LINEAR for texture
      * @property LINEAR

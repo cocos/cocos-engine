@@ -381,7 +381,7 @@ export default class ForwardRenderer extends BaseRenderer {
       defines.USE_JOINTS_TEXTURE = true;
       this._device.setTexture('u_jointsTexture', model._jointsTexture, this._allocTextureUnit());
       this._device.setUniform('u_jointsTextureSize', model._jointsTexture._width);
-    } else {
+    } else if (model._jointsMatrixArray != null) {
       defines.USE_JOINTS_TEXTURE = false;
       this._device.setUniform("u_jointMatrices", model._jointsMatrixArray);
     }

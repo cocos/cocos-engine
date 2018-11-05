@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import renderer from '../../renderer/index';
+import Model from '../../renderer/scene/model';
 import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import Mesh from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
@@ -104,6 +104,11 @@ export default class ModelComponent extends RenderableComponent {
     _receiveShadows = false;
 
     /**
+     * @type {Material}
+     */
+    static _builtinMaterial = null;
+
+    /**
      * !#en The mesh of the model
      *
      * !#ch 模型网格
@@ -169,13 +174,6 @@ export default class ModelComponent extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
-
-        /** @type {import("../../../engine/cocos/3d/assets/material").default} */
-        if (this.material == null) {
-            let mtl = new cc.Material();
-            mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
-            this.material = mtl;
-        }
     }
 
     onEnable() {
@@ -190,53 +188,14 @@ export default class ModelComponent extends RenderableComponent {
         }
     }
 
-    /**
-     * !#en Returns the material corresponding to the sequence number
-     *
-     * !#ch 返回相对应序号的材质
-     * @param {Number} idx - Look for the material list number
-     */
-    getMaterial(idx) {
-        if (this._materials.length === 0) {
-            return null;
-        }
-
-        if (idx < this._materials.length) {
-            return this._materials[idx];
-        }
-
-        return this._materials[this._materials.length - 1];
-    }
-
-    get material() {
-        return this.getMaterial(0);
-    }
-
-    set material(val) {
-        if (this._materials.length === 1 && this._materials[0] === val) {
-            return;
-        }
-
-        this._materials[0] = val;
-
-        if (this._models.length > 0) {
-            this._models.forEach((model) => {
-                model.setEffect(val.effect);
-            });
-        }
-    }
-
     _updateModels() {
-        if (this._mesh) {
-            this._mesh.flush();
-        }
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         let oldModels = this._models;
 
         this._models = new Array(meshCount);
         for (let i = 0; i < meshCount; ++i) {
-            let model = new renderer.Model();
-            model.createBoundingShape(this._mesh._minPos, this._mesh._maxPos);
+            let model = this._createModel();
+            model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._models[i] = model;
         }
 
@@ -252,28 +211,41 @@ export default class ModelComponent extends RenderableComponent {
         }
     }
 
+    _createModel() {
+        return new Model();
+    }
+
     _updateModelParams() {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
-            let material = this._getSubMeshMaterial(i);
+            let material = this.getSharedMaterial(i);
             let inputAssembler = this._mesh.getSubMesh(i);
 
             model.setInputAssembler(inputAssembler);
-            model.setEffect(material ? material.effect : null);
             model.setNode(this.node);
+            this._updateModelMaterial(model, material);
         }
     }
 
-    _getSubMeshMaterial(idx) {
-        let mat = this.getSharedMaterial(idx);
-        if (mat == null && this._materials.length > 0) {
-            mat = this._materials[this._materials.length - 1];
+    _onMaterialModified(idx, material) {
+        if (idx < this._models.length) {
+            this._updateModelMaterial(this._models[idx], material);
         }
-        return mat;
     }
 
-     _onMaterialModified(idx, mat) {
-        this._models[idx].setEffect(mat.effect);
+    _clearMaterials() {
+        for (let i = 0; i < this._models.length; ++i) {
+            this._onMaterialModified(i, null);
+        }
+    }
+
+    /**
+     * 
+     * @param {Model} model 
+     * @param {Material} material 
+     */
+    _updateModelMaterial(model, material) {
+        model.setEffect((material ? material.effect : null) || this._getBuiltinMaterial().effect);
     }
 
     _updateCastShadow() {
@@ -299,5 +271,16 @@ export default class ModelComponent extends RenderableComponent {
                 model._effect.define('USE_SHADOW_MAP', this._receiveShadows);
             }
         }
+    }
+
+    _getBuiltinMaterial() {
+        if (ModelComponent._builtinMaterial === null) {
+            const builtinMaterial = new cc.Material();
+            builtinMaterial.effectName = 'builtin-effect-unlit';
+            builtinMaterial.define("USE_COLOR", true);
+            builtinMaterial.setProperty("color", new cc.Color(123, 0, 0, 255));
+            ModelComponent._builtinMaterial = builtinMaterial;
+        }
+        return ModelComponent._builtinMaterial;
     }
 }

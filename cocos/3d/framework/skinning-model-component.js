@@ -62,10 +62,6 @@ export default class SkinningModelComponent extends ModelComponent {
     @property(Node)
     _skinningRoot = null;
 
-    /**
-     * @type {Node}
-     */
-    @property(Node)
     _skeletonRoot = null;
 
     constructor() {
@@ -102,27 +98,31 @@ export default class SkinningModelComponent extends ModelComponent {
         this._skeleton = val;
     }
 
+    @property(Node)
+    get skinningRoot() {
+        return this._skinningRoot;
+    }
+
+    set skinningRoot(value) {
+        this._skinningRoot = value;
+        //this._resetTarget();
+    }
+
     onLoad() {
         this._resetTarget();
         this._reInitJointsData();
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
-
-        /** @type {import("../assets/material").default} */
-        let mtl = new cc.Material();
-        mtl.effectAsset = cc.game._builtins['builtin-effect-unlit'];
-        mtl.setProperty("color", new cc.vmath.color4(0, 0, 0, 1));
-        this.material = mtl;
     }
 
     update(dt) {
         this._updateMatrices();
+        super.update();
     }
 
 
     onDestroy() {
-        SkinningModelComponent.system.remove(this);
     }
 
     _updateMatrices() {
@@ -146,8 +146,8 @@ export default class SkinningModelComponent extends ModelComponent {
         //     }
         // });
 
-        const inverseSkinningRootWorldMatrix = this._skinningRoot.getWorldMatrix();
-        mat4.invert(inverseSkinningRootWorldMatrix, inverseSkinningRootWorldMatrix);
+        const cancelThisNoTransform = this.node.getWorldMatrix();
+        mat4.invert(cancelThisNoTransform, cancelThisNoTransform);
 
         this._skeleton.joints.forEach((joint, index) => {
             // const debugNode = nodes[this._skeleton._debugjoints[index]];
@@ -158,35 +158,21 @@ export default class SkinningModelComponent extends ModelComponent {
                 return;
             }
             const bindpose = this._skeleton.bindposes[index];
-            let worldMatrix = targetNode.getWorldMatrix();
-            mat4.multiply(worldMatrix, inverseSkinningRootWorldMatrix, worldMatrix);
-            mat4.multiply(_m4_tmp, worldMatrix, bindpose);
-            this._setJointMatrix(index, _m4_tmp);
+
+            // 1. transform mesh to joint's local space
+            // 2. transform from joint' local space to world space
+            // 3. because it has been in world space, just cancel this mesh's original local-world transform
+            const jointMatrix = _m4_tmp;
+            mat4.multiply(jointMatrix, cancelThisNoTransform, targetNode.getWorldMatrix());
+            mat4.multiply(jointMatrix, jointMatrix, bindpose);
+            this._setJointMatrix(index, jointMatrix);
         });
 
         this._commitJointsData();
     }
 
-    _updateModels() {
-        if (this._mesh) {
-            this._mesh.flush();
-        }
-
-        let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        let oldModels = this._models;
-
-        this._models = new Array(meshCount);
-        for (let i = 0; i < meshCount; ++i) {
-            let model = new renderer.SkinningModel();
-            model.createBoundingShape(this._mesh._minPos, this._mesh._maxPos);
-            this._models[i] = model;
-        }
-
-        this._updateModelParams();
-
-        if (this.enabled) {
-            this.node.emit('skinning-model-changed', this, 'mesh', oldModels);
-        }
+    _createModel() {
+        return new renderer.SkinningModel();
     }
 
     _updateModelParams() {
@@ -255,7 +241,7 @@ export default class SkinningModelComponent extends ModelComponent {
 
     _resetTarget() {
         this._skinningTarget = new Map();
-        if (!this._skeleton) {
+        if (!this._skeleton || !this._skinningRoot) {
             return;
         }
         const rootNode = this._skinningRoot;

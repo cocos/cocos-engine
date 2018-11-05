@@ -38,4 +38,4 @@ export default class RenderSystemActor extends Component {
     get scene() {
         return this._scene;
     }
-};
+}
