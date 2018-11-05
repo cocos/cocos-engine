@@ -199,7 +199,7 @@ Effect.getPropertyClassName = function(json) {
 
 Effect.parseType = function(json) {
     let lib = cc.game._renderer._programLib, types = {};
-    // load default type from involved shaders
+    let props = json.properties;
     json.techniques.forEach(tech => {
         tech.passes.forEach(pass => {
             let program = lib.getTemplate(pass.program);
@@ -207,13 +207,12 @@ Effect.parseType = function(json) {
                 types[define.name] = getInstanceType(define.type);
             });
             program.uniforms.forEach(uniform => {
-                types[uniform.name] = getInstanceType(uniform.type);
+                let name = uniform.name, prop = props[name];
+                if (!prop) return; // don't add if not in the property list
+                types[name] = getInstanceType(prop.type || uniform.type);
             });
         });
     });
-    // override types from properties
-    for (let prop in json.properties)
-        types[prop] = getInstanceType(json.properties[prop].type);
     return types;
 };
 
