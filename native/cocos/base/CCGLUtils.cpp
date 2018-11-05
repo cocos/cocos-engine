@@ -95,11 +95,11 @@ void ccBindTexture(GLenum target, GLuint texture)
 {
 #if CC_ENABLE_GL_STATE_CACHE
     auto& boundTextureInfo = __boundTextureInfos[__currentActiveTextureUnit];
-    if (boundTextureInfo.texture == texture && boundTextureInfo.target == target)
-        return;
-    
-    boundTextureInfo.texture = texture;
-    boundTextureInfo.target = target;
+    //todo: support cache
+    if (boundTextureInfo.texture != texture || boundTextureInfo.target != target) {
+        boundTextureInfo.texture = texture;
+        boundTextureInfo.target = target;
+    }
     glBindTexture(target, texture);
 #else
     glBindTexture(target, texture);
