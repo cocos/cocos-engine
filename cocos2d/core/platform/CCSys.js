@@ -1144,16 +1144,16 @@ function initSys () {
 
     /**
      * !#en 
-     * Return the safe area rect. only available on the iOS device. <br/>
-     * when the safeArea rect is unavailable, it will return a rect with design resolution size.
+     * Return the safe area rect. <br/>
+     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
      * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 设备上有效。其它平台将默认返回设计分辨率尺寸。
+     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
      * @method getSafeAreaRect
      * @return {Rect}
     */
     sys.getSafeAreaRect = function () {
-        let designSize = cc.view.getDesignResolutionSize();
-        return cc.rect(0, 0, designSize.width, designSize.height);
+        let visibleSize = cc.view.getVisibleSize();
+        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
     };
 
     /**
