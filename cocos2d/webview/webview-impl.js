@@ -370,6 +370,11 @@ let WebViewImpl = cc.Class({
         let h = this._div.clientHeight * scaleY;
         let appx = (w * _mat4_temp.m00) * node._anchorPoint.x;
         let appy = (h * _mat4_temp.m05) * node._anchorPoint.y;
+
+        let viewport = cc.view._viewportRect;
+        offsetX += viewport.x / dpr;
+        offsetY += viewport.y / dpr;
+
         let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
         let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
