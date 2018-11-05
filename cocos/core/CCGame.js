@@ -31,7 +31,7 @@ import { addon } from './utils/js';
 
 import renderer from '../renderer';
 import gfx from '../renderer/gfx';
-import initBuiltins from '../3d/builtin/init';
+import builtinResMgr from '../3d/builtin/init';
 
 /**
  * @module cc
@@ -234,6 +234,8 @@ var game = {
      * @type {Function}
      */
     onStart: null,
+
+    _builtins: {},
 
     //@Public Methods
 
@@ -769,8 +771,8 @@ var game = {
                 renderer.addStage('ui');
                 renderer.addStage('shadowcast');
                 this._renderer = new renderer.ForwardRenderer(device);
-                
-                let builtins = this._builtins = initBuiltins(device);
+
+                let builtins = builtinResMgr.initBuiltinRes(device);
                 this._renderer.setBuiltins({
                     defaultTexture: builtins['default-texture']._texture,
                     defaultTextureCube: builtins['default-texture-cube']._texture,
