@@ -494,6 +494,10 @@ let inputManager = {
                     if (!selfPointer._mousePressed) {
                         mouseEvent.setButton(null);
                     }
+                    if (event.movementX !== undefined && event.movementY !== undefined) {
+                        mouseEvent.movementX = event.movementX;
+                        mouseEvent.movementY = event.movementY;
+                    }
                 }],
                 ["mousewheel", EventMouse.SCROLL, function (event, mouseEvent) {
                     mouseEvent.setScrollData(0, event.wheelDelta);
