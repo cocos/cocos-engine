@@ -1,3 +1,4 @@
+//@ts-check
 import RenderSystemActor from "./renderSystemActor";
 import { _decorator } from '../../core/data/index';
 import Material from "../assets/material";
@@ -13,11 +14,6 @@ export default class RenderableComponent extends RenderSystemActor {
 
     constructor() {
         super();
-
-        /**
-         * @type {Material[]}
-         */
-        this._hackMaterials = [];
     }
 
     /**
@@ -39,11 +35,19 @@ export default class RenderableComponent extends RenderSystemActor {
     }
 
     set materials(val) {
-        this._materials = val;
-        this._hackMaterials = val.slice();
-        for (let i = 0; i < val.length; i++) {
-            this._onMaterialModified(i, val[i]);
-        }
+        // const dLen = val.length - this._materials.length;
+        // if (dLen > 0) {
+        //     this._materials = this._materials.concat(new Array(dLen).fill(null));
+        // } else if (dLen < 0) {
+        //     for (let i = -dLen; i < this._materials.length; ++i) {
+        //         this._setMaterial(null, i);
+        //     }
+        //     this._materials = this._materials.splice(-dLen);
+        // }
+        // 因为现在编辑器的做法是，当这个val传进来时，内部的materials已经被修改了。
+        // 我们没办法做到上面的最优化，只能先清理ModelComponent里所有Submodel的材质，再重新关联。
+        this._clearMaterials(); 
+        val.forEach((newMaterial, index) => this._setMaterial(newMaterial, index));
     }
 
     /**
@@ -88,24 +92,15 @@ export default class RenderableComponent extends RenderSystemActor {
     }
 
     _setMaterial(material, index) {
-        if (this._materials[index] !== material) {
-            this._materials[index] = material;
-        }
+        this._onMaterialModified(index, material);
+        this._materials[index] = material;
     }
 
-    _setHackMaterial(material, index) {
-        if (this._hackMaterials[index] !== material) {
-            this._hackMaterials[index] = material;
-            this._onMaterialModified(index, material);
-        }
+    _onMaterialModified(index, material) {
+
     }
 
-    update() {
-        for (let i = 0; i < this._materials.length; ++i) {
-            const material = this._materials[i];
-            if (material != this._hackMaterials[i]) {
-                this._setHackMaterial(material, i);
-            }
-        }
+    _clearMaterials() {
+
     }
 }

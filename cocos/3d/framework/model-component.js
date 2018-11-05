@@ -234,6 +234,12 @@ export default class ModelComponent extends RenderableComponent {
         }
     }
 
+    _clearMaterials() {
+        for (let i = 0; i < this._models.length; ++i) {
+            this._onMaterialModified(i, null);
+        }
+    }
+
     /**
      * 
      * @param {Model} model 
