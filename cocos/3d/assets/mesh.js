@@ -150,7 +150,11 @@ export default class Mesh extends Asset {
     /**
      * 
      */
-    _createRenderingResource() {
+    _lazyInitRenderResources() {
+        if (this._subMeshes != null) {
+            return;
+        }
+
         this._subMeshes = [];
 
         if (this._data === null) {
@@ -209,9 +213,7 @@ export default class Mesh extends Asset {
      * @property {number}
      */
     get subMeshCount() {
-        if (this._subMeshes === null) {
-            this._createRenderingResource();
-        }
+        this._lazyInitRenderResources();
         return this._subMeshes.length;
     }
 
@@ -221,9 +223,7 @@ export default class Mesh extends Asset {
      * @param {number} index Index of the specified submesh.
      */
     getSubMesh(index) {
-        if (this._subMeshes === null) {
-            this._createRenderingResource();
-        }
+        this._lazyInitRenderResources();
         return this._subMeshes[index];
     }
 
