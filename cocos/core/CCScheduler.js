@@ -284,7 +284,7 @@ CallbackTimer.put = function (timer) {
  *
  * @class Scheduler
  */
-export default class Scheduler {
+class Scheduler {
     constructor () {
         this._timeScale = 1.0;
         this._updatesNegList = [];  // list of priority < 0
@@ -1105,3 +1105,6 @@ Scheduler.PRIORITY_SYSTEM = 1 << 31;
  * @static
  */
 Scheduler.PRIORITY_NON_SYSTEM = Scheduler.PRIORITY_SYSTEM + 1;
+
+cc.Scheduler = Scheduler;
+export default Scheduler;

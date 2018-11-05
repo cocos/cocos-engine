@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from '../framework/renderSystemActor';
 import renderer from '../../renderer/index';
 import { box } from '../primitive/index';
 import Material from '../assets/material';
@@ -69,16 +68,16 @@ export default class SkyboxComponent extends RenderableComponent {
   onLoad() {
     this._model.setNode(this.node);
 
-      let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2, {
+    let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2, {
       widthSegments: 1,
       heightSegments: 1,
       lengthSegments: 1,
     }));
     this._model.setInputAssembler(ia);
 
-    if (this._material === null) {
+    if (!this._material) {
       this._material = new Material();
-    //   this._material.effectAsset = this._app.assets.get('builtin-effect-skybox');
+      this._material.effectAsset = cc.game._builtins['builtin-effect-skybox'];
     }
 
     this._updateMaterialParams();
@@ -87,7 +86,7 @@ export default class SkyboxComponent extends RenderableComponent {
 
   onEnable() {
     if (this.node != null) {
-        let cameraComponent = this.getComponent('Camera');
+      let cameraComponent = this.getComponent(cc.CameraComponent);
       if (cameraComponent != null && (cameraComponent._clearFlags & renderer.CLEAR_SKYBOX)) {
         this._attachedCamera = cameraComponent._camera;
         this._attachedCamera._clearModel = this._model;
@@ -102,17 +101,17 @@ export default class SkyboxComponent extends RenderableComponent {
     }
   }
 
-    _onMaterialModified(idx, mat) {
-        this._updateMaterialParams(mat);
-        this._model.setEffect(mat.effect);
-    }
+  _onMaterialModified(idx, mat) {
+    this._updateMaterialParams(mat);
+    this._model.setEffect(mat.effect);
+  }
 
-  _updateMaterialParams(mat) {
-    if (mat === null || mat === undefined) {
+  _updateMaterialParams() {
+    if (this._material === null || this._material === undefined) {
       return;
     }
     if (this._cubeMap !== null && this._cubeMap !== undefined) {
-      mat.setProperty('cubeMap', this._cubeMap);
+      this._material.setProperty('cubeMap', this._cubeMap);
     }
   }
 }

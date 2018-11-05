@@ -26,15 +26,12 @@
 
 export {default as RawAsset} from './CCRawAsset';
 export {default as Asset} from './CCAsset';
-export {default as Font} from './CCFont';
 export {default as Prefab} from './CCPrefab';
 export * from './CCScripts';
 export {default as SceneAsset} from './CCSceneAsset';
 export {default as SpriteFrame} from './CCSpriteFrame';
 export {default as Texture2D} from './CCTexture2D';
-export {default as TTFFont} from './CCTTFFont';
 export {default as SpriteAtlas} from './CCSpriteAtlas';
-export {default as BitmapFont} from './CCBitmapFont';
 export {default as TextAsset} from './CCTextAsset';
 export {default as JsonAsset} from './CCJsonAsset';
 export {default as GLTFAsset} from './CCGLTFAsset';

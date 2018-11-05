@@ -25,11 +25,13 @@
 // @ts-check
 import Texture2D from '../../assets/CCTexture2D';
 import gfx from '../../renderer/gfx';
+import { ccclass } from '../../core/data/class-decorator';
 
 let isComplete = function(elements) {
-    return elements.reduce((acc, t) => acc = acc && t.complete, false);
+    return elements.every(cube => cube.every(img => img.complete));
 };
 
+@ccclass('cc.TextureCube')
 export default class TextureCube extends Texture2D {
 
     constructor() {
@@ -37,7 +39,7 @@ export default class TextureCube extends Texture2D {
         this._ctor = gfx.TextureCube;
     }
 
-    handleLoadedTexture () {
+    handleLoadedTexture() {
         let image = this._image[0];
         if (!image || !image.width || !image.height)
             return;
@@ -45,13 +47,13 @@ export default class TextureCube extends Texture2D {
         this.width = image.width;
         this.height = image.height;
 
-        this._updateTexture([this._image]);
+        this._updateTexture(this._imageMipmaps);
 
         //dispatch load event to listener.
         this.loaded = true;
         this.emit("load");
 
-        this._image.forEach(img => {
+        this._imageMipmaps.forEach(cube => cube.forEach(img => {
             if (cc.macro.CLEANUP_IMAGE_CACHE && image instanceof HTMLImageElement) {
                 // wechat game platform will cache image parsed data,
                 // so image will consume much more memory than web, releasing it
@@ -59,22 +61,33 @@ export default class TextureCube extends Texture2D {
                 // Release image in loader cache
                 cc.loader.removeItem(img.id);
             }
-        });
+        }));
     }
 
-    initWithElement (element) {
+    initWithElement(element) {
         if (!element) return;
-        this._image = element;
+        if (!Array.isArray(element[0])) element = [element];
+
+        this._image = element[0];
+        this._imageMipmaps = element;
         if (CC_WECHATGAME || CC_QQPLAY || isComplete(element)
-            || element[0] instanceof HTMLCanvasElement) {
+            || this._image[0] instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
             return;
         }
-        element.forEach(() => addEventListener('load', () => {
-            if (isComplete(element)) this.handleLoadedTexture();
-        }));
-        element.forEach(() => addEventListener('error', err => {
-            cc.warnID(3119, err.message);
-        }));
+        element.forEach(cube => cube.forEach(img =>
+            img.addEventListener('load', () =>
+                { if (isComplete(element)) this.handleLoadedTexture(); })
+        ));
+        element.forEach(cube => cube.forEach(img =>
+            img.addEventListener('error', err => cc.warnID(3119, err.message))
+        ));
+    }
+
+    destroy() {
+        super.destroy();
+        this._imageMipmaps = null;
     }
 }
+
+cc.TextureCube = TextureCube;
