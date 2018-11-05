@@ -221,7 +221,7 @@ let Button = cc.Class({
             displayName: 'Normal',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_color',
             notify () {
-                if (this.transition === Transition.Color && this._getButtonState() === State.NORMAL) {
+                if (this.transition === Transition.Color && this._getButtonState() === State.NORMAL && this.target) {
                     this.target.opacity = this.normalColor.a;
                 }
                 this._updateState();
@@ -238,7 +238,7 @@ let Button = cc.Class({
             displayName: 'Pressed',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.pressed_color',
             notify () {
-                if (this.transition === Transition.Color && this._getButtonState() === State.PRESSED) {
+                if (this.transition === Transition.Color && this._getButtonState() === State.PRESSED && this.target) {
                     this.target.opacity = this.pressedColor.a;
                 }
                 this._updateState();
@@ -255,7 +255,7 @@ let Button = cc.Class({
             displayName: 'Hover',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.hover_color',
             notify () {
-                if (this.transition === Transition.Color && this._getButtonState() === State.HOVER) {
+                if (this.transition === Transition.Color && this._getButtonState() === State.HOVER && this.target) {
                     this.target.opacity = this.hoverColor.a;
                 }
                 this._updateState();
@@ -272,7 +272,7 @@ let Button = cc.Class({
             displayName: 'Disabled',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.disabled_color',
             notify () {
-                if (this.transition === Transition.Color && this._getButtonState() === State.DISABLED) {
+                if (this.transition === Transition.Color && this._getButtonState() === State.DISABLED && this.target) {
                     this.target.opacity = this.disabledColor.a;
                 }
                 this._updateState();
@@ -419,6 +419,9 @@ let Button = cc.Class({
         this._hovered = false;
         // // Restore button status
         let target = this.target;
+        if (!target) {
+            return;
+        }
         let transition = this.transition;
         if (transition === Transition.COLOR && this.interactable) {
             this._setTargetColor(this.normalColor);
@@ -547,6 +550,9 @@ let Button = cc.Class({
 
     update (dt) {
         let target = this.target;
+        if (!target) {
+            return;
+        }
         if (this._transitionFinished) return;
         if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
 
@@ -707,8 +713,11 @@ let Button = cc.Class({
             this._updateColorTransitionImmediately(state);
         }
         else {
-            let color = this._getStateColor(state);
             let target = this.target;
+            if (!target) {
+                return;
+            }
+            let color = this._getStateColor(state);
             this._fromColor = target.color.clone();
             this._toColor = color;
             this.time = 0;
@@ -741,6 +750,9 @@ let Button = cc.Class({
     },
 
     _zoomBack () {
+        if (!this.target) {
+            return;
+        }
         this._fromScale.x = this.target.scaleX;
         this._fromScale.y = this.target.scaleY;
         this._toScale.x = this._originalScale.x;
