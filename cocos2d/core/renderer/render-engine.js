@@ -13808,7 +13808,7 @@ var BaseRenderData = function BaseRenderData () {
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
 var _pool;
-var _dataPool = new Pool(function () {
+var _vertsPool = new Pool(function () {
   return {
     x: 0.0,
     y: 0.0,
@@ -13828,16 +13828,9 @@ var _dataPool = new Pool(function () {
 var RenderData = (function (BaseRenderData$$1) {
   function RenderData () {
     BaseRenderData$$1.call(this);
-    this._data = [];
-    this._indices = [];
-
-    this._pivotX = 0;
-    this._pivotY = 0;
-    this._width = 0;
-    this._height = 0;
-
-    this.uvDirty = true;
-    this.vertDirty = true;
+    this.vertices = [];
+    this.indices = [];
+    this.material = null;
   }
 
   if ( BaseRenderData$$1 ) RenderData.__proto__ = BaseRenderData$$1;
@@ -13855,31 +13848,17 @@ var RenderData = (function (BaseRenderData$$1) {
   };
 
   prototypeAccessors.dataLength.set = function (length) {
-    var data = this._data;
-    if (data.length !== length) {
+    var verts = this.vertices;
+    if (verts.length !== length) {
       // Free extra data
-      for (var i = length; i < data.length; i++) {
-        _dataPool.free(data[i]);
+      for (var i = length; i < verts.length; i++) {
+        _vertsPool.free(verts[i]);
       }
       // Alloc needed data
-      for (var i$1 = data.length; i$1 < length; i$1++) {
-        data[i$1] = _dataPool.alloc();
+      for (var i$1 = verts.length; i$1 < length; i$1++) {
+        verts[i$1] = _vertsPool.alloc();
       }
-      data.length = length;
-    }
-  };
-
-  RenderData.prototype.updateSizeNPivot = function updateSizeNPivot (width, height, pivotX, pivotY) {
-    if (width !== this._width || 
-        height !== this._height ||
-        pivotX !== this._pivotX ||
-        pivotY !== this._pivotY) 
-    {
-      this._width = width;
-      this._height = height;
-      this._pivotX = pivotX;
-      this._pivotY = pivotY;
-      this.vertDirty = true;
+      verts.length = length;
     }
   };
   
@@ -13890,13 +13869,11 @@ var RenderData = (function (BaseRenderData$$1) {
   RenderData.free = function free (data) {
     if (data instanceof RenderData) {
       for (var i = data.length-1; i > 0; i--) {
-        _dataPool.free(data._data[i]);
+        _vertsPool.free(data.vertices[i]);
       }
-      data._data.length = 0;
-      data._indices.length = 0;
+      data.vertices.length = 0;
+      data.indices.length = 0;
       data.material = null;
-      data.uvDirty = true;
-      data.vertDirty = true;
       data.vertexCount = 0;
       data.indiceCount = 0;
       _pool.free(data);
