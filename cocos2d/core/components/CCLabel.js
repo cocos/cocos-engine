@@ -176,7 +176,7 @@ let Label = cc.Class({
                 this._string = value.toString();
 
                 if (this.string !== oldValue) {
-                    this.markForUpdateRenderData(true);
+                    this._lazyUpdateRenderData();
                 }
 
                 this._checkStringEmpty();
@@ -196,7 +196,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
             notify  (oldValue) {
                 if (this.horizontalAlign === oldValue) return;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -212,7 +212,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
             notify (oldValue) {
                 if (this.verticalAlign === oldValue) return;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -246,7 +246,7 @@ let Label = cc.Class({
                 if (this._fontSize === value) return;
 
                 this._fontSize = value;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
@@ -261,7 +261,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
             notify (oldValue) {
                 if (this.fontFamily === oldValue) return;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -279,7 +279,7 @@ let Label = cc.Class({
             set (value) {
                 if (this._lineHeight === value) return;
                 this._lineHeight = value;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.line_height',
         },
@@ -294,7 +294,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.overflow',
             notify (oldValue) {
                 if (this.overflow === oldValue) return;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -313,7 +313,7 @@ let Label = cc.Class({
                 if (this._enableWrapText === value) return;
 
                 this._enableWrapText = value;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
@@ -363,7 +363,7 @@ let Label = cc.Class({
                 this._fontAtlas = null;
                 this._updateAssembler();
                 this._activateMaterial(true);
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             type: cc.Font,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
@@ -399,7 +399,7 @@ let Label = cc.Class({
                 if (value) {
                     this.font = null;
                     this._updateAssembler();
-                    this.markForUpdateRenderData(true);
+                    this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
                 else if (!this._userDefinedFont) {
@@ -427,7 +427,7 @@ let Label = cc.Class({
             },
             set (value) {
                 this._spacingX = value;
-                this.markForUpdateRenderData(true);
+                this._lazyUpdateRenderData();
             }
         },
 
@@ -475,26 +475,6 @@ let Label = cc.Class({
             this._ttfTexture = null;
         }
         this._super();
-    },
-
-    markForUpdateRenderData (enable) {
-        if (enable) {
-            this._vertsDirty = true;
-        }
-        if (this._renderData) {
-            if (enable && this._canRender()) {
-                this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-            }
-            else if (!enable) {
-                this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-            }
-        }
-
-        if (CC_EDITOR) {
-            this._updateAssembler();
-            this._activateMaterial(true);
-            this._assembler.updateRenderData(this);
-        }
     },
 
     _canRender () {
@@ -600,14 +580,17 @@ let Label = cc.Class({
         }
     },
 
-    _forceUpdateRenderData () {
+    _lazyUpdateRenderData () {
+        this._vertsDirty = true;
         this.markForUpdateRenderData(true);
-        // In editor it will automatically be updated in markForUpdateRenderData
-        if (!CC_EDITOR) {
-            this._updateAssembler();
-            this._activateMaterial(true);
-            this._assembler.updateRenderData(this);
-        }
+    },
+
+    _forceUpdateRenderData () {
+        this._vertsDirty = true;
+        this.markForUpdateRenderData(true);
+        this._updateAssembler();
+        this._activateMaterial(true);
+        this._assembler.updateRenderData(this);
     },
 
     _enableBold (enabled) {
