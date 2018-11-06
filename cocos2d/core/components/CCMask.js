@@ -319,9 +319,8 @@ let Mask = cc.Class({
 
     _onTextureLoaded () {
         // Mark render data dirty
+        this._vertsDirty = true;
         if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderData.vertDirty = true;
             this.markForUpdateRenderData(true);
         }
         // Reactivate material

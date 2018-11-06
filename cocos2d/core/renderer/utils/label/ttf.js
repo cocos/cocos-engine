@@ -116,7 +116,7 @@ module.exports = {
     },
 
     updateRenderData (comp) {
-        if (!comp._renderData.vertDirty) return;
+        if (!comp._vertsDirty) return;
 
         this._updateFontFamily(comp);
         this._updateProperties(comp);
@@ -131,7 +131,7 @@ module.exports = {
 
         this._updateVerts(comp);
 
-        comp._renderData.vertDirty = comp._renderData.uvDirty = false;
+        comp._vertsDirty = false;
 
         _context = null;
         _canvas = null;

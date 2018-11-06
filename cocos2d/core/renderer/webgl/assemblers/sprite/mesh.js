@@ -57,15 +57,17 @@ module.exports = {
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
 
-                    renderData.uvDirty = renderData.vertDirty = true;
+                    sprite._vertsDirty = true;
                 }
 
-                if (renderData.uvDirty) {
+                if (sprite._vertsDirty) {
                     this.updateUVs(sprite);
-                }
-                let vertDirty = renderData.vertDirty;
-                if (vertDirty) {
                     this.updateVerts(sprite);
+                    this.updateWorldVerts(sprite);
+                    sprite._vertsDirty = false;
+                }
+                // update world verts
+                else if (renderer.worldMatDirty) {
                     this.updateWorldVerts(sprite);
                 }
             }
@@ -73,11 +75,6 @@ module.exports = {
     },
 
     updateUVs (sprite) {
-        let material = sprite.getMaterial();
-        let texture = material.effect.getProperty('texture');
-        let texw = texture._width,
-            texh = texture._height;
-
         let vertices = sprite.spriteFrame.vertices,
             u = vertices.nu,
             v = vertices.nv;
@@ -89,8 +86,6 @@ module.exports = {
             vertice.u = u[i];
             vertice.v = v[i];
         }
-
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite) {
@@ -133,8 +128,6 @@ module.exports = {
                 vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
         }
-        
-        renderData.vertDirty = false;
     },
 
     updateWorldVerts (sprite) {
@@ -162,11 +155,6 @@ module.exports = {
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
-        }
-        
-        // update world verts
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
         }
 
         // buffer

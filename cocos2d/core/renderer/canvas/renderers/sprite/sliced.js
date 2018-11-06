@@ -40,7 +40,6 @@ let renderer = {
         let frame = sprite.spriteFrame;
         let renderData = sprite._renderData;
         let rect = frame._rect;
-        let texture = frame._texture;
     
         // caculate texture coordinate
         let leftWidth = frame.insetLeft;
@@ -72,7 +71,6 @@ let renderer = {
             data[1].v = topHeight + centerHeight + rect.y;
             data[0].v = rect.y + rect.height;
         }
-        renderData.uvDirty = false;
     },
     
     updateVerts (sprite) {
@@ -83,7 +81,6 @@ let renderer = {
             appx = node.anchorX * width, appy = node.anchorY * height;
     
         let frame = sprite.spriteFrame;
-        let rect = frame._rect;
         let leftWidth = frame.insetLeft;
         let rightWidth = frame.insetRight;
         let topHeight = frame.insetTop;
@@ -106,8 +103,6 @@ let renderer = {
         data[2].y = data[1].y + sizableHeight;
         data[3].x = width - appx;
         data[3].y = height - appy;
-
-        renderData.vertDirty = false;
     },
 
     draw (ctx, comp) {

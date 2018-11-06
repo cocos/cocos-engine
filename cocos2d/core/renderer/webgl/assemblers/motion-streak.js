@@ -81,9 +81,6 @@ var motionStreakAssembler = {
         this.update(comp, dt);
 
         let renderData = comp._renderData;
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         renderData.material = comp.getMaterial();
     },
 
@@ -190,8 +187,7 @@ var motionStreakAssembler = {
     },
 
     fillBuffers (comp, renderer) {
-        let node = comp.node,
-            renderData = comp._renderData,
+        let renderData = comp._renderData,
             data = renderData._data;
 
         let buffer = renderer._meshBuffer,

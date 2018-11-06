@@ -33,14 +33,12 @@ const js = require('../../cocos2d/core/platform/js');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 
 let _matrix = math.mat4.create();
-let _v3 = cc.v3();
 
 let _vbuf, _uintbuf, 
     _vertexId, _ibuf,
     _vertexOffset, _indiceOffset,
     _a, _b, _c, _d, _tx, _ty,
     _nodeR, _nodeG, _nodeB, _nodeA,
-    _renderData,
     _worldMatrix;
 
 let armatureAssembler = {
@@ -55,11 +53,7 @@ let armatureAssembler = {
             renderData = comp._renderData = comp.requestRenderData();
         }
 
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         renderData.material = comp.getMaterial();
-
         renderData.vertexCount = 0;
         renderData.indiceCount = 0;
 

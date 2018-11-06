@@ -39,13 +39,10 @@ let renderer = {
             sprite._activateMaterial();
         }
 
-        let renderData = sprite._renderData;
-        if (renderData.uvDirty) {
+        if (sprite._vertsDirty) {
             this.updateUVs(sprite);
-        }
-
-        if (renderData.vertDirty) {
             this.updateVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
@@ -54,7 +51,6 @@ let renderer = {
         let renderData = sprite._renderData;
         let data = renderData._data;
         let rect = frame._rect;
-        let texture = frame._texture;
         
         if (frame._rotated) {
             let l = rect.x;
@@ -76,8 +72,6 @@ let renderer = {
             data[1].u = r;
             data[1].v = t;
         }
-        
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite) {
@@ -113,8 +107,6 @@ let renderer = {
         data[0].y = b;
         data[1].x = r;
         data[1].y = t;
-
-        renderData.vertDirty = false;
     },
 
     draw (ctx, comp) {

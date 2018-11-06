@@ -99,6 +99,7 @@ let RenderComponent = cc.Class({
     
     ctor () {
         this.__allocedDatas = [];
+        this._vertsDirty = true;
         this._material = null;
         this._vertexFormat = null;
         this._assembler = this.constructor._assembler;
@@ -110,11 +111,17 @@ let RenderComponent = cc.Class({
             this.node._renderComponent.enabled = false;
         }
         this.node._renderComponent = this;
+
+        this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
     },
 
     onDisable () {
         this.node._renderComponent = null;
+        this.node.off(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
         this.disableRender();
     },
 
@@ -124,6 +131,11 @@ let RenderComponent = cc.Class({
         }
         this.__allocedDatas.length = 0;
         this._material = null;
+    },
+
+    _onNodeSizeDirty () {
+        this._vertsDirty = true;
+        this.markForUpdateRenderData(true);
     },
     
     _canRender () {

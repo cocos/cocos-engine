@@ -47,14 +47,8 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (!frame || !renderData || 
-            !(renderData.uvDirty || renderData.vertDirty)) 
+        if (!frame || !renderData || !sprite._vertsDirty) 
             return;
-
-        let texture = frame._texture;
-        let texw = texture.width,
-            texh = texture.height,
-            rect = frame._rect;
 
         let node = sprite.node,
             contentWidth = Math.abs(node.width),
@@ -62,7 +56,8 @@ module.exports = {
             appx = node.anchorX * contentWidth,
             appy = node.anchorY * contentHeight;
 
-        let rectWidth = rect.width,
+        let rect = frame._rect,
+            rectWidth = rect.width,
             rectHeight = rect.height,
             hRepeat = contentWidth / rectWidth,
             vRepeat = contentHeight / rectHeight,
@@ -82,8 +77,7 @@ module.exports = {
         // update data property
         renderData.vertexCount = row * col * 4;
         renderData.indiceCount = row * col * 6;
-        renderData.uvDirty = false;
-        renderData.vertDirty = false;
+        sprite._vertsDirty = false;
     },
 
     fillBuffers (sprite, renderer) {

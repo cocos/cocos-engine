@@ -49,12 +49,8 @@ let tmxAssembler = {
         if (!renderData) {
             renderData = comp._renderData = comp.requestRenderData();
         }
-
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         renderData.material = comp.getMaterial();
-        
+
         this.updateVertices(comp);
     },
 

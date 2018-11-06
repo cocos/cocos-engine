@@ -54,12 +54,10 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (renderData && frame) {
-            let vertDirty = renderData.vertDirty;
-            if (vertDirty) {
-                this.updateVerts(sprite);
-                this.updateWorldVerts(sprite);
-            }
+        if (renderData && frame && sprite._vertsDirty) {
+            this.updateVerts(sprite);
+            this.updateWorldVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
     
@@ -93,8 +91,6 @@ module.exports = {
         data[2].y = data[1].y + sizableHeight;
         data[3].x = width - appx;
         data[3].y = height - appy;
-
-        renderData.vertDirty = false;
     },
 
     fillBuffers (sprite, renderer) {

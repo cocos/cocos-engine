@@ -90,7 +90,7 @@ let LabelOutline = cc.Class({
     _updateRenderData () {
         let label = this.node.getComponent(cc.Label);
         if (label) {
-            label._updateRenderData(true);
+            label._forceUpdateRenderData();
         }
     }
 

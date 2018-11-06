@@ -43,10 +43,9 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (renderData && frame) {
-            if (renderData.vertDirty) {
-                this.updateVerts(sprite);
-            }
+        if (renderData && frame && sprite._vertsDirty) {
+            this.updateVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
@@ -161,7 +160,5 @@ module.exports = {
         // data[2].y = t;
         data[3].x = r;
         data[3].y = t;
-
-        renderData.vertDirty = false;
     }
 };

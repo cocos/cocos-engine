@@ -134,7 +134,7 @@ let _maxLineWidth = 0;
 
 module.exports = {
     updateRenderData (comp) {
-        if (!comp._renderData.vertDirty) return;
+        if (!comp._vertsDirty) return;
         if (_comp === comp) return;
 
         _comp = comp;
@@ -145,7 +145,7 @@ module.exports = {
         _comp._actualFontSize = _fontSize;
         _comp.node.setContentSize(_contentSize);
 
-        _comp._renderData.vertDirty = _comp._renderData.uvDirty = false;
+        _comp._vertsDirty = false;
 
         _comp = null;
         

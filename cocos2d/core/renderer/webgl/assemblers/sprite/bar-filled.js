@@ -44,15 +44,12 @@ module.exports = {
             }
         }
 
+        if (!sprite._vertsDirty) {
+            return sprite.__allocedDatas;
+        }
+
         let renderData = sprite._renderData;
         if (renderData && frame) {
-            let uvDirty = renderData.uvDirty,
-                vertDirty = renderData.vertDirty;
-
-            if (!uvDirty && !vertDirty) {
-                return sprite.__allocedDatas;
-            }
-
             let fillStart = sprite._fillStart;
             let fillRange = sprite._fillRange;
 
@@ -74,13 +71,10 @@ module.exports = {
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            if (uvDirty) {
-                this.updateUVs(sprite, fillStart, fillEnd);
-            }
-            if (vertDirty) {
-                this.updateVerts(sprite, fillStart, fillEnd);
-                this.updateWorldVerts(sprite);
-            }
+            this.updateUVs(sprite, fillStart, fillEnd);
+            this.updateVerts(sprite, fillStart, fillEnd);
+            this.updateWorldVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
@@ -144,8 +138,6 @@ module.exports = {
                 cc.errorID(2626);
                 break;
         }
-
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite, fillStart, fillEnd) {
@@ -187,8 +179,6 @@ module.exports = {
         data[6].y = t;
         data[7].x = r;
         data[7].y = t;
-
-        renderData.vertDirty = false;
     },
 
     createData (sprite) {
