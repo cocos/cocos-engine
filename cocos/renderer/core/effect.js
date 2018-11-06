@@ -31,7 +31,7 @@ let getInstanceType = function(t) { return _typeMap[t] || _typeMap.default; };
 let typeTest = function(value, type) {
     let instanceType = getInstanceType(type);
     switch (typeof value) {
-    case 'object': return value instanceof instanceType;
+    case 'object': return (value === null) || (value instanceof instanceType);
     case 'number': return instanceType === Number;
     default: return false;
     }

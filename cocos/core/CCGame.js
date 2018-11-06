@@ -772,10 +772,10 @@ var game = {
                 renderer.addStage('shadowcast');
                 this._renderer = new renderer.ForwardRenderer(device);
 
-                let builtins = builtinResMgr.initBuiltinRes(device);
+                this._builtins = builtinResMgr.initBuiltinRes(device);
                 this._renderer.setBuiltins({
-                    defaultTexture: builtins['default-texture']._texture,
-                    defaultTextureCube: builtins['default-texture-cube']._texture,
+                    defaultTexture: this._builtins['default-texture']._texture,
+                    defaultTextureCube: this._builtins['default-texture-cube']._texture,
                 });
             }
             // renderer.initWebGL(localCanvas, opts);
