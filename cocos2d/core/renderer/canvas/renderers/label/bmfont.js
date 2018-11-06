@@ -37,9 +37,7 @@ module.exports = js.addon({
         
         renderData.dataLength += 2;
 
-        let data = renderData._data;
-        let texw = texture.width,
-            texh = texture.height;
+        let verts = renderData.vertices;
 
         let rectWidth = rect.width,
             rectHeight = rect.height;
@@ -51,26 +49,26 @@ module.exports = js.addon({
             b = rect.y;
             t = rect.y + rectHeight;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = b;
-            data[dataOffset+1].u = r;
-            data[dataOffset+1].v = t;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = b;
+            verts[dataOffset+1].u = r;
+            verts[dataOffset+1].v = t;
         } else {
             l = rect.x;
             r = rect.x + rectHeight;
             b = rect.y;
             t = rect.y + rectWidth;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = t;
-            data[dataOffset+1].u = l;
-            data[dataOffset+1].v = b;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = t;
+            verts[dataOffset+1].u = l;
+            verts[dataOffset+1].v = b;
         }
 
-        data[dataOffset].x = x;
-        data[dataOffset].y = y - rectHeight * scale;
-        data[dataOffset+1].x = x + rectWidth * scale;
-        data[dataOffset+1].y = y;
+        verts[dataOffset].x = x;
+        verts[dataOffset].y = y - rectHeight * scale;
+        verts[dataOffset+1].x = x + rectWidth * scale;
+        verts[dataOffset+1].y = y;
     },
 
     draw (ctx, comp) {
@@ -88,21 +86,21 @@ module.exports = js.addon({
         ctx.globalAlpha = node.opacity / 255;
 
         let tex = comp._texture,
-            data = comp._renderData._data;
+            verts = comp._renderData.vertices;
 
         let image = tex.getHtmlElementObj();
 
-        for (let i = 0, l = data.length; i < l; i+=2) {
-            let x = data[i].x;
-            let y = data[i].y;
-            let w = data[i+1].x - x;
-            let h = data[i+1].y - y;
+        for (let i = 0, l = verts.length; i < l; i+=2) {
+            let x = verts[i].x;
+            let y = verts[i].y;
+            let w = verts[i+1].x - x;
+            let h = verts[i+1].y - y;
             y = - y - h;
 
-            let sx = data[i].u;
-            let sy = data[i].v;
-            let sw = data[i+1].u - sx;
-            let sh = data[i+1].v - sy;
+            let sx = verts[i].u;
+            let sy = verts[i].v;
+            let sw = verts[i+1].u - sx;
+            let sh = verts[i+1].v - sy;
 
             ctx.drawImage(image, 
                 sx, sy, sw, sh,

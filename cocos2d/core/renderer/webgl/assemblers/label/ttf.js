@@ -36,20 +36,20 @@ module.exports = js.addon({
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
 
-        let data = renderData._data;
-        data[0].u = 0;
-        data[0].v = 1;
-        data[1].u = 1;
-        data[1].v = 1;
-        data[2].u = 0;
-        data[2].v = 0;
-        data[3].u = 1;
-        data[3].v = 0;
+        let verts = renderData.vertices;
+        verts[0].u = 0;
+        verts[0].v = 1;
+        verts[1].u = 1;
+        verts[1].v = 1;
+        verts[2].u = 0;
+        verts[2].v = 0;
+        verts[3].u = 1;
+        verts[3].v = 0;
         return renderData;
     },
 
     fillBuffers (comp, renderer) {
-        let data = comp._renderData._data,
+        let verts = comp._renderData.vertices,
             node = comp.node,
             color = WHITE._val,
             matrix = node._worldMatrix,
@@ -67,7 +67,7 @@ module.exports = js.addon({
 
         // vertex
         for (let i = 0; i < 4; i++) {
-            let vert = data[i];
+            let vert = verts[i];
             vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset++] = vert.u;
@@ -85,14 +85,14 @@ module.exports = js.addon({
             appx = node.anchorX * width,
             appy = node.anchorY * height;
 
-        let data = renderData._data;
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = width - appx;
-        data[1].y = -appy;
-        data[2].x = -appx;
-        data[2].y = height - appy;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
+        let verts = renderData.vertices;
+        verts[0].x = -appx;
+        verts[0].y = -appy;
+        verts[1].x = width - appx;
+        verts[1].y = -appy;
+        verts[2].x = -appx;
+        verts[2].y = height - appy;
+        verts[3].x = width - appx;
+        verts[3].y = height - appy;
     }
 }, ttfUtls);

@@ -58,7 +58,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
             var uvs = sprite._spriteFrame.uv;
 
             strictEqual(vertices[0].x, -contentSize.width / 2, 'vertex-bl-x test success');
@@ -97,7 +97,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
             var uvs = sprite._spriteFrame.uv;
             var anchorX = node.width * node.anchorX;
             var anchorY = node.height * node.anchorY;
@@ -140,7 +140,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
             var uvs = sprite._spriteFrame.uvSliced;
 
             strictEqual(uvs.length == 16, true, 'have 16 uvs');
@@ -189,7 +189,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
             var uvs = sprite._spriteFrame.uv;
 
             strictEqual(vertices.length == 8, true, 'have 8 vertices');
@@ -235,7 +235,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
 
             strictEqual(vertices[4].x, 10, 'vertex-bl-x test success');
             strictEqual(vertices[4].y, 0, 'vertex-bl-y test success');
@@ -290,7 +290,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
 
             strictEqual(vertices[4].x, 0, 'vertex-bl-x test success');
             strictEqual(vertices[4].y, 10, 'vertex-bl-y test success');
@@ -346,7 +346,7 @@ if (!isPhantomJS) {
             cc.director.getScene().addChild(node);
             
             sprite._assembler.updateRenderData(sprite);
-            var vertices = sprite._renderData._data;
+            var vertices = sprite._renderData.vertices;
             
             var center = cc.v2(50, 50);
             var p0 = cc.v2(100, 50);

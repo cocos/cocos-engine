@@ -58,7 +58,7 @@ module.exports = {
 
         let renderData = sprite._renderData;
         if (renderData && frame && sprite._vertsDirty) {
-            let data = renderData._data;
+            let verts = renderData.vertices;
 
             let fillStart = sprite._fillStart;
             let fillRange = sprite._fillRange;
@@ -83,7 +83,7 @@ module.exports = {
             let center = this._center;
 
             let vertPos = this._vertPos,
-                vertices = this._vertices;
+                vertices = this.vertices;
 
             let triangles = this._triangles;
 
@@ -99,7 +99,7 @@ module.exports = {
                 //all in
                 if (fillRange >= PI_2) {
                     renderData.dataLength = offset + 3;
-                    this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                    this._generateTriangle(verts, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
                     offset += 3;
                     continue;
                 }
@@ -117,10 +117,10 @@ module.exports = {
                         renderData.dataLength = offset + 3;
                         if(endAngle >= fillEnd) {
                             //startAngle to fillEnd
-                            this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
+                            this._generateTriangle(verts, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
                         } else {
                             //startAngle to endAngle
-                            this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                            this._generateTriangle(verts, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
                         }
                         offset += 3;
                     } else {
@@ -130,12 +130,12 @@ module.exports = {
                         } else if(endAngle <= fillEnd) {
                             renderData.dataLength = offset + 3;
                             //fillStart to endAngle
-                            this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
+                            this._generateTriangle(verts, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
                             offset += 3;
                         } else {
                             renderData.dataLength = offset + 3;
                             //fillStart to fillEnd
-                            this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                            this._generateTriangle(verts, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
                             offset += 3;
                         }
                     }
@@ -173,41 +173,41 @@ module.exports = {
         }
     },
 
-    _generateTriangle: function(data, offset, vert0, vert1, vert2) {
-        let vertices = this._vertices;
+    _generateTriangle: function(verts, offset, vert0, vert1, vert2) {
+        let vertices = this.vertices;
         let v0x = vertices[0];
         let v0y = vertices[1];
         let v1x = vertices[2];
         let v1y = vertices[3];
 
-        data[offset].x    = vert0.x;
-        data[offset].y    = vert0.y;
-        data[offset+1].x  = vert1.x;
-        data[offset+1].y  = vert1.y;
-        data[offset+2].x  = vert2.x;
-        data[offset+2].y  = vert2.y;
+        verts[offset].x    = vert0.x;
+        verts[offset].y    = vert0.y;
+        verts[offset+1].x  = vert1.x;
+        verts[offset+1].y  = vert1.y;
+        verts[offset+2].x  = vert2.x;
+        verts[offset+2].y  = vert2.y;
 
         let progressX, progressY;
         progressX = (vert0.x - v0x) / (v1x - v0x);
         progressY = (vert0.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, data, offset);
+        this._generateUV(progressX, progressY, verts, offset);
 
         progressX = (vert1.x - v0x) / (v1x - v0x);
         progressY = (vert1.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, data, offset + 1);
+        this._generateUV(progressX, progressY, verts, offset + 1);
 
         progressX = (vert2.x - v0x) / (v1x - v0x);
         progressY = (vert2.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, data, offset + 2);
+        this._generateUV(progressX, progressY, verts, offset + 2);
     },
 
-    _generateUV : function(progressX, progressY, data, offset) {
+    _generateUV : function(progressX, progressY, verts, offset) {
         let uvs = this._uvs;
         let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
         let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
         let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
         let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
-        let uv = data[offset];
+        let uv = verts[offset];
         uv.u = px1 + (px2 - px1) * progressY;
         uv.v = py1 + (py2 - py1) * progressY;
     },
@@ -259,7 +259,7 @@ module.exports = {
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
 
-        let vertices = this._vertices;
+        let vertices = this.vertices;
         vertices[0] = l;
         vertices[1] = b;
         vertices[2] = r;
@@ -328,7 +328,7 @@ module.exports = {
 
     fillBuffers (sprite, renderer) {
         let renderData = sprite._renderData,
-            data = renderData._data,
+            verts = renderData.vertices,
             node = sprite.node,
             color = node._color._val;
     
@@ -348,9 +348,9 @@ module.exports = {
             
         buffer.request(renderData.vertexCount, renderData.indiceCount);
 
-        let count = data.length;
+        let count = verts.length;
         for (let i = 0; i < count; i++) {
-            let vert = data[i];
+            let vert = verts[i];
             vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset ++] = vert.u;

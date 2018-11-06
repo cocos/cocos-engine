@@ -123,7 +123,7 @@ var motionStreakAssembler = {
             return;
         }
 
-        let data = renderData._data;
+        let verts = renderData.vertices;
 
         let color = comp._color,
             cr = color.r, cg = color.g, cb = color.b, ca = color.a;
@@ -168,18 +168,18 @@ var motionStreakAssembler = {
             let da = progress*ca;
             let c = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
 
-            let dataIndex = data.length - 1;
-            data[dataIndex].x = point.x - _normal.x * stroke;
-            data[dataIndex].y = point.y - _normal.y * stroke;
-            data[dataIndex].u = 0;
-            data[dataIndex].v = progress;
-            data[dataIndex].color = c;
+            let dataIndex = verts.length - 1;
+            verts[dataIndex].x = point.x - _normal.x * stroke;
+            verts[dataIndex].y = point.y - _normal.y * stroke;
+            verts[dataIndex].u = 0;
+            verts[dataIndex].v = progress;
+            verts[dataIndex].color = c;
             dataIndex--;
-            data[dataIndex].x = point.x + _normal.x * stroke;
-            data[dataIndex].y = point.y + _normal.y * stroke;
-            data[dataIndex].u = 1;
-            data[dataIndex].v = progress;
-            data[dataIndex].color = c;
+            verts[dataIndex].x = point.x + _normal.x * stroke;
+            verts[dataIndex].y = point.y + _normal.y * stroke;
+            verts[dataIndex].u = 1;
+            verts[dataIndex].v = progress;
+            verts[dataIndex].color = c;
         }
 
         renderData.vertexCount = renderData.dataLength;
@@ -188,7 +188,7 @@ var motionStreakAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderData = comp._renderData,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
@@ -207,7 +207,7 @@ var motionStreakAssembler = {
         // vertex buffer
         let vert;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            vert = data[i];
+            vert = verts[i];
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = vert.u;

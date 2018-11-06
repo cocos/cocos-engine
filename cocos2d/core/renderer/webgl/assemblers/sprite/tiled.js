@@ -64,14 +64,14 @@ module.exports = {
             row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
 
-        let data = renderData._data;
+        let verts = renderData.vertices;
         renderData.dataLength = Math.max(8, row+1, col+1);
 
         for (let i = 0; i <= col; ++i) {
-            data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
+            verts[i].x = Math.min(rectWidth * i, contentWidth) - appx;
         }
         for (let i = 0; i <= row; ++i) {
-            data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
+            verts[i].y = Math.min(rectHeight * i, contentHeight) - appy;
         }
         
         // update data property
@@ -84,7 +84,7 @@ module.exports = {
         let node = sprite.node,
             color = node._color._val,
             renderData = sprite._renderData,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         // buffer
         let buffer = renderer._meshBuffer,
@@ -116,13 +116,13 @@ module.exports = {
 
         let x, x1, y, y1, coefu, coefv;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            y = data[yindex].y;
-            y1 = data[yindex+1].y;
+            y = verts[yindex].y;
+            y1 = verts[yindex+1].y;
             coefv = Math.min(1, vRepeat - yindex);
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
                 coefu = Math.min(1, hRepeat - xindex);
-                x = data[xindex].x;
-                x1 = data[xindex+1].x;
+                x = verts[xindex].x;
+                x1 = verts[xindex+1].x;
 
                 // Vertex
                 // lb

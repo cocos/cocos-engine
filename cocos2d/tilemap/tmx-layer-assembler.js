@@ -56,7 +56,7 @@ let tmxAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderData = comp._renderData;
-        let data = renderData._data;
+        let verts = renderData.vertices;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
@@ -73,7 +73,7 @@ let tmxAssembler = {
             uintbuf = buffer._uintVData;
         
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vert = data[i];
+            let vert = verts[i];
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = vert.u;
@@ -97,7 +97,7 @@ let tmxAssembler = {
     updateVertices (comp) {
         let node = comp.node;
         let renderData = comp._renderData;
-        let data = renderData._data;
+        let verts = renderData.vertices;
         let color = node._color._val;
         let opacity = node._color.a;
 
@@ -298,35 +298,35 @@ let tmxAssembler = {
                 renderData.dataLength = renderData.vertexCount;
 
                 // tl
-                data[dataOffset].x = left * a + top * c + tx;
-                data[dataOffset].y = left * b + top * d + ty;
-                data[dataOffset].u = flippedX ? grid.r : grid.l;
-                data[dataOffset].v = flippedY ? grid.b : grid.t;
-                data[dataOffset].color = color;
+                verts[dataOffset].x = left * a + top * c + tx;
+                verts[dataOffset].y = left * b + top * d + ty;
+                verts[dataOffset].u = flippedX ? grid.r : grid.l;
+                verts[dataOffset].v = flippedY ? grid.b : grid.t;
+                verts[dataOffset].color = color;
                 dataOffset++;
 
                 // bl
-                data[dataOffset].x = left * a + bottom * c + tx;
-                data[dataOffset].y = left * b + bottom * d + ty;
-                data[dataOffset].u = flippedX ? grid.r : grid.l;
-                data[dataOffset].v = flippedY ? grid.t : grid.b;
-                data[dataOffset].color = color;
+                verts[dataOffset].x = left * a + bottom * c + tx;
+                verts[dataOffset].y = left * b + bottom * d + ty;
+                verts[dataOffset].u = flippedX ? grid.r : grid.l;
+                verts[dataOffset].v = flippedY ? grid.t : grid.b;
+                verts[dataOffset].color = color;
                 dataOffset++;
 
                 // tr
-                data[dataOffset].x = right * a + top * c + tx;
-                data[dataOffset].y = right * b + top * d + ty;
-                data[dataOffset].u = flippedX ? grid.l : grid.r;
-                data[dataOffset].v = flippedY ? grid.b : grid.t;
-                data[dataOffset].color = color;
+                verts[dataOffset].x = right * a + top * c + tx;
+                verts[dataOffset].y = right * b + top * d + ty;
+                verts[dataOffset].u = flippedX ? grid.l : grid.r;
+                verts[dataOffset].v = flippedY ? grid.b : grid.t;
+                verts[dataOffset].color = color;
                 dataOffset++;
 
                 // br
-                data[dataOffset].x = right * a + bottom * c + tx;
-                data[dataOffset].y = right * b + bottom * d + ty;
-                data[dataOffset].u = flippedX ? grid.l : grid.r;
-                data[dataOffset].v = flippedY ? grid.t : grid.b;
-                data[dataOffset].color = color;
+                verts[dataOffset].x = right * a + bottom * c + tx;
+                verts[dataOffset].y = right * b + bottom * d + ty;
+                verts[dataOffset].u = flippedX ? grid.l : grid.r;
+                verts[dataOffset].v = flippedY ? grid.t : grid.b;
+                verts[dataOffset].color = color;
                 dataOffset++;
 
                 if (tiledTile) {

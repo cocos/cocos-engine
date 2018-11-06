@@ -110,7 +110,7 @@ var spineAssembler = {
         let vertexCount = vertices.length / 8;
         // augment render data size to ensure capacity
         renderData.dataLength += vertexCount;
-        let data = renderData._data;
+        let verts = renderData.vertices;
         let nodeColor = comp.node._color;
         let nodeR = nodeColor.r,
             nodeG = nodeColor.g,
@@ -122,7 +122,7 @@ var spineAssembler = {
                 b = vertices[i + 4] * nodeB,
                 a = vertices[i + 5] * nodeA;
             let color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
-            let content = data[dataOffset];
+            let content = verts[dataOffset];
             content.x = vertices[i];
             content.y = vertices[i + 1];
             content.color = color;
@@ -232,7 +232,7 @@ var spineAssembler = {
             }
 
             // Fill up indices
-            indices = data._indices;
+            indices = data.indices;
             if (isRegion) {
                 indices[indiceOffset] = vertexOffset;
                 indices[indiceOffset + 1] = vertexOffset + 1;
@@ -321,8 +321,8 @@ var spineAssembler = {
                 renderer.material = data.material;
             }
 
-            let vertexs = data._data;
-            let indices = data._indices;
+            let vertexs = data.vertices;
+            let indices = data.indices;
 
             let buffer = renderer._meshBuffer,
                 vertexOffset = buffer.byteOffset >> 2,

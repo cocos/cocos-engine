@@ -81,7 +81,7 @@ module.exports = {
     updateUVs (sprite, fillStart, fillEnd) {
         let spriteFrame = sprite._spriteFrame,
             renderData = sprite._renderData,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         //build uvs
         let atlasWidth = spriteFrame._texture.width;
@@ -115,24 +115,24 @@ module.exports = {
 
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
-                data[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                data[0].v = quadUV1;
-                data[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                data[1].v = quadUV3;
-                data[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                data[2].v = quadUV5;
-                data[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                data[3].v = quadUV7;
+                verts[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+                verts[0].v = quadUV1;
+                verts[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+                verts[1].v = quadUV3;
+                verts[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+                verts[2].v = quadUV5;
+                verts[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+                verts[3].v = quadUV7;
                 break;
             case FillType.VERTICAL:
-                data[0].u = quadUV0;
-                data[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                data[1].u = quadUV2;
-                data[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                data[2].u = quadUV4;
-                data[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                data[3].u = quadUV6;
-                data[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+                verts[0].u = quadUV0;
+                verts[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+                verts[1].u = quadUV2;
+                verts[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+                verts[2].u = quadUV4;
+                verts[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+                verts[3].u = quadUV6;
+                verts[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
                 cc.errorID(2626);
@@ -142,7 +142,7 @@ module.exports = {
 
     updateVerts (sprite, fillStart, fillEnd) {
         let renderData = sprite._renderData,
-            data = renderData._data,
+            verts = renderData.vertices,
             node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
@@ -171,14 +171,14 @@ module.exports = {
                 break;
         }
 
-        data[4].x = l;
-        data[4].y = b;
-        data[5].x = r;
-        data[5].y = b;
-        data[6].x = l;
-        data[6].y = t;
-        data[7].x = r;
-        data[7].y = t;
+        verts[4].x = l;
+        verts[4].y = b;
+        verts[5].x = r;
+        verts[5].y = b;
+        verts[6].x = l;
+        verts[6].y = t;
+        verts[7].x = r;
+        verts[7].y = t;
     },
 
     createData (sprite) {
@@ -193,15 +193,15 @@ module.exports = {
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            data = sprite._renderData._data;
+            verts = sprite._renderData.verticess;
         
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         
         for (let i = 0; i < 4; i++) {
-            let local = data[i+4];
-            let world = data[i];
+            let local = verts[i+4];
+            let world = verts[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
         }
@@ -212,12 +212,9 @@ module.exports = {
             this.updateWorldVerts(sprite);
         }
 
-        let data = sprite._renderData._data,
+        let verts = sprite._renderData.vertices,
             node = sprite.node,
-            color = node._color._val,
-            matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+            color = node._color._val;
     
         let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2;
@@ -230,7 +227,7 @@ module.exports = {
 
         // vertex
         for (let i = 0; i < 4; i++) {
-            let vert = data[i];
+            let vert = verts[i];
             vbuf[vertexOffset++] = vert.x;
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = vert.u;
