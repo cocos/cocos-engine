@@ -77,7 +77,7 @@ export default class SkyboxComponent extends RenderableComponent {
 
     if (!this._material) {
       this._material = new Material();
-      this._material.effectAsset = cc.game._builtins['builtin-effect-skybox'];
+      this._material.effectName = 'builtin-effect-skybox';
     }
 
     this._updateMaterialParams();

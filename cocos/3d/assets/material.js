@@ -35,7 +35,7 @@ export default class Material extends Asset {
      * @type {string}
      */
     @property
-    _effectName = "";
+    _effectName = '';
 
     /**
      * @type {Object}
@@ -67,12 +67,14 @@ export default class Material extends Asset {
     set effectName(val) {
         if (this._effectName !== val) {
             this._effectName = val;
-            if (cc.game._builtins) {
-                const effectAsset = cc.game._builtins[this._effectName];
-                this._effect = Effect.parseEffect(effectAsset);
-                let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
-                this._props = propCls ? new propCls() : {};
+            const effectAsset = cc.game._builtins[this._effectName];
+            if (!effectAsset) {
+                console.warn(`no effect named '${val}' found`);
+                return;
             }
+            this._effect = Effect.parseEffect(effectAsset);
+            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
+            this._ccclass = propCls ? new propCls() : {};
         }
     }
 
@@ -80,31 +82,7 @@ export default class Material extends Asset {
      * @return {Effect}
      */
     get effect() {
-        if (this._effect === null) {
-            this._instantiateEffect();
-        }
         return this._effect;
-    }
-
-    _instantiateEffect() {
-        if (!cc.game || !cc.game._builtins) {
-            return;
-        }
-
-        const effectAsset = cc.game._builtins[this._effectName];
-        if (!effectAsset) {
-            return;
-        }
-
-        this._effect = Effect.parseEffect(effectAsset);
-        
-        for (let def in this._defines) {
-            this.define(def, this._defines[def]);
-        }
-
-        for (let name in this._props) {
-            this.setProperty(name, this._props[name]);
-        }
     }
 
     /**
@@ -112,10 +90,10 @@ export default class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
-        this._effectName = mat._effectName;
+        this.effectName = mat.effectName;
 
-        for (let def in mat._defines) {
-            this.define(def, mat._defines[def]);
+        for (let name in mat._defines) {
+            this.define(name, mat._defines[name]);
         }
 
         for (let name in mat._props) {
