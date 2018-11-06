@@ -112,16 +112,16 @@ let RenderComponent = cc.Class({
         }
         this.node._renderComponent = this;
 
-        this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
     },
 
     onDisable () {
         this.node._renderComponent = null;
-        this.node.off(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
         this.disableRender();
     },
 
