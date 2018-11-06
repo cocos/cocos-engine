@@ -465,11 +465,11 @@ let TiledMap = cc.Class({
             this._buildWithMapInfo(mapInfo);
         }
         else {
-            this._relseasMapInfo()
+            this._releaseMapInfo()
         }
     },
 
-    _relseasMapInfo () {
+    _releaseMapInfo () {
         // remove the layers & object groups added before
         let layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
@@ -498,7 +498,7 @@ let TiledMap = cc.Class({
         this._properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
 
-        this._relseasMapInfo();
+        this._releaseMapInfo();
 
         let layers = this._layers;
         let groups = this._groups;
