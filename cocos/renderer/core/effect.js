@@ -197,37 +197,26 @@ Effect.getPropertyClassName = function(json) {
     return `cc.Effect.${json._uuid}.Props`;
 };
 
-Effect.parseType = function(json) {
-    let lib = cc.game._renderer._programLib, types = {};
-    let props = json.properties;
-    json.techniques.forEach(tech => {
-        tech.passes.forEach(pass => {
-            let program = lib.getTemplate(pass.program);
-            program.defines.forEach(define => {
-                types[define.name] = getInstanceType(define.type);
-            });
-            program.uniforms.forEach(uniform => {
-                let name = uniform.name, prop = props[name];
-                if (!prop) return; // don't add if not in the property list
-                types[name] = getInstanceType(prop.type || uniform.type);
-            });
-        });
-    });
-    return types;
+Effect.getDefineClassName = function(json) {
+    return `cc.Effect.${json._uuid}.Defines`;
 };
 
 Effect.registerEffect = function(json) {
     let programs = getInvolvedPrograms(json);
-    let properties = parseProperties(json, programs);
+    let properties = parseProperties(json, programs), defines = {};
     // add all the defines too, for now
     programs.forEach(program => {
         program.defines.forEach(define => {
-            properties[define.name] = getInstanceCtor(define.type)();
+            defines[define.name] = getInstanceCtor(define.type)();
         });
     });
     cc.Class({
         name: Effect.getPropertyClassName(json),
         properties,
+    });
+    cc.Class({
+        name: Effect.getDefineClassName(json),
+        properties: defines,
     });
 };
 
@@ -270,6 +259,27 @@ Effect.parseEffect = function(json) {
 
     return new Effect(techniques, uniforms, defines, extensions);
 };
+
+if (CC_EDITOR) {
+    Effect.parseType = function(json) {
+        let lib = cc.game._renderer._programLib, types = {};
+        let props = json.properties;
+        json.techniques.forEach(tech => {
+            tech.passes.forEach(pass => {
+                let program = lib.getTemplate(pass.program);
+                program.defines.forEach(define => {
+                    types[define.name] = getInstanceType(define.type);
+                });
+                program.uniforms.forEach(uniform => {
+                    let name = uniform.name, prop = props[name];
+                    if (!prop) return; // don't add if not in the property list
+                    types[name] = getInstanceType(prop.type || uniform.type);
+                });
+            });
+        });
+        return types;
+    };
+}
 
 export default Effect;
 cc.Effect = Effect;

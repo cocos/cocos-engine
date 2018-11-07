@@ -30,7 +30,7 @@ import Texture from '../../assets/CCTexture2D';
 import Effect from '../../renderer/core/effect';
 
 @ccclass('cc.Material')
-export default class Material extends Asset {
+class Material extends Asset {
     /**
      * @type {string}
      */
@@ -67,14 +67,16 @@ export default class Material extends Asset {
     set effectName(val) {
         if (this._effectName !== val) {
             this._effectName = val;
-            const effectAsset = cc.game._builtins[this._effectName];
+            const effectAsset = cc.game._builtins[val];
             if (!effectAsset) {
                 console.warn(`no effect named '${val}' found`);
                 return;
             }
             this._effect = Effect.parseEffect(effectAsset);
             let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
-            this._ccclass = propCls ? new propCls() : {};
+            this._props = propCls ? new propCls() : {};
+            let defCls = cc.js.getClassByName(Effect.getDefineClassName(effectAsset));
+            this._defines = defCls ? new defCls() : {};
         }
     }
 
@@ -92,13 +94,13 @@ export default class Material extends Asset {
     copy(mat) {
         this.effectName = mat.effectName;
 
-        for (let name in mat._defines) {
+        Object.keys(mat._defines).forEach(name => {
             this.define(name, mat._defines[name]);
-        }
+        });
 
-        for (let name in mat._props) {
+        Object.keys(mat._props).forEach(name => {
             this.setProperty(name, mat._props[name]);
-        }
+        });
     }
 
     /**
@@ -108,7 +110,6 @@ export default class Material extends Asset {
      */
     setProperty(name, val) {
         this._props[name] = val;
-
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val._texture);
@@ -130,9 +131,17 @@ export default class Material extends Asset {
         }
     }
 
-    destroy() {
-        // TODO: what should we do here ???
-        return super.destroy();
+    _deserialize(data) {
+        this.effectName = data._effectName;
+
+        let defines = cc.deserialize(data._defines);
+        Object.keys(defines).forEach(name => {
+            this.define(name, defines[name]);
+        });
+        let props = cc.deserialize(data.props);
+        Object.keys(props).forEach(name => {
+            this.setProperty(name, props[name]);
+        });
     }
 
     static getInstantiatedMaterial(mat, rndCom) {
@@ -149,4 +158,15 @@ export default class Material extends Asset {
     }
 }
 
+if (CC_EDITOR) {
+    Material.prototype._serialize = function() {
+        return {
+            effectName: this._effectName,
+            props: Editor.serialize(this._props),
+            defines: Editor.serialize(this._defines)
+        };
+    };
+}
+
+export default Material;
 cc.Material = Material;
