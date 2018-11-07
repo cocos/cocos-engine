@@ -232,10 +232,16 @@ Effect.parseEffect = function(json) {
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
             if (pass.blend) passes[k].setBlend(pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha);
+                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
+            if (pass.stencilTest) {
+                passes[k].setStencilFront(pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+                    pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+                passes[k].setStencilBack(pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+                    pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
+            }
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }

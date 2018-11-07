@@ -25,6 +25,7 @@ const passParams = {
   back: enums.CULL_BACK,
   front: enums.CULL_FRONT,
   none: enums.CULL_NONE,
+
   add: enums.BLEND_FUNC_ADD,
   subtract: enums.BLEND_FUNC_SUBTRACT,
   reverseSubtract: enums.BLEND_FUNC_REVERSE_SUBTRACT,
@@ -43,8 +44,23 @@ const passParams = {
   constAlpha: enums.BLEND_CONSTANT_ALPHA,
   oneMinusConstAlpha: enums.BLEND_ONE_MINUS_CONSTANT_ALPHA,
   srcAlphaSaturate: enums.BLEND_SRC_ALPHA_SATURATE,
-  [true]: true,
-  [false]: false
+
+  never: enums.DS_FUNC_NEVER,
+  less: enums.DS_FUNC_LESS,
+  equal: enums.DS_FUNC_EQUAL,
+  lequal: enums.DS_FUNC_LEQUAL,
+  greater: enums.DS_FUNC_GREATER,
+  notEqual: enums.DS_FUNC_NOTEQUAL,
+  gequal: enums.DS_FUNC_GEQUAL,
+  always: enums.DS_FUNC_ALWAYS,
+
+  keep: enums.STENCIL_OP_KEEP,
+  replace: enums.STENCIL_OP_REPLACE,
+  incr: enums.STENCIL_OP_INCR,
+  incr_wrap: enums.STENCIL_OP_INCR_WRAP,
+  decr: enums.STENCIL_OP_DECR,
+  decr_wrap: enums.STENCIL_OP_DECR_WRAP,
+  invert: enums.STENCIL_OP_INVERT
 };
 
 let mappings = {

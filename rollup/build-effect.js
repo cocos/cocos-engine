@@ -5,6 +5,19 @@ const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
 const mappings = require('../bin/mappings');
 
+function mapPassParam(p) {
+  let num;
+  switch (typeof p) {
+  case 'string':
+    num = parseInt(p);
+    if (isNaN(num)) mappings.passParams[p];
+    return num;
+  case 'object':
+    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
+  }
+  return p;
+}
+
 function buildEffects(dest, path) {
   let files = fsJetpack.find(path, { matching: ['**/*.json'] });
   let code = '';
@@ -22,7 +35,7 @@ function buildEffects(dest, path) {
         let pass = jsonTech.passes[k];
         for (let key in pass) {
           if (key === "program") continue;
-          pass[key] = mappings.passParams[pass[key]];
+          pass[key] = mapPassParam(pass[key]);
         }
       }
     }
