@@ -1300,7 +1300,7 @@ let NodeDefines = {
             this._rotationX = this._rotationY = undefined;
         }
         
-        this._quat.getEulerAngles(this._eulerAngles);
+        this._quat.toEuler(this._eulerAngles);
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
         // TODO: Remove after final version
@@ -2220,7 +2220,7 @@ let NodeDefines = {
                 }
 
                 if (CC_EDITOR) {
-                    old.getEulerAngles(this._eulerAngles);
+                    old.toEuler(this._eulerAngles);
                 }
             }
         }
@@ -2461,7 +2461,7 @@ let NodeDefines = {
         else {
             math.quat.copy(this._quat, quat);
         }
-        this._quat.getEulerAngles(this._eulerAngles);
+        this._quat.toEuler(this._eulerAngles);
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
@@ -3132,7 +3132,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        this._quat.getEulerAngles(this._eulerAngles);
+        this._quat.toEuler(this._eulerAngles);
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
