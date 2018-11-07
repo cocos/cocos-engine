@@ -83,7 +83,7 @@ module.exports = {
             let center = this._center;
 
             let vertPos = this._vertPos,
-                vertices = this.vertices;
+                vertices = this._vertices;
 
             let triangles = this._triangles;
 
@@ -174,7 +174,7 @@ module.exports = {
     },
 
     _generateTriangle: function(verts, offset, vert0, vert1, vert2) {
-        let vertices = this.vertices;
+        let vertices = this._vertices;
         let v0x = vertices[0];
         let v0y = vertices[1];
         let v1x = vertices[2];
@@ -259,7 +259,7 @@ module.exports = {
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
 
-        let vertices = this.vertices;
+        let vertices = this._vertices;
         vertices[0] = l;
         vertices[1] = b;
         vertices[2] = r;

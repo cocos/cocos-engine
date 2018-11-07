@@ -193,7 +193,7 @@ module.exports = {
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            verts = sprite._renderData.verticess;
+            verts = sprite._renderData.vertices;
         
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
