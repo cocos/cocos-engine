@@ -110,7 +110,7 @@ let RenderComponent = cc.Class({
                 this._materials = val;
             },
             type: [Material],
-            displayName: 'Material'
+            displayName: 'Materials'
         }
     },
     
