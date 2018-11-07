@@ -464,7 +464,7 @@ let Label = cc.Class({
         }
 
         this._checkStringEmpty();
-        this._updateRenderData(true);
+        this._forceUpdateRenderData();
     },
 
     onDestroy () {
