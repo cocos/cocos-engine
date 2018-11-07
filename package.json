@@ -50,6 +50,10 @@
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",
-    "watchify": "^3.7.0"
+    "watchify": "^3.7.0",
+    "glsl-tokenizer": "^2.1.5",
+    "gulp-qunit": "^2.0.1",
+    "rollup": "^0.66.6",
+    "rollup-plugin-node-resolve": "^3.4.0"
   }
 }
