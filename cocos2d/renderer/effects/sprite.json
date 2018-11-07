@@ -1,0 +1,34 @@
+{
+    "techniques": [
+      {
+        "stages": ["transparent"],
+        "passes": [
+         {
+           "program": "sprite",
+           "cullMode": "none",
+           "depthTest": false,
+           "depthWrite": false,
+           "blend": true,
+           "blendEq": "add",
+           "blendSrc": "srcAlpha",
+           "blendDst": "oneMinusSrcAlpha",
+           "blendAlphaEq": "add",
+           "blendSrcAlpha": "srcAlpha",
+           "blendDstAlpha": "oneMinusSrcAlpha"
+         }
+        ],
+        "layer": 0
+      }
+    ],
+  
+    "properties": {
+      "texture": {
+        "type": "sampler2D",
+        "value": null
+      },
+      "color": {
+          "type": "color4",
+          "value": {"r": 1, "g":1, "b":1, "a":1}
+      }
+    }
+  }
