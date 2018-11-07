@@ -10501,12 +10501,12 @@ var config = {
 
 var _genID$1 = 0;
 
-var Technique = function Technique(stages, parameters, passes, layer) {
+var Technique = function Technique(stages, passes, layer) {
   if ( layer === void 0 ) layer = 0;
 
   this._id = _genID$1++;
   this._stageIDs = config.stageIDs(stages);
-  this._parameters = parameters; // {name, type, size, val}
+  // this._parameters = parameters; // {name, type, size, val}
   this._passes = passes;
   this._layer = layer;
   // TODO: this._version = 'webgl' or 'webgl2' // ????
@@ -10518,11 +10518,11 @@ Technique.prototype.copy = function (technique) {
   this._id = technique._id;
   this._stageIDs = technique._stageIDs;
 
-  this._parameters = [];
-  for (let i = 0; i < technique._parameters.length; ++i) {
-    let parameter = technique._parameters[i];
-    this._parameters.push({name: parameter.name, type: parameter.type});
-  }
+  // this._parameters = [];
+  // for (let i = 0; i < technique._parameters.length; ++i) {
+  //   let parameter = technique._parameters[i];
+  //   this._parameters.push({name: parameter.name, type: parameter.type});
+  // }
 
   for (let i = 0; i < technique._passes.length; ++i) {
     let pass = this._passes[i];
@@ -12906,7 +12906,7 @@ var ProgramLib = function ProgramLib(device, templates, chunks) {
   this._templates = {};
   for (var i = 0; i < templates.length; ++i) {
     var tmpl = templates[i];
-    this$1.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.defines);
+    this$1.define(tmpl);
   }
 
   // register chunks
@@ -12927,54 +12927,61 @@ var ProgramLib = function ProgramLib(device, templates, chunks) {
  *   { name: 'lightCount', min: 1, max: 4 }
  * ]);
  */
-ProgramLib.prototype.define = function define (name, vert, frag, defines) {
+ProgramLib.prototype.define = function define (prog) {
+  let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
   if (this._templates[name]) {
-    console.warn(("Failed to define shader " + name + ": already exists."));
+    console.warn(`Failed to define shader ${name}: already exists.`);
     return;
   }
 
-  var id = ++_shdID;
+  let id = ++_shdID;
 
   // calculate option mask offset
-  var offset = 0;
-  var loop = function ( i ) {
-    var def = defines[i];
-    def._offset = offset;
+  let offset = 0;
+  for (let i = 0; i < defines.length; ++i) {
+    let def = defines[i];
+    let cnt = 1;
 
-    var cnt = 1;
-
-    if (def.min !== undefined && def.max !== undefined) {
-      cnt = Math.ceil((def.max - def.min) * 0.5);
+    if (def.type === 'number') {
+      // the default value range is true for all built-in programs,
+      // and we assume that it will stay true for all conceivable cases,
+      // to be able to auto-generate relative infos directly from shaders.
+      // so if you really need to have a different range,
+      // change the auto-generated program object
+      // manually before passing into this function.
+      def.min = def.min || 0;
+      def.max = def.max || 4;
+      cnt = Math.ceil(Math.log2(def.max - def.min));
 
       def._map = function (value) {
-        return (value - this._min) << def._offset;
+        return (value - this.min) << this._offset;
       }.bind(def);
-    } else {
+    } else { // boolean
       def._map = function (value) {
         if (value) {
-          return 1 << def._offset;
+          return 1 << this._offset;
         }
         return 0;
       }.bind(def);
     }
 
     offset += cnt;
-
     def._offset = offset;
-  };
-
-    for (var i = 0; i < defines.length; ++i) loop( i );
+  }
 
   vert = this._precision + vert;
   frag = this._precision + frag;
 
   // store it
   this._templates[name] = {
-    id: id,
-    name: name,
-    vert: vert,
-    frag: frag,
-    defines: defines
+    id,
+    name,
+    vert,
+    frag,
+    defines,
+    attributes: prog.attributes,
+    uniforms: prog.uniforms,
+    extensions: prog.extensions
   };
 };
 
@@ -12997,6 +13004,10 @@ ProgramLib.prototype.getKey = function getKey (name, defines) {
 
   return key << 8 | tmpl.id;
 };
+
+ProgramLib.prototype.getTemplate = function (name) {
+  return this._templates[name];
+}
 
 /**
  * @param {string} name
@@ -13462,9 +13473,9 @@ Base.prototype._draw = function _draw (item) {
   // }
 
   // set technique uniforms
-  for (var i = 0; i < technique._parameters.length; ++i) {
-    var prop = technique._parameters[i];
-    var param = effect.getProperty(prop.name);
+  for (let name in effect._properties) {
+    let prop = effect._properties[name];
+    let param = prop.value;
 
     if (param === undefined) {
       param = prop.val;
@@ -14131,7 +14142,7 @@ var Material = (function (Asset$$1) {
   };
 
   Material.prototype.updateHash = function updateHash (value) {
-    this._hash = value || computeHash(this);
+    // this._hash = value || computeHash(this);
   };
 
   Object.defineProperties( Material.prototype, prototypeAccessors );
@@ -14832,6 +14843,8 @@ var renderEngine = {
   math: math,
   renderer: renderer,
   gfx: gfx,
+
+  config: config,
 };
 
 module.exports = renderEngine;

@@ -71,7 +71,7 @@ let graphicsAssembler = {
     updateRenderData (graphics) {
         let datas = graphics._impl.getRenderDatas();
         for (let i = 0, l = datas.length; i < l; i++) {
-            datas[i].material = graphics.getMaterial();
+            datas[i].material = graphics.sharedMaterials[0];
         }
     },
 
@@ -85,14 +85,6 @@ let graphicsAssembler = {
     },
 
     renderIA (graphics, renderer) {
-        let node = graphics.node;
-        
-        let nodeColor = node.color,
-            nodeR = nodeColor.r / 255,
-            nodeG = nodeColor.g / 255,
-            nodeB = nodeColor.b / 255,
-            nodeA = nodeColor.a / 255;
-
         let impl = graphics._impl;
         let renderDatas = impl.getRenderDatas();
         for (let index = 0, length = renderDatas.length; index < length; index++) {
@@ -123,7 +115,7 @@ let graphicsAssembler = {
                 renderDatas[_impl._dataOffset] = renderData;
             }
 
-            renderData.material = graphics.getMaterial();
+            renderData.material = graphics.sharedMaterials[0];
             meshbuffer = renderData.meshbuffer;
         }
 

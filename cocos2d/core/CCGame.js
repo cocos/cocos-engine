@@ -30,6 +30,7 @@ const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manager');
+const effects = require('../renderer/effects');
 
 /**
  * @module cc
@@ -649,6 +650,8 @@ var game = {
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
+
+        this._builtins = effects;
 
         debug._resetDebugSetting(config.debugMode);
 

@@ -28,9 +28,9 @@ const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const Material = require('../../cocos2d/core/assets/CCMaterial');
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
-const SpriteMaterial = renderEngine.SpriteMaterial;
 
 const STENCIL_SEP = '@';
 
@@ -39,11 +39,6 @@ let _sharedMaterials = {};
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
-let _debugMaterial = new SpriteMaterial();
-_debugMaterial.useModel = true;
-_debugMaterial.useColor = false;
-_debugMaterial.useTexture = false;
-_debugMaterial.updateHash();
 
 function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
@@ -74,14 +69,14 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     let key = tex.url + src + dst + STENCIL_SEP + '0';
     let material = _sharedMaterials[key];
     if (!material) {
-        material = new SpriteMaterial();
-        material.useModel = true;
+        material = new Material('builtin-effect-sprite');
+        material.define('useModel', true);
+        material.define('useTexture', true);
         // update texture
-        material.texture = tex;
-        material.useColor = false;
+        material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material._mainTech.passes[0];
+        let pass = material._effect.getTechnique('transparent').passes[0];
         pass.setBlend(
             gfx.BLEND_FUNC_ADD,
             src, dst,
@@ -91,8 +86,8 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         _sharedMaterials[key] = material;
         material.updateHash(key);
     }
-    else if (material.texture !== tex) {
-        material.texture = tex;
+    else if (material.getProperty('texture') !== tex) {
+        material.setProperty('texture', tex);
         material.updateHash(key);
     }
     return material;

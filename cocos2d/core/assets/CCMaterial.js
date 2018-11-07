@@ -28,6 +28,8 @@ const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
 const effects = require('../../renderer/effects');
 const Color = require('../value-types/color');
+const renderEngine = require('../renderer/render-engine');
+const RecyclePool = renderEngine.RecyclePool;
 import Effect from '../../renderer/effect';
 
 let Material = cc.Class({
@@ -202,12 +204,22 @@ let Material = cc.Class({
     },
 
     _deserialize: (function () {
-        function loadAsset (handle, target, name, uuid) {
-            let depend = {
+        let dependsPool = new RecyclePool(function () {
+            return {
+                target: null,
+                propName: '',
                 set asset (asset) {
-                    target.setProperty(name, asset);
+                    this.target.setProperty(this.propName, asset);
+                    this.target = null;
+                    dependsPool.remove(dependsPool.data.indexOf(this));
                 }
-            };
+            }
+        }, 1);
+
+        function loadAsset (handle, target, propName, uuid) {
+            let depend = dependsPool.add();
+            depend.target = target;
+            depend.propName = propName;
 
             handle.result.push(depend, 'asset', uuid);
         }

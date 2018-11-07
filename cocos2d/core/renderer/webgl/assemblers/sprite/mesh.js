@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const utils = require('./utils');
 
 module.exports = {
     useModel: false,
@@ -33,51 +33,35 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        let frame = sprite.spriteFrame;
-        
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        utils.packToDynamicAtlas(sprite);
 
         let renderData = sprite._renderData;
-        if (renderData && frame) {
-            let vertices = frame.vertices;
-            if (vertices) {
-                if (renderData.vertexCount !== vertices.x.length) {
-                    renderData.vertexCount = vertices.x.length;
-                    renderData.indiceCount = vertices.triangles.length;
-                    
-                    // 1 for world vertices, 2 for local vertices
-                    renderData.dataLength = renderData.vertexCount * 2;
+        let frame = sprite.spriteFrame;
+        if (!renderData || !frame) return;
+        let vertices = frame.vertices;
+        if (vertices) {
+            if (renderData.vertexCount !== vertices.x.length) {
+                renderData.vertexCount = vertices.x.length;
+                renderData.indiceCount = vertices.triangles.length;
+                
+                // 1 for world vertices, 2 for local vertices
+                renderData.dataLength = renderData.vertexCount * 2;
 
-                    renderData.uvDirty = renderData.vertDirty = true;
-                }
+                renderData.uvDirty = renderData.vertDirty = true;
+            }
 
-                if (renderData.uvDirty) {
-                    this.updateUVs(sprite);
-                }
-                let vertDirty = renderData.vertDirty;
-                if (vertDirty) {
-                    this.updateVerts(sprite);
-                    this.updateWorldVerts(sprite);
-                }
+            if (renderData.uvDirty) {
+                this.updateUVs(sprite);
+            }
+            let vertDirty = renderData.vertDirty;
+            if (vertDirty) {
+                this.updateVerts(sprite);
+                this.updateWorldVerts(sprite);
             }
         }
     },
 
     updateUVs (sprite) {
-        let material = sprite.getMaterial();
-        let texture = material.effect.getProperty('texture');
-        let texw = texture._width,
-            texh = texture._height;
-
         let vertices = sprite.spriteFrame.vertices,
             u = vertices.nu,
             v = vertices.nv;

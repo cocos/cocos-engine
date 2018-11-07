@@ -29,6 +29,7 @@ const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const RenderData = renderEngine.RenderData;
 const gfx = renderEngine.gfx;
+const Material = require('../assets/CCMaterial');
 
 /**
  * !#en
@@ -95,10 +96,25 @@ let RenderComponent = cc.Class({
             type: BlendFactor,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
+
+        _materials: {
+            default: [],
+            type: Material,
+        },
+
+        sharedMaterials: {
+            get () {
+                return this._materials;
+            },
+            set (val) {
+                this._materials = val;
+            },
+            type: [Material],
+            displayName: 'Material'
+        }
     },
     
     ctor () {
-        this._material = null;
         this._renderData = null;
         this.__allocedDatas = [];
         this._vertexFormat = null;
@@ -125,7 +141,7 @@ let RenderComponent = cc.Class({
             RenderData.free(this.__allocedDatas[i]);
         }
         this.__allocedDatas.length = 0;
-        this._material = null;
+        this._materials.length = 0;
         this._renderData = null;
     },
     
@@ -180,47 +196,66 @@ let RenderComponent = cc.Class({
     },
 
     _updateColor () {
-        let material = this._material;
-        if (material) {
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            let material = materials[i];
             // For batch rendering, update the color only when useColor is set to true.
-            if (material.useColor) {
-                material.color = this.node.color;
+            if (material.getDefine('useColor')) {
+                material.setProperty('color', this.node.color);
                 material.updateHash();
             }
+        }
+        // reset flag when set color to material successfully
+        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+    },
 
-            // reset flag when set color to material successfully
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+    getMaterials () {
+        return this._materials;
+    },
+    getMaterial (index) {
+        if (index < 0 || index >= this._materials.length) {
+            return null;
+        }
+
+        let material = this._materials[index];
+        let instantiated = Material.getInstantiatedMaterial(material, this);
+        if (instantiated !== material) {
+            this.setMaterial(index, instantiated);
+        }
+
+        return this._materials[index];
+    },
+    setMaterial (index, material) {
+        this._materials[index] = material;
+        if (material) {
+            this._updateMaterialBlendFunc(true, material);
         }
     },
 
-    getMaterial () {
-        return this._material;
-    },
-
-    _updateMaterial (material) {
-        this._material = material;
-
-        this._updateBlendFunc();
-        material.updateHash();
-    },
-        
     _updateBlendFunc: function (updateHash) {
-        if (!this._material) {
-            return;
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            let material = materials[i];
+            this._updateMaterialBlendFunc(updateHash, material);
         }
+    },
 
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
+    _updateMaterialBlendFunc (updateHash, material) {
+        let passes = material._effect.getTechnique('transparent').passes;
+        for (let j = 0; j < passes.length; j++) {
+            let pass = passes[j];
+            pass.setBlend(
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor,
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor
+            );
+        }
 
         if (updateHash) {
-            this._material.updateHash();
+            material.updateHash();
         }
-    },
+    }
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

@@ -25,62 +25,49 @@
 
 const Sprite = require('../../../../components/CCSprite');
 const FillType = Sprite.FillType;
-
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const utils = require('./utils');
 
 module.exports = {
     useModel: false,
     updateRenderData (sprite) {
-        let frame = sprite.spriteFrame;
-        
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        utils.packToDynamicAtlas(sprite);
 
         let renderData = sprite._renderData;
-        if (renderData && frame) {
-            let uvDirty = renderData.uvDirty,
-                vertDirty = renderData.vertDirty;
+        if (!renderData || !sprite.spriteFrame) return;
+        let uvDirty = renderData.uvDirty,
+            vertDirty = renderData.vertDirty;
 
-            if (!uvDirty && !vertDirty) {
-                return sprite.__allocedDatas;
-            }
+        if (!uvDirty && !vertDirty) {
+            return sprite.__allocedDatas;
+        }
 
-            let fillStart = sprite._fillStart;
-            let fillRange = sprite._fillRange;
+        let fillStart = sprite._fillStart;
+        let fillRange = sprite._fillRange;
 
-            if (fillRange < 0) {
-                fillStart += fillRange;
-                fillRange = -fillRange;
-            }
+        if (fillRange < 0) {
+            fillStart += fillRange;
+            fillRange = -fillRange;
+        }
 
-            fillRange = fillStart + fillRange;
+        fillRange = fillStart + fillRange;
 
-            fillStart = fillStart > 1.0 ? 1.0 : fillStart;
-            fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+        fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+        fillStart = fillStart < 0.0 ? 0.0 : fillStart;
 
-            fillRange = fillRange > 1.0 ? 1.0 : fillRange;
-            fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-            fillRange = fillRange - fillStart;
-            fillRange = fillRange < 0 ? 0 : fillRange;
-            
-            let fillEnd = fillStart + fillRange;
-            fillEnd = fillEnd > 1 ? 1 : fillEnd;
+        fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+        fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+        fillRange = fillRange - fillStart;
+        fillRange = fillRange < 0 ? 0 : fillRange;
+        
+        let fillEnd = fillStart + fillRange;
+        fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            if (uvDirty) {
-                this.updateUVs(sprite, fillStart, fillEnd);
-            }
-            if (vertDirty) {
-                this.updateVerts(sprite, fillStart, fillEnd);
-                this.updateWorldVerts(sprite);
-            }
+        if (uvDirty) {
+            this.updateUVs(sprite, fillStart, fillEnd);
+        }
+        if (vertDirty) {
+            this.updateVerts(sprite, fillStart, fillEnd);
+            this.updateWorldVerts(sprite);
         }
     },
 

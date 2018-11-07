@@ -27,7 +27,7 @@
 const misc = require('../utils/misc');
 const renderEngine = require('../renderer/render-engine');
 const math = renderEngine.math;
-const StencilMaterial = renderEngine.StencilMaterial;
+const Material = require('../assets/CCMaterial');
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
@@ -194,9 +194,10 @@ let Mask = cc.Class({
                     cc.warnID(4201);
                     return;
                 }
-                if (this._material) {
-                    this._material.alphaThreshold = this.alphaThreshold;
-                    this._material.updateHash();
+                let material = this.sharedMaterials[0];
+                if (material) {
+                    material.alphaThreshold = this.alphaThreshold;
+                    material.updateHash();
                 }
             }
         },
@@ -355,24 +356,29 @@ let Mask = cc.Class({
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // Init material
-            if (!this._material) {
-                this._material = new StencilMaterial();
+            let material = this.sharedMaterials[0];
+            if (!material) {
+                material = new Material('builtin-effect-sprite');
+                material.define('alphaTest', true);
             }
 
             // Reset material
             if (this._type === MaskType.IMAGE_STENCIL) {
                 let texture = this.spriteFrame.getTexture();
-                this._material.useModel = false;
-                this._material.useTexture = true;
-                this._material.useColor = true;
-                this._material.texture = texture;
-                this._material.alphaThreshold = this.alphaThreshold;
+                material.define('useModel', false);
+                material.define('useTexture', true);
+                material.define('useColor', true);
+
+                material.setProperty('texture', texture);
+                material.setProperty('alphaThreshold', this.alphaThreshold);
             }
             else {
-                this._material.useModel = true;
-                this._material.useTexture = false;
-                this._material.useColor = false;
+                material.define('useModel', true);
+                material.define('useTexture', false);
+                material.define('useColor', false);
             }
+
+            this.setMaterial(0, material);
         }
 
         this.markForRender(true);

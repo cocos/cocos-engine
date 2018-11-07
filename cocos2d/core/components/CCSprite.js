@@ -32,6 +32,8 @@ const renderEngine = require('../renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const GraySpriteMaterial = renderEngine.GraySpriteMaterial;
 
+const Material = require('../assets/CCMaterial');
+
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
@@ -476,7 +478,7 @@ var Sprite = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-            this._renderData.material = this._material;
+            this._renderData.material = this.sharedMaterials[0];
             this.markForUpdateRenderData(true);
         }
     },
@@ -496,21 +498,21 @@ var Sprite = cc.Class({
             }
             else {
                 if (!this._spriteMaterial) {
-                    this._spriteMaterial = new SpriteMaterial();
+                    this._spriteMaterial = new Material('builtin-effect-sprite');
                 }
                 material = this._spriteMaterial;
             }
-            // For batch rendering, do not use uniform color.
-            material.useColor = false;
+            material.define('useTexture', true);
+            
             // Set texture
             if (spriteFrame && spriteFrame.textureLoaded()) {
                 let texture = spriteFrame.getTexture();
-                if (material.texture !== texture) {
-                    material.texture = texture;
-                    this._updateMaterial(material);
+                if (material.getProperty('texture') !== texture) {
+                    material.setProperty('texture', texture);
+                    this.setMaterial(0, material);
                 }
-                else if (material !== this._material) {
-                    this._updateMaterial(material);
+                else if (material !== this.sharedMaterials[0]) {
+                    this.setMaterial(0, material);
                 }
                 if (this._renderData) {
                     this._renderData.material = material;
@@ -547,7 +549,7 @@ var Sprite = cc.Class({
             if (!this._enabled) return false;
         }
         else {
-            if (!this._enabled || !this._material || !this.node._activeInHierarchy) return false;
+            if (!this._enabled || !this.sharedMaterials[0] || !this.node._activeInHierarchy) return false;
         }
 
         let spriteFrame = this._spriteFrame;
@@ -600,7 +602,8 @@ var Sprite = cc.Class({
         }
 
         var spriteFrame = this._spriteFrame;
-        if (!spriteFrame || (this._material && this._material._texture) !== (spriteFrame && spriteFrame._texture)) {
+        let material = this.sharedMaterials[0];
+        if (!spriteFrame || (material && material._texture) !== (spriteFrame && spriteFrame._texture)) {
             // disable render flow until texture is loaded
             this.markForRender(false);
         }

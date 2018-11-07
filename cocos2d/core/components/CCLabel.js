@@ -26,9 +26,8 @@
 
 const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
-const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
-const SpriteMaterial = renderEngine.SpriteMaterial;
+const Material = require('../assets/CCMaterial');
 
 /**
  * !#en Enum for text alignment.
@@ -518,7 +517,7 @@ let Label = cc.Class({
     },
 
     _activateMaterial (force) {
-        let material = this._material;
+        let material = this.sharedMaterials[0];
         if (material && !force) {
             return;
         }
@@ -560,7 +559,8 @@ let Label = cc.Class({
         // WebGL
         else {
             if (!material) {
-                material = new SpriteMaterial();
+                material = new Material('builtin-effect-sprite');
+                material.define('useTexture', true);
             }
             // Setup blend function for premultiplied ttf label texture
             if (this._texture === this._ttfTexture) {
@@ -569,10 +569,8 @@ let Label = cc.Class({
             else {
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
-            material.texture = this._texture;
-            // For batch rendering, do not use uniform color.
-            material.useColor = false;
-            this._updateMaterial(material);
+            material.setProperty('texture', this._texture);
+            this.setMaterial(0, material);
         }
 
         this.markForUpdateRenderData(true);

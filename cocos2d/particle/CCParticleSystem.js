@@ -31,9 +31,9 @@ const codec = require('../compression/ZipUtils');
 const PNGReader = require('./CCPNGReader');
 const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
-const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
+const Material = require('../core/assets/CCMaterial');
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.
@@ -832,7 +832,7 @@ var ParticleSystem = cc.Class({
     },
     
     update (dt) {
-        if (!this._simulator.finished && this._material) {
+        if (!this._simulator.finished && this.sharedMaterials[0]) {
             this._simulator.step(dt);
         }
     },
@@ -1121,11 +1121,11 @@ var ParticleSystem = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (!this._material) {
-            this._material = new renderEngine.SpriteMaterial();
-            this._material.useTexture = true;
-            this._material.useModel = true;
-            this._material.useColor = false;
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = new Material('builtin-effect-sprite');
+            material.define('useTexture', true);
+            material.define('useModel', true);
         }
 
         if (!this._texture || !this._texture.loaded) {
@@ -1137,8 +1137,8 @@ var ParticleSystem = cc.Class({
         else {
             this.markForUpdateRenderData(true);
             this.markForCustomIARender(true);
-            this._material.texture = this._texture;
-            this._updateMaterial(this._material);
+            material.setProperty('texture', this._texture);
+            this.setMaterial(0, material);
         }
     },
     

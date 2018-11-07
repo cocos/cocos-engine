@@ -173,12 +173,13 @@ ModelBatcher.prototype = {
     },
 
     _commitComp (comp, assembler, cullingMask) {
-        if (this.material._hash != comp._material._hash || 
+        let material = comp.sharedMaterials[0];
+        if ((material && material._hash !== this.material._hash) || 
             this.cullingMask !== cullingMask) {
             this._flush();
     
             this.node = assembler.useModel ? comp.node : this._dummyNode;
-            this.material = comp._material;
+            this.material = material;
             this.cullingMask = cullingMask;
         }
     
@@ -188,7 +189,7 @@ ModelBatcher.prototype = {
     _commitIA (comp, assembler, cullingMask) {
         this._flush();
         this.cullingMask = cullingMask;
-        this.material = comp._material;
+        this.material = comp.sharedMaterials[0] || empty_material;
         this.node = assembler.useModel ? comp.node : this._dummyNode;
 
         assembler.renderIA(comp, this);
