@@ -1108,7 +1108,7 @@ var BaseNode = cc.Class({
      */
     destroyAllChildren () {
         var children = this._children;
-        for (var i = 0; i < children.length; ++i) {
+        for (let i = children.length - 1; i >= 0; i--) {
             children[i].destroy();
         }
     },
