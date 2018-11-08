@@ -13,6 +13,9 @@ let whitespaces = /\s+/g;
 let ident = /^[_a-zA-Z]\w*$/;
 let comparators = /^[<=>]+$/;
 let ifprocessor = /#(el)?if/;
+let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
+let defaultPragma = /default\(([\d.,]+)\)/;
+let namePragma = /name\(([^)]+)\)/;
 
 // (HACKY) extract all builtin uniforms to the ignore list
 let uniformIgnoreList = (function() {
@@ -24,7 +27,7 @@ let uniformIgnoreList = (function() {
   return result;
 })();
 
-function convertType(t) { return mappings.typeParams[t]; }
+function convertType(t) { let tp = mappings.typeParams[t]; return tp === undefined ? t : tp; }
 
 function unwindIncludes(str, chunks) {
   function replace(match, include) {
@@ -85,6 +88,15 @@ function extractDefines(tokens, defines, cache) {
     } else if (str[0] === '#pragma') {
       if (str[1] === 'for') { curDefs.push(0); save(t.line); }
       else if (str[1] === 'endFor') { curDefs.pop(); save(t.line); }
+      else if (str[1][0] === '#') cache[t.line] = str.splice(1);
+      else {
+        let mc = rangePragma.exec(t.data);
+        if (!mc) continue;
+        let def = defines.find(d => d.name === mc[2]);
+        if (!def) defines.push(def = { name: mc[2] });
+        def.type = 'number';
+        def.range = JSON.parse(`[${mc[1]}]`);
+      }
       continue;
     } else if (!ifprocessor.test(str[0])) continue;
     if (str[0] === '#elif') { curDefs.pop(); save(t.line); }
@@ -136,7 +148,26 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
     if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
     if (dest === extensions) param.name = str.split(whitespaces)[1];
-    else { param.name = tokens[i+4].data; param.type = convertType(tokens[i+2].data); }
+    else { // uniforms and attributes
+      param.name = tokens[i+4].data;
+      param.type = convertType(tokens[i+2].data);
+      let tags = cache[t.line - 1];
+      if (tags && tags[0][0] === '#') { // tags
+        let mc = defaultPragma.exec(tags.join(''));
+        if (mc && mc[1].length > 0) {
+          mc = JSON.parse(`[${mc[1]}]`);
+          if (mc.length === 1) param.value = mc[0];
+          else param.value = mc;
+        }
+        mc = namePragma.exec(tags.join(' '));
+        if (mc) param.displayName = mc[1];
+        for (let j = 0; j < tags.length; j++) {
+          let tag = tags[j];
+          if (tag === '#color') param.type = convertType(param.type);
+          else if (tag === '#property') param.property = true;
+        }
+      }
+    }
     param.defines = defines;
     dest.push(param);
   }

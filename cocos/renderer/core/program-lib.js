@@ -108,14 +108,9 @@ export default class ProgramLib {
       let cnt = 1;
 
       if (def.type === 'number') {
-        // the default value range is true for all built-in programs,
-        // and we assume that it will stay true for all conceivable cases,
-        // to be able to auto-generate relative infos directly from shaders.
-        // so if you really need to have a different range,
-        // change the auto-generated program object
-        // manually before passing into this function.
-        def.min = def.min || 0;
-        def.max = def.max || 4;
+        let range = def.range || [];
+        def.min = range[0] || 0;
+        def.max = range[1] || 4;
         cnt = Math.ceil(Math.log2(def.max - def.min));
 
         def._map = function (value) {

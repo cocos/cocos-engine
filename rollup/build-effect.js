@@ -10,8 +10,7 @@ function mapPassParam(p) {
   switch (typeof p) {
   case 'string':
     num = parseInt(p);
-    if (isNaN(num)) mappings.passParams[p];
-    return num;
+    return isNaN(num) ? mappings.passParams[p] : num;
   case 'object':
     return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
   }

@@ -168,6 +168,13 @@ let getInvolvedPrograms = function(json) {
 };
 let parseProperties = function(json, programs) {
     let props = {};
+    // properties may be specified in the shader too
+    programs.forEach(pg => {
+        pg.uniforms.forEach(prop => {
+            if (!prop.property) return;
+            props[prop] = getInstanceCtor(prop.type)(prop.value);
+        });
+    });
     for (let prop in json.properties) {
         let info = json.properties[prop], type;
         // always try getting the type from shaders first
@@ -234,14 +241,12 @@ Effect.parseEffect = function(json) {
             passes[k] = new Pass(pass.program);
             passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
-            if (pass.blend) passes[k].setBlend(pass.blendEq, pass.blendSrc,
+            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
                 pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
-            if (pass.stencilTest) {
-                passes[k].setStencilFront(pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
-                    pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
-                passes[k].setStencilBack(pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
-                    pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
-            }
+            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
@@ -250,9 +255,10 @@ Effect.parseEffect = function(json) {
     programs.forEach(p => {
         p.uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            // user defined type override
-            if (props[name]) uniform.type = json.properties[name].type;
-            uniform.value = props[name] || getInstanceCtor(u.type)();
+            // effect type override
+            if (props[name] && json.properties[name].type !== undefined)
+                uniform.type = json.properties[name].type;
+            uniform.value = props[name] || getInstanceCtor(uniform.type)(u.value);
         });
     });
     // defines

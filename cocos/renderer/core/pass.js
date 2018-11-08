@@ -49,6 +49,7 @@ export default class Pass {
   }
 
   setBlend(
+    enabled = false,
     blendEq = gfx.BLEND_FUNC_ADD,
     blendSrc = gfx.BLEND_ONE,
     blendDst = gfx.BLEND_ZERO,
@@ -57,7 +58,7 @@ export default class Pass {
     blendDstAlpha = gfx.BLEND_ZERO,
     blendColor = 0xffffffff
   ) {
-    this._blend = true;
+    this._blend = enabled;
     this._blendEq = blendEq;
     this._blendSrc = blendSrc;
     this._blendDst = blendDst;

@@ -18,7 +18,9 @@ const typeParams = {
   mat3: rendererEnums.PARAM_MAT3,
   mat4: rendererEnums.PARAM_MAT4,
   sampler2D: rendererEnums.PARAM_TEXTURE_2D,
-  samplerCube: rendererEnums.PARAM_TEXTURE_CUBE
+  samplerCube: rendererEnums.PARAM_TEXTURE_CUBE,
+  [rendererEnums.PARAM_FLOAT3]: rendererEnums.PARAM_COLOR3,
+  [rendererEnums.PARAM_FLOAT4]: rendererEnums.PARAM_COLOR4
 };
 
 const passParams = {
