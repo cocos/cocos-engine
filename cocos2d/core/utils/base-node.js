@@ -1091,7 +1091,7 @@ var BaseNode = cc.Class({
 
     destroy () {
         if (cc.Object.prototype.destroy.call(this)) {
-            this.parent = null;
+            this.active = false;
         }
     },
 
