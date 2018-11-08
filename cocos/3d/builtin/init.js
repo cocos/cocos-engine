@@ -162,10 +162,7 @@ let builtinResMgr = {
         // ============================
 
         this.loadBuiltinEffect();
-        Object.values(this.effects).forEach(effect => {
-            Effect.registerEffect(effect);
-        });
-
+        
         // ============================
         // builtin materials
         // ============================

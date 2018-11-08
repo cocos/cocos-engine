@@ -73,10 +73,6 @@ class Material extends Asset {
                 return;
             }
             this._effect = Effect.parseEffect(effectAsset);
-            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
-            this._props = propCls ? new propCls() : {};
-            let defCls = cc.js.getClassByName(Effect.getDefineClassName(effectAsset));
-            this._defines = defCls ? new defCls() : {};
         }
     }
 
@@ -94,13 +90,12 @@ class Material extends Asset {
     copy(mat) {
         this.effectName = mat.effectName;
 
-        Object.keys(mat._defines).forEach(name => {
+        for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
-        });
-
-        Object.keys(mat._props).forEach(name => {
+        }
+        for (let name in mat._props) {
             this.setProperty(name, mat._props[name]);
-        });
+        }
     }
 
     /**
@@ -131,19 +126,6 @@ class Material extends Asset {
         }
     }
 
-    _deserialize(data) {
-        this.effectName = data._effectName;
-
-        let defines = cc.deserialize(data._defines);
-        Object.keys(defines).forEach(name => {
-            this.define(name, defines[name]);
-        });
-        let props = cc.deserialize(data.props);
-        Object.keys(props).forEach(name => {
-            this.setProperty(name, props[name]);
-        });
-    }
-
     static getInstantiatedMaterial(mat, rndCom) {
         if (mat._owner === rndCom) {
             return mat;
@@ -158,15 +140,48 @@ class Material extends Asset {
     }
 }
 
-if (CC_EDITOR) {
-    Material.prototype._serialize = function() {
-        return {
-            effectName: this._effectName,
-            props: Editor.serialize(this._props),
-            defines: Editor.serialize(this._defines)
-        };
+Material.prototype._serialize = function() {
+    return {    
+        effectName: this._effectName,
+        props: Editor.serialize(this._props),
+        defines: Editor.serialize(this._defines),
     };
-}
+};
+
+Material.prototype._deserialize = (function () {
+    function loadAsset (handle, target, name, uuid) {
+        let depend = {
+            set asset (asset) {
+                target.setProperty(name, asset);
+            }
+        };
+        handle.result.push(depend, 'asset', uuid);
+    }
+    return function (data, handle) {
+        this.effectName = data.effectName;
+
+        let props = cc.deserialize(data.props);
+        let propNames = Object.keys(props);
+        for (let i = 0; i < propNames.length; i++) {
+            let name = propNames[i];
+            let prop = props[name];
+            
+            if (prop.uuid) {
+                // load prop as an asset
+                loadAsset(handle, this, name, prop.uuid);
+                continue;
+            }
+            this.setProperty(name, props[name]);
+        }
+
+        let defines = cc.deserialize(data.defines);
+        let defineNames = Object.keys(defines);
+        for (let i = 0; i < defineNames.length; i++) {
+            let name = defineNames[i];
+            this.define(name, defines[name]);
+        }
+    };
+})();
 
 export default Material;
 cc.Material = Material;

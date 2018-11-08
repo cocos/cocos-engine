@@ -200,33 +200,6 @@ let parseProperties = function(json, programs) {
     return props;
 };
 
-Effect.getPropertyClassName = function(json) {
-    return `cc.Effect.${json._uuid}.Props`;
-};
-
-Effect.getDefineClassName = function(json) {
-    return `cc.Effect.${json._uuid}.Defines`;
-};
-
-Effect.registerEffect = function(json) {
-    let programs = getInvolvedPrograms(json);
-    let properties = parseProperties(json, programs), defines = {};
-    // add all the defines too, for now
-    programs.forEach(program => {
-        program.defines.forEach(define => {
-            defines[define.name] = getInstanceCtor(define.type)();
-        });
-    });
-    cc.Class({
-        name: Effect.getPropertyClassName(json),
-        properties,
-    });
-    cc.Class({
-        name: Effect.getDefineClassName(json),
-        properties: defines,
-    });
-};
-
 Effect.parseEffect = function(json) {
     let programs = getInvolvedPrograms(json);
     // techniques
@@ -274,22 +247,28 @@ Effect.parseEffect = function(json) {
 
 if (CC_EDITOR) {
     Effect.parseType = function(json) {
-        let lib = cc.game._renderer._programLib, types = {};
+        let lib = cc.game._renderer._programLib, propTypes = {}, defTypes = {};
         let props = json.properties;
         json.techniques.forEach(tech => {
             tech.passes.forEach(pass => {
                 let program = lib.getTemplate(pass.program);
                 program.defines.forEach(define => {
-                    types[define.name] = getInstanceType(define.type);
+                    defTypes[define.name] = { type: getInstanceType(define.type) };
                 });
                 program.uniforms.forEach(uniform => {
                     let name = uniform.name, prop = props[name];
                     if (!prop) return; // don't add if not in the property list
-                    types[name] = getInstanceType(prop.type || uniform.type);
+                    propTypes[name] = {
+                        name: uniform.displayName,
+                        type: getInstanceType(prop.type || uniform.type)
+                    };
                 });
             });
         });
-        return types;
+        return {
+            props: propTypes,
+            defines: defTypes
+        };
     };
 }
 

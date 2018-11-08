@@ -16,6 +16,7 @@ let ifprocessor = /#(el)?if/;
 let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
 let defaultPragma = /default\(([\d.,]+)\)/;
 let namePragma = /name\(([^)]+)\)/;
+let precision = /(low|medium|high)p/;
 
 // (HACKY) extract all builtin uniforms to the ignore list
 let uniformIgnoreList = (function() {
@@ -149,8 +150,9 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
     if (dest === extensions) param.name = str.split(whitespaces)[1];
     else { // uniforms and attributes
-      param.name = tokens[i+4].data;
-      param.type = convertType(tokens[i+2].data);
+      let offset = precision.exec(tokens[i+2].data) ? 4 : 2;
+      param.name = tokens[i+offset+2].data;
+      param.type = convertType(tokens[i+offset].data);
       let tags = cache[t.line - 1];
       if (tags && tags[0][0] === '#') { // tags
         let mc = defaultPragma.exec(tags.join(''));
@@ -188,6 +190,7 @@ function buildTemplates(dest, path, cache) {
     let vert = fs.readFileSync(path_.join(dir, name + '.vert'), { encoding: 'utf8' });
     vert = glslStripComment(vert);
     vert = unwindIncludes(vert, cache);
+    vert = expandStructMacro(vert);
     tokens = tokenizer(vert);
     extractDefines(tokens, defines, defCache);
     extractParams(tokens, defCache, uniforms, attributes, extensions);
@@ -196,6 +199,7 @@ function buildTemplates(dest, path, cache) {
     let frag = fs.readFileSync(path_.join(dir, name + '.frag'), { encoding: 'utf8' });
     frag = glslStripComment(frag);
     frag = unwindIncludes(frag, cache);
+    frag = expandStructMacro(frag);
     tokens = tokenizer(frag);
     extractDefines(tokens, defines, defCache);
     extractParams(tokens, defCache, uniforms, attributes, extensions);
