@@ -93,8 +93,18 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
-        material.texture = tex;
-        material.updateHash(key);
+        let key_stencil = tex.url + src + dst + STENCIL_SEP;
+        for (var i = 0; ; ++i) {
+            var newKey = key_stencil + i.toString();
+            material = _sharedMaterials[newKey];
+            if (material) {
+                material.texture = tex;
+                material.updateHash(newKey);
+            }
+            else {
+                break;
+            }
+        }
     }
     return material;
 }
