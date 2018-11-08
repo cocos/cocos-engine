@@ -46,10 +46,61 @@ se::Object* __glObj = nullptr;
 
 static ThreadPool* __threadPool = nullptr;
 
+static std::shared_ptr<cocos2d::network::Downloader> _localDownloader = nullptr;
+static std::map<std::string, std::function<void(const std::string&, unsigned char*, int )>> _localDownloaderHandlers;
+static uint64_t _localDownloaderTaskId = 1000000;
 static std::string xxteaKey = "";
 void jsb_set_xxtea_key(const std::string& key)
 {
     xxteaKey = key;
+}
+
+static cocos2d::network::Downloader *localDownloader()
+{
+    if(!_localDownloader)
+    {
+        _localDownloader = std::make_shared<cocos2d::network::Downloader>();
+        _localDownloader->onDataTaskSuccess = [=](const cocos2d::network::DownloadTask& task,
+                                            std::vector<unsigned char>& data) {
+            if(data.empty())
+            {
+                SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
+                return;
+            }
+
+            auto callback = _localDownloaderHandlers.find(task.identifier);
+            if(callback == _localDownloaderHandlers.end())
+            {
+                SE_REPORT_ERROR("Getting image from (%s), callback not found!!", task.requestURL.c_str());
+                return;
+            }
+            size_t imageBytes = data.size();
+            unsigned char* imageData = (unsigned char*)malloc(imageBytes);
+            memcpy(imageData, data.data(), imageBytes);
+
+            (callback->second)("", imageData, imageBytes);
+            //initImageFunc("", imageData, imageBytes);
+            _localDownloaderHandlers.erase(callback);
+        };
+        _localDownloader->onTaskError = [=](const cocos2d::network::DownloadTask& task,
+                                      int errorCode,
+                                      int errorCodeInternal,
+                                      const std::string& errorStr) {
+
+            SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
+            _localDownloaderHandlers.erase(task.identifier);
+        };
+    }
+    return _localDownloader.get();
+}
+
+static void localDownloaderCreateTask(const std::string &url, std::function<void(const std::string&, unsigned char*, int )> callback)
+{
+    std::stringstream ss;
+    ss << "jsb_loadimage_" << (_localDownloaderTaskId++);
+    std::string key = ss.str();
+    auto task = localDownloader()->createDownloadDataTask(url, key);
+    _localDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
 static const char* BYTE_CODE_FILE_EXT = ".jsc";
@@ -796,25 +847,7 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
     if (path.find("http://") == 0 || path.find("https://") == 0)
     {
 #if USE_NET_WORK
-        auto request = new cocos2d::network::HttpRequest();
-        request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
-        request->setUrl(path);
-        request->setResponseCallback([=](cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response){
-            auto data = response->getResponseData();
-            if (data != nullptr && !data->empty())
-            {
-                int imageBytes = (int)data->size();
-                unsigned char* imageData = (unsigned char*)malloc(imageBytes);
-                memcpy(imageData, data->data(), imageBytes);
-                initImageFunc("", imageData, imageBytes);
-            }
-            else
-            {
-                SE_REPORT_ERROR("Getting image from (%s) failed!", path.c_str());
-            }
-        });
-        cocos2d::network::HttpClient::getInstance()->send(request);
-        request->release();
+        localDownloaderCreateTask(path, initImageFunc);
 #else
         SE_REPORT_ERROR("can't load remote image if you disable network module!");
 #endif // USE_NET_WORK
