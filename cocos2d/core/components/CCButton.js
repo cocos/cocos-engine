@@ -207,6 +207,7 @@ let Button = cc.Class({
             notify (oldValue) {
                 this._updateTransition(oldValue);
             },
+            formerlySerializedAs: 'transition'
         },
 
         // color transition
@@ -242,7 +243,8 @@ let Button = cc.Class({
                     this.target.opacity = this.pressedColor.a;
                 }
                 this._updateState();
-            }
+            },
+            formerlySerializedAs: 'pressedColor'
         },
 
         /**
@@ -259,7 +261,8 @@ let Button = cc.Class({
                     this.target.opacity = this.hoverColor.a;
                 }
                 this._updateState();
-            }
+            },
+            formerlySerializedAs: 'hoverColor'
         },
 
         /**
