@@ -191,7 +191,7 @@ public class CanvasRenderingContext2DImpl {
         if(obliqueFont) {
             paint.setTextSkewX(_sApproximatingOblique);
         }
-        if(smallCapsFontVariant && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if(smallCapsFontVariant && Build.VERSION.SDK_INT >= 21) {
             paint.setFontFeatureSettings("smcp");
         }
         return paint;
