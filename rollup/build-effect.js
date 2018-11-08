@@ -24,6 +24,7 @@ function buildEffects(dest, path) {
     let file = files[i];
     let dir = path_.dirname(file);
     let name = path_.basename(file, '.json');
+    if (name === 'index') continue;
 
     let json = fs.readFileSync(path_.join(dir, name + '.json'), { encoding: 'utf8' });
     json = JSON.parse(json);
@@ -44,15 +45,13 @@ function buildEffects(dest, path) {
     }
 
     code += '  {\n';
-    code += `    name: '${name}',\n`;
-    code += `    techniques: ${JSON.stringify(json.techniques)},\n`;
-    code += `    properties: ${JSON.stringify(json.properties)},\n`;
+    code += `    "name": "${name}",\n`;
+    code += `    "techniques": ${JSON.stringify(json.techniques)},\n`;
+    code += `    "properties": ${JSON.stringify(json.properties)}\n`;
     code += '  },\n';
   }
-  code = `export default [\n${code}];`;
 
-  //console.log(`code =  ${code}`);
-  fs.writeFileSync(dest, code, { encoding: 'utf8' });
+  fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]`, { encoding: 'utf8' });
 }
 
 // ============================================================
@@ -60,6 +59,6 @@ function buildEffects(dest, path) {
 // ============================================================
 
 let effectsPath = './cocos/3d/builtin/effects';
-let effectsFile = path_.join(effectsPath, 'index.js');
+let effectsFile = path_.join(effectsPath, 'index.json');
 console.log(`generate ${effectsFile}`);
 buildEffects(effectsFile, effectsPath);

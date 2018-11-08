@@ -5,9 +5,6 @@ import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/v
 import { intersect } from '../../3d/geom-utils';
 
 import enums from '../enums';
-import shaderChunks from '../shaders/chunks/index';
-import shaderTemplates from '../shaders/templates/index';
-import ProgramLib from './program-lib';
 import View from './view';
 
 let _m3_tmp = mat3.create();
@@ -289,7 +286,7 @@ export default class BaseRenderer {
    */
   constructor(device) {
     this._device = device;
-    this._programLib = new ProgramLib(device, shaderTemplates, shaderChunks);
+    this._programLib = null;
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
       [enums.PARAM_INT2]: vec2.create(0, 0),
@@ -351,6 +348,7 @@ export default class BaseRenderer {
    */
   setBuiltins(opts) {
     this._opts = opts;
+    this._programLib = opts.programLib;
     this._type2defaultValue[enums.PARAM_TEXTURE_2D] = opts.defaultTexture;
     this._type2defaultValue[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube;
   }

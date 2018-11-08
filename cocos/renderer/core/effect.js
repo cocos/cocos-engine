@@ -6,8 +6,8 @@ import Pass from './pass';
 import Technique from './technique';
 import { Vec2, Vec3, Vec4, Color, Mat4 } from '../../core/value-types';
 import { CCObject } from '../../core/data';
-import gfx from '../gfx';
-const { Texture2D, TextureCube } = gfx;
+import Texture2D from '../../assets/CCTexture2D';
+import TextureCube from '../../3d/assets/texture-cube';
 
 let _typeMap = {
     [enums.PARAM_INT]: Number,
@@ -172,7 +172,7 @@ let parseProperties = function(json, programs) {
     programs.forEach(pg => {
         pg.uniforms.forEach(prop => {
             if (!prop.property) return;
-            props[prop] = getInstanceCtor(prop.type)(prop.value);
+            props[prop.name] = getInstanceCtor(prop.type)(prop.value);
         });
     });
     for (let prop in json.properties) {

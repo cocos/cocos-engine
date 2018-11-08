@@ -348,34 +348,35 @@ var game = {
 
     //  @Game loading
 
-    _initEngine() {
-        if (this._rendererInitialized) {
-            return;
-        }
+    _initEngine(cb) {
+        if (this._rendererInitialized) return;
 
-        this._initRenderer();
+        this._initRenderer(() => {
+            this._rendererInitialized = true;
+            this.emit(this.EVENT_ENGINE_INITED);
+            if (cb) cb();
+        });
 
         if (!CC_EDITOR) {
             this._initEvents();
         }
-
-        this.emit(this.EVENT_ENGINE_INITED);
     },
 
     _prepareFinished(cb) {
         this._prepared = true;
 
         // Init engine
-        this._initEngine();
-        // Log engine version
-        console.log('Cocos3D v' + cc.ENGINE_VERSION);
+        this._initEngine(() => {
+            // Log engine version
+            console.log('Cocos3D v' + cc.ENGINE_VERSION);
 
-        this._setAnimFrame();
-        this._runMainLoop();
+            this._setAnimFrame();
+            this._runMainLoop();
 
-        this.emit(this.EVENT_GAME_INITED);
+            this.emit(this.EVENT_GAME_INITED);
 
-        if (cb) cb();
+            if (cb) cb();
+        });
     },
 
     eventTargetOn: EventTarget.prototype.on,
@@ -679,9 +680,19 @@ var game = {
         }
     },
 
-    _initRenderer() {
+    _initRenderer(cb) {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
+
+        function addClass(element, name) {
+            var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
+            if (!hasClass) {
+                if (element.className) {
+                    element.className += " ";
+                }
+                element.className += name;
+            }
+        }
 
         let el = this.config.id,
             width, height,
@@ -735,15 +746,6 @@ var game = {
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-            function addClass(element, name) {
-                var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-                if (!hasClass) {
-                    if (element.className) {
-                        element.className += " ";
-                    }
-                    element.className += name;
-                }
-            }
             addClass(localCanvas, "gameCanvas");
             localCanvas.setAttribute("width", width || 480);
             localCanvas.setAttribute("height", height || 320);
@@ -772,10 +774,14 @@ var game = {
                 renderer.addStage('shadowcast');
                 this._renderer = new renderer.ForwardRenderer(device);
 
-                this._builtins = builtinResMgr.initBuiltinRes(device);
-                this._renderer.setBuiltins({
-                    defaultTexture: this._builtins['default-texture']._texture,
-                    defaultTextureCube: this._builtins['default-texture-cube']._texture,
+                builtinResMgr.initBuiltinRes(device, builtins => {
+                    this._builtins = builtins;
+                    this._renderer.setBuiltins({
+                        programLib: builtins['program-lib'],
+                        defaultTexture: builtins['default-texture']._texture,
+                        defaultTextureCube: builtins['default-texture-cube']._texture
+                    });
+                    if (cb) cb();
                 });
             }
             // renderer.initWebGL(localCanvas, opts);
@@ -798,7 +804,6 @@ var game = {
             if (!cc._isContextMenuEnable) return false;
         };
 
-        this._rendererInitialized = true;
     },
 
     _initEvents: function () {
