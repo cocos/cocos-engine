@@ -724,7 +724,7 @@ function initSys () {
              * Indicate the running platform
              * @property {Number} platform
              */
-            if (typeof FbPlayableAd !== undefined) {
+            if (typeof FbPlayableAd !== "undefined") {
                 sys.platform = sys.FB_PLAYABLE_ADS;
             }
             else {
@@ -1143,7 +1143,7 @@ function initSys () {
     };
 
     /**
-     * !#en 
+     * !#en
      * Return the safe area rect. <br/>
      * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
      * !#zh
