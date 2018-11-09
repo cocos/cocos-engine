@@ -118,17 +118,6 @@ let Material = cc.Class({
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val._texture);
-            } 
-            else if (val instanceof Color) {
-                let color = this._effect.getProperty(name);
-                if (!color) {
-                    color = cc.color();
-                }
-                color.r = val.r / 255;
-                color.g = val.g / 255;
-                color.b = val.b / 255;
-                color.a = val.a / 255;
-                this._effect.setProperty(name, color);
             }
             else {
                 this._effect.setProperty(name, val);
@@ -213,7 +202,7 @@ let Material = cc.Class({
                     this.target = null;
                     dependsPool.remove(dependsPool.data.indexOf(this));
                 }
-            }
+            };
         }, 1);
 
         function loadAsset (handle, target, propName, uuid) {

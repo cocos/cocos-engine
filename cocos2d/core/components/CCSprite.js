@@ -28,9 +28,6 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
-const renderEngine = require('../renderer/render-engine');
-const SpriteMaterial = renderEngine.SpriteMaterial;
-const GraySpriteMaterial = renderEngine.GraySpriteMaterial;
 
 const Material = require('../assets/CCMaterial');
 
@@ -159,7 +156,6 @@ var Sprite = cc.Class({
     extends: RenderComponent,
 
     ctor () {
-        this._assembler = null;
         this._graySpriteMaterial = null;
         this._spriteMaterial = null;
     },
@@ -488,21 +484,34 @@ var Sprite = cc.Class({
 
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            // Get material
-            let material;
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+
+            let material = this.sharedMaterials[0];
+            // if material is not internal material, then need do nothing
+            if (material && material!== this._graySpriteMaterial && material !== this._spriteMaterial) {
+                return;
+            }
+
             if (this._state === State.GRAY) {
-                if (!this._graySpriteMaterial) {
-                    this._graySpriteMaterial = new GraySpriteMaterial();
-                }
                 material = this._graySpriteMaterial;
+                if (!material) {
+                    let builtinMaterial = cc.Asset.getBuiltin('builtin-material-gray-sprite');
+                    material = this._graySpriteMaterial = Material.getInstantiatedMaterial(builtinMaterial, this);
+                }
+
+                this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
             }
             else {
-                if (!this._spriteMaterial) {
-                    this._spriteMaterial = new Material('builtin-effect-sprite');
-                }
                 material = this._spriteMaterial;
+                if (!material) {
+                    let builtinMaterial = cc.Asset.getBuiltin('builtin-material-sprite');
+                    material = this._spriteMaterial = Material.getInstantiatedMaterial(builtinMaterial, this);
+                    material.define('useColor', true);
+                    material.define('useTexture', true);
+                }
+                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
             }
-            material.define('useTexture', true);
             
             // Set texture
             if (spriteFrame && spriteFrame.textureLoaded()) {
@@ -514,13 +523,10 @@ var Sprite = cc.Class({
                 else if (material !== this.sharedMaterials[0]) {
                     this.setMaterial(0, material);
                 }
+
                 if (this._renderData) {
                     this._renderData.material = material;
                 }
-
-                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
-                this.markForUpdateRenderData(true);
-                this.markForRender(true);
             }
             else {
                 this.disableRender();

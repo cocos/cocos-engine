@@ -247,7 +247,6 @@ var MotionStreak = cc.Class({
         }
         
         if (this._texture && this._texture.loaded) {
-            material.texture = this._texture;
             material.setProperty('texture', this._texture);
             this.setMaterial(0, material);
             this.markForRender(true);

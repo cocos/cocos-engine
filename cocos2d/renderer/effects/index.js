@@ -1,4 +1,3 @@
-import Effect from '../effect';
 import effectJsons from './effects';
 
 let effects = {};

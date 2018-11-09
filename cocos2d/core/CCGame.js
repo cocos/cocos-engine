@@ -31,6 +31,7 @@ const renderer = require('./renderer/index.js');
 const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manager');
 const effects = require('../renderer/effects');
+const materials = require('../renderer/materials');
 
 /**
  * @module cc
@@ -372,11 +373,16 @@ var game = {
         this.emit(this.EVENT_ENGINE_INITED);
     },
 
+    _loadBuiltinAsset () {
+        cc.Asset._initBuiltins(Object.assign({}, effects, materials.get()));
+    },
+
     _prepareFinished (cb) {
         this._prepared = true;
 
         // Init engine
         this._initEngine();
+        this._loadBuiltinAsset();
         // Log engine version
         console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 
@@ -650,8 +656,6 @@ var game = {
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
-
-        this._builtins = effects;
 
         debug._resetDebugSetting(config.debugMode);
 

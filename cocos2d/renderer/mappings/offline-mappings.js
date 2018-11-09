@@ -18,7 +18,9 @@ const typeParams = {
   mat3: rendererEnums.PARAM_MAT3,
   mat4: rendererEnums.PARAM_MAT4,
   sampler2D: rendererEnums.PARAM_TEXTURE_2D,
-  samplerCube: rendererEnums.PARAM_TEXTURE_CUBE
+  samplerCube: rendererEnums.PARAM_TEXTURE_CUBE,
+  [rendererEnums.PARAM_FLOAT3]: rendererEnums.PARAM_COLOR3,
+  [rendererEnums.PARAM_FLOAT4]: rendererEnums.PARAM_COLOR4
 };
 
 const passParams = {
@@ -43,8 +45,22 @@ const passParams = {
   constAlpha: enums.BLEND_CONSTANT_ALPHA,
   oneMinusConstAlpha: enums.BLEND_ONE_MINUS_CONSTANT_ALPHA,
   srcAlphaSaturate: enums.BLEND_SRC_ALPHA_SATURATE,
-  [true]: true,
-  [false]: false
+  
+  never: enums.DS_FUNC_NEVER,
+  less: enums.DS_FUNC_LESS,
+  equal: enums.DS_FUNC_EQUAL,
+  lequal: enums.DS_FUNC_LEQUAL,
+  greater: enums.DS_FUNC_GREATER,
+  notEqual: enums.DS_FUNC_NOTEQUAL,
+  gequal: enums.DS_FUNC_GEQUAL,
+  always: enums.DS_FUNC_ALWAYS,
+   keep: enums.STENCIL_OP_KEEP,
+  replace: enums.STENCIL_OP_REPLACE,
+  incr: enums.STENCIL_OP_INCR,
+  incr_wrap: enums.STENCIL_OP_INCR_WRAP,
+  decr: enums.STENCIL_OP_DECR,
+  decr_wrap: enums.STENCIL_OP_DECR_WRAP,
+  invert: enums.STENCIL_OP_INVERT
 };
 
 let mappings = {

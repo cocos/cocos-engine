@@ -1,12 +1,11 @@
 export default [
   {
-    name: 'gray_sprite',
+    name: 'gray-sprite',
     vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute mediump vec2 a_uv0;\nvarying mediump vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  gl_Position = pos;\n  uv0 = a_uv0;\n}',
-    frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\nuniform lowp vec4 color;\nvoid main () {\n  vec4 c = color * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\nvoid main () {\n  vec4 c = texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
     defines: [],
     uniforms: [
-      {"name": "texture", "type": 13, "defines": []},
-      {"name": "color", "type": 7, "defines": []}
+      {"name": "texture", "type": 13, "defines": []}
     ],
     attributes: [
       {"name": "a_position", "type": 6, "defines": []},

@@ -218,4 +218,18 @@ cc.Asset = cc.Class({
     }
 });
 
+let _builts = {};
+
+cc.Asset._initBuiltins = function (builts) {
+    _builts = builts;
+};
+
+cc.Asset.getBuiltin = function (name) {
+    return _builts[name];
+};
+
+cc.Asset.getBuiltins = function () {
+    return _builts;
+};
+
 module.exports = cc.Asset;

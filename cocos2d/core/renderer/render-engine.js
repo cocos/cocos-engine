@@ -7228,10 +7228,11 @@ color4.str = function (a) {
  * @returns {array}
  */
 color4.array = function (out, a) {
-  out[0] = a.r;
-  out[1] = a.g;
-  out[2] = a.b;
-  out[3] = a.a;
+  let scale = a instanceof cc.Color ? 1 / 255 : 1;
+  out[0] = a.r * scale;
+  out[1] = a.g * scale;
+  out[2] = a.b * scale;
+  out[3] = a.a * scale;
 
   return out;
 };
@@ -10361,6 +10362,7 @@ Pass.prototype.setCullMode = function setCullMode (cullMode) {
 };
 
 Pass.prototype.setBlend = function setBlend (
+  enabled,
   blendEq,
   blendSrc,
   blendDst,
@@ -10369,6 +10371,7 @@ Pass.prototype.setBlend = function setBlend (
   blendDstAlpha,
   blendColor
 ) {
+    if ( enabled === void 0 ) enabled = false;
     if ( blendEq === void 0 ) blendEq = gfx.BLEND_FUNC_ADD;
     if ( blendSrc === void 0 ) blendSrc = gfx.BLEND_ONE;
     if ( blendDst === void 0 ) blendDst = gfx.BLEND_ZERO;
@@ -10377,7 +10380,7 @@ Pass.prototype.setBlend = function setBlend (
     if ( blendDstAlpha === void 0 ) blendDstAlpha = gfx.BLEND_ZERO;
     if ( blendColor === void 0 ) blendColor = 0xffffffff;
 
-  this._blend = true;
+  this._blend = enabled;
   this._blendEq = blendEq;
   this._blendSrc = blendSrc;
   this._blendDst = blendDst;
@@ -12943,14 +12946,9 @@ ProgramLib.prototype.define = function define (prog) {
     let cnt = 1;
 
     if (def.type === 'number') {
-      // the default value range is true for all built-in programs,
-      // and we assume that it will stay true for all conceivable cases,
-      // to be able to auto-generate relative infos directly from shaders.
-      // so if you really need to have a different range,
-      // change the auto-generated program object
-      // manually before passing into this function.
-      def.min = def.min || 0;
-      def.max = def.max || 4;
+      let range = def.range || [];
+      def.min = range[0] || 0;
+      def.max = range[1] || 4;
       cnt = Math.ceil(Math.log2(def.max - def.min));
 
       def._map = function (value) {

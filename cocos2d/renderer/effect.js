@@ -30,9 +30,9 @@ let getInstanceType = function(t) { return _typeMap[t] || _typeMap.default; };
 let typeTest = function(value, type) {
     let instanceType = getInstanceType(type);
     switch (typeof value) {
-        case 'object': return (value === null) || (value instanceof instanceType);
-        case 'number': return instanceType === Number;
-        default: return false;
+    case 'object': return (value === null) || (value instanceof instanceType);
+    case 'number': return instanceType === Number;
+    default: return false;
     }
 };
 
@@ -167,6 +167,13 @@ let getInvolvedPrograms = function(json) {
 };
 let parseProperties = function(json, programs) {
     let props = {};
+    // properties may be specified in the shader too
+    programs.forEach(pg => {
+        pg.uniforms.forEach(prop => {
+            if (!prop.property) return;
+            props[prop.name] = getInstanceCtor(prop.type)(prop.value);
+        });
+    });
     for (let prop in json.properties) {
         let info = json.properties[prop], type;
         // always try getting the type from shaders first
@@ -192,40 +199,6 @@ let parseProperties = function(json, programs) {
     return props;
 };
 
-Effect.getPropertyClassName = function(json) {
-    return `cc.Effect.${json._uuid}.Props`;
-};
-Effect.getDefineClassName = function(json) {
-    return `cc.Effect.${json._uuid}.Defines`;
-};
-
-Effect.parseType = function(json) {
-    let lib = cc.renderer._forward._programLib, 
-        propTypes = {},
-        defineTypes = {};
-
-    let props = json.properties;
-    // load default type from involved shaders
-    json.techniques.forEach(tech => {
-        tech.passes.forEach(pass => {
-            let program = lib.getTemplate(pass.program);
-            program.defines.forEach(define => {
-                defineTypes[define.name] = getInstanceType(define.type);
-            });
-            program.uniforms.forEach(uniform => {
-                let name = uniform.name, prop = props[name];
-                if (!prop) return; // don't add if not in the property list
-                propTypes[name] = getInstanceType(prop.type || uniform.type);
-            });
-        });
-    });
-
-    return {
-        props: propTypes,
-        defines: defineTypes
-    };
-};
-
 Effect.parseEffect = function(json) {
     let programs = getInvolvedPrograms(json);
     // techniques
@@ -238,10 +211,14 @@ Effect.parseEffect = function(json) {
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
-            if (pass.blend) passes[k].setBlend(pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha);
+            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
+                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
+            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
@@ -250,9 +227,10 @@ Effect.parseEffect = function(json) {
     programs.forEach(p => {
         p.uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            // user defined type override
-            if (props[name]) uniform.type = json.properties[name].type;
-            uniform.value = props[name] || getInstanceCtor(u.type)();
+            // effect type override
+            if (props[name] && json.properties[name].type !== undefined)
+                uniform.type = json.properties[name].type;
+            uniform.value = props[name] || getInstanceCtor(uniform.type)(u.value);
         });
     });
     // defines
@@ -265,6 +243,36 @@ Effect.parseEffect = function(json) {
 
     return new Effect(techniques, uniforms, defines, extensions);
 };
+
+if (CC_EDITOR) {
+    Effect.parseType = function(json) {
+        let lib = cc.renderer._forward._programLib, propTypes = {}, defTypes = {};
+        let props = json.properties;
+        json.techniques.forEach(tech => {
+            tech.passes.forEach(pass => {
+                let program = lib.getTemplate(pass.program);
+                program.defines.forEach(define => {
+                    defTypes[define.name] = { 
+                        name: define.name,
+                        type: getInstanceType(define.type) 
+                    };
+                });
+                program.uniforms.forEach(uniform => {
+                    let name = uniform.name, prop = props[name];
+                    if (!prop) return; // don't add if not in the property list
+                    propTypes[name] = {
+                        name: uniform.displayName || name,
+                        type: getInstanceType(prop.type || uniform.type)
+                    };
+                });
+            });
+        });
+        return {
+            props: propTypes,
+            defines: defTypes
+        };
+    };
+}
 
 export default Effect;
 cc.Effect = Effect;

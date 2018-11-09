@@ -108,6 +108,7 @@ let RenderComponent = cc.Class({
             },
             set (val) {
                 this._materials = val;
+                this._activateMaterial(true);
             },
             type: [Material],
             displayName: 'Materials'
@@ -245,6 +246,7 @@ let RenderComponent = cc.Class({
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(
+                true,
                 gfx.BLEND_FUNC_ADD,
                 this._srcBlendFactor, this._dstBlendFactor,
                 gfx.BLEND_FUNC_ADD,
@@ -255,6 +257,9 @@ let RenderComponent = cc.Class({
         if (updateHash) {
             material.updateHash();
         }
+    },
+
+    _activateMaterial (force) {
     }
 });
 RenderComponent._assembler = null;
