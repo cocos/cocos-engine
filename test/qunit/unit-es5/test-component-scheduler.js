@@ -544,16 +544,16 @@ test('set sibling index during onDisable', function () {
         compOfChild.onEnable.once('child component should be re-enabled');
     });
 
-    test('component might be destroied when destroy() called before node activating', function () {
+    test('component might be destroyed when destroy() called before node activating', function () {
         var node = new cc.Node();
-        var comp = createDisabledComp(node, 'destroied');
+        var comp = createDisabledComp(node, 'destroyed');
         comp.onDestroy = new Callback().disable('onDestroy should not be called');
         comp.destroy();
         
         cc.director.getScene().addChild(node);
 
         cc.game.step();
-        strictEqual(comp.isValid, false, 'component should be destroied');
+        strictEqual(comp.isValid, false, 'component should be destroyed');
     });
 
     // test('could deactivate parent in onLoad', function () {

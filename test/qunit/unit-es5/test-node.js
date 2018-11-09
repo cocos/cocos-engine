@@ -137,6 +137,17 @@ test('activeInHierarchy should be false after destroy', function () {
     strictEqual(child.activeInHierarchy, false, 'child should not activeInHierarchy after destroy');
 });
 
+test('nodes should be destroyed with the scene', function () {
+    var child = new cc.Node();
+    var scene = cc.director.getScene();
+    child.parent = scene;
+
+    cc.director.runSceneImmediate(new cc.Scene());
+
+    strictEqual(child.activeInHierarchy, false, 'nodes should not activeInHierarchy after destroy');
+    strictEqual(child.isValid, false, 'nodes should be destroyed with the scene');
+});
+
 test('activation logic for component', function () {
     // 这里主要测试node，不是测试component
 
