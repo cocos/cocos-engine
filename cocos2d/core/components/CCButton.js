@@ -420,7 +420,7 @@ let Button = cc.Class({
         this._hovered = false;
         // // Restore button status
         let target = this.target;
-        if (!target || !target.isValid) {
+        if (!target) {
             return;
         }
         let transition = this.transition;
