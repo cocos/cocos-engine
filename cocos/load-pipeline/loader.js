@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import {mixin} from '../core/utils/js';
-import Texture2D from '../assets/CCTexture2D';
+import ImageAsset from '../assets/image-asset';
 import plistParser from './plist-parser';
 import Pipeline from './pipeline';
 import {loadUuid} from './uuid-loader';
@@ -63,7 +63,7 @@ function loadImage (item) {
 
     // load cc.Texture2D
     var rawUrl = item.rawUrl;
-    var tex = item.texture || new Texture2D();
+    var tex = item.texture || new ImageAsset();
     tex._uuid = item.uuid;
     tex.url = rawUrl;
     tex._setRawAsset(rawUrl, false);

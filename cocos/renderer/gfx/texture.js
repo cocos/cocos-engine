@@ -1,8 +1,17 @@
 import { enums } from './enums';
 
+/**
+ * @type {WebGLTexture}
+ */
+const _nullWebGLTexture = null;
+
+/**
+ * @typedef {import("../gfx/device").default} Device
+ */
+
 export default class Texture {
   /**
-   * @constructor
+   * @param {Device} device
    */
   constructor(device) {
     this._device = device;
@@ -29,7 +38,7 @@ export default class Texture {
    * @method destroy
    */
   destroy() {
-    if (this._glID === -1) {
+    if (this._glID === _nullWebGLTexture) {
       console.error('The texture already destroyed');
       return;
     }
@@ -38,6 +47,6 @@ export default class Texture {
     gl.deleteTexture(this._glID);
 
     this._device._stats.tex -= this.bytes;
-    this._glID = -1;
+    this._glID = _nullWebGLTexture;
   }
 }

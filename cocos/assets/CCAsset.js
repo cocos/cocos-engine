@@ -118,6 +118,7 @@ export default class Asset extends RawAsset {
      * @property {Object} _nativeAsset
      * @default null
      * @private
+     * @type {any}
      */
     @property
     get _nativeAsset () {
