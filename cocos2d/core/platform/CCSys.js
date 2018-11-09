@@ -757,7 +757,7 @@ else {
          * Indicate the running platform
          * @property {Number} platform
          */
-        if (typeof FbPlayableAd !== undefined) {
+        if (typeof FbPlayableAd !== "undefined") {
             sys.platform = sys.FB_PLAYABLE_ADS;
         }
         else {
