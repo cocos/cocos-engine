@@ -151,9 +151,9 @@ if (!Object.assign) {
             return to;
         }
     });
-  }
+}
 
-  if (!Object.getOwnPropertyDescriptors) {
+if (!Object.getOwnPropertyDescriptors) {
     Object.defineProperty(Object, 'getOwnPropertyDescriptors', {
         enumerable: false,
         configurable: true,
@@ -168,4 +168,10 @@ if (!Object.assign) {
             return res;
         }
     });
-  }
+}
+
+if (!Object.getOwnPropertySymbols) {
+    Object.getOwnPropertySymbols = function () {
+        return [];
+    };
+}

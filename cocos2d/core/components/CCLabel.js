@@ -343,16 +343,11 @@ let Label = cc.Class({
                 }
 
                 this._N$file = value;
-                this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
                 if ( typeof value === 'string' ) {
                     cc.warnID(4000);
-                }
-
-                if (value instanceof cc.BitmapFont) {
-                    this._bmFontOriginalSize = value.fontSize;
                 }
 
                 if (this._renderData) {
@@ -412,9 +407,14 @@ let Label = cc.Class({
 
         _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
-            default: -1,
-            serializable: false,
-            readonly: true,
+            get () {
+                if (this._N$file instanceof cc.BitmapFont) {
+                    return this._N$file.fontSize;
+                }
+                else {
+                    return -1;
+                }
+            },
             visible: true,
             animatable: false
         },
@@ -467,8 +467,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
-        this._updateAssembler();
-        this._activateMaterial();
+        this._updateRenderData(true);
     },
 
     onDisable () {
@@ -486,7 +485,7 @@ let Label = cc.Class({
         }
         this._super();
     },
-
+    
     _canRender () {
         let result = this._super();
         let font = this.font;
