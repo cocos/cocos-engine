@@ -24,220 +24,82 @@
  ****************************************************************************/
 //@ts-check
 import {ccclass, property} from "../core/data/class-decorator";
-import EventTarget from '../core/event/event-target';
-import {addon} from '../core/utils/js';
-
-/**
- * @typedef {{ _data: ArrayBufferView, _compressed: boolean, width: number, height: number, format: number}} RawImageData
- */
-
-const CHAR_CODE_0 = 48;    // '0'
 
 /**
  * Class ImageAsset.
  */
 @ccclass('cc.ImageAsset')
 export default class ImageAsset extends cc.Asset {
-
-    static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'];
-
-    /**
-     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} nativeAsset
-     */
-    constructor(nativeAsset = undefined) {
+    constructor() {
         super();
-        EventTarget.call(this);
 
         /**
-         * !#en
-         * The url of the texture, this could be empty if the texture wasn't created via a file.
-         * !#zh
-         * 图像文件的 url，当图像不是由文件创建时值可能为空
-         * @property url
-         * @type {String}
-         * @readonly
+         * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
          */
-        // TODO - use nativeUrl directly
-        this.url = "";
+        this._data = null;
 
         /**
-         * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
+         * @type {number}
          */
-        this._nativeData = {
-            _data: null,
-            width: 0,
-            height: 0,
-            format: 0,
-            _compressed: false
-        };
+        this._width = 0;
 
-        if (CC_EDITOR) {
-            this._exportedExts = null;
-        }
-
-        if (nativeAsset !== undefined) {
-            this._nativeAsset = nativeAsset;
-        }
+        /**
+         * @type {number}
+         */
+        this._height = 0;
     }
     
     /**
-     * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
+     * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
      */
     @property({
         override: true
     })
     get _nativeAsset () {
         // maybe returned to pool in webgl
-        return this._nativeData;
+        return this._data;
     }
 
     /**
-     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} value
+     * @param {HTMLCanvasElement | HTMLImageElement | { _data: ArrayBufferView, _compressed: boolean, width: number, height: number}} value
      */
     set _nativeAsset (value) {
-        this.reset(value);
+        this._width = value.width;
+        this._height = value.height;
+
+        //@ts-ignore
+        if (value._compressed && value._data) {
+            //@ts-ignore
+            this._data = value._data;
+        }
+        else {
+            //@ts-ignore
+            this._data = value;
+        }
     }
 
     /**
      * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
      */
     get data() {
-        return this._nativeData instanceof HTMLElement ? this._nativeData : this._nativeData._data;
+        return this._data;
     }
 
-    /**
-     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} data
-     */
-    reset(data) {
-        if (!(data instanceof HTMLElement)) {
-            this._nativeData = Object.create(data);
-            this._onDataComplete();
-        } else {
-            this._nativeData = data;
-            if (CC_WECHATGAME || CC_QQPLAY || data.complete || data instanceof HTMLCanvasElement) {
-                this._onDataComplete();
-            } else {
-                this.loaded = false;
-                data.addEventListener('load', () => {
-                    this._onDataComplete();
-                });
-                data.addEventListener('error', (err) => {
-                    cc.warnID(3119, err.message);
-                });
-            }
+    set data(data) {
+        this._data = data;
+        if (data instanceof HTMLElement) {
+            this._width = data.width;
+            this._height = data.height;
         }
     }
 
     get width() {
-        return this._nativeData.width;
+        return this._width;
     }
 
     get height() {
-        return this._nativeData.height;
-    }
-
-    get format() {
-        if (this._nativeData instanceof HTMLElement) {
-            return undefined;
-        }
-        return this._nativeData.format;
-    }
-
-    // destroy() {
-    //     if (cc.macro.CLEANUP_IMAGE_CACHE) {
-    //         if (this._data instanceof HTMLImageElement) {
-    //             this._data.src = "";
-    //             cc.loader.removeItem(this._data.id);
-    //         }
-    //     }
-    // }
-
-    // SERIALIZATION
-
-    _serialize () {
-        let extId = "";
-        let exportedExts = this._exportedExts;
-        if (!exportedExts && this._native) {
-            exportedExts = [this._native];
-        }
-        if (exportedExts) {
-            let exts = [];
-            for (let i = 0; i < exportedExts.length; i++) {
-                let extId = "";
-                let ext = exportedExts[i];
-                if (ext) {
-                    // ext@format
-                    let extFormat = ext.split('@');
-                    extId = ImageAsset.extnames.indexOf(extFormat[0]);
-                    if (extId < 0) {
-                        extId = ext;
-                    }
-                    if (extFormat[1]) {
-                        extId += '@' + extFormat[1];
-                    }
-                }
-                exts.push(extId);
-            }
-            extId = exts.join('_');
-        }
-        return "" + extId;
-    }
-
-    _deserialize (data, handle) {
-        let fields = data.split(',');
-        // decode extname
-        var extIdStr = fields[0];
-        if (extIdStr) {
-            let extIds = extIdStr.split('_');
-
-            let extId = 999;
-            let ext = '';
-            let format = this._format;
-            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
-            for (let i = 0; i < extIds.length; i++) {
-                let extFormat = extIds[i].split('@');
-                let tmpExt = extFormat[0];
-                tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
-                tmpExt = ImageAsset.extnames[tmpExt] || extFormat;
-
-                let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < extId) {
-                    extId = index;
-                    ext = tmpExt;
-                    format = extFormat[1] ? parseInt(extFormat[1]) : this._format;
-                }
-            }
-
-            if (ext) {
-                this._setRawAsset(ext);
-                this._format = format;
-            }
-
-            // preset uuid to get correct nativeUrl
-            let loadingItem = handle.customEnv;
-            let uuid = loadingItem && loadingItem.uuid;
-            if (uuid) {
-                this._uuid = uuid;
-                var url = this.nativeUrl;
-                this.url = url;
-            }
-        }
-    }
-
-    _onDataComplete() {
-        this.loaded = true;
-        this.emit("load");
+        return this._height;
     }
 }
-
-/**
- * !#zh
- * 当该资源加载成功后触发该事件
- * !#en
- * This event is emitted when the asset is loaded
- *
- * @event load
- */
-addon(ImageAsset.prototype, EventTarget.prototype);
 
 cc.ImageAsset = ImageAsset;
