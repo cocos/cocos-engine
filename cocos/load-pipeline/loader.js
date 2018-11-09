@@ -61,14 +61,14 @@ function loadImage (item) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     } 
 
-    // load cc.ImageAsset
+    // load cc.Texture2D
     var rawUrl = item.rawUrl;
-    var imageAsset = item.texture || new ImageAsset();
-    imageAsset._uuid = item.uuid;
-    imageAsset.url = rawUrl;
-    imageAsset._setRawAsset(rawUrl, false);
-    imageAsset._nativeAsset = image;
-    return imageAsset;
+    var tex = item.texture || new ImageAsset();
+    tex._uuid = item.uuid;
+    tex.url = rawUrl;
+    tex._setRawAsset(rawUrl, false);
+    tex._nativeAsset = image;
+    return tex;
 }
 
 // If audio is loaded by url directly, than this loader will wrap it into a new cc.AudioClip object.
