@@ -23,13 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AnimationClip = require('../../animation/animation-clip');
 const BufferAsset = require('../assets/CCBufferAsset');
 
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 const gfx = renderEngine.gfx;
-const vec3 = cc.vmath.vec3;
 
 const _type2size = {
     SCALAR: 1,
