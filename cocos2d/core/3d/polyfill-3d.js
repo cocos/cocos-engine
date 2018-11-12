@@ -231,14 +231,14 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        return this._quat.getEulerAngles(cc.v3());
+        return this._quat.toEuler(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+    this._quat.fromEuler(v);
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });
