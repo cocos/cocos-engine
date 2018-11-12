@@ -837,6 +837,7 @@ static bool JSB_glCheckFramebufferStatus(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLenum ret_val;
 #if OPENGL_PARAMETER_CHECK
+    s.rval().setUint32(0);
     SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
 #endif
     ret_val = glCheckFramebufferStatus((GLenum)arg0);
@@ -1480,6 +1481,11 @@ static bool JSB_glFramebufferRenderbuffer(se::State& s) {
     ok &= seval_to_native_ptr(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint renderBufferId = arg3 != nullptr ? arg3->_id : 0;
+#if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(arg0 == GL_FRAMEBUFFER, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(arg1 == GL_COLOR_ATTACHMENT0 || arg1 == GL_DEPTH_ATTACHMENT || arg1 == GL_STENCIL_ATTACHMENT ||
+                             arg1 == GL_DEPTH_STENCIL_ATTACHMENT, false, GL_INVALID_ENUM);
+#endif
     JSB_GL_CHECK(WEBGL_framebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , renderBufferId));
     return true;
 }
@@ -2133,8 +2139,29 @@ static bool JSB_glTexImage2D(se::State& s) {
     ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 #if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
+                     false, GL_INVALID_ENUM);
     SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
                      false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(internalformat == format, false, GL_INVALID_OPERATION);
+    if (!args[8].isNullOrUndefined())
+    {
+        int bytes = 1;
+
+        switch (format)
+        {
+            case GL_RGB:
+                bytes = 3;
+                break;
+            case GL_RGBA:
+                bytes = 4;
+                break;
+            default:
+                break;
+        }
+        if (type != GL_UNSIGNED_BYTE) bytes = 2;
+        SE_PRECONDITION4(count >= width * height * bytes, false, GL_INVALID_OPERATION);
+    }
 #endif
     ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
     if (alignment > 0)
@@ -2223,6 +2250,24 @@ static bool JSB_glTexSubImage2D(se::State& s) {
                      false, GL_INVALID_ENUM);
     SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
                      false, GL_INVALID_ENUM);
+    if (!args[8].isNullOrUndefined())
+    {
+        int bytes = 1;
+
+        switch (format)
+        {
+            case GL_RGB:
+                bytes = 3;
+                break;
+            case GL_RGBA:
+                bytes = 4;
+                break;
+            default:
+                break;
+        }
+        if (type != GL_UNSIGNED_BYTE) bytes = 2;
+        SE_PRECONDITION4(count >= width * height * bytes, false, GL_INVALID_OPERATION);
+    }
 #endif
     ccFlipYOrPremultiptyAlphaIfNeeded(format, width, height, count, pixels);
     if (alignment > 0)
@@ -3356,12 +3401,15 @@ static bool JSB_glGetActiveAttrib(se::State& s) {
 
     bool ok = true;
     WebGLProgram* arg0;
-    uint32_t arg1;
+    int32_t arg1;
 
     ok &= seval_to_native_ptr(args[0], &arg0);
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
+#if OPENGL_PARAMETER_CHECK
+    s.rval().setNull();
+    SE_PRECONDITION4(arg1 >= 0, false, GL_INVALID_VALUE);
+#endif
     GLuint programId = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length));
@@ -3403,12 +3451,15 @@ static bool JSB_glGetActiveUniform(se::State& s) {
 
     bool ok = true;
     WebGLProgram* arg0;
-    uint32_t arg1;
+    int32_t arg1;
 
     ok &= seval_to_native_ptr(args[0], &arg0 );
-    ok &= seval_to_uint32(args[1], &arg1 );
+    ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-
+#if OPENGL_PARAMETER_CHECK
+    s.rval().setNull();
+    SE_PRECONDITION4(arg1 >= 0, false, GL_INVALID_VALUE);
+#endif
     GLuint id = arg0 != nullptr ? arg0->_id : 0;
     GLsizei length;
     JSB_GL_CHECK(glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
@@ -3421,11 +3472,12 @@ static bool JSB_glGetActiveUniform(se::State& s) {
     if (size == -1 || type == -1) {
         s.rval().setNull();
     } else {
-        se::HandleObject object(se::Object::createPlainObject());
+        se::Object* object = se::Object::createObjectWithClass(__jsb_WebGLActiveInfo_class);
+        s.rval().setObject(object, true);
+        object->decRef();
         object->setProperty("size", se::Value((int32_t)size));
         object->setProperty("type", se::Value((int32_t)type));
         object->setProperty("name", se::Value((char*)buffer));
-        s.rval().setObject(object);
     }
 
     CC_SAFE_DELETE_ARRAY(buffer);
@@ -3564,6 +3616,11 @@ static bool JSB_glGetFramebufferAttachmentParameter(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLint param = 0;
+#if OPENGL_PARAMETER_CHECK
+    SE_PRECONDITION4(GL_FRAMEBUFFER == target, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE || pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ||
+                             pname == GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL|| pname == GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, false, GL_INVALID_ENUM);
+#endif
     JSB_GL_CHECK(glGetFramebufferAttachmentParameteriv(target, attachment, pname, &param));
     if( pname == GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ) {
         GLint ptype;
@@ -3912,7 +3969,7 @@ static bool JSB_glGetParameter(se::State& s)
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             se::HandleObject arr(se::Object::createArrayObject(4));
             for(int i = 0; i < 4; i++ ) {
-                arr->setArrayElement(i, se::Value(intbuffer[i]));
+                arr->setArrayElement(i, se::Value(intbuffer[i] != 0));
             }
             ret.setObject(arr, true);
         }
@@ -4055,6 +4112,14 @@ static bool JSB_glGetParameter(se::State& s)
             ret.setFloat(floatvalue);
             break;
 
+        case GL_STENCIL_BACK_VALUE_MASK:
+        case GL_STENCIL_BACK_WRITEMASK:
+        case GL_STENCIL_VALUE_MASK:
+        case GL_STENCIL_WRITEMASK:
+            JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
+            ret.setUint32((u_int32_t )intbuffer[0]);
+            break;
+
         case GL_STENCIL_BACK_REF:
         case GL_BLEND_DST_RGB:
         case GL_MAX_VERTEX_ATTRIBS:
@@ -4064,16 +4129,12 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
         case GL_NUM_COMPRESSED_TEXTURE_FORMATS:
         case GL_UNPACK_ALIGNMENT:
-        case GL_STENCIL_WRITEMASK:
-        case GL_STENCIL_VALUE_MASK:
         case GL_STENCIL_REF:
         case GL_STENCIL_PASS_DEPTH_PASS:
         case GL_STENCIL_PASS_DEPTH_FAIL:
         case GL_STENCIL_FUNC:
         case GL_STENCIL_FAIL:
         case GL_STENCIL_CLEAR_VALUE:
-        case GL_STENCIL_BACK_WRITEMASK:
-        case GL_STENCIL_BACK_VALUE_MASK:
         case GL_STENCIL_BACK_PASS_DEPTH_PASS:
         case GL_STENCIL_BACK_PASS_DEPTH_FAIL:
         case GL_STENCIL_BACK_FUNC:
