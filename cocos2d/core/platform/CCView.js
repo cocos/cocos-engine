@@ -362,8 +362,10 @@ var View = cc._Class.extend({
             // Because 'transform' style adds canvas (the top-element of container) to a new stack context.
             // That causes the DOM Input was hidden under canvas.
             // This should be done after container rotated, instead of in style-mobile.css.
-            cc.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
-            cc.game.canvas.style.transform = 'translateZ(0px)';
+            if (cc.game.canvas.style) {
+                cc.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
+                cc.game.canvas.style.transform = 'translateZ(0px)';
+            }
         }
         if (this._orientationChanging) {
             setTimeout(function () {
