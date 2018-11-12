@@ -29,15 +29,12 @@ const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
 const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
-const misc = require('../utils/misc');
-const vec3 = cc.vmath.vec3;
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
-const ROTATION_ON = 1 << 2;
 
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
@@ -174,7 +171,6 @@ const _updateLocalMatrix2d = proto._updateLocalMatrix;
 const _calculWorldMatrix2d = proto._calculWorldMatrix;
 const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
 const _mulMat2d = proto._mulMat;
-const _onBatchCreated2d = proto._onBatchCreated;
 
 proto.setPosition = setPosition;
 proto.setScale = setScale;
@@ -231,14 +227,14 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        return this._quat.getEulerAngles(cc.v3());
+        return this._quat.toEuler(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+    this._quat.fromEuler(v);
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });
