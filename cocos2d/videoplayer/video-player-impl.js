@@ -34,11 +34,12 @@ let _mat4_temp = math.mat4.create();
 // has been fired before calling webkitEnterFullScreen()
 function triggerFullScene (video, enable) {
     if (!video) return;
-    if (enable) {
-        video.webkitEnterFullscreen && video.webkitEnterFullscreen();
+    if (sys.os === sys.OS_IOS && sys.isBrowser) {
+        enable ? video.webkitEnterFullscreen && video.webkitEnterFullscreen() : video.webkitExitFullscreen && video.webkitExitFullscreen();
     }
     else {
-        video.webkitExitFullscreen && video.webkitExitFullscreen();
+        enable ? cc.screen.requestFullScreen(video) : cc.screen.exitFullScreen(video);
+        video.setAttribute("x5-video-player-fullscreen", enable ? "true" : "false");
     }
 }
 
@@ -82,9 +83,7 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             self._loadedmeta = true;
-            if (sys.os === sys.OS_IOS && sys.isBrowser) {
-                triggerFullScene(video, self._fullScreenEnabled);
-            }
+            triggerFullScene(video, self._fullScreenEnabled);
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
         };
         cbs.ended = function () {
@@ -164,10 +163,10 @@ let VideoPlayerImpl = cc.Class({
         video.setAttribute('playsinline', '');
 
         // Stupid tencent x5 adaptation
-        let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
         video.setAttribute("x5-playsinline", "");
         video.setAttribute("x5-video-player-type", "h5");
-        video.setAttribute("x5-video-player-fullscreen", "false");
+        video.setAttribute("x5-video-player-fullscreen", this._fullScreenEnabled ? "true" : "false");
+        let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
         video.setAttribute("x5-video-orientation", orientation);
 
         this._video = video;
@@ -373,20 +372,7 @@ let VideoPlayerImpl = cc.Class({
             return;
         }
         this._fullScreenEnabled = enable;
-        if (sys.os === sys.OS_IOS && sys.isBrowser) {
-            if (this._loadedmeta) {
-                triggerFullScene(video, enable);
-            }
-        }
-        else {
-            if (enable) {
-                cc.screen.requestFullScreen(video);
-            }
-            else {
-                cc.screen.exitFullScreen(video);
-            }
-            video.setAttribute("x5-video-player-fullscreen", enable ? "true" : "false");
-        }
+        triggerFullScene(video, enable);
     },
 
     isFullScreenEnabled: function () {
