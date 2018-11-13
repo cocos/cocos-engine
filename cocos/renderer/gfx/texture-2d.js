@@ -4,7 +4,9 @@ import { enums, glFilter, glTextureFmt } from './enums';
 import { isPow2 } from './misc';
 
 /**
- * @typedef {import("../../assets/texture-base").TextureUpdateOpts} TextureUpdateOpts
+ * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
+ * @typedef {HTMLImageSource | ArrayBufferView} ImageSource
+ * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
  * @typedef {import("../gfx/device").default} Device
  */
 
