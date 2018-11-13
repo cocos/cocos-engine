@@ -256,7 +256,7 @@ class color4 {
    * @returns {Array} out.
    */
   static array(out, a) {
-    let scale = a instanceof cc.Color ? 1 / 255 : 1;
+    let scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
     out[0] = a.r * scale;
     out[1] = a.g * scale;
     out[2] = a.b * scale;

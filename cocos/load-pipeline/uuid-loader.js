@@ -285,10 +285,15 @@ export function loadUuid (item, callback) {
 
     cc.deserialize.Details.pool.put(tdInfo);
 
+    var wrappedCallback = function(err, asset) {
+        if (!err && asset.onLoaded) asset.onLoaded();
+        callback(err, asset);
+    };
+
     if (depends.length === 0) {
-        return callback(null, asset);
+        return wrappedCallback(null, asset);
     }
-    loadDepends(this.pipeline, item, asset, depends, callback);
+    loadDepends(this.pipeline, item, asset, depends, wrappedCallback);
 }
 
 loadUuid.isSceneObj = isSceneObj;

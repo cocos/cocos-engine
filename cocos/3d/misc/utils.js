@@ -46,8 +46,8 @@ function createMesh(context, data) {
   let ia = renderer.createIA(context, data);
   let meshAsset = new Mesh();
   meshAsset._subMeshes = [ia];
-  meshAsset._minPos = data.minPos;
-  meshAsset._maxPos = data.maxPos;
+  meshAsset._minPosition = data.minPos;
+  meshAsset._maxPosition = data.maxPos;
 
   return meshAsset;
 }

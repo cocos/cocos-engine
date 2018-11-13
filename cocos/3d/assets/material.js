@@ -30,7 +30,7 @@ import Texture from '../../assets/CCTexture2D';
 import Effect from '../../renderer/core/effect';
 
 @ccclass('cc.Material')
-export default class Material extends Asset {
+class Material extends Asset {
     /**
      * @type {string}
      */
@@ -67,14 +67,7 @@ export default class Material extends Asset {
     set effectName(val) {
         if (this._effectName !== val) {
             this._effectName = val;
-            const effectAsset = cc.game._builtins[this._effectName];
-            if (!effectAsset) {
-                console.warn(`no effect named '${val}' found`);
-                return;
-            }
-            this._effect = Effect.parseEffect(effectAsset);
-            let propCls = cc.js.getClassByName(Effect.getPropertyClassName(effectAsset));
-            this._ccclass = propCls ? new propCls() : {};
+            this.setEffect(val);
         }
     }
 
@@ -95,7 +88,6 @@ export default class Material extends Asset {
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
         }
-
         for (let name in mat._props) {
             this.setProperty(name, mat._props[name]);
         }
@@ -108,7 +100,6 @@ export default class Material extends Asset {
      */
     setProperty(name, val) {
         this._props[name] = val;
-
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val._texture);
@@ -130,9 +121,21 @@ export default class Material extends Asset {
         }
     }
 
-    destroy() {
-        // TODO: what should we do here ???
-        return super.destroy();
+    onLoaded() {
+        this.setEffect(this._effectName);
+        for (let def in this._defines)
+            this._effect.define(def, this._defines[def]);
+        for (let prop in this._props)
+            this.setProperty(prop, this._props[prop]);
+    }
+
+    setEffect(val) {
+        const effectAsset = cc.game._builtins[val];
+        if (!effectAsset) {
+            console.warn(`no effect named '${val}' found`);
+            return;
+        }
+        this._effect = Effect.parseEffect(effectAsset);
     }
 
     static getInstantiatedMaterial(mat, rndCom) {
@@ -149,4 +152,5 @@ export default class Material extends Asset {
     }
 }
 
+export default Material;
 cc.Material = Material;

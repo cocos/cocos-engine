@@ -32,7 +32,7 @@ export default function (item, callback) {
     var xhr = cc.loader.getXMLHttpRequest(),
         errInfo = 'Load text file failed: ' + url;
     xhr.open('GET', url, true);
-    if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
+    if (xhr.overrideMimeType) xhr.overrideMimeType('text/plain; charset=utf-8');
     xhr.onload = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 || xhr.status === 0) {

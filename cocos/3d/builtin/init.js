@@ -1,24 +1,12 @@
-import renderer from '../../renderer';
-import * as primitives from '../primitive';
-
-import Mesh from '../assets/mesh';
-import Material from '../assets/material';
 import Texture2D from '../../assets/CCTexture2D';
 import TextureCube from '../assets/texture-cube';
-import Effect from '../../renderer/core/effect';
-import Sprite from '../assets/sprite';
-import { vec3 } from '../../core/vmath';
 import downloadText from '../../load-pipeline/text-downloader';
-
-import effectJsons from './effects/index';
+import ProgramLib from '../../renderer/core/program-lib';
 import EffectAsset from '../assets/effect-asset';
 
 let builtinResMgr = {
-
-    effects: {},
-
     // this should be called after renderer initialized
-    initBuiltinRes: function (device) {
+    initBuiltinRes: function (device, effects, shaderDir, onComplete) {
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
 
@@ -76,144 +64,59 @@ let builtinResMgr = {
         whiteTexture._uuid = 'white-texture';
         defaultTexture.initWithElement(canvas);
 
-        // ============================
-        // builtin sprites
-        // ============================
-
-        // default-sprites
-        let defaultSprite = new Sprite();
-        defaultSprite.texture = whiteTexture;
-        defaultSprite.width = whiteTexture.width;
-        defaultSprite.height = whiteTexture.height;
-        defaultSprite._uuid = 'default-sprite';
-        defaultSprite.commit();
-
-        // ============================
-        // builtin meshes
-        // ============================
-
-        // builtin-cube
-        let cubeMesh = new Mesh();
-        cubeMesh._subMeshes = new Array(1);
-        let cubeDesc = primitives.box(1, 1, 1, {
-            widthSegments: 1,
-            heightSegments: 1,
-            lengthSegments: 1,
-        });
-        cubeMesh._subMeshes[0] = renderer.createIA(device, cubeDesc);
-        cubeMesh._uuid = 'builtin-cube';
-        cubeMesh._loaded = true;
-        cubeMesh._minPos = vec3.clone(cubeDesc.minPos);
-        cubeMesh._maxPos = vec3.clone(cubeDesc.maxPos);
-
-        // builtin-sphere
-        let sphereMesh = new Mesh();
-        sphereMesh._subMeshes = new Array(1);
-        let sphereDesc = primitives.sphere(0.5, {
-            segments: 64,
-        });
-        sphereMesh._subMeshes[0] = renderer.createIA(device, sphereDesc);
-        sphereMesh._uuid = 'builtin-sphere';
-        sphereMesh._loaded = true;
-        sphereMesh._minPos = vec3.clone(sphereDesc.minPos);
-        sphereMesh._maxPos = vec3.clone(sphereDesc.maxPos);
-
-        // builtin-cylinder
-        let cylinderMesh = new Mesh();
-        cylinderMesh._subMeshes = new Array(1);
-        let cylinderDesc = primitives.cylinder(0.5, 0.5, 2, {
-            radialSegments: 20,
-            capped: true,
-        });
-        cylinderMesh._subMeshes[0] = renderer.createIA(device, cylinderDesc);
-        cylinderMesh._uuid = 'builtin-cylinder';
-        cylinderMesh._loaded = true;
-        cylinderMesh._minPos = vec3.clone(cylinderDesc.minPos);
-        cylinderMesh._maxPos = vec3.clone(cylinderDesc.maxPos);
-
-        // builtin-plane
-        let planeMesh = new Mesh();
-        planeMesh._subMeshes = new Array(1);
-        let planeDesc = primitives.plane(10, 10, {
-            uSegments: 10,
-            vSegments: 10,
-        });
-        planeMesh._subMeshes[0] = renderer.createIA(device, planeDesc);
-        planeMesh._uuid = 'builtin-plane';
-        planeMesh._loaded = true;
-        planeMesh._minPos = vec3.clone(planeDesc.minPos);
-        planeMesh._maxPos = vec3.clone(planeDesc.maxPos);
-
-        // builtin-capsule
-        let capsuleMesh = new Mesh();
-        capsuleMesh._subMeshes = new Array(1);
-        let capsuleDesc = primitives.capsule(0.5, 0.5, 2, {
-            heightSegments: 30,
-            sides: 20,
-        });
-        capsuleMesh._subMeshes[0] = renderer.createIA(device, capsuleDesc);
-        capsuleMesh._uuid = 'builtin-capsule';
-        capsuleMesh._loaded = true;
-        capsuleMesh._minPos = vec3.clone(capsuleDesc.minPos);
-        capsuleMesh._maxPos = vec3.clone(capsuleDesc.maxPos);
-
-        // ============================
-        // builtin effects
-        // ============================
-
-        this.loadBuiltinEffect();
-        Object.values(this.effects).forEach(effect => {
-            Effect.registerEffect(effect);
-        });
-
-        // ============================
-        // builtin materials
-        // ============================
-
-        let materials = {};
-        // [
-        //     'sprite',
-        //     'font'
-        // ].forEach(name => {
-        //     let mat = new Material();
-        //     mat.effectAsset = effects[`builtin-effect-${name}`];
-        //     mat._uuid = `builtin-material-${name}`;
-        //     mat._loaded = true;
-        //     materials[mat._uuid] = mat;
-        // });
-
-        return Object.assign(cc.game._builtins, {
+        let builtins = {
             [defaultTexture._uuid]: defaultTexture,
             [defaultTextureCube._uuid]: defaultTextureCube,
             [blackTexture._uuid]: blackTexture,
-            [whiteTexture._uuid]: whiteTexture,
-            [defaultSprite._uuid]: defaultSprite,
-            [cubeMesh._uuid]: cubeMesh,
-            [sphereMesh._uuid]: sphereMesh,
-            [cylinderMesh._uuid]: cylinderMesh,
-            [planeMesh._uuid]: planeMesh,
-            [capsuleMesh._uuid]: capsuleMesh,
-        }, materials);
+            [whiteTexture._uuid]: whiteTexture
+        };
+
+        let remainingJobs = 2;
+        // ============================
+        // async builtin shaders
+        // ============================
+
+        this.loadShaders(shaderDir, (temps, chunks) => {
+            builtins['program-lib'] = new ProgramLib(device, temps, chunks);
+            if (!--remainingJobs) onComplete(builtins);
+        });
+
+        // ============================
+        // async builtin effects
+        // ============================
+
+        this.loadEffects(effects, effects => {
+            Object.assign(builtins, effects);
+            if (!--remainingJobs) onComplete(builtins);
+        });
     },
 
     // this can be called anytime
-    loadBuiltinEffect: function (onComplete) {
-        if (Object.keys(this.effects).length != 0)
-            return;
-        // TODO:to be changed to load from file
-        // downloadText({ url: "" }, (status, responseText) => {
-        //     let effectJsons = JSON.parse(responseText);
+    loadEffects: function (url, onComplete) {
+        let effects = {};
+        downloadText({ url }, (status, responseText) => {
+            let effectJsons = JSON.parse(responseText);
             for (let i = 0; i < effectJsons.length; ++i) {
                 let effectJson = effectJsons[i];
                 let effect = new EffectAsset();
                 effect.setRawJson(effectJson, true);
-                this.effects[effect._uuid] = effect;
+                effects[effect._uuid] = effect;
             }
-            Object.assign(cc.game._builtins, this.effects);
-            if (onComplete) {
-                onComplete();
-            }
-        // });
+            onComplete(effects);
+        });
+    },
+
+    loadShaders: function (dir, onComplete) {
+        let templates, chunks;
+        if (/.*[/\\]$/.test(dir)) dir = dir.slice(0, -1);
+        downloadText({ url: `${dir}/templates/index.json` }, (status, responseText) => {
+            templates = JSON.parse(responseText);
+            if (chunks) onComplete(templates, chunks);
+        });
+        downloadText({ url: `${dir}/chunks/index.json` }, (status, responseText) => {
+            chunks = JSON.parse(responseText);
+            if (templates) onComplete(templates, chunks);
+        });
     }
 };
 

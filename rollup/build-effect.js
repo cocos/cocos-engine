@@ -5,6 +5,18 @@ const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
 const mappings = require('../bin/mappings');
 
+function mapPassParam(p) {
+  let num;
+  switch (typeof p) {
+  case 'string':
+    num = parseInt(p);
+    return isNaN(num) ? mappings.passParams[p] : num;
+  case 'object':
+    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
+  }
+  return p;
+}
+
 function buildEffects(dest, path) {
   let files = fsJetpack.find(path, { matching: ['**/*.json'] });
   let code = '';
@@ -12,6 +24,7 @@ function buildEffects(dest, path) {
     let file = files[i];
     let dir = path_.dirname(file);
     let name = path_.basename(file, '.json');
+    if (name === 'index') continue;
 
     let json = fs.readFileSync(path_.join(dir, name + '.json'), { encoding: 'utf8' });
     json = JSON.parse(json);
@@ -22,7 +35,7 @@ function buildEffects(dest, path) {
         let pass = jsonTech.passes[k];
         for (let key in pass) {
           if (key === "program") continue;
-          pass[key] = mappings.passParams[pass[key]];
+          pass[key] = mapPassParam(pass[key]);
         }
       }
     }
@@ -32,15 +45,13 @@ function buildEffects(dest, path) {
     }
 
     code += '  {\n';
-    code += `    name: '${name}',\n`;
-    code += `    techniques: ${JSON.stringify(json.techniques)},\n`;
-    code += `    properties: ${JSON.stringify(json.properties)},\n`;
+    code += `    "name": "${name}",\n`;
+    code += `    "techniques": ${JSON.stringify(json.techniques)},\n`;
+    code += `    "properties": ${JSON.stringify(json.properties)}\n`;
     code += '  },\n';
   }
-  code = `export default [\n${code}];`;
 
-  //console.log(`code =  ${code}`);
-  fs.writeFileSync(dest, code, { encoding: 'utf8' });
+  fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]`, { encoding: 'utf8' });
 }
 
 // ============================================================
@@ -48,6 +59,6 @@ function buildEffects(dest, path) {
 // ============================================================
 
 let effectsPath = './cocos/3d/builtin/effects';
-let effectsFile = path_.join(effectsPath, 'index.js');
+let effectsFile = path_.join(effectsPath, 'index.json');
 console.log(`generate ${effectsFile}`);
 buildEffects(effectsFile, effectsPath);

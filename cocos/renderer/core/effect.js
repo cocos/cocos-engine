@@ -6,8 +6,8 @@ import Pass from './pass';
 import Technique from './technique';
 import { Vec2, Vec3, Vec4, Color, Mat4 } from '../../core/value-types';
 import { CCObject } from '../../core/data';
-import gfx from '../gfx';
-const { Texture2D, TextureCube } = gfx;
+import Texture2D from '../../assets/CCTexture2D';
+import TextureCube from '../../3d/assets/texture-cube';
 
 let _typeMap = {
     [enums.PARAM_INT]: Number,
@@ -28,7 +28,7 @@ let _typeMap = {
     default: CCObject
 };
 let getInstanceType = function(t) { return _typeMap[t] || _typeMap.default; };
-let typeTest = function(value, type) {
+let typeCheck = function(value, type) {
     let instanceType = getInstanceType(type);
     switch (typeof value) {
     case 'object': return (value === null) || (value instanceof instanceType);
@@ -85,10 +85,11 @@ class Effect {
         if (!prop) {
             console.warn(`Failed to set property ${name}, property not found.`);
             return;
-        } else if (!typeTest(value, prop.type)) {
-            console.warn(`Failed to set property ${name}, property type mismatch.`);
-            return;
         }
+        // else if (!typeCheck(value, prop.type)) { // re-enable this after 3.x migration
+        //     console.warn(`Failed to set property ${name}, property type mismatch.`);
+        //     return;
+        // }
         this._properties[name].value = value;
     }
 
@@ -166,73 +167,53 @@ let getInvolvedPrograms = function(json) {
     });
     return programs;
 };
-let parseProperties = function(json, programs) {
-    let props = {};
-    for (let prop in json.properties) {
-        let info = json.properties[prop], type;
-        // always try getting the type from shaders first
-        if (info.tech !== undefined && info.pass !== undefined) {
-            let pname = json.techniques[info.tech].passes[info.pass].program;
-            let program = programs.find(p => p.name === pname);
-            type = program.uniforms.find(u => u.name === prop);
-        } else {
-            for (let i = 0; i < programs.length; i++) {
-                type = programs[i].uniforms.find(u => u.name === prop);
-                if (type) break;
-            }
-        }
-        // the property is not defined in all the shaders used in techs
-        if (!type) {
-            console.warn(`illegal property: ${prop}`);
-            continue;
-        }
-        // TODO: different param with same name for different passes
-        // TODO: property alias (display name)
-        props[prop] = getInstanceCtor(info.type || type)(info.value);
+let parseProperties = (function() {
+    function genPropInfo(displayName, type, value) {
+        return {
+            type: type,
+            displayName: displayName,
+            instanceType: getInstanceType(type),
+            value: getInstanceCtor(type)(value)
+        };
     }
-    return props;
-};
-
-Effect.getPropertyClassName = function(json) {
-    return `cc.Effect.${json._uuid}.Props`;
-};
-
-Effect.parseType = function(json) {
-    let lib = cc.game._renderer._programLib, types = {};
-    let props = json.properties;
-    json.techniques.forEach(tech => {
-        tech.passes.forEach(pass => {
-            let program = lib.getTemplate(pass.program);
-            program.defines.forEach(define => {
-                types[define.name] = getInstanceType(define.type);
-            });
-            program.uniforms.forEach(uniform => {
-                let name = uniform.name, prop = props[name];
-                if (!prop) return; // don't add if not in the property list
-                types[name] = getInstanceType(prop.type || uniform.type);
+    return function(json, programs) {
+        let props = {};
+        // properties may be specified in the shader too
+        programs.forEach(pg => {
+            pg.uniforms.forEach(prop => {
+                if (!prop.property) return;
+                props[prop.name] = genPropInfo(prop.displayName, prop.type, prop.value);
             });
         });
-    });
-    return types;
-};
-
-Effect.registerEffect = function(json) {
-    let programs = getInvolvedPrograms(json);
-    let properties = parseProperties(json, programs);
-    // add all the defines too, for now
-    programs.forEach(program => {
-        program.defines.forEach(define => {
-            properties[define.name] = getInstanceCtor(define.type)();
-        });
-    });
-    cc.Class({
-        name: Effect.getPropertyClassName(json),
-        properties,
-    });
-};
+        for (let prop in json.properties) {
+            let propInfo = json.properties[prop], uniformInfo;
+            // always try getting the type from shaders first
+            if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
+                let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
+                let program = programs.find(p => p.name === pname);
+                uniformInfo = program.uniforms.find(u => u.name === prop);
+            } else {
+                for (let i = 0; i < programs.length; i++) {
+                    uniformInfo = programs[i].uniforms.find(u => u.name === prop);
+                    if (uniformInfo) break;
+                }
+            }
+            // the property is not defined in all the shaders used in techs
+            if (!uniformInfo) {
+                console.warn(`illegal property: ${prop}`);
+                continue;
+            }
+            // TODO: different param with same name for different passes
+            props[prop] = genPropInfo(
+                propInfo.displayName || uniformInfo.displayName,
+                propInfo.type || uniformInfo.type,
+                propInfo.value || uniformInfo.value);
+        }
+        return props;
+    };
+})();
 
 Effect.parseEffect = function(json) {
-    let programs = getInvolvedPrograms(json);
     // techniques
     let techNum = json.techniques.length;
     let techniques = new Array(techNum);
@@ -243,21 +224,28 @@ Effect.parseEffect = function(json) {
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
-            if (pass.blend) passes[k].setBlend(pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha);
+            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
+                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
+            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
+    let programs = getInvolvedPrograms(json);
     // uniforms
     let props = parseProperties(json, programs), uniforms = {};
     programs.forEach(p => {
         p.uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            // user defined type override
-            if (props[name]) uniform.type = json.properties[name].type;
-            uniform.value = props[name] || getInstanceCtor(u.type)();
+            uniform.value = getInstanceCtor(u.type)(u.value);
+            if (props[name]) { // effect info override
+                uniform.type = props[name].type;
+                uniform.value = props[name].value;
+            }
         });
     });
     // defines
@@ -270,6 +258,22 @@ Effect.parseEffect = function(json) {
 
     return new Effect(techniques, uniforms, defines, extensions);
 };
+
+if (CC_EDITOR) {
+    Effect.parseForInspector = function(json) {
+        let programs = getInvolvedPrograms(json);
+        let props = parseProperties(json, programs), defines = {};
+        programs.forEach(program => {
+            program.defines.forEach(define => {
+                defines[define.name] = {
+                    instanceType: getInstanceType(define.type),
+                    value: getInstanceCtor(define.type)()
+                };
+            });
+        });
+        return { props, defines };
+    };
+}
 
 export default Effect;
 cc.Effect = Effect;
