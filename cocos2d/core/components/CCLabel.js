@@ -516,28 +516,28 @@ let Label = cc.Class({
         }
     },
 
-    _activateMaterial (force) {
-        let material = this._material;
-        if (material && !force) {
-            return;
-        }
-        
+    _applyFontTexture (finishCallback) {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            let self = this;
+            let onBMFontTextureLoaded = function () {
+                // TODO: old texture in material have been released by loader
+                self._texture = spriteFrame._texture;
+                finishCallback && finishCallback();
+            };
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                onBMFontTextureLoaded();
+            }
+            else {
                 this.disableRender();
 
                 if (spriteFrame) {
-                    spriteFrame.once('load', this._activateMaterial, this);
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                     spriteFrame.ensureLoadTexture();
                 }
-                return;
             }
-            
-            // TODO: old texture in material have been released by loader
-            this._texture = spriteFrame._texture;
         }
         else {
             if (!this._ttfTexture) {
@@ -550,32 +550,44 @@ let Label = cc.Class({
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
+            finishCallback && finishCallback();
         }
+    },
 
-        // Canvas
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._texture.url = this.uuid + '_texture';
-        }
-        // WebGL
-        else {
-            if (!material) {
-                material = new SpriteMaterial();
+    _activateMaterial (force) {
+        this._applyFontTexture(function () {
+            let material = this._material;
+            if (material && !force) {
+                return;
             }
-            // Setup blend function for premultiplied ttf label texture
-            if (this._texture === this._ttfTexture) {
-                this._srcBlendFactor = cc.macro.BlendFactor.ONE;
+
+            if (CC_EDITOR || force) {
+                this._assembler && this._assembler.updateRenderData(this);
             }
+
+            // Canvas
+            if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                this._texture.url = this.uuid + '_texture';
+            }
+            // WebGL
             else {
-                this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+                if (!material) {
+                    material = new SpriteMaterial();
+                }
+                // Setup blend function for premultiplied ttf label texture
+                if (this._texture === this._ttfTexture) {
+                    this._srcBlendFactor = cc.macro.BlendFactor.ONE;
+                }
+                else {
+                    this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+                }
+                material.texture = this._texture;
+                this._updateMaterial(material);
             }
-            material.texture = this._texture;
-            // For batch rendering, do not use uniform color.
-            material.useColor = false;
-            this._updateMaterial(material);
-        }
 
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+        }.bind(this));        
     },
 
     _updateColor () {
@@ -600,7 +612,6 @@ let Label = cc.Class({
         if (CC_EDITOR || force) {
             this._updateAssembler();
             this._activateMaterial(force);
-            this._assembler.updateRenderData(this);
         }
     },
 
