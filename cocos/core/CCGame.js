@@ -348,25 +348,25 @@ var game = {
 
     //  @Game loading
 
-    _initEngine(cb) {
+    _initEngine() {
         if (this._rendererInitialized) return;
 
-        this._initRenderer(() => {
-            this._rendererInitialized = true;
-            this.emit(this.EVENT_ENGINE_INITED);
-            if (cb) cb();
-        });
+        this._initRenderer();
 
         if (!CC_EDITOR) {
             this._initEvents();
         }
+
+        this.emit(this.EVENT_ENGINE_INITED);
     },
 
     _prepareFinished(cb) {
         this._prepared = true;
 
         // Init engine
-        this._initEngine(() => {
+        this._initEngine();
+
+        this._initBuiltins(() => {
             // Log engine version
             console.log('Cocos3D v' + cc.ENGINE_VERSION);
 
@@ -680,7 +680,7 @@ var game = {
         }
     },
 
-    _initRenderer(cb) {
+    _initRenderer() {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
@@ -773,20 +773,6 @@ var game = {
                 renderer.addStage('ui');
                 renderer.addStage('shadowcast');
                 this._renderer = new renderer.ForwardRenderer(device);
-
-                builtinResMgr.initBuiltinRes(device, 
-                    '../engine/cocos/3d/builtin/effects/index.json',
-                    '../engine/cocos/renderer/shaders',
-                    builtins => {
-                        this._builtins = builtins;
-                        this._renderer.setBuiltins({
-                            programLib: builtins['program-lib'],
-                            defaultTexture: builtins['default-texture']._texture,
-                            defaultTextureCube: builtins['default-texture-cube']._texture
-                        });
-                        if (cb) cb();
-                    }
-                );
             }
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
@@ -808,6 +794,23 @@ var game = {
             if (!cc._isContextMenuEnable) return false;
         };
 
+        this._rendererInitialized = true;
+    },
+
+    _initBuiltins: function(cb) {
+        builtinResMgr.initBuiltinRes(this._renderContext, 
+            '../engine/cocos/3d/builtin/effects/index.json',
+            '../engine/cocos/renderer/shaders',
+            builtins => {
+                this._builtins = builtins;
+                this._renderer.setBuiltins({
+                    programLib: builtins['program-lib'],
+                    defaultTexture: builtins['default-texture']._texture,
+                    defaultTextureCube: builtins['default-texture-cube']._texture
+                });
+                if (cb) cb();
+            }
+        );
     },
 
     _initEvents: function () {
