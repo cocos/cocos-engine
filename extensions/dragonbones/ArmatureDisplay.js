@@ -252,7 +252,9 @@ let ArmatureDisplay = cc.Class({
         timeScale: {
             default: 1,
             notify () {
-                this._armature.animation.timeScale = this.timeScale;
+                if (this._armature) {
+                    this._armature.animation.timeScale = this.timeScale;
+                }  
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.time_scale'
         },
@@ -290,6 +292,8 @@ let ArmatureDisplay = cc.Class({
     },
 
     ctor () {
+        this._renderDatas = [];
+        this._materialList = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
     },
@@ -329,6 +333,7 @@ let ArmatureDisplay = cc.Class({
             this._armature.dispose();
             this._armature = null;
         }
+        this._renderDatas.length = 0;
     },
 
     _initDebugDraw () {
@@ -373,8 +378,13 @@ let ArmatureDisplay = cc.Class({
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        let factory = dragonBones.CCFactory.getInstance();
-        this._armature = factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
+        var _displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
+        if (!_displayProxy) return;
+
+        this._displayProxy = _displayProxy;
+        this._displayProxy._logicNode_ = this.node;
+
+        this._armature = this._displayProxy._armature;
         this._armature.animation.timeScale = this.timeScale;
 
         if (this.animationName) {
@@ -505,7 +515,9 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     addEventListener (eventType, listener, target) {
-        this.addDBEventListener(eventType, listener, target);
+        if (this._displayProxy) {
+            this._displayProxy.addDBEventListener(eventType, listener, target);
+        }
     },
 
     /**
@@ -519,7 +531,9 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target]
      */
     removeEventListener (eventType, listener, target) {
-        this.removeDBEventListener(eventType, listener, target);
+        if (this._displayProxy) {
+            this._displayProxy.removeDBEventListener(eventType, listener, target);
+        }
     },
 
     /**
@@ -533,7 +547,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName, node) {
-        return dragonBones.CCFactory.getInstance().createArmatureNode(this, armatureName, node);
+        return this._factory.createArmatureNode(this, armatureName, node);
     },
 
     /**
@@ -547,60 +561,6 @@ let ArmatureDisplay = cc.Class({
     armature () {
         return this._armature;
     },
-
-    ////////////////////////////////////
-    // dragonbones api
-    dbInit (armature) {
-        this._armature = armature;
-    },
-
-    dbClear () {
-        this._armature = null;
-    },
-
-    dbUpdate () {
-        if (!CC_DEBUG) return;
-        this._initDebugDraw();
-
-        let debugDraw = this._debugDraw;
-        if (!debugDraw) return;
-        
-        debugDraw.clear();
-        let bones = this._armature.getBones();
-        for (let i = 0, l = bones.length; i < l; i++) {
-            let bone =  bones[i];
-            let boneLength = Math.max(bone.boneData.length, 5);
-            let startX = bone.globalTransformMatrix.tx;
-            let startY = -bone.globalTransformMatrix.ty;
-            let endX = startX + bone.globalTransformMatrix.a * boneLength;
-            let endY = startY - bone.globalTransformMatrix.b * boneLength;
-
-            debugDraw.moveTo(startX, startY);
-            debugDraw.lineTo(endX, endY);
-            debugDraw.stroke();
-        }
-    },
-
-    advanceTimeBySelf  (on) {
-        this.shouldAdvanced = !!on;
-    },
-
-    hasDBEventListener (type) {
-        return this.hasEventListener(type);
-    },
-
-    addDBEventListener (type, listener, target) {
-        this.on(type, listener, target);
-    },
-
-    removeDBEventListener (type, listener, target) {
-        this.off(type, listener, target);
-    },
-
-    dispatchDBEvent  (type, eventObject) {
-        this.emit(type, eventObject);
-    },
-    ////////////////////////////////////
 });
 
 module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;

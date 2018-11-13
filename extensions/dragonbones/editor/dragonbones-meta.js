@@ -28,6 +28,7 @@ const Fs = require('fire-fs');
 const Path = require('fire-path');
 const DRAGONBONES_ENCODING = { encoding: 'utf-8' };
 const CustomAssetMeta = Editor.metas['custom-asset'];
+const RAW_DRAGONBONES_FILE = 'raw-dragonbones.json';
 
 class DragonBonesMeta extends CustomAssetMeta {
     constructor (assetdb) {
@@ -35,7 +36,7 @@ class DragonBonesMeta extends CustomAssetMeta {
         this.dragonBonesJson = '';
     }
 
-    static version () { return '1.0.0'; }
+    static version () { return '1.0.4'; }
     static defaultType () {
         return 'dragonbones';
     }
@@ -53,6 +54,13 @@ class DragonBonesMeta extends CustomAssetMeta {
         return Array.isArray(json.armature);
     }
 
+    dests () {
+        var res = super.dests();
+        // for JSB
+        res.push(Path.join(this._assetdb._uuidToImportPathNoExt(this.uuid), RAW_DRAGONBONES_FILE));
+        return res;
+    }
+
     import (fspath, cb) {
         Fs.readFile(fspath, DRAGONBONES_ENCODING, (err, data) => {
             if (err) {
@@ -64,6 +72,13 @@ class DragonBonesMeta extends CustomAssetMeta {
             var asset = new dragonBones.DragonBonesAsset();
             asset.name = Path.basenameNoExt(fspath);
             asset.dragonBonesJson = this.dragonBonesJson;
+
+            // save raw assets for JSB..
+            this._assetdb.mkdirForAsset(this.uuid);
+            var rawJsonPath = Path.join(this._assetdb._uuidToImportPathNoExt(this.uuid), RAW_DRAGONBONES_FILE);
+            Fs.copySync(fspath, rawJsonPath);
+
+            asset._setRawAsset(RAW_DRAGONBONES_FILE);
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
             cb();
         });
