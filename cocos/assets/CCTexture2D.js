@@ -299,7 +299,7 @@ export default class Texture2D extends TextureBase {
      * @returns {String}
      */
     description () {
-        return "<cc.Texture2D | Name = " + (this._mipmaps[0] ? this._mipmaps[0].url : "") + " | Dimensions = " + super.width + " x " + super.height + ">";
+        return "<cc.Texture2D | Name = " + (this._mipmaps[0] ? this._mipmaps[0].url : "") + " | Dimensions = " + this.width + " x " + this.height + ">";
     }
 
     /**
