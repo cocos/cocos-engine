@@ -325,7 +325,7 @@ sp.Skeleton = cc.Class({
         this._boundingBox = cc.rect();
         this._material = new SpriteMaterial();
         this._renderDatas = [];
-
+        this._materialList = {};
         this._debugRenderer = null;
     },
 
@@ -382,6 +382,7 @@ sp.Skeleton = cc.Class({
 
     update (dt) {
         if (CC_EDITOR) return;
+        if (this.paused) return;
         let skeleton = this._skeleton;
         let state = this._state;
         if (skeleton) {
