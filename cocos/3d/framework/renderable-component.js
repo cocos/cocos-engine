@@ -68,7 +68,7 @@ export default class RenderableComponent extends RenderSystemActor {
         }
 
         let instantiated = Material.getInstantiatedMaterial(this._materials[idx], this);
-        if (instantiated != this) {
+        if (instantiated !== this._materials[idx]) {
             this.setMaterial(instantiated, idx);
         }
 

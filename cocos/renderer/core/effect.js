@@ -85,10 +85,11 @@ class Effect {
         if (!prop) {
             console.warn(`Failed to set property ${name}, property not found.`);
             return;
-        } else if (!typeCheck(value, prop.type)) {
-            console.warn(`Failed to set property ${name}, property type mismatch.`);
-            return;
         }
+        // else if (!typeCheck(value, prop.type)) { // re-enable this after 3.x migration
+        //     console.warn(`Failed to set property ${name}, property type mismatch.`);
+        //     return;
+        // }
         this._properties[name].value = value;
     }
 

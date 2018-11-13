@@ -67,12 +67,7 @@ class Material extends Asset {
     set effectName(val) {
         if (this._effectName !== val) {
             this._effectName = val;
-            const effectAsset = cc.game._builtins[val];
-            if (!effectAsset) {
-                console.warn(`no effect named '${val}' found`);
-                return;
-            }
-            this._effect = Effect.parseEffect(effectAsset);
+            this.setEffect(val);
         }
     }
 
@@ -126,6 +121,23 @@ class Material extends Asset {
         }
     }
 
+    onLoaded() {
+        this.setEffect(this._effectName);
+        for (let def in this._defines)
+            this._effect.define(def, this._defines[def]);
+        for (let prop in this._props)
+            this.setProperty(prop, this._props[prop]);
+    }
+
+    setEffect(val) {
+        const effectAsset = cc.game._builtins[val];
+        if (!effectAsset) {
+            console.warn(`no effect named '${val}' found`);
+            return;
+        }
+        this._effect = Effect.parseEffect(effectAsset);
+    }
+
     static getInstantiatedMaterial(mat, rndCom) {
         if (mat._owner === rndCom) {
             return mat;
@@ -139,49 +151,6 @@ class Material extends Asset {
         }
     }
 }
-
-Material.prototype._serialize = function() {
-    return {    
-        effectName: this._effectName,
-        props: Editor.serialize(this._props),
-        defines: Editor.serialize(this._defines),
-    };
-};
-
-Material.prototype._deserialize = (function () {
-    function loadAsset (handle, target, name, uuid) {
-        let depend = {
-            set asset (asset) {
-                target.setProperty(name, asset);
-            }
-        };
-        handle.result.push(depend, 'asset', uuid);
-    }
-    return function (data, handle) {
-        this.effectName = data.effectName;
-
-        let props = cc.deserialize(data.props);
-        let propNames = Object.keys(props);
-        for (let i = 0; i < propNames.length; i++) {
-            let name = propNames[i];
-            let prop = props[name];
-            
-            if (prop.uuid) {
-                // load prop as an asset
-                loadAsset(handle, this, name, prop.uuid);
-                continue;
-            }
-            this.setProperty(name, props[name]);
-        }
-
-        let defines = cc.deserialize(data.defines);
-        let defineNames = Object.keys(defines);
-        for (let i = 0; i < defineNames.length; i++) {
-            let name = defineNames[i];
-            this.define(name, defines[name]);
-        }
-    };
-})();
 
 export default Material;
 cc.Material = Material;
