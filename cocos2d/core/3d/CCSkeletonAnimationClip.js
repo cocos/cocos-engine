@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const Model = require('./CCModel');
+const AnimationClip = require('../../animation/animation-clip');
 
  /**
  * @module cc
@@ -36,7 +37,7 @@ const Model = require('./CCModel');
  */
 var SkeletonAnimationClip = cc.Class({
     name: 'cc.SkeletonAnimationClip',
-    extends: cc.AnimationClip,
+    extends: AnimationClip,
 
     properties: {
         _modelSetter: {
