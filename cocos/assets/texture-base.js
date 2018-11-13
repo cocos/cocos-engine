@@ -33,11 +33,12 @@ import Asset from './CCAsset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**
- * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
- * @typedef {HTMLImageSource | ArrayBufferView} ImageSource
- * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
+ * @typedef {import("../renderer/gfx/texture-2d").HTMLImageSource} HTMLImageSource
+ * @typedef {import("../renderer/gfx/texture-2d").ImageSource} ImageSource
+ * @typedef {import("../renderer/gfx/texture-2d").TextureUpdateOpts} TextureUpdateOpts
  * 
- * @exports ImageData
+ * @exports HTMLImageSource
+ * @exports ImageSource
  * @exports TextureUpdateOpts
  */
 
