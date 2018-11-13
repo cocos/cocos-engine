@@ -76,8 +76,7 @@ export default class Texture2D extends TextureBase {
      * @param {ImageAsset[]} value
      */
     set mipmaps(value) {
-        this._mipmaps = value;
-        this._updateMipmaps(value.map(mipmap => mipmap.data));
+        this._setMipmaps(value);
     }
 
     /**
@@ -142,127 +141,6 @@ export default class Texture2D extends TextureBase {
 
     /**
      * !#en
-     * Handler of texture loaded event.
-     * Since v2.0, you don't need to invoke this function, it will be invoked automatically after texture loaded.
-     * !#zh 贴图加载事件处理器。v2.0 之后你将不在需要手动执行这个函数，它会在贴图加载成功之后自动执行。
-     * @method handleLoadedTexture
-     * @deprecated You shall not manually call this function since v2.0.
-     */
-    handleLoadedTexture () {
-        // Do nothing if the mipmap at level 0 is incomplete.
-        if (this._mipmaps.length === 0 || !this._mipmaps[0].data) {
-            return;
-        }
-
-        /** @type {ImageSource[]} */
-        let mipmapSources = null;
-        if (this._mipmaps.every(mipmap => mipmap.data !== null)) {
-            mipmapSources = this._mipmaps.map(mipmap => mipmap.data);
-        } else {
-            mipmapSources = [this._mipmaps[0].data];
-        }
-        this._updateMipmaps(mipmapSources);
-
-        //dispatch load event to listener.
-        this.loaded = true;
-        this.emit("load");
-
-        if (cc.macro.CLEANUP_IMAGE_CACHE) {
-            this._mipmaps.forEach(mipmap => {
-                if (mipmap instanceof HTMLImageElement) {
-                    mipmap.src = "";
-                    cc.loader.removeItem(mipmap.id);
-                }
-            });
-        }
-    }
-
-    /**
-     * !#en
-     * Initializes this texture with HTML element(s).
-     * !#zh 用 HTML Image 或 Canvas 对象初始化贴图。
-     * @method initWithElement
-     * @param {HTMLImageElement|HTMLCanvasElement|(HTMLImageElement | HTMLCanvasElement)[]} element
-     * The element can be a single HTML element or an array of multiple HTML elements.
-     * If it's an array, the N-th element of array will be taken to iniailize the mipmap at level N;
-     * Otherwise, it is treat as an array with this single element.
-     * @example
-     * var img = new Image();
-     * img.src = dataURL;
-     * texture.initWithElement(img);
-     */
-    initWithElement (element) {
-        /** @type {(HTMLImageElement|HTMLCanvasElement)[]} */
-        let mipmapSources = null;
-        if (!Array.isArray(element)) {
-            mipmapSources = [element];
-        } else {
-            mipmapSources = element;
-        }
-
-        // Load the elements.
-        // Once successed, initialize the _mipmap with these elements.
-        let counter = 0;
-        const onLoadMipmap = () => {
-            ++counter;
-            if (counter === this._mipmaps.length) {
-                this.handleLoadedTexture();
-            }
-        };
-        const mipmaps = mipmapSources.map((mipmapImage) => {
-            const mipmap = new ImageAsset();
-            if (!mipmapImage) {
-                onLoadMipmap();
-                return mipmap;
-            }
-            mipmap.data = mipmapImage;
-            if (CC_WECHATGAME || CC_QQPLAY || mipmapImage.complete || mipmapImage instanceof HTMLCanvasElement) {
-                onLoadMipmap();
-            } else {
-                mipmapImage.addEventListener('load', function () {
-                    onLoadMipmap();
-                });
-                mipmapImage.addEventListener('error', function (err) {
-                    cc.warnID(3119, err.message);
-                });
-            }
-            return mipmap;
-        });
-        this._setMipmaps(mipmaps);
-    }
-
-    /**
-     * !#en
-     * Intializes this texture so that it has one mipmap,
-     * the mipmap is initialized with a Uint8Array.
-     * !#zh 使用一个存储在 Unit8Array 中的图像数据（raw data）初始化数据。
-     * @method initWithData
-     * @param {ArrayBufferView} data
-     * @param {Number} pixelFormat
-     * @param {Number} pixelsWidth
-     * @param {Number} pixelsHeight
-     * @return {Boolean}
-     */
-    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
-        this._format = pixelFormat;
-
-        const mipmap = new ImageAsset();
-        mipmap._nativeAsset = {
-            _data: data,
-            _compressed: false,
-            width: pixelsWidth,
-            height: pixelsHeight,
-        };
-        this._setMipmaps([mipmap]);
-        this._updateMipmaps([data]);
-
-        this.loaded = true;
-        this.emit("load");
-        return true;
-    }
-
-    /**
-     * !#en
      * HTMLElement Object getter, available only on web.
      * !#zh 获取当前贴图对应的 HTML Image 或 Canvas 对象，只在 Web 平台下有效。
      * @method getHtmlElementObj
@@ -316,18 +194,40 @@ export default class Texture2D extends TextureBase {
 
     /**
      * Sets the _mipmaps to specified value, and updates the width and height accordingly.
-     * Notes, this method won't synchronize the mipmap data to underlying texture.
+     * If available, synchronize the mipmap data to underlying texture.
      * @param {ImageAsset[]} mipmaps 
      */
     _setMipmaps(mipmaps) {
         this._mipmaps = mipmaps;
         if (mipmaps.length === 0) {
-            this.width = 0;
-            this.height = 0;
+            super.update({
+                width: 0,
+                height: 0
+            });
         } else {
-            this.width = this._mipmaps[0].width;
-            this.height = this._mipmaps[0].height;
+            super.update({
+                width: this._mipmaps[0].width,
+                height: this._mipmaps[0].height,
+                format: this._mipmaps[0]._format
+            });
         }
+        
+        let counter = 0;
+        const inc = () => {
+            ++counter;
+            if (counter === mipmaps.length) {
+                this._updateMipmaps(mipmaps.map(mipmap => mipmap.data));
+            }
+        };
+        mipmaps.forEach(mipmap => {
+            if (mipmap.loaded) {
+                inc();
+            } else {
+                mipmap.addEventListener("load", () => {
+                    inc();
+                });
+            }
+        });
     }
 
     /**
@@ -344,7 +244,7 @@ export default class Texture2D extends TextureBase {
         }
     }
 
-    _serialize () {
+    _serialize() {
         return {
             base: super._serialize(),
             mipmaps: this._mipmaps.map(mipmap => mipmap._uuid)
@@ -355,20 +255,21 @@ export default class Texture2D extends TextureBase {
         super._deserialize(data.base);
 
         const mipmaps = new Array(data.mipmaps.length);
-        const thiz = this;
+        const self = this;
         let counter = 0;
-        data.mipmaps.forEach((mipmapUUID, index) => {
+        for (let i = 0; i < data.mipmaps.length; ++i) {
+            const mipmapUUID = data.mipmaps[i];
             let hack = {
                 set setter(v) {
-                    mipmaps[index] = v;
+                    mipmaps[i] = v;
                     ++counter;
                     if (counter === mipmaps.length) {
-                        thiz.mipmaps = mipmaps;
+                        self.mipmaps = mipmaps;
                     }
                 }
             };
             handle.result.push(hack, 'setter', mipmapUUID);
-        });
+        }
     }
 }
 

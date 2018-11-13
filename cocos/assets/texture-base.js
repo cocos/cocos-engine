@@ -548,6 +548,9 @@ export default class TextureBase extends Asset {
 
     // SERIALIZATION
 
+    /**
+     * @return {any}
+     */
     _serialize () {
         return this._minFilter + "," + this._magFilter + "," +
             this._wrapS + "," + this._wrapT + "," +
