@@ -192,7 +192,10 @@ public class CanvasRenderingContext2DImpl {
             paint.setTextSkewX(_sApproximatingOblique);
         }
         if(smallCapsFontVariant && Build.VERSION.SDK_INT >= 21) {
-            paint.setFontFeatureSettings("smcp");
+            Cocos2dxReflectionHelper.<Void>invokeInstanceMethod(paint,
+                    "setFontFeatureSettings",
+                    new Class[]{String.class},
+                    new Object[]{"smcp"});
         }
         return paint;
     }
