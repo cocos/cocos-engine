@@ -24,6 +24,12 @@
  ****************************************************************************/
 //@ts-check
 import {ccclass, property} from "../core/data/class-decorator";
+import EventTarget from '../core/event/event-target';
+import {addon} from '../core/utils/js';
+
+/**
+ * @typedef {{ _data: ArrayBufferView, _compressed: boolean, width: number, height: number, format: number}} RawImageData
+ */
 
 const CHAR_CODE_0 = 48;    // '0'
 
@@ -35,8 +41,12 @@ export default class ImageAsset extends cc.Asset {
 
     static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'];
 
-    constructor() {
+    /**
+     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} nativeAsset
+     */
+    constructor(nativeAsset = undefined) {
         super();
+        EventTarget.call(this);
 
         /**
          * !#en
@@ -56,17 +66,27 @@ export default class ImageAsset extends cc.Asset {
         this._data = null;
 
         /**
-         * @type {HTMLCanvasElement | HTMLImageElement | { _data: ArrayBufferView, _compressed: boolean, width: number, height: number}}
+         * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
          */
-        this._nativeData = null;
+        this._nativeData = {
+            _data: null,
+            width: 0,
+            height: 0,
+            format: 0,
+            _compressed: false
+        };
 
         if (CC_EDITOR) {
             this._exportedExts = null;
         }
+
+        if (nativeAsset !== undefined) {
+            this._nativeAsset = nativeAsset;
+        }
     }
     
     /**
-     * @type {HTMLCanvasElement | HTMLImageElement | { _data: ArrayBufferView, _compressed: boolean, width: number, height: number}}
+     * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
      */
     @property({
         override: true
@@ -77,19 +97,14 @@ export default class ImageAsset extends cc.Asset {
     }
 
     /**
-     * @param {HTMLCanvasElement | HTMLImageElement | { _data: ArrayBufferView, _compressed: boolean, width: number, height: number}} value
+     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} value
      */
     set _nativeAsset (value) {
         this._nativeData = value;
-
-        //@ts-ignore
-        if (value._compressed && value._data) {
-            //@ts-ignore
-            this._data = value._data;
-        }
-        else {
-            //@ts-ignore
-            this._data = value;
+        if (value instanceof HTMLElement) {
+            this.data = value;
+        } else {
+            this.data = value._data;
         }
     }
 
@@ -102,15 +117,46 @@ export default class ImageAsset extends cc.Asset {
 
     set data(data) {
         this._data = data;
+        if (!(data instanceof HTMLElement)) {
+            this._onDataComplete();
+        } else {
+            if (CC_WECHATGAME || CC_QQPLAY || data.complete || data instanceof HTMLCanvasElement) {
+                this._onDataComplete();
+            } else {
+                this.loaded = false;
+                data.addEventListener('load', () => {
+                    this._onDataComplete();
+                });
+                data.addEventListener('error', (err) => {
+                    cc.warnID(3119, err.message);
+                });
+            }
+        }
     }
 
     get width() {
-        return this._nativeData ? this._nativeData.width : 0;
+        return this._nativeData.width;
     }
 
     get height() {
-        return this._nativeData ? this._nativeData.height : 0;
+        return this._nativeData.height;
     }
+
+    get format() {
+        if (this._nativeData instanceof HTMLElement) {
+            return undefined;
+        }
+        return this._nativeData.format;
+    }
+
+    // destroy() {
+    //     if (cc.macro.CLEANUP_IMAGE_CACHE) {
+    //         if (this._data instanceof HTMLImageElement) {
+    //             this._data.src = "";
+    //             cc.loader.removeItem(this._data.id);
+    //         }
+    //     }
+    // }
 
     // SERIALIZATION
 
@@ -183,6 +229,21 @@ export default class ImageAsset extends cc.Asset {
             }
         }
     }
+
+    _onDataComplete() {
+        this.loaded = true;
+        this.emit("load");
+    }
 }
+
+/**
+ * !#zh
+ * 当该资源加载成功后触发该事件
+ * !#en
+ * This event is emitted when the asset is loaded
+ *
+ * @event load
+ */
+addon(ImageAsset.prototype, EventTarget.prototype);
 
 cc.ImageAsset = ImageAsset;

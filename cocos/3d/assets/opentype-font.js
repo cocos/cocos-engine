@@ -180,7 +180,7 @@ export default class OpentypeFont extends Font {
         this._packer.clear();
         let ctx = this._packCanvas.getContext('2d');
         ctx.clearRect(0, 0, this._packCanvas.width, this._packCanvas.height);
-        this._fontAtlas.updateImage(this._packCanvas);
+        this._fontAtlas.image = new ImageAsset(this._packCanvas);
     }
 
     _addTextToFontAtlas(text) {
@@ -242,7 +242,7 @@ export default class OpentypeFont extends Font {
 
         if (fontAtlasDirty) {
             // update font atlas
-            this._fontAtlas.updateImage(this._packCanvas);
+            this._fontAtlas.image = new ImageAsset(this._packCanvas);
         }
     }
 
@@ -267,7 +267,7 @@ export default class OpentypeFont extends Font {
 
         if (fontAtlasDirty) {
             // update font atlas
-            this._fontAtlas.updateImage(this._packCanvas);
+            this._fontAtlas.image = new ImageAsset(this._packCanvas);
         }
     }
 }
