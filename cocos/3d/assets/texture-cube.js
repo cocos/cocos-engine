@@ -65,37 +65,52 @@ export default class TextureCube extends TextureBase {
         this._texture = null;
     }
 
-    /**
-     * Gets the mipmap images.
-     * Note that the result do not contains the auto generated mipmaps.
-     * @return {Mipmap[]}
-     */
-    get mipmaps() {
-        return this._mipmaps;
+    get front() {
+        return this._mipmaps[0].front;
     }
 
-    /**
-     * Sets the mipmaps images.
-     * @param {Mipmap[]} value
-     */
-    set mipmaps(value) {
-        this._setMipmaps(value);
+    set front(value) {
+        this._mipmaps[0].front = value;
     }
 
-    /**
-     * Gets the mipmap image at level 0.
-     * @return {Mipmap}
-     */
-    get image() {
-        return this._mipmaps.length === 0 ? null : this._mipmaps[0];
+    get back() {
+        return this._mipmaps[0].back;
     }
 
-    /**
-     * Sets the mipmap images as a single mipmap image.
-     * @param {Mipmap} value
-     */
-    set image(value) {
-        this.mipmaps = [value];
+    set back(value) {
+        this._mipmaps[0].back = value;
+    }
+
+    get left() {
+        return this._mipmaps[0].left;
+    }
+
+    set left(value) {
+        this._mipmaps[0].left = value;
+    }
+
+    get right() {
+        return this._mipmaps[0].right;
+    }
+
+    set right(value) {
+        this._mipmaps[0].right = value;
+    }
+
+    get top() {
+        return this._mipmaps[0].top;
+    }
+
+    set top(value) {
+        this._mipmaps[0].top = value;
+    }
+
+    get bottom() {
+        return this._mipmaps[0].bottom;
+    }
+
+    set bottom(value) {
+        this._mipmaps[0].bottom = value;
     }
 
     /**
@@ -103,6 +118,89 @@ export default class TextureCube extends TextureBase {
      */
     getImpl () {
         return this._texture;
+    }
+
+    handleLoadedTexture() {
+        // Do nothing if the mipmap at level 0 is incomplete.
+        if (this._mipmaps.length === 0 || !TextureCube._isComplete(this._mipmaps[0])) {
+            return;
+        }
+
+        /** @type {ImageSource[][]} */
+        let mipmapSources = null;
+        if (this._mipmaps.every(mipmap => TextureCube._isComplete(mipmap))) {
+            mipmapSources = this._mipmaps.map(mipmap => TextureCube._getMipmapSource(mipmap));
+        } else {
+            mipmapSources = [TextureCube._getMipmapSource(this._mipmaps[0])];
+        }
+        this._updateMipmaps(mipmapSources);
+
+        //dispatch load event to listener.
+        this.loaded = true;
+        this.emit("load");
+
+        this._mipmaps.forEach(mipmap => TextureCube._foreachFace(mipmap, face => {
+            if (cc.macro.CLEANUP_IMAGE_CACHE && face instanceof HTMLImageElement) {
+                // wechat game platform will cache image parsed data,
+                // so image will consume much more memory than web, releasing it
+                face.src = "";
+                // Release image in loader cache
+                cc.loader.removeItem(face.id);
+            }
+        }));
+    }
+
+    /**
+     * @param {MipmapHTMLImageSource | MipmapHTMLImageSource[]} element
+     */
+    initWithElement(element) {
+        /** @type {MipmapHTMLImageSource[]} */
+        let mipmapSources = null;
+        if (!Array.isArray(element)) {
+            mipmapSources = [element];
+        } else {
+            mipmapSources = element;
+        }
+
+        // Load the elements.
+        // Once successed, initialize the _mipmap with these elements.
+        let counter = 0;
+        const onLoadMipmap = () => {
+            ++counter;
+            if (counter === this._mipmaps.length * 6) {
+                this.handleLoadedTexture();
+            }
+        };
+
+        const loadImageSource = (image) => {
+            if (!image) {
+                onLoadMipmap();
+                return;
+            }
+            if (CC_WECHATGAME || CC_QQPLAY || image.complete || image instanceof HTMLCanvasElement) {
+                onLoadMipmap();
+            } else {
+                image.addEventListener('load', function () {
+                    onLoadMipmap();
+                });
+                image.addEventListener('error', function (err) {
+                    cc.warnID(3119, err.message);
+                });
+            }
+        };
+        const mipmaps = mipmapSources.map((mipmapSource) => {
+            /** @type {Mipmap} */
+            const mipmap = {};
+            for (let face in mipmapSource) {
+                const faceSource = mipmapSource[face];
+                loadImageSource(faceSource);
+                const faceImage = new ImageAsset();
+                faceImage.data = faceSource;
+                mipmap[face] = faceImage;
+            }
+            return mipmap;
+        });
+        this._setMipmaps(mipmaps);
     }
 
     /**
@@ -137,42 +235,18 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Sets the _mipmaps to specified value, and updates the width and height accordingly.
-     * If available, synchronize the mipmap data to underlying texture.
+     * Notes, this method won't synchronize the mipmap data to underlying texture.
      * @param {Mipmap[]} mipmaps 
      */
     _setMipmaps(mipmaps) {
         this._mipmaps = mipmaps;
         if (mipmaps.length === 0) {
-            super.update({
-                width: 0,
-                height: 0
-            });
+            this.width = 0;
+            this.height = 0;
         } else {
-            super.update({
-                width: this._mipmaps[0].front.width,
-                height: this._mipmaps[0].front.height,
-                format: this._mipmaps[0].front._format
-            });
+            this.width = this._mipmaps[0].front.width;
+            this.height = this._mipmaps[0].front.height;
         }
-
-        let counter = 0;
-        const inc = () => {
-            ++counter;
-            if (counter === this._mipmaps.length * 6) {
-                this._updateMipmaps(this._mipmaps.map(mipmap => TextureCube._getMipmapSource(mipmap)));
-            }
-        };
-        mipmaps.forEach(mipmap => {
-            TextureCube._foreachFace(mipmap, face => {
-                if (face.loaded) {
-                    inc();
-                } else {
-                    face.addEventListener("load", () => {
-                        inc();
-                    });
-                }
-            });
-        });
     }
 
     /**
@@ -187,6 +261,19 @@ export default class TextureCube extends TextureBase {
         } else {
             this._texture.update(opts);
         }
+    }
+
+    /**
+     * 
+     * @param {Mipmap} mipmap 
+     */
+    static _isComplete(mipmap) {
+        for (let face in mipmap) {
+            if (!mipmap[face].data) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

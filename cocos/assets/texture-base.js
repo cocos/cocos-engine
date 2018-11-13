@@ -33,14 +33,17 @@ import Asset from './CCAsset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**
- * @typedef {HTMLCanvasElement | HTMLImageElement | ArrayBufferView} ImageDataSource
- * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageDataSource[], image?: ImageDataSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
+ * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
+ * @typedef {HTMLImageSource | ArrayBufferView} ImageSource
+ * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
  * 
- * @exports ImageDataSource
+ * @exports ImageData
  * @exports TextureUpdateOpts
  */
 
 let _images = [];
+
+const CHAR_CODE_1 = 49;    // '1'
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -54,7 +57,7 @@ var idGenerator = new IDGenerator('Tex');
  * The texture pixel format, default value is RGBA8888,
  * you should note that textures loaded by normal image files (png, jpg) can only support RGBA8888 format,
  * other formats are supported by compressed file types or raw data.
- * @enum PixelFormat
+ * @enum {number}
  */
 const PixelFormat = Enum({
     /**
@@ -153,7 +156,7 @@ const PixelFormat = Enum({
 
 /**
  * The texture wrap mode
- * @enum WrapMode
+ * @enum {number}
  */
 export const WrapMode = Enum({
     /**
@@ -181,7 +184,7 @@ export const WrapMode = Enum({
 
 /**
  * The texture filter mode
- * @enum Filter
+ * @enum {number}
  */
 export const Filter = Enum({
     /**
@@ -298,7 +301,9 @@ export default class TextureBase extends Asset {
         this.loaded = false;
         /**
          * !#en
-         * Texture width in pixel
+         * Texture width, in pixels.
+         * For 2D texture, the width of texture is equal to its very first mipmap's width;
+         * For Cubemap texture, the width of texture is equal to its every sides's very first mipmaps's width.
          * !#zh
          * 贴图像素宽度
          * @property width
@@ -307,7 +312,9 @@ export default class TextureBase extends Asset {
         this.width = 0;
         /**
          * !#en
-         * Texture height in pixel
+         * Texture height, in pixels.
+         * For 2D texture, the height of texture is equal to its very first mipmap's height;
+         * For Cubemap texture, the height of texture is equal to its every sides's very first mipmaps's height.
          * !#zh
          * 贴图像素高度
          * @property height
@@ -536,6 +543,39 @@ export default class TextureBase extends Asset {
             var opts = _getSharedOptions();
             opts.mipmap = mipmap;
             this.update(opts);
+        }
+    }
+
+    // SERIALIZATION
+
+    _serialize () {
+        return this._minFilter + "," + this._magFilter + "," +
+            this._wrapS + "," + this._wrapT + "," +
+            (this._premultiplyAlpha ? 1 : 0) + "," +
+            this._mipFilter + "," +
+            this._anisotropy;
+    }
+
+    /**
+     * 
+     * @param {string} data 
+     */
+    _deserialize (data) {
+        let fields = data.split(',');
+        fields.unshift("");
+        if (fields.length >= 6) {
+            // decode filters
+            this._minFilter = parseInt(fields[1]);
+            this._magFilter = parseInt(fields[2]);
+            // decode wraps
+            this._wrapS = parseInt(fields[3]);
+            this._wrapT = parseInt(fields[4]);
+            // decode premultiply alpha
+            this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
+        }
+        if (fields.length >= 8) {
+            this._mipFilter = parseInt(fields[6]);
+            this._anisotropy = parseInt(fields[7]);
         }
     }
 }
