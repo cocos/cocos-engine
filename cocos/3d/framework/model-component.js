@@ -278,7 +278,7 @@ export default class ModelComponent extends RenderableComponent {
             const builtinMaterial = new cc.Material();
             builtinMaterial.effectName = 'builtin-effect-unlit';
             builtinMaterial.define("USE_COLOR", true);
-            builtinMaterial.setProperty("color", new cc.Color(123, 0, 0, 255));
+            builtinMaterial.setProperty("color", new cc.Color(255, 0, 255, 255));
             ModelComponent._builtinMaterial = builtinMaterial;
         }
         return ModelComponent._builtinMaterial;

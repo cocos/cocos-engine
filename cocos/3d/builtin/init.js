@@ -6,7 +6,7 @@ import EffectAsset from '../assets/effect-asset';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
-    initBuiltinRes: function (device, onComplete) {
+    initBuiltinRes: function (device, effects, shaderDir, onComplete) {
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
 
@@ -76,7 +76,7 @@ let builtinResMgr = {
         // async builtin shaders
         // ============================
 
-        this.loadShaders('../engine/cocos/renderer/shaders', (temps, chunks) => {
+        this.loadShaders(shaderDir, (temps, chunks) => {
             builtins['program-lib'] = new ProgramLib(device, temps, chunks);
             if (!--remainingJobs) onComplete(builtins);
         });
@@ -85,7 +85,7 @@ let builtinResMgr = {
         // async builtin effects
         // ============================
 
-        this.loadEffects('../engine/cocos/3d/builtin/effects/index.json', effects => {
+        this.loadEffects(effects, effects => {
             Object.assign(builtins, effects);
             if (!--remainingJobs) onComplete(builtins);
         });

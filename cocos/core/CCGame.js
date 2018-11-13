@@ -774,15 +774,19 @@ var game = {
                 renderer.addStage('shadowcast');
                 this._renderer = new renderer.ForwardRenderer(device);
 
-                builtinResMgr.initBuiltinRes(device, builtins => {
-                    this._builtins = builtins;
-                    this._renderer.setBuiltins({
-                        programLib: builtins['program-lib'],
-                        defaultTexture: builtins['default-texture']._texture,
-                        defaultTextureCube: builtins['default-texture-cube']._texture
-                    });
-                    if (cb) cb();
-                });
+                builtinResMgr.initBuiltinRes(device, 
+                    '../engine/cocos/3d/builtin/effects/index.json',
+                    '../engine/cocos/renderer/shaders',
+                    builtins => {
+                        this._builtins = builtins;
+                        this._renderer.setBuiltins({
+                            programLib: builtins['program-lib'],
+                            defaultTexture: builtins['default-texture']._texture,
+                            defaultTextureCube: builtins['default-texture-cube']._texture
+                        });
+                        if (cb) cb();
+                    }
+                );
             }
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
