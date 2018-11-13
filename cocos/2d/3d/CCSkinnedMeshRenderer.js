@@ -109,7 +109,13 @@ let SkinnedMeshRenderer = cc.Class({
             this._jointsTextureData = new Float32Array(size * size * 4);
             
             let texture = new cc.Texture2D();
-            texture.initWithData(this._jointsTextureData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
+            texture.image = new cc.ImageAsset({ 
+                _data: this._jointsTextureData,
+                format: cc.Texture2D.PixelFormat.RGBA32F,
+                width: size,
+                height: size,
+                _compressed : false
+            });
 
             this._jointsTexture = texture;
         }

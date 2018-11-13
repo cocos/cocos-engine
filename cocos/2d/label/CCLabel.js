@@ -548,7 +548,7 @@ let Label = cc.Class({
                     this._ttfTexture.setPremultiplyAlpha(true);
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                this._ttfTexture.image = new ImageAsset(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
         }

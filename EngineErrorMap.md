@@ -1054,6 +1054,7 @@ Mimpap texture only works in POT textures
 
 ### 3118
 
+<!-- DEPRECATED -->
 contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function.
 
 ### 3119

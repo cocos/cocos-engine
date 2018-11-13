@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import ImageAsset from './image-asset';
 import Texture2D from './CCTexture2D';
 
 /**
@@ -66,7 +67,7 @@ let textureUtil = {
     cacheImage (url, image) {
         if (url && image) {
             var tex = new Texture2D();
-            tex.initWithElement(image);
+            tex.image = new ImageAsset(image);
             var item = {
                 id: url,
                 url: url, // real download url, maybe changed

@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
+const ImageAsset = require('../assets/image-asset');
 
 let WXSubContextView;
 
@@ -83,7 +84,7 @@ else {
                     sharedCanvas.height = this.node.height;
                 }
                 this._tex.setPremultiplyAlpha(true);
-                this._tex.initWithElement(sharedCanvas);
+                this._tex.image = new ImageAsset(sharedCanvas);
 
                 this._sprite = this.node.getComponent(cc.Sprite);
                 if (!this._sprite) {
@@ -105,7 +106,7 @@ else {
             if (!this._tex || !this._context) {
                 return;
             }
-            this._tex.initWithElement(this._context.canvas);
+            this._tex.image = new ImageAsset(this._context.canvas);
             this._sprite._activateMaterial();
         },
 
