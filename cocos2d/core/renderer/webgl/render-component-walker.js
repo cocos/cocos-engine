@@ -186,7 +186,7 @@ RenderComponentWalker.prototype = {
     },
 
     _commitComp (comp, assembler, cullingMask) {
-        if (this.material._hash != comp._material._hash || 
+        if (this.material._hash !== comp._material._hash || 
             this.cullingMask !== cullingMask) {
             this._flush();
     
