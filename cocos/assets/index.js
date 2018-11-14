@@ -37,3 +37,4 @@ export {default as JsonAsset} from './CCJsonAsset';
 export {default as GLTFAsset} from './CCGLTFAsset';
 export {default as BufferAsset} from './CCBufferAsset';
 export {default as AssetLibrary} from './CCAssetLibrary';
+export {default as ImageAsset} from './image-asset';

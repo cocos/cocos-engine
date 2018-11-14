@@ -600,6 +600,9 @@ export default class Device {
     }
 
     // statics
+    /**
+     * @type {WebGLRenderingContext}
+     */
     this._gl = gl;
     this._extensions = {};
     this._caps = {}; // capability

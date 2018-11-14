@@ -1,25 +1,20 @@
+// @ts-check
 import Texture from './texture';
 import { enums, glFilter, glTextureFmt } from './enums';
 import { isPow2 } from './misc';
+
+/**
+ * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
+ * @typedef {HTMLImageSource | ArrayBufferView} ImageSource
+ * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
+ * @typedef {import("../gfx/device").default} Device
+ */
 
 export default class Texture2D extends Texture {
   /**
    * @constructor
    * @param {Device} device
-   * @param {Object} options
-   * @param {Array} options.images
-   * @param {Boolean} options.mipmap
-   * @param {Number} options.width
-   * @param {Number} options.height
-   * @param {TEXTURE_FMT_*} options.format
-   * @param {Number} options.anisotropy
-   * @param {FILTER_*} options.minFilter
-   * @param {FILTER_*} options.magFilter
-   * @param {FILTER_*} options.mipFilter
-   * @param {WRAP_*} options.wrapS
-   * @param {WRAP_*} options.wrapT
-   * @param {Boolean} options.flipY
-   * @param {Boolean} options.premultiplyAlpha
+   * @param {TextureUpdateOpts} options
    */
   constructor(device, options) {
     super(device);
@@ -35,20 +30,7 @@ export default class Texture2D extends Texture {
 
   /**
    * @method update
-   * @param {Object} options
-   * @param {Array} options.images
-   * @param {Boolean} options.mipmap
-   * @param {Number} options.width
-   * @param {Number} options.height
-   * @param {TEXTURE_FMT_*} options.format
-   * @param {Number} options.anisotropy
-   * @param {FILTER_*} options.minFilter
-   * @param {FILTER_*} options.magFilter
-   * @param {FILTER_*} options.mipFilter
-   * @param {WRAP_*} options.wrapS
-   * @param {WRAP_*} options.wrapT
-   * @param {Boolean} options.flipY
-   * @param {Boolean} options.premultiplyAlpha
+   * @param {TextureUpdateOpts} options
    */
   update(options) {
     let gl = this._device._gl;

@@ -118,7 +118,6 @@ export default class SkinningModelComponent extends ModelComponent {
 
     update(dt) {
         this._updateMatrices();
-        super.update();
     }
 
 

@@ -100,7 +100,7 @@ function generateAtlas () {
     }
 
     let texture = new cc.Texture2D();
-    texture.initWithElement(canvas);
+    texture.image = new ImageAsset(canvas);
 
     let spriteFrame = new cc.SpriteFrame();
     spriteFrame.setTexture(texture);
