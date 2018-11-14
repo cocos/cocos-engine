@@ -304,22 +304,15 @@ export default class Texture2D extends TextureBase {
     _deserialize (data, handle) {
         super._deserialize(data.base);
 
-        const mipmaps = new Array(data.mipmaps.length);
-        const self = this;
-        let counter = 0;
+        this._mipmaps = new Array(data.mipmaps.length);
         for (let i = 0; i < data.mipmaps.length; ++i) {
             const mipmapUUID = data.mipmaps[i];
-            let hack = {
-                set setter(v) {
-                    mipmaps[i] = v;
-                    ++counter;
-                    if (counter === mipmaps.length) {
-                        self.mipmaps = mipmaps;
-                    }
-                }
-            };
-            handle.result.push(hack, 'setter', mipmapUUID);
+            handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
         }
+    }
+
+    onLoaded() {
+        this.mipmaps = this._mipmaps;
     }
 }
 
