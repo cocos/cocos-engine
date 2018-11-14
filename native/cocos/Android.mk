@@ -84,6 +84,9 @@ ui/edit-box/EditBox-android.cpp
 
 # only compile v8 debugger in DEBUG mode
 ifeq ($(NDK_DEBUG),1)
+USE_V8_DEBUGGER := 1
+endif
+ifeq ($(USE_V8_DEBUGGER),1)
 LOCAL_SRC_FILES += \
 scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
 scripting/js-bindings/jswrapper/v8/debugger/util.cc \

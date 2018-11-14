@@ -45,7 +45,15 @@
     #error "Unknown Script Engine"
 #endif
 
-#if !defined(ANDROID_INSTANT) && defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#ifndef USE_V8_DEBUGGER
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#define USE_V8_DEBUGGER 1
+#else
+#define USE_V8_DEBUGGER 0
+#endif
+#endif
+
+#if !defined(ANDROID_INSTANT) && defined(USE_V8_DEBUGGER) && USE_V8_DEBUGGER > 0
 #define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2
 #define HAVE_INSPECTOR 1
