@@ -61,11 +61,6 @@ export default class ImageAsset extends cc.Asset {
         this.url = "";
 
         /**
-         * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
-         */
-        this._data = null;
-
-        /**
          * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
          */
         this._nativeData = {
@@ -100,26 +95,25 @@ export default class ImageAsset extends cc.Asset {
      * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} value
      */
     set _nativeAsset (value) {
-        this._nativeData = value;
-        if (value instanceof HTMLElement) {
-            this.data = value;
-        } else {
-            this.data = value._data;
-        }
+        this.reset(value);
     }
 
     /**
      * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
      */
     get data() {
-        return this._data;
+        return this._nativeData instanceof HTMLElement ? this._nativeData : this._nativeData._data;
     }
 
-    set data(data) {
-        this._data = data;
+    /**
+     * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} data
+     */
+    reset(data) {
         if (!(data instanceof HTMLElement)) {
+            this._nativeData = Object.create(data);
             this._onDataComplete();
         } else {
+            this._nativeData = data;
             if (CC_WECHATGAME || CC_QQPLAY || data.complete || data instanceof HTMLCanvasElement) {
                 this._onDataComplete();
             } else {
