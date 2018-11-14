@@ -1,5 +1,19 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+### VERT ###
+
+attribute vec2 a_position;
+attribute vec2 a_uv0;
+
+varying vec2 uv;
+
+void main() {
+  uv = a_uv0;
+  gl_Position = vec4(a_position.x, a_position.y, 0.0, 1.0);
+}
+
+### FRAG ###
+
 // log-space gaussian blur for shadow map pre-filter.
 // TODO: also need a linear-space one for normally use ?
 
@@ -8,7 +22,7 @@ varying vec2 uv;
 uniform sampler2D texture;
 uniform vec2 pixelSize;
 
-#include <packing.frag>
+#include <packing>
 
 float kGaussianBlur[10];
 

@@ -1,4 +1,4 @@
-#include <particle-common.vert>
+#include <particle-common>
 attribute vec3 a_position; // center position
 attribute vec3 a_uv;  // xy:vertex index,z:frame index
 attribute vec2 a_uv0; // size, angle
