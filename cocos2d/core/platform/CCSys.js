@@ -898,53 +898,14 @@ function initSys () {
         var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
         var _supportCanvas = !!_tmpCanvas1.getContext("2d");
         var _supportWebGL = false;
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (CC_TEST) {
+            _supportWebGL = false;
+        }
+        else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
             _supportWebGL = true;
         }
         else if (win.WebGLRenderingContext) {
-            if (create3DContext(document.createElement("CANVAS"))) {
-                _supportWebGL = true;
-            }
-            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-                var browserVer = parseFloat(sys.browserVersion);
-                switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                    _supportWebGL = false;
-                    break;
-                }
-            }
+            _supportWebGL = true;
         }
 
         /**
