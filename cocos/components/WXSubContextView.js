@@ -106,7 +106,7 @@ else {
             if (!this._tex || !this._context) {
                 return;
             }
-            this._tex.image = new ImageAsset(this._context.canvas);
+            this._tex.updateImage(this._context.canvas);
             this._sprite._activateMaterial();
         },
 
