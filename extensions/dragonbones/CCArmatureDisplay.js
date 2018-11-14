@@ -24,15 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 let EventTarget = require('../../cocos2d/core/event/event-target');
+let CCNode = require('../../cocos2d/core/CCNode');
 
 dragonBones.CCArmatureDisplay = cc.Class({
     name: 'dragonBones.CCArmatureDisplay',
-    mixins: [EventTarget],
+    // mix CCNode for adapt old api
+    mixins: [EventTarget, CCNode],
 
     properties: {
-        // adapt to old api
+        // adapt old api
         node: {
-            get: function () {
+            get () {
                 return this;
             }
         }
@@ -42,7 +44,7 @@ dragonBones.CCArmatureDisplay = cc.Class({
         
     },
 
-    _getRootDisplay () {
+    getRootDisplay () {
         var parentSlot = this._armature._parent;
         if (!parentSlot) {
             return this;
@@ -57,7 +59,7 @@ dragonBones.CCArmatureDisplay = cc.Class({
         return slot._armature.getDisplay();
     },
 
-    _convertRootSpace (pos) {
+    convertToRootSpace (pos) {
         var slot = this._armature._parent;
         if (!slot)
         {
@@ -73,11 +75,15 @@ dragonBones.CCArmatureDisplay = cc.Class({
     },
 
     convertToWorldSpace (point) {
-        var newPos = this._convertRootSpace(point);
-        var rootDisplay = this._getRootDisplay();
-        var logicNode = rootDisplay._logicNode_;
-        var finalPos = logicNode.convertToWorldSpace(newPos);
+        var newPos = this.convertToRootSpace(point);
+        var ccNode = this.getRootNode();
+        var finalPos = ccNode.convertToWorldSpace(newPos);
         return finalPos;
+    },
+
+    getRootNode () {
+        var rootDisplay = this.getRootDisplay();
+        return rootDisplay && rootDisplay._ccNode;
     },
 
     ////////////////////////////////////

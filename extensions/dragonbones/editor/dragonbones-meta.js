@@ -36,7 +36,7 @@ class DragonBonesMeta extends CustomAssetMeta {
         this.dragonBonesJson = '';
     }
 
-    static version () { return '1.0.4'; }
+    static version () { return '1.0.1'; }
     static defaultType () {
         return 'dragonbones';
     }

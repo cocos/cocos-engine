@@ -39,7 +39,7 @@ function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
 }
 
-function _getSlotMaterial (materialList, slot, premultiAlpha) {
+function _getSlotMaterial (comp, slot, premultiAlpha) {
     premultiAlpha = premultiAlpha || false;
     let tex = slot.getTexture();
     if(!tex)return null;
@@ -66,9 +66,19 @@ function _getSlotMaterial (materialList, slot, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    let material = materialList[key];
+    comp._material = comp._material || new SpriteMaterial();
+    let tplMaterial = comp._material;
+    let materials = comp._materials;
+    let material = materials[key];
     if (!material) {
-        material = new SpriteMaterial();
+
+        var tplKey = tplMaterial._hash;
+        if (!materials[tplKey]) {
+            material = tplMaterial;
+        } else {
+            material = tplMaterial.clone();
+        }
+
         material.useModel = true;
         // update texture
         material.texture = tex;
@@ -82,7 +92,7 @@ function _getSlotMaterial (materialList, slot, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        materialList[key] = material;
+        materials[key] = material;
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
@@ -98,6 +108,8 @@ let _vertexOffset, _indiceOffset,
     _dataId, _datas, _data, _newData;
 
 let armatureAssembler = {
+    useModel: true,
+
     updateRenderData (comp) {
 
         let armature = comp._armature;
@@ -142,11 +154,11 @@ let armatureAssembler = {
             // transform info,so multiply the slot's transform 
             // with parent transform and give the sub slots.
             if (slot.childArmature) {
-                this.traverseArmature(comp,slot.childArmature);
+                this.traverseArmature(comp, slot.childArmature);
                 continue;
             }
 
-            _material = _getSlotMaterial(comp._materialList, slot);
+            _material = _getSlotMaterial(comp, slot);
             if (!_material) {
                 continue;
             }
@@ -229,7 +241,7 @@ let armatureAssembler = {
         if (!armature) return;
 
         let renderDatas = comp._renderDatas;
-        let materialList = comp._materialList;
+        let materials = comp._materials;
 
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
@@ -237,10 +249,10 @@ let armatureAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = materialList[newKey] || data.material.clone();
+                data.material = materials[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!materialList[newKey]) {
-                    materialList[newKey] = data.material;
+                if (!materials[newKey]) {
+                    materials[newKey] = data.material;
                 }
             }
 
@@ -259,7 +271,7 @@ let armatureAssembler = {
             
             let indiceOffset = buffer.indiceOffset,
                 vertexId = buffer.vertexOffset;
-                
+            
             buffer.request(vertexCount, data.indiceCount);
 
             // buffer data may be realloc, need get reference after request.

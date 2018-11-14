@@ -58,9 +58,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         this._dragonBones = new dragonBones.DragonBones();
 
         if (!CC_JSB && !CC_EDITOR && cc.director._scheduler) {
-            cc.game.on(cc.game.EVENT_RESTART, function () {
-                this.initUpdate();
-            }.bind(this));
+            cc.game.on(cc.game.EVENT_RESTART, this.initUpdate, this);
             this.initUpdate();
         }
     },
@@ -75,17 +73,16 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     },
 
     parseDragonBonesDataOnly (rawData, name, scale) {
-        if (name === void 0) { name = null; }
-        if (scale === void 0) { scale = 1.0; }
+        if (name === undefined) { name = null; }
+        if (scale === undefined) { scale = 1.0; }
         var dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
         var dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
         return dragonBonesData;
     },
 
     handleTextureAtlasData (isBinary, name, scale) {
-
-        if (name === void 0) { name = null; }
-        if (scale === void 0) { scale = 1.0; }
+        if (name === undefined) { name = null; }
+        if (scale === undefined) { scale = 1.0; }
 
         var dataParser = isBinary ? BaseFactory._binaryParser : this._dataParser;
 
@@ -187,13 +184,9 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     _buildSlot (dataPackage, slotData, displays) {
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
-
         slot.name = slotData.name;
-        slot.reset();
-
         let display = slot;
         slot.init(slotData, displays, display, display);
-
         return slot;
     }
 });
