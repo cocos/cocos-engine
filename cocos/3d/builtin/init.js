@@ -3,6 +3,7 @@ import TextureCube from '../assets/texture-cube';
 import downloadText from '../../load-pipeline/text-downloader';
 import ProgramLib from '../../renderer/core/program-lib';
 import EffectAsset from '../assets/effect-asset';
+import ImageAsset from '../../assets/image-asset';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
@@ -23,20 +24,27 @@ let builtinResMgr = {
         context.fillStyle = '#555';
         context.fillRect(64, 64, 64, 64);
 
+        const canvasImage = new ImageAsset(canvas);
+
         // default-texture
         let defaultTexture = new Texture2D(device);
         defaultTexture.setMipFilter(Texture2D.Filter.LINEAR);
         defaultTexture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
         defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         defaultTexture._uuid = 'default-texture';
-        defaultTexture.initWithElement(canvas);
+        defaultTexture.image = canvasImage;
 
         // default-texture-cube
         let defaultTextureCube = new TextureCube(device);
         defaultTextureCube._uuid = 'default-texture-cube';
-        defaultTextureCube.initWithElement(
-            [canvas, canvas, canvas, canvas, canvas, canvas]
-        );
+        defaultTextureCube.image = {
+            front: canvasImage,
+            back: canvasImage,
+            left: canvasImage,
+            right: canvasImage,
+            top: canvasImage,
+            bottom: canvasImage
+        };
 
         // black texture canvas fill
         canvas.width = canvas.height = 2;
@@ -49,7 +57,7 @@ let builtinResMgr = {
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         blackTexture._uuid = 'black-texture';
-        defaultTexture.initWithElement(canvas);
+        defaultTexture.image = canvasImage;
 
         // white texture canvas fill
         canvas.width = canvas.height = 2;
@@ -62,7 +70,7 @@ let builtinResMgr = {
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         whiteTexture._uuid = 'white-texture';
-        defaultTexture.initWithElement(canvas);
+        defaultTexture.image = canvasImage;
 
         let builtins = {
             [defaultTexture._uuid]: defaultTexture,

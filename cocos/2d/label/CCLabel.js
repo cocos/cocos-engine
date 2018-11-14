@@ -29,6 +29,7 @@ const RenderComponent = require('./CCRenderComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
+const ImageAsset = require('../../assets/image-asset');
 
 /**
  * !#en Enum for text alignment.

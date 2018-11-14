@@ -129,13 +129,63 @@ export default class Texture2D extends TextureBase {
         if (options.images !== undefined && options.images.length !== 0) {
             this._setMipmaps(options.images.map(image => {
                 const mipmap = new ImageAsset();
-                mipmap.data = image;
+                mipmap.reset(image instanceof HTMLElement ? image : {
+                    _data: image,
+                    width: this.width,
+                    height: this.height,
+                    format: this._format,
+                    _compressed: false
+                });
                 return mipmap;
             }));
         }
 
         if (options.images && options.images.length > 0) {
             this._texture.update(options);
+        }
+    }
+
+    /**
+     * 
+     * @param {ImageSource} source 
+     */
+    updateImage(source) {
+        this.updateMipmaps([source]);
+    }
+
+    /**
+     * Updates mipmaps at specified range of levels.
+     * @param {ImageSource[]} sources The image sources.
+     * @param {number} firstLevel The first level from which the sources update.
+     * @description
+     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
+     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
+     */
+    updateMipmaps(sources, firstLevel = 0) {
+        if (firstLevel >= sources.length) {
+            return;
+        }
+
+        const nUpdate = Math.min(sources.length, this._mipmaps.length - firstLevel);
+        for (let i = 0; i < nUpdate; ++i) {
+            const level = firstLevel + i;
+            const mipmap = this._mipmaps[level];
+            const source = sources[i];
+            mipmap.reset(source instanceof HTMLElement ? source : {
+                _data: source,
+                width: mipmap.width,
+                height: mipmap.height,
+                format: mipmap._format,
+                _compressed: false
+            });
+            this._texture.updateImage({
+                width: this.width,
+                height: this.height,
+                level: level,
+                image: sources[i],
+                flipY: false,
+                premultiplyAlpha: false
+            });
         }
     }
 
@@ -216,7 +266,7 @@ export default class Texture2D extends TextureBase {
         const inc = () => {
             ++counter;
             if (counter === mipmaps.length) {
-                this._updateMipmaps(mipmaps.map(mipmap => mipmap.data));
+                this._resetUnderlyingMipmaps(mipmaps.map(mipmap => mipmap.data));
             }
         };
         mipmaps.forEach(mipmap => {
@@ -231,10 +281,10 @@ export default class Texture2D extends TextureBase {
     }
 
     /**
-     * Updates mipmaps of the underlying texture.
+     * Resets sources and amount of the underlying texture's the mipmaps.
      * @param {ImageSource[]} mipmapSources 
      */
-    _updateMipmaps(mipmapSources) {
+    _resetUnderlyingMipmaps(mipmapSources) {
         const opts = this._getOpts();
         opts.images = mipmapSources;
         if (!this._texture) {
