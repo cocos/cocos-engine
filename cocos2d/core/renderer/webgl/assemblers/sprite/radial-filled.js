@@ -26,6 +26,8 @@
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 const PI_2 = Math.PI * 2;
+const vec3 = cc.vmath.vec3;
+let vec3_temp = vec3.create();
 
 module.exports = {
     useModel: false,
@@ -44,7 +46,7 @@ module.exports = {
 
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        
+
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
@@ -107,16 +109,16 @@ module.exports = {
                     //test against
                     let startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
                     let endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
-                    if(endAngle < startAngle) endAngle += PI_2;
+                    if (endAngle < startAngle) endAngle += PI_2;
                     startAngle -= PI_2;
                     endAngle -= PI_2;
                     //testing
-                    for(let testIndex = 0; testIndex < 3; ++testIndex) {
-                        if(startAngle >= fillEnd) {
+                    for (let testIndex = 0; testIndex < 3; ++testIndex) {
+                        if (startAngle >= fillEnd) {
                             //all out
                         } else if (startAngle >= fillStart) {
                             renderData.dataLength = offset + 3;
-                            if(endAngle >= fillEnd) {
+                            if (endAngle >= fillEnd) {
                                 //startAngle to fillEnd
                                 this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
                             } else {
@@ -126,9 +128,9 @@ module.exports = {
                             offset += 3;
                         } else {
                             //startAngle < fillStart
-                            if(endAngle <= fillStart) {
+                            if (endAngle <= fillStart) {
                                 //all out
-                            } else if(endAngle <= fillEnd) {
+                            } else if (endAngle <= fillEnd) {
                                 renderData.dataLength = offset + 3;
                                 //fillStart to endAngle
                                 this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
@@ -152,22 +154,22 @@ module.exports = {
         }
     },
 
-    _getVertAngle: function(start, end) {
+    _getVertAngle (start, end) {
         let placementX, placementY;
         placementX = end.x - start.x;
         placementY = end.y - start.y;
 
-        if(placementX === 0 && placementY === 0) {
+        if (placementX === 0 && placementY === 0) {
             return undefined;
-        } else if(placementX === 0) {
-            if(placementY > 0) {
+        } else if (placementX === 0) {
+            if (placementY > 0) {
                 return Math.PI * 0.5;
             } else {
                 return Math.PI * 1.5;
             }
         } else {
             let angle = Math.atan(placementY / placementX);
-            if(placementX < 0) {
+            if (placementX < 0) {
                 angle += Math.PI;
             }
 
@@ -175,19 +177,19 @@ module.exports = {
         }
     },
 
-    _generateTriangle: function(data, offset, vert0, vert1, vert2) {
+    _generateTriangle (data, offset, vert0, vert1, vert2) {
         let vertices = this._vertices;
         let v0x = vertices[0];
         let v0y = vertices[1];
         let v1x = vertices[2];
         let v1y = vertices[3];
 
-        data[offset].x    = vert0.x;
-        data[offset].y    = vert0.y;
-        data[offset+1].x  = vert1.x;
-        data[offset+1].y  = vert1.y;
-        data[offset+2].x  = vert2.x;
-        data[offset+2].y  = vert2.y;
+        data[offset].x = vert0.x;
+        data[offset].y = vert0.y;
+        data[offset + 1].x = vert1.x;
+        data[offset + 1].y = vert1.y;
+        data[offset + 2].x = vert2.x;
+        data[offset + 2].y = vert2.y;
 
         let progressX, progressY;
         progressX = (vert0.x - v0x) / (v1x - v0x);
@@ -203,7 +205,7 @@ module.exports = {
         this._generateUV(progressX, progressY, data, offset + 2);
     },
 
-    _generateUV : function(progressX, progressY, data, offset) {
+    _generateUV (progressX, progressY, data, offset) {
         let uvs = this._uvs;
         let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
         let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
@@ -214,20 +216,20 @@ module.exports = {
         uv.v = py1 + (py2 - py1) * progressY;
     },
 
-    _calcInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
+    _calcInsectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
         //left bottom, right, top
         let sinAngle = Math.sin(angle);
         let cosAngle = Math.cos(angle);
-        let tanAngle,cotAngle;
-        if(Math.cos(angle) !== 0) {
+        let tanAngle, cotAngle;
+        if (Math.cos(angle) !== 0) {
             tanAngle = sinAngle / cosAngle;
             //calculate right and left
-            if((left - center.x) * cosAngle > 0) {
+            if ((left - center.x) * cosAngle > 0) {
                 let yleft = center.y + tanAngle * (left - center.x);
                 intersectPoints[0].x = left;
                 intersectPoints[0].y = yleft;
             }
-            if((right - center.x) * cosAngle > 0) {
+            if ((right - center.x) * cosAngle > 0) {
                 let yright = center.y + tanAngle * (right - center.x);
 
                 intersectPoints[2].x = right;
@@ -236,16 +238,16 @@ module.exports = {
 
         }
 
-        if(Math.sin(angle) !== 0) {
+        if (Math.sin(angle) !== 0) {
             cotAngle = cosAngle / sinAngle;
             //calculate  top and bottom
-            if((top - center.y) * sinAngle > 0) {
-                let xtop = center.x  + cotAngle * (top-center.y);
+            if ((top - center.y) * sinAngle > 0) {
+                let xtop = center.x + cotAngle * (top - center.y);
                 intersectPoints[3].x = xtop;
                 intersectPoints[3].y = top;
             }
-            if((bottom - center.y) * sinAngle > 0) {
-                let xbottom = center.x  + cotAngle * (bottom-center.y);
+            if ((bottom - center.y) * sinAngle > 0) {
+                let xbottom = center.x + cotAngle * (bottom - center.y);
                 intersectPoints[1].x = xbottom;
                 intersectPoints[1].y = bottom;
             }
@@ -253,13 +255,13 @@ module.exports = {
         }
     },
 
-    _calculateVertices : function (sprite) {
+    _calculateVertices (sprite) {
         let node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
 
         let l = -appx, b = -appy,
-            r = width-appx, t = height-appy;
+            r = width - appx, t = height - appy;
 
         let vertices = this._vertices;
         vertices[0] = l;
@@ -269,8 +271,8 @@ module.exports = {
 
         let center = this._center,
             fillCenter = sprite._fillCenter,
-            cx = center.x = Math.min(Math.max(0, fillCenter.x), 1) * (r-l) + l,
-            cy = center.y = Math.min(Math.max(0, fillCenter.y), 1) * (t-b) + b;
+            cx = center.x = Math.min(Math.max(0, fillCenter.x), 1) * (r - l) + l,
+            cy = center.y = Math.min(Math.max(0, fillCenter.y), 1) * (t - b) + b;
 
         let vertPos = this._vertPos;
         vertPos[0].x = vertPos[3].x = l;
@@ -280,28 +282,28 @@ module.exports = {
 
         let triangles = this._triangles;
         triangles.length = 0;
-        if(cx !== vertices[0]) {
+        if (cx !== vertices[0]) {
             triangles[0] = [3, 0];
         }
-        if(cx !== vertices[2]) {
+        if (cx !== vertices[2]) {
             triangles[2] = [1, 2];
         }
-        if(cy !== vertices[1]) {
+        if (cy !== vertices[1]) {
             triangles[1] = [0, 1];
         }
-        if(cy !== vertices[3]) {
+        if (cy !== vertices[3]) {
             triangles[3] = [2, 3];
         }
     },
 
-    _calculateUVs : function (spriteFrame) {
+    _calculateUVs (spriteFrame) {
         let atlasWidth = spriteFrame._texture.width;
         let atlasHeight = spriteFrame._texture.height;
         let textureRect = spriteFrame._rect;
 
         let u0, u1, v0, v1;
         let uvs = this._uvs;
-        
+
         if (spriteFrame._rotated) {
             u0 = (textureRect.x) / atlasWidth;
             u1 = (textureRect.x + textureRect.height) / atlasWidth;
@@ -332,36 +334,51 @@ module.exports = {
         let renderData = sprite._renderData,
             data = renderData._data,
             node = sprite.node,
+            is3DNode = node.is3DNode,
             color = node._color._val;
-    
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
 
         // buffer
-        let buffer = renderer._meshBuffer,
+        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData;
-        
+
         let ibuf = buffer._iData,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
-            
+
         buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let count = data.length;
-        for (let i = 0; i < count; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset ++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset ++] = vert.u;
-            vbuf[vertexOffset ++] = vert.v;
-            uintbuf[vertexOffset ++] = color;
+        let matrix = node._worldMatrix;
+        if (is3DNode) {
+            for (let i = 0; i < count; i++) {
+                let vert = data[i];
+                vec3.set(vec3_temp, vert.x, vert.y, 0);
+                vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                vbuf[vertexOffset++] = vec3_temp.x;
+                vbuf[vertexOffset++] = vec3_temp.y;
+                vbuf[vertexOffset++] = vec3_temp.z;
+                vbuf[vertexOffset++] = vert.u;
+                vbuf[vertexOffset++] = vert.v;
+                uintbuf[vertexOffset++] = color;
+            }
+        }
+        else {
+            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+                tx = matrix.m12, ty = matrix.m13;
+            for (let i = 0; i < count; i++) {
+                let vert = data[i];
+                vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
+                vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
+                vbuf[vertexOffset++] = vert.u;
+                vbuf[vertexOffset++] = vert.v;
+                uintbuf[vertexOffset++] = color;
+            }
         }
 
         for (let i = 0; i < count; i++) {
-            ibuf[indiceOffset+i] = vertexId+i;
+            ibuf[indiceOffset + i] = vertexId + i;
         }
     },
 };

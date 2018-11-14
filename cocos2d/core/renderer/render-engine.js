@@ -13808,6 +13808,7 @@ var _dataPool = new Pool(function () {
   return {
     x: 0.0,
     y: 0.0,
+    z: 0.0,
     u: 0.0,
     v: 0.0,
     color: 0

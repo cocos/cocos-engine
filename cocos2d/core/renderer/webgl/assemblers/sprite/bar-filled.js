@@ -27,12 +27,13 @@ const Sprite = require('../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const vec3 = cc.vmath.vec3;
 
 module.exports = {
     useModel: false,
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        
+
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
@@ -70,7 +71,7 @@ module.exports = {
             fillRange = fillRange < 0.0 ? 0.0 : fillRange;
             fillRange = fillRange - fillStart;
             fillRange = fillRange < 0 ? 0 : fillRange;
-            
+
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
@@ -156,7 +157,7 @@ module.exports = {
             appx = node.anchorX * width, appy = node.anchorY * height;
 
         let l = -appx, b = -appy,
-            r = width-appx, t = height-appy;
+            r = width - appx, t = height - appy;
 
         let progressStart, progressEnd;
         switch (sprite._fillType) {
@@ -198,22 +199,37 @@ module.exports = {
         renderData.dataLength = 8;
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
+
+        let data = renderData._data;
+        for (let i = 0; i < data.length; i++) {
+            data[i].z = 0;
+        }
         return renderData;
     },
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
             data = sprite._renderData._data;
-        
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-        
-        for (let i = 0; i < 4; i++) {
-            let local = data[i+4];
-            let world = data[i];
-            world.x = local.x * a + local.y * c + tx;
-            world.y = local.x * b + local.y * d + ty;
+
+        let matrix = node._worldMatrix;
+
+        if (node.is3DNode) {
+            for (let i = 0; i < 4; i++) {
+                let local = data[i + 4];
+                let world = data[i];
+                vec3.transformMat4(world, local, matrix);
+            }
+        }
+        else {
+            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+                tx = matrix.m12, ty = matrix.m13;
+
+            for (let i = 0; i < 4; i++) {
+                let local = data[i + 4];
+                let world = data[i];
+                world.x = local.x * a + local.y * c + tx;
+                world.y = local.x * b + local.y * d + ty;
+            }
         }
     },
 
@@ -222,30 +238,52 @@ module.exports = {
             this.updateWorldVerts(sprite);
         }
 
-        let data = sprite._renderData._data,
+        let renderData = sprite._renderData,
             node = sprite.node,
+            is3DNode = node.is3DNode,
             color = node._color._val,
-            matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-    
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+            data = renderData._data;
+
+        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
 
         // vertex
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
+        if (is3DNode) {
+            for (let i = 0; i < 4; i++) {
+                let vert = data[i];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = vert.z;
+                vbuf[vertexOffset++] = vert.u;
+                vbuf[vertexOffset++] = vert.v;
+                uintbuf[vertexOffset++] = color;
+            }
         }
+        else {
+            for (let i = 0; i < 4; i++) {
+                let vert = data[i];
+                vbuf[vertexOffset++] = vert.x;
+                vbuf[vertexOffset++] = vert.y;
+                vbuf[vertexOffset++] = vert.u;
+                vbuf[vertexOffset++] = vert.v;
+                uintbuf[vertexOffset++] = color;
+            }
+        }
+
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
+        ibuf[indiceOffset++] = vertexId + 2;
     }
 };
