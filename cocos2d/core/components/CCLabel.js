@@ -505,6 +505,10 @@ let Label = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
         }
+
+        if (CC_JSB) {
+            this._renderHandle.setUseModel(!!assembler.useModel);
+        }
     },
 
     _activateMaterial (force) {

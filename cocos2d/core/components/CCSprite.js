@@ -471,6 +471,10 @@ var Sprite = cc.Class({
             this.setVertsDirty();
             this.markForUpdateRenderData(true);
         }
+
+        if (CC_JSB) {
+            this._renderHandle.setUseModel(!!assembler.useModel);
+        }
     },
 
     _activateMaterial: function () {

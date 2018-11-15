@@ -104,6 +104,12 @@ let RenderComponent = cc.Class({
         this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
+
+        // Render handle for native system
+        if (CC_JSB) {
+            this._renderHandle = new renderer.RenderHandle();
+            this._renderHandle.bind(this);
+        }
     },
 
     onEnable () {
@@ -116,12 +122,20 @@ let RenderComponent = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
+
+        if (CC_JSB) {
+            this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
+            this._renderHandle.setEnable(true);
+        }
     },
 
     onDisable () {
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        if (CC_JSB) {
+            this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
+        }
         this.disableRender();
     },
 
@@ -162,9 +176,15 @@ let RenderComponent = cc.Class({
     markForRender (enable) {
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+            if (CC_JSB) {
+                this._renderHandle.setEnable(true);
+            }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+            if (CC_JSB) {
+                this._renderHandle.setEnable(false);
+            }
         }
     },
 
@@ -179,6 +199,10 @@ let RenderComponent = cc.Class({
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+
+        if (CC_JSB) {
+            this._renderHandle.setEnable(false);
+        }
     },
 
     requestRenderData () {
