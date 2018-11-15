@@ -101,7 +101,7 @@ let RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertsDirty = true;
         this._material = null;
-        this._vertexFormat = null;
+        this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
     },
