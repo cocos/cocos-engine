@@ -116,7 +116,7 @@ cc.screen = /** @lends cc.screen# */{
      * @param {Function} onFullScreenChange
      */
     requestFullScreen: function (element, onFullScreenChange) {
-        if (element.className = "cocosVideo") {
+        if (element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
                 element.webkitEnterFullscreen && element.webkitEnterFullscreen();
                 return;
@@ -150,7 +150,7 @@ cc.screen = /** @lends cc.screen# */{
      * @return {Boolean}
      */
     exitFullScreen: function (element) {
-        if (element.className = "cocosVideo") {
+        if (element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser) {
                 element.webkitExitFullscreen && element.webkitExitFullscreen();
                 return;
