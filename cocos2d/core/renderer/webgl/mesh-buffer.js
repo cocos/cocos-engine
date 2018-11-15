@@ -10,6 +10,7 @@ let MeshBuffer = cc.Class({
         this.indiceOffset = 0;
         this.vertexStart = 0;
         this.vertexOffset = 0;
+        this._dirty = false;
 
         this._vertexFormat = vertexFormat;
         this._vertexBytes = this._vertexFormat._bytes;

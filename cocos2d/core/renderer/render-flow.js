@@ -98,10 +98,10 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
-        if (!c._activeInHierarchy || c._opacity === 0) continue;
-        _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
         c._renderFlag |= worldTransformFlag | worldOpacityFlag;
+        if (!c._activeInHierarchy || c._opacity === 0) continue;
 
+        _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
         // TODO: Maybe has better way to implement cascade opacity
         c._color.a = c._opacity * batcher.parentOpacity;
         flows[c._renderFlag]._func(c);
