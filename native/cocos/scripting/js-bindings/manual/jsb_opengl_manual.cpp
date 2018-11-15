@@ -4139,6 +4139,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_STENCIL_BACK_PASS_DEPTH_FAIL:
         case GL_STENCIL_BACK_FUNC:
         case GL_STENCIL_BACK_FAIL:
+        case GL_STENCIL_BITS:
         case GL_GENERATE_MIPMAP_HINT:
         case GL_FRONT_FACE:
         case GL_DEPTH_FUNC:
