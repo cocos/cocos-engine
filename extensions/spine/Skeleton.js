@@ -405,8 +405,8 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-	        this._material = new SpriteMaterial();
             this._materials = {};
+            this._material = new SpriteMaterial();
             this._renderDatas = [];
         }
     },
