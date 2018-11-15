@@ -39,7 +39,7 @@ const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
 //var HideInGame = 1 << 9;
-//var HideInEditor = 1 << 10;
+var HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
 const IsEditorOnEnableCalled = 1 << 12;
@@ -181,7 +181,7 @@ class CCObject {
         else {
             objectsToDestroy.splice(0, deleteCount);
         }
-    
+
         if (CC_EDITOR) {
             deferredDestroyTimer = null;
         }
@@ -320,7 +320,7 @@ if (CC_EDITOR || CC_TEST) {
     js.get(prototype, 'isRealValid', function () {
         return !(this._objFlags & RealDestroyed);
     });
-    
+
     /*
     * !#en
     * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
@@ -432,7 +432,7 @@ js.value(CCObject, 'Flags', {
     /**
      * !#en The lock node, when the node is locked, cannot be clicked in the scene.
      * !#zh 锁定节点，锁定后场景内不能点击
-     * 
+     *
      * @property LockedInEditor
      * @private
      */
@@ -456,7 +456,7 @@ js.value(CCObject, 'Flags', {
     // * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
     // * @property {Number} HideInEditor
     // */
-    //HideInEditor: HideInEditor,
+    HideInHierarchy,
 
     ///**
     // * !#en
