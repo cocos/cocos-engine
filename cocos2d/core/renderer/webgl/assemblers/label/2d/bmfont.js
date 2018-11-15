@@ -23,11 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../platform/js');
-const bmfontUtls = require('../../../utils/label/bmfont');
-
-const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+const js = require('../../../../../platform/js');
+const bmfontUtls = require('../../../../utils/label/bmfont');
 
 module.exports = js.addon({
     createData (comp) {
@@ -40,9 +37,7 @@ module.exports = js.addon({
             data = renderData._data,
             color = node._color._val;
 
-
-        let is3DNode = node.is3DNode,
-            buffer = is3DNode ? renderer._quadBuffer3D : renderer._quadBuffer,
+        let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2;
 
         let vertexCount = renderData.vertexCount;
@@ -53,30 +48,16 @@ module.exports = js.addon({
             uintbuf = buffer._uintVData;
 
         let matrix = node._worldMatrix;
-        if (is3DNode) {
-            for (let i = 0; i < vertexCount; i++) {
-                let vert = data[i];
-                vec3.set(vec3_temp, vert.x, vert.y, 0);
-                vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                vbuf[vertexOffset++] = vec3_temp.x;
-                vbuf[vertexOffset++] = vec3_temp.y;
-                vbuf[vertexOffset++] = vec3_temp.z;
-                vbuf[vertexOffset++] = vert.u;
-                vbuf[vertexOffset++] = vert.v;
-                uintbuf[vertexOffset++] = color;
-            }
-        }
-        else {
-            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-                tx = matrix.m12, ty = matrix.m13;
-            for (let i = 0; i < vertexCount; i++) {
-                let vert = data[i];
-                vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-                vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-                vbuf[vertexOffset++] = vert.u;
-                vbuf[vertexOffset++] = vert.v;
-                uintbuf[vertexOffset++] = color;
-            }
+
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        for (let i = 0; i < vertexCount; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
+            vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
         }
     },
 

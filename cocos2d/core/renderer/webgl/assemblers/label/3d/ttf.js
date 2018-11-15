@@ -23,32 +23,40 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Label = require('../../../../components/CCLabel');
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/ttf');
 
-const ttfAssembler = require('./2d/ttf');
-const bmfontAssembler = require('./2d/bmfont');
+const WHITE = cc.color(255, 255, 255, 255);
+const vec3 = cc.vmath.vec3;
+const vec3_temp = vec3.create();
 
-const ttfAssembler3D = require('./3d/ttf');
-const bmfontAssembler3D = require('./3d/bmfont');
+module.exports = js.addon({
+    fillBuffers (comp, renderer) {
+        let data = comp._renderData._data,
+            node = comp.node,
+            color = WHITE._val;
 
-var labelAssembler = {
-    getAssembler (comp) {
-        let is3DNode = comp.node.is3DNode;
-        let assembler = is3DNode ? ttfAssembler3D : ttfAssembler;
-        
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
+        let buffer = renderer._quadBuffer3D,
+            vertexOffset = buffer.byteOffset >> 2;
+
+        buffer.request(4, 6);
+
+        // buffer data may be realloc, need get reference after request.
+        let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
+
+        // vertex
+        let matrix = node._worldMatrix;
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vec3.set(vec3_temp, vert.x, vert.y, 0);
+            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            vbuf[vertexOffset++] = vec3_temp.x;
+            vbuf[vertexOffset++] = vec3_temp.y;
+            vbuf[vertexOffset++] = vec3_temp.z;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
         }
-
-        return assembler;
-    },
-
-    // Skip invalid labels (without own _assembler)
-    updateRenderData (label) {
-        return label.__allocedDatas;
     }
-};
-
-Label._assembler = labelAssembler;
-
-module.exports = labelAssembler;
+}, assembler);

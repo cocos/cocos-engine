@@ -23,12 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-const vec3 = cc.vmath.vec3;
-const vec3_temp = vec3.create();
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
+    
+    vertexOffset: 5,
+    uvOffset: 2,
+    colorOffset: 4,
 
     createData (sprite) {
         return sprite.requestRenderData();
@@ -84,41 +86,7 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
-    fillVertices3D: (function () {
-        let vec3_temps = [];
-        for (let i = 0; i < 4; i++) {
-            vec3_temps.push(vec3.create());
-        }
-        return function (vbuf, vertexOffset, matrix, row, col, data) {
-            let x, x1, y, y1;
-            for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-                y = data[yindex].y;
-                y1 = data[yindex+1].y;
-                for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                    x = data[xindex].x;
-                    x1 = data[xindex+1].x;
-    
-                    vec3.set(vec3_temps[0], x, y, 0);
-                    vec3.set(vec3_temps[1], x1, y, 0);
-                    vec3.set(vec3_temps[2], x, y1, 0);
-                    vec3.set(vec3_temps[3], x1, y1, 0);
-    
-                    for (let i = 0; i < 4; i ++) {
-                        let vec3_temp = vec3_temps[i];
-                        vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                        let offset = i * 6;
-                        vbuf[vertexOffset + offset] = vec3_temp.x;
-                        vbuf[vertexOffset + offset + 1] = vec3_temp.y;
-                        vbuf[vertexOffset + offset + 2] = vec3_temp.z;
-                    }
-    
-                    vertexOffset += 24;
-                }
-            }
-        };
-    })(),
-
-    fillVertices2D (vbuf, vertexOffset, matrix, row, col, data) {
+    fillVertices (vbuf, vertexOffset, matrix, row, col, data) {
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
@@ -181,19 +149,9 @@ module.exports = {
         
         let matrix = node._worldMatrix;
         
-        if (is3DNode) {
-            this.fillVertices3D(vbuf, vertexOffset, matrix, row, col, data);
-        }
-        else {
-            this.fillVertices2D(vbuf, vertexOffset, matrix, row, col, data);
-        }
+        this.fillVertices(vbuf, vertexOffset, matrix, row, col, data);
 
-        let offset = 5, uvOffset = 2, colorOffset = 4;
-        if (is3DNode) {
-            offset = 6;
-            uvOffset = 3;
-            colorOffset = 5;
-        }
+        let offset = this.vertexOffset, uvOffset = this.uvOffset, colorOffset = this.colorOffset;
         let offset1 = offset, offset2 = offset*2, offset3 = offset*3, offset4 = offset*4;
         let coefu, coefv;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
@@ -202,7 +160,7 @@ module.exports = {
                 coefu = Math.min(1, hRepeat - xindex);
 
                 let vertexOffsetU = vertexOffset + uvOffset;
-                let vertexOffsetV = vertexOffset + uvOffset + 1;
+                let vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
                     // lb

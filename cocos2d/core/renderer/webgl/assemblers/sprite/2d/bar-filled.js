@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
+const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-const vec3 = cc.vmath.vec3;
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
@@ -212,24 +211,14 @@ module.exports = {
             data = sprite._renderData._data;
 
         let matrix = node._worldMatrix;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
 
-        if (node.is3DNode) {
-            for (let i = 0; i < 4; i++) {
-                let local = data[i + 4];
-                let world = data[i];
-                vec3.transformMat4(world, local, matrix);
-            }
-        }
-        else {
-            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-                tx = matrix.m12, ty = matrix.m13;
-
-            for (let i = 0; i < 4; i++) {
-                let local = data[i + 4];
-                let world = data[i];
-                world.x = local.x * a + local.y * c + tx;
-                world.y = local.x * b + local.y * d + ty;
-            }
+        for (let i = 0; i < 4; i++) {
+            let local = data[i + 4];
+            let world = data[i];
+            world.x = local.x * a + local.y * c + tx;
+            world.y = local.x * b + local.y * d + ty;
         }
     },
 
@@ -240,11 +229,10 @@ module.exports = {
 
         let renderData = sprite._renderData,
             node = sprite.node,
-            is3DNode = node.is3DNode,
             color = node._color._val,
             data = renderData._data;
 
-        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
@@ -257,26 +245,13 @@ module.exports = {
             ibuf = buffer._iData;
 
         // vertex
-        if (is3DNode) {
-            for (let i = 0; i < 4; i++) {
-                let vert = data[i];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = vert.z;
-                vbuf[vertexOffset++] = vert.u;
-                vbuf[vertexOffset++] = vert.v;
-                uintbuf[vertexOffset++] = color;
-            }
-        }
-        else {
-            for (let i = 0; i < 4; i++) {
-                let vert = data[i];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = vert.u;
-                vbuf[vertexOffset++] = vert.v;
-                uintbuf[vertexOffset++] = color;
-            }
+        for (let i = 0; i < 4; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         ibuf[indiceOffset++] = vertexId;

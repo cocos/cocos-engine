@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
@@ -140,23 +138,14 @@ module.exports = {
             data = renderData._data;
 
         let matrix = node._worldMatrix;
-        if (node.is3DNode) {
-            for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-                let local = data[i + l];
-                let world = data[i];
-                vec3.set(vec3_temp, local.x, local.y, 0);
-                vec3.transformMat4(world, vec3_temp, matrix);
-            }
-        }
-        else {
-            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-                tx = matrix.m12, ty = matrix.m13;
-            for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-                let local = data[i + l];
-                let world = data[i];
-                world.x = local.x * a + local.y * c + tx;
-                world.y = local.x * b + local.y * d + ty;
-            }
+
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
+            let local = data[i + l];
+            let world = data[i];
+            world.x = local.x * a + local.y * c + tx;
+            world.y = local.x * b + local.y * d + ty;
         }
     },
 
@@ -177,8 +166,7 @@ module.exports = {
         }
 
         // buffer
-        let is3DNode = node.is3DNode,
-            buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2;
 
         let indiceOffset = buffer.indiceOffset,
@@ -191,26 +179,13 @@ module.exports = {
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
-        if (is3DNode) {
-            for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-                let vertice = data[i];
-                vbuf[vertexOffset++] = vertice.x;
-                vbuf[vertexOffset++] = vertice.y;
-                vbuf[vertexOffset++] = vertice.z;
-                vbuf[vertexOffset++] = vertice.u;
-                vbuf[vertexOffset++] = vertice.v;
-                uintbuf[vertexOffset++] = color;
-            }
-        }
-        else {
-            for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-                let vertice = data[i];
-                vbuf[vertexOffset++] = vertice.x;
-                vbuf[vertexOffset++] = vertice.y;
-                vbuf[vertexOffset++] = vertice.u;
-                vbuf[vertexOffset++] = vertice.v;
-                uintbuf[vertexOffset++] = color;
-            }
+        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
+            let vertice = data[i];
+            vbuf[vertexOffset++] = vertice.x;
+            vbuf[vertexOffset++] = vertice.y;
+            vbuf[vertexOffset++] = vertice.u;
+            vbuf[vertexOffset++] = vertice.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         let triangles = vertices.triangles;

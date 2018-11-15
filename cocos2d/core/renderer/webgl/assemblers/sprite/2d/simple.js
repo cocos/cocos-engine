@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-
-const vec3 = cc.vmath.vec3;
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
@@ -52,68 +50,7 @@ module.exports = {
         }
     },
 
-    fillVertices3D: (function() {
-        let vec3_temps = [];
-        for (let i = 0; i < 4; i++) {
-            vec3_temps.push(vec3.create());
-        }
-        return function (sprite, renderer) {
-            let data = sprite._renderData._data,
-                node = sprite.node,
-                color = node._color._val,
-                matrix = node._worldMatrix;
-    
-            let buffer = renderer._meshBuffer3D,
-                vertexOffset = buffer.byteOffset >> 2,
-                indiceOffset = buffer.indiceOffset,
-                vertexId = buffer.vertexOffset;
-    
-            buffer.request(4, 6);
-    
-            // buffer data may be realloc, need get reference after request.
-            let vbuf = buffer._vData,
-                uintbuf = buffer._uintVData,
-                ibuf = buffer._iData;
-    
-            let data0 = data[0], data3 = data[3];
-            vec3.set(vec3_temps[0], data0.x, data0.y, 0);
-            vec3.set(vec3_temps[1], data3.x, data0.y, 0);
-            vec3.set(vec3_temps[2], data0.x, data3.y, 0);
-            vec3.set(vec3_temps[3], data3.x, data3.y, 0);
-
-            // get uv from sprite frame directly
-            let uv = sprite._spriteFrame.uv;
-            for (let i = 0; i < 4; i++) {
-                let dstOffset = i * 6;
-
-                // vertex
-                let vertex = vec3_temps[i];
-                vec3.transformMat4(vertex, vertex, matrix);
-
-                vbuf[vertexOffset + dstOffset] = vertex.x;
-                vbuf[vertexOffset + dstOffset + 1] = vertex.y;
-                vbuf[vertexOffset + dstOffset + 2] = vertex.z;
-
-                // uv
-                let uvOffset = i * 2;
-                vbuf[vertexOffset + dstOffset + 3] = uv[0 + uvOffset];
-                vbuf[vertexOffset + dstOffset + 4] = uv[1 + uvOffset];
-    
-                // color
-                uintbuf[vertexOffset + dstOffset + 5] = color;
-            }
-
-            // fill indice data
-            ibuf[indiceOffset++] = vertexId;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 2;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 3;
-            ibuf[indiceOffset++] = vertexId + 2;
-        };
-    })(),
-
-    fillVertices2D (sprite, renderer) {
+    fillBuffers (sprite, renderer) {
         let data = sprite._renderData._data,
             node = sprite.node,
             color = node._color._val,
@@ -179,15 +116,6 @@ module.exports = {
         ibuf[indiceOffset++] = vertexId + 1;
         ibuf[indiceOffset++] = vertexId + 3;
         ibuf[indiceOffset++] = vertexId + 2;
-    },
-
-    fillBuffers (sprite, renderer) {
-        if (sprite.node.is3DNode) {
-            this.fillVertices3D(sprite, renderer);
-        }
-        else {
-            this.fillVertices2D(sprite, renderer);
-        }
     },
 
     createData (sprite) {
