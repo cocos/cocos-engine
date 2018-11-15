@@ -23,18 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/sliced');
 
 const vec3 = cc.vmath.vec3;
 const vec3_temp = vec3.create();
 
-module.exports = {
-    useModel: false,
-
-    createData: assembler.createData,
-    updateRenderData: assembler.updateRenderData,
-    updateVerts: assembler.updateVerts,
-
+module.exports = js.addon({
     fillBuffers (sprite, renderer) {
         if (renderer.worldMatDirty) {
             this.updateWorldVerts(sprite);
@@ -102,4 +97,4 @@ module.exports = {
             }
         }
     },
-};
+}, assembler);

@@ -23,16 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/bar-filled');
 const vec3 = cc.vmath.vec3;
 
-module.exports = {
-    useModel: false,
-    updateRenderData: assembler.updateRenderData,
-    updateUVs: assembler.updateUVs,
-    updateVerts: assembler.updateVerts,
-    createData: assembler.createData,
-
+module.exports = js.addon({
     updateWorldVerts (sprite) {
         let node = sprite.node,
             data = sprite._renderData._data;
@@ -85,4 +80,4 @@ module.exports = {
         ibuf[indiceOffset++] = vertexId + 3;
         ibuf[indiceOffset++] = vertexId + 2;
     }
-};
+}, assembler);

@@ -22,18 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+ 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/radial-filled');
 
 const vec3 = cc.vmath.vec3;
 let vec3_temp = vec3.create();
 
-module.exports = {
-    useModel: false,
-
-    createData: assembler.createData,
-    updateRenderData: assembler.updateRenderData,
-
+module.exports = js.addon({
     fillBuffers (sprite, renderer) {
         let renderData = sprite._renderData,
             data = renderData._data,
@@ -70,4 +66,4 @@ module.exports = {
             ibuf[indiceOffset + i] = vertexId + i;
         }
     },
-};
+}, assembler);

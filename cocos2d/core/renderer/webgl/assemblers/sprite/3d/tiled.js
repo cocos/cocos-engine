@@ -23,19 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/tiled');
 const vec3 = cc.vmath.vec3;
 
-module.exports = {
-    useModel: false,
-
+module.exports = js.addon({
     vertexOffset: 6,
     uvOffset: 3,
     colorOffset: 5,
-
-    createData: assembler.createData,
-    updateRenderData: assembler.updateRenderData,
-    fillBuffers: assembler.fillBuffers,
 
     fillVertices: (function () {
         let vec3_temps = [];
@@ -70,4 +65,4 @@ module.exports = {
             }
         };
     })(),
-};
+}, assembler);

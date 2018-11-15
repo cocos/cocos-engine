@@ -25,9 +25,6 @@
 
 const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
-const vec3 = cc.vmath.vec3;
-const vec3_temp = vec3.create();
-
 module.exports = {
     useModel: false,
 
@@ -107,11 +104,10 @@ module.exports = {
 
         let renderData = sprite._renderData,
             node = sprite.node,
-            is3DNode = node.is3DNode,
             color = node._color._val,
             data = renderData._data;
 
-        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vertexCount = renderData.vertexCount,
             indiceOffset = buffer.indiceOffset,
@@ -126,30 +122,15 @@ module.exports = {
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
-        if (is3DNode) {
-            for (let i = 4; i < 20; ++i) {
-                let vert = data[i];
-                let uvs = uvSliced[i - 4];
-    
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = vert.z;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
-            }
-        }
-        else {
-            for (let i = 4; i < 20; ++i) {
-                let vert = data[i];
-                let uvs = uvSliced[i - 4];
-    
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = uvs.u;
-                vbuf[vertexOffset++] = uvs.v;
-                uintbuf[vertexOffset++] = color;
-            }
+        for (let i = 4; i < 20; ++i) {
+            let vert = data[i];
+            let uvs = uvSliced[i - 4];
+
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = uvs.u;
+            vbuf[vertexOffset++] = uvs.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         for (let r = 0; r < 3; ++r) {
@@ -171,31 +152,16 @@ module.exports = {
 
         let matrix = node._worldMatrix;
 
-        if (node.is3DNode) {
-            for (let row = 0; row < 4; ++row) {
-                let rowD = data[row];
-                for (let col = 0; col < 4; ++col) {
-                    let colD = data[col];
-                    let world = data[4 + row * 4 + col];
-
-                    vec3.set(vec3_temp, colD.x, rowD.y, 0);
-                    vec3.transformMat4(world, vec3_temp, matrix);
-                }
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+        for (let row = 0; row < 4; ++row) {
+            let rowD = data[row];
+            for (let col = 0; col < 4; ++col) {
+                let colD = data[col];
+                let world = data[4 + row * 4 + col];
+                world.x = colD.x * a + rowD.y * c + tx;
+                world.y = colD.x * b + rowD.y * d + ty;
             }
         }
-        else {
-            let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-                tx = matrix.m12, ty = matrix.m13;
-            for (let row = 0; row < 4; ++row) {
-                let rowD = data[row];
-                for (let col = 0; col < 4; ++col) {
-                    let colD = data[col];
-                    let world = data[4 + row * 4 + col];
-                    world.x = colD.x * a + rowD.y * c + tx;
-                    world.y = colD.x * b + rowD.y * d + ty;
-                }
-            }
-        }
-
     },
 };

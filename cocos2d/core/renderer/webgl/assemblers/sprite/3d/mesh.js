@@ -23,17 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/mesh');
 const vec3 = cc.vmath.vec3;
 let vec3_temp = vec3.create();
 
-module.exports = {
-    useModel: false,
-    createData: assembler.createData,
-    updateRenderData: assembler.updateRenderData,
-    updateUVs: assembler.updateUVs,
-    updateVerts: assembler.updateVerts,
-
+module.exports = js.addon({
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
@@ -94,4 +89,4 @@ module.exports = {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }
     },
-};
+}, assembler);

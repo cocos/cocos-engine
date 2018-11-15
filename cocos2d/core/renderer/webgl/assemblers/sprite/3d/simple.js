@@ -23,16 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../../../platform/js');
 const assembler = require('../2d/simple');
 const vec3 = cc.vmath.vec3;
 
-module.exports = {
-    useModel: false,
-
-    updateRenderData: assembler.updateRenderData,
-    createData: assembler.createData,
-    updateVerts: assembler.updateVerts,
-
+module.exports = js.addon({
     fillBuffers: (function() {
         let vec3_temps = [];
         for (let i = 0; i < 4; i++) {
@@ -93,4 +88,4 @@ module.exports = {
             ibuf[indiceOffset++] = vertexId + 2;
         };
     })(),
-};
+}, assembler);
