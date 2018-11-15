@@ -24,12 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 let EventTarget = require('../../cocos2d/core/event/event-target');
-let CCNode = require('../../cocos2d/core/CCNode');
 
 dragonBones.CCArmatureDisplay = cc.Class({
     name: 'dragonBones.CCArmatureDisplay',
-    // mix CCNode for adapt old api
-    mixins: [EventTarget, CCNode],
+    mixins: [EventTarget],
 
     properties: {
         // adapt old api
