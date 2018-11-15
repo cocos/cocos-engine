@@ -581,12 +581,12 @@ let Label = cc.Class({
     },
 
     _lazyUpdateRenderData () {
-        this._vertsDirty = true;
+        this.setVertsDirty();
         this.markForUpdateRenderData(true);
     },
 
     _forceUpdateRenderData () {
-        this._vertsDirty = true;
+        this.setVertsDirty();
         this.markForUpdateRenderData(true);
         this._updateAssembler();
         this._activateMaterial(true);

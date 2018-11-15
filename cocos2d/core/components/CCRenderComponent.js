@@ -133,8 +133,15 @@ let RenderComponent = cc.Class({
         this._material = null;
     },
 
-    _onNodeSizeDirty () {
+    setVertsDirty () {
         this._vertsDirty = true;
+        if (CC_JSB) {
+            this._renderHandle.setVertsDirty();
+        }
+    },
+
+    _onNodeSizeDirty () {
+        this.setVertsDirty();
         this.markForUpdateRenderData(true);
     },
     

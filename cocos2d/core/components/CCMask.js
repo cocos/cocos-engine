@@ -319,7 +319,7 @@ let Mask = cc.Class({
 
     _onTextureLoaded () {
         // Mark render data dirty
-        this._vertsDirty = true;
+        this.setVertsDirty();
         if (this._renderData) {
             this.markForUpdateRenderData(true);
         }

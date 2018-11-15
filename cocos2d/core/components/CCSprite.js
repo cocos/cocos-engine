@@ -272,7 +272,7 @@ var Sprite = cc.Class({
                         this._renderData = null;
                     }
                     else if (this._renderData) {
-                        this._vertsDirty = true;
+                        this.setVertsDirty();
                         this.markForUpdateRenderData(true);
                     }
                     this._fillType = value;
@@ -301,7 +301,7 @@ var Sprite = cc.Class({
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._vertsDirty = true;
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -326,7 +326,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._vertsDirty = true;
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -351,7 +351,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._vertsDirty = true;
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -374,7 +374,7 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
                         this._renderData) {
-                        this._vertsDirty = true;
+                        this.setVertsDirty();
                         this.markForUpdateRenderData(true);
                     }
                 }
@@ -468,7 +468,7 @@ var Sprite = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.material = this._material;
-            this._vertsDirty = true;
+            this.setVertsDirty();
             this.markForUpdateRenderData(true);
         }
     },
