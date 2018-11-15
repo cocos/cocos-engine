@@ -205,6 +205,8 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].uploadData();
         }
+    
+        this.walking = false;
     },
 
     getBuffer (type, vertextFormat) {
