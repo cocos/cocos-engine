@@ -18,15 +18,15 @@ function mapPassParam(p) {
 }
 
 function buildEffects(dest, path) {
-  let files = fsJetpack.find(path, { matching: ['**/*.json'] });
+  let files = fsJetpack.find(path, { matching: ['**/*.effect'] });
   let code = '';
   for (let i = 0; i < files.length; ++i) {
     let file = files[i];
     let dir = path_.dirname(file);
-    let name = path_.basename(file, '.json');
+    let name = path_.basename(file, '.effect');
     if (name === 'index') continue;
 
-    let json = fs.readFileSync(path_.join(dir, name + '.json'), { encoding: 'utf8' });
+    let json = fs.readFileSync(path_.join(dir, name + '.effect'), { encoding: 'utf8' });
     json = JSON.parse(json);
     // map param's type offline.
     for (let j = 0; j < json.techniques.length; ++j) {
