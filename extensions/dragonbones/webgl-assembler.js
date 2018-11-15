@@ -67,16 +67,16 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
     comp._material = comp._material || new SpriteMaterial();
-    let tplMaterial = comp._material;
+    let baseMaterial = comp._material;
     let materials = comp._materials;
     let material = materials[key];
     if (!material) {
 
-        var tplKey = tplMaterial._hash;
-        if (!materials[tplKey]) {
-            material = tplMaterial;
+        var baseKey = baseMaterial._hash;
+        if (!materials[baseKey]) {
+            material = baseMaterial;
         } else {
-            material = tplMaterial.clone();
+            material = baseMaterial.clone();
         }
 
         material.useModel = true;
