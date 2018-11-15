@@ -209,7 +209,7 @@ var AudioSource = cc.Class({
 
     _pausedCallback: function () {
         var state = this.audio.getState();
-        if (state == cc.Audio.State.PLAYING) {
+        if (state === cc.Audio.State.PLAYING) {
             this.audio.pause();
             this._pausedFlag = true;
         }
