@@ -721,8 +721,8 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                this._eulerAngles.z = value;
-                math.quat.fromEuler(this._quat, 0, 0, value);
+                math.vec3.set(this._eulerAngles, 0, 0, value);
+                this._fromEuler();
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -1269,6 +1269,24 @@ let NodeDefines = {
 
     // INTERNAL
 
+    _toEuler () {
+        if (this.is3DNode) {
+            this._quat.toEuler(this._eulerAngles);
+        }
+        else {
+            let z = Math.asin(this._quat.z) / ONE_DEGREE * 2;
+            math.vec3.set(this._eulerAngles, 0, 0, z);
+        }
+    },
+    _fromEuler () {
+        if (this.is3DNode) {
+            this._quat.fromEuler(this._eulerAngles);
+        }
+        else {
+            math.quat.fromEuler(this._quat, 0, 0, this._eulerAngles.z);
+        }
+    },
+
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1300,7 +1318,7 @@ let NodeDefines = {
             this._rotationX = this._rotationY = undefined;
         }
         
-        this._quat.toEuler(this._eulerAngles);
+        this._toEuler();
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
         // TODO: Remove after final version
@@ -2220,7 +2238,7 @@ let NodeDefines = {
                 }
 
                 if (CC_EDITOR) {
-                    old.toEuler(this._eulerAngles);
+                    this._toEuler();
                 }
             }
         }
@@ -2461,7 +2479,7 @@ let NodeDefines = {
         else {
             math.quat.copy(this._quat, quat);
         }
-        this._quat.toEuler(this._eulerAngles);
+        this._toEuler();
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
@@ -3132,7 +3150,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        this._quat.toEuler(this._eulerAngles);
+        this._toEuler();
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {

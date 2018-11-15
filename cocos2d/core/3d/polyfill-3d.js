@@ -35,6 +35,7 @@ const ONE_DEGREE = Math.PI / 180;
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
+const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
@@ -155,6 +156,7 @@ function _update3DFunction () {
         this._mulMat = _mulMat2d;
     }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    this._localMatDirty = DirtyFlag.ALL;
 }
 
 function _upgrade_1x_to_2x () {
