@@ -237,7 +237,6 @@ RenderFlow.visit = function (scene) {
     }
 
     _batcher.terminate();
-    _batcher.walking = false;
 };
 
 RenderFlow.init = function (batcher) {
