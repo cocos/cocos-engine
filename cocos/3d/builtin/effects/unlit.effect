@@ -1,16 +1,16 @@
 {
   "techniques": [
     {
-      "stages": ["opaque"],
+      "queue": "opaque",
       "passes": [
        {
+         "stage":"default",
          "program": "unlit",
          "cullMode": "back",
          "depthTest": true,
          "depthWrite": true
        }
-      ],
-      "layer": 0
+      ]
     }
   ],
 

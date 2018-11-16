@@ -56,20 +56,23 @@ class Effect {
         this._defines.length = 0;
     }
 
-    getTechnique(stage) {
-        let stageID = config.stageID(stage);
-        if (stageID === -1) {
+    getTechnique(index) {
+        // let stageID = config.stageID(stage);
+        // if (stageID === -1) {
+        //     return null;
+        // }
+
+        // for (let i = 0; i < this._techniques.length; ++i) {
+        //     let tech = this._techniques[i];
+        //     if (tech.stageIDs & stageID) {
+        //         return tech;
+        //     }
+        // }
+
+        // return null;
+        if (index < 0 || index >= this._techniques.length)
             return null;
-        }
-
-        for (let i = 0; i < this._techniques.length; ++i) {
-            let tech = this._techniques[i];
-            if (tech.stageIDs & stageID) {
-                return tech;
-            }
-        }
-
-        return null;
+        return this._techniques[index];
     }
 
     getProperty(name) {
@@ -133,6 +136,10 @@ class Effect {
         }
 
         return out;
+    }
+
+    getDefaultTechnique() {
+        return 0;
     }
 }
 
@@ -224,7 +231,8 @@ Effect.parseEffect = function(json) {
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
+            passes[k]._stage = cc.PassStage.parseStage(pass.stage);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite);
             passes[k].setCullMode(pass.cullMode);
             passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
                 pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
@@ -233,7 +241,7 @@ Effect.parseEffect = function(json) {
             passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
                 pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
-        techniques[j] = new Technique(tech.stages, passes, tech.layer);
+        techniques[j] = new Technique(cc.parseQueue(tech.queue), passes);
     }
     let programs = getInvolvedPrograms(json);
     // uniforms

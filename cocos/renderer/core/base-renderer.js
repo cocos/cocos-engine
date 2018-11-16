@@ -7,8 +7,52 @@ import { intersect } from '../../3d/geom-utils';
 import enums from '../enums';
 import View from './view';
 
+let RenderQueue = cc.Enum({
+    OPAQUE: 0,
+    TRANSPARENT: 3000,
+    OVERLAY: 5000
+});
+
+cc.parseQueue = function (expr) {
+    let m = expr.match(/(\w+)(?:([+-])(\d+))?/);
+    if (m == null)
+        return 0;
+    let q;
+    switch (m[1]) {
+        case 'opaque':
+            q = RenderQueue.OPAQUE;
+            break;
+        case 'transparent':
+            q = RenderQueue.TRANSPARENT;
+            break;
+        case 'overlay':
+            q = RenderQueue.OVERLAY;
+            break;
+    }
+    if (m.length == 4) {
+        if (m[2] === '+') {
+            q += parseInt(m[3]);
+        }
+        if (m[2] === '-') {
+            q -= parseInt(m[3]);
+        }
+    }
+    return q;
+};
+
+cc.RenderQueue = RenderQueue;
+
 let _m3_tmp = mat3.create();
 let _m4_tmp = mat4.create();
+
+let _camPos = vec3.create(0, 0, 0);
+let _camFwd = vec3.create(0, 0, 0);
+let _v3_tmp1 = vec3.create(0, 0, 0);
+
+let _a16_view = new Float32Array(16);
+let _a16_proj = new Float32Array(16);
+let _a16_viewProj = new Float32Array(16);
+let _a3_camPos = new Float32Array(3);
 
 let _stageInfos = new RecyclePool(() => {
   return {
@@ -304,6 +348,7 @@ export default class BaseRenderer {
       [enums.PARAM_TEXTURE_2D]: null,
       [enums.PARAM_TEXTURE_CUBE]: null,
     };
+    this._renderQueueFn = {};
     this._stage2fn = {};
     this._modelType2fn = {};
     this._usedTextureUnits = 0;
@@ -314,6 +359,7 @@ export default class BaseRenderer {
       return new View();
     }, 8);
 
+    // store renderable based on material
     this._drawItemsPools = new RecyclePool(() => {
       return {
         model: null,
@@ -325,6 +371,7 @@ export default class BaseRenderer {
       };
     }, 100);
 
+    // store renderable based on pass
     this._stageItemsPools = new RecyclePool(() => {
       return new RecyclePool(() => {
         return {
@@ -339,6 +386,10 @@ export default class BaseRenderer {
         };
       }, 100);
     }, 16);
+
+    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.TRANSPARENT],this._renderTransparent.bind(this));
+    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.OPAQUE],this._renderOpaque.bind(this));
+    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.OVERLAY],this._renderOverlay.bind(this));
   }
 
   /**
@@ -348,7 +399,6 @@ export default class BaseRenderer {
    */
   setBuiltins(opts) {
     this._opts = opts;
-    this._programLib = opts.programLib;
     this._type2defaultValue[enums.PARAM_TEXTURE_2D] = opts.defaultTexture;
     this._type2defaultValue[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube;
   }
@@ -368,6 +418,10 @@ export default class BaseRenderer {
     this._usedTextureUnits += 1;
     return unit;
   }
+
+    _registerRenderQueue(name, fn) {
+        this._renderQueueFn[name] = fn;
+    }
 
   _registerStage(name, fn) {
     this._stage2fn[name] = fn;
@@ -463,40 +517,60 @@ export default class BaseRenderer {
     // dispatch draw items to different stage
     _stageInfos.reset();
 
-    for (let i = 0; i < view._stages.length; ++i) {
-      let stage = view._stages[i];
-      let stageItems = this._stageItemsPools.add();
-      stageItems.reset();
-
-      for (let j = 0; j < this._drawItemsPools.length; ++j) {
-        let drawItem = this._drawItemsPools.data[j];
-        let tech = drawItem.effect.getTechnique(stage);
-
-        if (tech) {
-          let stageItem = stageItems.add();
-          stageItem.model = drawItem.model;
-          stageItem.node = drawItem.node;
-          stageItem.ia = drawItem.ia;
-          stageItem.effect = drawItem.effect;
-          stageItem.defines = drawItem.defines;
-          stageItem.dependencies = drawItem.dependencies;
-          stageItem.technique = tech;
-          stageItem.sortKey = -1;
-        }
+    // for (let i = 0; i < view._stages.length; ++i) {
+    //   let stage = view._stages[i];
+      let renderQueues = Object.keys(cc.RenderQueue);
+      for (let qi = 0; qi < renderQueues.length; qi++) {
+          this._stageItemsPools.add().reset();
       }
 
-      let stageInfo = _stageInfos.add();
-      stageInfo.stage = stage;
-      stageInfo.items = stageItems;
-    }
+      for (let j = 0; j < this._drawItemsPools.length; ++j) {
+          let drawItem = this._drawItemsPools.data[j];
+          let techIndex = drawItem.effect.getDefaultTechnique();
+          let tech = drawItem.effect.getTechnique(techIndex);
+
+          if (tech) {
+              for (let k = 0; k < tech.passes.length; k++) {
+                  if (!this._isPassSuitable(view, tech._passes[k]._stage))
+                      continue;
+
+                  let stageItem = null;
+                  for (qi = renderQueues.length - 1; qi >= 0; qi--) {
+                      if (tech.renderQueue >= cc.RenderQueue[renderQueues[qi]]) {
+                          stageItem = this._stageItemsPools.data[qi].add();
+                          break;
+                      }
+                  }
+                  stageItem.model = drawItem.model;
+                  stageItem.node = drawItem.node;
+                  stageItem.ia = drawItem.ia;
+                  stageItem.effect = drawItem.effect;
+                  stageItem.defines = drawItem.defines;
+                  stageItem.dependencies = drawItem.dependencies;
+                  stageItem.tech = tech;
+                  stageItem.pass = tech._passes[k];
+                  stageItem.passIndex = k;
+                  stageItem.sortKey = -1;
+              }
+          }
+      }
+
+    //   let stageInfo = _stageInfos.add();
+    //   stageInfo.stage = stage;
+    //   stageInfo.items = stageItems;
+    // }
 
     // render stages
-    for (let i = 0; i < _stageInfos.length; ++i) {
-      let info = _stageInfos.data[i];
-      let stageFn = this._stage2fn[info.stage];
+    // for (let i = 0; i < _stageInfos.length; ++i) {
+    //   let info = _stageInfos.data[i];
+    //   let stageFn = this._stage2fn[info.stage];
 
-      stageFn(view, info.items);
-    }
+    //   stageFn(view, info.items);
+    // }
+
+      for (qi = 0; qi < renderQueues.length; qi++) {
+          this._renderQueueFn[renderQueues[qi]](view, this._stageItemsPools.data[qi]);
+      }
   }
 
   _drawModel(item) {
@@ -512,164 +586,287 @@ export default class BaseRenderer {
   }
 
   _draw(item) {
-    const device = this._device;
-    const programLib = this._programLib;
-    const { node, ia, effect, technique, defines, dependencies } = item;
 
-    // reset the pool
-    // NOTE: we can use drawCounter optimize this
-    // TODO: should be configurable
-    _float2_pool.reset();
-    _float3_pool.reset();
-    _float4_pool.reset();
-    _float9_pool.reset();
-    _float16_pool.reset();
-    _float64_pool.reset();
-    _int2_pool.reset();
-    _int3_pool.reset();
-    _int4_pool.reset();
-    _int64_pool.reset();
-
-    // set uniforms
-    for (let name in effect._properties) {
-      let propInfo = effect._properties[name];
-      let prop = propInfo.value;
-
-      if (prop === undefined || prop === null) {
-        prop = this._type2defaultValue[propInfo.type];
-      }
-
-      // set common uniforms
-      if (name === 'model') { node.getWorldMatrix(_m4_tmp); prop = _m4_tmp; }
-      else if (name === 'normalMatrix') { mat3.normalFromMat4(_m3_tmp, _m4_tmp); prop = _m3_tmp; }
-
-      if (prop === undefined || prop === null) {
-        console.warn(`Failed to set technique property ${name}, value not found.`);
-        continue;
-      }
-
-      if (
-        propInfo.type === enums.PARAM_TEXTURE_2D ||
-        propInfo.type === enums.PARAM_TEXTURE_CUBE
-      ) {
-        if (defines['USE_'+name.toUpperCase()] == false) continue;
-        if (propInfo.size !== undefined) {
-          if (propInfo.size !== prop.length) {
-            console.error(`The length of texture array (${prop.length}) is not corrent(expect ${propInfo.size}).`);
-            continue;
-          }
-          let slots = _int64_pool.add();
-          for (let index = 0; index < prop.length; ++index) {
-            slots[index] = this._allocTextureUnit();
-          }
-          device.setTextureArray(name, prop, slots);
-        } else {
-          device.setTexture(name, prop, this._allocTextureUnit());
-        }
-      } else {
-        let convertedValue;
-        if (propInfo.size !== undefined) {
-          let convertArray = _type2uniformArrayValue[propInfo.type];
-          if (convertArray.func === undefined) {
-            console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
-            continue;
-          }
-          if (propInfo.size * convertArray.size > 64) {
-            console.error('Uniform array is too long!');
-            continue;
-          }
-          convertedValue = convertArray.func(prop);
-        } else {
-          let convertFn = _type2uniformValue[propInfo.type];
-          convertedValue = convertFn(prop);
-        }
-        device.setUniform(name, convertedValue);
-      }
-    }
 
     // for each pass
-    for (let i = 0; i < technique._passes.length; ++i) {
-      let pass = technique._passes[i];
-      let count = ia.count;
-
-      // set vertex buffer
-      device.setVertexBuffer(0, ia._vertexBuffer);
-
-      // set index buffer
-      if (ia._indexBuffer) {
-        device.setIndexBuffer(ia._indexBuffer);
-      }
-
-      // set primitive type
-      device.setPrimitiveType(ia._primitiveType);
-
-      // set program
-      let program = programLib.getProgram(pass._programName, defines, dependencies);
-      device.setProgram(program);
-
-      // cull mode
-      device.setCullMode(pass._cullMode);
-
-      // blend
-      if (pass._blend) {
-        device.enableBlend();
-        device.setBlendFuncSep(
-          pass._blendSrc,
-          pass._blendDst,
-          pass._blendSrcAlpha,
-          pass._blendDstAlpha
-        );
-        device.setBlendEqSep(
-          pass._blendEq,
-          pass._blendAlphaEq
-        );
-        device.setBlendColor32(pass._blendColor);
-      }
-
-      // depth test & write
-      if (pass._depthTest) {
-        device.enableDepthTest();
-        device.setDepthFunc(pass._depthFunc);
-      }
-      if (pass._depthWrite) {
-        device.enableDepthWrite();
-      }
-
-      // stencil
-      if (pass._stencilTest) {
-        device.enableStencilTest();
-
-        // front
-        device.setStencilFuncFront(
-          pass._stencilFuncFront,
-          pass._stencilRefFront,
-          pass._stencilMaskFront
-        );
-        device.setStencilOpFront(
-          pass._stencilFailOpFront,
-          pass._stencilZFailOpFront,
-          pass._stencilZPassOpFront,
-          pass._stencilWriteMaskFront
-        );
-
-        // back
-        device.setStencilFuncBack(
-          pass._stencilFuncBack,
-          pass._stencilRefBack,
-          pass._stencilMaskBack
-        );
-        device.setStencilOpBack(
-          pass._stencilFailOpBack,
-          pass._stencilZFailOpBack,
-          pass._stencilZPassOpBack,
-          pass._stencilWriteMaskBack
-        );
-      }
-
-      // draw pass
-      device.draw(ia._start, count);
-
-      this._resetTextureUnit();
-    }
+    // for (let i = 0; i < technique._passes.length; ++i) {
+    //   let pass = technique._passes[i];
+    this._stage2fn[item.pass.stage](item);
+    // }
   }
+
+    _isPassSuitable(view, stage) {
+        return view._stages.includes(stage);
+    }
+
+    _renderOpaque(view, stageItems) {
+
+        const programLib = this._programLib;
+        view.getPosition(_camPos);
+
+        // update uniforms
+        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+
+        // update rendering
+        // this._submitLightUniforms();
+        // this._submitOtherStagesUniforms();
+        // this._updateShaderDefines(stageItems);
+
+        // calculate sorting key
+        for (let i = 0; i < stageItems.length; ++i) {
+            let item = stageItems.data[i];
+            item.sortKey = programLib.getKey(
+                item.pass._programName,
+                item.defines
+            );
+        }
+
+        // sort items
+        stageItems.sort((a, b) => {
+
+            if (a.technique._renderQueue !== b.technique._renderQueue) {
+                return a.technique._renderQueue - b.technique._renderQueue;
+            }
+        });
+        for (let i = 0; i < stageItems.length; ++i) {
+            let item = stageItems.data[i];
+
+            for (let index = 0; index < this._shadowLights.length; ++index) {
+                let light = this._shadowLights[index];
+                this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+            }
+
+            this._drawModel(item);
+        }
+    }
+
+    _renderTransparent(view, stageItems) {
+
+        view.getPosition(_camPos);
+        view.getForward(_camFwd);
+
+        // update uniforms
+        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+
+        // calculate zdist
+        for (let i = 0; i < stageItems.length; ++i) {
+            let item = stageItems.data[i];
+
+            // TODO: we should use mesh center instead!
+            item.node.getWorldPosition(_v3_tmp1);
+
+            vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
+            item.sortKey = vec3.dot(_v3_tmp1, _camFwd);
+        }
+
+        // update rendering
+        // this._submitLightUniforms();
+        // this._submitOtherStagesUniforms();
+        // this._updateShaderDefines(stageItems);
+
+        // sort items
+        stageItems.sort((a, b) => {
+            if (a.technique._renderQueue !== b.technique._renderQueue) {
+                return a.technique._renderQueue - b.technique._renderQueue;
+            }
+
+            return a.sortKey - b.sortKey;
+        });
+        for (let i = 0; i < stageItems.length; ++i) {
+            let item = stageItems.data[i];
+
+            for (let index = 0; index < this._shadowLights.length; ++index) {
+                let light = this._shadowLights[index];
+                this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+            }
+
+            this._drawModel(item);
+        }
+
+    }
+
+    _renderOverlay(view, stageItems) {
+        // update uniforms
+        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+
+        // sort items
+        stageItems.sort((a, b) => {
+            if (a.technique._renderQueue !== b.technique._renderQueue) {
+                return a.technique._renderQueue - b.technique._renderQueue;
+            }
+            return a.model._userKey- b.model._userKey;
+        });
+
+        // draw it
+        for (let i = 0; i < stageItems.length; ++i) {
+            let item = stageItems.data[i];
+            this._drawModel(item);
+        }
+    }
+
+    _drawPass(item) {
+        const device = this._device;
+        const programLib = this._programLib;
+        const { node, ia, effect, pass, defines, dependencies } = item;
+
+        // reset the pool
+        // NOTE: we can use drawCounter optimize this
+        // TODO: should be configurable
+        _float2_pool.reset();
+        _float3_pool.reset();
+        _float4_pool.reset();
+        _float9_pool.reset();
+        _float16_pool.reset();
+        _float64_pool.reset();
+        _int2_pool.reset();
+        _int3_pool.reset();
+        _int4_pool.reset();
+        _int64_pool.reset();
+
+        // set uniforms
+        for (let name in effect._properties) {
+            let propInfo = effect._properties[name];
+            let prop = propInfo.value;
+
+            if (prop === undefined || prop === null) {
+                prop = this._type2defaultValue[propInfo.type];
+            }
+
+            // set common uniforms
+            if (name === 'model') { node.getWorldMatrix(_m4_tmp); prop = _m4_tmp; }
+            else if (name === 'normalMatrix') { mat3.normalFromMat4(_m3_tmp, _m4_tmp); prop = _m3_tmp; }
+
+            if (prop === undefined || prop === null) {
+                console.warn(`Failed to set technique property ${name}, value not found.`);
+                continue;
+            }
+
+            if (
+                propInfo.type === enums.PARAM_TEXTURE_2D ||
+                propInfo.type === enums.PARAM_TEXTURE_CUBE
+            ) {
+                if (defines['USE_' + name.toUpperCase()] == false) continue;
+                if (propInfo.size !== undefined) {
+                    if (propInfo.size !== prop.length) {
+                        console.error(`The length of texture array (${prop.length}) is not corrent(expect ${propInfo.size}).`);
+                        continue;
+                    }
+                    let slots = _int64_pool.add();
+                    for (let index = 0; index < prop.length; ++index) {
+                        slots[index] = this._allocTextureUnit();
+                    }
+                    device.setTextureArray(name, prop, slots);
+                } else {
+                    device.setTexture(name, prop, this._allocTextureUnit());
+                }
+            } else {
+                let convertedValue;
+                if (propInfo.size !== undefined) {
+                    let convertArray = _type2uniformArrayValue[propInfo.type];
+                    if (convertArray.func === undefined) {
+                        console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
+                        continue;
+                    }
+                    if (propInfo.size * convertArray.size > 64) {
+                        console.error('Uniform array is too long!');
+                        continue;
+                    }
+                    convertedValue = convertArray.func(prop);
+                } else {
+                    let convertFn = _type2uniformValue[propInfo.type];
+                    convertedValue = convertFn(prop);
+                }
+                device.setUniform(name, convertedValue);
+            }
+        }
+
+        let count = ia.count;
+
+        // set vertex buffer
+        device.setVertexBuffer(0, ia._vertexBuffer);
+
+        // set index buffer
+        if (ia._indexBuffer) {
+            device.setIndexBuffer(ia._indexBuffer);
+        }
+
+        // set primitive type
+        device.setPrimitiveType(ia._primitiveType);
+
+        // set program
+        let program = programLib.getProgram(pass._programName, defines, dependencies);
+        device.setProgram(program);
+
+        // cull mode
+        device.setCullMode(pass._cullMode);
+
+        // blend
+        if (pass._blend) {
+            device.enableBlend();
+            device.setBlendFuncSep(
+                pass._blendSrc,
+                pass._blendDst,
+                pass._blendSrcAlpha,
+                pass._blendDstAlpha
+            );
+            device.setBlendEqSep(
+                pass._blendEq,
+                pass._blendAlphaEq
+            );
+            device.setBlendColor32(pass._blendColor);
+        }
+
+        // depth test & write
+        if (pass._depthTest) {
+            device.enableDepthTest();
+            device.setDepthFunc(pass._depthFunc);
+        }
+        if (pass._depthWrite) {
+            device.enableDepthWrite();
+        }
+
+        // stencil
+        if (pass._stencilTest) {
+            device.enableStencilTest();
+
+            // front
+            device.setStencilFuncFront(
+                pass._stencilFuncFront,
+                pass._stencilRefFront,
+                pass._stencilMaskFront
+            );
+            device.setStencilOpFront(
+                pass._stencilFailOpFront,
+                pass._stencilZFailOpFront,
+                pass._stencilZPassOpFront,
+                pass._stencilWriteMaskFront
+            );
+
+            // back
+            device.setStencilFuncBack(
+                pass._stencilFuncBack,
+                pass._stencilRefBack,
+                pass._stencilMaskBack
+            );
+            device.setStencilOpBack(
+                pass._stencilFailOpBack,
+                pass._stencilZFailOpBack,
+                pass._stencilZPassOpBack,
+                pass._stencilWriteMaskBack
+            );
+        }
+
+        // draw pass
+        device.draw(ia._start, count);
+
+        this._resetTextureUnit();
+    }
 }
