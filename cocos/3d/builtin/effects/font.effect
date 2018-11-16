@@ -1,9 +1,10 @@
 {
   "techniques": [
     {
-      "stages": ["ui"],
+      "queue": "overlay",
       "passes": [
        {
+         "stage": "default",
          "program": "sprite",
          "depthTest": true,
          "depthWrite": false,
@@ -15,8 +16,7 @@
          "blendSrcAlpha": "one",
          "blendDstAlpha": "oneMinusSrcAlpha"
        }
-      ],
-      "layer": 0
+      ]
     }
   ],
 

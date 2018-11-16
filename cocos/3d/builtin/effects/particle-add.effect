@@ -1,23 +1,23 @@
 {
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
-       {
-         "program": "particle-add",
-         "cullMode": "none",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "srcAlpha",
-         "blendDst": "one",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "srcAlpha",
-         "blendDstAlpha": "one"
-       }
-      ],
-      "layer": 0
+        {
+          "stage": "default",
+          "program": "particle-add",
+          "cullMode": "none",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "srcAlpha",
+          "blendDst": "one",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "srcAlpha",
+          "blendDstAlpha": "one"
+        }
+      ]
     }
   ],
 

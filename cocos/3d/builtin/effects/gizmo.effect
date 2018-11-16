@@ -1,9 +1,10 @@
 {
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
        {
+         "stage": "default",
          "program": "gizmo",
          "cullMode": "none",
          "depthTest": false,
@@ -16,8 +17,7 @@
          "blendSrcAlpha": "one",
          "blendDstAlpha": "oneMinusSrcAlpha"
        }
-      ],
-      "layer": 0
+      ]
     }
   ],
 

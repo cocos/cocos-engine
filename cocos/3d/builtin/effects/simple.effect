@@ -1,15 +1,15 @@
 {
   "techniques": [
     {
-      "stages": ["opaque"],
+      "queue": "opaque",
       "passes": [
-       {
-         "program": "simple",
-         "depthTest": true,
-         "depthWrite": true
-       }
-      ],
-      "layer": 0
+        {
+          "stage": "default",
+          "program": "simple",
+          "depthTest": true,
+          "depthWrite": true
+        }
+      ]
     }
   ],
 

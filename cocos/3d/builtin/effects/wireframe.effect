@@ -1,14 +1,14 @@
 {
   "techniques": [
     {
-      "stages": ["opaque"],
+      "queue": "opaque",
       "passes": [
-       {
-         "program": "wireframe",
-         "depthTest": true
-       }
-      ],
-      "layer": 0
+        {
+          "stage": "default",
+          "program": "wireframe",
+          "depthTest": true
+        }
+      ]
     }
   ],
   "properties": {
