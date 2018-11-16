@@ -1,6 +1,6 @@
 const Material = require('../core/assets/CCMaterial');
 
-let names = ['sprite', 'gray-sprite'];
+let names = ['sprite', 'gray-sprite', 'mesh'];
 
 let builtinMaterials;
 
@@ -11,10 +11,8 @@ module.exports = {
     
             for (let i in names) {
                 let name = names[i];
-                let uuid = 'builtin-material-' + name;
                 let material = new Material('builtin-effect-' + name);
-                material.uuid = uuid;
-                builtinMaterials[uuid] = material;
+                builtinMaterials['builtin-material-' + name] = material;
             }
         }
     

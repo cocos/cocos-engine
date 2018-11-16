@@ -4,11 +4,11 @@ attribute vec4 a_weights;
 attribute vec4 a_joints;
 
 #ifdef useJointsTexture
-uniform sampler2D u_jointsTexture;
-uniform float u_jointsTextureSize;
+uniform sampler2D jointsTexture;
+uniform float jointsTextureSize;
 
 mat4 getBoneMatrix(const in float i) {
-  float size = u_jointsTextureSize;
+  float size = jointsTextureSize;
   float j = i * 4.0;
   float x = mod(j, size);
   float y = floor(j / size);
@@ -18,18 +18,18 @@ mat4 getBoneMatrix(const in float i) {
 
   y = dy * (y + 0.5);
 
-  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));
-  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));
-  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));
-  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));
+  vec4 v1 = texture2D(jointsTexture, vec2(dx * (x + 0.5), y));
+  vec4 v2 = texture2D(jointsTexture, vec2(dx * (x + 1.5), y));
+  vec4 v3 = texture2D(jointsTexture, vec2(dx * (x + 2.5), y));
+  vec4 v4 = texture2D(jointsTexture, vec2(dx * (x + 3.5), y));
 
   return mat4(v1, v2, v3, v4);
 }
 #else
-uniform mat4 u_jointMatrices[64];
+uniform mat4 jointMatrices[64];
 
 mat4 getBoneMatrix(const in float i) {
-  return u_jointMatrices[int(i)];
+  return jointMatrices[int(i)];
 }
 #endif
 

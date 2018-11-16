@@ -4,10 +4,10 @@
         "stages": ["transparent"],
         "passes": [
          {
-           "program": "gray-sprite",
+           "program": "mesh",
            "cullMode": "none",
-           "depthTest": false,
-           "depthWrite": false,
+           "depthTest": true,
+           "depthWrite": true,
            "blend": true,
            "blendEq": "add",
            "blendSrc": "srcAlpha",
@@ -25,6 +25,21 @@
       "texture": {
         "type": "sampler2D",
         "value": null
+      },
+      "color": {
+          "type": "color4",
+          "value": [1, 1, 1, 1]
+      },
+      "jointsTexture": {
+        "type": "sampler2D",
+        "value": null
+      },
+      "jointsTextureSize": {
+          "type": "float",
+          "value": 0
+      },
+      "jointMatrices": {
+          "type": "mat4"
       }
     }
   }

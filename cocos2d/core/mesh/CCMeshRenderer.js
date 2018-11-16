@@ -29,6 +29,7 @@ const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const RenderFlow = require('../renderer/render-flow');
 const aabb = require('../3d/geom-utils/aabb');
+const Material = require('../assets/CCMaterial');
 
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
@@ -51,7 +52,7 @@ let MeshRenderer = cc.Class({
             set (v) {
                 if (this._mesh === v) return;
                 this._mesh = v;
-                this.activeMaterials(true);
+                this._activateMaterial(true);
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
@@ -72,27 +73,24 @@ let MeshRenderer = cc.Class({
 
     onEnable () {
         this._super();
-        this.activeMaterials();
+        this._activateMaterial();
     },
 
-    _createMaterial (subMesh) {
-        let material = new renderEngine.MeshMaterial();   
-        material.color = this.node.color;
-        material._mainTech._passes[0].setDepth(true, true);
-        material.useModel = true;
+    _activateSubMaterial (material, subMesh) {
+        material.define('useTexture', true);
+        material.define('useModel', true);
 
+        material.setProperty('color', this.node.color);
         if (subMesh._vertexBuffer._format._attr2el[gfx.ATTR_COLOR]) {
-            material.useAttributeColor = true;
+            material.define('useAttributeColor', true);
         }
-
-        return material;
     },
 
     _updateColor () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
             let material = materials[i];
-            material.color = this.node.color;
+            material.setProperty('color', this.node.color);
             material.updateHash();
         }
         
@@ -101,10 +99,9 @@ let MeshRenderer = cc.Class({
 
     _reset () {
         this._materials.length = 0;
-        this._material = null;
     },
 
-    activeMaterials (force) {
+    _activateMaterial (force) {
         let mesh = this._mesh;
         // TODO: should init mesh when mesh loaded, need asset load event support
         if (mesh) {
@@ -116,10 +113,6 @@ let MeshRenderer = cc.Class({
             return;
         }
 
-        if (this._material && !force) {
-            return;
-        }
-
         if (aabb) {
             this._boundingBox = aabb.fromPoints(aabb.create(), mesh._minPos, mesh._maxPos);
         }
@@ -127,11 +120,19 @@ let MeshRenderer = cc.Class({
         this._reset();
 
         let subMeshes = mesh._subMeshes;
-        for (let i = 0; i < subMeshes.length; i++) {
-            let material = this._createMaterial(subMeshes[i]);
-            this._materials.push(material);
+        let materials = this.sharedMaterials;
+
+        if (!materials[0]) {
+            let builtinMaterial = cc.Asset.getBuiltin('builtin-material-mesh');
+            materials[0] = Material.getInstantiatedMaterial(builtinMaterial, this);
         }
-        this._material = this._materials[0];
+
+        for (let i = 0; i < materials.length; i++) {
+            let subMesh = subMeshes[i];
+            if (!subMesh) continue;
+            let material = materials[i];
+            this._activateSubMaterial(material, subMesh);
+        }
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);

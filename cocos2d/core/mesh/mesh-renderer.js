@@ -41,7 +41,7 @@ let meshRendererAssembler = {
         let submeshes = comp.mesh._subMeshes;
         for (let i = 0; i < submeshes.length; i++) {
             let data = new IARenderData();
-            data.material = comp._materials[i];
+            data.material = comp.sharedMaterials[i] || comp.sharedMaterials[0];
             data.ia = submeshes[i];
             renderDatas.push(data);
         }
@@ -72,7 +72,7 @@ let meshRendererAssembler = {
             ibData.length
         );
 
-        data.ia = new renderEngine.InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
+        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
         return data;
     },
 
@@ -99,20 +99,19 @@ let meshRendererAssembler = {
         let tmpMaterial = renderer.material;
 
         let tmpNode = renderer.node;
-        renderer.node = comp._material.useModel ? comp.node : renderer._dummyNode;
+        renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
 
         comp.mesh._uploadData();
 
         let textures = comp.textures;
-        let materials = comp._materials;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
             let material = renderData.material;
             if (textures[i]) {
-                material.texture = textures[i];
+                material.setProperty('texture', textures[i]);
             }
             else {
-                material.useTexture = false;
+                material.define('useTexture', false);
             }
 
             renderer.material = material;

@@ -184,60 +184,60 @@ let Material = cc.Class({
         this._hash = str;
     },
 
-    _serialize () {
-        return {	
-            effectName: this._effectName,
-            props: Editor.serialize(this._props),
-            defines: Editor.serialize(this._defines),
-        };
-    },
+    // _serialize () {
+    //     return {	
+    //         effectName: this._effectName,
+    //         props: Editor.serialize(this._props),
+    //         defines: Editor.serialize(this._defines),
+    //     };
+    // },
 
-    _deserialize: (function () {
-        let dependsPool = new RecyclePool(function () {
-            return {
-                target: null,
-                propName: '',
-                set asset (asset) {
-                    this.target.setProperty(this.propName, asset);
-                    this.target = null;
-                    dependsPool.remove(dependsPool.data.indexOf(this));
-                }
-            };
-        }, 1);
+    // _deserialize: (function () {
+    //     let dependsPool = new RecyclePool(function () {
+    //         return {
+    //             target: null,
+    //             propName: '',
+    //             set asset (asset) {
+    //                 this.target.setProperty(this.propName, asset);
+    //                 this.target = null;
+    //                 dependsPool.remove(dependsPool.data.indexOf(this));
+    //             }
+    //         };
+    //     }, 1);
 
-        function loadAsset (handle, target, propName, uuid) {
-            let depend = dependsPool.add();
-            depend.target = target;
-            depend.propName = propName;
+    //     function loadAsset (handle, target, propName, uuid) {
+    //         let depend = dependsPool.add();
+    //         depend.target = target;
+    //         depend.propName = propName;
 
-            handle.result.push(depend, 'asset', uuid);
-        }
+    //         handle.result.push(depend, 'asset', uuid);
+    //     }
 
-        return function (data, handle) {
-            this.effectName = data.effectName;
+    //     return function (data, handle) {
+    //         this.effectName = data.effectName;
     
-            let props = cc.deserialize(data.props);
-            let propNames = Object.keys(props);
-            for (let i = 0; i < propNames.length; i++) {
-                let name = propNames[i];
-                let prop = props[name];
+    //         let props = cc.deserialize(data.props);
+    //         let propNames = Object.keys(props);
+    //         for (let i = 0; i < propNames.length; i++) {
+    //             let name = propNames[i];
+    //             let prop = props[name];
                 
-                if (prop.uuid) {
-                    // load prop as an asset
-                    loadAsset(handle, this, name, prop.uuid);
-                    continue;
-                }
-                this.setProperty(name, props[name]);
-            }
+    //             if (prop.uuid) {
+    //                 // load prop as an asset
+    //                 loadAsset(handle, this, name, prop.uuid);
+    //                 continue;
+    //             }
+    //             this.setProperty(name, props[name]);
+    //         }
     
-            let defines = cc.deserialize(data.defines);
-            let defineNames = Object.keys(defines);
-            for (let i = 0; i < defineNames.length; i++) {
-                let name = defineNames[i];
-                this.define(name, defines[name]);
-            }
-        };
-    })()
+    //         let defines = cc.deserialize(data.defines);
+    //         let defineNames = Object.keys(defines);
+    //         for (let i = 0; i < defineNames.length; i++) {
+    //             let name = defineNames[i];
+    //             this.define(name, defines[name]);
+    //         }
+    //     };
+    // })()
 });
 
 module.exports = cc.Material = Material;

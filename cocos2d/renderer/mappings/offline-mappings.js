@@ -45,7 +45,7 @@ const passParams = {
   constAlpha: enums.BLEND_CONSTANT_ALPHA,
   oneMinusConstAlpha: enums.BLEND_ONE_MINUS_CONSTANT_ALPHA,
   srcAlphaSaturate: enums.BLEND_SRC_ALPHA_SATURATE,
-  
+
   never: enums.DS_FUNC_NEVER,
   less: enums.DS_FUNC_LESS,
   equal: enums.DS_FUNC_EQUAL,
@@ -54,7 +54,7 @@ const passParams = {
   notEqual: enums.DS_FUNC_NOTEQUAL,
   gequal: enums.DS_FUNC_GEQUAL,
   always: enums.DS_FUNC_ALWAYS,
-   keep: enums.STENCIL_OP_KEEP,
+  keep: enums.STENCIL_OP_KEEP,
   replace: enums.STENCIL_OP_REPLACE,
   incr: enums.STENCIL_OP_INCR,
   incr_wrap: enums.STENCIL_OP_INCR_WRAP,
