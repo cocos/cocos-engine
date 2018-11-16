@@ -225,7 +225,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
     }
 
-    _defaultStage(view, item) {
+    _defaultStage(item) {
         this._drawPass(item);
     }
 

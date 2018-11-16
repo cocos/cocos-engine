@@ -230,9 +230,8 @@ Effect.parseEffect = function(json) {
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
-            passes[k] = new Pass(pass.program);
-            passes[k]._stage = cc.PassStage.parseStage(pass.stage);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite);
+            passes[k] = new Pass(pass.stage, pass.program);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
             passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
                 pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
@@ -241,7 +240,7 @@ Effect.parseEffect = function(json) {
             passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
                 pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
-        techniques[j] = new Technique(cc.parseQueue(tech.queue), passes);
+        techniques[j] = new Technique(tech.queue, passes);
     }
     let programs = getInvolvedPrograms(json);
     // uniforms
