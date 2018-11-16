@@ -307,8 +307,8 @@ export default class CameraComponent extends RenderSystemActor{
         this.clearFlags = this._clearFlags;
         this.rect = this._rect;
         this._camera.setStages([
-            'opaque',
-            'transparent'
+            cc.PassStage.DEFAULT,
+            cc.PassStage.FORWARD
         ]);
         this._camera.setNode(this.node);
     }
