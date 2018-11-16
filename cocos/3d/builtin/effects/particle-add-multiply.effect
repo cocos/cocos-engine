@@ -1,23 +1,23 @@
 {
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
-       {
-         "program": "particle-add-multiply",
-         "cullMode": "none",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "one",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
+        {
+          "stage": "default",
+          "program": "particle-add-multiply",
+          "cullMode": "none",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "one",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        }
+      ]
     }
   ],
 
@@ -37,10 +37,10 @@
     "tintColor": {
       "type": "color4",
       "value": [0.5, 0.5, 0.5, 0.5]
-    }, 
+    },
     "frameTile": {
-      "type": "vec2", 
-      "value": [1,1] 
+      "type": "vec2",
+      "value": [1,1]
     },
     "velocityScale": {
       "type": "float",

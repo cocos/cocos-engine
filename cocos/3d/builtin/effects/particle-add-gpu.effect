@@ -1,11 +1,10 @@
 {
   "techniques": [
     {
-      "stages": [
-        "transparent"
-      ],
+      "queue": "transparent",
       "passes": [
         {
+          "stage": "default",
           "program": "particle-add-gpu",
           "cullMode": "none",
           "depthTest": true,
@@ -18,8 +17,7 @@
           "blendSrcAlpha": "srcAlpha",
           "blendDstAlpha": "one"
         }
-      ],
-      "layer": 0
+      ]
     }
   ],
   "properties": {

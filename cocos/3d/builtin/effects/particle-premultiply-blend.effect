@@ -1,23 +1,23 @@
 {
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
-       {
-         "program": "particle-premultiply-blend",
-         "cullMode": "none",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "one",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
+        {
+          "stage": "default",
+          "program": "particle-premultiply-blend",
+          "cullMode": "none",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "one",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        }
+      ]
     }
   ],
 
@@ -33,10 +33,10 @@
     "mainOffset": {
       "type": "vec2",
       "value": [0, 0]
-    }, 
+    },
     "frameTile": {
-      "type": "vec2", 
-      "value": [1,1] 
+      "type": "vec2",
+      "value": [1,1]
     },
     "velocityScale": {
       "type": "float",

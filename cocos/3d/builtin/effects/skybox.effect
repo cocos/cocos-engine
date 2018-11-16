@@ -1,12 +1,13 @@
 {
   "techniques": [
     {
-      "stages": ["opaque"],
+      "queue": "opaque",
       "passes": [
-       {
-         "program": "skybox",
-         "cullMode": "none"
-       }
+        {
+          "stage": "default",
+          "program": "skybox",
+          "cullMode": "none"
+        }
       ],
       "layer": -1
     }

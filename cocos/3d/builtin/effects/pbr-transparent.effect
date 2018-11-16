@@ -1,37 +1,36 @@
 {
   "techniques": [
     {
-      "stages": ["transparent"],
-      "passes": [
-       {
-         "program": "pbr",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "srcAlpha",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
-    },
-    {
-      "stages": ["shadowcast"],
-      "params": [],
+      "queue": "transparent",
       "passes": [
         {
+          "stage": "forward",
+          "program": "pbr",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "srcAlpha",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        }
+      ]
+    },
+    {
+      "queue": "transparent",
+      "passes": [
+        {
+          "stage": "shadowcast",
           "program": "shadow-depth",
           "cullMode": "back",
           "blendMode": "none",
           "depthTest": true,
           "depthWrite": true
         }
-      ],
-      "layer": 0
+      ]
     }
   ],
 

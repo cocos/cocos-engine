@@ -1,29 +1,28 @@
 {
   "techniques": [
     {
-      "stages": ["opaque"],
-      "passes": [
-       {
-         "program": "phong",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": true
-       }
-      ],
-      "layer": 0
-    },
-    {
-      "stages": ["shadowcast"],
-      "params": [],
+      "queue": "opaque",
       "passes": [
         {
+          "stage": "forward",
+          "program": "phong",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": true
+        }
+      ]
+    },
+    {
+      "queue": "opaque",
+      "passes": [
+        {
+          "stage": "shadowcast",
           "program": "shadow-depth",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
         }
-      ],
-      "layer": 0
+      ]
     }
   ],
 
