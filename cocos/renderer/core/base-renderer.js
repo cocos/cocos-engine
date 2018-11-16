@@ -8,6 +8,41 @@ import RenderQueue from './queue';
 import enums from '../enums';
 import View from './view';
 
+let RenderQueue = cc.Enum({
+    OPAQUE: 0,
+    TRANSPARENT: 3000,
+    OVERLAY: 5000
+});
+
+cc.parseQueue = function (expr) {
+    let m = expr.match(/(\w+)(?:([+-])(\d+))?/);
+    if (m == null)
+        return 0;
+    let q;
+    switch (m[1]) {
+        case 'opaque':
+            q = RenderQueue.OPAQUE;
+            break;
+        case 'transparent':
+            q = RenderQueue.TRANSPARENT;
+            break;
+        case 'overlay':
+            q = RenderQueue.OVERLAY;
+            break;
+    }
+    if (m.length == 4) {
+        if (m[2] === '+') {
+            q += parseInt(m[3]);
+        }
+        if (m[2] === '-') {
+            q -= parseInt(m[3]);
+        }
+    }
+    return q;
+};
+
+cc.RenderQueue = RenderQueue;
+
 let _m3_tmp = mat3.create();
 let _m4_tmp = mat4.create();
 
@@ -597,6 +632,8 @@ export default class BaseRenderer {
             if (a.technique._renderQueue !== b.technique._renderQueue) {
                 return a.technique._renderQueue - b.technique._renderQueue;
             }
+
+            return a.sortKey - b.sortKey;
         });
         for (let i = 0; i < stageItems.length; ++i) {
             let item = stageItems.data[i];
@@ -645,6 +682,8 @@ export default class BaseRenderer {
 
             return a.sortKey - b.sortKey;
         });
+
+        // draw it
         for (let i = 0; i < stageItems.length; ++i) {
             let item = stageItems.data[i];
 
@@ -669,7 +708,7 @@ export default class BaseRenderer {
             if (a.technique._renderQueue !== b.technique._renderQueue) {
                 return a.technique._renderQueue - b.technique._renderQueue;
             }
-            return a.model._userKey- b.model._userKey;
+            return a.model._userKey - b.model._userKey;
         });
 
         // draw it

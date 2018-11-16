@@ -31,6 +31,9 @@ function buildEffects(dest, path) {
     // map param's type offline.
     for (let j = 0; j < json.techniques.length; ++j) {
       let jsonTech = json.techniques[j];
+        if (jsonTech.queue != null) {
+            json.techniques[j].queue = jsonTech.queue.replace(/\s/g, '');
+        }
       for (let k = 0; k < jsonTech.passes.length; ++k) {
         let pass = jsonTech.passes[k];
         for (let key in pass) {
