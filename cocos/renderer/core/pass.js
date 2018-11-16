@@ -26,6 +26,8 @@ export default class Pass {
     this._stage = PassStage.parseStage(stage);
     this._programName = name;
 
+    this._stage = null;
+
     // cullmode
     this._cullMode = gfx.CULL_BACK;
 
