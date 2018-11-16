@@ -25,38 +25,12 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/ttf');
+const fillVertices3D = require('../../utils').fillVertices3D;
 
 const WHITE = cc.color(255, 255, 255, 255);
-const vec3 = cc.vmath.vec3;
-const vec3_temp = vec3.create();
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {
-        let data = comp._renderData._data,
-            node = comp.node,
-            color = WHITE._val;
-
-        let buffer = renderer._quadBuffer3D,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        buffer.request(4, 6);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        // vertex
-        let matrix = node._worldMatrix;
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vec3.set(vec3_temp, vert.x, vert.y, 0);
-            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-            vbuf[vertexOffset++] = vec3_temp.x;
-            vbuf[vertexOffset++] = vec3_temp.y;
-            vbuf[vertexOffset++] = vec3_temp.z;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        fillVertices3D(comp.node, renderer._quadBuffer3D, comp._renderData, WHITE._val);
     }
 }, assembler);

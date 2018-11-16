@@ -25,6 +25,8 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/bar-filled');
+const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
+
 const vec3 = cc.vmath.vec3;
 
 module.exports = js.addon({
@@ -45,34 +47,16 @@ module.exports = js.addon({
             this.updateWorldVerts(sprite);
         }
 
-        let renderData = sprite._renderData,
-            node = sprite.node,
-            color = node._color._val,
-            data = renderData._data;
-
+        // buffer
         let buffer = renderer._meshBuffer3D,
-            vertexOffset = buffer.byteOffset >> 2,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(4, 6);
+        let node = sprite.node;
+        fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        // vertex
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.z;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
+        let ibuf = buffer._iData;
         ibuf[indiceOffset++] = vertexId;
         ibuf[indiceOffset++] = vertexId + 1;
         ibuf[indiceOffset++] = vertexId + 2;

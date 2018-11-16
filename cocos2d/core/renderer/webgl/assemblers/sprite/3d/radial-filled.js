@@ -22,47 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/radial-filled');
-
-const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+const fillVertices3D = require('../../utils').fillVertices3D;
 
 module.exports = js.addon({
-    fillBuffers (sprite, renderer) {
-        let renderData = sprite._renderData,
-            data = renderData._data,
-            node = sprite.node,
-            color = node._color._val;
+    fillBuffers (comp, renderer) {
+        let node = comp.node,
+            color = node._color._val,
+            buffer = renderer._meshBuffer3D,
+            renderData = comp._renderData;
 
-        // buffer
-        let buffer = renderer._meshBuffer3D,
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
+        let indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
+        fillVertices3D(node, buffer, renderData, color);
 
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
-
-        let count = data.length;
-        let matrix = node._worldMatrix;
-        for (let i = 0; i < count; i++) {
-            let vert = data[i];
-            vec3.set(vec3_temp, vert.x, vert.y, 0);
-            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-            vbuf[vertexOffset++] = vec3_temp.x;
-            vbuf[vertexOffset++] = vec3_temp.y;
-            vbuf[vertexOffset++] = vec3_temp.z;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
-        for (let i = 0; i < count; i++) {
+        // buffer data may be realloc, need get reference after request.
+        let ibuf = buffer._iData;
+        for (let i = 0; i < renderData.dataLength; i++) {
             ibuf[indiceOffset + i] = vertexId + i;
         }
     },

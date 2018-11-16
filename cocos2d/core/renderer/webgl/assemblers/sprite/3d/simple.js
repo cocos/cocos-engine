@@ -60,23 +60,21 @@ module.exports = js.addon({
             // get uv from sprite frame directly
             let uv = sprite._spriteFrame.uv;
             for (let i = 0; i < 4; i++) {
-                let dstOffset = i * 6;
-
                 // vertex
                 let vertex = vec3_temps[i];
                 vec3.transformMat4(vertex, vertex, matrix);
 
-                vbuf[vertexOffset + dstOffset] = vertex.x;
-                vbuf[vertexOffset + dstOffset + 1] = vertex.y;
-                vbuf[vertexOffset + dstOffset + 2] = vertex.z;
+                vbuf[vertexOffset++] = vertex.x;
+                vbuf[vertexOffset++] = vertex.y;
+                vbuf[vertexOffset++] = vertex.z;
 
                 // uv
                 let uvOffset = i * 2;
-                vbuf[vertexOffset + dstOffset + 3] = uv[0 + uvOffset];
-                vbuf[vertexOffset + dstOffset + 4] = uv[1 + uvOffset];
+                vbuf[vertexOffset++] = uv[0 + uvOffset];
+                vbuf[vertexOffset++] = uv[1 + uvOffset];
     
                 // color
-                uintbuf[vertexOffset + dstOffset + 5] = color;
+                uintbuf[vertexOffset++] = color;
             }
 
             // fill indice data

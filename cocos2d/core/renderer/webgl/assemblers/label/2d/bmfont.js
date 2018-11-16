@@ -25,6 +25,7 @@
 
 const js = require('../../../../../platform/js');
 const bmfontUtls = require('../../../../utils/label/bmfont');
+const fillVertices = require('../../utils').fillVertices;
 
 module.exports = js.addon({
     createData (comp) {
@@ -32,33 +33,8 @@ module.exports = js.addon({
     },
 
     fillBuffers (comp, renderer) {
-        let node = comp.node,
-            renderData = comp._renderData,
-            data = renderData._data,
-            color = node._color._val;
-
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        let vertexCount = renderData.vertexCount;
-        buffer.request(vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        let matrix = node._worldMatrix;
-
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-        for (let i = 0; i < vertexCount; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        let node = comp.node;
+        fillVertices(node, renderer._quadBuffer, comp._renderData, node._color._val);
     },
 
     appendQuad (renderData, texture, rect, rotated, x, y, scale) {

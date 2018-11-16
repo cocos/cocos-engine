@@ -25,6 +25,8 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/mesh');
+const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
+
 const vec3 = cc.vmath.vec3;
 let vec3_temp = vec3.create();
 
@@ -44,11 +46,6 @@ module.exports = js.addon({
     },
 
     fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            renderData = sprite._renderData,
-            data = renderData._data;
-
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
@@ -61,30 +58,15 @@ module.exports = js.addon({
 
         // buffer
         let buffer = renderer._meshBuffer3D,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        let indiceOffset = buffer.indiceOffset,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let node = sprite.node;
+        fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vertice = data[i];
-            vbuf[vertexOffset++] = vertice.x;
-            vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = vertice.z;
-            vbuf[vertexOffset++] = vertice.u;
-            vbuf[vertexOffset++] = vertice.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
+        let ibuf = buffer._iData;
         let triangles = vertices.triangles;
-
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }

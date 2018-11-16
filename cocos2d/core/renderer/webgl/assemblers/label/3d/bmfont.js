@@ -25,38 +25,11 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/bmfont');
-
-const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+const fillVertices = require('../../utils').fillVertices;
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {
-        let node = comp.node,
-            renderData = comp._renderData,
-            data = renderData._data,
-            color = node._color._val;
-
-        let buffer = renderer._quadBuffer3D,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        let vertexCount = renderData.vertexCount;
-        buffer.request(vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        let matrix = node._worldMatrix;
-        for (let i = 0; i < vertexCount; i++) {
-            let vert = data[i];
-            vec3.set(vec3_temp, vert.x, vert.y, 0);
-            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-            vbuf[vertexOffset++] = vec3_temp.x;
-            vbuf[vertexOffset++] = vec3_temp.y;
-            vbuf[vertexOffset++] = vec3_temp.z;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        let node = comp.node;
+        fillVertices(node, renderer._quadBuffer3D, comp._renderData, node._color._val);
     },
 }, assembler);

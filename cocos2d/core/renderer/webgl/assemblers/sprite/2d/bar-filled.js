@@ -27,6 +27,7 @@ const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
 const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     useModel: false,
@@ -227,33 +228,16 @@ module.exports = {
             this.updateWorldVerts(sprite);
         }
 
-        let renderData = sprite._renderData,
-            node = sprite.node,
-            color = node._color._val,
-            data = renderData._data;
-
+        // buffer
         let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(4, 6);
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        // vertex
-        for (let i = 0; i < 4; i++) {
-            let vert = data[i];
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
+        let ibuf = buffer._iData;
         ibuf[indiceOffset++] = vertexId;
         ibuf[indiceOffset++] = vertexId + 1;
         ibuf[indiceOffset++] = vertexId + 2;

@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     useModel: false,
@@ -150,11 +151,6 @@ module.exports = {
     },
 
     fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            renderData = sprite._renderData,
-            data = renderData._data;
-
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
@@ -166,30 +162,16 @@ module.exports = {
         }
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        let indiceOffset = buffer.indiceOffset,
+        let buffer = renderer._meshBuffer3D,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vertice = data[i];
-            vbuf[vertexOffset++] = vertice.x;
-            vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = vertice.u;
-            vbuf[vertexOffset++] = vertice.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
+        let ibuf = buffer._iData;
         let triangles = vertices.triangles;
-
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }
