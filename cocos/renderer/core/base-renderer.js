@@ -3,44 +3,10 @@
 import { RecyclePool } from '../../3d/memop';
 import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
 import { intersect } from '../../3d/geom-utils';
+import RenderQueue from './queue';
 
 import enums from '../enums';
 import View from './view';
-
-let RenderQueue = cc.Enum({
-    OPAQUE: 0,
-    TRANSPARENT: 3000,
-    OVERLAY: 5000
-});
-
-cc.parseQueue = function (expr) {
-    let m = expr.match(/(\w+)(?:([+-])(\d+))?/);
-    if (m == null)
-        return 0;
-    let q;
-    switch (m[1]) {
-        case 'opaque':
-            q = RenderQueue.OPAQUE;
-            break;
-        case 'transparent':
-            q = RenderQueue.TRANSPARENT;
-            break;
-        case 'overlay':
-            q = RenderQueue.OVERLAY;
-            break;
-    }
-    if (m.length == 4) {
-        if (m[2] === '+') {
-            q += parseInt(m[3]);
-        }
-        if (m[2] === '-') {
-            q -= parseInt(m[3]);
-        }
-    }
-    return q;
-};
-
-cc.RenderQueue = RenderQueue;
 
 let _m3_tmp = mat3.create();
 let _m4_tmp = mat4.create();
@@ -387,9 +353,9 @@ export default class BaseRenderer {
       }, 100);
     }, 16);
 
-    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.TRANSPARENT],this._renderTransparent.bind(this));
-    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.OPAQUE],this._renderOpaque.bind(this));
-    this._registerRenderQueue(cc.RenderQueue[cc.RenderQueue.OVERLAY],this._renderOverlay.bind(this));
+    this._registerRenderQueue(RenderQueue[RenderQueue.TRANSPARENT],this._renderTransparent.bind(this));
+    this._registerRenderQueue(RenderQueue[RenderQueue.OPAQUE],this._renderOpaque.bind(this));
+    this._registerRenderQueue(RenderQueue[RenderQueue.OVERLAY],this._renderOverlay.bind(this));
   }
 
   /**
@@ -401,6 +367,7 @@ export default class BaseRenderer {
     this._opts = opts;
     this._type2defaultValue[enums.PARAM_TEXTURE_2D] = opts.defaultTexture;
     this._type2defaultValue[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube;
+    this._programLib = opts.programLib;
   }
 
   _resetTextureUnit() {
@@ -519,7 +486,7 @@ export default class BaseRenderer {
 
     // for (let i = 0; i < view._stages.length; ++i) {
     //   let stage = view._stages[i];
-      let renderQueues = Object.keys(cc.RenderQueue);
+      let renderQueues = Object.keys(RenderQueue);
       for (let qi = 0; qi < renderQueues.length; qi++) {
           this._stageItemsPools.add().reset();
       }
@@ -535,8 +502,8 @@ export default class BaseRenderer {
                       continue;
 
                   let stageItem = null;
-                  for (qi = renderQueues.length - 1; qi >= 0; qi--) {
-                      if (tech.renderQueue >= cc.RenderQueue[renderQueues[qi]]) {
+                  for (let qi = renderQueues.length - 1; qi >= 0; qi--) {
+                      if (tech.renderQueue >= RenderQueue[renderQueues[qi]]) {
                           stageItem = this._stageItemsPools.data[qi].add();
                           break;
                       }
@@ -568,7 +535,7 @@ export default class BaseRenderer {
     //   stageFn(view, info.items);
     // }
 
-      for (qi = 0; qi < renderQueues.length; qi++) {
+      for (let qi = 0; qi < renderQueues.length; qi++) {
           this._renderQueueFn[renderQueues[qi]](view, this._stageItemsPools.data[qi]);
       }
   }
@@ -591,7 +558,7 @@ export default class BaseRenderer {
     // for each pass
     // for (let i = 0; i < technique._passes.length; ++i) {
     //   let pass = technique._passes[i];
-    this._stage2fn[item.pass.stage](item);
+    this._stage2fn[item.pass._stage](item);
     // }
   }
 

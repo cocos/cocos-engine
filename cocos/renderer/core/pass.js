@@ -22,10 +22,9 @@ PassStage.parseStage = function (name) {
 cc.PassStage = PassStage;
 
 export default class Pass {
-  constructor(name) {
+  constructor(stage, name) {
+    this._stage = PassStage.parseStage(stage);
     this._programName = name;
-
-    this._stage = null;
 
     // cullmode
     this._cullMode = gfx.CULL_BACK;
@@ -63,6 +62,10 @@ export default class Pass {
     this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilWriteMaskBack = 0xff;
+  }
+
+  setStage(stage) {
+    this._stage = stage;
   }
 
   setCullMode(cullMode = gfx.CULL_BACK) {
