@@ -81,6 +81,66 @@ cc.js.mixin(Atlas.prototype, {
         return true;
     },
 
+    insertCompTexture (comp) {
+        let rect = comp._rect,
+            texture = comp._texture,
+            info = this._innerTextureInfos[texture._id];
+
+        let sx = rect.x, sy = rect.y;
+
+        if (info) {
+            rect.x += info.x;
+            rect.y += info.y;
+        }
+        else {
+            let width = texture.width, height = texture.height;        
+
+            if ((this._x + width + space) > this._width) {
+                this._x = space;
+                this._y = this._nexty;
+            }
+
+            if ((this._y + height) > this._nexty) {
+                this._nexty = this._y + height + space;
+            }
+
+            if (this._nexty > this._height) {
+                return false;
+            }
+
+            // texture bleeding
+            this._texture.drawTextureAt(texture, this._x-1, this._y);
+            this._texture.drawTextureAt(texture, this._x+1, this._y);
+            this._texture.drawTextureAt(texture, this._x, this._y-1);
+            this._texture.drawTextureAt(texture, this._x, this._y+1);
+            this._texture.drawTextureAt(texture, this._x, this._y);
+
+            this._innerTextureInfos[texture._id] = {
+                x: this._x,
+                y: this._y,
+                texture: texture
+            };
+
+            rect.x += this._x;
+            rect.y += this._y;
+
+            this._x += width + space;
+
+            this._dirty = true;
+        }
+
+        comp._original = {
+            x: sx,
+            y: sy,
+            texture: comp._texture
+        }
+
+        comp._setTexture(this._texture);
+        comp._assembler._calculateUV(comp);
+
+        return true;
+    },
+
     update () {
         if (!this._dirty) return;
         this._texture.update();

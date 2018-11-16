@@ -25,6 +25,7 @@
 
 const macro = require('../../../platform/CCMacro');
 const textUtils = require('../../../utils/text-utils');
+const dynamicAtlasManager = require('../dynamic-atlas/manager');
 
 const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
@@ -124,7 +125,8 @@ module.exports = {
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
-        this._updateTexture(comp);
+        this._updateTexture();
+        this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
@@ -272,6 +274,17 @@ module.exports = {
         }
 
         _texture.handleLoadedTexture();
+    },
+
+    _calDynamicAtlas (comp) {
+        if (!dynamicAtlasManager || !comp.cacheAsBitmap) return;
+
+        // Add font images to the dynamic atlas for batch rendering.
+        comp._setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
+        dynamicAtlasManager.insertCompTexture(comp);
+        if (comp._material._texture !== comp._texture) {
+            comp._activateMaterial(true);
+        }
     },
 
     _calculateUnderlineStartPosition () {
@@ -494,5 +507,28 @@ module.exports = {
                 _context.font = _fontDesc;
             }
         }
+    },
+
+    _calculateUV(comp){
+        let rect = comp._getRect(),
+            texture = comp._texture,
+            renderData = comp._renderData,
+            texw = texture.width,
+            texh = texture.height;
+
+        let l = texw === 0 ? 0 : rect.x / texw;
+        let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+        let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+        let t = texh === 0 ? 0 : rect.y / texh;
+
+        let data = renderData._data;
+        data[0].u = l;
+        data[0].v = b;
+        data[1].u = r;
+        data[1].v = b;
+        data[2].u = l;
+        data[2].v = t;
+        data[3].u = r;
+        data[3].v = t;
     }
 };

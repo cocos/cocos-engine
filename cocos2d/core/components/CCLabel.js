@@ -145,7 +145,11 @@ let Label = cc.Class({
         this._actualFontSize = 0;
         this._assemblerData = null;
 
+        this._texture = null;
         this._ttfTexture = null;
+        this._rect = null;
+        // store original info before packed to dynamic atlas
+        this._original = null;
     },
 
     editor: CC_EDITOR && {
@@ -430,6 +434,24 @@ let Label = cc.Class({
             }
         },
 
+        _cacheAsBitmap: false,
+        /**
+         * !#en Whether cache label to static texture and draw in dynamicAtlas.
+         * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
+         * @property {Boolean} cacheAsBitmap
+         */
+        cacheAsBitmap: {
+            get () {
+                return this._cacheAsBitmap;
+            },
+            set (value) {
+                if (this._cacheAsBitmap === value) return;
+
+                this._cacheAsBitmap = value;
+                this._updateRenderData();
+            },
+        },
+
         _isBold: {
             default: false,
             serializable: false,
@@ -548,8 +570,8 @@ let Label = cc.Class({
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                this._texture = this._ttfTexture;
             }
-            this._texture = this._ttfTexture;
         }
 
         // Canvas
@@ -576,6 +598,30 @@ let Label = cc.Class({
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
+    },
+
+    /**
+     * !#en Returns the rect in the texture.
+     * !#zh 获取 texture 的矩形区域
+     * @method getRect
+     * @return {Rect}
+     */
+    _getRect: function () {
+        return cc.rect(this._rect);
+    },
+
+    /**
+     * !#en Sets the rect in the texture.
+     * !#zh 设置 texture 的矩形区域
+     * @method setRect
+     * @param {Rect} rect
+     */
+    _setRect: function (rect) {
+        this._rect = rect;
+    },
+
+    _setTexture: function (texture) {
+        this._texture = texture;
     },
 
     _updateColor () {
