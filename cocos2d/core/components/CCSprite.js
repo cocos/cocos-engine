@@ -506,7 +506,6 @@ var Sprite = cc.Class({
             }
             // For batch rendering, do not use uniform color.
             material.useColor = false;
-            material.use2DPos = false;
             // Set texture
             if (spriteFrame && spriteFrame.textureLoaded()) {
                 let texture = spriteFrame.getTexture();

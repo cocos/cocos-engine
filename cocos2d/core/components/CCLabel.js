@@ -576,7 +576,6 @@ let Label = cc.Class({
             material.texture = this._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
-            material.use2DPos = false;
             this._updateMaterial(material);
         }
 
