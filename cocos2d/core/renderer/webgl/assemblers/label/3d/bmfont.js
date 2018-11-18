@@ -25,11 +25,11 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/bmfont');
-const fillVertices = require('../../utils').fillVertices;
+const fillVertices3D = require('../../utils').fillVertices3D;
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let node = comp.node;
-        fillVertices(node, renderer._quadBuffer3D, comp._renderData, node._color._val);
+        fillVertices3D(node, renderer._quadBuffer3D, comp._renderData, node._color._val);
     },
 }, assembler);
