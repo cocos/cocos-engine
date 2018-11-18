@@ -73,27 +73,6 @@ function fillVerticesWithoutCalc (node, buffer, renderData, color) {
     }
 }
 
-function fillVerticesWithoutCalc (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
-    let vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
-
-    // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
-        uintbuf = buffer._uintVData;
-
-    for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
-        vbuf[vertexOffset++] = vert.x;
-        vbuf[vertexOffset++] = vert.y;
-        vbuf[vertexOffset++] = vert.u;
-        vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
-    }
-}
-
 function fillVerticesWithoutCalc3D (node, buffer, renderData, color) {
     let data = renderData._data,
         vertexOffset = buffer.byteOffset >> 2;
