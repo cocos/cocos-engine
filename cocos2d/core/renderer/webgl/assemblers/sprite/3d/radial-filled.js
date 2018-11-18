@@ -23,32 +23,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Label = require('../../../../components/CCLabel');
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/radial-filled');
+const fillVertices3D = require('../../utils').fillVertices3D;
 
-const ttfAssembler = require('./2d/ttf');
-const bmfontAssembler = require('./2d/bmfont');
+module.exports = js.addon({
+    fillBuffers (comp, renderer) {
+        let node = comp.node,
+            color = node._color._val,
+            buffer = renderer._meshBuffer3D,
+            renderData = comp._renderData;
 
-const ttfAssembler3D = require('./3d/ttf');
-const bmfontAssembler3D = require('./3d/bmfont');
+        let indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+        fillVertices3D(node, buffer, renderData, color);
 
-var labelAssembler = {
-    getAssembler (comp) {
-        let is3DNode = comp.node.is3DNode;
-        let assembler = is3DNode ? ttfAssembler3D : ttfAssembler;
-        
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
+        // buffer data may be realloc, need get reference after request.
+        let ibuf = buffer._iData;
+        for (let i = 0; i < renderData.dataLength; i++) {
+            ibuf[indiceOffset + i] = vertexId + i;
         }
-
-        return assembler;
     },
-
-    // Skip invalid labels (without own _assembler)
-    updateRenderData (label) {
-        return label.__allocedDatas;
-    }
-};
-
-Label._assembler = labelAssembler;
-
-module.exports = labelAssembler;
+}, assembler);

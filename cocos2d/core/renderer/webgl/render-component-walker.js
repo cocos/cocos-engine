@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../platform/CCMacro');
 const renderEngine = require('../render-engine');
-const defaultVertexFormat = require('./vertex-format').vfmtPosUvColor;
+const vertexFormat = require('./vertex-format');
+const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
+const vfmt3D = vertexFormat.vfmt3D;
 const StencilManager = require('./stencil-manager');
 const dynamicAtlasManager = require('../utils/dynamic-atlas/manager');
 const RenderFlow = require('../render-flow');
@@ -34,16 +35,8 @@ const MeshBuffer = require('./mesh-buffer');
 
 let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
-const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
-
-const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
-const BYTE_PER_INDEX = 2;
-const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
-const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
-const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
-const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
 let _buffers = {};
 
@@ -70,6 +63,8 @@ var RenderComponentWalker = function (device, renderScene) {
     // buffers
     this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
     this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
+    this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
+    this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
     this._buffer = this._quadBuffer;
 
     this._batchedModels = [];

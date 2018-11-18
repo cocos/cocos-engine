@@ -155,6 +155,9 @@ function _update3DFunction () {
         this._calculWorldMatrix = _calculWorldMatrix2d;
         this._mulMat = _mulMat2d;
     }
+    if (this._renderComponent && this._renderComponent._on3DNodeChanged) {
+        this._renderComponent._on3DNodeChanged();
+    }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
     this._localMatDirty = DirtyFlag.ALL;
 }

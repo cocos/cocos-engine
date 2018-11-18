@@ -23,32 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Label = require('../../../../components/CCLabel');
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/bmfont');
+const fillVertices3D = require('../../utils').fillVertices3D;
 
-const ttfAssembler = require('./2d/ttf');
-const bmfontAssembler = require('./2d/bmfont');
-
-const ttfAssembler3D = require('./3d/ttf');
-const bmfontAssembler3D = require('./3d/bmfont');
-
-var labelAssembler = {
-    getAssembler (comp) {
-        let is3DNode = comp.node.is3DNode;
-        let assembler = is3DNode ? ttfAssembler3D : ttfAssembler;
-        
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
-        }
-
-        return assembler;
+module.exports = js.addon({
+    fillBuffers (comp, renderer) {
+        let node = comp.node;
+        fillVertices3D(node, renderer._quadBuffer3D, comp._renderData, node._color._val);
     },
-
-    // Skip invalid labels (without own _assembler)
-    updateRenderData (label) {
-        return label.__allocedDatas;
-    }
-};
-
-Label._assembler = labelAssembler;
-
-module.exports = labelAssembler;
+}, assembler);
