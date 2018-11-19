@@ -196,8 +196,8 @@ cc.js.getset(proto, 'is3DNode', function () {
 cc.js.getset(proto, 'scaleZ', function () {
     return this._scale.z;
 }, function (v) {
-    if (this._scale.z !== value) {
-        this._scale.z = value;
+    if (this._scale.z !== v) {
+        this._scale.z = v;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
