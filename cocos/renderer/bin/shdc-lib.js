@@ -21,15 +21,17 @@ let seperator = /###\s+(vert|frag).*/gi;
 
 // (HACKY) extract all builtin uniforms to the ignore list
 let uniformIgnoreList = (function() {
-  let path = 'cocos/renderer/renderers/forward-renderer.js';
-  let renderer = fs.readFileSync(path, { encoding: 'utf8' });
-  let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
-  let result = [];
-  while (cap) { result.push(cap[2]); cap = re.exec(renderer); }
+  let result = new Set(), extract = function(path) {
+    let renderer = fs.readFileSync(path, { encoding: 'utf8' });
+    let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
+    while (cap) { result[cap[2]] = true; cap = re.exec(renderer); }
+  };
+  extract('cocos/renderer/renderers/forward-renderer.js');
+  extract('cocos/renderer/core/base-renderer.js');
   return result;
 })();
 
-function convertType(t) { let tp = mappings.typeParams[t]; return tp === undefined ? t : tp; }
+function convertType(t) { let tp = mappings.typeParams[t.toUpperCase()]; return tp === undefined ? t : tp; }
 
 function unwindIncludes(str, chunks) {
   function replace(match, include) {
@@ -88,7 +90,7 @@ function extractDefines(tokens, defines, cache) {
     str.splice(1).some(s => {
       id = s.match(ident);
       if (id) { // is identifier
-        defs.push(id[0]); 
+        defs.push(id[0]);
         df = defines.find(d => d.name === id[0]);
         if (df) return; // first encounter
         defines.push(df = { name: id[0], type: 'boolean' });
@@ -130,7 +132,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     else continue;
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
-    if (dest === uniforms && uniformIgnoreList.find(u => u === tokens[i+4].data)) continue;
+    if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
     if (dest === extensions) param.name = str.split(whitespaces)[1];
     else { // uniforms and attributes
       let offset = precision.exec(tokens[i+2].data) ? 4 : 2;

@@ -2,7 +2,7 @@ import enums from './enums';
 import { createIA } from './utils';
 import config from './config';
 
-import RenderQueue from './core/queue';
+import { RenderQueue, PassStage } from './core/constants';
 import Pass from './core/pass';
 import Technique from './core/technique';
 import Effect from './core/effect';
@@ -30,6 +30,7 @@ let renderer = {
 
   // core
   RenderQueue,
+  PassStage,
   Pass,
   Technique,
   Effect,

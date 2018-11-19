@@ -6,6 +6,7 @@ import { vec3, mat4 } from '../../core/vmath';
 import BaseRenderer from '../core/base-renderer';
 import DynamicIAPool from '../core/dynamic-ia-pool';
 import enums from '../enums';
+import { PassStage } from '../core/constants';
 
 // import GaussianBlur from './gaussian-blur';
 
@@ -27,9 +28,9 @@ export default class ForwardRenderer extends BaseRenderer {
     this._shadowLights = [];
     this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
 
-    this._registerStage(cc.PassStage.SHADOW_CAST, this._shadowStage.bind(this));
-    this._registerStage(cc.PassStage.DEFAULT, this._defaultStage.bind(this));
-    this._registerStage(cc.PassStage.FORWARD, this._forwardStage.bind(this));
+    this._registerStage(PassStage.SHADOW_CAST, this._shadowStage.bind(this));
+    this._registerStage(PassStage.DEFAULT, this._defaultStage.bind(this));
+    this._registerStage(PassStage.FORWARD, this._forwardStage.bind(this));
 
     this._registerModel('default', this._draw.bind(this));
     this._registerModel('line-batch', this._drawLineBatch.bind(this));

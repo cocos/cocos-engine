@@ -3,7 +3,7 @@
 import { RecyclePool } from '../../3d/memop';
 import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
 import { intersect } from '../../3d/geom-utils';
-import RenderQueue from './queue';
+import { RenderQueue } from './constants';
 
 import enums from '../enums';
 import View from './view';
@@ -388,9 +388,9 @@ export default class BaseRenderer {
       }, 100);
     }, 16);
 
-    this._registerRenderQueue(RenderQueue[RenderQueue.TRANSPARENT],this._renderTransparent.bind(this));
-    this._registerRenderQueue(RenderQueue[RenderQueue.OPAQUE],this._renderOpaque.bind(this));
-    this._registerRenderQueue(RenderQueue[RenderQueue.OVERLAY],this._renderOverlay.bind(this));
+    this._registerRenderQueue('TRANSPARENT', this._renderTransparent.bind(this));
+    this._registerRenderQueue('OPAQUE', this._renderOpaque.bind(this));
+    this._registerRenderQueue('OVERLAY', this._renderOverlay.bind(this));
   }
 
   /**
@@ -676,8 +676,8 @@ export default class BaseRenderer {
 
         // sort items
         stageItems.sort((a, b) => {
-            if (a.technique._renderQueue !== b.technique._renderQueue) {
-                return a.technique._renderQueue - b.technique._renderQueue;
+            if (a.tech._renderQueue !== b.tech._renderQueue) {
+                return a.tech._renderQueue - b.tech._renderQueue;
             }
 
             return a.sortKey - b.sortKey;
