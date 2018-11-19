@@ -60,6 +60,6 @@ function buildEffects(dest, path) {
 // ============================================================
 
 let effectsPath = '../effects';
-let effectsFile = path_.join(effectsPath, 'effects.js');
+let effectsFile = path_.join(effectsPath, 'index.js');
 console.log(`generate ${effectsFile}`);
 buildEffects(effectsFile, effectsPath);

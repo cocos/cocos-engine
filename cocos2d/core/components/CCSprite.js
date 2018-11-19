@@ -496,7 +496,7 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 material = this._graySpriteMaterial;
                 if (!material) {
-                    let builtinMaterial = cc.Asset.getBuiltin('builtin-material-gray-sprite');
+                    let builtinMaterial = cc.Asset.getBuiltins('builtin-material-gray-sprite');
                     material = this._graySpriteMaterial = Material.getInstantiatedMaterial(builtinMaterial, this);
                 }
 

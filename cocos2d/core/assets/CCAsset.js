@@ -220,8 +220,28 @@ cc.Asset = cc.Class({
 
 let _builts = {};
 
-cc.Asset._initBuiltins = function (builts) {
-    _builts = builts;
+cc.Asset._loadBuiltins = function (cb) {
+    _builts = {};
+
+    // load effects
+    const effects = require('../../renderer/effects').default;
+    for (let i = 0; i < effects.length; i++) {
+        _builts['builtin-effect-' + effects[i].name] = effects[i];
+    }
+
+    // load materials
+    cc.loader.loadResDir('materials', cc.Material, 'internal', ()=>{}, (err, materials)=>{
+        if (err) {
+            cc.error(err);
+        }
+        else {
+            for (let i = 0; i < materials.length; i++) {
+                _builts['builtin-material-' + materials[i].name] = materials[i];
+            }
+        }
+        
+        cb();
+    });
 };
 
 cc.Asset.getBuiltin = function (name) {
