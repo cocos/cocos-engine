@@ -2,28 +2,9 @@
 
 import gfx from '../gfx';
 
-let PassStage = cc.Enum({
-    DEFAULT: 0,
-    FORWARD: 1,
-    SHADOW_CAST: 2
-});
-
-PassStage.parseStage = function (name) {
-    switch (name) {
-        case 'default':
-            return this.DEFAULT;
-        case 'forward':
-            return this.FORWARD;
-        case 'shadowcast':
-            return this.SHADOW_CAST;
-    }
-};
-
-cc.PassStage = PassStage;
-
 export default class Pass {
   constructor(stage, name) {
-    this._stage = PassStage.parseStage(stage);
+    this._stage = stage;
     this._programName = name;
 
     this._stage = null;

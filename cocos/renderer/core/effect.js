@@ -1,6 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import config from '../config';
 import enums from '../enums';
 import Pass from './pass';
 import Technique from './technique';

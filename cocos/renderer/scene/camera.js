@@ -268,7 +268,7 @@ export default class Camera {
 
   /**
    * Set the stages of the camera
-   * @param {string[]} stages camera stages
+   * @param {number[]} stages camera stages
    */
   setStages(stages) {
     this._stages = stages;
