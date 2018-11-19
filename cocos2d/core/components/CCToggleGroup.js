@@ -74,7 +74,7 @@ var ToggleGroup = cc.Class({
         this._toggleItems.forEach(function (item){
             if(toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
+                    item._hideCheckMark();
                 }
             }
         });
@@ -100,7 +100,7 @@ var ToggleGroup = cc.Class({
         var isChecked = false;
         this._toggleItems.forEach(function (item) {
             if(isChecked && item.enabled) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
 
             if (item.isChecked && item.enabled) {
