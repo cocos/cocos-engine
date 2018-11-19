@@ -368,10 +368,10 @@ let ArmatureDisplay = cc.Class({
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        var _displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
-        if (!_displayProxy) return;
+        var displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
+        if (!displayProxy) return;
 
-        this._displayProxy = _displayProxy;
+        this._displayProxy = displayProxy;
         this._displayProxy._ccNode = this.node;
 
         this._armature = this._displayProxy._armature;
