@@ -601,10 +601,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/base /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/physics /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/math/kazmath /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/2d /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/gui /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/network /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/audio/include /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/editor-support /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/extensions /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/sources /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/chipmunk/include/chipmunk /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/auto /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/manual /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/renderer";
+				USER_HEADER_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/base /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/physics /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/math/kazmath /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/2d /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/gui /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/network /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/audio/include /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/editor-support /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/extensions /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/sources /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/chipmunk/include/chipmunk /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/mac/include/v8 /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/auto /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/manual /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/renderer";
 			};
 			name = Debug;
 		};
@@ -624,10 +624,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/base /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/physics /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/math/kazmath /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/2d /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/gui /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/network /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/audio/include /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/editor-support /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/extensions /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/sources /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/chipmunk/include/chipmunk /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/auto /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/manual /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/renderer";
+				USER_HEADER_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/base /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/physics /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/math/kazmath /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/2d /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/gui /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/network /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/audio/include /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/editor-support /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/extensions /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/sources /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/chipmunk/include/chipmunk /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/mac/include/v8 /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/auto /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/manual /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/renderer";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -657,7 +657,10 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs",
 					"$(SRCROOT)/ios/anysdk",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -690,7 +693,10 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs",
 					"$(SRCROOT)/ios/anysdk",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";

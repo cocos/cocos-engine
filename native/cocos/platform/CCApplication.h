@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <string>
+#include <memory>
 #include "base/ccMacros.h"
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
@@ -108,7 +109,7 @@ public:
     virtual void applicationWillEnterForeground();
     
     inline void* getView() const { return _view; }
-    inline Scheduler* getScheduler() const { return _scheduler; }
+    inline Scheduler* getScheduler() const { return _scheduler.get(); }
     inline RenderTexture* getRenderTexture() const { return _renderTexture; }
     
     void runOnMainThread();
@@ -187,10 +188,10 @@ private:
     void createView(const std::string& name, int width, int height);
     
     static Application* _instance;
+    static std::shared_ptr<Scheduler> _scheduler;
     
     void* _view = nullptr;
     void* _delegate = nullptr;
-    Scheduler* _scheduler = nullptr;
     RenderTexture* _renderTexture = nullptr;
     int _fps = 60;
     GLint _mainFBO = 0;

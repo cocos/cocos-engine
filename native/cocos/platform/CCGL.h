@@ -30,6 +30,10 @@ THE SOFTWARE.
 
 #include "platform/CCPlatformConfig.h"
 
+#ifndef GL_TEXTURE_MIN_LOD
+#define GL_TEXTURE_MIN_LOD 0x813A
+#endif
+
 #ifndef GL_UNPACK_FLIP_Y_WEBGL
 #define GL_UNPACK_FLIP_Y_WEBGL 0x9240
 #endif

@@ -38,7 +38,6 @@
 NS_CC_BEGIN
 class Scheduler;
 
-namespace experimental{
 #define MAX_AUDIOINSTANCES 24
 
 class AudioEngineImpl : public cocos2d::Ref
@@ -88,7 +87,6 @@ private:
     int _currentAudioID;
     Scheduler* _scheduler;
 };
-}
 NS_CC_END
 #endif // __AUDIO_ENGINE_INL_H_
 #endif

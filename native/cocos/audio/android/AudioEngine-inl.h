@@ -44,8 +44,6 @@ NS_CC_BEGIN
 
 struct CustomEvent;
 
-namespace experimental {
-
 class IAudioPlayer;
 class AudioPlayerProvider;
 
@@ -104,7 +102,6 @@ private:
 };
 
 #endif // __AUDIO_ENGINE_INL_H_
- }
 NS_CC_END
 
 #endif

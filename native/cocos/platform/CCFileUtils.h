@@ -103,7 +103,8 @@ public:
     virtual void resize(size_t size) override {
         size_t oldSize = static_cast<size_t>(_buffer->getSize());
         if (oldSize != size) {
-            auto old = _buffer->getBytes();
+            // need to take buffer ownership for outer memory control
+            auto old = _buffer->takeBuffer();
             void* buffer = realloc(old, size);
             if (buffer)
                 _buffer->fastSet((unsigned char*)buffer, size);

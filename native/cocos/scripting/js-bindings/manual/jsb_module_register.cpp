@@ -23,29 +23,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#define USE_AUDIO 1
-#define USE_NET_WORK 1
-
-
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_node.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_renderer_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 
+
+
+#if USE_GFX_RENDERER
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_renderer_manual.hpp"
+#endif
+
 #if USE_NET_WORK
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_websocket.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_socketio.hpp"
@@ -54,6 +55,14 @@
 
 #if USE_AUDIO
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
+#endif
+
+#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
+#endif
+
+#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
@@ -85,14 +94,16 @@ bool jsb_register_all_modules()
 
     se->addRegisterCallback(jsb_register_global_variables);
     se->addRegisterCallback(JSB_register_opengl);
+    se->addRegisterCallback(register_all_engine);
+    se->addRegisterCallback(register_all_cocos2dx_manual);
+    se->addRegisterCallback(register_platform_bindings);
+
+#if USE_GFX_RENDERER
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(jsb_register_gfx_manual);
     se->addRegisterCallback(register_all_renderer);
     se->addRegisterCallback(jsb_register_renderer_manual);
-    se->addRegisterCallback(register_all_engine);
-    se->addRegisterCallback(register_all_cocos2dx_manual);
-    se->addRegisterCallback(register_platform_bindings);
-    se->addRegisterCallback(register_all_extension);
+#endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -113,6 +124,16 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_xmlhttprequest);
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
+    // extension depend on network
+    se->addRegisterCallback(register_all_extension);
+#endif
+
+#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    se->addRegisterCallback(register_all_video);
+#endif
+
+#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    se->addRegisterCallback(register_all_webview);
 #endif
 
     se->addAfterCleanupHook([](){

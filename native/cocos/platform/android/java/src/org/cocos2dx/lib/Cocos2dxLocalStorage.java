@@ -114,7 +114,7 @@ public class Cocos2dxLocalStorage {
         String ret = null;
         try {
             int nCount = 0;
-            String sql = "select key from "+TABLE_NAME;
+            String sql = "select key from "+TABLE_NAME + " order by rowid asc";
             Cursor c = mDatabase.rawQuery(sql, null);
             if(nIndex < 0 || nIndex >= c.getCount()) {
                 return null;

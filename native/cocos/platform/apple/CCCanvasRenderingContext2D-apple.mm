@@ -643,7 +643,7 @@ void CanvasRenderingContext2D::beginPath()
 
 void CanvasRenderingContext2D::closePath()
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::moveTo(float x, float y)
@@ -662,6 +662,16 @@ void CanvasRenderingContext2D::stroke()
 
     if (_canvasBufferUpdatedCB != nullptr)
         _canvasBufferUpdatedCB([_impl getDataRef]);
+}
+
+void CanvasRenderingContext2D::fill()
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
+void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::restore()
@@ -696,9 +706,14 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
     _impl.lineWidth = _lineWidth;
 }
 
+void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-//    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
@@ -712,13 +727,13 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex re("(bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
             boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName = results[3].str();
+            fontName = results[5].str();
         }
 
         CGFloat fontSize = atof(fontSizeStr.c_str());
@@ -783,34 +798,39 @@ void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
 
 void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
+void CanvasRenderingContext2D::_fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 // transform
 
 void CanvasRenderingContext2D::translate(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::scale(float x, float y)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::rotate(float angle)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
 {
-    SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 NS_CC_END

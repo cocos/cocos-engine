@@ -57,6 +57,7 @@ public:
     ~CanvasRenderingContext2D();
 
     // Rect
+    void rect(float x, float y, float width, float height);
     void clearRect(float x, float y, float width, float height);
     void fillRect(float x, float y, float width, float height);
 
@@ -70,6 +71,7 @@ public:
     void closePath();
     void moveTo(float x, float y);
     void lineTo(float x, float y);
+    void fill();
     void stroke();
     void restore();
 
@@ -82,12 +84,16 @@ public:
     void set__height(float height);
     void set_lineWidth(float lineWidth);
     void set_lineJoin(const std::string& lineJoin);
+    void set_lineCap(const std::string& lineCap);
     void set_font(const std::string& font);
     void set_textAlign(const std::string& textAlign);
     void set_textBaseline(const std::string& textBaseline);
     void set_fillStyle(const std::string& fillStyle);
     void set_strokeStyle(const std::string& strokeStyle);
     void set_globalCompositeOperation(const std::string& globalCompositeOperation);
+
+    // fill image data into Context2D
+    void _fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY);
 
     // transform
     void translate(float x, float y);
@@ -108,6 +114,7 @@ public:
     // Line styles
     float _lineWidth = 1.0f;
     std::string _lineJoin = "miter";
+    std::string _lineCap = "butt";
 
     // Text styles
     std::string _font = "10px sans-serif";

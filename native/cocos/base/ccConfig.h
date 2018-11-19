@@ -36,6 +36,28 @@ THE SOFTWARE.
  * cocos2d (cc) configuration file.
 */
 
+// disable module if you didn't need it, this will reduce package size
+
+#ifndef USE_GFX_RENDERER
+#define USE_GFX_RENDERER 0
+#endif
+
+#ifndef USE_VIDEO
+#define USE_VIDEO 1
+#endif
+
+#ifndef USE_WEB_VIEW
+#define USE_WEB_VIEW 1
+#endif
+
+#ifndef USE_AUDIO
+#define USE_AUDIO 1
+#endif
+
+#ifndef USE_NET_WORK
+#define USE_NET_WORK 1
+#endif
+
 /** @def CC_ENABLE_STACKABLE_ACTIONS
  * If enabled, actions that alter the position property (eg: MoveBy, JumpBy, BezierBy, etc..) will be stacked.
  * If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.

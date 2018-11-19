@@ -124,6 +124,10 @@ void ConfigParser::readConfig(const string &filepath)
             {
                 _isWindowTop= objectInitView["isWindowTop"].GetBool();
             }
+            if (objectInitView.HasMember("waitForConnect") && objectInitView["waitForConnect"].IsBool())
+            {
+                _isWaitForConnect= objectInitView["waitForConnect"].GetBool();
+            }
         }
     }
     if (_docRootjson.HasMember("simulator_screen_size"))
@@ -185,6 +189,12 @@ bool ConfigParser::isWindowTop()
 {
     return _isWindowTop;
 }
+
+bool ConfigParser::isWaitForConnect()
+{
+    return _isWaitForConnect;
+}
+
 void ConfigParser::setConsolePort(int port)
 {
     if (port > 0)

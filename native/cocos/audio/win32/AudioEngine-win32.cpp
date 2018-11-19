@@ -105,7 +105,6 @@ void audioLog(const char * format, ...)
 }
 
 using namespace cocos2d;
-using namespace cocos2d::experimental;
 
 static ALCdevice *s_ALDevice = nullptr;
 static ALCcontext *s_ALContext = nullptr;

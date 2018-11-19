@@ -47,11 +47,72 @@ base/CCScheduler.cpp \
 base/csscolorparser.cpp \
 base/CCGLUtils.cpp \
 base/CCRenderTexture.cpp \
+storage/local-storage/LocalStorage-android.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
+scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
+scripting/js-bindings/manual/jsb_opengl_manual.cpp \
+scripting/js-bindings/manual/jsb_opengl_utils.cpp \
+scripting/js-bindings/manual/jsb_classtype.cpp \
+scripting/js-bindings/manual/jsb_conversions.cpp \
+scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp \
+scripting/js-bindings/manual/jsb_global.cpp \
+scripting/js-bindings/manual/jsb_socketio.cpp \
+scripting/js-bindings/manual/jsb_websocket.cpp \
+scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
+scripting/js-bindings/manual/jsb_platform_android.cpp \
+scripting/js-bindings/jswrapper/config.cpp \
+scripting/js-bindings/jswrapper/HandleObject.cpp \
+scripting/js-bindings/jswrapper/MappingUtils.cpp \
+scripting/js-bindings/jswrapper/RefCounter.cpp \
+scripting/js-bindings/jswrapper/Value.cpp \
+scripting/js-bindings/jswrapper/State.cpp \
+scripting/js-bindings/jswrapper/v8/Class.cpp \
+scripting/js-bindings/jswrapper/v8/Object.cpp \
+scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp \
+scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp \
+scripting/js-bindings/jswrapper/v8/Utils.cpp \
+scripting/js-bindings/event/EventDispatcher.cpp \
+../external/sources/xxtea/xxtea.cpp \
+../external/sources/tinyxml2/tinyxml2.cpp \
+../external/sources/unzip/ioapi_mem.cpp \
+../external/sources/unzip/ioapi.cpp \
+../external/sources/unzip/unzip.cpp \
+../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
+../external/sources/ConvertUTF/ConvertUTF.c \
+ui/edit-box/EditBox-android.cpp
+
+# only compile v8 debugger in DEBUG mode
+ifeq ($(NDK_DEBUG),1)
+USE_V8_DEBUGGER := 1
+endif
+ifeq ($(USE_V8_DEBUGGER),1)
+LOCAL_SRC_FILES += \
+scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
+scripting/js-bindings/jswrapper/v8/debugger/util.cc \
+scripting/js-bindings/jswrapper/v8/debugger/env.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc \
+scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc \
+scripting/js-bindings/jswrapper/v8/debugger/node.cc \
+scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc \
+scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
+# uv_static only used in v8 debugger
+LOCAL_STATIC_LIBRARIES += uv_static
+LOCAL_STATIC_LIBRARIES += v8_inspector
+endif
+
+# opengl bindings depend on GFXUtils "_JSB_GL_CHECK"
+LOCAL_SRC_FILES += \
+renderer/gfx/GFXUtils.cpp
+
+ifeq ($(USE_GFX_RENDERER),1)
+LOCAL_SRC_FILES += \
 renderer/Types.cpp \
 renderer/gfx/DeviceGraphics.cpp \
 renderer/gfx/FrameBuffer.cpp \
 renderer/gfx/GFX.cpp \
-renderer/gfx/GFXUtils.cpp \
 renderer/gfx/GraphicsHandle.cpp \
 renderer/gfx/IndexBuffer.cpp \
 renderer/gfx/Program.cpp \
@@ -75,57 +136,37 @@ renderer/renderer/Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
 renderer/renderer/ForwardRenderer.cpp \
-storage/local-storage/LocalStorage-android.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
-scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
-scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
-scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
-scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
-scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
-scripting/js-bindings/manual/jsb_opengl_manual.cpp \
-scripting/js-bindings/manual/jsb_opengl_utils.cpp \
-scripting/js-bindings/manual/jsb_classtype.cpp \
-scripting/js-bindings/manual/jsb_conversions.cpp \
-scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp \
-scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp \
-scripting/js-bindings/manual/jsb_gfx_manual.cpp \
-scripting/js-bindings/manual/jsb_global.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
-scripting/js-bindings/manual/jsb_socketio.cpp \
-scripting/js-bindings/manual/jsb_websocket.cpp \
-scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
-scripting/js-bindings/manual/jsb_platform_android.cpp \
-scripting/js-bindings/jswrapper/config.cpp \
-scripting/js-bindings/jswrapper/HandleObject.cpp \
-scripting/js-bindings/jswrapper/MappingUtils.cpp \
-scripting/js-bindings/jswrapper/RefCounter.cpp \
-scripting/js-bindings/jswrapper/Value.cpp \
-scripting/js-bindings/jswrapper/State.cpp \
-scripting/js-bindings/jswrapper/v8/Class.cpp \
-scripting/js-bindings/jswrapper/v8/Object.cpp \
-scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp \
-scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp \
-scripting/js-bindings/jswrapper/v8/Utils.cpp \
-scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
-scripting/js-bindings/jswrapper/v8/debugger/util.cc \
-scripting/js-bindings/jswrapper/v8/debugger/env.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc \
-scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc \
-scripting/js-bindings/jswrapper/v8/debugger/node.cc \
-scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc \
-scripting/js-bindings/jswrapper/v8/debugger/http_parser.c \
-scripting/js-bindings/event/EventDispatcher.cpp \
-../external/sources/xxtea/xxtea.cpp \
-../external/sources/tinyxml2/tinyxml2.cpp \
-../external/sources/unzip/ioapi_mem.cpp \
-../external/sources/unzip/ioapi.cpp \
-../external/sources/unzip/unzip.cpp \
-../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
-../external/sources/ConvertUTF/ConvertUTF.c \
-ui/edit-box/EditBox-android.cpp \
+scripting/js-bindings/manual/jsb_gfx_manual.cpp
+endif # USE_GFX_RENDERER
+
+ifeq ($(USE_VIDEO),1)
+LOCAL_SRC_FILES += \
+ui/videoplayer/VideoPlayer-android.cpp \
+scripting/js-bindings/auto/jsb_video_auto.cpp
+endif # USE_VIDEO
+
+ifeq ($(USE_WEB_VIEW),1)
+LOCAL_SRC_FILES += \
+ui/webview/WebViewImpl-android.cpp \
+scripting/js-bindings/auto/jsb_webview_auto.cpp
+endif # USE_WEB_VIEW
+
+ifeq ($(USE_AUDIO),1)
+LOCAL_SRC_FILES += \
+scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
+LOCAL_STATIC_LIBRARIES += audioengine_static
+endif # USE_AUDIO
+
+ifeq ($(USE_NET_WORK),1)
+LOCAL_SRC_FILES += \
+scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
+scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
+LOCAL_STATIC_LIBRARIES += cocos_network_static
+LOCAL_STATIC_LIBRARIES += cocos_extension_static
+endif # USE_NET_WORK
 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
@@ -148,21 +189,16 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/../external/sources \
                     $(LOCAL_PATH)/renderer
 
-LOCAL_EXPORT_LDLIBS := -lGLESv2 \
-                       -llog \
-                       -landroid
-
-LOCAL_STATIC_LIBRARIES := cocos_freetype2_static
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
+
+ifeq ($(USE_TIFF),1)
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
+endif
+
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
-LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
-LOCAL_STATIC_LIBRARIES += audioengine_static
-LOCAL_STATIC_LIBRARIES += cocos_network_static
-LOCAL_STATIC_LIBRARIES += cocos_extension_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures

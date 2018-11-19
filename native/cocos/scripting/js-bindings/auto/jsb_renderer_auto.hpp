@@ -1,5 +1,6 @@
 #pragma once
 #include "base/ccConfig.h"
+#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
@@ -152,3 +153,4 @@ SE_DECLARE_FUNC(js_renderer_Scene_addLight);
 SE_DECLARE_FUNC(js_renderer_Scene_removeLight);
 SE_DECLARE_FUNC(js_renderer_Scene_Scene);
 
+#endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

@@ -1,5 +1,5 @@
 /****************************************************************************
-  * Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -31,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.TextPaint;
 import android.util.Log;
 
@@ -72,7 +73,13 @@ public class CanvasRenderingContext2DImpl {
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
+    private static float _sApproximatingOblique = -0.25f;//please check paint api documentation
     private boolean mIsBoldFont = false;
+    private boolean mIsItalicFont = false;
+    private boolean mIsObliqueFont = false;
+    private boolean mIsSmallCapsFontVariant = false;
+    private String mLineCap = "butt";
+    private String mLineJoin = "miter";
 
     private class Size {
         Size(float w, float h) {
@@ -151,28 +158,45 @@ public class CanvasRenderingContext2DImpl {
         sTypefaceCache.clear();
     }
 
-    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold) {
+    private static TextPaint newPaint(String fontName, int fontSize, boolean enableBold, boolean enableItalic, boolean obliqueFont, boolean smallCapsFontVariant) {
         TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
+        paint.setSubpixelText(true);
 
         String key = fontName;
         if (enableBold) {
             key += "-Bold";
+            paint.setFakeBoldText(true);
         }
-        
+        if (enableItalic) {
+            key += "-Italic";
+        }
+
         Typeface typeFace;
         if (sTypefaceCache.containsKey(key)) {
             typeFace = sTypefaceCache.get(key);
         } else {
-            if (enableBold) {
-                typeFace = Typeface.create(fontName, Typeface.BOLD);
-            } else {
-                typeFace = Typeface.create(fontName, Typeface.NORMAL);
+            int style = Typeface.NORMAL;
+            if (enableBold && enableItalic) {
+                style = Typeface.BOLD_ITALIC;
+            } else if (enableBold) {
+                style = Typeface.BOLD;
+            } else if (enableItalic) {
+                style = Typeface.ITALIC;
             }
+            typeFace = Typeface.create(fontName, style);
         }
-
         paint.setTypeface(typeFace);
+        if(obliqueFont) {
+            paint.setTextSkewX(_sApproximatingOblique);
+        }
+        if(smallCapsFontVariant && Build.VERSION.SDK_INT >= 21) {
+            Cocos2dxReflectionHelper.<Void>invokeInstanceMethod(paint,
+                    "setFontFeatureSettings",
+                    new Class[]{String.class},
+                    new Object[]{"smcp"});
+        }
         return paint;
     }
 
@@ -211,8 +235,9 @@ public class CanvasRenderingContext2DImpl {
     private void stroke() {
         if (mLinePaint == null) {
             mLinePaint = new Paint();
+            mLinePaint.setAntiAlias(true);
         }
-     
+
         if(mLinePath == null) {
             mLinePath = new Path();
         }
@@ -220,7 +245,66 @@ public class CanvasRenderingContext2DImpl {
         mLinePaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mLinePaint.setStyle(Paint.Style.STROKE);
         mLinePaint.setStrokeWidth(mLineWidth);
+        this.setStrokeCap(mLinePaint);
+        this.setStrokeJoin(mLinePaint);
         mCanvas.drawPath(mLinePath, mLinePaint);
+    }
+
+    private void setStrokeCap(Paint paint) {
+        switch (mLineCap) {
+            case "butt":
+                paint.setStrokeCap(Paint.Cap.BUTT);
+                break;
+            case "round":
+                paint.setStrokeCap(Paint.Cap.ROUND);
+                break;
+            case "square":
+                paint.setStrokeCap(Paint.Cap.SQUARE);
+                break;
+        }
+    }
+
+    private void setStrokeJoin(Paint paint) {
+        switch (mLineJoin) {
+            case "bevel":
+                paint.setStrokeJoin(Paint.Join.BEVEL);
+                break;
+            case "round":
+                paint.setStrokeJoin(Paint.Join.ROUND);
+                break;
+            case "miter":
+                paint.setStrokeJoin(Paint.Join.MITER);
+                break;
+        }
+    }
+
+    private void fill() {
+        if (mLinePaint == null) {
+            mLinePaint = new Paint();
+        }
+
+        if(mLinePath == null) {
+            mLinePath = new Path();
+        }
+
+        mLinePaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
+        mLinePaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawPath(mLinePath, mLinePaint);
+        // workaround: draw a hairline to cover the border
+        mLinePaint.setStrokeWidth(0);
+        this.setStrokeCap(mLinePaint);
+        this.setStrokeJoin(mLinePaint);
+        mLinePaint.setStyle(Paint.Style.STROKE);
+        mCanvas.drawPath(mLinePath, mLinePaint);
+        mLinePaint.setStrokeWidth(mLineWidth);
+    }
+
+    private void setLineCap(String lineCap) {
+        mLineCap = lineCap;
+    }
+
+    private void setLineJoin(String lineJoin) {
+        mLineJoin = lineJoin;
     }
 
     private void saveContext() {
@@ -234,26 +318,49 @@ public class CanvasRenderingContext2DImpl {
         }
     }
 
+    private void rect(float x, float y, float w, float h) {
+        //        Log.d(TAG, "this: " + this + ", rect: " + x + ", " + y + ", " + w + ", " + h);
+        beginPath();
+        moveTo(x, y);
+        lineTo(x, y + h);
+        lineTo(x + w, y + h);
+        lineTo(x + w, y);
+        closePath();
+    }
+
     private void clearRect(float x, float y, float w, float h) {
-//        Log.d(TAG, "this: " + this + ", clearRect: " + x + ", " + y + ", " + w + ", " + h);
-        int w_ = mBitmap.getWidth();
-        int h_ = mBitmap.getHeight();
-        int size = w_*h_;
-        int[] clearColor = new int[size];
-        for (int i = 0; i < size; ++i) {
+        //        Log.d(TAG, "this: " + this + ", clearRect: " + x + ", " + y + ", " + w + ", " + h);
+        int clearSize = (int)(w * h);
+        int[] clearColor = new int[clearSize];
+        for (int i = 0; i < clearSize; ++i) {
             clearColor[i] = Color.TRANSPARENT;
         }
-        mBitmap.setPixels(clearColor, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+        mBitmap.setPixels(clearColor, 0, (int) w, (int) x, (int) y, (int) w, (int) h);
     }
 
     private void createTextPaintIfNeeded() {
         if (mTextPaint == null) {
-            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont);
+            mTextPaint = newPaint(mFontName, (int) mFontSize, mIsBoldFont, mIsItalicFont, mIsObliqueFont, mIsSmallCapsFontVariant);
         }
     }
 
     private void fillRect(float x, float y, float w, float h) {
         // Log.d(TAG, "fillRect: " + x + ", " + y + ", " + ", " + w + ", " + h);
+        int pixelValue = (mFillStyleA & 0xff) << 24 | (mFillStyleR & 0xff) << 16 | (mFillStyleG & 0xff) << 8 | (mFillStyleB & 0xff);
+        int fillSize = (int)(w * h);
+        int[] fillColors = new int[fillSize];
+        for (int i = 0; i < fillSize; ++i) {
+            fillColors[i] = pixelValue;
+        }
+        mBitmap.setPixels(fillColors, 0, (int) w, (int)x, (int)y, (int)w, (int)h);
+    }
+
+    private void scaleX(TextPaint textPaint, String text, float maxWidth) {
+        if(maxWidth < Float.MIN_VALUE) return;
+        float measureWidth = this.measureText(text);
+        if((measureWidth - maxWidth) < Float.MIN_VALUE) return;
+        float scaleX = maxWidth/measureWidth;
+        textPaint.setTextScaleX(scaleX);
     }
 
     private void fillText(String text, float x, float y, float maxWidth) {
@@ -261,7 +368,7 @@ public class CanvasRenderingContext2DImpl {
         createTextPaintIfNeeded();
         mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
         mTextPaint.setStyle(Paint.Style.FILL);
-
+        scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
@@ -274,7 +381,7 @@ public class CanvasRenderingContext2DImpl {
         mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mTextPaint.setStyle(Paint.Style.STROKE);
         mTextPaint.setStrokeWidth(mLineWidth);
-
+        scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         // Convert to baseline Y
         float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
@@ -296,11 +403,14 @@ public class CanvasRenderingContext2DImpl {
         return new Size(measureText(text), fm.descent - fm.ascent);
     }
 
-    private void updateFont(String fontName, float fontSize, boolean bold) {
+    private void updateFont(String fontName, float fontSize, boolean bold, boolean italic, boolean oblique, boolean smallCaps) {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
         mFontSize = fontSize;
         mIsBoldFont = bold;
+        mIsItalicFont = italic;
+        mIsObliqueFont = oblique;
+        mIsSmallCapsFontVariant = smallCaps;
         mTextPaint = null; // Reset paint to re-create paint object in createTextPaintIfNeeded
     }
 
@@ -332,6 +442,22 @@ public class CanvasRenderingContext2DImpl {
 
     private void setLineWidth(float lineWidth) {
         mLineWidth = lineWidth;
+    }
+
+    private void _fillImageData(byte[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+        Log.d(TAG, "_fillImageData: ");
+        int fillSize = (int) (imageWidth * imageHeight);
+        int[] fillColors = new int[fillSize];
+        int r, g, b, a;
+        for (int i = 0; i < fillSize; ++i) {
+            // imageData Pixel (RGBA) -> fillColors int (ARGB)
+            r = ((int)imageData[4 * i + 0]) & 0xff;
+            g = ((int)imageData[4 * i + 1]) & 0xff;
+            b = ((int)imageData[4 * i + 2]) & 0xff;
+            a = ((int)imageData[4 * i + 3]) & 0xff;
+            fillColors[i] = (a & 0xff) << 24 | (r & 0xff) << 16 | (g & 0xff) << 8 | (b & 0xff);
+        }
+        mBitmap.setPixels(fillColors, 0, (int) imageWidth, (int) offsetX, (int) offsetY, (int) imageWidth, (int) imageHeight);
     }
 
     private Point convertDrawPoint(final Point point, String text) {

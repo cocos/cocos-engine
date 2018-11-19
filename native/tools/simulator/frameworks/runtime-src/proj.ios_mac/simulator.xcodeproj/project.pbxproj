@@ -703,7 +703,7 @@
 				);
 				PRODUCT_NAME = Simulator;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../../cocos/platform/mac $(SRCROOT)/../../../../../external/mac/include $(SRCROOT)/../../../../../external/mac/include/glfw3 $(SRCROOT)/../../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../../external/sources";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../../cocos/platform/mac $(SRCROOT)/../../../../../external/mac/include $(SRCROOT)/../../../../../external/mac/include/glfw3 $(SRCROOT)/../../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../../external/sources $(SRCROOT)/../../../../../external/mac/include/v8";
 				VALID_ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 			};
 			name = Debug;
@@ -740,7 +740,7 @@
 				);
 				PRODUCT_NAME = Simulator;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../../cocos/platform/mac $(SRCROOT)/../../../../../external/mac/include $(SRCROOT)/../../../../../external/mac/include/glfw3 $(SRCROOT)/../../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../../external/sources";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../../cocos/platform/mac $(SRCROOT)/../../../../../external/mac/include $(SRCROOT)/../../../../../external/mac/include/glfw3 $(SRCROOT)/../../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../../external/sources $(SRCROOT)/../../../../../external/mac/include/v8";
 				VALID_ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 			};
 			name = Release;

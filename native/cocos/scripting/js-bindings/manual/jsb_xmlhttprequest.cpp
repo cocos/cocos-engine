@@ -30,8 +30,9 @@
 //  Created by James Chen on 5/15/17.
 //
 //
-
+#include "base/ccConfig.h"
 #include "jsb_xmlhttprequest.hpp"
+#if (USE_NET_WORK > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -97,6 +98,9 @@ public:
     ResponseType getResponseType() const { return _responseType; }
     void setResponseType(ResponseType type) { _responseType = type; }
 
+    void overrideMimeType(const std::string &mimeType);
+    std::string getMimeType() const;
+
     void setTimeout(unsigned long timeoutInMilliseconds);
     unsigned long getTimeout() const;
 
@@ -123,6 +127,7 @@ private:
     std::string _responseText;
     std::string _responseXML;
     std::string _statusText;
+    std::string _overrideMimeType;
 
     cocos2d::Data _responseData;
 
@@ -251,6 +256,8 @@ void XMLHttpRequest::abort()
     {
         onloadend();
     }
+
+    _readyState = ReadyState::UNSENT;
 }
 
 void XMLHttpRequest::setReadyState(ReadyState readyState)
@@ -323,10 +330,10 @@ void XMLHttpRequest::getHeader(const std::string& header)
 
                 // Get Response Status
                 pch = strtok (nullptr, " ");
-                mystream << pch;
+                //mystream << pch;    //ignore HTTP statusCode 
 
                 pch = strtok (nullptr, " ");
-                mystream << " " << pch;
+                mystream << pch;
 
                 _statusText = mystream.str();
                 
@@ -422,6 +429,20 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     {
         onloadend();
     }
+}
+
+void XMLHttpRequest::overrideMimeType(const std::string &mimeType)
+{
+    _overrideMimeType = mimeType;
+}
+
+std::string XMLHttpRequest::getMimeType() const
+{
+    if (!_overrideMimeType.empty()) {
+        return _overrideMimeType;
+    }
+    auto contentType = getResonpseHeader("Content-Type");
+    return contentType.empty() ? "text" : contentType;
 }
 
 void XMLHttpRequest::sendRequest()
@@ -800,10 +821,27 @@ SE_BIND_FUNC(XMLHttpRequest_getResonpseHeader)
 
 static bool XMLHttpRequest_overrideMimeType(se::State& s)
 {
-    SE_LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!\n");
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if(argc > 0 && args[0].isString())
+    {
+        std::string mimeType;
+        seval_to_std_string(args[0], &mimeType);
+        XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
+        xhr->overrideMimeType(mimeType);
+    }
     return true;
 }
 SE_BIND_FUNC(XMLHttpRequest_overrideMimeType)
+
+static bool XMLHttpRequest_getMIMEType(se::State& s)
+{
+    XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
+    auto type = xhr->getMimeType();
+    s.rval().setString(type);
+    return true;
+}
+SE_BIND_PROP_GET(XMLHttpRequest_getMIMEType)
 
 // getter
 
@@ -841,6 +879,8 @@ SE_BIND_PROP_GET(XMLHttpRequest_getResponseText)
 
 static bool XMLHttpRequest_getResponseXML(se::State& s)
 {
+    // DOM API is not fully supported in cocos2d-x-lite.
+    // `.responseXML` requires a document object that is not possible to fulfill. 
     s.rval().setNull();
     return true;
 }
@@ -974,6 +1014,10 @@ static bool XMLHttpRequest_setResponseType(se::State& s)
         {
             xhr->setResponseType(XMLHttpRequest::ResponseType::JSON);
         }
+        else if (type == "document")
+        {
+            xhr->setResponseType(XMLHttpRequest::ResponseType::DOCUMENT);
+        }
         else
         {
             SE_PRECONDITION2(false, false, "The response type isn't supported!");
@@ -1005,6 +1049,7 @@ bool register_all_xmlhttprequest(se::Object* global)
     cls->defineFunction("getAllResponseHeaders", _SE(XMLHttpRequest_getAllResponseHeaders));
     cls->defineFunction("getResponseHeader", _SE(XMLHttpRequest_getResonpseHeader));
     cls->defineFunction("overrideMimeType", _SE(XMLHttpRequest_overrideMimeType));
+    cls->defineProperty("__mimeType", _SE(XMLHttpRequest_getMIMEType), nullptr);
 
     cls->defineProperty("readyState", _SE(XMLHttpRequest_getReadyState), nullptr);
     cls->defineProperty("status", _SE(XMLHttpRequest_getStatus), nullptr);
@@ -1026,3 +1071,4 @@ bool register_all_xmlhttprequest(se::Object* global)
 
     return true;
 }
+#endif //#if (USE_NET_WORK > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

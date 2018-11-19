@@ -53,7 +53,7 @@ public class SDKWrapper {
 		}
 		return mInstace;	
 	}
-	
+
 	public void init(Context context) {
 	    mCtx = context;
 		if (PACKAGE_AS) {
@@ -71,7 +71,7 @@ public class SDKWrapper {
 	public Context getContext(){
 	    return mCtx;
 	}
-	
+
 	public void setGLSurfaceView(GLSurfaceView view) {
 		if (PACKAGE_AS) {
 			try {

@@ -26,8 +26,11 @@
 #include "base/ccMacros.h"
 #include "math/Vec2.h"
 #include "platform/CCGL.h"
+#include "base/CCGLUtils.h"
 
 NS_CC_BEGIN
+
+struct VertexAttributePointerInfo;
 
 class RenderTexture
 {
@@ -54,6 +57,8 @@ private:
     void initVBOAndVAO();
     void initVBO();
     void initFramebuffer();
+    void recordPreviousGLStates(bool supportsVAO);
+    void resetPreviousGLStates(bool supportsVAO) const;
     
     GLuint _texture = 0;
     GLint _mainFBO = -1;
@@ -74,6 +79,20 @@ private:
     
     // device resolution
     Vec2 _deviceResolution;
+    
+    // record previous gl states
+    GLint _prevVBO = 0;
+    GLint _prevVIO = 0;
+    const VertexAttributePointerInfo* _prevPosLocInfo = nullptr;
+    const VertexAttributePointerInfo* _prevTexCoordLocInfo = nullptr;
+    GLboolean _prevColorWriteMask[4] = {GL_FALSE};
+    GLboolean _prevDepthTest = GL_FALSE;
+    GLboolean _prevBlendTest = GL_FALSE;
+    GLboolean _prevCullFase = GL_FALSE;
+    GLboolean _prevStencilTest = GL_FALSE;
+    GLboolean _prevScissorTest = GL_FALSE;
+    GLint _prevProgram = 0;
+    BoundTextureInfo* _preveBoundTextureInfo = nullptr;
 };
 
 NS_CC_END

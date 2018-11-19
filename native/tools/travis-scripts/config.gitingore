@@ -11,23 +11,28 @@ Thumbs.db
 /simulator_*.zip
 /prebuilt_*.zip
 
-# ignore copy files
+# ignore copy files which not needed by new project
 /lib
 /linux-build
 /samples
 /templates
 /tests
 /plugin/samples
-/tools/cocos2d-console
-/tools/jenkins-scripts
-/tools/make-package
-/tools/travis-scripts
+/tools
+/utils
+/licenses
 
 .gitattributes
 .gitignore
 .gitmodules
 .travis.yml
-setup.py
+/setup.py
+/auto-build-src.bat
+/auto-build.bat
+/download-deps.py
+/gulpfile.js
+/package.json
+/README.md
 
 # Ignore files build by Visual Studio
 win32-msvc-vs201*-x86
@@ -128,5 +133,13 @@ tags
 !/cocos/platform/android/ControllerManualAdapter/libs
 !/external/win32/libs/Debug/*
 
-v*-deps-*.zip
+/*.zip
 v*-lua-runtime-*.zip
+
+# android build tmp files
+/cocos/platform/android/libcocos2dx/.gradle
+/cocos/platform/android/libcocos2dx/build
+/cocos/platform/android/libcocos2dx/libcocos2dx.iml
+
+# xcode build tmp data
+*build/XCBuildData

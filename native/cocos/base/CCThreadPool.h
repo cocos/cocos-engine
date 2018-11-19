@@ -39,7 +39,7 @@
 #include <vector>
 #include <atomic>
 
-namespace cocos2d { namespace experimental {
+namespace cocos2d {
 
 /**
  * @addtogroup base
@@ -235,4 +235,4 @@ private:
 // end of base group
 /// @}
 
-}} // namespace cocos2d { namespace experimental {
+} // namespace cocos2d {

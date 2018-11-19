@@ -25,27 +25,40 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
+import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
-import android.graphics.drawable.GradientDrawable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Button;
-import android.view.inputmethod.InputMethodManager;
 
 public class Cocos2dxEditBox {
 
     // a color of dark green, was used for confirm button background
     private static final int DARK_GREEN = Color.parseColor("#1fa014");
+    private static final int DARK_GREEN_PRESS = Color.parseColor("#008e26");
 
     private static Cocos2dxEditBox sThis = null;
     private Cocos2dxEditText mEditText = null;
@@ -53,6 +66,10 @@ public class Cocos2dxEditBox {
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
     private Cocos2dxActivity mActivity = null;
+    private RelativeLayout mButtonLayout = null;
+    private RelativeLayout.LayoutParams mButtonParams;
+    private int mEditTextID = 1;
+    private int mButtonLayoutID = 2;
 
     /***************************************************************************************
      Inner class.
@@ -61,10 +78,22 @@ public class Cocos2dxEditBox {
         private final String TAG = "Cocos2dxEditBox";
         private boolean mIsMultiLine = false;
         private TextWatcher mTextWatcher = null;
+        private Paint mPaint;
+        private int mLineColor = DARK_GREEN;
+        private float mLineWidth = 2f;
+        private boolean keyboardVisible = false;
+        private int mScreenHeight;
 
         public  Cocos2dxEditText(Cocos2dxActivity context){
             super(context);
-            this.removeFocusBorder();
+            //remove focus border
+            this.setBackground(null);
+            mScreenHeight = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).
+                    getDefaultDisplay().getHeight();
+            mPaint = new Paint();
+            mPaint.setStrokeWidth(mLineWidth);
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor(mLineColor);
 
             mTextWatcher = new TextWatcher() {
                 @Override
@@ -83,6 +112,7 @@ public class Cocos2dxEditBox {
                     Cocos2dxEditBox.this.onKeyboardInput(s.toString());
                 }
             };
+            registKeyboardVisible();
         }
 
         /***************************************************************************************
@@ -90,14 +120,13 @@ public class Cocos2dxEditBox {
          **************************************************************************************/
 
         @Override
-        public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_BACK:
-                    Cocos2dxEditBox.this.hide();
-                    return true;
-                default:
-                    return super.onKeyPreIme(keyCode, event);
-            }
+        protected void onDraw(Canvas canvas) {
+            // draw the underline
+            int padB = this.getPaddingBottom();
+            canvas.drawLine(getScrollX(), this.getHeight() - padB / 2 - mLineWidth,
+                    getScrollX() + this.getWidth(),
+                    this.getHeight() - padB / 2 - mLineWidth, mPaint);
+            super.onDraw(canvas);
         }
 
         /***************************************************************************************
@@ -106,9 +135,13 @@ public class Cocos2dxEditBox {
 
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
             mIsMultiLine = isMultiline;
-            this.setText(defaultValue);
-            this.setSelection(defaultValue.length());
             this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
+            this.setText(defaultValue);
+            if (this.getText().length() >= defaultValue.length()) {
+                this.setSelection(defaultValue.length());
+            } else {
+                this.setSelection(this.getText().length());
+            }
             this.setConfirmType(confirmType);
             this.setInputType(inputType, mIsMultiLine);
             this.setVisibility(View.VISIBLE);
@@ -144,8 +177,10 @@ public class Cocos2dxEditBox {
             } else if (confirmType.contentEquals("send")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 mButtonTitle = mActivity.getResources().getString(R.string.send);
-            } else
+            } else{
+                mButtonTitle = null;
                 Log.e(TAG, "unknown confirm type " + confirmType);
+            }
         }
 
         private void setInputType(final String inputType, boolean isMultiLine){
@@ -165,14 +200,6 @@ public class Cocos2dxEditBox {
                 this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             else
                 Log.e(TAG, "unknown input type " + inputType);
-        }
-
-        private void removeFocusBorder() {
-            GradientDrawable shape = new GradientDrawable();
-            shape.setShape(GradientDrawable.RECTANGLE);
-            shape.setStroke(1, Color.BLACK);
-            shape.setColor(Color.WHITE);
-            this.setBackground(shape);
         }
 
         private void addListeners() {
@@ -195,6 +222,28 @@ public class Cocos2dxEditBox {
         private void removeListeners() {
             this.setOnEditorActionListener(null);
             this.removeTextChangedListener(mTextWatcher);
+        }
+
+        private void registKeyboardVisible() {
+            getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect r = new Rect();
+                    getWindowVisibleDisplayFrame(r);
+                    int heightDiff = getRootView().getHeight() - (r.bottom - r.top);
+                    // if more than a quarter of the screen, its probably a keyboard
+                    if (heightDiff > mScreenHeight/4) {
+                        if (!keyboardVisible) {
+                            keyboardVisible = true;
+                        }
+                    } else {
+                        if (keyboardVisible) {
+                            keyboardVisible = false;
+                            Cocos2dxEditBox.this.hide();
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -241,17 +290,30 @@ public class Cocos2dxEditBox {
     private void addEditText(Cocos2dxActivity context, RelativeLayout layout) {
         mEditText = new Cocos2dxEditText(context);
         mEditText.setVisibility(View.INVISIBLE);
-        layout.addView(mEditText, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mEditText.setBackgroundColor(Color.WHITE);
+        mEditText.setId(mEditTextID);
+        RelativeLayout.LayoutParams editParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        editParams.addRule(RelativeLayout.LEFT_OF, mButtonLayoutID);
+        layout.addView(mEditText, editParams);
     }
 
     private void addButton(Cocos2dxActivity context, RelativeLayout layout) {
         mButton = new Button(context);
-        mButton.setVisibility(View.INVISIBLE);
-        RelativeLayout.LayoutParams buttonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        mButtonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mButton.setTextColor(Color.WHITE);
-        mButton.setBackgroundColor(DARK_GREEN);
-        layout.addView(mButton, buttonParams);
+        mButton.setBackground(getRoundRectShape());
+        mButtonLayout = new RelativeLayout(Cocos2dxHelper.getActivity());
+        mButtonLayout.setVisibility(View.INVISIBLE);
+        mButtonLayout.setBackgroundColor(Color.WHITE);
+        RelativeLayout.LayoutParams buttonLayoutParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        buttonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        buttonLayoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, mEditTextID);
+        buttonLayoutParams.addRule(RelativeLayout.ALIGN_TOP, mEditTextID);
+        mButtonLayout.addView(mButton, mButtonParams);
+        mButtonLayout.setId(mButtonLayoutID);
+        layout.addView(mButtonLayout, buttonLayoutParams);
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -264,10 +326,29 @@ public class Cocos2dxEditBox {
         });
     }
 
+    private Drawable getRoundRectShape() {
+        int radius = 7;
+        float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
+        RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
+        ShapeDrawable shapeDrawableNormal = new ShapeDrawable();
+        shapeDrawableNormal.setShape(roundRectShape);
+        shapeDrawableNormal.getPaint().setStyle(Paint.Style.FILL);
+        shapeDrawableNormal.getPaint().setColor(DARK_GREEN);
+        ShapeDrawable shapeDrawablePress = new ShapeDrawable();
+        shapeDrawablePress.setShape(roundRectShape);
+        shapeDrawablePress.getPaint().setStyle(Paint.Style.FILL);
+        shapeDrawablePress.getPaint().setColor(DARK_GREEN_PRESS);
+        StateListDrawable drawable = new StateListDrawable();
+        drawable.addState(new int[]{android.R.attr.state_pressed}, shapeDrawablePress);
+        drawable.addState(new int[]{}, shapeDrawableNormal);
+        return drawable;
+    }
+
+
     private void hide() {
         Utils.hideVirtualButton();
         mEditText.hide();
-        mButton.setVisibility(View.INVISIBLE);
+        mButtonLayout.setVisibility(View.INVISIBLE);
         this.closeKeyboard();
 
         mActivity.getGLSurfaceView().requestFocus();
@@ -276,9 +357,21 @@ public class Cocos2dxEditBox {
 
     private void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
         mConfirmHold = confirmHold;
-        mButton.setVisibility(View.VISIBLE);
         mEditText.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+        int editPaddingBottom = mEditText.getPaddingBottom();
+        int editPadding = mEditText.getPaddingTop();
+        mEditText.setPadding(editPadding, editPadding, editPadding, editPaddingBottom);
         mButton.setText(mButtonTitle);
+        if (TextUtils.isEmpty(mButtonTitle)) {
+            mButton.setPadding(0, 0, 0, 0);
+            mButtonParams.setMargins(0, 0, 0, 0);
+            mButtonLayout.setVisibility(View.INVISIBLE);
+        } else {
+            int buttonTextPadding = mEditText.getPaddingBottom() / 2;
+            mButton.setPadding(editPadding, buttonTextPadding, editPadding, buttonTextPadding);
+            mButtonParams.setMargins(0, buttonTextPadding, 2, 0);
+            mButtonLayout.setVisibility(View.VISIBLE);
+        }
         mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
         this.openKeyboard();
     }

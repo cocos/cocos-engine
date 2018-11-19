@@ -202,11 +202,12 @@ namespace
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
+std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
-    _scheduler = new Scheduler();
+    _scheduler = std::make_shared<Scheduler>();
 
     createView(name, width, height);
     Configuration::getInstance();
@@ -222,23 +223,22 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
-    [(CCEAGLView*)_view release];
-    _view = nullptr;
 
-    delete _scheduler;
-    _scheduler = nullptr;
-    
+#if USE_AUDIO
+    AudioEngine::end();
+#endif
+
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
-    // close audio device
-    cocos2d::experimental::AudioEngine::end();
     
     // stop main loop
     [(MainLoop*)_delegate stopMainLoop];
     [(MainLoop*)_delegate release];
     _delegate = nullptr;
     
+    [(CCEAGLView*)_view release];
+    _view = nullptr;
+
     delete _renderTexture;
     _renderTexture = nullptr;
 

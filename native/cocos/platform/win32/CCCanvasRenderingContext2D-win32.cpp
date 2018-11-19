@@ -537,7 +537,7 @@ private:
 
 
             uint8_t r, g, b;
-            float alpha = 1.0f;
+            float alpha = _fillStyle.a;
             COLORREF * pPixel = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
             {
@@ -549,10 +549,10 @@ private:
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
                     {
-                        // r = _fillStyle.r * 255 * (dirtyValue / 255);
-                        r = _fillStyle.r * dirtyValue;
-                        g = _fillStyle.g * dirtyValue;
-                        b = _fillStyle.b * dirtyValue;
+                        // r = _fillStyle.r * 255 * (dirtyValue / 255) * alpha;
+                        r = _fillStyle.r * dirtyValue * alpha;
+                        g = _fillStyle.g * dirtyValue * alpha;
+                        b = _fillStyle.b * dirtyValue * alpha;
                         COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
                         clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
                     }
@@ -769,9 +769,23 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
     _impl->setLineWidth(lineWidth);
 }
 
+void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+
+void CanvasRenderingContext2D::fill()
+{
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
+void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
+{
+    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 void CanvasRenderingContext2D::set_font(const std::string& font)
@@ -785,13 +799,13 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         std::string fontSizeStr = "30";
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex re("(bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
             boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName = results[3].str();
+            fontName = results[5].str();
         }
 
         float fontSize = atof(fontSizeStr.c_str());
@@ -860,6 +874,10 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
+void CanvasRenderingContext2D::_fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY)
+{
+    //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+}
 // transform
 //REFINE:
 

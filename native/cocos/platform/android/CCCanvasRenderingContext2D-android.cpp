@@ -79,6 +79,15 @@ public:
         fillData();
     }
 
+    void fill()
+    {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
+
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fill");
+        fillData();
+    }
+
     void saveContext()
     {
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "saveContext");
@@ -89,10 +98,24 @@ public:
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "restoreContext");
     }
 
+    void rect(float x, float y, float w, float h)
+    {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "rect", x, y, w, h);
+        fillData();
+    }
+
     void clearRect(float x, float y, float w, float h)
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
+        if (x >= _bufferWidth || y >= _bufferHeight)
+            return;
+        if (x + w > _bufferWidth)
+            w = _bufferWidth - x;
+        if (y + h > _bufferHeight)
+            h = _bufferHeight - y;
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "clearRect", x, y, w, h);
         fillData();
     }
@@ -101,6 +124,12 @@ public:
     {
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
+        if (x >= _bufferWidth || y >= _bufferHeight)
+            return;
+        if (x + w > _bufferWidth)
+            w = _bufferWidth - x;
+        if (y + h > _bufferHeight)
+            h = _bufferHeight - y;
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "fillRect", x, y, w, h);
         fillData();
     }
@@ -128,9 +157,17 @@ public:
         return JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
     }
 
-    void updateFont(const std::string& fontName, float fontSize, bool bold)
+    void updateFont(const std::string& fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps)
     {
-        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold);
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "updateFont", fontName, fontSize, bold, italic, oblique, smallCaps);
+    }
+
+    void setLineCap(const std::string& lineCap) {
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineCap", lineCap);
+    }
+
+    void setLineJoin(const std::string& lineJoin) {
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineJoin", lineJoin);
     }
 
     void setTextAlign(CanvasTextAlign align)
@@ -156,6 +193,20 @@ public:
     void setLineWidth(float lineWidth)
     {
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineWidth", lineWidth);
+    }
+
+    void _fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+            return;
+
+        jbyteArray arr = JniHelper::getEnv()->NewByteArray(imageData.getSize());
+        JniHelper::getEnv()->SetByteArrayRegion(arr, 0, imageData.getSize(),
+                                                (const jbyte *) imageData.getBytes());
+        JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "_fillImageData", arr, imageWidth,
+                                        imageHeight, offsetX, offsetY);
+        JniHelper::getEnv()->DeleteLocalRef(arr);
+
+        fillData();
     }
 
     const Data& getDataRef() const
@@ -248,6 +299,13 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
     }
 }
 
+void CanvasRenderingContext2D::rect(float x, float y, float width, float height)
+{
+//    SE_LOGD("CanvasRenderingContext2D::rect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+    recreateBufferIfNeeded();
+    _impl->rect(x, y, width, height);
+}
+
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
 //    SE_LOGD("CanvasRenderingContext2D::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
@@ -333,6 +391,14 @@ void CanvasRenderingContext2D::stroke()
         _canvasBufferUpdatedCB(_impl->getDataRef());
 }
 
+void CanvasRenderingContext2D::fill()
+{
+    _impl->fill();
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB(_impl->getDataRef());
+}
+
 void CanvasRenderingContext2D::restore()
 {
     _impl->restoreContext();
@@ -367,31 +433,54 @@ void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
 
 void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
 {
-    // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
+    if(lineJoin.empty()) return ;
+    _impl->setLineJoin(lineJoin);
 }
 
+void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
+{
+    if(lineCap.empty()) return ;
+    _impl->setLineCap(lineCap);
+}
+
+/*
+ * support format e.g.: "oblique bold small-caps 18px Arial"
+ *                      "italic bold small-caps 25px Arial"
+ *                      "italic 25px Arial"
+ * */
 void CanvasRenderingContext2D::set_font(const std::string& font)
 {
     if (_font != font)
     {
         _font = font;
-
-        std::string boldStr;
-        std::string fontName = "Arial";
+        std::string fontName = "sans-serif";
         std::string fontSizeStr = "30";
-
-        // support get font name from `60px American` or `60px "American abc-abc_abc"`
-        std::regex re("(bold)?\\s*(\\d+)px\\s+([\\w-]+|\"[\\w -]+\"$)");
+        std::regex re("\\s*((\\d+)([\\.]\\d+)?)px\\s+([^\\r\\n]*)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
-            boldStr = results[1].str();
             fontSizeStr = results[2].str();
-            fontName = results[3].str();
+            // support get font name from `60px American` or `60px "American abc-abc_abc"`
+            // support get font name contain space,example `times new roman`
+            // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
+            std::match_results<std::string::const_iterator> fontResults;
+            std::regex fontRe("([\\w\\s-]+|\"[\\w\\s-]+\"$)");
+            if(std::regex_match(results[4].str(), fontResults, fontRe))
+            {
+                fontName = results[4].str();
+            }
         }
 
         float fontSize = atof(fontSizeStr.c_str());
-        _impl->updateFont(fontName, fontSize, !boldStr.empty());
+        bool isBold = font.find("bold", 0) != std::string::npos;
+        bool isItalic = font.find("italic", 0) != std::string::npos;
+        bool isSmallCaps = font.find("small-caps", 0) != std::string::npos;
+        bool isOblique = font.find("oblique", 0) != std::string::npos;
+        //font-style: italic, oblique, normal
+        //font-weight: normal, bold
+        //font-variant: normal, small-caps
+        _impl->updateFont(fontName, fontSize, isBold, isItalic, isOblique, isSmallCaps);
+
     }
 }
 
@@ -455,6 +544,12 @@ void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& g
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
+void CanvasRenderingContext2D::_fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY)
+{
+    _impl->_fillImageData(imageData, imageWidth, imageHeight, offsetX, offsetY);
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB(_impl->getDataRef());
+}
 // transform
 //REFINE:
 

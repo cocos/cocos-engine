@@ -25,9 +25,44 @@
 
 #pragma once
 
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/network/WebSocket.h"
+
 namespace se {
     class Object;
+    class Value;
 }
 
-bool register_all_websocket(se::Object* obj);
+class JSB_WebSocketDelegate : public cocos2d::Ref, public cocos2d::network::WebSocket::Delegate {
+public:
+    JSB_WebSocketDelegate();
+
+    virtual void onOpen(cocos2d::network::WebSocket *ws) override;
+
+    virtual void onMessage(cocos2d::network::WebSocket *ws,
+                           const cocos2d::network::WebSocket::Data &data) override;
+
+    virtual void onClose(cocos2d::network::WebSocket *ws) override;
+
+    virtual void onError(cocos2d::network::WebSocket *ws,
+                         const cocos2d::network::WebSocket::ErrorCode &error) override;
+
+    void setJSDelegate(const se::Value &jsDelegate);
+
+private:
+    virtual ~JSB_WebSocketDelegate();
+
+    se::Value _JSDelegate;
+};
+
+SE_DECLARE_FINALIZE_FUNC(WebSocket_finalize);
+
+SE_DECLARE_FUNC(WebSocket_constructor);
+
+SE_DECLARE_FUNC(WebSocket_send);
+
+SE_DECLARE_FUNC(WebSocket_close);
+
+
+bool register_all_websocket(se::Object *obj);
 

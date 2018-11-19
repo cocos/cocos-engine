@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 #include <assert.h>
 
-namespace cocos2d { namespace experimental {
+namespace cocos2d { 
 
 AudioDecoderWav::AudioDecoderWav()
 {
@@ -112,4 +112,4 @@ bool AudioDecoderWav::decodeToPcm()
     return ret;
 }
 
-}} // namespace cocos2d { namespace experimental {
+} // namespace cocos2d { 

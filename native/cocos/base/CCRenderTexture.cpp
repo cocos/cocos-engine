@@ -26,7 +26,6 @@
 #include "CCRenderTexture.h"
 #include <stdlib.h>
 #include <string>
-#include "base/CCGLUtils.h"
 #include "base/ccMacros.h"
 #include "base/CCConfiguration.h"
 #include "platform/CCPlatformConfig.h"
@@ -104,36 +103,30 @@ void RenderTexture::prepare()
 
 void RenderTexture::draw()
 {
-    bool supportVAO = Configuration::getInstance()->supportsShareableVAO();
-    
-    GLint prevVBO = 0;
-    GLint prevVIO = 0;
-    const VertexAttributePointerInfo* prevPosLocInfo = nullptr;
-    const VertexAttributePointerInfo* prevTexCoordLocInfo = nullptr;
-    if (!supportVAO)
-    {
-        prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
-        prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
-        prevVBO = ccGetBoundVertexBuffer();
-        prevVIO = ccGetBoundIndexBuffer();
-    }
-    
-    GLint prevProgram = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
+    bool supportsVAO = Configuration::getInstance()->supportsShareableVAO();
+
+    recordPreviousGLStates(supportsVAO);
 
     glBindFramebuffer(GL_FRAMEBUFFER, _mainFBO);
     ccViewport(0, 0, _deviceResolution.x, _deviceResolution.y);
-
+    
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_SCISSOR_TEST);
+
+    glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, _texture);
     
     glUseProgram(_program);
     glUniform1i(_fragUniformTextureLocation, 0);
     
-    if (supportVAO)
+    if (supportsVAO)
         glBindVertexArray(_VAO);
     else
     {
@@ -147,44 +140,80 @@ void RenderTexture::draw()
     }
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
-
-    // reset to previous states
-    glUseProgram(prevProgram);
-    if (supportVAO)
-        glBindVertexArray(0);
-    else
-    {
-        if (prevPosLocInfo)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER, prevPosLocInfo->VBO);
-            glVertexAttribPointer(prevPosLocInfo->index,
-                                  prevPosLocInfo->size,
-                                  prevPosLocInfo->type,
-                                  prevPosLocInfo->normalized,
-                                  prevPosLocInfo->stride,
-                                  prevPosLocInfo->pointer);
-        }
-        if (prevTexCoordLocInfo)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER, prevTexCoordLocInfo->VBO);
-            glVertexAttribPointer(prevTexCoordLocInfo->index,
-                                  prevTexCoordLocInfo->size,
-                                  prevTexCoordLocInfo->type,
-                                  prevTexCoordLocInfo->normalized,
-                                  prevTexCoordLocInfo->stride,
-                                  prevTexCoordLocInfo->pointer);
-        }
-        
-        glBindBuffer(GL_ARRAY_BUFFER, prevVBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prevVIO);
-    }
-
+    
     CHECK_GL_ERROR_DEBUG();
+
+    resetPreviousGLStates(supportsVAO);
 }
 
 //
 // Private functions
 //
+
+void RenderTexture::recordPreviousGLStates(bool supportsVOA)
+{
+    if (!supportsVOA)
+    {
+        _prevPosLocInfo = getVertexAttribPointerInfo(_vertAttributePositionLocation);
+        _prevTexCoordLocInfo = getVertexAttribPointerInfo(_vertAttributeTextureCoordLocation);
+        _prevVBO = ccGetBoundVertexBuffer();
+        _prevVIO = ccGetBoundIndexBuffer();
+    }
+    
+    _preveBoundTextureInfo = getBoundTextureInfo(0);
+    
+    glGetBooleanv(GL_COLOR_WRITEMASK, _prevColorWriteMask);
+    glGetBooleanv(GL_DEPTH_TEST, &_prevDepthTest);
+    glGetBooleanv(GL_BLEND, &_prevBlendTest);
+    glGetBooleanv(GL_CULL_FACE, &_prevCullFase);
+    glGetBooleanv(GL_STENCIL_TEST, &_prevStencilTest);
+    glGetBooleanv(GL_SCISSOR_TEST,&_prevScissorTest);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &_prevProgram);
+}
+
+void RenderTexture::resetPreviousGLStates(bool supportsVAO) const
+{
+    glUseProgram(_prevProgram);
+    if (supportsVAO)
+        glBindVertexArray(0);
+    else
+    {
+        if (_prevPosLocInfo)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, _prevPosLocInfo->VBO);
+            glVertexAttribPointer(_prevPosLocInfo->index,
+                                  _prevPosLocInfo->size,
+                                  _prevPosLocInfo->type,
+                                  _prevPosLocInfo->normalized,
+                                  _prevPosLocInfo->stride,
+                                  _prevPosLocInfo->pointer);
+        }
+        if (_prevTexCoordLocInfo)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, _prevTexCoordLocInfo->VBO);
+            glVertexAttribPointer(_prevTexCoordLocInfo->index,
+                                  _prevTexCoordLocInfo->size,
+                                  _prevTexCoordLocInfo->type,
+                                  _prevTexCoordLocInfo->normalized,
+                                  _prevTexCoordLocInfo->stride,
+                                  _prevTexCoordLocInfo->pointer);
+        }
+        
+        glBindBuffer(GL_ARRAY_BUFFER, _prevVBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _prevVIO);
+    }
+    glColorMask(_prevColorWriteMask[0], _prevColorWriteMask[1], _prevColorWriteMask[2], _prevColorWriteMask[3]);
+    if (GL_TRUE == _prevDepthTest) glEnable(GL_DEPTH_TEST);
+    if (GL_TRUE == _prevBlendTest) glEnable(GL_BLEND);
+    if (GL_TRUE == _prevCullFase) glEnable(GL_CULL_FACE);
+    if (GL_TRUE == _prevStencilTest) glEnable(GL_STENCIL_TEST);
+    if (GL_TRUE == _prevScissorTest) glEnable(GL_SCISSOR_TEST);
+
+    if(_preveBoundTextureInfo != nullptr) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(_preveBoundTextureInfo->target, _preveBoundTextureInfo->texture);
+    }
+}
 
 namespace
 {
@@ -440,7 +469,9 @@ void RenderTexture::initFramebuffer()
     glGenFramebuffers(1, &_FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texture, 0);
-    
+
+    ccActiveOffScreenFramebuffer(_FBO);
+
     // set up depth buffer and stencil buffer
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     if(Configuration::getInstance()->supportsOESPackedDepthStencil())

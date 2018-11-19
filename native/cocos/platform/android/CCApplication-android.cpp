@@ -34,13 +34,13 @@ THE SOFTWARE.
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 
-#define  LOG_TAG    "CCApplication_android Debug"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+#define  LOG_APP_TAG    "CCApplication_android Debug"
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_APP_TAG,__VA_ARGS__)
 
 // IDEA: using ndk-r10c will cause the next function could not be found. It may be a bug of ndk-r10c.
 // Here is the workaround method to fix the problem.
 #ifdef __aarch64__
-extern "C" size_t __ctype_get_mb_cur_max(void) 
+extern "C" size_t __ctype_get_mb_cur_max(void)
 {
     return (size_t) sizeof(wchar_t);
 }
@@ -53,13 +53,14 @@ PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = 0;
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
+std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
     Configuration::getInstance();
 
-    _scheduler = new Scheduler();
+    _scheduler = std::make_shared<Scheduler>();
 
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
     PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress("glBindVertexArrayOES");
@@ -70,14 +71,12 @@ Application::Application(const std::string& name, int width, int height)
 
 Application::~Application()
 {
+#if USE_AUDIO
+    AudioEngine::end();
+#endif
+
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-
-    // close audio device
-    cocos2d::experimental::AudioEngine::end();
-    
-    delete _scheduler;
-    _scheduler = nullptr;
 
     delete _renderTexture;
     _renderTexture = nullptr;
@@ -121,7 +120,7 @@ void Application::applicationWillEnterForeground()
 
 }
 
-void Application::setPreferredFramesPerSecond(int fps) 
+void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
     setPreferredFramesPerSecondJNI(_fps);

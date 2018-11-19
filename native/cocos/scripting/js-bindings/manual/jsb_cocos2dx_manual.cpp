@@ -400,6 +400,7 @@ BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _width, float, 
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _height, float, seval_to_float, setFloat)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, lineWidth, float, seval_to_float, setFloat)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, lineJoin, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, lineCap, std::string, seval_to_std_string, setString)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, font, std::string, seval_to_std_string, setString)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, textAlign, std::string, seval_to_std_string, setString)
 BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, textBaseline, std::string, seval_to_std_string, setString)
@@ -489,12 +490,7 @@ SE_BIND_FUNC(JSB_getDeviceMotionValue)
 static bool register_device(se::Object* obj)
 {
     se::Value device;
-    if (!obj->getProperty("Device", &device))
-    {
-        se::HandleObject deviceObj(se::Object::createPlainObject());
-        obj->setProperty("Device", se::Value(deviceObj));
-        device.setObject(deviceObj);
-    }
+    __jsbObj->getProperty("Device", &device);
 
     device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
@@ -517,6 +513,7 @@ static bool register_canvas_context2d(se::Object* obj)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, _height)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, lineWidth)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, lineJoin)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, lineCap)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, font)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, textAlign)
     _SE_DEFINE_PROP(CanvasRenderingContext2D, textBaseline)

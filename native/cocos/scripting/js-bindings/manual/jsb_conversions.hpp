@@ -63,6 +63,15 @@
         } \
     } while(0)
 
+#define SE_PRECONDITION4(condition, ret_value, errorCode) \
+    do { \
+        if ( ! (condition) ) { \
+            SE_LOGE("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__ ); \
+            __glErrorCode = errorCode; \
+            return (ret_value); \
+        } \
+    } while(0)
+
 #define SE_PRECONDITION_ERROR_BREAK(condition, ...) \
     if ( ! (condition) ) { \
         SE_LOGE("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__ ); \
@@ -92,8 +101,6 @@ bool seval_to_Vec3(const se::Value& v, cocos2d::Vec3* pt);
 bool seval_to_Vec4(const se::Value& v, cocos2d::Vec4* pt);
 bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat);
 bool seval_to_Size(const se::Value& v, cocos2d::Size* size);
-//bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect);
-bool seval_to_Rect(const se::Value& v, cocos2d::renderer::Rect* rect);
 bool seval_to_Color3B(const se::Value& v, cocos2d::Color3B* color);
 bool seval_to_Color4B(const se::Value& v, cocos2d::Color4B* color);
 bool seval_to_Color3F(const se::Value& v, cocos2d::Color3F* color);
@@ -108,7 +115,9 @@ bool seval_to_std_vector_string(const se::Value& v, std::vector<std::string>* re
 bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret);
 bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret);
 bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* ret);
-bool seval_to_std_vector_Pass(const se::Value& v, cocos2d::Vector<cocos2d::renderer::Pass*>* ret);
+//bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect);
+
+
 //bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret);
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret);
 //bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret);
@@ -122,6 +131,9 @@ bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHi
 //bool seval_to_b2Vec2(const se::Value& v, b2Vec2* ret);
 //bool seval_to_b2AABB(const se::Value& v, b2AABB* ret);
 
+#if USE_GFX_RENDERER
+bool seval_to_Rect(const se::Value& v, cocos2d::renderer::Rect* rect);
+bool seval_to_std_vector_Pass(const se::Value& v, cocos2d::Vector<cocos2d::renderer::Pass*>* ret);
 bool seval_to_std_vector_Texture(const se::Value& v, std::vector<cocos2d::renderer::Texture*>* ret);
 bool seval_to_std_vector_RenderTarget(const se::Value& v, std::vector<cocos2d::renderer::RenderTarget*>* ret);
 bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Options* ret);
@@ -133,6 +145,8 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
 bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret);
 bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<cocos2d::renderer::Technique::Parameter>* ret);
 bool seval_to_std_vector_ProgramLib_Template(const se::Value& v, std::vector<cocos2d::renderer::ProgramLib::Template>* ret);
+bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::RenderTarget*>& v, se::Value* ret);
+#endif
 
 template<typename T>
 bool seval_to_native_ptr(const se::Value& v, T* ret)
@@ -256,7 +270,6 @@ bool Vec4_to_seval(const cocos2d::Vec4& v, se::Value* ret);
 bool Mat4_to_seval(const cocos2d::Mat4& v, se::Value* ret);
 bool Size_to_seval(const cocos2d::Size& v, se::Value* ret);
 //bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret);
-bool Rect_to_seval(const cocos2d::renderer::Rect& v, se::Value* ret);
 bool Color3B_to_seval(const cocos2d::Color3B& v, se::Value* ret);
 bool Color4B_to_seval(const cocos2d::Color4B& v, se::Value* ret);
 bool Color3F_to_seval(const cocos2d::Color3F& v, se::Value* ret);
@@ -271,8 +284,7 @@ bool std_vector_int_to_seval(const std::vector<int>& v, se::Value* ret);
 bool std_vector_float_to_seval(const std::vector<float>& v, se::Value* ret);
 //bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value* ret);
 bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v, se::Value* ret);
-bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret);
-bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
+
 //bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret);
 //bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret);
 bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
@@ -280,11 +292,16 @@ bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Valu
 ////bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret);
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret);
 bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret);
+bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret);
 
+#if USE_GFX_RENDERER
+bool Rect_to_seval(const cocos2d::renderer::Rect& v, se::Value* ret);
+bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret);
+bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
 bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret);
 bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret);
 bool std_vector_TechniqueParameter_to_seval(const std::vector<cocos2d::renderer::Technique::Parameter>& v, se::Value* ret);
-bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret);
+#endif
 
 template<typename T>
 bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
@@ -578,6 +595,4 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 //bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret);
 //bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret);
 //bool b2AABB_to_seval(const b2AABB& v, se::Value* ret);
-
-bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::RenderTarget*>& v, se::Value* ret);
 

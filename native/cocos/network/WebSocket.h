@@ -33,6 +33,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #ifndef OBJC_CLASS
 #ifdef __OBJC__
@@ -52,6 +53,9 @@ OBJC_CLASS(WebSocketImpl);
 NS_CC_BEGIN
 
 namespace network {
+
+
+class WebSocketFrame;
 
 /**
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
@@ -93,6 +97,7 @@ public:
         ssize_t len, issued;
         bool isBinary;
         void* ext;
+        ssize_t getRemain() { return std::max((ssize_t)0, len - issued); }
     };
 
     /**
@@ -207,6 +212,16 @@ public:
     void closeAsync();
 
     /**
+    *  @brief Closes the connection to server asynchronously.
+    *  @note It's an asynchronous method, it just notifies websocket thread to exit and returns directly,
+    *        If using 'closeAsync' to close websocket connection,
+    *        be careful of not using destructed variables in the callback of 'onClose'.
+    *  @param code close reason
+    *  @param reason reason text description
+    */
+    void closeAsync(int code, const std::string &reason);
+
+    /**
      *  @brief Gets current state of connection.
      *  @return State the state value could be State::CONNECTING, State::OPEN, State::CLOSING or State::CLOSED
      */
@@ -216,6 +231,16 @@ public:
      *  @brief Gets the URL of websocket connection.
      */
     const std::string& getUrl() const;
+
+    /**
+    * @brief Returns the number of bytes of data that have been queued using calls to send() but not yet transmitted to the network.
+    */
+    size_t getBufferedAmount() const;
+
+    /**
+    * @brief Returns the extensions selected by the server.
+    */
+    std::string getExtensions() const;
 
     /**
      *  @brief Gets the protocol selected by websocket server.

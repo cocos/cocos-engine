@@ -336,6 +336,24 @@ void WebSocket::closeAsync()
     [_impl closeAsync];
 }
 
+void WebSocket::closeAsync(int code, const std::string &reason)
+{
+    //lws_close_reason() replacement required
+    closeAsync();
+}
+
+std::string WebSocket::getExtensions() const
+{
+    //TODO websocket extensions
+    return "";
+}
+
+size_t WebSocket::getBufferedAmount() const
+{
+    //TODO pending send bytes
+    return 0;
+}
+
 WebSocket::State WebSocket::getReadyState() const
 {
     return [_impl getReadyState];

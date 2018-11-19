@@ -241,7 +241,7 @@ class DownloadTask {
 
 public class Cocos2dxDownloader {
     private int _id;
-    private AsyncHttpClient _httpClient = new AsyncHttpClient();
+    private AsyncHttpClient _httpClient = new AsyncHttpClient(true, 80, 443);
     private String _tempFileNameSufix;
     private int _countOfMaxProcessingTasks;
     private HashMap _taskMap = new HashMap();
