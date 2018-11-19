@@ -28,7 +28,7 @@ const Fs = require('fire-fs');
 const Path = require('fire-path');
 const DRAGONBONES_ENCODING = { encoding: 'utf-8' };
 const CustomAssetMeta = Editor.metas['custom-asset'];
-const RAW_DRAGONBONES_FILE = 'raw-dragonbones.json';
+const RAW_DRAGONBONES_FILE = '.json';
 
 class DragonBonesMeta extends CustomAssetMeta {
     constructor (assetdb) {
@@ -76,7 +76,6 @@ class DragonBonesMeta extends CustomAssetMeta {
             // save raw assets for JSB..
             this._assetdb.mkdirForAsset(this.uuid);
             var rawJsonPath = Path.join(this._assetdb._uuidToImportPathNoExt(this.uuid), RAW_DRAGONBONES_FILE);
-            Fs.copySync(fspath, rawJsonPath);
 
             asset._setRawAsset(RAW_DRAGONBONES_FILE);
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
