@@ -462,6 +462,7 @@ var Layout = cc.Class({
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEvent.SCALE_CHANGED, this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
     },
@@ -473,6 +474,7 @@ var Layout = cc.Class({
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEvent.SCALE_CHANGED, this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
     },
@@ -481,6 +483,7 @@ var Layout = cc.Class({
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEvent.SCALE_CHANGED, this._doLayoutDirty, this);
         child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();
@@ -490,6 +493,7 @@ var Layout = cc.Class({
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEvent.SCALE_CHANGED, this._doLayoutDirty, this);
         child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();

@@ -41,7 +41,6 @@ const materials = require('../renderer/materials');
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class Game
- * @static
  * @extends EventTarget
  */
 var game = {

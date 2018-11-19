@@ -211,6 +211,7 @@ var MouseJoint = cc.Class({
         mouseRegion.on(cc.Node.EventType.TOUCH_START, this.onTouchBegan, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        mouseRegion.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
     },
 
     onEnable: function () {

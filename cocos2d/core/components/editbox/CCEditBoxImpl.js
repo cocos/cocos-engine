@@ -245,6 +245,10 @@ let EditBoxImpl = cc.Class({
         this._node = null;
         this.setDelegate(null);
         this.removeDom();
+        if (this.__orientationChanged) {
+            window.removeEventListener('orientationchange', this.__orientationChanged);
+            this.__orientationChanged = null;
+        }
     },
 
     _onTouchBegan (touch) {
@@ -434,10 +438,12 @@ _p.createInput = function() {
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
     let self = this;
-    this.__orientationChanged = function () {
-        self._adjustEditBoxPosition();
-    };
-    window.addEventListener('orientationchange', this.__orientationChanged);
+    if (!this.__orientationChanged) {
+        this.__orientationChanged = function () {
+            self._adjustEditBoxPosition();
+        };
+        window.addEventListener('orientationchange', this.__orientationChanged);
+    }
 
     if (cc.view.isAutoFullScreenEnabled()) {
         this.__fullscreen = true;
@@ -466,7 +472,10 @@ _p._endEditingOnMobile = function () {
         this.__rotateScreen = false;
     }
 
-    window.removeEventListener('orientationchange', this.__orientationChanged);
+    if (this.__orientationChanged) {
+        window.removeEventListener('orientationchange', this.__orientationChanged);
+        this.__orientationChanged = null;
+    }
 
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
@@ -495,6 +504,7 @@ function _inputValueHandle (input, editBoxImpl) {
 
 function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
+    let blurWhenComposition = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
@@ -503,6 +513,11 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.compositionend = function () {
         inputLock = false;
+        if (blurWhenComposition) {
+            // restore input value when composition not complete and blur input
+            this.value = editBoxImpl._text;
+            blurWhenComposition = false;
+        }
         _inputValueHandle(this, editBoxImpl);
     };
     tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
@@ -551,7 +566,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        if (inputLock) {
+            blurWhenComposition = true;
+        }
+        else {
+            editBoxImpl._text = this.value;
+        }
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);
