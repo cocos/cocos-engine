@@ -296,7 +296,7 @@ let armatureAssembler = {
             }
         }
 
-        if (comp._debugBones && comp._debugDraw) {
+        if (comp.debugBones && comp._debugDraw) {
 
             var graphics = comp._debugDraw;
             graphics.clear();
