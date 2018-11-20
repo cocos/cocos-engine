@@ -270,7 +270,8 @@ let VideoPlayer = cc.Class({
 
     statics: {
         EventType: EventType,
-        ResourceType: ResourceType
+        ResourceType: ResourceType,
+        Impl: VideoPlayerImpl
     },
 
     ctor () {
