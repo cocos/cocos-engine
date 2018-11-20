@@ -466,6 +466,10 @@ var Sprite = cc.Class({
         this.markForUpdateRenderData(true);
     },
 
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
     _updateAssembler: function () {
         let assembler = Sprite._assembler.getAssembler(this);
         

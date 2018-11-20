@@ -24,7 +24,9 @@
  ****************************************************************************/
 
 const renderEngine = require('../render-engine');
-const defaultVertexFormat = require('./vertex-format').vfmtPosUvColor;
+const vertexFormat = require('./vertex-format');
+const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
+const vfmt3D = vertexFormat.vfmt3D;
 const StencilManager = require('./stencil-manager');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
@@ -59,6 +61,8 @@ var ModelBatcher = function (device, renderScene) {
     // buffers
     this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
     this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
+    this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
+    this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
     this._buffer = this._quadBuffer;
 
     this._batchedModels = [];
@@ -173,7 +177,7 @@ ModelBatcher.prototype = {
     },
 
     _commitComp (comp, assembler, cullingMask) {
-        if (this.material._hash != comp._material._hash || 
+        if (this.material._hash !== comp._material._hash || 
             this.cullingMask !== cullingMask) {
             this._flush();
     

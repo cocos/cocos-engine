@@ -23,32 +23,45 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Label = require('../../../../components/CCLabel');
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/bar-filled');
+const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
 
-const ttfAssembler = require('./2d/ttf');
-const bmfontAssembler = require('./2d/bmfont');
+const vec3 = cc.vmath.vec3;
 
-const ttfAssembler3D = require('./3d/ttf');
-const bmfontAssembler3D = require('./3d/bmfont');
+module.exports = js.addon({
+    updateWorldVerts (sprite) {
+        let node = sprite.node,
+            data = sprite._renderData._data;
 
-var labelAssembler = {
-    getAssembler (comp) {
-        let is3DNode = comp.node.is3DNode;
-        let assembler = is3DNode ? ttfAssembler3D : ttfAssembler;
-        
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
+        let matrix = node._worldMatrix;
+        for (let i = 0; i < 4; i++) {
+            let local = data[i + 4];
+            let world = data[i];
+            vec3.transformMat4(world, local, matrix);
         }
-
-        return assembler;
     },
 
-    // Skip invalid labels (without own _assembler)
-    updateRenderData (label) {
-        return label.__allocedDatas;
+    fillBuffers (sprite, renderer) {
+        if (renderer.worldMatDirty) {
+            this.updateWorldVerts(sprite);
+        }
+
+        // buffer
+        let buffer = renderer._meshBuffer3D,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
+
+        let node = sprite.node;
+        fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, node._color._val);
+
+        // buffer data may be realloc, need get reference after request.
+        let ibuf = buffer._iData;
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
+        ibuf[indiceOffset++] = vertexId + 2;
     }
-};
-
-Label._assembler = labelAssembler;
-
-module.exports = labelAssembler;
+}, assembler);

@@ -35,7 +35,7 @@ const ONE_DEGREE = Math.PI / 180;
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
-const ROTATION_ON = 1 << 2;
+const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
@@ -155,7 +155,11 @@ function _update3DFunction () {
         this._calculWorldMatrix = _calculWorldMatrix2d;
         this._mulMat = _mulMat2d;
     }
+    if (this._renderComponent && this._renderComponent._on3DNodeChanged) {
+        this._renderComponent._on3DNodeChanged();
+    }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    this._localMatDirty = DirtyFlag.ALL;
 }
 
 function _upgrade_1x_to_2x () {
@@ -172,7 +176,6 @@ const _updateLocalMatrix2d = proto._updateLocalMatrix;
 const _calculWorldMatrix2d = proto._calculWorldMatrix;
 const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
 const _mulMat2d = proto._mulMat;
-const _onBatchCreated2d = proto._onBatchCreated;
 
 proto.setPosition = setPosition;
 proto.setScale = setScale;
@@ -193,8 +196,8 @@ cc.js.getset(proto, 'is3DNode', function () {
 cc.js.getset(proto, 'scaleZ', function () {
     return this._scale.z;
 }, function (v) {
-    if (this._scale.z !== value) {
-        this._scale.z = value;
+    if (this._scale.z !== v) {
+        this._scale.z = v;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -229,14 +232,14 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        return this._quat.getEulerAngles(cc.v3());
+        return this._quat.toEuler(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+    this._quat.fromEuler(v);
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });
