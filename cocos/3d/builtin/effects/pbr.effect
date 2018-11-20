@@ -9,12 +9,7 @@
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
-        }
-      ]
-    },
-    {
-      "queue": "opaque",
-      "passes": [
+        },
         {
           "stage": "shadowcast",
           "program": "shadow-depth",

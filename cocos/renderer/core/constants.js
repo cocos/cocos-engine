@@ -7,7 +7,7 @@ let RenderQueue = {
 let PassStage = {
     DEFAULT: 0,
     FORWARD: 1,
-    SHADOW_CAST: 2
+    SHADOWCAST: 2
 };
 
 export { RenderQueue, PassStage };
