@@ -35,7 +35,7 @@ class DragonBonesMeta extends CustomAssetMeta {
         this.dragonBonesJson = '';
     }
 
-    static version () { return '1.0.1'; }
+    static version () { return '1.0.0'; }
     static defaultType () {
         return 'dragonbones';
     }
@@ -64,7 +64,6 @@ class DragonBonesMeta extends CustomAssetMeta {
             var asset = new dragonBones.DragonBonesAsset();
             asset.name = Path.basenameNoExt(fspath);
             asset.dragonBonesJson = this.dragonBonesJson;
-            asset._setRawAsset(".json");
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
             cb();
         });
