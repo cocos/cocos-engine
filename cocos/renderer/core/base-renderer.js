@@ -376,7 +376,9 @@ export default class BaseRenderer {
           effect: null,
           defines: null,
           dependencies: null,
-          technique: null,
+          tech: null,
+          pass: null,
+          passIndex: 0,
           sortKey: -1,
         };
       }, 100);
@@ -415,9 +417,9 @@ export default class BaseRenderer {
     return unit;
   }
 
-    _registerRenderQueue(name, fn) {
-        this._renderQueueFn[name] = fn;
-    }
+  _registerRenderQueue(name, fn) {
+    this._renderQueueFn[name] = fn;
+  }
 
   _registerStage(name, fn) {
     this._stage2fn[name] = fn;

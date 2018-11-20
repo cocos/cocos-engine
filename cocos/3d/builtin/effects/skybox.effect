@@ -1,7 +1,7 @@
 {
   "techniques": [
     {
-      "queue": "opaque",
+      "queue": "opaque-1000",
       "passes": [
         {
           "stage": "default",
