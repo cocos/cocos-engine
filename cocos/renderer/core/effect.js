@@ -40,19 +40,18 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, properties = {}, defines = [], dependencies = []) {
+    constructor(techniques, properties = {}, defines = {}, dependencies = {}) {
         this._techniques = techniques;
         this._properties = properties;
         this._defines = defines;
         this._dependencies = dependencies;
-
-        // TODO: check if params is valid for current technique???
     }
 
     clear() {
         this._techniques.length = 0;
-        this._properties = null;
-        this._defines.length = 0;
+        this._properties = {};
+        this._defines = {};
+        this._dependencies.length = 0;
     }
 
     getTechnique(index) {
@@ -96,44 +95,29 @@ class Effect {
     }
 
     getDefine(name) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            if (def.name === name) {
-                return def.value;
-            }
-        }
-
+        let def = this._defines[name];
+        if (def !== undefined) return def.value;
         console.warn(`Failed to get define ${name}, define not found.`);
         return null;
     }
 
     define(name, value) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            if (def.name === name) {
-                def.value = value;
-                return;
-            }
-        }
-
-        console.warn(`Failed to set define ${name}, define not found.`);
+        let def = this._defines[name];
+        if (def !== undefined) def.value = value;
+        else console.warn(`Failed to set define ${name}, define not found.`);
     }
 
     extractDefines(out = {}) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            out[def.name] = def.value;
+        for (let name in this._defines) {
+            out[name] = this._defines[name].value;
         }
-
         return out;
     }
 
     extractDependencies(out = {}) {
-        for (let i = 0; i < this._dependencies.length; ++i) {
-            let dep = this._dependencies[i];
-            out[dep.define] = dep.extension;
+        for (let def in this._dependencies) {
+            out[def] = this._dependencies[def];
         }
-
         return out;
     }
 
@@ -141,8 +125,6 @@ class Effect {
         return 0;
     }
 }
-
-let cloneObjArray = function(val) { return val.map(obj => Object.assign({}, obj)); };
 
 let _ctorMap = {
     [Number]: v => v || 0,
@@ -165,14 +147,15 @@ let _ctorMap = {
 let getInstanceCtor = function(t) { return _ctorMap[getInstanceType(t)]; };
 
 let getInvolvedPrograms = function(json) {
-    let programs = [], lib = cc.game._renderer._programLib;
+    let programs = {}, lib = cc.game._renderer._programLib;
     json.techniques.forEach(tech => {
         tech.passes.forEach(pass => {
-            programs.push(lib.getTemplate(pass.program));
+            programs[pass.program] = lib.getTemplate(pass.program);
         });
     });
     return programs;
 };
+
 let parseProperties = (function() {
     function genPropInfo(displayName, type, value) {
         return {
@@ -185,22 +168,21 @@ let parseProperties = (function() {
     return function(json, programs) {
         let props = {};
         // properties may be specified in the shader too
-        programs.forEach(pg => {
-            pg.uniforms.forEach(prop => {
+        for (let p in programs) {
+            programs[p].uniforms.forEach(prop => {
                 if (!prop.property) return;
                 props[prop.name] = genPropInfo(prop.displayName, prop.type, prop.value);
             });
-        });
+        }
         for (let prop in json.properties) {
             let propInfo = json.properties[prop], uniformInfo;
             // always try getting the type from shaders first
             if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
                 let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
-                let program = programs.find(p => p.name === pname);
-                uniformInfo = program.uniforms.find(u => u.name === prop);
+                uniformInfo = programs[pname].uniforms.find(u => u.name === prop);
             } else {
-                for (let i = 0; i < programs.length; i++) {
-                    uniformInfo = programs[i].uniforms.find(u => u.name === prop);
+                for (let p in programs) {
+                    uniformInfo = programs[p].uniforms.find(u => u.name === prop);
                     if (uniformInfo) break;
                 }
             }
@@ -221,31 +203,40 @@ let parseProperties = (function() {
 
 Effect.parseEffect = function(json) {
     // techniques
-    let techNum = json.techniques.length;
-    let techniques = new Array(techNum);
-    for (let j = 0; j < techNum; ++j) {
-        let tech = json.techniques[j];
-        let passNum = tech.passes.length;
-        let passes = new Array(passNum);
-        for (let k = 0; k < passNum; ++k) {
-            let pass = tech.passes[k];
-            passes[k] = new Pass(pass.stage, pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
-            passes[k].setCullMode(pass.cullMode);
-            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
-            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
-                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
-            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
-                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
-        }
-        techniques[j] = new Technique(tech.queue, passes);
-    }
+    let techNum = json.techniques.length, tech;
     let programs = getInvolvedPrograms(json);
+    for (let j = 0; j < techNum; ++j) { // choose the first supported technique
+        if (json.techniques[j].passes.every(pass => programs[pass.program].extensions.every(ext =>
+            ext.defines.length || cc.game._renderContext.supportExtension(ext.name)))) {
+            // all the extensions is supported or can be disabled by a define
+            tech = json.techniques[j];
+            break;
+        }
+    }
+    if (!tech) {
+        console.error(`all techniques in ${json.name} failed on this platform, did you provide a fallback?`);
+        return null;
+    }
+    let techniques = new Array(1);
+    let passNum = tech.passes.length;
+    let passes = new Array(passNum);
+    for (let k = 0; k < passNum; ++k) {
+        let pass = tech.passes[k];
+        passes[k] = new Pass(pass.stage, pass.program);
+        passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
+        passes[k].setCullMode(pass.cullMode);
+        passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
+            pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
+        passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+            pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+        passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+            pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
+    }
+    techniques[0] = new Technique(tech.queue, passes);
     // uniforms
     let props = parseProperties(json, programs), uniforms = {};
-    programs.forEach(p => {
-        p.uniforms.forEach(u => {
+    for (let pn in programs) {
+        programs[pn].uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
             uniform.value = getInstanceCtor(u.type)(u.value);
             if (props[name]) { // effect info override
@@ -253,14 +244,15 @@ Effect.parseEffect = function(json) {
                 uniform.value = props[name].value;
             }
         });
-    });
+    }
     // defines
-    let defines = programs.reduce((acc, cur) => acc = acc.concat(cur.defines), []);
-    defines = cloneObjArray(defines);
-    defines.forEach(d => d.value = getInstanceCtor(d.type)());
+    let defines = {};
+    tech.passes.forEach(pass => programs[pass.program].defines.forEach(def =>
+        defines[def.name] = { value: getInstanceCtor(def.type)(), type: def.type }));
     // extensions
-    let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
-    extensions = cloneObjArray(extensions);
+    let extensions = {};
+    tech.passes.forEach(pass => programs[pass.program].extensions
+        .filter(ext => ext.define).forEach(ext => extensions[ext.define] = ext.name));
 
     return new Effect(techniques, uniforms, defines, extensions);
 };
@@ -269,14 +261,14 @@ if (CC_EDITOR) {
     Effect.parseForInspector = function(json) {
         let programs = getInvolvedPrograms(json);
         let props = parseProperties(json, programs), defines = {};
-        programs.forEach(program => {
-            program.defines.forEach(define => {
+        for (let pn in programs) {
+            programs[pn].defines.forEach(define => {
                 defines[define.name] = {
                     instanceType: getInstanceType(define.type),
                     value: getInstanceCtor(define.type)()
                 };
             });
-        });
+        }
         return { props, defines };
     };
 }

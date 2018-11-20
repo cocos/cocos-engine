@@ -9,7 +9,7 @@ function _generateDefines(device, defs, deps) {
   for (let def in defs) {
     let result = defs[def] ? 1 : 0;
     // fallback if extension dependency not supported
-    if (deps[def] && !device.ext(deps[def])) result = 0;
+    if (result && deps[def] && !device.ext(deps[def])) result = 0;
     defines.push(`#define ${def} ${result}`);
   }
   return defines.join('\n');

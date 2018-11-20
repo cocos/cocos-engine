@@ -133,8 +133,13 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
     if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
-    if (dest === extensions) param.name = str.split(whitespaces)[1];
-    else { // uniforms and attributes
+    if (dest === extensions) {
+      if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
+      param.name = str.split(whitespaces)[1];
+      param.define = defines[0];
+      dest.push(param);
+      continue;
+    } else { // uniforms and attributes
       let offset = precision.exec(tokens[i+2].data) ? 4 : 2;
       param.name = tokens[i+offset+2].data;
       param.type = convertType(tokens[i+offset].data);
