@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const Asset = require('../core/assets/CCAsset');
-const Texture2D = require('../core/assets/CCTexture2D');
+const CCSpriteFrame = require('../core/assets/CCSpriteFrame');
 
 /**
  * Class for particle asset handling.
@@ -37,9 +37,9 @@ var ParticleAsset = cc.Class({
     extends: Asset,
 
     properties: {
-        texture: {
+        spriteFrame: {
             default: null,
-            type: Texture2D
+            type: CCSpriteFrame
         }
     }
 });
