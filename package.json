@@ -13,7 +13,8 @@
     "build": "npm run build:dev && npm run build:min",
     "build:shader": "rollup -c ./rollup/mappings.config.js && node ./rollup/build-shader.js",
     "build:effect": "rollup -c ./rollup/mappings.config.js && node ./rollup/build-effect.js",
-    "build:dev": "rollup -c ./rollup/mappings.config.js && node ./rollup/build-shader.js && node ./rollup/build-effect.js && rollup -c ./rollup/config.js",
+    "build:se": "rollup -c ./rollup/mappings.config.js && node ./rollup/build-shader.js && node ./rollup/build-effect.js",
+    "build:dev": "npm run build:se && rollup -c ./rollup/config.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
     "dev": "rollup -w -c ./rollup/config.js"
   },

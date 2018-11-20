@@ -740,7 +740,7 @@ export default class Device {
   ext(name) {
     let ext = this._extensions[name];
     if (ext) return ext;
-    if (this.hasExtension(name)) return this._initExtension(name);
+    if (this.supportExtension(name)) return this._initExtension(name);
   }
 
   supportExtension(name) {
