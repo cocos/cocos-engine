@@ -692,6 +692,7 @@ export class GltfConverter {
     /**
      * @param {number} index 
      * @return {GltfSampler}
+     * @private
      */
     _requireSampler(index) {
         if (this._gltf.samplers === undefined) {

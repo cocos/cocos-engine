@@ -37,7 +37,7 @@ import BufferRange from "./utils/buffer-range";
  * These vertex attributes occupy a range of the buffer and
  * are interleaved, no padding bytes, in the range.
  */
-@ccclass("cc.internal.VertexBundle")
+@ccclass("cc.VertexBundle")
 export class VertexBundle {
     /**
      * The data range of this bundle.
@@ -61,12 +61,13 @@ export class VertexBundle {
     @property
     _formats = [];
 }
+cc.VertexBundle = VertexBundle;
 
 /**
  * A primitive is a geometry constituted with a list of
  * same topology primitive graphic(such as points, lines or triangles).
  */
-@ccclass("cc.internal.Primitive")
+@ccclass("cc.Primitive")
 export class Primitive {
 
     /**
@@ -97,6 +98,7 @@ export class Primitive {
     @property(Number)
     _topology = gfxEnums.PT_TRIANGLES;
 }
+cc.Primitive = Primitive;
 
 @ccclass('cc.Mesh')
 export default class Mesh extends Asset {
