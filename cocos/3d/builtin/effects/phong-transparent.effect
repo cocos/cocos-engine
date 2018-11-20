@@ -16,12 +16,7 @@
           "blendAlphaEq": "add",
           "blendSrcAlpha": "one",
           "blendDstAlpha": "oneMinusSrcAlpha"
-        }
-      ]
-    },
-    {
-      "queue": "transparent",
-      "passes": [
+        },
         {
           "stage": "shadowcast",
           "program": "shadow-depth",

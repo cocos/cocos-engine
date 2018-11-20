@@ -28,7 +28,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._shadowLights = [];
     this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
 
-    this._registerStage(PassStage.SHADOW_CAST, this._shadowStage.bind(this));
+    this._registerStage(PassStage.SHADOWCAST, this._shadowStage.bind(this));
     this._registerStage(PassStage.DEFAULT, this._defaultStage.bind(this));
     this._registerStage(PassStage.FORWARD, this._forwardStage.bind(this));
 
