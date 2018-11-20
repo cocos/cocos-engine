@@ -13844,7 +13844,7 @@ var RenderData = (function (BaseRenderData$$1) {
   };
 
   prototypeAccessors.dataLength.get = function () {
-    return this._data.length;
+    return this.vertices.length;
   };
 
   prototypeAccessors.dataLength.set = function (length) {

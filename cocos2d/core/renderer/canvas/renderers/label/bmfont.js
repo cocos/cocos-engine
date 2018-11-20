@@ -25,14 +25,14 @@
 
 const bmfontUtils = require('../../../utils/label/bmfont')
 const js = require('../../../../platform/js');
-const utils = require('../utils');
 
 module.exports = js.addon({
     createData (comp) {
         return comp.requestRenderData();
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
+        let renderData = comp._renderData;
         let dataOffset = renderData.dataLength;
         
         renderData.dataLength += 2;

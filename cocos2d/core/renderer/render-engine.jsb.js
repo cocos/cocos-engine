@@ -611,6 +611,10 @@ var Effect = function Effect(techniques, properties, defines) {
   // TODO: check if params is valid for current technique???
 };
 
+Effect.prototype.updateHash = function updateHash (hash) {
+  this._nativeObj.updateHash(hash);
+};
+
 Effect.prototype.clear = function clear () {
   this._techniques.length = 0;
   this._properties = null;
@@ -1180,18 +1184,6 @@ var fillModelData = function() {
 var _p$1 = renderer$4.ForwardRenderer.prototype;
 _p$1._ctor = function(device, builtin) {
   this.init(device, builtin.programTemplates, builtin.defaultTexture, window.innerWidth, window.innerHeight);
-};
-_p$1.render = function(scene) {
-  fillModelData();
-  this.renderNative(scene, modelsData);
-
-  models.length = 0;
-};
-_p$1.renderCamera = function(camera, scene) {
-  fillModelData();
-  this.renderCameraNative(camera, scene, modelsData);
-
-  models.length = 0;
 };
 
 // Scene 
@@ -2545,7 +2537,7 @@ var RenderData = (function (BaseRenderData$$1) {
   };
 
   prototypeAccessors.dataLength.get = function () {
-    return this._data.length;
+    return this.vertices.length;
   };
 
   prototypeAccessors.dataLength.set = function (length) {

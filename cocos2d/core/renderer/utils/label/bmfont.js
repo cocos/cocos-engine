@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
-
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
-const textUtils = require('../../../utils/text-utils');
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -132,7 +131,7 @@ let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
 
-module.exports = {
+textUtils.bmfont = module.exports = {
     updateRenderData (comp) {
         if (!comp._vertsDirty) return;
         if (_comp === comp) return;
@@ -668,14 +667,14 @@ module.exports = {
                 }
 
                 let letterPositionX = letterInfo._positionX + _linesOffsetX[letterInfo._lineIndex];
-                this.appendQuad(renderData, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
 
         return ret;
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
     },
 
     _computeAlignmentOffset: function() {

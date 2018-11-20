@@ -504,6 +504,7 @@ let Label = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
+            this._renderData.material = this._material;
         }
 
         if (CC_JSB) {
@@ -567,6 +568,9 @@ let Label = cc.Class({
             // For batch rendering, do not use uniform color.
             material.useColor = false;
             this._updateMaterial(material);
+            if (this._renderData) {
+                this._renderData.material = material;
+            }
         }
 
         this.markForUpdateRenderData(true);

@@ -125,7 +125,7 @@ let RenderComponent = cc.Class({
 
         if (CC_JSB) {
             this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
-            this._renderHandle.setEnable(true);
+            this._renderHandle.updateEnabled(true);
         }
     },
 
@@ -177,13 +177,13 @@ let RenderComponent = cc.Class({
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             if (CC_JSB) {
-                this._renderHandle.setEnable(true);
+                this._renderHandle.updateEnabled(true);
             }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             if (CC_JSB) {
-                this._renderHandle.setEnable(false);
+                this._renderHandle.updateEnabled(false);
             }
         }
     },
@@ -201,7 +201,7 @@ let RenderComponent = cc.Class({
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
 
         if (CC_JSB) {
-            this._renderHandle.setEnable(false);
+            this._renderHandle.updateEnabled(false);
         }
     },
 

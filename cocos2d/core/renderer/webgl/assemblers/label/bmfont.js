@@ -61,7 +61,8 @@ module.exports = js.addon({
         }
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
+        let renderData = comp._renderData;
         let dataOffset = renderData.dataLength;
         
         renderData.dataLength += 4;

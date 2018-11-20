@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
-const textUtils = require('../../../utils/text-utils');
-
 const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
@@ -90,7 +89,7 @@ let _canvasPool = {
 };
 
 
-module.exports = {
+textUtils.ttf = module.exports = {
 
     _getAssemblerData () {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {

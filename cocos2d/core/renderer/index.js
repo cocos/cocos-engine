@@ -94,28 +94,34 @@ cc.renderer = module.exports = {
     _cameraNode: null,
     _camera: null,
     _forward: null,
+    _flow: null,
 
     initWebGL (canvas, opts) {
         require('./webgl/assemblers');
         const ModelBatcher = require('./webgl/model-batcher');
-
         this.Texture2D = renderEngine.Texture2D;
 
         this.canvas = canvas;
         if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
             this.device = window.device;
+            this.scene = new renderEngine.Scene();
+            let builtins = _initBuiltins(this.device);
+            this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
+
+            this._flow = new renderer.RenderFlow(this.device, this.scene, this._forward);
+            this._handle = this._flow.getModelBatcher();
         }
         else {
             this.device = new renderEngine.Device(canvas, opts);
+            this.scene = new renderEngine.Scene();
+    
+            this._handle = new ModelBatcher(this.device, this.scene);
+            this._flow = cc.RenderFlow;
+            this._flow.init(this._handle);
+            let builtins = _initBuiltins(this.device);
+            this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
         }
-        
-        this.scene = new renderEngine.Scene();
-
-        this._handle = new ModelBatcher(this.device, this.scene);
-        cc.RenderFlow.init(this._handle);
-        let builtins = _initBuiltins(this.device);
-        this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
 
     initCanvas (canvas) {
@@ -160,7 +166,7 @@ cc.renderer = module.exports = {
         this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
-            cc.RenderFlow.visit(ecScene);
+            this._flow.visit(CC_JSB ? ecScene._proxy : ecScene);
             // Render models in renderer scene
             this._forward.render(this.scene);
             this.drawCalls = this.device._stats.drawcalls;

@@ -412,7 +412,9 @@ let Camera = cc.Class({
             camera.view = view;
             camera.dirty = true;
 
-            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+            let mask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+            camera.setCullingMask(mask);
+            camera.view.cullingMask = mask;
             camera._sortDepth = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
             camera.setColor(0, 0, 0, 0);
@@ -430,8 +432,8 @@ let Camera = cc.Class({
     _updateCameraMask () {
         if (this._camera) {
             let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
-            this._camera._cullingMask = mask;
-            this._camera.view._cullingMask = mask;
+            this._camera.setCullingMask(mask);
+            this._camera.view.cullingMask = mask;
         }
     },
 
