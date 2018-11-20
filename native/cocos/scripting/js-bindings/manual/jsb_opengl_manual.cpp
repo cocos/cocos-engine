@@ -4117,7 +4117,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_STENCIL_VALUE_MASK:
         case GL_STENCIL_WRITEMASK:
             JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
-            ret.setUint32((u_int32_t )intbuffer[0]);
+            ret.setUint32((uint32_t)intbuffer[0]);
             break;
 
         case GL_STENCIL_BACK_REF:
