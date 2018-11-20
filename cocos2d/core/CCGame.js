@@ -74,6 +74,15 @@ var game = {
     EVENT_SHOW: "game_on_show",
 
     /**
+     * Event triggered when game restart
+     * !#zh 调用restart后，触发事件。
+     * @property EVENT_RESTART
+     * @constant
+     * @type {String}
+     */
+    EVENT_RESTART: "game_on_restart",
+
+    /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @property EVENT_GAME_INITED
      * @constant
@@ -343,6 +352,7 @@ var game = {
 
             cc.director.reset();
             game.onStart();
+            game.emit(game.EVENT_RESTART);
         });
     },
 
