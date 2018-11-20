@@ -196,9 +196,9 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  _updateShaderDefines(items) {
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
+  _updateShaderDefines(item) {
+    // for (let i = 0; i < items.length; ++i) {
+    //   let item = items.data[i];
       let defines = item.defines;
 
       defines.NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
@@ -206,7 +206,7 @@ export default class ForwardRenderer extends BaseRenderer {
       defines.NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
 
       defines.NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
-    }
+    // }
   }
 
     _shadowStage(view, item) {
@@ -230,9 +230,7 @@ export default class ForwardRenderer extends BaseRenderer {
         this._drawPass(item);
     }
 
-    _forwardStage(view, item) {
-        view.getPosition(_camPos);
-        view.getForward(_camFwd);
+    _forwardStage(item) {
 
         // update rendering
         this._submitLightUniforms();

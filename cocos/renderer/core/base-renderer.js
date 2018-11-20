@@ -8,12 +8,6 @@ import { RenderQueue } from './constants';
 import enums from '../enums';
 import View from './view';
 
-let RenderQueue = cc.Enum({
-    OPAQUE: 0,
-    TRANSPARENT: 3000,
-    OVERLAY: 5000
-});
-
 cc.parseQueue = function (expr) {
     let m = expr.match(/(\w+)(?:([+-])(\d+))?/);
     if (m == null)
@@ -628,11 +622,11 @@ export default class BaseRenderer {
 
         // sort items
         stageItems.sort((a, b) => {
-
-            if (a.technique._renderQueue !== b.technique._renderQueue) {
-                return a.technique._renderQueue - b.technique._renderQueue;
+            // first,sort by queue
+            if (a.tech._renderQueue !== b.tech._renderQueue) {
+                return a.tech._renderQueue - b.tech._renderQueue;
             }
-
+            // second,sort by shader
             return a.sortKey - b.sortKey;
         });
         for (let i = 0; i < stageItems.length; ++i) {
@@ -676,10 +670,11 @@ export default class BaseRenderer {
 
         // sort items
         stageItems.sort((a, b) => {
+            // first, sort by queue
             if (a.tech._renderQueue !== b.tech._renderQueue) {
                 return a.tech._renderQueue - b.tech._renderQueue;
             }
-
+            // second, sort by distance
             return a.sortKey - b.sortKey;
         });
 
@@ -705,8 +700,8 @@ export default class BaseRenderer {
 
         // sort items
         stageItems.sort((a, b) => {
-            if (a.technique._renderQueue !== b.technique._renderQueue) {
-                return a.technique._renderQueue - b.technique._renderQueue;
+            if (a.tech._renderQueue !== b.tech._renderQueue) {
+                return a.tech._renderQueue - b.tech._renderQueue;
             }
             return a.model._userKey - b.model._userKey;
         });
@@ -747,8 +742,14 @@ export default class BaseRenderer {
             }
 
             // set common uniforms
-            if (name === 'model') { node.getWorldMatrix(_m4_tmp); prop = _m4_tmp; }
-            else if (name === 'normalMatrix') { mat3.normalFromMat4(_m3_tmp, _m4_tmp); prop = _m3_tmp; }
+            if (name === 'model') {
+                node.getWorldMatrix(_m4_tmp);
+                prop = _m4_tmp;
+            }
+            else if (name === 'normalMatrix') {
+                mat3.normalFromMat4(_m3_tmp, _m4_tmp);
+                prop = _m3_tmp;
+            }
 
             if (prop === undefined || prop === null) {
                 console.warn(`Failed to set technique property ${name}, value not found.`);
