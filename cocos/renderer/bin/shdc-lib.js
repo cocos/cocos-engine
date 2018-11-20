@@ -11,6 +11,7 @@ let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
 let newlines = /\n+/g;
 let whitespaces = /\s+/g;
 let ident = /^[_a-zA-Z]\w*$/;
+let extensionRE = /(?:GL_)?(\w+)/;
 let comparators = /^[<=>]+$/;
 let ifprocessor = /#(el)?if/;
 let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
@@ -135,7 +136,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
     if (dest === extensions) {
       if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
-      param.name = str.split(whitespaces)[1];
+      param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
       param.define = defines[0];
       dest.push(param);
       continue;
