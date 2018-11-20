@@ -207,7 +207,7 @@ Effect.parseEffect = function(json) {
     let programs = getInvolvedPrograms(json);
     for (let j = 0; j < techNum; ++j) { // choose the first supported technique
         if (json.techniques[j].passes.every(pass => programs[pass.program].extensions.every(ext =>
-            ext.defines.length || cc.game._renderContext.supportExtension(ext.name)))) {
+            ext.define || cc.game._renderContext.supportExtension(ext.name)))) {
             // all the extensions is supported or can be disabled by a define
             tech = json.techniques[j];
             break;
