@@ -534,7 +534,7 @@ export default class BaseRenderer {
 
                   let stageItem = null;
                   for (let qi = renderQueues.length - 1; qi >= 0; qi--) {
-                      if (tech.renderQueue >= RenderQueue[renderQueues[qi]]) {
+                      if (tech.renderQueue >= RenderQueue[renderQueues[qi]] || qi == 0) {
                           stageItem = this._stageItemsPools.data[qi].add();
                           break;
                       }
