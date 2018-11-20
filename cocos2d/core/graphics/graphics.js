@@ -199,7 +199,7 @@ let Graphics = cc.Class({
             return;
         }
         
-        let material = new Material('builtin-effect-sprite');
+        let material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         material.define('useModel', true);
         this.setMaterial(0, material);
     },

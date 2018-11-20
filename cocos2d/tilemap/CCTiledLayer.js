@@ -632,7 +632,7 @@ let TiledLayer = cc.Class({
     _activateMaterial () {
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = new Material('builtin-effect-sprite');
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('useTexture', true);
         }
 

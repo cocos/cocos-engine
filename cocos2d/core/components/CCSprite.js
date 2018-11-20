@@ -496,8 +496,7 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 material = this._graySpriteMaterial;
                 if (!material) {
-                    let builtinMaterial = cc.Asset.getBuiltins('builtin-material-gray-sprite');
-                    material = this._graySpriteMaterial = Material.getInstantiatedMaterial(builtinMaterial, this);
+                    material = this._graySpriteMaterial = Material.getInstantiatedBuiltinMaterial('gray-sprite', this);
                 }
 
                 this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
@@ -505,8 +504,7 @@ var Sprite = cc.Class({
             else {
                 material = this._spriteMaterial;
                 if (!material) {
-                    let builtinMaterial = cc.Asset.getBuiltin('builtin-material-sprite');
-                    material = this._spriteMaterial = Material.getInstantiatedMaterial(builtinMaterial, this);
+                    material = this._spriteMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
                     material.define('useColor', true);
                     material.define('useTexture', true);
                 }

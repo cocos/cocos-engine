@@ -41,3 +41,4 @@ require('./CCLabelAtlas');
 require('./CCTextAsset');
 require('./CCJsonAsset');
 require('./CCBufferAsset');
+require('./CCShaderAsset');

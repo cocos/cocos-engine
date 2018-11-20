@@ -558,7 +558,7 @@ let Label = cc.Class({
         // WebGL
         else {
             if (!material) {
-                material = new Material('builtin-effect-sprite');
+                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
                 material.define('useTexture', true);
             }
             // Setup blend function for premultiplied ttf label texture

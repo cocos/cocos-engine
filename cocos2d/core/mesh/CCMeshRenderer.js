@@ -123,8 +123,7 @@ let MeshRenderer = cc.Class({
         let materials = this.sharedMaterials;
 
         if (!materials[0]) {
-            let builtinMaterial = cc.Asset.getBuiltin('builtin-material-mesh');
-            materials[0] = Material.getInstantiatedMaterial(builtinMaterial, this);
+            materials[0] = Material.getInstantiatedBuiltinMaterial('mesh', this);
         }
 
         for (let i = 0; i < materials.length; i++) {

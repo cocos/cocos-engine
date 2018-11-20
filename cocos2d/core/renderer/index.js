@@ -25,8 +25,6 @@
 
 const renderEngine = require('./render-engine');
 const RenderFlow = require('./render-flow');
-import templates from '../../renderer/shaders/templates';
-import chunks from '../../renderer/shaders/chunks';
 
 function _initBuiltins(device) {
     let defaultTexture = new renderEngine.Texture2D(device, {
@@ -41,8 +39,8 @@ function _initBuiltins(device) {
   
     return {
         defaultTexture: defaultTexture,
-        programTemplates: templates,
-        programChunks: chunks,
+        programTemplates: {},
+        programChunks: {},
     };
 }
 

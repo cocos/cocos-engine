@@ -26,9 +26,6 @@
 
 const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
-const Color = require('../value-types/color');
-const renderEngine = require('../renderer/render-engine');
-const RecyclePool = renderEngine.RecyclePool;
 import Effect from '../../renderer/effect';
 
 let Material = cc.Class({
@@ -71,6 +68,10 @@ let Material = cc.Class({
     },
 
     statics: {
+        getInstantiatedBuiltinMaterial(name) {
+            let builtinMaterial = cc.Asset.getBuiltin('builtin-materials-' + name);
+            return Material.getInstantiatedMaterial(builtinMaterial, this);
+        },
         getInstantiatedMaterial(mat, rndCom) {
             if (mat._owner === rndCom) {
                 return mat;
@@ -179,7 +180,7 @@ let Material = cc.Class({
     },
 
     setEffect(val) {
-        const effectAsset = cc.Asset.getBuiltin(val);
+        const effectAsset = cc.Asset.getBuiltin(val).effect;
         if (!effectAsset) {
             console.warn(`no effect named '${val}' found`);
             return;

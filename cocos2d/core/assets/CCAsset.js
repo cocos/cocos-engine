@@ -119,8 +119,8 @@ cc.Asset = cc.Class({
          * @private
          */
         _nativeAsset: {
-            get () {},
-            set (obj) {}
+            get () { },
+            set (obj) { }
         },
     },
 
@@ -220,27 +220,32 @@ cc.Asset = cc.Class({
 
 let _builts = {};
 
-cc.Asset._loadBuiltins = function (cb) {
-    _builts = {};
-
-    // load effects
-    const effects = require('../../renderer/effects').default;
-    for (let i = 0; i < effects.length; i++) {
-        _builts['builtin-effect-' + effects[i].name] = effects[i];
-    }
-
-    // load materials
-    cc.loader.loadResDir('materials', cc.Material, 'internal', ()=>{}, (err, materials)=>{
+function loadBuiltins (name, type, cb) {
+    cc.loader.loadResDir(name, type, 'internal', () => { }, (err, assets) => {
         if (err) {
             cc.error(err);
         }
         else {
-            for (let i = 0; i < materials.length; i++) {
-                _builts['builtin-material-' + materials[i].name] = materials[i];
+            for (let i = 0; i < assets.length; i++) {
+                _builts[`builtin-${name}-${assets[i].name}`] = assets[i];
             }
         }
-        
+
         cb();
+    });
+}
+
+cc.Asset._loadBuiltins = function (cb) {
+    _builts = {};
+
+    // load effects
+    // const effects = require('../../renderer/effects').default;
+    // for (let i = 0; i < effects.length; i++) {
+    //     _builts['builtin-shaders-' + effects[i].name] = effects[i];
+    // }
+
+    loadBuiltins('shaders', cc.ShaderAsset, () => {
+        loadBuiltins('materials', cc.Material, cb);
     });
 };
 
