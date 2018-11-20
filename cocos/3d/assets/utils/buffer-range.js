@@ -30,7 +30,7 @@ const { ccclass, property } = _decorator;
 /**
  * The class BufferRange denotes a range of the buffer.
  */
-@ccclass("cc.internal.BufferRange")
+@ccclass("cc.BufferRange")
 export default class BufferRange {
     /**
      * The offset of the range.
@@ -51,3 +51,5 @@ export default class BufferRange {
         this._length = length;
     }
 }
+
+cc.BufferRange = BufferRange;
