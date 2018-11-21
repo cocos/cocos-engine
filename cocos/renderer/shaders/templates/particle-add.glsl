@@ -1,5 +1,14 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+### VERT ###
+#include <particle-vs-legacy>
+
+void main () {
+  lpvs_main();
+}
+
+### FRAG ###
+
 uniform sampler2D mainTexture;
 uniform vec4 tintColor;
 

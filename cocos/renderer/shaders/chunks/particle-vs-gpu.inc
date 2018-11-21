@@ -1,5 +1,5 @@
 
-#include <particle-common.vert>
+#include <particle-common>
 #define MAX_KEY_NUM 8
 #define CURVE_MODE_CONSTANT 0
 #define CURVE_MODE_RANDOM_CONSTANT 1

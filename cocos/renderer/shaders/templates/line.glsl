@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-// precision highp float;
+### VERT ###
 
 attribute vec3 a_position;
 attribute vec3 a_color;
@@ -34,4 +34,12 @@ void main () {
   color = a_color;
 
   gl_Position = pos;
+}
+
+### FRAG ###
+
+varying vec3 color;
+
+void main () {
+  gl_FragColor = vec4(color, 1.0);
 }

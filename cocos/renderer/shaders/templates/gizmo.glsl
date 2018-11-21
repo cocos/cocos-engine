@@ -1,6 +1,31 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#include <gamma-correction.frag>
+### VERT ###
+
+attribute vec3 a_position;
+attribute vec3 a_normal;
+
+uniform mat4 model;
+uniform mat4 viewProj;
+uniform mat3 normalMatrix;
+
+varying vec3 normal_w;
+varying vec3 pos_w;
+varying vec3 pos_l;
+
+void main () {
+  vec4 pos = vec4(a_position, 1);
+
+  pos_l = a_position;
+  pos_w = (model * pos).xyz;
+  normal_w = normalMatrix * a_normal;
+
+  gl_Position = viewProj * model * pos;
+}
+
+### FRAG ###
+
+#include <gamma-correction>
 
 uniform vec3 eye;
 uniform vec4 color;
@@ -184,7 +209,7 @@ vec3 LTC_Evaluate(vec3 N, vec3 V, vec3 P, mat3 Minv, vec3 points[4]) {
 }
 
 #if PLANE_CONTROLLER
-    #include <common.frag>
+    #include <common>
     uniform float width;
     uniform float height;
     uniform float rotx;
