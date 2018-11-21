@@ -108,9 +108,9 @@ cc.renderer = module.exports = {
             this.scene = new renderEngine.Scene();
             let builtins = _initBuiltins(this.device);
             this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
-
-            this._flow = new renderer.RenderFlow(this.device, this.scene, this._forward);
-            this._handle = this._flow.getModelBatcher();
+            let nativeFlow = new renderer.RenderFlow(this.device, this.scene, this._forward);
+            this._flow = cc.RenderFlow;
+            this._flow.init(nativeFlow);
         }
         else {
             this.device = new renderEngine.Device(canvas, opts);
@@ -166,7 +166,7 @@ cc.renderer = module.exports = {
         this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
-            this._flow.visit(CC_JSB ? ecScene._proxy : ecScene);
+            this._flow.visit(ecScene);
             // Render models in renderer scene
             this._forward.render(this.scene);
             this.drawCalls = this.device._stats.drawcalls;

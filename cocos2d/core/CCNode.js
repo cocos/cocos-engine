@@ -2681,17 +2681,11 @@ let NodeDefines = {
     },
 
     setLocalDirty (flag) {
-        if (CC_JSB) {
-            this._proxy.setMatrixDirty();
-        }
         this._localMatDirty = this._localMatDirty | flag;
         this._worldMatDirty = true;
     },
 
     setWorldDirty () {
-        if (CC_JSB) {
-            this._proxy.setMatrixDirty();
-        }
         this._worldMatDirty = true;
     },
 
