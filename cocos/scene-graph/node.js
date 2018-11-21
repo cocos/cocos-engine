@@ -8,6 +8,13 @@ let v3_a = cc.v3();
 let q_a = cc.quat();
 let array_a = new Array(10);
 
+let EventType = cc.Enum({
+    TRANSFORM_CHANGED: 'transform-changed',
+    POSITION_PART: 1,
+    ROTATION_PART: 2,
+    SCALE_PART: 4
+});
+
 @ccclass('cc.Node')
 @mixins(EventTarget)
 class Node extends BaseNode {
@@ -34,6 +41,8 @@ class Node extends BaseNode {
     static isNode (obj) {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
+
+    static EventType = EventType;
 
     constructor (name) {
         super(name);
@@ -160,6 +169,8 @@ class Node extends BaseNode {
             vec3.set(this._lpos, val, y, z);
         }
         vec3.copy(this._pos, this._lpos);
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
         this.invalidateChildren();
     }
 
@@ -190,6 +201,8 @@ class Node extends BaseNode {
             quat.set(this._lrot, val, y, z, w);
         }
         quat.copy(this._rot, this._lrot);
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
     }
 
@@ -202,6 +215,8 @@ class Node extends BaseNode {
     setRotationFromEuler(x, y, z) {
         quat.fromEuler(this._lrot, x, y, z);
         quat.copy(this._rot, this._lrot);
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
     }
 
@@ -231,6 +246,8 @@ class Node extends BaseNode {
             vec3.set(this._lscale, val, y, z);
         }
         vec3.copy(this._scale, this._lscale);
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
         this.invalidateChildren();
     }
 
@@ -265,6 +282,8 @@ class Node extends BaseNode {
         } else {
             vec3.copy(this._lpos, this._pos);
         }
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
         this.invalidateChildren();
     }
 
@@ -301,6 +320,8 @@ class Node extends BaseNode {
         } else {
             quat.copy(this._lrot, this._rot);
         }
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
     }
 
@@ -318,6 +339,8 @@ class Node extends BaseNode {
         } else {
             quat.copy(this._lrot, this._rot);
         }
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
     }
 
@@ -353,6 +376,8 @@ class Node extends BaseNode {
         } else {
             vec3.copy(this._lscale, this._scale);
         }
+
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
         this.invalidateChildren();
     }
 

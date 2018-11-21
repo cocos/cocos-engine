@@ -12,6 +12,7 @@ export default class RenderSystem {
         this._scene.tick();
         cc.game._renderer.render(this._scene);
         this._scene.reset();
+        if (cc.director._scene) cc.director._scene.resetHasChanged();
     }
 
     get scene () {

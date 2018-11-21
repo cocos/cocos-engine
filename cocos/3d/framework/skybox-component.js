@@ -27,35 +27,48 @@ import renderer from '../../renderer/index';
 import { box } from '../primitive/index';
 import Material from '../assets/material';
 import { ccclass, property, menu } from '../../core/data/class-decorator';
-import RenderableComponent from './renderable-component';
+import TextureCube from '../assets/texture-cube';
+import Component from '../../components/CCComponent';
 
 /**
  * !#en The Skybox Component
  *
  * !#ch 天空盒组件
  * @class SkyboxComponent
- * @extends RenderableComponent
+ * @extends Component
  */
 @ccclass('cc.SkyboxComponent')
 @menu('Components/SkyboxComponent')
-export default class SkyboxComponent extends RenderableComponent {
+export default class SkyboxComponent extends Component {
 
   @property
-  _cubeMap = null;
+  _cubemap = null;
+  @property
+  _rgbeTexture = false;
 
-  /**
-   * !#en The material of the model
-   *
-   * !#ch 模型 cubeMap 材质
-   * @type {Material}
-   */
-  get cubeMap() {
-    return this._cubeMap;
+  @property({
+    type: TextureCube,
+    displayName: 'Cubemap'
+  })
+  get cubemap() {
+    return this._cubemap;
   }
 
-  set cubeMap(val) {
-    this._cubeMap = val;
+  set cubemap(val) {
+    this._cubemap = val;
     this._updateMaterialParams();
+  }
+
+  @property({
+    type: Boolean,
+    displayName: 'RGBE Texture'
+  })
+  set rgbeTexture(v) {
+    this._rgbeTexture = v;
+    this._updateMaterialParams();
+  }
+  get rgbeTexture() {
+    return this._rgbeTexture;
   }
 
   constructor() {
@@ -101,17 +114,13 @@ export default class SkyboxComponent extends RenderableComponent {
     }
   }
 
-  _onMaterialModified(idx, mat) {
-    this._updateMaterialParams(mat);
-    this._model.setEffect(mat.effect);
-  }
-
   _updateMaterialParams() {
     if (this._material === null || this._material === undefined) {
       return;
     }
-    if (this._cubeMap !== null && this._cubeMap !== undefined) {
-      this._material.setProperty('cubeMap', this._cubeMap);
+    if (this._cubemap !== null && this._cubemap !== undefined) {
+      this._material.setProperty('cubeMap', this._cubemap);
     }
+    this._material.define('USE_RGBE_CUBEMAP', this._rgbeTexture);
   }
 }
