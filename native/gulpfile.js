@@ -193,7 +193,7 @@ gulp.task('update-simulator-config', function(cb) {
     fs.copy('./tools/simulator/config.json', destPath, cb);
 });
 
-// 在 'sign-simulator' 之前执行，以保留这些 dll 来自第三方的签名
+// 在 'sign-simulator' 之后执行，以保留这些 dll 来自第三方的签名
 gulp.task('update-simulator-dll', function(cb) {
     if (process.platform === 'win32') {
         downloadSimulatorDLL(cb);
