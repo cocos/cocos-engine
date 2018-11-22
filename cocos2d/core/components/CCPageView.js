@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -194,6 +195,17 @@ var PageView = cc.Class({
         },
 
         /**
+         * !#en The time required to turn over a page. unit: second
+         * !#zh 每个页面翻页时所需时间。单位：秒
+         * @property {Number} pageTurningSpeed
+         */
+        pageTurningSpeed: {
+            default: 0.3,
+            type: cc.Float,
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.pageTurningSpeed'
+        },
+
+        /**
          * !#en PageView events callback
          * !#zh 滚动视图的事件回调函数
          * @property {Component.EventHandler[]} pageEvents
@@ -212,21 +224,20 @@ var PageView = cc.Class({
     },
 
     __preload: function () {
-        this._super();
-        this.node.on('size-changed', this._updateAllPagesSize, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     },
 
     onEnable: function () {
         this._super();
         if(!CC_EDITOR) {
-            this.node.on('scroll-ended', this._dispatchPageTurningEvent, this);
+            this.node.on('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
         }
     },
 
     onDisable: function () {
         this._super();
         if(!CC_EDITOR) {
-            this.node.off('scroll-ended', this._dispatchPageTurningEvent, this);
+            this.node.off('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
         }
     },
 
@@ -238,8 +249,7 @@ var PageView = cc.Class({
     },
 
     onDestroy: function() {
-        this._super();
-        this.node.off('size-changed', this._updateAllPagesSize, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     },
 
     /**
@@ -360,7 +370,7 @@ var PageView = cc.Class({
      * @param {Number} timeInSecond scrolling time
      */
     scrollToPage: function (idx, timeInSecond) {
-        if (idx < 0 || idx > this._pages.length)
+        if (idx < 0 || idx >= this._pages.length)
             return;
         timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
         this._curPageIdx = idx;
@@ -391,16 +401,16 @@ var PageView = cc.Class({
                 var lastPage = this._pages[this._pages.length - 1];
                 if (this.sizeMode === SizeMode.Free) {
                     if (this.direction === Direction.Horizontal) {
-                        layout.paddingLeft = (this.node.width - this._pages[0].width) / 2;
-                        layout.paddingRight = (this.node.width - lastPage.width) / 2;
+                        layout.paddingLeft = (this._view.width - this._pages[0].width) / 2;
+                        layout.paddingRight = (this._view.width - lastPage.width) / 2;
                     }
                     else if (this.direction === Direction.Vertical) {
-                        layout.paddingTop = (this.node.height - this._pages[0].height) / 2;
-                        layout.paddingBottom = (this.node.height - lastPage.height) / 2;
+                        layout.paddingTop = (this._view.height - this._pages[0].height) / 2;
+                        layout.paddingBottom = (this._view.height - lastPage.height) / 2;
                     }
                 }
             }
-            layout._updateLayout();
+            layout.updateLayout();
         }
     },
 
@@ -408,11 +418,6 @@ var PageView = cc.Class({
     _updatePageView: function () {
         var pageCount = this._pages.length;
 
-        // 当页面数组变化时修改 content 大小
-        var layout = this.content.getComponent(cc.Layout);
-        if(layout && layout.enabled) {
-            layout._updateLayout();
-        }
         if (this._curPageIdx >= pageCount) {
             this._curPageIdx = pageCount === 0 ? 0 : pageCount - 1;
             this._lastPageIdx = this._curPageIdx;
@@ -427,6 +432,13 @@ var PageView = cc.Class({
                 this._scrollCenterOffsetY[i] = Math.abs(this.content.y + this._pages[i].y);
             }
         }
+
+        // 当页面数组变化时修改 content 大小
+        var layout = this.content.getComponent(cc.Layout);
+        if (layout && layout.enabled) {
+            layout.updateLayout();
+        }
+        
         // 刷新 indicator 信息与状态
         if (this.indicator) {
             this.indicator._refresh();
@@ -439,7 +451,7 @@ var PageView = cc.Class({
             return;
         }
         var locPages = CC_EDITOR ? this.content.children : this._pages;
-        var selfSize = this.node.getContentSize();
+        var selfSize = this._view.getContentSize();
         for (var i = 0, len = locPages.length; i < len; i++) {
             locPages[i].setContentSize(selfSize);
         }
@@ -483,10 +495,10 @@ var PageView = cc.Class({
         }
         else {
             if (this.direction === Direction.Horizontal) {
-                return Math.abs(offset.x) >= this.node.width * this.scrollThreshold;
+                return Math.abs(offset.x) >= this._view.width * this.scrollThreshold;
             }
             else if (this.direction === Direction.Vertical) {
-                return Math.abs(offset.y) >= this.node.height * this.scrollThreshold;
+                return Math.abs(offset.y) >= this._view.height * this.scrollThreshold;
             }
         }
     },
@@ -508,7 +520,7 @@ var PageView = cc.Class({
 
     // 通过 idx 获取偏移值数值
     _moveOffsetValue: function (idx) {
-        var offset = cc.p(0, 0);
+        var offset = cc.v2(0, 0);
         if (this.sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
@@ -519,10 +531,10 @@ var PageView = cc.Class({
         }
         else {
             if (this.direction === Direction.Horizontal) {
-                offset.x = idx * this.node.width;
+                offset.x = idx * this._view.width;
             }
             else if (this.direction === Direction.Vertical) {
-                offset.y = idx * this.node.height;
+                offset.y = idx * this._view.height;
             }
         }
         return offset;
@@ -541,8 +553,17 @@ var PageView = cc.Class({
     },
 
     _handleReleaseLogic: function(touch) {
+        this._autoScrollToPage();
+        if (this._scrolling) {
+            this._scrolling = false;
+            if (!this._autoScrolling) {
+                this._dispatchEvent('scroll-ended');
+            }
+        }
+    },
+    _autoScrollToPage: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
+        var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
         if (bounceBackStarted) {
             var dragDirection = this._getDragDirection(moveOffset);
             if (dragDirection === 0) {
@@ -560,20 +581,21 @@ var PageView = cc.Class({
         }
         else {
             var index = this._curPageIdx, nextIndex = index + this._getDragDirection(moveOffset);
+            var timeInSecond = this.pageTurningSpeed * Math.abs(index - nextIndex);
             if (nextIndex < this._pages.length) {
                 if (this._isScrollable(moveOffset, index, nextIndex)) {
-                    this.scrollToPage(nextIndex);
+                    this.scrollToPage(nextIndex, timeInSecond);
                     return;
                 }
                 else {
                     var touchMoveVelocity = this._calculateTouchMoveVelocity();
                     if (this._isQuicklyScrollable(touchMoveVelocity)) {
-                        this.scrollToPage(nextIndex);
+                        this.scrollToPage(nextIndex, timeInSecond);
                         return;
                     }
                 }
             }
-            this.scrollToPage(index);
+            this.scrollToPage(index, timeInSecond);
         }
     },
 
@@ -607,6 +629,6 @@ cc.PageView = module.exports = PageView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event page-turning
- * @param {Event} event
- * @param {PageView} event.detail - The PageView component.
+ * @param {Event.EventCustom} event
+ * @param {PageView} pageView - The PageView component.
  */

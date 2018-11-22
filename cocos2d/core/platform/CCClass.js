@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,21 +24,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('./js');
-var Enum = require('../value-types/CCEnum');
-var Utils = require('./utils');
-var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
-var _cloneable_DEV = Utils.cloneable_DEV;
+var js = require('./js');
+var Enum = require('./CCEnum');
+var utils = require('./utils');
+var _isPlainEmptyObj_DEV = utils.isPlainEmptyObj_DEV;
+var _cloneable_DEV = utils.cloneable_DEV;
 var Attr = require('./attribute');
+var DELIMETER = Attr.DELIMETER;
 var getTypeChecker = Attr.getTypeChecker;
 var preprocess = require('./preprocess-class');
-var Misc = require('../utils/misc');
 require('./requiring-frame');
 
-var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor'];
+var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
 
 var INVALID_STATICS_DEV = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
+
+function pushUnique (array, item) {
+    if (array.indexOf(item) < 0) {
+        array.push(item);
+    }
+}
 
 var deferredInitializer = {
 
@@ -70,7 +77,7 @@ var deferredInitializer = {
                 if (typeof properties === 'function') {
                     properties = properties();
                 }
-                var name = JS.getClassName(cls);
+                var name = js.getClassName(cls);
                 if (properties) {
                     declareProperties(cls, name, properties, cls.$super, data.mixins);
                 }
@@ -83,13 +90,9 @@ var deferredInitializer = {
     }
 };
 
-///**
-// * both getter and prop must register the name into __props__ array
-// * @param {String} name - prop name
-// */
-function appendProp (cls, name/*, isGetter*/) {
+// both getter and prop must register the name into __props__ array
+function appendProp (cls, name) {
     if (CC_DEV) {
-        //var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
         //if (!IDENTIFIER_RE.test(name)) {
         //    cc.error('The property name "' + name + '" is not compliant with JavaScript naming standards');
         //    return;
@@ -99,41 +102,40 @@ function appendProp (cls, name/*, isGetter*/) {
             return;
         }
     }
-    if (cls.__props__.indexOf(name) < 0) {
-        cls.__props__.push(name);
-    }
+    pushUnique(cls.__props__, name);
 }
 
-function defineProp (cls, className, propName, defaultValue, attrs) {
+var tmpArray = [];
+function defineProp (cls, className, propName, val, es6) {
+    var defaultValue = val.default;
+
     if (CC_DEV) {
-        // check default object value
-        if (typeof defaultValue === 'object' && defaultValue) {
-            if (Array.isArray(defaultValue)) {
-                // check array empty
-                if (defaultValue.length > 0) {
-                    cc.errorID(3635,
-                        className, propName, propName);
-                    return;
+        if (!es6) {
+            // check default object value
+            if (typeof defaultValue === 'object' && defaultValue) {
+                if (Array.isArray(defaultValue)) {
+                    // check array empty
+                    if (defaultValue.length > 0) {
+                        cc.errorID(3635, className, propName, propName);
+                        return;
+                    }
                 }
-            }
-            else if (!_isPlainEmptyObj_DEV(defaultValue)) {
-                // check cloneable
-                if (!_cloneable_DEV(defaultValue)) {
-                    cc.errorID(3636,
-                        className, propName, propName);
-                    return;
+                else if (!_isPlainEmptyObj_DEV(defaultValue)) {
+                    // check cloneable
+                    if (!_cloneable_DEV(defaultValue)) {
+                        cc.errorID(3636, className, propName, propName);
+                        return;
+                    }
                 }
             }
         }
 
         // check base prototype to avoid name collision
-        for (var base = cls.$super; base; base = base.$super) {
-            // 这个循环只能检测到最上面的FireClass的父类，如果再上还有父类，将不做检测。
-            if (base.prototype.hasOwnProperty(propName)) {
-                cc.errorID(3637,
-                    className, propName, className);
-                return;
-            }
+        if (CCClass.getInheritanceChain(cls)
+                   .some(function (x) { return x.prototype.hasOwnProperty(propName); }))
+        {
+            cc.errorID(3637, className, propName, className);
+            return;
         }
     }
 
@@ -143,108 +145,70 @@ function defineProp (cls, className, propName, defaultValue, attrs) {
     appendProp(cls, propName);
 
     // apply attributes
+    var attrs = parseAttributes(cls, val, className, propName, false);    
     if (attrs) {
-        var onAfterProp = null;
+        var onAfterProp = tmpArray;
         for (var i = 0; i < attrs.length; i++) {
             var attr = attrs[i];
             Attr.attr(cls, propName, attr);
             // register callback
             if (attr._onAfterProp) {
-                onAfterProp = onAfterProp || [];
                 onAfterProp.push(attr._onAfterProp);
             }
         }
         // call callback
-        if (onAfterProp) {
-            for (var c = 0; c < onAfterProp.length; c++) {
-                onAfterProp[c](cls, propName);
-            }
+        for (var c = 0; c < onAfterProp.length; c++) {
+            onAfterProp[c](cls, propName);
         }
+        tmpArray.length = 0;
+        attrs.length = 0;
     }
 }
 
-function defineGetSet (cls, name, propName, val, attrs) {
+function defineGetSet (cls, name, propName, val, es6) {
     var getter = val.get;
     var setter = val.set;
     var proto = cls.prototype;
     var d = Object.getOwnPropertyDescriptor(proto, propName);
+    var setterUndefined = !d;
 
     if (getter) {
-        if (CC_DEV && d && d.get) {
+        if (CC_DEV && !es6 && d && d.get) {
             cc.errorID(3638, name, propName);
             return;
         }
 
-        if (attrs) {
-            for (var i = 0; i < attrs.length; ++i) {
-                var attr = attrs[i];
-                if (CC_DEV && attr._canUsedInGetter === false) {
-                    cc.errorID(3639, name, propName, i);
-                    continue;
-                }
+        var attrs = parseAttributes(cls, val, name, propName, true);
+        for (var i = 0; i < attrs.length; i++) {
+            Attr.attr(cls, propName, attrs[i]);
+        }
+        attrs.length = 0;
 
-                Attr.attr(cls, propName, attr);
-
-                // check attributes
-                if (CC_DEV && (attr.serializable === false || attr.editorOnly === true)) {
-                    cc.warnID(3613, name, propName);
-                }
-            }
-        }
-
-        var ForceSerializable = false;
-        if (!ForceSerializable) {
-            Attr.attr(cls, propName, Attr.NonSerialized);
-        }
-        if (ForceSerializable || CC_DEV) {
-            // 不论是否 hide in inspector 都要添加到 props，否则 asset watcher 不能正常工作
-            appendProp(cls, propName/*, true*/);
-        }
-
-        if (d) {
-            Object.defineProperty(proto, propName, {
-                get: getter
-            });
-        }
-        else {
-            Object.defineProperty(proto, propName, {
-                get: getter,
-                configurable: true,
-                enumerable: true
-            });
-        }
+        Attr.setClassAttr(cls, propName, 'serializable', false);
 
         if (CC_DEV) {
+            // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
+            appendProp(cls, propName);
+        }
+
+        if (!es6) {
+            js.get(proto, propName, getter, setterUndefined, setterUndefined);
+        }
+
+        if (CC_EDITOR || CC_DEV) {
             Attr.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
 
     if (setter) {
-        if (CC_DEV) {
-            if (d && d.set) {
+        if (!es6) {
+            if (CC_DEV && d && d.set) {
                 return cc.errorID(3640, name, propName);
             }
-
-            Object.defineProperty(proto, propName, {
-                set: setter,
-                configurable: true,
-                enumerable: true
-            });
-            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
+            js.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
-        else {
-            if (d) {
-                Object.defineProperty(proto, propName, {
-                    set: setter
-                });
-            }
-            else {
-                Object.defineProperty(proto, propName, {
-                    set: setter,
-                    configurable: true,
-                    enumerable: true
-                });
-            }
+        if (CC_EDITOR || CC_DEV) {
+            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
     }
 }
@@ -267,89 +231,120 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
+function mixinWithInherited (dest, src, filter) {
+    for (var prop in src) {
+        if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
+            Object.defineProperty(dest, prop, js.getPropertyDescriptor(src, prop));
+        }
+    }
+}
 
 function doDefine (className, baseClass, mixins, options) {
-    var fireClass;
     var shouldAddProtoCtor;
-    if (CC_DEV && options) {
+    var __ctor__ = options.__ctor__;
+    var ctor = options.ctor;
+    var __es6__ = options.__ES6__;
+
+    if (CC_DEV) {
         // check ctor
-        var ctor = options.__ctor__ || options.ctor;
-        if (ctor) {
-            if (CCClass._isCCClass(ctor)) {
+        var ctorToUse = __ctor__ || ctor;
+        if (ctorToUse) {
+            if (CCClass._isCCClass(ctorToUse)) {
                 cc.errorID(3618, className);
             }
-            else if (typeof ctor !== 'function') {
+            else if (typeof ctorToUse !== 'function') {
                 cc.errorID(3619, className);
             }
             else {
-                if (baseClass && /\bprototype.ctor\b/.test(ctor)) {
-                    cc.warnID(3600, className || "");
-                    shouldAddProtoCtor = true;
+                if (baseClass && /\bprototype.ctor\b/.test(ctorToUse)) {
+                    if (__es6__) {
+                        cc.errorID(3651, className || "");
+                    }
+                    else {
+                        cc.warnID(3600, className || "");
+                        shouldAddProtoCtor = true;
+                    }
+                }
+            }
+            if (ctor) {
+                if (__ctor__) {
+                    cc.errorID(3649, className);
+                }
+                else {
+                    ctor = options.ctor = _validateCtor_DEV(ctor, baseClass, className, options);
                 }
             }
         }
-        if (options.ctor && options.__ctor__) {
-            cc.errorID(3649, className);
-        }
     }
-    if (options && options.__ctor__) {
-        fireClass = _doCreateCtor([options.__ctor__], baseClass, className, options);
+
+    var ctors;
+    var fireClass;
+    if (__es6__) {
+        ctors = [ctor];
+        fireClass = ctor;
     }
     else {
-        fireClass = _createCtor(baseClass, mixins, className, options);
-    }
+        ctors = __ctor__ ? [__ctor__] : _getAllCtors(baseClass, mixins, options);
+        fireClass = _createCtor(ctors, baseClass, className, options);
 
-    // extend - (NON-INHERITED) Create a new Class that inherits from this Class
-    Object.defineProperty(fireClass, 'extend', {
-        value: function (options) {
+        // extend - Create a new Class that inherits from this Class
+        js.value(fireClass, 'extend', function (options) {
             options.extends = this;
             return CCClass(options);
-        },
-        writable: true,
-        configurable: true
-    });
+        }, true);
+    }
 
+    js.value(fireClass, '__ctors__', ctors.length > 0 ? ctors : null, true);
+
+
+    var prototype = fireClass.prototype;
     if (baseClass) {
-        JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
+        if (!__es6__) {
+            js.extend(fireClass, baseClass);        // 这里会把父类的 __props__ 复制给子类
+            prototype = fireClass.prototype;        // get extended prototype
+        }
         fireClass.$super = baseClass;
         if (CC_DEV && shouldAddProtoCtor) {
-            fireClass.prototype.ctor = function () {};
+            prototype.ctor = function () {};
         }
     }
 
     if (mixins) {
-        for (var m = 0; m < mixins.length; ++m) {
+        for (var m = mixins.length - 1; m >= 0; m--) {
             var mixin = mixins[m];
-            // mixin prototype
-            JS.mixin(fireClass.prototype, mixin.prototype);
+            mixinWithInherited(prototype, mixin.prototype);
 
             // mixin statics (this will also copy editor attributes for component)
-            for (var p in mixin)
-                if (mixin.hasOwnProperty(p) && (!CC_DEV || INVALID_STATICS_DEV.indexOf(p) < 0))
-                    fireClass[p] = mixin[p];
+            mixinWithInherited(fireClass, mixin, function (prop) {
+                return mixin.hasOwnProperty(prop) && (!CC_DEV || INVALID_STATICS_DEV.indexOf(prop) < 0);
+            });
 
             // mixin attributes
             if (CCClass._isCCClass(mixin)) {
-                JS.mixin(Attr.getClassAttrs(fireClass).constructor.prototype,
-                         Attr.getClassAttrs(mixin).constructor.prototype);
+                mixinWithInherited(
+                    Attr.getClassAttrs(fireClass).constructor.prototype,
+                    Attr.getClassAttrs(mixin).constructor.prototype
+                );
             }
         }
         // restore constuctor overridden by mixin
-        fireClass.prototype.constructor = fireClass;
+        prototype.constructor = fireClass;
     }
 
-    fireClass.prototype.__initProps__ = compileProps;
+    if (!__es6__) {
+        prototype.__initProps__ = compileProps;
+    }
 
-    JS.setClassName(className, fireClass);
+    js.setClassName(className, fireClass);
     return fireClass;
 }
 
 function define (className, baseClass, mixins, options) {
     var Component = cc.Component;
     var frame = cc._RF.peek();
-    if (frame && cc.isChildClassOf(baseClass, Component)) {
+    if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
-        if (cc.isChildClassOf(frame.cls, Component)) {
+        if (js.isChildClassOf(frame.cls, Component)) {
             cc.errorID(3615);
             return null;
         }
@@ -362,10 +357,10 @@ function define (className, baseClass, mixins, options) {
     var cls = doDefine(className, baseClass, mixins, options);
 
     if (frame) {
-        if (cc.isChildClassOf(baseClass, Component)) {
+        if (js.isChildClassOf(baseClass, Component)) {
             var uuid = frame.uuid;
             if (uuid) {
-                JS._setClassId(uuid, cls);
+                js._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
@@ -373,72 +368,49 @@ function define (className, baseClass, mixins, options) {
             }
             frame.cls = cls;
         }
-        else if (!cc.isChildClassOf(frame.cls, Component)) {
+        else if (!js.isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
     }
     return cls;
 }
 
-function normalizeClassName (className) {
-    if (CC_DEV) {
-        var DefaultName = 'CCClass';
-        if (className) {
-            className = Array.prototype.map.call(className, function (x) {
-                return /^[a-zA-Z0-9_$]/.test(x) ? x : '_';
-            }).join('');
-            try {
-                // validate name
-                Function('function ' + className + '(){}')();
-                return className;
-            }
-            catch (e) {
-                className = DefaultName + '_' + className;
-            }
-            try {
-                Function('function ' + className + '(){}')();
-                return className;
-            }
-            catch (e) {
-                ;
-            }
+function normalizeClassName_DEV (className) {
+    var DefaultName = 'CCClass';
+    if (className) {
+        className = className.replace(/^[^$A-Za-z_]/, '_').replace(/[^0-9A-Za-z_$]/g, '_');
+        try {
+            // validate name
+            Function('function ' + className + '(){}')();
+            return className;
         }
-        return DefaultName;
+        catch (e) {
+            ;
+        }
     }
+    return DefaultName;
 }
 
-function getNewValueTypeCode (value) {
-    var clsName = JS.getClassName(value);
+function getNewValueTypeCodeJit (value) {
+    var clsName = js.getClassName(value);
     var type = value.constructor;
     var res = 'new ' + clsName + '(';
-    var i;
-    if (type === cc.Mat3 || type === cc.Mat4) {
-        var data = value.data;
-        for (i = 0; i < data.length; i++) {
-            res += data[i];
-            if (i < data.length - 1) {
-                res += ',';
-            }
+    for (var i = 0; i < type.__props__.length; i++) {
+        var prop = type.__props__[i];
+        var propVal = value[prop];
+        if (CC_DEV && typeof propVal === 'object') {
+            cc.errorID(3641, clsName);
+            return 'new ' + clsName + '()';
         }
-    }
-    else {
-        for (i = 0; i < type.__props__.length; i++) {
-            var prop = type.__props__[i];
-            var propVal = value[prop];
-            if (typeof propVal === 'object') {
-                cc.errorID(3641, clsName);
-                return 'new ' + clsName + '()';
-            }
-            res += propVal;
-            if (i < type.__props__.length - 1) {
-                res += ',';
-            }
+        res += propVal;
+        if (i < type.__props__.length - 1) {
+            res += ',';
         }
     }
     return res + ')';
 }
 
-// TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCode to misc.js or a new source file
+// TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCodeJit to misc.js or a new source file
 
 // convert a normal string including newlines, quotes and unicode characters into a string literal
 // ready to use in JavaScript source
@@ -449,24 +421,14 @@ function escapeForJS (s) {
         replace(/\u2029/g, '\\u2029');
 }
 
-// simple test variable name
-var IDENTIFIER_RE = /^[$A-Za-z_][0-9A-Za-z_$]*$/;
-function compileProps (actualClass) {
-    // init deferred properties
-    var attrs = Attr.getClassAttrs(actualClass);
-    var propList = actualClass.__props__;
-    if (propList === null) {
-        deferredInitializer.init();
-        propList = actualClass.__props__;
-    }
-
+function getInitPropsJit (attrs, propList) {
     // functions for generated code
     var F = [];
-    var func = '(function(){\n';
+    var func = '';
 
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
-        var attrKey = prop + Attr.DELIMETER + 'default';
+        var attrKey = prop + DELIMETER + 'default';
         if (attrKey in attrs) {  // getter does not have default
             var statement;
             if (IDENTIFIER_RE.test(prop)) {
@@ -479,7 +441,7 @@ function compileProps (actualClass) {
             var def = attrs[attrKey];
             if (typeof def === 'object' && def) {
                 if (def instanceof cc.ValueType) {
-                    expression = getNewValueTypeCode(def);
+                    expression = getNewValueTypeCodeJit(def);
                 }
                 else if (Array.isArray(def)) {
                     expression = '[]';
@@ -509,61 +471,131 @@ function compileProps (actualClass) {
         }
     }
 
-    func += '})';
-
     // if (CC_TEST && !isPhantomJS) {
     //     console.log(func);
     // }
 
-    // Overwite __initProps__ to avoid compile again.
-    // Use eval to bind scoped variable just in one function, so that we don't have to bind this.
-    actualClass.prototype.__initProps__ = Misc.cleanEval_F(func, F);
-
-    // call instantiateProps immediately, no need to pass actualClass into it anymore
-    this.__initProps__();
-}
-
-function _doCreateCtor (ctors, baseClass, className, options) {
-    var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options, className);
-
-    // create class constructor
-    var body;
-    var args = CC_JSB ? '...args' : '';
-    if (CC_DEV) {
-        body = '(function ' + normalizeClassName(className) + '(' + args + '){\n';
+    var initProps;
+    if (F.length === 0) {
+        initProps = Function(func);
     }
     else {
-        body = '(function(' + args + '){\n';
+        initProps = Function('F', 'return (function(){\n' + func + '})')(F);
     }
+
+    return initProps;
+}
+
+function getInitProps (attrs, propList) {
+    var advancedProps = [];
+    var advancedValues = [];
+    var simpleProps = [];
+    var simpleValues = [];
+
+    for (var i = 0; i < propList.length; ++i) {
+        var prop = propList[i];
+        var attrKey = prop + DELIMETER + 'default';
+        if (attrKey in attrs) { // getter does not have default
+            var def = attrs[attrKey];
+            if ((typeof def === 'object' && def) || typeof def === 'function') {
+                advancedProps.push(prop);
+                advancedValues.push(def);
+            }
+            else {
+                // number, boolean, null, undefined, string
+                simpleProps.push(prop);
+                simpleValues.push(def);
+            }
+        }
+    }
+
+    return function () {
+        for (let i = 0; i < simpleProps.length; ++i) {
+            this[simpleProps[i]] = simpleValues[i];
+        }
+        for (let i = 0; i < advancedProps.length; i++) {
+            let prop = advancedProps[i];
+            var expression;
+            var def = advancedValues[i];
+            if (typeof def === 'object') {
+                if (def instanceof cc.ValueType) {
+                    expression = def.clone();
+                }
+                else if (Array.isArray(def)) {
+                    expression = [];
+                }
+                else {
+                    expression = {};
+                }
+            }
+            else {
+                // def is function
+                if (CC_EDITOR) {
+                    try {
+                        expression = def();
+                    }
+                    catch (err) {
+                        cc._throw(e);
+                        continue;
+                    }
+                }
+                else {
+                    expression = def();
+                }
+            }
+            this[prop] = expression;
+        }
+    };
+}
+
+// simple test variable name
+var IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+function compileProps (actualClass) {
+    // init deferred properties
+    var attrs = Attr.getClassAttrs(actualClass);
+    var propList = actualClass.__props__;
+    if (propList === null) {
+        deferredInitializer.init();
+        propList = actualClass.__props__;
+    }
+
+    // Overwite __initProps__ to avoid compile again.
+    var initProps = CC_SUPPORT_JIT ? getInitPropsJit(attrs, propList) : getInitProps(attrs, propList);
+    actualClass.prototype.__initProps__ = initProps;
+
+    // call instantiateProps immediately, no need to pass actualClass into it anymore
+    // (use call to manually bind `this` because `this` may not instanceof actualClass)
+    initProps.call(this);
+}
+
+var _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, options) {
+    var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
+
+    var ctorName = CC_DEV ? normalizeClassName_DEV(className) : 'CCClass';
+    var body = 'return function ' + ctorName + '(){\n';
 
     if (superCallBounded) {
         body += 'this._super=null;\n';
     }
 
     // instantiate props
-    body += 'this.__initProps__(fireClass);\n';
+    body += 'this.__initProps__(' + ctorName + ');\n';
 
     // call user constructors
-    if (ctors.length > 0) {
-        var useTryCatch = ! (className && className.startsWith('cc.'));
+    var ctorLen = ctors.length;
+    if (ctorLen > 0) {
+        var useTryCatch = CC_DEV && ! (className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
-        var SNIPPET = CC_JSB ? ']).apply(this,args);\n' : ']).apply(this,arguments);\n';
-        if (ctors.length === 1) {
-            body += '(fireClass.__ctors__[0' + SNIPPET;
+        var SNIPPET = '].apply(this,arguments);\n';
+        if (ctorLen === 1) {
+            body += ctorName + '.__ctors__[0' + SNIPPET;
         }
         else {
-            body += 'var cs=fireClass.__ctors__;\n';
-            if (ctors.length <= 5) {
-                for (var i = 0; i < ctors.length; i++) {
-                    body += '(cs[' + i + SNIPPET;
-                }
-            }
-            else {
-                body += 'for(var i=0,l=cs.length;i<l;++i){\n' +
-                            '(cs[i' + SNIPPET +
-                        '}\n';
+            body += 'var cs=' + ctorName + '.__ctors__;\n';
+            for (var i = 0; i < ctorLen; i++) {
+                body += 'cs[' + i + SNIPPET;
             }
         }
         if (useTryCatch) {
@@ -572,34 +604,80 @@ function _doCreateCtor (ctors, baseClass, className, options) {
                     '}\n';
         }
     }
-    body += '})';
+    body += '}';
 
-    var fireClass = Misc.cleanEval_fireClass(body);
+    return Function(body)();
+} : function (ctors, baseClass, className, options) {
+    var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
+    var ctorLen = ctors.length;
 
-    Object.defineProperty(fireClass, '__ctors__', {
-        value: ctors.length > 0 ? ctors : null,
-        // writable should be false,
-        // enumerable should be false
-    });
+    var Class;
 
-    return fireClass;
-}
+    if (ctorLen > 0) {
+        if (superCallBounded) {
+            if (ctorLen === 2) {
+                // User Component
+                Class = function () {
+                    this._super = null;
+                    this.__initProps__(Class);
+                    ctors[0].apply(this, arguments);
+                    ctors[1].apply(this, arguments);
+                };
+            }
+            else {
+                Class = function () {
+                    this._super = null;
+                    this.__initProps__(Class);
+                    for (let i = 0; i < ctors.length; ++i) {
+                        ctors[i].apply(this, arguments);
+                    }
+                };
+            }
+        }
+        else {
+            if (ctorLen === 3) {
+                // Node
+                Class = function () {
+                    this.__initProps__(Class);
+                    ctors[0].apply(this, arguments);
+                    ctors[1].apply(this, arguments);
+                    ctors[2].apply(this, arguments);
+                };
+            }
+            else {
+                Class = function () {
+                    this.__initProps__(Class);
+                    var ctors = Class.__ctors__;
+                    for (let i = 0; i < ctors.length; ++i) {
+                        ctors[i].apply(this, arguments);
+                    }
+                };
+            }
+        }
+    }
+    else {
+        Class = function () {
+            if (superCallBounded) {
+                this._super = null;
+            }
+            this.__initProps__(Class);
+        };
+    }
+    return Class;
+};
 
-function _createCtor (baseClass, mixins, className, options) {
-    var ctor = options && options.ctor;
-    if (CC_DEV && ctor) {
-        if (CC_EDITOR && baseClass) {
-            // check super call in constructor
-            var originCtor = ctor;
-            if (SuperCallReg.test(ctor)) {
+function _validateCtor_DEV (ctor, baseClass, className, options) {
+    if (CC_EDITOR && baseClass) {
+        // check super call in constructor
+        var originCtor = ctor;
+        if (SuperCallReg.test(ctor)) {
+            if (options.__ES6__) {
+                cc.errorID(3651, className);
+            }
+            else {
                 cc.warnID(3600, className);
                 // suppresss super call
-                ctor = CC_JSB ? function (...args) {
-                    this._super = function () {};
-                    var ret = originCtor.apply(this, args);
-                    this._super = null;
-                    return ret;
-                } : function () {
+                ctor = function () {
                     this._super = function () {};
                     var ret = originCtor.apply(this, arguments);
                     this._super = null;
@@ -607,49 +685,70 @@ function _createCtor (baseClass, mixins, className, options) {
                 };
             }
         }
-
-        // check ctor
-        if (ctor.length > 0 && (!className || !className.startsWith('cc.'))) {
-            // fireball-x/dev#138: To make a unified CCClass serialization process,
-            // we don't allow parameters for constructor when creating instances of CCClass.
-            // For advance user, construct arguments can still get from 'arguments'.
-            cc.warnID(3617, className);
-        }
     }
 
+    // check ctor
+    if (ctor.length > 0 && (!className || !className.startsWith('cc.'))) {
+        // To make a unified CCClass serialization process,
+        // we don't allow parameters for constructor when creating instances of CCClass.
+        // For advanced user, construct arguments can still get from 'arguments'.
+        cc.warnID(3617, className);
+    }
+
+    return ctor;
+}
+
+function _getAllCtors (baseClass, mixins, options) {
     // get base user constructors
+    function getCtors (cls) {
+        if (CCClass._isCCClass(cls)) {
+            return cls.__ctors__ || [];
+        }
+        else {
+            return [cls];
+        }
+    }
+
     var ctors = [];
-    var baseOrMixins = [baseClass].concat(mixins);
-    for (var b = 0; b < baseOrMixins.length; b++) {
-        var baseOrMixin = baseOrMixins[b];
+    // if (options.__ES6__) {
+    //     if (mixins) {
+    //         let baseOrMixins = getCtors(baseClass);
+    //         for (let b = 0; b < mixins.length; b++) {
+    //             let mixin = mixins[b];
+    //             if (mixin) {
+    //                 let baseCtors = getCtors(mixin);
+    //                 for (let c = 0; c < baseCtors.length; c++) {
+    //                     if (baseOrMixins.indexOf(baseCtors[c]) < 0) {
+    //                         pushUnique(ctors, baseCtors[c]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // else {
+    let baseOrMixins = [baseClass].concat(mixins);
+    for (let b = 0; b < baseOrMixins.length; b++) {
+        let baseOrMixin = baseOrMixins[b];
         if (baseOrMixin) {
-            if (CCClass._isCCClass(baseOrMixin)) {
-                var baseCtors = baseOrMixin.__ctors__;
-                if (baseCtors) {
-                    for (var c = 0; c < baseCtors.length; c++) {
-                        if (ctors.indexOf(baseCtors[c]) < 0) {
-                            ctors.push(baseCtors[c]);
-                        }
-                    }
-                }
-            }
-            else {
-                if (ctors.indexOf(baseOrMixin) < 0) {
-                    ctors.push(baseOrMixin);
-                }
+            let baseCtors = getCtors(baseOrMixin);
+            for (let c = 0; c < baseCtors.length; c++) {
+                pushUnique(ctors, baseCtors[c]);
             }
         }
     }
+    // }
 
     // append subclass user constructors
+    var ctor = options.ctor;
     if (ctor) {
         ctors.push(ctor);
     }
 
-    return _doCreateCtor(ctors, baseClass, className, options);
+    return ctors;
 }
 
-var SuperCallReg = /xyz/.test(function(){xyz}) ? /\b_super\b/ : /.*/;
+var SuperCallReg = /xyz/.test(function(){xyz}) ? /\b\._super\b/ : /.*/;
 var SuperCallRegStrict = /xyz/.test(function(){xyz}) ? /this\._super\s*\(/ : /(NONE){99}/;
 function boundSuperCalls (baseClass, options, className) {
     var hasSuperCall = false;
@@ -661,7 +760,7 @@ function boundSuperCalls (baseClass, options, className) {
         if (typeof func !== 'function') {
             continue;
         }
-        var pd = JS.getPropertyDescriptor(baseClass.prototype, funcName);
+        var pd = js.getPropertyDescriptor(baseClass.prototype, funcName);
         if (pd) {
             var superFunc = pd.value;
             // ignore pd.get, assume that function defined by getter is just for warnings
@@ -670,13 +769,7 @@ function boundSuperCalls (baseClass, options, className) {
                     hasSuperCall = true;
                     // boundSuperCall
                     options[funcName] = (function (superFunc, func) {
-                        return CC_JSB ? function (...args) {
-                            var tmp = this._super;
-                            this._super = superFunc;
-                            var ret = func.apply(this, args);
-                            this._super = tmp;
-                            return ret;
-                        } : function () {
+                        return function () {
                             var tmp = this._super;
 
                             // Add a new ._super() method that is the same method but on the super-Class
@@ -701,7 +794,7 @@ function boundSuperCalls (baseClass, options, className) {
     return hasSuperCall;
 }
 
-function declareProperties (cls, className, properties, baseClass, mixins) {
+function declareProperties (cls, className, properties, baseClass, mixins, es6) {
     cls.__props__ = [];
 
     if (baseClass && baseClass.__props__) {
@@ -721,19 +814,23 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 
     if (properties) {
         // 预处理属性
-        preprocess.preprocessAttrs(properties, className, cls);
+        preprocess.preprocessAttrs(properties, className, cls, es6);
 
         for (var propName in properties) {
             var val = properties[propName];
-            var attrs = parseAttributes(val, className, propName);
             if ('default' in val) {
-                defineProp(cls, className, propName, val.default, attrs);
+                defineProp(cls, className, propName, val, es6);
             }
             else {
-                defineGetSet(cls, className, propName, val, attrs);
+                defineGetSet(cls, className, propName, val, es6);
             }
         }
     }
+
+    var attrs = Attr.getClassAttrs(cls);
+    cls.__values__ = cls.__props__.filter(function (prop) {
+        return attrs[prop + DELIMETER + 'serializable'] !== false;
+    });
 }
 
 /**
@@ -741,8 +838,8 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  */
 
 /**
- * !#en Defines a CCClass using the given specification, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
- * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/docs/creator/scripting/class/)。
+ * !#en Defines a CCClass using the given specification, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class.html) for details.
+ * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/docs/creator/scripting/class.html)。
  *
  * @method Class
  *
@@ -756,15 +853,15 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {Function[]} [options.mixins]
  *
  * @param {Object} [options.editor] - attributes for Component listed below.
- * @param {Component} [options.editor.requireComponent] - Automatically add required component as a dependency.
- * @param {Component} [options.editor.disallowMultiple=false] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
+ * @param {Boolean} [options.editor.executeInEditMode=false] - Allows the current component to run in edit mode. By default, all components are executed only at runtime, meaning that they will not have their callback functions executed while the Editor is in edit mode.
+ * @param {Function} [options.editor.requireComponent] - Automatically add required component as a dependency.
  * @param {String} [options.editor.menu] - The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
- * @param {Boolean} [options.editor.executionOrder=0] - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after. The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
- * @param {Boolean} [options.editor.executeInEditMode=false] - Makes a component execute in edit mode. By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
- * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available if executeInEditMode is true. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
- * @param {String} [options.editor.inspector] - Specifying the url of the custom html to draw the component in inspector.
- * @param {String} [options.editor.icon] - Specifying the url of the icon to display in inspector.
- * @param {String} [options.editor.help] - The custom documentation UR
+ * @param {Number} [options.editor.executionOrder=0] - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after. The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
+ * @param {Boolean} [options.editor.disallowMultiple] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
+ * @param {Boolean} [options.editor.playOnFocus=false] - This property is only available when executeInEditMode is set. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
+ * @param {String} [options.editor.inspector] - Customize the page url used by the current component to render in the Properties.
+ * @param {String} [options.editor.icon] - Customize the icon that the current component displays in the editor.
+ * @param {String} [options.editor.help] - The custom documentation URL
  *
  * @param {Function} [options.update] - lifecycle method for Component, see {{#crossLink "Component/update:method"}}{{/crossLink}}
  * @param {Function} [options.lateUpdate] - lifecycle method for Component, see {{#crossLink "Component/lateUpdate:method"}}{{/crossLink}}
@@ -782,6 +879,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @return {Function} - the created class
  *
  * @example
+
  // define base class
  var Node = cc.Class();
 
@@ -789,6 +887,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  var Sprite = cc.Class({
      name: 'Sprite',
      extends: Node,
+
      ctor: function () {
          this.url = "";
          this.id = 0;
@@ -828,23 +927,21 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  obj.load();
  */
 function CCClass (options) {
-    if (!options) {
-        return define();
-    }
-
-    if (typeof options === 'function') {
-        return cc.Class.decorator.class(options);
-    }
+    options = options || {};
 
     var name = options.name;
     var base = options.extends/* || CCObject*/;
     var mixins = options.mixins;
 
     // create constructor
-    var cls;
-    cls = define(name, base, mixins, options);
+    var cls = define(name, base, mixins, options);
     if (!name) {
         name = cc.js.getClassName(cls);
+    }
+
+    cls._sealed = true;
+    if (base) {
+        base._sealed = false;
     }
 
     // define Properties
@@ -855,11 +952,16 @@ function CCClass (options) {
             return x.__props__ === null;
         }))
     ) {
-        deferredInitializer.push({cls: cls, props: properties, mixins: mixins});
-        cls.__props__ = null;
+        if (CC_DEV && options.__ES6__) {
+            cc.error('not yet implement deferred properties for ES6 Classes');
+        }
+        else {
+            deferredInitializer.push({cls: cls, props: properties, mixins: mixins});
+            cls.__props__ = cls.__values__ = null;
+        }
     }
     else {
-        declareProperties(cls, name, properties, base, options.mixins);
+        declareProperties(cls, name, properties, base, options.mixins, options.__ES6__);
     }
 
     // define statics
@@ -885,27 +987,21 @@ function CCClass (options) {
             continue;
         }
         var func = options[funcName];
-        if (!preprocess.validateMethod(func, funcName, name, cls, base)) {
+        if (!preprocess.validateMethodWithProps(func, funcName, name, cls, base)) {
             continue;
         }
-        // use defineProperty to redefine some super method defined as getter
-        Object.defineProperty(cls.prototype, funcName, {
-            value: func,
-            enumerable: true,
-            configurable: true,
-            writable: true,
-        });
+        // use value to redefine some super method defined as getter
+        js.value(cls.prototype, funcName, func, true, true);
     }
 
-    if (CC_DEV) {
-        var editor = options.editor;
-        if (editor) {
-            if (cc.isChildClassOf(base, cc.Component)) {
-                cc.Component._registerEditorProps(cls, editor);
-            }
-            else {
-                cc.warnID(3623, name);
-            }
+
+    var editor = options.editor;
+    if (editor) {
+        if (js.isChildClassOf(base, cc.Component)) {
+            cc.Component._registerEditorProps(cls, editor);
+        }
+        else if (CC_DEV) {
+            cc.warnID(3623, name);
         }
     }
 
@@ -921,7 +1017,8 @@ function CCClass (options) {
  * @private
  */
 CCClass._isCCClass = function (constructor) {
-    return !!constructor && typeof constructor.__ctors__ !== 'undefined';
+    return constructor &&
+           constructor.hasOwnProperty('__ctors__');     // is not inherited __ctors__
 };
 
 //
@@ -934,63 +1031,21 @@ CCClass._isCCClass = function (constructor) {
 // @private
 //
 CCClass._fastDefine = function (className, constructor, serializableFields) {
-    JS.setClassName(className, constructor);
+    js.setClassName(className, constructor);
     //constructor.__ctors__ = constructor.__ctors__ || null;
-    var props = constructor.__props__ = Object.keys(serializableFields);
+    var props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
+    var attrProtos = Attr.getClassAttrsProto(constructor);
     for (var i = 0; i < props.length; i++) {
         var key = props[i];
-        var val = serializableFields[key];
-        Attr.setClassAttr(constructor, key, 'visible', false);
-        Attr.setClassAttr(constructor, key, 'default', val);
+        attrProtos[key + DELIMETER + 'visible'] = false;
+        attrProtos[key + DELIMETER + 'default'] = serializableFields[key];
     }
 };
 
 CCClass.Attr = Attr;
 CCClass.attr = Attr.attr;
 
-/**
- * Checks whether subclass is child of superclass or equals to superclass
- *
- * @method isChildClassOf
- * @param {Function} subclass
- * @param {Function} superclass
- * @return {Boolean}
- */
-cc.isChildClassOf = function (subclass, superclass) {
-    if (subclass && superclass) {
-        if (typeof subclass !== 'function') {
-            return false;
-        }
-        if (typeof superclass !== 'function') {
-            if (CC_DEV) {
-                cc.warnID(3625, superclass);
-            }
-            return false;
-        }
-        if (subclass === superclass) {
-            return true;
-        }
-        for (;;) {
-            if (CC_JSB && subclass.$super) {
-                subclass = subclass.$super;
-            }
-            else {
-                var proto = subclass.prototype; // binded function do not have prototype
-                var dunderProto = proto && Object.getPrototypeOf(proto);
-                subclass = dunderProto && dunderProto.constructor;
-            }
-            if (!subclass) {
-                return false;
-            }
-            if (subclass === superclass) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
-/**
+/*
  * Return all super classes
  * @method getInheritanceChain
  * @param {Function} constructor
@@ -999,13 +1054,7 @@ cc.isChildClassOf = function (subclass, superclass) {
 CCClass.getInheritanceChain = function (klass) {
     var chain = [];
     for (;;) {
-        if (CC_JSB && klass.$super) {
-            klass = klass.$super;
-        }
-        else {
-            var dunderProto = Object.getPrototypeOf(klass.prototype);
-            klass = dunderProto && dunderProto.constructor;
-        }
+        klass = js.getSuper(klass);
         if (!klass) {
             break;
         }
@@ -1017,7 +1066,7 @@ CCClass.getInheritanceChain = function (klass) {
 };
 
 var PrimitiveTypes = {
-    // Specify that the input value must be integer in Inspector.
+    // Specify that the input value must be integer in Properties.
     // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.
     Integer: 'Number',
     // Indicates that the type of elements in array or the type of value in dictionary is double.
@@ -1026,8 +1075,15 @@ var PrimitiveTypes = {
     String: 'String',
 };
 var tmpAttrs = [];
-function parseAttributes (attrs, className, propName) {
+function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     var ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
+
+    var attrsProto = null;
+    var attrsProtoKey = '';
+    function getAttrsProto () {
+        attrsProtoKey = propName + DELIMETER;
+        return attrsProto = Attr.getClassAttrsProto(cls);
+    }
 
     tmpAttrs.length = 0;
     var result = tmpAttrs;
@@ -1073,7 +1129,10 @@ function parseAttributes (attrs, className, propName) {
                         });
                     }
                     else {
-                        result.push(Attr.ObjectType(type));
+                        result.push(attrs._short ? {
+                            type: 'Object',
+                            ctor: type
+                        } : Attr.ObjectType(type));
                     }
                 }
                 else if (CC_DEV) {
@@ -1083,18 +1142,11 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    function parseSimpleAttr (attrName, expectType, attrCreater) {
+    function parseSimpleAttr (attrName, expectType) {
         if (attrName in attrs) {
             var val = attrs[attrName];
             if (typeof val === expectType) {
-                if ( !attrCreater ) {
-                    var attr = {};
-                    attr[attrName] = val;
-                    result.push(attr);
-                }
-                else {
-                    result.push(typeof attrCreater === 'function' ? attrCreater(val) : attrCreater);
-                }
+                (attrsProto || getAttrsProto())[attrsProtoKey + attrName] = val;
             }
             else if (CC_DEV) {
                 cc.error(ERR_Type, attrName, className, propName, expectType);
@@ -1102,26 +1154,41 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    parseSimpleAttr('rawType', 'string', Attr.RawType);
-    parseSimpleAttr('editorOnly', 'boolean', Attr.EditorOnly);
+    if (attrs.editorOnly) {
+        if (CC_DEV && usedInGetter) {
+            cc.errorID(3613, "editorOnly", name, propName);
+        }
+        else {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'editorOnly'] = true;
+        }
+    }
     //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
-        parseSimpleAttr('multiline', 'boolean', {multiline: true});
-        parseSimpleAttr('readonly', 'boolean', {readonly: true});
+        parseSimpleAttr('multiline', 'boolean');
+        if (attrs.readonly) {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'readonly'] = true;
+        }
         parseSimpleAttr('tooltip', 'string');
         parseSimpleAttr('slide', 'boolean');
     }
 
     if (attrs.url) {
-        result.push({ saveUrlAsAsset: true });
+        (attrsProto || getAttrsProto())[attrsProtoKey + 'saveUrlAsAsset'] = true;
     }
     if (attrs.serializable === false) {
-        result.push(Attr.NonSerialized);
+        if (CC_DEV && usedInGetter) {
+            cc.errorID(3613, "serializable", name, propName);
+        }
+        else {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
+        }
     }
+    parseSimpleAttr('formerlySerializedAs', 'string');
+
     if (CC_EDITOR) {
         if ('animatable' in attrs && !attrs.animatable) {
-            result.push({ animatable: false });
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
         }
     }
 
@@ -1129,29 +1196,29 @@ function parseAttributes (attrs, className, propName) {
         var visible = attrs.visible;
         if (typeof visible !== 'undefined') {
             if (!visible) {
-                result.push({visible: false});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
             else if (typeof visible === 'function') {
-                result.push({visible: visible});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = visible;
             }
         }
         else {
             var startsWithUS = (propName.charCodeAt(0) === 95);
             if (startsWithUS) {
-                result.push({visible: false});
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
         }
     }
-
-    //if (attrs.custom) {
-    //    result.push( { custom: attrs.custom });
-    //}
 
     var range = attrs.range;
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                result.push({ min: range[0], max: range[1], step: range[2] });
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'min'] = range[0];
+                attrsProto[attrsProtoKey + 'max'] = range[1];
+                if (range.length > 2) {
+                    attrsProto[attrsProtoKey + 'step'] = range[2];
+                }
             }
             else if (CC_DEV) {
                 cc.errorID(3647);
@@ -1176,13 +1243,12 @@ module.exports = {
         return Array.isArray(defaultVal);
     },
     fastDefine: CCClass._fastDefine,
-    getNewValueTypeCode: getNewValueTypeCode,
-    IDENTIFIER_RE: IDENTIFIER_RE,
-    escapeForJS: escapeForJS,
-    define,
-    declareProperties
+    getNewValueTypeCode: CC_SUPPORT_JIT && getNewValueTypeCodeJit,
+    IDENTIFIER_RE,
+    escapeForJS,
+    getDefault: getDefault
 };
 
-if (CC_EDITOR) {
-    module.exports.getDefault = getDefault;
+if (CC_TEST) {
+    js.mixin(CCClass, module.exports);
 }

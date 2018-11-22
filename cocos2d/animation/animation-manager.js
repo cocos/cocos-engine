@@ -1,40 +1,52 @@
-var JS = cc.js;
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+var js = cc.js;
 
 var AnimationManager = cc.Class({
     ctor: function () {
-        this.animators = [];
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
-
-        this._updating = false;
-        this._removeList = [];
-
+        this._anims = new js.array.MutableForwardIterator([]);
         this._delayEvents = [];
+
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
     },
 
     // for manager
 
     update: function (dt) {
-        this._updating = true;
-
-        var animators = this.animators;
-        var i, l;
-        for (i = 0, l = animators.length; i < l; i++) {
-            var animator = animators[i];
-            if (animator._isPlaying && !animator._isPaused) {
-                animator.update(dt);
+        var iterator = this._anims;
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            var anim = array[iterator.i];
+            if (anim._isPlaying && !anim._isPaused) {
+                anim.update(dt);
             }
         }
 
-        this._updating = false;
-
-        var removeList = this._removeList;
-        for (i = 0, l = removeList.length; i < l; i++) {
-            this.removeAnimator( removeList[i] );
-        }
-        removeList.length = 0;
-
         var events = this._delayEvents;
-        for (i = 0, l = events.length; i < l; i++) {
+        for (let i = 0, l = events.length; i < l; i++) {
             var event = events[i];
             event.target[event.func].apply(event.target, event.args);
         }
@@ -43,38 +55,24 @@ var AnimationManager = cc.Class({
 
     destruct: function () {},
 
-    // for animator
 
     /**
-     * @param {Animator} animator
+     * @param {AnimationState} anim
      */
-    addAnimator: function (animator) {
-        var index = this.animators.indexOf(animator);
+    addAnimation: function (anim) {
+        var index = this._anims.array.indexOf(anim);
         if (index === -1) {
-            this.animators.push(animator);
-        }
-
-        index = this._removeList.indexOf(animator);
-        if (index !== -1) {
-            this._removeList.splice(index, 1);
+            this._anims.push(anim);
         }
     },
 
     /**
-     * @param {Animator} animator
+     * @param {AnimationState} anim
      */
-    removeAnimator: function (animator) {
-        var index = this.animators.indexOf(animator);
+    removeAnimation: function (anim) {
+        var index = this._anims.array.indexOf(anim);
         if (index >= 0) {
-            if (this._updating) {
-                var removeList = this._removeList;
-                if (removeList.indexOf(animator) === -1) {
-                    removeList.push(animator);
-                }
-            }
-            else {
-                this.animators.splice(index, 1);
-            }
+            this._anims.fastRemoveAt(index);
         }
         else {
             cc.errorID(3907);

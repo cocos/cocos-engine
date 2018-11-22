@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of Stringge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -48,6 +49,7 @@ anysdk.agentManager = anysdk.AgentManager.getInstance();
  * !#zh
  * 插件管理类
  * @class AgentManager
+ * @hide
  *
  */
 anysdk.AgentManager = {
@@ -109,10 +111,10 @@ anysdk.AgentManager = {
      * !#zh
      * 获取支付系统插件
      * @method getIAPPlugins
-     * @return {anysdk.ProtocolIAP}
+     * @return {anysdk.ProtocolIAP[]}
      */
     getIAPPlugins: function(){
-        return {anysdk.ProtocolIAP};
+        return [anysdk.ProtocolIAP];
     },
 
     /**
@@ -315,6 +317,7 @@ anysdk.AgentManager = {
  * !#zh
  * 插件协议
  * @class PluginProtocol
+ * @hide
  * @brief  The super class for all plugins.
  */
 anysdk.PluginProtocol = {
@@ -449,6 +452,7 @@ anysdk.PluginProtocol = {
  * !#zh
  * 用户系统协议接口
  * @class ProtocolUser
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolUser = PluginProtocol.extend({
@@ -694,6 +698,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
  * !#zh
  * 支付系统协议接口
  * @class ProtocolIAP
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolIAP = PluginProtocol.extend({
@@ -776,6 +781,7 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
  * !#zh
  * 统计系统协议接口
  * @class ProtocolAnalytics
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolAnalytics = PluginProtocol.extend({
@@ -1032,6 +1038,7 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
  * !#zh
  * 分享系统协议接口
  * @class ProtocolShare
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolShare = PluginProtocol.extend({
@@ -1078,6 +1085,7 @@ anysdk.ProtocolShare = PluginProtocol.extend({
  * !#zh
  * 广告系统协议接口
  * @class ProtocolAds
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolAds = PluginProtocol.extend({
@@ -1184,6 +1192,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
  * !#zh
  * 社交系统协议接口
  * @class ProtocolSocial
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolSocial = PluginProtocol.extend({
@@ -1317,6 +1326,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
  * !#zh
  * 推送系统协议接口
  * @class ProtocolPush
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolPush = PluginProtocol.extend({
@@ -1417,6 +1427,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
  * !#zh
  * 崩溃分析系统协议接口
  * @class ProtocolCrash
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolCrash = PluginProtocol.extend({
@@ -1465,6 +1476,7 @@ anysdk.ProtocolCrash = PluginProtocol.extend({
  * !#zh
  * 录屏系统协议接口
  * @class ProtocolREC
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolREC = PluginProtocol.extend({
@@ -1638,6 +1650,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
  * !#zh
  * 广告追踪系统协议接口
  * @class ProtocolAdTracking
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolAdTracking = PluginProtocol.extend({
@@ -1730,6 +1743,7 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
  * !#zh
  * 自定义系统协议接口
  * @class ProtocolCustom
+ * @hide
  * @extends PluginProtocol
  */
 anysdk.ProtocolCustom = PluginProtocol.extend({
@@ -1765,6 +1779,7 @@ anysdk.ProtocolCustom = PluginProtocol.extend({
  * 数据结构类
  *
  * @class PluginParam
+ * @hide
  */
 anysdk.PluginParam = {
     /**

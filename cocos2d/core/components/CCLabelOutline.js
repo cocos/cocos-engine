@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,19 +37,19 @@
  *  node.parent = this.node;
  */
 
-var LabelOutline = cc.Class({
-    name: 'cc.LabelOutline', extends: require('./CCComponent'),
+let LabelOutline = cc.Class({
+    name: 'cc.LabelOutline',
+    extends: require('./CCComponent'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/LabelOutline',
         executeInEditMode: true,
         requireComponent: cc.Label,
     },
 
-    ctor: function() {
-        this._labelSGNode = null;
-    },
-
     properties: {
+        _color: cc.color(255,255,255,255),
+        _width: 1,
+
         /**
          * !#en Change the outline color
          * !#zh 改变描边的颜色
@@ -57,19 +58,16 @@ var LabelOutline = cc.Class({
          * @example
          * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
          */
-        _color: cc.color(255,255,255,255),
-        _width: 1,
         color: {
-            get: function() {
+            get: function () {
                 return this._color;
             },
-            set:function(value) {
+            set: function (value) {
                 this._color = cc.color(value);
-                if(this._labelSGNode) {
-                    this._labelSGNode.setOutlineColor(cc.color(this._color));
-                }
+                this._updateRenderData();
             }
         },
+
         /**
          * !#en Change the outline width
          * !#zh 改变描边的宽度
@@ -79,38 +77,22 @@ var LabelOutline = cc.Class({
          * outline.width = 3;
          */
         width: {
-            get: function() {
+            get: function () {
                 return this._width;
             },
-            set: function(value) {
+            set: function (value) {
                 this._width = value;
-                if(this._labelSGNode) {
-                    this._labelSGNode.setOutlineWidth(value);
-                    this._labelSGNode.setMargin(value);
-                }
+                this._updateRenderData();
             }
-        },
-    },
-
-    onEnable: function () {
-        var label = this.node.getComponent('cc.Label');
-        var sgNode = this._labelSGNode = label && label._sgNode;
-        if(this._labelSGNode) {
-            sgNode.setOutlined(true);
-            sgNode.setOutlineColor(cc.color(this._color));
-            sgNode.setOutlineWidth(this._width);
-            sgNode.setMargin(this._width);
         }
     },
 
-    onDisable: function () {
-        if(this._labelSGNode) {
-            this._labelSGNode.setOutlined(false);
-            this._labelSGNode.setMargin(0);
+    _updateRenderData () {
+        let label = this.node.getComponent(cc.Label);
+        if (label) {
+            label._updateRenderData(true);
         }
-
-        this._labelSGNode = null;
-    },
+    }
 
 });
 

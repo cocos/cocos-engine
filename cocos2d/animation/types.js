@@ -1,5 +1,27 @@
-var JS = cc.js;
-var Playable = require('./playable');
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 var WrapModeMask = {
     Loop: 1 << 1,
@@ -73,7 +95,7 @@ var WrapMode = cc.Enum({
 cc.WrapMode = WrapMode;
 
 // For internal
-var WrappedInfo = function (info) {
+function WrappedInfo (info) {
     if (info) {
         this.set(info);
         return;
@@ -84,367 +106,20 @@ var WrappedInfo = function (info) {
     this.direction = 1;
     this.stopped = true;
     this.iterations = 0;
-};
+    this.frameIndex = undefined;
+}
 
 WrappedInfo.prototype.set = function (info) {
-    for (var k in info) {
-        this[k] = info[k];
-    }
+    this.ratio = info.ratio;
+    this.time = info.time;
+    this.direction = info.direction;
+    this.stopped = info.stopped;
+    this.iterations = info.iterations;
+    this.frameIndex = info.frameIndex;
 };
-
-/**
- * !#en The abstract interface for all playing animation.
- * !#zh 所有播放动画的抽象接口。
- * @class AnimationNodeBase
- *
- * @extends Playable
- */
-var AnimationNodeBase = function () {
-    Playable.call(this);
-};
-JS.extend(AnimationNodeBase, Playable);
-
-/**
- * @method update
- * @param {Number} deltaTime
- * @private
- */
-AnimationNodeBase.prototype.update = function (deltaTime) {};
-
-
-/**
- * !#en The collection and instance of playing animations.
- * !#zh 动画曲线的集合，根据当前时间计算出每条曲线的状态。
- * @class AnimationNode
- * @extends AnimationNodeBase
- *
- * @param {Animator} animator
- * @param {AnimCurve[]} [curves]
- * @param {Object} [timingInput] - This dictionary is used as a convenience for specifying the timing properties of an Animation in bulk.
- */
-function AnimationNode (animator, curves, timingInput) {
-    AnimationNodeBase.call(this);
-
-    this.animator = animator;
-
-    /**
-     * !#en The curves list.
-     * !#zh 曲线列表。
-     * @property curves
-     * @type {AnimCurve[]}
-     */
-    this.curves = curves || [];
-
-    // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
-
-    /**
-     * !#en The start delay which represents the number of seconds from an animation's start time to the start of
-     * the active interval.
-     * !#zh 延迟多少秒播放。
-     *
-     * @property delay
-     * @type {Number}
-     * @default 0
-     */
-    this.delay = 0;
-
-    /**
-     * !#en The animation's iteration count property.
-     *
-     * A real number greater than or equal to zero (including positive infinity) representing the number of times
-     * to repeat the animation node.
-     *
-     * Values less than zero and NaN values are treated as the value 1.0 for the purpose of timing model
-     * calculations.
-     *
-     * !#zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）
-     *
-     * @property repeatCount
-     * @type {Number}
-     * @default 1
-     */
-    this.repeatCount = 1;
-
-    /**
-     * !#en The iteration duration of this animation in seconds. (length)
-     * !#zh 单次动画的持续时间，秒。
-     *
-     * @property duration
-     * @type {Number}
-     * @readOnly
-     */
-    this.duration = 1;
-
-    /**
-     * !#en The animation's playback speed. 1 is normal playback speed.
-     * !#zh 播放速率。
-     * @property speed
-     * @type {Number}
-     * @default: 1.0
-     */
-    this.speed = 1;
-
-    /**
-     * !#en
-     * Wrapping mode of the playing animation.
-     * Notice : dynamic change wrapMode will reset time and repeatCount property
-     * !#zh
-     * 动画循环方式。
-     * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount
-     *
-     * @property wrapMode
-     * @type {WrapMode}
-     * @default: WrapMode.Normal
-     */
-    this.wrapMode = WrapMode.Normal;
-
-    if (timingInput) {
-        this.delay = timingInput.delay || this.delay;
-
-        var duration = timingInput.duration;
-        if (typeof duration !== 'undefined') {
-            this.duration = duration;
-        }
-
-        var speed = timingInput.speed;
-        if (typeof speed !== 'undefined') {
-            this.speed = speed;
-        }
-
-        //
-        var wrapMode = timingInput.wrapMode;
-        if (typeof wrapMode !== 'undefined') {
-            var isEnum = typeof wrapMode === 'number';
-            if (isEnum) {
-                this.wrapMode = wrapMode;
-            }
-            else {
-                this.wrapMode = WrapMode[wrapMode];
-            }
-        }
-
-        var repeatCount = timingInput.repeatCount;
-        if (typeof repeatCount !== 'undefined') {
-            this.repeatCount = repeatCount;
-        }
-        else if (this.wrapMode & WrapModeMask.Loop) {
-            this.repeatCount = Infinity;
-        }
-    }
-
-    /**
-     * !#en The current time of this animation in seconds.
-     * !#zh 动画当前的时间，秒。
-     * @property time
-     * @type {Number}
-     * @default 0
-     */
-    this.time = 0;
-
-    this._timeNoScale = 0;
-    this._firstFramePlayed = false;
-
-    this._duringDelay = false;
-
-    // play
-
-    if (this.delay > 0) {
-        this._duringDelay = true;
-    }
-
-    this._wrappedInfo = new WrappedInfo();
-    this._lastWrappedInfo = null;
-}
-JS.extend(AnimationNode, AnimationNodeBase);
-
-JS.mixin(AnimationNode.prototype, {
-
-    update: function (delta) {
-
-        // calculate delay time
-
-        if (this._duringDelay) {
-            this._timeNoScale += delta;
-            if (this._timeNoScale < this.delay) {
-                // still waiting
-                return;
-            }
-            else {
-                this._duringDelay = false;
-            }
-            //// start play
-            // delta -= (this._timeNoScale - this.delay);
-        }
-
-        // make first frame perfect
-
-        //var playPerfectFirstFrame = (this.time === 0);
-        if (this._firstFramePlayed) {
-            this.time += (delta * this.speed);
-        }
-        else {
-            this._firstFramePlayed = true;
-        }
-
-        // sample
-        var info = this.sample();
-
-        if (!this._lastWrappedInfo) {
-            this._lastWrappedInfo = new WrappedInfo(info);
-        }
-
-        var anotherIteration = (info.iterations | 0) > (this._lastWrappedInfo.iterations | 0);
-        if (this.repeatCount > 1 && anotherIteration) {
-            if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-                if (this._lastWrappedInfo.direction < 0) {
-                    this.emit('lastframe', this);
-                }
-            }
-            else {
-                if (this._lastWrappedInfo.direction > 0) {
-                    this.emit('lastframe', this);
-                }
-            }
-        }
-
-        if (info.stopped) {
-            this.stop();
-            this.emit('finished', this);
-        }
-
-        this._lastWrappedInfo.set(info);
-    },
-
-    _needRevers: function (currentIterations) {
-        var wrapMode = this.wrapMode;
-        var needRevers = false;
-
-        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-            var isEnd = currentIterations - (currentIterations | 0) === 0;
-            if (isEnd && (currentIterations > 0)) {
-                currentIterations -= 1;
-            }
-
-            var isOddIteration = currentIterations & 1;
-            if (isOddIteration) {
-                needRevers = !needRevers;
-            }
-        }
-        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            needRevers = !needRevers;
-        }
-        return needRevers;
-    },
-
-    getWrappedInfo: function (time, info) {
-        info = info || new WrappedInfo();
-        
-        var stopped = false;
-        var duration = this.duration;
-        var ratio = 0;
-        var wrapMode = this.wrapMode;
-
-        var currentIterations = Math.abs(time / duration);
-        if (currentIterations > this.repeatCount) currentIterations = this.repeatCount;
-
-        var needRevers = false;
-        if (wrapMode & WrapModeMask.ShouldWrap) {
-            needRevers = this._needRevers(currentIterations);
-        }
-
-        var direction = needRevers ? -1 : 1;
-        if (this.speed < 0) direction *= -1;
-
-        if (currentIterations >= this.repeatCount) {
-            stopped = true;
-            var tempRatio = this.repeatCount - (this.repeatCount | 0);
-            if (tempRatio === 0) {
-                tempRatio = 1;  // 如果播放过，动画不复位
-            }
-            time = tempRatio * duration * (time > 0 ? 1 : -1);
-        }
-
-        if (time > duration) {
-            var tempTime = time % duration;
-            time = tempTime === 0 ? duration : tempTime;
-        }
-        else if (time < 0) {
-            time = time % duration;
-            if (time !== 0 ) time += duration;
-        }
-
-        // calculate wrapped time
-        if (wrapMode & WrapModeMask.ShouldWrap) {
-            if (needRevers) time = duration - time;
-        }
-
-        ratio = time / duration;
-
-        info.ratio = ratio;
-        info.time = time;
-        info.direction = direction;
-        info.stopped = stopped;
-        info.iterations = currentIterations;
-
-        return info;
-    },
-
-    sample: function () {
-        var info = this.getWrappedInfo(this.time, this._wrappedInfo);
-        var curves = this.curves;
-        for (var i = 0, len = curves.length; i < len; i++) {
-            var curve = curves[i];
-            curve.sample(info.time, info.ratio, this);
-        }
-
-        return info;
-    },
-
-    onStop: function () {
-        this.emit('stop', this);
-    },
-
-    onPlay: function () {
-        this.emit('play', this);
-    },
-
-    onPause: function () {
-        this.emit('pause', this);
-    },
-
-    onResume: function () {
-        this.emit('resume', this);
-    }
-});
-
-cc.defineGetterSetter(AnimationNode.prototype, 'wrapMode',
-    function () {
-        return this._wrapMode;
-    },
-    function (value) {
-        this._wrapMode = value;
-
-        if (CC_EDITOR) return;
-
-        // dynamic change wrapMode will need reset time to 0
-        this.time = 0;
-
-        if (value & WrapModeMask.Loop) {
-            this.repeatCount = Infinity;
-        }
-        else {
-            this.repeatCount = 1;
-        }
-    }
-);
-
-cc.js.mixin(AnimationNode.prototype, cc.EventTarget.prototype);
-
-cc.AnimationNode = AnimationNode;
 
 module.exports = {
-    WrapModeMask: WrapModeMask,
-    WrapMode: WrapMode,
-    AnimationNode: AnimationNode,
-    WrappedInfo: WrappedInfo
+    WrapModeMask,
+    WrapMode,
+    WrappedInfo
 };

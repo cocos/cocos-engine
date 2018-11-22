@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,23 +25,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('../core/event/event-target');
+const EventTarget = require('../core/event/event-target');
+const sys = require('../core/platform/CCSys');
+const LoadMode = require('../core/assets/CCAudioClip').LoadMode;
 
-var touchBinded = false;
-var touchPlayList = [
+let touchBinded = false;
+let touchPlayList = [
     //{ instance: Audio, offset: 0, audio: audio }
 ];
 
-var Audio = function (src) {
+let Audio = function (src) {
     EventTarget.call(this);
 
     this._src = src;
-    this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
+    this.id = 0;
 
-    this._eventList = {};
+    this._volume = 1;
+    this._loop = false;
+    this._nextTime = 0;  // playback position to set
+
     this._state = Audio.State.INITIALZING;
-    this._loaded = false;
 
     this._onended = function () {
         this.emit('ended');
@@ -49,20 +54,13 @@ var Audio = function (src) {
 
 cc.js.extend(Audio, EventTarget);
 
-Audio.Type = {
-    DOM: 'AUDIO',
-    WEBAUDIO: 'WEBAUDIO',
-    NATIVE: 'NATIVE',
-    UNKNOWN: 'UNKNOWN'
-};
-
 /**
  * !#en Audio state.
  * !#zh 声音播放状态
  * @enum audioEngine.AudioState
  * @memberof cc
  */
-
+// TODO - At present, the state is mixed with two states of users and systems, and it is best to split into two types. A "loading" should also be added to the system state.
 Audio.State = {
     /**
      * @property {Number} ERROR
@@ -79,147 +77,183 @@ Audio.State = {
     /**
      * @property {Number} PAUSED
      */
-    PAUSED: 2
+    PAUSED: 2,
+    /**
+     * @property {Number} STOPPED
+     */
+    STOPPED: 3,
 };
 
 (function (proto) {
 
-    proto.preload = function () {
-        var src = this._src,
-            audio = this;
-        var item = cc.loader.getItem(src);
-
-        if (!item) {
-            item = cc.loader.getItem(src + '?useDom=1');
-        }
-
-        // If the resource does not exist
-        if (!item) {
-            return cc.loader.load(src, function (error) {
-                if (!error) {
-                    var item = cc.loader.getItem(src);
-                    audio.mount(item.element || item.buffer);
-                    audio.emit('load');
-                }
-            });
-        } else if (item.complete) {
-            audio.mount(item.element || item.buffer);
-            audio.emit('load');
-        }
-
-        // current and  volume
-    };
-
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
-        if (this._audioType === Audio.Type.DOM) {
-            this._element.addEventListener('ended', callback);
+        let elem = this._element;
+        if (this._src && (elem instanceof HTMLAudioElement)) {
+            elem.addEventListener('ended', callback);
         } else {
-            this._element.onended = callback;
+            elem.onended = callback;
         }
     };
 
     proto._unbindEnded = function () {
-        if (this._audioType === Audio.Type.DOM) {
-            this._element.removeEventListener('ended', this._onended);
-        } else {
-            this._element.onended = null;
+        let elem = this._element;
+        if (elem instanceof HTMLAudioElement) {
+            elem.removeEventListener('ended', this._onended);
+        } else if (elem) {
+            elem.onended = null;
         }
     };
 
-    proto.mount = function (elem) {
-        if (elem instanceof HTMLElement) {
-            this._element = document.createElement('audio');
+    // proto.mount = function (elem) {
+    //     if (CC_DEBUG) {
+    //         cc.warn('Audio.mount(value) is deprecated. Please use Audio._onLoaded().');
+    //     }
+    // };
+
+    proto._onLoaded = function () {
+        let elem = this._src._nativeAsset;
+        if (elem instanceof HTMLAudioElement) {
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
             this._element.src = elem.src;
-            this._audioType = Audio.Type.DOM;
-        } else {
-            this._element = new WebAudioElement(elem, this);
-            this._audioType = Audio.Type.WEBAUDIO;
         }
-        this._bindEnded();
-        this._state = Audio.State.INITIALZING;
-        this._loaded = true;
+        else {
+            this._element = new WebAudioElement(elem, this);
+        }
+
+        this.setVolume(this._volume);
+        this.setLoop(this._loop);
+        if (this._nextTime !== 0) {
+            this.setCurrentTime(this._nextTime);
+        }
+        if (this._state === Audio.State.PLAYING) {
+            this.play();
+        }
+        else {
+            this._state = Audio.State.INITIALZING;
+        }
     };
 
     proto.play = function () {
-        if (!this._element) return;
-        this._element.play();
-        this.emit('play');
+        // marked as playing so it will playOnLoad
         this._state = Audio.State.PLAYING;
 
-        if (this._audioType === Audio.Type.DOM && this._element.paused) {
-            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+        if (!this._element) {
+            return;
         }
 
-        if (touchBinded) return;
-        touchBinded = true;
+        this._bindEnded();
+        this._element.play();
 
-        // Listen to the touchstart body event and play the audio when necessary.
-        cc.game.canvas.addEventListener('touchstart', function () {
-            var item;
-            while (item = touchPlayList.pop()) {
-                item.audio.play(item.offset);
+        if (!CC_QQPLAY && !CC_WECHATGAME) {
+            if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
+                this._element.paused) {
+                touchPlayList.push({ instance: this, offset: 0, audio: this._element });
             }
-        });
+
+            if (touchBinded) return;
+            touchBinded = true;
+
+            // Listen to the touchstart body event and play the audio when necessary.
+            cc.game.canvas.addEventListener('touchstart', function () {
+                let item;
+                while (item = touchPlayList.pop()) {
+                    item.audio.play(item.offset);
+                }
+            });
+        }
+    };
+
+    proto.destroy = function () {
+        if (CC_WECHATGAME || CC_QQPLAY) {
+            this._element && this._element.destroy();
+        }
+        this._element = null;
     };
 
     proto.pause = function () {
-        if (!this._element) return;
+        if (!this._element || this._state !== Audio.State.PLAYING) return;
         this._unbindEnded();
         this._element.pause();
-        this.emit('pause');
         this._state = Audio.State.PAUSED;
     };
 
     proto.resume = function () {
-        if (!this._element || this._element.currentTime === 0) return;
+        if (!this._element || this._state !== Audio.State.PAUSED) return;
         this._bindEnded();
         this._element.play();
-        this.emit('resume');
         this._state = Audio.State.PLAYING;
     };
 
     proto.stop = function () {
         if (!this._element) return;
+        this._element.pause();
         try {
             this._element.currentTime = 0;
         } catch (error) {}
-        this._element.pause();
         // remove touchPlayList
-        for (var i=0; i<touchPlayList; i++) {
+        for (let i = 0; i < touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {
                 touchPlayList.splice(i, 1);
                 break;
             }
         }
-        this.emit('ended');
+        this._unbindEnded();
         this.emit('stop');
-        this._state = Audio.State.PAUSED;
+        this._state = Audio.State.STOPPED;
     };
 
     proto.setLoop = function (loop) {
-        if (!this._element) return;
-        this._element.loop = loop;
+        this._loop = loop;
+        if (this._element) {
+            this._element.loop = loop;
+        }
     };
     proto.getLoop = function () {
-        return this._element && this._element.loop;
+        return this._loop;
     };
 
     proto.setVolume = function (num) {
-        if (!this._element) return;
-        this._element.volume = num;
+        this._volume = num;
+        if (this._element) {
+            this._element.volume = num;
+        }
     };
     proto.getVolume = function () {
-        return this._element ? this._element.volume : 1;
+        return this._volume;
     };
 
     proto.setCurrentTime = function (num) {
-        if (!this._element) return;
-        this._unbindEnded();
-        this._bindEnded(function () {
-            this._bindEnded();
-        }.bind(this));
-        this._element.currentTime = num;
+        if (this._element) {
+            this._nextTime = 0;
+        }
+        else {
+            this._nextTime = num;
+            return;
+        }
+
+        if (!(CC_QQPLAY || CC_WECHATGAME)) {
+            this._unbindEnded();
+            this._bindEnded(function () {
+                this._bindEnded();
+            }.bind(this));
+        }
+        try {
+            this._element.currentTime = num;
+        }
+        catch (err) {
+            let _element = this._element;
+            if (_element.addEventListener) {
+                let func = function () {
+                    _element.removeEventListener('loadedmetadata', func);
+                    _element.currentTime = num;
+                };
+                _element.addEventListener('loadedmetadata', func);
+            }
+        }
     };
     proto.getCurrentTime = function () {
         return this._element ? this._element.currentTime : 0;
@@ -230,9 +264,11 @@ Audio.State = {
     };
 
     proto.getState = function () {
-        var elem = this._element;
-        if (Audio.State.PLAYING === this._state && elem.paused) {
-            this._state = Audio.State.PAUSED;
+        if (!CC_WECHATGAME && !CC_QQPLAY) {
+            let elem = this._element;
+            if (elem && Audio.State.PLAYING === this._state && elem.paused) {
+                this._state = Audio.State.PAUSED;
+            }
         }
         return this._state;
     };
@@ -240,8 +276,47 @@ Audio.State = {
     proto.__defineGetter__('src', function () {
         return this._src;
     });
-    proto.__defineSetter__('src', function (string) {
-        return this._src = string;
+    proto.__defineSetter__('src', function (clip) {
+        this._unbindEnded();
+        if (clip) {
+            this._src = clip;
+            if (clip.loaded) {
+                this._onLoaded();
+            }
+            else {
+                let self = this;
+                clip.once('load', function () {
+                    if (clip === self._src) {
+                        self._onLoaded();
+                    }
+                });
+                cc.loader.load({
+                    url: clip.nativeUrl,
+                    // For audio, we should skip loader otherwise it will load a new audioClip.
+                    skips: ['Loader'],
+                },
+                function (err, audioNativeAsset) {
+                    if (err) {
+                        cc.error(err);
+                        return;
+                    }
+                    if (!clip.loaded) {
+                        clip._nativeAsset = audioNativeAsset;
+                    }
+                });
+            }
+        }
+        else {
+            this._src = null;
+            if (this._element instanceof HTMLAudioElement) {
+                this._element.src = '';
+            }
+            else {
+                this._element = null;
+            }
+            this._state = Audio.State.INITIALZING;
+        }
+        return clip;
     });
 
     proto.__defineGetter__('paused', function () {
@@ -253,13 +328,21 @@ Audio.State = {
 })(Audio.prototype);
 
 // Encapsulated WebAudio interface
-var WebAudioElement = function (buffer, audio) {
+let WebAudioElement = function (buffer, audio) {
     this._audio = audio;
-    this._context = cc.sys.__audioSupport.context;
+    this._context = sys.__audioSupport.context;
     this._buffer = buffer;
-    this._volume = this._context['createGain']();
-    this._volume['gain'].value = 1;
-    this._volume['connect'](this._context['destination']);
+
+    this._gainObj = this._context['createGain']();
+    this._volume = 1;
+    // https://www.chromestatus.com/features/5287995770929152
+    if (this._gainObj['gain'].setTargetAtTime) {
+        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+    } else {
+        this._gainObj['gain'].value = 1;
+    }
+    this._gainObj['connect'](this._context['destination']);
+
     this._loop = false;
     // The time stamp on the audio time axis when the recording begins to play.
     this._startTime = -1;
@@ -286,9 +369,9 @@ var WebAudioElement = function (buffer, audio) {
             this.playedLength = 0;
         }
 
-        var audio = this._context["createBufferSource"]();
+        let audio = this._context["createBufferSource"]();
         audio.buffer = this._buffer;
-        audio["connect"](this._volume);
+        audio["connect"](this._gainObj);
         audio.loop = this._loop;
 
         this._startTime = this._context.currentTime;
@@ -296,10 +379,10 @@ var WebAudioElement = function (buffer, audio) {
         if (offset) {
             this._startTime -= offset;
         }
-        var duration = this._buffer.duration;
+        let duration = this._buffer.duration;
 
-        var startTime = offset;
-        var endTime;
+        let startTime = offset;
+        let endTime;
         if (this._loop) {
             if (audio.start)
                 audio.start(0, startTime);
@@ -321,13 +404,13 @@ var WebAudioElement = function (buffer, audio) {
 
         audio.onended = this._endCallback;
 
-        // If the current audio context time stamp is 0
+        // If the current audio context time stamp is 0 and audio context state is suspended
         // There may be a need to touch events before you can actually start playing audio
-        if (this._context.currentTime === 0) {
-            var self = this;
+        if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
+            let self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (self._context.currentTime === 0) {
+                if (!(CC_QQPLAY || CC_WECHATGAME) && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
@@ -345,7 +428,7 @@ var WebAudioElement = function (buffer, audio) {
         this.playedLength = this._context.currentTime - this._startTime;
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
-        var audio = this._currentSource;
+        let audio = this._currentSource;
         this._currentSource = null;
         this._startTime = -1;
         if (audio)
@@ -373,10 +456,17 @@ var WebAudioElement = function (buffer, audio) {
         return this._loop = bool;
     });
 
-    proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
+    proto.__defineGetter__('volume', function () {
+        return this._volume;
+    });
     proto.__defineSetter__('volume', function (num) {
-        this._volume['gain'].value = num;
-        if (cc.sys.os === cc.sys.OS_IOS && !this.paused && this._currentSource) {
+        this._volume = num;
+        if (this._gainObj['gain'].setTargetAtTime) {
+            this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+        } else {
+            this._volume['gain'].value = num;
+        }
+        if (sys.os === sys.OS_IOS && !this.paused && this._currentSource) {
             // IOS must be stop webAudio
             this._currentSource.onended = null;
             this.pause();
@@ -412,4 +502,4 @@ var WebAudioElement = function (buffer, audio) {
 
 })(WebAudioElement.prototype);
 
-module.exports = cc.Audio =  Audio;
+module.exports = cc.Audio = Audio;

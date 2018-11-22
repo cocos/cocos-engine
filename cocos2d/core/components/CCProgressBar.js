@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
+const Component = require('./CCComponent');
 
 /**
  * !#en Enum for ProgressBar mode
@@ -75,7 +78,7 @@ var Mode = cc.Enum({
  */
 var ProgressBar = cc.Class({
     name: 'cc.ProgressBar',
-    extends: require('./CCComponent'),
+    extends: Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ProgressBar',
@@ -114,7 +117,7 @@ var ProgressBar = cc.Class({
             if(entity.parent === this.node){
                 var x = - nodeSize.width * nodeAnchor.x;
                 var y = 0;
-                entity.setPosition(cc.p(x, y));
+                entity.setPosition(cc.v2(x, y));
             }
         }
     },
@@ -129,8 +132,8 @@ var ProgressBar = cc.Class({
             var entitySize = entity.getContentSize();
             var entityPosition = entity.getPosition();
 
-            var anchorPoint = cc.p(0, 0.5);
-            var progress = cc.clamp01(this.progress);
+            var anchorPoint = cc.v2(0, 0.5);
+            var progress = misc.clamp01(this.progress);
             var actualLenth = this.totalLength * progress;
             var finalContentSize;
             var totalWidth;
@@ -138,7 +141,7 @@ var ProgressBar = cc.Class({
             switch (this.mode) {
                 case Mode.HORIZONTAL:
                     if (this.reverse) {
-                        anchorPoint = cc.p(1, 0.5);
+                        anchorPoint = cc.v2(1, 0.5);
                     }
                     finalContentSize = cc.size(actualLenth, entitySize.height);
                     totalWidth = this.totalLength;
@@ -146,33 +149,42 @@ var ProgressBar = cc.Class({
                     break;
                 case Mode.VERTICAL:
                     if (this.reverse) {
-                        anchorPoint = cc.p(0.5, 1);
+                        anchorPoint = cc.v2(0.5, 1);
                     } else {
-                        anchorPoint = cc.p(0.5, 0);
+                        anchorPoint = cc.v2(0.5, 0);
                     }
                     finalContentSize = cc.size(entitySize.width, actualLenth);
                     totalWidth = entitySize.width;
                     totalHeight = this.totalLength;
                     break;
-                case Mode.FILLED:
+            }
+
+            //handling filled mode
+            if (this.mode === Mode.FILLED) {
+                if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
+                    cc.warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
+                } else {
                     if (this.reverse) {
                         actualLenth = actualLenth * -1;
                     }
                     this.barSprite.fillRange = actualLenth;
-                    break;
+                }
+            } else {
+                if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
+
+                    var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+                    var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+                    var finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+
+                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y);
+
+                    entity.setAnchorPoint(anchorPoint);
+                    entity.setContentSize(finalContentSize);
+                } else {
+                    cc.warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
+                }
             }
 
-            if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
-
-                var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
-                var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
-
-                entity.setPosition(cc.pAdd(entityPosition, finalPosition));
-
-                entity.setAnchorPoint(anchorPoint);
-                entity.setContentSize(finalContentSize);
-            }
 
 
         }
@@ -221,16 +233,23 @@ var ProgressBar = cc.Class({
             animatable: false
         },
 
+        _N$totalLength: 1,
         /**
          * !#en The total width or height of the bar sprite.
          * !#zh 进度条实际的总长度
          * @property {Number} totalLength
          */
         totalLength: {
-            default: 1,
             range: [0, Number.MAX_VALUE],
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.total_length',
-            notify: function(value) {
+            get: function () {
+                return this._N$totalLength;
+            },
+            set: function(value) {
+                if (this.mode === Mode.FILLED) {
+                    value = misc.clamp01(value);
+                }
+                this._N$totalLength = value;
                 this._updateBarStatus();
             }
         },

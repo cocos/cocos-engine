@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -40,19 +41,8 @@
  * http://en.esotericsoftware.com/spine-using-runtimes
  */
 
-sp = CC_JSB ? sp : {};
-
-// The vertex index of spine.
-sp.VERTEX_INDEX = {
-    X1: 0,
-    Y1: 1,
-    X2: 2,
-    Y2: 3,
-    X3: 4,
-    Y3: 5,
-    X4: 6,
-    Y4: 7
-};
+var _global = typeof window === 'undefined' ? global : window;
+_global.sp = {};
 
 // The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
 sp.ATTACHMENT_TYPE = {
@@ -107,24 +97,16 @@ sp.AnimationEventType = cc.Enum({
 /**
  * @module sp
  */
-
 if (!CC_EDITOR || !Editor.isMainProcess) {
     
-    if (!CC_JSB) {
-        sp.spine = require('./lib/spine');
-
-        require('./SGSkeletonTexture');
-        require('./SGSkeleton');
-        require('./SGSkeletonCanvasRenderCmd');
-        require('./SGSkeletonWebGLRenderCmd');
-        require('./SGSkeletonAnimation');
-    }
-    
-    require('./SkeletonData');
+    sp.spine = require('./lib/spine');
+    require('./skeleton-texture');
+    require('./skeleton-data');
     require('./Skeleton');
+    require('./spine-assembler');
 }
 else {
-    require('./SkeletonData');
+    require('./skeleton-data');
 }
 
 /**

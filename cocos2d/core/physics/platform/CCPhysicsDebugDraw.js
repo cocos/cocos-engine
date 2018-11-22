@@ -1,94 +1,166 @@
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-var PhysicsDebugDraw = cc.Class({
-    name: 'cc.PhysicsDebugDraw',
-    mixins: [b2.Draw],
+ https://www.cocos.com/
 
-    ctor: function () {
-        this._drawer = new _ccsg.GraphicsNode();
-        this._drawer.retain();
-    },
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-    getDrawer: function () {
-        return this._drawer;
-    },
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-    AddDrawerToNode: function (node) {
-        this._drawer.removeFromParent();
-        node.addChild(this._drawer);
-    },
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
-    ClearDraw: function () {
-        this._drawer.clear();
-    },
+const PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
-    _DrawPolygon: function (vertices, vertexCount) {
+let _tmp_vec2 = cc.v2();
+
+let GREEN_COLOR = cc.Color.GREEN;
+let RED_COLOR = cc.Color.RED;
+
+function PhysicsDebugDraw (drawer) {
+    b2.Draw.call(this);
+    this._drawer = drawer;
+    this._xf = this._dxf = new b2.Transform();
+}
+
+cc.js.extend(PhysicsDebugDraw, b2.Draw);
+
+cc.js.mixin(PhysicsDebugDraw.prototype, {
+    _DrawPolygon (vertices, vertexCount) {
         var drawer = this._drawer;
         
         for (var i=0; i<vertexCount; i++) {
+            b2.Transform.MulXV(this._xf, vertices[i], _tmp_vec2);
+            let x = _tmp_vec2.x * PTM_RATIO,
+                y = _tmp_vec2.y * PTM_RATIO;
             if (i === 0)
-                drawer.moveTo(vertices[i].x * CC_PTM_RATIO, vertices[i].y * CC_PTM_RATIO);
+                drawer.moveTo(x, y);
             else {
-                drawer.lineTo(vertices[i].x * CC_PTM_RATIO, vertices[i].y * CC_PTM_RATIO);
+                drawer.lineTo(x, y);
             }
         }
 
         drawer.close();
     },
 
-    DrawPolygon: function (vertices, vertexCount, color) {
+    DrawPolygon (vertices, vertexCount, color) {
         this._applyStrokeColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer.stroke();
     },
 
-    DrawSolidPolygon: function (vertices, vertexCount, color) {
+    DrawSolidPolygon (vertices, vertexCount, color) {
         this._applyFillColor(color);
         this._DrawPolygon(vertices, vertexCount);
         this._drawer.fill();
+        this._drawer.stroke();
     },
 
-    _DrawCircle: function (center, radius) {
-        this._drawer.circle(center.x * CC_PTM_RATIO, center.y * CC_PTM_RATIO, radius * CC_PTM_RATIO);
+    _DrawCircle (center, radius) {
+        let p = this._xf.p;
+        this._drawer.circle((center.x + p.x) * PTM_RATIO, (center.y + p.y) * PTM_RATIO, radius * PTM_RATIO);
     },
 
-    DrawCircle: function (center, radius, color) {
+    DrawCircle (center, radius, color) {
         this._applyStrokeColor(color);
         this._DrawCircle(center, radius);
         this._drawer.stroke();
     },
 
-    DrawSolidCircle: function (center, radius, axis, color) {
+    DrawSolidCircle (center, radius, axis, color) {
         this._applyFillColor(color);
         this._DrawCircle(center, radius);
         this._drawer.fill();
     },
 
-    DrawSegment: function (p1, p2, color) {
+    DrawSegment (p1, p2, color) {
         var drawer = this._drawer;
 
         if (p1.x === p2.x && p1.y === p2.y) {
             this._applyFillColor(color);
-            this._DrawCircle(p1, 2/CC_PTM_RATIO);
+            this._DrawCircle(p1, 2/PTM_RATIO);
             drawer.fill();
             return;
         }
         this._applyStrokeColor(color);
-        drawer.moveTo(p1.x * CC_PTM_RATIO, p1.y * CC_PTM_RATIO);
-        drawer.lineTo(p2.x * CC_PTM_RATIO, p2.y * CC_PTM_RATIO);
+
+        b2.Transform.MulXV(this._xf, p1, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+        b2.Transform.MulXV(this._xf, p2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
         drawer.stroke();   
     },
 
-    DrawPoint: function (center, radius, color) {
+    DrawTransform (xf) {
+        var drawer = this._drawer;
+
+        drawer.strokeColor = RED_COLOR;
+
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+        
+        _tmp_vec2.x = 1; _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+
+        drawer.stroke();
+
+        drawer.strokeColor = GREEN_COLOR;
+
+        _tmp_vec2.x = _tmp_vec2.y = 0;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.moveTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+        
+        _tmp_vec2.x = 0; _tmp_vec2.y = 1;
+        b2.Transform.MulXV(xf, _tmp_vec2, _tmp_vec2);
+        drawer.lineTo(_tmp_vec2.x * PTM_RATIO, _tmp_vec2.y * PTM_RATIO);
+
+        drawer.stroke();
     },
 
-    _applyStrokeColor: function (color) {
-        this._drawer.setStrokeColor( cc.color(color.r*255, color.g*255, color.b*255, 150) );
+    DrawPoint (center, radius, color) {
     },
 
-    _applyFillColor: function (color) {
-        this._drawer.setFillColor( cc.color(color.r*255, color.g*255, color.b*255, 150) );
+    _applyStrokeColor (color) {
+        let strokeColor = this._drawer.strokeColor;
+        strokeColor.r = color.r*255;
+        strokeColor.g = color.g*255;
+        strokeColor.b = color.b*255;
+        strokeColor.a = 150;
+        this._drawer.strokeColor = strokeColor;
+    },
+
+    _applyFillColor (color) {
+        let fillColor = this._drawer.fillColor;
+        fillColor.r = color.r*255;
+        fillColor.g = color.g*255;
+        fillColor.b = color.b*255;
+        fillColor.a = 150;
+
+        this._drawer.fillColor = fillColor;
+    },
+
+    PushTransform (xf) {
+        this._xf = xf;
+    },
+
+    PopTransform () {
+        this._xf = this._dxf;
     }
 });
 
-cc.PhysicsDebugDraw = module.exports = PhysicsDebugDraw;
+module.exports = PhysicsDebugDraw;

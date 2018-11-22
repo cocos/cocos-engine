@@ -1,257 +1,37 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 
 var js = cc.js;
 
-if (CC_DEV) {
-
-    // cc.spriteFrameCache
-    js.get(cc, "spriteFrameCache", function () {
-        cc.errorID(1404);
-    });
-
-    // Label
-    if (cc.Label) {
-        js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
-    }
-
-    /**
-     * Inject all of the properties in source objects to target object and return the target object.
-     * @param {object} target
-     * @param {object} source
-     * @name cc.inject
-     * @memberof cc
-     * @deprecated
-     * @returns {object}
-     */
-    js.get(cc, "inject", function () {
-        cc.warnID(1400, 'cc.inject', 'cc.js.mixin');
-        cc.warnID(1401);
-        return function (lhs, rhs) {
-            return js.mixin(rhs, lhs);
-        };
-    });
-
-    /**
-     * Copy all of the properties in source objects to target object and return the target object.
-     * @param {object} target
-     * @param {object} *sources
-     * @name cc.extend
-     * @memberof cc
-     * @deprecated
-     * @returns {object}
-     */
-    js.get(cc, "extend", function () {
-        cc.warnID(1400, 'cc.extend', 'cc.js.mixin');
-        return js.mixin;
-    });
-
-    /**
-     * Create new DOM element by tag name
-     * @name cc.newElement
-     * @memberof cc
-     * @deprecated
-     * @returns {object}
-     */
-    js.get(cc, "newElement", function () {
-        cc.warnID(1400, 'cc.newElement', 'document.createElement');
-        return document.createElement;
-    });
-
-    js.get(cc, "isFunction", function () {
-        cc.warnID(1400, 'cc.isFunction', '"typeof obj === \'function\'"');
-        return function(obj) {
-            return typeof obj === 'function';
-        };
-    });
-    js.get(cc.js, "isFunction", function () {
-        cc.warnID(1400, 'cc.js.isFunction', '"typeof obj === \'function\'"');
-        return function(obj) {
-            return typeof obj === 'function';
-        };
-    });
-
-    /**
-     * Check the obj whether is number or not
-     * @name cc.isNumber
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
-    js.get(cc, "isNumber", function () {
-        cc.warnID(1400, 'cc.isNumber', 'cc.js.isNumber');
-        return js.isNumber;
-    });
-
-    /**
-     * Check the obj whether is string or not
-     * @name cc.isString
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
-    js.get(cc, "isString", function () {
-        cc.warnID(1400, 'cc.isString', 'cc.js.isString');
-        return js.isString;
-    });
-
-    js.get(cc, "isArray", function () {
-        cc.warnID(1400, 'cc.isArray', 'cc.js.isArray');
-        return function(obj) {
-            return Array.isArray(obj);
-        };
-    });
-    js.get(cc.js, "isArray", function () {
-        cc.warnID(1400, 'cc.js.isArray', '"Array.isArray(obj)"');
-        return function(obj) {
-            return Array.isArray(obj);
-        };
-    });
-
-    js.get(cc, "isUndefined", function () {
-        cc.warnID(1400, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
-        return function(obj) {
-            return typeof obj === 'undefined';
-        };
-    });
-    js.get(cc.js, "isUndefined", function () {
-        cc.warnID(1400, 'cc.js.isUndefined', '"typeof obj === \'undefined\'"');
-        return function(obj) {
-            return typeof obj === 'undefined';
-        };
-    });
-
-    js.get(cc, "isObject", function () {
-        cc.warnID(1400, 'cc.isObject', '"typeof obj === \'object\'"');
-        return function(obj) {
-            return typeof obj === 'object';
-        };
-    });
-
-    js.get(cc.js, "isObject", function () {
-        cc.warnID(1400, 'cc.js.isObject', '"typeof obj === \'object\'"');
-        return function(obj) {
-            return typeof obj === "object";
-        };
-    });
-
-    /**
-     * cc.Point is the class for point object, please do not use its constructor to create points, use cc.p() alias function instead.
-     * @class cc.Point
-     * @memberof cc
-     * @deprecated
-     * @param {Number} x
-     * @param {Number} y
-     * @see cc.Vec2
-     */
-    js.obsoletes(cc, 'cc', {
-        'Point': 'Vec2',
-    });
-
-    /**
-     * Verify Array's Type
-     * @memberof cc
-     * @deprecated
-     * @param {Array} arr
-     * @param {function} type
-     * @return {Boolean}
-     * @function
-     */
-    js.get(cc, 'arrayVerifyType', function () {
-        cc.warnID(1400, 'cc.arrayVerifyType', 'cc.js.array.verifyType');
-        return cc.js.array.verifyType;
-    });
-
-    /**
-     * Searches for the first occurance of object and removes it. If object is not found the function has no effect.
-     * @function
-     * @memberof cc
-     * @deprecated
-     * @param {Array} arr Source Array
-     * @param {*} delObj  remove object
-     */
-    js.get(cc, 'arrayRemoveObject', function () {
-        cc.warnID(1400, 'cc.arrayRemoveObject', 'cc.js.array.remove');
-        return cc.js.array.remove;
-    });
-
-    /**
-     * Removes from arr all values in minusArr. For each Value in minusArr, the first matching instance in arr will be removed.
-     * @function
-     * @memberof cc
-     * @deprecated
-     * @param {Array} arr Source Array
-     * @param {Array} minusArr minus Array
-     */
-    js.get(cc, 'arrayRemoveArray', function () {
-        cc.warnID(1400, 'cc.arrayRemoveArray', 'cc.js.array.removeArray');
-        return cc.js.array.removeArray;
-    });
-
-    /**
-     * Inserts some objects at index
-     * @function
-     * @memberof cc
-     * @deprecated
-     * @param {Array} arr
-     * @param {Array} addObjs
-     * @param {Number} index
-     * @return {Array}
-     */
-    js.get(cc, 'arrayAppendObjectsToIndex', function() {
-        cc.warnID(1400, 'cc.arrayAppendObjectsToIndex', 'cc.js.array.appendObjectsAt');
-        return cc.js.array.appendObjectsAt;
-    });
-
-    /**
-     * Copy an array's item to a new array (its performance is better than Array.slice)
-     * @memberof cc
-     * @deprecated
-     * @param {Array} arr
-     * @return {Array}
-     */
-    js.get(cc, 'copyArray', function() {
-        cc.warnID(1400, 'cc.copyArray', 'cc.js.array.copy');
-        return cc.js.array.copy;
-    });
-
-    js.get(cc, 'PI', function () {
-        cc.warnID(1400, 'cc.PI', 'Math.PI');
-        return Math.PI;
-    });
-
-    if (cc.TiledLayer) {
-        /**
-         * Get the Tile set information for the layer.
-         * @memberof cc.TiledLayer
-         * @deprecated
-         * @return {TMXTilesetInfo}
-         * @function
-         */
-        js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.getTileset', 'getTileSet');
-
-        /**
-         * Set the Tile set information for the layer.
-         * @memberof cc.TiledLayer
-         * @deprecated
-         * @param {TMXTilesetInfo}
-         * @function
-         */
-        js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.setTileset', 'setTileSet');
-    }
-
-    Object.defineProperty(cc._SGComponent.prototype, 'visible', {
-        get: function () {
-            cc.warnID(1402, cc.js.getClassName(this));
-            return this.enabled;
-        },
-        set: function (value) {
-            var printWarning = this.visible;
-            this.enabled = value;
-        }
-    });
+if (CC_DEBUG) {
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
+        if (!CC_SUPPORT_JIT) {
+            return;
+        }
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
         var enumDef = Function('return ' + newPath)();
         var entries = cc.Enum.getList(enumDef);
@@ -267,31 +47,10 @@ if (CC_DEV) {
                 oldPropName = entry;
             }
             js.get(obj, oldPropName, function (entry) {
-                cc.warnID(1400, oldPath + delimiter + entry, newPath + '.' + entry);
+                cc.errorID(1400, oldPath + delimiter + entry, newPath + '.' + entry);
                 return enumDef[entry];
             }.bind(null, entry));
         }
-    }
-
-    deprecateEnum(cc, 'cc.TEXT_ALIGNMENT', 'cc.TextAlignment');
-    deprecateEnum(cc, 'cc.VERTICAL_TEXT_ALIGNMENT', 'cc.VerticalTextAlignment');
-    if (_ccsg.ParticleSystem) {
-        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
-        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
-    }
-    if (cc.ParticleSystem) {
-        deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.PositionType');
-        deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
-    }
-    // deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
-    deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
-    if (!CC_JSB) {
-        deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
-    }
-    if (_ccsg.EditBox) {
-        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', '_ccsg.EditBox.KeyboardReturnType');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', '_ccsg.EditBox.InputMode');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
 
     function markAsRemoved (ownerCtor, removedProps, ownerName) {
@@ -302,9 +61,42 @@ if (CC_DEV) {
         ownerName = ownerName || js.getClassName(ownerCtor);
         removedProps.forEach(function (prop) {
             function error () {
-                cc.error('Sorry, %s.%s is removed.', ownerName, prop);
+                cc.errorID(1406, ownerName, prop);
             }
             js.getset(ownerCtor.prototype, prop, error, error);
+        });
+    }
+
+    function markAsDeprecated (ownerCtor, deprecatedProps, ownerName) {
+        if (!ownerCtor) {
+            return;
+        }
+        ownerName = ownerName || js.getClassName(ownerCtor);
+        let descriptors = Object.getOwnPropertyDescriptors(ownerCtor.prototype);
+        deprecatedProps.forEach(function (prop) {
+            let deprecatedProp = prop[0];
+            let newProp = prop[1];
+            let descriptor = descriptors[deprecatedProp];
+            js.getset(ownerCtor.prototype, deprecatedProp, function () {
+                cc.warnID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}.${newProp}`);
+                return descriptor.get.call(this);
+            }, function (v) {
+                cc.warnID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}.${newProp}`);
+                descriptor.set.call(this, v);
+            });
+        })
+    }
+
+    function markAsRemovedInObject (ownerObj, removedProps, ownerName) {
+        if (!ownerObj) {
+            // 可能被裁剪了
+            return;
+        }
+        removedProps.forEach(function (prop) {
+            function error () {
+                cc.errorID(1406, ownerName, prop);
+            }
+            js.getset(ownerObj, prop, error);
         });
     }
 
@@ -326,7 +118,10 @@ if (CC_DEV) {
                             return x.trim();
                         });
                 }
-                js.getset(owner, prop, accessor.bind(null, getset[0]), getset[1] && accessor.bind(null, getset[1]));
+                try {
+                    js.getset(owner, prop, accessor.bind(null, getset[0]), getset[1] && accessor.bind(null, getset[1]));
+                }
+                catch (e) {}
             }
             var getset = obj[prop];
             if (prop[0] === '*') {
@@ -347,311 +142,282 @@ if (CC_DEV) {
         }
     }
 
-    // cc.loader
+    function markFunctionWarning (ownerCtor, obj, ownerName) {
+        if (!ownerCtor) {
+            // 可能被裁剪了
+            return;
+        }
+        ownerName = ownerName || js.getClassName(ownerCtor);
+        for (var prop in obj) {
+            (function(){
+                var propName = prop;
+                var originFunc = ownerCtor[propName];
+                if (!originFunc) return;
 
+                function warn () {
+                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, propName, obj[propName]);
+                    return originFunc.apply(this, arguments);
+                }
+
+                ownerCtor[propName] = warn;
+            })();
+        }
+    }
+    // remove cc.info
+    js.get(cc, 'info', function () {
+        cc.warnID(1400, 'cc.info', 'cc.log');
+        return cc.log;
+    });
+    // cc.spriteFrameCache
+    js.get(cc, "spriteFrameCache", function () {
+        cc.errorID(1404);
+    });
+
+    // SpriteFrame
+    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
+        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
+        return this.textureLoaded();
+    });
+    markAsRemoved(cc.SpriteFrame, [
+        'addLoadedEventListener'
+    ]);
+
+    // cc.textureCache
+    js.get(cc, 'textureCache', function () {
+        cc.errorID(1406, 'cc', 'textureCache');
+    });
+
+    // Texture
+    let Texture2D = cc.Texture2D;
+    js.obsolete(Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
+    js.get(Texture2D.prototype, 'getName', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            return this._glID || null;
+        };
+    });
+
+    js.get(Texture2D.prototype, 'isLoaded', function () {
+        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
+        return (function () {
+            return this.loaded;
+        });
+    });
+
+    js.get(Texture2D.prototype, 'setAntiAliasTexParameters', function () {
+        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR)');
+        return function () {
+            this.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
+        };
+    });
+
+    js.get(Texture2D.prototype, 'setAliasTexParameters', function () {
+        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST)');
+        return function () {
+            this.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        };
+    });
+
+    // cc.macro
+    markAsRemovedInObject(cc.macro, [
+        'ENABLE_GL_STATE_CACHE',
+        'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
+    ], 'cc.macro');
+
+    provideClearError(cc.macro, {
+        PI: 'Math.PI',
+        PI2: 'Math.PI*2',
+        FLT_MAX: 'Number.MAX_VALUE',
+        FLT_MIN: 'Number.MIN_VALUE',
+        UINT_MAX: 'Number.MAX_SAFE_INTEGER'
+    }, 'cc.macro');
+
+    // cc.game
+    markAsRemovedInObject(cc.game, [
+        'CONFIG_KEY',
+    ], 'cc.game');
+
+    // cc.sys
+    markAsRemovedInObject(cc.sys, [
+        'dumpRoot',
+        'cleanScript',
+    ], 'cc.sys');
+
+    // cc.Director
+    provideClearError(cc.Director, {
+        EVENT_PROJECTION_CHANGED: '',
+        EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
+        EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
+    }, 'cc.Director');
+    markFunctionWarning(cc.Director.prototype, {
+        convertToGL: 'cc.view.convertToLocationInView',
+        convertToUI: '',
+        getWinSize: 'cc.winSize',
+        getWinSizeInPixels: 'cc.winSize',
+        getVisibleSize: 'cc.view.getVisibleSize',
+        getVisibleOrigin: 'cc.view.getVisibleOrigin',
+        purgeCachedData: 'cc.loader.releaseAll',
+        setDepthTest: 'cc.Camera.main.depth',
+        setClearColor: 'cc.Camera.main.backgroundColor',
+        getRunningScene: 'cc.director.getScene',
+        getAnimationInterval: 'cc.game.getFrameRate',
+        setAnimationInterval: 'cc.game.setFrameRate',
+        isDisplayStats: 'cc.debug.isDisplayStats',
+        setDisplayStats: 'cc.debug.setDisplayStats',
+    }, 'cc.Director');
+    markAsRemoved(cc.Director, [
+        'pushScene',
+        'popScene',
+        'popToRootScene',
+        'popToSceneStackLevel',
+        'setProjection',
+        'getProjection',
+    ], 'cc.Director');
+
+    // Scheduler
+    provideClearError(cc.Scheduler, {
+        scheduleCallbackForTarget: 'schedule',
+        scheduleUpdateForTarget: 'scheduleUpdate',
+        unscheduleCallbackForTarget: 'unschedule',
+        unscheduleUpdateForTarget: 'unscheduleUpdate',
+        unscheduleAllCallbacksForTarget: 'unscheduleAllForTarget',
+        unscheduleAllCallbacks: 'unscheduleAll',
+        unscheduleAllCallbacksWithMinPriority: 'unscheduleAllWithMinPriority'
+    }, 'cc.Scheduler');
+
+    // cc.view
+    provideClearError(cc.view, {
+        adjustViewPort: 'adjustViewportMeta',
+        setViewPortInPoints: 'setViewportInPoints',
+        getViewPortRect: 'getViewportRect'
+    }, 'cc.view');
+    markAsRemovedInObject(cc.view, [
+        'isViewReady',
+        'setTargetDensityDPI',
+        'getTargetDensityDPI',
+        'setFrameZoomFactor',
+        'canSetContentScaleFactor',
+        'setContentTranslateLeftTop',
+        'getContentTranslateLeftTop',
+        'setViewName',
+        'getViewName'
+    ], 'cc.view');
+
+    // Loader
     markAsRemoved(cc.Pipeline, [
-        'loadJsWithImg',
-        'loadCsb',
-        'getUrl',
-        'loadAliases',
-        'register'
+        'flowInDeps',
+        'getItems'
     ], 'cc.loader');
-    provideClearError(cc.loader, {
-        loadJs : 'load',
-        loadTxt : 'load',
-        loadJson : 'load',
-        loadImg : 'load'
-    }, 'cc.loader');
+
+    // cc.PhysicsManager
+    markAsRemoved(cc.PhysicsManager, [
+        'attachDebugDrawToCamera',
+        'detachDebugDrawFromCamera',
+    ]);
+
+    // cc.CollisionManager
+    markAsRemoved(cc.CollisionManager, [
+        'attachDebugDrawToCamera',
+        'detachDebugDrawFromCamera',
+    ]);
 
     // cc.Node
+    provideClearError(cc._BaseNode.prototype, {
+        'tag': 'name',
+        'getTag': 'name',
+        'setTag': 'name',
+        'getChildByTag': 'getChildByName',
+        'removeChildByTag': 'getChildByName(name).destroy()'
+    });
 
     markAsRemoved(cc.Node, [
-        '_componentContainer',
-        '_camera',
-        '_additionalTransform',
-        '_scheduler',
-        '_actionManager',
-        'actionManager',
-        '_isTransitionFinished',
-        '_additionalTransformDirty',
-        '_shaderProgram',
-        'shaderProgram',
-        '_normalizedPositionDirty',
-        '_normalizedPosition',
-        '_usingNormalizedPosition',
-        '_renderCmd',
-        '_vertexZ',
-        '_showNode',
-        '_arrayMakeObjectsPerformSelector',
-        'getActionManager',
-        'setActionManager',
-        'getScheduler',
-        'setScheduler',
-        'reorderChild',
-        'draw',
-        'transformAncestors',
-        'onEnter',
-        'onEnterTransitionDidFinish',
-        'onExitTransitionDidStart',
-        'onExit',
-        'scheduleUpdate',
-        'scheduleUpdateWithPriority',
-        'unscheduleUpdate',
-        'schedule',
-        'scheduleOnce',
-        'unschedule',
-        'unscheduleAllCallbacks',
-        'resumeSchedulerAndActions',
-        'resume',
-        'pauseSchedulerAndActions',
-        'pause',
-        'setAdditionalTransform',
-        'updateTransform',
-        'retain',
-        'release',
-        'visit',
-        'transform',
-        'getCamera',
-        'grid',
-        'getOrderOfArrival',
-        'setOrderOfArrival',
-        'getGrid',
-        'setGrid',
-        'getShaderProgram',
-        'setShaderProgram',
-        'getGLServerState',
-        'setGLServerState',
-        '_initRendererCmd',
-        '_createRenderCmd',
-        'updateDisplayedOpacity',
-        'updateDisplayedColor',
-        'userData',
-        'userObject',
         '_cascadeColorEnabled',
         'cascadeColor',
         'isCascadeColorEnabled',
         'setCascadeColorEnabled',
+        '_cascadeOpacityEnabled',
+        'cascadeOpacity',
+        'isCascadeOpacityEnabled',
+        'setCascadeOpacityEnabled',
+        'opacityModifyRGB',
+        'isOpacityModifyRGB',
+        'setOpacityModifyRGB',
         'ignoreAnchor',
         'isIgnoreAnchorPointForPosition',
-        'ignoreAnchorPointForPosition'
+        'ignoreAnchorPointForPosition',
+        'isRunning',
+        '_sgNode',
     ]);
+
+    markAsDeprecated(cc.Node, [
+        ['rotationX', 'eulerAngles'],
+        ['rotationY', 'eulerAngles'],
+        ['rotation', 'angle'],
+    ]);
+
+    markFunctionWarning(cc.Node.prototype, {
+        getNodeToParentTransform: 'getLocalMatrix',
+        getNodeToParentTransformAR: 'getLocalMatrix',
+        getNodeToWorldTransform: 'getWorldMatrix',
+        getNodeToWorldTransformAR: 'getWorldMatrix',
+        getParentToNodeTransform: 'getLocalMatrix',
+        getWorldToNodeTransform: 'getWorldMatrix',
+        convertTouchToNodeSpace: 'convertToNodeSpace',
+        convertTouchToNodeSpaceAR: 'convertToNodeSpaceAR',
+    });
+
     provideClearError(cc.Node.prototype, {
-        arrivalOrder: 'getSiblingIndex, setSiblingIndex',
-        _visible: '_activeInHierarchy, active',
-        _running: '_activeInHierarchy, active',
-        running: 'activeInHierarchy, active',
-        _realOpacity: '_opacity, _opacity',
-        _realColor: '_color, _color',
-        _insertChild: 'addChild',
-        _addChildHelper: 'addChild',
-        _detachChild: 'removeChild',
-        getZOrder: 'getLocalZOrder',
-        setZOrder: 'setLocalZOrder',
-        boundingBox: 'getBoundingBox',
-        removeFromParentAndCleanup: 'removeFromParent',
-        removeAllChildrenWithCleanup: 'removeAllChildren',
-        parentToNodeTransform: 'getParentToNodeTransform',
-        nodeToWorldTransform: 'getNodeToWorlshaderProgramdTransform',
-        worldToNodeTransform: 'getWorldToNodeTransform',
-        nodeToParentTransform: 'getNodeToParentTransform',
-        removeAllComponents: 'removeComponent',
-        getNodeToParentAffineTransform: 'getNodeToParentTransform',
+        getRotationX: 'rotationX',
+        setRotationX: 'rotationX',
+        getRotationY: 'rotationY',
+        setRotationY: 'rotationY',
+        getPositionX: 'x',
+        setPositionX: 'x',
+        getPositionY: 'y',
+        setPositionY: 'y',
+        getSkewX: 'skewX',
+        setSkewX: 'skewX',
+        getSkewY: 'skewY',
+        setSkewY: 'skewY',
+        getScaleX: 'scaleX',
+        setScaleX: 'scaleX',
+        getScaleY: 'scaleY',
+        setScaleY: 'scaleY',
+        getOpacity: 'opacity',
+        setOpacity: 'opacity',
+        getColor: 'color',
+        setColor: 'color',
+        getLocalZOrder: 'zIndex',
+        setLocalZOrder: 'zIndex',
     });
 
-    // RENDERERS
-
-    function shouldNotUseNodeProp (component) {
-        var compProto = component.prototype;
-        for (var prop in cc.Node.prototype) {
-            (function (prop) {
-                if (!(prop in compProto) && prop[0] !== '_') {
-                    Object.defineProperty(compProto, prop, {
-                        get: function () {
-                            var compName = cc.js.getClassName(this);    // 允许继承
-                            var Info = 'Sorry, ' + compName + '.%s is undefined, please use cc.Node.%s instead.';
-                            cc.error(Info, prop, prop);
-                        },
-                        enumerable: false,
-                        configurable: true,   // 允许继承
-                    });
-                }
-            })(prop);
-        }
-    }
-    shouldNotUseNodeProp(cc._SGComponent);
-
-
-    // cc.Sprite
-
-    markAsRemoved(cc.Sprite, [
-        'textureLoaded',
-        'setBlendFunc',
-        'getBlendFunc',
-        'setState',
-        'getState',
-        'resizableSpriteWithCapInsets',
-        'flippedX',
-        'flippedY',
-        'setFlippedX',
-        'setFlippedY',
-        'isFlippedX',
-        'isFlippedY',
-        'getCapInsets',
-        'setCapInsets',
+    // cc.Component
+    markAsRemoved(cc.Component, [
+        'isRunning',
     ]);
-    provideClearError(cc.Sprite, {
-        create: 'node.addComponent',
-        createWithTexture: 'node.addComponent',
-        createWithSpriteFrameName: 'node.addComponent',
-        createWithSpriteFrame: 'node.addComponent',
-    });
+
     provideClearError(cc.Sprite.prototype, {
-        getPreferredSize: 'node.getContentSize',
-        setPreferredSize: 'node.setContentSize',
-        updateWithSprite: 'spriteFrame',
-        getSpriteFrame: 'spriteFrame',
-        setSpriteFrame: 'spriteFrame',
-        useOriginalSize: 'sizeMode',
+        setInsetLeft: 'cc.SpriteFrame insetLeft',
+        setInsetRight: 'cc.SpriteFrame insetRight',
+        setInsetTop: 'cc.SpriteFrame insetTop',
+        setInsetBottom: 'cc.SpriteFrame insetBottom',
     });
 
-    // Particle
-    if (cc.ParticleSystem) {
-        markAsRemoved(cc.ParticleSystem, [
-            'batchNode',
-            'drawMode',
-            'getDrawMode',
-            'setDrawMode',
-            'shapeType',
-            'getShapeType',
-            'setShapeType',
-            'atlasIndex',
-            'init',
-            'initParticle',
-            'updateWithNoTime',
-        ]);
-        provideClearError(cc.ParticleSystem, {
-            initWithFile: 'instance.file',
-            initWithDictionary: 'instance.file',
-            initWithTotalParticles: 'instance.totalParticles'
-        });
-        provideClearError(cc.ParticleSystem.prototype, {
-            destroyParticleSystem: 'destroy',
-            clone: 'cc.instantiate',
-            isActive: 'active',
-            '*etParticleCount': 'particleCount',
-            '*etDuration': 'duration',
-            '*etSourcePosition': 'sourcePos',
-            '*etPosVar': 'posVar',
-            '*etGravity': 'gravity',
-            '*etSpeed': 'speed',
-            '*etSpeedVar': 'speedVar',
-            '*etTangentialAccel': 'tangentialAccel',
-            '*etTangentialAccelVar': 'tangentialAccelVar',
-            '*etRadialAccel': 'radialAccel',
-            '*etRadialAccelVar': 'radialAccelVar',
-            '*etRotationIsDir': 'rotationIsDir',
-            '*etStartRadius': 'startRadius',
-            '*etStartRadiusVar': 'startRadiusVar',
-            '*etEndRadius': 'endRadius',
-            '*etEndRadiusVar': 'endRadiusVar',
-            '*etRotatePerSecond': 'rotatePerS',
-            '*etRotatePerSecondVar': 'rotatePerSVar',
-            '*etStartColor': 'startColor',
-            '*etStartColorVar': 'startColorVar',
-            '*etEndColor': 'endColor',
-            '*etEndColorVar': 'endColorVar',
-            '*etTotalParticles': 'totalParticles',
-            '*etTexture': 'texture',
-        });
-        js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
-            Type: 'PositionType',
-            Mode: 'EmitterMode'
-        });
-    }
-
-    if (!CC_JSB) {
-        // _ccsg.Node
-        markAsRemoved(_ccsg.Node, [
-            '_normalizedPositionDirty',
-            '_normalizedPosition',
-            '_usingNormalizedPosition',
-            'grid',
-            'userData',
-            'userObject',
-            'getNormalizedPosition',
-            'setNormalizedPosition',
-            'getCamera',
-            'getUserData',
-            'setUserData',
-            'getUserObject',
-            'setUserObject',
-            'getComponent',
-            'addComponent',
-            'removeComponent',
-            'removeAllComponents',
-            'enumerateChildren',
-            'setCameraMask',
-            'getCameraMask'
-        ], '_ccsg.Node');
-    }
-
-    js.obsolete(_ccsg.Node.prototype, '_ccsg.Node.ignoreAnchorPointForPosition', 'setIgnoreAnchorPointForPosition');
-
-    js.obsoletes(cc.Scale9Sprite.prototype, 'cc.Scale9Sprite', {
-        setPreferredSize: 'setContentSize',
-        getPreferredSize: 'getContentSize',
+    // cc.Camera
+    markFunctionWarning(cc.Camera.prototype, {
+        getNodeToCameraTransform: 'getWorldToCameraMatrix'
     });
 
-    if (cc.ActionManager) {
-        js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
-            'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
-        });
-    }
-
-    //ui
-    if (cc.Layout) {
-        js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
-        js.obsolete(cc.Layout.prototype, 'cc.Layout.ResizeType', 'ResizeMode');
-        js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
-    }
-
-    markAsRemoved(cc.Scale9Sprite, [
-        'init',
-        'resizableSpriteWithCapInsets',
-        'updateWithSprite',
-        'getOriginalSize',
-        'setCapInsets',
-        'getCapInsets',
-        'setScale9Enabled',
-        'isScale9Enabled',
-        'getSprite',
-        'setFlippedX',
-        'isFlippedX',
-        'setFlippedY',
-        'isFlippedY'
+    markAsRemoved(cc.Camera, [
+        'addTarget',
+        'removeTarget',
+        'getTargets'
     ]);
-
-    // SPINE
-
-    if (typeof sp !== 'undefined') {
-        deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
-        js.obsolete(sp, 'sp.SkeletonAnimation', 'Skeleton');
-        provideClearError(sp.Skeleton, {
-            create: 'node.addComponent',
-        });
-        provideClearError(sp.Skeleton.prototype, {
-            '*etDebugSlotsEnabled': 'debugSlots',
-            '*etDebugBonesEnabled': 'debugBones',
-            'setDebugSolots': 'debugSlots',
-            'setDebugBones': 'debugBones',
-            '*etTimeScale': 'timeScale',
-        });
-    }
 
     // SCENE
-
     var ERR = '"%s" is not defined in the Scene, it is only defined in normal nodes.';
-    Object.defineProperties(cc.Scene.prototype, {
+    CC_EDITOR || Object.defineProperties(cc.Scene.prototype, {
         active: {
             get: function () {
                 cc.error(ERR, 'active');
@@ -685,7 +451,176 @@ if (CC_DEV) {
         },
     });
 
-}
+    // Value types
+    provideClearError(cc, {
+        // AffineTransform
+        affineTransformMake: 'cc.AffineTransform.create',
+        affineTransformMakeIdentity: 'cc.AffineTransform.identity',
+        affineTransformClone: 'cc.AffineTransform.clone',
+        affineTransformConcat: 'cc.AffineTransform.concat',
+        affineTransformConcatIn: 'cc.AffineTransform.concat',
+        affineTransformInvert: 'cc.AffineTransform.invert',
+        affineTransformInvertIn: 'cc.AffineTransform.invert',
+        affineTransformInvertOut: 'cc.AffineTransform.invert',
+        affineTransformEqualToTransform: 'cc.AffineTransform.equal',
+        pointApplyAffineTransform: 'cc.AffineTransform.transformVec2',
+        sizeApplyAffineTransform: 'cc.AffineTransform.transformSize',
+        rectApplyAffineTransform: 'cc.AffineTransform.transformRect',
+        obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
 
-// remove after 1.5
-js.obsolete(cc.loader, 'cc.loader.loadResAll', 'loadResDir');
+        // Vec2
+        pointEqualToPoint: 'cc.Vec2 equals',
+
+        // Size
+        sizeEqualToSize: 'cc.Size equals',
+
+        // Rect
+        rectEqualToRect: 'rectA.equals(rectB)',
+        rectContainsRect: 'rectA.containsRect(rectB)',
+        rectContainsPoint: 'rect.contains(vec2)',
+        rectOverlapsRect: 'rectA.intersects(rectB)',
+        rectIntersectsRect: 'rectA.intersects(rectB)',
+        rectIntersection: 'rectA.intersection(intersection, rectB)',
+        rectUnion: 'rectA.union(union, rectB)',
+        rectGetMaxX: 'rect.xMax',
+        rectGetMidX: 'rect.center.x',
+        rectGetMinX: 'rect.xMin',
+        rectGetMaxY: 'rect.yMax',
+        rectGetMidY: 'rect.center.y',
+        rectGetMinY: 'rect.yMin',
+
+        // Color
+        colorEqual: 'colorA.equals(colorB)',
+        hexToColor: 'color.fromHEX(hexColor)',
+        colorToHex: 'color.toHEX()',
+
+        // Enums
+        TextAlignment: 'cc.macro.TextAlignment',
+        VerticalTextAlignment: 'cc.macro.VerticalTextAlignment',
+
+        // Point Extensions
+        pNeg: 'p.neg()',
+        pAdd: 'p1.add(p2)',
+        pSub: 'p1.sub(p2)',
+        pMult: 'p.mul(factor)',
+        pMidpoint: 'p1.add(p2).mul(0.5)',
+        pDot: 'p1.dot(p2)',
+        pCross: 'p1.cross(p2)',
+        pPerp: 'p.rotate(-90 * Math.PI / 180)',
+        pRPerp: 'p.rotate(90 * Math.PI / 180)',
+        pProject: 'p1.project(p2)',
+        pLengthSQ: 'p.magSqr()',
+        pDistanceSQ: 'p1.sub(p2).magSqr()',
+        pLength: 'p.mag()',
+        pDistance: 'p1.sub(p2).mag()',
+        pNormalize: 'p.normalize()',
+        pForAngle: 'cc.v2(Math.cos(a), Math.sin(a))',
+        pToAngle: 'Math.atan2(v.y, v.x)',
+        pZeroIn: 'p.x = p.y = 0',
+        pIn: 'p1.set(p2)',
+        pMultIn: 'p.mulSelf(factor)',
+        pSubIn: 'p1.subSelf(p2)',
+        pAddIn: 'p1.addSelf(p2)',
+        pNormalizeIn: 'p.normalizeSelf()',
+        pSameAs: 'p1.equals(p2)',
+        pAngle: 'v1.angle(v2)',
+        pAngleSigned: 'v1.signAngle(v2)',
+        pRotateByAngle: 'p.rotate(radians)',
+        pCompMult: 'v1.dot(v2)',
+        pFuzzyEqual: 'v1.fuzzyEquals(v2, tolerance)',
+        pLerp: 'p.lerp(endPoint, ratio)',
+        pClamp: 'p.clampf(min_inclusive, max_inclusive)',
+
+        rand: 'Math.random() * 0xffffff',
+        randomMinus1To1: '(Math.random() - 0.5) * 2',
+
+        container: 'cc.game.container',
+        _canvas: 'cc.game.canvas',
+        _renderType: 'cc.game.renderType',
+
+        _getError: 'cc.debug.getError',
+        _initDebugSetting: 'cc.debug._resetDebugSetting',
+        DebugMode: 'cc.debug.DebugMode',
+        BlendFunc: 'cc.macro.BlendFactor',
+    }, 'cc');
+    markAsRemovedInObject(cc, [
+        'blendFuncDisable',
+
+        'pFromSize',
+        'pCompOp',
+        'pIntersectPoint',
+        'pSegmentIntersect',
+        'pLineIntersect',
+
+        'obbApplyMatrix',
+
+        'getImageFormatByData',
+
+        'initEngine',
+    ], 'cc');
+    markFunctionWarning(cc, {
+        // cc.p
+        p: 'cc.v2'
+    }, 'cc');
+    // cc.Rect
+    provideClearError(cc.Rect, {
+        contain: 'rectA.contains(rectB)',
+        transformMat4: 'rect.transformMat4(out, mat4)'
+    });
+    // cc.Color
+    provideClearError(cc.Color, {
+        rgb2hsv: 'color.toHSV()',
+        hsv2rgb: 'color.fromHSV(h, s, v)'
+    });
+
+    // macro functions
+    js.get(cc, 'lerp', function () {
+        cc.warnID(1400, 'cc.lerp', 'cc.misc.lerp');
+        return cc.misc.lerp;
+    });
+    js.get(cc, 'random0To1', function () {
+        cc.warnID(1400, 'cc.random0To1', 'Math.random');
+        return Math.random;
+    });
+    js.get(cc, 'degreesToRadians', function () {
+        cc.warnID(1400, 'cc.degreesToRadians', 'cc.misc.degreesToRadians');
+        return cc.misc.degreesToRadians;
+    });
+    js.get(cc, 'radiansToDegrees', function () {
+        cc.warnID(1400, 'cc.radiansToDegrees', 'cc.misc.radiansToDegrees');
+        return cc.misc.radiansToDegrees;
+    });
+    js.get(cc, 'clampf', function () {
+        cc.warnID(1400, 'cc.clampf', 'cc.misc.clampf');
+        return cc.misc.clampf;
+    });
+    js.get(cc, 'clamp01', function () {
+        cc.warnID(1400, 'cc.clamp01', 'cc.misc.clamp01');
+        return cc.misc.clamp01;
+    });
+    js.get(cc, 'ImageFormat', function () {
+        cc.warnID(1400, 'cc.ImageFormat', 'cc.macro.ImageFormat');
+        return cc.macro.ImageFormat;
+    });
+    js.get(cc, 'KEY', function () {
+        cc.warnID(1400, 'cc.KEY', 'cc.macro.KEY');
+        return cc.macro.KEY;
+    });
+
+    // cc.pool
+    js.get(cc, 'pool', function () {
+        cc.errorID(1407);
+        return js.Pool;
+    });
+
+    // cc.isChildClassOf
+    js.get(cc, 'isChildClassOf', function () {
+        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
+        return cc.js.isChildClassOf;
+    });
+
+    // dragon bones
+    if (typeof dragonBones !== 'undefined') {
+        js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
+    }
+}

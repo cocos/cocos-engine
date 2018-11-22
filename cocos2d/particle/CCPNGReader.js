@@ -2,7 +2,8 @@
  Copyright (c) 2011 Devon Govett
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,143 +27,147 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const zlib = require('../compression/zlib.min');
+const debug = require('../core/CCDebug');
+
 /**
  * A png file reader
  * @name PNGReader
  */
-var PNGReader = cc._Class.extend({
-    ctor:function(data){
-        var chunkSize, colors, delayDen, delayNum, frame, i, index, key, section, ccshort, text, _i, _j, _ref;
-        this.data = data;
-        this.pos = 8;
-        this.palette = [];
-        this.imgData = [];
-        this.transparency = {};
-        this.animation = null;
-        this.text = {};
-        frame = null;
-        while (true) {
-            chunkSize = this.readUInt32();
-            section = ((function() {
-                var _i, _results;
-                _results = [];
-                for (i = _i = 0; _i < 4; i = ++_i) {
-                    _results.push(String.fromCharCode(this.data[this.pos++]));
+var PNGReader = function(data){
+    var chunkSize, colors, delayDen, delayNum, frame, i, index, key, section, ccshort, text, _i, _j, _ref;
+    this.data = data;
+    this.pos = 8;
+    this.palette = [];
+    this.imgData = [];
+    this.transparency = {};
+    this.animation = null;
+    this.text = {};
+    frame = null;
+    while (true) {
+        chunkSize = this.readUInt32();
+        section = ((function() {
+            var _i, _results;
+            _results = [];
+            for (i = _i = 0; _i < 4; i = ++_i) {
+                _results.push(String.fromCharCode(this.data[this.pos++]));
+            }
+            return _results;
+        }).call(this)).join('');
+        switch (section) {
+            case 'IHDR':
+                this.width = this.readUInt32();
+                this.height = this.readUInt32();
+                this.bits = this.data[this.pos++];
+                this.colorType = this.data[this.pos++];
+                this.compressionMethod = this.data[this.pos++];
+                this.filterMethod = this.data[this.pos++];
+                this.interlaceMethod = this.data[this.pos++];
+                break;
+            case 'acTL':
+                this.animation = {
+                    numFrames: this.readUInt32(),
+                    numPlays: this.readUInt32() || Infinity,
+                    frames: []
+                };
+                break;
+            case 'PLTE':
+                this.palette = this.read(chunkSize);
+                break;
+            case 'fcTL':
+                if (frame) {
+                    this.animation.frames.push(frame);
                 }
-                return _results;
-            }).call(this)).join('');
-            switch (section) {
-                case 'IHDR':
-                    this.width = this.readUInt32();
-                    this.height = this.readUInt32();
-                    this.bits = this.data[this.pos++];
-                    this.colorType = this.data[this.pos++];
-                    this.compressionMethod = this.data[this.pos++];
-                    this.filterMethod = this.data[this.pos++];
-                    this.interlaceMethod = this.data[this.pos++];
-                    break;
-                case 'acTL':
-                    this.animation = {
-                        numFrames: this.readUInt32(),
-                        numPlays: this.readUInt32() || Infinity,
-                        frames: []
-                    };
-                    break;
-                case 'PLTE':
-                    this.palette = this.read(chunkSize);
-                    break;
-                case 'fcTL':
-                    if (frame) {
-                        this.animation.frames.push(frame);
-                    }
+                this.pos += 4;
+                frame = {
+                    width: this.readUInt32(),
+                    height: this.readUInt32(),
+                    xOffset: this.readUInt32(),
+                    yOffset: this.readUInt32()
+                };
+                delayNum = this.readUInt16();
+                delayDen = this.readUInt16() || 100;
+                frame.delay = 1000 * delayNum / delayDen;
+                frame.disposeOp = this.data[this.pos++];
+                frame.blendOp = this.data[this.pos++];
+                frame.data = [];
+                break;
+            case 'IDAT':
+            case 'fdAT':
+                if (section === 'fdAT') {
                     this.pos += 4;
-                    frame = {
-                        width: this.readUInt32(),
-                        height: this.readUInt32(),
-                        xOffset: this.readUInt32(),
-                        yOffset: this.readUInt32()
-                    };
-                    delayNum = this.readUInt16();
-                    delayDen = this.readUInt16() || 100;
-                    frame.delay = 1000 * delayNum / delayDen;
-                    frame.disposeOp = this.data[this.pos++];
-                    frame.blendOp = this.data[this.pos++];
-                    frame.data = [];
-                    break;
-                case 'IDAT':
-                case 'fdAT':
-                    if (section === 'fdAT') {
-                        this.pos += 4;
-                        chunkSize -= 4;
-                    }
-                    data = (frame != null ? frame.data : void 0) || this.imgData;
-                    for (i = _i = 0; 0 <= chunkSize ? _i < chunkSize : _i > chunkSize; i = 0 <= chunkSize ? ++_i : --_i) {
-                        data.push(this.data[this.pos++]);
-                    }
-                    break;
-                case 'tRNS':
-                    this.transparency = {};
-                    switch (this.colorType) {
-                        case 3:
-                            this.transparency.indexed = this.read(chunkSize);
-                            ccshort = 255 - this.transparency.indexed.length;
-                            if (ccshort > 0) {
-                                for (i = _j = 0; 0 <= ccshort ? _j < ccshort : _j > ccshort; i = 0 <= ccshort ? ++_j : --_j) {
-                                    this.transparency.indexed.push(255);
-                                }
+                    chunkSize -= 4;
+                }
+                data = (frame != null ? frame.data : void 0) || this.imgData;
+                for (i = _i = 0; 0 <= chunkSize ? _i < chunkSize : _i > chunkSize; i = 0 <= chunkSize ? ++_i : --_i) {
+                    data.push(this.data[this.pos++]);
+                }
+                break;
+            case 'tRNS':
+                this.transparency = {};
+                switch (this.colorType) {
+                    case 3:
+                        this.transparency.indexed = this.read(chunkSize);
+                        ccshort = 255 - this.transparency.indexed.length;
+                        if (ccshort > 0) {
+                            for (i = _j = 0; 0 <= ccshort ? _j < ccshort : _j > ccshort; i = 0 <= ccshort ? ++_j : --_j) {
+                                this.transparency.indexed.push(255);
                             }
-                            break;
+                        }
+                        break;
+                    case 0:
+                        this.transparency.grayscale = this.read(chunkSize)[0];
+                        break;
+                    case 2:
+                        this.transparency.rgb = this.read(chunkSize);
+                }
+                break;
+            case 'tEXt':
+                text = this.read(chunkSize);
+                index = text.indexOf(0);
+                key = String.fromCharCode.apply(String, text.slice(0, index));
+                this.text[key] = String.fromCharCode.apply(String, text.slice(index + 1));
+                break;
+            case 'IEND':
+                if (frame) {
+                    this.animation.frames.push(frame);
+                }
+                this.colors = (function() {
+                    switch (this.colorType) {
                         case 0:
-                            this.transparency.grayscale = this.read(chunkSize)[0];
-                            break;
+                        case 3:
+                        case 4:
+                            return 1;
                         case 2:
-                            this.transparency.rgb = this.read(chunkSize);
+                        case 6:
+                            return 3;
                     }
-                    break;
-                case 'tEXt':
-                    text = this.read(chunkSize);
-                    index = text.indexOf(0);
-                    key = String.fromCharCode.apply(String, text.slice(0, index));
-                    this.text[key] = String.fromCharCode.apply(String, text.slice(index + 1));
-                    break;
-                case 'IEND':
-                    if (frame) {
-                        this.animation.frames.push(frame);
+                }).call(this);
+                this.hasAlphaChannel = (_ref = this.colorType) === 4 || _ref === 6;
+                colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
+                this.pixelBitlength = this.bits * colors;
+                this.colorSpace = (function() {
+                    switch (this.colors) {
+                        case 1:
+                            return 'DeviceGray';
+                        case 3:
+                            return 'DeviceRGB';
                     }
-                    this.colors = (function() {
-                        switch (this.colorType) {
-                            case 0:
-                            case 3:
-                            case 4:
-                                return 1;
-                            case 2:
-                            case 6:
-                                return 3;
-                        }
-                    }).call(this);
-                    this.hasAlphaChannel = (_ref = this.colorType) === 4 || _ref === 6;
-                    colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
-                    this.pixelBitlength = this.bits * colors;
-                    this.colorSpace = (function() {
-                        switch (this.colors) {
-                            case 1:
-                                return 'DeviceGray';
-                            case 3:
-                                return 'DeviceRGB';
-                        }
-                    }).call(this);
-                    if(Uint8Array != Array)
-                        this.imgData = new Uint8Array(this.imgData);
-                    return;
-                default:
-                    this.pos += chunkSize;
-            }
-            this.pos += 4;
-            if (this.pos > this.data.length) {
-                throw new Error("Incomplete or corrupt PNG file");
-            }
+                }).call(this);
+                if(Uint8Array != Array)
+                    this.imgData = new Uint8Array(this.imgData);
+                return;
+            default:
+                this.pos += chunkSize;
         }
-    },
+        this.pos += 4;
+        if (this.pos > this.data.length) {
+            throw new Error(debug.getError(6017));
+        }
+    }
+};
+PNGReader.prototype = {
+    constructor: PNGReader,
     read:function(bytes){
         var i, _i, _results;
         _results = [];
@@ -193,7 +198,7 @@ var PNGReader = cc._Class.extend({
         if (data.length === 0) {
             return new Uint8Array(0);
         }
-        var inflate = new Zlib.Inflate(data,{index:0, verify:false});
+        var inflate = new zlib.Inflate(data,{index:0, verify:false});
         data = inflate.decompress();
 
         pixelBytes = this.pixelBitlength / 8;
@@ -260,7 +265,7 @@ var PNGReader = cc._Class.extend({
                     }
                     break;
                 default:
-                    throw new Error("Invalid filter algorithm: " + data[pos - 1]);
+                    throw new Error(debug.getError(6018, data[pos - 1]));
             }
             row++;
         }
@@ -326,6 +331,6 @@ var PNGReader = cc._Class.extend({
         return ctx.putImageData(data, 0, 0);
 
     }
-});
+};
 
 module.exports = PNGReader;

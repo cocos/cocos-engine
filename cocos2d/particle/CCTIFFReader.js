@@ -4,19 +4,21 @@
 
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +28,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+const debug = require('../core/CCDebug');
 
 /**
  * cc.tiffReader is a singleton object, it's a tiff file reader, it can parse byte array to draw into a canvas
@@ -65,7 +69,7 @@ var tiffReader = /** @lends tiffReader# */{
             this.littleEndian = false;
         } else {
             console.log(BOM);
-            throw TypeError("Invalid byte order value.");
+            throw TypeError(debug.getError(6019));
         }
 
         return this.littleEndian;
@@ -74,7 +78,7 @@ var tiffReader = /** @lends tiffReader# */{
     hasTowel: function () {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
-            throw RangeError("You forgot your towel!");
+            throw RangeError(debug.getError(6020));
             return false;
         }
 
@@ -95,7 +99,7 @@ var tiffReader = /** @lends tiffReader# */{
         if (fieldTag in tagNames) {
             return tagNames[fieldTag];
         } else {
-            console.log("Unknown Field Tag:", fieldTag);
+            cc.logID(6021, fieldTag);
             return "Tag" + fieldTag;
         }
     },
@@ -175,7 +179,7 @@ var tiffReader = /** @lends tiffReader# */{
         var shiftLeft,rawBits;
 
         if (totalBits <= 0) {
-            console.log("No bits requested");
+            cc.logID(6023);
         } else if (totalBits <= 8) {
             shiftLeft = 24 + bitOffset;
             rawBits = this.getUint8(newByteOffset);
@@ -186,7 +190,7 @@ var tiffReader = /** @lends tiffReader# */{
             shiftLeft = bitOffset;
             rawBits = this.getUint32(newByteOffset);
         } else {
-            console.log( "Too many bits requested" );
+            cc.logID(6022);
         }
 
         return {
@@ -302,7 +306,7 @@ var tiffReader = /** @lends tiffReader# */{
             if (numStripOffsetValues === 1) {
                 var stripByteCountValues = [Math.ceil((imageWidth * imageLength * bitsPerPixel) / 8)];
             } else {
-                throw Error("Cannot recover from missing StripByteCounts");
+                throw Error(debug.getError(6024));
             }
         }
 
@@ -332,7 +336,7 @@ var tiffReader = /** @lends tiffReader# */{
                                 byteOffset = sampleInfo.byteOffset - stripOffset;
                                 bitOffset = sampleInfo.bitOffset;
 
-                                throw RangeError("Cannot handle sub-byte bits per sample");
+                                throw RangeError(debug.getError(6025));
                             }
                         }
 
@@ -342,7 +346,7 @@ var tiffReader = /** @lends tiffReader# */{
                             jIncrement = bytesPerPixel;
                         } else {
                             jIncrement = 0;
-                            throw RangeError("Cannot handle sub-byte bits per pixel");
+                            throw RangeError(debug.getError(6026));
                         }
                         break;
 
@@ -412,7 +416,7 @@ var tiffReader = /** @lends tiffReader# */{
                                         sample++;
                                     }
                                 } else {
-                                    throw RangeError("Cannot handle sub-byte bits per sample");
+                                    throw RangeError(debug.getError(6025));
                                 }
 
                                 // Is our pixel complete?
@@ -535,7 +539,7 @@ var tiffReader = /** @lends tiffReader# */{
                             // RGB Color Palette
                             case 3:
                                 if (colorMapValues === undefined) {
-                                    throw Error("Palette image missing color map");
+                                    throw Error(debug.getError(6027));
                                 }
 
                                 var colorMapIndex = pixelSamples[0];
@@ -547,7 +551,7 @@ var tiffReader = /** @lends tiffReader# */{
 
                             // Unknown Photometric Interpretation
                             default:
-                                throw RangeError('Unknown Photometric Interpretation:', photometricInterpretation);
+                                throw RangeError(debug.getError(6028, photometricInterpretation));
                                 break;
                         }
 

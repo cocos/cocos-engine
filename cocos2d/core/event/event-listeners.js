@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,62 +24,42 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
+var js = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
-
-var REMOVE_PLACEHOLDER = CallbacksHandler.REMOVE_PLACEHOLDER;
 
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
 }
-JS.extend(EventListeners, CallbacksHandler);
+js.extend(EventListeners, CallbacksHandler);
 
 EventListeners.prototype.invoke = function (event, captureListeners) {
-    var key = event.type,
-        list = this._callbackTable[key],
-        i, endIndex,
-        callingFunc, target, hasTarget;
-
-    this._invoking[key] = true;
-
+    var key = event.type;
+    var list = this._callbackTable[key];
     if (list) {
-        if (list.length === 1) {
-            callingFunc = list[0];
-            if (callingFunc !== REMOVE_PLACEHOLDER) {
-                callingFunc.call(event.currentTarget, event, captureListeners);
+        var rootInvoker = !list.isInvoking;
+        list.isInvoking = true;
+
+        var callbacks = list.callbacks;
+        var targets = list.targets;
+        for (var i = 0, len = callbacks.length; i < len; ++i) {
+            var callback = callbacks[i];
+            if (callback) {
+                var target = targets[i] || event.currentTarget;
+                callback.call(target, event, captureListeners);
+                if (event._propagationImmediateStopped) {
+                    break;
+                }
             }
         }
-        else {
-            endIndex = list.length - 1;
-            for (i = 0; i <= endIndex;) {
-                callingFunc = list[i];
-                var increment = 1;
-                // cheap detection for function
-                if (callingFunc !== REMOVE_PLACEHOLDER) {
-                    target = list[i+1];
-                    hasTarget = target && typeof target === 'object';
-                    if (hasTarget) {
-                        callingFunc.call(target, event, captureListeners);
-                        increment = 2;
-                    }
-                    else {
-                        callingFunc.call(event.currentTarget, event, captureListeners);
-                    }
 
-                    if (event._propagationImmediateStopped || i + increment > endIndex) {
-                        break;
-                    }
-                }
-
-                i += increment;
+        if (rootInvoker) {
+            list.isInvoking = false;
+            if (list.containCanceled) {
+                list.purgeCanceled();
             }
         }
     }
-    this._invoking[key] = false;
-
-    // Delay removing
-    this._clearToRemove(key);
 };
 
 module.exports = EventListeners;

@@ -1,4 +1,30 @@
-var JS = cc.js;
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+var js = cc.js;
+const debug = require('../core/CCDebug');
 
 /**
  * @class Playable
@@ -20,7 +46,7 @@ var prototype = Playable.prototype;
  * @default false
  * @readOnly
  */
-JS.get(prototype, 'isPlaying', function () {
+js.get(prototype, 'isPlaying', function () {
     return this._isPlaying;
 }, true);
 
@@ -32,7 +58,7 @@ JS.get(prototype, 'isPlaying', function () {
  * @default false
  * @readOnly
  */
-JS.get(prototype, 'isPaused', function () {
+js.get(prototype, 'isPaused', function () {
     return this._isPaused;
 }, true);
 
@@ -80,7 +106,7 @@ prototype.play = function () {
             this.onResume();
         }
         else {
-            this.onError('already-playing');
+            this.onError(debug.getError(3912));
         }
     }
     else {
@@ -97,8 +123,10 @@ prototype.play = function () {
 prototype.stop = function () {
     if (this._isPlaying) {
         this._isPlaying = false;
-        this._isPaused = false;
         this.onStop();
+
+        // need reset pause flag after onStop
+        this._isPaused = false;
     }
 };
 
@@ -108,7 +136,7 @@ prototype.stop = function () {
  * @method pause
  */
 prototype.pause = function () {
-    if (this._isPlaying) {
+    if (this._isPlaying && !this._isPaused) {
         this._isPaused = true;
         this.onPause();
     }
@@ -120,7 +148,7 @@ prototype.pause = function () {
  * @method resume
  */
 prototype.resume = function () {
-    if (this._isPlaying) {
+    if (this._isPlaying && this._isPaused) {
         this._isPaused = false;
         this.onResume();
     }

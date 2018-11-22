@@ -5,6 +5,8 @@ var Fs = require('fs');
 var Path = require('path');
 var through = require('through');
 
+var Engine = require('./engine');
+
 // var source = require('vinyl-source-stream');
 // var buffer = require('vinyl-buffer');
 // var sourcemaps = require('gulp-sourcemaps');
@@ -91,7 +93,7 @@ exports.preview = function (sourceFile, outputFile) {
     });
 };
 
-exports.jsbPolyfill = function (sourceFile, outputFile, skipModules) {
+exports.jsbPolyfill = function (sourceFile, outputFile) {
     return watchFile({
         entries: sourceFile,
         dest: outputFile,
@@ -101,6 +103,6 @@ exports.jsbPolyfill = function (sourceFile, outputFile, skipModules) {
 
             return prefix;
         },
-        skips: skipModules
+        skips: Engine.jsbSkipModules
     });
 };

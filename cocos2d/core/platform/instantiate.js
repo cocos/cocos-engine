@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,45 +25,56 @@
  ****************************************************************************/
 
 var CCObject = require('./CCObject');
+var CCValueType = require('../value-types/value-type');
 var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
-var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
- * !#en Clones the object original and returns the clone.
+ * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
+ * !#zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
  *
- * See [Clone exists Entity](/en/scripting/create-destroy-entities/#instantiate)
- *
- * !#zh 复制给定的对象
- *
- * 详细用法可参考[复制已有Entity](/zh/scripting/create-destroy-entities/#instantiate)
- *
- * Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。
- * <del>对于 Entity / Component 等 Scene Object，如果对方也会被一起 Instantiate，则重定向到新的引用，否则保留为原来的引用。</del>
+ * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
  *
  * @method instantiate
- * @param {Object} original - An existing object that you want to make a copy of.
- * @return {Object} the newly instantiated object
+ * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
+ * @return {Node|Object} the newly instantiated object
+ * @typescript
+ * instantiate(original: Prefab): Node
+ * instantiate<T>(original: T): T
+ * @example
+ * // instantiate node from prefab
+ * var scene = cc.director.getScene();
+ * var node = cc.instantiate(prefabAsset);
+ * node.parent = scene;
+ * // clone node
+ * var scene = cc.director.getScene();
+ * var node = cc.instantiate(targetNode);
+ * node.parent = scene;
  */
-function instantiate (original) {
-    if (typeof original !== 'object' || Array.isArray(original)) {
-        if (CC_DEV) {
-            cc.errorID(6900);
+function instantiate (original, internal_force) {
+    if (!internal_force) {
+        if (typeof original !== 'object' || Array.isArray(original)) {
+            if (CC_DEV) {
+                cc.errorID(6900);
+            }
+            return null;
         }
-        return null;
-    }
-    if (!original) {
-        if (CC_DEV) {
-            cc.errorID(6901);
+        if (!original) {
+            if (CC_DEV) {
+                cc.errorID(6901);
+            }
+            return null;
         }
-        return null;
-    }
-    if (!cc.isValid(original)) {
-        if (CC_DEV) {
-            cc.errorID(6902);
+        if (!cc.isValid(original)) {
+            if (CC_DEV) {
+                cc.errorID(6902);
+            }
+            return null;
         }
-        return null;
+        if (CC_DEV && original instanceof cc.Component) {
+            cc.warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
+        }
     }
 
     var clone;
@@ -114,7 +126,7 @@ function doInstantiate (obj, parent) {
         }
         return null;
     }
-    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
+    if (_isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }
@@ -123,13 +135,16 @@ function doInstantiate (obj, parent) {
 
     var clone;
     if (obj._iN$t) {
-        clone = obj._iN$t;
+        // User can specify an existing object by assigning the "_iN$t" property.
         // enumerateObject will always push obj to objsToClearTmpVar
+        clone = obj._iN$t;
     }
-    else {
-        // User can specify an existing object by assigning the "_iN$t" property
+    else if (obj.constructor) {
         var klass = obj.constructor;
         clone = new klass();
+    }
+    else {
+        clone = Object.create(null);
     }
 
     enumerateObject(obj, clone, parent);
@@ -142,26 +157,26 @@ function doInstantiate (obj, parent) {
     return clone;
 }
 
-var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
 function enumerateCCClass (klass, obj, clone, parent) {
-    var props = klass.__props__;
-    var attrs = Attr.getClassAttrs(klass);
+    var props = klass.__values__;
     for (var p = 0; p < props.length; p++) {
         var key = props[p];
-        if (attrs[key + SERIALIZABLE] !== false) {
-            var value = obj[key];
-            if (typeof value === 'object' && value) {
-                clone[key] = value._iN$t || instantiateObj(value, parent);
+        var value = obj[key];
+        if (typeof value === 'object' && value) {
+            var initValue = clone[key];
+            if (initValue instanceof CCValueType &&
+                initValue.constructor === value.constructor) {
+                initValue.set(value);
             }
             else {
-                clone[key] = value;
+                clone[key] = value._iN$t || instantiateObj(value, parent);
             }
         }
-    }
-    if (CC_EDITOR && (obj instanceof cc._BaseNode || obj instanceof cc.Component)) {
-        clone._id = '';
+        else {
+            clone[key] = value;
+        }
     }
 }
 
@@ -205,7 +220,7 @@ function enumerateObject (obj, clone, parent) {
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
 function instantiateObj (obj, parent) {
-    if (obj instanceof cc.ValueType) {
+    if (obj instanceof CCValueType) {
         return obj.clone();
     }
     if (obj instanceof cc.Asset) {
@@ -257,12 +272,18 @@ function instantiateObj (obj, parent) {
                 }
             }
         }
+        clone = new ctor();
     }
-    else if (ctor !== Object) {
+    else if (ctor === Object) {
+        clone = {};
+    }
+    else if (!ctor) {
+        clone = Object.create(null);
+    }
+    else {
         // unknown type
         return obj;
     }
-    clone = new ctor();
     enumerateObject(obj, clone, parent);
     return clone;
 }

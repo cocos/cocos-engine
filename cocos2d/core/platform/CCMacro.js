@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,17 +25,366 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./_CCClass');
+const js = require('./js');
 
-cc._tmp = cc._tmp || {};
+/**
+ * Predefined constants
+ * @class macro
+ * @static
+ */
+cc.macro = {
+    /**
+     * PI / 180
+     * @property RAD
+     * @type {Number}
+     */
+    RAD: Math.PI / 180,
+
+    /**
+     * One degree
+     * @property DEG
+     * @type {Number}
+     */
+    DEG: 180 / Math.PI,
+
+    /**
+     * @property REPEAT_FOREVER
+     * @type {Number}
+     */
+    REPEAT_FOREVER: (Number.MAX_VALUE - 1),
+
+    /**
+     * @property FLT_EPSILON
+     * @type {Number}
+     */
+    FLT_EPSILON: 0.0000001192092896,
+
+    /**
+     * Minimum z index value for node
+     * @property MIN_ZINDEX
+     * @type {Number}
+     */
+    MIN_ZINDEX: -Math.pow(2, 15),
+
+    /**
+     * Maximum z index value for node
+     * @property MAX_ZINDEX
+     * @type {Number}
+     */
+    MAX_ZINDEX: Math.pow(2, 15) - 1,
+
+    //some gl constant variable
+    /**
+     * @property ONE
+     * @type {Number}
+     */
+    ONE: 1,
+
+    /**
+     * @property ZERO
+     * @type {Number}
+     */
+    ZERO: 0,
+
+    /**
+     * @property SRC_ALPHA
+     * @type {Number}
+     */
+    SRC_ALPHA: 0x0302,
+
+    /**
+     * @property SRC_ALPHA_SATURATE
+     * @type {Number}
+     */
+    SRC_ALPHA_SATURATE: 0x308,
+
+    /**
+     * @property SRC_COLOR
+     * @type {Number}
+     */
+    SRC_COLOR: 0x300,
+
+    /**
+     * @property DST_ALPHA
+     * @type {Number}
+     */
+    DST_ALPHA: 0x304,
+
+    /**
+     * @property DST_COLOR
+     * @type {Number}
+     */
+    DST_COLOR: 0x306,
+
+    /**
+     * @property ONE_MINUS_SRC_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_SRC_ALPHA: 0x0303,
+
+    /**
+     * @property ONE_MINUS_SRC_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_SRC_COLOR: 0x301,
+
+    /**
+     * @property ONE_MINUS_DST_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_DST_ALPHA: 0x305,
+
+    /**
+     * @property ONE_MINUS_DST_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_DST_COLOR: 0x0307,
+
+    /**
+     * @property ONE_MINUS_CONSTANT_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_CONSTANT_ALPHA: 0x8004,
+
+    /**
+     * @property ONE_MINUS_CONSTANT_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_CONSTANT_COLOR: 0x8002,
+
+    //Possible device orientations
+    /**
+     * Oriented vertically
+     * @property ORIENTATION_PORTRAIT
+     * @type {Number}
+     */
+    ORIENTATION_PORTRAIT: 1,
+
+    /**
+     * Oriented horizontally
+     * @property ORIENTATION_LANDSCAPE
+     * @type {Number}
+     */
+    ORIENTATION_LANDSCAPE: 2,
+
+    /**
+     * Oriented automatically
+     * @property ORIENTATION_AUTO
+     * @type {Number}
+     */
+    ORIENTATION_AUTO: 3,
+
+    DENSITYDPI_DEVICE: 'device-dpi',
+    DENSITYDPI_HIGH: 'high-dpi',
+    DENSITYDPI_MEDIUM: 'medium-dpi',
+    DENSITYDPI_LOW: 'low-dpi',
+
+    // General configurations
+
+    /**
+     * <p>
+     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
+     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
+     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
+     *                                                                                 <br/>
+     *  The same for bottom and top.                                                   <br/>
+     *                                                                                 <br/>
+     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
+     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
+     *                                                                                  <br/>
+     *  Affected component:                                                                 <br/>
+     *      - cc.TMXLayer                                                       <br/>
+     *                                                                                  <br/>
+     *  Enabled by default. To disabled set it to 0. <br/>
+     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
+     * </p>
+     *
+     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
+     */
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
+
+    /**
+     * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
+     * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
+     * @property {Vec2} DIRECTOR_STATS_POSITION
+     */
+    DIRECTOR_STATS_POSITION: cc.v2(0, 0),
+
+    /**
+     * <p>
+     *    If enabled, actions that alter the position property (eg: CCMoveBy, CCJumpBy, CCBezierBy, etc..) will be stacked.                  <br/>
+     *    If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.        <br/>
+     *    If disabled, only the last run action will take effect.
+     * </p>
+     * @property {Number} ENABLE_STACKABLE_ACTIONS
+     */
+    ENABLE_STACKABLE_ACTIONS: true,
+
+    /**
+     * !#en 
+     * The timeout to determine whether a touch is no longer active and should be removed.
+     * The reason to add this timeout is due to an issue in X5 browser core, 
+     * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
+     * no touch cancel event is triggered, and the touch will be considered active forever. 
+     * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
+     * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
+     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
+     * You can modify this value to have a better behavior if you find it's not enough.
+     * !#zh
+     * 用于甄别一个触点对象是否已经失效并且可以被移除的延时时长
+     * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
+     * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
+     * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
+     * 所以这个新的机制可以在触点在一定时间内没有任何更新的情况下视为失效触点并从事件系统中移除。
+     * 当然，这也可能移除一个真实的触点，如果用户的触点真的在一定时间段内完全没有移动（这在当前手机屏幕的灵敏度下会很难）。
+     * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
+     * @property {Number} TOUCH_TIMEOUT
+     */
+    TOUCH_TIMEOUT: 5000,
+
+    /**
+     * !#en 
+     * The maximum vertex count for a single batched draw call.
+     * !#zh
+     * 最大可以被单次批处理渲染的顶点数量。
+     * @property {Number} BATCH_VERTEX_COUNT
+     */
+    BATCH_VERTEX_COUNT: 20000,
+
+    /**
+     * !#en 
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
+     * !#zh
+     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
+     * @property {Boolean} ENABLE_TILEDMAP_CULLING
+     * @default true
+     */
+    ENABLE_TILEDMAP_CULLING: true,
+
+    /**
+     * !#en 
+     * The max concurrent task number for the downloader
+     * !#zh
+     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
+     * @property {Number} DOWNLOAD_MAX_CONCURRENT
+     * @default 64
+     */
+    DOWNLOAD_MAX_CONCURRENT: 64,
+
+    /**
+     * !#en 
+     * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
+     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * you can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
+     * @default false
+     */
+    ENABLE_TRANSPARENT_CANVAS: false,
+
+    /**
+     * !#en
+     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
+     * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
+     * Whether to use this really depend on your game design and targeted platform, 
+     * device with retina display usually have good detail on graphics with or without this option, 
+     * you probably don't want antialias if your game style is pixel art based.
+     * Also, it could have great performance impact with some browser / device using software MSAA.
+     * You can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置在创建 WebGL Context 时是否开启抗锯齿选项，默认值是 false。
+     * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
+     * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
+     * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
+     * 你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
+     * @default false
+     */
+    ENABLE_WEBGL_ANTIALIAS: false,
+
+    /**
+     * !#en
+     * Whether or not enable auto culling.
+     * This feature have been removed in v2.0 new renderer due to overall performance consumption.
+     * We have no plan currently to re-enable auto culling.
+     * If your game have more dynamic objects, we suggest to disable auto culling.
+     * If your game have more static objects, we suggest to enable auto culling.
+     * !#zh
+     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
+     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+     * @property {Boolean} ENABLE_CULLING
+     * @deprecated since v2.0
+     * @default false
+     */
+    ENABLE_CULLING: false,
+
+    /**
+     * !#en
+     * Whether or not clear dom Image object cache after uploading to gl texture.
+     * Concretely, we are setting image.src to empty string to release the cache.
+     * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
+     * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
+     * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.
+     * !#zh
+     * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
+     * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
+     * 正常情况下，你不需要开启这个选项，因为在 web 平台，Image 对象所占用的内存很小。
+     * 但是在微信小游戏平台的当前版本，Image 对象会缓存解码后的图片数据，它所占用的内存空间很大。
+     * 所以我们在微信平台默认开启了这个选项，这样我们就可以在上传 GL 贴图之后立即释放 Image 对象的内存，避免过高的内存占用。
+     * @property {Boolean} CLEANUP_IMAGE_CACHE
+     * @default false
+     */
+    CLEANUP_IMAGE_CACHE: false,
+
+    /**
+     * !#en
+     * Whether or not show mesh wire frame.
+     * !#zh
+     * 是否显示网格的线框。
+     * @property {Boolean} SHOW_MESH_WIREFRAME
+     * @default false
+     */
+    SHOW_MESH_WIREFRAME: false,
+};
+
+
+let SUPPORT_TEXTURE_FORMATS = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
+if (cc.sys.isMobile) {
+    if (cc.sys.os === cc.sys.OS_IOS) {
+        SUPPORT_TEXTURE_FORMATS = ['.pvr'].concat(SUPPORT_TEXTURE_FORMATS);
+    }
+    // else if (cc.sys.os === cc.sys.OS_ANDROID) {
+    //     SUPPORT_TEXTURE_FORMATS = ['.etc'].join(SUPPORT_TEXTURE_FORMATS);
+    // }
+}
+
+/**
+ * !en
+ * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
+ * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], The iOS mobile platform also supports the PVR format。
+ * !zh
+ * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
+ * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. 另外 Ios 手机平台还额外支持了 PVR 格式。
+ * @property {[String]} SUPPORT_TEXTURE_FORMATS
+ */
+cc.macro.SUPPORT_TEXTURE_FORMATS = SUPPORT_TEXTURE_FORMATS;
+
 
 /**
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
- * @enum KEY
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
+ * @enum macro.KEY
+ * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
-cc.KEY = {
+cc.macro.KEY = {
     /**
      * !#en None
      * !#zh 没有分配
@@ -1039,10 +1389,9 @@ cc.KEY = {
 
 /**
  * Image formats
- * @enum ImageFormat
+ * @enum macro.ImageFormat
  */
-
-cc.ImageFormat = cc.Enum({
+cc.macro.ImageFormat = cc.Enum({
     /**
      * Image Format:JPG
      * @property JPG
@@ -1112,935 +1461,111 @@ cc.ImageFormat = cc.Enum({
 });
 
 /**
- * get image format by image data
- * @method getImageFormatByData
- * @param {Array} imgData
- * @returns {Number}
+ * !#en
+ * Enum for blend factor
+ * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
+ * !#zh
+ * 混合因子
+ * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
+ * @enum macro.BlendFactor
  */
-cc.getImageFormatByData = function (imgData) {
-    // if it is a png file buffer.
-    if (imgData.length > 8 && imgData[0] === 0x89
-        && imgData[1] === 0x50
-        && imgData[2] === 0x4E
-        && imgData[3] === 0x47
-        && imgData[4] === 0x0D
-        && imgData[5] === 0x0A
-        && imgData[6] === 0x1A
-        && imgData[7] === 0x0A) {
-        return cc.ImageFormat.PNG;
-    }
-
-    // if it is a tiff file buffer.
-    if (imgData.length > 2 && ((imgData[0] === 0x49 && imgData[1] === 0x49)
-        || (imgData[0] === 0x4d && imgData[1] === 0x4d)
-        || (imgData[0] === 0xff && imgData[1] === 0xd8))) {
-        return cc.ImageFormat.TIFF;
-    }
-    return cc.ImageFormat.UNKNOWN;
-};
-
-/**
- * Predefined constants
- * @enum Macro
- * @type {Object}
- */
-cc.macro = {
+cc.macro.BlendFactor = cc.Enum({
     /**
-     * @property INVALID_INDEX
-     * @type {Number}
+     * !#en All use
+     * !#zh 全部使用
+     * @property {Number} ONE
      */
-    INVALID_INDEX: -1,
-
+    ONE:                    1,  //cc.macro.ONE
     /**
-     * Default Node tag
-     * @property NODE_TAG_INVALID
-     * @type {Number}
+     * !#en Not all
+     * !#zh 全部不用
+     * @property {Number} ZERO
      */
-    NODE_TAG_INVALID: -1,
-
+    ZERO:                   0,      //cc.ZERO
     /**
-     * PI is the ratio of a circle's circumference to its diameter.
-     * @property PI
-     * @type {Number}
+     * !#en Using the source alpha
+     * !#zh 使用源颜色的透明度
+     * @property {Number} SRC_ALPHA
      */
-    PI: Math.PI,
-
+    SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
     /**
-     * PI * 2
-     * @property PI2
-     * @type {Number}
+     * !#en Using the source color
+     * !#zh 使用源颜色
+     * @property {Number} SRC_COLOR
      */
-    PI2: Math.PI * 2,
-
+    SRC_COLOR:              0x300,  //cc.SRC_COLOR
     /**
-     * Maximum float value
-     * @property FLT_MAX
-     * @type {Number}
+     * !#en Using the target alpha
+     * !#zh 使用目标颜色的透明度
+     * @property {Number} DST_ALPHA
      */
-    FLT_MAX: parseFloat('3.402823466e+38F'),
-
+    DST_ALPHA:              0x304,  //cc.DST_ALPHA
     /**
-     * Minimum float value
-     * @property FLT_MIN
-     * @type {Number}
+     * !#en Using the target color
+     * !#zh 使用目标颜色
+     * @property {Number} DST_COLOR
      */
-    FLT_MIN: parseFloat("1.175494351e-38F"),
-
+    DST_COLOR:              0x306,  //cc.DST_COLOR
     /**
-     * PI / 180
-     * @property RAD
-     * @type {Number}
+     * !#en Minus the source alpha
+     * !#zh 减去源颜色的透明度
+     * @property {Number} ONE_MINUS_SRC_ALPHA
      */
-    RAD: Math.PI / 180,
-
+    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
     /**
-     * One degree
-     * @property DEG
-     * @type {Number}
+     * !#en Minus the source color
+     * !#zh 减去源颜色
+     * @property {Number} ONE_MINUS_SRC_COLOR
      */
-    DEG: 180 / Math.PI,
-
+    ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
     /**
-     * Maximum unsigned int value
-     * @property UINT_MAX
-     * @type {Number}
+     * !#en Minus the target alpha
+     * !#zh 减去目标颜色的透明度
+     * @property {Number} ONE_MINUS_DST_ALPHA
      */
-    UINT_MAX: 0xffffffff,
-
+    ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
     /**
-     * @property REPEAT_FOREVER
-     * @type {Number}
+     * !#en Minus the target color
+     * !#zh 减去目标颜色
+     * @property {Number} ONE_MINUS_DST_COLOR
      */
-    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
-
-    /**
-     * @property FLT_EPSILON
-     * @type {Number}
-     */
-    FLT_EPSILON: 0.0000001192092896,
-
-    //some gl constant variable
-    /**
-     * @property ONE
-     * @type {Number}
-     */
-    ONE: 1,
-
-    /**
-     * @property ZERO
-     * @type {Number}
-     */
-    ZERO: 0,
-
-    /**
-     * @property SRC_ALPHA
-     * @type {Number}
-     */
-    SRC_ALPHA: 0x0302,
-
-    /**
-     * @property SRC_ALPHA_SATURATE
-     * @type {Number}
-     */
-    SRC_ALPHA_SATURATE: 0x308,
-
-    /**
-     * @property SRC_COLOR
-     * @type {Number}
-     */
-    SRC_COLOR: 0x300,
-
-    /**
-     * @property DST_ALPHA
-     * @type {Number}
-     */
-    DST_ALPHA: 0x304,
-
-    /**
-     * @property DST_COLOR
-     * @type {Number}
-     */
-    DST_COLOR: 0x306,
-
-    /**
-     * @property ONE_MINUS_SRC_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_SRC_ALPHA: 0x0303,
-
-    /**
-     * @property ONE_MINUS_SRC_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_SRC_COLOR: 0x301,
-
-    /**
-     * @property ONE_MINUS_DST_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_DST_ALPHA: 0x305,
-
-    /**
-     * @property ONE_MINUS_DST_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_DST_COLOR: 0x0307,
-
-    /**
-     * @property ONE_MINUS_CONSTANT_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_CONSTANT_ALPHA: 0x8004,
-
-    /**
-     * @property ONE_MINUS_CONSTANT_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_CONSTANT_COLOR: 0x8002,
-
-    /**
-     * the constant variable equals gl.LINEAR for texture
-     * @property LINEAR
-     * @type {Number}
-     */
-    LINEAR: 0x2601,
-
-    /**
-     * default gl blend dst function. Compatible with premultiplied alpha images.
-     * @property BLEND_DST
-     * @type {Number}
-     */
-    BLEND_DST: 0x0303,
-
-
-    //Possible device orientations
-
-    /**
-     * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
-     * @property WEB_ORIENTATION_PORTRAIT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_PORTRAIT: 0,
-
-    /**
-     * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
-     * @property WEB_ORIENTATION_LANDSCAPE_LEFT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_LANDSCAPE_LEFT: -90,
-
-    /**
-     * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
-     * @property WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN
-     * @type {Number}
-     */
-    WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN: 180,
-
-    /**
-     * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
-     * @property WEB_ORIENTATION_LANDSCAPE_RIGHT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_LANDSCAPE_RIGHT: 90,
-
-    /**
-     * Oriented vertically
-     * @property ORIENTATION_PORTRAIT
-     * @type {Number}
-     */
-    ORIENTATION_PORTRAIT: 1,
-
-    /**
-     * Oriented horizontally
-     * @property ORIENTATION_LANDSCAPE
-     * @type {Number}
-     */
-    ORIENTATION_LANDSCAPE: 2,
-
-    /**
-     * Oriented automatically
-     * @property ORIENTATION_AUTO
-     * @type {Number}
-     */
-    ORIENTATION_AUTO: 3,
-
-
-    DENSITYDPI_DEVICE: 'device-dpi',
-    DENSITYDPI_HIGH: 'high-dpi',
-    DENSITYDPI_MEDIUM: 'medium-dpi',
-    DENSITYDPI_LOW: 'low-dpi',
-
-
-    // ------------------- vertex attrib flags -----------------------------
-
-    /**
-     * @property VERTEX_ATTRIB_FLAG_NONE
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_FLAG_NONE: 0,
-    /**
-     * @property VERTEX_ATTRIB_FLAG_POSITION
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_FLAG_POSITION: 1 << 0,
-    /**
-     * @property VERTEX_ATTRIB_FLAG_COLOR
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_FLAG_COLOR: 1 << 1,
-    /**
-     * @property VERTEX_ATTRIB_FLAG_TEX_COORDS
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_FLAG_TEX_COORDS: 1 << 2,
-    /**
-     * @property VERTEX_ATTRIB_FLAG_POS_COLOR_TEX
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_FLAG_POS_COLOR_TEX: ( (1 << 0) | (1 << 1) | (1 << 2) ),
-
-    /**
-     * GL server side states
-     * @property GL_ALL
-     * @type {Number}
-     */
-    GL_ALL: 0,
-
-    //-------------Vertex Attributes-----------
-    /**
-     * @property VERTEX_ATTRIB_POSITION
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_POSITION: 0,
-    /**
-     * @property VERTEX_ATTRIB_COLOR
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_COLOR: 1,
-    /**
-     * @property VERTEX_ATTRIB_TEX_COORDS
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_TEX_COORDS: 2,
-    /**
-     * @property VERTEX_ATTRIB_MAX
-     * @type {Number}
-     */
-    VERTEX_ATTRIB_MAX: 3,
-
-    //------------Uniforms------------------
-    /**
-     * @property UNIFORM_PMATRIX
-     * @type {Number}
-     */
-    UNIFORM_PMATRIX: 0,
-    /**
-     * @property UNIFORM_MVMATRIX
-     * @type {Number}
-     */
-    UNIFORM_MVMATRIX: 1,
-    /**
-     * @property UNIFORM_MVPMATRIX
-     * @type {Number}
-     */
-    UNIFORM_MVPMATRIX: 2,
-    /**
-     * @property UNIFORM_TIME
-     * @type {Number}
-     */
-    UNIFORM_TIME: 3,
-    /**
-     * @property UNIFORM_SINTIME
-     * @type {Number}
-     */
-    UNIFORM_SINTIME: 4,
-    /**
-     * @property UNIFORM_COSTIME
-     * @type {Number}
-     */
-    UNIFORM_COSTIME: 5,
-    /**
-     * @property UNIFORM_RANDOM01
-     * @type {Number}
-     */
-    UNIFORM_RANDOM01: 6,
-    /**
-     * @property UNIFORM_SAMPLER
-     * @type {Number}
-     */
-    UNIFORM_SAMPLER: 7,
-    /**
-     * @property UNIFORM_MAX
-     * @type {Number}
-     */
-    UNIFORM_MAX: 8,
-
-    //------------Shader Name---------------
-    /**
-     * @property SHADER_POSITION_TEXTURECOLOR
-     * @type {String}
-     */
-    SHADER_POSITION_TEXTURECOLOR: "ShaderPositionTextureColor",
-    /**
-     * @property SHADER_SPRITE_POSITION_TEXTURECOLOR
-     * @type {String}
-     */
-    SHADER_SPRITE_POSITION_TEXTURECOLOR: "ShaderSpritePositionTextureColor",
-    /**
-     * @property SHADER_POSITION_TEXTURECOLORALPHATEST
-     * @type {String}
-     */
-    SHADER_POSITION_TEXTURECOLORALPHATEST: "ShaderPositionTextureColorAlphaTest",
-    /**
-     * @property SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST
-     * @type {String}
-     */
-    SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST: "ShaderSpritePositionTextureColorAlphaTest",
-    /**
-     * @property SHADER_POSITION_COLOR
-     * @type {String}
-     */
-    SHADER_POSITION_COLOR: "ShaderPositionColor",
-    /**
-     * @property SHADER_SPRITE_POSITION_COLOR
-     * @type {String}
-     */
-    SHADER_SPRITE_POSITION_COLOR: "ShaderSpritePositionColor",
-    /**
-     * @property SHADER_POSITION_TEXTURE
-     * @type {String}
-     */
-    SHADER_POSITION_TEXTURE: "ShaderPositionTexture",
-    /**
-     * @property SHADER_POSITION_TEXTURE_UCOLOR
-     * @type {String}
-     */
-    SHADER_POSITION_TEXTURE_UCOLOR: "ShaderPositionTexture_uColor",
-    /**
-     * @property SHADER_POSITION_TEXTUREA8COLOR
-     * @type {String}
-     */
-    SHADER_POSITION_TEXTUREA8COLOR: "ShaderPositionTextureA8Color",
-    /**
-     * @property SHADER_POSITION_UCOLOR
-     * @type {String}
-     */
-    SHADER_POSITION_UCOLOR: "ShaderPosition_uColor",
-    /**
-     * @property SHADER_POSITION_LENGTHTEXTURECOLOR
-     * @type {String}
-     */
-    SHADER_POSITION_LENGTHTEXTURECOLOR: "ShaderPositionLengthTextureColor",
-
-    //------------uniform names----------------
-    /**
-     * @property UNIFORM_PMATRIX_S
-     * @type {String}
-     */
-    UNIFORM_PMATRIX_S: "CC_PMatrix",
-    /**
-     * @property UNIFORM_MVMATRIX_S
-     * @type {String}
-     */
-    UNIFORM_MVMATRIX_S: "CC_MVMatrix",
-    /**
-     * @property UNIFORM_MVPMATRIX_S
-     * @type {String}
-     */
-    UNIFORM_MVPMATRIX_S: "CC_MVPMatrix",
-    /**
-     * @property UNIFORM_TIME_S
-     * @type {String}
-     */
-    UNIFORM_TIME_S: "CC_Time",
-    /**
-     * @property UNIFORM_SINTIME_S
-     * @type {String}
-     */
-    UNIFORM_SINTIME_S: "CC_SinTime",
-    /**
-     * @property UNIFORM_COSTIME_S
-     * @type {String}
-     */
-    UNIFORM_COSTIME_S: "CC_CosTime",
-    /**
-     * @property UNIFORM_RANDOM01_S
-     * @type {String}
-     */
-    UNIFORM_RANDOM01_S: "CC_Random01",
-    /**
-     * @property UNIFORM_SAMPLER_S
-     * @type {String}
-     */
-    UNIFORM_SAMPLER_S: "CC_Texture0",
-    /**
-     * @property UNIFORM_ALPHA_TEST_VALUE_S
-     * @type {String}
-     */
-    UNIFORM_ALPHA_TEST_VALUE_S: "CC_alpha_value",
-
-    //------------Attribute names--------------
-    /**
-     * @property ATTRIBUTE_NAME_COLOR
-     * @type {String}
-     */
-    ATTRIBUTE_NAME_COLOR: "a_color",
-    /**
-     * @property ATTRIBUTE_NAME_POSITION
-     * @type {String}
-     */
-    ATTRIBUTE_NAME_POSITION: "a_position",
-    /**
-     * @property ATTRIBUTE_NAME_TEX_COORD
-     * @type {String}
-     */
-    ATTRIBUTE_NAME_TEX_COORD: "a_texCoord",
-
-
-    /**
-     * default size for font size
-     * @property ITEM_SIZE
-     * @type {Number}
-     */
-    ITEM_SIZE: 32,
-
-    /**
-     * default tag for current item
-     * @property CURRENT_ITEM
-     * @type {Number}
-     */
-    CURRENT_ITEM: 0xc0c05001,
-    /**
-     * default tag for zoom action tag
-     * @property ZOOM_ACTION_TAG
-     * @type {Number}
-     */
-    ZOOM_ACTION_TAG: 0xc0c05002,
-    /**
-     * default tag for normal
-     * @property NORMAL_TAG
-     * @type {Number}
-     */
-    NORMAL_TAG: 8801,
-
-    /**
-     * default selected tag
-     * @property SELECTED_TAG
-     * @type {Number}
-     */
-    SELECTED_TAG: 8802,
-
-    /**
-     * default disabled tag
-     * @property DISABLE_TAG
-     * @type {Number}
-     */
-    DISABLE_TAG: 8803,
-
-    // General configurations
-    /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.Sprite                                                              <br/>
-     *      - _ccsg.TMXTiledMap                                                         <br/>
-     *                                                                                  <br/>
-     *  Enabled by default. To disabled set it to 0. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     *
-     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
-     */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 1,
-
-    /**
-     * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
-     * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * @property {Vec2} DIRECTOR_STATS_POSITION
-     */
-    DIRECTOR_STATS_POSITION: cc.p(0, 0),
-
-    /**
-     * <p>
-     *   Seconds between FPS updates.<br/>
-     *   0.5 seconds, means that the FPS number will be updated every 0.5 seconds.<br/>
-     *   Having a bigger number means a more reliable FPS<br/>
-     *   <br/>
-     *   Default value: 0.1f<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} DIRECTOR_FPS_INTERVAL
-     */
-    DIRECTOR_FPS_INTERVAL: 0.5,
-
-    /**
-     * <p>
-     *    If enabled, the ccsg.Node objects (_ccsg.Sprite, _ccsg.Label,etc) will be able to render in subpixels.<br/>
-     *    If disabled, integer pixels will be used.<br/>
-     *    <br/>
-     *    To enable set it to 1. Enabled by default.<br/>
-     *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} COCOSNODE_RENDER_SUBPIXEL
-     */
-    COCOSNODE_RENDER_SUBPIXEL: 1,
-
-    /**
-     * <p>
-     *   If enabled, the _ccsg.Sprite objects rendered with cc.SpriteBatchNode will be able to render in subpixels.<br/>
-     *   If disabled, integer pixels will be used.<br/>
-     *   <br/>
-     *   To enable set it to 1. Enabled by default.<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} SPRITEBATCHNODE_RENDER_SUBPIXEL
-     */
-    SPRITEBATCHNODE_RENDER_SUBPIXEL: 1,
-
-    /**
-     * <p>
-     *     Automatically premultiply alpha for PNG resources
-     * </p>
-     * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
-     */
-    AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: 0,
-
-    /**
-     * <p>
-     *     If most of your images have pre-multiplied alpha, set it to 1 (if you are going to use .PNG/.JPG file images).<br/>
-     *     Only set to 0 if ALL your images by-pass Apple UIImage loading system (eg: if you use libpng or PVR images)<br/>
-     *     <br/>
-     *     To enable set it to a value different than 0. Enabled by default.<br/>
-     *     To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA
-     */
-    OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA: 0,
-
-    /**
-     * <p>
-     *   Use GL_TRIANGLE_STRIP instead of GL_TRIANGLES when rendering the texture atlas.<br/>
-     *   It seems it is the recommend way, but it is much slower, so, enable it at your own risk<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default.<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_TRIANGLE_STRIP
-     */
-    TEXTURE_ATLAS_USE_TRIANGLE_STRIP: 0,
-
-    /**
-     * <p>
-     *    By default, cc.TextureAtlas (used by many cocos2d classes) will use VAO (Vertex Array Objects).<br/>
-     *    Apple recommends its usage but they might consume a lot of memory, specially if you use many of them.<br/>
-     *    So for certain cases, where you might need hundreds of VAO objects, it might be a good idea to disable it.<br/>
-     *    <br/>
-     *    To disable it set it to 0. disable by default.(Not Supported on WebGL)<br/>
-     *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_VAO
-     */
-    TEXTURE_ATLAS_USE_VAO: 0,
-
-    /**
-     * <p>
-     *  If enabled, NPOT textures will be used where available. Only 3rd gen (and newer) devices support NPOT textures.<br/>
-     *  NPOT textures have the following limitations:<br/>
-     *     - They can't have mipmaps<br/>
-     *     - They only accept GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}<br/>
-     *  <br/>
-     *  To enable set it to a value different than 0. Disabled by default. <br/>
-     *  <br/>
-     *  This value governs only the PNG, GIF, BMP, images.<br/>
-     *  This value DOES NOT govern the PVR (PVR.GZ, PVR.CCZ) files. If NPOT PVR is loaded, then it will create an NPOT texture ignoring this value.<br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property TEXTURE_NPOT_SUPPORT
-     * @type {Number}
-     * @deprecated This value will be removed in 1.1 and NPOT textures will be loaded by default if the device supports it.
-     */
-    TEXTURE_NPOT_SUPPORT: 0,
-
-    /**
-     * <p>
-     *     If enabled, it will use LA88 (Luminance Alpha 16-bit textures) for CCLabelTTF objects. <br/>
-     *     If it is disabled, it will use A8 (Alpha 8-bit textures).                              <br/>
-     *     LA88 textures are 6% faster than A8 textures, but they will consume 2x memory.         <br/>
-     *                                                                                            <br/>
-     *     This feature is enabled by default.
-     * </p>
-     * @property {Number} USE_LA88_LABELS
-     */
-    USE_LA88_LABELS: 1,
-
-    /**
-     * <p>
-     *   If enabled, all subclasses of _ccsg.Sprite will draw a bounding box<br/>
-     *   Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default:<br/>
-     *      0 -- disabled<br/>
-     *      1 -- draw bounding box<br/>
-     *      2 -- draw texture box
-     * </p>
-     * @property {Number} SPRITE_DEBUG_DRAW
-     */
-    SPRITE_DEBUG_DRAW: 0,
-
-    /**
-     * <p>
-     *   If enabled, all subclasses of cc.LabelBMFont will draw a bounding box <br/>
-     *   Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default.<br/>
-     * </p>
-     * @property {Number} LABELBMFONT_DEBUG_DRAW
-     */
-    LABELBMFONT_DEBUG_DRAW: 0,
-
-    /**
-     * <p>
-     *    If enabled, all subclasses of cc.LabelAtlas will draw a bounding box<br/>
-     *    Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *    <br/>
-     *    To enable set it to a value different than 0. Disabled by default.
-     * </p>
-     * @property {Number} LABELATLAS_DEBUG_DRAW
-     */
-    LABELATLAS_DEBUG_DRAW: 0,
-
-    /**
-     * <p>
-     *    If enabled, actions that alter the position property (eg: CCMoveBy, CCJumpBy, CCBezierBy, etc..) will be stacked.                  <br/>
-     *    If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.        <br/>
-     *    If disabled, only the last run action will take effect.
-     * </p>
-     * @property {Number} ENABLE_STACKABLE_ACTIONS
-     */
-    ENABLE_STACKABLE_ACTIONS: 1,
-
-    /**
-     * <p>
-     *      If enabled, cocos2d will maintain an OpenGL state cache internally to avoid unnecessary switches.                                     <br/>
-     *      In order to use them, you have to use the following functions, instead of the the GL ones:                                             <br/>
-     *          - cc.gl.useProgram() instead of glUseProgram()                                                                                      <br/>
-     *          - cc.gl.deleteProgram() instead of glDeleteProgram()                                                                                <br/>
-     *          - cc.gl.blendFunc() instead of glBlendFunc()                                                                                        <br/>
-     *                                                                                                                                            <br/>
-     *      If this functionality is disabled, then cc.gl.useProgram(), cc.gl.deleteProgram(), cc.gl.blendFunc() will call the GL ones, without using the cache.              <br/>
-     *      It is recommend to enable whenever possible to improve speed.                                                                        <br/>
-     *      If you are migrating your code from GL ES 1.1, then keep it disabled. Once all your code works as expected, turn it on.
-     * </p>
-     * @property {Number} ENABLE_GL_STATE_CACHE
-     */
-    // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
-    ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1,
-
-    /**
-     * !#en 
-     * The timeout to determine whether a touch is no longer active and should be removed.
-     * The reason to add this timeout is due to an issue in X5 browser core, 
-     * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
-     * no touch cancel event is triggered, and the touch will be considered active forever. 
-     * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
-     * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
-     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
-     * You can modify this value to have a better behavior if you find it's not enough.
-     * !#zh
-     * 用于甄别一个触点对象是否已经失效，并且可以被移除的延时时长
-     * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
-     * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
-     * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
-     * 所以这个新的机制可以在触点在一定时间内没有任何更新的情况下视为失效触点并从事件系统中移除。
-     * 当然，这也可能移除一个真实的触点，如果用户的触点真的在一定时间段内完全没有移动（这在当前手机屏幕的灵敏度下会很难）。
-     * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
-     * @property {Number} TOUCH_TIMEOUT
-     */
-    TOUCH_TIMEOUT: 5000,
-
-    /**
-     * !#en 
-     * The maximum vertex count for a single batched draw call.
-     * !#zh
-     * 最大可以被单次批处理渲染的顶点数量。
-     * @property {Number} BATCH_VERTEX_COUNT
-     */
-    BATCH_VERTEX_COUNT: 2000,
-
-    /**
-     * !#en 
-     * JSB only, using JS object life cycle to control C++ object or inversely, 
-     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
-     * Modify the JS macro value won't have any effect.
-     * !#zh
-     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
-     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
-     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
-     */
-    ENABLE_GC_FOR_NATIVE_OBJECTS: true
-};
-
-/**
- * @module cc
- */
-
-/**
- * default gl blend src function. Compatible with premultiplied alpha images.
- * @property BLEND_SRC
- * @type {Number}
- */
-cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
-    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
-         && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
-        return cc.macro.ONE;
-    }
-    else {
-        return cc.macro.SRC_ALPHA;
-    }
+    ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
 });
 
 /**
- * <p>
- *     Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
- * </p>
- * @method lerp
- * @param {Number} a number A
- * @param {Number} b number B
- * @param {Number} r ratio between 0 and 1
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ * @enum macro.TextAlignment
  */
-cc.lerp = function (a, b, r) {
-    return a + (b - a) * r;
-};
-
-/**
- * get a random number from 0 to 0xffffff
- * @method rand
- * @returns {Number}
- */
-cc.rand = function () {
-	return Math.random() * 0xffffff;
-};
-
-/**
- * returns a random float between -1 and 1
- * @return {Number}
- * @method randomMinus1To1
- */
-cc.randomMinus1To1 = function () {
-    return (Math.random() - 0.5) * 2;
-};
-
-/**
- * returns a random float between 0 and 1, use Math.random directly
- * @return {Number}
- * @method random0To1
- */
-cc.random0To1 = Math.random;
-
-/**
- * converts degrees to radians
- * @param {Number} angle
- * @return {Number}
- * @method degreesToRadians
- */
-cc.degreesToRadians = function (angle) {
-    return angle * cc.macro.RAD;
-};
-
-/**
- * converts radians to degrees
- * @param {Number} angle
- * @return {Number}
- * @method radiansToDegrees
- */
-cc.radiansToDegrees = function (angle) {
-    return angle * cc.macro.DEG;
-};
-
-/**
- * Helpful macro that setups the GL server state, the correct GL program and sets the Model View Projection matrix
- * @param {Node} node setup node
- * @method nodeDrawSetup
- */
-cc.nodeDrawSetup = function (node) {
-    //cc.gl.enable(node._glServerState);
-    if (node._shaderProgram) {
-        //cc._renderContext.useProgram(node._shaderProgram._programObj);
-        node._shaderProgram.use();
-        node._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
-    }
-};
-
-/*
- * <p>
- *     GL states that are enabled:<br/>
- *       - GL_TEXTURE_2D<br/>
- *       - GL_VERTEX_ARRAY<br/>
- *       - GL_TEXTURE_COORD_ARRAY<br/>
- *       - GL_COLOR_ARRAY<br/>
- * </p>
- * @method enableDefaultGLStates
- */
-// cc.enableDefaultGLStates = function () {
-    //TODO OPENGL STUFF
-    /*
-     glEnableClientState(GL_VERTEX_ARRAY);
-     glEnableClientState(GL_COLOR_ARRAY);
-     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-     glEnable(GL_TEXTURE_2D);*/
-// };
-
-/*
- * <p>
- *   Disable default GL states:<br/>
- *     - GL_TEXTURE_2D<br/>
- *     - GL_TEXTURE_COORD_ARRAY<br/>
- *     - GL_COLOR_ARRAY<br/>
- * </p>
- * @method disableDefaultGLStates
- */
-// cc.disableDefaultGLStates = function () {
-    //TODO OPENGL
-    /*
-     glDisable(GL_TEXTURE_2D);
-     glDisableClientState(GL_COLOR_ARRAY);
-     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-     glDisableClientState(GL_VERTEX_ARRAY);
+cc.macro.TextAlignment = cc.Enum({
+    /**
+     * @property {Number} LEFT
      */
-// };
+    LEFT: 0,
+    /**
+     * @property {Number} CENTER
+     */
+    CENTER: 1,
+    /**
+     * @property {Number} RIGHT
+     */
+    RIGHT: 2
+});
 
 /**
- * <p>
- *  Increments the GL Draws counts by one.<br/>
- *  The number of calls per frame are displayed on the screen when the CCDirector's stats are enabled.<br/>
- * </p>
- * @param {Number} addNumber
- * @method incrementGLDraws
+ * @enum VerticalTextAlignment
  */
-cc.incrementGLDraws = function (addNumber) {
-    cc.g_NumberOfDraws += addNumber;
-};
-
-/**
- * Check webgl error.Error will be shown in console if exists.
- * @method checkGLErrorDebug
- */
-cc.checkGLErrorDebug = function () {
-    if (cc.renderMode === cc.game.RENDER_TYPE_WEBGL) {
-        var _error = cc._renderContext.getError();
-        if (_error) {
-            cc.logID(2400, _error);
-        }
-    }
-};
+cc.macro.VerticalTextAlignment = cc.Enum({
+    /**
+     * @property {Number} TOP
+     */
+    TOP: 0,
+    /**
+     * @property {Number} CENTER
+     */
+    CENTER: 1,
+    /**
+     * @property {Number} BOTTOM
+     */
+    BOTTOM: 2
+});
 
 module.exports = cc.macro;

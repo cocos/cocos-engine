@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,13 +34,15 @@ module.exports = {
             return !!(refNode.compareDocumentPosition(otherNode) & 16);
         }else {
             var node = otherNode.parentNode;
-            do {
-                if(node === refNode){
-                    return true;
-                }else{
-                    node = node.parentNode;
-                }
-            }while(node !==null);
+            if (node) {
+                do {
+                    if (node === refNode) {
+                        return true;
+                    } else {
+                        node = node.parentNode;
+                    }
+                } while (node !==null);
+            }
             return false;
         }
     },
@@ -68,47 +71,38 @@ module.exports = {
         }
         :
         (
-            CC_JSB ?
-                function (callback, p1, p2) {
-                    if (callback) {
-                        cc.director.once(cc.Director._EVENT_NEXT_TICK, function () {
-                            callback(p1, p2);
-                        });
-                    }
+            
+            function (callback, p1, p2) {
+                if (callback) {
+                    setTimeout(function () {
+                        callback(p1, p2);
+                    }, 0);
                 }
-                :
-                function (callback, p1, p2) {
-                    if (callback) {
-                        setTimeout(function () {
-                            callback(p1, p2);
-                        }, 0);
-                    }
-                }
+            }
         )
 };
 
 if (CC_DEV) {
-    cc.js.mixin(module.exports, {
-        ///**
-        // * @param {Object} obj
-        // * @return {Boolean} is {} ?
-        // */
-        isPlainEmptyObj_DEV: function (obj) {
-            if (!obj || obj.constructor !== Object) {
-                return false;
-            }
-            // jshint ignore: start
-            for (var k in obj) {
-                return false;
-            }
-            // jshint ignore: end
-            return true;
-        },
-        cloneable_DEV: function (obj) {
-            return obj && typeof obj.clone === 'function' &&
-                  (obj.constructor.prototype.hasOwnProperty('clone') || obj.hasOwnProperty('clone'));
+    ///**
+    // * @param {Object} obj
+    // * @return {Boolean} is {} ?
+    // */
+    module.exports.isPlainEmptyObj_DEV = function (obj) {
+        if (!obj || obj.constructor !== Object) {
+            return false;
         }
-    });
+        // jshint ignore: start
+        for (var k in obj) {
+            return false;
+        }
+        // jshint ignore: end
+        return true;
+    };
+    module.exports.cloneable_DEV = function (obj) {
+        return obj &&
+               typeof obj.clone === 'function' &&
+               ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
+    };
 }
 
 if (CC_TEST) {

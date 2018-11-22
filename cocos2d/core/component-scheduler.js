@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +26,7 @@
 
 require('./platform/CCClass');
 var Flags = require('./platform/CCObject').Flags;
-var JsArray = require('./platform/js').array;
+var jsArray = require('./platform/js').array;
 
 var IsStartCalled = Flags.IsStartCalled;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -33,14 +34,25 @@ var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
 
 var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 var callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
-var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, null, 'target._objFlags |= ' + IsStartCalled);
-var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt', 'dt');
-var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt', 'dt');
+var callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
+var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');
+var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt');
 var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
+
+var callStart = CC_SUPPORT_JIT ? 'c.start();c._objFlags|=' + IsStartCalled : function (c) {
+    c.start();
+    c._objFlags |= IsStartCalled;
+};
+var callUpdate = CC_SUPPORT_JIT ? 'c.update(dt)' : function (c, dt) {
+    c.update(dt);
+};
+var callLateUpdate = CC_SUPPORT_JIT ? 'c.lateUpdate(dt)' : function (c, dt) {
+    c.lateUpdate(dt);
+};
 
 function sortedIndex (array, comp) {
     var order = comp.constructor._executionOrder;
-    var id = comp.__instanceId;
+    var id = comp._id;
     for (var l = 0, h = array.length - 1, m = h >>> 1;
          l <= h;
          m = (l + h) >>> 1
@@ -54,7 +66,7 @@ function sortedIndex (array, comp) {
             l = m + 1;
         }
         else {
-            var testId = test.__instanceId;
+            var testId = test._id;
             if (testId > id) {
                 h = m - 1;
             }
@@ -69,15 +81,20 @@ function sortedIndex (array, comp) {
     return ~l;
 }
 
-function stableRemoveInactive (iterator) {
+// remove disabled and not invoked component from array
+function stableRemoveInactive (iterator, flagToClear) {
     var array = iterator.array;
-    for (var i = 0; i < array.length;) {
-        var comp = array[i];
+    var next = iterator.i + 1;
+    while (next < array.length) {
+        var comp = array[next];
         if (comp._enabled && comp.node._activeInHierarchy) {
-            ++i;
+            ++next;
         }
         else {
-            iterator.removeAt(i);
+            iterator.removeAt(next);
+            if (flagToClear) {
+                comp._objFlags &= ~flagToClear;
+            }
         }
     }
 }
@@ -85,7 +102,7 @@ function stableRemoveInactive (iterator) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
-        var Iterator = JsArray.MutableForwardIterator;
+        var Iterator = jsArray.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0
@@ -121,10 +138,10 @@ var OneOffInvoker = cc.Class({
         var order = comp.constructor._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
     },
-    cancelInactive () {
-        stableRemoveInactive(this._zero);
-        stableRemoveInactive(this._neg);
-        stableRemoveInactive(this._pos);
+    cancelInactive (flagToClear) {
+        stableRemoveInactive(this._zero, flagToClear);
+        stableRemoveInactive(this._neg, flagToClear);
+        stableRemoveInactive(this._pos, flagToClear);
     },
     invoke () {
         var compsNeg = this._neg;
@@ -198,14 +215,14 @@ function enableInEditor (comp) {
     }
 }
 
-function createInvokeImpl (code, useDt) {
-    if (CC_EDITOR) {
+function createInvokeImpl (funcOrCode, useDt) {
+    if (typeof funcOrCode === 'function') {
         if (useDt) {
             return function (iterator, dt) {
                 var array = iterator.array;
                 for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                     var comp = array[iterator.i];
-                    code(comp, dt);
+                    funcOrCode(comp, dt);
                 }
             };
         }
@@ -214,7 +231,7 @@ function createInvokeImpl (code, useDt) {
                 var array = iterator.array;
                 for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                     var comp = array[iterator.i];
-                    code(comp);
+                    funcOrCode(comp);
                 }
             };
         }
@@ -230,13 +247,13 @@ function createInvokeImpl (code, useDt) {
         var body = 'var a=it.array;' +
                    'for(it.i=0;it.i<a.length;++it.i){' +
                    'var c=a[it.i];' +
-                   code +
+                   funcOrCode +
                    '}';
         if (useDt) {
-            return new Function('it', 'dt', body);
+            return Function('it', 'dt', body);
         }
         else {
-            return new Function('it', body);
+            return Function('it', body);
         }
     }
 }
@@ -248,11 +265,11 @@ function createInvokeImpl (code, useDt) {
 function ctor () {
     // invokers
     this.startInvoker = new OneOffInvoker(createInvokeImpl(
-        CC_EDITOR ? callStartInTryCatch : 'c.start();c._objFlags|=' + IsStartCalled));
+        CC_EDITOR ? callStartInTryCatch : callStart));
     this.updateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callUpdateInTryCatch : 'c.update(dt)', true));
+        CC_EDITOR ? callUpdateInTryCatch : callUpdate, true));
     this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callLateUpdateInTryCatch : 'c.lateUpdate(dt)', true));
+        CC_EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
 
     // components deferred to next frame
     this.scheduleInNextFrame = [];
@@ -304,9 +321,10 @@ var ComponentScheduler = cc.Class({
         // schedule
         if (this._updating) {
             this.scheduleInNextFrame.push(comp);
-            return;
         }
-        this._scheduleImmediate(comp);
+        else {
+            this._scheduleImmediate(comp);
+        }
     },
 
     _onDisabled (comp) {
@@ -316,7 +334,7 @@ var ComponentScheduler = cc.Class({
         // cancel schedule task
         var index = this.scheduleInNextFrame.indexOf(comp);
         if (index >= 0) {
-            JsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            jsArray.fastRemoveAt(this.scheduleInNextFrame, index);
             return;
         }
 
@@ -427,6 +445,21 @@ var ComponentScheduler = cc.Class({
 
         // call start
         this.startInvoker.invoke();
+        // if (CC_PREVIEW) {
+        //     try {
+        //         this.startInvoker.invoke();
+        //     }
+        //     catch (e) {
+        //         // prevent start from getting into infinite loop
+        //         this.startInvoker._neg.array.length = 0;
+        //         this.startInvoker._zero.array.length = 0;
+        //         this.startInvoker._pos.array.length = 0;
+        //         throw e;
+        //     }
+        // }
+        // else {
+        //     this.startInvoker.invoke();
+        // }
     },
 
     updatePhase (dt) {

@@ -4,7 +4,7 @@
     "texture": {
         "__uuid__": "748321"
     },
-    "_rawFiles": ["JareWontTellYou"],
+    "_native": "JareWontTellYou",
     "rotated": false,
     "trim": false,
     "trimThreshold": 1,

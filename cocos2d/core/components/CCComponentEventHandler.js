@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -62,8 +63,18 @@ cc.Component.EventHandler = cc.Class({
          * @type {String}
          * @default ''
          */
-        component: {
-            default: '',
+        // only for deserializing old project component field
+        component: '',
+        _componentId: '',
+        _componentName: {
+            get () {
+                this._genCompIdIfNeeded();
+
+                return this._compId2Name(this._componentId);
+            },
+            set (value) {
+                this._componentId = this._compName2Id(value);
+            },
         },
         /**
          * !#en Event handler
@@ -93,25 +104,18 @@ cc.Component.EventHandler = cc.Class({
          * @method emitEvents
          * @param {Component.EventHandler[]} events
          * @param {any} ...params
-         * @statics
+         * @static
          */
-        emitEvents: CC_JSB ? function (events, ...args) {
-            for (var i = 0, l = events.length; i < l; i++) {
-                var event = events[i];
-                if (!(event instanceof cc.Component.EventHandler)) continue;
-
-                event.emit(args);
-            }
-        } : function(events) {
+        emitEvents: function(events) {
             'use strict';
-            var args, i, l;
+            let args;
             if (arguments.length > 0) {
                 args = new Array(arguments.length - 1);
-                for (i = 0, l = args.length; i < l; i++) {
+                for (let i = 0, l = args.length; i < l; i++) {
                     args[i] = arguments[i+1];
                 }
             }
-            for (i = 0, l = events.length; i < l; i++) {
+            for (let i = 0, l = events.length; i < l; i++) {
                 var event = events[i];
                 if (!(event instanceof cc.Component.EventHandler)) continue;
 
@@ -137,16 +141,38 @@ cc.Component.EventHandler = cc.Class({
         var target = this.target;
         if (!cc.isValid(target)) return;
 
-        var comp = target.getComponent(this.component);
+        this._genCompIdIfNeeded();
+        var compType = cc.js._getClassById(this._componentId);
+        
+        var comp = target.getComponent(compType);
         if (!cc.isValid(comp)) return;
 
         var handler = comp[this.handler];
         if (typeof(handler) !== 'function') return;
 
         if (this.customEventData != null && this.customEventData !== '') {
+            params = params.slice();
             params.push(this.customEventData);
         }
 
         handler.apply(comp, params);
-    }
+    },
+
+    _compName2Id (compName) {
+        let comp = cc.js.getClassByName(compName);
+        return cc.js._getClassId(comp);
+    },
+
+    _compId2Name (compId) {
+        let comp = cc.js._getClassById(compId);
+        return cc.js.getClassName(comp);
+    },
+
+    // to be deprecated in the future
+    _genCompIdIfNeeded () {
+        if (!this._componentId) {
+            this._componentName = this.component;
+            this.component = '';
+        }
+    },
 });

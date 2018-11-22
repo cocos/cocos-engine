@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,18 +23,146 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en
- * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
- * !#zh
- * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
- * @module cc
- * @main cc
- */
-cc = {};
+// MACROS
 
-// The namespace for original nodes rendering in scene graph.
-_ccsg = {};
+/**
+ * !#zh
+ * 这里是一些用来判断执行环境的宏，这些宏都是全局变量，直接访问即可。<br>
+ * 在项目构建时，这些宏将会被预处理并根据构建的平台剔除不需要的代码，例如
+ *
+ *     if (CC_DEBUG) {
+ *         cc.log('debug');
+ *     }
+ *     else {
+ *         cc.log('release');
+ *     }
+ *
+ * 在构建后会只剩下
+ *
+ *     cc.log('release');
+ *
+ * <br>
+ * 如需判断脚本是否运行于指定平台，可以用如下表达式：
+ *
+ *     {
+ *         "编辑器":  CC_EDITOR,
+ *         "编辑器 或 预览":  CC_DEV,
+ *         "编辑器 或 预览 或 构建调试":  CC_DEBUG,
+ *         "网页预览":  CC_PREVIEW && !CC_JSB,
+ *         "模拟器预览":  CC_PREVIEW && CC_JSB,
+ *         "构建调试":  CC_BUILD && CC_DEBUG,
+ *         "构建发行":  CC_BUILD && !CC_DEBUG,
+ *     }
+ *
+ * !#en
+ * Here are some of the macro used to determine the execution environment, these macros are global variables, can be accessed directly.<br>
+ * When the project is built, these macros will be preprocessed and discard unreachable code based on the built platform, for example:
+ *
+ *     if (CC_DEBUG) {
+ *         cc.log('debug');
+ *     }
+ *     else {
+ *         cc.log('release');
+ *     }
+ *
+ * After build will become:
+ *
+ *     cc.log('release');
+ *
+ * <br>
+ * To determine whether the script is running on the specified platform, you can use the following expression:
+ *
+ *     {
+ *         "editor":  CC_EDITOR,
+ *         "editor or preview":  CC_DEV,
+ *         "editor or preview or build in debug mode":  CC_DEBUG,
+ *         "web preview":  CC_PREVIEW && !CC_JSB,
+ *         "simulator preview":  CC_PREVIEW && CC_JSB,
+ *         "build in debug mode":  CC_BUILD && CC_DEBUG,
+ *         "build in release mode":  CC_BUILD && !CC_DEBUG,
+ *     }
+ *
+ * @module GLOBAL-MACROS
+ */
+/**
+ * @property {Boolean} CC_EDITOR - Running in the editor.
+ */
+/**
+ * @property {Boolean} CC_PREVIEW - Preview in browser or simulator.
+ */
+/**
+ * @property {Boolean} CC_DEV - Running in the editor or preview.
+ */
+/**
+ * @property {Boolean} CC_DEBUG - Running in the editor or preview, or build in debug mode.
+ */
+/**
+ * @property {Boolean} CC_BUILD - Running in published project.
+ */
+/**
+ * @property {Boolean} CC_JSB - Running in native platform (mobile app, desktop app, or simulator).
+ */
+/**
+ * @property {Boolean} CC_TEST - Running in the engine's unit test.
+ */
+/**
+ * @property {Boolean} CC_WECHATGAME - Running in the Wechat's mini game.
+ */
+/**
+ * @property {Boolean} CC_QQPLAY - Running in the bricks.
+ */
+/**
+ * @property {Boolean} CC_RUNTIME - Running in runtime environments.
+ */
+
+// window may be undefined when first load engine from editor
+var _global = typeof window === 'undefined' ? global : window;
+function defineMacro (name, defaultValue) {
+    // if "global_defs" not preprocessed by uglify, just declare them globally,
+    // this may happened in release version's preview page.
+    if (typeof _global[name] === 'undefined') {
+        _global[name] = defaultValue;
+    }
+}
+function defined (name) {
+    return typeof _global[name] === 'object';
+}
+
+// ensure CC_BUILD is defined
+// should not use window.CC_BUILD because we need get global_defs defined in uglify
+defineMacro('CC_BUILD', false);
+
+if (CC_BUILD) {
+    // Supports dynamically access from external scripts such as adapters and debugger.
+    // So macros should still defined in global even if inlined in engine.
+    _global.CC_BUILD = CC_BUILD;
+    _global.CC_TEST = CC_TEST;
+    _global.CC_EDITOR = CC_EDITOR;
+    _global.CC_PREVIEW = CC_PREVIEW;
+    _global.CC_DEV = CC_DEV;
+    _global.CC_DEBUG = CC_DEBUG;
+    _global.CC_JSB = CC_JSB;
+    _global.CC_WECHATGAME_SUB = CC_WECHATGAMESUB;
+    _global.CC_WECHATGAME = CC_WECHATGAME;
+    _global.CC_QQPLAY = CC_QQPLAY;
+    _global.CC_RUNTIME = CC_RUNTIME;
+    _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
+}
+else {
+    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+    defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+    defineMacro('CC_PREVIEW', !CC_EDITOR);
+    defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
+    defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb'));
+    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
+    defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
+    defineMacro('CC_QQPLAY', defined('bk'));
+    defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
+    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
+}
+
+//
 
 if (CC_DEV) {
     /**
@@ -44,60 +172,15 @@ if (CC_DEV) {
     cc._Test = {};
 }
 
-// output all info before initialized
-require('./CCDebugger');
-cc._initDebugSetting(cc.DebugMode.INFO);
-if (CC_DEV) {
-    require('./DebugInfos');
-}
+/**
+ * @module cc
+ */
 
-// polyfills
-/* require('./polyfill/bind'); */
-require('./polyfill/string');
-require('./polyfill/math');
-require('./polyfill/array');
-if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./polyfill/babel');
-}
-
-
-// predefine some modules for cocos
-require('./cocos2d/core/platform/js');
-require('./cocos2d/core/value-types');
-require('./cocos2d/core/utils');
-require('./cocos2d/core/platform/CCInputManager');
-require('./cocos2d/core/platform/CCInputExtension');
-require('./cocos2d/core/event');
-require('./cocos2d/core/platform/CCSys');
-require('./cocos2d/core/platform/CCMacro');
-require('./cocos2d/core/load-pipeline');
-require('./cocos2d/core/textures');
-
-if (CC_JSB) {
-    // rename cc.Class to cc._Class
-    cc._Class = cc.Class;
-}
-else {
-    require('./cocos2d/kazmath');
-    require('./cocos2d/core/CCDirector');
-    require('./cocos2d/core/CCDirectorWebGL');
-    require('./cocos2d/core/CCDirectorCanvas');
-
-    if (!(CC_EDITOR && Editor.isMainProcess)) {
-        require('./cocos2d/core/platform/CCSAXParser');
-        require('./cocos2d/core/platform/CCView');
-        require('./cocos2d/core/platform/CCScreen');
-        require('./cocos2d/core/CCScheduler');
-        require('./cocos2d/core/event-manager');
-        require('./cocos2d/core/renderer');
-        require('./cocos2d/shaders');
-        require('./cocos2d/compression');
-
-        require('./CCBoot');
-        require('./cocos2d/core/CCGame');
-    }
-}
-
-ccui = {};
-ccs = {};
-cp = {};
+/**
+ * The current version of Cocos2d being used.<br/>
+ * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
+ * If you post a bug to forum, please attach this flag.
+ * @property {String} ENGINE_VERSION
+ */
+const engineVersion = '2.0.0 alpha';
+_global['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;

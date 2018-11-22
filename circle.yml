@@ -1,8 +1,0 @@
-machine:
-  node:
-    version: 5.8.0
-
-dependencies:
-  pre:
-    - npm install -g gulp
-    - npm install gulp-qunit

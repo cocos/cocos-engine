@@ -1,7 +1,12 @@
 # Cocos Creator Engine Errors 
 
+### 0100
+
+%s not yet implemented.
+
 ### 1000
 
+<!-- DEPRECATED -->
 cc.ActionManager.addAction(): action must be non-null
 
 ### 1001
@@ -70,11 +75,61 @@ cc.RotateTo.reverse(): it should be overridden in subclass.
 
 ### 1017
 
+<!-- DEPRECATED -->
 cc.GridAction.getGrid(): it should be overridden in subclass.
 
 ### 1018
 
+<!-- DEPRECATED -->
 Grid size must be (1,1)
+
+### 1019
+
+Failed to construct, Sequence construction needs two or more actions.
+
+### 1020
+
+Failed to construct, Spawn construction needs two or more actions.
+
+### 1021
+
+cc.Speed.initWithAction(): action must be non nil
+
+### 1022
+
+cc.Follow.initWithAction(): followedNode must be non nil
+
+### 1023
+
+cc.ActionEase.initWithAction(): action must be non nil
+
+### 1024
+
+Invalid configuration. It must at least have one control point
+
+### 1025
+
+cc.Sequence.initWithTwoActions(): arguments must all be non nil
+
+### 1026
+
+cc.RepeatForever.initWithAction(): action must be non null
+
+### 1027
+
+cc.Spawn.initWithTwoActions(): arguments must all be non null
+
+### 1028
+
+cc.ReverseTime.initWithAction(): action must be non null
+
+### 1029
+
+cc.ReverseTime.initWithAction(): the action was already passed in.
+
+### 1030
+
+cc.Animate.initWithAnimation(): animation must be non-NULL
 
 ### 1100
 
@@ -94,6 +149,7 @@ cocos2d: Director: unrecognized projection
 
 ### 1202
 
+<!-- DEPRECATED -->
 cocos2d: Director: unrecognized projection
 
 ### 1203
@@ -148,6 +204,10 @@ loadScene: Can not load the scene '%s' because it was not in the build settings 
 
 Failed to preload '%s', %s
 
+### 1216
+
+Director.runSceneImmediate: scene is not valid
+
 ### 1300
 
 element type is wrong!
@@ -168,12 +228,30 @@ The 'visible' property of %s is deprecated, use 'enabled' instead please.
 
 Sorry, cc.audioEngine.willPlayMusic is removed.
 
+### 1404
+
+cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.
+
+### 1405
+
+The '%s' will be removed in v2.0, please use '%s' instead.
+
+### 1406
+
+'%s.%s' is removed
+
+### 1407
+
+cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
+
 ### 1500
 
+<!-- DEPRECATED -->
 CCSheduler#scheduleCallback. Callback already scheduled. Updating interval from:%s to %s
 
 ### 1501
 
+<!-- DEPRECATED -->
 cc.scheduler.scheduleCallbackForTarget(): callback_fn should be non-null.
 
 ### 1502
@@ -208,6 +286,22 @@ Argument callback must not be empty
 
 Argument target must be non-nullptr
 
+### 1510
+
+cc.Scheduler: Illegal target which doesn't have uuid or instanceId.
+
+### 1511
+
+cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored.
+
+### 1512
+
+cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0
+
+### 1513
+
+cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do scheduler.enableForTarget(target) before all scheduler API usage on target
+
 ### 1600
 
 getZOrder is deprecated. Please use getLocalZOrder instead.
@@ -226,6 +320,7 @@ ScaleX != ScaleY. Don't know which one to return
 
 ### 1604
 
+<!-- DEPRECATED -->
 An Node can't be added as a child of itself.
 
 ### 1605
@@ -254,6 +349,7 @@ cocos2d: removeChildByTag(tag = %s): child not found!
 
 ### 1611
 
+<!-- DEPRECATED -->
 removeAllChildrenWithCleanup is deprecated. Use removeAllChildren instead
 
 ### 1612
@@ -274,6 +370,7 @@ pauseSchedulerAndActions is deprecated, please use pause instead.
 
 ### 1616
 
+<!-- DEPRECATED -->
 Unknown callback function
 
 ### 1617
@@ -294,10 +391,12 @@ interval must be positive
 
 ### 1621
 
+<!-- DEPRECATED -->
 cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.
 
 ### 1622
 
+<!-- DEPRECATED -->
 _ccsg.Node._requestDirtyFlag: failed to satisfy the request, key (%s) for flag have already been taken
 
 ### 1623
@@ -322,18 +421,22 @@ Not support for asynchronous creating node in SG
 
 ### 1628
 
+<!-- DEPRECATED -->
 Renderer error: Size of the cc._RendererInSG._sgNode must be zero
 
 ### 1629
 
+<!-- DEPRECATED -->
 The node '%s' has a component inherited from 'cc._RendererInSG'
 
 ### 1630
 
+<!-- DEPRECATED -->
 JSB environment is not support invoke node.runAction before the 'cc._RendererInSG' component enabled.
 
 ### 1631
 
+<!-- DEPRECATED -->
 Please use runAction in the method 'start' instead.
 
 ### 1632
@@ -348,20 +451,39 @@ Internal error, should not remove unknown node from parent.
 
 addChild: The child to add must be instance of cc.Node, not %s.
 
+### 1635
+
+reorderChild: this child is not in children list.
+
+### 1636
+
+Node's zIndex value can't be greater than cc.macro.MAX_ZINDEX, setting to the maximum value
+
+### 1637
+
+Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the minimum value
+
+### 1638
+
+Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its value
+
 ### 1700
 
+<!-- DEPRECATED -->
 cc.AtlasNode.updateAtlasValues(): Shall be overridden in subclasses
 
 ### 1701
 
-
+<!-- DEPRECATED -->
 
 ### 1702
 
+<!-- DEPRECATED -->
 cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.
 
 ### 1703
 
+<!-- DEPRECATED -->
 The new text must be String
 
 ### 1800
@@ -390,18 +512,22 @@ Don't call this method if the event is for touch.
 
 ### 2100
 
+<!-- DEPRECATED -->
 parameters should not be ending with null in Javascript
 
 ### 2101
 
+<!-- DEPRECATED -->
 Invalid index in MultiplexLayer switchTo message
 
 ### 2102
 
+<!-- DEPRECATED -->
 Invalid index in MultiplexLayer switchTo message
 
 ### 2103
 
+<!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2200
@@ -422,54 +548,67 @@ WebGL error %s
 
 ### 2401
 
+<!-- DEPRECATED -->
 Too many graphics vertices generated, only 65536 vertices support.
 
 ### 2500
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: No animations were found in provided dictionary.
 
 ### 2501
 
+<!-- DEPRECATED -->
 cc.SpriteFrameAnimationCache. Invalid animation format
 
 ### 2502
 
+<!-- DEPRECATED -->
 cc.SpriteFrameAnimationCache.addAnimations(): File could not be found
 
 ### 2503
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' found in dictionary without any frames - cannot add to animation cache.
 
 ### 2504
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.
 
 ### 2505
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: None of the frames for animation '%s' were found in the cc.SpriteFrameCache. Animation is not being added to the Animation Cache.
 
 ### 2506
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: An animation in your dictionary refers to a frame which is not in the cc.SpriteFrameCache. Some or all of the frames for the animation '%s' may be missing.
 
 ### 2507
 
+<!-- DEPRECATED -->
 cocos2d: CCAnimationCache: Animation '%s' found in dictionary without any frames - cannot add to animation cache.
 
 ### 2508
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.
 
 ### 2509
 
+<!-- DEPRECATED -->
 cc.SpriteFrameAnimationCache.addAnimations(): Invalid texture file name
 
 ### 2600
 
+<!-- DEPRECATED -->
 cc.Sprite.reorderChild(): this child is not in children list
 
 ### 2601
 
+<!-- DEPRECATED -->
 cc.Sprite.setIgnoreAnchorPointForPosition(): it is invalid in cc.Sprite when using SpriteBatchNode
 
 ### 2602
@@ -486,6 +625,7 @@ setDisplayFrame is deprecated, please use setSpriteFrame instead.
 
 ### 2605
 
+<!-- DEPRECATED -->
 cc.Sprite._updateBlendFunc(): _updateBlendFunc doesn't work when the sprite is rendered using a cc.CCSpriteBatchNode
 
 ### 2606
@@ -510,14 +650,17 @@ cc.Sprite.setDisplayFrameWithAnimationName(): animationName must be non-null
 
 ### 2611
 
+<!-- DEPRECATED -->
 cc.Sprite.reorderChild(): child should be non-null
 
 ### 2612
 
+<!-- DEPRECATED -->
 cc.Sprite.addChild(): cc.Sprite only supports cc.Sprites as children when using cc.SpriteBatchNode
 
 ### 2613
 
+<!-- DEPRECATED -->
 cc.Sprite.addChild(): cc.Sprite only supports a sprite using same texture as children when using cc.SpriteBatchNode
 
 ### 2614
@@ -526,6 +669,7 @@ cc.Sprite.addChild(): child should be non-null
 
 ### 2615
 
+<!-- DEPRECATED -->
 cc.Sprite.texture setter: Batched sprites should use the same texture as the batchnode
 
 ### 2616
@@ -546,14 +690,17 @@ cc.SpriteBatchNode.addChild(): cc.Sprite is not using the same texture
 
 ### 2620
 
+<!-- DEPRECATED -->
 Sprite.initWithTexture(): Argument must be non-nil 
 
 ### 2621
 
+<!-- DEPRECATED -->
 Invalid spriteFrameName
 
 ### 2622
 
+<!-- DEPRECATED -->
 Invalid argument: cc.Sprite.texture setter expects a CCTexture2D.
 
 ### 2623
@@ -562,6 +709,7 @@ cc.SpriteBatchNode.updateQuadFromSprite(): sprite should be non-null
 
 ### 2624
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.insertQuadFromSprite(): sprite should be non-null
 
 ### 2625
@@ -576,44 +724,58 @@ Unrecognized fill type in bar fill
 
 Can not generate quad
 
+### 2628
+
+%s does not exist
+
 ### 2700
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addQuadFromSprite(): SpriteBatchNode only supports cc.Sprites as children
 
 ### 2701
 
+<!-- DEPRECATED -->
 cocos2d: CCSpriteBatchNode: resizing TextureAtlas capacity from %s to %s.
 
 ### 2702
 
+<!-- DEPRECATED -->
 cocos2d: WARNING: Not enough memory to resize the atlas
 
 ### 2703
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addChild(): Child doesn't belong to Sprite
 
 ### 2704
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addChild(): sprite batch node should contain the child
 
 ### 2705
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addQuadFromSprite(): child should be non-null
 
 ### 2706
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addChild(): child should be non-null
 
 ### 2707
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.updateQuadFromSprite(): cc.SpriteBatchNode only supports cc.Sprites as children
 
 ### 2708
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.insertQuadFromSprite(): cc.SpriteBatchNode only supports cc.Sprites as children
 
 ### 2709
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addChild(): cc.SpriteBatchNode only supports cc.Sprites as children
 
 ### 2710
@@ -622,6 +784,7 @@ Sprite.initWithTexture(): Argument must be non-nil
 
 ### 2711
 
+<!-- DEPRECATED -->
 cc.Sprite.addChild(): child should be non-null
 
 ### 2712
@@ -630,114 +793,142 @@ Invalid spriteFrameName
 
 ### 2713
 
+<!-- DEPRECATED -->
 Invalid argument: cc.Sprite texture setter expects a CCTexture2D.
 
 ### 2714
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.updateQuadFromSprite(): sprite should be non-null
 
 ### 2715
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.insertQuadFromSprite(): sprite should be non-null
 
 ### 2716
 
+<!-- DEPRECATED -->
 cc.SpriteBatchNode.addChild(): child should be non-null
 
 ### 2728
 
+<!-- DEPRECATED -->
 %s does not exist
 
 ### 2800
 
+<!-- DEPRECATED -->
 cocos2d: WARNING: originalWidth/Height not found on the cc.SpriteFrame. AnchorPoint won't work as expected. Regenrate the .plist
 
 ### 2801
 
+<!-- DEPRECATED -->
 cocos2d: WARNING: an alias with name %s already exists
 
 ### 2802
 
+<!-- DEPRECATED -->
 cocos2d: WARNING: Sprite frame: %s has already been added by another source, please fix name conflit
 
 ### 2803
 
+<!-- DEPRECATED -->
 cocos2d: cc.SpriteFrameCahce: Frame %s not found
 
 ### 2804
 
+<!-- DEPRECATED -->
 Please load the resource first : %s
 
 ### 2805
 
+<!-- DEPRECATED -->
 cc.SpriteFrameCache.addSpriteFrames(): plist should be non-null
 
 ### 2806
 
+<!-- DEPRECATED -->
 Argument must be non-nil
 
 ### 2900
 
+<!-- DEPRECATED -->
 cocos2d: Could not open file: %s
 
 ### 2901
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.insertQuad(): invalid totalQuads
 
 ### 2902
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.initWithTexture():texture should be non-null
 
 ### 2903
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.updateQuad(): quad should be non-null
 
 ### 2904
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.updateQuad(): Invalid index
 
 ### 2905
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.insertQuad(): Invalid index
 
 ### 2906
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.insertQuad(): Invalid index + amount
 
 ### 2907
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.insertQuadFromIndex(): Invalid newIndex
 
 ### 2908
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.insertQuadFromIndex(): Invalid fromIndex
 
 ### 2909
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.removeQuadAtIndex(): Invalid index
 
 ### 2910
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.removeQuadsAtIndex(): index + amount out of bounds
 
 ### 2911
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.moveQuadsFromIndex(): move is out of bounds
 
 ### 2912
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.moveQuadsFromIndex(): Invalid newIndex
 
 ### 2913
 
+<!-- DEPRECATED -->
 cc.TextureAtlas.moveQuadsFromIndex(): Invalid oldIndex
 
 ### 3000
 
+<!-- DEPRECATED -->
 TextureCache:addPVRTCImage does not support on HTML5
 
 ### 3001
 
+<!-- DEPRECATED -->
 TextureCache:addPVRTCImage does not support on HTML5
 
 ### 3002
@@ -746,10 +937,12 @@ textureForKey is deprecated. Please use getTextureForKey instead.
 
 ### 3003
 
+<!-- DEPRECATED -->
 addPVRImage does not support on HTML5
 
 ### 3004
 
+<!-- DEPRECATED -->
 cocos2d: Couldn't add UIImage in TextureCache
 
 ### 3005
@@ -766,22 +959,27 @@ cocos2d: TextureCache dumpDebugInfo: %s textures, HTMLCanvasElement for %s KB (%
 
 ### 3008
 
+<!-- DEPRECATED -->
 cc.Texture.addUIImage(): image should be non-null
 
 ### 3009
 
+<!-- DEPRECATED -->
 TextureCache: url should be non-null
 
 ### 3100
 
+<!-- DEPRECATED -->
 initWithETCFile does not support on HTML5
 
 ### 3101
 
+<!-- DEPRECATED -->
 initWithPVRFile does not support on HTML5
 
 ### 3102
 
+<!-- DEPRECATED -->
 initWithPVRTCData does not support on HTML5
 
 ### 3103
@@ -790,34 +988,42 @@ cc.Texture.addImage(): path should be non-null
 
 ### 3104
 
+<!-- DEPRECATED -->
 cocos2d: cc.Texture2D. Can't create Texture. UIImage is nil
 
 ### 3105
 
+<!-- DEPRECATED -->
 cocos2d: WARNING: Image (%s x %s) is bigger than the supported %s x %s
 
 ### 3106
 
+<!-- DEPRECATED -->
 initWithString isn't supported on cocos2d-html5
 
 ### 3107
 
+<!-- DEPRECATED -->
 initWithETCFile does not support on HTML5
 
 ### 3108
 
+<!-- DEPRECATED -->
 initWithPVRFile does not support on HTML5
 
 ### 3109
 
+<!-- DEPRECATED -->
 initWithPVRTCData does not support on HTML5
 
 ### 3110
 
+<!-- DEPRECATED -->
 bitsPerPixelForFormat: %s, cannot give useful result, it's a illegal pixel format
 
 ### 3111
 
+<!-- DEPRECATED -->
 cocos2d: cc.Texture2D: Using RGB565 texture since image has no alpha
 
 ### 3112
@@ -830,10 +1036,12 @@ NSInternalInconsistencyException
 
 ### 3114
 
+<!-- DEPRECATED -->
 SpriteFrame: Failed to load sprite texture '%s'
 
 ### 3115
 
+<!-- DEPRECATED -->
 Frame Grabber: could not attach texture to framebuffer
 
 ### 3116
@@ -844,8 +1052,17 @@ WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures
 
 Mimpap texture only works in POT textures
 
+### 3118
+
+contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function.
+
+### 3119
+
+Lazy init texture with image element failed due to image loading failure: %s
+
 ### 3200
 
+<!-- DEPRECATED -->
 Missing file: %s
 
 ### 3300
@@ -900,6 +1117,10 @@ _inDispatch should be 1 here.
 
 %s's scene graph node not contains in the parent's children
 
+### 3511
+
+event is undefined
+
 ### 3600
 
 cc.Class will automatically call super constructor of %s, you should not call it manually.
@@ -914,7 +1135,7 @@ Unknown editor property '%s' in class '%s'.
 
 ### 3603
 
-Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please. 😂
+Use 'cc.Float' or 'cc.Integer' instead of 'cc.Number' please.
 
 ### 3604
 
@@ -1022,14 +1243,17 @@ attribute must be type object
 
 ### 3630
 
+<!-- DEPRECATED -->
 RawType is only available for Assets
 
 ### 3631
 
+<!-- DEPRECATED -->
 RawType name cannot contain uppercase
 
 ### 3632
 
+<!-- DEPRECATED -->
 Each asset cannot have more than one RawType
 
 ### 3633
@@ -1091,6 +1315,91 @@ Unknown 'type' parameter of %s.%s：%s
 ### 3647
 
 The length of range array must be equal or greater than 2
+
+### 3648
+
+Can not declare %s.%s method, it is already defined in the properties of %s.
+
+### 3649
+
+CCClass %s have conflict between its ctor and __ctor__.
+
+### 3650
+
+<!-- DEPRECATED -->
+No need to specifiy "%s" attribute for "%s" property in "%s" class.
+
+### 3651
+
+Can not call `_super` or `prototype.ctor` in ES6 Classes "%s", use `super` instead please.
+
+### 3652
+
+Failed to construct a dummy instance of the "%s" class using `new` behind the scenes. This is for getting default values declared in TypeScript. Please ensure the class will be able to construct during script's initialization. %s.
+
+### 3653
+
+Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.  
+Default value must be initialized at their declaration:
+```
+// Before:
+@property({
+  type: cc.Integer
+  default: 0  // <--
+})
+value;
+// After:
+@property({
+  type: cc.Integer
+})
+value = 0;    // <--
+```
+
+### 3654
+
+Please specifiy a default value for "%s" property at its declaration:
+```
+// Before:
+@property(...)
+value; 
+// After:
+@property(...)
+value = 0
+```
+
+### 3655
+
+Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.  
+Please use:
+```
+@property(...)
+get %s () {
+    ...
+}
+@property
+set %s (value) {
+    ...
+}
+```
+
+### 3656
+
+The default value of %s.%s must be an empty string. (changed since 1.8)
+
+### 3657
+
+The value assigned to %s should be Texture2D object, not url string. Since 1.8,  
+you can declare a texture object directly in properties by using:  
+```
+{
+    default: null,
+    type: cc.Texture2D  // use 'type:' instead of 'url:'
+}
+```
+
+### 3658
+
+browser does not support getters
 
 ### 3700
 
@@ -1180,6 +1489,14 @@ Failed to read or parse project.json
 
 Warning: target element is not a DIV or CANVAS
 
+### 3820
+
+The renderer doesn't support the renderMode %s
+
+### 3821
+
+Cannot change hierarchy while activating or deactivating the parent.
+
 ### 3900
 
 Invalid clip to add
@@ -1218,15 +1535,22 @@ animation not added or already removed
 
 ### 3909
 
+<!-- DEPRECATED -->
 [animate] keyFrames must be non-nil
 
 ### 3910
 
+<!-- DEPRECATED -->
 [animate] ratio should >= 0!
 
 ### 3911
 
+<!-- DEPRECATED -->
 [animate] ratio should in the order of smallest to largest!
+
+### 3912
+
+already-playing
 
 ### 4000
 
@@ -1234,10 +1558,12 @@ Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the fo
 
 ### 4001
 
+<!-- DEPRECATED -->
 _ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file
 
 ### 4002
 
+<!-- DEPRECATED -->
 _ccsg.Label._initBMFontWithString(): re-init is no longer supported
 
 ### 4003
@@ -1250,27 +1576,45 @@ force notify all fonts loaded!
 
 ### 4005
 
+<!-- DEPRECATED -->
 cc.LabelAtlas.initWithString(): Unsupported version. Upgrade cocos2d version
 
 ### 4006
 
+<!-- DEPRECATED -->
 cc.LabelAtlas._updateAtlasValues(): Invalid String length
 
 ### 4007
 
+<!-- DEPRECATED -->
 cc.LabelBMFont.initWithString(): re-init is no longer supported
 
 ### 4008
 
+<!-- DEPRECATED -->
 cc.LabelBMFont.initWithString(): Impossible to create font. Please check file
 
 ### 4009
 
+<!-- DEPRECATED -->
 cocos2d: LabelBMFont: character not found %s
 
 ### 4010
 
+<!-- DEPRECATED -->
 cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file
+
+### 4011
+
+Property spriteFrame of Font '%s' is invalid. Using system font instead.
+
+### 4012
+
+The texture of Font '%s' must be already loaded on JSB. Using system font instead.
+
+### 4013
+
+Sorry, lineHeight of system font not supported on JSB.
 
 ### 4100
 
@@ -1280,6 +1624,14 @@ Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop
 
 MaskType: IMAGE_STENCIL only support WebGL mode.
 
+### 4201
+
+The alphaThreshold invalid in Canvas Mode.
+
+### 4202
+
+The inverted invalid in Canvas Mode.
+
 ### 4300
 
 can not found the %s page.
@@ -1287,14 +1639,6 @@ can not found the %s page.
 ### 4400
 
 Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!
-
-### 4500
-
-Toggle alreay in ToggleGroup. Something bad happened, please report this issue to the Creator developer, thanks.
-
-### 4501
-
-Toggle is not in ToggleGroup. Something bad happened, please report this issue to the Creator developer, thanks.
 
 ### 4600
 
@@ -1322,42 +1666,52 @@ Can not get class '%s'
 
 ### 4904
 
+<!-- DEPRECATED -->
 %s does not exist
 
 ### 4905
 
+<!-- DEPRECATED -->
 %s load error, must be json file
 
 ### 4906
 
+<!-- DEPRECATED -->
 Can't find the parser : %s
 
 ### 4907
 
+<!-- DEPRECATED -->
 %s is armature. please use:
 
 ### 4908
 
+<!-- DEPRECATED -->
     ccs.armatureDataManager.addArmatureFileInfoAsync(%s);
 
 ### 4909
 
+<!-- DEPRECATED -->
     var armature = new ccs.Armature('name');
 
 ### 4910
 
+<!-- DEPRECATED -->
 Can't find the parser : %s
 
 ### 4911
 
+<!-- DEPRECATED -->
 register parser error
 
 ### 4912
 
+<!-- DEPRECATED -->
 Can't find the parser : %s
 
 ### 4913
 
+<!-- DEPRECATED -->
 Group versions haven't been loaded, you can also set group data with 'cc.LoaderLayer.groups'
 
 ### 4914
@@ -1374,15 +1728,74 @@ Failed to download package for %s
 
 ### 4917
 
+<!-- DEPRECATED -->
 cc.LabelBMFont._parseCommonArguments(): page can't be larger than supported
 
 ### 4918
 
+<!-- DEPRECATED -->
 cc.LabelBMFont._parseCommonArguments(): only supports 1 page
 
 ### 4919
 
+<!-- DEPRECATED -->
 cc.LabelBMFont._parseImageFileName() : file could not be found
+
+### 4920
+
+Sorry, you shouldn't use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)
+
+### 4921
+
+Invalid pipe or invalid index provided!
+
+### 4922
+
+The pipe to be inserted is already in the pipeline!
+
+### 4923
+
+Uuid Loader: Parse asset [ %s ] failed : %s
+
+### 4924
+
+JSON Loader: Input item doesn't contain string content
+
+### 4925
+
+Uuid Loader: Deserialize asset [ %s ] failed : %s
+
+### 4926
+
+Audio Downloader: no web audio context.
+
+### 4927
+
+Audio Downloader: audio not supported on this browser!
+
+### 4928
+
+Load %s failed!
+
+### 4929
+
+Load Webp ( %s ) failed
+
+### 4930
+
+Load image ( %s ) failed
+
+### 4931
+
+Download Uuid: can not find type of raw asset[ %s ]: %s
+
+### 4932
+
+Since v1.10, for any atlas ("%s") in the "resources" directory, it is not possible to find the contained SpriteFrames via `loadRes`, `getRes` or `releaseRes`. Load the SpriteAtlas first and then use `spriteAtlas.getSpriteFrame(name)` instead please.
+
+### 4933
+
+Download Font [ %s ] failed, using Arial or system default font instead
 
 ### 5000
 
@@ -1403,6 +1816,10 @@ Warning: localStorage isn't enabled. Please confirm browser cookie or privacy op
 ### 5201
 
 browser don't support web audio
+
+### 5202
+
+This feature supports WebGL render mode only.
 
 ### 5300
 
@@ -1482,6 +1899,7 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
@@ -1570,66 +1988,146 @@ The new %s must not be NaN
 
 ### 6002
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.addChild() : Can't add a ParticleSystem that uses a different blending function
 
 ### 6003
 
+<!-- DEPRECATED -->
 cc.ParticleBatchNode.removeChild(): doesn't contain the sprite. Can't remove it
 
 ### 6004
 
+<!-- DEPRECATED -->
 cc.ParticleBatchNode.reorderChild(): Child doesn't belong to batch
 
 ### 6005
 
+<!-- DEPRECATED -->
 cc.ParticleBatchNode._increaseAtlasCapacityTo() : WARNING: Not enough memory to resize the atlas
 
 ### 6006
 
+<!-- DEPRECATED -->
 cocos2d: cc.ParticleBatchNode: resizing TextureAtlas capacity from [%d] to [%d]
 
 ### 6007
 
+<!-- DEPRECATED -->
 cc.ParticleBatchNode._addChildHelper(): child already added. It can't be added again
 
 ### 6008
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithFile(): Particles: file not found
 
 ### 6009
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithDictionary(): Invalid emitterType in config file
 
 ### 6010
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem: error decoding or ungzipping textureImageData
 
 ### 6011
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem: unknown image format with Data
 
 ### 6012
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.initWithDictionary() : error loading the texture
 
 ### 6013
 
+<!-- DEPRECATED -->
 Particle system: not enough memory
 
 ### 6014
 
+<!-- DEPRECATED -->
 Can't change blending functions when the particle is being batched
 
 ### 6015
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets
 
 ### 6016
 
+<!-- DEPRECATED -->
 _ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode
+
+### 6017
+
+Incomplete or corrupt PNG file
+
+### 6018
+
+Invalid filter algorithm: %s
+
+### 6019
+
+Invalid byte order value.
+
+### 6020
+
+You forgot your towel!
+
+### 6021
+
+Unknown Field Tag: %s
+
+### 6022
+
+Too many bits requested
+
+### 6023
+
+No bits requested
+
+### 6024
+
+Cannot recover from missing StripByteCounts
+
+### 6025
+
+Cannot handle sub-byte bits per sample
+
+### 6026
+
+Cannot handle sub-byte bits per pixel
+
+### 6027
+
+Palette image missing color map
+
+### 6028
+
+Unknown Photometric Interpretation: %s
+
+### 6029
+
+Unkown error
+
+### 6030
+
+cc.ParticleSystem: error decoding or ungzipping textureImageData
+
+### 6031
+
+cc.ParticleSystem: unknown image format with Data
+
+### 6032
+
+cc.ParticleSystem.initWithDictionary() : error loading the texture
 
 ### 6100
 
+<!-- DEPRECATED -->
 Not supported file types, Please try use the ccs.load
 
 ### 6200
@@ -1683,6 +2181,18 @@ Should not add Canvas to a node which already contains a renderer component (%s)
 ### 6702
 
 Should not add Canvas to a node which size is already used by its other component.
+
+### 6703
+
+Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext
+
+### 6704
+
+Polygon's point must greater than 2
+
+### 6705
+
+Argument must be non-nil
 
 ### 6800
 
@@ -1758,26 +2268,32 @@ Property 'mapLoaded' is unused now. Please write the logic to the callback 'star
 
 ### 7204
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released
 
 ### 7205
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released
 
 ### 7206
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released
 
 ### 7207
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.setTileGID(): invalid gid: %s
 
 ### 7208
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released
 
 ### 7209
 
+<!-- DEPRECATED -->
 _ccsg.TMXLayer.removeTileAt(): TMXLayer: the tiles map has been released
 
 ### 7210
@@ -1790,10 +2306,12 @@ TMX invalid value
 
 ### 7212
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.initWithTMXFile(): Map not found. Please check the filename.
 
 ### 7213
 
+<!-- DEPRECATED -->
 _ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.
 
 ### 7214
@@ -1820,16 +2338,121 @@ cc.TMXMapInfo.parseXMLFile(): unsupported compression method
 
 cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported
 
+### 7220
+
+<!-- DEPRECATED -->
+TMX Parser: please load the xml resource first: %s
+
+### 7221
+
+cc.TMXMapInfo.parseXMLFile(): Texture '%s' not found.
+
+### 7222
+
+Parse %s failed.
+
+### 7223
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.setTileGID(): pos should be non-null
+
+### 7224
+
+<!-- DEPRECATED -->
+_ccsg.TMXTiledMap.getLayer(): layerName should be non-null or non-empty string.
+
+### 7225
+
+<!-- DEPRECATED -->
+_ccsg.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.
+
+### 7226
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileAt(): pos should be non-null
+
+### 7227
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileAt(): invalid position
+
+### 7228
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null
+
+### 7229
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileGIDAt(): invalid position
+
+### 7230
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.setTileGID(): pos should be non-null
+
+### 7231
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.setTileGID(): invalid position
+
+### 7232
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null
+
+### 7233
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.getTileFlagsAt(): invalid position
+
+### 7234
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.removeTileAt(): pos should be non-null
+
+### 7235
+
+<!-- DEPRECATED -->
+_ccsg.TMXLayer.removeTileAt(): invalid position
+
+### 7236
+
+cc.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released
+
+### 7237
+
+cc.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released
+
+### 7238
+
+cc.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released
+
+### 7239
+
+cc.TMXLayer.setTileGID(): invalid gid: %s
+
+### 7240
+
+cc.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released
+
+### 7241
+
+cc.TiledMap.initWithXML(): Map not found. Please check the filename.
+
 ### 7300
 
+<!-- DEPRECATED -->
 The new selected must be number
 
 ### 7301
 
+<!-- DEPRECATED -->
 The new bake must be boolean
 
 ### 7400
 
+<!-- DEPRECATED -->
 Failed to set _defaultArmatureIndex for '%s' because its dragonAsset is invalid.
 
 ### 7401
@@ -1842,6 +2465,7 @@ Failed to set _animationIndex for '%s' because the index is out of range.
 
 ### 7500
 
+<!-- DEPRECATED -->
 Failed to set _defaultSkinIndex for '%s' because its skeletonData is invalid.
 
 ### 7501
@@ -1887,6 +2511,26 @@ Spine: Animation not found: %s
 ### 7600
 
 The context of RenderTexture is invalid.
+
+### 7601
+
+cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;
+
+### 7602
+
+Could not attach texture to the framebuffer
+
+### 7603
+
+clearDepth isn't supported on Cocos2d-Html5
+
+### 7604
+
+saveToFile isn't supported on Cocos2d-Html5
+
+### 7605
+
+newCCImage isn't supported on Cocos2d-Html5
 
 ### 7700
 
@@ -1956,6 +2600,14 @@ cc.mat.Matrix4.assignFrom(): mat4 equals current matrix
 
 cc.math.Matrix4 equals: pMat1 and pMat2 are same object.
 
+### 7908
+
+Invalid matrix mode specified
+
+### 7909
+
+current quaternion is an invalid value
+
 ### 8000
 
 Can't handle this field type or size
@@ -1974,15 +2626,18 @@ Missing StripByteCounts!
 
 ### 8100
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile shader:
- %s
+%s
 
 ### 8101
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile vertex shader
 
 ### 8102
 
+<!-- DEPRECATED -->
 cocos2d: ERROR: Failed to compile fragment shader
 
 ### 8103
@@ -1997,3 +2652,46 @@ cocos2d: ERROR: Failed to link program: %s
 
 cocos2d: cc.shaderCache._loadDefaultShader, error shader type
 
+### 8106
+
+Please load the resource firset : %s
+
+### 8107
+
+cc.GLProgram.getUniformLocationForName(): uniform name should be non-null
+
+### 8108
+
+cc.GLProgram.getUniformLocationForName(): Invalid operation. Cannot get uniform location when program is not initialized
+
+### 8109
+
+modelView matrix is undefined.
+
+### 8200
+
+Please set node's active instead of rigidbody's enabled.
+
+### 8300
+
+Should only one camera exists, please check your project.
+
+### 8301
+
+Camera does not support Canvas Mode.
+
+### 8400
+
+Wrong type arguments, 'filePath' must be a String.
+
+### 8401
+
+Since 1.10, `%s` accept %s instance directly, not a URL string. Please directly reference the %s object in your script, or load %s by loader first. Don't use %s's URL anymore.
+
+### 9000
+
+Stencil manager does not support level bigger than %d in this device.
+
+### 9001
+
+Stencil manager is already empty, cannot pop any mask

@@ -1,0 +1,7 @@
+{
+    "__type__": "TestDependency",
+    "name": "Prefab A",
+    "dependency": {
+        "__uuid__": "749417"
+    }
+}

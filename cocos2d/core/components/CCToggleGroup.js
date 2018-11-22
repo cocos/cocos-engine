@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,8 +39,8 @@ var ToggleGroup = cc.Class({
         this._toggleItems = [];
     },
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/ToggleGroup',
-        help: 'i18n:COMPONENT.help_url.toggle_group'
+        menu: 'i18n:MAIN_MENU.component.ui/ToggleGroup (Legacy)',
+        help: 'i18n:COMPONENT.help_url.toggleGroup'
     },
 
     properties: {
@@ -53,6 +54,17 @@ var ToggleGroup = cc.Class({
         allowSwitchOff: {
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
+        },
+
+        /**
+         * !#en Read only property, return the toggle items array reference managed by toggleGroup.
+         * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
+         * @property {Array} toggleItems
+         */
+        toggleItems: {
+            get: function () {
+                return this._toggleItems;
+            }
         }
     },
 
@@ -62,7 +74,7 @@ var ToggleGroup = cc.Class({
         this._toggleItems.forEach(function (item){
             if(toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
+                    item._hideCheckMark();
                 }
             }
         });
@@ -70,9 +82,7 @@ var ToggleGroup = cc.Class({
 
     addToggle: function (toggle) {
         var index = this._toggleItems.indexOf(toggle);
-        if (index > -1) {
-            cc.warnID(4500);
-        } else {
+        if (index === -1) {
             this._toggleItems.push(toggle);
         }
         this._allowOnlyOneToggleChecked();
@@ -82,8 +92,6 @@ var ToggleGroup = cc.Class({
         var index = this._toggleItems.indexOf(toggle);
         if(index > -1) {
             this._toggleItems.splice(index, 1);
-        } else {
-            cc.warnID(4501);
         }
         this._makeAtLeastOneToggleChecked();
     },
@@ -92,7 +100,7 @@ var ToggleGroup = cc.Class({
         var isChecked = false;
         this._toggleItems.forEach(function (item) {
             if(isChecked && item.enabled) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
 
             if (item.isChecked && item.enabled) {
@@ -116,7 +124,16 @@ var ToggleGroup = cc.Class({
     start: function () {
         this._makeAtLeastOneToggleChecked();
     }
-
 });
 
-cc.ToggleGroup = module.exports = ToggleGroup;
+var js = require('../platform/js');
+var showed = false;
+js.get(cc, 'ToggleGroup', function () {
+    if (!showed) {
+        cc.logID(1405, 'cc.ToggleGroup', 'cc.ToggleContainer');
+        showed = true;
+    }
+    return ToggleGroup;
+});
+
+module.exports = ToggleGroup;

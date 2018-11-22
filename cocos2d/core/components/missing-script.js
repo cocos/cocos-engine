@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
+var js = cc.js;
+var BUILTIN_CLASSID_RE = require('../utils/misc').BUILTIN_CLASSID_RE;
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.
@@ -98,7 +100,7 @@ var MissingScript = cc.Class({
          * @return {function} constructor
          */
         safeFindClass: function (id, data) {
-            var cls = JS._getClassById(id);
+            var cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }
@@ -109,7 +111,7 @@ var MissingScript = cc.Class({
             return null;
         },
         getMissingWrapper: function (id, data) {
-            if (data.node && /^[0-9a-zA-Z+/]{23}$/.test(id)) {
+            if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
                 // is component
                 return MissingScript;
             }

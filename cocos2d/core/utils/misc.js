@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,12 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// jshint evil: true
+var js = require('../platform/js');
 
-// should not use long variable name because eval breaks uglify's mangle operation in this file
-var m = {};
+/**
+ * misc utilities
+ * @class misc
+ * @static
+ */
+var misc = {};
 
-m.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
+misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
         var pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
@@ -38,13 +43,13 @@ m.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
         else {
             var getterFunc = np[getter];
             if (CC_DEV && !getterFunc) {
-                var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
+                var clsName = (cc.Class._isCCClass(ctor) && js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
                 cc.warnID(5700, propName, getter, clsName);
             }
             else {
-                cc.js.getset(np, propName, getterFunc, np[setter]);
+                js.getset(np, propName, getterFunc, np[setter]);
             }
         }
     }
@@ -65,7 +70,7 @@ m.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
  * @return {Number}
  * Constructor
  */
-m.NextPOT = function (x) {
+misc.NextPOT = function (x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -90,21 +95,10 @@ m.NextPOT = function (x) {
 //
 //DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
-// wrap a new scope to avoid uglify's mangle process broken by eval in caller's scope
-
-m.cleanEval_F = function (code, F) {
-    return eval(code);
-};
-
-m.cleanEval_fireClass = function (code) {
-    var fireClass = eval(code);
-    return fireClass;
-};
-
 if (CC_EDITOR) {
     // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
 
-    m.tryCatchFunctor_EDITOR = function (funcName, receivedArgs, usedArgs, afterCall) {
+    misc.tryCatchFunctor_EDITOR = function (funcName, forwardArgs, afterCall, bindArg) {
         function call_FUNC_InTryCatch (_R_ARGS_) {
             try {
                 target._FUNC_(_U_ARGS_);
@@ -115,15 +109,120 @@ if (CC_EDITOR) {
             _AFTER_CALL_
         }
         // use evaled code to generate named function
-        return Function('return ' + call_FUNC_InTryCatch
+        return Function('arg', 'return ' + call_FUNC_InTryCatch
                     .toString()
                     .replace(/_FUNC_/g, funcName)
-                    .replace('_R_ARGS_', 'target' + (receivedArgs ? ', ' + receivedArgs : ''))
-                    .replace('_U_ARGS_', usedArgs || '')
-                    .replace('_AFTER_CALL_', afterCall || ''))();
+                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
+                    .replace('_U_ARGS_', forwardArgs || '')
+                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
     };
 }
 
-module.exports = m;
+misc.BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
-// jshint evil: false
+
+var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+var BASE64_VALUES = new Array(123); // max char code in base64Keys
+for (let i = 0; i < 123; ++i) BASE64_VALUES[i] = 64; // fill with placeholder('=') index
+for (let i = 0; i < 64; ++i) BASE64_VALUES[BASE64_KEYS.charCodeAt(i)] = i;
+
+// decoded value indexed by base64 char code
+misc.BASE64_VALUES = BASE64_VALUES;
+
+// set value to map, if key exists, push to array
+misc.pushToMap = function (map, key, value, pushFront) {
+    var exists = map[key];
+    if (exists) {
+        if (Array.isArray(exists)) {
+            if (pushFront) {
+                exists.push(exists[0]);
+                exists[0] = value;
+            }
+            else {
+                exists.push(value);
+            }
+        }
+        else {
+            map[key] = (pushFront ? [value, exists] : [exists, value]);
+        }
+    }
+    else {
+        map[key] = value;
+    }
+};
+
+/**
+ * !#en Clamp a value between from and to.
+ * !#zh
+ * 限定浮点数的最大最小值。<br/>
+ * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
+ * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
+ * 否则返回自身。
+ * @method clampf
+ * @param {Number} value
+ * @param {Number} min_inclusive
+ * @param {Number} max_inclusive
+ * @return {Number}
+ * @example
+ * var v1 = cc.misc.clampf(20, 0, 20); // 20;
+ * var v2 = cc.misc.clampf(-1, 0, 20); //  0;
+ * var v3 = cc.misc.clampf(10, 0, 20); // 10;
+ */
+misc.clampf = function (value, min_inclusive, max_inclusive) {
+    if (min_inclusive > max_inclusive) {
+        var temp = min_inclusive;
+        min_inclusive = max_inclusive;
+        max_inclusive = temp;
+    }
+    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+};
+
+/**
+ * !#en Clamp a value between 0 and 1.
+ * !#zh 限定浮点数的取值范围为 0 ~ 1 之间。
+ * @method clamp01
+ * @param {Number} value
+ * @return {Number}
+ * @example
+ * var v1 = cc.misc.clamp01(20);  // 1;
+ * var v2 = cc.misc.clamp01(-1);  // 0;
+ * var v3 = cc.misc.clamp01(0.5); // 0.5;
+ */
+misc.clamp01 = function (value) {
+    return value < 0 ? 0 : value < 1 ? value : 1;
+};
+
+/**
+ * Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
+ * @method lerp
+ * @param {Number} a number A
+ * @param {Number} b number B
+ * @param {Number} r ratio between 0 and 1
+ * @return {Number}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ */
+misc.lerp = function (a, b, r) {
+    return a + (b - a) * r;
+};
+
+/**
+ * converts degrees to radians
+ * @param {Number} angle
+ * @return {Number}
+ * @method degreesToRadians
+ */
+misc.degreesToRadians = function (angle) {
+    return angle * cc.macro.RAD;
+};
+
+/**
+ * converts radians to degrees
+ * @param {Number} angle
+ * @return {Number}
+ * @method radiansToDegrees
+ */
+misc.radiansToDegrees = function (angle) {
+    return angle * cc.macro.DEG;
+};
+
+cc.misc = module.exports = misc;

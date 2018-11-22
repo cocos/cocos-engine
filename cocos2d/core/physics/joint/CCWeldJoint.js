@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,9 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CC_PTM_RATIO = cc.PhysicsManager.CC_PTM_RATIO;
-var CC_TO_PHYSICS_ANGLE = cc.PhysicsManager.CC_TO_PHYSICS_ANGLE;
+var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
+var ANGLE_TO_PHYSICS_ANGLE = require('../CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 
+/**
+ * !#en
+ * A weld joint essentially glues two bodies together. A weld joint may
+ * distort somewhat because the island constraint solver is approximate.
+ * !#zh
+ * 熔接关节相当于将两个刚体粘在了一起。
+ * 熔接关节可能会使某些东西失真，因为约束求解器算出的都是近似值。
+ * @class WeldJoint
+ * @extends Joint
+ */
 var WeldJoint = cc.Class({
     name: 'cc.WeldJoint',
     extends: cc.Joint,
@@ -36,14 +47,32 @@ var WeldJoint = cc.Class({
     },
 
     properties: {
-        anchor: cc.v2(0, 0),
-        connectedAnchor: cc.v2(0, 0),
-        referenceAngle: 0,
+        /**
+         * !#en
+         * The reference angle.
+         * !#zh
+         * 相对角度。
+         * @property {Number} referenceAngle
+         * @default 0
+         */
+        referenceAngle: {
+            default: 0,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.referenceAngle'            
+        },
 
         _frequency: 0,
         _dampingRatio: 0,
 
+        /**
+         * !#en
+         * The frequency.
+         * !#zh
+         * 弹性系数。
+         * @property {Number} frequency
+         * @default 0
+         */
         frequency: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.frequency',
             get: function () {
                 return this._frequency;
             },
@@ -55,7 +84,16 @@ var WeldJoint = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * The damping ratio.
+         * !#zh
+         * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
+         * @property {Number} dampingRatio
+         * @property 0
+         */
         dampingRatio: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            
             get: function () {
                 return this._dampingRatio;
             },
@@ -70,9 +108,9 @@ var WeldJoint = cc.Class({
 
     _createJointDef: function () {
         var def = new b2.WeldJointDef();
-        def.localAnchorA = new b2.Vec2(this.anchor.x/CC_PTM_RATIO, this.anchor.y/CC_PTM_RATIO);
-        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/CC_PTM_RATIO, this.connectedAnchor.y/CC_PTM_RATIO);
-        def.referenceAngle = this.referenceAngle * CC_TO_PHYSICS_ANGLE;
+        def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
+        def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
+        def.referenceAngle = this.referenceAngle * ANGLE_TO_PHYSICS_ANGLE;
 
         def.frequencyHz = this.frequency;
         def.dampingRatio = this.dampingRatio;

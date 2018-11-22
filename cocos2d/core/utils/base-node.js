@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,17 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Flags = require('../platform/CCObject').Flags;
-var Misc = require('./misc');
-var IdGenerater = require('../platform/id-generater');
+const Flags = require('../platform/CCObject').Flags;
+const misc = require('./misc');
+const js = require('../platform/js');
+const IdGenerater = require('../platform/id-generater');
+const eventManager = require('../event-manager');
+const RenderFlow = require('../renderer/render-flow');
 
-var JS = cc.js;
-var Destroying = Flags.Destroying;
-var DontDestroy = Flags.DontDestroy;
+const Destroying = Flags.Destroying;
+const DontDestroy = Flags.DontDestroy;
+const Deactivating = Flags.Deactivating; 
 
-var CHILD_ADDED = 'child-added';
-var CHILD_REMOVED = 'child-removed';
-
+const CHILD_ADDED = 'child-added';
+const CHILD_REMOVED = 'child-removed';
 
 var idGenerater = new IdGenerater('Node');
 
@@ -43,27 +46,47 @@ function getConstructor(typeOrClassName) {
         return null;
     }
     if (typeof typeOrClassName === 'string') {
-        return JS.getClassByName(typeOrClassName);
+        return js.getClassByName(typeOrClassName);
     }
 
     return typeOrClassName;
 }
 
 function findComponent(node, constructor) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            return comp;
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                return comp;
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                return comp;
+            }
         }
     }
     return null;
 }
 
 function findComponents(node, constructor, components) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            components.push(comp);
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                components.push(comp);
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                components.push(comp);
+            }
         }
     }
 }
@@ -105,23 +128,30 @@ function findChildComponents(children, constructor, components) {
  *
  * @class _BaseNode
  * @extends Object
+ * @uses EventTarget
+ * @constructor
+ * @param {String} [name]
  * @private
  */
 var BaseNode = cc.Class({
     name: 'cc._BaseNode',
     extends: cc.Object,
-    mixins: [cc.EventTarget],
 
     properties: {
-
         // SERIALIZABLE
 
         _parent: null,
         _children: [],
 
-        _tag: cc.macro.NODE_TAG_INVALID,
-
         _active: true,
+
+        /**
+         * @property _level
+         * @type {Number}
+         * @default 0
+         * @private
+         */
+        _level: 0,
 
         /**
          * @property _components
@@ -187,23 +217,8 @@ var BaseNode = cc.Class({
         },
 
         /**
-         * !#en The parent of the node.
-         * !#zh 该节点的父节点。
-         * @property parent
-         * @type {Node}
-         * @default null
-         * @example
-         * node.parent = newNode;
-         */
-
-        _id: {
-            default: '',
-            editorOnly: true
-        },
-
-        /**
          * !#en The uuid for editor, will be stripped before building project.
-         * !#zh 用于编辑器使用的 uuid，在构建项目之前将会被剔除。
+         * !#zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
          * @property uuid
          * @type {String}
          * @readOnly
@@ -212,11 +227,7 @@ var BaseNode = cc.Class({
          */
         uuid: {
             get () {
-                var id = this._id;
-                if (!id) {
-                    id = this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
-                }
-                return id;
+                return this._id;
             }
         },
 
@@ -301,24 +312,18 @@ var BaseNode = cc.Class({
                 return this._activeInHierarchy;
             }
         },
-
-        /**
-         * !#en Tag of node.
-         * !#zh 节点标签。
-         * @property tag
-         * @type {Number}
-         * @example
-         * node.tag = 1001;
-         */
-
     },
 
+    /**
+     * @method constructor
+     * @param {String} [name]
+     */
     ctor (name) {
-        this._name = typeof name !== 'undefined' ? name : 'New Node';
-
+        this._name = name !== undefined ? name : 'New Node';
         this._activeInHierarchy = false;
-        // Support for ActionManager and EventManager
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+        this._id = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerater.getNewId();
+
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 
         /**
          * Register all related EventTargets,
@@ -328,41 +333,63 @@ var BaseNode = cc.Class({
          * @private
          */
         this.__eventTargets = [];
-    },
 
-    getTag () {
-        return this._tag;
+        this._renderFlag = RenderFlow.FLAG_TRANSFORM;
     },
+    /** 
+     * !#en The parent of the node.
+     * !#zh 该节点的父节点。
+     * @property {Node} parent
+     * @example 
+     * cc.log("Node Parent: " + node.parent);
+     */
 
-    setTag (tag) {
-        this._tag = tag;
-    },
-
+    /**
+     * !#en Get parent of the node.
+     * !#zh 获取该节点的父节点。
+     * @method getParent
+     * @return {Node}
+     * @example
+     * var parent = this.node.getParent();
+     */
     getParent () {
         return this._parent;
     },
 
+    /**
+     * !#en Set parent of the node.
+     * !#zh 设置该节点的父节点。
+     * @method setParent
+     * @param {Node} value
+     * @example
+     * node.setParent(newNode);
+     */
     setParent (value) {
         if (this._parent === value) {
             return;
         }
-        if (CC_EDITOR && !cc.engine.isPlaying) {
+        if (CC_EDITOR && cc.engine && !cc.engine.isPlaying) {
             if (_Scene.DetectConflict.beforeAddChild(this)) {
                 return;
             }
         }
-        //
         var oldParent = this._parent;
+        if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
+            cc.errorID(3821);
+        }
         this._parent = value || null;
 
         this._onSetParent(value);
 
         if (value) {
-            if (!CC_JSB) {
-                cc.eventManager._setDirtyForNode(this);
+            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+                cc.errorID(3821);
             }
+            this._level = value._level + 1;
+            eventManager._setDirtyForNode(this);
             value._children.push(this);
-            value.emit(CHILD_ADDED, this);
+            value.emit && value.emit(CHILD_ADDED, this);
+            value._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
@@ -371,8 +398,12 @@ var BaseNode = cc.Class({
                     return cc.errorID(1633);
                 }
                 oldParent._children.splice(removeAt, 1);
-                oldParent.emit(CHILD_REMOVED, this);
+                oldParent.emit && oldParent.emit(CHILD_REMOVED, this);
                 this._onHierarchyChanged(oldParent);
+
+                if (oldParent._children.length === 0) {
+                    oldParent._renderFlag &= ~RenderFlow.FLAG_CHILDREN;
+                }
             }
         }
         else if (value) {
@@ -380,26 +411,14 @@ var BaseNode = cc.Class({
         }
     },
 
-
     // ABSTRACT INTERFACES
-
-
-    /*
-     * Initializes the instance of cc.Node
-     * @method init
-     * @returns {Boolean} Whether the initialization was successful.
-     * @deprecated, no need anymore
-     */
-    init () {
-        return true;
-    },
 
     /**
      * !#en
-     * Properties configuration function </br>
-     * All properties in attrs will be set to the node, </br>
-     * when the setter of the node is available, </br>
-     * the property will be set via setter function.</br>
+     * Properties configuration function <br/>
+     * All properties in attrs will be set to the node, <br/>
+     * when the setter of the node is available, <br/>
+     * the property will be set via setter function.<br/>
      * !#zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
      * @method attr
      * @param {Object} attrs - Properties to be set to node
@@ -408,33 +427,10 @@ var BaseNode = cc.Class({
      * node.attr(attrs);
      */
     attr (attrs) {
-        for (var key in attrs) {
-            this[key] = attrs[key];
-        }
+        js.mixin(this, attrs);
     },
 
     // composition: GET
-
-    /**
-     * !#en Returns a child from the container given its tag.
-     * !#zh 通过标签获取节点的子节点。
-     * @method getChildByTag
-     * @param {Number} aTag - An identifier to find the child node.
-     * @return {Node} a CCNode object whose tag equals to the input parameter
-     * @example
-     * var child = node.getChildByTag(1001);
-     */
-    getChildByTag (aTag) {
-        var children = this._children;
-        if (children !== null) {
-            for (var i = 0; i < children.length; i++) {
-                var node = children[i];
-                if (node && node._tag === aTag)
-                    return node;
-            }
-        }
-        return null;
-    },
 
     /**
      * !#en Returns a child from the container given its uuid.
@@ -483,6 +479,7 @@ var BaseNode = cc.Class({
     },
 
     // composition: ADD
+
     addChild (child) {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
@@ -496,13 +493,29 @@ var BaseNode = cc.Class({
 
     },
 
+    /**
+     * !#en
+     * Inserts a child to the node at a specified index.
+     * !#zh
+     * 插入子节点到指定位置
+     * @method insertChild
+     * @param {Node} child - the child node to be inserted
+     * @param {Number} siblingIndex - the sibling index to place the child in
+     * @example
+     * node.insertChild(child, 2);
+     */
+    insertChild (child, siblingIndex) {
+        child.parent = this;
+        child.setSiblingIndex(siblingIndex);
+    },
+
     // HIERARCHY METHODS
 
     /**
      * !#en Get the sibling index.
      * !#zh 获取同级索引。
      * @method getSiblingIndex
-     * @return {number}
+     * @return {Number}
      * @example
      * var index = node.getSiblingIndex();
      */
@@ -527,6 +540,10 @@ var BaseNode = cc.Class({
         if (!this._parent) {
             return;
         }
+        if (this._parent._objFlags & Deactivating) {
+            cc.errorID(3821);
+            return;
+        }
         var siblings = this._parent._children;
         index = index !== -1 ? index : siblings.length - 1;
         var oldIndex = siblings.indexOf(this);
@@ -542,18 +559,128 @@ var BaseNode = cc.Class({
         }
     },
 
+    /**
+     * !#en Walk though the sub children tree of the current node.
+     * Each node, including the current node, in the sub tree will be visited two times, before all children and after all children.
+     * This function call is not recursive, it's based on stack.
+     * Please don't walk any other node inside the walk process.
+     * !#zh 遍历该节点的子树里的所有节点并按规则执行回调函数。
+     * 对子树中的所有节点，包含当前节点，会执行两次回调，prefunc 会在访问它的子节点之前调用，postfunc 会在访问所有子节点之后调用。
+     * 这个函数的实现不是基于递归的，而是基于栈展开递归的方式。
+     * 请不要在 walk 过程中对任何其他的节点嵌套执行 walk。
+     * @method walk
+     * @param {Function} prefunc The callback to process node when reach the node for the first time
+     * @param {_BaseNode} prefunc.target The current visiting node
+     * @param {Function} postfunc The callback to process node when re-visit the node after walked all children in its sub tree
+     * @param {_BaseNode} postfunc.target The current visiting node
+     * @example
+     * node.walk(function (target) {
+     *     console.log('Walked through node ' + target.name + ' for the first time');
+     * }, function (target) {
+     *     console.log('Walked through node ' + target.name + ' after walked all children in its sub tree');
+     * });
+     */
+    walk (prefunc, postfunc) {
+        var BaseNode = cc._BaseNode;
+        var index = 1;
+        var children, child, curr, i, afterChildren;
+        var stack = BaseNode._stacks[BaseNode._stackId];
+        if (!stack) {
+            stack = [];
+            BaseNode._stacks.push(stack);
+        }
+        BaseNode._stackId++;
+
+        stack.length = 0;
+        stack[0] = this;
+        var parent = null;
+        afterChildren = false;
+        while (index) {
+            index--;
+            curr = stack[index];
+            if (!curr) {
+                continue;
+            }
+            if (!afterChildren && prefunc) {
+                // pre call
+                prefunc(curr);
+            }
+            else if (afterChildren && postfunc) {
+                // post call
+                postfunc(curr);
+            }
+            
+            // Avoid memory leak
+            stack[index] = null;
+            // Do not repeatly visit child tree, just do post call and continue walk
+            if (afterChildren) {
+                afterChildren = false;
+            }
+            else {
+                // Children not proceeded and has children, proceed to child tree
+                if (curr._children.length > 0) {
+                    parent = curr;
+                    children = curr._children;
+                    i = 0;
+                    stack[index] = children[i];
+                    index++;
+                }
+                // No children, then repush curr to be walked for post func
+                else {
+                    stack[index] = curr;
+                    index++;
+                    afterChildren = true;
+                }
+                continue;
+            }
+            // curr has no sub tree, so look into the siblings in parent children
+            if (children) {
+                i++;
+                // Proceed to next sibling in parent children
+                if (children[i]) {
+                    stack[index] = children[i];
+                    index++;
+                }
+                // No children any more in this sub tree, go upward
+                else if (parent) {
+                    stack[index] = parent;
+                    index++;
+                    // Setup parent walk env
+                    afterChildren = true;
+                    if (parent._parent) {
+                        children = parent._parent._children;
+                        i = children.indexOf(parent);
+                        parent = parent._parent;
+                    }
+                    else {
+                        // At root
+                        parent = null;
+                        children = null;
+                    }
+
+                    // ERROR
+                    if (i < 0) {
+                        break;
+                    }
+                }
+            }
+        }
+        stack.length = 0;
+        BaseNode._stackId--;
+    },
+
     cleanup () {
 
     },
 
     /**
      * !#en
-     * Remove itself from its parent node. If cleanup is true, then also remove all actions and callbacks. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * Remove itself from its parent node. If cleanup is `true`, then also remove all events and actions. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup, so it is recommended that you always pass in the `false` parameter when calling this API.<br/>
      * If the node orphan, then nothing happens.
      * !#zh
-     * 从父节点中删除一个节点。cleanup 参数为 true，那么在这个节点上所有的动作和回调都会被删除，反之则不会。<br/>
-     * 如果不传入 cleanup 参数，默认是 true 的。<br/>
+     * 从父节点中删除该节点。如果不传入 cleanup 参数或者传入 `true`，那么这个节点上所有绑定的事件、action 都会被删除。<br/>
+     * 因此建议调用这个 API 时总是传入 `false` 参数。<br/>
      * 如果这个节点是一个孤节点，那么什么都不会发生。
      * @method removeFromParent
      * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
@@ -600,32 +727,6 @@ var BaseNode = cc.Class({
 
     /**
      * !#en
-     * Removes a child from the container by tag value. It will also cleanup all running actions depending on the cleanup parameter.
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * !#zh
-     * 通过标签移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeChildByTag
-     * @param {Number} tag - An integer number that identifies a child node
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.Node#removeChildByTag
-     * @example
-     * node.removeChildByTag(1001);
-     * node.removeChildByTag(1001, false);
-     */
-    removeChildByTag (tag, cleanup) {
-        if (tag === cc.macro.NODE_TAG_INVALID)
-            cc.logID(1609);
-
-        var child = this.getChildByTag(tag);
-        if (!child)
-            cc.logID(1610, tag);
-        else
-            this.removeChild(child, cleanup);
-    },
-
-    /**
-     * !#en
      * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
      * If the cleanup parameter is not passed, it will force a cleanup.
      * !#zh
@@ -645,11 +746,6 @@ var BaseNode = cc.Class({
         for (var i = children.length - 1; i >= 0; i--) {
             var node = children[i];
             if (node) {
-                //if (this._running) {
-                //    node.onExitTransitionDidStart();
-                //    node.onExit();
-                //}
-
                 // If you don't do cleanup, the node's actions will not get removed and the
                 if (cleanup)
                     node.cleanup();
@@ -698,6 +794,9 @@ var BaseNode = cc.Class({
      * var sprite = node.getComponent(cc.Sprite);
      * // get custom test calss.
      * var test = node.getComponent("Test");
+     * @typescript
+     * getComponent<T extends Component>(type: {prototype: T}): T
+     * getComponent(className: string): any
      */
     getComponent (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -716,6 +815,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
+     * @typescript
+     * getComponents<T extends Component>(type: {prototype: T}): T[]
+     * getComponents(className: string): any[]
      */
     getComponents (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -734,6 +836,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
+     * @typescript
+     * getComponentInChildren<T extends Component>(type: {prototype: T}): T
+     * getComponentInChildren(className: string): any
      */
     getComponentInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -752,6 +857,9 @@ var BaseNode = cc.Class({
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
+     * @typescript
+     * getComponentsInChildren<T extends Component>(type: {prototype: T}): T[]
+     * getComponentsInChildren(className: string): any[]
      */
     getComponentsInChildren (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -766,10 +874,10 @@ var BaseNode = cc.Class({
         var existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
-                cc.errorID(3805, JS.getClassName(ctor), this._name);
+                cc.errorID(3805, js.getClassName(ctor), this._name);
             }
             else {
-                cc.errorID(3806, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+                cc.errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
             }
             return false;
         }
@@ -785,9 +893,11 @@ var BaseNode = cc.Class({
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
+     * @typescript
+     * addComponent<T extends Component>(type: {new(): T}): T
+     * addComponent(className: string): any
      */
     addComponent (typeOrClassName) {
-
         if (CC_EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
             return null;
@@ -797,7 +907,7 @@ var BaseNode = cc.Class({
 
         var constructor;
         if (typeof typeOrClassName === 'string') {
-            constructor = JS.getClassByName(typeOrClassName);
+            constructor = js.getClassByName(typeOrClassName);
             if (!constructor) {
                 cc.errorID(3807, typeOrClassName);
                 if (cc._RFpeek()) {
@@ -820,7 +930,7 @@ var BaseNode = cc.Class({
             cc.errorID(3809);
             return null;
         }
-        if (!cc.isChildClassOf(constructor, cc.Component)) {
+        if (!js.isChildClassOf(constructor, cc.Component)) {
             cc.errorID(3810);
             return null;
         }
@@ -853,7 +963,9 @@ var BaseNode = cc.Class({
         var component = new constructor();
         component.node = this;
         this._components.push(component);
-
+        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
+            cc.engine.attachedObjsForEditor[component._id] = component;
+        }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(component);
         }
@@ -901,7 +1013,9 @@ var BaseNode = cc.Class({
 
         comp.node = this;
         this._components.splice(index, 0, comp);
-
+        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
+            cc.engine.attachedObjsForEditor[comp._id] = comp;
+        }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(comp);
         }
@@ -965,6 +1079,9 @@ var BaseNode = cc.Class({
             var i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
+                if ((CC_EDITOR || CC_TEST) && cc.engine) {
+                    delete cc.engine.attachedObjsForEditor[component._id];
+                }
             }
             else if (component.node !== this) {
                 cc.errorID(3815);
@@ -972,30 +1089,9 @@ var BaseNode = cc.Class({
         }
     },
 
-    _disableChildComps () {
-        // leave this._activeInHierarchy unmodified
-        var i, len = this._components.length;
-        for (i = 0; i < len; ++i) {
-            var component = this._components[i];
-            if (component._enabled) {
-                cc.director._compScheduler.disableComp(component);
-            }
-        }
-        // deactivate recursively
-        for (i = 0, len = this._children.length; i < len; ++i) {
-            var node = this._children[i];
-            if (node._active) {
-                node._disableChildComps();
-            }
-        }
-    },
-
     destroy () {
         if (cc.Object.prototype.destroy.call(this)) {
-            // disable hierarchy
-            if (this._activeInHierarchy) {
-                this._disableChildComps();
-            }
+            this.active = false;
         }
     },
 
@@ -1019,6 +1115,8 @@ var BaseNode = cc.Class({
 
     _onSetParent (value) {},
     _onPostActivated () {},
+    _onBatchRestored () {},
+    _onBatchCreated () {},
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
@@ -1028,10 +1126,7 @@ var BaseNode = cc.Class({
                 cc.warnID(1623);
             }
         }
-        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
-        if (this._activeInHierarchy !== shouldActiveNow) {
-            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
-        }
+
         if (CC_EDITOR || CC_TEST) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
@@ -1048,39 +1143,32 @@ var BaseNode = cc.Class({
             // update prefab
             var newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
             var myPrefabInfo = this._prefab;
+            var PrefabUtils = Editor.require('scene://utils/prefab');
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
-                    // change prefab
-                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    if (myPrefabInfo.root !== newPrefabRoot) {
+                        // change prefab
+                        PrefabUtils.unlinkPrefab(this);
+                        PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    }
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
-                    _Scene.PrefabUtils.unlinkPrefab(this);
+                    PrefabUtils.unlinkPrefab(this);
                 }
             }
             else if (newPrefabRoot) {
                 // attach to prefab
-                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
 
             // conflict detection
             _Scene.DetectConflict.afterAddChild(this);
         }
 
-    },
-
-    _onBatchCreated () {
-        var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
-            }
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
+        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
+        if (this._activeInHierarchy !== shouldActiveNow) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     },
 
@@ -1092,13 +1180,12 @@ var BaseNode = cc.Class({
         var thisPrefabInfo = this._prefab;
         if (CC_EDITOR && thisPrefabInfo) {
             if (this !== thisPrefabInfo.root) {
-                _Scene.PrefabUtils.initClonedChildOfPrefab(cloned);
+                var PrefabUtils = Editor.require('scene://utils/prefab');
+                PrefabUtils.initClonedChildOfPrefab(cloned);
             }
         }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
-            // copy non-serialized property
-            cloned._prefab._synced = thisPrefabInfo._synced;
             //if (thisPrefabInfo._synced) {
             //    return clone;
             //}
@@ -1109,23 +1196,31 @@ var BaseNode = cc.Class({
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchCreated();
+        cloned._onBatchRestored();
 
         return cloned;
     },
 
     _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
+        var attachedObjsForEditor = cc.engine.attachedObjsForEditor;
         if (register) {
-            cc.engine.attachedObjsForEditor[this.uuid] = this;
-            cc.engine.emit('node-attach-to-scene', {target: this});
-            //this._objFlags |= RegisteredInEditor;
+            attachedObjsForEditor[this._id] = this;
+            for (let i = 0; i < this._components.length; i++) {
+                let comp = this._components[i];
+                attachedObjsForEditor[comp._id] = comp;
+            }
+            cc.engine.emit('node-attach-to-scene', this);
         }
         else {
-            cc.engine.emit('node-detach-from-scene', {target: this});
-            delete cc.engine.attachedObjsForEditor[this._id];
+            cc.engine.emit('node-detach-from-scene', this);
+            delete attachedObjsForEditor[this._id];
+            for (let i = 0; i < this._components.length; i++) {
+                let comp = this._components[i];
+                delete attachedObjsForEditor[comp._id];
+            }
         }
         var children = this._children;
-        for (var i = 0, len = children.length; i < len; ++i) {
+        for (let i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
             child._registerIfAttached(register);
         }
@@ -1175,7 +1270,7 @@ var BaseNode = cc.Class({
             if (parent) {
                 var childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
-                parent.emit('child-removed', this);
+                parent.emit && parent.emit('child-removed', this);
             }
         }
 
@@ -1184,12 +1279,18 @@ var BaseNode = cc.Class({
 
     onRestore: CC_EDITOR && function () {
         // check activity state
-        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
-        if (this._activeInHierarchy !== shouldActiveInHierarchy) {
-            cc.director._nodeActivator.activateNode(this, shouldActiveInHierarchy);
+        var shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
+        if (this._activeInHierarchy !== shouldActiveNow) {
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     },
 });
+
+BaseNode.idGenerater = idGenerater;
+
+// For walk
+BaseNode._stacks = [[]];
+BaseNode._stackId = 0;
 
 BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
 if (CC_EDITOR) {
@@ -1211,8 +1312,26 @@ if(CC_EDITOR) {
 }
 
 // Define public getter and setter methods to ensure api compatibility.
-var SameNameGetSets = ['name', 'children', 'childrenCount',];
-Misc.propertyDefine(BaseNode, SameNameGetSets, {});
+var SameNameGetSets = ['parent', 'name', 'children', 'childrenCount',];
+misc.propertyDefine(BaseNode, SameNameGetSets, {});
+
+if (CC_DEV) {
+    // promote debug info
+    js.get(BaseNode.prototype, ' INFO ', function () {
+        var path = '';
+        var node = this;
+        while (node && !(node instanceof cc.Scene)) {
+            if (path) {
+                path = node.name + '/' + path;
+            }
+            else {
+                path = node.name;
+            }
+            node = node._parent;
+        }
+        return this.name + ', path: ' + path;
+    });
+}
 
 /**
  * !#en
@@ -1221,7 +1340,7 @@ Misc.propertyDefine(BaseNode, SameNameGetSets, {});
  * !#zh
  * 注意：此节点激活时，此事件仅从最顶部的节点发出。
  * @event active-in-hierarchy-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  */
 
 cc._BaseNode = module.exports = BaseNode;
