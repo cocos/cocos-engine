@@ -26,19 +26,22 @@
 
 const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
+const ShaderAsset = require('./CCShaderAsset');
 import Effect from '../../renderer/effect';
 
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
 
-    ctor (effectName) {
-        if (effectName) this.effectName = effectName;
+    ctor () {
+        this._effect = null;
     },
 
     properties: {
-        _effect: null,
-        _effectName: '',
+        _shaderAsset: {
+            type: ShaderAsset,
+            default: null,
+        },
         _defines: {
             default: {},
             type: Object
@@ -48,15 +51,31 @@ let Material = cc.Class({
             type: Object
         },
 
-        effectName: {
+        shaderName: CC_EDITOR ? {
             get () {
-                return this._effectName;
+                return this._shaderAsset.name;
             },
             set (val) {
-                if (this._effectName !== val) {
-                    this._effectName = val;
-                    this.setEffect(val);
+                let shaderAsset = cc.Asset.getBuiltin('shader', val);
+                if (!shaderAsset) {
+                    console.warn(`no shader named '${val}' found`);
+                    return;
                 }
+                this.shaderAsset = shaderAsset;
+            }
+        } : undefined,
+
+        shaderAsset: {
+            get () {
+                return this._shaderAsset;
+            },
+            set (asset) {
+                this._shaderAsset = asset;
+                if (!asset) {
+                    console.error('Can not set an empty shader asset.');
+                    return;
+                }
+                this._effect = Effect.parseEffect(asset.effect);
             }
         },
 
@@ -69,7 +88,7 @@ let Material = cc.Class({
 
     statics: {
         getInstantiatedBuiltinMaterial(name) {
-            let builtinMaterial = cc.Asset.getBuiltin('builtin-materials-' + name);
+            let builtinMaterial = cc.Asset.getBuiltin('material', 'builtin-' + name);
             return Material.getInstantiatedMaterial(builtinMaterial, this);
         },
         getInstantiatedMaterial(mat, rndCom) {
@@ -91,7 +110,7 @@ let Material = cc.Class({
      * @param {Material} mat
      */
     copy(mat) {
-        this.effectName = mat.effectName;
+        this.shaderAsset = mat.shaderAsset;
 
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
@@ -179,17 +198,10 @@ let Material = cc.Class({
         this._hash = str;
     },
 
-    setEffect(val) {
-        const effectAsset = cc.Asset.getBuiltin(val).effect;
-        if (!effectAsset) {
-            console.warn(`no effect named '${val}' found`);
-            return;
-        }
-        this._effect = Effect.parseEffect(effectAsset);
-    },
-
     onLoad () {
-        this.setEffect(this._effectName);
+        this.shaderAsset = this._shaderAsset;
+        if (!this._effect) return;
+        
         for (let def in this._defines) {
             this._effect.define(def, this._defines[def]);
         }

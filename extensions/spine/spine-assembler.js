@@ -69,7 +69,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     let key = tex.url + src + dst + STENCIL_SEP + '0';
     let material = _sharedMaterials[key];
     if (!material) {
-        material = new Material('builtin-effect-sprite');
+        material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         material.define('useModel', true);
         material.define('useTexture', true);
         // update texture

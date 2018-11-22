@@ -41,6 +41,7 @@
     "gulp-sourcemaps": "1.5.2",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "3.0.6",
+    "js-sha1": "^0.6.0",
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",

@@ -5,12 +5,15 @@ let ShaderAsset = cc.Class({
     extends: Asset,
 
     properties: {
-        shader: Object,
+        shaders: Object,
         effect: Object
     },
 
     onLoad () {
-        cc.renderer._forward._programLib.define(this.shader);
+        let lib = cc.renderer._forward._programLib;
+        for (let i = 0; i < this.shaders.length; i++) {
+            lib.define(this.shaders[i]);
+        }
     }
 });
 

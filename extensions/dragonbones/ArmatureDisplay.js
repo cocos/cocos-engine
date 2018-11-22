@@ -356,7 +356,7 @@ let ArmatureDisplay = cc.Class({
         // Get material
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = new Material('builtin-effect-sprite');
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('useTexture', true);
             material.define('useColor', true);
         }

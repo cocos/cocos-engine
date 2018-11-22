@@ -218,16 +218,21 @@ cc.Asset = cc.Class({
     }
 });
 
-let _builts = {};
+let _builts = {
+    shader: {},
+    material: {}
+};
 
 function loadBuiltins (name, type, cb) {
-    cc.loader.loadResDir(name, type, 'internal', () => { }, (err, assets) => {
+    let dirname = name  + 's';
+    let builtin = _builts[name] = {};
+    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
         if (err) {
             cc.error(err);
         }
         else {
             for (let i = 0; i < assets.length; i++) {
-                _builts[`builtin-${name}-${assets[i].name}`] = assets[i];
+                builtin[`${assets[i].name}`] = assets[i];
             }
         }
 
@@ -236,25 +241,18 @@ function loadBuiltins (name, type, cb) {
 }
 
 cc.Asset._loadBuiltins = function (cb) {
-    _builts = {};
-
-    // load effects
-    // const effects = require('../../renderer/effects').default;
-    // for (let i = 0; i < effects.length; i++) {
-    //     _builts['builtin-shaders-' + effects[i].name] = effects[i];
-    // }
-
-    loadBuiltins('shaders', cc.ShaderAsset, () => {
-        loadBuiltins('materials', cc.Material, cb);
+    loadBuiltins('shader', cc.ShaderAsset, () => {
+        loadBuiltins('material', cc.Material, cb);
     });
 };
 
-cc.Asset.getBuiltin = function (name) {
-    return _builts[name];
+cc.Asset.getBuiltin = function (type, name) {
+    return _builts[type][name];
 };
 
-cc.Asset.getBuiltins = function () {
-    return _builts;
+cc.Asset.getBuiltins = function (type) {
+    if (!type) return _builts;
+    return _builts[type];
 };
 
 module.exports = cc.Asset;

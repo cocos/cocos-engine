@@ -323,7 +323,7 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = new Material('builtin-effect-sprite');
+        this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         this._renderDatas = [];
 
         this._debugRenderer = null;
@@ -399,7 +399,7 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-            this._material = new Material('builtin-effect-sprite');
+            this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             this._renderDatas = [];
         }
     },
