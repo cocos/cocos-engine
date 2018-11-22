@@ -50,20 +50,32 @@ function buildEffectJSON(json) {
   return json;
 }
 
-let effectRE = /%{([^%]+)%}/;
-let blockRE = /%%\s*([\w-]+)\s*{([^%]+)}/;
-function parseEffect(content) {
-  let effectCap = effectRE.exec(content);
-  let effect = JSON.parse(`{${effectCap[1]}}`), templates = {};
-  content = content.substring(effectCap[0].length);
-  let blockCap = blockRE.exec(content);
-  while (blockCap) {
-    templates[blockCap[1]] = blockCap[2];
-    content = content.substring(blockCap[0].length);
-    blockCap = blockRE.exec(content);
-  }
-  return { effect, templates };
-}
+let parseEffect = (function() {
+  let effectRE = /%{([^%]+)%}/;
+  let blockRE = /%%\s*([\w-]+)\s*{([^]+)}/;
+  let parenRE = /[{}]/g;
+  let trimToSize = content => {
+    let level = 1, end = content.length;
+    content.replace(parenRE, (p, i) => {
+      if (p === '{') level++;
+      else if (level === 1) { end = i; level = 1e9; }
+      else level--;
+    });
+    return content.substring(0, end);
+  };
+  return function (content) {
+    let effectCap = effectRE.exec(content);
+    let effect = JSON.parse(`{${effectCap[1]}}`), templates = {};
+    content = content.substring(effectCap.index + effectCap[0].length);
+    let blockCap = blockRE.exec(content);
+    while (blockCap) {
+      let str = templates[blockCap[1]] = trimToSize(blockCap[2]);
+      content = content.substring(blockCap.index + str.length);
+      blockCap = blockRE.exec(content);
+    }
+    return { effect, templates };
+  };
+})();
 
 // ============================================================
 // build
