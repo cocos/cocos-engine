@@ -675,12 +675,15 @@ textUtils.bmfont = module.exports = {
                 this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
+        this._quadsUpdated(_comp);
 
         return ret;
     },
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
     },
+
+    _quadsUpdated (comp) {},
 
     _computeAlignmentOffset: function() {
         _linesOffsetX.length = 0;
