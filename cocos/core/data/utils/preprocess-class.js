@@ -136,7 +136,7 @@ function checkUrl (val, className, propName, url) {
 
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if (CC_EDITOR) {
+        if (CC_EDITOR && 'default' in val) {
             if (!cc.Class.isArray(val.default)) {
                 cc.warnID(5507, className, propName);
             }
