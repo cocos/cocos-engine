@@ -149,9 +149,6 @@ let RenderComponent = cc.Class({
 
     setVertsDirty () {
         this._vertsDirty = true;
-        if (CC_JSB) {
-            this._renderHandle.setVertsDirty();
-        }
     },
 
     _onNodeSizeDirty () {
@@ -239,7 +236,6 @@ let RenderComponent = cc.Class({
 
     _updateMaterial (material) {
         this._material = material;
-
         this._updateBlendFunc();
         material.updateHash();
     },

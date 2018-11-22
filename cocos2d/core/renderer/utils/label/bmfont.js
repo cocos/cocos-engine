@@ -138,6 +138,7 @@ textUtils.bmfont = module.exports = {
 
         _comp = comp;
         
+        this._reserveQuads(comp, comp.string.toString().length);
         this._updateProperties();
         this._updateContent();
         
@@ -150,6 +151,8 @@ textUtils.bmfont = module.exports = {
         
         this._resetProperties();
     },
+
+    _reserveQuads () {},
 
     _updateFontScale () {
         _bmfontScale = _fontSize / _originFontSize;
@@ -595,7 +598,9 @@ textUtils.bmfont = module.exports = {
 
         let node = _comp.node;
         let renderData = _comp._renderData;
-        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        if (renderData) {
+            renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        }
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,
