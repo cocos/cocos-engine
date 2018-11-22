@@ -23,7 +23,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 const js = require('../platform/js');
 const macro = require('../platform/CCMacro');
 const textUtils = require('../utils/text-utils');
@@ -57,7 +56,7 @@ function debounce(func, wait, immediate) {
 /**
  * RichText pool
  */
-let pool = new js.Pool(function (node) {
+let _segmentPool = new js.Pool(function (node) {
     if (CC_EDITOR) {
         return false;
     }
@@ -73,42 +72,180 @@ let pool = new js.Pool(function (node) {
     return true;
 }, 20);
 
-pool.get = function (string, fontAsset, fontSize) {
-    let labelNode = this._get();
-    if (!labelNode) {
-        labelNode = new cc.PrivateNode(RichTextChildName);
+
+_segmentPool.get = function (richText, name) {
+    let segment = {};
+    let node = this._get();
+    if (!node) {
+        node = new cc.PrivateNode();
     }
-    let labelComponent = labelNode.getComponent(cc.Label);
-    if (!labelComponent) {
-        labelComponent = labelNode.addComponent(cc.Label);
+    node.name = name;
+    node.setPosition(0, 0);
+    node.setAnchorPoint(0, 0);
+    node.setContentSize(128, 128);
+    node.color = cc.Color.WHITE;
+    node.skewX = 0;
+
+    node.parent = richText.node;
+    node.active = richText.node.active;
+
+    segment.node = node;
+    segment._styleIndex = -1;
+    segment._lineCount = -1;
+    segment._clickHandler = null;
+    segment._clickParam = null;
+
+    if (name === RichTextChildName) {
+        segment.addLabelComponent = function (string, styleIndex, richText) {
+            let label = this.node.getComponent(cc.Label);
+            if (!label) {
+                label = this.node.addComponent(cc.Label);
+            }
+
+            if (typeof string !== 'string') {
+                string = '' + string;
+            }
+            let isAsset = richText.font instanceof cc.Font;
+            if (isAsset) {
+                label.font = richText.font;
+            } else {
+                label.fontFamily = "Arial";
+            }
+            label.string = string;
+
+            label.horizontalAlign = HorizontalAlign.LEFT;
+            label.verticalAlign = VerticalAlign.TOP;
+            label.fontSize = richText.fontSize || 40;
+            label.overflow = 0;
+            label.enableWrapText = true;
+            label.lineHeight = 40;
+            label._enableBold(false);
+            label._enableItalics(false);
+            label._enableUnderline(false);
+
+            this._styleIndex = styleIndex;
+            this._lineCount = richText._lineCount;
+
+            this._applyTextAttribute(richText);
+        }
+
+        segment._applyTextAttribute = function (richText) {
+            let label = this.node.getComponent(cc.Label);
+            let index = this._styleIndex;
+            if (!label) {
+                return;
+            }
+
+            let textInfo = richText._textArray[index];
+            let textStyle;
+            if (textInfo) {
+                textStyle = textInfo.style;
+            }
+
+            label.lineHeight = richText.lineHeight;
+            label.horizontalAlign = HorizontalAlign.LEFT;
+            label.verticalAlign = VerticalAlign.CENTER;
+            label._enableBold(textStyle && textStyle.bold);
+            label._enableItalics(textStyle && textStyle.italic);
+            label._enableUnderline(textStyle && textStyle.underline);
+
+            if (textStyle && textStyle.size) {
+                label.fontSize = textStyle.size;
+            }
+
+            if (textStyle && textStyle.color) {
+                this.node.color = richText._convertLiteralColorValue(textStyle.color);
+            }
+
+            //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
+            if (textStyle && textStyle.italic) {
+                this.node.skewX = 12;
+            }
+
+            if (textStyle && textStyle.outline) {
+                let labelOutline = this.node.getComponent(cc.LabelOutline);
+                if (!labelOutline) {
+                    labelOutline = this.node.addComponent(cc.LabelOutline);
+                }
+                labelOutline.color = richText._convertLiteralColorValue(textStyle.outline.color);
+                labelOutline.width = textStyle.outline.width;
+            }
+
+            label._updateRenderData(true);
+
+            if (textStyle && textStyle.event) {
+                if (textStyle.event.click) {
+                    segment._clickHandler = textStyle.event.click;
+                }
+                if (textStyle.event.param) {
+                    segment._clickParam = textStyle.event.param;
+                }
+            }
+        }
+    }
+    else if (name === RichTextChildImageName) {
+        segment.addSpriteComponent = function (spriteFrame, style, richText) {
+            this.node.name = RichTextChildImageName;
+            let sprite = this.node.getComponent(cc.Sprite);
+            if (!sprite) {
+                sprite = this.node.addComponent(cc.Sprite);
+            }
+
+            sprite.type = cc.Sprite.Type.SLICED;
+            sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+
+            // calculation contentSize
+            let spriteRect = spriteFrame.getRect();
+            let scaleFactor = 1;
+            let spriteWidth = spriteRect.width;
+            let spriteHeight = spriteRect.height;
+            let expectWidth = style.imageWidth;
+            let expectHeight = style.imageHeight;
+
+            //follow the original rule, expectHeight must less then lineHeight
+            if (expectHeight > 0 && expectHeight < richText.lineHeight) {
+                scaleFactor = expectHeight / spriteHeight;
+                spriteWidth = spriteWidth * scaleFactor;
+                spriteHeight = spriteHeight * scaleFactor;
+            }
+            else {
+                scaleFactor = richText.lineHeight / spriteHeight;
+                spriteWidth = spriteWidth * scaleFactor;
+                spriteHeight = spriteHeight * scaleFactor;
+            }
+
+            if (expectWidth > 0) spriteWidth = expectWidth;
+
+            if (richText.maxWidth > 0) {
+                if (richText._lineOffsetX + spriteWidth > richText.maxWidth) {
+                    richText._updateLineInfo();
+                }
+                richText._lineOffsetX += spriteWidth;
+
+            }
+            else {
+                richText._lineOffsetX += spriteWidth;
+                if (richText._lineOffsetX > richText._labelWidth) {
+                    richText._labelWidth = richText._lineOffsetX;
+                }
+            }
+            sprite.spriteFrame = spriteFrame;
+            this.node.setContentSize(spriteWidth, spriteHeight);
+
+            if (style.event) {
+                if (style.event.click) {
+                    this._clickHandler = style.event.click;
+                }
+                if (style.event.param) {
+                    this._clickParam = style.event.param;
+                }
+            }
+
+            this._lineCount = richText._lineCount;
+        }
     }
 
-    labelNode.setPosition(0, 0);
-    labelNode.setAnchorPoint(0.5, 0.5);
-    labelNode.setContentSize(128, 128);
-    labelNode.skewX = 0;
-
-    if (typeof string !== 'string') {
-        string = '' + string;
-    }
-    let isAsset = fontAsset instanceof cc.Font;
-    if (isAsset) {
-        labelComponent.font = fontAsset;
-    } else {
-        labelComponent.fontFamily = "Arial";
-    }
-    labelComponent.string = string;
-    labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-    labelComponent.verticalAlign = VerticalAlign.TOP;
-    labelComponent.fontSize = fontSize || 40;
-    labelComponent.overflow = 0;
-    labelComponent.enableWrapText = true;
-    labelComponent.lineHeight = 40;
-    labelComponent._enableBold(false);
-    labelComponent._enableItalics(false);
-    labelComponent._enableUnderline(false);
-
-    return labelNode;
+    return segment;
 };
 
 /**
@@ -123,7 +260,7 @@ let RichText = cc.Class({
 
     ctor: function () {
         this._textArray = null;
-        this._labelSegments = [];
+        this._segments = [];
         this._labelSegmentsCache = [];
         this._linesWidth = [];
 
@@ -313,13 +450,9 @@ let RichText = cc.Class({
     },
 
     _updateLabelSegmentTextAttributes () {
-        this._labelSegments.forEach(function (item) {
-            this._applyTextAttribute(item);
+        this._segments.forEach(function (segment) {
+            segment._applyTextAttribute(this);
         }.bind(this));
-    },
-
-    _createFontLabel (string) {
-        return pool.get(string, this.font, this.fontSize);
     },
 
     _onTTFLoaded () {
@@ -345,18 +478,16 @@ let RichText = cc.Class({
     _measureText (styleIndex, string) {
         let self = this;
         let func = function (string) {
-            let label;
+            let segment;
             if (self._labelSegmentsCache.length === 0) {
-                label = self._createFontLabel(string);
-                self._labelSegmentsCache.push(label);
+                segment = _segmentPool.get(self, RichTextChildName);
+                self._labelSegmentsCache.push(segment);
             }
             else {
-                label = self._labelSegmentsCache[0];
-                label.getComponent(cc.Label).string = string;
+                segment = self._labelSegmentsCache[0];
             }
-            label._styleIndex = styleIndex;
-            self._applyTextAttribute(label);
-            let labelSize = label.getContentSize();
+            segment.addLabelComponent(string, styleIndex, self);
+            let labelSize = segment.node.getContentSize();
             return labelSize.width;
         };
         if (string) {
@@ -370,14 +501,13 @@ let RichText = cc.Class({
     _onTouchEnded (event) {
         let components = this.node.getComponents(cc.Component);
 
-        for (let i = 0; i < this._labelSegments.length; ++i) {
-            let labelSegment = this._labelSegments[i];
-            let clickHandler = labelSegment._clickHandler;
-            let clickParam = labelSegment._clickParam;
-            if (clickHandler && this._containsTouchLocation(labelSegment, event.touch.getLocation())) {
+        for (let i = 0; i < this._segments.length; ++i) {
+            let segment = this._segments[i];
+            let clickHandler = segment._clickHandler;
+            if (clickHandler && this._containsTouchLocation(segment.node, event.touch.getLocation())) {
                 components.forEach(function (component) {
                     if (component.enabledInHierarchy && component[clickHandler]) {
-                        component[clickHandler](event, clickParam);
+                        component[clickHandler](event, segment._clickParam);
                     }
                 });
                 event.stopPropagation();
@@ -385,30 +515,14 @@ let RichText = cc.Class({
         }
     },
 
-    _containsTouchLocation (label, point) {
-        let myRect = label.getBoundingBoxToWorld();
+    _containsTouchLocation (node, point) {
+        let myRect = node.getBoundingBoxToWorld();
         return myRect.contains(point);
     },
 
-    _resetState () {
-        let children = this.node.children;
-        for (let i = children.length - 1; i >= 0; i--) {
-            let child = children[i];
-            if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
-                if (child.parent === this.node) {
-                    child.parent = null;
-                }
-                else {
-                    // In case child.parent !== this.node, child cannot be removed from children
-                    children.splice(i, 1);
-                }
-                if (child.name === RichTextChildName) {
-                    pool.put(child);
-                }
-            }
-        }
-
-        this._labelSegments.length = 0;
+    _reset () {
+        this._recyclingSegment();
+        this._segments.length = 0;
         this._labelSegmentsCache.length = 0;
         this._linesWidth.length = 0;
         this._lineOffsetX = 0;
@@ -440,38 +554,27 @@ let RichText = cc.Class({
     },
 
     _addLabelSegment (stringToken, styleIndex) {
-        let labelSegment;
+        let segment;
         if (this._labelSegmentsCache.length === 0) {
-            labelSegment = this._createFontLabel(stringToken);
+            segment = this._addSegment(RichTextChildName);
         }
         else {
-            labelSegment = this._labelSegmentsCache.pop();
-            labelSegment.getComponent(cc.Label).string = stringToken;
+            segment = this._labelSegmentsCache.pop();
+            this._segments.push(segment);
         }
-        labelSegment._styleIndex = styleIndex;
-        labelSegment._lineCount = this._lineCount;
-        labelSegment.active = this.node.active;
-
-        labelSegment.setAnchorPoint(0, 0);
-        this._applyTextAttribute(labelSegment);
-
-        this.node.addChild(labelSegment);
-        this._labelSegments.push(labelSegment);
-
-        return labelSegment;
+        segment.addLabelComponent(stringToken, styleIndex, this);
+        return segment;
     },
 
     _updateRichTextWithMaxWidth (labelString, labelWidth, styleIndex) {
         let fragmentWidth = labelWidth;
-        let labelSegment;
+        let segment;
 
         if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this.maxWidth) {
             //concat previous line
             let checkStartIndex = 0;
             while (this._lineOffsetX <= this.maxWidth) {
-                let checkEndIndex = this._getFirstWordLen(labelString,
-                    checkStartIndex,
-                    labelString.length);
+                let checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
                 let checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 let checkStringWidth = this._measureText(styleIndex, checkString);
 
@@ -493,14 +596,11 @@ let RichText = cc.Class({
             }
         }
         if (fragmentWidth > this.maxWidth) {
-            let fragments = textUtils.fragmentText(labelString,
-                fragmentWidth,
-                this.maxWidth,
-                this._measureText(styleIndex));
+            let fragments = textUtils.fragmentText(labelString, fragmentWidth, this.maxWidth, this._measureText(styleIndex));
             for (let k = 0; k < fragments.length; ++k) {
                 let splitString = fragments[k];
-                labelSegment = this._addLabelSegment(splitString, styleIndex);
-                let labelSize = labelSegment.getContentSize();
+                segment = this._addLabelSegment(splitString, styleIndex);
+                let labelSize = segment.node.getContentSize();
                 this._lineOffsetX += labelSize.width;
                 if (fragments.length > 1 && k < fragments.length - 1) {
                     this._updateLineInfo();
@@ -573,64 +673,18 @@ let RichText = cc.Class({
         return false;
     },
 
+    _addSegment (name) {
+        let segment = _segmentPool.get(this, name);
+        this._segments.push(segment);
+        return segment;
+    },
+
     _addRichTextImageElement (richTextElement) {
         let spriteFrameName = richTextElement.style.src;
         let spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
-            let spriteNode = new cc.PrivateNode(RichTextChildImageName);
-            let spriteComponent = spriteNode.addComponent(cc.Sprite);
-            spriteNode.setAnchorPoint(0, 0);
-            spriteComponent.type = cc.Sprite.Type.SLICED;
-            spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
-            this.node.addChild(spriteNode);
-            this._labelSegments.push(spriteNode);
-
-            let spriteRect = spriteFrame.getRect();
-            let scaleFactor = 1;
-            let spriteWidth = spriteRect.width;
-            let spriteHeight = spriteRect.height;
-            let expectWidth = richTextElement.style.imageWidth;
-            let expectHeight = richTextElement.style.imageHeight;
-
-            //follow the original rule, expectHeight must less then lineHeight
-            if (expectHeight > 0 && expectHeight < this.lineHeight) {
-                scaleFactor = expectHeight / spriteHeight;
-                spriteWidth = spriteWidth * scaleFactor;
-                spriteHeight = spriteHeight * scaleFactor;
-            }
-            else {
-                scaleFactor = this.lineHeight / spriteHeight;
-                spriteWidth = spriteWidth * scaleFactor;
-                spriteHeight = spriteHeight * scaleFactor;
-            }
-
-            if (expectWidth > 0) spriteWidth = expectWidth;
-
-            if (this.maxWidth > 0) {
-                if (this._lineOffsetX + spriteWidth > this.maxWidth) {
-                    this._updateLineInfo();
-                }
-                this._lineOffsetX += spriteWidth;
-
-            }
-            else {
-                this._lineOffsetX += spriteWidth;
-                if (this._lineOffsetX > this._labelWidth) {
-                    this._labelWidth = this._lineOffsetX;
-                }
-            }
-            spriteComponent.spriteFrame = spriteFrame;
-            spriteNode.setContentSize(spriteWidth, spriteHeight);
-            spriteNode._lineCount = this._lineCount;
-
-            if (richTextElement.style.event) {
-                if (richTextElement.style.event.click) {
-                    spriteNode._clickHandler = richTextElement.style.event.click;
-                }
-                if (richTextElement.style.event.param) {
-                    spriteNode._clickParam = richTextElement.style.event.param;
-                }
-            }
+            let segment = this._addSegment(RichTextChildImageName);
+            segment.addSpriteComponent(spriteFrame, richTextElement.style, this);
         }
         else {
             cc.warnID(4400);
@@ -648,10 +702,10 @@ let RichText = cc.Class({
         }
 
         this._textArray = newTextArray;
-        this._resetState();
+        this._reset();
 
         let lastEmptyLine = false;
-        let label;
+        let segment;
         let labelSize;
 
         for (let i = 0; i < this._textArray.length; ++i) {
@@ -674,8 +728,7 @@ let RichText = cc.Class({
                 let labelString = multilineTexts[j];
                 if (labelString === "") {
                     //for continues \n
-                    if (this._isLastComponentCR(text)
-                        && j === multilineTexts.length - 1) {
+                    if (this._isLastComponentCR(text) && j === multilineTexts.length - 1) {
                         continue;
                     }
                     this._updateLineInfo();
@@ -693,8 +746,8 @@ let RichText = cc.Class({
                     }
                 }
                 else {
-                    label = this._addLabelSegment(labelString, i);
-                    labelSize = label.getContentSize();
+                    segment = this._addLabelSegment(labelString, i);
+                    labelSize = segment.node.getContentSize();
 
                     this._lineOffsetX += labelSize.width;
                     if (this._lineOffsetX > this._labelWidth) {
@@ -747,9 +800,9 @@ let RichText = cc.Class({
         let nextTokenX = 0;
         let nextLineIndex = 1;
         let totalLineCount = this._lineCount;
-        for (let i = 0; i < this._labelSegments.length; ++i) {
-            let label = this._labelSegments[i];
-            let lineCount = label._lineCount;
+        for (let i = 0; i < this._segments.length; ++i) {
+            let segment = this._segments[i];
+            let lineCount = segment._lineCount;
             if (lineCount > nextLineIndex) {
                 nextTokenX = 0;
                 nextLineIndex = lineCount;
@@ -769,13 +822,12 @@ let RichText = cc.Class({
                 default:
                     break;
             }
-            label.x = nextTokenX + lineOffsetX;
 
-            let labelSize = label.getContentSize();
-
-            label.y = this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2;
+            segment.node.x = nextTokenX + lineOffsetX;
+            segment.node.y = this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2;
 
             if (lineCount === nextLineIndex) {
+                let labelSize = segment.node.getContentSize();
                 nextTokenX += labelSize.width;
             }
         }
@@ -792,71 +844,31 @@ let RichText = cc.Class({
         }
     },
 
-    _applyTextAttribute (labelNode) {
-        let labelComponent = labelNode.getComponent(cc.Label);
-        if (!labelComponent) {
-            return;
+    _recyclingSegment () {
+        for (let i = 0; i < this._segments.length; ++i) {
+            let segment = this._segments[i];
+            segment.node.removeFromParent();
+            _segmentPool.put(segment.node);
         }
 
-        let index = labelNode._styleIndex;
-        labelComponent.lineHeight = this.lineHeight;
-        labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-        labelComponent.verticalAlign = VerticalAlign.CENTER;
-
-        let textStyle = null;
-        if (this._textArray[index]) {
-            textStyle = this._textArray[index].style;
-        }
-
-        if (textStyle && textStyle.color) {
-            labelNode.color = this._convertLiteralColorValue(textStyle.color);
-        }else {
-            labelNode.color = this._convertLiteralColorValue("white");
-        }
-
-        labelComponent._enableBold(textStyle && textStyle.bold);
-
-        labelComponent._enableItalics(textStyle && textStyle.italic);
-        //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
-        if (textStyle && textStyle.italic) {
-            labelNode.skewX = 12;
-        }
-
-        labelComponent._enableUnderline(textStyle && textStyle.underline);
-
-        if (textStyle && textStyle.outline) {
-            let labelOutlineComponent = labelNode.getComponent(cc.LabelOutline);
-            if (!labelOutlineComponent) {
-                labelOutlineComponent = labelNode.addComponent(cc.LabelOutline);
-            }
-            labelOutlineComponent.color = this._convertLiteralColorValue(textStyle.outline.color);
-            labelOutlineComponent.width = textStyle.outline.width;
-        }
-
-        if (textStyle && textStyle.size) {
-            labelComponent.fontSize = textStyle.size;
-        }
-        else {
-            labelComponent.fontSize = this.fontSize;
-        }
-
-        labelComponent._updateRenderData(true);
-
-        if (textStyle && textStyle.event) {
-            if (textStyle.event.click) {
-                labelNode._clickHandler = textStyle.event.click;
-            }
-            if (textStyle.event.param) {
-                labelNode._clickParam = textStyle.event.param;
+        let children = this.node.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            let child = children[i];
+            if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
+                if (child.parent === this.node) {
+                    child.removeFromParent();
+                }
+                else {
+                    // In case child.parent !== this.node, child cannot be removed from children
+                    children.splice(i, 1);
+                }
+                _segmentPool.put(child);
             }
         }
     },
 
     onDestroy () {
-        for (let i = 0; i < this._labelSegments.length; ++i) {
-            this._labelSegments[i].removeFromParent();
-            pool.put(this._labelSegments[i]);
-        }
+        this._recyclingSegment();
     },
 });
 
