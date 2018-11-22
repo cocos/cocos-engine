@@ -80,9 +80,20 @@ function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
 }
 
 var checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
-    if (!cc.Class._isCCClass(arg)) {
-        cc.error('The parameter for %s is missing.', decoratorName);
-        return false;
+    if (Object.prototype.toString.call(arg) === "[object Array]") {
+        for (var i = 0; i < arg.length; i++) {
+            var argInArray = arg[i];
+            if (!cc.Class._isCCClass(argInArray)) {
+                cc.error('The parameter for %s is missing.', decoratorName);
+                return false;
+            }
+        }
+    } else {
+        if (!cc.Class._isCCClass(arg)) {
+            cc.error('The parameter for %s is missing.', decoratorName);
+            return false;
+        }
+
     }
 });
 
@@ -483,7 +494,7 @@ var executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(
  * !#en
  * Automatically add required component as a dependency for the CCClass that inherit from component.
  * !#zh
- * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
+ * 为声明为 CCClass 的组件添加依赖的其它组件（或者组件的列表）。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  *
  * @method requireComponent
  * @param {Component} requiredComponent
@@ -496,7 +507,7 @@ var executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(
  *     // ...
  * }
  * @typescript
- * requireComponent(requiredComponent: typeof cc.Component): Function
+ * requireComponent(requiredComponent: typeof cc.Component|(typeof cc.Component)[]): Function
  */
 var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 

@@ -33,7 +33,7 @@ const RenderFlow = require('../renderer/render-flow');
 
 const Destroying = Flags.Destroying;
 const DontDestroy = Flags.DontDestroy;
-const Deactivating = Flags.Deactivating; 
+const Deactivating = Flags.Deactivating;
 
 const CHILD_ADDED = 'child-added';
 const CHILD_REMOVED = 'child-removed';
@@ -336,11 +336,11 @@ var BaseNode = cc.Class({
 
         this._renderFlag = RenderFlow.FLAG_TRANSFORM;
     },
-    /** 
+    /**
      * !#en The parent of the node.
      * !#zh 该节点的父节点。
      * @property {Node} parent
-     * @example 
+     * @example
      * cc.log("Node Parent: " + node.parent);
      */
 
@@ -609,7 +609,7 @@ var BaseNode = cc.Class({
                 // post call
                 postfunc(curr);
             }
-            
+
             // Avoid memory leak
             stack[index] = null;
             // Do not repeatly visit child tree, just do post call and continue walk
@@ -944,11 +944,26 @@ var BaseNode = cc.Class({
         // check requirement
 
         var ReqComp = constructor._requireComponent;
-        if (ReqComp && !this.getComponent(ReqComp)) {
-            var depended = this.addComponent(ReqComp);
-            if (!depended) {
-                // depend conflicts
-                return null;
+        if (ReqComp) {
+            if (Object.prototype.toString.call(ReqComp) === "[object Array]") {
+                for (var i = 0; i < ReqComp.length; i++) {
+                    var ReqCompInArray = ReqComp[i];
+                    if (!this.getComponent(ReqCompInArray)) {
+                        var depended = this.addComponent(ReqCompInArray);
+                        if (!depended) {
+                            // depend conflicts
+                            return null;
+                        }
+                    }
+                }
+            } else {
+                if (!this.getComponent(ReqComp)) {
+                    var depended = this.addComponent(ReqComp);
+                    if (!depended) {
+                        // depend conflicts
+                        return null;
+                    }
+                }
             }
         }
 
