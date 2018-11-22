@@ -268,9 +268,9 @@ export default class LightComponent extends RenderSystemActor {
      * !#ch 阴影类型
      * @type {Number} shadowType
      */
-    // @property({
-    //     type: LightShadowType
-    // })
+    @property({
+        type: LightShadowType
+    })
     get shadowType() {
         return this._shadowType;
     }
@@ -294,7 +294,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowResolution() {
         return this._shadowResolution;
     }
@@ -311,7 +311,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowDarkness() {
         return this._shadowDarkness;
     }
@@ -328,7 +328,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowMinDepth() {
         return this._shadowMinDepth;
     }
@@ -345,7 +345,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowMaxDepth() {
         return this._shadowMaxDepth;
     }
@@ -362,7 +362,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowDepthScale() {
         return this._shadowDepthScale;
     }
@@ -379,7 +379,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowFrustumSize() {
         return this._shadowFrustumSize;
     }
@@ -396,7 +396,7 @@ export default class LightComponent extends RenderSystemActor {
      *
      * @type {Number}
      */
-    // @property
+    @property
     get shadowBias() {
         return this._shadowBias;
     }

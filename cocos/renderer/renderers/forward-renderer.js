@@ -78,7 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
       if (light.shadowType !== enums.SHADOW_NONE) {
         this._shadowLights.push(light);
         let view = this._requestView();
-        light.extractView(view, ['shadowcast']);
+        light.extractView(view, [PassStage.SHADOWCAST]);
       }
       if (light._type === enums.LIGHT_DIRECTIONAL) {
         this._directionalLights.push(light);
@@ -209,12 +209,12 @@ export default class ForwardRenderer extends BaseRenderer {
     // }
   }
 
-    _shadowStage(view, item) {
-        this._device.setUniform('lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+    _shadowStage(item) {
+        this._device.setUniform('lightViewProjMatrix', mat4.array(_a16_viewProj, this._currentView._matViewProj));
 
         // update rendering
         // this._submitLightUniforms();
-        this._submitShadowStageUniforms(view);
+        this._submitShadowStageUniforms(this._currentView);
         this._updateShaderDefines(item);
 
 
