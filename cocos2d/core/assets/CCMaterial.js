@@ -159,11 +159,6 @@ let Material = cc.Class({
         return this._defines[name];
     },
 
-    destroy() {
-        // TODO: what should we do here ???
-        return super.destroy();
-    },
-
     updateHash (val) {
         if (val) {
             this._hash = val;
