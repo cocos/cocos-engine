@@ -106,7 +106,7 @@ let RenderComponent = cc.Class({
         this._postAssembler = this.constructor._postAssembler;
 
         // Render handle for native system
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle = new renderer.RenderHandle();
             this._renderHandle.bind(this);
         }
@@ -123,7 +123,7 @@ let RenderComponent = cc.Class({
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
             this._renderHandle.updateEnabled(true);
         }
@@ -133,7 +133,7 @@ let RenderComponent = cc.Class({
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
         }
         this.disableRender();
@@ -173,13 +173,13 @@ let RenderComponent = cc.Class({
     markForRender (enable) {
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
-            if (CC_JSB) {
+            if (CC_JSB && CC_NATIVERENDERER) {
                 this._renderHandle.updateEnabled(true);
             }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
-            if (CC_JSB) {
+            if (CC_JSB && CC_NATIVERENDERER) {
                 this._renderHandle.updateEnabled(false);
             }
         }
@@ -197,7 +197,7 @@ let RenderComponent = cc.Class({
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle.updateEnabled(false);
         }
     },

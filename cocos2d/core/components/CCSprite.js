@@ -472,7 +472,7 @@ var Sprite = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle.setUseModel(!!assembler.useModel);
         }
     },

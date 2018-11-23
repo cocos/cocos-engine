@@ -1170,7 +1170,7 @@ let NodeDefines = {
         this._eulerAngles = cc.v3();
 
         // Proxy
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy = new renderer.NodeProxy();
             this._proxy.bind(this);
         }
@@ -1246,7 +1246,7 @@ let NodeDefines = {
             }
         }
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.unbind();
         }
     },
@@ -1288,7 +1288,7 @@ let NodeDefines = {
         }
 
         // Node proxy
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._parent && this._proxy.updateParent(this._parent._proxy);
         }
     },
@@ -1370,7 +1370,7 @@ let NodeDefines = {
             this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.setName(this._name);
             this._parent && this._proxy.updateParent(this._parent._proxy);
         }

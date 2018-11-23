@@ -142,6 +142,7 @@ if (CC_BUILD) {
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_JSB = CC_JSB;
+    _global.CC_NATIVERENDERER = CC_NATIVERENDERER;
     _global.CC_WECHATGAME_SUB = CC_WECHATGAMESUB;
     _global.CC_WECHATGAME = CC_WECHATGAME;
     _global.CC_QQPLAY = CC_QQPLAY;

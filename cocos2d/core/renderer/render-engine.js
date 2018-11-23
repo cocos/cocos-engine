@@ -11142,7 +11142,7 @@ prototypeAccessors$5.cullingMask.get = function () {
   return this._cullingMask;
 };
 
-prototypeAccessors$5.cullingMask.set = function (mask) {
+Camera.prototype.setCullingMask = function setCullingMask (mask) {
   this._cullingMask = mask;
 };
 
