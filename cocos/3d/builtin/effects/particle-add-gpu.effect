@@ -1,12 +1,13 @@
-{
+%{
   "techniques": [
     {
       "queue": "transparent",
       "lod": 300,
       "passes": [
         {
+          "vert": "particle-vs-gpu:gpvs_main",
+          "frag": "particle-add-gpu-fs",
           "stage": "default",
-          "program": "particle-add-gpu",
           "cullMode": "none",
           "depthTest": true,
           "depthWrite": false,
@@ -50,5 +51,18 @@
       "type": "float",
       "value": 0
     }
+  }
+%}
+
+%% particle-add-gpu-fs {
+  uniform sampler2D mainTexture;
+  uniform vec4 tintColor;
+
+  varying vec2 uv;
+  varying vec4 color;
+
+  void main () {
+    // TODO: soft particle
+    gl_FragColor = 2.0 * color * tintColor * texture2D(mainTexture, uv);
   }
 }

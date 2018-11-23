@@ -1,11 +1,12 @@
-{
+%{
   "techniques": [
     {
       "queue": "transparent",
       "passes": [
         {
+          "vert": "particle-vs-legacy:lpvs_main",
+          "frag": "particle-premultiply-blend-fs",
           "stage": "default",
-          "program": "particle-premultiply-blend",
           "cullMode": "none",
           "depthTest": true,
           "depthWrite": false,
@@ -46,5 +47,16 @@
       "type": "float",
       "value": 0
     }
+  }
+%}
+
+%% particle-premultiply-blend-fs {
+  uniform sampler2D mainTexture;
+  varying vec2 uv;
+  varying vec4 color;
+
+  void main () {
+    // TODO: soft particle
+    gl_FragColor = color * texture2D(mainTexture, uv) * color.a;
   }
 }

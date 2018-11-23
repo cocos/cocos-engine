@@ -1,16 +1,17 @@
-{
+%{
   "techniques": [
     {
       "queue": "opaque",
       "lod": 100,
       "passes": [
-       {
-         "stage":"default",
-         "program": "unlit",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": true
-       }
+        {
+          "vert": "unlit-vs:vert",
+          "frag": "unlit-fs:frag",
+          "stage": "default",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": true
+        }
       ]
     }
   ],
@@ -33,4 +34,4 @@
       "value": null
     }
   }
-}
+%}

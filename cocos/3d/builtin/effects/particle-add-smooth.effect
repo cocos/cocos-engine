@@ -1,11 +1,12 @@
-{
+%{
   "techniques": [
     {
       "queue": "transparent",
       "passes": [
         {
+          "vert": "particle-vs-legacy:lpvs_main",
+          "frag": "particle-add-smooth-fs",
           "stage": "default",
-          "program": "particle-add-smooth",
           "cullMode": "none",
           "depthTest": true,
           "depthWrite": false,
@@ -46,5 +47,19 @@
       "type": "float",
       "value": 0
     }
+  }
+%}
+
+%% particle-add-smooth-fs {
+  uniform sampler2D mainTexture;
+
+  varying vec2 uv;
+  varying vec4 color;
+
+  void main () {
+    // TODO: soft particle
+    vec4 col = color * texture2D(mainTexture, uv);
+    col.rgb *= col.a;
+    gl_FragColor = col;
   }
 }

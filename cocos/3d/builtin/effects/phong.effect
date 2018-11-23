@@ -1,19 +1,21 @@
-{
+%{
   "techniques": [
     {
       "queue": "opaque",
       "lod": 200,
       "passes": [
         {
+          "vert": "phong-vs:vert",
+          "frag": "phong-fs:frag",
           "stage": "forward",
-          "program": "phong",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
         },
         {
+          "vert": "shadow-depth-vs:vert",
+          "frag": "shadow-depth-fs:frag",
           "stage": "shadowcast",
-          "program": "shadow-depth",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
@@ -68,4 +70,4 @@
       "value": 0
     }
   }
-}
+%}

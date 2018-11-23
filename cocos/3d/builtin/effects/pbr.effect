@@ -1,19 +1,22 @@
-{
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+%{
   "techniques": [
     {
       "queue": "opaque",
       "lod": 500,
       "passes": [
         {
+          "vert": "pbr-vs:vert",
+          "frag": "pbr-fs:frag",
           "stage": "forward",
-          "program": "pbr",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
         },
         {
+          "vert": "shadow-depth-vs:vert",
+          "frag": "shadow-depth-fs:frag",
           "stage": "shadowcast",
-          "program": "shadow-depth",
           "cullMode": "back",
           "blendMode": "none",
           "depthTest": true,
@@ -97,4 +100,4 @@
       "value": 9
     }
   }
-}
+%}

@@ -1,12 +1,13 @@
-{
+%{
   "techniques": [
     {
       "queue": "transparent",
       "lod": 500,
       "passes": [
         {
+          "vert": "pbr-vs:vert",
+          "frag": "pbr-fs:frag",
           "stage": "forward",
-          "program": "pbr",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": false,
@@ -19,8 +20,9 @@
           "blendDstAlpha": "oneMinusSrcAlpha"
         },
         {
+          "vert": "shadow-depth-vs:vert",
+          "frag": "shadow-depth-fs:frag",
           "stage": "shadowcast",
-          "program": "shadow-depth",
           "cullMode": "back",
           "blendMode": "none",
           "depthTest": true,
@@ -108,4 +110,4 @@
       "value": 0
     }
   }
-}
+%}
