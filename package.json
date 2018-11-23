@@ -57,6 +57,7 @@
     "gulp-util": "3.0.6",
     "http-server": "^0.11.1",
     "jshint-stylish": "2.1.0",
+    "js-sha1": "^0.6.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
     "require-dir": "0.3.0",

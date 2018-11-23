@@ -1,14 +1,10 @@
 'use strict';
 
-const path_ = require('path');
-const fs = require('fs');
-const fsJetpack = require('fs-jetpack');
 const tokenizer = require('glsl-tokenizer/string');
 const mappings = require('../../../bin/mappings');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
-let newlines = /\n+/g;
 let whitespaces = /\s+/g;
 let ident = /^[_a-zA-Z]\w*$/;
 let extensionRE = /(?:GL_)?(\w+)/;
@@ -18,10 +14,10 @@ let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
 let defaultPragma = /default\(([\d.,]+)\)/;
 let namePragma = /name\(([^)]+)\)/;
 let precision = /(low|medium|high)p/;
-let seperator = /###\s+(vert|frag).*/gi;
 
 // (HACKY) extract all builtin uniforms to the ignore list
 let uniformIgnoreList = (function() {
+  const fs = require('fs');
   let result = new Set(), extract = function(path) {
     let renderer = fs.readFileSync(path, { encoding: 'utf8' });
     let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
@@ -256,92 +252,56 @@ let expandStructMacro = (function() {
   };
 })();
 
-function buildChunk(file) {
-  let content = fs.readFileSync(file, { encoding: 'utf8' });
-  let name = path_.basename(file, '.inc');
-  content = glslStripComment(content);
-  content = expandStructMacro(content);
-  return { name, content }; 
-}
-
-function buildChunks(dest, path, cache) {
-  let files = fsJetpack.find(path, { matching: ['**/*.inc'] });
-  let code = '';
-  for (let i = 0; i < files.length; ++i) {
-    let { name, content } = buildChunk(files[i])
-    cache[name] = content;
-    code += `  "${name}": "${content.replace(newlines, '\\n')}",\n`;
-  }
-  fs.writeFileSync(dest, `{\n${code.slice(0, -2)}\n}`, { encoding: 'utf8' });
-}
-
-let buildTemplate = (function() {
-  let splitShaders = code => {
-    let res = {}, segs = code.split(seperator);
-    res.vert = segs[segs.findIndex(s => s.toLowerCase() === 'vert') + 1];
-    res.frag = segs[segs.findIndex(s => s.toLowerCase() === 'frag') + 1];
-    return res;
-  };
-  return function(file, cache) {
-    let name = path_.basename(file, '.glsl');
-    let { vert, frag } = splitShaders(fs.readFileSync(file, { encoding: 'utf8' }));
-
-    let defines = [], defCache = { lines: [] }, tokens;
-    let uniforms = [], attributes = [], extensions = [];
-
-    vert = glslStripComment(vert);
-    vert = unwindIncludes(vert, cache);
-    tokens = tokenizer(vert);
-    extractDefines(tokens, defines, defCache);
-    extractParams(tokens, defCache, uniforms, attributes, extensions);
-
-    defCache = { lines: [] };
-    frag = glslStripComment(frag);
-    frag = unwindIncludes(frag, cache);
-    tokens = tokenizer(frag);
-    extractDefines(tokens, defines, defCache);
-    extractParams(tokens, defCache, uniforms, attributes, extensions);
-
-    return { name, vert, frag, defines, uniforms, attributes, extensions };
-  };
-})();
-
-let buildTemplates = (function() {
-  let toOneLiner = o => '\n      ' + JSON.stringify(o).replace(/([,:])/g, '$1 ');
-  return function (dest, path, cache) {
-    let files = fsJetpack.find(path, { matching: ['**/*.glsl'] });
-    let code = '';
-    for (let i = 0; i < files.length; ++i) {
-      let temp = buildTemplate(files[i], cache);
-      temp.vert = temp.vert.replace(newlines, '\\n');
-      temp.frag = temp.frag.replace(newlines, '\\n');
-      code += '  {\n';
-      code += `    "name": "${temp.name}",\n`;
-      code += `    "vert": "${temp.vert}",\n`;
-      code += `    "frag": "${temp.frag}",\n`;
-      code += '    "defines": [';
-      code += temp.defines.map(toOneLiner);
-      code += (temp.defines.length ? '\n    ' : '') + '],\n';
-      code += '    "uniforms": [';
-      code += temp.uniforms.map(toOneLiner);
-      code += (temp.uniforms.length ? '\n    ' : '') + '],\n';
-      code += '    "attributes": [';
-      code += temp.attributes.map(toOneLiner);
-      code += (temp.attributes.length ? '\n    ' : '') + '],\n';
-      code += '    "extensions": [';
-      code += temp.extensions.map(toOneLiner);
-      code += (temp.extensions.length ? '\n    ' : '') + ']\n';
-      code += '  },\n';
+let assemble = (function() {
+  let entryRE = /([\w-]+)(?::(\w+))?/;
+  let integrity = /void\s+main\s*\([\w\s,]*\)/;
+  let wrapperFactory = (vert, fn) => `\nvoid main() { ${vert ? 'gl_Position' : 'gl_FragColor'} = ${fn}(); }\n`;
+  return function(name, cache, vert) {
+    let entryCap = entryRE.exec(name), content = cache[entryCap[1]];
+    if (!content) { console.error(`${entryCap[1]} not found, please check again.`); return ''; }
+    if (!entryCap[2]) {
+      if (!integrity.test(content)) console.warn(`main entry not found in ${name}!`);
+      return cache[name];
     }
-    fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]`, { encoding: 'utf8' });
+    return content + wrapperFactory(vert, entryCap[2]);
   };
 })();
+
+let build = function(vert, frag, cache) {
+  let defines = [], defCache = { lines: [] }, tokens;
+  let uniforms = [], attributes = [], extensions = [];
+
+  vert = glslStripComment(vert);
+  vert = unwindIncludes(vert, cache);
+  vert = expandStructMacro(vert);
+  tokens = tokenizer(vert);
+  extractDefines(tokens, defines, defCache);
+  extractParams(tokens, defCache, uniforms, attributes, extensions);
+
+  defCache = { lines: [] };
+  frag = glslStripComment(frag);
+  frag = unwindIncludes(frag, cache);
+  frag = expandStructMacro(frag);
+  tokens = tokenizer(frag);
+  extractDefines(tokens, defines, defCache);
+  extractParams(tokens, defCache, uniforms, attributes, extensions);
+
+  return { vert, frag, defines, uniforms, attributes, extensions };
+};
+
+let assembleAndBuild = function(vertName, fragName, cache) {
+  let vert = assemble(vertName, cache, true);
+  let frag = assemble(fragName, cache);
+  return build(vert, frag, cache);
+};
 
 // ==================
 // exports
 // ==================
 
 module.exports = {
-  buildChunks,
-  buildTemplates
+  glslStripComment,
+  assemble,
+  build,
+  assembleAndBuild
 };

@@ -98,10 +98,7 @@ export default class ProgramLib {
    */
   define(prog) {
     let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
-    if (this._templates[name]) {
-      console.warn(`Failed to define shader ${name}: already exists.`);
-      return;
-    }
+    if (this._templates[name]) return;
 
     let id = ++_shdID;
 

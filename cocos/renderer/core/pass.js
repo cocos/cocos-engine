@@ -1,11 +1,12 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import gfx from '../gfx';
+import { PassStage } from './constants';
 
 export default class Pass {
-  constructor(stage, name) {
-    this._stage = stage;
+  constructor(name) {
     this._programName = name;
+    this._stage = PassStage.DEFAULT;
 
     // cullmode
     this._cullMode = gfx.CULL_BACK;
@@ -45,7 +46,7 @@ export default class Pass {
     this._stencilWriteMaskBack = 0xff;
   }
 
-  setStage(stage) {
+  setStage(stage = PassStage.DEFAULT) {
     this._stage = stage;
   }
 

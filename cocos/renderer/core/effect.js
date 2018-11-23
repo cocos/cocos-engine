@@ -42,14 +42,14 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, programs, properties = {}) {
+    constructor(techniques, programs, properties = {}, lod = -1) {
         this._techniques = techniques;
         this._properties = properties;
         this._programs = programs;
         this._defines = {};
         this._dependencies = {};
-        this._maxLOD = -1;
-        this._activeTechIdx = -1;
+        this._maxLOD = lod;
+        this.selectTechnique();
     }
 
     set LOD(lod) {
@@ -68,19 +68,6 @@ class Effect {
     }
 
     getTechnique(index) {
-        // let stageID = config.stageID(stage);
-        // if (stageID === -1) {
-        //     return null;
-        // }
-
-        // for (let i = 0; i < this._techniques.length; ++i) {
-        //     let tech = this._techniques[i];
-        //     if (tech.stageIDs & stageID) {
-        //         return tech;
-        //     }
-        // }
-
-        // return null;
         if (index < 0 || index >= this._techniques.length)
             return null;
         return this._techniques[index];
@@ -138,8 +125,8 @@ class Effect {
         return this._techniques[this._activeTechIdx];
     }
 
-    postParse() {
-        let lod = this._maxLOD == -1 ? _globalTechLod : this._maxLOD;
+    selectTechnique() {
+        let lod = this._maxLOD === -1 ? _globalTechLod : this._maxLOD;
         this._activeTechIdx = -1;
         for (let i = 0; i < this._techniques.length; i++) {
             if (this._techniques[i]._lod <= lod) {
@@ -147,7 +134,7 @@ class Effect {
                 break;
             }
         }
-        if (this._activeTechIdx == -1) {
+        if (this._activeTechIdx === -1) {
             this._activeTechIdx = 0;
         }
 
@@ -258,7 +245,8 @@ Effect.parseEffect = function(json) {
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
-            passes[k] = new Pass(pass.stage, pass.program);
+            passes[k] = new Pass(pass.program);
+            passes[k].setStage(pass.stage);
             passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
             passes[k].setCullMode(pass.cullMode);
             passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
@@ -284,7 +272,6 @@ Effect.parseEffect = function(json) {
     }
 
     let parsedEffect = new Effect(techniques, programs, uniforms);
-    parsedEffect.postParse();
     return parsedEffect;
 };
 

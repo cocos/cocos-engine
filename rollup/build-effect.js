@@ -1,12 +1,25 @@
 'use strict';
 
+const shdcLib = require('../cocos/renderer/bin/shdc-lib');
+
 const path_ = require('path');
 const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
 const mappings = require('../bin/mappings');
+const sha1 = require('js-sha1');
+
+let defaultPath = './cocos/3d/builtin/effects/chunks', chunksCache = {};
+let updateBuiltinChunks = function(path = defaultPath) {
+  let files = fsJetpack.find(path, { matching: ['**/*.inc'] });
+  for (let i = 0; i < files.length; ++i) {
+      let name = path_.basename(files[i], '.inc');
+      let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+      chunksCache[name] = shdcLib.glslStripComment(content);
+  }
+};
+updateBuiltinChunks();
 
 let queueRE = /(\w+)(?:([+-])(\d+))?/;
-
 let parseQueue = function (queue) {
   let m = queueRE.exec(queue);
   if (m === null) return 0;
@@ -30,56 +43,97 @@ function mapPassParam(p) {
   return p;
 }
 
-function buildEffects(dest, path) {
-  let files = fsJetpack.find(path, { matching: ['**/*.effect'] });
-  let code = '';
-  for (let i = 0; i < files.length; ++i) {
-    let file = files[i];
-    let dir = path_.dirname(file);
-    let name = path_.basename(file, '.effect');
-    if (name === 'index') continue;
-
-    let json = fs.readFileSync(path_.join(dir, name + '.effect'), { encoding: 'utf8' });
-    json = JSON.parse(json);
-    // map param's type offline.
-    for (let j = 0; j < json.techniques.length; ++j) {
-      let jsonTech = json.techniques[j];
-      if (jsonTech.hasOwnProperty('queue'))
-        jsonTech.queue = parseQueue(jsonTech.queue);
-      else
-        jsonTech.queue = 0;
-      if (!jsonTech.hasOwnProperty('lod'))
-        jsonTech.lod = -1;
-      for (let k = 0; k < jsonTech.passes.length; ++k) {
-        let pass = jsonTech.passes[k];
-        if (!pass.hasOwnProperty('stage'))
-          pass.stage = 'default';
-        for (let key in pass) {
-          if (key === "program") continue;
-          pass[key] = mapPassParam(pass[key]);
-        }
+function buildEffectJSON(json) {
+  // map param's type offline.
+  for (let j = 0; j < json.techniques.length; ++j) {
+    let jsonTech = json.techniques[j];
+    jsonTech.queue = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
+    if (jsonTech.lod === undefined) jsonTech.lod = -1;
+    for (let k = 0; k < jsonTech.passes.length; ++k) {
+      let pass = jsonTech.passes[k];
+      for (let key in pass) {
+        if (key === "vert" || key === 'frag') continue;
+        pass[key] = mapPassParam(pass[key]);
       }
     }
-    for (let prop in json.properties) {
-      let info = json.properties[prop];
-      info.type = mappings.typeParams[info.type.toUpperCase()];
-    }
-
-    code += '  {\n';
-    code += `    "name": "${name}",\n`;
-    code += `    "techniques": ${JSON.stringify(json.techniques)},\n`;
-    code += `    "properties": ${JSON.stringify(json.properties)}\n`;
-    code += '  },\n';
   }
-
-  fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]`, { encoding: 'utf8' });
+  for (let prop in json.properties) {
+    let info = json.properties[prop];
+    info.type = mappings.typeParams[info.type.toUpperCase()];
+  }
+  return json;
 }
+
+let parseEffect = (function() {
+  let effectRE = /%{([^%]+)%}/;
+  let blockRE = /%%\s*([\w-]+)\s*{([^]+)}/;
+  let parenRE = /[{}]/g;
+  let trimToSize = content => {
+    let level = 1, end = content.length;
+    content.replace(parenRE, (p, i) => {
+      if (p === '{') level++;
+      else if (level === 1) { end = i; level = 1e9; }
+      else level--;
+    });
+    return content.substring(0, end);
+  };
+  return function (content) {
+    let effectCap = effectRE.exec(content);
+    let effect = JSON.parse(`{${effectCap[1]}}`), templates = {};
+    content = content.substring(effectCap.index + effectCap[0].length);
+    let blockCap = blockRE.exec(content);
+    while (blockCap) {
+      let str = templates[blockCap[1]] = trimToSize(blockCap[2]);
+      content = content.substring(blockCap.index + str.length);
+      blockCap = blockRE.exec(content);
+    }
+    return { effect, templates };
+  };
+})();
 
 // ============================================================
 // build
 // ============================================================
 
-let effectsPath = './cocos/3d/builtin/effects';
-let effectsFile = path_.join(effectsPath, 'index.json');
-console.log(`generate ${effectsFile}`);
-buildEffects(effectsFile, effectsPath);
+
+let buildEffect = (function() {
+  function duplicationCheck(vert, frag, record) {
+    let id = `${vert},${frag}`;
+    if (record[id]) return true;
+    record[id] = true;
+    return false;
+  }
+  return function (content) {
+    let { effect, templates } = parseEffect(content);
+    effect = buildEffectJSON(effect);
+    Object.assign(templates, chunksCache);
+    let shaders = [], record = {};
+    for (let j = 0; j < effect.techniques.length; ++j) {
+      let jsonTech = effect.techniques[j];
+      for (let k = 0; k < jsonTech.passes.length; ++k) {
+        let pass = jsonTech.passes[k];
+        let vert = pass.vert, frag = pass.frag;
+        if (duplicationCheck(vert, frag, record)) continue;
+        let shader = shdcLib.assembleAndBuild(vert, frag, templates);
+        let name = sha1(shader.vert + shader.frag);
+        shader.name = pass.program = name;
+        delete pass.vert; delete pass.frag;
+        shaders.push(shader);
+      }
+    }
+    return { effect, shaders };
+  };
+})();
+
+module.exports = {
+  updateBuiltinChunks,
+  buildEffect
+};
+
+// test
+// let path = './cocos/3d/builtin/effects';
+// let files = fsJetpack.find(path, { matching: ['**/*.effect'] });
+// for (let i = 0; i < files.length; ++i) {
+//   let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+//   buildEffect(content);
+// }
