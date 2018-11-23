@@ -929,7 +929,7 @@ var ParticleSystem = cc.Class({
                 if (!self._custom) {
                     self._initWithDictionary(content);
                 }
-                if (!self.spriteFrame) {
+                if (!self.spriteFrame || !self._renderSpriteFrame) {
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
                     }
