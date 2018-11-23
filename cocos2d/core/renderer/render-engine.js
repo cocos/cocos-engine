@@ -11146,6 +11146,10 @@ prototypeAccessors$5.cullingMask.set = function (mask) {
   this._cullingMask = mask;
 };
 
+Camera.prototype.setCullingMask = function setCullingMask (mask) {
+  this._cullingMask = mask;
+};
+
 // node
 Camera.prototype.getNode = function getNode () {
   return this._node;

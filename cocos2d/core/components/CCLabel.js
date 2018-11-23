@@ -507,7 +507,7 @@ let Label = cc.Class({
             this._renderData.material = this._material;
         }
 
-        if (CC_JSB) {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle.setUseModel(!!assembler.useModel);
         }
     },
