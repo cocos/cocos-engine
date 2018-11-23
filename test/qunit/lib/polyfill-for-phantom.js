@@ -158,3 +158,5 @@ if (!Object.getOwnPropertySymbols) {
         return [];
     };
 }
+
+Number.parseFloat = Number.parseFloat || parseFloat;
