@@ -12,7 +12,7 @@ const POST_UPDATE_RENDER_DATA = 1 << 8;
 const POST_RENDER = 1 << 9;
 const FINAL = 1 << 10;
 
-let _batcher;
+let _batcher, _forward;
 let _cullingMask = 0;
 
 // 
@@ -197,7 +197,7 @@ function init (node) {
 
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
-RenderFlow.visit = function (scene) {
+RenderFlow.render = function (scene) {
     _batcher.reset();
     _batcher.walking = true;
 
@@ -217,10 +217,13 @@ RenderFlow.visit = function (scene) {
     }
 
     _batcher.terminate();
+
+    _forward.render(_batcher._renderScene);
 };
 
-RenderFlow.init = function (batcher) {
+RenderFlow.init = function (batcher, forwardRenderer) {
     _batcher = batcher;
+    _forward = forwardRenderer;
 
     flows[0] = EMPTY_FLOW;
     for (let i = 1; i < FINAL; i++) {

@@ -116,11 +116,11 @@ cc.renderer = module.exports = {
             this.device = new renderEngine.Device(canvas, opts);
             this.scene = new renderEngine.Scene();
     
-            this._handle = new ModelBatcher(this.device, this.scene);
-            this._flow = cc.RenderFlow;
-            this._flow.init(this._handle);
             let builtins = _initBuiltins(this.device);
             this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
+            this._handle = new ModelBatcher(this.device, this.scene);
+            this._flow = cc.RenderFlow;
+            this._flow.init(this._handle, this._forward);
         }
     },
 
@@ -166,9 +166,8 @@ cc.renderer = module.exports = {
         this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
-            this._flow.visit(ecScene);
+            this._flow.render(ecScene);
             // Render models in renderer scene
-            this._forward.render(this.scene);
             this.drawCalls = this.device._stats.drawcalls;
         }
     },
