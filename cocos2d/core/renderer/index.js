@@ -163,12 +163,11 @@ cc.renderer = module.exports = {
     },
 
     render (ecScene) {
-        this.device._stats.drawcalls = 0;
+        this.device.resetDrawCalls();
         if (ecScene) {
             // walk entity component scene to generate models
             this._flow.render(ecScene);
-            // Render models in renderer scene
-            this.drawCalls = this.device._stats.drawcalls;
+            this.drawCalls = this.device.getDrawCalls();
         }
     },
 

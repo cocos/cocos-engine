@@ -10168,6 +10168,14 @@ Device.prototype.setPrimitiveType = function setPrimitiveType (type) {
   this._next.primitiveType = type;
 };
 
+Device.prototype.resetDrawCalls = function resetDrawCalls () {
+  this._stats.drawcalls = 0;
+};
+
+Device.prototype.getDrawCalls = function getDrawCalls () {
+  return this._stats.drawcalls;
+};
+
 /**
  * @method draw
  * @param {Number} base
@@ -10263,7 +10271,7 @@ Device.prototype.draw = function draw (base, count) {
   // }
 
   // update stats
-  this._stats.drawcalls += 1;
+  this._stats.drawcalls ++;
 
   // reset states
   cur.set(next);
