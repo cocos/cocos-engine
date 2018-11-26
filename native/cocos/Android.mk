@@ -82,11 +82,7 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/ConvertUTF/ConvertUTF.c \
 ui/edit-box/EditBox-android.cpp
 
-# only compile v8 debugger in DEBUG mode
-ifeq ($(NDK_DEBUG),1)
-USE_V8_DEBUGGER := 1
-endif
-ifeq ($(USE_V8_DEBUGGER),1)
+# v8 debugger source files, always enable it
 LOCAL_SRC_FILES += \
 scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp \
 scripting/js-bindings/jswrapper/v8/debugger/util.cc \
@@ -101,7 +97,6 @@ scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
 # uv_static only used in v8 debugger
 LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_inspector
-endif
 
 # opengl bindings depend on GFXUtils "_JSB_GL_CHECK"
 LOCAL_SRC_FILES += \
