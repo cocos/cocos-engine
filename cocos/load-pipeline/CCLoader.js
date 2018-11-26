@@ -35,7 +35,9 @@ import AssetTable from './asset-table';
 import {getDependsRecursively} from './auto-release-utils';
 import ReleasedAssetChecker from './released-asset-checker';
 
-var resources = new AssetTable();
+var assetTables = Object.create(null);
+assetTables.assets = new AssetTable();
+assetTables.internal = new AssetTable();
 
 function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
@@ -130,7 +132,7 @@ class CCLoader extends Pipeline {
 
         this.onProgress = null;
 
-        this._resources = resources;
+        this._assetTables = assetTables;
         // assets to release automatically
         this._autoReleaseSetting = createMap(true);
 
@@ -319,21 +321,23 @@ class CCLoader extends Pipeline {
         return accepted;
     }
 
-    _getResUuid (url, type, quiet) {
-        if (!url) {
+    _getResUuid (url, type, mount, quiet) {
+        mount = mount || 'assets';
+        var assetTable = assetTables[mount];
+        if (!url || !assetTable) {
             return null;
         }
         // Ignore parameter
         var index = url.indexOf('?');
         if (index !== -1)
             url = url.substr(0, index);
-        var uuid = resources.getUuid(url, type);
+        var uuid = assetTable.getUuid(url, type);
         if ( !uuid ) {
             var extname = cc.path.extname(url);
             if (extname) {
                 // strip extname
                 url = url.slice(0, - extname.length);
-                uuid = resources.getUuid(url, type);
+                uuid = assetTable.getUuid(url, type);
                 if (uuid && !quiet) {
                     cc.warnID(4901, url, extname);
                 }
@@ -348,7 +352,7 @@ class CCLoader extends Pipeline {
             key = assetOrUrlOrUuid._uuid || null;
         }
         else if (typeof assetOrUrlOrUuid === 'string') {
-            key = this._getResUuid(assetOrUrlOrUuid, null, true) || assetOrUrlOrUuid;
+            key = this._getResUuid(assetOrUrlOrUuid, null, null, true) || assetOrUrlOrUuid;
         }
         if (!key) {
             cc.warnID(4800, assetOrUrlOrUuid);
@@ -447,13 +451,18 @@ class CCLoader extends Pipeline {
      * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
      * loadRes(url: string): void
      */
-    loadRes (url, type, progressCallback, completeCallback) {
+    loadRes (url, type, mount, progressCallback, completeCallback) {
+        if (arguments.length !== 5) {
+            completeCallback = progressCallback;
+            progressCallback = mount;
+            mount = 'assets';
+        }
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
         type = args.type;
         progressCallback = args.onProgress;
         completeCallback = args.onComplete;
         var self = this;
-        var uuid = self._getResUuid(url, type);
+        var uuid = self._getResUuid(url, type, mount);
         if (uuid) {
             this.load(
                 {
@@ -563,7 +572,13 @@ class CCLoader extends Pipeline {
      * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
      * loadResArray(url: string[]): void
      */
-    loadResArray (urls, type, progressCallback, completeCallback) {
+    loadResArray (urls, type, mount, progressCallback, completeCallback) {
+        if (arguments.length !== 5) {
+            completeCallback = progressCallback;
+            progressCallback = mount;
+            mount = 'assets';
+        }
+
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
         type = args.type;
         progressCallback = args.onProgress;
@@ -572,7 +587,7 @@ class CCLoader extends Pipeline {
         var uuids = [];
         for (var i = 0; i < urls.length; i++) {
             var url = urls[i];
-            var uuid = this._getResUuid(url, type);
+            var uuid = this._getResUuid(url, type, mount);
             if (uuid) {
                 uuids.push(uuid);
             }
@@ -635,14 +650,22 @@ class CCLoader extends Pipeline {
      * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
      * loadResDir(url: string): void
      */
-    loadResDir (url, type, progressCallback, completeCallback) {
+    loadResDir (url, type, mount, progressCallback, completeCallback) {
+        if (arguments.length !== 5) {
+            completeCallback = progressCallback;
+            progressCallback = mount;
+            mount = 'assets';
+        }
+        
+        if (!assetTables[mount]) return; 
+
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
         type = args.type;
         progressCallback = args.onProgress;
         completeCallback = args.onComplete;
 
         var urls = [];
-        var uuids = resources.getUuidArray(url, type, urls);
+        var uuids = assetTables[mount].getUuidArray(url, type, urls);
         this._loadResUuids(uuids, progressCallback, function (errors, assetRes, urlRes) {
             // The spriteFrame url in spriteAtlas will be removed after build project
             // To show users the exact structure in asset panel, we need to return the spriteFrame assets in spriteAtlas
@@ -677,7 +700,7 @@ class CCLoader extends Pipeline {
     getRes (url, type) {
         var item = this._cache[url];
         if (!item) {
-            var uuid = this._getResUuid(url, type, true);
+            var uuid = this._getResUuid(url, type, null, true);
             if (uuid) {
                 var ref = this._getReferenceKey(uuid);
                 item = this._cache[ref];
@@ -826,8 +849,8 @@ class CCLoader extends Pipeline {
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseRes (url, type) {
-        var uuid = this._getResUuid(url, type);
+    releaseRes (url, type, mount) {
+        var uuid = this._getResUuid(url, type, mount);
         if (uuid) {
             this.release(uuid);
         }
@@ -844,8 +867,11 @@ class CCLoader extends Pipeline {
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseResDir (url, type) {
-        var uuids = resources.getUuidArray(url, type);
+    releaseResDir (url, type, mount) {
+        mount = mount || 'assets';
+        if (!assetTables[mount]) return;
+    
+        var uuids = assetTables[mount].getUuidArray(url, type);
         for (var i = 0; i < uuids.length; i++) {
             var uuid = uuids[i];
             this.release(uuid);
