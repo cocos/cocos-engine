@@ -1692,6 +1692,9 @@ var Material = (function (Asset$$1) {
 
   Material.prototype.updateHash = function updateHash (value) {
     this._hash = value || computeHash(this);
+    if (CC_JSB && this._effect) {
+      this._effect.updateHash(this._hash);
+    }
   };
 
   Object.defineProperties( Material.prototype, prototypeAccessors );
