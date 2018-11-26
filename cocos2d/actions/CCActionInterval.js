@@ -876,8 +876,9 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
  * @class RotateTo
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number|Vec3} dstAngleX dstAngleX in degrees.
+ * @param {Number} [dstAngleY] dstAngleY in degrees.
+ * @param {Number} [dstAngleZ] dstAngleZ in degrees.
  * @example
  * var rotateTo = new cc.RotateTo(2, 61.0);
  */
@@ -885,7 +886,7 @@ cc.RotateTo = cc.Class({
     name: 'cc.RotateTo',
     extends: cc.ActionInterval,
 
-    ctor:function (duration, dstAngleX, dstAngleY, deltaAngleZ) {
+    ctor:function (duration, dstAngleX, dstAngleY, dstAngleZ) {
         // for 3d
         this._startQuat = cc.quat();
         this._dstQuat = cc.quat();
@@ -896,7 +897,7 @@ cc.RotateTo = cc.Class({
         this._angle = 0;
 
         this._is3D = true;
-		dstAngleX !== undefined && this.initWithDuration(duration, dstAngleX, dstAngleY, deltaAngleZ);
+		dstAngleX !== undefined && this.initWithDuration(duration, dstAngleX, dstAngleY, dstAngleZ);
     },
 
     /*
@@ -904,6 +905,7 @@ cc.RotateTo = cc.Class({
      * @param {Number} duration
      * @param {Number|Vec3} dstAngleX
      * @param {Number} dstAngleY
+     * @param {Number} dstAngleZ
      * @return {Boolean}
      */
     initWithDuration:function (duration, dstAngleX, dstAngleY, dstAngleZ) {
@@ -988,15 +990,16 @@ cc.RotateTo = cc.Class({
  * !#zh 旋转到目标角度，通过逐帧修改它的 rotation 属性，旋转方向将由最短的角度决定。
  * @method rotateTo
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number} dstAngleX dstAngleX in degrees.
+ * @param {Number} [dstAngleY] dstAngleY in degrees.
+ * @param {Number} [dstAngleZ] dstAngleZ in degrees.
  * @return {ActionInterval}
  * @example
  * // example
  * var rotateTo = cc.rotateTo(2, 61.0);
  */
-cc.rotateTo = function (duration, deltaAngleX, deltaAngleY, dstAngleZ) {
-    return new cc.RotateTo(duration, deltaAngleX, deltaAngleY, dstAngleZ);
+cc.rotateTo = function (duration, dstAngleX, dstAngleY, dstAngleZ) {
+    return new cc.RotateTo(duration, dstAngleX, dstAngleY, dstAngleZ);
 };
 
 
@@ -1008,6 +1011,7 @@ cc.rotateTo = function (duration, deltaAngleX, deltaAngleY, dstAngleZ) {
  * @param {Number} duration duration in seconds
  * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
  * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} [deltaAngleZ] deltaAngleZ in degrees
  * @example
  * var actionBy = new cc.RotateBy(2, 360);
  */
@@ -1032,6 +1036,7 @@ cc.RotateBy = cc.Class({
      * @param {Number} duration duration in seconds
      * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
      * @param {Number} [deltaAngleY=] deltaAngleY in degrees
+     * @param {Number} [deltaAngleZ=] deltaAngleZ in degrees
      * @return {Boolean}
      */
     initWithDuration:function (duration, deltaAngleX, deltaAngleY, deltaAngleZ) {
@@ -1118,13 +1123,14 @@ cc.RotateBy = cc.Class({
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees
  * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} [deltaAngleZ] deltaAngleZ in degrees
  * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.rotateBy(2, 360);
  */
-cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
-    return new cc.RotateBy(duration, deltaAngleX, deltaAngleY);
+cc.rotateBy = function (duration, deltaAngleX, deltaAngleY, deltaAngleZ) {
+    return new cc.RotateBy(duration, deltaAngleX, deltaAngleY, deltaAngleZ);
 };
 
 
