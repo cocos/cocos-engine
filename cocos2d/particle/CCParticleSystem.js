@@ -231,7 +231,7 @@ var properties = {
             }
             this._renderSpriteFrame = value;
 
-            if (value._uuid) {
+            if (!value || value._uuid) {
                 this._spriteFrame = value;
             }
 
@@ -259,7 +259,9 @@ var properties = {
             return this._texture;
         },
         set: function (value) {
-            cc.warnID(6017);
+            if (value) {
+                cc.warnID(6017);
+            }
         },
         type: cc.Texture2D,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture',
@@ -804,6 +806,9 @@ var ParticleSystem = cc.Class({
             else {
                 this._applyFile();
             }
+        }
+        else if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
+            this._applySpriteFrame(this.spriteFrame);
         }
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
