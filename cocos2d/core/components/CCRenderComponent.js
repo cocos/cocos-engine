@@ -107,9 +107,13 @@ let RenderComponent = cc.Class({
 
         // Render handle for native system
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle = new renderer.RenderHandle();
-            this._renderHandle.bind(this);
+            this.initNativeHandle();
         }
+    },
+
+    initNativeHandle () {
+        this._renderHandle = new renderer.RenderHandle();
+        this._renderHandle.bind(this);
     },
 
     onEnable () {
