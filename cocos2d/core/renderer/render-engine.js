@@ -2,7 +2,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- render-engine v1.2.1
+ render-engine v1.2.2
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -10168,10 +10168,16 @@ Device.prototype.setPrimitiveType = function setPrimitiveType (type) {
   this._next.primitiveType = type;
 };
 
+/**
+ * @method resetDrawCalls
+ */
 Device.prototype.resetDrawCalls = function resetDrawCalls () {
   this._stats.drawcalls = 0;
 };
-
+  
+/**
+ * @method getDrawCalls
+ */
 Device.prototype.getDrawCalls = function getDrawCalls () {
   return this._stats.drawcalls;
 };
@@ -10271,7 +10277,7 @@ Device.prototype.draw = function draw (base, count) {
   // }
 
   // update stats
-  this._stats.drawcalls ++;
+  this._stats.drawcalls++;
 
   // reset states
   cur.set(next);
@@ -14309,8 +14315,6 @@ var SpriteMaterial = (function (Material$$1) {
 
   return SpriteMaterial;
 }(Material));
-
-
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
