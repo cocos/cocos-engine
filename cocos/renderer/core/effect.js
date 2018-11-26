@@ -57,7 +57,7 @@ class Effect {
             return;
         }
         this._maxLOD = lod;
-        this.postParse();
+        this.selectTechnique();
     }
 
     clear() {
@@ -108,17 +108,11 @@ class Effect {
     }
 
     extractDefines(out = {}) {
-        for (let name in this._defines) {
-            out[name] = this._defines[name].value;
-        }
-        return out;
+        return Object.assign(out, this._defines);
     }
 
     extractDependencies(out = {}) {
-        for (let def in this._dependencies) {
-            out[def] = this._dependencies[def];
-        }
-        return out;
+        return Object.assign(out, this._dependencies);
     }
 
     getActiveTechnique() {
@@ -127,31 +121,27 @@ class Effect {
 
     selectTechnique() {
         let lod = this._maxLOD === -1 ? _globalTechLod : this._maxLOD;
-        this._activeTechIdx = -1;
+        this._activeTechIdx = 0;
         for (let i = 0; i < this._techniques.length; i++) {
             if (this._techniques[i]._lod <= lod) {
                 this._activeTechIdx = i;
                 break;
             }
         }
-        if (this._activeTechIdx === -1) {
-            this._activeTechIdx = 0;
-        }
-
-        for (let k in Object.keys(this._defines)) {
-            delete this._defines[k];
-        }
-
-        for (let k in Object.keys(this._dependencies)) {
-            delete this._dependencies[k];
-        }
 
         // defines
+        this._defines = {};
         this._techniques[this._activeTechIdx].passes.forEach(pass => this._programs[pass._programName].defines.forEach(def =>
             this._defines[def.name] = { value: getInstanceCtor(def.type)(), type: def.type }));
+
         // extensions
+        this._dependencies = {};
         this._techniques[this._activeTechIdx].passes.forEach(pass => this._programs[pass._programName].extensions
             .filter(ext => ext.define).forEach(ext => this._dependencies[ext.define] = ext.name));
+    }
+
+    static setGlobalLod(lod) {
+        _globalTechLod = lod;
     }
 }
 
@@ -175,18 +165,14 @@ let _ctorMap = {
 };
 let getInstanceCtor = function(t) { return _ctorMap[getInstanceType(t)]; };
 
-let getInvolvedPrograms = function(json) {
+let getInvolvedPrograms = function(effect) {
     let programs = {}, lib = cc.game._renderer._programLib;
-    json.techniques.forEach(tech => {
+    effect.techniques.forEach(tech => {
         tech.passes.forEach(pass => {
             programs[pass.program] = lib.getTemplate(pass.program);
         });
     });
     return programs;
-};
-
-Effect.setGlobalLod = function (lod) {
-    _globalTechLod = lod;
 };
 
 let parseProperties = (function() {
@@ -198,7 +184,7 @@ let parseProperties = (function() {
             value: getInstanceCtor(type)(value)
         };
     }
-    return function(json, programs) {
+    return function(effect, programs) {
         let props = {};
         // properties may be specified in the shader too
         for (let p in programs) {
@@ -207,11 +193,11 @@ let parseProperties = (function() {
                 props[prop.name] = genPropInfo(prop.displayName, prop.type, prop.value);
             });
         }
-        for (let prop in json.properties) {
-            let propInfo = json.properties[prop], uniformInfo;
+        for (let prop in effect.properties) {
+            let propInfo = effect.properties[prop], uniformInfo;
             // always try getting the type from shaders first
             if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
-                let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
+                let pname = effect.techniques[propInfo.tech].passes[propInfo.pass].program;
                 uniformInfo = programs[pname].uniforms.find(u => u.name === prop);
             } else {
                 for (let p in programs) {
@@ -234,13 +220,13 @@ let parseProperties = (function() {
     };
 })();
 
-Effect.parseEffect = function(json) {
+Effect.parseEffect = function(effect) {
     // techniques
-    let techNum = json.techniques.length, tech;
-    let programs = getInvolvedPrograms(json);
+    let techNum = effect.techniques.length, tech;
+    let programs = getInvolvedPrograms(effect);
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
-        tech = json.techniques[j];
+        tech = effect.techniques[j];
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
@@ -259,7 +245,7 @@ Effect.parseEffect = function(json) {
         techniques[j] = new Technique(tech.queue, tech.lod, passes);
     }
     // uniforms
-    let props = parseProperties(json, programs), uniforms = {};
+    let props = parseProperties(effect, programs), uniforms = {};
     for (let pn in programs) {
         programs[pn].uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
@@ -276,9 +262,9 @@ Effect.parseEffect = function(json) {
 };
 
 if (CC_EDITOR) {
-    Effect.parseForInspector = function(json) {
-        let programs = getInvolvedPrograms(json);
-        let props = parseProperties(json, programs), defines = {};
+    Effect.parseForInspector = function(effect) {
+        let programs = getInvolvedPrograms(effect);
+        let props = parseProperties(effect, programs), defines = {};
         for (let pn in programs) {
             programs[pn].defines.forEach(define => {
                 defines[define.name] = {

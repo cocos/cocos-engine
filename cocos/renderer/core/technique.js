@@ -1,4 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { RenderQueue } from "./constants";
 
 let _genID = 0;
 
@@ -8,10 +9,10 @@ export default class Technique {
    * @param {Array} passes
    * @param {Number} renderQueue
    */
-  constructor(renderQueue, lod, passes) {
+  constructor(renderQueue = RenderQueue.OPAQUE, lod = -1, passes = []) {
     this._id = _genID++;
-    this._lod = lod;
     this._renderQueue = renderQueue;
+    this._lod = lod;
     this._passes = passes;
     // TODO: this._version = 'webgl' or 'webgl2' // ????
   }
@@ -20,11 +21,11 @@ export default class Technique {
     this._renderQueue = renderQueue;
   }
 
-  get passes() {
-    return this._passes;
-  }
-
   get renderQueue() {
     return this._renderQueue;
+  }
+
+  get passes() {
+    return this._passes;
   }
 }

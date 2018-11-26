@@ -1,13 +1,12 @@
 import Texture2D from '../../assets/CCTexture2D';
 import TextureCube from '../assets/texture-cube';
 import downloadText from '../../load-pipeline/text-downloader';
-import ProgramLib from '../../renderer/core/program-lib';
 import EffectAsset from '../assets/effect-asset';
 import ImageAsset from '../../assets/image-asset';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
-    initBuiltinRes: function (device, effects, shaderDir, onComplete) {
+    initBuiltinRes: function (device, effects, onComplete) {
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
 
@@ -79,23 +78,13 @@ let builtinResMgr = {
             [whiteTexture._uuid]: whiteTexture
         };
 
-        let remainingJobs = 2;
-        // ============================
-        // async builtin shaders
-        // ============================
-
-        this.loadShaders(shaderDir, (temps, chunks) => {
-            builtins['program-lib'] = new ProgramLib(device, temps, chunks);
-            if (!--remainingJobs) onComplete(builtins);
-        });
-
         // ============================
         // async builtin effects
         // ============================
 
         this.loadEffects(effects, effects => {
             Object.assign(builtins, effects);
-            if (!--remainingJobs) onComplete(builtins);
+            onComplete(builtins);
         });
     },
 
@@ -103,29 +92,16 @@ let builtinResMgr = {
     loadEffects: function (url, onComplete) {
         let effects = {};
         downloadText({ url }, (status, responseText) => {
-            let effectJsons = JSON.parse(responseText);
-            for (let i = 0; i < effectJsons.length; ++i) {
-                let effectJson = effectJsons[i];
-                let effect = new EffectAsset();
-                effect.setRawJson(effectJson, true);
-                effects[effect._uuid] = effect;
+            let json = JSON.parse(responseText);
+            for (let i = 0; i < json.length; ++i) {
+                let asset = new EffectAsset();
+                Object.assign(asset, json[i]);
+                asset.onLoaded();
+                effects[`builtin-effect-${asset.name}`] = asset;
             }
             onComplete(effects);
         });
     },
-
-    loadShaders: function (dir, onComplete) {
-        let templates, chunks;
-        if (/.*[/\\]$/.test(dir)) dir = dir.slice(0, -1);
-        downloadText({ url: `${dir}/templates/index.json` }, (status, responseText) => {
-            templates = JSON.parse(responseText);
-            if (chunks) onComplete(templates, chunks);
-        });
-        downloadText({ url: `${dir}/chunks/index.json` }, (status, responseText) => {
-            chunks = JSON.parse(responseText);
-            if (templates) onComplete(templates, chunks);
-        });
-    }
 };
 
 cc._builtinResMgr = builtinResMgr;

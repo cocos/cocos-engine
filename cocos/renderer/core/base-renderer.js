@@ -3,39 +3,11 @@
 import { RecyclePool } from '../../3d/memop';
 import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
 import { intersect } from '../../3d/geom-utils';
-import { RenderQueue } from './constants';
 
 import enums from '../enums';
 import View from './view';
-
-cc.parseQueue = function (expr) {
-    let m = expr.match(/(\w+)(?:([+-])(\d+))?/);
-    if (m == null)
-        return 0;
-    let q;
-    switch (m[1]) {
-        case 'opaque':
-            q = RenderQueue.OPAQUE;
-            break;
-        case 'transparent':
-            q = RenderQueue.TRANSPARENT;
-            break;
-        case 'overlay':
-            q = RenderQueue.OVERLAY;
-            break;
-    }
-    if (m.length == 4) {
-        if (m[2] === '+') {
-            q += parseInt(m[3]);
-        }
-        if (m[2] === '-') {
-            q -= parseInt(m[3]);
-        }
-    }
-    return q;
-};
-
-cc.RenderQueue = RenderQueue;
+import ProgramLib from './program-lib';
+import { RenderQueue } from './constants';
 
 let _m3_tmp = mat3.create();
 let _m4_tmp = mat4.create();
@@ -325,7 +297,7 @@ export default class BaseRenderer {
    */
   constructor(device) {
     this._device = device;
-    this._programLib = null;
+    this._programLib = new ProgramLib(device);
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
       [enums.PARAM_INT2]: vec2.create(0, 0),
@@ -399,7 +371,6 @@ export default class BaseRenderer {
     this._opts = opts;
     this._type2defaultValue[enums.PARAM_TEXTURE_2D] = opts.defaultTexture;
     this._type2defaultValue[enums.PARAM_TEXTURE_CUBE] = opts.defaultTextureCube;
-    this._programLib = opts.programLib;
   }
 
   _resetTextureUnit() {

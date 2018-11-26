@@ -1,28 +1,24 @@
-import RawAsset from "../../assets/CCRawAsset";
+import Asset from "../../assets/CCAsset";
+import { property, ccclass } from "../../core/data/class-decorator";
 
-export default class EffectAsset extends RawAsset {
+@ccclass(cc.EffectAsset)
+export default class EffectAsset extends Asset {
+    @property
+    name = '';
 
-    constructor() {
-        super();
-        this._name = null;
-        this._uuid = null;
-        this._techniques = null;
-        this._properties = null;
-    }
+    @property
+    techniques = [];
 
-    get techniques() {
-        return this._techniques;
-    }
+    @property
+    properties = {};
 
-    get properties() {
-        return this._properties;
-    }
+    @property
+    shaders = [];
 
-    setRawJson(json, isBuiltin = false) {
-        this._name = json.name;
-        // TODO:the uuid of customized effect should be changed later
-        this._uuid = isBuiltin ? `builtin-effect-${json.name}` : json.name;
-        this._techniques = json.techniques;
-        this._properties = json.properties || {};
+    onLoaded() {
+        let lib = cc.game._renderer._programLib;
+        this.shaders.forEach(s => lib.define(s));
     }
 }
+
+cc.EffectAsset = EffectAsset;

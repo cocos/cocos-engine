@@ -5,135 +5,51 @@ const shdcLib = require('../cocos/renderer/bin/shdc-lib');
 const path_ = require('path');
 const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
-const mappings = require('../bin/mappings');
-const sha1 = require('js-sha1');
 
-let defaultPath = './cocos/3d/builtin/effects/chunks', chunksCache = {};
-let updateBuiltinChunks = function(path = defaultPath) {
-  let files = fsJetpack.find(path, { matching: ['**/*.inc'] });
-  for (let i = 0; i < files.length; ++i) {
-      let name = path_.basename(files[i], '.inc');
-      let content = fs.readFileSync(files[i], { encoding: 'utf8' });
-      chunksCache[name] = shdcLib.glslStripComment(content);
-  }
-};
-updateBuiltinChunks();
-
-let queueRE = /(\w+)(?:([+-])(\d+))?/;
-let parseQueue = function (queue) {
-  let m = queueRE.exec(queue);
-  if (m === null) return 0;
-  let q = mappings.RenderQueue[m[1].toUpperCase()];
-  if (m.length === 4) {
-    if (m[2] === '+') q += parseInt(m[3]);
-    if (m[2] === '-') q -= parseInt(m[3]);
-  }
-  return q;
-};
-
-function mapPassParam(p) {
-  let num;
-  switch (typeof p) {
-  case 'string':
-    num = parseInt(p);
-    return isNaN(num) ? mappings.passParams[p.toUpperCase()] : num;
-  case 'object':
-    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
-  }
-  return p;
-}
-
-function buildEffectJSON(json) {
-  // map param's type offline.
-  for (let j = 0; j < json.techniques.length; ++j) {
-    let jsonTech = json.techniques[j];
-    jsonTech.queue = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
-    if (jsonTech.lod === undefined) jsonTech.lod = -1;
-    for (let k = 0; k < jsonTech.passes.length; ++k) {
-      let pass = jsonTech.passes[k];
-      for (let key in pass) {
-        if (key === "vert" || key === 'frag') continue;
-        pass[key] = mapPassParam(pass[key]);
-      }
+let stringifyShaders = (function() {
+  let newlines = /\n+/g;
+  let toOneLiner = o => '\n      ' + JSON.stringify(o).replace(/([,:])/g, '$1 ');
+  return function (shaders) {
+    let code = '';
+    for (let i = 0; i < shaders.length; ++i) {
+      let { name, vert, frag, defines, uniforms, attributes, extensions } = shaders[i];
+      vert = vert.replace(newlines, '\\n');
+      frag = frag.replace(newlines, '\\n');
+      code += '  {\n';
+      code += `    "name": "${name}",\n`;
+      code += `    "vert": "${vert}",\n`;
+      code += `    "frag": "${frag}",\n`;
+      code += '    "defines": [';
+      code += defines.map(toOneLiner);
+      code += (defines.length ? '\n    ' : '') + '],\n';
+      code += '    "uniforms": [';
+      code += uniforms.map(toOneLiner);
+      code += (uniforms.length ? '\n    ' : '') + '],\n';
+      code += '    "attributes": [';
+      code += attributes.map(toOneLiner);
+      code += (attributes.length ? '\n    ' : '') + '],\n';
+      code += '    "extensions": [';
+      code += extensions.map(toOneLiner);
+      code += (extensions.length ? '\n    ' : '') + ']\n';
+      code += '  },\n';
     }
-  }
-  for (let prop in json.properties) {
-    let info = json.properties[prop];
-    info.type = mappings.typeParams[info.type.toUpperCase()];
-  }
-  return json;
-}
-
-let parseEffect = (function() {
-  let effectRE = /%{([^%]+)%}/;
-  let blockRE = /%%\s*([\w-]+)\s*{([^]+)}/;
-  let parenRE = /[{}]/g;
-  let trimToSize = content => {
-    let level = 1, end = content.length;
-    content.replace(parenRE, (p, i) => {
-      if (p === '{') level++;
-      else if (level === 1) { end = i; level = 1e9; }
-      else level--;
-    });
-    return content.substring(0, end);
-  };
-  return function (content) {
-    let effectCap = effectRE.exec(content);
-    let effect = JSON.parse(`{${effectCap[1]}}`), templates = {};
-    content = content.substring(effectCap.index + effectCap[0].length);
-    let blockCap = blockRE.exec(content);
-    while (blockCap) {
-      let str = templates[blockCap[1]] = trimToSize(blockCap[2]);
-      content = content.substring(blockCap.index + str.length);
-      blockCap = blockRE.exec(content);
-    }
-    return { effect, templates };
+    return `[\n${code.slice(0, -2)}\n]`;
   };
 })();
 
-// ============================================================
-// build
-// ============================================================
-
-
-let buildEffect = (function() {
-  function duplicationCheck(vert, frag, record) {
-    let id = `${vert},${frag}`;
-    if (record[id]) return true;
-    record[id] = true;
-    return false;
-  }
-  return function (content) {
-    let { effect, templates } = parseEffect(content);
-    effect = buildEffectJSON(effect);
-    Object.assign(templates, chunksCache);
-    let shaders = [], record = {};
-    for (let j = 0; j < effect.techniques.length; ++j) {
-      let jsonTech = effect.techniques[j];
-      for (let k = 0; k < jsonTech.passes.length; ++k) {
-        let pass = jsonTech.passes[k];
-        let vert = pass.vert, frag = pass.frag;
-        if (duplicationCheck(vert, frag, record)) continue;
-        let shader = shdcLib.assembleAndBuild(vert, frag, templates);
-        let name = sha1(shader.vert + shader.frag);
-        shader.name = pass.program = name;
-        delete pass.vert; delete pass.frag;
-        shaders.push(shader);
-      }
-    }
-    return { effect, shaders };
-  };
-})();
-
-module.exports = {
-  updateBuiltinChunks,
-  buildEffect
-};
-
-// test
-// let path = './cocos/3d/builtin/effects';
-// let files = fsJetpack.find(path, { matching: ['**/*.effect'] });
-// for (let i = 0; i < files.length; ++i) {
-//   let content = fs.readFileSync(files[i], { encoding: 'utf8' });
-//   buildEffect(content);
-// }
+let indent = (str, num) => str.replace(/\n/g, '\n'+' '.repeat(num));
+let path = './cocos/3d/builtin/effects';
+let dest = path_.join(path, 'index.json');
+let files = fsJetpack.find(path, { matching: ['**/*.effect'] }), code = ``;
+for (let i = 0; i < files.length; ++i) {
+  let name = path_.basename(files[i], '.effect');
+  let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+  let effect = shdcLib.buildEffect(name, content);
+  code += '  {\n';
+  code += `    "name": "${effect.name}",\n`;
+  code += `    "techniques": ${JSON.stringify(effect.techniques)},\n`;
+  code += `    "properties": ${JSON.stringify(effect.properties)},\n`;
+  code += `    "shaders": ${indent(stringifyShaders(effect.shaders), 4)}\n`;
+  code += '  },\n';
+}
+fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]\n`, { encoding: 'utf8' });

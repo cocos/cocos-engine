@@ -55,22 +55,11 @@ export default class ProgramLib {
   /**
    * @param {gfx.Device} device
    * @param {Array} templates
-   * @param {Object} chunks
    */
-  constructor(device, templates = [], chunks = {}) {
+  constructor(device) {
     this._device = device;
     this._precision = `precision highp float;\n`;
-
-    // register templates
     this._templates = {};
-    for (let i = 0; i < templates.length; ++i) {
-      this.define(templates[i]);
-    }
-
-    // register chunks
-    this._chunks = {};
-    Object.assign(this._chunks, chunks);
-
     this._cache = {};
   }
 
@@ -97,10 +86,12 @@ export default class ProgramLib {
    *   programLib.define(program);
    */
   define(prog) {
-    let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
+    const { name, defines } = prog;
     if (this._templates[name]) return;
 
-    let id = ++_shdID;
+    prog.id = ++_shdID;
+    prog.vert = this._precision + prog.vert;
+    prog.frag = this._precision + prog.frag;
 
     // calculate option mask offset
     let offset = 0;
@@ -130,20 +121,8 @@ export default class ProgramLib {
       def._offset = offset;
     }
 
-    vert = this._precision + vert;
-    frag = this._precision + frag;
-
     // store it
-    this._templates[name] = {
-      id,
-      name,
-      vert,
-      frag,
-      defines,
-      attributes: prog.attributes,
-      uniforms: prog.uniforms,
-      extensions: prog.extensions
-    };
+    this._templates[name] = prog;
   }
 
   getTemplate(name) {
@@ -176,7 +155,7 @@ export default class ProgramLib {
       key |= tmplDefs._map(value);
     }
 
-    return key << 8 | tmpl.id;
+    return key << 8 | (tmpl.id & 0xff);
   }
 
   /**

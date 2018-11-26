@@ -798,13 +798,11 @@ var game = {
     },
 
     _initBuiltins: function(cb) {
-        builtinResMgr.initBuiltinRes(this._renderContext, 
+        builtinResMgr.initBuiltinRes(this._renderContext,
             '../engine/cocos/3d/builtin/effects/index.json',
-            '../engine/cocos/renderer/shaders',
             builtins => {
                 this._builtins = builtins;
                 this._renderer.setBuiltins({
-                    programLib: builtins['program-lib'],
                     defaultTexture: builtins['default-texture']._texture,
                     defaultTextureCube: builtins['default-texture-cube']._texture
                 });

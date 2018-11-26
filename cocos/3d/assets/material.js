@@ -23,20 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data";
-const { ccclass, property } = _decorator;
+import { ccclass, property } from "../../core/data/class-decorator";
 import Asset from "../../assets/CCAsset";
 import Texture from '../../assets/CCTexture2D';
 import Effect from '../../renderer/core/effect';
+import EffectAsset from './effect-asset';
 
 @ccclass('cc.Material')
 class Material extends Asset {
-    /**
-     * @type {string}
-     */
-    @property
-    _effectName = '';
-
     /**
      * @type {Object}
      */
@@ -50,26 +44,32 @@ class Material extends Asset {
     _props = {};
 
     /**
+     * @type {EffectAsset}
+     */
+    @property(EffectAsset)
+    _effectAsset = null;
+
+    @property
+    set effectAsset(val) {
+        if (this._effectAsset.name !== val.name) this._setEffect(val);
+    }
+    get effectAsset() {
+        return this._effectAsset;
+    }
+
+    // helper setter
+    @property
+    set effectName(val) {
+        if (this.effectName !== val) this._setEffect(val);
+    }
+    get effectName() {
+        return this._effectAsset ? this._effectAsset.name : '';
+    }
+
+    /**
      * @type {Effect}
      */
     _effect = null;
-
-    /**
-     * @return {string}
-     */
-    get effectName() {
-        return this._effectName;
-    }
-
-    /**
-     * @param {string} val
-     */
-    set effectName(val) {
-        if (this._effectName !== val) {
-            this._effectName = val;
-            this.setEffect(val);
-        }
-    }
 
     /**
      * @return {Effect}
@@ -83,7 +83,7 @@ class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
-        this.effectName = mat.effectName;
+        this.effectAsset = mat.effectAsset;
 
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
@@ -122,19 +122,21 @@ class Material extends Asset {
     }
 
     onLoaded() {
-        this.setEffect(this._effectName);
+        this._setEffect(this.effectAsset);
+        if (!this._effect) return;
         for (let def in this._defines)
             this._effect.define(def, this._defines[def]);
         for (let prop in this._props)
             this.setProperty(prop, this._props[prop]);
     }
 
-    setEffect(val) {
-        const effectAsset = cc.game._builtins[val];
-        if (!effectAsset) {
+    _setEffect(val) {
+        let effectAsset = val;
+        if (typeof val === 'string' && !(effectAsset = cc.game._builtins[val])) {
             console.warn(`no effect named '${val}' found`);
             return;
         }
+        this._effectAsset = effectAsset;
         this._effect = Effect.parseEffect(effectAsset);
     }
 

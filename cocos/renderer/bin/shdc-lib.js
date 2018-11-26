@@ -2,6 +2,7 @@
 
 const tokenizer = require('glsl-tokenizer/string');
 const mappings = require('../../../bin/mappings');
+const { sha3_224 } = require('js-sha3');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
@@ -252,22 +253,25 @@ let expandStructMacro = (function() {
   };
 })();
 
-let assemble = (function() {
+let assembleShader = (function() {
   let entryRE = /([\w-]+)(?::(\w+))?/;
   let integrity = /void\s+main\s*\([\w\s,]*\)/;
   let wrapperFactory = (vert, fn) => `\nvoid main() { ${vert ? 'gl_Position' : 'gl_FragColor'} = ${fn}(); }\n`;
   return function(name, cache, vert) {
     let entryCap = entryRE.exec(name), content = cache[entryCap[1]];
-    if (!content) { console.error(`${entryCap[1]} not found, please check again.`); return ''; }
+    if (!content) { console.error(`shader ${entryCap[1]} not found!`); return ''; }
     if (!entryCap[2]) {
-      if (!integrity.test(content)) console.warn(`main entry not found in ${name}!`);
+      if (!integrity.test(content)) console.warn(`shader main entry not found in ${name}!`);
       return cache[name];
     }
     return content + wrapperFactory(vert, entryCap[2]);
   };
 })();
 
-let build = function(vert, frag, cache) {
+let buildShader = function(vertName, fragName, cache) {
+  let vert = assembleShader(vertName, cache, true);
+  let frag = assembleShader(fragName, cache);
+
   let defines = [], defCache = { lines: [] }, tokens;
   let uniforms = [], attributes = [], extensions = [];
 
@@ -289,10 +293,113 @@ let build = function(vert, frag, cache) {
   return { vert, frag, defines, uniforms, attributes, extensions };
 };
 
-let assembleAndBuild = function(vertName, fragName, cache) {
-  let vert = assemble(vertName, cache, true);
-  let frag = assemble(fragName, cache);
-  return build(vert, frag, cache);
+// ==================
+// effects
+// ==================
+
+let queueRE = /(\w+)(?:([+-])(\d+))?/;
+let parseQueue = function (queue) {
+  let m = queueRE.exec(queue);
+  if (m === null) return 0;
+  let q = mappings.RenderQueue[m[1].toUpperCase()];
+  if (m.length === 4) {
+    if (m[2] === '+') q += parseInt(m[3]);
+    if (m[2] === '-') q -= parseInt(m[3]);
+  }
+  return q;
+};
+
+function mapPassParam(p) {
+  let num;
+  switch (typeof p) {
+  case 'string':
+    num = parseInt(p);
+    return isNaN(num) ? mappings.passParams[p.toUpperCase()] : num;
+  case 'object':
+    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
+  }
+  return p;
+}
+
+function buildEffectJSON(json) {
+  // map param's type offline.
+  for (let j = 0; j < json.techniques.length; ++j) {
+    let jsonTech = json.techniques[j];
+    jsonTech.queue = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
+    for (let k = 0; k < jsonTech.passes.length; ++k) {
+      let pass = jsonTech.passes[k];
+      for (let key in pass) {
+        if (key === "vert" || key === 'frag') continue;
+        pass[key] = mapPassParam(pass[key]);
+      }
+    }
+  }
+  for (let prop in json.properties) {
+    let info = json.properties[prop];
+    info.type = mappings.typeParams[info.type.toUpperCase()];
+  }
+  return json;
+}
+
+let parseEffect = (function() {
+  let effectRE = /%{([^%]+)%}/;
+  let blockRE = /%%\s*([\w-]+)\s*{([^]+)}/;
+  let parenRE = /[{}]/g;
+  let trimToSize = content => {
+    let level = 1, end = content.length;
+    content.replace(parenRE, (p, i) => {
+      if (p === '{') level++;
+      else if (level === 1) { end = i; level = 1e9; }
+      else level--;
+    });
+    return content.substring(0, end);
+  };
+  return function (content) {
+    let effectCap = effectRE.exec(content);
+    let effect = JSON.parse(`{${effectCap[1]}}`), templates = {};
+    content = content.substring(effectCap.index + effectCap[0].length);
+    let blockCap = blockRE.exec(content);
+    while (blockCap) {
+      let str = templates[blockCap[1]] = trimToSize(blockCap[2]);
+      content = content.substring(blockCap.index + str.length);
+      blockCap = blockRE.exec(content);
+    }
+    return { effect, templates };
+  };
+})();
+
+// (HACKY) fixed builtin headers
+let chunksCache = (function() {
+  const path_ = require('path');
+  const fsJetpack = require('fs-jetpack');
+  const fs = require('fs');
+  let files = fsJetpack.find('./cocos/renderer/bin/chunks', { matching: ['**/*.inc'] }), cache = {};
+  for (let i = 0; i < files.length; ++i) {
+    let name = path_.basename(files[i], '.inc');
+    let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+    cache[name] = glslStripComment(content);
+  }
+  return cache;
+})();
+
+let buildEffect = function (name, content) {
+  let { effect, templates } = parseEffect(content);
+  effect = buildEffectJSON(effect); effect.name = name;
+  Object.assign(templates, chunksCache);
+  let shaders = effect.shaders = [];
+  for (let j = 0; j < effect.techniques.length; ++j) {
+    let jsonTech = effect.techniques[j];
+    for (let k = 0; k < jsonTech.passes.length; ++k) {
+      let pass = jsonTech.passes[k];
+      let vert = pass.vert, frag = pass.frag;
+      let shader = buildShader(vert, frag, templates);
+      let name = sha3_224(shader.vert + shader.frag);
+      shader.name = pass.program = name;
+      delete pass.vert; delete pass.frag;
+      shaders.push(shader);
+    }
+  }
+  return effect;
 };
 
 // ==================
@@ -300,8 +407,5 @@ let assembleAndBuild = function(vertName, fragName, cache) {
 // ==================
 
 module.exports = {
-  glslStripComment,
-  assemble,
-  build,
-  assembleAndBuild
+  buildEffect
 };
