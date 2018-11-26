@@ -111,6 +111,14 @@ pool.get = function (string, fontAsset, fontSize) {
     return labelNode;
 };
 
+function getDisplayedColor (color, parentColor) {
+    let newColor = new cc.Color();
+    newColor.r = color.r * parentColor.r / 255;
+    newColor.g = color.g * parentColor.g / 255;
+    newColor.b = color.b * parentColor.b / 255;
+    return newColor;
+}
+
 /**
  * !#en The RichText Component.
  * !#zh 富文本组件
@@ -304,12 +312,25 @@ let RichText = cc.Class({
         this._onTTFLoaded();
     },
 
+    _onSynChildColor (parentColor) {
+        let children = this.node.children;
+        children.forEach((childNode) => {
+            childNode.color = getDisplayedColor(childNode._displayColor, parentColor);
+            let outline = childNode.getComponent(cc.LabelOutline);
+            if (outline && childNode._outlineDisplayColor) {
+                outline.color = getDisplayedColor(childNode._outlineDisplayColor, parentColor);
+            }
+        });
+    },
+
     _addEventListeners () {
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._onSynChildColor, this);
     },
 
     _removeEventListeners () {
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._onSynChildColor, this);
     },
 
     _updateLabelSegmentTextAttributes () {
@@ -814,6 +835,8 @@ let RichText = cc.Class({
             labelNode.color = this._convertLiteralColorValue("white");
         }
 
+        labelNode._displayColor = labelNode.color;
+
         labelComponent._enableBold(textStyle && textStyle.bold);
 
         labelComponent._enableItalics(textStyle && textStyle.italic);
@@ -831,6 +854,8 @@ let RichText = cc.Class({
             }
             labelOutlineComponent.color = this._convertLiteralColorValue(textStyle.outline.color);
             labelOutlineComponent.width = textStyle.outline.width;
+
+            labelNode._outlineDisplayColor = labelOutlineComponent.color;
         }
 
         if (textStyle && textStyle.size) {
