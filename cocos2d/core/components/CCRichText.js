@@ -107,21 +107,8 @@ pool.get = function (string, fontAsset, fontSize) {
     labelComponent._enableBold(false);
     labelComponent._enableItalics(false);
     labelComponent._enableUnderline(false);
-
-
-    labelNode._displayColor = cc.Color.WHITE;
-    labelNode._outlineDisplayColor = cc.Color.WHITE;
-
     return labelNode;
 };
-
-function getDisplayedColor (color, parentColor) {
-    let newColor = new cc.Color();
-    newColor.r = color.r * parentColor.r / 255;
-    newColor.g = color.g * parentColor.g / 255;
-    newColor.b = color.b * parentColor.b / 255;
-    return newColor;
-}
 
 /**
  * !#en The RichText Component.
@@ -319,11 +306,7 @@ let RichText = cc.Class({
     _onColorChanged (parentColor) {
         let children = this.node.children;
         children.forEach(function (childNode) {
-            childNode.color = getDisplayedColor(childNode._displayColor, parentColor);
-            let outline = childNode.getComponent(cc.LabelOutline);
-            if (outline) {
-                outline.color = getDisplayedColor(childNode._outlineDisplayColor, parentColor);
-            }
+            childNode.color = parentColor;
         });
     },
 
@@ -839,8 +822,6 @@ let RichText = cc.Class({
             labelNode.color = this._convertLiteralColorValue("white");
         }
 
-        labelNode._displayColor = labelNode.color;
-
         labelComponent._enableBold(textStyle && textStyle.bold);
 
         labelComponent._enableItalics(textStyle && textStyle.italic);
@@ -858,8 +839,6 @@ let RichText = cc.Class({
             }
             labelOutlineComponent.color = this._convertLiteralColorValue(textStyle.outline.color);
             labelOutlineComponent.width = textStyle.outline.width;
-
-            labelNode._outlineDisplayColor = labelOutlineComponent.color;
         }
 
         if (textStyle && textStyle.size) {
