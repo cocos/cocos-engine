@@ -36,15 +36,28 @@ let typeCheck = function(value, type) {
     }
 };
 
+let _globalTechLod = 600;
+
 class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, properties = {}, defines = {}, dependencies = {}) {
+    constructor(techniques, programs, properties = {}) {
         this._techniques = techniques;
         this._properties = properties;
-        this._defines = defines;
-        this._dependencies = dependencies;
+        this._programs = programs;
+        this._defines = {};
+        this._dependencies = {};
+        this._maxLOD = -1;
+        this._activeTechIdx = -1;
+    }
+
+    set LOD(lod) {
+        if (lod === this._maxLOD) {
+            return;
+        }
+        this._maxLOD = lod;
+        this.postParse();
     }
 
     clear() {
@@ -121,8 +134,37 @@ class Effect {
         return out;
     }
 
-    getDefaultTechnique() {
-        return 0;
+    getActiveTechnique() {
+        return this._techniques[this._activeTechIdx];
+    }
+
+    postParse() {
+        let lod = this._maxLOD == -1 ? _globalTechLod : this._maxLOD;
+        this._activeTechIdx = -1;
+        for (let i = 0; i < this._techniques.length; i++) {
+            if (this._techniques[i]._lod <= lod) {
+                this._activeTechIdx = i;
+                break;
+            }
+        }
+        if (this._activeTechIdx == -1) {
+            this._activeTechIdx = 0;
+        }
+
+        for (let k in Object.keys(this._defines)) {
+            delete this._defines[k];
+        }
+
+        for (let k in Object.keys(this._dependencies)) {
+            delete this._dependencies[k];
+        }
+
+        // defines
+        this._techniques[this._activeTechIdx].passes.forEach(pass => this._programs[pass._programName].defines.forEach(def =>
+            this._defines[def.name] = { value: getInstanceCtor(def.type)(), type: def.type }));
+        // extensions
+        this._techniques[this._activeTechIdx].passes.forEach(pass => this._programs[pass._programName].extensions
+            .filter(ext => ext.define).forEach(ext => this._dependencies[ext.define] = ext.name));
     }
 }
 
@@ -154,6 +196,10 @@ let getInvolvedPrograms = function(json) {
         });
     });
     return programs;
+};
+
+Effect.setGlobalLod = function (lod) {
+    _globalTechLod = lod;
 };
 
 let parseProperties = (function() {
@@ -205,34 +251,25 @@ Effect.parseEffect = function(json) {
     // techniques
     let techNum = json.techniques.length, tech;
     let programs = getInvolvedPrograms(json);
-    for (let j = 0; j < techNum; ++j) { // choose the first supported technique
-        if (json.techniques[j].passes.every(pass => programs[pass.program].extensions.every(ext =>
-            ext.define || cc.game._renderContext.supportExtension(ext.name)))) {
-            // all the extensions is supported or can be disabled by a define
-            tech = json.techniques[j];
-            break;
+    let techniques = new Array(techNum);
+    for (let j = 0; j < techNum; ++j) {
+        tech = json.techniques[j];
+        let passNum = tech.passes.length;
+        let passes = new Array(passNum);
+        for (let k = 0; k < passNum; ++k) {
+            let pass = tech.passes[k];
+            passes[k] = new Pass(pass.stage, pass.program);
+            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
+            passes[k].setCullMode(pass.cullMode);
+            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
+                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
+            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
+                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
+            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
+                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
+        techniques[j] = new Technique(tech.queue, tech.lod, passes);
     }
-    if (!tech) {
-        console.error(`all techniques in ${json.name} failed on this platform, did you provide a fallback?`);
-        return null;
-    }
-    let techniques = new Array(1);
-    let passNum = tech.passes.length;
-    let passes = new Array(passNum);
-    for (let k = 0; k < passNum; ++k) {
-        let pass = tech.passes[k];
-        passes[k] = new Pass(pass.stage, pass.program);
-        passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
-        passes[k].setCullMode(pass.cullMode);
-        passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
-            pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
-        passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
-            pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
-        passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
-            pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
-    }
-    techniques[0] = new Technique(tech.queue, passes);
     // uniforms
     let props = parseProperties(json, programs), uniforms = {};
     for (let pn in programs) {
@@ -245,16 +282,10 @@ Effect.parseEffect = function(json) {
             }
         });
     }
-    // defines
-    let defines = {};
-    tech.passes.forEach(pass => programs[pass.program].defines.forEach(def =>
-        defines[def.name] = { value: getInstanceCtor(def.type)(), type: def.type }));
-    // extensions
-    let extensions = {};
-    tech.passes.forEach(pass => programs[pass.program].extensions
-        .filter(ext => ext.define).forEach(ext => extensions[ext.define] = ext.name));
 
-    return new Effect(techniques, uniforms, defines, extensions);
+    let parsedEffect = new Effect(techniques, programs, uniforms);
+    parsedEffect.postParse();
+    return parsedEffect;
 };
 
 if (CC_EDITOR) {

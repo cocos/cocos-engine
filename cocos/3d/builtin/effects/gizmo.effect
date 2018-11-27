@@ -2,6 +2,7 @@
   "techniques": [
     {
       "queue": "transparent",
+      "lod": 0,
       "passes": [
        {
          "stage": "default",
