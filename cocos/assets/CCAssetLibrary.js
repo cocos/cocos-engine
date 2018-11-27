@@ -32,6 +32,7 @@ import Loader from '../load-pipeline/CCLoader';
 import {initPacks} from '../load-pipeline/pack-downloader';
 import {getDependsRecursively} from '../load-pipeline/auto-release-utils';
 import MD5Pipe from '../load-pipeline/md5-pipe';
+import AssetTable from '../load-pipeline/asset-table';
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -325,8 +326,11 @@ let AssetLibrary = {
 
         // init raw assets
 
-        var resources = cc.loader._resources;
-        resources.reset();
+        var assetTables = Loader._assetTables;
+        for (var mount in assetTables) {
+            assetTables[mount].reset();
+        }
+
         var rawAssets = options.rawAssets;
         if (rawAssets) {
             for (var mountPoint in rawAssets) {
@@ -343,16 +347,18 @@ let AssetLibrary = {
                     // backward compatibility since 1.10
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    if (mountPoint === 'assets') {
-                        var ext = cc.path.extname(url);
-                        if (ext) {
-                            // trim base dir and extname
-                            url = url.slice(0, - ext.length);
-                        }
-                        var isSubAsset = info[2] === 1;
-                        // register
-                        resources.add(url, uuid, type, !isSubAsset);
+                    var ext = cc.path.extname(url);
+                    if (ext) {
+                        // trim base dir and extname
+                        url = url.slice(0, - ext.length);
                     }
+
+                    var isSubAsset = info[2] === 1;
+                    if (!assetTables[mountPoint]) {
+                        assetTables[mountPoint] = new AssetTable();
+                    } 
+                    
+                    assetTables[mountPoint].add(url, uuid, type, !isSubAsset);
                 }
             }
         }

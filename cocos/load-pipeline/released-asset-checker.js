@@ -33,7 +33,7 @@ function getItemDesc (item) {
         if (!tmpInfo) {
             tmpInfo = { path: "", type: null };
         }
-        if (cc.loader._resources._getInfo_DEBUG(item.uuid, tmpInfo)) {
+        if (cc.loader._assetTables.assets._getInfo_DEBUG(item.uuid, tmpInfo)) {
             tmpInfo.path = 'resources/' + tmpInfo.path;
             return `"${tmpInfo.path}" (type: ${getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
         }
