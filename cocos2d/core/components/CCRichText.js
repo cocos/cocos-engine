@@ -108,6 +108,10 @@ pool.get = function (string, fontAsset, fontSize) {
     labelComponent._enableItalics(false);
     labelComponent._enableUnderline(false);
 
+
+    labelNode._displayColor = cc.Color.WHITE;
+    labelNode._outlineDisplayColor = cc.Color.WHITE;
+
     return labelNode;
 };
 
@@ -312,12 +316,12 @@ let RichText = cc.Class({
         this._onTTFLoaded();
     },
 
-    _onSynChildColor (parentColor) {
+    _onColorChanged (parentColor) {
         let children = this.node.children;
         children.forEach(function (childNode) {
             childNode.color = getDisplayedColor(childNode._displayColor, parentColor);
             let outline = childNode.getComponent(cc.LabelOutline);
-            if (outline && childNode._outlineDisplayColor) {
+            if (outline) {
                 outline.color = getDisplayedColor(childNode._outlineDisplayColor, parentColor);
             }
         });
@@ -325,12 +329,12 @@ let RichText = cc.Class({
 
     _addEventListeners () {
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._onSynChildColor, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _removeEventListeners () {
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._onSynChildColor, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _updateLabelSegmentTextAttributes () {
