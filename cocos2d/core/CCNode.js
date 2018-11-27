@@ -1398,6 +1398,11 @@ let NodeDefines = {
         if (children.length > 0) {
             this._renderFlag |= RenderFlow.FLAG_CHILDREN;
         }
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy.setName(this._name);
+            this._parent && this._proxy.updateParent(this._parent._proxy);
+        }
     },
 
     // EVENT TARGET
