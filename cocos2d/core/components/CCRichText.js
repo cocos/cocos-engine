@@ -107,7 +107,6 @@ pool.get = function (string, fontAsset, fontSize) {
     labelComponent._enableBold(false);
     labelComponent._enableItalics(false);
     labelComponent._enableUnderline(false);
-
     return labelNode;
 };
 
@@ -304,12 +303,21 @@ let RichText = cc.Class({
         this._onTTFLoaded();
     },
 
+    _onColorChanged (parentColor) {
+        let children = this.node.children;
+        children.forEach(function (childNode) {
+            childNode.color = parentColor;
+        });
+    },
+
     _addEventListeners () {
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _removeEventListeners () {
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _updateLabelSegmentTextAttributes () {
