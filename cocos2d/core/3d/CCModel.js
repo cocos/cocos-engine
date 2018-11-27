@@ -268,12 +268,8 @@ let Model = cc.Class({
         this._initNodes();
 
         let gltf = this._gltf;
-        let bin = this._bin;
-
-        let accessors = gltf.accessors;
         let gltfAnimation = gltf.animations[clip._animationID];
 
-        clip.name = gltfAnimation.name;
         clip.wrapMode = cc.WrapMode.Loop;
         let duration = 0;
 
@@ -281,7 +277,6 @@ let Model = cc.Class({
         let paths = curveData.paths = {};
 
         let nodes = gltf.nodes;
-        let rootNode = nodes[0];
 
         let samplers = gltfAnimation.samplers;
         let channels = gltfAnimation.channels;
@@ -291,8 +286,6 @@ let Model = cc.Class({
 
             let inputArray = this._createArray(gltf, sampler.input);
             let outputArray = this._createArray(gltf, sampler.output);
-
-            let interpolation = sampler.interpolation;
 
             let target = gltfChannel.target;
             let node = nodes[target.node];
