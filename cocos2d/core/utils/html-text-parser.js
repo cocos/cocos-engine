@@ -163,7 +163,7 @@ HtmlTextParser.prototype = {
                     }
 
                     if (obj.event && tagName === 'param') {
-                        obj.event.param = tagValue;
+                        obj.event.param = tagValue.replace(/^\"|\"$/g, '');
                     }
 
                     header = attribute.match(imageAttrReg);
@@ -211,7 +211,7 @@ HtmlTextParser.prototype = {
                     }
 
                     if (obj.event && tagName === 'param') {
-                        obj.event.param = tagValue;
+                        obj.event.param = tagValue.replace(/^\"|\"$/g, '');
                     }
 
                     header = attribute.match(outlineAttrReg);
@@ -241,7 +241,6 @@ HtmlTextParser.prototype = {
             eventObj = this._processEventHandler(attribute);
             obj.event = eventObj;
         }
-
 
         return obj;
     },

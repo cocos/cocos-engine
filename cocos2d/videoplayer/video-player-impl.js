@@ -540,7 +540,7 @@ VideoPlayerImpl._polyfill = {
  * so it is best to provide mp4 and webm or ogv file
  */
 let dom = document.createElement("video");
-if (sys.platform !== sys.WECHAT_GAME) {
+if (!CC_WECHATGAME) {
     if (dom.canPlayType("video/ogg")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".ogg");
         VideoPlayerImpl._polyfill.canPlayType.push(".ogv");
