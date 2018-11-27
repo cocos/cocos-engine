@@ -527,8 +527,7 @@ export default class BaseRenderer {
 
       for (let j = 0; j < this._drawItemsPools.length; ++j) {
           let drawItem = this._drawItemsPools.data[j];
-          let techIndex = drawItem.effect.getDefaultTechnique();
-          let tech = drawItem.effect.getTechnique(techIndex);
+          let tech = drawItem.effect.getActiveTechnique();
 
           if (tech) {
               for (let k = 0; k < tech.passes.length; k++) {

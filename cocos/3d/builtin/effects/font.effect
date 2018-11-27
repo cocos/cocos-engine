@@ -2,6 +2,7 @@
   "techniques": [
     {
       "queue": "overlay",
+      "lod": 0,
       "passes": [
        {
          "stage": "default",

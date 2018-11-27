@@ -44,9 +44,16 @@ function buildEffects(dest, path) {
     // map param's type offline.
     for (let j = 0; j < json.techniques.length; ++j) {
       let jsonTech = json.techniques[j];
-      jsonTech.queue = parseQueue(jsonTech.queue);
+      if (jsonTech.hasOwnProperty('queue'))
+        jsonTech.queue = parseQueue(jsonTech.queue);
+      else
+        jsonTech.queue = 0;
+      if (!jsonTech.hasOwnProperty('lod'))
+        jsonTech.lod = -1;
       for (let k = 0; k < jsonTech.passes.length; ++k) {
         let pass = jsonTech.passes[k];
+        if (!pass.hasOwnProperty('stage'))
+          pass.stage = 'default';
         for (let key in pass) {
           if (key === "program") continue;
           pass[key] = mapPassParam(pass[key]);
