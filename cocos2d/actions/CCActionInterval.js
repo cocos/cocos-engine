@@ -969,8 +969,7 @@ cc.RotateBy = cc.Class({
     ctor: function (duration, deltaAngle) {
         this._deltaAngle = cc.v3();
         this._startAngle = 0;
-
-		deltaAngle !== undefined && this.initWithDuration(duration, deltaAngle);
+        deltaAngle !== undefined && this.initWithDuration(duration, deltaAngle);
     },
 
     /*
