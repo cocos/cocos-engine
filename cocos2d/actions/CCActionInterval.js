@@ -871,7 +871,7 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
 
 
 /*
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
  * @class RotateTo
  * @extends ActionInterval
@@ -888,7 +888,7 @@ cc.RotateTo = cc.Class({
         this._startAngle = 0;
         this._dstAngle = 0;
         this._angle = 0;
-		dstAngle !== undefined && this.initWithDuration(duration, dstAngle);
+        dstAngle !== undefined && this.initWithDuration(duration, dstAngle);
     },
 
     /*
@@ -936,9 +936,9 @@ cc.RotateTo = cc.Class({
 
 /**
  * !#en
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
- * !#zh 旋转到目标角度，通过逐帧修改它的 rotation 属性，旋转方向将由最短的角度决定。
+ * !#zh 旋转到目标角度，通过逐帧修改它的 angle 属性，旋转方向将由最短的角度决定。
  * @method rotateTo
  * @param {Number} duration duration in seconds
  * @param {Number} dstAngle dstAngle in degrees.
@@ -953,7 +953,7 @@ cc.rotateTo = function (duration, dstAngle) {
 
 
 /*
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * @class RotateBy
  * @extends ActionInterval
@@ -1016,7 +1016,7 @@ cc.RotateBy = cc.Class({
 
 /**
  * !#en
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * !#zh 旋转指定的角度。
  * @method rotateBy
@@ -1032,7 +1032,7 @@ cc.rotateBy = function (duration, deltaAngle) {
 };
 
 /*
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its quaternion property. <br/>
  * The direction will be decided by the shortest angle.
  * @class Rotate3DTo
  * @extends ActionInterval
