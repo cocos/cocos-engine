@@ -314,7 +314,7 @@ let RichText = cc.Class({
 
     _onSynChildColor (parentColor) {
         let children = this.node.children;
-        children.forEach((childNode) => {
+        children.forEach(function (childNode) {
             childNode.color = getDisplayedColor(childNode._displayColor, parentColor);
             let outline = childNode.getComponent(cc.LabelOutline);
             if (outline && childNode._outlineDisplayColor) {
