@@ -587,7 +587,7 @@ var disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(c
  * playOnFocus(): Function
  * playOnFocus(_class: Function): void
  */
-var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus', true);
 
 /**
  * !#en
