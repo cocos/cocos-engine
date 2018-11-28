@@ -241,7 +241,7 @@ function loadBuiltins (name, type, cb) {
 }
 
 cc.Asset._loadBuiltins = function (cb) {
-    loadBuiltins('shader', cc.ShaderAsset, () => {
+    loadBuiltins('effect', cc.EffectAsset, () => {
         loadBuiltins('material', cc.Material, cb);
     });
 };

@@ -26,7 +26,7 @@
 
 const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
-const ShaderAsset = require('./CCShaderAsset');
+const EffectAsset = require('./CCEffectAsset');
 import Effect from '../../renderer/effect';
 
 let Material = cc.Class({
@@ -38,8 +38,8 @@ let Material = cc.Class({
     },
 
     properties: {
-        _shaderAsset: {
-            type: ShaderAsset,
+        _effectAsset: {
+            type: EffectAsset,
             default: null,
         },
         _defines: {
@@ -51,28 +51,28 @@ let Material = cc.Class({
             type: Object
         },
 
-        shaderName: CC_EDITOR ? {
+        effectName: CC_EDITOR ? {
             get () {
-                return this._shaderAsset.name;
+                return this._effectAsset.name;
             },
             set (val) {
-                let shaderAsset = cc.Asset.getBuiltin('shader', val);
-                if (!shaderAsset) {
-                    console.warn(`no shader named '${val}' found`);
+                let effectAsset = cc.Asset.getBuiltin('effect', val);
+                if (!effectAsset) {
+                    Editor.warn(`no effect named '${val}' found`);
                     return;
                 }
-                this.shaderAsset = shaderAsset;
+                this.effectAsset = effectAsset;
             }
         } : undefined,
 
-        shaderAsset: {
+        effectAsset: {
             get () {
-                return this._shaderAsset;
+                return this._effectAsset;
             },
             set (asset) {
-                this._shaderAsset = asset;
+                this._effectAsset = asset;
                 if (!asset) {
-                    console.error('Can not set an empty shader asset.');
+                    cc.error('Can not set an empty effect asset.');
                     return;
                 }
                 this._effect = Effect.parseEffect(asset.effect);
@@ -110,7 +110,7 @@ let Material = cc.Class({
      * @param {Material} mat
      */
     copy(mat) {
-        this.shaderAsset = mat.shaderAsset;
+        this.effectAsset = mat.effectAsset;
 
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
@@ -194,7 +194,7 @@ let Material = cc.Class({
     },
 
     onLoad () {
-        this.shaderAsset = this._shaderAsset;
+        this.effectAsset = this._effectAsset;
         if (!this._effect) return;
         
         for (let def in this._defines) {

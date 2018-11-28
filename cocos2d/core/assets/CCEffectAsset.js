@@ -1,7 +1,7 @@
 const Asset = require('./CCAsset');
 
-let ShaderAsset = cc.Class({
-    name: 'cc.ShaderAsset',
+let EffectAsset = cc.Class({
+    name: 'cc.EffectAsset',
     extends: Asset,
 
     properties: {
@@ -17,4 +17,4 @@ let ShaderAsset = cc.Class({
     }
 });
 
-module.exports = cc.ShaderAsset = ShaderAsset;
+module.exports = cc.EffectAsset = EffectAsset;
