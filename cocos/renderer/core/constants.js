@@ -1,13 +1,13 @@
 let RenderQueue = {
     OPAQUE: 0,
-    TRANSPARENT: 3000,
-    OVERLAY: 5000
+    TRANSPARENT: 1,
+    OVERLAY: 2
 };
 
 let PassStage = {
-    DEFAULT: 0,
-    FORWARD: 1,
-    SHADOWCAST: 2
+    DEFAULT: 1,
+    FORWARD: 2,
+    SHADOWCAST: 4
 };
 
 export { RenderQueue, PassStage };

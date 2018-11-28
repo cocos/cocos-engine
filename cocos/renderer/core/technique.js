@@ -9,9 +9,10 @@ export default class Technique {
    * @param {Array} passes
    * @param {Number} renderQueue
    */
-  constructor(renderQueue = RenderQueue.OPAQUE, lod = -1, passes = []) {
+  constructor(renderQueue = RenderQueue.OPAQUE, priority = 0, lod = -1, passes = []) {
     this._id = _genID++;
     this._renderQueue = renderQueue;
+    this._priority = priority;
     this._lod = lod;
     this._passes = passes;
     // TODO: this._version = 'webgl' or 'webgl2' // ????

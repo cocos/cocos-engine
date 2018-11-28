@@ -78,7 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
       if (light.shadowType !== enums.SHADOW_NONE) {
         this._shadowLights.push(light);
         let view = this._requestView();
-        light.extractView(view, [PassStage.SHADOWCAST]);
+        light.extractView(view, PassStage.SHADOWCAST);
       }
       if (light._type === enums.LIGHT_DIRECTIONAL) {
         this._directionalLights.push(light);

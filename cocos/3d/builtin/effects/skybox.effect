@@ -1,7 +1,8 @@
 %{
   "techniques": [
     {
-      "queue": "opaque-1000",
+      "queue": "opaque",
+      "priority" : -1000,
       "lod": 200,
       "passes": [
         {

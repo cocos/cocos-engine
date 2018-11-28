@@ -502,16 +502,10 @@ export default class BaseRenderer {
 
           if (tech) {
               for (let k = 0; k < tech.passes.length; k++) {
-                  if (!this._isPassSuitable(view, tech._passes[k]._stage))
+                  if (!(view._stages & tech._passes[k]._stage))
                       continue;
 
-                  let stageItem = null;
-                  for (let qi = renderQueues.length - 1; qi >= 0; qi--) {
-                      if (tech.renderQueue >= RenderQueue[renderQueues[qi]] || qi == 0) {
-                          stageItem = this._stageItemsPools.data[qi].add();
-                          break;
-                      }
-                  }
+                  let stageItem = this._stageItemsPools.data[tech.renderQueue].add();
                   stageItem.model = drawItem.model;
                   stageItem.node = drawItem.node;
                   stageItem.ia = drawItem.ia;
@@ -599,8 +593,8 @@ export default class BaseRenderer {
         // sort items
         stageItems.sort((a, b) => {
             // first,sort by queue
-            if (a.tech._renderQueue !== b.tech._renderQueue) {
-                return a.tech._renderQueue - b.tech._renderQueue;
+            if (a.tech._priority !== b.tech._priority) {
+                return a.tech._priority - b.tech._priority;
             }
             // second,sort by shader
             return a.sortKey - b.sortKey;
@@ -647,8 +641,8 @@ export default class BaseRenderer {
         // sort items
         stageItems.sort((a, b) => {
             // first, sort by queue
-            if (a.tech._renderQueue !== b.tech._renderQueue) {
-                return a.tech._renderQueue - b.tech._renderQueue;
+            if (a.tech._priority !== b.tech._priority) {
+                return a.tech._priority - b.tech._priority;
             }
             // second, sort by distance
             return a.sortKey - b.sortKey;
@@ -676,8 +670,8 @@ export default class BaseRenderer {
 
         // sort items
         stageItems.sort((a, b) => {
-            if (a.tech._renderQueue !== b.tech._renderQueue) {
-                return a.tech._renderQueue - b.tech._renderQueue;
+            if (a.tech._priority !== b.tech._priority) {
+                return a.tech._priority - b.tech._priority;
             }
             return a.model._userKey - b.model._userKey;
         });

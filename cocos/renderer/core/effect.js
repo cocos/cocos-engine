@@ -242,7 +242,7 @@ Effect.parseEffect = function(effect) {
             passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
                 pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
         }
-        techniques[j] = new Technique(tech.queue, tech.lod, passes);
+        techniques[j] = new Technique(tech.queue, tech.priority, tech.lod, passes);
     }
     // uniforms
     let props = parseProperties(effect, programs), uniforms = {};

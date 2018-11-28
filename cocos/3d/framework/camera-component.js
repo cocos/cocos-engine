@@ -306,10 +306,7 @@ export default class CameraComponent extends RenderSystemActor{
         this.stencil = this._stencil;
         this.clearFlags = this._clearFlags;
         this.rect = this._rect;
-        this._camera.setStages([
-            renderer.PassStage.DEFAULT,
-            renderer.PassStage.FORWARD
-        ]);
+        this._camera.setStages(renderer.PassStage.DEFAULT | renderer.PassStage.FORWARD);
         this._camera.setNode(this.node);
     }
 
