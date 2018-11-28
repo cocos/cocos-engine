@@ -208,10 +208,11 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
-        var audio = this.audio;
-        if (audio.paused) return;
-        this.audio.pause();
-        this._pausedFlag = true;
+        var state = this.audio.getState();
+        if (state === cc.Audio.State.PLAYING) {
+            this.audio.pause();
+            this._pausedFlag = true;
+        }
     },
 
     _restoreCallback: function () {

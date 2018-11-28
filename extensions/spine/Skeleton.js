@@ -314,7 +314,7 @@ sp.Skeleton = cc.Class({
             notify () {
                 this._initDebugDraw();
             }
-        }
+        },
     },
 
     // CONSTRUCTOR
@@ -324,9 +324,15 @@ sp.Skeleton = cc.Class({
         this._listener = null;
         this._boundingBox = cc.rect();
         this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        this._materials = {};
         this._renderDatas = [];
-
         this._debugRenderer = null;
+    },
+
+    // override
+    _updateMaterial (material) {
+        this._super(material);
+        this._materials = {};
     },
 
     /**
@@ -400,6 +406,7 @@ sp.Skeleton = cc.Class({
         if (!this._material) {
             this._boundingBox = cc.rect();
             this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            this._materials = {};
             this._renderDatas = [];
         }
     },

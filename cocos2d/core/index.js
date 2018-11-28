@@ -43,5 +43,6 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
 
 require('./mesh');
 require('./3d');
+require('./3d/polyfill-3d');
 
 require('./base-ui/CCWidgetManager');

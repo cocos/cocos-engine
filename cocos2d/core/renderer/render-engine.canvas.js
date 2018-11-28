@@ -1300,6 +1300,7 @@ var _dataPool = new Pool(function () {
   return {
     x: 0.0,
     y: 0.0,
+    z: 0.0,
     u: 0.0,
     v: 0.0,
     color: 0
@@ -5386,13 +5387,51 @@ quat.fromEuler = function (out, x, y, z) {
   var sz = Math.sin(z);
   var cz = Math.cos(z);
 
-  out.x = sx * cy * cz - cx * sy * sz;
+  out.x = sx * cy * cz + cx * sy * sz;
   out.y = cx * sy * cz + sx * cy * sz;
   out.z = cx * cy * sz - sx * sy * cz;
-  out.w = cx * cy * cz + sx * sy * sz;
+  out.w = cx * cy * cz - sx * sy * sz;
 
   return out;
 };
+
+/**
+ * Convert a quaternion back to euler angle (in degrees).
+ *
+ * @param {vec3} out - Euler angle stored as a vec3
+ * @param {number} q - the quaternion to be converted
+ * @returns {vec3} out.
+ */
+quat.toEuler = function (out, q) {
+  var x = q.x, y = q.y, z = q.z, w = q.w;
+  var heading, attitude, bank;
+  var test = x * y + z * w;
+  if (test > 0.499) { // singularity at north pole
+    heading = 2 * Math.atan2(x,w);
+    attitude = Math.PI/2;
+    bank = 0;
+  }
+  if (test < -0.499) { // singularity at south pole
+    heading = -2 * Math.atan2(x,w);
+    attitude = - Math.PI/2;
+    bank = 0;
+  }
+  if(isNaN(heading)){
+    var sqx = x*x;
+    var sqy = y*y;
+    var sqz = z*z;
+    heading = Math.atan2(2*y*w - 2*x*z , 1 - 2*sqy - 2*sqz); // heading
+    attitude = Math.asin(2*test); // attitude
+    bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
+  }
+
+  out.y = toDegree(heading);
+  out.z = toDegree(attitude);
+  out.x = toDegree(bank);
+
+  return out;
+}
+
 
 /**
  * Returns a string representation of a quatenion

@@ -201,7 +201,8 @@ module.exports = {
             'vertical_direction': '垂直排列子节点的方向，包括：\n 1. TOP_TO_BOTTOM, 从上到下排列 \n 2. BOTTOM_TO_TOP, 从下到上排列',
             'horizontal_direction': '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
             'cell_size': '网格布局中，规定每一个网格的大小',
-            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
+            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向',
+            "affected_by_scale": "子节点的缩放是否影响布局"
         },
         'particle': {
             'export_title': "将自定义的粒子数据导出成 plist 文件",

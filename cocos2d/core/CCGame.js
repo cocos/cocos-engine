@@ -823,10 +823,11 @@ var game = {
                 game.emit(game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        // In order to adapt the most of platforms the onshow API.
+        function onShown (arg0, arg1, arg2, arg3, arg4) {
             if (hidden) {
                 hidden = false;
-                game.emit(game.EVENT_SHOW);
+                game.emit(game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 

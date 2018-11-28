@@ -34,8 +34,6 @@ const gfx = renderEngine.gfx;
 
 const STENCIL_SEP = '@';
 
-let _sharedMaterials = {};
-
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
@@ -44,7 +42,7 @@ function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
 }
 
-function _getSlotMaterial (slot, tex, premultiAlpha) {
+function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     let src, dst;
     switch (slot.data.blendMode) {
         case spine.BlendMode.Additive:
@@ -67,9 +65,19 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    let material = _sharedMaterials[key];
+    comp._material = comp._material || new Material();
+    let baseMaterial = comp._material;
+    let materials = comp._materials;
+    let material = materials[key];
     if (!material) {
-        material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        var baseKey = baseMaterial._hash;
+        if (!materials[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = new Material();
+            material.copy(baseMaterial);
+        }
+
         material.define('useModel', true);
         material.define('useTexture', true);
         // update texture
@@ -83,7 +91,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        _sharedMaterials[key] = material;
+        materials[key] = material;
         material.updateHash(key);
     }
     else if (material.getProperty('texture') !== tex) {
@@ -163,6 +171,7 @@ var spineAssembler = {
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0;
         let indiceCount = 0, indiceOffset = 0;
+        let materials = comp._materials;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -191,7 +200,7 @@ var spineAssembler = {
             }
 
             newData = false;
-            material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
+            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture, premultiAlpha);
             if (!material) {
                 continue;
             }
@@ -295,6 +304,7 @@ var spineAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderDatas = comp._renderDatas;
+        let materials = comp._materials;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
 
@@ -303,10 +313,10 @@ var spineAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = _sharedMaterials[newKey] || data.material.clone();
+                data.material = materials[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!_sharedMaterials[newKey]) {
-                    _sharedMaterials[newKey] = data.material;
+                if (!materials[newKey]) {
+                    materials[newKey] = data.material;
                 }
             }
 

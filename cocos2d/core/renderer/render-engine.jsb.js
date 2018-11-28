@@ -600,7 +600,7 @@ var Effect = function Effect(techniques, properties, defines) {
   var techniqueObjs = [];
   var techniqueObj;
   for (var i = 0, len = techniques.length; i < len; ++i) {
-    techniqueObj = techniques[i]._nativeObj; 
+    techniqueObj = techniques[i]._nativeObj;
     techniqueObjs.push(techniqueObj);
   }
 
@@ -683,8 +683,8 @@ Effect.prototype.extractDefines = function extractDefines (out) {
   return out;
 };
 
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
 var renderer$2 = window.renderer;
 var _genID = 0;
 
@@ -1227,13 +1227,12 @@ var templates = [
   },
   {
     name: 'sprite',
-    vert: '\n \nuniform mat4 viewProj;\n#ifdef use2DPos\nattribute vec2 a_position;\n#else\nattribute vec3 a_position;\n#endif\nattribute lowp vec4 a_color;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 uv0;\n#endif\n#ifndef useColor\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef use2DPos\n  vec4 pos = mvp * vec4(a_position, 0, 1);\n  #else\n  vec4 pos = mvp * vec4(a_position, 1);\n  #endif\n  #ifndef useColor\n  v_fragmentColor = a_color;\n  #endif\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute lowp vec4 a_color;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 uv0;\n#endif\n#ifndef useColor\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  #ifndef useColor\n  v_fragmentColor = a_color;\n  #endif\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
     frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying mediump vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform lowp float alphaThreshold;\n#endif\n#ifdef useColor\n  uniform lowp vec4 color;\n#else\n  varying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  #ifdef useColor\n    vec4 o = color;\n  #else\n    vec4 o = v_fragmentColor;\n  #endif\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
     defines: [
       { name: 'useTexture', },
       { name: 'useModel', },
       { name: 'alphaTest', },
-      { name: 'use2DPos', },
       { name: 'useColor', } ],
   } ];
 
@@ -2514,6 +2513,7 @@ var _dataPool = new Pool(function () {
   return {
     x: 0.0,
     y: 0.0,
+    z: 0.0,
     u: 0.0,
     v: 0.0,
     color: 0
@@ -2924,7 +2924,6 @@ var SpriteMaterial = (function (Material$$1) {
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
         { name: 'alphaTest', value: false },
-        { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
     
@@ -2936,7 +2935,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -2956,14 +2955,6 @@ var SpriteMaterial = (function (Material$$1) {
 
   prototypeAccessors.useModel.set = function (val) {
     this._effect.define('useModel', val);
-  };
-
-  prototypeAccessors.use2DPos.get = function () {
-    return this._effect.getDefine('use2DPos');
-  };
-
-  prototypeAccessors.use2DPos.set = function (val) {
-    this._effect.define('use2DPos', val);
   };
 
   prototypeAccessors.useColor.get = function () {
@@ -3005,7 +2996,6 @@ var SpriteMaterial = (function (Material$$1) {
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
-    copy.use2DPos = this.use2DPos;
     copy.useColor = this.useColor;
     copy.updateHash();
     return copy;
@@ -3142,7 +3132,6 @@ var StencilMaterial = (function (Material$$1) {
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
         { name: 'alphaTest', value: true },
-        { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
     
@@ -7205,13 +7194,50 @@ quat.fromEuler = function (out, x, y, z) {
   var sz = Math.sin(z);
   var cz = Math.cos(z);
 
-  out.x = sx * cy * cz - cx * sy * sz;
+  out.x = sx * cy * cz + cx * sy * sz;
   out.y = cx * sy * cz + sx * cy * sz;
   out.z = cx * cy * sz - sx * sy * cz;
-  out.w = cx * cy * cz + sx * sy * sz;
+  out.w = cx * cy * cz - sx * sy * sz;
 
   return out;
 };
+
+/**
+ * Convert a quaternion back to euler angle (in degrees).
+ *
+ * @param {vec3} out - Euler angle stored as a vec3
+ * @param {number} q - the quaternion to be converted
+ * @returns {vec3} out.
+ */
+quat.toEuler = function (out, q) {
+  var x = q.x, y = q.y, z = q.z, w = q.w;
+  var heading, attitude, bank;
+  var test = x * y + z * w;
+  if (test > 0.499) { // singularity at north pole
+    heading = 2 * Math.atan2(x,w);
+    attitude = Math.PI/2;
+    bank = 0;
+  }
+  if (test < -0.499) { // singularity at south pole
+    heading = -2 * Math.atan2(x,w);
+    attitude = - Math.PI/2;
+    bank = 0;
+  }
+  if(isNaN(heading)){
+    var sqx = x*x;
+    var sqy = y*y;
+    var sqz = z*z;
+    heading = Math.atan2(2*y*w - 2*x*z , 1 - 2*sqy - 2*sqz); // heading
+    attitude = Math.asin(2*test); // attitude
+    bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
+  }
+
+  out.y = toDegree(heading);
+  out.z = toDegree(attitude);
+  out.x = toDegree(bank);
+
+  return out;
+}
 
 /**
  * Returns a string representation of a quatenion

@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('./utils');
+const utils = require('../utils');
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     useModel: false,
@@ -96,28 +98,28 @@ module.exports = {
             offsetY = frame._offset.y,
             trimX = offsetX + (originalWidth - rectWidth) / 2,
             trimY = offsetY + (originalHeight - rectHeight) / 2;
-            
-        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth), 
+
+        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth),
             scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
 
         let renderData = sprite._renderData;
         let data = renderData._data;
-        
+
         if (!sprite.trim) {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i+l];
+                let vertice = data[i + l];
                 vertice.x = (x[i]) * scaleX - appx;
                 vertice.y = (originalHeight - y[i]) * scaleY - appy;
             }
         }
         else {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i+l];
+                let vertice = data[i + l];
                 vertice.x = (x[i] - trimX) * scaleX - appx;
                 vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
         }
-        
+
         renderData.vertDirty = false;
     },
 
@@ -125,12 +127,13 @@ module.exports = {
         let node = sprite.node,
             renderData = sprite._renderData,
             data = renderData._data;
+
         let matrix = node._worldMatrix;
+
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = data[i+l];
+            let local = data[i + l];
             let world = data[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
@@ -138,46 +141,27 @@ module.exports = {
     },
 
     fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            renderData = sprite._renderData,
-            data = renderData._data;
-        
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
         }
-        
+
         // update world verts
         if (renderer.worldMatDirty) {
             this.updateWorldVerts(sprite);
         }
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let indiceOffset = buffer.indiceOffset,
+        let buffer = renderer._meshBuffer3D,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vertice = data[i];
-            vbuf[vertexOffset++] = vertice.x;
-            vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = vertice.u;
-            vbuf[vertexOffset++] = vertice.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
+        let ibuf = buffer._iData;
         let triangles = vertices.triangles;
-
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }

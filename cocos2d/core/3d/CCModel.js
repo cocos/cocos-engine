@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AnimationClip = require('../../animation/animation-clip');
 const BufferAsset = require('../assets/CCBufferAsset');
 
 const renderEngine = require('../renderer/render-engine');
@@ -237,6 +236,8 @@ let Model = cc.Class({
         meshAsset._ibs.length = length;
         meshAsset._vbs.length = length;
         meshAsset._subMeshes.length = length;
+        vec3.set(meshAsset._minPos, Infinity, Infinity, Infinity);
+        vec3.set(meshAsset._maxPos, -Infinity, -Infinity, -Infinity);
         for (let i = 0; i < length; ++i) {
             let primitive = gltfMesh.primitives[i];
 
