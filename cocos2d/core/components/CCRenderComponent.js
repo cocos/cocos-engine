@@ -219,6 +219,8 @@ let RenderComponent = cc.Class({
         }
 
         let material = this._materials[index];
+        if (!material) return null;
+        
         let instantiated = Material.getInstantiatedMaterial(material, this);
         if (instantiated !== material) {
             this.setMaterial(index, instantiated);
