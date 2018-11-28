@@ -244,66 +244,59 @@ module.exports = {
         let fillEnd = fillStart + fillRange;
 
         //build vertices
-        this._calculateVertices(sprite);
+        _calculateVertices(sprite);
         //build uvs
-        this._calculateUVs(frame);
+        _calculateUVs(frame);
 
-        let center = this._center;
-
-        let vertPos = this._vertPos,
-            vertices = this._vertices;
-
-        let triangles = this._triangles;
-
-        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart, this._intersectPoint_1);
-        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart + fillRange, this._intersectPoint_2);
+        _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart, _intersectPoint_1);
+        _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart + fillRange, _intersectPoint_2);
 
         let offset = 0;
         for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-            let triangle = triangles[triangleIndex];
+            let triangle = _triangles[triangleIndex];
             if (!triangle) {
                 continue;
             }
             //all in
             if (fillRange >= PI_2) {
                 renderData.dataLength = offset + 3;
-                this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
                 offset += 3;
                 continue;
             }
             //test against
-            let startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
-            let endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
-            if(endAngle < startAngle) endAngle += PI_2;
+            let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
+            let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
+            if (endAngle < startAngle) endAngle += PI_2;
             startAngle -= PI_2;
             endAngle -= PI_2;
             //testing
-            for(let testIndex = 0; testIndex < 3; ++testIndex) {
-                if(startAngle >= fillEnd) {
+            for (let testIndex = 0; testIndex < 3; ++testIndex) {
+                if (startAngle >= fillEnd) {
                     //all out
                 } else if (startAngle >= fillStart) {
                     renderData.dataLength = offset + 3;
-                    if(endAngle >= fillEnd) {
+                    if (endAngle >= fillEnd) {
                         //startAngle to fillEnd
-                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
+                        _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _intersectPoint_2[triangleIndex]);
                     } else {
                         //startAngle to endAngle
-                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                        _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
                     }
                     offset += 3;
                 } else {
                     //startAngle < fillStart
-                    if(endAngle <= fillStart) {
+                    if (endAngle <= fillStart) {
                         //all out
-                    } else if(endAngle <= fillEnd) {
+                    } else if (endAngle <= fillEnd) {
                         renderData.dataLength = offset + 3;
                         //fillStart to endAngle
-                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
+                        _generateTriangle(data, offset, _center, _intersectPoint_1[triangleIndex], _vertPos[triangle[1]]);
                         offset += 3;
                     } else {
                         renderData.dataLength = offset + 3;
                         //fillStart to fillEnd
-                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                        _generateTriangle(data, offset, _center, _intersectPoint_1[triangleIndex], _intersectPoint_2[triangleIndex]);
                         offset += 3;
                     }
                 }
