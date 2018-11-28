@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,20 +24,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCRenderTexture');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./CCBufferAsset');
+/**
+ * @class BufferAsset
+ * @extends Asset
+ */
+var BufferAsset = cc.Class({
+    name: 'cc.BufferAsset',
+    extends: cc.Asset,
+
+    ctor () {
+        this._buffer = null;
+    },
+
+    properties: {
+        _nativeAsset: {
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                this._buffer = bin.buffer || bin;
+            },
+            override: true
+        },
+    }
+});
+
+cc.BufferAsset = module.exports = BufferAsset;
