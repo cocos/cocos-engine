@@ -240,6 +240,8 @@ module.exports = {
             "horizontal_align": "Horizontal alignment",
             "font_size": "Font size, in points",
             "font": "Custom TTF font of RichText",
+            "font_family": "Custom System font of RichText",
+            "system_font": "Whether to use the system default font",
             "line_height": "Line height, in points",
             "max_width": "The maximize width of RichText, pass 0 means not limit the maximize width.",
             "image_atlas": "The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.",
