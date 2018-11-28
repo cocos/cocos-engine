@@ -62,8 +62,6 @@ export default class SkinningModelComponent extends ModelComponent {
     @property(Node)
     _skinningRoot = null;
 
-    _skeletonRoot = null;
-
     constructor() {
         super();
 
@@ -89,7 +87,7 @@ export default class SkinningModelComponent extends ModelComponent {
      * !#ch 骨骼节点
      * @type {Skeleton}
      */
-    @property(Skeleton)
+    @property({type: Skeleton})
     get skeleton() {
         return this._skeleton;
     }
@@ -98,14 +96,14 @@ export default class SkinningModelComponent extends ModelComponent {
         this._skeleton = val;
     }
 
-    @property(Node)
+    @property({type: Node})
     get skinningRoot() {
         return this._skinningRoot;
     }
 
     set skinningRoot(value) {
         this._skinningRoot = value;
-        //this._resetTarget();
+        this._resetTarget();
     }
 
     onLoad() {
@@ -125,7 +123,7 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     _updateMatrices() {
-        if (!this._mesh || !this._skinningTarget) {
+        if (!this._mesh || !this._skeleton || !this._skinningTarget) {
             return;
         }
 
