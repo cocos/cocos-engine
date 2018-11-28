@@ -219,7 +219,7 @@ cc.Asset = cc.Class({
 });
 
 let _builts = {
-    shader: {},
+    effect: {},
     material: {}
 };
 
