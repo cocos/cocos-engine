@@ -527,7 +527,7 @@ let Label = cc.Class({
                 self._texture = spriteFrame._texture;
                 self._activateMaterial(force);
 
-                if (CC_EDITOR || force) {
+                if (force) {
                     this._assembler && this._assembler.updateRenderData(this);
                 }
             };
@@ -557,7 +557,7 @@ let Label = cc.Class({
             this._texture = this._ttfTexture;
             this._activateMaterial(force);
 
-            if (CC_EDITOR || force) {
+            if (force) {
                 this._assembler && this._assembler.updateRenderData(this);
             }
         }
@@ -612,7 +612,7 @@ let Label = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (CC_EDITOR || force) {
+        if (force) {
             this._updateAssembler();
             this._applyFontTexture(force);
         }
