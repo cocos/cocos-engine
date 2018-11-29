@@ -205,6 +205,7 @@ let ArmatureDisplay = cc.Class({
             type: DefaultArmaturesEnum,
             visible: true,
             editorOnly: true,
+            animatable: false,
             displayName: "Armature",
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.armature_name'
         },

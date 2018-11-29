@@ -61,7 +61,7 @@ var game = {
     EVENT_HIDE: "game_on_hide",
 
     /**
-     * Event triggered when game back to foreground
+     * !#en Event triggered when game back to foreground
      * Please note that this event is not 100% guaranteed to be fired on Web platform,
      * on native platforms, it corresponds to enter foreground event.
      * !#zh 游戏进入前台运行时触发的事件。
@@ -74,7 +74,7 @@ var game = {
     EVENT_SHOW: "game_on_show",
 
     /**
-     * Event triggered when game restart
+     * !#en Event triggered when game restart
      * !#zh 调用restart后，触发事件。
      * @property EVENT_RESTART
      * @constant

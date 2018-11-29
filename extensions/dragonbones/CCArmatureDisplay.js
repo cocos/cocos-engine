@@ -38,10 +38,6 @@ dragonBones.CCArmatureDisplay = cc.Class({
         }
     },
 
-    ctor () {
-        
-    },
-
     getRootDisplay () {
         var parentSlot = this._armature._parent;
         if (!parentSlot) {
