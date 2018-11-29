@@ -1,12 +1,10 @@
 import Texture2D from '../../assets/CCTexture2D';
 import TextureCube from '../assets/texture-cube';
-import downloadText from '../../load-pipeline/text-downloader';
-import EffectAsset from '../assets/effect-asset';
 import ImageAsset from '../../assets/image-asset';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
-    initBuiltinRes: function (device, effects, onComplete) {
+    initBuiltinRes: function(device, effectUUIDs, OnComplete) {
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
 
@@ -42,7 +40,7 @@ let builtinResMgr = {
             left: canvasImage,
             right: canvasImage,
             top: canvasImage,
-            bottom: canvasImage
+            bottom: canvasImage,
         };
 
         // black texture canvas fill
@@ -75,32 +73,27 @@ let builtinResMgr = {
             [defaultTexture._uuid]: defaultTexture,
             [defaultTextureCube._uuid]: defaultTextureCube,
             [blackTexture._uuid]: blackTexture,
-            [whiteTexture._uuid]: whiteTexture
+            [whiteTexture._uuid]: whiteTexture,
         };
 
         // ============================
         // async builtin effects
         // ============================
 
-        this.loadEffects(effects, effects => {
-            Object.assign(builtins, effects);
-            onComplete(builtins);
-        });
-    },
-
-    // this can be called anytime
-    loadEffects: function (url, onComplete) {
-        let effects = {};
-        downloadText({ url }, (status, responseText) => {
-            let json = JSON.parse(responseText);
-            for (let i = 0; i < json.length; ++i) {
-                let asset = new EffectAsset();
-                Object.assign(asset, json[i]);
-                asset.onLoaded();
-                effects[`builtin-effect-${asset.name}`] = asset;
-            }
-            onComplete(effects);
-        });
+        let remainingJobs = effectUUIDs.length;
+        for (let i = 0; i < effectUUIDs.length; ++i) {
+            let uuid = effectUUIDs[i];
+            cc.AssetLibrary.loadAsset(uuid, (err, asset) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                builtins[`builtin-effect-${asset.name}`] = asset;
+                if (!--remainingJobs) {
+                    OnComplete(builtins);
+                }
+            });
+        }
     },
 };
 

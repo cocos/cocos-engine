@@ -24,8 +24,8 @@ let uniformIgnoreList = (function() {
     let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
     while (cap) { result[cap[2]] = true; cap = re.exec(renderer); }
   };
-  extract('cocos/renderer/renderers/forward-renderer.js');
-  extract('cocos/renderer/core/base-renderer.js');
+  extract('resources/3d/engine/cocos/renderer/renderers/forward-renderer.js');
+  extract('resources/3d/engine/cocos/renderer/core/base-renderer.js');
   return result;
 })();
 
@@ -379,7 +379,7 @@ let chunksCache = (function() {
   const path_ = require('path');
   const fsJetpack = require('fs-jetpack');
   const fs = require('fs');
-  let files = fsJetpack.find('./cocos/renderer/bin/chunks', { matching: ['**/*.inc'] }), cache = {};
+  let files = fsJetpack.find('resources/3d/engine/cocos/renderer/bin/chunks', { matching: ['**/*.inc'] }), cache = {};
   for (let i = 0; i < files.length; ++i) {
     let name = path_.basename(files[i], '.inc');
     let content = fs.readFileSync(files[i], { encoding: 'utf8' });
