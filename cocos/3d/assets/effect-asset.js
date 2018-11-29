@@ -1,7 +1,7 @@
 import Asset from "../../assets/CCAsset";
 import { property, ccclass } from "../../core/data/class-decorator";
 
-@ccclass(cc.EffectAsset)
+@ccclass('cc.EffectAsset')
 export default class EffectAsset extends Asset {
     @property
     name = '';
