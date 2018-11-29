@@ -326,8 +326,14 @@ function buildEffectJSON(json) {
   for (let j = 0; j < json.techniques.length; ++j) {
     let jsonTech = json.techniques[j];
     jsonTech.queue = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
+    if (jsonTech.priority == null) {
+        jsonTech.priority = 0;
+    }
     for (let k = 0; k < jsonTech.passes.length; ++k) {
       let pass = jsonTech.passes[k];
+      if (pass.stage == null) {
+        pass.stage = 'default';
+      }
       for (let key in pass) {
         if (key === "vert" || key === 'frag') continue;
         pass[key] = mapPassParam(pass[key]);

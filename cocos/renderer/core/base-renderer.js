@@ -576,11 +576,6 @@ export default class BaseRenderer {
         this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
         this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
 
-        // update rendering
-        // this._submitLightUniforms();
-        // this._submitOtherStagesUniforms();
-        // this._updateShaderDefines(stageItems);
-
         // calculate sorting key
         for (let i = 0; i < stageItems.length; ++i) {
             let item = stageItems.data[i];
@@ -601,11 +596,6 @@ export default class BaseRenderer {
         });
         for (let i = 0; i < stageItems.length; ++i) {
             let item = stageItems.data[i];
-
-            for (let index = 0; index < this._shadowLights.length; ++index) {
-                let light = this._shadowLights[index];
-                this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-            }
 
             this._drawModel(item);
         }
@@ -633,11 +623,6 @@ export default class BaseRenderer {
             item.sortKey = vec3.dot(_v3_tmp1, _camFwd);
         }
 
-        // update rendering
-        // this._submitLightUniforms();
-        // this._submitOtherStagesUniforms();
-        // this._updateShaderDefines(stageItems);
-
         // sort items
         stageItems.sort((a, b) => {
             // first, sort by queue
@@ -651,11 +636,6 @@ export default class BaseRenderer {
         // draw it
         for (let i = 0; i < stageItems.length; ++i) {
             let item = stageItems.data[i];
-
-            for (let index = 0; index < this._shadowLights.length; ++index) {
-                let light = this._shadowLights[index];
-                this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-            }
 
             this._drawModel(item);
         }
