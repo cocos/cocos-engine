@@ -294,12 +294,12 @@ let ArmatureDisplay = cc.Class({
     ctor () {
         this._renderDatas = [];
         this._material = new SpriteMaterial;
-        // Property _materials Use to cache material,since dragonBones may use multiple texture,
+        // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
         // it will clone from the '_material' property,if the dragonbones only have one texture,
         // it will just use the _material,won't clone it.
-        // So if invoke getMaterial,it only return _material,if you want to change all materials,
-        // you can change materials directly.
-        this._materials = {};
+        // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
+        // you can change materialCache directly.
+        this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
     },
@@ -307,7 +307,7 @@ let ArmatureDisplay = cc.Class({
     // override
     _updateMaterial (material) {
         this._super(material);
-        this._materials = {};
+        this._materialCache = {};
     },
 
     __preload () {

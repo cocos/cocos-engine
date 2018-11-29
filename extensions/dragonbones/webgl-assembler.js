@@ -69,12 +69,12 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
     let key = tex.url + src + dst + STENCIL_SEP + '0';
     comp._material = comp._material || new SpriteMaterial();
     let baseMaterial = comp._material;
-    let materials = comp._materials;
-    let material = materials[key];
+    let materialCache = comp._materialCache;
+    let material = materialCache[key];
     if (!material) {
 
         var baseKey = baseMaterial._hash;
-        if (!materials[baseKey]) {
+        if (!materialCache[baseKey]) {
             material = baseMaterial;
         } else {
             material = baseMaterial.clone();
@@ -93,7 +93,7 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        materials[key] = material;
+        materialCache[key] = material;
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
@@ -242,7 +242,7 @@ let armatureAssembler = {
         if (!armature) return;
 
         let renderDatas = comp._renderDatas;
-        let materials = comp._materials;
+        let materialCache = comp._materialCache;
 
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
@@ -250,10 +250,10 @@ let armatureAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = materials[newKey] || data.material.clone();
+                data.material = materialCache[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!materials[newKey]) {
-                    materials[newKey] = data.material;
+                if (!materialCache[newKey]) {
+                    materialCache[newKey] = data.material;
                 }
             }
 
