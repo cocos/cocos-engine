@@ -28,6 +28,9 @@ class Node extends BaseNode {
     @property
     _layer = Layers.Default; // the layer this node belongs to
 
+    @property
+    _euler = cc.v3(); // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
+
     // world transform
     _pos = cc.v3();
     _rot = cc.quat();
@@ -201,6 +204,7 @@ class Node extends BaseNode {
             quat.set(this._lrot, val, y, z, w);
         }
         quat.copy(this._rot, this._lrot);
+        this.syncEuler();
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
@@ -213,6 +217,7 @@ class Node extends BaseNode {
      * @param {number} z - Angle to rotate around Z axis in degrees.
      */
     setRotationFromEuler(x, y, z) {
+        vec3.set(this._euler, x, y, z);
         quat.fromEuler(this._lrot, x, y, z);
         quat.copy(this._rot, this._lrot);
 
@@ -231,6 +236,14 @@ class Node extends BaseNode {
         } else {
             return quat.copy(cc.quat(), this._lrot);
         }
+    }
+
+    set eulerAngles(val) {
+        vec3.copy(this._euler, val);
+        this.setRotationFromEuler(val.x, val.y, val.z);
+    }
+    get eulerAngles() {
+        return this._euler;
     }
 
     /**
@@ -320,6 +333,7 @@ class Node extends BaseNode {
         } else {
             quat.copy(this._lrot, this._rot);
         }
+        this.syncEuler();
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
@@ -332,6 +346,7 @@ class Node extends BaseNode {
      * @param {number} z - Angle to rotate around Z axis in degrees.
      */
     setWorldRotationFromEuler(x, y, z) {
+        vec3.set(this._euler, x, y, z);
         quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
@@ -440,17 +455,15 @@ class Node extends BaseNode {
 }
 
 if (CC_EDITOR) {
-    let v3 = cc.v3();
-    let desc = {
-        get() {
-            return quat.toEuler(v3, this._lrot);
-        },
-        set(val) {
-            this.setRotationFromEuler(val.x, val.y, val.z);
-        }
+    let repeat = (t, l) => t - Math.floor(t / l) * l;
+    Node.prototype.syncEuler = function() {
+        let eu = this._euler;
+        quat.toEuler(v3_a, this._lrot);
+        eu.x = repeat(v3_a.x - eu.x + 180, 360) + eu.x - 180;
+        eu.y = repeat(v3_a.y - eu.y + 180, 360) + eu.y - 180;
+        eu.z = repeat(v3_a.z - eu.z + 180, 360) + eu.z - 180;
     };
-    Object.defineProperty(Node.prototype, 'eulerAngles', desc);
-}
+} else Node.prototype.syncEuler = function() {};
 
 cc.Node = Node;
 export default Node;

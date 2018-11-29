@@ -763,9 +763,10 @@ class quat {
       bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
     }
 
-    out.y = toDegree(heading);
-    out.z = toDegree(attitude);
-    out.x = toDegree(bank);
+    // Keep angles [0..360].
+    out.y = toDegree(heading) + (heading < 0 ? 360 : 0);
+    out.z = toDegree(attitude) + (attitude < 0 ? 360 : 0);
+    out.x = toDegree(bank) + (bank < 0 ? 360 : 0);
 
     return out;
   }
