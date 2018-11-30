@@ -143,7 +143,7 @@ let armatureAssembler = {
 
     traverseArmature (comp,armature) {
         let slots = armature._slots;
-
+        let premultipliedAlpha = comp.premultipliedAlpha;
         for (let i = 0, l = slots.length; i < l; i++) {
             let slot = slots[i];
             if (!slot._visible || !slot._displayData) continue;
@@ -159,7 +159,7 @@ let armatureAssembler = {
                 continue;
             }
 
-            _material = _getSlotMaterial(comp, slot);
+            _material = _getSlotMaterial(comp, slot, premultipliedAlpha);
             if (!_material) {
                 continue;
             }
