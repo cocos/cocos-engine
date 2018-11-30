@@ -318,6 +318,19 @@ let ArmatureDisplay = cc.Class({
         this._factory = dragonBones.CCFactory.getInstance();
     },
 
+    onLoad () {
+        // Adapt to old code,remove unuse child which is created by old code.
+        // This logic can be remove after 2.2 or later.
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            var pos = child._name && child._name.search('CHILD_ARMATURE-');
+            if (pos === 0) {
+                child.destroy();
+            }
+        }
+    },
+
     // override
     _updateMaterial (material) {
         this._super(material);
