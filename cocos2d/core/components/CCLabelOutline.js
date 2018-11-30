@@ -88,11 +88,11 @@ let LabelOutline = cc.Class({
     },
 
     onEnable () {
-        this._updateRenderData()
+        this._updateRenderData();
     },
 
     onDisable () {
-        this._updateRenderData()
+        this._updateRenderData();
     },
 
     _updateRenderData () {

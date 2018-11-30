@@ -89,23 +89,25 @@ _proto._children = function (node) {
     let cullingMask = _cullingMask;
 
     let parentOpacity = _walker.parentOpacity;
-    _walker.parentOpacity *= (node._opacity / 255);
+    let opacity = (_walker.parentOpacity *= (node._opacity / 255));
 
     let worldTransformFlag = _walker.worldMatDirty ? WORLD_TRANSFORM : 0;
     let worldOpacityFlag = _walker.parentOpacityDirty ? COLOR : 0;
+    let worldDirtyFlag = worldTransformFlag | worldOpacityFlag;
 
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
-        c._renderFlag |= worldTransformFlag | worldOpacityFlag;
+        c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
 
         // TODO: Maybe has better way to implement cascade opacity
-        c._color.a = c._opacity * _walker.parentOpacity;
+        let colorVal = c._color._val;
+        c._color._fastSetA(c._opacity * opacity);
         flows[c._renderFlag]._func(c);
-        c._color.a = 255;
+        c._color._val = colorVal;
     }
 
     _walker.parentOpacity = parentOpacity;

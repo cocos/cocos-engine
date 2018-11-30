@@ -245,6 +245,8 @@ module.exports = {
             "horizontal_align": "水平对齐方式",
             "font_size": "字体大小, 单位是 point",
             "font": "富文本定制字体",
+            "font_family": "富文本定制系统字体",
+            'system_font': "是否使用系统默认字体",
             "line_height": "字体行高, 单位是 point",
             "max_width": "富文本的最大宽度, 传 0 的话意味着必须手动换行.",
             "image_atlas": "对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。",
