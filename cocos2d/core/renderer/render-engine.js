@@ -8048,8 +8048,6 @@ function _createShader(gl, type, src) {
   return shader;
 }
 
-const ArrayBufferView = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array)).constructor;
-
 var Texture = function Texture(device) {
   this._device = device;
 
@@ -8248,7 +8246,7 @@ var Texture2D = (function (Texture$$1) {
     var premultiplyAlpha = options.premultiplyAlpha;
     var img = options.image;
 
-    if (!(img instanceof ArrayBufferView)) {
+    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {
@@ -8307,7 +8305,7 @@ var Texture2D = (function (Texture$$1) {
     var premultiplyAlpha = options.premultiplyAlpha;
     var img = options.image;
 
-    if (!(img instanceof ArrayBufferView)) {
+    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {
@@ -8596,7 +8594,7 @@ var TextureCube = (function (Texture$$1) {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
 
-    if (!(img instanceof ArrayBufferView)) {
+    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, options.level, options.x, options.y, glFmt.format, glFmt.pixelType, img);
     } else {
       if (this._compressed) {
@@ -8643,7 +8641,7 @@ var TextureCube = (function (Texture$$1) {
     } else {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
-    if (!(img instanceof ArrayBufferView)) {
+    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texImage2D(
         gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
         options.level,
