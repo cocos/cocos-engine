@@ -2,10 +2,7 @@ import Asset from "../../assets/CCAsset";
 import { property, ccclass } from "../../core/data/class-decorator";
 
 @ccclass('cc.EffectAsset')
-export default class EffectAsset extends Asset {
-    @property
-    name = '';
-
+class EffectAsset extends Asset {
     @property
     techniques = [];
 
@@ -21,4 +18,25 @@ export default class EffectAsset extends Asset {
     }
 }
 
+let effects = EffectAsset._effects = {};
+EffectAsset.register = function(asset) {
+    effects[asset.name] = asset;
+};
+EffectAsset.remove = function(name) {
+    if (effects[name]) { delete effects[name]; return; }
+    for (let n in effects) {
+        if (effects[n]._uuid === name) {
+            delete effects[n];
+            return;
+        }
+    }
+};
+EffectAsset.get = function(name) {
+    return effects[name];
+};
+EffectAsset.getAll = function() {
+    return effects;
+};
+
+export default EffectAsset;
 cc.EffectAsset = EffectAsset;

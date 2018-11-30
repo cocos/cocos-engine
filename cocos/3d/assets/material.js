@@ -48,10 +48,13 @@ class Material extends Asset {
      */
     @property(EffectAsset)
     _effectAsset = null;
+    // save this too because inspector needs it
+    @property
+    _effectName = '';
 
     @property
     set effectAsset(val) {
-        if (this._effectAsset.name !== val.name) this._setEffect(val);
+        if (this.effectName !== val.name) this._setEffect(val);
     }
     get effectAsset() {
         return this._effectAsset;
@@ -63,7 +66,7 @@ class Material extends Asset {
         if (this.effectName !== val) this._setEffect(val);
     }
     get effectName() {
-        return this._effectAsset ? this._effectAsset.name : '';
+        return this._effectName;
     }
 
     /**
@@ -132,11 +135,12 @@ class Material extends Asset {
 
     _setEffect(val) {
         let effectAsset = val;
-        if (typeof val === 'string' && !(effectAsset = cc.game._builtins[val])) {
+        if (typeof val === 'string' && !(effectAsset = cc.EffectAsset.get(val))) {
             console.warn(`no effect named '${val}' found`);
             return;
         }
         this._effectAsset = effectAsset;
+        this._effectName = effectAsset.name;
         this._effect = Effect.parseEffect(effectAsset);
     }
 

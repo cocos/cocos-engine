@@ -7,7 +7,7 @@ let _shdID = 0;
 function _generateDefines(device, defs, deps) {
   let defines = [];
   for (let def in defs) {
-    let d = defs[def];
+    let d = defs[def].value;
     let result = typeof d === 'number' ? d : d ? 1 : 0;
     // fallback if extension dependency not supported
     if (result && deps[def] && !device.ext(deps[def])) {

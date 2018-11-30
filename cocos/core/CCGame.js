@@ -225,7 +225,7 @@ var game = {
      * @property config
      * @type {Object}
      */
-    config: null,
+    config: {},
 
     /**
      * !#en Callback when the scripts of engine have been load.
@@ -234,8 +234,6 @@ var game = {
      * @type {Function}
      */
     onStart: null,
-
-    _builtins: {},
 
     //@Public Methods
 
@@ -798,11 +796,10 @@ var game = {
     },
 
     _initBuiltins: function(effectUUIDs, cb) {
-        builtinResMgr.initBuiltinRes(this._renderContext, effectUUIDs, builtins => {
-            this._builtins = builtins;
+        builtinResMgr.initBuiltinRes(this._renderContext, effectUUIDs, (builtins) => {
             this._renderer.setBuiltins({
-                defaultTexture: this._builtins['default-texture']._texture,
-                defaultTextureCube: this._builtins['default-texture-cube']._texture,
+                defaultTexture: builtins['default-texture']._texture,
+                defaultTextureCube: builtins['default-texture-cube']._texture,
             });
             if (cb) cb();
         });

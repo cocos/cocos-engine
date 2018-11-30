@@ -84,14 +84,9 @@ let builtinResMgr = {
         for (let i = 0; i < effectUUIDs.length; ++i) {
             let uuid = effectUUIDs[i];
             cc.AssetLibrary.loadAsset(uuid, (err, asset) => {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                builtins[`builtin-effect-${asset.name}`] = asset;
-                if (!--remainingJobs) {
-                    OnComplete(builtins);
-                }
+                if (err) { console.error(err); return; }
+                cc.EffectAsset.register(asset);
+                if (!--remainingJobs) OnComplete(builtins);
             });
         }
     },
