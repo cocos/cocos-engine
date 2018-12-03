@@ -233,6 +233,7 @@ let RenderComponent = cc.Class({
         if (material) {
             this._updateMaterialBlendFunc(true, material);
         }
+        this.markForUpdateRenderData(true);
     },
 
     _updateBlendFunc: function (updateHash) {
