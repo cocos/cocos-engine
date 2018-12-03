@@ -177,6 +177,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             callback(null, asset);
         }
         else {
+            if (!errors && asset.onLoad) asset.onLoad();
             callback(errors, asset);
         }
     });
@@ -284,15 +285,11 @@ function loadUuid (item, callback) {
 
     cc.deserialize.Details.pool.put(tdInfo);
 
-    var wrappedCallback = function(err, asset) {
-        if (!err && asset.onLoad) asset.onLoad();
-        callback(err, asset);
-    };
-
     if (depends.length === 0) {
-        return wrappedCallback(null, asset);
+        if (asset.onLoad) asset.onLoad();
+        return callback(null, asset);
     }
-    loadDepends(this.pipeline, item, asset, depends, wrappedCallback);
+    loadDepends(this.pipeline, item, asset, depends, callback);
 }
 
 module.exports = loadUuid;
