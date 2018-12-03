@@ -238,14 +238,6 @@ class Node extends BaseNode {
         }
     }
 
-    set eulerAngles(val) {
-        vec3.copy(this._euler, val);
-        this.setRotationFromEuler(val.x, val.y, val.z);
-    }
-    get eulerAngles() {
-        return this._euler;
-    }
-
     /**
      * set local scale
      * @param {vec3|number} val the new local scale, or the x component of it
@@ -463,6 +455,15 @@ if (CC_EDITOR) {
         eu.y = repeat(v3_a.y - eu.y + 180, 360) + eu.y - 180;
         eu.z = repeat(v3_a.z - eu.z + 180, 360) + eu.z - 180;
     };
+    let desc = {
+        set(val) {
+            this.setRotationFromEuler(val.x, val.y, val.z);
+        },
+        get() {
+            return this._euler;
+        }
+    };
+    Object.defineProperty(Node.prototype, 'eulerAngles', desc);
 } else Node.prototype.syncEuler = function() {};
 
 cc.Node = Node;

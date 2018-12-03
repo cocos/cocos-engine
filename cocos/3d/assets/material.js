@@ -140,8 +140,8 @@ class Material extends Asset {
             return;
         }
         this._effectAsset = effectAsset;
-        this._effectName = effectAsset.name;
-        this._effect = Effect.parseEffect(effectAsset);
+        this._effectName = effectAsset ? effectAsset.name : '';
+        this._effect = effectAsset ? Effect.parseEffect(effectAsset) : null;
     }
 
     static getInstantiatedMaterial(mat, rndCom) {

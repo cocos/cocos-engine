@@ -132,7 +132,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
     if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
     if (dest === extensions) {
-      if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
+      if (defines.length !== 1) console.warn('extensions must be under controll of exactly 1 define');
       param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
       param.define = defines[0];
       dest.push(param);
