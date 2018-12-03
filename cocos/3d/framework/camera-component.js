@@ -26,7 +26,7 @@
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
-import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
+import { ccclass, menu, property } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
 
 /**
@@ -306,10 +306,7 @@ export default class CameraComponent extends RenderSystemActor{
         this.stencil = this._stencil;
         this.clearFlags = this._clearFlags;
         this.rect = this._rect;
-        this._camera.setStages([
-            'opaque',
-            'transparent'
-        ]);
+        this._camera.setStages(renderer.PassStage.DEFAULT | renderer.PassStage.FORWARD);
         this._camera.setNode(this.node);
     }
 

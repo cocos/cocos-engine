@@ -1,29 +1,26 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["opaque"],
-      "passes": [
-       {
-         "program": "phong",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": true
-       }
-      ],
-      "layer": 0
-    },
-    {
-      "stages": ["shadowcast"],
-      "params": [],
+      "queue": "opaque",
+      "lod": 200,
       "passes": [
         {
-          "program": "shadow-depth",
+          "vert": "phong-vs:vert",
+          "frag": "phong-fs:frag",
+          "stage": "forward",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": true
+        },
+        {
+          "vert": "shadow-depth-vs:vert",
+          "frag": "shadow-depth-fs:frag",
+          "stage": "shadowcast",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
         }
-      ],
-      "layer": 0
+      ]
     }
   ],
 
@@ -73,4 +70,4 @@
       "value": 0
     }
   }
-}
+%}

@@ -1,64 +1,55 @@
 'use strict';
 
+const shdcLib = require('../cocos/renderer/bin/shdc-lib');
+
 const path_ = require('path');
 const fs = require('fs');
 const fsJetpack = require('fs-jetpack');
-const mappings = require('../bin/mappings');
 
-function mapPassParam(p) {
-  let num;
-  switch (typeof p) {
-  case 'string':
-    num = parseInt(p);
-    return isNaN(num) ? mappings.passParams[p] : num;
-  case 'object':
-    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
-  }
-  return p;
-}
-
-function buildEffects(dest, path) {
-  let files = fsJetpack.find(path, { matching: ['**/*.effect'] });
-  let code = '';
-  for (let i = 0; i < files.length; ++i) {
-    let file = files[i];
-    let dir = path_.dirname(file);
-    let name = path_.basename(file, '.effect');
-    if (name === 'index') continue;
-
-    let json = fs.readFileSync(path_.join(dir, name + '.effect'), { encoding: 'utf8' });
-    json = JSON.parse(json);
-    // map param's type offline.
-    for (let j = 0; j < json.techniques.length; ++j) {
-      let jsonTech = json.techniques[j];
-      for (let k = 0; k < jsonTech.passes.length; ++k) {
-        let pass = jsonTech.passes[k];
-        for (let key in pass) {
-          if (key === "program") continue;
-          pass[key] = mapPassParam(pass[key]);
-        }
-      }
+let stringifyShaders = (function() {
+  let newlines = /\n+/g;
+  let toOneLiner = o => '\n      ' + JSON.stringify(o).replace(/([,:])/g, '$1 ');
+  return function (shaders) {
+    let code = '';
+    for (let i = 0; i < shaders.length; ++i) {
+      let { name, vert, frag, defines, uniforms, attributes, extensions } = shaders[i];
+      vert = vert.replace(newlines, '\\n');
+      frag = frag.replace(newlines, '\\n');
+      code += '  {\n';
+      code += `    "name": "${name}",\n`;
+      code += `    "vert": "${vert}",\n`;
+      code += `    "frag": "${frag}",\n`;
+      code += '    "defines": [';
+      code += defines.map(toOneLiner);
+      code += (defines.length ? '\n    ' : '') + '],\n';
+      code += '    "uniforms": [';
+      code += uniforms.map(toOneLiner);
+      code += (uniforms.length ? '\n    ' : '') + '],\n';
+      code += '    "attributes": [';
+      code += attributes.map(toOneLiner);
+      code += (attributes.length ? '\n    ' : '') + '],\n';
+      code += '    "extensions": [';
+      code += extensions.map(toOneLiner);
+      code += (extensions.length ? '\n    ' : '') + ']\n';
+      code += '  },\n';
     }
-    for (let prop in json.properties) {
-      let info = json.properties[prop];
-      info.type = mappings.typeParams[info.type];
-    }
+    return `[\n${code.slice(0, -2)}\n]`;
+  };
+})();
 
-    code += '  {\n';
-    code += `    "name": "${name}",\n`;
-    code += `    "techniques": ${JSON.stringify(json.techniques)},\n`;
-    code += `    "properties": ${JSON.stringify(json.properties)}\n`;
-    code += '  },\n';
-  }
-
-  fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]`, { encoding: 'utf8' });
+let indent = (str, num) => str.replace(/\n/g, '\n'+' '.repeat(num));
+let path = './cocos/3d/builtin/effects';
+let dest = path_.join(path, 'index.json');
+let files = fsJetpack.find(path, { matching: ['**/*.effect'] }), code = ``;
+for (let i = 0; i < files.length; ++i) {
+  let name = path_.basename(files[i], '.effect');
+  let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+  let effect = shdcLib.buildEffect(name, content);
+  code += '  {\n';
+  code += `    "name": "${effect.name}",\n`;
+  code += `    "techniques": ${JSON.stringify(effect.techniques)},\n`;
+  code += `    "properties": ${JSON.stringify(effect.properties)},\n`;
+  code += `    "shaders": ${indent(stringifyShaders(effect.shaders), 4)}\n`;
+  code += '  },\n';
 }
-
-// ============================================================
-// build
-// ============================================================
-
-let effectsPath = './cocos/3d/builtin/effects';
-let effectsFile = path_.join(effectsPath, 'index.json');
-console.log(`generate ${effectsFile}`);
-buildEffects(effectsFile, effectsPath);
+fs.writeFileSync(dest, `[\n${code.slice(0, -2)}\n]\n`, { encoding: 'utf8' });

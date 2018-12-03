@@ -1,10 +1,12 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import gfx from '../gfx';
+import { PassStage } from './constants';
 
 export default class Pass {
   constructor(name) {
     this._programName = name;
+    this._stage = PassStage.DEFAULT;
 
     // cullmode
     this._cullMode = gfx.CULL_BACK;
@@ -44,6 +46,10 @@ export default class Pass {
     this._stencilWriteMaskBack = 0xff;
   }
 
+  setStage(stage = PassStage.DEFAULT) {
+    this._stage = stage;
+  }
+
   setCullMode(cullMode = gfx.CULL_BACK) {
     this._cullMode = cullMode;
   }
@@ -51,11 +57,11 @@ export default class Pass {
   setBlend(
     enabled = false,
     blendEq = gfx.BLEND_FUNC_ADD,
-    blendSrc = gfx.BLEND_ONE,
-    blendDst = gfx.BLEND_ZERO,
+    blendSrc = gfx.BLEND_SRC_ALPHA,
+    blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
     blendAlphaEq = gfx.BLEND_FUNC_ADD,
-    blendSrcAlpha = gfx.BLEND_ONE,
-    blendDstAlpha = gfx.BLEND_ZERO,
+    blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
+    blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
     blendColor = 0xffffffff
   ) {
     this._blend = enabled;

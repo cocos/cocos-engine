@@ -613,7 +613,7 @@ export default class Device {
       drawcalls: 0,
     };
 
-    this._initExtensions([
+    let builtin_exts = [
       'EXT_texture_filter_anisotropic',
       'EXT_shader_texture_lod',
       'OES_standard_derivatives',
@@ -628,7 +628,13 @@ export default class Device {
       'WEBGL_compressed_texture_s3tc',
       'WEBGL_depth_texture',
       'WEBGL_draw_buffers',
-    ]);
+    ];
+    for (let i = 0; i < builtin_exts.length; ++i) {
+      this._initExtension(builtin_exts[i]);
+    }
+    let exts = gl.getSupportedExtensions();
+    this._supportedExts = exts.reduce((acc, cur) => acc[cur] = true, {});
+
     this._initCaps();
     this._initStates();
 
@@ -648,23 +654,6 @@ export default class Device {
     for (let i = 0; i < this._caps.maxVertexAttribs; ++i) {
       this._enabledAttributes[i] = 0;
       this._newAttributes[i] = 0;
-    }
-  }
-
-  _initExtensions(extensions) {
-    const gl = this._gl;
-
-    for (let i = 0; i < extensions.length; ++i) {
-      let name = extensions[i];
-
-      try {
-        let ext = gl.getExtension(name);
-        if (ext) {
-          this._extensions[name] = ext;
-        }
-      } catch (e) {
-        console.error(e);
-      }
     }
   }
 
@@ -738,12 +727,24 @@ export default class Device {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib ? ib._glID : null);
   }
 
+  _initExtension(name) {
+    const gl = this._gl;
+    let ext = gl.getExtension(name);
+    return this._extensions[name] = ext;
+  }
+
   /**
    * @method ext
    * @param {string} name
    */
   ext(name) {
-    return this._extensions[name];
+    let ext = this._extensions[name];
+    if (ext) return ext;
+    if (this.supportExtension(name)) return this._initExtension(name);
+  }
+
+  supportExtension(name) {
+    return this._supportedExts[name] === true;
   }
 
   allowFloatTexture() {

@@ -6,12 +6,12 @@ import { vec3, mat4 } from '../../core/vmath';
 import BaseRenderer from '../core/base-renderer';
 import DynamicIAPool from '../core/dynamic-ia-pool';
 import enums from '../enums';
+import { PassStage } from '../core/constants';
 
 // import GaussianBlur from './gaussian-blur';
 
 let _camPos = vec3.create(0, 0, 0);
 let _camFwd = vec3.create(0, 0, 0);
-let _v3_tmp1 = vec3.create(0, 0, 0);
 
 let _a16_view = new Float32Array(16);
 let _a16_proj = new Float32Array(16);
@@ -28,10 +28,9 @@ export default class ForwardRenderer extends BaseRenderer {
     this._shadowLights = [];
     this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
 
-    this._registerStage('shadowcast', this._shadowStage.bind(this));
-    this._registerStage('opaque', this._opaqueStage.bind(this));
-    this._registerStage('transparent', this._transparentStage.bind(this));
-    this._registerStage('ui', this._uiStage.bind(this));
+    this._registerStage(PassStage.SHADOWCAST, this._shadowStage.bind(this));
+    this._registerStage(PassStage.DEFAULT, this._defaultStage.bind(this));
+    this._registerStage(PassStage.FORWARD, this._forwardStage.bind(this));
 
     this._registerModel('default', this._draw.bind(this));
     this._registerModel('line-batch', this._drawLineBatch.bind(this));
@@ -79,7 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
       if (light.shadowType !== enums.SHADOW_NONE) {
         this._shadowLights.push(light);
         let view = this._requestView();
-        light.extractView(view, ['shadowcast']);
+        light.extractView(view, PassStage.SHADOWCAST);
       }
       if (light._type === enums.LIGHT_DIRECTIONAL) {
         this._directionalLights.push(light);
@@ -197,9 +196,9 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  _updateShaderDefines(items) {
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
+  _updateShaderDefines(item) {
+    // for (let i = 0; i < items.length; ++i) {
+    //   let item = items.data[i];
       let defines = item.defines;
 
       defines.NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
@@ -207,171 +206,47 @@ export default class ForwardRenderer extends BaseRenderer {
       defines.NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
 
       defines.NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
-    }
+    // }
   }
 
-  _uiStage(view, items) {
-    // update uniforms
-    this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+    _shadowStage(item) {
+        this._device.setUniform('lightViewProjMatrix', mat4.array(_a16_viewProj, this._currentView._matViewProj));
 
-    // sort items
-    items.sort((a, b) => {
-      return a.model._userKey - b.model._userKey;
-    });
+        // update rendering
+        // this._submitLightUniforms();
+        this._submitShadowStageUniforms(this._currentView);
+        this._updateShaderDefines(item);
 
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-      this._drawModel(item);
-    }
-  }
 
-  _shadowStage(view, items) {
-    const programLib = this._programLib;
-    this._device.setUniform('lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+        // draw it
 
-    // update rendering
-    this._submitLightUniforms();
-    this._submitShadowStageUniforms(view);
-    this._updateShaderDefines(items);
+        if (item.model._castShadow) {
+            this._drawPass(item);
+        }
 
-    // calculate sorting key
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-      item.sortKey = programLib.getKey(
-        item.technique._passes[0]._programName,
-        item.defines
-      );
     }
 
-    // sort items
-    items.sort((a, b) => {
-      let techA = a.technique;
-      let techB = b.technique;
-
-      if (techA._layer !== techB._layer) {
-        return techA._layer - techB._layer;
-      }
-
-      if (techA._passes.length !== techB._passes.length) {
-        return techA._passes.length - techB._passes.length;
-      }
-
-      return a.sortKey - b.sortKey;
-    });
-
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-      if (item.model._castShadow) {
-        this._drawModel(item);
-      }
+    _defaultStage(item) {
+        this._drawPass(item);
     }
 
-  }
+    _forwardStage(item) {
 
-  _opaqueStage(view, items) {
-    const programLib = this._programLib;
-    view.getPosition(_camPos);
+        // update rendering
+        this._submitLightUniforms();
+        this._submitOtherStagesUniforms();
+        this._updateShaderDefines(item);
 
-    // update uniforms
-    this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
 
-    // update rendering
-    this._submitLightUniforms();
-    this._submitOtherStagesUniforms();
-    this._updateShaderDefines(items);
+        for (let index = 0; index < this._shadowLights.length; ++index) {
+            let light = this._shadowLights[index];
+            this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+        }
 
-    // calculate sorting key
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-      item.sortKey = programLib.getKey(
-        item.technique._passes[0]._programName,
-        item.defines
-      );
+        this._drawPass(item);
     }
 
-    // sort items
-    items.sort((a, b) => {
-      let techA = a.technique;
-      let techB = b.technique;
 
-      if (techA._layer !== techB._layer) {
-        return techA._layer - techB._layer;
-      }
-
-      if (techA._passes.length !== techB._passes.length) {
-        return techA._passes.length - techB._passes.length;
-      }
-
-      return a.sortKey - b.sortKey;
-    });
-
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-
-      for (let index = 0; index < this._shadowLights.length; ++index) {
-        let light = this._shadowLights[index];
-        this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-      }
-
-      this._drawModel(item);
-    }
-  }
-
-  _transparentStage(view, items) {
-    view.getPosition(_camPos);
-    view.getForward(_camFwd);
-
-    // update uniforms
-    this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
-
-    // calculate zdist
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-
-      // TODO: we should use mesh center instead!
-      item.node.getWorldPosition(_v3_tmp1);
-
-      vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
-      item.sortKey = vec3.dot(_v3_tmp1, _camFwd);
-    }
-
-    // update rendering
-    this._submitLightUniforms();
-    this._submitOtherStagesUniforms();
-    this._updateShaderDefines(items);
-
-    // sort items
-    items.sort((a, b) => {
-      if (a.technique._layer !== b.technique._layer) {
-        return a.technique._layer - b.technique._layer;
-      }
-
-      return b.sortKey - a.sortKey;
-    });
-
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-
-      for (let index = 0; index < this._shadowLights.length; ++index) {
-        let light = this._shadowLights[index];
-        this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-      }
-
-      this._drawModel(item);
-    }
-  }
 
   _drawSkinning(item) {
     let { model, defines } = item;

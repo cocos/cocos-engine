@@ -1,16 +1,18 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["opaque"],
+      "queue": "opaque",
+      "lod": 100,
       "passes": [
-       {
-         "program": "unlit",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": true
-       }
-      ],
-      "layer": 0
+        {
+          "vert": "unlit-vs:vert",
+          "frag": "unlit-fs:frag",
+          "stage": "default",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": true
+        }
+      ]
     }
   ],
 
@@ -32,4 +34,4 @@
       "value": null
     }
   }
-}
+%}

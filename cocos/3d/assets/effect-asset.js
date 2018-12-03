@@ -1,28 +1,42 @@
-import RawAsset from "../../assets/CCRawAsset";
+import Asset from "../../assets/CCAsset";
+import { property, ccclass } from "../../core/data/class-decorator";
 
-export default class EffectAsset extends RawAsset {
+@ccclass('cc.EffectAsset')
+class EffectAsset extends Asset {
+    @property
+    techniques = [];
 
-    constructor() {
-        super();
-        this._name = null;
-        this._uuid = null;
-        this._techniques = null;
-        this._properties = null;
-    }
+    @property
+    properties = {};
 
-    get techniques() {
-        return this._techniques;
-    }
+    @property
+    shaders = [];
 
-    get properties() {
-        return this._properties;
-    }
-
-    setRawJson(json, isBuiltin = false) {
-        this._name = json.name;
-        // TODO:the uuid of customized effect should be changed later
-        this._uuid = isBuiltin ? `builtin-effect-${json.name}` : json.name;
-        this._techniques = json.techniques;
-        this._properties = json.properties || {};
+    onLoaded() {
+        let lib = cc.game._renderer._programLib;
+        this.shaders.forEach(s => lib.define(s));
     }
 }
+
+let effects = EffectAsset._effects = {};
+EffectAsset.register = function(asset) {
+    effects[asset.name] = asset;
+};
+EffectAsset.remove = function(name) {
+    if (effects[name]) { delete effects[name]; return; }
+    for (let n in effects) {
+        if (effects[n]._uuid === name) {
+            delete effects[n];
+            return;
+        }
+    }
+};
+EffectAsset.get = function(name) {
+    return effects[name];
+};
+EffectAsset.getAll = function() {
+    return effects;
+};
+
+export default EffectAsset;
+cc.EffectAsset = EffectAsset;

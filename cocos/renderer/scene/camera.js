@@ -36,7 +36,7 @@ export default class Camera {
     this._clearModel = null;
 
     // stages & framebuffer
-    this._stages = [];
+    this._stages = 0;
     this._framebuffer = null;
 
     // projection properties
@@ -268,7 +268,7 @@ export default class Camera {
 
   /**
    * Set the stages of the camera
-   * @param {string[]} stages camera stages
+   * @param {number} stages camera stages
    */
   setStages(stages) {
     this._stages = stages;

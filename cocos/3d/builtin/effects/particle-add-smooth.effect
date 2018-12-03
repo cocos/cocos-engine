@@ -1,23 +1,24 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
-       {
-         "program": "particle-add-smooth",
-         "cullMode": "none",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "one",
-         "blendDst": "oneMinusSrcColor",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcColor"
-       }
-      ],
-      "layer": 0
+        {
+          "vert": "particle-vs-legacy:lpvs_main",
+          "frag": "particle-add-smooth-fs",
+          "stage": "default",
+          "cullMode": "none",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "one",
+          "blendDst": "oneMinusSrcColor",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcColor"
+        }
+      ]
     }
   ],
 
@@ -33,10 +34,10 @@
     "mainOffset": {
       "type": "vec2",
       "value": [0, 0]
-    }, 
+    },
     "frameTile": {
-      "type": "vec2", 
-      "value": [1,1] 
+      "type": "vec2",
+      "value": [1,1]
     },
     "velocityScale": {
       "type": "float",
@@ -46,5 +47,19 @@
       "type": "float",
       "value": 0
     }
+  }
+%}
+
+%% particle-add-smooth-fs {
+  uniform sampler2D mainTexture;
+
+  varying vec2 uv;
+  varying vec4 color;
+
+  void main () {
+    // TODO: soft particle
+    vec4 col = color * texture2D(mainTexture, uv);
+    col.rgb *= col.a;
+    gl_FragColor = col;
   }
 }

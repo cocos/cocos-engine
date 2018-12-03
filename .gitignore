@@ -13,6 +13,4 @@ node_modules
 npm-debug.log
 DebugInfos.json
 
-cocos/renderer/shaders/chunks/index.json
-cocos/renderer/shaders/templates/index.json
 cocos/3d/builtin/effects/index.json

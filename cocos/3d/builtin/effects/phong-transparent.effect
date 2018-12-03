@@ -1,36 +1,33 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["transparent"],
-      "passes": [
-       {
-         "program": "phong",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "srcAlpha",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
-    },
-    {
-      "stages": ["shadowcast"],
-      "params": [],
+      "queue": "transparent",
+      "lod": 200,
       "passes": [
         {
-          "program": "shadow-depth",
+          "vert": "phong-vs:vert",
+          "frag": "phong-fs:frag",
+          "stage": "forward",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "srcAlpha",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        },
+        {
+          "vert": "shadow-depth-vs:vert",
+          "frag": "shadow-depth-fs:frag",
+          "stage": "shadowcast",
           "cullMode": "back",
           "depthTest": true,
           "depthWrite": true
         }
-      ],
-      "layer": 0
+      ]
     }
   ],
 
@@ -80,4 +77,4 @@
       "value": 0
     }
   }
-}
+%}

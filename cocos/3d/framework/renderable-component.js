@@ -63,7 +63,7 @@ export default class RenderableComponent extends RenderSystemActor {
      * @param {Number} idx - Look for the material list number
      */
     getMaterial(idx) {
-        if (idx < 0 || idx >= this._materials.length) {
+        if (idx < 0 || idx >= this._materials.length || this._materials[idx] == null) {
             return null;
         }
 

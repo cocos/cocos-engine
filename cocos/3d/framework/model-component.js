@@ -240,9 +240,9 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     /**
-     * 
-     * @param {Model} model 
-     * @param {Material} material 
+     *
+     * @param {Model} model
+     * @param {Material} material
      */
     _updateModelMaterial(model, material) {
         model.setEffect((material ? material.effect : null) || this._getBuiltinMaterial().effect);
@@ -274,6 +274,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _getBuiltinMaterial() {
+        // classic ugly pink indicating missing material
         if (ModelComponent._builtinMaterial === null) {
             const builtinMaterial = new cc.Material();
             builtinMaterial.effectName = 'builtin-effect-phong';

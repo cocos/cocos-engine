@@ -1,23 +1,25 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
+      "lod": 200,
       "passes": [
-       {
-         "program": "particle-alpha-blend",
-         "cullMode": "none",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "srcAlpha",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "srcAlpha",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
+        {
+          "vert": "particle-vs-legacy:lpvs_main",
+          "frag": "particle-alpha-blend-fs",
+          "stage": "default",
+          "cullMode": "none",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "srcAlpha",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "srcAlpha",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        }
+      ]
     }
   ],
 
@@ -37,10 +39,10 @@
     "tintColor": {
       "type": "color4",
       "value": [0.5, 0.5, 0.5, 0.5]
-    }, 
+    },
     "frameTile": {
-      "type": "vec2", 
-      "value": [1,1] 
+      "type": "vec2",
+      "value": [1,1]
     },
     "velocityScale": {
       "type": "float",
@@ -50,5 +52,18 @@
       "type": "float",
       "value": 0
     }
+  }
+%}
+
+%% particle-alpha-blend-fs {
+  uniform sampler2D mainTexture;
+  uniform vec4 tintColor;
+
+  varying vec2 uv;
+  varying vec4 color;
+
+  void main () {
+    // TODO: soft particle
+    gl_FragColor = 2.0 * color * tintColor * texture2D(mainTexture, uv);
   }
 }

@@ -1,23 +1,24 @@
-{
+%{
   "techniques": [
     {
-      "stages": ["transparent"],
+      "queue": "transparent",
       "passes": [
-       {
-         "program": "unlit",
-         "cullMode": "back",
-         "depthTest": true,
-         "depthWrite": false,
-         "blend": true,
-         "blendEq": "add",
-         "blendSrc": "srcAlpha",
-         "blendDst": "oneMinusSrcAlpha",
-         "blendAlphaEq": "add",
-         "blendSrcAlpha": "one",
-         "blendDstAlpha": "oneMinusSrcAlpha"
-       }
-      ],
-      "layer": 0
+        {
+          "vert": "unlit-vs:vert",
+          "frag": "unlit-fs:frag",
+          "stage": "default",
+          "cullMode": "back",
+          "depthTest": true,
+          "depthWrite": false,
+          "blend": true,
+          "blendEq": "add",
+          "blendSrc": "srcAlpha",
+          "blendDst": "oneMinusSrcAlpha",
+          "blendAlphaEq": "add",
+          "blendSrcAlpha": "one",
+          "blendDstAlpha": "oneMinusSrcAlpha"
+        }
+      ]
     }
   ],
 
@@ -39,4 +40,4 @@
       "value": null
     }
   }
-}
+%}

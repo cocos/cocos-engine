@@ -1,75 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-### VERT ###
-
-attribute vec3 a_position;
-attribute vec3 a_normal;
-
-varying vec3 pos_w;
-varying vec3 normal_w;
-
-uniform mat4 model;
-uniform mat4 viewProj;
-uniform mat3 normalMatrix;
-
-#if USE_ALBEDO_TEXTURE || USE_NORMAL_TEXTURE || USE_MRA_TEXTURE || USE_METALLIC_TEXTURE || USE_ROUGHNESS_TEXTURE || USE_AO_TEXTURE || USE_EMISSIVE_TEXTURE
-  attribute vec2 a_uv0;
-  uniform vec2 mainTiling;
-  uniform vec2 mainOffset;
-  varying vec2 uv0;
-#endif
-
-#if USE_SKINNING
-  #include <skinning>
-#endif
-
-#if USE_SHADOW_MAP
-  #if NUM_SHADOW_LIGHTS > 0
-    #pragma for id in range(0, NUM_SHADOW_LIGHTS)
-      uniform mat4 lightViewProjMatrix_{id};
-      uniform float minDepth_{id};
-      uniform float maxDepth_{id};
-      varying vec4 pos_lightspace_{id};
-      varying float vDepth_{id};
-    #pragma endFor
-  #endif
-#endif
-
-void main () {
-  vec4 pos = vec4(a_position, 1);
-
-  #if USE_SKINNING
-    mat4 skinMat = skinMatrix();
-    pos = skinMat * pos;
-  #endif
-
-  pos_w = (model * pos).xyz;
-  pos = viewProj * model * pos;
-
-  #if USE_ALBEDO_TEXTURE || USE_NORMAL_TEXTURE || USE_MRA_TEXTURE || USE_METALLIC_TEXTURE || USE_ROUGHNESS_TEXTURE || USE_AO_TEXTURE || USE_EMISSIVE_TEXTURE
-    uv0 = a_uv0 * mainTiling + mainOffset;
-  #endif
-
-  vec4 normal = vec4(a_normal, 0);
-  #if USE_SKINNING
-    normal = skinMat * normal;
-  #endif
-  normal_w = normalMatrix * normal.xyz;
-
-  #if USE_SHADOW_MAP
-    #if NUM_SHADOW_LIGHTS > 0
-      #pragma for id in range(0, NUM_SHADOW_LIGHTS)
-        pos_lightspace_{id} = lightViewProjMatrix_{id} * vec4(pos_w, 1.0);
-        vDepth_{id} = (pos_lightspace_{id}.z + minDepth_{id}) / (minDepth_{id} + maxDepth_{id});
-      #pragma endFor
-    #endif
-  #endif
-
-  gl_Position = pos;
-}
-
-### FRAG ###
-
 #if USE_NORMAL_TEXTURE
 #extension GL_OES_standard_derivatives : enable
 #endif
@@ -80,7 +10,86 @@ void main () {
 
 #include <common>
 #include <gamma-correction>
-#include <pbr-lighting>
+
+struct LightInfo {
+  vec3 lightDir;
+  vec3 radiance;
+};
+
+#if NUM_DIR_LIGHTS > 0
+  #pragma for id in range(0, NUM_DIR_LIGHTS)
+    uniform vec3 dir_light{id}_direction;
+    uniform vec3 dir_light{id}_color;
+  #pragma endFor
+#endif
+
+#if NUM_POINT_LIGHTS > 0
+  #pragma for id in range(0, NUM_POINT_LIGHTS)
+    uniform vec3 point_light{id}_position;
+    uniform vec3 point_light{id}_color;
+    uniform float point_light{id}_range;
+  #pragma endFor
+#endif
+
+#if NUM_SPOT_LIGHTS > 0
+  #pragma for id in range(0, NUM_SPOT_LIGHTS)
+    uniform vec3 spot_light{id}_position;
+    uniform vec3 spot_light{id}_direction;
+    uniform vec3 spot_light{id}_color;
+    uniform vec2 spot_light{id}_spot;
+    uniform float spot_light{id}_range;
+  #pragma endFor
+#endif
+
+// directional light
+LightInfo computeDirectionalLighting(
+  vec3 lightDirection,
+  vec3 lightColor
+) {
+  LightInfo ret;
+  ret.lightDir = -normalize(lightDirection);
+  ret.radiance = lightColor;
+
+  return ret;
+}
+
+// point light
+LightInfo computePointLighting(
+  vec3 lightPosition,
+  vec3 positionW,
+  vec3 lightColor,
+  float lightRange
+) {
+  LightInfo ret;
+  vec3 lightDir = lightPosition - positionW;
+  float attenuation = max(0.0, 1.0 - length(lightDir) / lightRange);
+  ret.lightDir = normalize(lightDir);
+  ret.radiance = lightColor * attenuation;
+
+  return ret;
+}
+
+// spot light
+LightInfo computeSpotLighting(
+  vec3 lightPosition,
+  vec3 positionW,
+  vec3 lightDirection,
+  vec3 lightColor,
+  vec2 lightSpot,
+  float lightRange
+) {
+  LightInfo ret;
+  vec3 lightDir = lightPosition - positionW;
+  float attenuation = max(0., 1.0 - length(lightDir) / lightRange);
+  float cosConeAngle = max(0., dot(lightDirection, -lightDir));
+  cosConeAngle = cosConeAngle < lightSpot.x ? 0.0 : cosConeAngle;
+  cosConeAngle = pow(cosConeAngle,lightSpot.y);
+  ret.lightDir = normalize(lightDir);
+  ret.radiance = lightColor * attenuation * cosConeAngle;
+
+  return ret;
+}
+
 #include <unpack>
 
 #if USE_SHADOW_MAP
@@ -228,7 +237,7 @@ vec3 brdf(LightInfo lightInfo, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metal
   return (kD * albedo / PI + specular) * lightInfo.radiance * NdotL;
 }
 
-void main() {
+vec4 frag() {
   float opacity = 1.0;
 
   #if USE_ALBEDO_TEXTURE
@@ -360,5 +369,5 @@ void main() {
   // gamma correction.
   vec4 finalColor = vec4(color, opacity);
 
-  gl_FragColor = linearToGammaSpaceRGBA(finalColor);
+  return linearToGammaSpaceRGBA(finalColor);
 }

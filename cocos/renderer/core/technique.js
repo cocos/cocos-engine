@@ -1,6 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
-import config from '../config';
+import { RenderQueue } from "./constants";
 
 let _genID = 0;
 
@@ -8,25 +7,26 @@ export default class Technique {
   /**
    * @param {Array} stages
    * @param {Array} passes
-   * @param {Number} layer
+   * @param {Number} renderQueue
    */
-  constructor(stages, passes, layer = 0) {
+  constructor(renderQueue = RenderQueue.OPAQUE, priority = 0, lod = -1, passes = []) {
     this._id = _genID++;
-    this._stageIDs = config.stageIDs(stages);
+    this._renderQueue = renderQueue;
+    this._priority = priority;
+    this._lod = lod;
     this._passes = passes;
-    this._layer = layer;
     // TODO: this._version = 'webgl' or 'webgl2' // ????
   }
 
-  setStages(stages) {
-    this._stageIDs = config.stageIDs(stages);
+  setRenderQueue(renderQueue) {
+    this._renderQueue = renderQueue;
+  }
+
+  get renderQueue() {
+    return this._renderQueue;
   }
 
   get passes() {
     return this._passes;
-  }
-
-  get stageIDs() {
-    return this._stageIDs;
   }
 }
