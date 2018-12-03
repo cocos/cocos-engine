@@ -24,6 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let settingPlatform;
+ if (!CC_EDITOR) {
+    settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
+ }
+const isBaiduGame = (settingPlatform === 'baidugame');
+const isVivoGame = (settingPlatform === 'vivogame');
+const isOppoGame = (settingPlatform === 'oppogame');
+ 
 function initSys () {
     /**
      * System variables
@@ -354,6 +362,24 @@ function initSys () {
      */
     sys.FB_PLAYABLE_ADS = 106;
     /**
+     * @property {Number} BAIDU_GAME
+     * @readOnly
+     * @default 107
+     */
+    sys.BAIDU_GAME = 107;
+    /**
+     * @property {Number} VIVO_GAME
+     * @readOnly
+     * @default 108
+     */
+    sys.VIVO_GAME = 108;
+    /**
+     * @property {Number} OPPO_GAME
+     * @readOnly
+     * @default 109
+     */
+    sys.OPPO_GAME = 109;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -374,6 +400,20 @@ function initSys () {
      * @default "wechatgamesub"
      */
     sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME
+     * @property {String} BROWSER_TYPE_BAIDU_GAME
+     * @readOnly
+     * @default "baidugame"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME = "baidugame";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME_SUB
+     * @property {String} BROWSER_TYPE_BAIDU_GAME_SUB
+     * @readOnly
+     * @default "baidugamesub"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME_SUB = "baidugamesub";
     /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
@@ -533,8 +573,8 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
-
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !isBaiduGame;
+    
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
@@ -553,13 +593,25 @@ function initSys () {
         sys.__audioSupport = {};
     }
     else if (CC_JSB) {
-        var platform = sys.platform = __getPlatform();
+        let platform;
+        if (isVivoGame) {
+            platform = sys.VIVO_GAME;
+        }
+        else if (isOppoGame) {
+            platform = sys.OPPO_GAME;
+        }
+        else {
+            platform = __getPlatform();
+        }
+        sys.platform = platform;
         sys.isMobile = (platform === sys.ANDROID ||
                         platform === sys.IPAD ||
                         platform === sys.IPHONE ||
                         platform === sys.WP8 ||
                         platform === sys.TIZEN ||
-                        platform === sys.BLACKBERRY);
+                        platform === sys.BLACKBERRY ||
+                        platform === sys.VIVO_GAME ||
+                        platform === sys.OPPO_GAME);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
@@ -703,6 +755,21 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
+    }
+    else if (isBaiduGame) {
+        let env = device.getSystemInfo();
+        sys.platform = env.platform;
+        sys.browserType = env.browserType;
+        sys.isMobile = env.isMobile;
+        sys.language = env.language;
+        sys.os = env.os;
+        sys.osVersion = env.osVersion;
+        sys.osMainVersion = env.osMainVersion;
+        sys.browserVersion = env.browserVersion;
+        sys.windowPixelResolution = env.windowPixelResolution;
+        sys.localStorage = env.localStorage;
+        sys.capabilities = env.capabilities;
+        sys.__audioSupport = env.audioSupport;
     }
     else {
         // browser or runtime

@@ -539,8 +539,9 @@ VideoPlayerImpl._polyfill = {
  * But native does not support this encode,
  * so it is best to provide mp4 and webm or ogv file
  */
+const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
 let dom = document.createElement("video");
-if (!CC_WECHATGAME) {
+if (!CC_WECHATGAME && !isBaiduGame) {
     if (dom.canPlayType("video/ogg")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".ogg");
         VideoPlayerImpl._polyfill.canPlayType.push(".ogv");
