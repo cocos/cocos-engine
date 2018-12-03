@@ -8087,6 +8087,7 @@ function _createShader(gl, type, src) {
   return shader;
 }
 
+var _textureInstanceId = 0;
 var Texture = function Texture(device) {
   this._device = device;
 
@@ -8106,6 +8107,8 @@ var Texture = function Texture(device) {
   this._format = enums$1.TEXTURE_FMT_RGBA8;
 
   this._target = -1;
+
+  this._id = _textureInstanceId++;
 };
 
 /**

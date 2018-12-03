@@ -27,6 +27,8 @@
 const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
 const EffectAsset = require('./CCEffectAsset');
+
+import computeHash from './utils/compute-hash';
 import Effect from '../../renderer/effect';
 
 let Material = cc.Class({
@@ -91,15 +93,15 @@ let Material = cc.Class({
             let builtinMaterial = cc.Asset.getBuiltin('material', 'builtin-' + name);
             return Material.getInstantiatedMaterial(builtinMaterial, this);
         },
-        getInstantiatedMaterial(mat, rndCom) {
-            if (mat._owner === rndCom) {
+        getInstantiatedMaterial(mat, renderComponent) {
+            if (mat._owner === renderComponent) {
                 return mat;
             }
             else {
                 let instance = new Material();
                 instance.copy(mat);
                 instance._native = mat._native + ' (Instance)';
-                instance._owner = rndCom;
+                instance._owner = renderComponent;
                 return instance;
             }
         }
@@ -160,37 +162,7 @@ let Material = cc.Class({
     },
 
     updateHash (val) {
-        if (val) {
-            this._hash = val;
-            return;
-        }
-
-        let str = this._effectName;
-        let props = this._props;
-        let defines = this._defines;
-        for (let name in props) {
-            let v = props[name];
-            if (typeof v === 'function') continue;
-            if (v) {
-                if (v instanceof cc.Texture2D) {
-                    v = v._id;
-                }
-                else {
-                    v = v.toString();
-                }
-            }
-            else {
-                v = '';
-            }
-            
-            str += ';' + name + ':' + v;
-        }
-        for (let name in defines) {
-            let v = defines[name];
-            if (typeof v === 'function') continue;
-            str += ';' + name + ':' + (v ? v.toString() : '');
-        }
-        this._hash = str;
+        this._hash = val || computeHash(this);
     },
 
     onLoad () {
