@@ -41,6 +41,83 @@
     <ClCompile Include="..\cocos\base\TGAlib.cpp" />
     <ClCompile Include="..\cocos\base\ZipUtils.cpp" />
     <ClCompile Include="..\cocos\cocos2d.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCSlot.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCTextureAtlasData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\Animation.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\AnimationState.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\BaseTimelineState.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\TimelineState.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\WorldClock.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Armature.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Bone.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Constraint.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\DeformVertices.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Slot.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\TransformObject.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\core\BaseObject.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\core\DragonBones.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\event\EventObject.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\factory\BaseFactory.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\geom\Point.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\geom\Transform.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\AnimationConfig.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\AnimationData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\ArmatureData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\BoundingBoxData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\CanvasData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\ConstraintData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\DisplayData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\DragonBonesData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\SkinData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\TextureAtlasData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\UserData.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\BinaryDataParser.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\DataParser.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.cpp" />
+    <ClCompile Include="..\cocos\editor-support\middleware-adapter.cpp" />
+    <ClCompile Include="..\cocos\editor-support\MiddlewareManager.cpp" />
+    <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp" />
+    <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine\Animation.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Atlas.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Attachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\AttachmentLoader.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Bone.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\BoneData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\BoundingBoxAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Event.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\EventData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\extension.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraint.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraintData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Json.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\MeshAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraint.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraintData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Skeleton.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBinary.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBounds.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonJson.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Skin.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Slot.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SlotData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\TypedArrayPool.cpp" />
     <ClCompile Include="..\cocos\math\CCGeometry.cpp" />
     <ClCompile Include="..\cocos\math\CCVertex.cpp" />
     <ClCompile Include="..\cocos\math\Mat4.cpp" />
@@ -96,8 +173,11 @@
     <ClCompile Include="..\cocos\renderer\Types.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_dragonbones_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_editor_support_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\event\EventDispatcher.cpp" />
@@ -126,6 +206,7 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_network_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_dragonbones_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp" />
@@ -134,6 +215,7 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_platfrom_win32.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp" />
     <ClCompile Include="..\cocos\storage\local-storage\LocalStorage.cpp" />
@@ -190,6 +272,94 @@
     <ClInclude Include="..\cocos\base\utlist.h" />
     <ClInclude Include="..\cocos\base\ZipUtils.h" />
     <ClInclude Include="..\cocos\cocos2d.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCDragonBonesHeaders.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCSlot.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCTextureAtlasData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\Animation.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\AnimationState.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\BaseTimelineState.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\IAnimatable.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\TimelineState.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\WorldClock.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Armature.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Bone.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Constraint.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\DeformVertices.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\IArmatureProxy.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Slot.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\TransformObject.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\core\BaseObject.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\core\DragonBones.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\DragonBonesHeaders.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\event\EventObject.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\event\IEventDispatcher.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\factory\BaseFactory.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\ColorTransform.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Matrix.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Point.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Rectangle.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Transform.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\AnimationConfig.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\AnimationData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\ArmatureData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\BoundingBoxData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\CanvasData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\ConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\DisplayData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\DragonBonesData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\SkinData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\TextureAtlasData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\UserData.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\BinaryDataParser.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\DataParser.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.h" />
+    <ClInclude Include="..\cocos\editor-support\IOBuffer.h" />
+    <ClInclude Include="..\cocos\editor-support\middleware-adapter.h" />
+    <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h" />
+    <ClInclude Include="..\cocos\editor-support\MiddlewareManager.h" />
+    <ClInclude Include="..\cocos\editor-support\IOTypedArray.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Animation.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Atlas.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Attachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\AttachmentLoader.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Bone.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\BoneData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\BoundingBoxAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Event.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\EventData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\extension.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraint.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Json.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\kvec.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\MeshAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\PathAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraint.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\RegionAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Skeleton.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBinary.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBounds.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonJson.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Skin.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Slot.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SlotData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\spine.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraint.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\VertexAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\TypedArrayPool.h" />
     <ClInclude Include="..\cocos\math\CCGeometry.h" />
     <ClInclude Include="..\cocos\math\CCMath.h" />
     <ClInclude Include="..\cocos\math\CCMathBase.h" />
@@ -260,8 +430,11 @@
     <ClInclude Include="..\cocos\renderer\Types.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_audioengine_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_dragonbones_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_editor_support_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_extension_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\event\CustomEventTypes.h" />
@@ -300,6 +473,7 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_cocos2dx_network_manual.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_dragonbones_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp" />
@@ -308,6 +482,7 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_platform.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp" />
     <ClInclude Include="..\cocos\storage\local-storage\LocalStorage.h" />
@@ -343,7 +518,7 @@
     <ProjectGuid>{98A51BA8-FC3A-415B-AC8F-8C7BD464E93E}</ProjectGuid>
     <RootNamespace>cocos2d-x.win32</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -408,7 +583,7 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\cocos\platform;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\cocos\editor-support</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;CC_STATIC;_USRDLL;USING_V8_SHARED;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;XP_WIN;_CRT_SECURE_NO_WARNINGS;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

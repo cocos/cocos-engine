@@ -413,6 +413,252 @@
     <ClCompile Include="..\extensions\assets-manager\CCAsyncTaskPool.cpp">
       <Filter>extensions\assets-manager</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_spine_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Animation.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Atlas.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Attachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AttachmentLoader.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Bone.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\BoneData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\BoundingBoxAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Event.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\EventData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\extension.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraintData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Json.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\MeshAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraintData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Skeleton.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBinary.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBounds.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonJson.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Skin.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Slot.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SlotData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\Animation.cpp">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\AnimationState.cpp">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\BaseTimelineState.cpp">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\TimelineState.cpp">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\animation\WorldClock.cpp">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Armature.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Bone.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Constraint.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\DeformVertices.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\Slot.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\armature\TransformObject.cpp">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\core\BaseObject.cpp">
+      <Filter>editor-support\dragonbones\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\core\DragonBones.cpp">
+      <Filter>editor-support\dragonbones\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\event\EventObject.cpp">
+      <Filter>editor-support\dragonbones\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\factory\BaseFactory.cpp">
+      <Filter>editor-support\dragonbones\factory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\geom\Point.cpp">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\geom\Transform.cpp">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\AnimationConfig.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\AnimationData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\ArmatureData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\BoundingBoxData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\CanvasData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\ConstraintData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\DisplayData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\DragonBonesData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\SkinData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\TextureAtlasData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\model\UserData.cpp">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\BinaryDataParser.cpp">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\DataParser.cpp">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.cpp">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.cpp">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.cpp">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCSlot.cpp">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCTextureAtlasData.cpp">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\middleware-adapter.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\TypedArrayPool.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_dragonbones_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_dragonbones_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_editor_support_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\MiddlewareManager.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -938,6 +1184,285 @@
     <ClInclude Include="..\extensions\assets-manager\CCAsyncTaskPool.h">
       <Filter>extensions\assets-manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_spine_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\VertexAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Animation.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Atlas.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Attachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AttachmentLoader.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Bone.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\BoneData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\BoundingBoxAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Event.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\EventData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\extension.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraintData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Json.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\kvec.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\MeshAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraintData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\RegionAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Skeleton.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBinary.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBounds.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonJson.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Skin.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Slot.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SlotData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\spine.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraintData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\Animation.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\AnimationState.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\BaseTimelineState.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\IAnimatable.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\TimelineState.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\animation\WorldClock.h">
+      <Filter>editor-support\dragonbones\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Armature.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Bone.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Constraint.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\DeformVertices.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\IArmatureProxy.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\Slot.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\armature\TransformObject.h">
+      <Filter>editor-support\dragonbones\armature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\core\BaseObject.h">
+      <Filter>editor-support\dragonbones\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\core\DragonBones.h">
+      <Filter>editor-support\dragonbones\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\event\EventObject.h">
+      <Filter>editor-support\dragonbones\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\event\IEventDispatcher.h">
+      <Filter>editor-support\dragonbones\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\factory\BaseFactory.h">
+      <Filter>editor-support\dragonbones\factory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\ColorTransform.h">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Matrix.h">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Point.h">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Rectangle.h">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\geom\Transform.h">
+      <Filter>editor-support\dragonbones\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\AnimationConfig.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\AnimationData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\ArmatureData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\BoundingBoxData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\CanvasData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\ConstraintData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\DisplayData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\DragonBonesData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\SkinData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\TextureAtlasData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\model\UserData.h">
+      <Filter>editor-support\dragonbones\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\BinaryDataParser.h">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\DataParser.h">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.h">
+      <Filter>editor-support\dragonbones\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones\DragonBonesHeaders.h">
+      <Filter>editor-support\dragonbones</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.h">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCDragonBonesHeaders.h">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.h">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCSlot.h">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCTextureAtlasData.h">
+      <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\middleware-adapter.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\TypedArrayPool.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_dragonbones_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_dragonbones_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_editor_support_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\MiddlewareManager.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\IOTypedArray.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\IOBuffer.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\MiddleWareMacro.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -1029,6 +1554,45 @@
     </Filter>
     <Filter Include="extensions\assets-manager">
       <UniqueIdentifier>{92ccd96e-a37d-42db-8c6b-ca683b0373ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support">
+      <UniqueIdentifier>{8fa49f64-71ec-4e73-929a-5560ddc43dc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\spine">
+      <UniqueIdentifier>{ef8ae632-2316-46bd-9b18-ae9414d6028b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\spine-creator-support">
+      <UniqueIdentifier>{114fa741-97f8-4fb6-b6ba-da80116305a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones">
+      <UniqueIdentifier>{34a2f7fb-8c84-4b6f-9b5f-bd7c8fc2b2e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones-creator-support">
+      <UniqueIdentifier>{93241d9d-c0ea-4dbe-af16-bcf1dec6b8ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\animation">
+      <UniqueIdentifier>{246339aa-844e-413e-86d5-49a4450f33b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\armature">
+      <UniqueIdentifier>{c3667516-b42c-47a7-8ad3-d9ea26ff0899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\core">
+      <UniqueIdentifier>{a93871e2-d4f4-49e8-b65a-ebfbc8ad1baf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\event">
+      <UniqueIdentifier>{d8be0abb-73c2-4938-a318-2b7c118062cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\factory">
+      <UniqueIdentifier>{231bc464-adf2-46e8-9a16-ef0e239a1430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\geom">
+      <UniqueIdentifier>{684619bb-7651-4137-ab2f-441763969f5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\model">
+      <UniqueIdentifier>{eee07273-7865-4677-bab7-887903ed30b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\dragonbones\parser">
+      <UniqueIdentifier>{adc17345-7ade-411b-abef-14ca3ae30e9f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
