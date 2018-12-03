@@ -324,7 +324,7 @@ sp.Skeleton = cc.Class({
         this._listener = null;
         this._boundingBox = cc.rect();
         this._material = new SpriteMaterial();
-        this._materials = {};
+        this._materialCache = {};
         this._renderDatas = [];
         this._debugRenderer = null;
     },
@@ -332,7 +332,7 @@ sp.Skeleton = cc.Class({
     // override
     _updateMaterial (material) {
         this._super(material);
-        this._materials = {};
+        this._materialCache = {};
     },
 
     /**
@@ -406,7 +406,7 @@ sp.Skeleton = cc.Class({
         if (!this._material) {
             this._boundingBox = cc.rect();
 	        this._material = new SpriteMaterial();
-            this._materials = {};
+            this._materialCache = {};
             this._renderDatas = [];
         }
     },
