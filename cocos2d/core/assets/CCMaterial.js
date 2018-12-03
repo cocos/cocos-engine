@@ -58,7 +58,7 @@ let Material = cc.Class({
                 return this._effectAsset.name;
             },
             set (val) {
-                let effectAsset = cc.Asset.getBuiltin('effect', val);
+                let effectAsset = cc.AssetLibrary.getBuiltin('effect', val);
                 if (!effectAsset) {
                     Editor.warn(`no effect named '${val}' found`);
                     return;
@@ -90,7 +90,7 @@ let Material = cc.Class({
 
     statics: {
         getInstantiatedBuiltinMaterial(name) {
-            let builtinMaterial = cc.Asset.getBuiltin('material', 'builtin-' + name);
+            let builtinMaterial = cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
             return Material.getInstantiatedMaterial(builtinMaterial, this);
         },
         getInstantiatedMaterial(mat, renderComponent) {

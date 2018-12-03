@@ -218,41 +218,4 @@ cc.Asset = cc.Class({
     }
 });
 
-let _builts = {
-    effect: {},
-    material: {}
-};
-
-function loadBuiltins (name, type, cb) {
-    let dirname = name  + 's';
-    let builtin = _builts[name] = {};
-    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
-        if (err) {
-            cc.error(err);
-        }
-        else {
-            for (let i = 0; i < assets.length; i++) {
-                builtin[`${assets[i].name}`] = assets[i];
-            }
-        }
-
-        cb();
-    });
-}
-
-cc.Asset._loadBuiltins = function (cb) {
-    loadBuiltins('effect', cc.EffectAsset, () => {
-        loadBuiltins('material', cc.Material, cb);
-    });
-};
-
-cc.Asset.getBuiltin = function (type, name) {
-    return _builts[type][name];
-};
-
-cc.Asset.getBuiltins = function (type) {
-    if (!type) return _builts;
-    return _builts[type];
-};
-
 module.exports = cc.Asset;

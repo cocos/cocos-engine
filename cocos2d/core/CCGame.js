@@ -375,7 +375,7 @@ var game = {
 
         // Init engine
         this._initEngine();
-        cc.Asset._loadBuiltins(() => {
+        cc.AssetLibrary._loadBuiltins(() => {
             // Log engine version
             console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 
