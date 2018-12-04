@@ -39,8 +39,8 @@ function _initBuiltins(device) {
   
     return {
         defaultTexture: defaultTexture,
-        programTemplates: renderEngine.shaders.templates,
-        programChunks: renderEngine.shaders.chunks,
+        programTemplates: {},
+        programChunks: {},
     };
 }
 

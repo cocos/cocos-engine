@@ -27,7 +27,7 @@
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
-const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
+const Material = require('../../cocos2d/core/assets/CCMaterial');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 
 /**
@@ -323,7 +323,7 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = new SpriteMaterial();
+        this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         this._materials = {};
         this._renderDatas = [];
         this._debugRenderer = null;
@@ -405,7 +405,7 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-	        this._material = new SpriteMaterial();
+            this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             this._materials = {};
             this._renderDatas = [];
         }

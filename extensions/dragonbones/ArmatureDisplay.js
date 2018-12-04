@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
+const Material = require('../../cocos2d/core/assets/CCMaterial');
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
@@ -354,14 +354,17 @@ let ArmatureDisplay = cc.Class({
 
     _activateMaterial () {
         let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        
 
         // Get material
-        let material = this._material || new SpriteMaterial();
-        material.useColor = false;
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('useTexture', true);
+            material.define('useColor', true);
+        }
 
         if (texture) {
-            material.texture = texture;
+            material.setProperty('texture', texture);
             this.markForUpdateRenderData(true);
             this.markForRender(true);
         }
@@ -369,7 +372,7 @@ let ArmatureDisplay = cc.Class({
             this.disableRender();
         }
 
-        this._updateMaterial(material);
+        this.setMaterial(0, material);
     },
 
     _buildArmature () {

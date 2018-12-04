@@ -119,8 +119,8 @@ cc.Asset = cc.Class({
          * @private
          */
         _nativeAsset: {
-            get () {},
-            set (obj) {}
+            get () { },
+            set (obj) { }
         },
     },
 

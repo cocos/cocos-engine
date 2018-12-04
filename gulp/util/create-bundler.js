@@ -70,21 +70,22 @@ module.exports = function createBundler(entryFiles, options) {
         preludePath: Path.relative(process.cwd(), preludePath),
     };
 
-    // var presets = [
-    //     [ 'es2015', { loose: true } ],
-    // ];
-
-    var plugins = [
-        // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
-        'babel-plugin-transform-es2015-shorthand-properties',
-        // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
-        'babel-plugin-transform-es2015-template-literals',
-        // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
-        'babel-plugin-transform-es2015-block-scoping',
-
-        // < 6.16.0
-        [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    var presets = [
+        // [ 'es2015', { loose: true } ],
+        'env'
     ];
+
+    // var plugins = [
+    //     // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
+    //     'babel-plugin-transform-es2015-shorthand-properties',
+    //     // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
+    //     'babel-plugin-transform-es2015-template-literals',
+    //     // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
+    //     'babel-plugin-transform-es2015-block-scoping',
+
+    //     // < 6.16.0
+    //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    // ];
 
     var Babelify;
     try {
@@ -119,8 +120,8 @@ module.exports = function createBundler(entryFiles, options) {
     return b
         .exclude(Path.join(__dirname, '../../package.json'))
         .transform(Babelify, (options && options.babelifyOpt) || {
-            // presets: presets,
-            plugins: plugins,
+            presets: presets,
+            // plugins: plugins,
 
             // >= 6.16.0
             // parserOpts: {

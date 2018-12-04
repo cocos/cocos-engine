@@ -385,4 +385,42 @@ AssetLibrary._uuidToAsset = {};
 //    }
 //};
 
+
+let _builtins = {
+    effect: {},
+    material: {}
+};
+
+function loadBuiltins (name, type, cb) {
+    let dirname = name  + 's';
+    let builtin = _builtins[name] = {};
+    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
+        if (err) {
+            cc.error(err);
+        }
+        else {
+            for (let i = 0; i < assets.length; i++) {
+                builtin[`${assets[i].name}`] = assets[i];
+            }
+        }
+
+        cb();
+    });
+}
+
+AssetLibrary._loadBuiltins = function (cb) {
+    loadBuiltins('effect', cc.EffectAsset, () => {
+        loadBuiltins('material', cc.Material, cb);
+    });
+};
+
+AssetLibrary.getBuiltin = function (type, name) {
+    return _builtins[type][name];
+};
+
+AssetLibrary.getBuiltins = function (type) {
+    if (!type) return _builtins;
+    return _builtins[type];
+};
+
 module.exports = cc.AssetLibrary = AssetLibrary;

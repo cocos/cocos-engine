@@ -108,7 +108,7 @@ if (CC_DEV) {
 if (CC_TEST) {
     // editor mocks using in unit tests
     if (typeof Editor === 'undefined') {
-        Editor = {
+        window.Editor = {
             UuidUtils: {
                 NonUuidMark: '.',
                 uuid: function () {

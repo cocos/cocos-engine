@@ -59,7 +59,7 @@ let SkinnedMeshRenderer = cc.Class({
                 this._skeleton = val;
                 this._initJoints();
                 this._initJointsTexture();
-                this.activeMaterials(true);
+                this._activateMaterial(true);
             },
             type: Skeleton
         },
@@ -76,27 +76,23 @@ let SkinnedMeshRenderer = cc.Class({
         }
     },
 
-    _createMaterial () {
-        let material = new renderEngine.MeshMaterial();
-        material.color = cc.Color.WHITE;
-        material._mainTech._passes[0].setDepth(true, true);
-        material.useModel = false;
-        material.useSkinning = true;
+    _activateSubMaterial (material) {
+        material.setProperty('color', cc.Color.WHITE);
+        material.define('useSkinning', true);
+        material.define('useTexture', true);
 
         if (this._jointsTexture) {
-            material.useJointsTexture = true;
-            material.jointsTexture = this._jointsTexture;
-            material.jointsTextureSize = this._jointsTexture.width;
+            material.define('useJointsTexture', true);
+            material.setProperty('jointsTexture', this._jointsTexture);
+            material.setProperty('jointsTextureSize', this._jointsTexture.width);
         }
         else {
-            material.useJointsTexture = false;
-            material.jointMatrices = this._jointsTextureData;
+            material.define('useJointsTexture', false);
+            material.setProperty('jointMatrices', this._jointsTextureData);
         }
-
-        return material;
     },
 
-    activeMaterials (force) {
+    _activateMaterial (force) {
         if (!this._jointsTextureData) {
             this.disableRender();
             return;

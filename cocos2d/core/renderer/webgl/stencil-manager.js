@@ -62,7 +62,6 @@ StencilManager.prototype = {
         let technique = effect.getTechnique('transparent');
         let passes = technique.passes;
         if (this.stage === Stage.DISABLED) {
-            this.stage = Stage.DISABLED;
             for (let i = 0; i < passes.length; ++i) {
                 let pass = passes[i];
                 if (pass._stencilTest) {

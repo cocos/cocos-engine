@@ -58,7 +58,7 @@ let armatureAssembler = {
         let size = comp.node._contentSize;
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        renderData.material = comp.getMaterial();
+        renderData.material = comp.sharedMaterials[0];
 
         renderData.vertexCount = 0;
         renderData.indiceCount = 0;
