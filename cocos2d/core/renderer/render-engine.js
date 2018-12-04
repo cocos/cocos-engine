@@ -8679,7 +8679,7 @@ var TextureCube = (function (Texture$$1) {
     } else {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
-    if (img && img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texImage2D(
         gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
         options.level,
