@@ -167,6 +167,7 @@ let VideoPlayerImpl = cc.Class({
         let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
         video.setAttribute("x5-playsinline", "");
         video.setAttribute("x5-video-player-type", "h5");
+        video.setAttribute("x5-video-player-fullscreen", "false");
         video.setAttribute("x5-video-orientation", orientation);
 
         this._video = video;
@@ -278,7 +279,7 @@ let VideoPlayerImpl = cc.Class({
         video.pause();
     },
 
-    _resume: function () {
+    resume: function () {
         this.play();
     },
 
@@ -356,6 +357,9 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setKeepAspectRatioEnabled: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         cc.logID(7700);
     },
 
@@ -368,8 +372,8 @@ let VideoPlayerImpl = cc.Class({
         if (!video) {
             return;
         }
+        this._fullScreenEnabled = enable;
         if (sys.os === sys.OS_IOS && sys.isBrowser) {
-            this._fullScreenEnabled = enable;
             if (this._loadedmeta) {
                 triggerFullScene(video, enable);
             }
@@ -381,6 +385,7 @@ let VideoPlayerImpl = cc.Class({
             else {
                 cc.screen.exitFullScreen(video);
             }
+            video.setAttribute("x5-video-player-fullscreen", enable ? "true" : "false");
         }
     },
 
@@ -483,6 +488,11 @@ let VideoPlayerImpl = cc.Class({
 
         let appx = (w * _mat4_temp.m00) * node._anchorPoint.x;
         let appy = (h * _mat4_temp.m05) * node._anchorPoint.y;
+
+        let viewport = cc.view._viewportRect;
+        offsetX += viewport.x / dpr;
+        offsetY += viewport.y / dpr;
+
         let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
         let matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
