@@ -727,7 +727,7 @@ proto.destroy = function () {
     this._appending = false;
     this._pipeline = null;
     this._ownerQueue = null;
-    this._errorUrls.length = 0;
+    this._errorUrls = [];
     this.onProgress = null;
     this.onComplete = null;
 
