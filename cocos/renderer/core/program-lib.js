@@ -58,7 +58,7 @@ export default class ProgramLib {
    */
   constructor(device) {
     this._device = device;
-    this._precision = `precision highp float;\n`;
+    this._precision = `precision mediump float;\n`;
     this._templates = {};
     this._cache = {};
   }

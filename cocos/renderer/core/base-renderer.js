@@ -571,10 +571,10 @@ export default class BaseRenderer {
         view.getPosition(_camPos);
 
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+        this._device.setUniform('_view_', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj_', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj_', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_eye_', vec3.array(_a3_camPos, _camPos));
 
         // calculate sorting key
         for (let i = 0; i < stageItems.length; ++i) {
@@ -607,10 +607,10 @@ export default class BaseRenderer {
         view.getForward(_camFwd);
 
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+        this._device.setUniform('_view_', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj_', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj_', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_eye_', vec3.array(_a3_camPos, _camPos));
 
         // calculate zdist
         for (let i = 0; i < stageItems.length; ++i) {
@@ -644,9 +644,9 @@ export default class BaseRenderer {
 
     _renderOverlay(view, stageItems) {
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_view_', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj_', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj_', mat4.array(_a16_viewProj, view._matViewProj));
 
         // sort items
         stageItems.sort((a, b) => {

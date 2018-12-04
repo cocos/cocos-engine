@@ -12,5 +12,3 @@ node_modules
 /.project
 npm-debug.log
 DebugInfos.json
-
-cocos/3d/builtin/effects/index.json

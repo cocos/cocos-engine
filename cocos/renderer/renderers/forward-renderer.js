@@ -144,55 +144,55 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _submitLightUniforms() {
-    this._device.setUniform('sceneAmbient', this._sceneAmbient);
+    this._device.setUniform('_sceneAmbient_', this._sceneAmbient);
 
     if (this._directionalLights.length > 0) {
       for (let index = 0; index < this._directionalLights.length; ++index) {
         let light = this._directionalLights[index];
-        this._device.setUniform(`dir_light${index}_direction`, light._directionUniform);
-        this._device.setUniform(`dir_light${index}_color`, light._colorUniform);
+        this._device.setUniform(`_dir_light_${index}_direction`, light._directionUniform);
+        this._device.setUniform(`_dir_light_${index}_color`, light._colorUniform);
       }
     }
     if (this._pointLights.length > 0) {
       for (let index = 0; index < this._pointLights.length; ++index) {
         let light = this._pointLights[index];
-        this._device.setUniform(`point_light${index}_position`, light._positionUniform);
-        this._device.setUniform(`point_light${index}_color`, light._colorUniform);
-        this._device.setUniform(`point_light${index}_range`, light._range);
+        this._device.setUniform(`_point_light_${index}_position`, light._positionUniform);
+        this._device.setUniform(`_point_light_${index}_color`, light._colorUniform);
+        this._device.setUniform(`_point_light_${index}_range`, light._range);
       }
     }
 
     if (this._spotLights.length > 0) {
       for (let index = 0; index < this._spotLights.length; ++index) {
         let light = this._spotLights[index];
-        this._device.setUniform(`spot_light${index}_position`, light._positionUniform);
-        this._device.setUniform(`spot_light${index}_direction`, light._directionUniform);
-        this._device.setUniform(`spot_light${index}_color`, light._colorUniform);
-        this._device.setUniform(`spot_light${index}_range`, light._range);
-        this._device.setUniform(`spot_light${index}_spot`, light._spotUniform);
+        this._device.setUniform(`_spot_light_${index}_position`, light._positionUniform);
+        this._device.setUniform(`_spot_light_${index}_direction`, light._directionUniform);
+        this._device.setUniform(`_spot_light_${index}_color`, light._colorUniform);
+        this._device.setUniform(`_spot_light_${index}_range`, light._range);
+        this._device.setUniform(`_spot_light_${index}_spot`, light._spotUniform);
       }
     }
   }
 
   _submitShadowStageUniforms(view) {
     let light = view._shadowLight;
-    this._device.setUniform('minDepth', light.shadowMinDepth);
-    this._device.setUniform('maxDepth', light.shadowMaxDepth);
-    this._device.setUniform('bias', light.shadowBias);
-    this._device.setUniform('depthScale', light.shadowDepthScale);
+    this._device.setUniform('_minDepth_', light.shadowMinDepth);
+    this._device.setUniform('_maxDepth_', light.shadowMaxDepth);
+    this._device.setUniform('_bias_', light.shadowBias);
+    this._device.setUniform('_depthScale_', light.shadowDepthScale);
   }
 
   _submitOtherStagesUniforms() {
     for (let index = 0; index < this._shadowLights.length; ++index) {
       let light = this._shadowLights[index];
-      this._device.setUniform(`lightViewProjMatrix_${index}`, mat4.array(_a16_lightViewProj, light.viewProjMatrix));
-      this._device.setUniform(`minDepth_${index}`, light.shadowMinDepth);
-      this._device.setUniform(`maxDepth_${index}`, light.shadowMaxDepth);
-      this._device.setUniform(`bias_${index}`, light.shadowBias);
-      this._device.setUniform(`depthScale_${index}`, light.shadowDepthScale);
-      this._device.setUniform(`darkness_${index}`, light.shadowDarkness);
-      this._device.setUniform(`frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
-      this._device.setUniform(`texelSize_${index}`, new Float32Array([1.0 / light.shadowResolution, 1.0 / light.shadowResolution]));
+      this._device.setUniform(`_lightViewProjMatrix__${index}`, mat4.array(_a16_lightViewProj, light.viewProjMatrix));
+      this._device.setUniform(`_minDepth__${index}`, light.shadowMinDepth);
+      this._device.setUniform(`_maxDepth__${index}`, light.shadowMaxDepth);
+      this._device.setUniform(`_bias__${index}`, light.shadowBias);
+      this._device.setUniform(`_depthScale__${index}`, light.shadowDepthScale);
+      this._device.setUniform(`_darkness__${index}`, light.shadowDarkness);
+      this._device.setUniform(`_frustumEdgeFalloff__${index}`, light.frustumEdgeFalloff);
+      this._device.setUniform(`_texelSize__${index}`, new Float32Array([1.0 / light.shadowResolution, 1.0 / light.shadowResolution]));
     }
   }
 
@@ -210,7 +210,7 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
     _shadowStage(item) {
-        this._device.setUniform('lightViewProjMatrix', mat4.array(_a16_viewProj, this._currentView._matViewProj));
+        this._device.setUniform('_lightViewProjMatrix_', mat4.array(_a16_viewProj, this._currentView._matViewProj));
 
         // update rendering
         // this._submitLightUniforms();
@@ -240,7 +240,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
         for (let index = 0; index < this._shadowLights.length; ++index) {
             let light = this._shadowLights[index];
-            this._device.setTexture(`shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+            this._device.setTexture(`_shadowMap__${index}`, light.shadowMap, this._allocTextureUnit());
         }
 
         this._drawPass(item);
@@ -254,11 +254,11 @@ export default class ForwardRenderer extends BaseRenderer {
     defines.USE_SKINNING = true;
     if (model._jointsTexture != null) {
       defines.USE_JOINTS_TEXTURE = true;
-      this._device.setTexture('u_jointsTexture', model._jointsTexture, this._allocTextureUnit());
-      this._device.setUniform('u_jointsTextureSize', model._jointsTexture._width);
+      this._device.setTexture('_u_jointsTexture_', model._jointsTexture, this._allocTextureUnit());
+      this._device.setUniform('_u_jointsTextureSize_', model._jointsTexture._width);
     } else if (model._jointsMatrixArray != null) {
       defines.USE_JOINTS_TEXTURE = false;
-      this._device.setUniform("u_jointMatrices", model._jointsMatrixArray);
+      this._device.setUniform("_u_jointMatrices_", model._jointsMatrixArray);
     }
 
     this._draw(item);
