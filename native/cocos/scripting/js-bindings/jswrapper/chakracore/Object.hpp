@@ -81,7 +81,8 @@ namespace se {
         };
 
         /**
-         *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer.
+         *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer,
+                   if provide a null pointer,then will create a empty JavaScript Typed Array Object.
          *  @param[in] type The format of typed array.
          *  @param[in] data A pointer to the byte buffer to be used as the backing store of the Typed Array object.
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.

@@ -35,7 +35,9 @@
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 
-
+#if USE_MIDDLEWARE
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.hpp"
+#endif
 
 #if USE_GFX_RENDERER
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
@@ -55,6 +57,16 @@
 
 #if USE_AUDIO
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
+#endif
+
+#if USE_SPINE
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_spine_manual.hpp"
+#endif
+
+#if USE_DRAGONBONES
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_dragonbones_manual.hpp"
 #endif
 
 #if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -97,7 +109,11 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
-
+    
+#if USE_MIDDLEWARE
+    se->addRegisterCallback(register_all_cocos2dx_editor_support);
+#endif
+    
 #if USE_GFX_RENDERER
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(jsb_register_gfx_manual);
@@ -117,7 +133,16 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_audioengine);
 #endif
 
+#if USE_SPINE
+    se->addRegisterCallback(register_all_cocos2dx_spine);
+    se->addRegisterCallback(register_all_spine_manual);
+#endif
 
+#if USE_DRAGONBONES
+    se->addRegisterCallback(register_all_cocos2dx_dragonbones);
+    se->addRegisterCallback(register_all_dragonbones_manual);
+#endif
+    
 #if USE_NET_WORK
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_cocos2dx_network_manual);

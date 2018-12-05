@@ -58,6 +58,22 @@ THE SOFTWARE.
 #define USE_NET_WORK 1
 #endif
 
+#ifndef USE_MIDDLEWARE
+#define USE_MIDDLEWARE 1
+#endif
+
+#if USE_MIDDLEWARE > 0
+
+#ifndef USE_SPINE
+#define USE_SPINE 1
+#endif
+
+#ifndef USE_DRAGONBONES
+#define USE_DRAGONBONES 1
+#endif
+
+#endif //USE_MIDDLEWARE
+
 /** @def CC_ENABLE_STACKABLE_ACTIONS
  * If enabled, actions that alter the position property (eg: MoveBy, JumpBy, BezierBy, etc..) will be stacked.
  * If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.

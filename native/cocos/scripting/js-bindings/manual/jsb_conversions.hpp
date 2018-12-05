@@ -33,6 +33,11 @@
 #include "renderer/renderer/Renderer.h"
 #include "network/CCDownloader.h"
 #include "extensions/cocos-ext.h"
+
+#if USE_SPINE
+#include "cocos/editor-support/spine/spine.h"
+#endif
+
 //#include "Box2D/Box2D.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...) \
@@ -214,39 +219,39 @@ bool seval_to_Vector(const se::Value& v, cocos2d::Vector<T>* ret)
 
     return true;
 }
-//
-//template<typename T>
-//bool seval_to_Map_string_key(const se::Value& v, cocos2d::Map<std::string, T>* ret)
-//{
-//    assert(ret != nullptr);
-//    assert(v.isObject());
-//    se::Object* obj = v.toObject();
-//
-//    std::vector<std::string> allKeys;
-//    bool ok = obj->getAllKeys(&allKeys);
-//    if (!ok)
-//    {
-//        ret->clear();
-//        return false;
-//    }
-//
-//    se::Value tmp;
-//    for (const auto& key : allKeys)
-//    {
-//        ok = obj->getProperty(key.c_str(), &tmp);
-//        if (!ok || !tmp.isObject())
-//        {
-//            ret->clear();
-//            return false;
-//        }
-//
-//        T nativeObj = (T)tmp.toObject()->getPrivateData();
-//
-//        ret->insert(key, nativeObj);
-//    }
-//
-//    return true;
-//}
+
+template<typename T>
+bool seval_to_Map_string_key(const se::Value& v, cocos2d::Map<std::string, T>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+
+    std::vector<std::string> allKeys;
+    bool ok = obj->getAllKeys(&allKeys);
+    if (!ok)
+    {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (const auto& key : allKeys)
+    {
+        ok = obj->getProperty(key.c_str(), &tmp);
+        if (!ok || !tmp.isObject())
+        {
+            ret->clear();
+            return false;
+        }
+
+        T nativeObj = (T)tmp.toObject()->getPrivateData();
+
+        ret->insert(key, nativeObj);
+    }
+
+    return true;
+}
 
 // native value -> se value
 bool int8_to_seval(int8_t v, se::Value* ret);
@@ -577,19 +582,22 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 //    return false;
 //}
 
-//// Spine conversions
-//bool speventdata_to_seval(const spEventData* v, se::Value* ret);
-//bool spevent_to_seval(const spEvent* v, se::Value* ret);
-//bool spbonedata_to_seval(const spBoneData* v, se::Value* ret);
-//bool spbone_to_seval(const spBone* v, se::Value* ret);
-//bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret);
-//bool spattachment_to_seval(const spAttachment* v, se::Value* ret);
-//bool spslotdata_to_seval(const spSlotData* v, se::Value* ret);
-//bool spslot_to_seval(const spSlot* v, se::Value* ret);
-//bool sptimeline_to_seval(const spTimeline* v, se::Value* ret);
-//bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret);
-//bool spanimation_to_seval(const spAnimation* v, se::Value* ret);
-//bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret);
+// Spine conversions
+#if USE_SPINE
+bool speventdata_to_seval(const spEventData* v, se::Value* ret);
+bool spevent_to_seval(const spEvent* v, se::Value* ret);
+bool spbonedata_to_seval(const spBoneData* v, se::Value* ret);
+bool spbone_to_seval(const spBone* v, se::Value* ret);
+bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret);
+bool spattachment_to_seval(const spAttachment* v, se::Value* ret);
+bool spslotdata_to_seval(const spSlotData* v, se::Value* ret);
+bool spslot_to_seval(const spSlot* v, se::Value* ret);
+bool sptimeline_to_seval(const spTimeline* v, se::Value* ret);
+bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret);
+bool spanimation_to_seval(const spAnimation* v, se::Value* ret);
+bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret);
+#endif
+
 //
 //// Box2d
 //bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret);

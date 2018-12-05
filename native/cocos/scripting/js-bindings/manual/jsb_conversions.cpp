@@ -2526,377 +2526,6 @@ bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* r
 
     return true;
 }
-//
-//// Spine conversions
-//bool speventdata_to_seval(const spEventData* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//    obj->setProperty("name", se::Value(v->name));
-//    obj->setProperty("intValue", se::Value(v->intValue));
-//    obj->setProperty("floatValue", se::Value(v->floatValue));
-//    obj->setProperty("stringValue", se::Value(v->stringValue));
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool spevent_to_seval(const spEvent* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    se::Value dataVal;
-//    SE_PRECONDITION3(speventdata_to_seval(v->data, &dataVal), false, ret->setUndefined());
-//    obj->setProperty("data", dataVal);
-//    obj->setProperty("time", se::Value(v->time));
-//    obj->setProperty("intValue", se::Value(v->intValue));
-//    obj->setProperty("floatValue", se::Value(v->floatValue));
-//    obj->setProperty("stringValue", se::Value(v->stringValue));
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool spbonedata_to_seval(const spBoneData* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    // root haven't parent
-//    se::Value parentVal;
-//    if (0 != strcmp(v->name, "root") && v->parent)
-//    {
-//        SE_PRECONDITION3(spbonedata_to_seval(v->parent, &parentVal), false, ret->setUndefined());
-//    }
-//
-//    obj->setProperty("index", se::Value(v->index));
-//    obj->setProperty("name", se::Value(v->name));
-//    obj->setProperty("parent", parentVal);
-//    obj->setProperty("length", se::Value(v->length));
-//    obj->setProperty("x", se::Value(v->x));
-//    obj->setProperty("y", se::Value(v->y));
-//    obj->setProperty("rotation", se::Value(v->rotation));
-//    obj->setProperty("scaleX", se::Value(v->scaleX));
-//    obj->setProperty("scaleY", se::Value(v->scaleY));
-//    obj->setProperty("shearX", se::Value(v->shearX));
-//    obj->setProperty("shearY", se::Value(v->shearY));
-//    obj->setProperty("transformMode", se::Value(v->transformMode));
-//
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool spbone_to_seval(const spBone* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    // root haven't parent
-//    se::Value parentVal;
-//    if (0 != strcmp(v->data->name, "root") && v->parent)
-//    {
-//        SE_PRECONDITION3(spbone_to_seval(v->parent, &parentVal), false, ret->setUndefined());
-//    }
-//
-//    se::Value data;
-//    SE_PRECONDITION3(spbonedata_to_seval(v->data, &data), false, ret->setUndefined());
-//
-//    obj->setProperty("data", data);
-//    obj->setProperty("parent", parentVal);
-//    obj->setProperty("x", se::Value(v->x));
-//    obj->setProperty("y", se::Value(v->y));
-//    obj->setProperty("rotation", se::Value(v->rotation));
-//    obj->setProperty("scaleX", se::Value(v->scaleX));
-//    obj->setProperty("scaleY", se::Value(v->scaleY));
-//    obj->setProperty("shearX", se::Value(v->shearX));
-//    obj->setProperty("shearY", se::Value(v->shearY));
-//    obj->setProperty("m00", se::Value(v->a));
-//    obj->setProperty("m01", se::Value(v->b));
-//    obj->setProperty("m10", se::Value(v->c));
-//    obj->setProperty("m11", se::Value(v->d));
-//    obj->setProperty("worldX", se::Value(v->worldX));
-//    obj->setProperty("worldY", se::Value(v->worldY));
-//
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    obj->setProperty("x", se::Value(v->x));
-//    obj->setProperty("y", se::Value(v->y));
-//    obj->setProperty("flipX", se::Value(v->flipX));
-//    obj->setProperty("flipY", se::Value(v->flipY));
-//    obj->setProperty("time", se::Value(v->time));
-//    obj->setProperty("boneCount", se::Value(v->bonesCount));
-//    obj->setProperty("slotCount", se::Value(v->slotsCount));
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool spattachment_to_seval(const spAttachment* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    obj->setProperty("name", se::Value(v->name));
-//    obj->setProperty("type", se::Value((int32_t)v->type));
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool spslotdata_to_seval(const spSlotData* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    se::Value boneData;
-//    SE_PRECONDITION3(spbonedata_to_seval(v->boneData, &boneData), false, ret->setUndefined());
-//
-//    obj->setProperty("name", se::Value(v->name));
-//    obj->setProperty("attachmentName", se::Value(v->attachmentName));
-//    obj->setProperty("r", se::Value(v->r));
-//    obj->setProperty("g", se::Value(v->g));
-//    obj->setProperty("b", se::Value(v->b));
-//    obj->setProperty("a", se::Value(v->a));
-//    obj->setProperty("blendMode", se::Value((int32_t)v->blendMode));
-//    obj->setProperty("boneData", boneData);
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool spslot_to_seval(const spSlot* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    se::Value bone;
-//    SE_PRECONDITION3(spbone_to_seval(v->bone, &bone), false, ret->setUndefined());
-//
-//    se::Value attachment;
-//    SE_PRECONDITION3(spattachment_to_seval(v->attachment, &attachment), false, ret->setUndefined());
-//
-//    se::Value data;
-//    SE_PRECONDITION3(spslotdata_to_seval(v->data, &data), false, ret->setUndefined());
-//
-//    obj->setProperty("r", se::Value(v->r));
-//    obj->setProperty("g", se::Value(v->g));
-//    obj->setProperty("b", se::Value(v->b));
-//    obj->setProperty("a", se::Value(v->a));
-//    obj->setProperty("bone", bone);
-//    obj->setProperty("attachment", attachment);
-//    obj->setProperty("data", data);
-//
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool sptimeline_to_seval(const spTimeline* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    obj->setProperty("type", se::Value((int32_t)v->type));
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    obj->setProperty("timeScale", se::Value(v->timeScale));
-//    obj->setProperty("trackCount", se::Value(v->tracksCount));
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool spanimation_to_seval(const spAnimation* v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    if (v == nullptr)
-//    {
-//        ret->setNull();
-//        return true;
-//    }
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    se::Value timelines;
-//    SE_PRECONDITION3(sptimeline_to_seval(*v->timelines, &timelines), false, ret->setUndefined());
-//
-//    obj->setProperty("name", se::Value(v->name));
-//    obj->setProperty("duration", se::Value(v->duration));
-//    obj->setProperty("timelineCount", se::Value(v->timelinesCount));
-//    obj->setProperty("timelines", timelines);
-//
-//    ret->setObject(obj);
-//    return true;
-//}
-//
-//bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret)
-//{
-//    return native_ptr_to_rooted_seval<spTrackEntry>((spTrackEntry*)v, ret);
-//}
-
-// Box2d
-//bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    se::HandleObject obj(se::Object::createPlainObject());
-//    obj->setProperty("x", se::Value(v.x));
-//    obj->setProperty("y", se::Value(v.y));
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-//
-//bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
-//{
-//    assert(v != nullptr);
-//    assert(ret != nullptr);
-//    bool ok = false;
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    do
-//    {
-//        se::Value tmp;
-//        ok = b2Vec2_to_seval(v->localPoint, &tmp);
-//        if (!ok) break;
-//        obj->setProperty("localPoint", tmp);
-//
-//        ok = b2Vec2_to_seval(v->localNormal, &tmp);
-//        if (!ok) break;
-//        obj->setProperty("localNormal", tmp);
-//
-//        obj->setProperty("pointCount", se::Value(v->pointCount));
-//        obj->setProperty("type", se::Value((int32_t)v->type));
-//
-//        se::HandleObject arr(se::Object::createArrayObject(v->pointCount));
-//
-//        for (int32 i = 0; i < v->pointCount; ++i)
-//        {
-//            const b2ManifoldPoint& p = v->points[i];
-//
-//            se::HandleObject arrElement(se::Object::createPlainObject());
-//
-//            arrElement->setProperty("normalImpulse", se::Value(p.normalImpulse));
-//            arrElement->setProperty("tangentImpulse", se::Value(p.tangentImpulse));
-//            se::Value localPointVal;
-//            ok = b2Vec2_to_seval(p.localPoint, &localPointVal);
-//            if (!ok) break;
-//            arrElement->setProperty("localPoint", localPointVal);
-//
-//            arr->setArrayElement(i, se::Value(arrElement));
-//        }
-//
-//        if (ok)
-//            obj->setProperty("points", se::Value(arr));
-//
-//    } while(false);
-//
-//    if (ok)
-//        ret->setObject(obj);
-//    else
-//        ret->setNull();
-//    return false;
-//}
-//
-//bool b2AABB_to_seval(const b2AABB& v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//    se::HandleObject obj(se::Object::createPlainObject());
-//
-//    se::HandleObject lowerBound(se::Object::createPlainObject());
-//    lowerBound->setProperty("x", se::Value(v.lowerBound.x));
-//    lowerBound->setProperty("y", se::Value(v.lowerBound.y));
-//
-//    obj->setProperty("lowerBound", se::Value(lowerBound));
-//
-//    se::HandleObject upperBound(se::Object::createPlainObject());
-//    upperBound->setProperty("x", se::Value(v.upperBound.x));
-//    upperBound->setProperty("y", se::Value(v.upperBound.y));
-//
-//    obj->setProperty("upperBound", se::Value(upperBound));
-//
-//    ret->setObject(obj);
-//
-//    return true;
-//}
-
 bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret)
 {
     assert(ret != nullptr);
@@ -3038,6 +2667,91 @@ bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<st
     return ok;
 }
 
+// Box2d
+//bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("x", se::Value(v.x));
+//    obj->setProperty("y", se::Value(v.y));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
+//{
+//    assert(v != nullptr);
+//    assert(ret != nullptr);
+//    bool ok = false;
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    do
+//    {
+//        se::Value tmp;
+//        ok = b2Vec2_to_seval(v->localPoint, &tmp);
+//        if (!ok) break;
+//        obj->setProperty("localPoint", tmp);
+//
+//        ok = b2Vec2_to_seval(v->localNormal, &tmp);
+//        if (!ok) break;
+//        obj->setProperty("localNormal", tmp);
+//
+//        obj->setProperty("pointCount", se::Value(v->pointCount));
+//        obj->setProperty("type", se::Value((int32_t)v->type));
+//
+//        se::HandleObject arr(se::Object::createArrayObject(v->pointCount));
+//
+//        for (int32 i = 0; i < v->pointCount; ++i)
+//        {
+//            const b2ManifoldPoint& p = v->points[i];
+//
+//            se::HandleObject arrElement(se::Object::createPlainObject());
+//
+//            arrElement->setProperty("normalImpulse", se::Value(p.normalImpulse));
+//            arrElement->setProperty("tangentImpulse", se::Value(p.tangentImpulse));
+//            se::Value localPointVal;
+//            ok = b2Vec2_to_seval(p.localPoint, &localPointVal);
+//            if (!ok) break;
+//            arrElement->setProperty("localPoint", localPointVal);
+//
+//            arr->setArrayElement(i, se::Value(arrElement));
+//        }
+//
+//        if (ok)
+//            obj->setProperty("points", se::Value(arr));
+//
+//    } while(false);
+//
+//    if (ok)
+//        ret->setObject(obj);
+//    else
+//        ret->setNull();
+//    return false;
+//}
+//
+//bool b2AABB_to_seval(const b2AABB& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::HandleObject lowerBound(se::Object::createPlainObject());
+//    lowerBound->setProperty("x", se::Value(v.lowerBound.x));
+//    lowerBound->setProperty("y", se::Value(v.lowerBound.y));
+//
+//    obj->setProperty("lowerBound", se::Value(lowerBound));
+//
+//    se::HandleObject upperBound(se::Object::createPlainObject());
+//    upperBound->setProperty("x", se::Value(v.upperBound.x));
+//    upperBound->setProperty("y", se::Value(v.upperBound.y));
+//
+//    obj->setProperty("upperBound", se::Value(upperBound));
+//
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+
 bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret)
 {
     assert(false);
@@ -3087,3 +2801,290 @@ bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::Rende
     return true;
 }
 #endif // USE_GFX_RENDERER > 0
+
+// Spine conversions
+#if USE_SPINE
+bool speventdata_to_seval(const spEventData* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("name", se::Value(v->name));
+    obj->setProperty("intValue", se::Value(v->intValue));
+    obj->setProperty("floatValue", se::Value(v->floatValue));
+    obj->setProperty("stringValue", se::Value(v->stringValue));
+    ret->setObject(obj);
+
+    return true;
+}
+
+bool spevent_to_seval(const spEvent* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    se::Value dataVal;
+    SE_PRECONDITION3(speventdata_to_seval(v->data, &dataVal), false, ret->setUndefined());
+    obj->setProperty("data", dataVal);
+    obj->setProperty("time", se::Value(v->time));
+    obj->setProperty("intValue", se::Value(v->intValue));
+    obj->setProperty("floatValue", se::Value(v->floatValue));
+    obj->setProperty("stringValue", se::Value(v->stringValue));
+    ret->setObject(obj);
+
+    return true;
+}
+
+bool spbonedata_to_seval(const spBoneData* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    // root haven't parent
+    se::Value parentVal;
+    if (0 != strcmp(v->name, "root") && v->parent)
+    {
+        SE_PRECONDITION3(spbonedata_to_seval(v->parent, &parentVal), false, ret->setUndefined());
+    }
+
+    obj->setProperty("index", se::Value(v->index));
+    obj->setProperty("name", se::Value(v->name));
+    obj->setProperty("parent", parentVal);
+    obj->setProperty("length", se::Value(v->length));
+    obj->setProperty("x", se::Value(v->x));
+    obj->setProperty("y", se::Value(v->y));
+    obj->setProperty("rotation", se::Value(v->rotation));
+    obj->setProperty("scaleX", se::Value(v->scaleX));
+    obj->setProperty("scaleY", se::Value(v->scaleY));
+    obj->setProperty("shearX", se::Value(v->shearX));
+    obj->setProperty("shearY", se::Value(v->shearY));
+    obj->setProperty("transformMode", se::Value(v->transformMode));
+
+    ret->setObject(obj);
+
+    return true;
+}
+
+bool spbone_to_seval(const spBone* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    // root haven't parent
+    se::Value parentVal;
+    if (0 != strcmp(v->data->name, "root") && v->parent)
+    {
+        SE_PRECONDITION3(spbone_to_seval(v->parent, &parentVal), false, ret->setUndefined());
+    }
+
+    se::Value data;
+    SE_PRECONDITION3(spbonedata_to_seval(v->data, &data), false, ret->setUndefined());
+
+    obj->setProperty("data", data);
+    obj->setProperty("parent", parentVal);
+    obj->setProperty("x", se::Value(v->x));
+    obj->setProperty("y", se::Value(v->y));
+    obj->setProperty("rotation", se::Value(v->rotation));
+    obj->setProperty("scaleX", se::Value(v->scaleX));
+    obj->setProperty("scaleY", se::Value(v->scaleY));
+    obj->setProperty("shearX", se::Value(v->shearX));
+    obj->setProperty("shearY", se::Value(v->shearY));
+    obj->setProperty("m00", se::Value(v->a));
+    obj->setProperty("m01", se::Value(v->b));
+    obj->setProperty("m10", se::Value(v->c));
+    obj->setProperty("m11", se::Value(v->d));
+    obj->setProperty("worldX", se::Value(v->worldX));
+    obj->setProperty("worldY", se::Value(v->worldY));
+
+    ret->setObject(obj);
+
+    return true;
+}
+
+bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    obj->setProperty("x", se::Value(v->x));
+    obj->setProperty("y", se::Value(v->y));
+    obj->setProperty("flipX", se::Value(v->flipX));
+    obj->setProperty("flipY", se::Value(v->flipY));
+    obj->setProperty("time", se::Value(v->time));
+    obj->setProperty("boneCount", se::Value(v->bonesCount));
+    obj->setProperty("slotCount", se::Value(v->slotsCount));
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool spattachment_to_seval(const spAttachment* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    obj->setProperty("name", se::Value(v->name));
+    obj->setProperty("type", se::Value((int32_t)v->type));
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool spslotdata_to_seval(const spSlotData* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    se::Value boneData;
+    SE_PRECONDITION3(spbonedata_to_seval(v->boneData, &boneData), false, ret->setUndefined());
+
+    obj->setProperty("name", se::Value(v->name));
+    obj->setProperty("attachmentName", se::Value(v->attachmentName));
+    obj->setProperty("r", se::Value(v->r));
+    obj->setProperty("g", se::Value(v->g));
+    obj->setProperty("b", se::Value(v->b));
+    obj->setProperty("a", se::Value(v->a));
+    obj->setProperty("blendMode", se::Value((int32_t)v->blendMode));
+    obj->setProperty("boneData", boneData);
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool spslot_to_seval(const spSlot* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    se::Value bone;
+    SE_PRECONDITION3(spbone_to_seval(v->bone, &bone), false, ret->setUndefined());
+
+    se::Value attachment;
+    SE_PRECONDITION3(spattachment_to_seval(v->attachment, &attachment), false, ret->setUndefined());
+
+    se::Value data;
+    SE_PRECONDITION3(spslotdata_to_seval(v->data, &data), false, ret->setUndefined());
+
+    obj->setProperty("r", se::Value(v->r));
+    obj->setProperty("g", se::Value(v->g));
+    obj->setProperty("b", se::Value(v->b));
+    obj->setProperty("a", se::Value(v->a));
+    obj->setProperty("bone", bone);
+    obj->setProperty("attachment", attachment);
+    obj->setProperty("data", data);
+
+    ret->setObject(obj);
+
+    return true;
+}
+
+bool sptimeline_to_seval(const spTimeline* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    obj->setProperty("type", se::Value((int32_t)v->type));
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    obj->setProperty("timeScale", se::Value(v->timeScale));
+    obj->setProperty("trackCount", se::Value(v->tracksCount));
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool spanimation_to_seval(const spAnimation* v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::HandleObject obj(se::Object::createPlainObject());
+
+    se::Value timelines;
+    SE_PRECONDITION3(sptimeline_to_seval(*v->timelines, &timelines), false, ret->setUndefined());
+
+    obj->setProperty("name", se::Value(v->name));
+    obj->setProperty("duration", se::Value(v->duration));
+    obj->setProperty("timelineCount", se::Value(v->timelinesCount));
+    obj->setProperty("timelines", timelines);
+
+    ret->setObject(obj);
+    return true;
+}
+
+bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret)
+{
+    return native_ptr_to_rooted_seval<spTrackEntry>((spTrackEntry*)v, ret);
+}
+#endif
