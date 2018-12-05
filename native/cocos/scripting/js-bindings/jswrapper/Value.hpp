@@ -417,3 +417,5 @@ namespace se {
     extern ValueArray EmptyValueArray;
 
 } // namespace se {
+
+typedef se::Object* se_object_ptr;

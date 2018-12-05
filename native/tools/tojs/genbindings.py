@@ -107,7 +107,7 @@ def main():
         print 'gcc toolchain not found!'
         print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
         sys.exit(1)
-
+ 
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     cocos_root = os.path.abspath(project_root)
     jsb_root = os.path.abspath(os.path.join(project_root, 'js-bindings'))
@@ -152,6 +152,9 @@ def main():
                     'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
                     'renderer.ini': ('renderer', 'jsb_renderer_auto'),
+                    'cocos2dx_spine.ini': ('cocos2dx_spine','jsb_cocos2dx_spine_auto'),
+                    'cocos2dx_editor_support.ini': ('cocos2dx_editor_support','jsb_cocos2dx_editor_support_auto'),
+                    'cocos2dx_dragonbones.ini': ('cocos2dx_dragonbones','jsb_cocos2dx_dragonbones_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
