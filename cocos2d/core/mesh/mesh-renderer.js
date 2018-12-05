@@ -110,8 +110,9 @@ let meshRendererAssembler = {
             let renderData = renderDatas[i];
             let material = renderData.material;
             
-            let hasAttributeColor = !!renderData.ia._vertexBuffer._format._attr2el[gfx.ATTR_COLOR];
-            comp._setDefine('_USE_ATTRIBUTE_COLOR', hasAttributeColor);
+            let attr2el = renderData.ia._vertexBuffer._format._attr2el;
+            comp._setDefine('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
+            comp._setDefine('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
 
             renderer.material = material;
             renderer._flushIA(renderData);

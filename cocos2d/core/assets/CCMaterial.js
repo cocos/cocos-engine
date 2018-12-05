@@ -179,6 +179,8 @@ let Material = cc.Class({
         for (let prop in this._props) {
             this.setProperty(prop, this._props[prop]);
         }
+
+        this.updateHash();
     },
 });
 

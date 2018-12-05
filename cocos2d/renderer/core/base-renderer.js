@@ -462,6 +462,64 @@ export default class Base {
     }
   }
 
+  _setProperty (prop) {
+    const device = this._device;
+    let param = prop.value;
+
+    if (param === undefined) {
+      param = prop.val;
+    }
+
+    if (param === undefined) {
+      param = this._type2defaultValue[prop.type];
+    }
+
+    if (param === undefined) {
+      console.warn(`Failed to set technique property ${prop.name}, value not found.`);
+      return;
+    }
+
+    if (
+      prop.type === enums.PARAM_TEXTURE_2D ||
+      prop.type === enums.PARAM_TEXTURE_CUBE
+    ) {
+      if (prop.size !== undefined) {
+        if (prop.size !== param.length) {
+          console.error(`The length of texture array (${param.length}) is not corrent(expect ${prop.size}).`);
+          return;
+        }
+        let slots = _int64_pool.add();
+        for (let index = 0; index < param.length; ++index) {
+          slots[index] = this._allocTextureUnit();
+        }
+        device.setTextureArray(prop.name, param, slots);
+      } else {
+        device.setTexture(prop.name, param, this._allocTextureUnit());
+      }
+    } else {
+      let convertedValue;
+      if (param instanceof Float32Array || param instanceof Int32Array) {
+        convertedValue = param;
+      }
+      else if (prop.size !== undefined) {
+        let convertArray = _type2uniformArrayValue[prop.type];
+        if (convertArray.func === undefined) {
+          console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
+          return;
+        }
+        if (prop.size * convertArray.size > 64) {
+          console.error('Uniform array is too long!');
+          return;
+        }
+        convertedValue = convertArray.func(param);
+      } else {
+        let convertFn = _type2uniformValue[prop.type];
+        convertedValue = convertFn(param);
+      }
+      device.setUniform(prop.name, convertedValue);
+    }
+  }
+
   _draw(item) {
     const device = this._device;
     const programLib = this._programLib;
@@ -498,74 +556,14 @@ export default class Base {
     if (uniforms) {
       for (let name in uniforms) {
         let uniform = uniforms[name];
-        if (uniform.type === enums.PARAM_TEXTURE_2D) {
-          device.setTexture(name, uniform.value, this._allocTextureUnit());
-        }
-        else {
-          let convertFn = _type2uniformValue[uniform.type];
-          let convertedValue = convertFn(uniform.value);
-          device.setUniform(name, convertedValue);
-        }
+        this._setProperty(uniform);
       }
     }
 
     // set technique uniforms
     for (let name in effect._properties) {
       let prop = effect._properties[name];
-      let param = prop.value;
-
-      if (param === undefined) {
-        param = prop.val;
-      }
-
-      if (param === undefined) {
-        param = this._type2defaultValue[prop.type];
-      }
-
-      if (param === undefined) {
-        console.warn(`Failed to set technique property ${prop.name}, value not found.`);
-        continue;
-      }
-
-      if (
-        prop.type === enums.PARAM_TEXTURE_2D ||
-        prop.type === enums.PARAM_TEXTURE_CUBE
-      ) {
-        if (prop.size !== undefined) {
-          if (prop.size !== param.length) {
-            console.error(`The length of texture array (${param.length}) is not corrent(expect ${prop.size}).`);
-            continue;
-          }
-          let slots = _int64_pool.add();
-          for (let index = 0; index < param.length; ++index) {
-            slots[index] = this._allocTextureUnit();
-          }
-          device.setTextureArray(prop.name, param, slots);
-        } else {
-          device.setTexture(prop.name, param, this._allocTextureUnit());
-        }
-      } else {
-        let convertedValue;
-        if (param instanceof Float32Array || param instanceof Int32Array) {
-          convertedValue = param;
-        }
-        else if (prop.size !== undefined) {
-          let convertArray = _type2uniformArrayValue[prop.type];
-          if (convertArray.func === undefined) {
-            console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
-            continue;
-          }
-          if (prop.size * convertArray.size > 64) {
-            console.error('Uniform array is too long!');
-            continue;
-          }
-          convertedValue = convertArray.func(param);
-        } else {
-          let convertFn = _type2uniformValue[prop.type];
-          convertedValue = convertFn(param);
-        }
-        device.setUniform(prop.name, convertedValue);
-      }
+      this._setProperty(prop);
     }
 
     // for each pass

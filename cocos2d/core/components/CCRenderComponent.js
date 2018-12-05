@@ -35,6 +35,7 @@ const Material = require('../assets/CCMaterial');
 
 let _uniformPool = new RecyclePool(function () {
     return {
+        name: '',
         type: -1,
         value: null
     };
@@ -237,8 +238,8 @@ let RenderComponent = cc.Class({
         this._materials[index] = material;
         if (material) {
             this._updateMaterialBlendFunc(true, material);
+            this.markForUpdateRenderData(true);
         }
-        this.markForUpdateRenderData(true);
     },
 
     _updateBlendFunc: function (updateHash) {
@@ -279,6 +280,7 @@ let RenderComponent = cc.Class({
             this._uniforms[name] = uniform;
         }
 
+        uniform.name = name;
         uniform.type = ctor2enums[value.constructor];
         uniform.value = value;
     },

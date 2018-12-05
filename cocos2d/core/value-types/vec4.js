@@ -36,7 +36,7 @@ import {clampf} from '../utils/misc';
  * @class Vec4
  * @extends ValueType
  */
-export default class Vec4 extends ValueType {
+class Vec4 extends ValueType {
     /**
      * !#en
      * Constructor
@@ -482,7 +482,6 @@ export default class Vec4 extends ValueType {
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
-cc.Vec4 = Vec4;
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec4"}}cc.Vec4{{/crossLink}}.
@@ -501,3 +500,5 @@ cc.Vec4 = Vec4;
 cc.v4 = function v4 (x, y, z, w) {
     return new Vec4(x, y, z, w);
 };
+
+module.exports = cc.Vec4 = Vec4;

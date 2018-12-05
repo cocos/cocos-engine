@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
 import murmurhash2 from './murmurhash2_gc';
-import enums from '../../../renderer/mappings/enums';
+import enums from '../../../renderer/enums';
 
 // function genHashCode (str) {
 //     var hash = 0;

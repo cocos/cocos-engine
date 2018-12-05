@@ -531,7 +531,7 @@ let Label = cc.Class({
                 self._activateMaterial(force);
 
                 if (CC_EDITOR || force) {
-                    this._assembler && this._assembler.updateRenderData(this);
+                    self._assembler && self._assembler.updateRenderData(self);
                 }
             };
             // cannot be activated if texture not loaded yet

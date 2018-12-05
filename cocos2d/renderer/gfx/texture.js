@@ -5,6 +5,8 @@ import { enums } from './enums';
  */
 const _nullWebGLTexture = null;
 
+let _textureID = 0;
+
 /**
  * @typedef {import("../gfx/device").default} Device
  */
@@ -32,6 +34,8 @@ export default class Texture {
     this._format = enums.TEXTURE_FMT_RGBA8;
 
     this._target = -1;
+    
+    this._id = _textureID++;
   }
 
   /**
