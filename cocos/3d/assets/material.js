@@ -63,7 +63,7 @@ class Material extends Asset {
         if (this.effectName !== val) this._setEffect(val);
     }
     get effectName() {
-        return this._effectAsset.name;
+        return this._effectAsset ? this._effectAsset.name : '';
     }
 
     /**

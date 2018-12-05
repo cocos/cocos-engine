@@ -1,6 +1,10 @@
 import Texture2D from '../../assets/CCTexture2D';
 import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
+import Material from '../assets/material';
+import EffectAsset from '../assets/effect-asset';
+import Technique from '../../renderer/core/technique';
+import Pass from '../../renderer/core/pass';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
@@ -69,11 +73,27 @@ let builtinResMgr = {
         whiteTexture._uuid = 'white-texture';
         defaultTexture.image = canvasImage;
 
+        // default 'missing' material
+        let pinkEffect = new EffectAsset();
+        pinkEffect.name = 'default';
+        pinkEffect.techniques.push({ passes: [{ program: 'default' }] });
+        pinkEffect.shaders.push({
+            name: 'default',
+            vert: `attribute vec3 a_position; \n uniform mat4 model; \n uniform mat4 _viewProj_; \n void main() { gl_Position = _viewProj_ * model * vec4(a_position, 1); }`,
+            frag: `void main() { gl_FragColor = vec4(1, 0, 1, 1); }`,
+            defines: [], attributes: [], uniforms: [], extensions: []
+        });
+        pinkEffect.onLoaded();
+        let defaultMtl = new Material();
+        defaultMtl._uuid = 'default-material';
+        defaultMtl.effectAsset = pinkEffect;
+
         let builtins = {
             [defaultTexture._uuid]: defaultTexture,
             [defaultTextureCube._uuid]: defaultTextureCube,
             [blackTexture._uuid]: blackTexture,
             [whiteTexture._uuid]: whiteTexture,
+            [defaultMtl._uuid]: defaultMtl
         };
 
         // ============================
