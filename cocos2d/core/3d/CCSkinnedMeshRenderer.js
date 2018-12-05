@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Material = require('../assets/CCMaterial');
 const Skeleton = require('./CCSkeleton');
 const MeshRenderer = require('../mesh/CCMeshRenderer');
-const renderEngine = require('../renderer/render-engine');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
@@ -73,22 +73,6 @@ let SkinnedMeshRenderer = cc.Class({
                 this._initJoints();
             },
             type: cc.Node
-        }
-    },
-
-    _activateSubMaterial (material) {
-        material.setProperty('color', cc.Color.WHITE);
-        material.define('useSkinning', true);
-        material.define('useTexture', true);
-
-        if (this._jointsTexture) {
-            material.define('useJointsTexture', true);
-            material.setProperty('jointsTexture', this._jointsTexture);
-            material.setProperty('jointsTextureSize', this._jointsTexture.width);
-        }
-        else {
-            material.define('useJointsTexture', false);
-            material.setProperty('jointMatrices', this._jointsTextureData);
         }
     },
 
@@ -153,10 +137,17 @@ let SkinnedMeshRenderer = cc.Class({
             texture.initWithData(this._jointsTextureData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
 
             this._jointsTexture = texture;
+            
+            this._setUniform('_jointsTexture', texture.getImpl());
+            this._setUniform('_jointsTextureSize', this._jointsTexture.width);
         }
         else {
             this._jointsTextureData = new Float32Array(jointCount * 16);
+            this._setUniform('_jointMatrices', this._jointsTextureData);
         }
+
+        this._setDefine('_USE_SKINNING', true);
+        this._setDefine('_USE_JOINTS_TEXTRUE', !!this._jointsTexture);
     },
 
     _setJointsTextureData (iMatrix, matrix) {

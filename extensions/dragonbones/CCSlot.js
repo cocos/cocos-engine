@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const math = require('../../cocos2d/core/renderer/render-engine').math;
+import { mat4 } from '../../cocos2d/core/vmath';
+
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
@@ -36,7 +37,7 @@ dragonBones.CCSlot = cc.Class({
         this._vertices = [];
         this._localVertices = [];
         this._indices = [];
-        this._matrix = math.mat4.create();
+        this._matrix = mat4.create();
         this._visible = false;
         this._color = cc.color();
     },
@@ -45,7 +46,7 @@ dragonBones.CCSlot = cc.Class({
         this._vertices.length = 0;
         this._localVertices.length = 0;
         this._indices.length = 0;
-        math.mat4.identity(this._matrix);
+        mat4.identity(this._matrix);
         this._visible = false;
     },
 
@@ -351,7 +352,7 @@ dragonBones.CCSlot = cc.Class({
 
         if (this._display instanceof dragonBones.ArmatureDisplay) {
             let node = this._display.node;
-            math.mat4.copy(node._matrix, t);
+            mat4.copy(node._matrix, t);
             node._localMatDirty = false;
             node.setWorldDirty();
         }

@@ -1,7 +1,7 @@
 const renderer = require('../renderer');
-const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const Texture2D = require('./CCTexture2D');
+
+import gfx from '../../renderer/gfx';
 
 /**
  * Render textures are textures that can be rendered to.
@@ -67,7 +67,7 @@ let RenderTexture = cc.Class({
         if (this._framebuffer) {
             this._framebuffer.destroy();
         }
-        this._framebuffer = new renderEngine.gfx.FrameBuffer(renderer.device, width, height, opts);
+        this._framebuffer = new gfx.FrameBuffer(renderer.device, width, height, opts);
 
         this.loaded = true;
         this.emit("load");

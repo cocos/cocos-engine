@@ -26,7 +26,6 @@
 const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
 
-const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 
 const Orientation = TiledMap.Orientation;
@@ -35,9 +34,7 @@ const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
 const StaggerAxis = TiledMap.StaggerAxis;
 const StaggerIndex = TiledMap.StaggerIndex;
 
-const math = renderEngine.math;
-const mat4 = math.mat4;
-const vec3 = math.vec3;
+import { mat4, vec3 } from '../core/vmath';
 
 let _mat4_temp = mat4.create();
 let _mat4_temp2 = mat4.create();

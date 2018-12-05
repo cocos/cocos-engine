@@ -580,7 +580,7 @@ let Label = cc.Class({
         else {
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('useTexture', true);
+                material.define('USE_TEXTRUE', true);
             }
             // Setup blend function for premultiplied ttf label texture
             if (this._texture === this._ttfTexture) {
@@ -595,17 +595,6 @@ let Label = cc.Class({
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
-    },
-
-    _updateColor () {
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            this._super();
-        }
-        else {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-        }
     },
 
     _updateRenderData (force) {

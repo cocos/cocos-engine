@@ -26,11 +26,9 @@
 const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
-const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const Material = require('../../cocos2d/core/assets/CCMaterial');
-const renderEngine = renderer.renderEngine;
-const gfx = renderEngine.gfx;
+import gfx from '../../cocos2d/renderer/gfx';
 
 const STENCIL_SEP = '@';
 
@@ -78,8 +76,8 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             material.copy(baseMaterial);
         }
 
-        material.define('useModel', true);
-        material.define('useTexture', true);
+        material.define('_USE_MODEL', true);
+        material.define('USE_TEXTRUE', true);
         // update texture
         material.setProperty('texture', tex);
 

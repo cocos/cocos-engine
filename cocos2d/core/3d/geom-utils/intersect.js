@@ -1,9 +1,10 @@
 
-const renderEngine = require('../../renderer/render-engine');
-const RecyclePool = renderEngine.RecyclePool;
 const aabb = require('./aabb');
 const ray = require('./ray');
 const triangle = require('./triangle');
+
+import gfx from '../../../renderer/gfx';
+import RecyclePool from '../../../renderer/memop/recycle-pool';
 
 const mat4 = cc.vmath.mat4;
 const vec3 = cc.vmath.vec3;
@@ -94,8 +95,6 @@ intersect.rayTriangle = (function () {
 
 
 intersect.rayMesh = (function () {
-    const gfx = renderEngine.gfx;
-
     let tri = triangle.create();
     let minDist = Infinity;
 
@@ -249,7 +248,7 @@ intersect.raycast = (function () {
                 transformMat4Normal(d, d, m4_1);
                 let res = resultsPool.add();
                 res.node = node;
-                res.distance = cc.vmath.vec3.length(d);
+                res.distance = cc.vmath.vec3.mag(d);
                 results.push(res);
             }
         });

@@ -1132,8 +1132,8 @@ var ParticleSystem = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('useTexture', true);
-            material.define('useModel', true);
+            material.define('USE_TEXTRUE', true);
+            material.define('_USE_MODEL', true);
         }
 
         if (!this._texture || !this._texture.loaded) {

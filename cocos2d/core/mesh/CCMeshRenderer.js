@@ -25,11 +25,11 @@
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
-const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const RenderFlow = require('../renderer/render-flow');
 const aabb = require('../3d/geom-utils/aabb');
 const Material = require('../assets/CCMaterial');
+
+import gfx from '../../renderer/gfx';
 
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
@@ -61,7 +61,8 @@ let MeshRenderer = cc.Class({
 
         textures: {
             default: [],
-            type: cc.Texture2D
+            type: cc.Texture2D,
+            visible: false
         }
     },
 
@@ -76,29 +77,8 @@ let MeshRenderer = cc.Class({
         this._activateMaterial();
     },
 
-    _activateSubMaterial (material, subMesh) {
-        material.define('useTexture', true);
-        material.define('useModel', true);
-
-        material.setProperty('color', this.node.color);
-        if (subMesh._vertexBuffer._format._attr2el[gfx.ATTR_COLOR]) {
-            material.define('useAttributeColor', true);
-        }
-    },
-
-    _updateColor () {
-        let materials = this._materials;
-        for (let i = 0; i < materials.length; i++) {
-            let material = materials[i];
-            material.setProperty('color', this.node.color);
-            material.updateHash();
-        }
-        
-        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-    },
-
-    _reset () {
-        this._materials.length = 0;
+    _getDefaultMaterial () {
+        return Material.getBuiltinMaterial('mesh');
     },
 
     _activateMaterial (force) {
@@ -116,21 +96,24 @@ let MeshRenderer = cc.Class({
         if (aabb) {
             this._boundingBox = aabb.fromPoints(aabb.create(), mesh._minPos, mesh._maxPos);
         }
-        
-        this._reset();
+
+        // TODO: used to upgrade from 2.1, should be removed
+        let textures = this.textures;
+        if (textures && textures.length > 0) {
+            for (let i = 0; i < textures.length; i++) {
+                let material = this.sharedMaterials[i];
+                if (material) continue;
+                material = cc.Material.getInstantiatedMaterial(this._getDefaultMaterial(), this);
+                material.setProperty('texture', textures[i]);
+                this.setMaterial(i, material);
+            }
+        }
 
         let subMeshes = mesh._subMeshes;
         let materials = this.sharedMaterials;
-
         if (!materials[0]) {
-            materials[0] = Material.getInstantiatedBuiltinMaterial('mesh', this);
-        }
-
-        for (let i = 0; i < materials.length; i++) {
-            let subMesh = subMeshes[i];
-            if (!subMesh) continue;
-            let material = materials[i];
-            this._activateSubMaterial(material, subMesh);
+            let material = this._getDefaultMaterial();
+            materials[0] = material;
         }
         
         this.markForUpdateRenderData(true);

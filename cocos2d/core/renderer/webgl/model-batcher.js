@@ -23,22 +23,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('../render-engine');
 const vertexFormat = require('./vertex-format');
 const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
 const vfmt3D = vertexFormat.vfmt3D;
 const StencilManager = require('./stencil-manager');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
+const Material = require('../../assets/CCMaterial');
 
 let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
-const RecyclePool = renderEngine.RecyclePool;
-const InputAssembler = renderEngine.InputAssembler;
+import InputAssembler from '../../../renderer/core/input-assembler';
+import RecyclePool from '../../../renderer/memop/recycle-pool';
+import Model from '../../../renderer/scene/model';
 
 let _buffers = {};
 
-const empty_material = new renderEngine.Material();
+const empty_material = new Material();
 empty_material.updateHash();
 
 var ModelBatcher = function (device, renderScene) {
@@ -55,7 +56,7 @@ var ModelBatcher = function (device, renderScene) {
     }, 16);
 
     this._modelPool = new RecyclePool(function () {
-        return new renderEngine.Model();
+        return new Model();
     }, 16);
 
     // buffers
@@ -74,6 +75,9 @@ var ModelBatcher = function (device, renderScene) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
+
+    this.uniforms = null;
+    this.defines = null;
 };
 
 ModelBatcher.prototype = {
@@ -88,8 +92,8 @@ ModelBatcher.prototype = {
         let models = this._batchedModels;
         for (let i = 0; i < models.length; ++i) {
             // remove from scene
-            models[i].clearInputAssemblers();
-            models[i].clearEffects();
+            models[i].setInputAssembler(null);
+            models[i].setEffect(null);
             scene.removeModel(models[i]);
         }
         this._modelPool.reset();
@@ -112,6 +116,9 @@ ModelBatcher.prototype = {
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
+
+        this.uniforms = null;
+        this.defines = null;
     },
 
     _flush () {
@@ -125,6 +132,7 @@ ModelBatcher.prototype = {
         }
 
         let effect = material.effect;
+        if (!effect) return;
 
         // Generate ia
         let ia = this._iaPool.add();
@@ -141,9 +149,17 @@ ModelBatcher.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
+        model._uniforms = this.uniforms;
         model.setNode(this.node);
-        model.addEffect(effect);
-        model.addInputAssembler(ia);
+        model.setEffect(effect);
+        model.setInputAssembler(ia);
+
+        let defines = this.defines;
+        if (defines) {
+            for (let key in defines) {
+                model._defines[key] = defines[key];
+            }
+        }
         
         this._renderScene.addModel(model);
            
@@ -160,18 +176,28 @@ ModelBatcher.prototype = {
         }
 
         this.material = material;
+        let effect = material.effect;
+        if (!effect) return;
 
         // Check stencil state and modify pass
-        let effect = this._stencilMgr.handleEffect(material.effect);
+        effect = this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
+        model._uniforms = this.uniforms;
         model.setNode(this.node);
-        model.addEffect(effect);
-        model.addInputAssembler(iaRenderData.ia);
+        model.setEffect(effect);
+        model.setInputAssembler(iaRenderData.ia);
+
+        let defines = this.defines;
+        if (defines) {
+            for (let key in defines) {
+                model._defines[key] = defines[key];
+            }
+        }
         
         this._renderScene.addModel(model);
     },

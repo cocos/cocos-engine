@@ -29,7 +29,7 @@ const Texture = require('./CCTexture2D');
 const EffectAsset = require('./CCEffectAsset');
 
 import computeHash from './utils/compute-hash';
-import Effect from '../../renderer/effect';
+import Effect from '../../renderer/core/effect';
 
 let Material = cc.Class({
     name: 'cc.Material',
@@ -89,9 +89,12 @@ let Material = cc.Class({
     },
 
     statics: {
-        getInstantiatedBuiltinMaterial(name) {
-            let builtinMaterial = cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
-            return Material.getInstantiatedMaterial(builtinMaterial, this);
+        getBuiltinMaterial(name) {
+            return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
+        },
+        getInstantiatedBuiltinMaterial(name, renderComponent) {
+            let builtinMaterial = this.getBuiltinMaterial(name);
+            return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
         },
         getInstantiatedMaterial(mat, renderComponent) {
             if (mat._owner === renderComponent) {
@@ -102,6 +105,7 @@ let Material = cc.Class({
                 instance.copy(mat);
                 instance._native = mat._native + ' (Instance)';
                 instance._owner = renderComponent;
+                instance._objFlags |= cc.Object.Flags.DontSave;
                 return instance;
             }
         }
@@ -133,7 +137,7 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
-                this._effect.setProperty(name, val._texture);
+                this._effect.setProperty(name, val.getImpl());
             }
             else {
                 this._effect.setProperty(name, val);
@@ -170,10 +174,10 @@ let Material = cc.Class({
         if (!this._effect) return;
         
         for (let def in this._defines) {
-            this._effect.define(def, this._defines[def]);
+            this.define(def, this._defines[def]);
         }
         for (let prop in this._props) {
-            this._effect.setProperty(prop, this._props[prop]);
+            this.setProperty(prop, this._props[prop]);
         }
     },
 });

@@ -23,13 +23,22 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import gfx from '../../renderer/gfx';
+import RenderData from '../../renderer/render-data/render-data';
+import { ctor2enums } from '../../renderer/types';
+import RecyclePool from '../../renderer/memop/recycle-pool';
+
 const Component = require('./CCComponent');
-const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
-const RenderData = renderEngine.RenderData;
-const gfx = renderEngine.gfx;
 const Material = require('../assets/CCMaterial');
+
+let _uniformPool = new RecyclePool(function () {
+    return {
+        type: -1,
+        value: null
+    };
+}, 1);
 
 /**
  * !#en
@@ -122,6 +131,12 @@ let RenderComponent = cc.Class({
         this._toPostHandle = false;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
+
+        // Used to define dynamic uniforms,
+        // such as SkinningRenderComponent's jointTexture uniform.
+        // These uniforms can not define in effect, because they changed every frame, and can not be shared.
+        this._uniforms = null;
+        this._defines = null;
     },
 
     onEnable () {
@@ -129,7 +144,7 @@ let RenderComponent = cc.Class({
             this.node._renderComponent.enabled = false;
         }
         this.node._renderComponent = this;
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 
     onDisable () {
@@ -144,6 +159,13 @@ let RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
         this._materials.length = 0;
         this._renderData = null;
+
+        let uniforms = this._uniforms;
+        for (let name in uniforms) {
+            _uniformPool.remove(_uniformPool._data.indexOf(uniforms[name]));
+        }
+        this._uniforms = null;
+        this._defines = null;
     },
     
     _canRender () {
@@ -179,7 +201,7 @@ let RenderComponent = cc.Class({
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     requestRenderData () {
@@ -196,23 +218,6 @@ let RenderComponent = cc.Class({
         }
     },
 
-    _updateColor () {
-        let materials = this._materials;
-        for (let i = 0; i < materials.length; i++) {
-            let material = materials[i];
-            // For batch rendering, update the color only when useColor is set to true.
-            if (material.getDefine('useColor')) {
-                material.setProperty('color', this.node.color);
-                material.updateHash();
-            }
-        }
-        // reset flag when set color to material successfully
-        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-    },
-
-    getMaterials () {
-        return this._materials;
-    },
     getMaterial (index) {
         if (index < 0 || index >= this._materials.length) {
             return null;
@@ -263,6 +268,24 @@ let RenderComponent = cc.Class({
     },
 
     _activateMaterial (force) {
+    },
+
+    _setUniform (name, value) {
+        if (!this._uniforms) this._uniforms = {};
+
+        let uniform = this._uniforms[name];
+        if (!uniform) {
+            uniform = _uniformPool.add();
+            this._uniforms[name] = uniform;
+        }
+
+        uniform.type = ctor2enums[value.constructor];
+        uniform.value = value;
+    },
+
+    _setDefine (name, value) {
+        if (!this._defines) this._defines = {};
+        this._defines[name] = value;
     }
 });
 RenderComponent._assembler = null;

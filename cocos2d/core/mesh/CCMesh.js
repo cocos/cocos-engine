@@ -25,8 +25,9 @@
 
 const MeshResource = require('./CCMeshResource');
 const renderer = require('../renderer');
-const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
+
+import InputAssembler from '../../renderer/core/input-assembler';
+import gfx from '../../renderer/gfx';
 
 function applyColor (data, offset, value) {
     data[offset] = value._val;
@@ -65,7 +66,7 @@ let Mesh = cc.Class({
         /**
          * !#en Get ir set the sub meshes.
          * !#zh 设置或者获取子网格。
-         * @property {[renderEngine.InputAssembler]} subMeshes
+         * @property {[InputAssembler]} subMeshes
          */
         subMeshes: {
             get () {
@@ -235,7 +236,7 @@ let Mesh = cc.Class({
             };
 
             let vb = this._vbs[0];
-            this._subMeshes[index] = new renderEngine.InputAssembler(vb.buffer, buffer);
+            this._subMeshes[index] = new InputAssembler(vb.buffer, buffer);
         }
         else {
             ib.data = data;

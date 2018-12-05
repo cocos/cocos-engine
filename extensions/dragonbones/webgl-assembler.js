@@ -23,24 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { mat4 } from '../../cocos2d/core/vmath';
+
 const Armature = require('./ArmatureDisplay');
-
-const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const math = renderEngine.math;
-
-const js = require('../../cocos2d/core/platform/js');
-
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 
-let _matrix = math.mat4.create();
-let _v3 = cc.v3();
+let _matrix = mat4.create();
 
 let _vbuf, _uintbuf, 
     _vertexId, _ibuf,
     _vertexOffset, _indiceOffset,
     _a, _b, _c, _d, _tx, _ty,
     _nodeR, _nodeG, _nodeB, _nodeA,
-    _renderData,
     _worldMatrix;
 
 let armatureAssembler = {

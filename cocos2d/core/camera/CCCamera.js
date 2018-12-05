@@ -25,11 +25,13 @@
  ****************************************************************************/
 
 const AffineTrans = require('../utils/affine-transform');
-const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 const ray = require('../3d/geom-utils/ray');
+
+import RCamera from '../../renderer/scene/camera';
+import View from '../../renderer/core/view';
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -92,13 +94,13 @@ let Camera = cc.Class({
 
     ctor () {
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
-            let camera = new renderEngine.Camera();
+            let camera = new RCamera();
 
             camera.setStages([
                 'transparent'
             ]);
 
-            let view = new renderEngine.View();
+            let view = new View();
             camera.view = view;
             camera.dirty = true;
 
@@ -397,7 +399,7 @@ let Camera = cc.Class({
         _setupDebugCamera () {
             if (_debugCamera) return;
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
-            let camera = new renderEngine.Camera();
+            let camera = new RCamera();
             _debugCamera = camera;
 
             camera.setStages([
@@ -408,7 +410,7 @@ let Camera = cc.Class({
             camera.setNear(0.1);
             camera.setFar(4096);
 
-            let view = new renderEngine.View();
+            let view = new View();
             camera.view = view;
             camera.dirty = true;
 

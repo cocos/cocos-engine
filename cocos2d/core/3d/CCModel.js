@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 const BufferAsset = require('../assets/CCBufferAsset');
-
-const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
-const gfx = renderEngine.gfx;
-const vec3 = cc.vmath.vec3;
+
+import gfx from '../../renderer/gfx';
+import InputAssembler from '../../renderer/core/input-assembler';
+import { vec3, mat4 } from '../../core/vmath';
 
 const _type2size = {
     SCALAR: 1,
@@ -119,7 +119,7 @@ let Model = cc.Class({
         let bindposes = new Array(accessor.count);
 
         for (let i = 0; i < accessor.count; ++i) {
-            bindposes[i] = cc.vmath.mat4.new(
+            bindposes[i] = mat4.create(
                 data[16 * i + 0], data[16 * i + 1], data[16 * i + 2], data[16 * i + 3],
                 data[16 * i + 4], data[16 * i + 5], data[16 * i + 6], data[16 * i + 7],
                 data[16 * i + 8], data[16 * i + 9], data[16 * i + 10], data[16 * i + 11],
@@ -258,7 +258,7 @@ let Model = cc.Class({
                 maxPos.z = Math.max(maxPos.z, max[2]);
             }
 
-            meshAsset._subMeshes[i] = new renderEngine.InputAssembler(vb.buffer, ib.buffer);
+            meshAsset._subMeshes[i] = new InputAssembler(vb.buffer, ib.buffer);
             meshAsset._vbs[i] = vb;
             meshAsset._ibs[i] = ib;
         }

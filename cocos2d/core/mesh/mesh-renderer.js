@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshRenderer = require('./CCMeshRenderer');
+import gfx from '../../renderer/gfx';
+import InputAssembler from '../../renderer/core/input-assembler';
+import IARenderData from '../../renderer/render-data/ia-render-data';
 
-const renderEngine = require('../renderer/render-engine');
-const IARenderData = renderEngine.IARenderData;
-const gfx = renderEngine.gfx;
-const InputAssembler = renderEngine.InputAssembler;
+const MeshRenderer = require('./CCMeshRenderer');
 
 const BLACK_COLOR = cc.Color.BLACK;
 
@@ -51,7 +50,7 @@ let meshRendererAssembler = {
         let data = new IARenderData();
         let m = material.clone();
         m.color = BLACK_COLOR;
-        m.useTexture = false;
+        m.define('USE_TEXTRUE', false);
         m._mainTech._passes[0].setDepth(true, true);
         data.material = m;
 
@@ -100,19 +99,19 @@ let meshRendererAssembler = {
 
         let tmpNode = renderer.node;
         renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
+        renderer.defines = comp._defines;
+        renderer.uniforms = comp._uniforms;
+
+        comp._setUniform('_nodeColor', comp.node.color);
 
         comp.mesh._uploadData();
 
-        let textures = comp.textures;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
             let material = renderData.material;
-            if (textures[i]) {
-                material.setProperty('texture', textures[i]);
-            }
-            else {
-                material.define('useTexture', false);
-            }
+            
+            let hasAttributeColor = !!renderData.ia._vertexBuffer._format._attr2el[gfx.ATTR_COLOR];
+            comp._setDefine('_USE_ATTRIBUTE_COLOR', hasAttributeColor);
 
             renderer.material = material;
             renderer._flushIA(renderData);

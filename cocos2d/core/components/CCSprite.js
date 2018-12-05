@@ -502,17 +502,13 @@ var Sprite = cc.Class({
                 if (!material) {
                     material = this._graySpriteMaterial = Material.getInstantiatedBuiltinMaterial('gray-sprite', this);
                 }
-
-                this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
             }
             else {
                 material = this._spriteMaterial;
                 if (!material) {
                     material = this._spriteMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                    material.define('useColor', true);
-                    material.define('useTexture', true);
+                    material.define('USE_TEXTRUE', true);
                 }
-                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
             }
             
             // Set texture
