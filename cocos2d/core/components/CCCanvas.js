@@ -97,6 +97,7 @@ var Canvas = cc.Class({
                 if (this._fitHeight !== value) {
                     this._fitHeight = value;
                     this.applySettings();
+                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
@@ -116,6 +117,7 @@ var Canvas = cc.Class({
                 if (this._fitWidth !== value) {
                     this._fitWidth = value;
                     this.applySettings();
+                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
