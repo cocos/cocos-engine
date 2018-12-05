@@ -24,10 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { vec3 } from '../vmath';
+
 const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
-const math = require('../renderer/render-engine').math;
 const misc = require('../utils/misc');
 
 /**
@@ -157,7 +158,7 @@ proto.toString = function () {
  */
 proto.lerp = function (to, ratio, out) {
     out = out || new Vec3();
-    math.vec3.lerp(out, this, to, ratio);
+    vec3.lerp(out, this, to, ratio);
     return out;
 };
 
@@ -385,7 +386,7 @@ proto.dot = function (vector) {
  */
 proto.cross = function (vector, out) {
     out = out || new Vec3();
-    math.vec3.cross(out, this, vector)
+    vec3.cross(out, this, vector)
     return out;
 };
 
@@ -420,7 +421,7 @@ proto.magSqr = function () {
  * @chainable
  */
 proto.normalizeSelf = function () {
-    math.vec3.normalize(this, this);
+    vec3.normalize(this, this);
     return this;
 };
 
@@ -439,7 +440,7 @@ proto.normalizeSelf = function () {
  */
 proto.normalize = function (out) {
     out = out || new Vec3();
-    math.vec3.normalize(out, this);
+    vec3.normalize(out, this);
     return out;
 };
 
@@ -452,7 +453,7 @@ proto.normalize = function (out) {
  */
 proto.transformMat4 = function (m, out) {
     out = out || new Vec3();
-    math.vec3.transformMat4(out, this, m);
+    vec3.transformMat4(out, this, m);
 };
 
 /**

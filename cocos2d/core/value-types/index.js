@@ -26,11 +26,12 @@
 
 require('./value-type');
 
-cc.vmath = require('../renderer/render-engine').math;
+cc.vmath = require('../vmath').default;
 
 module.exports = {
     Vec2: require('./vec2'),
     Vec3: require('./vec3'),
+    Vec4: require('./vec4'),
     Quat: require('./quat'),
     Mat4: require('./mat4'),
     Size: require('./size'),
