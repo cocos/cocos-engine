@@ -1,7 +1,7 @@
 'use strict';
 
 const tokenizer = require('glsl-tokenizer/string');
-const mappings = require('../mappings');
+const mappings = require('./mappings');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
@@ -15,8 +15,9 @@ let defaultPragma = /default\(([\d.,]+)\)/;
 let namePragma = /name\(([^)]+)\)/;
 let precision = /(low|medium|high)p/;
 
+let builtinRE = /^_[A-Za-z0-9]+/;
+let uniformIgnoreList = [];
 // (HACKY) extract all builtin uniforms to the ignore list
-let uniformIgnoreList = {viewProj: true, model: true};
 // let uniformIgnoreList = (function() {
 //   let path = 'cocos/renderer/renderers/forward-renderer.js';
 //   let renderer = fs.readFileSync(path, { encoding: 'utf8' });
@@ -127,7 +128,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     else continue;
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
-    if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
+    if (dest === uniforms && (builtinRE.test(tokens[i+4].data) || uniformIgnoreList[tokens[i+4].data])) continue;
     if (dest === extensions) {
       if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
       param.name = extensionRE.exec(str.split(whitespaces)[1])[1];

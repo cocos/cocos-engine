@@ -4,8 +4,8 @@ const Path = require('path');
 const resolve = require('rollup-plugin-node-resolve');
 const rollup = require('rollup');
 
-let src = Path.join(__dirname, '../mappings/offline-mappings.js');
-let dest = '../mappings';
+let src = Path.join(__dirname, './mappings/offline-mappings.js');
+let dest = './mappings';
 let name = 'index';
 let sourcemap = true;
 let globals = {};
