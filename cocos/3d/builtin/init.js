@@ -3,12 +3,11 @@ import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
 import Material from '../assets/material';
 import EffectAsset from '../assets/effect-asset';
-import Technique from '../../renderer/core/technique';
-import Pass from '../../renderer/core/pass';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
-    initBuiltinRes: function(device, effectUUIDs, OnComplete) {
+    initBuiltinRes: function(device) {
+        builtinResMgr.device = device;
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
 
@@ -73,7 +72,7 @@ let builtinResMgr = {
         whiteTexture._uuid = 'white-texture';
         defaultTexture.image = canvasImage;
 
-        // default 'missing' material
+        // classic ugly pink indicating missing material
         let pinkEffect = new EffectAsset();
         pinkEffect.name = 'default';
         pinkEffect.techniques.push({ passes: [{ program: 'default' }] });
@@ -81,7 +80,7 @@ let builtinResMgr = {
             name: 'default',
             vert: `attribute vec3 a_position; \n uniform mat4 model; \n uniform mat4 _viewProj_; \n void main() { gl_Position = _viewProj_ * model * vec4(a_position, 1); }`,
             frag: `void main() { gl_FragColor = vec4(1, 0, 1, 1); }`,
-            defines: [], attributes: [], uniforms: [], extensions: []
+            uniforms: [{ name: "model", type: cc.renderer.PARAM_MAT4, defines: [] }], defines: [], attributes: [], extensions: []
         });
         pinkEffect.onLoaded();
         let defaultMtl = new Material();
@@ -95,22 +94,23 @@ let builtinResMgr = {
             [whiteTexture._uuid]: whiteTexture,
             [defaultMtl._uuid]: defaultMtl
         };
-
+        return Object.assign(builtinResMgr, builtins);
+    },
+    initEffects(effectUUIDs, OnComplete) {
         // ============================
         // async builtin effects
         // ============================
-
         let remainingJobs = effectUUIDs.length;
         for (let i = 0; i < effectUUIDs.length; ++i) {
             let uuid = effectUUIDs[i];
             cc.AssetLibrary.loadAsset(uuid, (err, asset) => {
                 if (err) { console.error(err); return; }
                 cc.EffectAsset.register(asset);
-                if (!--remainingJobs) OnComplete(builtins);
+                if (!--remainingJobs) OnComplete(builtinResMgr);
             });
         }
-    },
+    }
 };
 
-cc._builtinResMgr = builtinResMgr;
+cc.BuiltinResMgr = builtinResMgr;
 export default builtinResMgr;

@@ -275,13 +275,6 @@ export default class ModelComponent extends RenderableComponent {
 
     _getBuiltinMaterial() {
         // classic ugly pink indicating missing material
-        if (ModelComponent._builtinMaterial === null) {
-            const builtinMaterial = new cc.Material();
-            builtinMaterial.effectName = 'builtin-effect-unlit';
-            builtinMaterial.define("USE_COLOR", true);
-            builtinMaterial.setProperty("color", new cc.Color(255, 0, 255, 255));
-            ModelComponent._builtinMaterial = builtinMaterial;
-        }
-        return ModelComponent._builtinMaterial;
+        return cc.BuiltinResMgr['default-material'];
     }
 }
