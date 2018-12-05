@@ -72,12 +72,12 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     let key = tex.url + src + dst + STENCIL_SEP + '0';
     comp._material = comp._material || new SpriteMaterial();
     let baseMaterial = comp._material;
-    let materials = comp._materials;
-    let material = materials[key];
+    let materialCache = comp._materialCache;
+    let material = materialCache[key];
     if (!material) {
 
         var baseKey = baseMaterial._hash;
-        if (!materials[baseKey]) {
+        if (!materialCache[baseKey]) {
             material = baseMaterial;
         } else {
             material = baseMaterial.clone();
@@ -96,7 +96,7 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        materials[key] = material;
+        materialCache[key] = material;
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
@@ -176,7 +176,7 @@ var spineAssembler = {
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0;
         let indiceCount = 0, indiceOffset = 0;
-        let materials = comp._materials;
+        let materialCache = comp._materialCache;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -309,7 +309,7 @@ var spineAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderDatas = comp._renderDatas;
-        let materials = comp._materials;
+        let materialCache = comp._materialCache;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
 
@@ -318,10 +318,10 @@ var spineAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = materials[newKey] || data.material.clone();
+                data.material = materialCache[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!materials[newKey]) {
-                    materials[newKey] = data.material;
+                if (!materialCache[newKey]) {
+                    materialCache[newKey] = data.material;
                 }
             }
 
