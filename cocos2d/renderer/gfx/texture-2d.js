@@ -158,7 +158,7 @@ export default class Texture2D extends Texture {
     let premultiplyAlpha = options.premultiplyAlpha;
     let img = options.image;
 
-    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {
@@ -217,7 +217,7 @@ export default class Texture2D extends Texture {
     let premultiplyAlpha = options.premultiplyAlpha;
     let img = options.image;
 
-    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {

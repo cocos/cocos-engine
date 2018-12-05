@@ -195,7 +195,7 @@ export default class TextureCube extends Texture {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
 
-    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, options.level, options.x, options.y, glFmt.format, glFmt.pixelType, img);
     } else {
       if (this._compressed) {
@@ -242,7 +242,7 @@ export default class TextureCube extends Texture {
     } else {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
-    if (!ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texImage2D(
         gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
         options.level,
