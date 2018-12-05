@@ -107,9 +107,8 @@ class Node extends BaseNode {
      * for this node and all its children recursively
      */
     invalidateChildren() {
-        if (this._dirty) return;
-        this._dirty = true;
-        this._hasChanged = true;
+        if (this._dirty && this._hasChanged) return;
+        this._dirty = this._hasChanged = true;
 
         let len = this._children.length;
         for (let i = 0; i < len; ++i) {
