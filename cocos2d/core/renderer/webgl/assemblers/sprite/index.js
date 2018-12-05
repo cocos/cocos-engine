@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -28,36 +28,44 @@ const Sprite = require('../../../../components/CCSprite');
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 
-const simpleRenderUtil = require('./simple');
-const slicedRenderUtil = require('./sliced');
-const tiledRenderUtil = require('./tiled');
-const radialFilledRenderUtil = require('./radial-filled');
-const barFilledRenderUtil = require('./bar-filled');
-const meshRenderUtil = require('./mesh');
+const simpleRenderUtil = require('./2d/simple');
+const slicedRenderUtil = require('./2d/sliced');
+const tiledRenderUtil = require('./2d/tiled');
+const radialFilledRenderUtil = require('./2d/radial-filled');
+const barFilledRenderUtil = require('./2d/bar-filled');
+const meshRenderUtil = require('./2d/mesh');
+
+const simpleRenderUtil3D = require('./3d/simple');
+const slicedRenderUtil3D = require('./3d/sliced');
+const tiledRenderUtil3D = require('./3d/tiled');
+const radialFilledRenderUtil3D = require('./3d/radial-filled');
+const barFilledRenderUtil3D = require('./3d/bar-filled');
+const meshRenderUtil3D = require('./3d/mesh');
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 let spriteAssembler = {
     getAssembler (sprite) {
-        let util = simpleRenderUtil;
+        let is3DNode = sprite.node.is3DNode;
         
+        let util = is3DNode ? simpleRenderUtil3D : simpleRenderUtil;
         switch (sprite.type) {
             case SpriteType.SLICED:
-                util = slicedRenderUtil;
+                util = is3DNode ? slicedRenderUtil3D : slicedRenderUtil;
                 break;
             case SpriteType.TILED:
-                util = tiledRenderUtil;
+                util = is3DNode ? tiledRenderUtil3D : tiledRenderUtil;
                 break;
             case SpriteType.FILLED:
                 if (sprite._fillType === FillType.RADIAL) {
-                    util = radialFilledRenderUtil;
+                    util = is3DNode ? radialFilledRenderUtil3D : radialFilledRenderUtil;
                 }
                 else {
-                    util = barFilledRenderUtil;
+                    util = is3DNode ? barFilledRenderUtil3D : barFilledRenderUtil;
                 }
                 break;
             case SpriteType.MESH:
-                util = meshRenderUtil;
+                util = is3DNode ? meshRenderUtil3D : meshRenderUtil;
                 break;
         }
 

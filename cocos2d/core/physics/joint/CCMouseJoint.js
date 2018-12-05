@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -211,6 +211,7 @@ var MouseJoint = cc.Class({
         mouseRegion.on(cc.Node.EventType.TOUCH_START, this.onTouchBegan, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         mouseRegion.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        mouseRegion.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
     },
 
     onEnable: function () {

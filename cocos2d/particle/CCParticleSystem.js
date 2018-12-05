@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -156,12 +156,9 @@ var properties = {
             }
             if (this._custom !== value) {
                 this._custom = value;
-                if (!value) {
-                    this._applyFile();
-                }
+                this._applyFile();
                 if (CC_EDITOR) {
                     cc.engine.repaintInEditMode();
-                //    self.preview = self.preview;
                 }
             }
         },
@@ -190,7 +187,6 @@ var properties = {
                     this._applyFile();
                     if (CC_EDITOR) {
                         cc.engine.repaintInEditMode();
-                        //self.preview = self.preview;
                     }
                 }
                 else {
@@ -218,7 +214,7 @@ var properties = {
             return this._spriteFrame;
         },
         set: function (value, force) {
-            var lastSprite = this._spriteFrame;
+            var lastSprite = this._renderSpriteFrame;
             if (CC_EDITOR) {
                 if (!force && lastSprite === value) {
                     return;
@@ -229,7 +225,12 @@ var properties = {
                     return;
                 }
             }
-            this._spriteFrame = value;
+            this._renderSpriteFrame = value;
+
+            if (!value || value._uuid) {
+                this._spriteFrame = value;
+            }
+
             if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                 this._texture = null;
                 this._applySpriteFrame(lastSprite);
@@ -254,7 +255,9 @@ var properties = {
             return this._texture;
         },
         set: function (value) {
-            cc.warnID(6017);
+            if (value) {
+                cc.warnID(6017);
+            }
         },
         type: cc.Texture2D,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture',
@@ -693,7 +696,7 @@ var properties = {
  * emitter.startSpin = 0;
  *
  * @class ParticleSystem
- * @extends Component
+ * @extends RenderComponent
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
@@ -717,6 +720,9 @@ var ParticleSystem = cc.Class({
         this._startColorVar = cc.color(0, 0, 0, 0);
         this._endColor = cc.color(255, 255, 255, 0);
         this._endColorVar = cc.color(0, 0, 0, 0);
+
+        // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+        this._renderSpriteFrame = null;
     },
 
     properties: properties,
@@ -797,6 +803,9 @@ var ParticleSystem = cc.Class({
                 this._applyFile();
             }
         }
+        else if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
+            this._applySpriteFrame(this.spriteFrame);
+        }
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
             if (this.playOnLoad) {
@@ -873,12 +882,7 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
-        if (!this._material) {
-            this._activateMaterial();
-        }
-        else {
-            this.markForCustomIARender(true);
-        }
+        this._activateMaterial();
     },
 
     /**
@@ -926,13 +930,17 @@ var ParticleSystem = cc.Class({
                 if (!self._custom) {
                     self._initWithDictionary(content);
                 }
-                if (!self.spriteFrame) {
-                    if (file.texture) {
-                        self.spriteFrame = new cc.SpriteFrame(file.texture);
+
+                if (!self._spriteFrame) {
+                    if (file.spriteFrame) {
+                        self.spriteFrame = file.spriteFrame;
                     }
                     else if (self._custom) {
                         self._initTextureWithDictionary(content);
                     }
+                }
+                else if (!self._renderSpriteFrame && self._spriteFrame) {
+                    self._applySpriteFrame(self.spriteFrame);
                 }
             });
         }
@@ -998,7 +1006,7 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        this.emissionRate = this.totalParticles / this.life;
+        this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
 
         // duration
         this.duration = parseFloat(dict["duration"] || 0);
@@ -1102,7 +1110,7 @@ var ParticleSystem = cc.Class({
     },
 
     _onTextureLoaded: function () {
-        this._texture = this._spriteFrame.getTexture();
+        this._texture = this._renderSpriteFrame.getTexture();
         this._simulator.updateUVs(true);
         // Reactivate material
         this._activateMaterial();
@@ -1113,7 +1121,7 @@ var ParticleSystem = cc.Class({
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
-        var spriteFrame = this._spriteFrame;
+        var spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (spriteFrame) {
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
@@ -1135,7 +1143,7 @@ var ParticleSystem = cc.Class({
 
         if (!this._texture || !this._texture.loaded) {
             this.markForCustomIARender(false);
-            if (this._spriteFrame) {
+            if (this._renderSpriteFrame) {
                 this._applySpriteFrame();
             }
         }

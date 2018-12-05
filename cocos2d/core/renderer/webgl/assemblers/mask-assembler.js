@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,9 +25,8 @@
 
 const StencilManager = require('../stencil-manager');
 const Mask = require('../../../components/CCMask');
-const Graphics = require('../../../graphics/graphics');
 const RenderFlow = require('../../render-flow');
-const spriteAssembler = require('./sprite/simple');
+const spriteAssembler = require('./sprite/2d/simple');
 const graphicsAssembler = require('./graphics');
 
 let _stencilMgr = StencilManager.sharedManager;
@@ -35,13 +34,15 @@ let _stencilMgr = StencilManager.sharedManager;
 let maskFrontAssembler = {
     updateRenderData (mask) {
         if (!mask._renderData) {
+            // Update clear graphics material
+            graphicsAssembler.updateRenderData(mask._clearGraphics);
+
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 mask._renderData = spriteAssembler.createData(mask);
             }
             else {
                 // for updateGraphics calculation
                 mask._renderData = mask.requestRenderData();
-                graphicsAssembler.updateRenderData(mask._clearGraphics);
             }
         }
         let renderData = mask._renderData;

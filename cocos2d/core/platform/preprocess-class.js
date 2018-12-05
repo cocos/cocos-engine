@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -159,7 +159,7 @@ function checkUrl (val, className, propName, url) {
 
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if (CC_EDITOR) {
+        if (CC_EDITOR && 'default' in val) {
             var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
                 cc.warnID(5507, className, propName);

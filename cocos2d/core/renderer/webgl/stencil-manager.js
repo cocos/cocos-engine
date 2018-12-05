@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -172,4 +172,4 @@ StencilManager.prototype = {
 StencilManager.sharedManager = new StencilManager();
 StencilManager.Stage = Stage;
 
-module.exports = StencilManager;
+module.exports = cc.StencilManager = StencilManager;

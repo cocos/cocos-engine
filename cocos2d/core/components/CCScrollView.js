@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -193,9 +193,6 @@ let ScrollView = cc.Class({
         this._scrollEventEmitMask = 0;
         this._isBouncing = false;
         this._scrolling = false;
-        
-        // content parent object 
-        this._view = undefined;
     },
 
     properties: {
@@ -210,7 +207,6 @@ let ScrollView = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.content',
             formerlySerializedAs: 'content',
             notify (oldValue) {
-                this._initView();
                 this._calculateBoundary();
             }
         },
@@ -342,6 +338,15 @@ let ScrollView = cc.Class({
             default: true,
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.cancelInnerEvents'
+        },
+
+        // private object
+        _view: {
+            get: function () {
+                if (this.content) {
+                    return this.content.parent;
+                }
+            }
         }
     },
 
@@ -807,7 +812,7 @@ let ScrollView = cc.Class({
 
         this._mouseWheelEventElapsedTime += dt;
 
-        //mouse wheel event is ended
+        // mouse wheel event is ended
         if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
             this._onScrollBarTouchEnded();
             this.unschedule(this._checkMouseWheel);
@@ -1173,8 +1178,7 @@ let ScrollView = cc.Class({
     _handleReleaseLogic (touch) {
         let delta = touch.getDelta();
         this._gatherTouchMove(delta);
-        this._processInertiaScroll();
-
+        this._processInertiaScroll();    
         if (this._scrolling) {
             this._scrolling = false;
             if (!this._autoScrolling) {
@@ -1254,8 +1258,10 @@ let ScrollView = cc.Class({
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent('scrolling');
 
+        // scollTo API controll move 
         if (!this._autoScrolling) {
             this._isBouncing = false;
+            this._scrolling = false;
             this._dispatchEvent('scroll-ended');
         }
     },
@@ -1536,7 +1542,6 @@ let ScrollView = cc.Class({
 
     onEnable () {
         if (!CC_EDITOR) {
-            this._initView();
             this._registerEvent();
             this.node.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
             this.node.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
@@ -1556,12 +1561,6 @@ let ScrollView = cc.Class({
     update (dt) {
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
-        }
-    },
-
-    _initView () {
-        if (this.content) {
-            this._view = this.content.parent;
         }
     }
 });

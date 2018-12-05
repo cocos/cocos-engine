@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -28,14 +28,11 @@ const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
 const STENCIL_SEP = '@';
-
-let _sharedMaterials = {};
 
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
@@ -50,7 +47,7 @@ function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
 }
 
-function _getSlotMaterial (slot, tex, premultiAlpha) {
+function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     let src, dst;
     switch (slot.data.blendMode) {
         case spine.BlendMode.Additive:
@@ -73,9 +70,19 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    let material = _sharedMaterials[key];
+    comp._material = comp._material || new SpriteMaterial();
+    let baseMaterial = comp._material;
+    let materialCache = comp._materialCache;
+    let material = materialCache[key];
     if (!material) {
-        material = new SpriteMaterial();
+
+        var baseKey = baseMaterial._hash;
+        if (!materialCache[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = baseMaterial.clone();
+        }
+
         material.useModel = true;
         // update texture
         material.texture = tex;
@@ -89,7 +96,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        _sharedMaterials[key] = material;
+        materialCache[key] = material;
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
@@ -169,6 +176,7 @@ var spineAssembler = {
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0;
         let indiceCount = 0, indiceOffset = 0;
+        let materialCache = comp._materialCache;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -197,7 +205,7 @@ var spineAssembler = {
             }
 
             newData = false;
-            material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
+            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture, premultiAlpha);
             if (!material) {
                 continue;
             }
@@ -301,6 +309,7 @@ var spineAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderDatas = comp._renderDatas;
+        let materialCache = comp._materialCache;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
 
@@ -309,10 +318,10 @@ var spineAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = _sharedMaterials[newKey] || data.material.clone();
+                data.material = materialCache[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!_sharedMaterials[newKey]) {
-                    _sharedMaterials[newKey] = data.material;
+                if (!materialCache[newKey]) {
+                    materialCache[newKey] = data.material;
                 }
             }
 
@@ -325,7 +334,7 @@ var spineAssembler = {
             let vertexs = data._data;
             let indices = data._indices;
 
-            let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
+            let buffer = renderer._meshBuffer,
                 vertexOffset = buffer.byteOffset >> 2,
                 vertexCount = data.vertexCount;
             

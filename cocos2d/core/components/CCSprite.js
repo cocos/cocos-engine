@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -145,7 +145,7 @@ var State = cc.Enum({
  * !#en Renders a sprite in the scene.
  * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
- * @extends Component
+ * @extends RenderComponent
  * @example
  *  // Create a new node and add sprite components.
  *  var node = new cc.Node("New Sprite");
@@ -466,6 +466,10 @@ var Sprite = cc.Class({
         this.markForUpdateRenderData(true);
     },
 
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
     _updateAssembler: function () {
         let assembler = Sprite._assembler.getAssembler(this);
         
@@ -500,6 +504,8 @@ var Sprite = cc.Class({
                 }
                 material = this._spriteMaterial;
             }
+            // For batch rendering, do not use uniform color.
+            material.useColor = false;
             // Set texture
             if (spriteFrame && spriteFrame.textureLoaded()) {
                 let texture = spriteFrame.getTexture();
@@ -545,7 +551,7 @@ var Sprite = cc.Class({
             if (!this._enabled) return false;
         }
         else {
-            if (!this._enabled || !this._material) return false;
+            if (!this._enabled || !this._material || !this.node._activeInHierarchy) return false;
         }
 
         let spriteFrame = this._spriteFrame;

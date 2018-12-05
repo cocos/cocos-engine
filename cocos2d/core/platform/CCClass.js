@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -151,9 +151,6 @@ function defineProp (cls, className, propName, val, es6) {
         for (var i = 0; i < attrs.length; i++) {
             var attr = attrs[i];
             Attr.attr(cls, propName, attr);
-            if (attr['serializable'] === false) {
-                pushUnique(cls.__values__, propName);
-            }
             // register callback
             if (attr._onAfterProp) {
                 onAfterProp.push(attr._onAfterProp);

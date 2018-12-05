@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
- module.exports = {
+module.exports = {
     useModel: false,
 
     createData (sprite) {
@@ -34,7 +35,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        
+
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
@@ -53,7 +54,7 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
                 if (renderData.vertexCount !== vertices.x.length) {
                     renderData.vertexCount = vertices.x.length;
                     renderData.indiceCount = vertices.triangles.length;
-                    
+
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
 
@@ -73,11 +74,6 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
     },
 
     updateUVs (sprite) {
-        let material = sprite.getMaterial();
-        let texture = material.effect.getProperty('texture');
-        let texw = texture._width,
-            texh = texture._height;
-
         let vertices = sprite.spriteFrame.vertices,
             u = vertices.nu,
             v = vertices.nv;
@@ -112,28 +108,28 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
             offsetY = frame._offset.y,
             trimX = offsetX + (originalWidth - rectWidth) / 2,
             trimY = offsetY + (originalHeight - rectHeight) / 2;
-            
-        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth), 
+
+        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth),
             scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
 
         let renderData = sprite._renderData;
         let data = renderData._data;
-        
+
         if (!sprite.trim) {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i+l];
+                let vertice = data[i + l];
                 vertice.x = (x[i]) * scaleX - appx;
                 vertice.y = (originalHeight - y[i]) * scaleY - appy;
             }
         }
         else {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i+l];
+                let vertice = data[i + l];
                 vertice.x = (x[i] - trimX) * scaleX - appx;
                 vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
         }
-        
+
         renderData.vertDirty = false;
     },
 
@@ -141,12 +137,13 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
         let node = sprite.node,
             renderData = sprite._renderData,
             data = renderData._data;
+
         let matrix = node._worldMatrix;
+
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = data[i+l];
+            let local = data[i + l];
             let world = data[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
@@ -154,43 +151,27 @@ const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
     },
 
     fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            renderData = sprite._renderData,
-            data = renderData._data;
-        
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
         }
-        
+
         // update world verts
         if (renderer.worldMatDirty) {
             this.updateWorldVerts(sprite);
         }
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let indiceOffset = buffer.indiceOffset,
+        let buffer = renderer._meshBuffer3D,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            ibuf = buffer._iData;
-
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vertice = data[i];
-            vbuf[vertexOffset++] = vertice.x;
-            vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = vertice.u;
-            vbuf[vertexOffset++] = vertice.v;
-        }
-
+        let ibuf = buffer._iData;
         let triangles = vertices.triangles;
-
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }

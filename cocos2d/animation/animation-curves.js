@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -97,6 +97,9 @@ function quickFindIndex (ratios, ratio) {
 
     if ((index - floorIndex) < EPSILON) {
         return floorIndex;
+    }
+    else if ((floorIndex + 1 - index) < EPSILON) {
+        return floorIndex + 1;
     }
 
     return ~(floorIndex + 1);
@@ -438,6 +441,7 @@ var EventAnimCurve = cc.Class({
 if (CC_TEST) {
     cc._Test.DynamicAnimCurve = DynamicAnimCurve;
     cc._Test.EventAnimCurve = EventAnimCurve;
+    cc._Test.quickFindIndex = quickFindIndex;
 }
 
 module.exports = {

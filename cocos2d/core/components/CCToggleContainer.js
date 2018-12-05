@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -55,21 +55,39 @@ var ToggleContainer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         },
+
+        /**
+         * !#en If Toggle is clicked, it will trigger event's handler
+         * !#zh Toggle 按钮的点击事件列表。
+         * @property {Component.EventHandler[]} checkEvents
+         */
+        checkEvents: {
+            default: [],
+            type: cc.Component.EventHandler
+        },
     },
 
     updateToggles: function (toggle) {
-        this.toggleItems.forEach(function (item) {
-            if (toggle.isChecked && item !== toggle) {
-                item.isChecked = false;
+        if(!this.enabledInHierarchy) return;
+
+        if (toggle.isChecked) {
+            this.toggleItems.forEach(function (item) {
+                if (item !== toggle && item.isChecked && item.enabled) {
+                    item._hideCheckMark();
+                }
+            });
+
+            if (this.checkEvents) {
+                cc.Component.EventHandler.emitEvents(this.checkEvents, toggle);
             }
-        });
+        }
     },
 
     _allowOnlyOneToggleChecked: function () {
         var isChecked = false;
         this.toggleItems.forEach(function (item) {
             if (isChecked) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
             else if (item.isChecked) {
                 isChecked = true;

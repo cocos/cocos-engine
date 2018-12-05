@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,6 @@
 
 const MotionStreak = require('../../../components/CCMotionStreak');
 const RenderFlow = require('../../render-flow');
-const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -187,7 +186,7 @@ var motionStreakAssembler = {
         }
 
         renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = (renderData.vertexCount - 2)*3;
+        renderData.indiceCount = renderData.vertexCount < 2 ? 0 : (renderData.vertexCount - 2)*3;
     },
 
     fillBuffers (comp, renderer) {
@@ -195,7 +194,7 @@ var motionStreakAssembler = {
             renderData = comp._renderData,
             data = renderData._data;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
+        let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             vertexCount = renderData.vertexCount;
         

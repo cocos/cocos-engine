@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -74,7 +74,7 @@ var ToggleGroup = cc.Class({
         this._toggleItems.forEach(function (item){
             if(toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
+                    item._hideCheckMark();
                 }
             }
         });
@@ -100,7 +100,7 @@ var ToggleGroup = cc.Class({
         var isChecked = false;
         this._toggleItems.forEach(function (item) {
             if(isChecked && item.enabled) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
 
             if (item.isChecked && item.enabled) {

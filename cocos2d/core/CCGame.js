@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -39,7 +39,6 @@ const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manage
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class Game
- * @static
  * @extends EventTarget
  */
 var game = {
@@ -61,7 +60,7 @@ var game = {
     EVENT_HIDE: "game_on_hide",
 
     /**
-     * Event triggered when game back to foreground
+     * !#en Event triggered when game back to foreground
      * Please note that this event is not 100% guaranteed to be fired on Web platform,
      * on native platforms, it corresponds to enter foreground event.
      * !#zh 游戏进入前台运行时触发的事件。
@@ -72,6 +71,15 @@ var game = {
      * @type {String}
      */
     EVENT_SHOW: "game_on_show",
+
+    /**
+     * !#en Event triggered when game restart
+     * !#zh 调用restart后，触发事件。
+     * @property EVENT_RESTART
+     * @constant
+     * @type {String}
+     */
+    EVENT_RESTART: "game_on_restart",
 
     /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
@@ -286,6 +294,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
+        // Pause animation
+        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -305,6 +315,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
+        // Resume animation
+        cc.director.startAnimation();
         // Resume main loop
         this._runMainLoop();
     },
@@ -343,6 +355,7 @@ var game = {
 
             cc.director.reset();
             game.onStart();
+            game.emit(game.EVENT_RESTART);
         });
     },
 
@@ -694,11 +707,9 @@ var game = {
 
         let el = this.config.id,
             width, height,
-            localCanvas, localContainer,
-            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
-            isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
+            localCanvas, localContainer;
 
-        if (isWeChatGame || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -712,7 +723,7 @@ var game = {
             }
             this.canvas = localCanvas;
         }
-        else if (isQQPlay) {
+        else if (CC_QQPLAY) {
             this.container = cc.container = document.createElement("DIV");
             this.frame = document.documentElement;
             this.canvas = localCanvas = canvas;
@@ -768,7 +779,7 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (isWeChatGame || isQQPlay) {
+            if (CC_WECHATGAME || CC_QQPLAY) {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.initWebGL(localCanvas, opts);
@@ -777,6 +788,10 @@ var game = {
             // Enable dynamic atlas manager by default
             if (!cc.macro.CLEANUP_IMAGE_CACHE && dynamicAtlasManager) {
                 dynamicAtlasManager.enabled = true;
+            }
+            // Disable dynamicAtlasManager to fix rendering residue for transparent images on Chrome69.
+            if (cc.sys.browserType == cc.sys.BROWSER_TYPE_CHROME && parseFloat(cc.sys.browserVersion) >= 69.0) {
+                dynamicAtlasManager.enabled = false;
             }
         }
         if (!this._renderContext) {
@@ -818,10 +833,11 @@ var game = {
                 game.emit(game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        // In order to adapt the most of platforms the onshow API.
+        function onShown (arg0, arg1, arg2, arg3, arg4) {
             if (hidden) {
                 hidden = false;
-                game.emit(game.EVENT_SHOW);
+                game.emit(game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 

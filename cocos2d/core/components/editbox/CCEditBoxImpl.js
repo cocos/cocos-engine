@@ -4,7 +4,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -245,6 +245,10 @@ let EditBoxImpl = cc.Class({
         this._node = null;
         this.setDelegate(null);
         this.removeDom();
+        if (this.__orientationChanged) {
+            window.removeEventListener('orientationchange', this.__orientationChanged);
+            this.__orientationChanged = null;
+        }
     },
 
     _onTouchBegan (touch) {
@@ -349,6 +353,16 @@ let EditBoxImpl = cc.Class({
 
     _updateMatrix () {
         if (!this._edTxt) return;
+
+        let camera;
+        // can't find camera in editor
+        if (CC_EDITOR) {
+            camera = cc.Camera.main;
+        }
+        else {
+            camera = cc.Camera.findCamera(this._node);
+        }
+        if (!camera) return;
     
         let node = this._node, 
             scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
@@ -361,15 +375,6 @@ let EditBoxImpl = cc.Class({
         _vec3.y = -node._anchorPoint.y * contentSize.height;
     
         math.mat4.translate(_matrix, _matrix, _vec3);
-
-        let camera;
-        // can't find camera in editor
-        if (CC_EDITOR) {
-            camera = cc.Camera.main;
-        }
-        else {
-            camera = cc.Camera.findCamera(node);
-        }
         
         camera.getWorldToCameraMatrix(_matrix_temp);
         math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
@@ -433,10 +438,12 @@ _p.createInput = function() {
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
     let self = this;
-    this.__orientationChanged = function () {
-        self._adjustEditBoxPosition();
-    };
-    window.addEventListener('orientationchange', this.__orientationChanged);
+    if (!this.__orientationChanged) {
+        this.__orientationChanged = function () {
+            self._adjustEditBoxPosition();
+        };
+        window.addEventListener('orientationchange', this.__orientationChanged);
+    }
 
     if (cc.view.isAutoFullScreenEnabled()) {
         this.__fullscreen = true;
@@ -465,7 +472,10 @@ _p._endEditingOnMobile = function () {
         this.__rotateScreen = false;
     }
 
-    window.removeEventListener('orientationchange', this.__orientationChanged);
+    if (this.__orientationChanged) {
+        window.removeEventListener('orientationchange', this.__orientationChanged);
+        this.__orientationChanged = null;
+    }
 
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
@@ -494,6 +504,7 @@ function _inputValueHandle (input, editBoxImpl) {
 
 function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
+    let blurWhenComposition = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
@@ -502,6 +513,11 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.compositionend = function () {
         inputLock = false;
+        if (blurWhenComposition) {
+            // restore input value when composition not complete and blur input
+            this.value = editBoxImpl._text;
+            blurWhenComposition = false;
+        }
         _inputValueHandle(this, editBoxImpl);
     };
     tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
@@ -550,7 +566,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        if (inputLock) {
+            blurWhenComposition = true;
+        }
+        else {
+            editBoxImpl._text = this.value;
+        }
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);

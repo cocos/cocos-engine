@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -107,6 +107,7 @@ let WebView = cc.Class({
 
     statics: {
         EventType: EventType,
+        Impl: WebViewImpl
     },
 
 
@@ -123,13 +124,13 @@ let WebView = cc.Class({
     onEnable () {
         let impl = this._impl;
         impl.createDomElementIfNeeded(this.node.width, this.node.height);
-        impl.loadURL(this._url);
-        impl.setVisible(true);
         if (!CC_EDITOR) {
             impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
             impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
             impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
         }
+        impl.loadURL(this._url);
+        impl.setVisible(true);
     },
 
     onDisable () {

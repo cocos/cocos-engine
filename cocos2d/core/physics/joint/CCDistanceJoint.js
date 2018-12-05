@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -98,7 +98,6 @@ var DistanceJoint = cc.Class({
          * !#zh
          * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
          * @property {Number} dampingRatio
-         * @property 0
          */
         dampingRatio: {
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            

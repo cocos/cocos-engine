@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -131,7 +131,7 @@ const Overflow = cc.Enum({
  * !#en The Label Component.
  * !#zh 文字标签组件
  * @class Label
- * @extends Component
+ * @extends RenderComponent
  */
 let Label = cc.Class({
     name: 'cc.Label',
@@ -343,16 +343,11 @@ let Label = cc.Class({
                 }
 
                 this._N$file = value;
-                this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
                 if ( typeof value === 'string' ) {
                     cc.warnID(4000);
-                }
-
-                if (value instanceof cc.BitmapFont) {
-                    this._bmFontOriginalSize = value.fontSize;
                 }
 
                 if (this._renderData) {
@@ -361,7 +356,7 @@ let Label = cc.Class({
                 }
                 this._fontAtlas = null;
                 this._updateAssembler();
-                this._activateMaterial(true);
+                this._applyFontTexture(true);
                 this._updateRenderData();
             },
             type: cc.Font,
@@ -412,9 +407,14 @@ let Label = cc.Class({
 
         _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
-            default: -1,
-            serializable: false,
-            readonly: true,
+            get () {
+                if (this._N$file instanceof cc.BitmapFont) {
+                    return this._N$file.fontSize;
+                }
+                else {
+                    return -1;
+                }
+            },
             visible: true,
             animatable: false
         },
@@ -467,8 +467,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
-        this._updateAssembler();
-        this._activateMaterial();
+        this._updateRenderData(true);
     },
 
     onDisable () {
@@ -504,6 +503,10 @@ let Label = cc.Class({
         this.markForRender(!!this.string);
     },
 
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
     _updateAssembler () {
         let assembler = Label._assembler.getAssembler(this);
 
@@ -514,31 +517,36 @@ let Label = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData(true);
         }
     },
 
-    _activateMaterial (force) {
-        let material = this._material;
-        if (material && !force) {
-            return;
-        }
-        
+    _applyFontTexture (force) {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            let self = this;
+            let onBMFontTextureLoaded = function () {
+                // TODO: old texture in material have been released by loader
+                self._texture = spriteFrame._texture;
+                self._activateMaterial(force);
+
+                if (force) {
+                    this._assembler && this._assembler.updateRenderData(this);
+                }
+            };
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                onBMFontTextureLoaded();
+            }
+            else {
                 this.disableRender();
 
                 if (spriteFrame) {
-                    spriteFrame.once('load', this._activateMaterial, this);
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                     spriteFrame.ensureLoadTexture();
                 }
-                return;
             }
-            
-            // TODO: old texture in material have been released by loader
-            this._texture = spriteFrame._texture;
         }
         else {
             if (!this._ttfTexture) {
@@ -551,6 +559,18 @@ let Label = cc.Class({
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
+            this._activateMaterial(force);
+
+            if (force) {
+                this._assembler && this._assembler.updateRenderData(this);
+            }
+        }
+    },
+
+    _activateMaterial (force) {
+        let material = this._material;
+        if (material && !force) {
+            return;
         }
 
         // Canvas
@@ -570,6 +590,8 @@ let Label = cc.Class({
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
             material.texture = this._texture;
+            // For batch rendering, do not use uniform color.
+            material.useColor = false;
             this._updateMaterial(material);
         }
 
@@ -596,10 +618,9 @@ let Label = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (CC_EDITOR || force) {
+        if (force) {
             this._updateAssembler();
-            this._activateMaterial(force);
-            this._assembler.updateRenderData(this);
+            this._applyFontTexture(force);
         }
     },
 

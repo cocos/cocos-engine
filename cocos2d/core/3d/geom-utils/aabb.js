@@ -78,7 +78,7 @@ aabb.create = function (px, py, pz, w, h, l) {
  * @return {geomUtils.Aabb}
  */
 aabb.clone = function (a) {
-    return new Aabb(a.center.x, a.center.y, a.center.z,
+    return new aabb(a.center.x, a.center.y, a.center.z,
         a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
 }
 

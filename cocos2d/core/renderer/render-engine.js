@@ -3,7 +3,7 @@
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  render-engine v1.2.0
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -4012,13 +4012,51 @@ quat.fromEuler = function (out, x, y, z) {
   var sz = Math.sin(z);
   var cz = Math.cos(z);
 
-  out.x = sx * cy * cz - cx * sy * sz;
+  out.x = sx * cy * cz + cx * sy * sz;
   out.y = cx * sy * cz + sx * cy * sz;
   out.z = cx * cy * sz - sx * sy * cz;
-  out.w = cx * cy * cz + sx * sy * sz;
+  out.w = cx * cy * cz - sx * sy * sz;
 
   return out;
 };
+
+/**
+ * Convert a quaternion back to euler angle (in degrees).
+ *
+ * @param {vec3} out - Euler angle stored as a vec3
+ * @param {number} q - the quaternion to be converted
+ * @returns {vec3} out.
+ */
+quat.toEuler = function (out, q) {
+  var x = q.x, y = q.y, z = q.z, w = q.w;
+  var heading, attitude, bank;
+  var test = x * y + z * w;
+  if (test > 0.499) { // singularity at north pole
+    heading = 2 * Math.atan2(x,w);
+    attitude = Math.PI/2;
+    bank = 0;
+  }
+  if (test < -0.499) { // singularity at south pole
+    heading = -2 * Math.atan2(x,w);
+    attitude = - Math.PI/2;
+    bank = 0;
+  }
+  if(isNaN(heading)){
+    var sqx = x*x;
+    var sqy = y*y;
+    var sqz = z*z;
+    heading = Math.atan2(2*y*w - 2*x*z , 1 - 2*sqy - 2*sqz); // heading
+    attitude = Math.asin(2*test); // attitude
+    bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
+  }
+
+  out.y = toDegree(heading);
+  out.z = toDegree(attitude);
+  out.x = toDegree(bank);
+
+  return out;
+}
+
 
 /**
  * Returns a string representation of a quatenion
@@ -8246,11 +8284,7 @@ var Texture2D = (function (Texture$$1) {
     var premultiplyAlpha = options.premultiplyAlpha;
     var img = options.image;
 
-    if (
-      img instanceof HTMLCanvasElement ||
-      img instanceof HTMLImageElement ||
-      img instanceof HTMLVideoElement
-    ) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {
@@ -8309,11 +8343,7 @@ var Texture2D = (function (Texture$$1) {
     var premultiplyAlpha = options.premultiplyAlpha;
     var img = options.image;
 
-    if (
-      img instanceof HTMLCanvasElement ||
-      img instanceof HTMLImageElement ||
-      img instanceof HTMLVideoElement
-    ) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       if (flipY === undefined) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       } else {
@@ -8602,11 +8632,7 @@ var TextureCube = (function (Texture$$1) {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
 
-    if (
-      img instanceof HTMLCanvasElement ||
-      img instanceof HTMLImageElement ||
-      img instanceof HTMLVideoElement
-    ) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, options.level, options.x, options.y, glFmt.format, glFmt.pixelType, img);
     } else {
       if (this._compressed) {
@@ -8653,11 +8679,7 @@ var TextureCube = (function (Texture$$1) {
     } else {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
     }
-    if (
-      img instanceof HTMLCanvasElement ||
-      img instanceof HTMLImageElement ||
-      img instanceof HTMLVideoElement
-    ) {
+    if (img && !ArrayBuffer.isView(img) && !(img instanceof ArrayBuffer)) {
       gl.texImage2D(
         gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
         options.level,
@@ -10300,7 +10322,8 @@ var Pass = function Pass(name) {
   // depth
   this._depthTest = false;
   this._depthWrite = false;
-  this._depthFunc = gfx.DS_FUNC_LESS, this._stencilTest = false;
+  this._depthFunc = gfx.DS_FUNC_LESS;
+  this._stencilTest = false;
   // front
   this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
   this._stencilRefFront = 0;
@@ -10317,6 +10340,42 @@ var Pass = function Pass(name) {
   this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
   this._stencilWriteMaskBack = 0xff;
+};
+
+Pass.prototype.copy = function (pass) {
+    this._programName = pass._programName;
+    // cullmode
+    this._cullMode = pass._cullMode;
+    // blending
+    this._blend = pass._blend;
+    this._blendEq = pass._blendEq;
+    this._blendAlphaEq = pass._blendAlphaEq;
+    this._blendSrc = pass._blendSrc;
+    this._blendDst = pass._blendDst;
+    this._blendSrcAlpha = pass._blendSrcAlpha;
+    this._blendDstAlpha = pass._blendDstAlpha;
+    this._blendColor = pass._blendColor;
+    // depth
+    this._depthTest = pass._depthTest;
+    this._depthWrite = pass._depthWrite;
+    this._depthFunc = pass._depthFunc;
+    this._stencilTest = pass._stencilTest;
+    // front
+    this._stencilFuncFront = pass._stencilFuncFront;
+    this._stencilRefFront = pass._stencilRefFront;
+    this._stencilMaskFront = pass._stencilMaskFront;
+    this._stencilFailOpFront = pass._stencilFailOpFront;
+    this._stencilZFailOpFront = pass._stencilZFailOpFront;
+    this._stencilZPassOpFront = pass._stencilZPassOpFront;
+    this._stencilWriteMaskFront = pass._stencilWriteMaskFront;
+    // back
+    this._stencilFuncBack = pass._stencilFuncBack;
+    this._stencilRefBack = pass._stencilRefBack;
+    this._stencilMaskBack = pass._stencilMaskBack;
+    this._stencilFailOpBack = pass._stencilFailOpBack;
+    this._stencilZFailOpBack = pass._stencilZFailOpBack;
+    this._stencilZPassOpBack = pass._stencilZPassOpBack;
+    this._stencilWriteMaskBack = pass._stencilWriteMaskBack;
 };
 
 Pass.prototype.setCullMode = function setCullMode (cullMode) {
@@ -10476,6 +10535,29 @@ var Technique = function Technique(stages, parameters, passes, layer) {
 };
 
 var prototypeAccessors$3 = { passes: { configurable: true },stageIDs: { configurable: true } };
+
+Technique.prototype.copy = function (technique) {
+  this._id = technique._id;
+  this._stageIDs = technique._stageIDs;
+
+  this._parameters = [];
+  for (let i = 0; i < technique._parameters.length; ++i) {
+    let parameter = technique._parameters[i];
+    this._parameters.push({name: parameter.name, type: parameter.type});
+  }
+
+  for (let i = 0; i < technique._passes.length; ++i) {
+    let pass = this._passes[i];
+    if (!pass) {
+      pass = new renderer.Pass();
+      this._passes.push(pass);
+    }
+    pass.copy(technique._passes[i]);
+  }
+  this._passes.length = technique._passes.length;
+
+  this._layer = technique._layer;
+};
 
 Technique.prototype.setStages = function setStages (stages) {
   this._stageIDs = config.stageIDs(stages);
@@ -11255,14 +11337,13 @@ Camera.prototype.screenToWorld = function screenToWorld (out, screenPos, width, 
     vec3.transformMat4(out, out, _matInvViewProj);
 
     //
-    this._node.getWorldPos(_tmp_v3);
-    vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
+    this._node.getWorldPosition(_tmp_v3);
+    vec3.lerp(out, _tmp_v3, out, cc.vmath.lerp(this._near / this._far, 1, screenPos.z));
   } else {
-    var range = this._farClip - this._nearClip;
     vec3.set(out,
       (screenPos.x - cx) * 2.0 / cw - 1.0,
-      (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
-      (this._far - screenPos.z) / range * 2.0 - 1.0
+      (screenPos.y - cy) * 2.0 / ch - 1.0,
+      screenPos.z * 2 - 1
     );
 
     // transform to world
@@ -11302,16 +11383,10 @@ Camera.prototype.worldToScreen = function worldToScreen (out, worldPos, width, h
   // view-projection
   mat4.mul(_matViewProj, _matProj, _matView);
 
-  // calculate w
-  var w =
-    worldPos.x * _matViewProj.m03 +
-    worldPos.y * _matViewProj.m07 +
-    worldPos.z * _matViewProj.m11 +
-    _matViewProj.m15;
-
   vec3.transformMat4(out, worldPos, _matViewProj);
-  out.x = cx + (out.x / w + 1) * 0.5 * cw;
-  out.y = cy + (out.y / w + 1) * 0.5 * ch;
+  out.x = cx + (out.x + 1) * 0.5 * cw;
+  out.y = cy + (out.y + 1) * 0.5 * ch;
+  out.z = out.z * 0.5 + 0.5;
 
   return out;
 };
@@ -13682,13 +13757,12 @@ var templates = [
   },
   {
     name: 'sprite',
-    vert: '\n \nuniform mat4 viewProj;\n#ifdef use2DPos\nattribute vec2 a_position;\n#else\nattribute vec3 a_position;\n#endif\nattribute lowp vec4 a_color;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 uv0;\n#endif\n#ifndef useColor\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  #ifdef use2DPos\n  vec4 pos = mvp * vec4(a_position, 0, 1);\n  #else\n  vec4 pos = mvp * vec4(a_position, 1);\n  #endif\n  #ifndef useColor\n  v_fragmentColor = a_color;\n  #endif\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute lowp vec4 a_color;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 uv0;\n#endif\n#ifndef useColor\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  #ifndef useColor\n  v_fragmentColor = a_color;\n  #endif\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
     frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying mediump vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform lowp float alphaThreshold;\n#endif\n#ifdef useColor\n  uniform lowp vec4 color;\n#else\n  varying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  #ifdef useColor\n    vec4 o = color;\n  #else\n    vec4 o = v_fragmentColor;\n  #endif\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
     defines: [
       { name: 'useTexture', },
       { name: 'useModel', },
       { name: 'alphaTest', },
-      { name: 'use2DPos', },
       { name: 'useColor', } ],
   } ];
 
@@ -13717,6 +13791,7 @@ var _dataPool = new Pool(function () {
   return {
     x: 0.0,
     y: 0.0,
+    z: 0.0,
     u: 0.0,
     v: 0.0,
     color: 0
@@ -14123,7 +14198,6 @@ var SpriteMaterial = (function (Material$$1) {
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
         { name: 'alphaTest', value: false },
-        { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
     
@@ -14135,7 +14209,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14148,21 +14222,13 @@ var SpriteMaterial = (function (Material$$1) {
   prototypeAccessors.useTexture.set = function (val) {
     this._effect.define('useTexture', val);
   };
-
+  
   prototypeAccessors.useModel.get = function () {
     return this._effect.getDefine('useModel');
   };
 
   prototypeAccessors.useModel.set = function (val) {
     this._effect.define('useModel', val);
-  };
-
-  prototypeAccessors.use2DPos.get = function () {
-    return this._effect.getDefine('use2DPos');
-  };
-
-  prototypeAccessors.use2DPos.set = function (val) {
-    this._effect.define('use2DPos', val);
   };
 
   prototypeAccessors.useColor.get = function () {
@@ -14200,10 +14266,10 @@ var SpriteMaterial = (function (Material$$1) {
 
   SpriteMaterial.prototype.clone = function clone () {
     var copy = new SpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
-    copy.use2DPos = this.use2DPos;
     copy.useColor = this.useColor;
     copy.updateHash();
     return copy;
@@ -14291,6 +14357,7 @@ var GraySpriteMaterial = (function (Material$$1) {
 
   GraySpriteMaterial.prototype.clone = function clone () {
     var copy = new GraySpriteMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.texture = this.texture;
     copy.color = this.color;
     copy.updateHash();
@@ -14339,7 +14406,6 @@ var StencilMaterial = (function (Material$$1) {
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
         { name: 'alphaTest', value: true },
-        { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
     
@@ -14403,6 +14469,7 @@ var StencilMaterial = (function (Material$$1) {
 
   StencilMaterial.prototype.clone = function clone () {
     var copy = new StencilMaterial();
+    copy._mainTech.copy(this._mainTech);
     copy.useTexture = this.useTexture;
     copy.useModel = this.useModel;
     copy.useColor = this.useColor;

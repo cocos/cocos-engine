@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -118,7 +118,7 @@ module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
@@ -141,7 +141,7 @@ module.exports = {
     _updateVerts () {
     },
 
-    _updateFontFamly (comp) {
+    _updateFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
@@ -150,6 +150,7 @@ module.exports = {
                 else {
                     cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
                         _fontFamily = fontFamily || 'Arial';
+                        comp.font._nativeAsset = fontFamily;
                         comp._updateRenderData(true);
                     });
                 }
@@ -418,7 +419,6 @@ module.exports = {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
         
-            _splitedStrings = paragraphedStrings;
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -453,7 +453,6 @@ module.exports = {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
 
-                    _splitedStrings = [];
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
@@ -468,7 +467,6 @@ module.exports = {
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
-                        _splitedStrings = _splitedStrings.concat(textFragment);
                     }
 
                     if (tryDivideByTwo) {

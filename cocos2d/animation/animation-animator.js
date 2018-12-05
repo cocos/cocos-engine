@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -83,7 +83,7 @@ p.addAnimation = function (anim) {
         this._anims.push(anim);
     }
 
-    anim._setListeners(this.animation);
+    anim._setEventTarget(this.animation);
 };
 
 p.removeAnimation = function (anim) {
@@ -226,10 +226,10 @@ function initClipData (root, state) {
     var curves = state.curves;
     curves.length = 0;
 
-    state.duration = clip.duration;
-    state.speed = clip.speed;
-    state.wrapMode = clip.wrapMode;
-    state.frameRate = clip.sample;
+    state.duration = Number.parseFloat(clip.duration);
+    state.speed = Number.parseFloat(clip.speed);
+    state.wrapMode = Number.parseInt(clip.wrapMode);
+    state.frameRate = Number.parseFloat(clip.sample);
 
     if ((state.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
         state.repeatCount = Infinity;

@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -207,6 +207,7 @@ let Button = cc.Class({
             notify (oldValue) {
                 this._updateTransition(oldValue);
             },
+            formerlySerializedAs: 'transition'
         },
 
         // color transition
@@ -222,7 +223,7 @@ let Button = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_color',
             notify () {
                 if (this.transition === Transition.Color && this._getButtonState() === State.NORMAL) {
-                    this.target.opacity = this.normalColor.a;
+                    this._getTarget().opacity = this.normalColor.a;
                 }
                 this._updateState();
             }
@@ -239,10 +240,11 @@ let Button = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.button.pressed_color',
             notify () {
                 if (this.transition === Transition.Color && this._getButtonState() === State.PRESSED) {
-                    this.target.opacity = this.pressedColor.a;
+                    this._getTarget().opacity = this.pressedColor.a;
                 }
                 this._updateState();
-            }
+            },
+            formerlySerializedAs: 'pressedColor'
         },
 
         /**
@@ -256,10 +258,11 @@ let Button = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.button.hover_color',
             notify () {
                 if (this.transition === Transition.Color && this._getButtonState() === State.HOVER) {
-                    this.target.opacity = this.hoverColor.a;
+                    this._getTarget().opacity = this.hoverColor.a;
                 }
                 this._updateState();
-            }
+            },
+            formerlySerializedAs: 'hoverColor'
         },
 
         /**
@@ -273,7 +276,7 @@ let Button = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.button.disabled_color',
             notify () {
                 if (this.transition === Transition.Color && this._getButtonState() === State.DISABLED) {
-                    this.target.opacity = this.disabledColor.a;
+                    this._getTarget().opacity = this.disabledColor.a;
                 }
                 this._updateState();
             }
@@ -405,9 +408,6 @@ let Button = cc.Class({
     },
 
     __preload () {
-        if (!this.target) {
-            this.target = this.node;
-        }
         this._applyTarget();
         this._updateState();
     },
@@ -416,7 +416,7 @@ let Button = cc.Class({
         this._pressed = false;
         this._hovered = false;
         // // Restore button status
-        let target = this.target;
+        let target = this._getTarget();
         let transition = this.transition;
         if (transition === Transition.COLOR && this.interactable) {
             this._setTargetColor(this.normalColor);
@@ -457,11 +457,12 @@ let Button = cc.Class({
         }
     },
 
+    _getTarget () {
+        return this.target ? this.target : this.node;
+    },
+
     _setTargetColor(color) {
-        let target = this.target;
-        if (!target) {
-            return;
-        }
+        let target = this._getTarget();
         target.color = color;
         target.opacity = color.a;
     },
@@ -543,7 +544,7 @@ let Button = cc.Class({
     },
 
     update (dt) {
-        let target = this.target;
+        let target = this._getTarget();
         if (this._transitionFinished) return;
         if (this.transition !== Transition.COLOR && this.transition !== Transition.SCALE) return;
 
@@ -586,10 +587,9 @@ let Button = cc.Class({
     },
 
     _applyTarget () {
-        this._sprite = this._getTargetSprite(this.target);
-        if (this.target) {
-            this._originalScale = this.target.scale;
-        }
+        let target = this._getTarget();
+        this._sprite = this._getTargetSprite(target);
+        this._originalScale = target.scale;
     },
 
     // touch event handler
@@ -607,8 +607,9 @@ let Button = cc.Class({
         // so we have to do hit test when touch moving
         let touch = event.touch;
         let hit = this.node._hitTest(touch.getLocation());
+        let target = this._getTarget();
 
-        if (this.transition === Transition.SCALE && this.target) {
+        if (this.transition === Transition.SCALE) {
             if (hit) {
                 this._fromScale = this._originalScale;
                 this._toScale = this._originalScale * this.zoomScale;
@@ -616,7 +617,7 @@ let Button = cc.Class({
             } else {
                 this.time = 0;
                 this._transitionFinished = true;
-                this.target.scale = this._originalScale;
+                target.scale = this._originalScale;
             }
         } else {
             let state;
@@ -700,8 +701,8 @@ let Button = cc.Class({
             this._updateColorTransitionImmediately(state);
         }
         else {
+            let target = this._getTarget();
             let color = this._getStateColor(state);
-            let target = this.target;
             this._fromColor = target.color.clone();
             this._toColor = color;
             this.time = 0;
@@ -732,7 +733,8 @@ let Button = cc.Class({
     },
 
     _zoomBack () {
-        this._fromScale = this.target.scale;
+        let target = this._getTarget();
+        this._fromScale = target.scale;
         this._toScale = this._originalScale;
         this.time = 0;
         this._transitionFinished = false;
@@ -761,9 +763,7 @@ let Button = cc.Class({
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
-        if (this.target) {
-            this.node.setContentSize(this.target.getContentSize());
-        }
+        this.node.setContentSize(this._getTarget().getContentSize());
     },
 
     _updateDisabledState () {

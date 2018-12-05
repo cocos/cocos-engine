@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -130,7 +130,8 @@ let RenderComponent = cc.Class({
     },
     
     _canRender () {
-        return this._enabled;
+        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
+        return this._enabled && this.node._activeInHierarchy;
     },
 
     markForUpdateRenderData (enable) {
@@ -181,8 +182,11 @@ let RenderComponent = cc.Class({
     _updateColor () {
         let material = this._material;
         if (material) {
-            material.color = this.node.color;
-            material.updateHash();
+            // For batch rendering, update the color only when useColor is set to true.
+            if (material.useColor) {
+                material.color = this.node.color;
+                material.updateHash();
+            }
 
             // reset flag when set color to material successfully
             this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;

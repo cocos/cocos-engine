@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -338,6 +338,10 @@ var Color = (function () {
         alpha = ~~cc.misc.clampf(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
         return this;
+    };
+
+    proto._fastSetA = function (alpha) {
+        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     };
 
     js.getset(proto, 'r', proto.getR, proto.setR, true);

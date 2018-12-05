@@ -25,6 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+
 /**
  * @module cc
  */
@@ -866,13 +867,12 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
 
 
 /*
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
  * @class RotateTo
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number} dstAngle dstAngle in degrees.
  * @example
  * var rotateTo = new cc.RotateTo(2, 61.0);
  */
@@ -880,27 +880,22 @@ cc.RotateTo = cc.Class({
     name: 'cc.RotateTo',
     extends: cc.ActionInterval,
 
-    ctor:function (duration, deltaAngleX, deltaAngleY) {
-        this._dstAngleX = 0;
-        this._startAngleX = 0;
-        this._diffAngleX = 0;
-        this._dstAngleY = 0;
-        this._startAngleY = 0;
-        this._diffAngleY = 0;
-		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY);
+    ctor:function (duration, dstAngle) {
+        this._startAngle = 0;
+        this._dstAngle = 0;
+        this._angle = 0;
+        dstAngle !== undefined && this.initWithDuration(duration, dstAngle);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration
-     * @param {Number} deltaAngleX
-     * @param {Number} deltaAngleY
+     * @param {Number} dstAngle
      * @return {Boolean}
      */
-    initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
+    initWithDuration:function (duration, dstAngle) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            this._dstAngleX = deltaAngleX || 0;
-            this._dstAngleY = deltaAngleY !== undefined ? deltaAngleY : this._dstAngleX;
+            this._dstAngle = dstAngle;
             return true;
         }
         return false;
@@ -909,31 +904,18 @@ cc.RotateTo = cc.Class({
     clone:function () {
         var action = new cc.RotateTo();
         this._cloneDecoration(action);
-        action.initWithDuration(this._duration, this._dstAngleX, this._dstAngleY);
+        action.initWithDuration(this._duration, this._dstAngle);
         return action;
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
 
-        // Calculate X
-        var locStartAngleX = target.rotationX % 360.0;
-        var locDiffAngleX = this._dstAngleX - locStartAngleX;
-        if (locDiffAngleX > 180)
-            locDiffAngleX -= 360;
-        if (locDiffAngleX < -180)
-            locDiffAngleX += 360;
-        this._startAngleX = locStartAngleX;
-        this._diffAngleX = locDiffAngleX;
-
-        // Calculate Y  It's duplicated from calculating X since the rotation wrap should be the same
-        this._startAngleY = target.rotationY % 360.0;
-        var locDiffAngleY = this._dstAngleY - this._startAngleY;
-        if (locDiffAngleY > 180)
-            locDiffAngleY -= 360;
-        if (locDiffAngleY < -180)
-            locDiffAngleY += 360;
-        this._diffAngleY = locDiffAngleY;
+        this._startAngle = target.angle % 360;
+        let angle = this._dstAngle - this._startAngle;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        this._angle = angle;
     },
 
     reverse:function () {
@@ -943,39 +925,36 @@ cc.RotateTo = cc.Class({
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            this.target.rotationX = this._startAngleX + this._diffAngleX * dt;
-            this.target.rotationY = this._startAngleY + this._diffAngleY * dt;
+            this.target.angle = this._startAngle + this._angle * dt;
         }
     }
 });
 
 /**
  * !#en
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
- * !#zh 旋转到目标角度，通过逐帧修改它的 rotation 属性，旋转方向将由最短的角度决定。
+ * !#zh 旋转到目标角度，通过逐帧修改它的 angle 属性，旋转方向将由最短的角度决定。
  * @method rotateTo
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number} dstAngle dstAngle in degrees.
  * @return {ActionInterval}
  * @example
  * // example
  * var rotateTo = cc.rotateTo(2, 61.0);
  */
-cc.rotateTo = function (duration, deltaAngleX, deltaAngleY) {
-    return new cc.RotateTo(duration, deltaAngleX, deltaAngleY);
+cc.rotateTo = function (duration, dstAngle) {
+    return new cc.RotateTo(duration, dstAngle);
 };
 
 
 /*
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * @class RotateBy
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees
- * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} deltaAngle deltaAngle in degrees
  * @example
  * var actionBy = new cc.RotateBy(2, 360);
  */
@@ -983,25 +962,21 @@ cc.RotateBy = cc.Class({
     name: 'cc.RotateBy',
     extends: cc.ActionInterval,
 
-    ctor: function (duration, deltaAngleX, deltaAngleY) {
-        this._angleX = 0;
-        this._startAngleX = 0;
-        this._angleY = 0;
-        this._startAngleY = 0;
-		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY);
+    ctor: function (duration, deltaAngle) {
+        this._deltaAngle = cc.v3();
+        this._startAngle = 0;
+        deltaAngle !== undefined && this.initWithDuration(duration, deltaAngle);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration duration in seconds
-     * @param {Number} deltaAngleX deltaAngleX in degrees
-     * @param {Number} [deltaAngleY=] deltaAngleY in degrees
+     * @param {Number} deltaAngle deltaAngle in degrees
      * @return {Boolean}
      */
-    initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
+    initWithDuration:function (duration, deltaAngle) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            this._angleX = deltaAngleX || 0;
-            this._angleY = deltaAngleY !== undefined ? deltaAngleY : this._angleX;
+            this._deltaAngle = deltaAngle;
             return true;
         }
         return false;
@@ -1010,26 +985,24 @@ cc.RotateBy = cc.Class({
     clone:function () {
         var action = new cc.RotateBy();
         this._cloneDecoration(action);
-        action.initWithDuration(this._duration, this._angleX, this._angleY);
+        action.initWithDuration(this._duration, this._deltaAngle);
         return action;
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._startAngleX = target.rotationX;
-        this._startAngleY = target.rotationY;
+        this._startAngle = target.angle;
     },
 
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            this.target.rotationX = this._startAngleX + this._angleX * dt;
-            this.target.rotationY = this._startAngleY + this._angleY * dt;
+            this.target.angle = this._startAngle + this._deltaAngle * dt;
         }
     },
 
     reverse:function () {
-        var action = new cc.RotateBy(this._duration, -this._angleX, -this._angleY);
+        var action = new cc.RotateBy(this._duration, -this._deltaAngle);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
@@ -1038,20 +1011,19 @@ cc.RotateBy = cc.Class({
 
 /**
  * !#en
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * !#zh 旋转指定的角度。
  * @method rotateBy
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees
- * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} deltaAngle deltaAngle in degrees
  * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.rotateBy(2, 360);
  */
-cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
-    return new cc.RotateBy(duration, deltaAngleX, deltaAngleY);
+cc.rotateBy = function (duration, deltaAngle) {
+    return new cc.RotateBy(duration, deltaAngle);
 };
 
 

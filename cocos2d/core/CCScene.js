@@ -74,7 +74,13 @@ cc.Scene = cc.Class({
     },
 
     destroy: function () {
-        this._super();
+        if (cc.Object.prototype.destroy.call(this)) {
+            var children = this._children;
+            for (var i = 0; i < children.length; ++i) {
+                children[i].active = false;
+            }
+        }
+        this._active = false;
         this._activeInHierarchy = false;
     },
 

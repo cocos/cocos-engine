@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -208,10 +208,11 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
-        var audio = this.audio;
-        if (audio.paused) return;
-        this.audio.pause();
-        this._pausedFlag = true;
+        var state = this.audio.getState();
+        if (state === cc.Audio.State.PLAYING) {
+            this.audio.pause();
+            this._pausedFlag = true;
+        }
     },
 
     _restoreCallback: function () {

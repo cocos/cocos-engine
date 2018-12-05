@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,10 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
+    
+    vertexOffset: 5,
+    uvOffset: 2,
+    colorOffset: 4,
 
     createData (sprite) {
         return sprite.requestRenderData();
@@ -51,18 +55,14 @@ module.exports = {
             !(renderData.uvDirty || renderData.vertDirty)) 
             return;
 
-        let texture = frame._texture;
-        let texw = texture.width,
-            texh = texture.height,
-            rect = frame._rect;
-
         let node = sprite.node,
             contentWidth = Math.abs(node.width),
             contentHeight = Math.abs(node.height),
             appx = node.anchorX * contentWidth,
             appy = node.anchorY * contentHeight;
 
-        let rectWidth = rect.width,
+        let rect = frame._rect,
+            rectWidth = rect.width,
             rectHeight = rect.height,
             hRepeat = contentWidth / rectWidth,
             vRepeat = contentHeight / rectHeight,
@@ -86,22 +86,55 @@ module.exports = {
         renderData.vertDirty = false;
     },
 
+    fillVertices (vbuf, vertexOffset, matrix, row, col, data) {
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+
+        let x, x1, y, y1;
+        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
+            y = data[yindex].y;
+            y1 = data[yindex+1].y;
+            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
+                x = data[xindex].x;
+                x1 = data[xindex+1].x;
+
+                // Vertex
+                // lb
+                vbuf[vertexOffset] = x * a + y * c + tx;
+                vbuf[vertexOffset+1] = x * b + y * d + ty;
+                // rb
+                vbuf[vertexOffset+5] = x1 * a + y * c + tx;
+                vbuf[vertexOffset+6] = x1 * b + y * d + ty;
+                // lt
+                vbuf[vertexOffset+10] = x * a + y1 * c + tx;
+                vbuf[vertexOffset+11] = x * b + y1 * d + ty;
+                // rt
+                vbuf[vertexOffset+15] = x1 * a + y1 * c + tx;
+                vbuf[vertexOffset+16] = x1 * b + y1 * d + ty;
+
+                vertexOffset += 20;
+            }
+        }
+    },
+
     fillBuffers (sprite, renderer) {
         let node = sprite.node,
+            is3DNode = node.is3DNode,
+            color = node._color._val,
             renderData = sprite._renderData,
             data = renderData._data;
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let indiceOffset = buffer.indiceOffset,
+        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
             
         buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
         let rotated = sprite.spriteFrame._rotated;
@@ -115,63 +148,54 @@ module.exports = {
             col = Math.ceil(hRepeat);
         
         let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        
+        this.fillVertices(vbuf, vertexOffset, matrix, row, col, data);
 
-        let x, x1, y, y1, coefu, coefv;
+        let offset = this.vertexOffset, uvOffset = this.uvOffset, colorOffset = this.colorOffset;
+        let offset1 = offset, offset2 = offset*2, offset3 = offset*3, offset4 = offset*4;
+        let coefu, coefv;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            y = data[yindex].y;
-            y1 = data[yindex+1].y;
             coefv = Math.min(1, vRepeat - yindex);
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
                 coefu = Math.min(1, hRepeat - xindex);
-                x = data[xindex].x;
-                x1 = data[xindex+1].x;
 
-                // Vertex
-                // lb
-                vbuf[vertexOffset] = x * a + y * c + tx;
-                vbuf[vertexOffset+1] = x * b + y * d + ty;
-                // rb
-                vbuf[vertexOffset+4] = x1 * a + y * c + tx;
-                vbuf[vertexOffset+5] = x1 * b + y * d + ty;
-                // lt
-                vbuf[vertexOffset+8] = x * a + y1 * c + tx;
-                vbuf[vertexOffset+9] = x * b + y1 * d + ty;
-                // rt
-                vbuf[vertexOffset+12] = x1 * a + y1 * c + tx;
-                vbuf[vertexOffset+13] = x1 * b + y1 * d + ty;
-
+                let vertexOffsetU = vertexOffset + uvOffset;
+                let vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
                     // lb
-                    vbuf[vertexOffset+2] = uv[0];
-                    vbuf[vertexOffset+3] = uv[1];
+                    vbuf[vertexOffsetU] = uv[0];
+                    vbuf[vertexOffsetV] = uv[1];
                     // rb
-                    vbuf[vertexOffset+6] = uv[0];
-                    vbuf[vertexOffset+7] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    vbuf[vertexOffsetU+offset1] = uv[0];
+                    vbuf[vertexOffsetV+offset1] = uv[1] + (uv[7] - uv[1]) * coefu;
                     // lt
-                    vbuf[vertexOffset+10] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    vbuf[vertexOffset+11] = uv[1];
+                    vbuf[vertexOffsetU+offset2] = uv[0] + (uv[6] - uv[0]) * coefv;
+                    vbuf[vertexOffsetV+offset2] = uv[1];
                     // rt
-                    vbuf[vertexOffset+14] = vbuf[vertexOffset+10];
-                    vbuf[vertexOffset+15] = vbuf[vertexOffset+7];
+                    vbuf[vertexOffsetU+offset3] = vbuf[vertexOffsetU+offset2];
+                    vbuf[vertexOffsetV+offset3] = vbuf[vertexOffsetV+offset1];
                 }
                 else {
                     // lb
-                    vbuf[vertexOffset+2] = uv[0];
-                    vbuf[vertexOffset+3] = uv[1];
+                    vbuf[vertexOffsetU] = uv[0];
+                    vbuf[vertexOffsetV] = uv[1];
                     // rb
-                    vbuf[vertexOffset+6] = uv[0] + (uv[6] - uv[0]) * coefu;
-                    vbuf[vertexOffset+7] = uv[1];
+                    vbuf[vertexOffsetU+offset1] = uv[0] + (uv[6] - uv[0]) * coefu;
+                    vbuf[vertexOffsetV+offset1] = uv[1];
                     // lt
-                    vbuf[vertexOffset+10] = uv[0];
-                    vbuf[vertexOffset+11] = uv[1] + (uv[7] - uv[1]) * coefv;
+                    vbuf[vertexOffsetU+offset2] = uv[0];
+                    vbuf[vertexOffsetV+offset2] = uv[1] + (uv[7] - uv[1]) * coefv;
                     // rt
-                    vbuf[vertexOffset+14] = vbuf[vertexOffset+6];
-                    vbuf[vertexOffset+15] = vbuf[vertexOffset+11];
+                    vbuf[vertexOffsetU+offset3] = vbuf[vertexOffsetU+offset1];
+                    vbuf[vertexOffsetV+offset3] = vbuf[vertexOffsetV+offset2];
                 }
-                vertexOffset += 16;
+                // color
+                uintbuf[vertexOffset+colorOffset] = color;
+                uintbuf[vertexOffset+colorOffset+offset1] = color;
+                uintbuf[vertexOffset+colorOffset+offset2] = color;
+                uintbuf[vertexOffset+colorOffset+offset3] = color;
+                vertexOffset += offset4;
             }
         }
 

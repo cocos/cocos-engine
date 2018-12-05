@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -388,7 +388,7 @@ proto._urlNotFound = function (url, type, completeCallback) {
  */
 proto._parseLoadResArgs = function (type, onProgress, onComplete) {
     if (onComplete === undefined) {
-        var isValidType = js.isChildClassOf(type, cc.RawAsset);
+        var isValidType = (type instanceof Array) || js.isChildClassOf(type, cc.RawAsset);
         if (onProgress) {
             onComplete = onProgress;
             if (isValidType) {
@@ -571,6 +571,7 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[]): void
+ * loadResArray(url: string[], type: typeof cc.Asset[]): void
  */
 proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
     var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -579,14 +580,16 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
     completeCallback = args.onComplete;
 
     var uuids = [];
+    var isTypesArray = type instanceof Array;
     for (var i = 0; i < urls.length; i++) {
         var url = urls[i];
-        var uuid = this._getResUuid(url, type);
+        var assetType = isTypesArray ? type[i] : type;
+        var uuid = this._getResUuid(url, assetType);
         if (uuid) {
             uuids.push(uuid);
         }
         else {
-            this._urlNotFound(url, type, completeCallback);
+            this._urlNotFound(url, assetType, completeCallback);
             return;
         }
     }
@@ -710,13 +713,15 @@ proto.getResCount = function () {
 };
 
 /**
- * !#en Get all resource dependencies of the requested asset in an array, including itself.
+ * !#en
+ * Get all resource dependencies of the loaded asset in an array, including itself.
  * The owner parameter accept the following types: 1. The asset itself; 2. The resource url; 3. The asset's uuid.<br>
  * The returned array stores the dependencies with their uuids, after retrieve dependencies,
  * you can release them, access dependent assets by passing the uuid to {{#crossLink "loader/getRes:method"}}{{/crossLink}}, or other stuffs you want.<br>
  * For release all dependencies of an asset, please refer to {{#crossLink "loader/release:method"}}{{/crossLink}}
  * Here is some examples:
- * !#zh 获取一个指定资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid。<br>
+ * !#zh
+ * 获取某个已经加载好的资源的所有依赖资源，包含它自身，并保存在数组中返回。owner 参数接收以下几种类型：1. 资源 asset 对象；2. 资源目录下的 url；3. 资源的 uuid。<br>
  * 返回的数组将仅保存依赖资源的 uuid，获取这些 uuid 后，你可以从 loader 释放这些资源；通过 {{#crossLink "loader/getRes:method"}}{{/crossLink}} 获取某个资源或者进行其他你需要的操作。<br>
  * 想要释放一个资源及其依赖资源，可以参考 {{#crossLink "loader/release:method"}}{{/crossLink}}。下面是一些示例代码：
  *

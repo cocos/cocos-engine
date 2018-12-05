@@ -42,71 +42,84 @@
  */
 
 var _global = typeof window === 'undefined' ? global : window;
-_global.sp = {};
+var _isUseSpine = true;
 
-// The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
-sp.ATTACHMENT_TYPE = {
-    REGION: 0,
-    BOUNDING_BOX: 1,
-    MESH: 2,
-    SKINNED_MESH:3
-};
-
-/**
- * !#en The event type of spine skeleton animation.
- * !#zh 骨骼动画事件类型。
- * @enum AnimationEventType
- */
-sp.AnimationEventType = cc.Enum({
-    /**
-     * !#en The play spine skeleton animation start type.
-     * !#zh 开始播放骨骼动画。
-     * @property {Number} START
-     */
-    START: 0,
-    /**
-     * !#en Another entry has replaced this entry as the current entry. This entry may continue being applied for mixing.
-     * !#zh 当前的 entry 被其他的 entry 替换。当使用 mixing 时，当前的 entry 会继续运行。
-     */
-    INTERRUPT: 1,
-    /**
-     * !#en The play spine skeleton animation finish type.
-     * !#zh 播放骨骼动画结束。
-     * @property {Number} END
-     */
-    END: 2,
-    /**
-     * !#en The entry will be disposed.
-     * !#zh entry 将被销毁。
-     */
-    DISPOSE: 3,
-    /**
-     * !#en The play spine skeleton animation complete type.
-     * !#zh 播放骨骼动画完成。
-     * @property {Number} COMPLETE
-     */
-    COMPLETE: 4,
-    /**
-     * !#en The spine skeleton animation event type.
-     * !#zh 骨骼动画事件。
-     * @property {Number} EVENT
-     */
-    EVENT: 5
-});
-
-/**
- * @module sp
- */
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    
-    sp.spine = require('./lib/spine');
-    require('./skeleton-texture');
-    require('./skeleton-data');
-    require('./Skeleton');
-    require('./spine-assembler');
+if (CC_JSB && _global.spine === undefined) {
+    _isUseSpine = false;
 }
-else {
-    require('./skeleton-data');
+
+if (_isUseSpine) {
+    _global.sp = {};
+
+    // The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
+    sp.ATTACHMENT_TYPE = {
+        REGION: 0,
+        BOUNDING_BOX: 1,
+        MESH: 2,
+        SKINNED_MESH:3
+    };
+
+    /**
+     * !#en The event type of spine skeleton animation.
+     * !#zh 骨骼动画事件类型。
+     * @enum AnimationEventType
+     */
+    sp.AnimationEventType = cc.Enum({
+        /**
+         * !#en The play spine skeleton animation start type.
+         * !#zh 开始播放骨骼动画。
+         * @property {Number} START
+         */
+        START: 0,
+        /**
+         * !#en Another entry has replaced this entry as the current entry. This entry may continue being applied for mixing.
+         * !#zh 当前的 entry 被其他的 entry 替换。当使用 mixing 时，当前的 entry 会继续运行。
+         */
+        INTERRUPT: 1,
+        /**
+         * !#en The play spine skeleton animation finish type.
+         * !#zh 播放骨骼动画结束。
+         * @property {Number} END
+         */
+        END: 2,
+        /**
+         * !#en The entry will be disposed.
+         * !#zh entry 将被销毁。
+         */
+        DISPOSE: 3,
+        /**
+         * !#en The play spine skeleton animation complete type.
+         * !#zh 播放骨骼动画完成。
+         * @property {Number} COMPLETE
+         */
+        COMPLETE: 4,
+        /**
+         * !#en The spine skeleton animation event type.
+         * !#zh 骨骼动画事件。
+         * @property {Number} EVENT
+         */
+        EVENT: 5
+    });
+
+    /**
+     * @module sp
+     */
+    if (!CC_EDITOR || !Editor.isMainProcess) {
+        
+        if (CC_JSB) {
+            sp.spine = _global.spine;
+        } else {
+            sp.spine = require('./lib/spine');
+        }
+
+        require('./skeleton-texture');
+        require('./skeleton-data');
+        require('./Skeleton');
+        require('./spine-assembler');
+    }
+    else {
+        require('./skeleton-data');
+    }
 }
 
 /**

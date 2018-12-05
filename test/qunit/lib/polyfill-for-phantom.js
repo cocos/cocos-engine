@@ -151,4 +151,13 @@ if (!Object.assign) {
             return to;
         }
     });
-  }
+}
+
+if (!Object.getOwnPropertySymbols) {
+    Object.getOwnPropertySymbols = function () {
+        return [];
+    };
+}
+
+Number.parseFloat = Number.parseFloat || parseFloat;
+Number.parseInt = Number.parseInt || parseInt;

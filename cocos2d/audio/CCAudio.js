@@ -168,7 +168,7 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-        if (CC_WECHATGAME) {
+        if (CC_WECHATGAME || CC_QQPLAY) {
             this._element && this._element.destroy();
         }
         this._element = null;
@@ -235,8 +235,8 @@ Audio.State = {
             return;
         }
 
-        this._unbindEnded();
         if (!(CC_QQPLAY || CC_WECHATGAME)) {
+            this._unbindEnded();
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));
@@ -264,7 +264,7 @@ Audio.State = {
     };
 
     proto.getState = function () {
-        if (!CC_WECHATGAME) {
+        if (!CC_WECHATGAME && !CC_QQPLAY) {
             let elem = this._element;
             if (elem && Audio.State.PLAYING === this._state && elem.paused) {
                 this._state = Audio.State.PAUSED;

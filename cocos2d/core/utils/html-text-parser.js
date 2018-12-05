@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 var eventRegx = /^(click)(\s)*=/;
-var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
  */
@@ -161,6 +161,11 @@ HtmlTextParser.prototype = {
                     } else if (tagName === "click") {
                         obj.event = this._processEventHandler(tagName + "=" + tagValue);
                     }
+
+                    if (obj.event && tagName === 'param') {
+                        obj.event.param = tagValue.replace(/^\"|\"$/g, '');
+                    }
+
                     header = attribute.match(imageAttrReg);
                 }
 
@@ -178,7 +183,7 @@ HtmlTextParser.prototype = {
             attribute = header[0].substring("outline".length).trim();
             var defaultOutlineObject = {color: "#ffffff", width: 1};
             if (attribute) {
-                var outlineAttrReg = /(\s)*color(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+                var outlineAttrReg = /(\s)*color(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
                 header = attribute.match(outlineAttrReg);
                 var tagValue;
                 while (header) {
@@ -204,6 +209,11 @@ HtmlTextParser.prototype = {
                     } else if (tagName === "width") {
                         defaultOutlineObject.width = parseInt(tagValue);
                     }
+
+                    if (obj.event && tagName === 'param') {
+                        obj.event.param = tagValue.replace(/^\"|\"$/g, '');
+                    }
+
                     header = attribute.match(outlineAttrReg);
                 }
             }
@@ -231,7 +241,6 @@ HtmlTextParser.prototype = {
             eventObj = this._processEventHandler(attribute);
             obj.event = eventObj;
         }
-
 
         return obj;
     },

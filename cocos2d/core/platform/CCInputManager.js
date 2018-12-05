@@ -223,7 +223,7 @@ let inputManager = {
      * @return {Object}
      */
     getHTMLElementPosition (element) {
-        if (sys.platform === sys.WECHAT_GAME) {
+        if (CC_WECHATGAME) {
             return {
                 left: 0,
                 top: 0,
@@ -354,7 +354,7 @@ let inputManager = {
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
-        if (sys.platform === sys.WECHAT_GAME) {
+        if (CC_WECHATGAME) {
             pos.left = 0;
             pos.top = 0;
         }
@@ -417,7 +417,7 @@ let inputManager = {
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
 
-        if (sys.platform === sys.WECHAT_GAME) {
+        if (CC_WECHATGAME) {
             prohibition = false;
             supportTouches = true;
             supportMouse = false;
@@ -527,7 +527,7 @@ let inputManager = {
             let _touchEventsMap = {
                 "touchstart": function (touchesToHandle) {
                     selfPointer.handleTouchesBegin(touchesToHandle);
-                    if (sys.platform !== sys.WECHAT_GAME) {
+                    if (!CC_WECHATGAME) {
                         element.focus();
                     }
                 },

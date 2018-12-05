@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -40,6 +40,12 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    '../../extensions/spine/lib/spine.js',
+    '../../extensions/dragonbones/lib/dragonBones.js',
+    '../../extensions/dragonbones/CCArmatureDisplay.js',
+    '../../extensions/dragonbones/CCFactory.js',
+    '../../extensions/dragonbones/CCSlot.js',
+    '../../extensions/dragonbones/CCTextureData.js'
 ];
 var jsbAliasify = {
     replacements: {
