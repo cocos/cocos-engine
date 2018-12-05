@@ -247,6 +247,7 @@
 		40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */; };
+		40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */; };
 		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
 		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
@@ -794,10 +795,7 @@
 		ED99765F216C453D00A46923 /* libv8_base.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED99765E216C453D00A46923 /* libv8_base.a */; };
 		ED997668216C459E00A46923 /* libv8_libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997660216C459D00A46923 /* libv8_libbase.a */; };
 		ED997669216C459E00A46923 /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997661216C459D00A46923 /* libuv_a.a */; };
-		ED99766A216C459E00A46923 /* libv8_builtins_generators.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997662216C459D00A46923 /* libv8_builtins_generators.a */; };
-		ED99766B216C459E00A46923 /* libv8_nosnapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997663216C459D00A46923 /* libv8_nosnapshot.a */; };
 		ED99766C216C459E00A46923 /* libinspector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997664216C459D00A46923 /* libinspector.a */; };
-		ED99766D216C459E00A46923 /* libv8_builtins_setup.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997665216C459D00A46923 /* libv8_builtins_setup.a */; };
 		ED99766E216C459E00A46923 /* libv8_libplatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997666216C459E00A46923 /* libv8_libplatform.a */; };
 		ED99766F216C459E00A46923 /* libv8_libsampler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997667216C459E00A46923 /* libv8_libsampler.a */; };
 		EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */; };
@@ -949,6 +947,7 @@
 		40AEF7BE216DF21B00729AA5 /* jsb_video_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_video_auto.hpp; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
 		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_snapshot.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_snapshot.a"; sourceTree = "<group>"; };
 		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
@@ -1277,15 +1276,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */,
 				ED99765F216C453D00A46923 /* libv8_base.a in Frameworks */,
 				ED99766F216C459E00A46923 /* libv8_libsampler.a in Frameworks */,
-				ED99766A216C459E00A46923 /* libv8_builtins_generators.a in Frameworks */,
-				ED99766D216C459E00A46923 /* libv8_builtins_setup.a in Frameworks */,
 				ED997668216C459E00A46923 /* libv8_libbase.a in Frameworks */,
 				ED99766E216C459E00A46923 /* libv8_libplatform.a in Frameworks */,
 				ED99766C216C459E00A46923 /* libinspector.a in Frameworks */,
 				40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */,
-				ED99766B216C459E00A46923 /* libv8_nosnapshot.a in Frameworks */,
 				A679D0DA1C71D93200620A6C /* libcrypto.a in Frameworks */,
 				A679D0D91C71D90A00620A6C /* libssl.a in Frameworks */,
 				A6A554211C2A7C1300FDD954 /* libcurl.a in Frameworks */,
@@ -1357,6 +1354,7 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */,
 				ED997664216C459D00A46923 /* libinspector.a */,
 				ED997661216C459D00A46923 /* libuv_a.a */,
 				ED997662216C459D00A46923 /* libv8_builtins_generators.a */,
