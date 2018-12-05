@@ -1,32 +1,11 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Vec2, Vec3, Vec4, Color, Mat4 } from '../core/value-types';
-import { config, renderer, gfx } from '../core/renderer/render-engine';
-const { Technique, Pass } = renderer;
-const enums = renderer;
+import config from '../config';
+import Pass from './pass';
+import Technique from './technique';
+import { ctor2default, enums2ctor, ctor2enums } from '../types';
 
-const { Texture2D, TextureCube } = gfx;
-const CCObject = cc.Object;
-
-let _typeMap = {
-    [enums.PARAM_INT]: Number,
-    [enums.PARAM_INT2]: Vec2,
-    [enums.PARAM_INT3]: Vec3,
-    [enums.PARAM_INT4]: Vec4,
-    [enums.PARAM_FLOAT]: Number,
-    [enums.PARAM_FLOAT2]: Vec2,
-    [enums.PARAM_FLOAT3]: Vec3,
-    [enums.PARAM_FLOAT4]: Vec4,
-    [enums.PARAM_COLOR3]: Color,
-    [enums.PARAM_COLOR4]: Color,
-    [enums.PARAM_MAT4]: Mat4,
-    [enums.PARAM_TEXTURE_2D]: Texture2D,
-    [enums.PARAM_TEXTURE_CUBE]: TextureCube,
-    number: Number,
-    boolean: Boolean,
-    default: CCObject
-};
-let getInstanceType = function(t) { return _typeMap[t] || _typeMap.default; };
+let getInstanceType = function(t) { return enums2ctor[t] || enums2ctor.default; };
 let typeCheck = function(value, type) {
     let instanceType = getInstanceType(type);
     switch (typeof value) {
@@ -137,25 +116,7 @@ class Effect {
 
 let cloneObjArray = function(val) { return val.map(obj => Object.assign({}, obj)); };
 
-let _ctorMap = {
-    [Number]: v => v || 0,
-    [Boolean]: v => v || false,
-    [Vec2]: v => v ? cc.v2(v[0], v[1]) : cc.v2(),
-    [Vec3]: v => v ? cc.v3(v[0], v[1], v[2]) : cc.v3(),
-    [Vec4]: v => v ? cc.v4(v[0], v[1], v[2], v[3]) : cc.v4(),
-    [Color]: v => v ? cc.color(v[0] * 255, v[1] * 255, v[2] * 255,
-        (v[3] || 1) * 255) : cc.color(),
-    [Mat4]: v => v ? cc.mat4(
-            v[0],  v[1],  v[2],  v[3],
-            v[4],  v[5],  v[6],  v[7],
-            v[8],  v[9],  v[10], v[11],
-            v[12], v[13], v[14], v[15],
-        ) : cc.mat4(),
-    [Texture2D]: () => null,
-    [TextureCube]: () => null,
-    [CCObject]: () => null
-};
-let getInstanceCtor = function(t) { return _ctorMap[getInstanceType(t)]; };
+let getInstanceCtor = function(t) { return ctor2default[getInstanceType(t)]; };
 
 let getInvolvedPrograms = function(json) {
     let programs = [], lib = cc.renderer._forward._programLib;
