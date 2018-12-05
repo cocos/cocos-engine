@@ -48,9 +48,6 @@ class Material extends Asset {
      */
     @property(EffectAsset)
     _effectAsset = null;
-    // save this too because inspector needs it
-    @property
-    _effectName = '';
 
     @property
     set effectAsset(val) {
@@ -66,7 +63,7 @@ class Material extends Asset {
         if (this.effectName !== val) this._setEffect(val);
     }
     get effectName() {
-        return this._effectName;
+        return this._effectAsset.name;
     }
 
     /**
@@ -125,7 +122,7 @@ class Material extends Asset {
     }
 
     onLoaded() {
-        this._setEffect(this.effectAsset || this.effectName);
+        this._setEffect(this.effectAsset);
         if (!this._effect) return;
         for (let def in this._defines)
             this._effect.define(def, this._defines[def]);
@@ -140,7 +137,6 @@ class Material extends Asset {
             return;
         }
         this._effectAsset = effectAsset;
-        this._effectName = effectAsset ? effectAsset.name : '';
         this._effect = effectAsset ? Effect.parseEffect(effectAsset) : null;
     }
 
