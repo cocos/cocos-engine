@@ -1460,7 +1460,7 @@
     <ClInclude Include="..\cocos\editor-support\IOBuffer.h">
       <Filter>editor-support</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\MiddleWareMacro.h">
+    <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h">
       <Filter>editor-support</Filter>
     </ClInclude>
   </ItemGroup>
