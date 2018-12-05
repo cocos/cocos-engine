@@ -620,7 +620,7 @@ export default class BaseRenderer {
             item.node.getWorldPosition(_v3_tmp1);
 
             vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
-            item.sortKey = vec3.dot(_v3_tmp1, _camFwd);
+            item.sortKey = -vec3.dot(_v3_tmp1, _camFwd);
         }
 
         // sort items

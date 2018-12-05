@@ -100,23 +100,6 @@ function extractDefines(tokens, defines, cache) {
   return defines;
 }
 
-/* here the `define dependency` for some param is interpreted as
- * the existance of some define ids directly desides the existance of that param.
- * so basically therer is no logical expression support
- * (all will be treated as '&&' operator)
- * for wrapping unifom, attribute and extension declarations.
- * try to write them in straightforward ways like:
- *     #ifdef USE_COLOR
- *         attribute vec4 a_color;
- *     #endif
- * or nested when needed:
- *     #if USE_BILLBOARD && BILLBOARD_STRETCHED
- *         uniform vec3 stretch_color;
- *         #ifdef USE_NORMAL_TEXTURE
- *             uniform sampler2D tex_normal;
- *         #endif
- *     #endif // no else branch
- */
 function extractParams(tokens, cache, uniforms, attributes, extensions) {
   let getDefs = line => {
     let idx = cache.lines.findIndex(i => i > line);
@@ -132,7 +115,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
     if (dest === uniforms && uniformIgnoreList[tokens[i+4].data]) continue;
     if (dest === extensions) {
-      if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
+      if (defines.length !== 1) console.warn('extensions must be under controll of exactly 1 define');
       param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
       param.define = defines[0];
       dest.push(param);

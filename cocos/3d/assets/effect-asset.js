@@ -32,7 +32,10 @@ EffectAsset.remove = function(name) {
     }
 };
 EffectAsset.get = function(name) {
-    return effects[name];
+    if (effects[name]) return effects[name];
+    for (let n in effects)
+        if (effects[n]._uuid === name)
+            return effects[n];
 };
 EffectAsset.getAll = function() {
     return effects;

@@ -22,9 +22,11 @@ export function createIA(device, data) {
     if (data.normals) {
       verts.push(data.normals[3 * i], data.normals[3 * i + 1], data.normals[3 * i + 2]);
     }
-
     if (data.uvs) {
       verts.push(data.uvs[2 * i], data.uvs[2 * i + 1]);
+    }
+    if (data.colors) {
+      verts.push(data.colors[3 * i], data.uvs[3 * i + 1], data.colors[3 * i + 2]);
     }
   }
 
@@ -35,6 +37,9 @@ export function createIA(device, data) {
   }
   if (data.uvs) {
     vfmt.push({ name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 });
+  }
+  if (data.colors) {
+    vfmt.push({ name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
   }
 
   let vb = new gfx.VertexBuffer(

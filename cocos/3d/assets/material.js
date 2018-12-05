@@ -48,9 +48,6 @@ class Material extends Asset {
      */
     @property(EffectAsset)
     _effectAsset = null;
-    // save this too because inspector needs it
-    @property
-    _effectName = '';
 
     @property
     set effectAsset(val) {
@@ -66,7 +63,7 @@ class Material extends Asset {
         if (this.effectName !== val) this._setEffect(val);
     }
     get effectName() {
-        return this._effectName;
+        return this._effectAsset.name;
     }
 
     /**
@@ -140,8 +137,7 @@ class Material extends Asset {
             return;
         }
         this._effectAsset = effectAsset;
-        this._effectName = effectAsset.name;
-        this._effect = Effect.parseEffect(effectAsset);
+        this._effect = effectAsset ? Effect.parseEffect(effectAsset) : null;
     }
 
     static getInstantiatedMaterial(mat, rndCom) {
