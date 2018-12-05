@@ -125,7 +125,7 @@ class Material extends Asset {
     }
 
     onLoaded() {
-        this._setEffect(this.effectAsset);
+        this._setEffect(this.effectAsset || this.effectName);
         if (!this._effect) return;
         for (let def in this._defines)
             this._effect.define(def, this._defines[def]);
