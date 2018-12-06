@@ -56,7 +56,7 @@ export default class Skeleton extends Asset {
 
   /**
    * Gets the bind pose matrices of joints.
-   * @return {Mat4[]}
+   * @type {Mat4[]}
    */
   get bindposes() {
     return this._inverseBindMatrices;
@@ -64,7 +64,7 @@ export default class Skeleton extends Asset {
 
   /**
    * Sets the bind pose matrices of joints.
-   * @param {Mat4[]} value
+   * @type {Mat4[]}
    */
   set bindposes(value) {
     this._inverseBindMatrices = value;
@@ -72,7 +72,7 @@ export default class Skeleton extends Asset {
 
   /**
    * Gets the paths of joints.
-   * @return {string[]}
+   * @type {string[]}
    */
   get joints() {
     return this._joints;

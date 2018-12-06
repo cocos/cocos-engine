@@ -212,7 +212,7 @@ export default class Mesh extends Asset {
     /**
      * !#en
      * Submeshes count of this mesh.
-     * @property {number}
+     * @type {number}
      */
     get subMeshCount() {
         this._lazyInitRenderResources();
