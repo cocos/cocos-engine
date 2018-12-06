@@ -78,9 +78,9 @@ let builtinResMgr = {
         pinkEffect.techniques.push({ passes: [{ program: 'default' }] });
         pinkEffect.shaders.push({
             name: 'default',
-            vert: `attribute vec3 a_position; \n uniform mat4 model; \n uniform mat4 _viewProj_; \n void main() { gl_Position = _viewProj_ * model * vec4(a_position, 1); }`,
+            vert: `attribute vec3 a_position; \n uniform mat4 _model; \n uniform mat4 _viewProj; \n void main() { gl_Position = _viewProj * _model * vec4(a_position, 1); }`,
             frag: `void main() { gl_FragColor = vec4(1, 0, 1, 1); }`,
-            uniforms: [{ name: "model", type: cc.renderer.PARAM_MAT4, defines: [] }], defines: [], attributes: [], extensions: []
+            uniforms: [], defines: [], attributes: [], extensions: []
         });
         pinkEffect.onLoaded();
         let defaultMtl = new Material();
