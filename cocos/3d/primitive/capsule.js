@@ -17,8 +17,8 @@ let temp2 = vec3.create(0, 0, 0);
  */
 export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {}) {
   let torsoHeight = height - radiusTop - radiusBottom;
-  let sides = opts.sides || 16;
-  let heightSegments = opts.heightSegments || 10;
+  let sides = opts.sides || 32;
+  let heightSegments = opts.heightSegments || 32;
   let bottomProp = radiusBottom / height;
   let torProp = torsoHeight / height;
   let topProp = radiusTop / height;
