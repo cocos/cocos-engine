@@ -34,8 +34,6 @@ const SpriteMaterial = renderEngine.SpriteMaterial;
 
 const STENCIL_SEP = '@';
 
-let _sharedMaterials = {};
-
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
@@ -49,7 +47,7 @@ function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
 }
 
-function _getSlotMaterial (slot, tex, premultiAlpha) {
+function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     let src, dst;
     switch (slot.data.blendMode) {
         case spine.BlendMode.Additive:
@@ -72,9 +70,19 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    let material = _sharedMaterials[key];
+    comp._material = comp._material || new SpriteMaterial();
+    let baseMaterial = comp._material;
+    let materialCache = comp._materialCache;
+    let material = materialCache[key];
     if (!material) {
-        material = new SpriteMaterial();
+
+        var baseKey = baseMaterial._hash;
+        if (!materialCache[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = baseMaterial.clone();
+        }
+
         material.useModel = true;
         // update texture
         material.texture = tex;
@@ -88,7 +96,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        _sharedMaterials[key] = material;
+        materialCache[key] = material;
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
@@ -196,7 +204,7 @@ var spineAssembler = {
             }
 
             newData = false;
-            material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
+            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture, premultiAlpha);
             if (!material) {
                 continue;
             }
@@ -300,6 +308,7 @@ var spineAssembler = {
 
     fillBuffers (comp, renderer) {
         let renderDatas = comp._renderDatas;
+        let materialCache = comp._materialCache;
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
 
@@ -308,10 +317,10 @@ var spineAssembler = {
             let key = data.material._hash;
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
-                data.material = _sharedMaterials[newKey] || data.material.clone();
+                data.material = materialCache[newKey] || data.material.clone();
                 data.material.updateHash(newKey);
-                if (!_sharedMaterials[newKey]) {
-                    _sharedMaterials[newKey] = data.material;
+                if (!materialCache[newKey]) {
+                    materialCache[newKey] = data.material;
                 }
             }
 
