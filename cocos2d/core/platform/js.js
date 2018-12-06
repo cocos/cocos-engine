@@ -222,6 +222,18 @@ var js = {
     },
 
     /**
+     * Checks whether obj is an empty object
+     * @method isEmptyObject
+     * @param {any} obj 
+     */
+    isEmptyObject: function (obj) {
+        for (var key in obj) {
+            return false;
+        }
+        return true;
+    },
+
+    /**
      * Get property descriptor in object and all its ancestors
      * @method getPropertyDescriptor
      * @param {Object} obj

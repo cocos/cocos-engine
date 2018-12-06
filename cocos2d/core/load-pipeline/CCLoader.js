@@ -268,7 +268,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
             if (completeCallback) {
                 if (singleRes) {
                     let id = res.url;
-                    completeCallback.call(self, items.getError(id), items.getContent(id));
+                    completeCallback.call(self, errors, items.getContent(id));
                 }
                 else {
                     completeCallback.call(self, errors, items);
