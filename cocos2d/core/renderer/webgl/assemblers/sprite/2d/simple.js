@@ -56,7 +56,7 @@ module.exports = {
             color = node._color._val,
             matrix = node._worldMatrix;
 
-        let buffer = renderer._meshBuffer,
+        let buffer = renderer._quadBuffer,
             vertexOffset = buffer.byteOffset >> 2,
             indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
