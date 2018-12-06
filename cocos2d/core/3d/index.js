@@ -12,4 +12,5 @@ require('./CCModelMeshResource');
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCSkeletonAnimation');
     require('./CCSkinnedMeshRenderer');
+    require('./CCLightComponent');
 }
