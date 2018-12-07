@@ -68,7 +68,7 @@ export default class TextureCube extends TextureBase {
     /**
      * Gets the mipmap images.
      * Note that the result do not contains the auto generated mipmaps.
-     * @return {Mipmap[]}
+     * @type {Mipmap[]}
      */
     get mipmaps() {
         return this._mipmaps;
@@ -76,7 +76,7 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Sets the mipmaps images.
-     * @param {Mipmap[]} value
+     * @type {Mipmap[]}
      */
     set mipmaps(value) {
         this._setMipmaps(value);
@@ -84,7 +84,7 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Gets the mipmap image at level 0.
-     * @return {Mipmap}
+     * @type {Mipmap}
      */
     get image() {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
@@ -92,7 +92,7 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Sets the mipmap images as a single mipmap image.
-     * @param {Mipmap} value
+     * @type {Mipmap}
      */
     set image(value) {
         this.mipmaps = [value];

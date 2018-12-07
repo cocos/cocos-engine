@@ -72,7 +72,7 @@ class Material extends Asset {
     _effect = null;
 
     /**
-     * @return {Effect}
+     * @type {Effect}
      */
     get effect() {
         return this._effect;

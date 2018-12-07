@@ -318,7 +318,7 @@ export default class AnimationComponent extends Component {
      * @property currentClip
      * @type {AnimationClip}
      */
-    @property(AnimationClip)
+    @property({type:AnimationClip})
     currentClip = null;
 
     /**
@@ -328,7 +328,7 @@ export default class AnimationComponent extends Component {
      * @property playAutomatically
      * @type {Boolean}
      */
-    @property
+    @property({type:Boolean})
     playAutomatically = false;
 
     _preview = false;
