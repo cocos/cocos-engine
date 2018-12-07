@@ -1133,6 +1133,7 @@
         "external/android/x86/libwebp.a", 
         "external/android/x86/libwebsockets.a", 
         "external/android/x86/libz.a", 
+        "external/config.json", 
         "external/ios/include/freetype/config/ftconfig.h", 
         "external/ios/include/freetype/config/ftheader.h", 
         "external/ios/include/freetype/config/ftmodule.h", 
