@@ -9,7 +9,8 @@
   "license": "MIT",
   "scripts": {
     "test": "gulp test-in-ci",
-    "build-chunks": "node ./cocos2d/renderer/build/build-chunks"
+    "build-chunks": "node ./cocos2d/renderer/build/build-chunks",
+    "build-mapping": "node ./cocos2d/renderer/build/build-mapping"
   },
   "devDependencies": {
     "async": "1.5.2",

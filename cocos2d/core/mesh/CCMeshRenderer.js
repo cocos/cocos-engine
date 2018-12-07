@@ -45,6 +45,8 @@ let MeshRenderer = cc.Class({
             type: Mesh
         },
 
+        _receiveShadows: false,
+
         mesh: {
             get () {
                 return this._mesh;
@@ -63,6 +65,16 @@ let MeshRenderer = cc.Class({
             default: [],
             type: cc.Texture2D,
             visible: false
+        },
+
+        receiveShadows: {
+            get () {
+                return this._receiveShadows;
+            },
+            set (val) {
+                this._receiveShadows = val;
+                this._updateReceiveShadow();
+            }
         }
     },
 
@@ -75,6 +87,7 @@ let MeshRenderer = cc.Class({
     onEnable () {
         this._super();
         this._activateMaterial();
+        this._updateReceiveShadow();
     },
 
     _getDefaultMaterial () {
@@ -118,6 +131,10 @@ let MeshRenderer = cc.Class({
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);
+    },
+
+    _updateReceiveShadow () {
+        this._setDefine('_USE_SHADOW_MAP', this._receiveShadows);
     }
 });
 

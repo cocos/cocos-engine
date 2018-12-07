@@ -25,7 +25,36 @@ export default class ForwardRenderer extends BaseRenderer {
     this._reset();
   }
 
-  updateLights(scene) {
+  render (scene) {
+    this._reset();
+
+    this._updateLights(scene);
+
+    const canvas = this._device._gl.canvas;
+    for (let i = 0; i < scene._cameras.length; ++i) {
+      let view = this._requestView();
+      let width = canvas.width;
+      let height = canvas.height;
+      let camera = scene._cameras.data[i];
+      if (camera._framebuffer) {
+        width = camera._framebuffer._width;
+        height = camera._framebuffer._height;
+      }
+      camera.extractView(view, width, height);
+    }
+
+    // render by cameras
+    this._viewPools.sort((a, b) => {
+      return (a._priority - b._priority);
+    });
+
+    for (let i = 0; i < this._viewPools.length; ++i) {
+      let view = this._viewPools.data[i];
+      this._render(view, scene);
+    }
+  }
+
+  _updateLights(scene) {
     this._directionalLights.length = 0;
     this._pointLights.length = 0;
     this._spotLights.length = 0;
@@ -49,29 +78,7 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  render (scene) {
-    this._reset();
-
-    this.updateLights(scene);
-    this._submitLightUniforms();
-
-    scene._cameras.sort((a, b) => {
-      if (a._sortDepth > b._sortDepth) return 1;
-      else if (a._sortDepth < b._sortDepth) return -1;
-      else return 0;
-    });
-
-    for (let i = 0; i < scene._cameras.length; ++i) {
-      let camera = scene._cameras.data[i];
-
-      // reset camera pollID after sort cameras
-      camera._poolID = i;
-      
-      this.renderCamera(camera, scene);
-    }
-  }
-
-  _submitLightUniforms() {
+  _submitLightsUniforms() {
     let device = this._device;
     device.setUniform('_sceneAmbient', this._sceneAmbient);
 
@@ -113,32 +120,13 @@ export default class ForwardRenderer extends BaseRenderer {
     defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
 
-  renderCamera (camera, scene) {
-    const canvas = this._device._gl.canvas;
-
-    let view = camera.view;
-    let dirty = camera.dirty;
-    if (!view) {
-      view = this._requestView();
-      dirty = true;
-    }
-    if (dirty) {
-      let width = canvas.width;
-      let height = canvas.height;
-      if (camera._framebuffer) {
-        width = camera._framebuffer._width;
-        height = camera._framebuffer._height;
-      }
-      camera.extractView(view, width, height);
-    }
-    this._render(view, scene);
-  }
-
   _transparentStage (view, items) {
     // update uniforms
     this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
     this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
     this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+
+    this._submitLightsUniforms();
 
     // draw it
     for (let i = 0; i < items.length; ++i) {

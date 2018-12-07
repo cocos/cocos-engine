@@ -49,6 +49,8 @@ export default class Camera {
 
     // ortho properties
     this._orthoHeight = 10;
+
+    this._cullingMask = 0xffffffff;
   }
 
   /**
@@ -350,6 +352,8 @@ export default class Camera {
     mat4.copy(out._matProj, _matProj);
     mat4.copy(out._matViewProj, _matViewProj);
     mat4.copy(out._matInvViewProj, _matInvViewProj);
+
+    out._cullingMask = this._cullingMask;
   }
 
   /**

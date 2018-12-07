@@ -321,7 +321,7 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 if (this._camera) {
-                    this._camera._sortDepth = value;
+                    this._camera._priority = value;
                 }
             }
         },
@@ -414,8 +414,8 @@ let Camera = cc.Class({
             camera.view = view;
             camera.dirty = true;
 
-            camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
-            camera._sortDepth = cc.macro.MAX_ZINDEX;
+            camera._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+            camera._priority = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
             camera.setColor(0, 0, 0, 0);
 
@@ -433,7 +433,6 @@ let Camera = cc.Class({
         if (this._camera) {
             let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
             this._camera._cullingMask = mask;
-            this._camera.view._cullingMask = mask;
         }
     },
 
@@ -481,7 +480,7 @@ let Camera = cc.Class({
         if (!camera) return;
         camera.setNode(this.node);
         camera.setClearFlags(this._clearFlags);
-        camera._sortDepth = this._depth;
+        camera._priority = this._depth;
         this._updateBackgroundColor();
         this._updateCameraMask();
         this._updateTargetTexture();

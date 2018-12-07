@@ -2,6 +2,7 @@
 
 import { enums } from '../../gfx/enums';
 import rendererEnums from '../../enums';
+import { RenderQueue, PassStage } from '../../core/constants';
 
 const typeParams = {
   INT: rendererEnums.PARAM_INT,
@@ -68,6 +69,7 @@ const passParams = {
 let mappings = {
   typeParams,
   passParams,
+  RenderQueue
 };
 
 export default mappings;

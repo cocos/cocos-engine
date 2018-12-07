@@ -5,9 +5,9 @@ const resolve = require('rollup-plugin-node-resolve');
 const rollup = require('rollup');
 
 let src = Path.join(__dirname, './mappings/offline-mappings.js');
-let dest = './mappings';
+let dest = Path.join(__dirname, './mappings');
 let name = 'index';
-let sourcemap = true;
+let sourcemap = false;
 let globals = {};
 
 console.log('rollup mappings...');
@@ -24,7 +24,7 @@ const inputOptions = {
   ],
 };
 const outputOptions = {
-  file: `${dest}/${name}.js`,
+  file: Path.join(dest, name+'.js'),
   format: 'cjs',
   name,
   globals,

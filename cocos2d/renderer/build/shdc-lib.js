@@ -16,16 +16,6 @@ let namePragma = /name\(([^)]+)\)/;
 let precision = /(low|medium|high)p/;
 
 let builtinRE = /^_[A-Za-z0-9]+/;
-let uniformIgnoreList = [];
-// (HACKY) extract all builtin uniforms to the ignore list
-// let uniformIgnoreList = (function() {
-//   let path = 'cocos/renderer/renderers/forward-renderer.js';
-//   let renderer = fs.readFileSync(path, { encoding: 'utf8' });
-//   let re = /set(Uniform|Texture)\([`'"](\w+)[`'"]/g, cap = re.exec(renderer);
-//   let result = [];
-//   while (cap) { result.push(cap[2]); cap = re.exec(renderer); }
-//   return result;
-// })();
 
 function convertType(t) { let tp = mappings.typeParams[t.toUpperCase()]; return tp === undefined ? t : tp; }
 
@@ -128,7 +118,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     else continue;
     let defines = getDefs(t.line), param = {};
     if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
-    if (dest === uniforms && (builtinRE.test(tokens[i+4].data) || uniformIgnoreList[tokens[i+4].data])) continue;
+    if (dest === uniforms && builtinRE.test(tokens[i+4].data)) continue;
     if (dest === extensions) {
       if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
       param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
