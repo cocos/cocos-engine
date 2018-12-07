@@ -744,12 +744,12 @@ class quat {
     let x = q.x, y = q.y, z = q.z, w = q.w;
     let heading, attitude, bank;
     let test = x * y + z * w;
-    if (test > 0.499) { // singularity at north pole
+    if (test > 0.499999) { // singularity at north pole
       heading = 2 * Math.atan2(x,w);
       attitude = Math.PI/2;
       bank = 0;
     }
-    if (test < -0.499) { // singularity at south pole
+    if (test < -0.499999) { // singularity at south pole
       heading = -2 * Math.atan2(x,w);
       attitude = - Math.PI/2;
       bank = 0;

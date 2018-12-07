@@ -9,9 +9,9 @@ import { vec3 } from '../../core/vmath';
  * @param {Number} opts.tubularSegments
  * @param {Number} opts.arc
  */
-export default function (radius = 0.5, tube = 0.2, opts = {}) {
-  let radialSegments = opts.radialSegments || 30;
-  let tubularSegments = opts.tubularSegments || 20;
+export default function (radius = 0.4, tube = 0.1, opts = {}) {
+  let radialSegments = opts.radialSegments || 32;
+  let tubularSegments = opts.tubularSegments || 32;
   let arc = opts.arc || 2.0 * Math.PI;
 
   let positions = [];

@@ -571,10 +571,10 @@ export default class BaseRenderer {
         view.getPosition(_camPos);
 
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+        this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_eye', vec3.array(_a3_camPos, _camPos));
 
         // calculate sorting key
         for (let i = 0; i < stageItems.length; ++i) {
@@ -607,10 +607,10 @@ export default class BaseRenderer {
         view.getForward(_camFwd);
 
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
-        this._device.setUniform('eye', vec3.array(_a3_camPos, _camPos));
+        this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_eye', vec3.array(_a3_camPos, _camPos));
 
         // calculate zdist
         for (let i = 0; i < stageItems.length; ++i) {
@@ -644,9 +644,9 @@ export default class BaseRenderer {
 
     _renderOverlay(view, stageItems) {
         // update uniforms
-        this._device.setUniform('view', mat4.array(_a16_view, view._matView));
-        this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
-        this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+        this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
+        this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
+        this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
 
         // sort items
         stageItems.sort((a, b) => {
@@ -682,6 +682,12 @@ export default class BaseRenderer {
         _int4_pool.reset();
         _int64_pool.reset();
 
+        node.getWorldMatrix(_m4_tmp);
+        device.setUniform('_model', mat4.array(_float16_pool.add(), _m4_tmp));
+
+        mat3.normalFromMat4(_m3_tmp, _m4_tmp);
+        device.setUniform('_normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp));
+
         // set uniforms
         for (let name in effect._properties) {
             let propInfo = effect._properties[name];
@@ -689,16 +695,6 @@ export default class BaseRenderer {
 
             if (prop === undefined || prop === null) {
                 prop = this._type2defaultValue[propInfo.type];
-            }
-
-            // set common uniforms
-            if (name === 'model') {
-                node.getWorldMatrix(_m4_tmp);
-                prop = _m4_tmp;
-            }
-            else if (name === 'normalMatrix') {
-                mat3.normalFromMat4(_m3_tmp, _m4_tmp);
-                prop = _m3_tmp;
             }
 
             if (prop === undefined || prop === null) {

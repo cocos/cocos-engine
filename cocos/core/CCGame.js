@@ -364,17 +364,17 @@ var game = {
         // Init engine
         this._initEngine();
 
-        this._initBuiltins(this.config.effects, () => {
-            // Log engine version
-            console.log('Cocos3D v' + cc.ENGINE_VERSION);
+        this._initBuiltins();
 
-            this._setAnimFrame();
-            this._runMainLoop();
+        // Log engine version
+        console.log('Cocos3D v' + cc.ENGINE_VERSION);
 
-            this.emit(this.EVENT_GAME_INITED);
+        this._setAnimFrame();
+        this._runMainLoop();
 
-            if (cb) cb();
-        });
+        this.emit(this.EVENT_GAME_INITED);
+
+        if (cb) cb();
     },
 
     eventTargetOn: EventTarget.prototype.on,
@@ -795,13 +795,11 @@ var game = {
         this._rendererInitialized = true;
     },
 
-    _initBuiltins: function(effectUUIDs, cb) {
-        builtinResMgr.initBuiltinRes(this._renderContext, effectUUIDs, (builtins) => {
-            this._renderer.setBuiltins({
-                defaultTexture: builtins['default-texture']._texture,
-                defaultTextureCube: builtins['default-texture-cube']._texture,
-            });
-            if (cb) cb();
+    _initBuiltins: function() {
+        let builtins = builtinResMgr.initBuiltinRes(this._renderContext);
+        this._renderer.setBuiltins({
+            defaultTexture: builtins['default-texture']._texture,
+            defaultTextureCube: builtins['default-texture-cube']._texture,
         });
     },
 

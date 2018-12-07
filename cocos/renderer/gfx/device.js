@@ -633,7 +633,7 @@ export default class Device {
       this._initExtension(builtin_exts[i]);
     }
     let exts = gl.getSupportedExtensions();
-    this._supportedExts = exts.reduce((acc, cur) => acc[cur] = true, {});
+    this._supportedExts = exts.reduce((acc, cur) => { acc[cur] = true; return acc; }, {});
 
     this._initCaps();
     this._initStates();
