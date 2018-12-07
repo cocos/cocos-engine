@@ -275,6 +275,13 @@ export default class ModelComponent extends RenderableComponent {
 
     _getBuiltinMaterial() {
         // classic ugly pink indicating missing material
-        return cc.BuiltinResMgr['default-material'];
+        //return cc.BuiltinResMgr['default-material'];
+        if (ModelComponent._m === null) {
+            ModelComponent._m = new cc.Material();
+            ModelComponent._m.effectName = 'builtin-effect-phong';
+        }
+        return ModelComponent._m;
     }
+
+    static _m = null;
 }
