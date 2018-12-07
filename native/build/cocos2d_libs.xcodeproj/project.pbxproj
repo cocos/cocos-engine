@@ -521,8 +521,6 @@
 		1A52DB7E205BCDD000350EE3 /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB5C205BCDC700350EE3 /* Utils.hpp */; };
 		1A52DB882060B11800350EE3 /* jsb_platfrom_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */; };
 		1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB872060B11800350EE3 /* jsb_platform.h */; };
-		1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */; };
-		1A52DB8D2060B12600350EE3 /* jsb_platfrom_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */; };
 		1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */; };
 		1A586C432064C90500B47573 /* EJConvertTypedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A586C412064C90500B47573 /* EJConvertTypedArray.h */; };
 		1A586C442064C90500B47573 /* EJConvertTypedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A586C412064C90500B47573 /* EJConvertTypedArray.h */; };
@@ -532,7 +530,6 @@
 		1A586C4A2064C97800B47573 /* EJConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A586C472064C97800B47573 /* EJConvert.h */; };
 		1A586C4B2064C97800B47573 /* EJConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A586C482064C97800B47573 /* EJConvert.m */; };
 		1A586C4C2064C97800B47573 /* EJConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A586C482064C97800B47573 /* EJConvert.m */; };
-		1A9A4C6E1F98B1C000C14552 /* libcocosanalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */; };
 		1AAAC873205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAAC871205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp */; };
 		1AAAC874205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAAC871205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp */; };
 		1AAAC875205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AAAC872205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp */; };
@@ -1426,8 +1423,6 @@
 		1A52DB5D205BCDC700350EE3 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
 		1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = jsb_platfrom_apple.mm; sourceTree = "<group>"; };
 		1A52DB872060B11800350EE3 /* jsb_platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_platform.h; sourceTree = "<group>"; };
-		1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_platform_ios.h; sourceTree = "<group>"; };
-		1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = jsb_platfrom_ios.mm; sourceTree = "<group>"; };
 		1A586C412064C90500B47573 /* EJConvertTypedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJConvertTypedArray.h; sourceTree = "<group>"; };
 		1A586C422064C90500B47573 /* EJConvertTypedArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJConvertTypedArray.m; sourceTree = "<group>"; };
 		1A586C472064C97800B47573 /* EJConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJConvert.h; sourceTree = "<group>"; };
@@ -1830,7 +1825,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A9A4C6E1F98B1C000C14552 /* libcocosanalytics.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
 				1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */,
 				1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */,
@@ -2583,8 +2577,6 @@
 				4008729320CE20C2002EB77B /* jsb_cocos2dx_network_manual.h */,
 				461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */,
 				461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */,
-				1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */,
-				1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */,
 				1A52DB872060B11800350EE3 /* jsb_platform.h */,
 				046B68A421A292D200B33469 /* jsb_spine_manual.cpp */,
 				046B68A521A292D200B33469 /* jsb_spine_manual.hpp */,
@@ -3386,7 +3378,6 @@
 				046E06D02185B49F00B24E2D /* BoundingBoxData.h in Headers */,
 				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				1A52DB79205BCDD000350EE3 /* Object.hpp in Headers */,
-				1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */,
 				50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */,
 				046E063E2185B41100B24E2D /* TimelineState.h in Headers */,
 				46FDDA6E202ACC6A00931238 /* INode.h in Headers */,
@@ -4219,7 +4210,6 @@
 				1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */,
 				1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				46FDDAC0202ACC6A00931238 /* State.cpp in Sources */,
-				1A52DB8D2060B12600350EE3 /* jsb_platfrom_ios.mm in Sources */,
 				BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */,
 				BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				BA21055D21009A5500E19975 /* Manifest.cpp in Sources */,
