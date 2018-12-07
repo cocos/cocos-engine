@@ -71,7 +71,7 @@ let CameraProjection = Enum({
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
 export default class CameraComponent extends RenderSystemActor{
-    @property
+    @property(CameraProjection)
     _projection = CameraProjection.Perspective;
 
     @property

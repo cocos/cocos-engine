@@ -24,6 +24,34 @@ export function wireframe(indices) {
 }
 
 /**
+ * @param {Array} indices
+ */
+export function invWinding(indices) {
+  let newIB = [];
+  for (let i = 0; i < indices.length; i += 3)
+    newIB.push(indices[i], indices[i + 2], indices[i + 1]);
+  return newIB;
+}
+
+/**
+ * @param {Array} indices
+ */
+export function toWavefrontOBJ(primitive) {
+  let v = primitive.positions, t = primitive.uvs, n = primitive.normals, IB = primitive.indices;
+  let V = i => `${IB[i]+1}/${IB[i]+1}/${IB[i]+1}`;
+  let content = '';
+  for (let i = 0; i < v.length; i += 3)
+    content += `v ${v[i]} ${v[i+1]} ${v[i+2]}\n`;
+  for (let i = 0; i < t.length; i += 2)
+    content += `vt ${t[i]} ${t[i+1]}\n`;
+  for (let i = 0; i < n.length; i += 3)
+    content += `vn ${n[i]} ${n[i+1]} ${n[i+2]}\n`;
+  for (let i = 0; i < IB.length; i += 3)
+    content += `f ${V(i)} ${V(i+1)} ${V(i+2)}\n`;
+  return content;
+}
+
+/**
  * @param {Array} positions
  * @param {Array} normals
  * @param {Number} length

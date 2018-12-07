@@ -9,7 +9,7 @@ class Layers {
    * @return {number} new layer's index
    */
   static addLayer(name) {
-    if (Layers._nextAvailable > 31) 
+    if (Layers._nextAvailable > 31)
       return new Error('maximum layers reached.');
     Layers[name] = (1 << Layers._nextAvailable++);
     return Layers[name];
@@ -56,8 +56,8 @@ Layers.Gizmos = (1 << 2);
 Layers.PanPlanes = (1 << 3);
 
 // masks
-Layers.All = Layers.makeExclusiveMask([Layers.Gizmos]);
-Layers.RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.IgnoreRaycast]);
+Layers.All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.PanPlanes]);
+Layers.RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.PanPlanes, Layers.IgnoreRaycast]);
 
 export default Layers;
 cc.Layers = Layers;

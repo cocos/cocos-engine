@@ -8,7 +8,7 @@ import { vec3 } from '../../core/vmath';
  * @param {Number} opts.segments
  */
 export default function (radius = 0.5, opts = {}) {
-  let segments = opts.segments !== undefined ? opts.segments : 16;
+  let segments = opts.segments !== undefined ? opts.segments : 32;
 
   // lat === latitude
   // lon === longitude

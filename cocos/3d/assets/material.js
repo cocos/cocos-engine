@@ -63,7 +63,7 @@ class Material extends Asset {
         if (this.effectName !== val) this._setEffect(val);
     }
     get effectName() {
-        return this._effectAsset.name;
+        return this._effectAsset ? this._effectAsset.name : '';
     }
 
     /**
@@ -83,14 +83,7 @@ class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
-        this.effectAsset = mat.effectAsset;
-
-        for (let name in mat._defines) {
-            this.define(name, mat._defines[name]);
-        }
-        for (let name in mat._props) {
-            this.setProperty(name, mat._props[name]);
-        }
+        this._setEffect(mat.effectAsset);
     }
 
     /**
@@ -101,11 +94,8 @@ class Material extends Asset {
     setProperty(name, val) {
         this._props[name] = val;
         if (this._effect) {
-            if (val instanceof Texture) {
-                this._effect.setProperty(name, val._texture);
-            } else {
-                this._effect.setProperty(name, val);
-            }
+            if (val instanceof Texture) this._effect.setProperty(name, val._texture);
+            else this._effect.setProperty(name, val);
         }
     }
 
@@ -116,18 +106,11 @@ class Material extends Asset {
      */
     define(name, val) {
         this._defines[name] = val;
-        if (this._effect) {
-            this._effect.define(name, val);
-        }
+        if (this._effect) this._effect.define(name, val);
     }
 
     onLoaded() {
         this._setEffect(this.effectAsset);
-        if (!this._effect) return;
-        for (let def in this._defines)
-            this._effect.define(def, this._defines[def]);
-        for (let prop in this._props)
-            this.setProperty(prop, this._props[prop]);
     }
 
     _setEffect(val) {
@@ -137,7 +120,12 @@ class Material extends Asset {
             return;
         }
         this._effectAsset = effectAsset;
-        this._effect = effectAsset ? Effect.parseEffect(effectAsset) : null;
+        if (!effectAsset) return;
+        this._effect = Effect.parseEffect(effectAsset);
+        for (let def in this._defines)
+            this._effect.define(def, this._defines[def]);
+        for (let prop in this._props)
+            this.setProperty(prop, this._props[prop]);
     }
 
     static getInstantiatedMaterial(mat, rndCom) {

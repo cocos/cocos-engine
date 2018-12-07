@@ -17,7 +17,7 @@ let temp2 = vec3.create(0, 0, 0);
  */
 export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {}) {
   let halfHeight = height * 0.5;
-  let radialSegments = opts.radialSegments || 8;
+  let radialSegments = opts.radialSegments || 32;
   let heightSegments = opts.heightSegments || 1;
   let capped = opts.capped !== undefined ? opts.capped : true;
   let arc = opts.arc || 2.0 * Math.PI;

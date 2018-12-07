@@ -17,9 +17,9 @@ let c01 = vec3.create(0, 0, 0);
  * @param {Number} opts.widthSegments
  * @param {Number} opts.lengthSegments
  */
-export default function (width, length, opts = {}) {
-  let uSegments = opts.widthSegments !== undefined ? opts.widthSegments : 5;
-  let vSegments = opts.lengthSegments !== undefined ? opts.lengthSegments : 5;
+export default function (width = 10, length = 10, opts = {}) {
+  let uSegments = opts.widthSegments !== undefined ? opts.widthSegments : 10;
+  let vSegments = opts.lengthSegments !== undefined ? opts.lengthSegments : 10;
 
   let hw = width * 0.5;
   let hl = length * 0.5;
