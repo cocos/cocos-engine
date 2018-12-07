@@ -52,7 +52,8 @@ var components = [
     require('./CCToggle'),
     require('./CCBlockInputEvents'),
     require('./CCMotionStreak'),
-    require('./WXSubContextView')
+    require('./WXSubContextView'),
+    require('./SwanSubContextView'),
 ];
 
 module.exports = components;
