@@ -132,6 +132,8 @@ cc.renderer = module.exports = {
         RenderFlow.init(this._handle);
         let builtins = _initBuiltins(this.device);
         this._forward = new ForwardRenderer(this.device, builtins);
+        config.addStage('shadowcast');
+        config.addStage('opaque');
         config.addStage('transparent');
     },
 

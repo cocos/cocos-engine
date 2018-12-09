@@ -97,7 +97,7 @@ let Camera = cc.Class({
             let camera = new RCamera();
 
             camera.setStages([
-                'transparent'
+                'opaque',
             ]);
 
             let view = new View();

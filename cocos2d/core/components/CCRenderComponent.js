@@ -251,7 +251,7 @@ let RenderComponent = cc.Class({
     },
 
     _updateMaterialBlendFunc (updateHash, material) {
-        let passes = material._effect.getTechnique('transparent').passes;
+        let passes = material._effect._techniques[0].passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(

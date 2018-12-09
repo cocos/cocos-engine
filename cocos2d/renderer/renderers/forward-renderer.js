@@ -1,15 +1,21 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- 
-import { mat4 } from '../../core/vmath';
+
+import { vec3, mat4 } from '../../core/vmath';
 import BaseRenderer from '../core/base-renderer';
 import enums from '../enums';
 
 let _a16_view = new Float32Array(16);
 let _a16_proj = new Float32Array(16);
 let _a16_viewProj = new Float32Array(16);
+let _a3_camPos = new Float32Array(3);
+let _a16_lightViewProj = new Float32Array(16);
+
+let _camPos = vec3.create(0, 0, 0);
+let _camFwd = vec3.create(0, 0, 0);
+let _v3_tmp1 = vec3.create(0, 0, 0);
 
 export default class ForwardRenderer extends BaseRenderer {
-  constructor (device, builtin) {
+  constructor(device, builtin) {
     super(device, builtin);
 
     this._directionalLights = [];
@@ -18,6 +24,8 @@ export default class ForwardRenderer extends BaseRenderer {
     this._shadowLights = [];
     this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
 
+    this._registerStage('shadowcast', this._shadowStage.bind(this));
+    this._registerStage('opaque', this._opaqueStage.bind(this));
     this._registerStage('transparent', this._transparentStage.bind(this));
   }
 
@@ -54,7 +62,7 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  _updateLights(scene) {
+  _updateLights (scene) {
     this._directionalLights.length = 0;
     this._pointLights.length = 0;
     this._spotLights.length = 0;
@@ -66,7 +74,7 @@ export default class ForwardRenderer extends BaseRenderer {
       if (light.shadowType !== enums.SHADOW_NONE) {
         this._shadowLights.push(light);
         let view = this._requestView();
-        light.extractView(view, PassStage.SHADOWCAST);
+        light.extractView(view, ['shadowcast']);
       }
       if (light._type === enums.LIGHT_DIRECTIONAL) {
         this._directionalLights.push(light);
@@ -78,7 +86,7 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  _submitLightsUniforms() {
+  _submitLightsUniforms () {
     let device = this._device;
     device.setUniform('_sceneAmbient', this._sceneAmbient);
 
@@ -110,7 +118,29 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  _updateLightDefines(item) {
+  _submitShadowStageUniforms(view) {
+    let light = view._shadowLight;
+    this._device.setUniform('_minDepth', light.shadowMinDepth);
+    this._device.setUniform('_maxDepth', light.shadowMaxDepth);
+    this._device.setUniform('_bias', light.shadowBias);
+    this._device.setUniform('_depthScale', light.shadowDepthScale);
+  }
+
+  _submitOtherStagesUniforms() {
+    for (let index = 0; index < this._shadowLights.length; ++index) {
+      let light = this._shadowLights[index];
+      this._device.setUniform(`_lightViewProjMatrix_${index}`, mat4.array(_a16_lightViewProj, light.viewProjMatrix));
+      this._device.setUniform(`_minDepth_${index}`, light.shadowMinDepth);
+      this._device.setUniform(`_maxDepth_${index}`, light.shadowMaxDepth);
+      this._device.setUniform(`_bias_${index}`, light.shadowBias);
+      this._device.setUniform(`_depthScale_${index}`, light.shadowDepthScale);
+      this._device.setUniform(`_darkness_${index}`, light.shadowDarkness);
+      this._device.setUniform(`_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
+      this._device.setUniform(`_texelSize_${index}`, new Float32Array([1.0 / light.shadowResolution, 1.0 / light.shadowResolution]));
+    }
+  }
+
+  _updateShaderDefines (item) {
     let defines = item.defines;
 
     defines._NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
@@ -120,18 +150,111 @@ export default class ForwardRenderer extends BaseRenderer {
     defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
 
-  _transparentStage (view, items) {
-    // update uniforms
-    this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+  _sortItems (items) {
+    // sort items
+    items.sort((a, b) => {
+      let techA = a.technique;
+      let techB = b.technique;
 
-    this._submitLightsUniforms();
+      if (techA._layer !== techB._layer) {
+        return techA._layer - techB._layer;
+      }
+
+      if (techA._passes.length !== techB._passes.length) {
+        return techA._passes.length - techB._passes.length;
+      }
+
+      return a.sortKey - b.sortKey;
+    });
+  }
+
+  _shadowStage (view, items) {
+    const programLib = this._programLib;
+    this._device.setUniform('_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+
+    // update rendering
+    this._submitShadowStageUniforms(view);
+
+    // this._sortItems(items);
 
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      this._updateLightDefines(item);
+      if (item.defines._SHADOW_CASTING) {
+        this._updateShaderDefines(item);
+        this._draw(item);
+      }
+    }
+
+  }
+
+  _opaqueStage (view, items) {
+    view.getPosition(_camPos);
+
+    // update uniforms
+    this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
+    this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
+    this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('_eye', vec3.array(_a3_camPos, _camPos));
+
+    // update rendering
+    this._submitLightsUniforms();
+    this._submitOtherStagesUniforms();
+
+    // this._sortItems(items);
+
+    let shadowLights = this._shadowLights;
+    // draw it
+    for (let i = 0; i < items.length; ++i) {
+      let item = items.data[i];
+
+      for (let index = 0; index < shadowLights.length; ++index) {
+        let light = shadowLights[index];
+        this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+      }
+
+      this._updateShaderDefines(item);
+      this._draw(item);
+    }
+  }
+
+  _transparentStage (view, items) {
+    view.getPosition(_camPos);
+    view.getForward(_camFwd);
+
+    // update uniforms
+    this._device.setUniform('_view', mat4.array(_a16_view, view._matView));
+    this._device.setUniform('_proj', mat4.array(_a16_proj, view._matProj));
+    this._device.setUniform('_viewProj', mat4.array(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('_eye', vec3.array(_a3_camPos, _camPos));
+
+    this._submitLightsUniforms();
+    this._submitOtherStagesUniforms();
+
+    // calculate zdist
+    for (let i = 0; i < items.length; ++i) {
+      let item = items.data[i];
+
+      // TODO: we should use mesh center instead!
+      item.node.getWorldPosition(_v3_tmp1);
+
+      vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
+      item.sortKey = -vec3.dot(_v3_tmp1, _camFwd);
+    }
+
+    this._sortItems(items);
+
+    let shadowLights = this._shadowLights;
+    // draw it
+    for (let i = 0; i < items.length; ++i) {
+      let item = items.data[i];
+
+      for (let index = 0; index < shadowLights.length; ++index) {
+        let light = shadowLights[index];
+        this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+      }
+      
+      this._updateShaderDefines(item);
       this._draw(item);
     }
   }

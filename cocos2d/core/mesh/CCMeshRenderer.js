@@ -31,6 +31,52 @@ const Material = require('../assets/CCMaterial');
 
 import gfx from '../../renderer/gfx';
 
+/**
+ * !#en Shadow projection mode
+ *
+ * !#ch 阴影投射方式
+ * @static
+ * @enum MeshRenderer.ShadowCastingMode
+ */
+let ShadowCastingMode = cc.Enum({
+    /**
+     * !#en
+     *
+     * !#ch 关闭阴影投射
+     * @property Off
+     * @readonly
+     * @type {Number}
+     */
+    Off: 0,
+    /**
+     * !#en
+     *
+     * !#ch 开启阴影投射，当阴影光产生的时候
+     * @property On
+     * @readonly
+     * @type {Number}
+     */
+    On: 1,
+    // /**
+    //  * !#en
+    //  *
+    //  * !#ch 可以从网格的任意一遍投射出阴影
+    //  * @property TwoSided
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // TwoSided: 2,
+    // /**
+    //  * !#en
+    //  *
+    //  * !#ch 只显示阴影
+    //  * @property ShadowsOnly
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // ShadowsOnly: 3,
+});
+
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
     extends: RenderComponent,
@@ -46,6 +92,7 @@ let MeshRenderer = cc.Class({
         },
 
         _receiveShadows: false,
+        _shadowCastingMode: ShadowCastingMode.Off,
 
         mesh: {
             get () {
@@ -75,6 +122,17 @@ let MeshRenderer = cc.Class({
                 this._receiveShadows = val;
                 this._updateReceiveShadow();
             }
+        },
+
+        shadowCastingMode: {
+            get () {
+                return this._shadowCastingMode;
+            },
+            set (val) {
+                this._shadowCastingMode = val;
+                this._updateCastShadow();
+            },
+            type: ShadowCastingMode
         }
     },
 
@@ -88,6 +146,7 @@ let MeshRenderer = cc.Class({
         this._super();
         this._activateMaterial();
         this._updateReceiveShadow();
+        this._updateCastShadow();
     },
 
     _getDefaultMaterial () {
@@ -135,6 +194,10 @@ let MeshRenderer = cc.Class({
 
     _updateReceiveShadow () {
         this._setDefine('_USE_SHADOW_MAP', this._receiveShadows);
+    },
+
+    _updateCastShadow () {
+        this._setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.On);
     }
 });
 
