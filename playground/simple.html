@@ -38,12 +38,12 @@
         scene.addChild(modelNode);
         let model = modelNode.addComponent('cc.ModelComponent');
         // init mesh
-        model.mesh = cc.game._builtins['builtin-cube'];
+        model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+        /**
         // init effect
         let mtl = new cc.Material();
         let color = cc.color('#B58C42');
-        /**/
-        mtl.effect = cc.game._builtins['builtin-effect-unlit'];
+        mtl.effectName = cc.game._builtins['builtin-effect-unlit'];
         mtl.define('USE_COLOR', true);
         mtl.setProperty('color', color);
         /**
@@ -54,7 +54,7 @@
         mtl.define('USE_EMISSIVE', true);
         mtl.setProperty('emissive', color);
         /**/
-        model.material = mtl;
+        // model.material = mtl;
         cc.director.runSceneImmediate(scene);
     }
     cc.game.run({id:'canvas'}, onStart);

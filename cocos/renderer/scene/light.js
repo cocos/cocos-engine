@@ -37,7 +37,7 @@ function _computePointLightViewProjMatrix(light, outView, outProj) {
   light._node.getWorldRT(outView);
   mat4.invert(outView, outView);
 
-  // The transformation from Cartesian to polar coordinates is not a linear function, 
+  // The transformation from Cartesian to polar coordinates is not a linear function,
   // so it cannot be achieved by means of a fixed matrix multiplication.
   // Here we just use a nearly 180 degree perspective matrix instead.
   mat4.perspective(outProj, toRadian(179), 1, light._shadowMinDepth, light._shadowMaxDepth);
@@ -58,6 +58,7 @@ export default class Light {
     this._type = enums.LIGHT_DIRECTIONAL;
 
     this._color = color3.create(1, 1, 1);
+    this._clearColor = color4.create(1, 1, 1, 1);
     this._intensity = 1;
 
     // used for spot and point light
@@ -394,7 +395,7 @@ export default class Light {
     out._rect.h = this._shadowResolution;
 
     // clear opts
-    color4.set(out._color, 1, 1, 1, 1);
+    out._color = this._clearColor;
     out._depth = 1;
     out._stencil = 1;
     out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;

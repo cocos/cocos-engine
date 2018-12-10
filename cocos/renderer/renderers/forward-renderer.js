@@ -251,20 +251,14 @@ export default class ForwardRenderer extends BaseRenderer {
   _drawSkinning(item) {
     let { model, defines } = item;
 
-    if (defines.USE_SKINNING) {
-      defines.USE_SKINNING.value = true;
-      if (model._jointsTexture != null) {
-        if (defines.USE_JOINTS_TEXTURE !== undefined) {
-          defines.USE_JOINTS_TEXTURE.value = true;
-        }
-        this._device.setTexture('_u_jointsTexture', model._jointsTexture, this._allocTextureUnit());
-        this._device.setUniform('_u_jointsTextureSize', model._jointsTexture._width);
-      } else if (model._jointsMatrixArray != null) {
-        if (defines.USE_JOINTS_TEXTURE !== undefined) {
-          defines.USE_JOINTS_TEXTURE.value = false;
-        }
-        this._device.setUniform("_u_jointMatrices", model._jointsMatrixArray);
-      }
+    defines.USE_SKINNING = true;
+    if (model._jointsTexture != null) {
+      defines.USE_JOINTS_TEXTURE = true;
+      this._device.setTexture('_u_jointsTexture', model._jointsTexture, this._allocTextureUnit());
+      this._device.setUniform('_u_jointsTextureSize', model._jointsTexture._width);
+    } else if (model._jointsMatrixArray != null) {
+      defines.USE_JOINTS_TEXTURE = false;
+      this._device.setUniform("_u_jointMatrices", model._jointsMatrixArray);
     }
 
     this._draw(item);
