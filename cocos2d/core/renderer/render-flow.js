@@ -35,9 +35,9 @@ _proto._worldTransform = function (node) {
     _batcher.worldMatDirty ++;
 
     let t = node._matrix;
-    let position = node._position;
-    t.m12 = position.x;
-    t.m13 = position.y;
+    let trs = node._trs;
+    t.m12 = trs[1];
+    t.m13 = trs[2];
 
     node._mulMat(node._worldMatrix, node._parent._worldMatrix, t);
     node._renderFlag &= ~WORLD_TRANSFORM;

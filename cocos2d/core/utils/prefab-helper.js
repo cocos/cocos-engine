@@ -91,11 +91,12 @@ module.exports = {
         var _id = node._id;
         var _name = node._name;
         var _active = node._active;
-        var x = node._position.x;
-        var y = node._position.y;
-        var _quat = node._quat;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
+        var trs = node._trs;
+        var x = trs[1];
+        var y = trs[2];
+        var qx = trs[4], qy = trs[5], qz = trs[6], qw = trs[7];
 
         // instantiate prefab
         cc.game._isCloning = true;
@@ -122,10 +123,13 @@ module.exports = {
         node._prefab = _prefab;
         node._name = _name;
         node._active = _active;
-        node._position.x = x;
-        node._position.y = y;
-        math.quat.copy(node._quat, _quat);
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
+        trs[1] = x;
+        trs[2] = y;
+        trs[4] = qx;
+        trs[5] = qy;
+        trs[6] = qz;
+        trs[7] = qw;
     }
 };

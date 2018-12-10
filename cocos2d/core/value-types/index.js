@@ -33,4 +33,43 @@ require('./size');
 require('./rect');
 require('./color');
 
-cc.vmath = require('../renderer/render-engine').math;
+let math = cc.vmath = require('../renderer/render-engine').math;
+
+math.mat4.fromTRSArray = function (out, trs) {
+    var x = trs[4], y = trs[5], z = trs[6], w = trs[7];
+    var x2 = x + x;
+    var y2 = y + y;
+    var z2 = z + z;
+  
+    var xx = x * x2;
+    var xy = x * y2;
+    var xz = x * z2;
+    var yy = y * y2;
+    var yz = y * z2;
+    var zz = z * z2;
+    var wx = w * x2;
+    var wy = w * y2;
+    var wz = w * z2;
+    var sx = trs[8];
+    var sy = trs[9];
+    var sz = trs[10];
+  
+    out.m00 = (1 - (yy + zz)) * sx;
+    out.m01 = (xy + wz) * sx;
+    out.m02 = (xz - wy) * sx;
+    out.m03 = 0;
+    out.m04 = (xy - wz) * sy;
+    out.m05 = (1 - (xx + zz)) * sy;
+    out.m06 = (yz + wx) * sy;
+    out.m07 = 0;
+    out.m08 = (xz + wy) * sz;
+    out.m09 = (yz - wx) * sz;
+    out.m10 = (1 - (xx + yy)) * sz;
+    out.m11 = 0;
+    out.m12 = trs[1];
+    out.m13 = trs[2];
+    out.m14 = trs[3];
+    out.m15 = 1;
+  
+    return out;
+}

@@ -37,11 +37,13 @@ const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 
+let _quat = cc.quat();
+
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
         // Update transform
         let t = this._matrix;
-        math.mat4.fromRTS(t, this._quat, this._position, this._scale);
+        math.mat4.fromTRSArray(t, this._trs);
 
         // skew
         if (this._skewX || this._skewY) {
@@ -92,18 +94,18 @@ function setPosition (newPosOrX, y, z) {
         z = z || 0
     }
 
-    let pos = this._position;
-    if (pos.x === x && pos.y === y && pos.z === z) {
+    let trs = this._trs;
+    if (trs[1] === x && trs[2] === y && trs[3] === z) {
         return;
     }
 
     if (CC_EDITOR) {
-        var oldPosition = new cc.Vec3(pos);
+        var oldPosition = new cc.Vec3(trs[1], trs[2], trs[3]);
     }
 
-    pos.x = x;
-    pos.y = y;
-    pos.z = z;
+    trs[1] = x;
+    trs[2] = y;
+    trs[3] = z;
     this.setLocalDirty(DirtyFlag.POSITION);
     this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
@@ -131,10 +133,11 @@ function setScale (x, y, z) {
     else if (z === undefined) {
         z = 1;
     }
-    if (this._scale.x !== x || this._scale.y !== y || this._scale.z !== z) {
-        this._scale.x = x;
-        this._scale.y = y;
-        this._scale.z = z;
+    let trs = this._trs;
+    if (trs[8] !== x || trs[9] !== y || trs[10] !== z) {
+        trs[8] = x;
+        trs[9] = y;
+        trs[10] = z;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -191,10 +194,10 @@ cc.js.getset(proto, 'is3DNode', function () {
 });
 
 cc.js.getset(proto, 'scaleZ', function () {
-    return this._scale.z;
+    return this._trs[10];
 }, function (v) {
-    if (this._scale.z !== value) {
-        this._scale.z = value;
+    if (this._trs[10] !== value) {
+        this._trs[10] = value;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -205,12 +208,12 @@ cc.js.getset(proto, 'scaleZ', function () {
 });
 
 cc.js.getset(proto, 'z', function () {
-    return this._position.z;
+    return this._trs[3];
 }, function (value) {
-    let localPosition = this._position;
-    if (value !== localPosition.z) {
+    let trs = this._trs;
+    if (value !== trs[3]) {
         if (!CC_EDITOR || isFinite(value)) {
-            localPosition.z = value;
+            trs[3] = value;
             this.setLocalDirty(DirtyFlag.POSITION);
             this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
             // fast check event
@@ -229,14 +232,16 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        return this._quat.getEulerAngles(cc.v3());
+        _quat.fromRotation(this._trs);
+        return _quat.getEulerAngles(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    math.quat.fromEuler(this._quat, v.x, v.y, v.z);
+    math.quat.fromEuler(_quat, v.x, v.y, v.z);
+    _quat.toRotation(this._trs);
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 });
@@ -244,5 +249,6 @@ cc.js.getset(proto, 'eulerAngles', function () {
 // This property is used for Mesh Skeleton Animation
 // Should be rememoved when node.rotation upgrade to quaternion value
 cc.js.getset(proto, 'quat', function () {
-    return this._quat;
+    let trs = this._trs;
+    return cc.quat(trs[4], trs[5], trs[6], trs[7]);
 }, proto.setRotation);

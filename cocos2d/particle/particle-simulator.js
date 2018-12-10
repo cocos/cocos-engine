@@ -272,8 +272,8 @@ Simulator.prototype.step = function (dt) {
     if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
         AffineTrans.transformVec2(_pos, ZERO_VEC2, _trans);
     } else if (psys.positionType === cc.ParticleSystem.PositionType.RELATIVE) {
-        _pos.x = node._position.x;
-        _pos.y = node._position.y;
+        _pos.x = node.x;
+        _pos.y = node.y;
     }
 
     // Get world to node trans only once

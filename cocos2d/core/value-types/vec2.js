@@ -592,6 +592,26 @@ proto.transformMat4 = function (m, out) {
     math.vec2.transformMat4(out, this, m);
 };
 
+proto.fromTranslation = function (trs) {
+    this.x = trs[1];
+    this.y = trs[2];
+    return this;
+};
+proto.toTranslation = function (trs) {
+    trs[1] = this.x;
+    trs[2] = this.y;
+};
+
+proto.fromScale = function (trs) {
+    this.x = trs[8];
+    this.y = trs[9];
+    return this;
+};
+proto.toScale = function (trs) {
+    trs[8] = this.x;
+    trs[9] = this.y;
+};
+
 //_serialize: function () {
 //    return [this.x, this.y];
 //},

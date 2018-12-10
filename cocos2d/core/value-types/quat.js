@@ -115,6 +115,20 @@ proto.equals = function (other) {
     return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
 };
 
+proto.fromRotation = function (trs) {
+    this.x = trs[4];
+    this.y = trs[5];
+    this.z = trs[6];
+    this.w = trs[7];
+    return this;
+};
+proto.toRotation = function (trs) {
+    trs[4] = this.x;
+    trs[5] = this.y;
+    trs[6] = this.z;
+    trs[7] = this.w;
+};
+
 /**
  * !#en Convert quaternion to euler
  * !#zh 转换四元数到欧拉角
