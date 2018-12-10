@@ -87,7 +87,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     let indexArray = [];
 
     // this will be used to calculate the normal
-    let slope = (radiusTop - radiusBottom) / height;
+    let r = radiusTop - radiusBottom;
+    let slope = r * r / height * Math.sign(r);
 
     // generate positions, normals and uvs
     for (let y = 0; y <= heightSegments; y++) {
@@ -95,7 +96,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
       let v = y / heightSegments;
 
       // calculate the radius of the current row
-      let radius = v * (radiusTop - radiusBottom) + radiusBottom;
+      let radius = v * r + radiusBottom;
 
       for (let x = 0; x <= radialSegments; ++x) {
         let u = x / radialSegments;

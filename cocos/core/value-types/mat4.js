@@ -66,22 +66,16 @@ export default class Mat4 extends ValueType {
       m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
         super();
         let t = this;
-        t.m00 = m00;
-        t.m01 = m01;
-        t.m02 = m02;
-        t.m03 = m03;
-        t.m04 = m04;
-        t.m05 = m05;
-        t.m06 = m06;
-        t.m07 = m07;
-        t.m08 = m08;
-        t.m09 = m09;
-        t.m10 = m10;
-        t.m11 = m11;
-        t.m12 = m12;
-        t.m13 = m13;
-        t.m14 = m14;
-        t.m15 = m15;
+        if (typeof m00 === 'object') {
+            m01 = m00.m01; m02 = m00.m02; m03 = m00.m03; m04 = m00.m04;
+            m05 = m00.m05; m06 = m00.m06; m07 = m00.m07; m08 = m00.m08;
+            m09 = m00.m09; m10 = m00.m10; m11 = m00.m11; m12 = m00.m12;
+            m13 = m00.m13; m14 = m00.m14; m15 = m00.m15; m00 = m00.m00;
+        }
+        t.m00 = m00; t.m01 = m01; t.m02 = m02; t.m03 = m03;
+        t.m04 = m04; t.m05 = m05; t.m06 = m06; t.m07 = m07;
+        t.m08 = m08; t.m09 = m09; t.m10 = m10; t.m11 = m11;
+        t.m12 = m12; t.m13 = m13; t.m14 = m14; t.m15 = m15;
     }
 
     /**

@@ -1,6 +1,4 @@
-/**
- * @param {Array} indices
- */
+
 export function wireframe(indices) {
   const offsets = [[0, 1], [1, 2], [2, 0]];
   let lines = [];
@@ -23,9 +21,6 @@ export function wireframe(indices) {
   return lines;
 }
 
-/**
- * @param {Array} indices
- */
 export function invWinding(indices) {
   let newIB = [];
   for (let i = 0; i < indices.length; i += 3)
@@ -33,15 +28,12 @@ export function invWinding(indices) {
   return newIB;
 }
 
-/**
- * @param {Array} indices
- */
-export function toWavefrontOBJ(primitive) {
+export function toWavefrontOBJ(primitive, scale = 1) {
   let v = primitive.positions, t = primitive.uvs, n = primitive.normals, IB = primitive.indices;
   let V = i => `${IB[i]+1}/${IB[i]+1}/${IB[i]+1}`;
   let content = '';
   for (let i = 0; i < v.length; i += 3)
-    content += `v ${v[i]} ${v[i+1]} ${v[i+2]}\n`;
+    content += `v ${v[i]*scale} ${v[i+1]*scale} ${v[i+2]*scale}\n`;
   for (let i = 0; i < t.length; i += 2)
     content += `vt ${t[i]} ${t[i+1]}\n`;
   for (let i = 0; i < n.length; i += 3)
@@ -51,11 +43,6 @@ export function toWavefrontOBJ(primitive) {
   return content;
 }
 
-/**
- * @param {Array} positions
- * @param {Array} normals
- * @param {Number} length
- */
 export function normals(positions, normals, length = 1) {
   let verts = new Array(2 * positions.length);
 
