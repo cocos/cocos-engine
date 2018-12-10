@@ -22,6 +22,9 @@ export default class ForwardRenderer extends BaseRenderer {
     this._pointLights = [];
     this._spotLights = [];
     this._shadowLights = [];
+
+    this._numLights = 0;
+
     this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
 
     this._registerStage('shadowcast', this._shadowStage.bind(this));
@@ -67,6 +70,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._pointLights.length = 0;
     this._spotLights.length = 0;
     this._shadowLights.length = 0;
+
     let lights = scene._lights;
     for (let i = 0; i < lights.length; ++i) {
       let light = lights.data[i];
@@ -84,6 +88,8 @@ export default class ForwardRenderer extends BaseRenderer {
         this._spotLights.push(light);
       }
     }
+
+    this._numLights = lights._count;
   }
 
   _submitLightsUniforms () {
@@ -97,6 +103,7 @@ export default class ForwardRenderer extends BaseRenderer {
         device.setUniform(`_dir_light${index}_color`, light._colorUniform);
       }
     }
+
     if (this._pointLights.length > 0) {
       for (let index = 0; index < this._pointLights.length; ++index) {
         let light = this._pointLights[index];
@@ -185,7 +192,29 @@ export default class ForwardRenderer extends BaseRenderer {
         this._draw(item);
       }
     }
+  }
 
+  _drawItems (view, items) {
+    let shadowLights = this._shadowLights;
+    if (shadowLights.length === 0 && this._numLights === 0) {
+      for (let i = 0; i < items.length; ++i) {
+        let item = items.data[i];
+        this._draw(item);
+      }
+    }
+    else {
+      for (let i = 0; i < items.length; ++i) {
+        let item = items.data[i];
+  
+        for (let index = 0; index < shadowLights.length; ++index) {
+          let light = shadowLights[index];
+          this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+        }
+  
+        this._updateShaderDefines(item);
+        this._draw(item);
+      }
+    }
   }
 
   _opaqueStage (view, items) {
@@ -201,21 +230,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._submitLightsUniforms();
     this._submitOtherStagesUniforms();
 
-    // this._sortItems(items);
-
-    let shadowLights = this._shadowLights;
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-
-      for (let index = 0; index < shadowLights.length; ++index) {
-        let light = shadowLights[index];
-        this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-      }
-
-      this._updateShaderDefines(item);
-      this._draw(item);
-    }
+    this._drawItems(view, items);
   }
 
   _transparentStage (view, items) {
@@ -243,19 +258,6 @@ export default class ForwardRenderer extends BaseRenderer {
     }
 
     this._sortItems(items);
-
-    let shadowLights = this._shadowLights;
-    // draw it
-    for (let i = 0; i < items.length; ++i) {
-      let item = items.data[i];
-
-      for (let index = 0; index < shadowLights.length; ++index) {
-        let light = shadowLights[index];
-        this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
-      }
-      
-      this._updateShaderDefines(item);
-      this._draw(item);
-    }
+    this._drawItems(view, items);
   }
 }

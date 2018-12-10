@@ -150,7 +150,7 @@ let MeshRenderer = cc.Class({
     },
 
     _getDefaultMaterial () {
-        return Material.getBuiltinMaterial('mesh');
+        return Material.getBuiltinMaterial('unlit');
     },
 
     _activateMaterial (force) {
