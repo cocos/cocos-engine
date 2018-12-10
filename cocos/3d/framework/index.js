@@ -28,12 +28,12 @@ import CameraComponent from './camera-component';
 import AnimationComponent from './animation-component';
 import LightComponent from './light-component';
 import ModelComponent from './model-component';
-import SkinnedModelComponent from './skinning-model-component';
+import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
 
 cc.CameraComponent = CameraComponent;
 cc.AnimationComponent = AnimationComponent;
 cc.LightComponent = LightComponent;
 cc.ModelComponent = ModelComponent;
-cc.SkinnedModelComponent = SkinnedModelComponent;
+cc.SkinningModelComponent = SkinningModelComponent;
 cc.SkyboxComponent = SkyboxComponent;
