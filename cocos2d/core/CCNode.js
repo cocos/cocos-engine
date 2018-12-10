@@ -629,7 +629,6 @@ let NodeDefines = {
 
                         trs[1] = value;
                         this.setLocalDirty(LocalDirtyFlag.POSITION);
-                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
                         
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
@@ -673,7 +672,6 @@ let NodeDefines = {
 
                         trs[2] = value;
                         this.setLocalDirty(LocalDirtyFlag.POSITION);
-                        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
@@ -736,7 +734,6 @@ let NodeDefines = {
                 math.quat.fromEuler(_quata, 0, 0, value);
                 _quata.toRotation(this._trs);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
@@ -777,7 +774,6 @@ let NodeDefines = {
                     }
                     _quata.toRotation(this._trs);
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     if (this._eventMask & ROTATION_ON) {
                         this.emit(EventType.ROTATION_CHANGED);
@@ -812,7 +808,6 @@ let NodeDefines = {
                     }
                     _quata.toRotation(this._trs);
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     if (this._eventMask & ROTATION_ON) {
                         this.emit(EventType.ROTATION_CHANGED);
@@ -855,7 +850,6 @@ let NodeDefines = {
                 if (this._trs[8] !== value) {
                     this._trs[8] = value;
                     this.setLocalDirty(LocalDirtyFlag.SCALE);
-                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     if (this._eventMask & SCALE_ON) {
                         this.emit(EventType.SCALE_CHANGED);
@@ -881,7 +875,6 @@ let NodeDefines = {
                 if (this._trs[9] !== value) {
                     this._trs[9] = value;
                     this.setLocalDirty(LocalDirtyFlag.SCALE);
-                    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                     if (this._eventMask & SCALE_ON) {
                         this.emit(EventType.SCALE_CHANGED);
@@ -913,7 +906,6 @@ let NodeDefines = {
             set (value) {
                 this._skewX = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -933,7 +925,6 @@ let NodeDefines = {
             set (value) {
                 this._skewY = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             }
         },
 
@@ -1164,6 +1155,7 @@ let NodeDefines = {
 
         // Transform / Rotation / Scale data slots, with local dirty flags at 0
         let trs = this._trs = new Float32Array(11);
+        trs[0] = RenderFlow.FLAG_TRANSFORM;
         trs[3] = 0;
         trs[7] = 1;
         trs[8] = 1;
@@ -1266,6 +1258,7 @@ let NodeDefines = {
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (active) {
             // Refresh transform
+            this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
             this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
@@ -1292,6 +1285,7 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
+        this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
@@ -1337,6 +1331,7 @@ let NodeDefines = {
             trs[10] = this._scale.z;
             this._scale = undefined;
         }
+        trs[0] |= RenderFlow.FLAG_TRANSFORM;
 
         if (this._localZOrder !== 0) {
             this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
@@ -1387,7 +1382,7 @@ let NodeDefines = {
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.setName(this._name);
             this._parent && this._proxy.updateParent(this._parent._proxy);
-            this._proxy.updateJSOwner(this);
+            this._proxy.updateJSTRS(this._trs);
         }
     },
 
@@ -1417,7 +1412,7 @@ let NodeDefines = {
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.setName(this._name);
             this._parent && this._proxy.updateParent(this._parent._proxy);
-            this._proxy.updateJSOwner(this);
+            this._proxy.updateJSTRS(this._trs);
         }
     },
 
@@ -2144,7 +2139,6 @@ let NodeDefines = {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
         this.setLocalDirty(LocalDirtyFlag.POSITION);
-        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
         // fast check event
         if (this._eventMask & POSITION_ON) {
@@ -2208,7 +2202,6 @@ let NodeDefines = {
             trs[8] = x;
             trs[9] = y;
             this.setLocalDirty(LocalDirtyFlag.SCALE);
-            this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
             if (this._eventMask & SCALE_ON) {
                 this.emit(EventType.SCALE_CHANGED);
@@ -2266,7 +2259,6 @@ let NodeDefines = {
                 trs[6] = z;
                 trs[7] = w;
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
-                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
@@ -2728,6 +2720,18 @@ let NodeDefines = {
     setLocalDirty (flag) {
         this._localMatDirty |= flag;
         this._worldMatDirty = true;
+
+        if (CC_JSB) {
+            this._trs[0] |= RenderFlow.FLAG_TRANSFORM;
+        }
+        else {
+            if (flag === LocalDirtyFlag.POSITION) {
+                this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+            }
+            else {
+                this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+            }
+        }
     },
 
     setWorldDirty () {
@@ -3206,10 +3210,10 @@ let NodeDefines = {
             this._worldMatrix = mathPools.mat4.get();
         }
 
-        let trs = this._trs;
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
+        let trs = this._trs;
         _quata.fromRotation(trs);
         _quata.toEuler(this._eulerAngles);
 
