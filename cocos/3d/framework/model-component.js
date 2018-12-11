@@ -216,6 +216,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateModelParams() {
+        this.node._hasChanged = true;
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
             let material = this.getSharedMaterial(i);
@@ -268,7 +269,7 @@ export default class ModelComponent extends RenderableComponent {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
             if (model._defines['USE_SHADOW_MAP'] != undefined) {
-                model._effect.define('USE_SHADOW_MAP', this._receiveShadows);
+                this.getMaterial(i).define('USE_SHADOW_MAP', this._receiveShadows);
             }
         }
     }

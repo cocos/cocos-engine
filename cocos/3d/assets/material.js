@@ -25,7 +25,7 @@
 // @ts-check
 import { ccclass, property } from "../../core/data/class-decorator";
 import Asset from "../../assets/CCAsset";
-import Texture from '../../assets/CCTexture2D';
+import TextureBase from '../../assets/texture-base';
 import Effect from '../../renderer/core/effect';
 import EffectAsset from './effect-asset';
 
@@ -83,7 +83,10 @@ class Material extends Asset {
      * @param {Material} mat
      */
     copy(mat) {
+        Object.assign(this._props, mat._props);
+        Object.assign(this._defines, mat._defines);
         this._setEffect(mat.effectAsset);
+        this._uuid = mat._uuid;
     }
 
     /**
@@ -94,7 +97,7 @@ class Material extends Asset {
     setProperty(name, val) {
         this._props[name] = val;
         if (this._effect) {
-            if (val instanceof Texture) this._effect.setProperty(name, val._texture);
+            if (val instanceof TextureBase) this._effect.setProperty(name, val._texture);
             else this._effect.setProperty(name, val);
         }
     }

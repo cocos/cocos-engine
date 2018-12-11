@@ -5,8 +5,8 @@ import Pass from './pass';
 import Technique from './technique';
 import { Vec2, Vec3, Vec4, Color, Mat4 } from '../../core/value-types';
 import { CCObject } from '../../core/data';
-import Texture2D from '../../assets/CCTexture2D';
-import TextureCube from '../../3d/assets/texture-cube';
+import Texture2D from '../gfx/texture-2d';
+import TextureCube from '../gfx/texture-cube';
 
 let _typeMap = {
     [enums.PARAM_INT]: Number,
@@ -87,23 +87,22 @@ class Effect {
             console.warn(`Failed to set property ${name}, property not found.`);
             return;
         }
-        // else if (!typeCheck(value, prop.type)) { // re-enable this after 3.x migration
-        //     console.warn(`Failed to set property ${name}, property type mismatch.`);
-        //     return;
-        // }
+        else if (!typeCheck(value, prop.type)) {
+            console.warn(`Failed to set property ${name}, property type mismatch.`);
+            return;
+        }
         this._properties[name].value = value;
     }
 
     getDefine(name) {
         let def = this._defines[name];
-        if (def !== undefined) return def.value;
+        if (def !== undefined) return def;
         console.warn(`Failed to get define ${name}, define not found.`);
         return null;
     }
 
     define(name, value) {
-        let def = this._defines[name];
-        if (def !== undefined) def.value = value;
+        if (this._defines[name] !== undefined) this._defines[name] = value;
         else console.warn(`Failed to set define ${name}, define not found.`);
     }
 
