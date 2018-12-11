@@ -132,7 +132,7 @@ class Effect {
         // defines
         this._defines = {};
         this._techniques[this._activeTechIdx].passes.forEach(pass => this._programs[pass._programName].defines.forEach(def =>
-            this._defines[def.name] = { value: getInstanceCtor(def.type)(), type: def.type }));
+            this._defines[def.name] = getInstanceCtor(def.type)()));
 
         // extensions
         this._dependencies = {};

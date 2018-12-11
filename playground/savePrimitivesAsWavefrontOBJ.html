@@ -28,7 +28,7 @@
   <!-- <script src="./loadScene.js"></script> -->
   <script>
     function write(name) {
-      let text = cc.primitives.toWavefrontOBJ(cc.primitives[name]());
+      let text = cc.primitives.toWavefrontOBJ(cc.primitives[name](), 100);
       let blob = new Blob([text], { type: 'text/plain' });
       let anchor = document.createElement('a');
       anchor.download = `${name}.obj`;
@@ -40,9 +40,9 @@
       // write('box');
       // write('sphere');
       // write('cylinder');
+      write('cone');
       // write('capsule');
-      // write('cone');
-      write('torus');
+      // write('torus');
       // write('plane');
       // write('quad');
     }
