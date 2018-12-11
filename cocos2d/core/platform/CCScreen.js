@@ -116,7 +116,7 @@ cc.screen = /** @lends cc.screen# */{
      * @param {Function} onFullScreenChange
      */
     requestFullScreen: function (element, onFullScreenChange) {
-        if (element.tagName.toLowerCase() === "video") {
+        if (element && element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
                 element.webkitEnterFullscreen && element.webkitEnterFullscreen();
                 return;
