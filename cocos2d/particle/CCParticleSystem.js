@@ -706,12 +706,16 @@ var ParticleSystem = cc.Class({
     },
 
     ctor () {
+        this.initProperties();
+    },
+
+    initProperties () {
+        this._simulator = new ParticleSimulator(this);
+
         this._previewTimer = null;
         this._focused = false;
         this._texture = null;
         this._renderData = null;
-
-        this._simulator = new ParticleSimulator(this);
 
         // colors
         this._startColor = cc.color(255, 255, 255, 255);
