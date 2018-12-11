@@ -403,7 +403,7 @@ let Camera = cc.Class({
             _debugCamera = camera;
 
             camera.setStages([
-                'transparent'
+                'opaque'
             ]);
 
             camera.setFov(Math.PI * 60 / 180);
