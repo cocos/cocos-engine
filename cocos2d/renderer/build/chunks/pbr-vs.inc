@@ -1,0 +1,67 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+attribute vec3 a_position;
+attribute vec3 a_normal;
+
+varying vec3 pos_w;
+varying vec3 normal_w;
+
+uniform mat4 _model;
+uniform mat4 _viewProj;
+uniform mat3 _normalMatrix;
+
+#if USE_ALBEDO_TEXTURE || USE_NORMAL_TEXTURE || USE_MRA_TEXTURE || USE_METALLIC_TEXTURE || USE_ROUGHNESS_TEXTURE || USE_AO_TEXTURE || USE_MRA_TEXTURE || USE_EMISSIVE_TEXTURE
+  attribute vec2 a_uv0;
+  uniform vec2 mainTiling;
+  uniform vec2 mainOffset;
+  varying vec2 uv0;
+#endif
+
+#if _USE_SKINNING
+  #include <skinning>
+#endif
+
+#if _USE_SHADOW_MAP
+  #if _NUM_SHADOW_LIGHTS > 0
+    #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
+      uniform mat4 _lightViewProjMatrix_{id};
+      uniform float _minDepth_{id};
+      uniform float _maxDepth_{id};
+      varying vec4 pos_lightspace_{id};
+      varying float vDepth_{id};
+    #pragma endFor
+  #endif
+#endif
+
+vec4 vert () {
+  vec4 pos = vec4(a_position, 1);
+
+  #if _USE_SKINNING
+    mat4 skinMat = skinMatrix();
+    pos = skinMat * pos;
+  #endif
+
+  pos_w = (_model * pos).xyz;
+  pos = _viewProj * _model * pos;
+
+  #if USE_ALBEDO_TEXTURE || USE_NORMAL_TEXTURE || USE_MRA_TEXTURE || USE_METALLIC_TEXTURE || USE_ROUGHNESS_TEXTURE || USE_AO_TEXTURE || USE_MRA_TEXTURE || USE_EMISSIVE_TEXTURE
+    uv0 = a_uv0 * mainTiling + mainOffset;
+  #endif
+
+  vec4 normal = vec4(a_normal, 0);
+  #if _USE_SKINNING
+    normal = skinMat * normal;
+  #endif
+  normal_w = _normalMatrix * normal.xyz;
+
+  #if _USE_SHADOW_MAP
+    #if _NUM_SHADOW_LIGHTS > 0
+      #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
+        pos_lightspace_{id} = _lightViewProjMatrix_{id} * vec4(pos_w, 1.0);
+        vDepth_{id} = (pos_lightspace_{id}.z + _minDepth_{id}) / (_minDepth_{id} + _maxDepth_{id});
+      #pragma endFor
+    #endif
+  #endif
+
+  return pos;
+}
