@@ -96,14 +96,13 @@ class Effect {
 
     getDefine(name) {
         let def = this._defines[name];
-        if (def !== undefined) return def.value;
+        if (def !== undefined) return def;
         console.warn(`Failed to get define ${name}, define not found.`);
         return null;
     }
 
     define(name, value) {
-        let def = this._defines[name];
-        if (def !== undefined) def.value = value;
+        if (this._defines[name] !== undefined) this._defines[name] = value;
         else console.warn(`Failed to set define ${name}, define not found.`);
     }
 
