@@ -127,7 +127,7 @@ let Toggle = cc.Class({
         if (!CC_EDITOR) {
             this._registerToggleEvent();
         }
-        if (this.toggleGroup && this.toggleGroup.enabled) {
+        if (this.toggleGroup && this.toggleGroup.node.active && this.toggleGroup.enabled) {
             this.toggleGroup.addToggle(this);
         }
     },
@@ -137,7 +137,7 @@ let Toggle = cc.Class({
         if (!CC_EDITOR) {
             this._unregisterToggleEvent();
         }
-        if (this.toggleGroup && this.toggleGroup.enabled) {
+        if (this.toggleGroup && this.toggleGroup.node.active && this.toggleGroup.enabled) {
             this.toggleGroup.removeToggle(this);
         }
     },
