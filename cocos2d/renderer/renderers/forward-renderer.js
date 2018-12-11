@@ -25,8 +25,6 @@ export default class ForwardRenderer extends BaseRenderer {
 
     this._numLights = 0;
 
-    this._sceneAmbient = new Float32Array([0.5, 0.5, 0.5]);
-
     this._registerStage('shadowcast', this._shadowStage.bind(this));
     this._registerStage('opaque', this._opaqueStage.bind(this));
     this._registerStage('transparent', this._transparentStage.bind(this));
@@ -94,7 +92,6 @@ export default class ForwardRenderer extends BaseRenderer {
 
   _submitLightsUniforms () {
     let device = this._device;
-    device.setUniform('_sceneAmbient', this._sceneAmbient);
 
     if (this._directionalLights.length > 0) {
       for (let index = 0; index < this._directionalLights.length; ++index) {

@@ -50,7 +50,7 @@ let meshRendererAssembler = {
         let data = new IARenderData();
         let m = material.clone();
         m.color = BLACK_COLOR;
-        m.define('USE_TEXTRUE', false);
+        m.define('USE_TEXTURE', false);
         m._mainTech._passes[0].setDepth(true, true);
         data.material = m;
 

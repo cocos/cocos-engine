@@ -359,7 +359,7 @@ let ArmatureDisplay = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('USE_TEXTRUE', true);
+            material.define('USE_TEXTURE', true);
         }
 
         if (texture) {

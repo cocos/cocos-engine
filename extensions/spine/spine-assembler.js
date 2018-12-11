@@ -77,7 +77,7 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
         }
 
         material.define('_USE_MODEL', true);
-        material.define('USE_TEXTRUE', true);
+        material.define('USE_TEXTURE', true);
         // update texture
         material.setProperty('texture', tex);
 

@@ -507,7 +507,7 @@ var Sprite = cc.Class({
                 material = this._spriteMaterial;
                 if (!material) {
                     material = this._spriteMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                    material.define('USE_TEXTRUE', true);
+                    material.define('USE_TEXTURE', true);
                 }
             }
             
