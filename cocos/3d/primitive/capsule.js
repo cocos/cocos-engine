@@ -95,7 +95,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
         normals.push(temp1.z);
 
         // uv
-        uvs.push(-u,v);
+        uvs.push(u,v);
         // save index of vertex in respective row
         indexRow.push(index);
 
@@ -148,7 +148,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
 
         positions.push(x * radiusBottom, y * radiusBottom + bottomOffset, z * radiusBottom);
         normals.push(x, y, z);
-        uvs.push(-u, v);
+        uvs.push(u, v);
 
         if ((lat < bottomSegments) && (lon < sides)) {
           let seg1 = sides + 1;
@@ -185,7 +185,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
 
         positions.push(x * radiusTop, y * radiusTop + topOffset, z * radiusTop);
         normals.push(x, y, z);
-        uvs.push(-u, v);
+        uvs.push(u, v);
 
         if ((lat < topSegments) && (lon < sides)) {
           let seg1 = sides + 1;

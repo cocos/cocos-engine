@@ -48,7 +48,7 @@ export default function (width = 10, length = 10, opts = {}) {
 
       positions.push(r.x, r.y, r.z);
       normals.push(0, 1, 0);
-      uvs.push(-u, -v);
+      uvs.push(u, v);
 
       if ((x < uSegments) && (y < vSegments)) {
         let useg1 = uSegments + 1;
