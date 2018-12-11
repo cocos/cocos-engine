@@ -818,7 +818,7 @@ var ParticleSystem = cc.Class({
     },
 
     onLoad () {
-        if (!CC_JSB && !this._ia) {
+        if (!this._ia) {
             ParticleSystem._assembler.createIA(this);
         }
     },
