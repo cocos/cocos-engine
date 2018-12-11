@@ -684,7 +684,7 @@ function initSys () {
         sys.osVersion = version ? version[0] : system;
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
-        if (!wx.getFileSystemManager) {
+        if (CC_WECHATGAME_SUB) {
             sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
         }
         else {
