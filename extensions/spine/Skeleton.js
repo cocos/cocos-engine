@@ -29,6 +29,7 @@ const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent
 const spine = require('./lib/spine');
 const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 /**
  * @module sp
@@ -80,6 +81,54 @@ sp.Skeleton = cc.Class({
          */
         paused: {
             default: false,
+            visible: false
+        },
+
+        /**
+         * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
+         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
+         * @property srcBlendFactor
+         * @type {macro.BlendFactor}
+         * @example
+         * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
+         */
+        srcBlendFactor: {
+            get: function() {
+                return this._srcBlendFactor;
+            },
+            set: function(value) {
+                if (this._srcBlendFactor === value) return;
+                this._srcBlendFactor = value;
+                this._updateBlendFunc(true);
+            },
+            animatable: false,
+            type:BlendFactor,
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
+            override: true,
+            visible: false
+        },
+
+        /**
+         * !#en specify the destination Blend Factor.
+         * !#zh 指定目标的混合模式
+         * @property dstBlendFactor
+         * @type {macro.BlendFactor}
+         * @example
+         * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
+         */
+        dstBlendFactor: {
+            get: function() {
+                return this._dstBlendFactor;
+            },
+            set: function(value) {
+                if (this._dstBlendFactor === value) return;
+                this._dstBlendFactor = value;
+                this._updateBlendFunc(true);
+            },
+            animatable: false,
+            type: BlendFactor,
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor',
+            override: true,
             visible: false
         },
 
