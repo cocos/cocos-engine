@@ -75,7 +75,7 @@ module.exports = function createBundler(entryFiles, options) {
         'env'
     ];
 
-    // var plugins = [
+    var plugins = [
     //     // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
     //     'babel-plugin-transform-es2015-shorthand-properties',
     //     // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
@@ -85,7 +85,11 @@ module.exports = function createBundler(entryFiles, options) {
 
     //     // < 6.16.0
     //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
-    // ];
+        'transform-decorators-legacy',
+        'transform-class-properties',
+
+        'add-module-exports',
+    ];
 
     var Babelify;
     try {
@@ -121,7 +125,7 @@ module.exports = function createBundler(entryFiles, options) {
         .exclude(Path.join(__dirname, '../../package.json'))
         .transform(Babelify, (options && options.babelifyOpt) || {
             presets: presets,
-            // plugins: plugins,
+            plugins: plugins,
 
             // >= 6.16.0
             // parserOpts: {
