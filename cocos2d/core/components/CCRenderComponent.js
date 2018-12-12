@@ -54,7 +54,7 @@ let RenderComponent = cc.Class({
 
           /**
          * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
+         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的开销
          * @property srcBlendFactor
          * @type {macro.BlendFactor}
          * @example

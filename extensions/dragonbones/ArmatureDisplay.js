@@ -71,7 +71,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/spine.html', // TODO help document of dragonBones
+        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
     },
     
     properties: {
@@ -82,49 +82,39 @@ let ArmatureDisplay = cc.Class({
         },
 
         /**
-         * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
+         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
          * @property srcBlendFactor
          * @type {macro.BlendFactor}
-         * @example
-         * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
          */
         srcBlendFactor: {
             get: function() {
                 return this._srcBlendFactor;
             },
             set: function(value) {
-                if (this._srcBlendFactor === value) return;
-                this._srcBlendFactor = value;
-                this._updateBlendFunc(true);
+                // shield set _srcBlendFactor
             },
             animatable: false,
             type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
             override: true,
             visible: false
         },
 
         /**
-         * !#en specify the destination Blend Factor.
-         * !#zh 指定目标的混合模式
+         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
          * @property dstBlendFactor
          * @type {macro.BlendFactor}
-         * @example
-         * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
          */
         dstBlendFactor: {
             get: function() {
                 return this._dstBlendFactor;
             },
             set: function(value) {
-                if (this._dstBlendFactor === value) return;
-                this._dstBlendFactor = value;
-                this._updateBlendFunc(true);
+                // shield set _dstBlendFactor
             },
             animatable: false,
             type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor',
             override: true,
             visible: false
         },
