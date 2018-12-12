@@ -103,10 +103,9 @@ let builtinResMgr = {
         let remainingJobs = effectUUIDs.length;
         for (let i = 0; i < effectUUIDs.length; ++i) {
             let uuid = effectUUIDs[i];
-            cc.AssetLibrary.loadAsset(uuid, (err, asset) => {
-                if (err) { console.error(err); return; }
-                cc.EffectAsset.register(asset);
-                if (!--remainingJobs) OnComplete(builtinResMgr);
+            cc.AssetLibrary.loadAsset(uuid, err => {
+                if (err) console.error(err);
+                if (!--remainingJobs) OnComplete();
             });
         }
     }

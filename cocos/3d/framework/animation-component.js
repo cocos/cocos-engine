@@ -328,7 +328,7 @@ export default class AnimationComponent extends Component {
      * @property playAutomatically
      * @type {Boolean}
      */
-    @property({type:Boolean})
+    @property
     playAutomatically = false;
 
     _preview = false;
