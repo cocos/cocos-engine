@@ -43,38 +43,38 @@ let ShadowCastingMode = cc.Enum({
      * !#en
      *
      * !#ch 关闭阴影投射
-     * @property Off
+     * @property OFF
      * @readonly
      * @type {Number}
      */
-    Off: 0,
+    OFF: 0,
     /**
      * !#en
      *
      * !#ch 开启阴影投射，当阴影光产生的时候
-     * @property On
+     * @property ON
      * @readonly
      * @type {Number}
      */
-    On: 1,
+    ON: 1,
     // /**
     //  * !#en
     //  *
     //  * !#ch 可以从网格的任意一遍投射出阴影
-    //  * @property TwoSided
+    //  * @property TWO_SIDED
     //  * @readonly
     //  * @type {Number}
     //  */
-    // TwoSided: 2,
+    // TWO_SIDED: 2,
     // /**
     //  * !#en
     //  *
     //  * !#ch 只显示阴影
-    //  * @property ShadowsOnly
+    //  * @property SHADOWS_ONLY
     //  * @readonly
     //  * @type {Number}
     //  */
-    // ShadowsOnly: 3,
+    // SHADOWS_ONLY: 3,
 });
 
 let MeshRenderer = cc.Class({
@@ -92,7 +92,7 @@ let MeshRenderer = cc.Class({
         },
 
         _receiveShadows: false,
-        _shadowCastingMode: ShadowCastingMode.Off,
+        _shadowCastingMode: ShadowCastingMode.OFF,
 
         mesh: {
             get () {
@@ -134,6 +134,10 @@ let MeshRenderer = cc.Class({
             },
             type: ShadowCastingMode
         }
+    },
+
+    statics: {
+        ShadowCastingMode: ShadowCastingMode
     },
 
     ctor () {
