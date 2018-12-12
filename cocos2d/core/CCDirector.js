@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 const EventTarget = require('./event/event-target');
-const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const Obj = require('./platform/CCObject');
@@ -116,8 +115,8 @@ cc.Director = function () {
     this._winSizeInPoints = null;
 
     // scenes
-    this._loadingScene = '';
     this._scene = null;
+    this._loadingScene = '';
 
     // FPS
     this._totalFrames = 0;
@@ -206,8 +205,6 @@ cc.Director.prototype = {
         if (cc._widgetManager) {
             cc._widgetManager.init(this);
         }
-
-        cc.loader.init(this);
     },
 
     /**
@@ -331,7 +328,7 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      */
     purgeCachedData: function () {
-        cc.loader.releaseAll();
+        cc.assetManager.releaseAll(true);
     },
 
     /**
@@ -355,13 +352,13 @@ cc.Director.prototype = {
             this._scene = null;
 
             cc.renderer.clear();
-            cc.AssetLibrary.resetBuiltins();
+            cc.builtinResMgr.clear();
         }
 
         cc.game.pause();
 
         // Clear all caches
-        cc.loader.releaseAll();
+        cc.assetManager.releaseAll(true);
     },
 
     /**
@@ -437,8 +434,7 @@ cc.Director.prototype = {
         if (!CC_EDITOR) {
             // auto release assets
             CC_BUILD && CC_DEBUG && console.time('AutoRelease');
-            var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
+            cc.assetManager.finalizer._autoRelease(oldScene, scene, persistNodeList);
             CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
         }
 
@@ -499,39 +495,6 @@ cc.Director.prototype = {
         }, this);
     },
 
-    //  @Scene loading section
-
-    _getSceneUuid: function (key) {
-        var scenes = game._sceneInfos;
-        if (typeof key === 'string') {
-            if (!key.endsWith('.fire')) {
-                key += '.fire';
-            }
-            if (key[0] !== '/' && !key.startsWith('db://')) {
-                key = '/' + key;    // 使用全名匹配
-            }
-            // search scene
-            for (var i = 0; i < scenes.length; i++) {
-                var info = scenes[i];
-                if (info.url.endsWith(key)) {
-                    return info;
-                }
-            }
-        }
-        else if (typeof key === 'number') {
-            if (0 <= key && key < scenes.length) {
-                return scenes[key];
-            }
-            else {
-                cc.errorID(1206, key);
-            }
-        }
-        else {
-            cc.errorID(1207, key);
-        }
-        return null;
-    },
-
     /**
      * !#en Loads the scene by its name.
      * !#zh 通过场景名称进行加载场景。
@@ -546,12 +509,27 @@ cc.Director.prototype = {
             cc.errorID(1208, sceneName, this._loadingScene);
             return false;
         }
-        var info = this._getSceneUuid(sceneName);
-        if (info) {
-            var uuid = info.uuid;
+        var bundle = cc.assetManager._bundles.find(function (bundle) {
+            return bundle._config.getSceneInfo(sceneName);
+        });
+        if (bundle) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            var self = this;
+            console.time('LoadScene ' + sceneName);
+            bundle.loadScene(sceneName, function (err, scene) {
+                console.timeEnd('LoadScene ' + sceneName);
+                self._loadingScene = '';
+                if (err) {
+                    err = 'Failed to load scene: ' + err;
+                    cc.error(err);
+                    onLaunched && onLaunched(err);
+                }
+                else {
+                    self.runSceneImmediate(scene, _onUnloaded, onLaunched);
+                    return;
+                }
+            });
             return true;
         }
         else {
@@ -560,115 +538,6 @@ cc.Director.prototype = {
         }
     },
 
-    /**
-     * !#en
-     * Preloads the scene to reduces loading time. You can call this method at any time you want.
-     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.
-     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not
-     * yet finished, the scene will be launched after loaded automatically.
-     * !#zh 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。
-     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
-     *
-     * @method preloadScene
-     * @param {String} sceneName - The name of the scene to preload.
-     * @param {Function} [onProgress] - callback, will be called when the load progression change.
-     * @param {Number} onProgress.completedCount - The number of the items that are already completed
-     * @param {Number} onProgress.totalCount - The total number of the items
-     * @param {Object} onProgress.item - The latest item which flow out the pipeline
-     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
-     * @param {Error} onLoaded.error - null or the error object.
-     * @param {cc.SceneAsset} onLoaded.asset - The scene asset itself.
-     */
-    preloadScene: function (sceneName, onProgress, onLoaded) {
-        if (onLoaded === undefined) {
-            onLoaded = onProgress;
-            onProgress = null;
-        }
-
-        var info = this._getSceneUuid(sceneName);
-        if (info) {
-            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ uuid: info.uuid, type: 'uuid' }, 
-                onProgress,    
-                function (error, asset) {
-                    if (error) {
-                        cc.errorID(1210, sceneName, error.message);
-                    }
-                    if (onLoaded) {
-                        onLoaded(error, asset);
-                    }
-                });       
-        }
-        else {
-            var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
-            onLoaded(new Error(error));
-            cc.error('preloadScene: ' + error);
-        }
-    },
-
-    /**
-     * Loads the scene by its uuid.
-     * @method _loadSceneByUuid
-     * @param {String} uuid - the uuid of the scene asset to load
-     * @param {Function} [onLaunched]
-     * @param {Function} [onUnloaded]
-     * @param {Boolean} [dontRunScene] - Just download and initialize the scene but will not launch it,
-     *                                   only take effect in the Editor.
-     * @private
-     */
-    _loadSceneByUuid: function (uuid, onLaunched, onUnloaded, dontRunScene) {
-        if (CC_EDITOR) {
-            if (typeof onLaunched === 'boolean') {
-                dontRunScene = onLaunched;
-                onLaunched = null;
-            }
-            if (typeof onUnloaded === 'boolean') {
-                dontRunScene = onUnloaded;
-                onUnloaded = null;
-            }
-        }
-        //cc.AssetLibrary.unloadAsset(uuid);     // force reload
-        console.time('LoadScene ' + uuid);
-        cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
-            console.timeEnd('LoadScene ' + uuid);
-            var self = cc.director;
-            self._loadingScene = '';
-            if (error) {
-                error = 'Failed to load scene: ' + error;
-                cc.error(error);
-            }
-            else {
-                if (sceneAsset instanceof cc.SceneAsset) {
-                    var scene = sceneAsset.scene;
-                    scene._id = sceneAsset._uuid;
-                    scene._name = sceneAsset._name;
-                    if (CC_EDITOR) {
-                        if (!dontRunScene) {
-                            self.runSceneImmediate(scene, onUnloaded, onLaunched);
-                        }
-                        else {
-                            scene._load();
-                            if (onLaunched) {
-                                onLaunched(null, scene);
-                            }
-                        }
-                    }
-                    else {
-                        self.runSceneImmediate(scene, onUnloaded, onLaunched);
-                    }
-                    return;
-                }
-                else {
-                    error = 'The asset ' + uuid + ' is not a scene';
-                    cc.error(error);
-                }
-            }
-            if (onLaunched) {
-                onLaunched(error);
-            }
-        });
-    },
 
     /**
      * !#en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.

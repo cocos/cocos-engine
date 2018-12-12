@@ -621,7 +621,7 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        if ((CC_WECHATGAME || isBaiduGame) && name === 'OES_texture_float') {
+        if ((sys.platform === sys.WECHAT_GAME || sys.platform === sys.BAIDU_GAME) && name === 'OES_texture_float') {
             return false;
         }
         return !!cc.renderer.device.ext(name);
@@ -735,6 +735,8 @@ function initSys () {
             capabilities["mouse"] = true;
             capabilities["touches"] = false;
         }
+
+        capabilities['createImageBitmap'] = typeof createImageBitmap !== 'undefined';
 
         sys.__audioSupport = {
             ONLY_ONE: false,
@@ -958,6 +960,7 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
+            'createImageBitmap': typeof createImageBitmap !== 'undefined',
         };
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;

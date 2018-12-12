@@ -433,20 +433,18 @@ cc.js.mixin(View.prototype, {
         }
         this._antiAliasEnabled = enabled;
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var cache = cc.loader._cache;
-            for (var key in cache) {
-                var item = cache[key];
-                var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
-                if (tex) {
+            var cache = cc.assetManager._assets;
+            cache.forEach(function (asset) {
+                if (asset instanceof cc.Texture2Dx) {
                     var Filter = cc.Texture2D.Filter;
                     if (enabled) {
-                        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+                        asset.setFilters(Filter.LINEAR, Filter.LINEAR);
                     }
                     else {
-                        tex.setFilters(Filter.NEAREST, Filter.NEAREST);
+                        asset.setFilters(Filter.NEAREST, Filter.NEAREST);
                     }
                 }
-            }
+            });
         }
         else if(cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             var ctx = cc.game.canvas.getContext('2d');

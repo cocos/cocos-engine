@@ -304,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data._compressed && data._data) {
-                    this.initWithData(data._data, this._format, data.width, data.height);
+                if (data.data) {
+                    this.initWithData(data.data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -322,6 +322,12 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+        _nativeDep: {
+            get () {
+                return {isNative: true, uuid: this._uuid, ext: this._native};
+            },
+            override: true
+        }
     },
 
     statics: {
@@ -329,9 +335,40 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         _FilterIndex: FilterIndex,
-
         // predefined most common extnames
         extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
+
+        _parseNativeDepFromJson (json) {
+            var data = json.content;
+            let fields = data.split(',');
+            // decode extname
+            var extIdStr = fields[0];
+            let ext = '';
+            if (extIdStr) {
+                let extIds = extIdStr.split('_');
+        
+                let extId = 999;
+                let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+                for (let i = 0; i < extIds.length; i++) {
+                    let extFormat = extIds[i].split('@');
+                    let tmpExt = extFormat[0];
+                    tmpExt = tmpExt.charCodeAt(0) - 48;
+                    tmpExt = cc.Texture2D.extnames[tmpExt] || extFormat;
+        
+                    let index = SupportTextureFormats.indexOf(tmpExt);
+                    if (index !== -1 && index < extId) {
+                        extId = index;
+                        ext = tmpExt;
+                    }
+                }
+            }
+
+            return {isNative: true, ext};
+        },
+
+        _parseDepsFromJson () {
+            return [];
+        } 
     },
 
     ctor () {
@@ -391,7 +428,7 @@ var Texture2D = cc.Class({
     },
 
     toString () {
-        return this.url || '';
+        return this.nativeUrl || '';
     },
 
     /**
@@ -489,7 +526,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement) {
+        if (element.complete || element instanceof HTMLCanvasElement || element instanceof ImageBitmap) {
             this.handleLoadedTexture();
         }
         else {
@@ -567,8 +604,6 @@ var Texture2D = cc.Class({
     destroy () {
         this._image = null;
         this._texture && this._texture.destroy();
-        // TODO cc.textureUtil ?
-        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
     },
 
@@ -659,7 +694,7 @@ var Texture2D = cc.Class({
      * @returns {String}
      */
     description () {
-        return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
+        return "<cc.Texture2D | Name = " + this.nativeUrl + " | Dimensions = " + this.width + " x " + this.height + ">";
     },
 
     /**
@@ -828,7 +863,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data, handle) {
+    _deserialize: function (data) {
         let device = cc.renderer.device;
 
         let fields = data.split(',');
@@ -922,11 +957,6 @@ var Texture2D = cc.Class({
     },
     
     _clearImage () {
-        // wechat game platform will cache image parsed data, 
-        // so image will consume much more memory than web, releasing it
-        // Release image in loader cache
-        // native image element has not image.id, release by image.src.
-        cc.loader.removeItem(this._image.id || this._image.src);
         this._image.src = "";
     }
 });

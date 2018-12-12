@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,11 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+require('./deprecated');
+require('./CCAssetManager');
 
-require('./downloader');
-require('./loader');
-
-require('./loading-items');
-require('./pipeline');
-
-require('./CCLoader');

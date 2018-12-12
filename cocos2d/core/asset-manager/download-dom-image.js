@@ -1,6 +1,6 @@
+
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -24,35 +24,39 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Pipeline = require('./pipeline');
+const { parseParameters, urlAppendTimestamp } = require('./utilities');
 
-const ID = 'MD5Pipe';
-const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
+function downloadDomImage (url, options, onComplete) {
+    var { options, onComplete } = parseParameters(options, null, onComplete);
+    
+    var isCrossOrigin = options.isCrossOrigin;
 
-var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
-    this.id = ID;
-    this.async = false;
-    this.pipeline = null;
-    this.md5AssetsMap = md5AssetsMap;
-    this.md5NativeAssetsMap = md5NativeAssetsMap;
-    this.libraryBase = libraryBase;
-};
-MD5Pipe.ID = ID;
+    url = urlAppendTimestamp(url);
+    var img = new Image();
 
-MD5Pipe.prototype.handle = function(item) {
-    item.url = this.transformURL(item.url);
-    return null;
-};
+    if (isCrossOrigin && window.location.protocol !== 'file:') {
+        img.crossOrigin = 'anonymous';
+    }
+    else {
+        img.crossOrigin = null;
+    }
 
-MD5Pipe.prototype.transformURL = function (url) {
-    let isNativeAsset = !url.startsWith(this.libraryBase);
-    let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
-    url = url.replace(UuidRegex, function (match, uuid) {
-        let hashValue = map[uuid];
-        return hashValue ? match + '.' + hashValue : match;
-    });
-    return url;
-};
+    function loadCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        onComplete && onComplete(null, img);
+    }
+    
+    function errorCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        onComplete && onComplete(new Error(cc.debug.getError(4930, url)));
+    }
 
+    img.addEventListener('load', loadCallback);
+    img.addEventListener('error', errorCallback);
+    img.src = url;
+    return img;
+}
 
-Pipeline.MD5Pipe = module.exports = MD5Pipe;
+module.exports = downloadDomImage;

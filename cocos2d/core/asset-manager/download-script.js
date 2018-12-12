@@ -1,6 +1,6 @@
+
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,30 +23,36 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const { urlAppendTimestamp, parseParameters } = require('./utilities');
 
-function downloadBinary (item, callback) {
-    var url = item.url;
-    var xhr = cc.loader.getXMLHttpRequest(),
-        errInfo = 'Load binary data failed: ' + url + '';
-    xhr.open('GET', url, true);
-    xhr.responseType = "arraybuffer";
-    xhr.onload = function () {
-        var arrayBuffer = xhr.response;
-        if (arrayBuffer) {
-            var result = new Uint8Array(arrayBuffer);
-            callback(null, result);
-        }
-        else {
-            callback({status:xhr.status, errorMessage:errInfo + '(no response)'});
-        }
-    };
-    xhr.onerror = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
-    };
-    xhr.ontimeout = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
-    };
-    xhr.send(null);
+function downloadScript (url, options, onComplete) {
+    var { options, onComplete } = parseParameters(options, null, onComplete);
+
+    var d = document, s = document.createElement('script');
+
+    if (window.location.protocol !== 'file:') {
+        s.crossOrigin = 'anonymous';
+    }
+
+    s.async = options.isAsync === undefined ? true : options.isAsync;
+    s.src = urlAppendTimestamp(url);
+    function loadHandler () {
+        s.parentNode.removeChild(s);
+        s.removeEventListener('load', loadHandler, false);
+        s.removeEventListener('error', errorHandler, false);
+        onComplete && onComplete(null);
+    }
+
+    function errorHandler() {
+        s.parentNode.removeChild(s);
+        s.removeEventListener('load', loadHandler, false);
+        s.removeEventListener('error', errorHandler, false);
+        onComplete && onComplete(new Error(cc.debug.getError(4928, url)));
+    }
+    
+    s.addEventListener('load', loadHandler, false);
+    s.addEventListener('error', errorHandler, false);
+    d.body.appendChild(s);
 }
 
-module.exports = downloadBinary;
+module.exports = downloadScript;

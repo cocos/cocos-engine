@@ -665,7 +665,7 @@ let Label = cc.Class({
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._frame._texture.url = this.uuid + '_texture';
+            this._frame._texture._nativeUrl = this.uuid + '_texture';
         }
         // WebGL
         else {

@@ -155,21 +155,15 @@
 
     asyncTest('revert prefab', function () {
         // stub
-        cc.loader.insertPipe({
-            id : 'Prefab_Provider',
-            async : false,
-            handle : function (item) {
-                var url = item.uuid;
-                if (url === UUID) {
-                    item.states[cc.Pipeline.AssetLoader.ID] = cc.Pipeline.ItemState.COMPLETE;
-                    item.states[cc.Pipeline.Downloader.ID] = cc.Pipeline.ItemState.COMPLETE;
-                    return JSON.stringify(prefabJson);
+        cc.assetManager._pipeline.insert(function (task, done) {
+            var input = task.input;
+            input.forEach(function (item) {
+                if (item.uuid === UUID) {
+                    item.file = JSON.stringify(prefabJson);
                 }
-                else {
-                    return null;
-                }
-            }
-        }, 0);
+            });
+            done();
+        }, 1);
 
         var testNode = cc.instantiate(prefab);
         var testChild = testNode.children[0];

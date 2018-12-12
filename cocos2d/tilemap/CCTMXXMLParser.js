@@ -319,7 +319,7 @@ function getPropertyList (node, map) {
  * //create a TMXMapInfo with content string and resource path
  * let resources = "res/TileMaps";
  * let filePath = "res/TileMaps/orthogonal-test1.tmx";
- * let xmlStr = cc.loader.getRes(filePath);
+ * let xmlStr = cc.assetManager.getRes(filePath);
  * let tmxMapInfo = new cc.TMXMapInfo(xmlStr, resources);
  */
 

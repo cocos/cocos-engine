@@ -385,7 +385,7 @@ let RichText = cc.Class({
             }
             else {
                 let self = this;
-                cc.loader.load(this.font.nativeUrl, function (err, fontFamily) {
+                cc.assetManager.loadNativeFile(this.font, function (err, fontFamily) {
                     self._layoutDirty = true;
                     self._updateRichText();
                 });

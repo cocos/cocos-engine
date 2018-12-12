@@ -98,7 +98,7 @@ let Mesh = cc.Class({
 
     ctor () {
         this._subMeshes = [];
-
+        this.loaded = false;
         this._ibs = [];
         this._vbs = [];
     },
@@ -141,7 +141,8 @@ let Mesh = cc.Class({
             this._ibs.push({ buffer: ibBuffer, data: ibData });
             this._vbs.push({ buffer: vbBuffer, data: vbData, format: gfxVFmt, canBatch: canBatch});
         }
-        
+        this.loaded = true;
+        this.emit("load");
     },
 
     _canVertexFormatBatch (format) {

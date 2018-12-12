@@ -137,9 +137,6 @@ var game = {
     _lastTime: null,
     _frameTime: null,
 
-    // Scenes list
-    _sceneInfos: [],
-
     /**
      * !#en The outer frame of the game canvas, parent of game container.
      * !#zh 游戏画布的外框，container 的父容器。
@@ -195,8 +192,6 @@ var game = {
      *      0 - Automatically chosen by engine<br/>
      *      1 - Forced to use canvas renderer<br/>
      *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
-     * 7. scenes<br/>
-     *      "scenes" include available scenes in the current bundle.<br/>
      *<br/>
      * Please DO NOT modify this object directly, it won't have any effect.<br/>
      * !#zh
@@ -223,8 +218,6 @@ var game = {
      *          0 - 通过引擎自动选择。                                                     <br/>
      *          1 - 强制使用 canvas 渲染。
      *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。     <br/>
-     * 7. scenes                                                                         <br/>
-     *      “scenes” 当前包中可用场景。                                                   <br/>
      * <br/>
      * 注意：请不要直接修改这个对象，它不会有任何效果。
      * @property config
@@ -350,7 +343,7 @@ var game = {
             cc.director.reset();
 
             game.pause();
-            cc.AssetLibrary._loadBuiltins(() => {
+            cc.builtinResMgr.init(() => {
                 game.onStart();
                 game.emit(game.EVENT_RESTART);
             });
@@ -392,7 +385,7 @@ var game = {
 
         // Init engine
         this._initEngine();
-        cc.AssetLibrary._loadBuiltins(() => {
+        cc.builtinResMgr.init(() => {
             // Log engine version
             console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 
@@ -485,10 +478,14 @@ var game = {
         let jsList = this.config.jsList;
         if (jsList && jsList.length > 0) {
             var self = this;
-            cc.loader.load(jsList, function (err) {
-                if (err) throw new Error(JSON.stringify(err));
-                self._prepareFinished(cb);
-            });
+            var count = 0;
+            for (var i = 0, l = jsList.length; i < l; i++) {
+                cc.assetManager.loadScript(jsList[i], function (err) {
+                    if (err) throw new Error(JSON.stringify(err));
+                    count++;
+                    if (count === l) self._prepareFinished(cb);
+                });
+            }
         }
         else {
             this._prepareFinished(cb);
@@ -542,6 +539,7 @@ var game = {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
+            cc.assetManager.finalizer._addPersistNodeRef(node);
         }
     },
 
@@ -556,6 +554,7 @@ var game = {
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
+            cc.assetManager.finalizer._removePersistNodeRef(node);
         }
     },
 
@@ -665,9 +664,6 @@ var game = {
             config.registerSystemEvent = true;
         }
         config.showFPS = !!config.showFPS;
-
-        // Scene parser
-        this._sceneInfos = config.scenes || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];

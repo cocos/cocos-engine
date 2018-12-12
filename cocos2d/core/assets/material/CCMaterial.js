@@ -44,6 +44,7 @@ let Material = cc.Class({
     extends: Asset,
 
     ctor () {
+        this.loaded = false;
         this._dirty = true;
         this._effect = null;
         this._owner = null;
@@ -68,7 +69,7 @@ let Material = cc.Class({
                 return this._effectAsset.name;
             },
             set (val) {
-                let effectAsset = cc.AssetLibrary.getBuiltin('effect', val);
+                let effectAsset = cc.builtinResMgr.getBuiltin('effect', val);
                 if (!effectAsset) {
                     Editor.warn(`no effect named '${val}' found`);
                     return;
@@ -110,7 +111,7 @@ let Material = cc.Class({
 
     statics: {
         getBuiltinMaterial (name) {
-            return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
+            return cc.builtinResMgr.getBuiltin('material', 'builtin-' + name);
         },
         getInstantiatedBuiltinMaterial (name, renderComponent) {
             let builtinMaterial = this.getBuiltinMaterial(name);
@@ -230,6 +231,8 @@ let Material = cc.Class({
         for (let prop in this._props) {
             this.setProperty(prop, this._props[prop], true);
         }
+        this.loaded = true;
+        this.emit("load");
     },
 });
 

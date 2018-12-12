@@ -18,8 +18,6 @@ var Ticker = cc._Ticker;
 var Time = cc.Time;
 //var Camera = cc.Camera;
 //var Component = cc.Component;
-var LoadManager = cc._LoadManager;
-var AssetLibrary = cc.AssetLibrary;
 //var SpriteRenderer = cc.SpriteRenderer;
 //var Screen = cc.Screen;
 
@@ -211,7 +209,7 @@ function _resetGame (w, h) {
     }
     // Forbid render in test
     cc.renderer.render = function () {};
-    cc.loader.releaseAll();
+    cc.assetManager.releaseAll(true);
     cc.director.reset();
     cc.director.runSceneImmediate(new cc.Scene());
     //cc.director.pause();
