@@ -25,6 +25,7 @@
 
 import ValueType from './value-type';
 import CCClass from '../data/class';
+import quat from '../vmath/quat';
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -109,32 +110,9 @@ export default class Quat extends ValueType {
         return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
-    getRoll () {
-        var sinr = 2.0 * (this.w * this.x + this.y * this.z);
-        var cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
-        return 180 * Math.atan2(sinr, cosr) / Math.PI;
-    }
-
-    getPitch () {
-        var sinp = 2.0 * (this.w * this.y - this.z * this.x);
-        var pitch = sinp > 1 ? 1 : sinp;
-        pitch = sinp < -1 ? -1 : sinp;
-        pitch = 180 * Math.asin(pitch) / Math.PI;
-        return pitch;
-    }
-
-    getYaw () {
-        var siny = 2.0 * (this.w * this.z + this.x * this.y);
-        var cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);  
-        return 180 * Math.atan2(siny, cosy) / Math.PI;
-    }
-    
     getEulerAngles (out) {
         out = out || cc.v3();
-        out.x = this.getRoll();
-        out.y = this.getPitch();
-        out.z = this.getYaw();
-        return out;
+        return quat.toEuler(out, this);
     }
 
     lerp (to, ratio, out) {
@@ -160,7 +138,7 @@ CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
  * @param {Number} [w=1]
  * @return {Quat}
  */
-cc.quat = function quat (x, y, z, w) {
+cc.quat = function(x, y, z, w) {
     return new Quat(x, y, z, w);
 };
 
