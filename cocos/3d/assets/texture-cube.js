@@ -40,14 +40,14 @@ import ImageAsset from '../../assets/image-asset';
 /**
  * @enum {number}
  */
-const FaceIndex = {
+const FaceIndex = cc.Enum({
     right: 0,
     left: 1,
     top: 2,
     bottom: 3,
     back: 4,
     front: 5
-};
+});
 
 @ccclass('cc.TextureCube')
 export default class TextureCube extends TextureBase {
@@ -56,8 +56,6 @@ export default class TextureCube extends TextureBase {
      */
     @property
     _mipmaps = [];
-
-    static FaceIndex = FaceIndex;
 
     constructor() {
         super();
@@ -223,9 +221,12 @@ export default class TextureCube extends TextureBase {
      */
     static fromTexture2DArray(textures) {
         let res = [], mips = textures.length / 6;
-        let keys = Object.keys(FaceIndex);
-        for (let i = 0; i < mips; i++) res.push(textures.splice(0, 6).reduce(
-            (acc, img, i) => { acc[keys[i]] = img.image; return acc; }, {}));
+        for (let i = 0; i < mips; i++) {
+            res.push(textures.splice(0, 6).reduce((acc, img, i) => {
+                acc[FaceIndex[i]] = img.image;
+                return acc;
+            }, {}));
+        }
         let cube = new TextureCube();
         cube.mipmaps = res;
         return cube;
