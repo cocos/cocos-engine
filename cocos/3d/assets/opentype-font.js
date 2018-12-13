@@ -108,7 +108,6 @@ export default class OpentypeFont extends Font {
             height,
             _compressed: false
         });
-        this._fontAtlas.setMipmap(false);
         this._fontAtlas.setPremultiplyAlpha(true);
     }
 

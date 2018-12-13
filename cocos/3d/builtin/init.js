@@ -54,7 +54,6 @@ let builtinResMgr = {
 
         // black-texture
         let blackTexture = new Texture2D(device);
-        blackTexture.setMipmap(false);
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         blackTexture._uuid = 'black-texture';
@@ -67,7 +66,6 @@ let builtinResMgr = {
 
         // white-texture
         let whiteTexture = new Texture2D(device);
-        blackTexture.setMipmap(false);
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         whiteTexture._uuid = 'white-texture';

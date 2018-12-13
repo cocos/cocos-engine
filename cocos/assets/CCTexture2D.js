@@ -125,7 +125,7 @@ export default class Texture2D extends TextureBase {
         if (options.image) {
             options.images = [options.image];
         }
-        
+
         if (options.images !== undefined && options.images.length !== 0) {
             this._setMipmaps(options.images.map(image => {
                 const mipmap = new ImageAsset();
@@ -140,14 +140,14 @@ export default class Texture2D extends TextureBase {
             }));
         }
 
-        if (options.images && options.images.length > 0) {
+        if (this._texture) {
             this._texture.update(options);
         }
     }
 
     /**
-     * 
-     * @param {ImageSource} source 
+     *
+     * @param {ImageSource} source
      */
     updateImage(source) {
         this.updateMipmaps([source]);
@@ -245,7 +245,7 @@ export default class Texture2D extends TextureBase {
     /**
      * Sets the _mipmaps to specified value, and updates the width and height accordingly.
      * If available, synchronize the mipmap data to underlying texture.
-     * @param {ImageAsset[]} mipmaps 
+     * @param {ImageAsset[]} mipmaps
      */
     _setMipmaps(mipmaps) {
         this._mipmaps = mipmaps;
@@ -261,7 +261,7 @@ export default class Texture2D extends TextureBase {
                 format: this._mipmaps[0]._format
             });
         }
-        
+
         let counter = 0;
         const inc = () => {
             ++counter;
@@ -282,7 +282,7 @@ export default class Texture2D extends TextureBase {
 
     /**
      * Resets sources and amount of the underlying texture's the mipmaps.
-     * @param {ImageSource[]} mipmapSources 
+     * @param {ImageSource[]} mipmapSources
      */
     _resetUnderlyingMipmaps(mipmapSources) {
         const opts = this._getOpts();
