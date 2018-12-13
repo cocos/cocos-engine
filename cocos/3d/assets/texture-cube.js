@@ -191,8 +191,7 @@ export default class TextureCube extends TextureBase {
     }
 
     /**
-     * 
-     * @param {Mipmap} mipmap 
+     * @param {Mipmap} mipmap
      * @return {ImageSource[]}
      */
     static _toMipmapArray(mipmap) {
