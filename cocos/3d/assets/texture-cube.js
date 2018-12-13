@@ -45,8 +45,8 @@ const FaceIndex = cc.Enum({
     left: 1,
     top: 2,
     bottom: 3,
-    back: 4,
-    front: 5
+    front: 4,
+    back: 5
 });
 
 @ccclass('cc.TextureCube')
@@ -214,6 +214,40 @@ export default class TextureCube extends TextureBase {
         for (let face in mipmap) {
             callback(mipmap[face]);
         }
+    }
+
+    _serialize() {
+        return {
+            base: super._serialize(),
+            mipmaps: this._mipmaps.map(mipmap => {return {
+                front: mipmap.front._uuid,
+                back: mipmap.back._uuid,
+                left: mipmap.left._uuid,
+                right: mipmap.right._uuid,
+                top: mipmap.top._uuid,
+                bottom: mipmap.bottom._uuid,
+            };})
+        };
+    }
+
+    _deserialize (data, handle) {
+        super._deserialize(data.base);
+
+        this._mipmaps = new Array(data.mipmaps.length);
+        this._mipmaps.fill({});
+        for (let i = 0; i < data.mipmaps.length; ++i) {
+            const mipmap = data.mipmaps[i];
+            handle.result.push(this._mipmaps[i], `front`, mipmap.front);
+            handle.result.push(this._mipmaps[i], `back`, mipmap.back);
+            handle.result.push(this._mipmaps[i], `left`, mipmap.left);
+            handle.result.push(this._mipmaps[i], `right`, mipmap.right);
+            handle.result.push(this._mipmaps[i], `top`, mipmap.top);
+            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom);
+        }
+    }
+
+    onLoaded() {
+        this.mipmaps = this._mipmaps;
     }
 
     _serialize() {
