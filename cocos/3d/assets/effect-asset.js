@@ -16,6 +16,7 @@ class EffectAsset extends Asset {
         let lib = cc.game._renderer._programLib;
         this.shaders.forEach(s => lib.define(s));
         EffectAsset.register(this);
+        return this;
     }
 }
 

@@ -90,7 +90,8 @@ export default class SkyboxComponent extends Component {
 
     if (!this._material) {
       this._material = new Material();
-      this._material.effectName = 'builtin-effect-skybox';
+      let skyboxEffect = cc.EffectAsset.get('builtin-effect-skybox');
+      if (skyboxEffect) this._material.effectAsset = skyboxEffect;
     }
 
     this._updateMaterialParams();

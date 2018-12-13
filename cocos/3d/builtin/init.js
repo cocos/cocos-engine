@@ -3,6 +3,7 @@ import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
 import Material from '../assets/material';
 import EffectAsset from '../assets/effect-asset';
+import effects from './effects';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
@@ -72,20 +73,15 @@ let builtinResMgr = {
         whiteTexture._uuid = 'white-texture';
         defaultTexture.image = canvasImage;
 
-        // classic ugly pink indicating missing material
-        let pinkEffect = new EffectAsset();
-        pinkEffect.name = 'default';
-        pinkEffect.techniques.push({ passes: [{ program: 'default', depthTest: true, depthWrite: true }] });
-        pinkEffect.shaders.push({
-            name: 'default',
-            vert: `attribute vec3 a_position; \n uniform mat4 _model; \n uniform mat4 _viewProj; \n void main() { gl_Position = _viewProj * _model * vec4(a_position, 1); }`,
-            frag: `void main() { gl_FragColor = vec4(1, 0, 1, 1); }`,
-            uniforms: [], defines: [], attributes: [], extensions: []
-        });
-        pinkEffect.onLoaded();
+        // essential builtin effects
+        let efxs = effects.map(e => Object.assign(new EffectAsset(), e).onLoaded());
+
+        // default material
         let defaultMtl = new Material();
         defaultMtl._uuid = 'default-material';
-        defaultMtl.effectAsset = pinkEffect;
+        defaultMtl.effectAsset = efxs[0];
+        defaultMtl.define('USE_COLOR', true);
+        defaultMtl.setProperty('color', cc.color('#FF00FF'));
 
         let builtins = {
             [defaultTexture._uuid]: defaultTexture,
