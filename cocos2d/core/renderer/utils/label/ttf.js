@@ -118,7 +118,7 @@ module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
@@ -141,18 +141,21 @@ module.exports = {
     _updateVerts () {
     },
 
-    _updateFontFamly (comp) {
+    _updateFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp.font._nativeAsset = fontFamily;
-                        comp._updateRenderData(true);
-                    });
+                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
+                    if (!_fontFamily) {
+                        cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                            _fontFamily = fontFamily || 'Arial';
+                            comp.font._nativeAsset = fontFamily;
+                            comp._updateRenderData(true);
+                        });
+                    }
                 }
             }
             else {
