@@ -201,11 +201,11 @@ export default class ForwardRenderer extends BaseRenderer {
     //   let item = items.data[i];
       let defines = item.defines;
 
-      defines.NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
-      defines.NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
-      defines.NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
+      defines['_NUM_DIR_LIGHTS'] = Math.min(4, this._directionalLights.length);
+      defines['_NUM_POINT_LIGHTS'] = Math.min(4, this._pointLights.length);
+      defines['_NUM_SPOT_LIGHTS'] = Math.min(4, this._spotLights.length);
 
-      defines.NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
+      defines['_NUM_SHADOW_LIGHTS'] = Math.min(4, this._shadowLights.length);
     // }
   }
 
@@ -251,13 +251,13 @@ export default class ForwardRenderer extends BaseRenderer {
   _drawSkinning(item) {
     let { model, defines } = item;
 
-    defines['USE_SKINNING'] = true;
+    defines['_USE_SKINNING'] = true;
     if (model._jointsTexture != null) {
-      defines['USE_JOINTS_TEXTURE'] = true;
+      defines['_USE_JOINTS_TEXTURE'] = true;
       this._device.setTexture('_u_jointsTexture', model._jointsTexture, this._allocTextureUnit());
       this._device.setUniform('_u_jointsTextureSize', model._jointsTexture._width);
     } else if (model._jointsMatrixArray != null) {
-      defines['USE_JOINTS_TEXTURE'] = false;
+      defines['_USE_JOINTS_TEXTURE'] = false;
       this._device.setUniform("_u_jointMatrices", model._jointsMatrixArray);
     }
 
