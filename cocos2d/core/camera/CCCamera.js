@@ -115,7 +115,7 @@ let Camera = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
         inspector: 'packages://inspector/inspectors/comps/camera.js',
-        executeInEditMode: false
+        executeInEditMode: true
     },
 
     properties: {
@@ -493,7 +493,7 @@ let Camera = cc.Class({
     },
 
     onEnable () {
-        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+        if (!CC_EDITOR && game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.addCamera(this._camera);
         }
@@ -501,7 +501,7 @@ let Camera = cc.Class({
     },
 
     onDisable () {
-        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+        if (!CC_EDITOR && game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.removeCamera(this._camera);
         }
