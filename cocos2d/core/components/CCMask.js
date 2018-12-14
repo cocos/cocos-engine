@@ -450,7 +450,7 @@ let Mask = cc.Class({
             w = size.width,
             h = size.height,
             testPt = _vec2_temp;
-        
+
         node._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, node._worldMatrix);
         math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);

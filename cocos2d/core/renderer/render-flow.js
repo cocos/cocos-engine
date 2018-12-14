@@ -15,7 +15,7 @@ const FINAL = 1 << 10;
 let _walker = null;
 let _cullingMask = 0;
 
-// 
+//
 function RenderFlow () {
     this._func = init;
     this._next = null;
@@ -141,13 +141,13 @@ function createFlow (flag, next) {
     flow._next = next || EMPTY_FLOW;
 
     switch (flag) {
-        case DONOTHING: 
+        case DONOTHING:
             flow._func = flow._doNothing;
             break;
-        case LOCAL_TRANSFORM: 
+        case LOCAL_TRANSFORM:
             flow._func = flow._localTransform;
             break;
-        case WORLD_TRANSFORM: 
+        case WORLD_TRANSFORM:
             flow._func = flow._worldTransform;
             break;
         case COLOR:
@@ -159,19 +159,19 @@ function createFlow (flag, next) {
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
             break;
-        case RENDER: 
+        case RENDER:
             flow._func = flow._render;
             break;
         case CUSTOM_IA_RENDER:
             flow._func = flow._customIARender;
             break;
-        case CHILDREN: 
+        case CHILDREN:
             flow._func = flow._children;
             break;
-        case POST_UPDATE_RENDER_DATA: 
+        case POST_UPDATE_RENDER_DATA:
             flow._func = flow._postUpdateRenderData;
             break;
-        case POST_RENDER: 
+        case POST_RENDER:
             flow._func = flow._postRender;
             break;
     }
@@ -208,7 +208,7 @@ function render (scene) {
     }
 }
 
-// 
+//
 function init (node) {
     let flag = node._renderFlag;
     let r = flows[flag] = getFlow(flag);

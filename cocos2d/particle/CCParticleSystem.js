@@ -792,10 +792,10 @@ var ParticleSystem = cc.Class({
     // LIFE-CYCLE METHODS
 
     __preload: function () {
-        if (this._file) { 
-            if (this._custom) { 
-                var missCustomTexture = !this._texture; 
-                if (missCustomTexture) { 
+        if (this._file) {
+            if (this._custom) {
+                var missCustomTexture = !this._texture;
+                if (missCustomTexture) {
                     this._applyFile();
                 }
             }
@@ -839,7 +839,7 @@ var ParticleSystem = cc.Class({
         }
         this._super();
     },
-    
+
     update (dt) {
         if (!this._simulator.finished && this._material) {
             this._simulator.step(dt);
@@ -1047,12 +1047,12 @@ var ParticleSystem = cc.Class({
         this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
 
         // position
-        // for 
+        // for
         this.sourcePos.x = 0;
         this.sourcePos.y = 0;
         this.posVar.x = parseFloat(dict["sourcePositionVariancex"] || 0);
         this.posVar.y = parseFloat(dict["sourcePositionVariancey"] || 0);
-        
+
         // angle
         this.angle = parseFloat(dict["angle"] || 0);
         this.angleVar = parseFloat(dict["angleVariance"] || 0);
@@ -1154,7 +1154,7 @@ var ParticleSystem = cc.Class({
             this._updateMaterial(this._material);
         }
     },
-    
+
     _finishedSimulation: function () {
         if (CC_EDITOR) {
             if (this.preview && this._focused && !this.active && !cc.engine.isPlaying) {

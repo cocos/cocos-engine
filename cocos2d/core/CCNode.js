@@ -1129,7 +1129,7 @@ let NodeDefines = {
      */
     ctor () {
         this._reorderChildDirty = false;
-        
+
         // cache component
         this._widget = null;
         // fast render component access
@@ -2609,7 +2609,7 @@ let NodeDefines = {
         // position
         t.m12 = this._position.x;
         t.m13 = this._position.y;
-        
+
         this._localMatDirty = 0;
         // Register dirty status of world matrix so that it can be recalculated
         this._worldMatDirty = true;
@@ -2620,7 +2620,7 @@ let NodeDefines = {
         if (this._localMatDirty) {
             this._updateLocalMatrix();
         }
-        
+
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
@@ -2856,7 +2856,7 @@ let NodeDefines = {
             out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        
+
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;

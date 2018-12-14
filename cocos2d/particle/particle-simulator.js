@@ -37,7 +37,7 @@ let _tpc = cc.v2();
 
 let Particle = function () {
     this.pos = cc.v2(0, 0);
-    this.startPos = cc.v2(0, 0);
+    this.startEmitTrans = {tx: 0, ty: 0, cos: 0, sin: 0};
     this.color = cc.color(0, 0, 0, 255);
     this.deltaColor = {r: 0, g: 0, b: 0, a: 255};
     this.size = 0;
@@ -59,7 +59,7 @@ let Particle = function () {
 
 let pool = new js.Pool(function (par) {
     par.pos.set(ZERO_VEC2);
-    par.startPos.set(ZERO_VEC2);
+    par.startEmitTrans = {tx: 0, ty: 0, cos: 0, sin: 0};
     par.color._val = ((255<<24) >>> 0);
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
@@ -109,8 +109,8 @@ Simulator.prototype.reset = function () {
         pool.put(particles[id]);
     particles.length = 0;
 }
-
-Simulator.prototype.emitParticle = function (pos) {
+// 粒子发射函数，设置粒子拥有的所有参数
+Simulator.prototype.emitParticle = function (emitTrans) {
     let psys = this.sys;
     let clampf = misc.clampf;
     let particle = pool.get();
@@ -122,7 +122,7 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.timeToLive = psys.life + psys.lifeVar * (Math.random() - 0.5) * 2;
     let timeToLive = particle.timeToLive = Math.max(0, particle.timeToLive);
 
-    // position
+    // position 实际生成位置， sourcePos 发射器位置， posVar 发射器位置变化范围
     particle.pos.x = psys.sourcePos.x + psys.posVar.x * (Math.random() - 0.5) * 2;
     particle.pos.y = psys.sourcePos.y + psys.posVar.y * (Math.random() - 0.5) * 2;
 
@@ -157,12 +157,11 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.rotation = startA;
     particle.deltaRotation = (endA - startA) / timeToLive;
 
-    // position
-    particle.startPos.x = pos.x;
-    particle.startPos.y = pos.y;
+    // startEmitTrans 记录发射器发射粒子时状态
+    particle.startEmitTrans = emitTrans;
 
     // direction
-    let a = misc.degreesToRadians(psys.angle + psys.angleVar * (Math.random() - 0.5) * 2); 
+    let a = misc.degreesToRadians(psys.angle + psys.angleVar * (Math.random() - 0.5) * 2);
     // Mode Gravity: A
     if (psys.emitterMode === cc.ParticleSystem.EmitterMode.GRAVITY) {
         let s = psys.speed + psys.speedVar * (Math.random() - 0.5) * 2;
@@ -217,7 +216,7 @@ Simulator.prototype.updateUVs = function (force) {
 Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offset) {
     let vbuf = buffer._vData;
     let uintbuf = buffer._uintVData;
-    
+
     let x = pos.x, y = pos.y;
     let size_2 = particle.size / 2;
     // pos
@@ -264,6 +263,7 @@ Simulator.prototype.step = function (dt) {
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
+    let emitTrans = {};
     const FLOAT_PER_PARTICLE = 4 * psys._vertexFormat._bytes / 4;
 
     // Calculate pos
@@ -271,14 +271,19 @@ Simulator.prototype.step = function (dt) {
     AffineTrans.fromMat4(_trans, node._worldMatrix);
     if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
         AffineTrans.transformVec2(_pos, ZERO_VEC2, _trans);
+        // record emit current state
+        emitTrans.tx = _trans.tx;
+        emitTrans.ty = _trans.ty;
+        emitTrans.cos = _trans.a;
+        emitTrans.sin = _trans.c;
     } else if (psys.positionType === cc.ParticleSystem.PositionType.RELATIVE) {
         _pos.x = node._position.x;
         _pos.y = node._position.y;
     }
 
     // Get world to node trans only once
-    AffineTrans.invert(_trans, _trans);
-    let worldToNodeTrans = _trans;
+    let worldToNodeTrans = AffineTrans.create();
+    AffineTrans.invert(worldToNodeTrans, _trans);
 
     // Emission
     if (this.active && psys.emissionRate) {
@@ -288,7 +293,7 @@ Simulator.prototype.step = function (dt) {
             this.emitCounter += dt;
 
         while ((particles.length < psys.totalParticles) && (this.emitCounter > rate)) {
-            this.emitParticle(_pos);
+            this.emitParticle(emitTrans);
             this.emitCounter -= rate;
         }
 
@@ -376,16 +381,20 @@ Simulator.prototype.step = function (dt) {
 
             // update values in quad buffer
             let newPos = _tpa;
-            if (psys.positionType === cc.ParticleSystem.PositionType.FREE || psys.positionType === cc.ParticleSystem.PositionType.RELATIVE) {
-                let diff = _tpb, startPos = _tpc;
-                // current Position convert To Node Space
+            if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
+                let  diff = _tpb, startPos = _tpc;
                 AffineTrans.transformVec2(diff, _pos, worldToNodeTrans);
-                // start Position convert To Node Space
-                AffineTrans.transformVec2(startPos, particle.startPos, worldToNodeTrans);
+                startPos = cc.v2(particle.startEmitTrans.tx, particle.startEmitTrans.ty);
+                AffineTrans.transformVec2(startPos, startPos, worldToNodeTrans);
                 diff.subSelf(startPos);
                 newPos.set(particle.pos);
                 newPos.subSelf(diff);
-            } else {
+                // _trans.a = cos | _trans.c = sin
+                let cos = _trans.a * particle.startEmitTrans.cos + _trans.c * particle.startEmitTrans.sin;
+                let sin = _trans.a * particle.startEmitTrans.sin - _trans.c * particle.startEmitTrans.cos;
+                AffineTrans.transformVec2(newPos, newPos, AffineTrans.create(cos, -sin, sin, cos, 0, 0));
+            }
+            else if (psys.positionType === cc.ParticleSystem.PositionType.RELATIVE || psys.positionType === cc.ParticleSystem.PositionType.GROUPED){
                 newPos.set(particle.pos);
             }
 
