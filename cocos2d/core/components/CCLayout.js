@@ -805,11 +805,11 @@ var Layout = cc.Class({
             var layoutPosition = this.node.getPosition();
             if (newSize.width !== 0) {
                 var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
-                this.node.anchorX = parseFloat(newAnchorX.toFixed(2);
+                this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
             }
             if (newSize.height !== 0) {
                 var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
-                this.node.anchorY = parseFloat(newAnchorY.toFixed(2)
+                this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
             }
             this.node.setContentSize(newSize);
         }
