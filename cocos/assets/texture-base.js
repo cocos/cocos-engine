@@ -584,7 +584,7 @@ export default class TextureBase extends Asset {
         }
         if (fields.length >= 10) {
             this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
-            this._genMipmap = parseInt(fields[9]);
+            this._genMipmap = fields[9].charCodeAt(0) === CHAR_CODE_1;
         }
     }
 }

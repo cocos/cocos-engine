@@ -72,7 +72,10 @@ let builtinResMgr = {
         defaultTexture.image = canvasImage;
 
         // essential builtin effects
-        let efxs = effects.map(e => Object.assign(new EffectAsset(), e).onLoaded());
+        let efxs = effects.map(e => {
+            let effect = Object.assign(new EffectAsset(), e);
+            effect.onLoaded(); return effect;
+        });
 
         // default material
         let defaultMtl = new Material();
