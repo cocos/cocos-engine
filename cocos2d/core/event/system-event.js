@@ -176,8 +176,7 @@ var SystemEvent = cc.Class({
 });
 
 cc.SystemEvent = module.exports = SystemEvent;
-if (!CC_EDITOR) {
-/** 
+/**
  * @module cc
  */
 
@@ -186,6 +185,5 @@ if (!CC_EDITOR) {
  * !#zh 系统事件单例，方便全局使用
  * @property systemEvent
  * @type {SystemEvent}
- */    
-    cc.systemEvent = new cc.SystemEvent();
-}
+ */
+cc.systemEvent = new cc.SystemEvent();
