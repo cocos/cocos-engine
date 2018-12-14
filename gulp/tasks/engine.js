@@ -71,7 +71,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);
@@ -116,7 +116,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);
