@@ -28,6 +28,7 @@ import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
+import enums from '../../renderer/enums';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
@@ -49,7 +50,7 @@ let CameraProjection = Enum({
      * @readonly
      * @type {Number}
      */
-    Ortho: 0,
+    ORTHO: 0,
     /**
      * !#en The perspective camera
      *
@@ -58,7 +59,14 @@ let CameraProjection = Enum({
      * @readonly
      * @type {Number}
      */
-    Perspective: 1,
+    PERSPECTIVE: 1
+});
+
+let CameraClearFlag = Enum({
+    SKYBOX: enums.CLEAR_SKYBOX,
+    SOLID_COLOR: enums.CLEAR_COLOR | enums.CLEAR_DEPTH,
+    DEPTH_ONLY: enums.CLEAR_DEPTH,
+    DONT_CLEAR: 0
 });
 
 /**
@@ -72,7 +80,7 @@ let CameraProjection = Enum({
 @menu('Components/CameraComponent')
 export default class CameraComponent extends RenderSystemActor{
     @property(CameraProjection)
-    _projection = CameraProjection.Perspective;
+    _projection = CameraProjection.PERSPECTIVE;
 
     @property
     _priority = 0;
@@ -98,8 +106,8 @@ export default class CameraComponent extends RenderSystemActor{
     @property
     _stencil = 0;
 
-    @property
-    _clearFlags = 3;
+    @property(CameraClearFlag)
+    _clearFlags = CameraClearFlag.SOLID_COLOR;
 
     @property
     _rect = new Rect(0, 0, 1, 1);
@@ -261,7 +269,9 @@ export default class CameraComponent extends RenderSystemActor{
      * !#ch 清除相机标志位
      * @type {Number}
      */
-    @property
+    @property({
+        type: CameraClearFlag
+    })
     get clearFlags() {
         return this._clearFlags;
     }

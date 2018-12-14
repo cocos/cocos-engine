@@ -81,16 +81,13 @@ export default class SkyboxComponent extends Component {
   onLoad() {
     this._model.setNode(this.node);
 
-    let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2, {
-      widthSegments: 1,
-      heightSegments: 1,
-      lengthSegments: 1,
-    }));
+    let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2));
     this._model.setInputAssembler(ia);
 
     if (!this._material) {
       this._material = new Material();
-      this._material.effectName = 'builtin-effect-skybox';
+      let skyboxEffect = cc.EffectAsset.get('builtin-effect-skybox');
+      if (skyboxEffect) this._material.effectAsset = skyboxEffect;
     }
 
     this._updateMaterialParams();
@@ -98,9 +95,9 @@ export default class SkyboxComponent extends Component {
   }
 
   onEnable() {
-    if (this.node != null) {
+    if (this.node) {
       let cameraComponent = this.getComponent(cc.CameraComponent);
-      if (cameraComponent != null && (cameraComponent._clearFlags & renderer.CLEAR_SKYBOX)) {
+      if (cameraComponent && (cameraComponent._clearFlags & renderer.CLEAR_SKYBOX)) {
         this._attachedCamera = cameraComponent._camera;
         this._attachedCamera._clearModel = this._model;
       }
@@ -108,19 +105,15 @@ export default class SkyboxComponent extends Component {
   }
 
   onDisable() {
-    if (this._attachedCamera != null) {
+    if (this._attachedCamera) {
       this._attachedCamera._clearModel = null;
       this._attachedCamera = null;
     }
   }
 
   _updateMaterialParams() {
-    if (this._material === null || this._material === undefined) {
-      return;
-    }
-    if (this._cubemap !== null && this._cubemap !== undefined) {
-      this._material.setProperty('cubeMap', this._cubemap);
-    }
+    if (!this._material) return;
+    if (this._cubemap) this._material.setProperty('cubeMap', this._cubemap);
     this._material.define('USE_RGBE_CUBEMAP', this._rgbeTexture);
   }
 }
