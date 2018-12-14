@@ -337,7 +337,7 @@ export default class Camera {
     out._rect.h = this._rect.h * height;
 
     // clear opts
-    out._color = this._color;
+    this.getColor(out._color);
     out._depth = this._depth;
     out._stencil = this._stencil;
     out._clearFlags = this._clearFlags;
