@@ -142,6 +142,7 @@ var Canvas = cc.Class({
         Canvas.instance = this;
 
         if (CC_EDITOR) {
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
             cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
         else {
@@ -176,6 +177,7 @@ var Canvas = cc.Class({
 
     onDestroy: function () {
         if (CC_EDITOR) {
+            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
             cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
         else {

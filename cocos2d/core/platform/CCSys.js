@@ -28,7 +28,7 @@ let settingPlatform;
  if (!CC_EDITOR) {
     settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
  }
-const isBaiduGame = (settingPlatform === 'baidugame');
+const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
 const isVivoGame = (settingPlatform === 'vivogame');
 const isOppoGame = (settingPlatform === 'oppogame');
  
@@ -684,7 +684,7 @@ function initSys () {
         sys.osVersion = version ? version[0] : system;
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
-        if (!wx.getFileSystemManager) {
+        if (CC_WECHATGAME_SUB) {
             sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
         }
         else {
@@ -757,7 +757,7 @@ function initSys () {
         };
     }
     else if (isBaiduGame) {
-        let env = device.getSystemInfo();
+        let env = __device.getSystemInfo();
         sys.platform = env.platform;
         sys.browserType = env.browserType;
         sys.isMobile = env.isMobile;

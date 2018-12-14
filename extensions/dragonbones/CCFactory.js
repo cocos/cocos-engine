@@ -99,8 +99,8 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     },
 
     // Build new aramture with a new display.
-    buildArmatureDisplay (armatureName, dragonBonesName) {
-        let armature = this.buildArmature(armatureName, dragonBonesName);
+    buildArmatureDisplay (armatureName, dragonBonesName, skinName, textureAtlasName) {
+        let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
         return armature && armature._display;
     },
 

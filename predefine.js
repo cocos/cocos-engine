@@ -117,6 +117,10 @@
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
+
+/*
+ * @param defaultValue - The default value is only used in the editor or preview.
+ */
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
@@ -149,6 +153,8 @@ if (CC_BUILD) {
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
 }
 else {
+    // These default values only used in the editor or preview.
+    // If you need to modify in the runtime, please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);

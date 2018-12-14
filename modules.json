@@ -28,8 +28,7 @@
   {
     "name": "Canvas Renderer",
     "entries": [
-      "./cocos2d/core/renderer/canvas/index.js",
-      "./extensions/dragonbones/canvas-assembler.js"
+      "./cocos2d/core/renderer/canvas/index.js"
     ]
   },
   {
