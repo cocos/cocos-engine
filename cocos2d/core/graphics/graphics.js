@@ -186,6 +186,11 @@ let Graphics = cc.Class({
         this._impl = null;
     },
 
+    initNativeHandle () {
+        this._renderHandle = new renderer.GraphicsRenderHandle();
+        this._renderHandle.bind(this);
+    },
+
     _activateMaterial () {
         // Ignore material in canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -384,3 +389,5 @@ let Graphics = cc.Class({
 });
 
 cc.Graphics = module.exports = Graphics;
+cc.Graphics.types = Types;
+cc.Graphics.helper = require('./helper');

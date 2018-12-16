@@ -8,7 +8,7 @@ const renderEngine = renderer.renderEngine;
 const IARenderData = renderEngine.IARenderData;
 const InputAssembler = renderEngine.InputAssembler;
 
-let Point = cc.Class({
+let Point = cc.GraphicsPoint = cc.Class({
     name: 'cc.GraphicsPoint',
     extends: cc.Vec2,
 
