@@ -523,7 +523,8 @@ proto._childOnProgress = function (item) {
  * @method allComplete
  */
 proto.allComplete = function () {
-    var errors = js.isEmptyObject(this._errorUrls) === true ? null : this._errorUrls;
+    var errors = js.isEmptyObject(this._errorUrls) ? null : this._errorUrls;
+
     if (this.onComplete) {
         this.onComplete(errors, this);
     }
