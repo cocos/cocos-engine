@@ -27,18 +27,11 @@ import ForwardRenderer from '../../renderer/renderers/forward-renderer';
 import config from '../../renderer/config';
 import gfx from '../../renderer/gfx';
 import Scene from '../../renderer/scene/scene';
-import Pass from '../../renderer/core/pass';
-import vmath from '../vmath';
+
+import InputAssembler from '../../renderer/core/input-assembler';
+import IARenderData from '../../renderer/render-data/ia-render-data';
 
 const RenderFlow = require('./render-flow');
-
-const renderEngine = {
-    gfx: gfx,
-    math: vmath,
-    renderer: {
-        Pass
-    }
-};
 
 function _initBuiltins(device) {
     let defaultTexture = new gfx.Texture2D(device, {
@@ -72,6 +65,9 @@ function _initBuiltins(device) {
 cc.renderer = module.exports = {
     Texture2D: null,
 
+    InputAssembler: InputAssembler,
+    IARenderData: IARenderData,
+
     /**
      * !#en The render engine is available only after cc.game.EVENT_ENGINE_INITED event.<br/>
      * Normally it will be inited as the webgl render engine, but in wechat open context domain,
@@ -79,9 +75,10 @@ cc.renderer = module.exports = {
      * !#zh 基础渲染引擎对象只在 cc.game.EVENT_ENGINE_INITED 事件触发后才可获取。<br/>
      * 大多数情况下，它都会是 WebGL 渲染引擎实例，但是在微信开放数据域当中，它会是 Canvas 渲染引擎实例。请注意，从 2.0 开始，我们在其他平台和环境下都废弃了 Canvas 渲染器。
      * @property renderEngine
+     * @deprecated
      * @type {Object}
      */
-    renderEngine: renderEngine,
+    renderEngine: null,
 
     /*
      * !#en The canvas object which provides the rendering context

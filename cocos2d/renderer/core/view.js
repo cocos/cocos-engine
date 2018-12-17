@@ -48,6 +48,8 @@ export default class View {
     this._framebuffer = null;
 
     this._shadowLight = null; // TODO: should not refer light in view.
+
+    this._cullingMask = 0xffffffff;
   }
 
   /**
