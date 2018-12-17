@@ -101,6 +101,9 @@ var SystemEvent = cc.Class({
      * @param {Boolean} isEnable
      */
     setAccelerometerEnabled: function (isEnable) {
+        if (CC_EDITOR) {
+            return;
+        }
         inputManger.setAccelerometerEnabled(isEnable);
     },
 
@@ -111,10 +114,16 @@ var SystemEvent = cc.Class({
      * @param {Number} interval
      */
     setAccelerometerInterval: function(interval) {
+        if (CC_EDITOR) {
+            return;
+        }
         inputManger.setAccelerometerInterval(interval);
     },
 
     on: function (type, callback, target) {
+        if (CC_EDITOR) {
+            return;
+        }
         this._super(type, callback, target);
 
         // Keyboard
@@ -156,6 +165,9 @@ var SystemEvent = cc.Class({
 
 
     off: function (type, callback, target) {
+        if (CC_EDITOR) {
+            return;
+        }
         this._super(type, callback, target);
 
         // Keyboard
