@@ -30,7 +30,7 @@ const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 const ray = require('../3d/geom-utils/ray');
 
-import RCamera from '../../renderer/scene/camera';
+import RendererCamera from '../../renderer/scene/camera';
 import View from '../../renderer/core/view';
 
 const mat4 = cc.vmath.mat4;
@@ -94,7 +94,7 @@ let Camera = cc.Class({
 
     ctor () {
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
-            let camera = new RCamera();
+            let camera = new RendererCamera();
 
             camera.setStages([
                 'opaque',
@@ -399,7 +399,7 @@ let Camera = cc.Class({
         _setupDebugCamera () {
             if (_debugCamera) return;
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
-            let camera = new RCamera();
+            let camera = new RendererCamera();
             _debugCamera = camera;
 
             camera.setStages([

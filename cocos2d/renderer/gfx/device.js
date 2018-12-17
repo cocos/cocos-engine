@@ -790,15 +790,15 @@ export default class Device {
       );
     }
 
-    if (this._framebuffer._depth) {
-      _attach(gl, gl.DEPTH_ATTACHMENT, this._framebuffer._depth);
+    if (fb._depth) {
+      _attach(gl, gl.DEPTH_ATTACHMENT, fb._depth);
     }
 
-    if (this._framebuffer._stencil) {
+    if (fb._stencil) {
       _attach(gl, gl.STENCIL_ATTACHMENT, fb._stencil);
     }
 
-    if (this._framebuffer._depthStencil) {
+    if (fb._depthStencil) {
       _attach(gl, gl.DEPTH_STENCIL_ATTACHMENT, fb._depthStencil);
     }
   }

@@ -201,7 +201,7 @@ let MeshRenderer = cc.Class({
     },
 
     _updateCastShadow () {
-        this._setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.On);
+        this._setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
     }
 });
 

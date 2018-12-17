@@ -45,29 +45,29 @@ const LightType = Enum({
      * !#en The direction of light
      *
      * !#ch 平行光
-     * @property Directional
+     * @property DIRECTIONAL
      * @readonly
      * @type {Number}
      */
-    Directional: 0,
+    DIRECTIONAL: 0,
     /**
      * !#en The point of light
      *
      * !#ch 点光源
-     * @property Point
+     * @property POINT
      * @readonly
      * @type {Number}
      */
-    Point: 1,
+    POINT: 1,
     /**
      * !#en The spot of light
      *
      * !#ch 聚光灯
-     * @property Spot
+     * @property SPOT
      * @readonly
      * @type {Number}
      */
-    Spot: 2,
+    SPOT: 2,
 });
 
 /**
@@ -82,29 +82,29 @@ const LightShadowType = Enum({
      * !#en No shadows
      *
      * !#ch 阴影关闭
-     * @property None
+     * @property NONE
      * @readonly
      * @type {Number}
      */
-    None: 0,
+    NONE: 0,
     /**
      * !#en Soft shadows
      *
      * !#ch 软阴影
-     * @property Soft
+     * @property SOFT
      * @readonly
      * @type {Number}
      */
-    Soft: 1,
+    SOFT: 1,
     /**
      * !#en Hard shadows
      *
      * !#ch 阴硬影
-     * @property Hard
+     * @property HARD
      * @readonly
      * @type {Number}
      */
-    Hard: 2,
+    HARD: 2,
 });
 
 /**
@@ -119,7 +119,7 @@ const LightShadowType = Enum({
 @executeInEditMode
 export default class LightComponent extends CCComponent {
     @property
-    _type = LightType.Directional;
+    _type = LightType.DIRECTIONAL;
 
     @property
     _color = Color.WHITE;
@@ -137,7 +137,7 @@ export default class LightComponent extends CCComponent {
     _spotExp = 1;
 
     @property
-    _shadowType = LightShadowType.None;
+    _shadowType = LightShadowType.NONE;
 
     @property
     _shadowResolution = 1024;
@@ -178,9 +178,9 @@ export default class LightComponent extends CCComponent {
         this._type = val;
 
         let type = enums.LIGHT_DIRECTIONAL;
-        if (this._type === LightType.Point) {
+        if (this._type === LightType.POINT) {
             type = enums.LIGHT_POINT;
-        } else if (this._type === LightType.Spot) {
+        } else if (this._type === LightType.SPOT) {
             type = enums.LIGHT_SPOT;
         }
         this._light.setType(type);
@@ -283,9 +283,9 @@ export default class LightComponent extends CCComponent {
         this._shadowType = val;
 
         let type = enums.SHADOW_NONE;
-        if (val === LightShadowType.Hard) {
+        if (val === LightShadowType.HARD) {
             type = enums.SHADOW_HARD;
-        } else if (val === LightShadowType.Soft) {
+        } else if (val === LightShadowType.SOFT) {
             type = enums.SHADOW_SOFT;
         }
         this._light.setShadowType(type);
@@ -445,3 +445,5 @@ export default class LightComponent extends CCComponent {
         renderer.scene.removeLight(this._light);
     }
 }
+
+cc.LightComponent = LightComponent;

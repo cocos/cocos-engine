@@ -173,7 +173,6 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _shadowStage (view, items) {
-    const programLib = this._programLib;
     this._device.setUniform('_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
 
     // update rendering
