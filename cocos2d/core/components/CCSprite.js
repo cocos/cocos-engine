@@ -655,6 +655,8 @@ var Sprite = cc.Class({
 
     _calDynamicAtlas ()
     {
+        if (!this._spriteFrame) return;
+        
         if (!this._spriteFrame._original && dynamicAtlasManager) {
             let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
             if (frame) {
