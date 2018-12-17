@@ -122,35 +122,12 @@ let dynamicAtlasManager = {
             atlas = newAtlas();
         }
 
-        if (!atlas.insertSpriteFrame(spriteFrame) && _atlasIndex !== _maxAtlasCount) {
+        let frame = atlas.insertSpriteFrame(spriteFrame);
+        if (!frame && _atlasIndex !== _maxAtlasCount) {
             atlas = newAtlas();
-            atlas.insertSpriteFrame(spriteFrame);
+            return atlas.insertSpriteFrame(spriteFrame);
         }
-    },
-
-    insertCompTexture (comp) {
-        if (CC_EDITOR) return;
-        if (!_enabled || _atlasIndex === _maxAtlasCount || !comp || comp._original) return;
-        
-        let texture = comp._texture;
-        if (texture instanceof cc.RenderTexture || cc.Texture2D._isCompressed(texture)) return;
-
-        let w = texture.width, h = texture.height;
-        let min = texture._minFilter, mag = texture._magFilter;
-        let LINEAR = cc.Texture2D.Filter.LINEAR;
-        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize || (min & mag) !== LINEAR) {
-            return;
-        }
-
-        let atlas = _atlases[_atlasIndex];
-        if (!atlas) {
-            atlas = newAtlas();
-        }
-
-        if (!atlas.insertCompTexture(comp) && _atlasIndex !== _maxAtlasCount) {
-            atlas = newAtlas();
-            atlas.insertCompTexture(comp);
-        }
+        return frame;
     },
 
     /** 

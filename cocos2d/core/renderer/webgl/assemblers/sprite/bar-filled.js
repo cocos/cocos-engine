@@ -26,7 +26,6 @@
 const Sprite = require('../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 module.exports = {
     useModel: false,
@@ -35,14 +34,7 @@ module.exports = {
         
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         if (renderData && frame) {

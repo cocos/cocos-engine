@@ -29,6 +29,7 @@ const RenderComponent = require('./CCRenderComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 /**
  * !#en Enum for text alignment.
@@ -145,11 +146,8 @@ let Label = cc.Class({
         this._actualFontSize = 0;
         this._assemblerData = null;
 
-        this._texture = null;
+        this._frame = null;
         this._ttfTexture = null;
-        this._rect = null;
-        // store original info before packed to dynamic atlas
-        this._original = null;
     },
 
     editor: CC_EDITOR && {
@@ -434,7 +432,7 @@ let Label = cc.Class({
             }
         },
 
-        _cacheAsBitmap: false,
+        _cacheAsBitmap: true,
         /**
          * !#en Whether cache label to static texture and draw in dynamicAtlas.
          * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
@@ -559,7 +557,7 @@ let Label = cc.Class({
             }
             
             // TODO: old texture in material have been released by loader
-            this._texture = spriteFrame._texture;
+            this._frame = spriteFrame;
         }
         else {
             if (!this._ttfTexture) {
@@ -570,13 +568,18 @@ let Label = cc.Class({
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
-                this._texture = this._ttfTexture;
+                
+                if (!this._frame) {
+                    this._frame = new cc.Frame();
+                }
+
+                this._frame._refreshTexture(this._ttfTexture);
             }
         }
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._texture.url = this.uuid + '_texture';
+            this._frame._texture.url = this.uuid + '_texture';
         }
         // WebGL
         else {
@@ -584,13 +587,13 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             // Setup blend function for premultiplied ttf label texture
-            if (this._texture === this._ttfTexture) {
+            if (this._frame._texture === this._ttfTexture) {
                 this._srcBlendFactor = cc.macro.BlendFactor.ONE;
             }
             else {
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
-            material.texture = this._texture;
+            material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
             this._updateMaterial(material);
@@ -599,31 +602,7 @@ let Label = cc.Class({
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
-
-    /**
-     * !#en Returns the rect in the texture.
-     * !#zh 获取 texture 的矩形区域
-     * @method getRect
-     * @return {Rect}
-     */
-    _getRect: function () {
-        return cc.rect(this._rect);
-    },
-
-    /**
-     * !#en Sets the rect in the texture.
-     * !#zh 设置 texture 的矩形区域
-     * @method setRect
-     * @param {Rect} rect
-     */
-    _setRect: function (rect) {
-        this._rect = rect;
-    },
-
-    _setTexture: function (texture) {
-        this._texture = texture;
-    },
-
+    
     _updateColor () {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
@@ -647,6 +626,20 @@ let Label = cc.Class({
             this._updateAssembler();
             this._activateMaterial(force);
             this._assembler.updateRenderData(this);
+        }
+    },
+
+    _calDynamicAtlas () {
+        if (!dynamicAtlasManager) return;
+
+        if (!this._frame._original) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._frame);
+            if (frame) {
+                this._frame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._frame._texture) {
+            this._activateMaterial(true);
         }
     },
 

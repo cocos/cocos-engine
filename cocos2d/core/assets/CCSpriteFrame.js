@@ -27,6 +27,7 @@
 
 const EventTarget = require("../event/event-target");
 const textureUtil = require('../utils/texture-util');
+const Frame = require('./CCFrame');
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -63,7 +64,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
     extends: require('../assets/CCAsset'),
-    mixins: [EventTarget],
+    mixins: [Frame],
 
     properties: {
         // Use this property to set texture when loading dependency
@@ -193,7 +194,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let originalSize = arguments[4];
 
         // the location of the sprite on rendering texture
-        this._rect = null;
+        //this._rect = null;
 
         // for trimming
         this._offset = null;
@@ -207,14 +208,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._capInsets = [0, 0, 0, 0];
 
-        this.uv = [];
         this.uvSliced = [];
 
-        this._texture = null;
         this._textureFilename = '';
-
-        // store original info before packed to dynamic atlas
-        this._original = null;
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -259,29 +255,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (this._texture)
             this._calculateUV();
     },
-
-    /**
-     * !#en Returns the rect of the sprite frame in the texture.
-     * !#zh 获取 SpriteFrame 的纹理矩形区域
-     * @method getRect
-     * @return {Rect}
-     */
-    getRect: function () {
-        return cc.rect(this._rect);
-    },
-
-    /**
-     * !#en Sets the rect of the sprite frame in the texture.
-     * !#zh 设置 SpriteFrame 的纹理矩形区域
-     * @method setRect
-     * @param {Rect} rect
-     */
-    setRect: function (rect) {
-        this._rect = rect;
-        if (this._texture)
-            this._calculateUV();
-    },
-
+    
     /**
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
@@ -504,25 +478,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     clearTexture: function () {
         this._texture = null;   // TODO - release texture
-    },
-
-    _checkRect: function (texture) {
-        let rect = this._rect;
-        let maxX = rect.x, maxY = rect.y;
-        if (this._rotated) {
-            maxX += rect.height;
-            maxY += rect.width;
-        }
-        else {
-            maxX += rect.width;
-            maxY += rect.height;
-        }
-        if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
-        }
-        if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
-        }
     },
 
     _calculateSlicedUV () {

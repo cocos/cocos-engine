@@ -68,13 +68,14 @@ module.exports = js.addon({
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
+        let uv = comp._frame.uv;
         // vertex
         for (let i = 0; i < 4; i++) {
             let vert = data[i];
             vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
             vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
+            vbuf[vertexOffset++] = uv[i * 2];
+            vbuf[vertexOffset++] = uv[i * 2 + 1];
             uintbuf[vertexOffset++] = color;
         }
 
