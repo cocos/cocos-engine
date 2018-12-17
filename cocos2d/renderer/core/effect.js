@@ -19,7 +19,7 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, properties = {}, defines = [], dependencies = []) {
+    constructor(techniques, properties = {}, defines = {}, dependencies = []) {
         this._techniques = techniques;
         this._properties = properties;
         this._defines = defines;
@@ -30,8 +30,8 @@ class Effect {
 
     clear() {
         this._techniques.length = 0;
-        this._properties = null;
-        this._defines.length = 0;
+        this._properties = {};
+        this._defines = {};
     }
 
     getTechnique(stage) {
@@ -72,35 +72,29 @@ class Effect {
     }
 
     getDefine(name) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            if (def.name === name) {
-                return def.value;
-            }
+        let def = this._defines[name];
+        if (def === undefined) {
+            console.warn(`Failed to get define ${name}, define not found.`);
         }
 
-        console.warn(`Failed to get define ${name}, define not found.`);
-        return null;
+        return def;
     }
 
     define(name, value) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            if (def.name === name) {
-                def.value = value;
-                return;
-            }
+        let def = this._defines[name];
+        if (def === undefined) {
+            console.warn(`Failed to set define ${name}, define not found.`);
+            return;
         }
 
-        console.warn(`Failed to set define ${name}, define not found.`);
+        this._defines[name] = value;
     }
 
     extractDefines(out = {}) {
-        for (let i = 0; i < this._defines.length; ++i) {
-            let def = this._defines[i];
-            out[def.name] = def.value;
+        let defines = this._defines;
+        for (let name in defines) {
+            out[name] = defines[name];
         }
-
         return out;
     }
 
@@ -196,9 +190,10 @@ Effect.parseEffect = function(json) {
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
     let programs = getInvolvedPrograms(json);
-    // uniforms
-    let props = parseProperties(json, programs), uniforms = {};
+
+    let props = parseProperties(json, programs), uniforms = {}, defines = {};
     programs.forEach(p => {
+        // uniforms
         p.uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
             uniform.value = getInstanceCtor(u.type)(u.value);
@@ -207,11 +202,11 @@ Effect.parseEffect = function(json) {
                 uniform.value = props[name].value;
             }
         });
+
+        p.defines.forEach(d => {
+            defines[d.name] = getInstanceCtor(d.type)();
+        })
     });
-    // defines
-    let defines = programs.reduce((acc, cur) => acc = acc.concat(cur.defines), []);
-    defines = cloneObjArray(defines);
-    defines.forEach(d => d.value = getInstanceCtor(d.type)());
     // extensions
     let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
     extensions = cloneObjArray(extensions);

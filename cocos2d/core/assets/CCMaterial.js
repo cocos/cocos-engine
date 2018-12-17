@@ -28,7 +28,7 @@ const Asset = require('./CCAsset');
 const Texture = require('./CCTexture2D');
 const EffectAsset = require('./CCEffectAsset');
 
-import computeHash from './utils/compute-hash';
+import { computeMaterial } from '../utils/hash/compute';
 import Effect from '../../renderer/core/effect';
 
 let Material = cc.Class({
@@ -166,7 +166,7 @@ let Material = cc.Class({
     },
 
     updateHash (val) {
-        this._hash = val || computeHash(this);
+        this._hash = val || computeMaterial(this);
     },
 
     onLoad () {
