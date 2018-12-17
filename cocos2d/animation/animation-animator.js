@@ -226,10 +226,10 @@ function initClipData (root, state) {
     var curves = state.curves;
     curves.length = 0;
 
-    state.duration = clip.duration;
-    state.speed = clip.speed;
-    state.wrapMode = clip.wrapMode;
-    state.frameRate = clip.sample;
+    state.duration = Number.parseFloat(clip.duration);
+    state.speed = Number.parseFloat(clip.speed);
+    state.wrapMode = Number.parseInt(clip.wrapMode);
+    state.frameRate = Number.parseFloat(clip.sample);
 
     if ((state.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
         state.repeatCount = Infinity;

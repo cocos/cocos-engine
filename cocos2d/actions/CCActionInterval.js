@@ -25,10 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const quat = cc.vmath.quat;
-let _quat_tmp = cc.quat();
-let _vec3_tmp = cc.v3();
-
 
 /**
  * @module cc
@@ -871,13 +867,12 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
 
 
 /*
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
  * @class RotateTo
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number} dstAngle dstAngle in degrees.
  * @example
  * var rotateTo = new cc.RotateTo(2, 61.0);
  */
@@ -885,40 +880,22 @@ cc.RotateTo = cc.Class({
     name: 'cc.RotateTo',
     extends: cc.ActionInterval,
 
-    ctor:function (duration, dstAngleX, dstAngleY) {
-        this._angle = cc.v3();
-        this._startAngle = cc.v3();
-        this._dstAngle = cc.v3();
-        this._need3D = false;
-		dstAngleX !== undefined && this.initWithDuration(duration, dstAngleX, dstAngleY);
+    ctor:function (duration, dstAngle) {
+        this._startAngle = 0;
+        this._dstAngle = 0;
+        this._angle = 0;
+        dstAngle !== undefined && this.initWithDuration(duration, dstAngle);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration
-     * @param {Number|Vec3} dstAngleX
-     * @param {Number} dstAngleY
+     * @param {Number} dstAngle
      * @return {Boolean}
      */
-    initWithDuration:function (duration, dstAngleX, dstAngleY) {
+    initWithDuration:function (duration, dstAngle) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            let dstAngle = this._dstAngle;
-            if (dstAngleX instanceof cc.Vec3) {
-                dstAngle.set(dstAngleX);
-                if (dstAngleX.x || dstAngleX.y) {
-                    this._need3D = true;
-                }
-            }
-            else if (dstAngleY !== undefined) {
-                dstAngle.x = dstAngleX;
-                dstAngle.y = dstAngleY;
-                dstAngle.z = 0;
-                this._need3D = true;
-            }
-            else {
-                dstAngle.x = dstAngle.y = 0;
-                dstAngle.z = dstAngleX;
-            }
+            this._dstAngle = dstAngle;
             return true;
         }
         return false;
@@ -931,27 +908,14 @@ cc.RotateTo = cc.Class({
         return action;
     },
 
-    _formatAngle (angle) {
-        if (angle > 180) angle -= 360;
-        if (angle < -180) angle += 360;
-        return angle;
-    },
-
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
 
-        this._startAngle.set(target.eulerAngles);
-
-        let angle = this._angle;
-        cc.vmath.vec3.sub(angle, this._dstAngle, this._startAngle);
-
-        angle.x = this._formatAngle(angle.x);
-        angle.y = this._formatAngle(angle.y);
-        angle.z = this._formatAngle(angle.z);
-
-        if (this._need3D) {
-            target.is3DNode = true;
-        }
+        this._startAngle = target.angle % 360;
+        let angle = this._dstAngle - this._startAngle;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        this._angle = angle;
     },
 
     reverse:function () {
@@ -961,49 +925,36 @@ cc.RotateTo = cc.Class({
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            let angle = this._angle;
-            let startAngle = this._startAngle;
-            let rotationZ = -(startAngle.z + angle.z * dt);
-            if (this._need3D) {
-                let rotationX = startAngle.x + angle.x * dt;
-                let rotationY = startAngle.y + angle.y * dt;
-                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
-                this.target.setRotation(_quat_tmp);
-            }
-            else {
-                this.target.angle = rotationZ;
-            }
+            this.target.angle = this._startAngle + this._angle * dt;
         }
     }
 });
 
 /**
  * !#en
- * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
+ * Rotates a Node object to a certain angle by modifying its angle property. <br/>
  * The direction will be decided by the shortest angle.
- * !#zh 旋转到目标角度，通过逐帧修改它的 rotation 属性，旋转方向将由最短的角度决定。
+ * !#zh 旋转到目标角度，通过逐帧修改它的 angle 属性，旋转方向将由最短的角度决定。
  * @method rotateTo
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees.
- * @param {Number} [deltaAngleY] deltaAngleY in degrees.
+ * @param {Number} dstAngle dstAngle in degrees.
  * @return {ActionInterval}
  * @example
  * // example
  * var rotateTo = cc.rotateTo(2, 61.0);
  */
-cc.rotateTo = function (duration, deltaAngleX, deltaAngleY) {
-    return new cc.RotateTo(duration, deltaAngleX, deltaAngleY);
+cc.rotateTo = function (duration, dstAngle) {
+    return new cc.RotateTo(duration, dstAngle);
 };
 
 
 /*
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * @class RotateBy
  * @extends ActionInterval
  * @param {Number} duration duration in seconds
- * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
- * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} deltaAngle deltaAngle in degrees
  * @example
  * var actionBy = new cc.RotateBy(2, 360);
  */
@@ -1011,38 +962,21 @@ cc.RotateBy = cc.Class({
     name: 'cc.RotateBy',
     extends: cc.ActionInterval,
 
-    ctor: function (duration, deltaAngleX, deltaAngleY) {
-        this._angle = cc.v3();
-        this._startAngle = cc.v3();
-        this._need3D = false;
-		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY);
+    ctor: function (duration, deltaAngle) {
+        this._deltaAngle = cc.v3();
+        this._startAngle = 0;
+        deltaAngle !== undefined && this.initWithDuration(duration, deltaAngle);
     },
 
     /*
      * Initializes the action.
      * @param {Number} duration duration in seconds
-     * @param {Number|Vec3} deltaAngleX deltaAngleX in degrees
-     * @param {Number} [deltaAngleY=] deltaAngleY in degrees
+     * @param {Number} deltaAngle deltaAngle in degrees
      * @return {Boolean}
      */
-    initWithDuration:function (duration, deltaAngleX, deltaAngleY) {
+    initWithDuration:function (duration, deltaAngle) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            if (deltaAngleX instanceof cc.Vec3) {
-                this._angle.set(deltaAngleX);
-                if (deltaAngleX.x || deltaAngleX.y) {
-                    this._need3D = true;
-                }
-            }
-            else if (deltaAngleY !== undefined) {
-                this._angle.x = deltaAngleX;
-                this._angle.y = deltaAngleY;
-                this._angle.z = 0;
-                this._need3D = true;
-            }
-            else {
-                this._angle.x = this._angle.y = 0;
-                this._angle.z = deltaAngleX;
-            }
+            this._deltaAngle = deltaAngle;
             return true;
         }
         return false;
@@ -1051,42 +985,24 @@ cc.RotateBy = cc.Class({
     clone:function () {
         var action = new cc.RotateBy();
         this._cloneDecoration(action);
-        action.initWithDuration(this._duration, this._angle);
+        action.initWithDuration(this._duration, this._deltaAngle);
         return action;
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._startAngle.set(target.eulerAngles);
-        if (this._need3D) {
-            target.is3DNode = true;
-        }
+        this._startAngle = target.angle;
     },
 
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            let angle = this._angle;
-            let startAngle = this._startAngle;
-            let rotationZ = -(startAngle.z + angle.z * dt);
-            if (this._need3D) {
-                let rotationX = startAngle.x + angle.x * dt;
-                let rotationY = startAngle.y + angle.y * dt;
-                quat.fromEuler(_quat_tmp, rotationX, rotationY, rotationZ);
-                this.target.setRotation(_quat_tmp);
-            }
-            else {
-                this.target.angle = rotationZ;
-            }
+            this.target.angle = this._startAngle + this._deltaAngle * dt;
         }
     },
 
     reverse:function () {
-        let angle = this._angle;
-        _vec3_tmp.x = -angle.x;
-        _vec3_tmp.y = -angle.y;
-        _vec3_tmp.z = -angle.z;
-        var action = new cc.RotateBy(this._duration, _vec3_tmp);
+        var action = new cc.RotateBy(this._duration, -this._deltaAngle);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
@@ -1095,20 +1011,19 @@ cc.RotateBy = cc.Class({
 
 /**
  * !#en
- * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
+ * Rotates a Node object clockwise a number of degrees by modifying its angle property.
  * Relative to its properties to modify.
  * !#zh 旋转指定的角度。
  * @method rotateBy
  * @param {Number} duration duration in seconds
- * @param {Number} deltaAngleX deltaAngleX in degrees
- * @param {Number} [deltaAngleY] deltaAngleY in degrees
+ * @param {Number} deltaAngle deltaAngle in degrees
  * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.rotateBy(2, 360);
  */
-cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
-    return new cc.RotateBy(duration, deltaAngleX, deltaAngleY);
+cc.rotateBy = function (duration, deltaAngle) {
+    return new cc.RotateBy(duration, deltaAngle);
 };
 
 

@@ -340,6 +340,10 @@ var Color = (function () {
         return this;
     };
 
+    proto._fastSetA = function (alpha) {
+        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+    };
+
     js.getset(proto, 'r', proto.getR, proto.setR, true);
     js.getset(proto, 'g', proto.getG, proto.setG, true);
     js.getset(proto, 'b', proto.getB, proto.setB, true);

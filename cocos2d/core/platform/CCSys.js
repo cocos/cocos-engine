@@ -24,6 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let settingPlatform;
+ if (!CC_EDITOR) {
+    settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
+ }
+const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
+const isVivoGame = (settingPlatform === 'vivogame');
+const isOppoGame = (settingPlatform === 'oppogame');
+ 
 function initSys () {
     /**
      * System variables
@@ -354,6 +362,24 @@ function initSys () {
      */
     sys.FB_PLAYABLE_ADS = 106;
     /**
+     * @property {Number} BAIDU_GAME
+     * @readOnly
+     * @default 107
+     */
+    sys.BAIDU_GAME = 107;
+    /**
+     * @property {Number} VIVO_GAME
+     * @readOnly
+     * @default 108
+     */
+    sys.VIVO_GAME = 108;
+    /**
+     * @property {Number} OPPO_GAME
+     * @readOnly
+     * @default 109
+     */
+    sys.OPPO_GAME = 109;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -374,6 +400,20 @@ function initSys () {
      * @default "wechatgamesub"
      */
     sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME
+     * @property {String} BROWSER_TYPE_BAIDU_GAME
+     * @readOnly
+     * @default "baidugame"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME = "baidugame";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME_SUB
+     * @property {String} BROWSER_TYPE_BAIDU_GAME_SUB
+     * @readOnly
+     * @default "baidugamesub"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME_SUB = "baidugamesub";
     /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
@@ -533,8 +573,8 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
-
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !isBaiduGame;
+    
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
@@ -553,13 +593,25 @@ function initSys () {
         sys.__audioSupport = {};
     }
     else if (CC_JSB) {
-        var platform = sys.platform = __getPlatform();
+        let platform;
+        if (isVivoGame) {
+            platform = sys.VIVO_GAME;
+        }
+        else if (isOppoGame) {
+            platform = sys.OPPO_GAME;
+        }
+        else {
+            platform = __getPlatform();
+        }
+        sys.platform = platform;
         sys.isMobile = (platform === sys.ANDROID ||
                         platform === sys.IPAD ||
                         platform === sys.IPHONE ||
                         platform === sys.WP8 ||
                         platform === sys.TIZEN ||
-                        platform === sys.BLACKBERRY);
+                        platform === sys.BLACKBERRY ||
+                        platform === sys.VIVO_GAME ||
+                        platform === sys.OPPO_GAME);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
@@ -632,7 +684,7 @@ function initSys () {
         sys.osVersion = version ? version[0] : system;
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
-        if (!wx.getFileSystemManager) {
+        if (CC_WECHATGAME_SUB) {
             sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
         }
         else {
@@ -703,6 +755,21 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
+    }
+    else if (isBaiduGame) {
+        let env = __device.getSystemInfo();
+        sys.platform = env.platform;
+        sys.browserType = env.browserType;
+        sys.isMobile = env.isMobile;
+        sys.language = env.language;
+        sys.os = env.os;
+        sys.osVersion = env.osVersion;
+        sys.osMainVersion = env.osMainVersion;
+        sys.browserVersion = env.browserVersion;
+        sys.windowPixelResolution = env.windowPixelResolution;
+        sys.localStorage = env.localStorage;
+        sys.capabilities = env.capabilities;
+        sys.__audioSupport = env.audioSupport;
     }
     else {
         // browser or runtime
@@ -830,7 +897,7 @@ function initSys () {
         sys.browserVersion = "";
         /* Determine the browser version number */
         (function(){
-            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
             var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
             var tmp = ua.match(versionReg1);
             if(!tmp) tmp = ua.match(versionReg2);
@@ -898,53 +965,14 @@ function initSys () {
         var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
         var _supportCanvas = !!_tmpCanvas1.getContext("2d");
         var _supportWebGL = false;
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (CC_TEST) {
+            _supportWebGL = false;
+        }
+        else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
             _supportWebGL = true;
         }
         else if (win.WebGLRenderingContext) {
-            if (create3DContext(document.createElement("CANVAS"))) {
-                _supportWebGL = true;
-            }
-            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-                var browserVer = parseFloat(sys.browserVersion);
-                switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                    _supportWebGL = false;
-                    break;
-                }
-            }
+            _supportWebGL = true;
         }
 
         /**

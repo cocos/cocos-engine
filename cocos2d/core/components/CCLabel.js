@@ -358,7 +358,7 @@ let Label = cc.Class({
                 }
                 this._fontAtlas = null;
                 this._updateAssembler();
-                this._activateMaterial(true);
+                this._applyFontTexture(true);
                 this._updateRenderData();
             },
             type: cc.Font,
@@ -505,7 +505,7 @@ let Label = cc.Class({
         }
         this._super();
     },
-    
+
     _canRender () {
         let result = this._super();
         let font = this.font;
@@ -523,6 +523,10 @@ let Label = cc.Class({
         this.markForRender(!!this.string);
     },
 
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
     _updateAssembler () {
         let assembler = Label._assembler.getAssembler(this);
 
@@ -533,27 +537,35 @@ let Label = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData(true);
         }
     },
 
-    _activateMaterial (force) {
-        let material = this._material;
-        if (material && !force) {
-            return;
-        }
-        
+    _applyFontTexture (force) {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            let self = this;
+            let onBMFontTextureLoaded = function () {
+                // TODO: old texture in material have been released by loader
+                self._texture = spriteFrame._texture;
+                self._activateMaterial(force);
+
+                if (force) {
+                    self._assembler && self._assembler.updateRenderData(self);
+                }
+            };
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                onBMFontTextureLoaded();
+            }
+            else {
                 this.disableRender();
 
                 if (spriteFrame) {
-                    spriteFrame.once('load', this._activateMaterial, this);
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                     spriteFrame.ensureLoadTexture();
                 }
-                return;
             }
             
             // TODO: old texture in material have been released by loader
@@ -575,6 +587,19 @@ let Label = cc.Class({
 
                 this._frame._refreshTexture(this._ttfTexture);
             }
+
+            this._activateMaterial(force);
+
+            if (force) {
+                this._assembler && this._assembler.updateRenderData(this);
+            }
+        }
+    },
+
+    _activateMaterial (force) {
+        let material = this._material;
+        if (material && !force) {
+            return;
         }
 
         // Canvas
@@ -622,10 +647,9 @@ let Label = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (CC_EDITOR || force) {
+        if (force) {
             this._updateAssembler();
-            this._activateMaterial(force);
-            this._assembler.updateRenderData(this);
+            this._applyFontTexture(force);
         }
     },
 

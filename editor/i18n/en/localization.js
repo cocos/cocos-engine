@@ -197,7 +197,8 @@ module.exports = {
             "vertical_direction": "Vertically align in the direction of the child Nodes: \n 1. TOP_TO_BOTTOM, \n 2. BOTTOM_TO_TOP",
             "horizontal_direction": "Horizontally align in the direction of the child Nodes: \n 1. LEFT_TO_RIGHT \n 2. RIGHT_TO_LEFT",
             "cell_size": "In Grid layout, the size of each child element.",
-            "start_axis": "In Grid layout, the arrangement direction of children elements."
+            "start_axis": "In Grid layout, the arrangement direction of children elements.",
+            "affected_by_scale": "Whether the scaling of the child node affects the layout."
         },
         "particle": {
             "export_title": "Export custom particle data to plist file.",
@@ -240,6 +241,8 @@ module.exports = {
             "horizontal_align": "Horizontal alignment",
             "font_size": "Font size, in points",
             "font": "Custom TTF font of RichText",
+            "font_family": "Custom System font of RichText",
+            "system_font": "Whether to use the system default font",
             "line_height": "Line height, in points",
             "max_width": "The maximize width of RichText, pass 0 means not limit the maximize width.",
             "image_atlas": "The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.",

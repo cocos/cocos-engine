@@ -172,4 +172,4 @@ StencilManager.prototype = {
 StencilManager.sharedManager = new StencilManager();
 StencilManager.Stage = Stage;
 
-module.exports = StencilManager;
+module.exports = cc.StencilManager = StencilManager;

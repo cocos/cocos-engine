@@ -24,15 +24,20 @@
  ****************************************************************************/
 
 const Label = require('../../../../components/CCLabel');
-const ttfAssembler = require('./ttf');
-const bmfontAssembler = require('./bmfont');
+
+const ttfAssembler = require('./2d/ttf');
+const bmfontAssembler = require('./2d/bmfont');
+
+const ttfAssembler3D = require('./3d/ttf');
+const bmfontAssembler3D = require('./3d/bmfont');
 
 var labelAssembler = {
     getAssembler (comp) {
-        let assembler = ttfAssembler;
+        let is3DNode = comp.node.is3DNode;
+        let assembler = is3DNode ? ttfAssembler3D : ttfAssembler;
         
         if (comp.font instanceof cc.BitmapFont) {
-            assembler = bmfontAssembler;
+            assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
         }
 
         return assembler;

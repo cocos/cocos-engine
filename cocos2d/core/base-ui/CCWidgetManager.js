@@ -433,7 +433,7 @@ function updateAlignment (node) {
     }
     var widget = node._widget ||
                  node.getComponent(cc.Widget);  // node._widget will be null when widget is disabled
-    if (widget) {
+    if (widget && parent) {
         align(node, widget);
     }
 }

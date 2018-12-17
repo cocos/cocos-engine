@@ -29,6 +29,7 @@ const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent
 const spine = require('./lib/spine');
 const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 /**
  * @module sp
@@ -80,6 +81,44 @@ sp.Skeleton = cc.Class({
          */
         paused: {
             default: false,
+            visible: false
+        },
+
+        /**
+         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change spine blend mode,please set it in spine editor directly.
+         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 spine 的 blendMode，直接在 spine 编辑器中设置即可。
+         * @property srcBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        srcBlendFactor: {
+            get: function() {
+                return this._srcBlendFactor;
+            },
+            set: function(value) {
+                // shield set _srcBlendFactor
+            },
+            animatable: false,
+            type:BlendFactor,
+            override: true,
+            visible: false
+        },
+
+        /**
+         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change spine blend mode,please set it in spine editor directly.
+         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 spine 的 blendMode，直接在 spine 编辑器中设置即可。
+         * @property dstBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        dstBlendFactor: {
+            get: function() {
+                return this._dstBlendFactor;
+            },
+            set: function(value) {
+                // shield set _dstBlendFactor
+            },
+            animatable: false,
+            type: BlendFactor,
+            override: true,
             visible: false
         },
 
@@ -314,7 +353,7 @@ sp.Skeleton = cc.Class({
             notify () {
                 this._initDebugDraw();
             }
-        }
+        },
     },
 
     // CONSTRUCTOR
@@ -324,9 +363,15 @@ sp.Skeleton = cc.Class({
         this._listener = null;
         this._boundingBox = cc.rect();
         this._material = new SpriteMaterial();
+        this._materialCache = {};
         this._renderDatas = [];
-
         this._debugRenderer = null;
+    },
+
+    // override
+    _updateMaterial (material) {
+        this._super(material);
+        this._materialCache = {};
     },
 
     /**
@@ -382,6 +427,7 @@ sp.Skeleton = cc.Class({
 
     update (dt) {
         if (CC_EDITOR) return;
+        if (this.paused) return;
         let skeleton = this._skeleton;
         let state = this._state;
         if (skeleton) {
@@ -398,7 +444,8 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-            this._material = new SpriteMaterial();
+	        this._material = new SpriteMaterial();
+            this._materialCache = {};
             this._renderDatas = [];
         }
     },

@@ -245,10 +245,7 @@ let EditBoxImpl = cc.Class({
         this._node = null;
         this.setDelegate(null);
         this.removeDom();
-        if (this.__orientationChanged) {
-            window.removeEventListener('orientationchange', this.__orientationChanged);
-            this.__orientationChanged = null;
-        }
+        this.removeOrientationchangeEvent();
     },
 
     _onTouchBegan (touch) {
@@ -261,8 +258,8 @@ let EditBoxImpl = cc.Class({
 
     _beginEditing () {
         if (cc.sys.isMobile && !this._editing) {
-            // Pre adaptation
-            this._beginEditingOnMobile();
+            // Pre adaptation add orientationchange event
+            this.addOrientationchangeEvent();
         }
 
         if (this._edTxt) {
@@ -437,13 +434,8 @@ _p.createInput = function() {
 
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
-    let self = this;
-    if (!this.__orientationChanged) {
-        this.__orientationChanged = function () {
-            self._adjustEditBoxPosition();
-        };
-        window.addEventListener('orientationchange', this.__orientationChanged);
-    }
+    // add orientationchange event
+    this.addOrientationchangeEvent();
 
     if (cc.view.isAutoFullScreenEnabled()) {
         this.__fullscreen = true;
@@ -472,10 +464,8 @@ _p._endEditingOnMobile = function () {
         this.__rotateScreen = false;
     }
 
-    if (this.__orientationChanged) {
-        window.removeEventListener('orientationchange', this.__orientationChanged);
-        this.__orientationChanged = null;
-    }
+    // remove orientationchange event
+    this.removeOrientationchangeEvent();
 
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
@@ -664,6 +654,23 @@ _p.removeDom = function () {
         }
     }
     this._edTxt = null;
+};
+
+_p.addOrientationchangeEvent = function () {
+    let self = this;
+    if (!self.__orientationChanged) {
+        self.__orientationChanged = function () {
+            self._adjustEditBoxPosition();
+        };
+    }
+    window.addEventListener('orientationchange', self.__orientationChanged);
+};
+
+_p.removeOrientationchangeEvent = function () {
+    if (this.__orientationChanged) {
+        window.removeEventListener('orientationchange', this.__orientationChanged);
+        this.__orientationChanged = null;
+    }
 };
 
 module.exports = EditBoxImpl;

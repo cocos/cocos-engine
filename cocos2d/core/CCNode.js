@@ -721,8 +721,8 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                this._eulerAngles.z = value;
-                math.quat.fromEuler(this._quat, 0, 0, value);
+                math.vec3.set(this._eulerAngles, 0, 0, value);
+                this._fromEuler();
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -1269,6 +1269,24 @@ let NodeDefines = {
 
     // INTERNAL
 
+    _toEuler () {
+        if (this.is3DNode) {
+            this._quat.toEuler(this._eulerAngles);
+        }
+        else {
+            let z = Math.asin(this._quat.z) / ONE_DEGREE * 2;
+            math.vec3.set(this._eulerAngles, 0, 0, z);
+        }
+    },
+    _fromEuler () {
+        if (this.is3DNode) {
+            this._quat.fromEuler(this._eulerAngles);
+        }
+        else {
+            math.quat.fromEuler(this._quat, 0, 0, this._eulerAngles.z);
+        }
+    },
+
     _upgrade_1x_to_2x () {
         // Upgrade scaleX, scaleY from v1.x
         // TODO: remove in future version, 3.0 ?
@@ -1289,7 +1307,7 @@ let NodeDefines = {
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
         let quat = this._quat;
-        if ((this._rotationX || this._rotationY) && 
+        if ((this._rotationX || this._rotationY) &&
             (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
                 math.quat.fromEuler(quat, 0, 0, -this._rotationX);
@@ -1299,8 +1317,8 @@ let NodeDefines = {
             }
             this._rotationX = this._rotationY = undefined;
         }
-        
-        this._quat.toEuler(this._eulerAngles);
+
+        this._toEuler();
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
         // TODO: Remove after final version
@@ -2025,10 +2043,10 @@ let NodeDefines = {
 
 // TRANSFORM RELATED
     /**
-     * !#en 
+     * !#en
      * Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
      * You can pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取节点在父节点坐标系中的位置（x, y, z）。
      * 你可以传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getPosition
@@ -2128,10 +2146,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
+     * !#en
      * Sets the scale of axis in local coordinates of the node.
      * You can operate 2 axis in 2D node, and 3 axis in 3D node.
-     * !#zh 
+     * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
      * @method setScale
@@ -2164,10 +2182,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
-     * Get rotation of node (in quaternion). 
+     * !#en
+     * Get rotation of node (in quaternion).
      * Need pass a cc.Quat as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取该节点的 quaternion 旋转角度，需要传一个 cc.Quat 作为参数来接收返回值。
      * @method getRotation
      * @param {Quat} out
@@ -2187,9 +2205,9 @@ let NodeDefines = {
      * !#en Set rotation of node (in quaternion).
      * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
-     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion	
-     * @param {Number} y y value of quternion	
-     * @param {Number} z z value of quternion	
+     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
+     * @param {Number} y y value of quternion
+     * @param {Number} z z value of quternion
      * @param {Number} w w value of quternion
      */
     setRotation (quat, y, z, w) {
@@ -2220,7 +2238,7 @@ let NodeDefines = {
                 }
 
                 if (CC_EDITOR) {
-                    old.toEuler(this._eulerAngles);
+                    this._toEuler();
                 }
             }
         }
@@ -2461,7 +2479,7 @@ let NodeDefines = {
         else {
             math.quat.copy(this._quat, quat);
         }
-        this._quat.toEuler(this._eulerAngles);
+        this._toEuler();
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
@@ -3132,7 +3150,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        this._quat.toEuler(this._eulerAngles);
+        this._toEuler();
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {

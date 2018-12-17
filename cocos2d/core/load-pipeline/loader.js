@@ -186,6 +186,7 @@ var defaultMap = {
 
     // binary
     'binary' : loadBinary,
+    'dbbin' : loadBinary,
 
     // Font
     'font' : fontLoader.loadFont,

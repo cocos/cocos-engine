@@ -31,6 +31,7 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 /**
  * @module dragonBones
@@ -70,7 +71,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/spine.html', // TODO help document of dragonBones
+        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
     },
     
     properties: {
@@ -78,6 +79,44 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.CCFactory,
             serializable: false,
+        },
+
+        /**
+         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
+         * @property srcBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        srcBlendFactor: {
+            get: function() {
+                return this._srcBlendFactor;
+            },
+            set: function(value) {
+                // shield set _srcBlendFactor
+            },
+            animatable: false,
+            type:BlendFactor,
+            override: true,
+            visible: false
+        },
+
+        /**
+         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
+         * @property dstBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        dstBlendFactor: {
+            get: function() {
+                return this._dstBlendFactor;
+            },
+            set: function(value) {
+                // shield set _dstBlendFactor
+            },
+            animatable: false,
+            type: BlendFactor,
+            override: true,
+            visible: false
         },
 
         /**
@@ -120,7 +159,6 @@ let ArmatureDisplay = cc.Class({
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
                 this._buildArmature();
-                this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
@@ -206,6 +244,7 @@ let ArmatureDisplay = cc.Class({
             type: DefaultArmaturesEnum,
             visible: true,
             editorOnly: true,
+            animatable: false,
             displayName: "Armature",
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.armature_name'
         },
@@ -252,7 +291,9 @@ let ArmatureDisplay = cc.Class({
         timeScale: {
             default: 1,
             notify () {
-                this._armature.animation.timeScale = this.timeScale;
+                if (this._armature) {
+                    this._armature.animation.timeScale = this.timeScale;
+                }  
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.time_scale'
         },
@@ -275,6 +316,20 @@ let ArmatureDisplay = cc.Class({
         },
 
         /**
+         * !#en Indicates whether to enable premultiplied alpha.
+         * You should disable this option when image's transparent area appears to have opaque pixels,
+         * or enable this option when image's half transparent area appears to be darken.
+         * !#zh 是否启用贴图预乘。
+         * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+         * @property {Boolean} premultipliedAlpha
+         * @default false
+         */
+        premultipliedAlpha: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
+        },
+        
+        /**
          * !#en Indicates whether open debug bones.
          * !#zh 是否显示 bone 的 debug 信息。
          * @property {Boolean} debugBones
@@ -290,8 +345,35 @@ let ArmatureDisplay = cc.Class({
     },
 
     ctor () {
+        this._renderDatas = [];
+        this._material = new SpriteMaterial;
+        // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
+        // it will clone from the '_material' property,if the dragonbones only have one texture,
+        // it will just use the _material,won't clone it.
+        // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
+        // you can change materialCache directly.
+        this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
+    },
+
+    onLoad () {
+        // Adapt to old code,remove unuse child which is created by old code.
+        // This logic can be remove after 2.2 or later.
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            var pos = child._name && child._name.search('CHILD_ARMATURE-');
+            if (pos === 0) {
+                child.destroy();
+            }
+        }
+    },
+
+    // override
+    _updateMaterial (material) {
+        this._super(material);
+        this._materialCache = {};
     },
 
     __preload () {
@@ -305,7 +387,6 @@ let ArmatureDisplay = cc.Class({
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
-        this._activateMaterial();
     },
 
     onEnable () {
@@ -329,6 +410,7 @@ let ArmatureDisplay = cc.Class({
             this._armature.dispose();
             this._armature = null;
         }
+        this._renderDatas.length = 0;
     },
 
     _initDebugDraw () {
@@ -350,31 +432,17 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    _activateMaterial () {
-        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        
-
-        // Get material
-        let material = this._material || new SpriteMaterial();
-        material.useColor = false;
-
-        if (texture) {
-            material.texture = texture;
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-        }
-        else {
-            this.disableRender();
-        }
-
-        this._updateMaterial(material);
-    },
-
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        let factory = dragonBones.CCFactory.getInstance();
-        this._armature = factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
+        var atlasName = this.dragonAtlasAsset._textureAtlasData.name;
+        var displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, "", atlasName);
+        if (!displayProxy) return;
+
+        this._displayProxy = displayProxy;
+        this._displayProxy._ccNode = this.node;
+
+        this._armature = this._displayProxy._armature;
         this._armature.animation.timeScale = this.timeScale;
 
         if (this.animationName) {
@@ -505,7 +573,9 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     addEventListener (eventType, listener, target) {
-        this.addDBEventListener(eventType, listener, target);
+        if (this._displayProxy) {
+            this._displayProxy.addDBEventListener(eventType, listener, target);
+        }
     },
 
     /**
@@ -519,7 +589,9 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target]
      */
     removeEventListener (eventType, listener, target) {
-        this.removeDBEventListener(eventType, listener, target);
+        if (this._displayProxy) {
+            this._displayProxy.removeDBEventListener(eventType, listener, target);
+        }
     },
 
     /**
@@ -533,7 +605,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName, node) {
-        return dragonBones.CCFactory.getInstance().createArmatureNode(this, armatureName, node);
+        return this._factory.createArmatureNode(this, armatureName, node);
     },
 
     /**
@@ -547,60 +619,6 @@ let ArmatureDisplay = cc.Class({
     armature () {
         return this._armature;
     },
-
-    ////////////////////////////////////
-    // dragonbones api
-    dbInit (armature) {
-        this._armature = armature;
-    },
-
-    dbClear () {
-        this._armature = null;
-    },
-
-    dbUpdate () {
-        if (!CC_DEBUG) return;
-        this._initDebugDraw();
-
-        let debugDraw = this._debugDraw;
-        if (!debugDraw) return;
-        
-        debugDraw.clear();
-        let bones = this._armature.getBones();
-        for (let i = 0, l = bones.length; i < l; i++) {
-            let bone =  bones[i];
-            let boneLength = Math.max(bone.boneData.length, 5);
-            let startX = bone.globalTransformMatrix.tx;
-            let startY = -bone.globalTransformMatrix.ty;
-            let endX = startX + bone.globalTransformMatrix.a * boneLength;
-            let endY = startY - bone.globalTransformMatrix.b * boneLength;
-
-            debugDraw.moveTo(startX, startY);
-            debugDraw.lineTo(endX, endY);
-            debugDraw.stroke();
-        }
-    },
-
-    advanceTimeBySelf  (on) {
-        this.shouldAdvanced = !!on;
-    },
-
-    hasDBEventListener (type) {
-        return this.hasEventListener(type);
-    },
-
-    addDBEventListener (type, listener, target) {
-        this.on(type, listener, target);
-    },
-
-    removeDBEventListener (type, listener, target) {
-        this.off(type, listener, target);
-    },
-
-    dispatchDBEvent  (type, eventObject) {
-        this.emit(type, eventObject);
-    },
-    ////////////////////////////////////
 });
 
 module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;

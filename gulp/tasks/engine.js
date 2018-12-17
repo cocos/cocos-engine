@@ -40,6 +40,12 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    '../../extensions/spine/lib/spine.js',
+    '../../extensions/dragonbones/lib/dragonBones.js',
+    '../../extensions/dragonbones/CCArmatureDisplay.js',
+    '../../extensions/dragonbones/CCFactory.js',
+    '../../extensions/dragonbones/CCSlot.js',
+    '../../extensions/dragonbones/CCTextureData.js'
 ];
 var jsbAliasify = {
     replacements: {
@@ -65,7 +71,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);
@@ -110,7 +116,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);

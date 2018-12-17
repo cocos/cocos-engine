@@ -149,10 +149,14 @@ module.exports = {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp._updateRenderData(true);
-                    });
+                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
+                    if (!_fontFamily) {
+                        cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                            _fontFamily = fontFamily || 'Arial';
+                            comp.font._nativeAsset = fontFamily;
+                            comp._updateRenderData(true);
+                        });
+                    }
                 }
             }
             else {
