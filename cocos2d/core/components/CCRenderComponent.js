@@ -25,21 +25,11 @@
 
 import gfx from '../../renderer/gfx';
 import RenderData from '../../renderer/render-data/render-data';
-import { ctor2enums } from '../../renderer/types';
-import RecyclePool from '../../renderer/memop/recycle-pool';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const Material = require('../assets/CCMaterial');
-
-let _uniformPool = new RecyclePool(function () {
-    return {
-        name: '',
-        type: -1,
-        value: null
-    };
-}, 1);
 
 /**
  * !#en
@@ -132,12 +122,6 @@ let RenderComponent = cc.Class({
         this._toPostHandle = false;
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
-
-        // Used to define dynamic uniforms,
-        // such as SkinningRenderComponent's jointTexture uniform.
-        // These uniforms can not define in effect, because they changed every frame, and can not be shared.
-        this._uniforms = null;
-        this._defines = null;
     },
 
     onEnable () {
@@ -270,25 +254,6 @@ let RenderComponent = cc.Class({
 
     _activateMaterial (force) {
     },
-
-    _setUniform (name, value) {
-        if (!this._uniforms) this._uniforms = {};
-
-        let uniform = this._uniforms[name];
-        if (!uniform) {
-            uniform = _uniformPool.add();
-            this._uniforms[name] = uniform;
-        }
-
-        uniform.name = name;
-        uniform.type = ctor2enums[value.constructor];
-        uniform.value = value;
-    },
-
-    _setDefine (name, value) {
-        if (!this._defines) this._defines = {};
-        this._defines[name] = value;
-    }
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

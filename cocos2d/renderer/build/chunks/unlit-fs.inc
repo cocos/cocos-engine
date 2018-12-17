@@ -12,18 +12,10 @@
   varying vec4 v_color;
 #endif
 
-#if USE_NODE_COLOR
-  uniform vec4 _nodeColor;
-#endif
-
 uniform vec4 color;
 
 vec4 frag () {
   vec4 o = color;
-
-  #if USE_NODE_COLOR
-    o *= _nodeColor;
-  #endif
   
   #if _USE_ATTRIBUTE_COLOR
     o *= v_color;

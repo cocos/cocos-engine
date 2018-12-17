@@ -99,20 +99,20 @@ let meshRendererAssembler = {
 
         let tmpNode = renderer.node;
         renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
-        renderer.defines = comp._defines;
-        renderer.uniforms = comp._uniforms;
 
-        comp._setUniform('_nodeColor', comp.node.color);
+        let shaderConfig = comp._shaderConfig;
+        renderer.defines = shaderConfig._defines;
+        renderer.uniforms = shaderConfig._uniforms;
 
         comp.mesh._uploadData();
 
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
             let material = renderData.material;
-            
+
             let attr2el = renderData.ia._vertexBuffer._format._attr2el;
-            comp._setDefine('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
-            comp._setDefine('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
+            shaderConfig.setDefine('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
+            shaderConfig.setDefine('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
 
             renderer.material = material;
             renderer._flushIA(renderData);

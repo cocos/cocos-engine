@@ -103,7 +103,7 @@ let Material = cc.Class({
             else {
                 let instance = new Material();
                 instance.copy(mat);
-                instance._native = mat._native + ' (Instance)';
+                instance._name = mat._name + ' (Instance)';
                 instance._owner = renderComponent;
                 instance._objFlags |= cc.Object.Flags.DontSave;
                 return instance;

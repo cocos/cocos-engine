@@ -30,6 +30,7 @@ const aabb = require('../3d/geom-utils/aabb');
 const Material = require('../assets/CCMaterial');
 
 import gfx from '../../renderer/gfx';
+import ShaderConfig from './shader-config';
 
 /**
  * !#en Shadow projection mode
@@ -142,8 +143,8 @@ let MeshRenderer = cc.Class({
 
     ctor () {
         this._renderDatas = [];
-        this._materials = [];
         this._boundingBox = null;
+        this._shaderConfig = new ShaderConfig();
     },
 
     onEnable () {
@@ -185,7 +186,6 @@ let MeshRenderer = cc.Class({
             }
         }
 
-        let subMeshes = mesh._subMeshes;
         let materials = this.sharedMaterials;
         if (!materials[0]) {
             let material = this._getDefaultMaterial();
@@ -197,12 +197,12 @@ let MeshRenderer = cc.Class({
     },
 
     _updateReceiveShadow () {
-        this._setDefine('_USE_SHADOW_MAP', this._receiveShadows);
+        this._shaderConfig.setDefine('_USE_SHADOW_MAP', this._receiveShadows);
     },
 
     _updateCastShadow () {
-        this._setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
-    }
+        this._shaderConfig.setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+    },
 });
 
 cc.MeshRenderer = module.exports = MeshRenderer;

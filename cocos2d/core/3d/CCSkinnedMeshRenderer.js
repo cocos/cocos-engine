@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Material = require('../assets/CCMaterial');
 const Skeleton = require('./CCSkeleton');
 const MeshRenderer = require('../mesh/CCMeshRenderer');
 const mat4 = cc.vmath.mat4;
@@ -116,6 +115,7 @@ let SkinnedMeshRenderer = cc.Class({
         if (!this._skeleton) return;
 
         let jointCount = this._joints.length;
+        let shaderConfig = this._shaderConfig;
 
         let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
@@ -138,16 +138,16 @@ let SkinnedMeshRenderer = cc.Class({
 
             this._jointsTexture = texture;
             
-            this._setUniform('_jointsTexture', texture.getImpl());
-            this._setUniform('_jointsTextureSize', this._jointsTexture.width);
+            shaderConfig.setUniform('_jointsTexture', texture.getImpl());
+            shaderConfig.setUniform('_jointsTextureSize', this._jointsTexture.width);
         }
         else {
             this._jointsTextureData = new Float32Array(jointCount * 16);
-            this._setUniform('_jointMatrices', this._jointsTextureData);
+            shaderConfig.setUniform('_jointMatrices', this._jointsTextureData);
         }
 
-        this._setDefine('_USE_SKINNING', true);
-        this._setDefine('_USE_JOINTS_TEXTRUE', !!this._jointsTexture);
+        shaderConfig.setDefine('_USE_SKINNING', true);
+        shaderConfig.setDefine('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
     _setJointsTextureData (iMatrix, matrix) {
