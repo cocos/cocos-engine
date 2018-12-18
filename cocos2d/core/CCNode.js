@@ -589,7 +589,10 @@ var Node = cc.Class({
             },
 
             set (value) {
+                // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                let index = this._getActualGroupIndex(this);
+                this._cullingMask = 1 << index;
                 this.emit(EventType.GROUP_CHANGED, this);
             }
         },
@@ -1114,7 +1117,7 @@ var Node = cc.Class({
      */
     ctor () {
         this._reorderChildDirty = false;
-        
+
         // cache component
         this._widget = null;
         // fast render component access
@@ -1138,7 +1141,7 @@ var Node = cc.Class({
         this._worldMatDirty = true;
 
         this._eventMask = 0;
-        this._cullingMask = 1 << this.groupIndex;
+        this._cullingMask = 1;
     },
 
     statics: {
@@ -1308,6 +1311,9 @@ var Node = cc.Class({
 
         this._updateOrderOfArrival();
 
+        // synchronize _cullingMask
+        this._cullingMask = 1 << this._getActualGroupIndex(this);
+
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1338,6 +1344,8 @@ var Node = cc.Class({
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
+
+        this._cullingMask = 1 << this._getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1642,12 +1650,12 @@ var Node = cc.Class({
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
                 listeners.remove(type, callback, target);
-    
+
                 if (target && target.__eventTargets) {
                     js.array.fastRemove(target.__eventTargets, this);
                 }
             }
-            
+
         }
     },
 
@@ -1853,7 +1861,7 @@ var Node = cc.Class({
             parent = parent.parent;
         }
     },
-    
+
     /**
      * Get all the targets listening to the supplied type of event in the target's bubbling phase.
      * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
@@ -3052,6 +3060,15 @@ var Node = cc.Class({
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
         }
+    },
+
+    // traversal the node tree, child cullingMask must keep the same with the parent.
+    _getActualGroupIndex (node) {
+        let groupIndex = node.groupIndex;
+        if (groupIndex === 0 && node.parent) {
+            groupIndex = this._getActualGroupIndex(node.parent);
+        }
+        return groupIndex;
     },
 });
 

@@ -13,9 +13,7 @@ const POST_RENDER = 1 << 9;
 const FINAL = 1 << 10;
 
 let _walker = null;
-let _cullingMask = 0;
 
-// 
 function RenderFlow () {
     this._func = init;
     this._next = null;
@@ -107,8 +105,6 @@ _proto._customIARender = function (node) {
 };
 
 _proto._children = function (node) {
-    let cullingMask = _cullingMask;
-
     let parentOpacity = _walker.parentOpacity;
     let opacity = (_walker.parentOpacity *= (node._opacity / 255));
 
@@ -122,8 +118,7 @@ _proto._children = function (node) {
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
         c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
-        _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
-        
+
         // TODO: Maybe has better way to implement cascade opacity
         let colorVal = c._color._val;
         c._color._fastSetA(c._opacity * opacity);
@@ -134,8 +129,6 @@ _proto._children = function (node) {
     _walker.parentOpacity = parentOpacity;
 
     this._next._func(node);
-
-    _cullingMask = cullingMask;
 };
 
 _proto._postUpdateRenderData = function (node) {
@@ -213,8 +206,6 @@ function getFlow (flag) {
 
 
 function render (scene) {
-    _cullingMask = 1 << scene.groupIndex;
-
     if (scene._renderFlag & WORLD_TRANSFORM) {
         _walker.worldMatDirty ++;
         scene._calculWorldMatrix();
