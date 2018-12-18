@@ -118,6 +118,8 @@ let meshRendererAssembler = {
             renderer._flushIA(renderData);
         }
 
+        renderer.defines = null;
+        renderer.uniforms = null;
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
     }
