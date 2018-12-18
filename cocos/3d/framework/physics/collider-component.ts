@@ -69,7 +69,7 @@ export class ColliderComponentBase extends Component {
         let component = this.getComponent(ColliderComponentBase) as (ColliderComponentBase | null);
         if (!component) {
             component = this;
-            this._body = new RigidBody();
+            this._body = new RigidBody(this.node);
         }
         return component._body!;
     }
