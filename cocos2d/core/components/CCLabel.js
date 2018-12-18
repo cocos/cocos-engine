@@ -30,7 +30,7 @@ const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
-
+const LabelFrame = require('../renderer/utils/label/label-frame');
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -582,7 +582,7 @@ let Label = cc.Class({
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
                 
                 if (!this._frame) {
-                    this._frame = new cc.Frame();
+                    this._frame = new LabelFrame();
                 }
 
                 this._frame._refreshTexture(this._ttfTexture);

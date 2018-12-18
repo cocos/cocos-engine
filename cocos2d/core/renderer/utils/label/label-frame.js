@@ -23,28 +23,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const EventTarget = require("../event/event-target");
-
 /**
- * !#en Class for Texture Frame.
- * !#zh 碎图资源类。
- * @class Frame
- * @extends Asset
+ * !#en Class for Label Frame.
+ * !#zh LabelFrame
  */
-var Frame = cc.Class({
-    name: 'cc.Frame',
-    mixins: [EventTarget],
-    ctor() {
-        // the location of the sprite on rendering texture
-        this._rect = null;
-        // uv data of frame
-        this.uv = [];
-        // texture of frame
-        this._texture = null;
-        // store original info before packed to dynamic atlas
-        this._original = null;
-    },
-    /**
+function LabelFrame () {
+    // the location of the sprite on rendering texture
+    this._rect = null;
+    // uv data of frame
+    this.uv = [];
+    // texture of frame
+    this._texture = null;
+    // store original info before packed to dynamic atlas
+    this._original = null;
+}
+
+LabelFrame.prototype = {
+    constructor: LabelFrame,
+
+     /**
      * !#en Returns the rect of the sprite frame in the texture.
      * !#zh 获取 SpriteFrame 的纹理矩形区域
      * @method getRect
@@ -53,6 +50,7 @@ var Frame = cc.Class({
     getRect: function () {
         return cc.rect(this._rect);
     },
+    
     /**
      * !#en Sets the rect of the sprite frame in the texture.
      * !#zh 设置 SpriteFrame 的纹理矩形区域
@@ -64,24 +62,7 @@ var Frame = cc.Class({
         if (this._texture)
             this._calculateUV();
     },
-    _checkRect: function (texture) {
-        let rect = this._rect;
-        let maxX = rect.x, maxY = rect.y;
-        if (this._rotated) {
-            maxX += rect.height;
-            maxY += rect.width;
-        }
-        else {
-            maxX += rect.width;
-            maxY += rect.height;
-        }
-        if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
-        }
-        if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
-        }
-    },
+
     _setDynamicAtlasFrame (frame) {
         if (!frame) return;
 
@@ -103,50 +84,13 @@ var Frame = cc.Class({
         this._original = null;
         this._calculateUV();
     },
-    _textureLoadedCallback() {
-        let self = this;
-        let texture = this._texture;
-        if (!texture) {
-            // clearTexture called while loading texture...
-            return;
-        }
-        let w = texture.width,
-            h = texture.height;
 
-        if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // TODO: rotate texture for canvas
-            // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-            self._rotated = false;
-            w = self._texture.width;
-            h = self._texture.height;
-            self._rect = cc.rect(0, 0, w, h);
-        }
-
-        if (self._rect) {
-            self._checkRect(self._texture);
-        } else {
-            self._rect = cc.rect(0, 0, w, h);
-        }
-
-        self._calculateUV();
-
-        // dispatch 'load' event of cc.SpriteFrame
-        self.emit("load");
-    },
-    /*
-     * !#en Sets the texture of the frame.
-     * !#zh 设置使用的纹理实例。
-     * @method _refreshTexture
-     * @param {Texture2D} texture
-     */
     _refreshTexture: function (texture) {
         this._texture = texture;
-        if (texture.loaded) {
-            this._textureLoadedCallback();
-        } else {
-            texture.once('load', this._textureLoadedCallback, this);
-        }
+        this._rect = cc.rect(0, 0, texture.width, texture.height);
+        this._calculateUV();
     },
+
     _calculateUV() {
         let rect = this._rect,
             texture = this._texture,
@@ -168,6 +112,6 @@ var Frame = cc.Class({
         uv[6] = r;
         uv[7] = t;
     }
-});
+}
 
-cc.Frame = module.exports = Frame;
+module.exports = LabelFrame;

@@ -27,7 +27,6 @@
 
 const EventTarget = require("../event/event-target");
 const textureUtil = require('../utils/texture-util');
-const Frame = require('./CCFrame');
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -64,7 +63,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
 let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
     extends: require('../assets/CCAsset'),
-    mixins: [Frame],
+    mixins: [EventTarget],
 
     properties: {
         // Use this property to set texture when loading dependency
@@ -194,7 +193,13 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let originalSize = arguments[4];
 
         // the location of the sprite on rendering texture
-        //this._rect = null;
+        this._rect = null;
+        // uv data of frame
+        this.uv = [];
+        // texture of frame
+        this._texture = null;
+        // store original info before packed to dynamic atlas
+        this._original = null;
 
         // for trimming
         this._offset = null;
@@ -255,6 +260,28 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (this._texture)
             this._calculateUV();
     },
+
+    /**
+     * !#en Returns the rect of the sprite frame in the texture.
+     * !#zh 获取 SpriteFrame 的纹理矩形区域
+     * @method getRect
+     * @return {Rect}
+     */
+    getRect: function () {
+        return cc.rect(this._rect);
+    },
+
+    /**
+     * !#en Sets the rect of the sprite frame in the texture.
+     * !#zh 设置 SpriteFrame 的纹理矩形区域
+     * @method setRect
+     * @param {Rect} rect
+     */
+    setRect: function (rect) {
+        this._rect = rect;
+        if (this._texture)
+            this._calculateUV();
+    },
     
     /**
      * !#en Returns the original size of the trimmed image.
@@ -289,6 +316,52 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     getTexture: function () {
         return this._texture;
+    },
+
+    _textureLoadedCallback() {
+        let self = this;
+        let texture = this._texture;
+        if (!texture) {
+            // clearTexture called while loading texture...
+            return;
+        }
+        let w = texture.width,
+            h = texture.height;
+
+        if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // TODO: rotate texture for canvas
+            // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+            self._rotated = false;
+            w = self._texture.width;
+            h = self._texture.height;
+            self._rect = cc.rect(0, 0, w, h);
+        }
+
+        if (self._rect) {
+            self._checkRect(self._texture);
+        } else {
+            self._rect = cc.rect(0, 0, w, h);
+        }
+
+        self._calculateUV();
+
+        // dispatch 'load' event of cc.SpriteFrame
+        self.emit("load");
+    },
+
+    /*
+     * !#en Sets the texture of the frame.
+     * !#zh 设置使用的纹理实例。
+     * @method _refreshTexture
+     * @param {Texture2D} texture
+     */
+    _refreshTexture: function (texture) {
+        this._texture = texture;
+        if (texture.loaded) {
+            this._textureLoadedCallback();
+        } else {
+            texture.once('load', this._textureLoadedCallback, this);
+        }
     },
 
     _textureLoadedCallback () {
@@ -480,6 +553,25 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._texture = null;   // TODO - release texture
     },
 
+    _checkRect: function (texture) {
+        let rect = this._rect;
+        let maxX = rect.x, maxY = rect.y;
+        if (this._rotated) {
+            maxX += rect.height;
+            maxY += rect.width;
+        }
+        else {
+            maxX += rect.width;
+            maxY += rect.height;
+        }
+        if (maxX > texture.width) {
+            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
+        }
+        if (maxY > texture.height) {
+            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+        }
+    },
+
     _calculateSlicedUV () {
         let rect = this._rect;
         let atlasWidth = this._texture.width;
@@ -535,6 +627,29 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 }
             }
         }
+    },
+
+    _setDynamicAtlasFrame (frame) {
+        if (!frame) return;
+
+        this._original = {
+            _texture : this._texture,
+            _x : this._rect.x,
+            _y : this._rect.y
+        }
+        
+        this._texture = frame.texture;
+        this._rect.x = frame.x;
+        this._rect.y = frame.y;
+        this._calculateUV();
+    },
+    
+    _resetDynamicAtlasFrame () {
+        this._rect.x = this._original._x;
+        this._rect.y = this._original._y;
+        this._texture = this._original._texture;
+        this._original = null;
+        this._calculateUV();
     },
 
     _calculateUV () {
