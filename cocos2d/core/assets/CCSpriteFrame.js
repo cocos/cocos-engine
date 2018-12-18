@@ -318,52 +318,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
-    _textureLoadedCallback() {
-        let self = this;
-        let texture = this._texture;
-        if (!texture) {
-            // clearTexture called while loading texture...
-            return;
-        }
-        let w = texture.width,
-            h = texture.height;
-
-        if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // TODO: rotate texture for canvas
-            // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-            self._rotated = false;
-            w = self._texture.width;
-            h = self._texture.height;
-            self._rect = cc.rect(0, 0, w, h);
-        }
-
-        if (self._rect) {
-            self._checkRect(self._texture);
-        } else {
-            self._rect = cc.rect(0, 0, w, h);
-        }
-
-        self._calculateUV();
-
-        // dispatch 'load' event of cc.SpriteFrame
-        self.emit("load");
-    },
-
-    /*
-     * !#en Sets the texture of the frame.
-     * !#zh 设置使用的纹理实例。
-     * @method _refreshTexture
-     * @param {Texture2D} texture
-     */
-    _refreshTexture: function (texture) {
-        this._texture = texture;
-        if (texture.loaded) {
-            this._textureLoadedCallback();
-        } else {
-            texture.once('load', this._textureLoadedCallback, this);
-        }
-    },
-
     _textureLoadedCallback () {
         let self = this;
         let texture = this._texture;
@@ -643,7 +597,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._rect.y = frame.y;
         this._calculateUV();
     },
-    
+
     _resetDynamicAtlasFrame () {
         this._rect.x = this._original._x;
         this._rect.y = this._original._y;
