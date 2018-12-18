@@ -30,6 +30,8 @@ import LightComponent from './light-component';
 import ModelComponent from './model-component';
 import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
+import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
+import './physics';
 
 cc.CameraComponent = CameraComponent;
 cc.AnimationComponent = AnimationComponent;
@@ -37,3 +39,6 @@ cc.LightComponent = LightComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
 cc.SkyboxComponent = SkyboxComponent;
+
+cc.BoxColliderComponent = BoxColliderComponent;
+cc.SphereColliderComponent = SphereColliderComponent;
