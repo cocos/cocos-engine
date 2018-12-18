@@ -1,13 +1,13 @@
-import { PhysicalBody , PhysicalBoxShape, PhysicalSphereShape } from './body';
+import { PhysicsBoxShape, PhysicsSphereShape, RigidBody } from './body';
 import './physical-system';
 import './world';
 
 // @ts-ignore
-cc.PhysicalBody = PhysicalBody;
+cc.RigidBody = RigidBody;
 // @ts-ignore
-cc.PhysicalBoxShape = PhysicalBoxShape;
+cc.PhysicsBoxShape = PhysicsBoxShape;
 // @ts-ignore
-cc.PhysicalSphereShape = PhysicalSphereShape;
+cc.PhysicsSphereShape = PhysicsSphereShape;
 
 // namespace cc {
 //     export const PhysicalBody = PhysicalBody;
