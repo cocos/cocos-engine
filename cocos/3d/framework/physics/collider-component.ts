@@ -1,5 +1,5 @@
 
-import { PhysicalBody, PhysicalBoxShape, PhysicalShape, PhysicalSphereShape } from './body';
+import { RigidBody, PhysicsBoxShape, PhysicsShape as PhysicsShape, PhysicsSphereShape } from './body';
 import Component from '../../../components/CCComponent';
 import {
     ccclass,
@@ -8,22 +8,23 @@ import {
     menu,
     property
 } from '../../../core/data/class-decorator';
-import { PhysicalMaterial } from '../../assets/physics/material';
+import { PhysicsMaterial } from '../../assets/physics/material';
+import Vec3 from '../../../core/value-types/vec3';
 
 @ccclass('cc.ColliderComponentBase')
 export class ColliderComponentBase extends Component {
-    protected _shape: PhysicalShape;
+    protected _shape: PhysicsShape;
 
-    private _material: PhysicalMaterial | null = null;
+    private _material: PhysicsMaterial | null = null;
 
-    private _body: PhysicalBody | null = null;
+    private _body: RigidBody | null = null;
 
-    private _center: cc.Vec3;
+    private _center: Vec3;
 
-    constructor(shape: PhysicalShape) {
+    constructor(shape: PhysicsShape) {
         super();
 
-        this._center = new cc.Vec3(0, 0, 0);
+        this._center = new Vec3(0, 0, 0);
         this._shape = shape;
     }
 
@@ -33,26 +34,26 @@ export class ColliderComponentBase extends Component {
     }
 
     public onEnable() {
-        cc.director._physicalSystem.world.addBody(this._body);
+        cc.director._physicsSystem.world.addBody(this._body);
     }
 
     public onDisable() {
-        cc.director._physicalSystem.world.removeBody(this._body);
+        cc.director._physicsSystem.world.removeBody(this._body);
     }
 
-    @property(cc.Vec3)
+    @property(Vec3)
     get center() {
         return this._center;
     }
 
-    set center(value: cc.Vec3) {
-        this._center.set(value.x, value.y, value.z);
+    set center(value: Vec3) {
+        this._center = new Vec3(value.x, value.y, value.z);
         if (this._body) {
             this._body.setCenter(this._shape, this._center);
         }
     }
 
-    @property(PhysicalMaterial)
+    @property(PhysicsMaterial)
     get material() {
         return this._material;
     }
@@ -68,7 +69,7 @@ export class ColliderComponentBase extends Component {
         let component = this.getComponent(ColliderComponentBase) as (ColliderComponentBase | null);
         if (!component) {
             component = this;
-            this._body = new PhysicalBody();
+            this._body = new RigidBody();
         }
         return component._body!;
     }
@@ -80,16 +81,16 @@ export class ColliderComponentBase extends Component {
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponentBase {
     constructor() {
-        super(new PhysicalBoxShape(new cc.Vec3(0, 0, 0)));
+        super(new PhysicsBoxShape(new Vec3(0, 0, 0)));
     }
 
-    @property(cc.Vec3)
+    @property(Vec3)
     get size() {
-        return (this._shape as PhysicalBoxShape).size;
+        return (this._shape as PhysicsBoxShape).size;
     }
 
     set size(value) {
-        (this._shape as PhysicalBoxShape).size = value;
+        (this._shape as PhysicsBoxShape).size = value;
     }
 }
 
@@ -99,18 +100,18 @@ export class BoxColliderComponent extends ColliderComponentBase {
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponentBase {
     constructor() {
-        super(new PhysicalSphereShape(0));
+        super(new PhysicsSphereShape(0));
     }
 
     @property(Number)
     get radius() {
-        return (this._shape as PhysicalSphereShape).radius;
+        return (this._shape as PhysicsSphereShape).radius;
     }
 
     /**
      * @type {number}
      */
     set radius(value) {
-        (this._shape as PhysicalSphereShape).radius = value;
+        (this._shape as PhysicsSphereShape).radius = value;
     }
 }

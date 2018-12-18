@@ -1,13 +1,13 @@
 import { PhysicalWorld } from './world';
 
-export class PhysicalSystem {
+export class PhysicsSystem {
     private _world: PhysicalWorld;
 
     constructor() {
         this._world = new PhysicalWorld();
     }
 
-    update(deltaTime: number) {
+    public update(deltaTime: number) {
         this._world.step(deltaTime);
     }
 
