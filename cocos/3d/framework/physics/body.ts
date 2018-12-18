@@ -1,5 +1,6 @@
 import CANNON from 'cannon';
 import { PhysicalMaterial } from '../../assets/physics/material';
+import Node from '../../../scene-graph/node';
 
 export class PhysicalBody {
     private _material: PhysicalMaterial | null = null;
@@ -8,41 +9,43 @@ export class PhysicalBody {
 
     private _cannonBody: CANNON.Body;
 
-    constructor(shape: PhysicalShape) {
-        this._shape = shape;
+    private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
 
+    constructor() {
         const cannonBodyOptions: CANNON.IBodyOptions = {};
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
 
-        this.shape = this._shape;
+        this._onCollidedListener = this._onCollided.bind(this);
+        this._cannonBody.addEventListener('collide', this._onCollidedListener);
     }
 
-    _getCannonBody() {
+    public destroy() {
+        this._cannonBody.removeEventListener('collide', this._onCollidedListener);
+    }
+
+    public _getCannonBody() {
         return this._cannonBody;
     }
 
-    get shape() {
-        return this._shape;
+    public addShape(shape: PhysicalShape) {
+        this._cannonBody.addShape(shape._getCannonShape());
     }
 
-    set shape(value) {
-        this._shape = value;
-        this._cannonBody.shapes = [];
-        this._cannonBody.addShape(this.shape._getCannonShape());
+    public getCenter(shape: PhysicalShape) {
+        const iShape = this._cannonBody.shapes.indexOf(shape._getCannonShape());
+        if (iShape >= 0) {
+            const shapeOffset = this._cannonBody.shapeOffsets[iShape];
+            return new cc.Vec3(shapeOffset.x, shapeOffset.y, shapeOffset.z);
+        }
+        throw new Error(`shape not found.`);
     }
 
-    get center() {
-        const shapeOffset = this._cannonBody.shapeOffsets[0];
-        return new cc.Vec3(shapeOffset.x, shapeOffset.y, shapeOffset.z);
-    }
-
-    /**
-     * @type {cc.Vec3}
-     */
-    set center(value) {
-        const shapeOffset = this._cannonBody.shapeOffsets[0];
-        shapeOffset.set(value.x, value.y, value.z);
+    public setCenter(shape: PhysicalShape, center: cc.Vec3) {
+        const iShape = this._cannonBody.shapes.indexOf(shape._getCannonShape());
+        if (iShape >= 0) {
+            this._cannonBody.shapeOffsets[iShape].set(center.x, center.y, center.z);
+        }
     }
 
     get material() {
@@ -77,6 +80,24 @@ export class PhysicalBody {
 
     set angularDrag(value) {
         this._cannonBody.angularDamping = value;
+    }
+
+    public push(node: Node) {
+        // @ts-nocheck
+        node.getPosition(this._cannonBody.position);
+        // @ts-nocheck
+        node.getRotation(this._cannonBody.quaternion);
+    }
+
+    public pull(node: Node) {
+        const p = this._cannonBody.position;
+        node.setPosition(p.x, p.y, p.z);
+        const q = this._cannonBody.quaternion;
+        node.setRotation(q.x, q.y, q.z, q.w);
+    }
+
+    private _onCollided(event: CANNON.ICollisionEvent) {
+        console.log(`Collided: ${event.contact}`);
     }
 }
 

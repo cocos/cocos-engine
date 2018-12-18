@@ -786,7 +786,7 @@ export default class BaseNode extends CCObject {
      * 传入参数也可以是脚本的名称。
      * @method getComponent
      * @param {Function|String} typeOrClassName
-     * @return {Component}
+     * @return {Component | null}
      * @example
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);

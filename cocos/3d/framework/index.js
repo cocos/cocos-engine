@@ -31,7 +31,7 @@ import ModelComponent from './model-component';
 import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
-import './physics';
+import './physics/index';
 
 cc.CameraComponent = CameraComponent;
 cc.AnimationComponent = AnimationComponent;
