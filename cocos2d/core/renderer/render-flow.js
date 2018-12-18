@@ -48,6 +48,9 @@ _proto._worldTransform = function (node) {
 _proto._opacity = function (node) {
     _batcher.parentOpacityDirty++;
 
+    let comp = node._renderComponent;
+    if (comp && comp._updateColor) comp._updateColor();
+
     node._renderFlag &= ~OPACITY;
     this._next._func(node);
 
@@ -81,12 +84,13 @@ _proto._children = function (node) {
     batcher.parentOpacity *= (node._opacity / 255);
 
     let worldTransformFlag = batcher.worldMatDirty ? WORLD_TRANSFORM : 0;
+    let worldOpacityFlag = batcher.parentOpacityDirty ? OPACITY : 0;
 
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
-        c._renderFlag |= worldTransformFlag;
+        c._renderFlag |= worldTransformFlag | worldOpacityFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
         _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
 

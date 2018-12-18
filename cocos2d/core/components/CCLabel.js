@@ -464,6 +464,7 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
         this._updateRenderData(true);
@@ -483,6 +484,12 @@ let Label = cc.Class({
             this._ttfTexture = null;
         }
         this._super();
+    },
+
+    _updateColor () {
+        if (!(this.font instanceof cc.BitmapFont)) {
+            this._updateRenderData();
+        }
     },
 
     _canRender () {
