@@ -194,6 +194,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         // the location of the sprite on rendering texture
         this._rect = null;
+        // uv data of frame
+        this.uv = [];
+        // texture of frame
+        this._texture = null;
+        // store original info before packed to dynamic atlas
+        this._original = null;
 
         // for trimming
         this._offset = null;
@@ -207,14 +213,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._capInsets = [0, 0, 0, 0];
 
-        this.uv = [];
         this.uvSliced = [];
 
-        this._texture = null;
         this._textureFilename = '';
-
-        // store original info before packed to dynamic atlas
-        this._original = null;
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -281,7 +282,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (this._texture)
             this._calculateUV();
     },
-
+    
     /**
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
@@ -580,6 +581,29 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 }
             }
         }
+    },
+
+    _setDynamicAtlasFrame (frame) {
+        if (!frame) return;
+
+        this._original = {
+            _texture : this._texture,
+            _x : this._rect.x,
+            _y : this._rect.y
+        }
+        
+        this._texture = frame.texture;
+        this._rect.x = frame.x;
+        this._rect.y = frame.y;
+        this._calculateUV();
+    },
+
+    _resetDynamicAtlasFrame () {
+        this._rect.x = this._original._x;
+        this._rect.y = this._original._y;
+        this._texture = this._original._texture;
+        this._original = null;
+        this._calculateUV();
     },
 
     _calculateUV () {

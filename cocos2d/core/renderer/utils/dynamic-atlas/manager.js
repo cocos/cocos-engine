@@ -103,18 +103,18 @@ let dynamicAtlasManager = {
      * @param {SpriteFrame} spriteFrame 
      */
     insertSpriteFrame (spriteFrame) {
-        if (CC_EDITOR) return;
+        if (CC_EDITOR) return null;
         if (!_enabled || _atlasIndex === _maxAtlasCount ||
-            !spriteFrame || spriteFrame._original) return;
+            !spriteFrame || spriteFrame._original) return null;
         
         let texture = spriteFrame._texture;
-        if (texture instanceof cc.RenderTexture) return;
+        if (texture instanceof cc.RenderTexture || cc.Texture2D._isCompressed(texture)) return null;
 
         let w = texture.width, h = texture.height;
         let min = texture._minFilter, mag = texture._magFilter;
         let LINEAR = cc.Texture2D.Filter.LINEAR;
         if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize || (min & mag) !== LINEAR) {
-            return;
+            return null;
         }
 
         let atlas = _atlases[_atlasIndex];
@@ -122,10 +122,12 @@ let dynamicAtlasManager = {
             atlas = newAtlas();
         }
 
-        if (!atlas.insertSpriteFrame(spriteFrame) && _atlasIndex !== _maxAtlasCount) {
+        let frame = atlas.insertSpriteFrame(spriteFrame);
+        if (!frame && _atlasIndex !== _maxAtlasCount) {
             atlas = newAtlas();
-            atlas.insertSpriteFrame(spriteFrame);
+            return atlas.insertSpriteFrame(spriteFrame);
         }
+        return frame;
     },
 
     /** 
