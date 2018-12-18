@@ -884,7 +884,7 @@ class Director extends EventTarget {
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
                 // User can use this event to do things after update
-                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                this.emit(cc.Director.EVENT_AFTER_UPDATE, this._deltaTime);
                 // Destroy entities that have been removed recently
                 ccobject._deferredDestroy();
             }
