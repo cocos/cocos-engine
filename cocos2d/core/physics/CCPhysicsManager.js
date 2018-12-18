@@ -472,8 +472,7 @@ var PhysicsManager = cc.Class({
             var body = bodies[i];
             if (CC_JSB) {
                 var node = body.node;
-                node._position.x = node._sgNode.getPositionX();
-                node._position.y = node._sgNode.getPositionY();
+                node.setPosition(node._sgNode.getPositionX(),node._sgNode.getPositionY());
                 node._rotationX = node._rotationY = node._sgNode.getRotation();
             }
             

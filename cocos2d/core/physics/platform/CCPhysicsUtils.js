@@ -63,8 +63,7 @@ PhysicsUtils.prototype.syncNode = function () {
 
         // sync position
         var position = node._position;
-        position.x = tempPosition.x;
-        position.y = tempPosition.y;
+        node.setPosition(tempPosition.x,tempPosition.y);
 
         sgNode.setPosition(position);
 
