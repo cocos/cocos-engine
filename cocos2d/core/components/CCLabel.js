@@ -29,7 +29,8 @@ const RenderComponent = require('./CCRenderComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
+const LabelFrame = require('../renderer/utils/label/label-frame');
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -145,6 +146,7 @@ let Label = cc.Class({
         this._actualFontSize = 0;
         this._assemblerData = null;
 
+        this._frame = null;
         this._ttfTexture = null;
     },
 
@@ -430,6 +432,24 @@ let Label = cc.Class({
             }
         },
 
+        _cacheAsBitmap: true,
+        /**
+         * !#en Whether cache label to static texture and draw in dynamicAtlas.
+         * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
+         * @property {Boolean} cacheAsBitmap
+         */
+        cacheAsBitmap: {
+            get () {
+                return this._cacheAsBitmap;
+            },
+            set (value) {
+                if (this._cacheAsBitmap === value) return;
+
+                this._cacheAsBitmap = value;
+                this._updateRenderData();
+            },
+        },
+
         _isBold: {
             default: false,
             serializable: false,
@@ -547,6 +567,9 @@ let Label = cc.Class({
                     spriteFrame.ensureLoadTexture();
                 }
             }
+            
+            // TODO: old texture in material have been released by loader
+            this._frame = spriteFrame;
         }
         else {
             if (!this._ttfTexture) {
@@ -557,8 +580,14 @@ let Label = cc.Class({
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                
+                if (!this._frame) {
+                    this._frame = new LabelFrame();
+                }
+
+                this._frame._refreshTexture(this._ttfTexture);
             }
-            this._texture = this._ttfTexture;
+
             this._activateMaterial(force);
 
             if (force) {
@@ -575,7 +604,7 @@ let Label = cc.Class({
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._texture.url = this.uuid + '_texture';
+            this._frame._texture.url = this.uuid + '_texture';
         }
         // WebGL
         else {
@@ -583,13 +612,13 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             // Setup blend function for premultiplied ttf label texture
-            if (this._texture === this._ttfTexture) {
+            if (this._frame._texture === this._ttfTexture) {
                 this._srcBlendFactor = cc.macro.BlendFactor.ONE;
             }
             else {
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
-            material.texture = this._texture;
+            material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
             this._updateMaterial(material);
@@ -598,7 +627,7 @@ let Label = cc.Class({
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
-
+    
     _updateColor () {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
@@ -621,6 +650,20 @@ let Label = cc.Class({
         if (force) {
             this._updateAssembler();
             this._applyFontTexture(force);
+        }
+    },
+
+    _calDynamicAtlas () {
+        if (!dynamicAtlasManager) return;
+
+        if (!this._frame._original) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._frame);
+            if (frame) {
+                this._frame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._frame._texture) {
+            this._activateMaterial(true);
         }
     },
 

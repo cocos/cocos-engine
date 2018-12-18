@@ -124,7 +124,8 @@ module.exports = {
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
-        this._updateTexture(comp);
+        this._updateTexture();
+        this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
@@ -171,7 +172,7 @@ module.exports = {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = comp._texture;
+        _texture = comp._frame._original ? comp._frame._original._texture : comp._frame._texture;
         
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
@@ -276,6 +277,16 @@ module.exports = {
         }
 
         _texture.handleLoadedTexture();
+    },
+
+    _calDynamicAtlas (comp) {
+        if(!comp.cacheAsBitmap) return;
+        
+        if (!comp._frame._original) {
+            comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
+        }
+        // Add font images to the dynamic atlas for batch rendering.
+        comp._calDynamicAtlas();
     },
 
     _calculateUnderlineStartPosition () {
@@ -498,5 +509,5 @@ module.exports = {
                 _context.font = _fontDesc;
             }
         }
-    }
+    },
 };
