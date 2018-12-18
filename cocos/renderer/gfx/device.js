@@ -1222,8 +1222,6 @@ export default class Device {
     if (cur.program !== next.program) {
       if (next.program._linked) {
         gl.useProgram(next.program._glID);
-      } else {
-        console.warn('Failed to use program: has not linked yet.');
       }
       programDirty = true;
     }

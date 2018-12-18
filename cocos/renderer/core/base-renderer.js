@@ -755,7 +755,7 @@ export default class BaseRenderer {
         device.setPrimitiveType(ia._primitiveType);
 
         // set program
-        let program = programLib.getProgram(pass._programName, defines, dependencies);
+        let program = programLib.getProgram(pass._programName, defines, dependencies, effect._name);
         device.setProgram(program);
 
         // cull mode
