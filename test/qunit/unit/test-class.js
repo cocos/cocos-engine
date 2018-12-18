@@ -266,6 +266,11 @@ largeModule('Class ES6');
             p1 = null;
             @property
             p2 = null;
+            @property({
+                type: cc.Asset
+            })
+            get p3 () {}
+            set p3 (value) {}
         }
 
         deepEqual(Class.__values__, ['p2'], 'should not contain non-serializable properties');
