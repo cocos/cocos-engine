@@ -28,7 +28,7 @@
  * !#zh LabelFrame
  */
 function LabelFrame () {
-    // the location of the sprite on rendering texture
+    // the location of the label on rendering texture
     this._rect = null;
     // uv data of frame
     this.uv = [];
@@ -42,8 +42,8 @@ LabelFrame.prototype = {
     constructor: LabelFrame,
 
      /**
-     * !#en Returns the rect of the sprite frame in the texture.
-     * !#zh 获取 SpriteFrame 的纹理矩形区域
+     * !#en Returns the rect of the label frame in the texture.
+     * !#zh 获取 LabelFrame 的纹理矩形区域
      * @method getRect
      * @return {Rect}
      */
@@ -52,8 +52,8 @@ LabelFrame.prototype = {
     },
     
     /**
-     * !#en Sets the rect of the sprite frame in the texture.
-     * !#zh 设置 SpriteFrame 的纹理矩形区域
+     * !#en Sets the rect of the label frame in the texture.
+     * !#zh 设置 LabelFrame 的纹理矩形区域
      * @method setRect
      * @param {Rect} rect
      */
