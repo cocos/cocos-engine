@@ -1,5 +1,5 @@
 import { PhysicsBoxShape, PhysicsSphereShape, RigidBody } from './body';
-import './physical-system';
+import './physics-system';
 import './world';
 
 // @ts-ignore

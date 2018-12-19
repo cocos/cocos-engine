@@ -35,5 +35,5 @@ import "./sprite";
 import "./web-audio-clip";
 import "./wx-game-audio-clip";
 
-import { PhysicalMaterial } from './physics/material';
-cc.PhysicalMaterial = PhysicalMaterial;
+import { PhysicsMaterial } from './physics/material';
+cc.PhysicsMaterial = PhysicsMaterial;

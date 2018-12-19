@@ -1,10 +1,7 @@
-
-// @ts-check
-
 import CANNON from 'cannon';
 import { RigidBody, RigidBodyType } from './body';
 
-export class PhysicalWorld {
+export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
     private _bodys: Set<RigidBody>;
 
