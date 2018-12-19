@@ -59,7 +59,7 @@ let RenderTexture = cc.Class({
             else if (depthStencilFormat === gfx.RB_FMT_S8) {
                 opts.stencil = depthStencilBuffer;
             }
-            else if (depthStencilFormat === gl.RB_FMT_D16) {
+            else if (depthStencilFormat === gfx.RB_FMT_D16) {
                 opts.depth = depthStencilBuffer;
             }
         }
