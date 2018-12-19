@@ -512,7 +512,7 @@ function _doDispatchEvent (owner, event) {
         }
     }
     _cachedArray.length = 0;
-};
+}
 
 /**
  * !#en

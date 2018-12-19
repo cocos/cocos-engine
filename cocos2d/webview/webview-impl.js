@@ -100,6 +100,13 @@ let WebViewImpl = cc.Class({
         div.style.left = "0px";
     },
 
+    _setOpacity (opacity) {
+        let iframe = this._iframe;
+        if (iframe && iframe.style) {
+            iframe.style.opacity = opacity / 255;
+        }
+    },
+
     _createDom (w, h) {
         if (WebViewImpl._polyfill.enableDiv) {
             this._div = document.createElement("div");
@@ -382,6 +389,9 @@ let WebViewImpl = cc.Class({
         this._div.style['-webkit-transform'] = matrix;
         this._div.style['transform-origin'] = '0px 100% 0px';
         this._div.style['-webkit-transform-origin'] = '0px 100% 0px';
+
+        // chagned iframe opacity
+        this._setOpacity(node.opacity);
     }
 });
 

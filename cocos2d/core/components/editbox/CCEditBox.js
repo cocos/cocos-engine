@@ -499,17 +499,17 @@ let EditBox = cc.Class({
         let textLabelNode = this._textLabel.node,
             placeholderLabelNode = this._placeholderLabel.node,
             backgroundNode = this._background.node;
-            
+
         textLabelNode.x = -this.node.width/2;
         textLabelNode.y = this.node.height/2;
         textLabelNode.width = this.node.width;
         textLabelNode.height = this.node.height;
-        
+
         placeholderLabelNode.x = -this.node.width/2;
         placeholderLabelNode.y = this.node.height/2;
         placeholderLabelNode.width = this.node.width;
-        placeholderLabelNode.height = this.node.height;            
-        
+        placeholderLabelNode.height = this.node.height;
+
         backgroundNode.width = this.node.width;
         backgroundNode.height = this.node.height;
     },
