@@ -15,7 +15,7 @@ import TextureCube from './texture-cube';
 import RenderBuffer from './render-buffer';
 import FrameBuffer from './frame-buffer';
 import Device from './device';
-import { WebGLDevice } from '../../../dist/webgl/webgl-device';
+import { WebGLGFXDevice } from '../../../dist/webgl/webgl-gfx-device';
 
 let gfx = {
   // classes
@@ -29,7 +29,7 @@ let gfx = {
   RenderBuffer,
   FrameBuffer,
   Device,
-  WebGLDevice,
+  WebGLGFXDevice,
 
   // functions
   attrTypeBytes,
