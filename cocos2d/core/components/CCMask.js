@@ -273,6 +273,7 @@ let Mask = cc.Class({
                 // Do not render when sprite frame is not ready
                 this.markForRender(false);
                 if (this._spriteFrame) {
+                    this.markForUpdateRenderData(false);
                     this._spriteFrame.once('load', this._onTextureLoaded, this);
                     this._spriteFrame.ensureLoadTexture();
                 }
