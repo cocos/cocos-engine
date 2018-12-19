@@ -42,7 +42,8 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, programs, properties = {}, lod = -1) {
+    constructor(name, techniques, programs, properties = {}, lod = -1) {
+        this._name = name;
         this._techniques = techniques;
         this._properties = properties;
         this._programs = programs;
@@ -255,7 +256,7 @@ Effect.parseEffect = function(effect) {
         });
     }
 
-    let parsedEffect = new Effect(techniques, programs, uniforms);
+    let parsedEffect = new Effect(effect.name, techniques, programs, uniforms);
     return parsedEffect;
 };
 
@@ -272,7 +273,8 @@ if (CC_EDITOR) {
             programs[pn].defines.forEach(define => {
                 defines[define.name] = {
                     instanceType: getInstanceType(define.type),
-                    value: getInstanceCtor(define.type)()
+                    value: getInstanceCtor(define.type)(),
+                    defines: define.defines
                 };
             });
         }

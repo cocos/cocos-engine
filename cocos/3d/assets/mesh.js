@@ -31,6 +31,7 @@ import gfx from "../../renderer/gfx";
 import { enums as gfxEnums } from "../../renderer/gfx/enums";
 import InputAssembler from "../../renderer/core/input-assembler";
 import BufferRange from "./utils/buffer-range";
+import { Vec3 } from "../../core/value-types";
 
 /**
  * A vertex bundle describes a serials of vertex attributes.
@@ -41,7 +42,7 @@ import BufferRange from "./utils/buffer-range";
 export class VertexBundle {
     /**
      * The data range of this bundle.
-     * This range of data is essentially mapped to a GPU vertex buffer. 
+     * This range of data is essentially mapped to a GPU vertex buffer.
      * @type {BufferRange}
      */
     @property(BufferRange)
@@ -118,13 +119,13 @@ export default class Mesh extends Asset {
     /**
      * The min position of this mesh's vertices.
      */
-    @property(cc.v3)
+    @property(Vec3)
     _minPosition = null;
 
     /**
      * The max position of this mesh's vertices.
      */
-    @property(cc.v3)
+    @property(Vec3)
     _maxPosition = null;
 
     constructor() {
@@ -150,7 +151,7 @@ export default class Mesh extends Asset {
     }
 
     /**
-     * 
+     *
      */
     _lazyInitRenderResources() {
         if (this._subMeshes != null) {
