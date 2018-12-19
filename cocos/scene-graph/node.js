@@ -1,6 +1,8 @@
 import { vec3, mat4, quat } from '../core/vmath';
+import { Vec3 } from '../core/value-types';
 import BaseNode from './base-node';
 import Layers from './layers';
+import Scene from './scene';
 import { EventTarget } from "../core/event";
 import { ccclass, property, mixins } from '../core/data/class-decorator';
 
@@ -31,6 +33,20 @@ class Node extends BaseNode {
     @property
     _euler = cc.v3(); // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
 
+    @property({
+        type: Vec3
+    })
+    set eulerAngles(val) {
+        this.setRotationFromEuler(val.x, val.y, val.z);
+    }
+    get eulerAngles() {
+        if (this._eulerDirty) {
+            quat.toEuler(this._euler, this._lrot);
+            this._eulerDirty = false;
+        }
+        return this._euler;
+    }
+
     // world transform
     _pos = cc.v3();
     _rot = cc.quat();
@@ -40,9 +56,12 @@ class Node extends BaseNode {
     _dirty = false; // does the world transform need to update?
     _hasChanged = false; // has the transform changed in this frame?
 
+    _matDirty = false;
+    _eulerDirty = false;
+
     // is node but not scene
     static isNode (obj) {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof Scene));
     }
 
     static EventType = EventType;
@@ -126,7 +145,7 @@ class Node extends BaseNode {
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
-            if (!cur || cur.isLevel) {
+            if (!cur || cur instanceof Scene) {
                 cur = null;
                 break;
             }
@@ -140,7 +159,7 @@ class Node extends BaseNode {
               quat.mul(child._rot, cur._rot, child._lrot);
               vec3.mul(child._scale, cur._scale, child._lscale);
             }
-            child._mat._dirty = true; // further deferred eval
+            child._matDirty = true; // further deferred eval
             child._dirty = false;
             cur = child;
         }
@@ -148,11 +167,10 @@ class Node extends BaseNode {
 
     updateWorldTransformFull() {
         this.updateWorldTransform();
-        if (!this._mat._dirty) return;
+        if (!this._matDirty) return;
         mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
-        this._mat._dirty = false;
+        this._matDirty = false;
     }
-
 
     // ===============================
     // transform
@@ -203,7 +221,7 @@ class Node extends BaseNode {
             quat.set(this._lrot, val, y, z, w);
         }
         quat.copy(this._rot, this._lrot);
-        this.syncEuler();
+        this._eulerDirty = true;
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
@@ -217,6 +235,7 @@ class Node extends BaseNode {
      */
     setRotationFromEuler(x, y, z) {
         vec3.set(this._euler, x, y, z);
+        this._eulerDirty = false;
         quat.fromEuler(this._lrot, x, y, z);
         quat.copy(this._rot, this._lrot);
 
@@ -280,9 +299,12 @@ class Node extends BaseNode {
         } else if (arguments.length === 3) {
             vec3.set(this._pos, val, y, z);
         }
-        if (this._parent) {
-            this._parent.getWorldPosition(v3_a);
-            vec3.sub(this._lpos, this._pos, v3_a);
+        let parent = this._parent, local = this._lpos;
+        if (parent) {
+            parent.updateWorldTransform();
+            vec3.sub(local, this._pos, parent._pos);
+            vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
+            vec3.div(cc.v3(), local, parent._scale);
         } else {
             vec3.copy(this._lpos, this._pos);
         }
@@ -320,11 +342,11 @@ class Node extends BaseNode {
         }
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
-            quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
+            quat.mul(this._lrot, quat.conjugate(q_a, q_a), this._rot);
         } else {
             quat.copy(this._lrot, this._rot);
         }
-        this.syncEuler();
+        this._eulerDirty = true;
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
@@ -338,6 +360,7 @@ class Node extends BaseNode {
      */
     setWorldRotationFromEuler(x, y, z) {
         vec3.set(this._euler, x, y, z);
+        this._eulerDirty = false;
         quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
@@ -447,23 +470,24 @@ class Node extends BaseNode {
 
 if (CC_EDITOR) {
     let repeat = (t, l) => t - Math.floor(t / l) * l;
-    Node.prototype.syncEuler = function() {
-        let eu = this._euler;
-        quat.toEuler(v3_a, this._lrot);
-        eu.x = repeat(v3_a.x - eu.x + 180, 360) + eu.x - 180;
-        eu.y = repeat(v3_a.y - eu.y + 180, 360) + eu.y - 180;
-        eu.z = repeat(v3_a.z - eu.z + 180, 360) + eu.z - 180;
-    };
     let desc = {
         set(val) {
             this.setRotationFromEuler(val.x, val.y, val.z);
         },
         get() {
+            if (this._eulerDirty) {
+                let eu = this._euler;
+                quat.toEuler(v3_a, this._lrot);
+                eu.x = repeat(v3_a.x - eu.x + 180, 360) + eu.x - 180;
+                eu.y = repeat(v3_a.y - eu.y + 180, 360) + eu.y - 180;
+                eu.z = repeat(v3_a.z - eu.z + 180, 360) + eu.z - 180;
+                this._eulerDirty = false;
+            }
             return this._euler;
         }
     };
     Object.defineProperty(Node.prototype, 'eulerAngles', desc);
-} else Node.prototype.syncEuler = function() {};
+}
 
 cc.Node = Node;
 export default Node;
