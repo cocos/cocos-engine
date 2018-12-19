@@ -40,36 +40,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SDKWrapper {
-	private Context mainActive = null;
-	private static SDKWrapper mInstace = null;
-	private List<SDKClass> sdkClasses;
+    private Context mainActive = null;
+    private static SDKWrapper mInstace = null;
+    private List<SDKClass> sdkClasses;
 
-	public static SDKWrapper getInstance() {
-		if (null == mInstace){
-			mInstace = new SDKWrapper();
-		}
-		return mInstace;	
-	}
-	
-	public void init(Context context) {
-		this.mainActive = context;
-        for (SDKClass sdk: this.sdkClasses) {
+    public static SDKWrapper getInstance() {
+        if (null == mInstace) {
+            mInstace = new SDKWrapper();
+        }
+        return mInstace;
+    }
+
+    public void init(Context context) {
+        this.mainActive = context;
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.init(context);
         }
-	}
+    }
 
-	public void loadSDKClass() {
+    public Context getContext() {
+        return this.mainActive;
+    }
+
+    public void loadSDKClass() {
         ArrayList<SDKClass> classes = new ArrayList<SDKClass>();
         try {
             String json = this.getJson(this.mainActive, "project.json");
             JSONObject jsonObject = new JSONObject(json);
             JSONArray serviceClassPath = jsonObject.getJSONArray("serviceClassPath");
-            if (serviceClassPath == null)
-                return;
+            if (serviceClassPath == null) return;
             int length = serviceClassPath.length();
             for (int i = 0; i < length; i++) {
                 String classPath = serviceClassPath.getString(i);
-                SDKClass sdk = (SDKClass)Class.forName(classPath).newInstance();
+                SDKClass sdk = (SDKClass) Class.forName(classPath).newInstance();
                 classes.add(sdk);
             }
         } catch (Exception e) {
@@ -78,100 +81,99 @@ public class SDKWrapper {
         this.sdkClasses = classes;
     }
 
-	private String getJson(Context mContext, String fileName) {
-		StringBuilder sb = new StringBuilder();
-		AssetManager am = mContext.getAssets();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(am.open(fileName)));
-			String next = "";
-			while (null != (next = br.readLine())) {
-				sb.append(next);
-			}
-		} catch (IOException e) { ;
-			e.printStackTrace();
-			sb.delete(0, sb.length());
-		}
-		return sb.toString().trim();
-	}
+    private String getJson(Context mContext, String fileName) {
+        StringBuilder sb = new StringBuilder();
+        AssetManager am = mContext.getAssets();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(am.open(fileName)));
+            String next = "";
+            while (null != (next = br.readLine())) {
+                sb.append(next);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            sb.delete(0, sb.length());
+        }
+        return sb.toString().trim();
+    }
 
-	
-	public void setGLSurfaceView(GLSurfaceView view, Context context) {
-	    this.mainActive = context;
-	    this.loadSDKClass();
-        for (SDKClass sdk: this.sdkClasses) {
+    public void setGLSurfaceView(GLSurfaceView view, Context context) {
+        this.mainActive = context;
+        this.loadSDKClass();
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.setGLSurfaceView(view);
         }
-	}
-	
-	public void onResume() {
-        for (SDKClass sdk: this.sdkClasses) {
+    }
+
+    public void onResume() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onResume();
         }
-	}
+    }
 
-	public void onPause() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onPause() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onPause();
         }
-	}
+    }
 
-	public void onDestroy() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onDestroy() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onDestroy();
         }
-	}
+    }
 
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onActivityResult(requestCode, resultCode, data);
         }
-	}
+    }
 
-	public void onNewIntent(Intent intent) {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onNewIntent(Intent intent) {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onNewIntent(intent);
         }
-	}
+    }
 
-	public void onRestart() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onRestart() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onRestart();
         }
-	}
+    }
 
-	public void onStop() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onStop() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onStop();
         }
-	}
+    }
 
-	public void onBackPressed() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onBackPressed() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onBackPressed();
         }
-	}
+    }
 
-	public void onConfigurationChanged(Configuration newConfig) {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onConfigurationChanged(Configuration newConfig) {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onConfigurationChanged(newConfig);
         }
-	}
+    }
 
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onRestoreInstanceState(savedInstanceState);
         }
-	}
+    }
 
-	public void onSaveInstanceState(Bundle outState) {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onSaveInstanceState(Bundle outState) {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onSaveInstanceState(outState);
         }
-	}
+    }
 
-	public void onStart() {
-        for (SDKClass sdk: this.sdkClasses) {
+    public void onStart() {
+        for (SDKClass sdk : this.sdkClasses) {
             sdk.onStart();
         }
-	}
+    }
 }
