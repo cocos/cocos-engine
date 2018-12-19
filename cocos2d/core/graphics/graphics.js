@@ -25,7 +25,9 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const SpriteMaterial = require('../renderer/render-engine').SpriteMaterial;
+const renderEngine = require('../renderer/render-engine');
+const SpriteMaterial = renderEngine.SpriteMaterial;
+const gfx = renderEngine.gfx;
 
 const Types = require('./types');
 const LineCap = Types.LineCap;
@@ -45,6 +47,7 @@ let Graphics = cc.Class({
 
     ctor () {
         this._impl = Graphics._assembler.createImpl(this);
+        this._vertexFormat = gfx.VertexFormat.XY_Color;
     },
 
     properties: {
@@ -389,5 +392,5 @@ let Graphics = cc.Class({
 });
 
 cc.Graphics = module.exports = Graphics;
-cc.Graphics.types = Types;
-cc.Graphics.helper = require('./helper');
+cc.Graphics.Types = Types;
+cc.Graphics.Helper = require('./helper');
