@@ -2,7 +2,6 @@ import { vec3, mat4, quat } from '../core/vmath';
 import { Vec3 } from '../core/value-types';
 import BaseNode from './base-node';
 import Layers from './layers';
-import Scene from './scene';
 import { EventTarget } from "../core/event";
 import { ccclass, property, mixins } from '../core/data/class-decorator';
 
@@ -47,6 +46,14 @@ class Node extends BaseNode {
         return this._euler;
     }
 
+    set layer(l) {
+        this._layer = l;
+    }
+
+    get layer() {
+        return this._layer;
+    }
+
     // world transform
     _pos = cc.v3();
     _rot = cc.quat();
@@ -61,7 +68,7 @@ class Node extends BaseNode {
 
     // is node but not scene
     static isNode (obj) {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof Scene));
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
     static EventType = EventType;
@@ -145,7 +152,7 @@ class Node extends BaseNode {
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
-            if (!cur || cur instanceof Scene) {
+            if (!cur) {
                 cur = null;
                 break;
             }
