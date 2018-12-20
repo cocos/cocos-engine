@@ -7,8 +7,8 @@ let AnimateAction = cc.Class({
         this._opts = opts = opts || Object.create(null);
         this._props = Object.create(null);
 
-        // global easing or process used for this action
-        opts.process = opts.process || this.process;
+        // global easing or progress used for this action
+        opts.progress = opts.progress || this.progress;
         if (opts.easing && typeof opts.easing === 'string') {
             opts.easing = cc.easing[opts.easing];
         }
@@ -16,11 +16,11 @@ let AnimateAction = cc.Class({
         for (let name in props) {
             let value = props[name];
 
-            // property may have custom easing or process function
-            let easing, process;
-            if (value.value && (value.easing || value.process)) {
+            // property may have custom easing or progress function
+            let easing, progress;
+            if (value.value && (value.easing || value.progress)) {
                 easing = typeof value.easing === 'string' ? cc.easing[value.easing] : value.easing;
-                process = value.process;
+                progress = value.progress;
                 value = value.value;
             }
 
@@ -33,7 +33,7 @@ let AnimateAction = cc.Class({
             let prop = Object.create(null);
             prop.value = value;
             prop.easing = easing;
-            prop.process = process;
+            prop.progress = progress;
             this._props[name] = prop;
         }
 
@@ -78,16 +78,16 @@ let AnimateAction = cc.Class({
         if (!target) return;
             
         let props = this._props;
-        let process = this._opts.process;
+        let progress = this._opts.progress;
         for (let name in props) {
             let prop = props[name];
             let time = prop.easing ? prop.easing(t) : easingTime;
-            let current = prop.current = (prop.process || process)(prop.start, prop.end, prop.current, time);
+            let current = prop.current = (prop.progress || progress)(prop.start, prop.end, prop.current, time);
             target[name] = current;
         }
     },
 
-    process (start, end, current, t) {
+    progress (start, end, current, t) {
         if (typeof start === 'number') {
             current = start + (end - start) * t;
         }
@@ -147,7 +147,7 @@ Animate.prototype.add = function (other) {
  * @param {Object} target
  */
 Animate.prototype.run = function (target) {
-    let action = this._getUnion();
+    let action = this.get();
     cc.director.getActionManager().addAction(action, target, false);
     return this;
 };
@@ -160,11 +160,19 @@ Animate.prototype.run = function (target) {
  * @method clone
  */
 Animate.prototype.clone = function () {
-    let action = this._getUnion();
+    let action = this.get();
     return cc.animate().add(action.clone());
 };
 
-Animate.prototype._getUnion = function () {
+/**
+ * !#en
+ * Get an union action from current sequence
+ * !#zh
+ * 从当前队列中获取一个整合的 action
+ * @method get
+ * @return Action
+ */
+Animate.prototype.get = function () {
     let actions = this._actions;
 
     if (actions.length === 1) {
@@ -335,7 +343,7 @@ for (let i = 0; i < keys.length; i++) {
 
         let action = arguments[0];
         if (!(action instanceof cc.Action)) {
-            action = this._getUnion();
+            action = this.get();
         }
         action = otherActions[key].apply(otherActions, [action].concat(args));
         this._actions.length = 0;
