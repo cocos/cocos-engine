@@ -235,8 +235,8 @@ Audio.State = {
             return;
         }
 
-        this._unbindEnded();
         if (!(CC_QQPLAY || CC_WECHATGAME)) {
+            this._unbindEnded();
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));

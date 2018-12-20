@@ -197,7 +197,8 @@ module.exports = {
             "vertical_direction": "Vertically align in the direction of the child Nodes: \n 1. TOP_TO_BOTTOM, \n 2. BOTTOM_TO_TOP",
             "horizontal_direction": "Horizontally align in the direction of the child Nodes: \n 1. LEFT_TO_RIGHT \n 2. RIGHT_TO_LEFT",
             "cell_size": "In Grid layout, the size of each child element.",
-            "start_axis": "In Grid layout, the arrangement direction of children elements."
+            "start_axis": "In Grid layout, the arrangement direction of children elements.",
+            "affected_by_scale": "Whether the scaling of the child node affects the layout."
         },
         "particle": {
             "export_title": "Export custom particle data to plist file.",

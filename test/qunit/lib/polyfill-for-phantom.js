@@ -151,4 +151,10 @@ if (!Object.assign) {
             return to;
         }
     });
-  }
+}
+
+if (!Object.getOwnPropertySymbols) {
+    Object.getOwnPropertySymbols = function () {
+        return [];
+    };
+}

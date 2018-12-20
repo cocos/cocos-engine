@@ -90,6 +90,17 @@ let getAudioFromId = function (id) {
     return _id2audio[id];
 };
 
+let handleVolume  = function (volume) {
+    if (volume === undefined) {
+        // set default volume as 1
+        volume = 1;
+    }
+    else if (typeof volume === 'string') {
+        volume = Number.parseFloat(volume);
+    }
+    return volume;
+};
+
 /**
  * !#en cc.audioEngine is the singleton object, it provide simple audio APIs.
  * !#zh
@@ -150,9 +161,7 @@ var audioEngine = {
         }
 
         audio.setLoop(loop || false);
-        if (typeof volume !== 'number') {
-            volume = 1;
-        }
+        volume = handleVolume(volume);
         audio.setVolume(volume);
         audio.play();
 
@@ -647,6 +656,7 @@ var audioEngine = {
      * cc.audioEngine.setMusicVolume(0.5);
      */
     setMusicVolume: function (volume) {
+        volume = handleVolume(volume);
         var music = this._music;
         music.volume = volume;
         this.setVolume(music.id, music.volume);
@@ -690,6 +700,7 @@ var audioEngine = {
      * cc.audioEngine.setEffectsVolume(0.5);
      */
     setEffectsVolume: function (volume) {
+        volume = handleVolume(volume);
         var musicId = this._music.id;
         this._effect.volume = volume;
         for (var id in _id2audio) {
