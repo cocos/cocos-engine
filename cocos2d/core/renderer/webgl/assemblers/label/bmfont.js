@@ -35,21 +35,25 @@ module.exports = js.addon({
         let node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,
-            color = node._color._val;
+            color = node.color._val;
         
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
         
         let vertexCount = renderData.vertexCount;
         buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
+
 
         for (let i = 0; i < vertexCount; i++) {
             let vert = data[i];
@@ -58,6 +62,18 @@ module.exports = js.addon({
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
             uintbuf[vertexOffset++] = color;
+        }
+        
+        // fill indice data
+        for (let i = 0, count = vertexCount / 4; i < count; i++)
+        {
+            let start = vertexId + i * 4;
+            ibuf[indiceOffset++] = start;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 2;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 3;
+            ibuf[indiceOffset++] = start + 2;
         }
     },
 
