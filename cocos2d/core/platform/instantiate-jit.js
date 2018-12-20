@@ -362,6 +362,31 @@ proto.instantiateArray = function (value) {
     return codeArray;
 };
 
+proto.instantiateTypedArray = function (value) {
+    let type = value.constructor.name;
+    if (value.length === 0) {
+        return 'new ' + type;
+    }
+
+    let arrayVar = LOCAL_ARRAY + (++this.localVariableId);
+    let declaration = new Declaration(arrayVar, 'new ' + type + '(' + value.length + ')');
+    let codeArray = [declaration];
+
+    // assign a _iN$t flag to indicate that this object has been parsed.
+    value._iN$t = {
+        globalVar: '',      // the name of declared global variable used to access this object
+        source: codeArray,  // the source code array for this object
+    };
+    this.objsToClear_iN$t.push(value);
+
+    for (var i = 0; i < value.length; ++i) {
+        var statement = arrayVar + '[' + i + ']=';
+        var expression = this.enumerateField(value, i, value[i]);
+        writeAssignment(codeArray, statement, expression);
+    }
+    return codeArray;
+};
+
 proto.enumerateField = function (obj, key, value) {
     if (typeof value === 'object' && value) {
         var _iN$t = value._iN$t;
@@ -382,6 +407,9 @@ proto.enumerateField = function (obj, key, value) {
                 // }
             }
             return globalVar;
+        }
+        else if (ArrayBuffer.isView(value)) {
+            return this.instantiateTypedArray(value);
         }
         else if (Array.isArray(value)) {
             return this.instantiateArray(value);
