@@ -23,8 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../platform/js');
-const ttfUtls = require('../../../utils/label/ttf');
+const js = require('../../../../../platform/js');
+const ttfUtls = require('../../../../utils/label/ttf');
+
+const WHITE_VAL = cc.Color.WHITE._val;
 
 module.exports = js.addon({
     createData (comp) {
@@ -49,7 +51,7 @@ module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let data = comp._renderData._data,
             node = comp.node,
-            color = node._color._val,
+            color = WHITE_VAL,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
