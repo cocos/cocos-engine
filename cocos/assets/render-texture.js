@@ -1,5 +1,5 @@
 import gfx from '../renderer/gfx';
-import Texture2D from './CCTexture2D';
+import Texture2D from './texture-2d';
 import { ccclass } from '../core/data/class-decorator';
 
 /**
@@ -28,32 +28,15 @@ export default class RenderTexture extends Texture2D {
     initWithSize (width, height, depthStencilFormat) {
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
+        this._resetUnderlyingMipmaps();
 
-        let opts = {};
-        opts.format = this._format;
-        opts.width = width;
-        opts.height = height;
-        opts.images = undefined;
-        opts.wrapS = this._wrapS;
-        opts.wrapT = this._wrapT;
-        opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.minFilter = Texture2D._FilterIndex[this._minFilter];
-        opts.magFilter = Texture2D._FilterIndex[this._magFilter];
-
-        if (!this._texture) {
-            this._texture = new gfx.Texture2D(cc.game._renderContext, opts);
-        }
-        else {
-            this._texture.update(opts);
-        }
-
-        opts = {
+        let opts = {
             colors: [ this._texture ],
         };
         if (depthStencilFormat) {
-            let depthStencilBuffer = new gfx.RenderBuffer(cc.game._renderContext, depthStencilFormat, width, height);
+            let depthStencilBuffer = new gfx.RenderBuffer(cc.game._renderContext, depthStencilFormat, this.width, this.height);
             if (depthStencilFormat === gfx.RB_FMT_D24S8) {
-                opts.depth = opts.stencil = depthStencilBuffer;
+                opts.depthStencil = depthStencilBuffer;
             }
             else if (depthStencilFormat === gfx.RB_FMT_S8) {
                 opts.stencil = depthStencilBuffer;
@@ -66,7 +49,7 @@ export default class RenderTexture extends Texture2D {
         if (this._framebuffer) {
             this._framebuffer.destroy();
         }
-        this._framebuffer = new gfx.FrameBuffer(cc.game._renderContext, width, height, opts);
+        this._framebuffer = new gfx.FrameBuffer(cc.game._renderContext, this.width, this.height, opts);
 
         this.loaded = true;
         this.emit("load");

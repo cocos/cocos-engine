@@ -1,4 +1,4 @@
-import Texture2D from '../../assets/CCTexture2D';
+import Texture2D from '../../assets/texture-2d';
 import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
 import Material from '../assets/material';
@@ -28,7 +28,7 @@ let builtinResMgr = {
         const canvasImage = new ImageAsset(canvas);
 
         // default-texture
-        let defaultTexture = new Texture2D(device);
+        let defaultTexture = new Texture2D();
         defaultTexture.setMipFilter(Texture2D.Filter.LINEAR);
         defaultTexture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
         defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
@@ -36,7 +36,7 @@ let builtinResMgr = {
         defaultTexture.image = canvasImage;
 
         // default-texture-cube
-        let defaultTextureCube = new TextureCube(device);
+        let defaultTextureCube = new TextureCube();
         defaultTextureCube._uuid = 'default-texture-cube';
         defaultTextureCube.image = {
             front: canvasImage,
@@ -53,7 +53,7 @@ let builtinResMgr = {
         context.fillRect(0, 0, 2, 2);
 
         // black-texture
-        let blackTexture = new Texture2D(device);
+        let blackTexture = new Texture2D();
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         blackTexture._uuid = 'black-texture';
@@ -65,7 +65,7 @@ let builtinResMgr = {
         context.fillRect(0, 0, 2, 2);
 
         // white-texture
-        let whiteTexture = new Texture2D(device);
+        let whiteTexture = new Texture2D();
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         whiteTexture._uuid = 'white-texture';

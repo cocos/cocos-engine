@@ -29,7 +29,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import ImageAsset from '../../assets/image-asset';
 
 /**
- * @typedef {import("../../assets/CCTexture2D")} Texture2D
+ * @typedef {import("../../assets/texture-2d")} Texture2D
  * @typedef {import("../../assets/texture-base").ImageSource} ImageSource
  * @typedef {import("../../assets/texture-base").TextureUpdateOpts} TextureUpdateOpts
  * @typedef {import("../../assets/texture-base").HTMLImageSource} HTMLImageSource

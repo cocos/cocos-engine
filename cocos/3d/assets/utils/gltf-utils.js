@@ -3,7 +3,7 @@ import gfx from "../../../renderer/gfx";
 import { enums as gfxEnums } from "../../../renderer/gfx/enums";
 import { vec3 } from "../../../core/vmath";
 import Node from "../../../scene-graph/node";
-import Texture from "../../../assets/CCTexture2D";
+import Texture from "../../../assets/texture-2d";
 import { WrapMode, Filter } from "../../../assets/texture-base";
 import Material from "../material";
 import Mesh, { Primitive, VertexBundle } from "../mesh";
@@ -22,7 +22,7 @@ import AnimationClip, { AnimationFrame, AnimationChannel } from "../animation-cl
  */
 
 /**
- * 
+ *
  * @param {GLTFNode} gltfNode
  */
 export function createNode(gltfNode) {
@@ -66,8 +66,8 @@ class BufferBlob {
     }
 
     /**
-     * 
-     * @param {ArrayBuffer} arrayBuffer 
+     *
+     * @param {ArrayBuffer} arrayBuffer
      * @return {number}
      */
     addBuffer(arrayBuffer) {
@@ -99,9 +99,9 @@ class BufferBlob {
 
 export class GltfConverter {
     /**
-     * 
-     * @param {Gltf} gltf 
-     * @param {Buffer[]} buffers 
+     *
+     * @param {Gltf} gltf
+     * @param {Buffer[]} buffers
      */
     constructor(gltf, buffers) {
         /**
@@ -115,8 +115,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} index 
+     *
+     * @param {number} index
      * @return {{mesh: Mesh, buffer: ArrayBuffer}}
      */
     createMesh(index) {
@@ -362,9 +362,9 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} index 
-     * @param {Texture} textures 
+     *
+     * @param {number} index
+     * @param {Texture} textures
      */
     createMaterial(index, textures) {
         if (this._gltf.materials === undefined || index >= this._gltf.materials.length) {
@@ -398,8 +398,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} index 
+     *
+     * @param {number} index
      */
     createTexture(index) {
         if (this._gltf.textures === undefined || index >= this._gltf.textures.length) {
@@ -455,10 +455,10 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {GltfAccessor} gltfAccessor 
-     * @param {DataView} outputBuffer 
-     * @param {number} outputStride 
+     *
+     * @param {GltfAccessor} gltfAccessor
+     * @param {DataView} outputBuffer
+     * @param {number} outputStride
      */
     _readAccessor(gltfAccessor, outputBuffer, outputStride = 0) {
         const gltfBufferView = this._requireGltfBufferView(gltfAccessor.bufferView);
@@ -493,8 +493,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} mode 
+     *
+     * @param {number} mode
      */
     _getTopology(mode) {
         switch (mode) {
@@ -511,32 +511,32 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} componentType 
+     *
+     * @param {number} componentType
      */
     _getGfxIndexUnitType(componentType) {
         return componentType;
     }
 
     /**
-     * 
-     * @param {number} componentType 
+     *
+     * @param {number} componentType
      */
     _getGfxComponentType(componentType) {
         return componentType;
     }
 
     /**
-     * 
-     * @param {GltfAccessor} gltfAccessor 
+     *
+     * @param {GltfAccessor} gltfAccessor
      */
     _getBytesPerAttribute(gltfAccessor) {
         return this._getBytesPerComponent(gltfAccessor.componentType) * this._getComponentsPerAttribute(gltfAccessor.type);
     }
 
     /**
-     * 
-     * @param {string} type 
+     *
+     * @param {string} type
      */
     _getComponentsPerAttribute(type) {
         switch (type) {
@@ -552,8 +552,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} componentType 
+     *
+     * @param {number} componentType
      */
     _getBytesPerComponent(componentType) {
         switch (componentType) {
@@ -566,8 +566,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {string} name 
+     *
+     * @param {string} name
      */
     _getGfxAttributeName(name) {
         switch (name) {
@@ -587,8 +587,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} componentType 
+     *
+     * @param {number} componentType
      * @return {(buffer: DataView, offset: number) => number}
      */
     _getComponentReader(componentType) {
@@ -605,8 +605,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} componentType 
+     *
+     * @param {number} componentType
      * @return {(buffer: DataView, offset: number, value: number) => void}
      */
     _getComponentWriter(componentType) {
@@ -623,8 +623,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} filter 
+     *
+     * @param {number} filter
      */
     _getFilter(filter) {
         switch (filter) {
@@ -638,8 +638,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} wrapMode 
+     *
+     * @param {number} wrapMode
      */
     _getWrapMode(wrapMode) {
         switch (wrapMode) {
@@ -655,8 +655,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} index 
+     *
+     * @param {number} index
      * @return {GltfBuffer}
      */
     _requireGltfBuffer(index) {
@@ -668,7 +668,7 @@ export class GltfConverter {
 
     /**
      * @return {GltfBufferView}
-     * @param {number} index 
+     * @param {number} index
      */
     _requireGltfBufferView(index) {
         if (this._gltf.bufferViews === undefined) {
@@ -678,8 +678,8 @@ export class GltfConverter {
     }
 
     /**
-     * 
-     * @param {number} index 
+     *
+     * @param {number} index
      * @return {GltfAccessor}
      */
     _requireGltfAccessor(index) {
@@ -690,7 +690,7 @@ export class GltfConverter {
     }
 
     /**
-     * @param {number} index 
+     * @param {number} index
      * @return {GltfSampler}
      * @private
      */

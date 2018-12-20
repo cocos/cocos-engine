@@ -29,7 +29,7 @@ import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
 import ShelfPack from "./utils/shelf-pack";
 import ImageAsset from "../../assets/image-asset";
-import Texture2D from "../../assets/CCTexture2D";
+import Texture2D from "../../assets/texture-2d";
 
 @ccclass('cc.OpentypeFont')
 export default class OpentypeFont extends Font {

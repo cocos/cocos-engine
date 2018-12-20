@@ -64,8 +64,8 @@ let CameraProjection = Enum({
 
 let CameraClearFlag = Enum({
     SKYBOX: enums.CLEAR_SKYBOX,
-    SOLID_COLOR: enums.CLEAR_COLOR | enums.CLEAR_DEPTH,
-    DEPTH_ONLY: enums.CLEAR_DEPTH,
+    SOLID_COLOR: enums.CLEAR_COLOR | enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
+    DEPTH_ONLY: enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
     DONT_CLEAR: 0
 });
 
@@ -98,7 +98,7 @@ export default class CameraComponent extends RenderSystemActor{
     _far = 1000.0;
 
     @property
-    _color = Color.WHITE;
+    _color = cc.color('#334C78');
 
     @property
     _depth = 1;
