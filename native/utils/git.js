@@ -77,7 +77,9 @@ function exec(cmdArgs, path, cb, options) {
                 text.indexOf('remote fireball already exists') === -1
             ) {
                 process.stderr.write(Chalk.red(text));
-                if (text.indexOf('Could not read from remote repository') === -1) {
+                if (!text.includes('Could not read from remote repository') &&
+                    !text.includes('The remote end hung up unexpectedly')
+                ) {
                     process.exit(1);
                 }
                 else {
