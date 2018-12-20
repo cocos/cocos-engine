@@ -586,6 +586,8 @@ let Label = cc.Class({
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
             material.texture = this._texture;
+            // For batch rendering, do not use uniform color.
+            material.useColor = false;
             this._updateMaterial(material);
         }
 
