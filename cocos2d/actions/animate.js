@@ -119,14 +119,22 @@ function Animate () {
 
 /**
  * !#en
- * Add a action to this sequence
+ * Add an action or animate to this sequence
  * !#zh
- * 添加一个 action 到队列中
+ * 添加一个 action 或者 animate 到队列中
  * @method add 
- * @param {Action} action
+ * @param {Action|Animate} other
  */
-Animate.prototype.add = function (action) {
-    this._actions.push(action);
+Animate.prototype.add = function (other) {
+    if (other instanceof cc.Action) {
+        this._actions.push(other.clone());
+    }
+    else {
+        let actions = other._actions;
+        for (let i = 0; i < actions.length; i++) {
+            this._actions.push(actions[i].clone());
+        }
+    }
     return this;
 };
 
