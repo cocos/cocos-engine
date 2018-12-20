@@ -37,11 +37,12 @@ let AnimateAction = cc.Class({
             this._props[name] = prop;
         }
 
+        this._originProps = props;
 		this.initWithDuration(duration);
     },
 
     clone () {
-        var action = new AnimateAction(this._duration, this._props, this._opts);
+        var action = new AnimateAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
     },
@@ -126,6 +127,7 @@ function Animate () {
  */
 Animate.prototype.add = function (action) {
     this._actions.push(action);
+    return this;
 };
 
 /**
@@ -140,6 +142,18 @@ Animate.prototype.run = function (target) {
     let action = this._getUnion();
     cc.director.getActionManager().addAction(action, target, false);
     return this;
+};
+
+/**
+ * !#en
+ * Clone a animate
+ * !#zh
+ * 克隆当前 animate
+ * @method clone
+ */
+Animate.prototype.clone = function () {
+    let action = this._getUnion();
+    return cc.animate().add(action.clone());
 };
 
 Animate.prototype._getUnion = function () {
