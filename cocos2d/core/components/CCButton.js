@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
-const misc = require('../utils/misc');
 
 /**
  * !#en Enum for transition type.
@@ -134,9 +133,10 @@ let Button = cc.Class({
         this._toColor = null;
         this._time = 0;
         this._transitionFinished = true;
-        this._fromScale = 1.0;
-        this._toScale = 1.0;
-        this._originalScale = 1.0;
+        // init _originalScale in __preload()
+        this._fromScale = cc.Vec2.ZERO;
+        this._toScale = cc.Vec2.ZERO;
+        this._originalScale = cc.Vec2.ZERO;
 
         this._sprite = null;
     },
@@ -296,7 +296,9 @@ let Button = cc.Class({
         /**
          * !#en  When user press the button, the button will zoom to a scale.
          * The final scale of the button  equals (button original scale * zoomScale)
+         * Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
          * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale
+         * 不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
          * @property {Number} zoomScale
          */
         zoomScale: {
@@ -421,7 +423,8 @@ let Button = cc.Class({
         if (transition === Transition.COLOR && this.interactable) {
             this._setTargetColor(this.normalColor);
         } else if (transition === Transition.SCALE) {
-            target.scale = this._originalScale;
+            target.scaleX = this._originalScale.x;
+            target.scaleY = this._originalScale.y;
         }
         this._transitionFinished = true;
     },
@@ -563,7 +566,7 @@ let Button = cc.Class({
             let color = this._fromColor.lerp(this._toColor, ratio);
             this._setTargetColor(color);
         } else if (this.transition === Transition.SCALE) {
-            target.scale = misc.lerp(this._fromScale, this._toScale, ratio);
+            target.scale = this._fromScale.lerp(this._toScale, ratio);
         }
 
     },
@@ -589,7 +592,8 @@ let Button = cc.Class({
     _applyTarget () {
         let target = this._getTarget();
         this._sprite = this._getTargetSprite(target);
-        this._originalScale = target.scale;
+        this._originalScale.x = target.scaleX;
+        this._originalScale.y = target.scaleY;
     },
 
     // touch event handler
@@ -611,13 +615,16 @@ let Button = cc.Class({
 
         if (this.transition === Transition.SCALE) {
             if (hit) {
-                this._fromScale = this._originalScale;
-                this._toScale = this._originalScale * this.zoomScale;
+                this._fromScale.x = this._originalScale.x;
+                this._fromScale.y = this._originalScale.y;
+                this._toScale.x = this._originalScale.x * this.zoomScale;
+                this._toScale.y = this._originalScale.y * this.zoomScale;
                 this._transitionFinished = false;
             } else {
                 this.time = 0;
                 this._transitionFinished = true;
-                target.scale = this._originalScale;
+                target.scaleX = this._originalScale.x;
+                target.scaleY = this._originalScale.y;
             }
         } else {
             let state;
@@ -726,16 +733,20 @@ let Button = cc.Class({
     },
 
     _zoomUp () {
-        this._fromScale = this._originalScale;
-        this._toScale = this._originalScale * this.zoomScale;
+        this._fromScale.x = this._originalScale.x;
+        this._fromScale.y = this._originalScale.y;
+        this._toScale.x = this._originalScale.x * this.zoomScale;
+        this._toScale.y = this._originalScale.y * this.zoomScale;
         this.time = 0;
         this._transitionFinished = false;
     },
 
     _zoomBack () {
         let target = this._getTarget();
-        this._fromScale = target.scale;
-        this._toScale = this._originalScale;
+        this._fromScale.x = target.scaleX;
+        this._fromScale.y = target.scaleY;
+        this._toScale.x = this._originalScale.x;
+        this._toScale.y = this._originalScale.y;
         this.time = 0;
         this._transitionFinished = false;
     },
