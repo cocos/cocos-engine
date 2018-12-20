@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -109,9 +109,8 @@ module.exports = {
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vertexCount = renderData.vertexCount;
-        
-        let indiceOffset = buffer.indiceOffset,
+            vertexCount = renderData.vertexCount,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         let uvSliced = sprite.spriteFrame.uvSliced;
