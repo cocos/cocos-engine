@@ -24,7 +24,7 @@ export class PhysicsWorld {
     public step(deltaTime: number) {
         this._bodys.forEach((physicalBody) => {
             if (physicalBody.type !== RigidBodyType.STATIC) {
-                physicalBody.pull();
+                physicalBody.push();
             }
         });
 

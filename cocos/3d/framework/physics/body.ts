@@ -1,7 +1,8 @@
 import CANNON from 'cannon';
-import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
-import Node from '../../../scene-graph/node';
 import Vec3 from '../../../core/value-types/vec3';
+import { vec3 } from '../../../core/vmath';
+import Node from '../../../scene-graph/node';
+import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 
 export enum RigidBodyType {
     STATIC,
@@ -21,6 +22,8 @@ export class RigidBody {
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
 
     private _onWorldPostStepListener: ((event: CANNON.IEvent) => any) | null = null;
+
+    private _shapes: Set<PhysicsShape> = new Set();
 
     constructor(node: Node) {
         this._node = node;
@@ -53,6 +56,7 @@ export class RigidBody {
     }
 
     public addShape(shape: PhysicsShape) {
+        this._shapes.add(shape);
         this._cannonBody.addShape(shape._getCannonShape());
     }
 
@@ -141,7 +145,7 @@ export class RigidBody {
         this._cannonBody.collisionFilterMask = mask;
     }
 
-    public setworldPosition(position: Vec3) {
+    public setWorldPosition(position: Vec3) {
         this._cannonBody.position.set(position.x, position.y, position.z);
     }
 
@@ -159,9 +163,9 @@ export class RigidBody {
     }
 
     /**
-     * Pull the entity's transform information back to rigidbody.
+     * Push the rigidbody's transform information back to node.
      */
-    public pull() {
+    public push() {
         const p = this._cannonBody.position;
         this._node.setWorldPosition(p.x, p.y, p.z);
         const q = this._cannonBody.quaternion;
@@ -169,61 +173,110 @@ export class RigidBody {
     }
 
     private _onCollided(event: CANNON.ICollisionEvent) {
-        console.log(`Collided: ${event.contact}`);
+        // console.log(`Collided: ${event.contact}`);
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
         if (this._type === RigidBodyType.STATIC) {
-            this._push();
+            this._pull();
         }
     }
 
     /**
-     * Push the rigidbody's transform information forward to entity.
+     * Pull node's transform information into rigidbody.
      */
-    private _push() {
+    private _pull() {
         // @ts-nocheck
         this._node.getWorldPosition(this._cannonBody.position);
         // @ts-nocheck
         this._node.getWorldRotation(this._cannonBody.quaternion);
+        const scale = this._node.getWorldScale();
+        this._shapes.forEach((shape) => {
+            if (vec3.exactEquals(scale, shape.scale)) {
+                shape.scale = scale;
+            }
+        });
+        this._cannonBody.updateBoundingRadius();
     }
 }
 
 export class PhysicsShape {
-    constructor(private _cannonShape: CANNON.Shape) {
+    private _scale: cc.Vec3 = new cc.Vec3(1.0, 1.0, 1.0);
 
+    constructor(private _cannonShape: CANNON.Shape) {
+    }
+
+    public get scale() {
+        return this._scale;
+    }
+
+    public set scale(value) {
+        vec3.copy(this._scale, value);
+        this._onShapeParamUpdated();
     }
 
     public _getCannonShape<T extends CANNON.Shape>() {
         return this._cannonShape as T;
     }
+
+    protected _onShapeParamUpdated() {
+    }
 }
 
 export class PhysicsBoxShape extends PhysicsShape {
+    private _size: cc.Vec3;
+
     constructor(size: Vec3) {
         super(new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2)));
+
+        this._size = new cc.Vec3(size.x, size.y, size.z);
     }
 
-    get size() {
-        const halfExtents = this._getCannonShape<CANNON.Box>().halfExtents;
-        return new Vec3(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+    public get size() {
+        return this._size;
     }
 
-    set size(value) {
-        this._getCannonShape<CANNON.Box>().halfExtents = new CANNON.Vec3(value.x / 2, value.y / 2, value.z / 2);
+    public set size(value) {
+        vec3.copy(this._size, value);
+        this._onShapeParamUpdated();
+    }
+
+    protected _onShapeParamUpdated() {
+        const newHalfExtents = new CANNON.Vec3();
+        vec3.multiply(newHalfExtents, this._size, this.scale);
+        vec3.scale(newHalfExtents, newHalfExtents, 0.5);
+        const shape = this._getCannonShape<CANNON.Box>();
+        shape.halfExtents = newHalfExtents;
+        shape.updateBoundingSphereRadius();
+        shape.updateConvexPolyhedronRepresentation();
     }
 }
 
 export class PhysicsSphereShape extends PhysicsShape {
+    private _radius: number;
+
     constructor(radius: number) {
         super(new CANNON.Sphere(radius));
+
+        this._radius = radius;
     }
 
-    get radius() {
-        return this._getCannonShape<CANNON.Sphere>().radius;
+    public get radius() {
+        return this._radius;
     }
 
-    set radius(value) {
-        this._getCannonShape<CANNON.Sphere>().radius = value;
+    public set radius(value) {
+        this._radius = value;
+        this._onShapeParamUpdated();
     }
+
+    protected _onShapeParamUpdated() {
+        const shape = this._getCannonShape<CANNON.Sphere>();
+        shape.radius = this._radius * maxComponent(this.scale);
+        shape.updateBoundingSphereRadius();
+    }
+}
+
+function maxComponent(v: { x: number, y: number, z: number }) {
+    return Math.max(v.x, Math.max(v.y, v.z));
 }
