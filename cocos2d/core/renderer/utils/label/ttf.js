@@ -433,7 +433,6 @@ module.exports = {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
         
-            _splitedStrings = paragraphedStrings;
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -468,7 +467,6 @@ module.exports = {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
 
-                    _splitedStrings = [];
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
@@ -483,7 +481,6 @@ module.exports = {
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
-                        _splitedStrings = _splitedStrings.concat(textFragment);
                     }
 
                     if (tryDivideByTwo) {

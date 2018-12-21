@@ -62,6 +62,7 @@ const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 const COLOR_ON = 1 << 5;
 
+
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
 })
@@ -512,7 +513,16 @@ function _doDispatchEvent (owner, event) {
         }
     }
     _cachedArray.length = 0;
-};
+}
+
+// traversal the node tree, child cullingMask must keep the same with the parent.
+function _getActualGroupIndex (node) {
+    let groupIndex = node.groupIndex;
+    if (groupIndex === 0 && node.parent) {
+        groupIndex = _getActualGroupIndex(node.parent);
+    }
+    return groupIndex;
+}
 
 /**
  * !#en
@@ -591,7 +601,7 @@ var Node = cc.Class({
             set (value) {
                 // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                let index = this._getActualGroupIndex(this);
+                let index = _getActualGroupIndex(this);
                 this._cullingMask = 1 << index;
                 this.emit(EventType.GROUP_CHANGED, this);
             }
@@ -1312,7 +1322,7 @@ var Node = cc.Class({
         this._updateOrderOfArrival();
 
         // synchronize _cullingMask
-        this._cullingMask = 1 << this._getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
@@ -1345,7 +1355,7 @@ var Node = cc.Class({
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this._cullingMask = 1 << this._getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1485,7 +1495,6 @@ var Node = cc.Class({
                 case EventType.COLOR_CHANGED:
                 this._eventMask |= COLOR_ON;
                 break;
-
             }
             if (!this._bubblingListeners) {
                 this._bubblingListeners = new EventTarget();
@@ -3060,16 +3069,7 @@ var Node = cc.Class({
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
         }
-    },
-
-    // traversal the node tree, child cullingMask must keep the same with the parent.
-    _getActualGroupIndex (node) {
-        let groupIndex = node.groupIndex;
-        if (groupIndex === 0 && node.parent) {
-            groupIndex = this._getActualGroupIndex(node.parent);
-        }
-        return groupIndex;
-    },
+    }
 });
 
 /**

@@ -492,8 +492,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
-        this._updateAssembler();
-        this._applyFontTexture();
+        this._updateRenderData(true);
     },
 
     onDisable () {
@@ -511,7 +510,7 @@ let Label = cc.Class({
         }
         this._super();
     },
-
+    
     _canRender () {
         let result = this._super();
         let font = this.font;

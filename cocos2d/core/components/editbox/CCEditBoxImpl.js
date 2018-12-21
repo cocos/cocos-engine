@@ -350,6 +350,16 @@ let EditBoxImpl = cc.Class({
 
     _updateMatrix () {
         if (!this._edTxt) return;
+
+        let camera;
+        // can't find camera in editor
+        if (CC_EDITOR) {
+            camera = cc.Camera.main;
+        }
+        else {
+            camera = cc.Camera.findCamera(this._node);
+        }
+        if (!camera) return;
     
         let node = this._node, 
             scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
@@ -362,15 +372,6 @@ let EditBoxImpl = cc.Class({
         _vec3.y = -node._anchorPoint.y * contentSize.height;
     
         math.mat4.translate(_matrix, _matrix, _vec3);
-
-        let camera;
-        // can't find camera in editor
-        if (CC_EDITOR) {
-            camera = cc.Camera.main;
-        }
-        else {
-            camera = cc.Camera.findCamera(node);
-        }
         
         camera.getWorldToCameraMatrix(_matrix_temp);
         math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
@@ -493,6 +494,7 @@ function _inputValueHandle (input, editBoxImpl) {
 
 function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
+    let blurWhenComposition = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
@@ -501,6 +503,11 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.compositionend = function () {
         inputLock = false;
+        if (blurWhenComposition) {
+            // restore input value when composition not complete and blur input
+            this.value = editBoxImpl._text;
+            blurWhenComposition = false;
+        }
         _inputValueHandle(this, editBoxImpl);
     };
     tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
@@ -549,7 +556,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        if (inputLock) {
+            blurWhenComposition = true;
+        }
+        else {
+            editBoxImpl._text = this.value;
+        }
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);
