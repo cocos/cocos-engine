@@ -541,10 +541,11 @@ let Label = cc.Class({
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            this._frame = spriteFrame;
             let self = this;
             let onBMFontTextureLoaded = function () {
                 // TODO: old texture in material have been released by loader
-                self._texture = spriteFrame._texture;
+                self._frame._texture = spriteFrame._texture;
                 self._activateMaterial(force);
 
                 if (force) {
@@ -563,9 +564,6 @@ let Label = cc.Class({
                     spriteFrame.ensureLoadTexture();
                 }
             }
-            
-            // TODO: old texture in material have been released by loader
-            this._frame = spriteFrame;
         }
         else {
             if (!this._ttfTexture) {
