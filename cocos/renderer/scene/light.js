@@ -91,7 +91,15 @@ export default class Light {
   }
 
   /**
-   * set the hosting node of this light
+   * Get the hosting node of this camera
+   * @returns {Node} the hosting node
+   */
+  getNode() {
+    return this._node;
+  }
+
+  /**
+   * Set the hosting node of this camera
    * @param {Node} node the hosting node
    */
   setNode(node) {
