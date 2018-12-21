@@ -192,7 +192,7 @@ export class RigidBody {
         this._node.getWorldRotation(this._cannonBody.quaternion);
         const scale = this._node.getWorldScale();
         this._shapes.forEach((shape) => {
-            if (vec3.exactEquals(scale, shape.scale)) {
+            if (!vec3.exactEquals(scale, shape.scale)) {
                 shape.scale = scale;
             }
         });
