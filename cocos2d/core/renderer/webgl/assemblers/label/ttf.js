@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const ttfUtls = require('../../../../utils/label/ttf');
+const js = require('../../../../platform/js');
+const ttfUtls = require('../../../utils/label/ttf');
 
 const WHITE_VAL = cc.Color.WHITE._val;
 
@@ -36,15 +36,6 @@ module.exports = js.addon({
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
 
-        let data = renderData._data;
-        data[0].u = 0;
-        data[0].v = 1;
-        data[1].u = 1;
-        data[1].v = 1;
-        data[2].u = 0;
-        data[2].v = 0;
-        data[3].u = 1;
-        data[3].v = 0;
         return renderData;
     },
 
@@ -56,14 +47,17 @@ module.exports = js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
 
         // vertex
         for (let i = 0; i < 4; i++) {
@@ -74,11 +68,19 @@ module.exports = js.addon({
             vbuf[vertexOffset++] = vert.v;
             uintbuf[vertexOffset++] = color;
         }
+
+        // fill indice data
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
+        ibuf[indiceOffset++] = vertexId + 2; 
     },
 
     _updateVerts (comp) {
         let renderData = comp._renderData;
-
+        let uv = comp._frame.uv;
         let node = comp.node,
             width = node.width,
             height = node.height,
@@ -94,5 +96,14 @@ module.exports = js.addon({
         data[2].y = height - appy;
         data[3].x = width - appx;
         data[3].y = height - appy;
+
+        data[0].u = uv[0];
+        data[0].v = uv[1];
+        data[1].u = uv[2];
+        data[1].v = uv[3];
+        data[2].u = uv[4];
+        data[2].v = uv[5];
+        data[3].u = uv[6];
+        data[3].v = uv[7];
     }
 }, ttfUtls);
