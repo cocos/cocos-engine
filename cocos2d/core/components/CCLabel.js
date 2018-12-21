@@ -432,22 +432,22 @@ let Label = cc.Class({
             }
         },
 
-        _cacheAsBitmap: false,
+        _batchAsBitmap: false,
         /**
          * !#en Whether cache label to static texture and draw in dynamicAtlas.
          * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
-         * @property {Boolean} cacheAsBitmap
+         * @property {Boolean} batchAsBitmap
          */
-        cacheAsBitmap: {
+        batchAsBitmap: {
             get () {
-                return this._cacheAsBitmap;
+                return this._batchAsBitmap;
             },
             set (value) {
-                if (this._cacheAsBitmap === value) return;
+                if (this._batchAsBitmap === value) return;
 
-                this._cacheAsBitmap = value;
+                this._batchAsBitmap = value;
 
-                if (!this._cacheAsBitmap && !(this.font instanceof cc.BitmapFont)) {
+                if (!this._batchAsBitmap && !(this.font instanceof cc.BitmapFont)) {
                     this._frame._resetDynamicAtlasFrame();
                 }
                 this._activateMaterial(true);

@@ -280,7 +280,7 @@ module.exports = {
     },
 
     _calDynamicAtlas (comp) {
-        if(!comp.cacheAsBitmap) return;
+        if(!comp.batchAsBitmap) return;
         
         if (!comp._frame._original) {
             comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
