@@ -446,6 +446,11 @@ let Label = cc.Class({
                 if (this._cacheAsBitmap === value) return;
 
                 this._cacheAsBitmap = value;
+
+                if (!this._cacheAsBitmap && !(this.font instanceof cc.BitmapFont)) {
+                    this._frame._resetDynamicAtlasFrame();
+                }
+                this._activateMaterial(true);
                 this._updateRenderData();
             },
         },
@@ -533,6 +538,7 @@ let Label = cc.Class({
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
+            this._frame = null;
         }
 
         if (!this._renderData) {
@@ -578,13 +584,13 @@ let Label = cc.Class({
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
-                
-                if (!this._frame) {
-                    this._frame = new LabelFrame();
-                }
-
-                this._frame._refreshTexture(this._ttfTexture);
             }
+
+            if (!this._frame) {
+                this._frame = new LabelFrame();
+            }
+
+            this._frame._refreshTexture(this._ttfTexture);
 
             this._activateMaterial(force);
 
