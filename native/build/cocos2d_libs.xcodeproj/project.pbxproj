@@ -1467,7 +1467,7 @@
 		40AEF7BE216DF21B00729AA5 /* jsb_video_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_video_auto.hpp; sourceTree = "<group>"; };
 		40CEAEB020CFC86D007A3281 /* CustomEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomEventTypes.h; sourceTree = "<group>"; };
 		40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_snapshot.a; path = "../../../cocos2d-x-lite-external/mac/libs/libv8_snapshot.a"; sourceTree = "<group>"; };
+		40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_snapshot.a; path = "../external/mac/libs/libv8_snapshot.a"; sourceTree = "<group>"; };
 		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
