@@ -5,8 +5,7 @@ import { getWrap, setWrap } from './util';
 export interface RaycastOptions {
     collisionFilterMask?: number;
     collisionFilterGroup?: number;
-    checkCollisionResponse?: boolean;
-    skipBackfaces?: boolean;
+    queryTriggerInteraction?: boolean;
 }
 
 export class RaycastResult {
@@ -73,7 +72,7 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastClosest(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._cannonWorld as any).raycastClosest(from, to, options, result._cannonResult);
+        const hit = (this._cannonWorld as any).raycastClosest(from, to, toCannonOptions(options), result._cannonResult);
         if (hit) {
             result._update();
         }
@@ -85,7 +84,7 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastAny(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._cannonWorld as any).raycastAny(from, to, options, result._cannonResult);
+        const hit = (this._cannonWorld as any).raycastAny(from, to, toCannonOptions(options), result._cannonResult);
         if (hit) {
             result._update();
         }
@@ -97,11 +96,26 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastAll(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, callback: (result: RaycastResult) => void): boolean {
-        return (this._cannonWorld as any).raycastAll(from, to, options, (cannonResult: CANNON.RaycastResult) => {
+        return (this._cannonWorld as any).raycastAll(from, to, toCannonOptions(options), (cannonResult: CANNON.RaycastResult) => {
             const result = new RaycastResult();
             result._cannonResult = cannonResult;
             result._update();
             callback(result);
         });
+    };
+}
+
+interface CANNONRaycastOptions {
+    collisionFilterMask?: number;
+    collisionFilterGroup?: number;
+    checkCollisionResponse?: boolean;
+    skipBackfaces?: boolean;
+}
+
+function toCannonOptions(options: RaycastOptions): CANNONRaycastOptions {
+    return {
+        collisionFilterMask: options.collisionFilterMask === undefined ? -1 : options.collisionFilterMask,
+        collisionFilterGroup: options.collisionFilterGroup === undefined ? -1 : options.collisionFilterGroup,
+        checkCollisionResponse: options.queryTriggerInteraction === undefined ? true : options.queryTriggerInteraction
     };
 }
