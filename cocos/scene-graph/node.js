@@ -152,10 +152,7 @@ class Node extends BaseNode {
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
-            if (!cur) {
-                cur = null;
-                break;
-            }
+            if (!cur) break;
         }
         while (i) {
             child = array_a[--i];
@@ -195,7 +192,6 @@ class Node extends BaseNode {
         } else if (arguments.length === 3) {
             vec3.set(this._lpos, val, y, z);
         }
-        vec3.copy(this._pos, this._lpos);
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
         this.invalidateChildren();
@@ -227,7 +223,6 @@ class Node extends BaseNode {
         } else if (arguments.length === 4) {
             quat.set(this._lrot, val, y, z, w);
         }
-        quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
@@ -244,7 +239,6 @@ class Node extends BaseNode {
         vec3.set(this._euler, x, y, z);
         this._eulerDirty = false;
         quat.fromEuler(this._lrot, x, y, z);
-        quat.copy(this._rot, this._lrot);
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
@@ -275,7 +269,6 @@ class Node extends BaseNode {
         } else if (arguments.length === 3) {
             vec3.set(this._lscale, val, y, z);
         }
-        vec3.copy(this._scale, this._lscale);
 
         this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
         this.invalidateChildren();

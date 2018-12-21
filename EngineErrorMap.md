@@ -1,4 +1,4 @@
-# Cocos Creator Engine Errors 
+# Cocos Creator Engine Errors
 
 ### 0100
 
@@ -691,7 +691,7 @@ cc.SpriteBatchNode.addChild(): cc.Sprite is not using the same texture
 ### 2620
 
 <!-- DEPRECATED -->
-Sprite.initWithTexture(): Argument must be non-nil 
+Sprite.initWithTexture(): Argument must be non-nil
 
 ### 2621
 
@@ -701,7 +701,7 @@ Invalid spriteFrameName
 ### 2622
 
 <!-- DEPRECATED -->
-Invalid argument: cc.Sprite.texture setter expects a CCTexture2D.
+Invalid argument: cc.Sprite.texture setter expects a cc.Texture2D.
 
 ### 2623
 
@@ -780,7 +780,7 @@ cc.SpriteBatchNode.addChild(): cc.SpriteBatchNode only supports cc.Sprites as ch
 
 ### 2710
 
-Sprite.initWithTexture(): Argument must be non-nil 
+Sprite.initWithTexture(): Argument must be non-nil
 
 ### 2711
 
@@ -794,7 +794,7 @@ Invalid spriteFrameName
 ### 2713
 
 <!-- DEPRECATED -->
-Invalid argument: cc.Sprite texture setter expects a CCTexture2D.
+Invalid argument: cc.Sprite texture setter expects a cc.Texture2D.
 
 ### 2714
 
@@ -1340,7 +1340,7 @@ Failed to construct a dummy instance of the "%s" class using `new` behind the sc
 
 ### 3653
 
-Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.  
+Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.
 Default value must be initialized at their declaration:
 ```
 // Before:
@@ -1362,7 +1362,7 @@ Please specifiy a default value for "%s" property at its declaration:
 ```
 // Before:
 @property(...)
-value; 
+value;
 // After:
 @property(...)
 value = 0
@@ -1370,7 +1370,7 @@ value = 0
 
 ### 3655
 
-Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.  
+Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.
 Please use:
 ```
 @property(...)
@@ -1389,8 +1389,8 @@ The default value of %s.%s must be an empty string. (changed since 1.8)
 
 ### 3657
 
-The value assigned to %s should be Texture2D object, not url string. Since 1.8,  
-you can declare a texture object directly in properties by using:  
+The value assigned to %s should be Texture2D object, not url string. Since 1.8,
+you can declare a texture object directly in properties by using:
 ```
 {
     default: null,
@@ -1844,11 +1844,11 @@ Can not find class '%s'
 
 ### 5402
 
-cc.js.addon called on non-object: 
+cc.js.addon called on non-object:
 
 ### 5403
 
-cc.js.mixin: arguments must be type object: 
+cc.js.mixin: arguments must be type object:
 
 ### 5404
 

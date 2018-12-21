@@ -13,12 +13,11 @@ class Scene {
   /**
    * Setup a default empty scene
    */
-  constructor(app) {
+  constructor() {
     this._lights = new FixedArray(16);
     this._models = new FixedArray(16);
     this._cameras = new FixedArray(16);
     this._debugCamera = null;
-    this._app = app;
 
     // NOTE: we don't use pool for views (because it's less changed and it doesn't have poolID)
     this._views = [];
@@ -70,6 +69,13 @@ class Scene {
    */
   setDebugCamera(cam) {
     this._debugCamera = cam;
+  }
+
+  /**
+   * Get the debug camera
+   */
+  getDebugCamera() {
+    return this._debugCamera;
   }
 
   /**
@@ -215,7 +221,7 @@ if (CC_EDITOR) {
       pool.reset();
       for (let i = 0; i < this._models.length; i++) {
         let m = this._models.data[i], node = m._node;
-        if (!cc.Layers.check(node._layer, mask) || !m._bsModelSpace) continue;
+        if (!cc.Layers.check(node.layer, mask) || !m._bsModelSpace) continue;
         // transform ray back to model space
         mat4.invert(m4, node.getWorldMatrix(m4));
         vec3.transformMat4(modelRay.o, worldRay.o, m4);
