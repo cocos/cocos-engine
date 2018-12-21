@@ -453,6 +453,8 @@ let Label = cc.Class({
                 this._activateMaterial(true);
                 this._updateRenderData();
             },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.batch_as_bitmap',
         },
 
         _isBold: {
