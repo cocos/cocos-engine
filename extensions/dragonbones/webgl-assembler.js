@@ -27,7 +27,6 @@ const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manage
 const Armature = require('./ArmatureDisplay');
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
@@ -126,7 +125,6 @@ let armatureAssembler = {
         if (!_data) {
             _data = _datas[_dataId] = comp.requestRenderData();
         }
-
         _data.dataLength = 0;
         _material = null;
         _currMaterial = null;
