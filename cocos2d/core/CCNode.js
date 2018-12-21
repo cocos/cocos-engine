@@ -52,8 +52,24 @@ var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
 var _globalOrderOfArrival = 1;
-var _cachedArray = new Array(16);
-_cachedArray.length = 0;
+
+var _cachedArrayPool = new Array(3);
+_cachedArrayPool.length = 0;
+
+_cachedArrayPool.push(new Array(16));
+_cachedArrayPool.push(new Array(16));
+
+function _getCachedArray(){
+    if(_cachedArrayPool.length === 0){
+        _cachedArrayPool.push(new Array(16));
+    }
+    return _cachedArrayPool.pop();
+}
+
+function _releaseCachedArray(array){
+    array.length = 0;
+    _cachedArrayPool.push(array);
+}
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
@@ -458,7 +474,7 @@ function _checkListeners (node, events) {
     return true;
 }
 
-function _doDispatchEvent (owner, event) {
+function _doDispatchEvent (owner, event, _cachedArray) {
     var target, i;
     event.target = owner;
 
@@ -1767,8 +1783,9 @@ var Node = cc.Class({
      * @param {Event} event - The Event object that is dispatched into the event flow
      */
     dispatchEvent (event) {
-        _doDispatchEvent(this, event);
-        _cachedArray.length = 0;
+        let _cachedArray = _getCachedArray();
+        _doDispatchEvent(this, event, _cachedArray);
+        _releaseCachedArray(_cachedArray);
     },
 
     /**
