@@ -26,7 +26,7 @@
 import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
-import { ccclass, menu, property } from "../../core/data/class-decorator";
+import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
 import enums from '../../renderer/enums';
 
@@ -63,7 +63,7 @@ let CameraProjection = Enum({
 });
 
 let CameraClearFlag = Enum({
-    SKYBOX: enums.CLEAR_SKYBOX,
+    SKYBOX: enums.CLEAR_SKYBOX | enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
     SOLID_COLOR: enums.CLEAR_COLOR | enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
     DEPTH_ONLY: enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
     DONT_CLEAR: 0
@@ -78,8 +78,9 @@ let CameraClearFlag = Enum({
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
+@executeInEditMode
 export default class CameraComponent extends RenderSystemActor{
-    @property(CameraProjection)
+    @property
     _projection = CameraProjection.PERSPECTIVE;
 
     @property
@@ -106,7 +107,7 @@ export default class CameraComponent extends RenderSystemActor{
     @property
     _stencil = 0;
 
-    @property(CameraClearFlag)
+    @property
     _clearFlags = CameraClearFlag.SOLID_COLOR;
 
     @property

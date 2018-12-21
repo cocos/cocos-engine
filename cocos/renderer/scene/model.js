@@ -42,6 +42,14 @@ export default class Model {
   }
 
   /**
+   * Get the hosting node of this camera
+   * @returns {Node} the hosting node
+   */
+  getNode() {
+    return this._node;
+  }
+
+  /**
    * Set the hosting node of this model
    * @param {Node} node the hosting node
    */
