@@ -24,6 +24,8 @@ export class RigidBody {
 
     private _dataflow: DataFlow = DataFlow.PUSHING;
 
+    private _useGravity = true;
+
     constructor(node: Node) {
         this._node = node;
 
@@ -101,8 +103,39 @@ export class RigidBody {
         this._cannonBody.mass = value;
         this._cannonBody.updateMassProperties();
         if (this._cannonBody.type !== CANNON.Body.KINEMATIC) {
-            this._updateBodyType(value <= 0 ? CANNON.Body.STATIC : CANNON.Body.DYNAMIC);
+            this._resetBodyTypeAccordingMess();
+            this._onBodyTypeUpdated();
         }
+    }
+
+    get isKinematic() {
+        return this._cannonBody.type === CANNON.Body.KINEMATIC;
+    }
+
+    set isKinematic(value) {
+        if (value) {
+            this._cannonBody.type = CANNON.Body.KINEMATIC;
+        } else {
+            this._resetBodyTypeAccordingMess();
+        }
+        this._onBodyTypeUpdated();
+    }
+
+    get useGravity() {
+        return this._useGravity;
+    }
+
+    set useGravity(value) {
+        this._useGravity = value;
+    }
+
+    get freezeRotation() {
+        return this._cannonBody.fixedRotation;
+    }
+
+    set freezeRotation(value) {
+        this._cannonBody.fixedRotation = value;
+        this._cannonBody.updateMassProperties();
     }
 
     get drag() {
@@ -166,8 +199,10 @@ export class RigidBody {
     public push() {
         const p = this._cannonBody.position;
         this._node.setWorldPosition(p.x, p.y, p.z);
-        const q = this._cannonBody.quaternion;
-        this._node.setWorldRotation(q.x, q.y, q.z, q.w);
+        if (!this._cannonBody.fixedRotation) {
+            const q = this._cannonBody.quaternion;
+            this._node.setWorldRotation(q.x, q.y, q.z, q.w);
+        }
     }
 
     private _onCollided(event: CANNON.ICollisionEvent) {
@@ -175,6 +210,12 @@ export class RigidBody {
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
+        if (!this._useGravity) {
+            const gravity = this._cannonBody.world.gravity;
+            vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this.mass * -1);
+            this._cannonBody.force;
+        }
+
         if (this._dataflow === DataFlow.PULLING) {
             this._pull();
         }
@@ -197,9 +238,16 @@ export class RigidBody {
         this._cannonBody.updateBoundingRadius();
     }
 
-    private _updateBodyType(type: number) {
-        this._cannonBody.type = type;
-        if (type !== CANNON.Body.STATIC) {
+    private _resetBodyTypeAccordingMess() {
+        if (this.mass <= 0) {
+            this._cannonBody.type = CANNON.Body.STATIC;
+        } else {
+            this._cannonBody.type = CANNON.Body.DYNAMIC
+        }
+    }
+
+    private _onBodyTypeUpdated() {
+        if (this._cannonBody.type !== CANNON.Body.STATIC) {
             this._dataflow = DataFlow.PUSHING;
         } else {
             this._dataflow = DataFlow.PULLING;
