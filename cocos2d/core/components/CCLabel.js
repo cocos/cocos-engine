@@ -432,7 +432,7 @@ let Label = cc.Class({
             }
         },
 
-        _cacheAsBitmap: true,
+        _cacheAsBitmap: false,
         /**
          * !#en Whether cache label to static texture and draw in dynamicAtlas.
          * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
