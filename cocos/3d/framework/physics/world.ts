@@ -13,9 +13,11 @@ export class PhysicsWorld {
 
     public addBody(body: RigidBody) {
         this._cannonWorld.addBody(body._getCannonBody());
+        body._onAdded();
     }
 
     public removeBody(body: RigidBody) {
+        body._onRemoved();
         this._cannonWorld.remove(body._getCannonBody());
     }
 

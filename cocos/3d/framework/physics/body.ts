@@ -20,7 +20,7 @@ export class RigidBody {
 
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
 
-    private _onWorldPostStepListener: (event: CANNON.IEvent) => any;
+    private _onWorldPostStepListener: ((event: CANNON.IEvent) => any) | null = null;
 
     constructor(node: Node) {
         this._node = node;
@@ -31,13 +31,21 @@ export class RigidBody {
 
         this._onCollidedListener = this._onCollided.bind(this);
         this._cannonBody.addEventListener('collide', this._onCollidedListener);
-
-        this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
-        this._cannonBody.world.addEventListener('postStep', this._onWorldPostStepListener);
     }
 
     public destroy() {
         this._cannonBody.removeEventListener('collide', this._onCollidedListener);
+    }
+
+    public _onAdded() {
+        this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
+        this._cannonBody.world.addEventListener('postStep', this._onWorldPostStepListener);
+    }
+
+    public _onRemoved() {
+        if (this._cannonBody.world && this._onWorldPostStepListener) {
+            this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
+        }
     }
 
     public _getCannonBody() {
