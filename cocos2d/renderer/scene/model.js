@@ -67,10 +67,12 @@ export default class Model {
       this._effect = effect;
       this._defines = effect.extractDefines(Object.create(null));
       this._dependencies = effect.extractDependencies(Object.create(null));
+      this._uniforms = effect.extractProperties(Object.create(null));
     } else {
       this._effect = null;
       this._defines = Object.create(null);
       this._dependencies = Object.create(null);
+      this._uniforms = Object.create(null);
     }
   }
 

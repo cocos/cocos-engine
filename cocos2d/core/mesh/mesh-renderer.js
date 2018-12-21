@@ -101,8 +101,6 @@ let meshRendererAssembler = {
         renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
 
         let shaderConfig = comp._shaderConfig;
-        renderer.defines = shaderConfig._defines;
-        renderer.uniforms = shaderConfig._uniforms;
 
         comp.mesh._uploadData();
 
@@ -113,13 +111,16 @@ let meshRendererAssembler = {
             let attr2el = renderData.ia._vertexBuffer._format._attr2el;
             shaderConfig.setDefine('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
             shaderConfig.setDefine('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
+            
+            let tmpConfig = material.effect._dynamicConfig;
+            material.effect._dynamicConfig = shaderConfig;
 
             renderer.material = material;
             renderer._flushIA(renderData);
+
+            material.effect._dynamicConfig = tmpConfig;
         }
 
-        renderer.defines = null;
-        renderer.uniforms = null;
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
     }

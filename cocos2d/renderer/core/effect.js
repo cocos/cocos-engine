@@ -90,10 +90,18 @@ class Effect {
         this._defines[name] = value;
     }
 
+    extractProperties(out = {}) {
+        Object.assign(out, this._properties);
+        if (this._dynamicConfig) {
+            Object.assign(out, this._dynamicConfig._uniforms);
+        }
+        return out;
+    }
+
     extractDefines(out = {}) {
-        let defines = this._defines;
-        for (let name in defines) {
-            out[name] = defines[name];
+        Object.assign(out, this._defines);
+        if (this._dynamicConfig) {
+            Object.assign(out, this._dynamicConfig._defines);
         }
         return out;
     }

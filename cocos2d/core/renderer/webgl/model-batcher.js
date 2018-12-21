@@ -75,9 +75,6 @@ var ModelBatcher = function (device, renderScene) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
-
-    this.uniforms = null;
-    this.defines = null;
 };
 
 ModelBatcher.prototype = {
@@ -116,9 +113,6 @@ ModelBatcher.prototype = {
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
-
-        this.uniforms = null;
-        this.defines = null;
     },
 
     _flush () {
@@ -149,17 +143,9 @@ ModelBatcher.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
-        model._uniforms = this.uniforms;
         model.setNode(this.node);
         model.setEffect(effect);
         model.setInputAssembler(ia);
-
-        let defines = this.defines;
-        if (defines) {
-            for (let key in defines) {
-                model._defines[key] = defines[key];
-            }
-        }
         
         this._renderScene.addModel(model);
            
@@ -187,17 +173,9 @@ ModelBatcher.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
-        model._uniforms = this.uniforms;
         model.setNode(this.node);
         model.setEffect(effect);
         model.setInputAssembler(iaRenderData.ia);
-
-        let defines = this.defines;
-        if (defines) {
-            for (let key in defines) {
-                model._defines[key] = defines[key];
-            }
-        }
         
         this._renderScene.addModel(model);
     },

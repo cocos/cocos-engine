@@ -523,7 +523,7 @@ export default class Base {
   _draw(item) {
     const device = this._device;
     const programLib = this._programLib;
-    const { node, ia, effect, technique, defines } = item;
+    const { node, ia, uniforms, technique, defines } = item;
 
     // reset the pool
     // NOTE: we can use drawCounter optimize this
@@ -552,18 +552,9 @@ export default class Base {
     }
     // }
 
-    let uniforms = item.uniforms;
-    if (uniforms) {
-      for (let name in uniforms) {
-        let uniform = uniforms[name];
-        this._setProperty(uniform);
-      }
-    }
-
-    // set technique uniforms
-    for (let name in effect._properties) {
-      let prop = effect._properties[name];
-      this._setProperty(prop);
+    for (let name in uniforms) {
+      let uniform = uniforms[name];
+      this._setProperty(uniform);
     }
 
     // for each pass
