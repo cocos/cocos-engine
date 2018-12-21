@@ -390,7 +390,7 @@ let Mask = cc.Class({
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.addHandle("render", this._graphics._renderHandle);
+                this._renderHandle.setNativeRenderHandle(this._graphics._renderHandle);
             }
         }
         
@@ -402,7 +402,7 @@ let Mask = cc.Class({
             this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
             this._clearGraphics.fill();
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.addHandle("clear", this._clearGraphics._renderHandle);
+                this._renderHandle.setNativeClearHandle(this._clearGraphics._renderHandle);
             }
         }
     },
