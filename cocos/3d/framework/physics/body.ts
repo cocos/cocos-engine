@@ -4,10 +4,9 @@ import { vec3 } from '../../../core/vmath';
 import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 
-export enum RigidBodyType {
-    STATIC,
-    DYNAMIC,
-    KINEMATIC,
+export enum DataFlow {
+    PUSHING,
+    PULLING,
 }
 
 export class RigidBody {
@@ -17,13 +16,13 @@ export class RigidBody {
 
     private _cannonBody: CANNON.Body;
 
-    private _type: RigidBodyType = RigidBodyType.STATIC;
-
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
 
     private _onWorldPostStepListener: ((event: CANNON.IEvent) => any) | null = null;
 
     private _shapes: Set<PhysicsShape> = new Set();
+
+    private _dataflow: DataFlow = DataFlow.PUSHING;
 
     constructor(node: Node) {
         this._node = node;
@@ -76,14 +75,6 @@ export class RigidBody {
         }
     }
 
-    get type() {
-        return this._type;
-    }
-
-    set type(value) {
-        this._type = value;
-    }
-
     get material() {
         return this._material;
     }
@@ -109,6 +100,9 @@ export class RigidBody {
     set mass(value) {
         this._cannonBody.mass = value;
         this._cannonBody.updateMassProperties();
+        if (this._cannonBody.type !== CANNON.Body.KINEMATIC) {
+            this._updateBodyType(value <= 0 ? CANNON.Body.STATIC : CANNON.Body.DYNAMIC);
+        }
     }
 
     get drag() {
@@ -133,6 +127,10 @@ export class RigidBody {
 
     set isTrigger(value) {
         this._cannonBody.collisionResponse = value;
+    }
+
+    get dataFlow() {
+        return this._dataflow;
     }
 
     /**
@@ -177,7 +175,7 @@ export class RigidBody {
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
-        if (this._type === RigidBodyType.STATIC) {
+        if (this._dataflow === DataFlow.PULLING) {
             this._pull();
         }
     }
@@ -197,6 +195,15 @@ export class RigidBody {
             }
         });
         this._cannonBody.updateBoundingRadius();
+    }
+
+    private _updateBodyType(type: number) {
+        this._cannonBody.type = type;
+        if (type !== CANNON.Body.STATIC) {
+            this._dataflow = DataFlow.PUSHING;
+        } else {
+            this._dataflow = DataFlow.PULLING;
+        }
     }
 }
 

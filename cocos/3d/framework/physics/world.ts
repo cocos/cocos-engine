@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { RigidBody, RigidBodyType } from './body';
+import { RigidBody, DataFlow } from './body';
 
 export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
@@ -23,7 +23,7 @@ export class PhysicsWorld {
 
     public step(deltaTime: number) {
         this._bodys.forEach((physicalBody) => {
-            if (physicalBody.type !== RigidBodyType.STATIC) {
+            if (physicalBody.dataFlow === DataFlow.PUSHING) {
                 physicalBody.push();
             }
         });
