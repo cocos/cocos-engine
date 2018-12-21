@@ -777,7 +777,7 @@ let ScrollView = cc.Class({
 
         let deltaMove = cc.v2(0, 0);
         let wheelPrecision = -0.1;
-        if(CC_JSB) {
+        if(CC_JSB || CC_RUNTIME) {
             wheelPrecision = -7;
         }
         if(this.vertical) {

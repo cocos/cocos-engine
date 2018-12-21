@@ -576,7 +576,7 @@ let Label = cc.Class({
             if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
                 // TTF texture in web will blend with canvas or body background color
-                if (!CC_JSB) {
+                if (!CC_JSB && !CC_RUNTIME) {
                     this._ttfTexture.setPremultiplyAlpha(true);
                 }
                 this._assemblerData = this._assembler._getAssemblerData();

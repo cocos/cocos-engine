@@ -571,7 +571,7 @@ var game = {
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;
             window.cancelAnimFrame = window.cancelAnimationFrame;
@@ -624,7 +624,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
+                if (!CC_JSB && !CC_RUNTIME && frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
@@ -709,13 +709,13 @@ var game = {
             width, height,
             localCanvas, localContainer;
 
-        if (CC_WECHATGAME || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
-            else if (CC_JSB) {
+            else if (CC_JSB || CC_RUNTIME) {
                 localCanvas = window.__canvas;
             }
             else {

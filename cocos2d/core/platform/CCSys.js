@@ -566,14 +566,14 @@ function initSys () {
      * Is native ? This is set to be true in jsb auto.
      * @property {Boolean} isNative
      */
-    sys.isNative = CC_JSB;
+    sys.isNative = CC_JSB || CC_RUNTIME;
 
 
     /**
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !isBaiduGame;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
     
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
@@ -593,7 +593,7 @@ function initSys () {
         };
         sys.__audioSupport = {};
     }
-    else if (CC_JSB) {
+    else if (CC_JSB || CC_RUNTIME) {
         let platform;
         if (isVivoGame) {
             platform = sys.VIVO_GAME;
@@ -1239,7 +1239,7 @@ function initSys () {
      * @param {String} url
      */
     sys.openURL = function (url) {
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.openURL(url);
         }
         else {
