@@ -3,6 +3,7 @@ import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
+import { setWrap } from './util';
 
 export enum DataFlow {
     PUSHING,
@@ -32,6 +33,7 @@ export class RigidBody {
         const cannonBodyOptions: CANNON.IBodyOptions = {};
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
+        setWrap<RigidBody>(this._cannonBody, this);
 
         this._onCollidedListener = this._onCollided.bind(this);
         this._cannonBody.addEventListener('collide', this._onCollidedListener);
@@ -259,6 +261,7 @@ export class PhysicsShape {
     private _scale: cc.Vec3 = new cc.Vec3(1.0, 1.0, 1.0);
 
     constructor(private _cannonShape: CANNON.Shape) {
+        setWrap<PhysicsShape>(this._cannonShape, this);
     }
 
     public get scale() {

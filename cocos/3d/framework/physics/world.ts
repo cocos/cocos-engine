@@ -1,5 +1,41 @@
 import CANNON from 'cannon';
-import { RigidBody, DataFlow } from './body';
+import { RigidBody, DataFlow, PhysicsShape } from './body';
+import { getWrap, setWrap } from './util';
+
+export interface RaycastOptions {
+    collisionFilterMask?: number;
+    collisionFilterGroup?: number;
+    checkCollisionResponse?: boolean;
+    skipBackfaces?: boolean;
+}
+
+export class RaycastResult {
+    public _cannonResult: CANNON.RaycastResult = new CANNON.RaycastResult();
+
+    public _update() {
+        
+    }
+
+    get hit() {
+        return this._cannonResult.hasHit;
+    }
+
+    get hitPoint() {
+        return this._cannonResult.hitPointWorld;
+    }
+
+    get distance() {
+        return this._cannonResult.distance;
+    }
+
+    get shape() {
+        return getWrap<PhysicsShape>(this._cannonResult.shape);
+    }
+
+    get body() {
+        return getWrap<RigidBody>(this._cannonResult.body);
+    }
+}
 
 export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
@@ -7,6 +43,7 @@ export class PhysicsWorld {
 
     constructor() {
         this._cannonWorld = new CANNON.World();
+        setWrap<PhysicsWorld>(this._cannonWorld, this);
         this._cannonWorld.gravity.set(0, -9.82, 0);
         this._bodys = new Set();
     }
@@ -30,4 +67,41 @@ export class PhysicsWorld {
 
         this._cannonWorld.step(deltaTime);
     }
+
+    /**
+     * Ray cast, and return information of the closest hit.
+     * @return True if any body was hit.
+     */
+    public raycastClosest(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
+        const hit = (this._cannonWorld as any).raycastClosest(from, to, options, result._cannonResult);
+        if (hit) {
+            result._update();
+        }
+        return hit;
+    }
+
+    /**
+     * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
+     * @return True if any body was hit.
+     */
+    public raycastAny(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
+        const hit = (this._cannonWorld as any).raycastAny(from, to, options, result._cannonResult);
+        if (hit) {
+            result._update();
+        }
+        return hit;
+    };
+
+    /**
+     * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
+     * @return True if any body was hit.
+     */
+    public raycastAll(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, callback: (result: RaycastResult) => void): boolean {
+        return (this._cannonWorld as any).raycastAll(from, to, options, (cannonResult: CANNON.RaycastResult) => {
+            const result = new RaycastResult();
+            result._cannonResult = cannonResult;
+            result._update();
+            callback(result);
+        });
+    };
 }
