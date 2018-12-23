@@ -29,7 +29,8 @@ const RenderComponent = require('./CCRenderComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
+const LabelFrame = require('../renderer/utils/label/label-frame');
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -145,6 +146,7 @@ let Label = cc.Class({
         this._actualFontSize = 0;
         this._assemblerData = null;
 
+        this._frame = null;
         this._ttfTexture = null;
     },
 
@@ -430,6 +432,31 @@ let Label = cc.Class({
             }
         },
 
+        _batchAsBitmap: false,
+        /**
+         * !#en Whether cache label to static texture and draw in dynamicAtlas.
+         * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
+         * @property {Boolean} batchAsBitmap
+         */
+        batchAsBitmap: {
+            get () {
+                return this._batchAsBitmap;
+            },
+            set (value) {
+                if (this._batchAsBitmap === value) return;
+
+                this._batchAsBitmap = value;
+
+                if (!this._batchAsBitmap && !(this.font instanceof cc.BitmapFont)) {
+                    this._frame._resetDynamicAtlasFrame();
+                }
+                this._activateMaterial(true);
+                this._updateRenderData();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.batch_as_bitmap',
+        },
+
         _isBold: {
             default: false,
             serializable: false,
@@ -509,6 +536,7 @@ let Label = cc.Class({
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
+            this._frame = null;
         }
 
         if (!this._renderData) {
@@ -520,10 +548,11 @@ let Label = cc.Class({
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            this._frame = spriteFrame;
             let self = this;
             let onBMFontTextureLoaded = function () {
                 // TODO: old texture in material have been released by loader
-                self._texture = spriteFrame._texture;
+                self._frame._texture = spriteFrame._texture;
                 self._activateMaterial(force);
 
                 if (force) {
@@ -553,7 +582,13 @@ let Label = cc.Class({
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
-            this._texture = this._ttfTexture;
+
+            if (!this._frame) {
+                this._frame = new LabelFrame();
+            }
+
+            this._frame._refreshTexture(this._ttfTexture);
+
             this._activateMaterial(force);
 
             if (force) {
@@ -570,7 +605,7 @@ let Label = cc.Class({
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._texture.url = this.uuid + '_texture';
+            this._frame._texture.url = this.uuid + '_texture';
         }
         // WebGL
         else {
@@ -578,20 +613,22 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             // Setup blend function for premultiplied ttf label texture
-            if (this._texture === this._ttfTexture) {
+            if (this._frame._texture === this._ttfTexture) {
                 this._srcBlendFactor = cc.macro.BlendFactor.ONE;
             }
             else {
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
-            material.texture = this._texture;
+            material.texture = this._frame._texture;
+            // For batch rendering, do not use uniform color.
+            material.useColor = false;
             this._updateMaterial(material);
         }
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
-
+    
     _updateColor () {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
@@ -614,6 +651,20 @@ let Label = cc.Class({
         if (force) {
             this._updateAssembler();
             this._applyFontTexture(force);
+        }
+    },
+
+    _calDynamicAtlas () {
+        if (!dynamicAtlasManager) return;
+
+        if (!this._frame._original) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._frame);
+            if (frame) {
+                this._frame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._frame._texture) {
+            this._activateMaterial(true);
         }
     },
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-
 module.exports = {
     useModel: false,
 
@@ -44,14 +42,7 @@ module.exports = {
         
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         if (renderData && frame) {
@@ -103,13 +94,14 @@ module.exports = {
         }
 
         let renderData = sprite._renderData,
+            node = sprite.node,
+            color = node._color._val,
             data = renderData._data;
 
         let buffer = renderer._meshBuffer,
             vertexOffset = buffer.byteOffset >> 2,
-            vertexCount = renderData.vertexCount;
-        
-        let indiceOffset = buffer.indiceOffset,
+            vertexCount = renderData.vertexCount,
+            indiceOffset = buffer.indiceOffset,
             vertexId = buffer.vertexOffset;
 
         let uvSliced = sprite.spriteFrame.uvSliced;
@@ -118,6 +110,7 @@ module.exports = {
 
         // buffer data may be realloc, need get reference after request.
         let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
         for (let i = 4; i < 20; ++i) {
@@ -128,6 +121,7 @@ module.exports = {
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = uvs.u;
             vbuf[vertexOffset++] = uvs.v;
+            uintbuf[vertexOffset++] = color;
         }
 
         for (let r = 0; r < 3; ++r) {

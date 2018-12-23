@@ -26,8 +26,6 @@
 const Sprite = require('../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-
 module.exports = {
     useModel: false,
     updateRenderData (sprite) {
@@ -35,14 +33,7 @@ module.exports = {
         
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         if (renderData && frame) {
@@ -224,6 +215,7 @@ module.exports = {
 
         let data = sprite._renderData._data,
             node = sprite.node,
+            color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
@@ -234,7 +226,8 @@ module.exports = {
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData;
+        let vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
 
         // vertex
         for (let i = 0; i < 4; i++) {
@@ -243,6 +236,7 @@ module.exports = {
             vbuf[vertexOffset++] = vert.y;
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
         }
     }
 };

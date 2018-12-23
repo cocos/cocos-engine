@@ -96,7 +96,8 @@ module.exports = {
             "overflow": "Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.",
             "wrap": "Wrap text?",
             "font": "What font to use",
-            "system_font": "Whether to use the system default font"
+            "system_font": "Whether to use the system default font",
+            'batch_as_bitmap': 'Whether to set to static text for batch merging, select this will add text to the dynamic atlas for batch merging, but can not dynamically modify text content frequently'
         },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
