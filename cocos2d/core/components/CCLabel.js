@@ -432,22 +432,29 @@ let Label = cc.Class({
             }
         },
 
-        _cacheAsBitmap: true,
+        _batchAsBitmap: false,
         /**
          * !#en Whether cache label to static texture and draw in dynamicAtlas.
          * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
-         * @property {Boolean} cacheAsBitmap
+         * @property {Boolean} batchAsBitmap
          */
-        cacheAsBitmap: {
+        batchAsBitmap: {
             get () {
-                return this._cacheAsBitmap;
+                return this._batchAsBitmap;
             },
             set (value) {
-                if (this._cacheAsBitmap === value) return;
+                if (this._batchAsBitmap === value) return;
 
-                this._cacheAsBitmap = value;
+                this._batchAsBitmap = value;
+
+                if (!this._batchAsBitmap && !(this.font instanceof cc.BitmapFont)) {
+                    this._frame._resetDynamicAtlasFrame();
+                }
+                this._activateMaterial(true);
                 this._updateRenderData();
             },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.batch_as_bitmap',
         },
 
         _isBold: {
@@ -533,6 +540,7 @@ let Label = cc.Class({
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
+            this._frame = null;
         }
 
         if (!this._renderData) {
@@ -545,10 +553,11 @@ let Label = cc.Class({
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            this._frame = spriteFrame;
             let self = this;
             let onBMFontTextureLoaded = function () {
                 // TODO: old texture in material have been released by loader
-                self._texture = spriteFrame._texture;
+                self._frame._texture = spriteFrame._texture;
                 self._activateMaterial(force);
 
                 if (force) {
@@ -567,9 +576,6 @@ let Label = cc.Class({
                     spriteFrame.ensureLoadTexture();
                 }
             }
-            
-            // TODO: old texture in material have been released by loader
-            this._frame = spriteFrame;
         }
         else {
             if (!this._ttfTexture) {
@@ -580,13 +586,13 @@ let Label = cc.Class({
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
-                
-                if (!this._frame) {
-                    this._frame = new LabelFrame();
-                }
-
-                this._frame._refreshTexture(this._ttfTexture);
             }
+
+            if (!this._frame) {
+                this._frame = new LabelFrame();
+            }
+
+            this._frame._refreshTexture(this._ttfTexture);
 
             this._activateMaterial(force);
 

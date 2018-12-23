@@ -78,6 +78,7 @@ LabelFrame.prototype = {
         this._calculateUV();
     },
     _resetDynamicAtlasFrame () {
+        if (!this._original) return;
         this._rect.x = this._original._x;
         this._rect.y = this._original._y;
         this._texture = this._original._texture;
