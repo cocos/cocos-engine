@@ -97,7 +97,7 @@ module.exports = {
             "wrap": "Wrap text?",
             "font": "What font to use",
             "system_font": "Whether to use the system default font",
-            'batch_as_bitmap': 'Whether to set to static text for batch merging, select this will add text to the dynamic atlas for batch merging, but can not dynamically modify the text content'
+            'batch_as_bitmap': 'Whether to set to static text for batch merging, select this will add text to the dynamic atlas for batch merging, but can not dynamically modify text content frequently'
         },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
