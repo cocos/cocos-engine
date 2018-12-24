@@ -3,7 +3,7 @@ import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
-import { setWrap } from './util';
+import { setWrap, getWrap } from './util';
 
 export enum DataFlow {
     PUSHING,
@@ -30,7 +30,10 @@ export class RigidBody {
     constructor(node: Node) {
         this._node = node;
 
-        const cannonBodyOptions: CANNON.IBodyOptions = {};
+        const cannonBodyOptions: CANNON.IBodyOptions = {
+            mass: 0,
+            material: new CANNON.Material('')
+        };
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
         setWrap<RigidBody>(this._cannonBody, this);
@@ -59,8 +62,12 @@ export class RigidBody {
     }
 
     public addShape(shape: PhysicsShape) {
+        // shape.__debugNodeName = this._node.name;
+
+        shape.scale = this._node.getWorldScale();
         this._shapes.add(shape);
         this._cannonBody.addShape(shape._getCannonShape());
+        this.commitShapesUpdate();
     }
 
     public getCenter(shape: PhysicsShape) {
@@ -79,6 +86,21 @@ export class RigidBody {
         }
     }
 
+    get velocity() {
+        return this._cannonBody.velocity;
+    }
+
+    get force() {
+        return this._cannonBody.force;
+    }
+
+    public applyForce(force: cc.Vec3, position?: cc.Vec3) {
+        if (!position) {
+            position = this._cannonBody.position;
+        }
+        this._cannonBody.applyForce(force, position);
+    }
+
     get material() {
         return this._material;
     }
@@ -89,12 +111,7 @@ export class RigidBody {
             return;
         }
 
-        if (!this._cannonBody.material) {
-            this._cannonBody.material = new CANNON.Material(this._material.name);
-        }
-
-        this._cannonBody.material.friction = this._material.friction;
-        this._cannonBody.material.restitution = this._material.restitution;
+        this._cannonBody.material = this._material._getImpl();
     }
 
     get mass() {
@@ -207,8 +224,12 @@ export class RigidBody {
         }
     }
 
+    public commitShapesUpdate() {
+        this._cannonBody.updateBoundingRadius();
+    }
+
     private _onCollided(event: CANNON.ICollisionEvent) {
-        // console.log(`Collided: ${event.contact}`);
+        // console.log(`Collided {${getWrap<RigidBody>(event.body)._node.name}} and {${getWrap<RigidBody>(event.target)._node.name}}.`);
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
@@ -232,12 +253,16 @@ export class RigidBody {
         // @ts-nocheck
         this._node.getWorldRotation(this._cannonBody.quaternion);
         const scale = this._node.getWorldScale();
+        let shapeUpdated = false;
         this._shapes.forEach((shape) => {
             if (!vec3.exactEquals(scale, shape.scale)) {
                 shape.scale = scale;
+                shapeUpdated = true;
             }
         });
-        this._cannonBody.updateBoundingRadius();
+        if (shapeUpdated) {
+            this.commitShapesUpdate();
+        }
     }
 
     private _resetBodyTypeAccordingMess() {
@@ -258,6 +283,8 @@ export class RigidBody {
 }
 
 export class PhysicsShape {
+    // public __debugNodeName: string = '';
+
     private _scale: cc.Vec3 = new cc.Vec3(1.0, 1.0, 1.0);
 
     constructor(private _cannonShape: CANNON.Shape) {
@@ -307,6 +334,8 @@ export class PhysicsBoxShape extends PhysicsShape {
         shape.halfExtents = newHalfExtents;
         shape.updateBoundingSphereRadius();
         shape.updateConvexPolyhedronRepresentation();
+
+        // console.log(`Set ${this.__debugNodeName} halfExtents to ${shape.halfExtents.x}, ${shape.halfExtents.y},${shape.halfExtents.z}.`);
     }
 }
 
@@ -332,6 +361,8 @@ export class PhysicsSphereShape extends PhysicsShape {
         const shape = this._getCannonShape<CANNON.Sphere>();
         shape.radius = this._radius * maxComponent(this.scale);
         shape.updateBoundingSphereRadius();
+
+        // console.log(`Set ${this.__debugNodeName} radius to ${shape.radius}.`);
     }
 }
 

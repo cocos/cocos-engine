@@ -17,15 +17,23 @@ export class ColliderComponentBase extends Component {
 
     private _material: PhysicsMaterial | null = null;
 
-    private _body: RigidBody | null = null;
+    protected _body: RigidBody | null = null;
 
-    private _center: Vec3;
+    @property
+    private _center: Vec3 = new cc.Vec3(0, 0, 0);
+
+    @property
+    private _mass: number = 0;
 
     constructor(shape: PhysicsShape) {
         super();
 
         this._center = new Vec3(0, 0, 0);
         this._shape = shape;
+    }
+
+    public get body() {
+        return this._body;
     }
 
     public onLoad() {
@@ -51,6 +59,16 @@ export class ColliderComponentBase extends Component {
         if (this._body) {
             this._body.setCenter(this._shape, this._center);
         }
+    }
+
+    @property
+    get mass() {
+        return this._mass;
+    }
+
+    set mass(value) {
+        this._mass = value;
+        this._body.mass = value;
     }
 
     @property(PhysicsMaterial)
@@ -101,9 +119,13 @@ export class BoxColliderComponent extends ColliderComponentBase {
         return this._size;
     }
 
+    /**
+     * Note, shall not specify size with component 0
+     */
     set size(value) {
         this._size = value;
         (this._shape as PhysicsBoxShape).size = this._size;
+        this._body.commitShapesUpdate();
     }
 }
 
@@ -124,5 +146,6 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     set radius(value) {
         (this._shape as PhysicsSphereShape).radius = value;
+        this._body.commitShapesUpdate();
     }
 }

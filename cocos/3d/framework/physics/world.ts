@@ -1,6 +1,7 @@
 import CANNON from 'cannon';
 import { RigidBody, DataFlow, PhysicsShape } from './body';
-import { getWrap, setWrap } from './util';
+import { getWrap, setWrap, toCannonOptions } from './util';
+import { ContactMaterial } from './contact-material';
 
 export interface RaycastOptions {
     collisionFilterMask?: number;
@@ -43,11 +44,13 @@ export class PhysicsWorld {
     constructor() {
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorld>(this._cannonWorld, this);
-        this._cannonWorld.gravity.set(0, -9.82, 0);
+        this._cannonWorld.gravity.set(0, -9.81, 0);
+        this._cannonWorld.broadphase = new CANNON.NaiveBroadphase();
         this._bodys = new Set();
     }
 
     public addBody(body: RigidBody) {
+        this._bodys.add(body);
         this._cannonWorld.addBody(body._getCannonBody());
         body._onAdded();
     }
@@ -55,6 +58,7 @@ export class PhysicsWorld {
     public removeBody(body: RigidBody) {
         body._onRemoved();
         this._cannonWorld.remove(body._getCannonBody());
+        this._bodys.delete(body);
     }
 
     public step(deltaTime: number) {
@@ -72,7 +76,7 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastClosest(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._cannonWorld as any).raycastClosest(from, to, toCannonOptions(options), result._cannonResult);
+        const hit = (this._cannonWorld as any).raycastClosest(from, to, toCannonRaycastOptions(options), result._cannonResult);
         if (hit) {
             result._update();
         }
@@ -84,7 +88,7 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastAny(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._cannonWorld as any).raycastAny(from, to, toCannonOptions(options), result._cannonResult);
+        const hit = (this._cannonWorld as any).raycastAny(from, to, toCannonRaycastOptions(options), result._cannonResult);
         if (hit) {
             result._update();
         }
@@ -96,13 +100,17 @@ export class PhysicsWorld {
      * @return True if any body was hit.
      */
     public raycastAll(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, callback: (result: RaycastResult) => void): boolean {
-        return (this._cannonWorld as any).raycastAll(from, to, toCannonOptions(options), (cannonResult: CANNON.RaycastResult) => {
+        return (this._cannonWorld as any).raycastAll(from, to, toCannonRaycastOptions(options), (cannonResult: CANNON.RaycastResult) => {
             const result = new RaycastResult();
             result._cannonResult = cannonResult;
             result._update();
             callback(result);
         });
     };
+
+    public addContactMaterial(contactMaterial: ContactMaterial) {
+        this._cannonWorld.addContactMaterial(contactMaterial._getImpl());
+    }
 }
 
 interface CANNONRaycastOptions {
@@ -112,10 +120,8 @@ interface CANNONRaycastOptions {
     skipBackfaces?: boolean;
 }
 
-function toCannonOptions(options: RaycastOptions): CANNONRaycastOptions {
-    return {
-        collisionFilterMask: options.collisionFilterMask === undefined ? -1 : options.collisionFilterMask,
-        collisionFilterGroup: options.collisionFilterGroup === undefined ? -1 : options.collisionFilterGroup,
-        checkCollisionResponse: options.queryTriggerInteraction === undefined ? true : options.queryTriggerInteraction
-    };
+function toCannonRaycastOptions(options: RaycastOptions): CANNONRaycastOptions {
+    return toCannonOptions(options, {
+        queryTriggerInteraction: 'checkCollisionResponse',
+    });
 }
