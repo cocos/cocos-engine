@@ -32,6 +32,7 @@ const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
 const Node = require('../CCNode');
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
@@ -491,6 +492,21 @@ let Mask = cc.Class({
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
                                    RenderFlow.FLAG_POST_RENDER);
     },
+
+    _calDynamicAtlas ()
+    {
+        if (!this._spriteFrame) return;
+        
+        if (!this._spriteFrame._original && dynamicAtlasManager) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
+            if (frame) {
+                this._spriteFrame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._spriteFrame._texture) {
+            this._activateMaterial();
+        }
+    }
 });
 
 cc.Mask = module.exports = Mask;
