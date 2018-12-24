@@ -325,7 +325,7 @@ std::string Application::getCurrentLanguageCode() const
     LANGID lid = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
     static char code[3] = { 0 };
-    GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, code);
+    GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, code, sizeof(code));
     return code;
 }
 
