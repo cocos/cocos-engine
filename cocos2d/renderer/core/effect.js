@@ -1,9 +1,9 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import config from '../config';
-import Pass from './pass';
-import Technique from './technique';
-import { ctor2default, enums2ctor, ctor2enums } from '../types';
+import Pass from '../core/pass';
+import Technique from '../core/technique';
+import { ctor2default, enums2ctor } from '../types';
 
 let getInstanceType = function(t) { return enums2ctor[t] || enums2ctor.default; };
 let typeCheck = function(value, type) {
@@ -32,6 +32,10 @@ class Effect {
         this._techniques.length = 0;
         this._properties = {};
         this._defines = {};
+    }
+
+    getDefaultTechnique() {
+        return this._techniques[0];
     }
 
     getTechnique(stage) {

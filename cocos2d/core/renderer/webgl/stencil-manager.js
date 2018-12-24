@@ -58,7 +58,7 @@ StencilManager.prototype = {
     },
 
     handleEffect (effect) {
-        let technique = effect._techniques[0];
+        let technique = effect.getDefaultTechnique();
         let passes = technique.passes;
         if (this.stage === Stage.DISABLED) {
             for (let i = 0; i < passes.length; ++i) {

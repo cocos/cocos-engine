@@ -29,7 +29,7 @@ const vfmt3D = vertexFormat.vfmt3D;
 const StencilManager = require('./stencil-manager');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
-const Material = require('../../assets/CCMaterial');
+const Material = require('../../assets/material/CCMaterial');
 
 let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
@@ -40,7 +40,6 @@ import Model from '../../../renderer/scene/model';
 let _buffers = {};
 
 const empty_material = new Material();
-empty_material.updateHash();
 
 var ModelBatcher = function (device, renderScene) {
     this._renderScene = renderScene;
@@ -75,6 +74,8 @@ var ModelBatcher = function (device, renderScene) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
+
+    this.customProperties = null;
 };
 
 ModelBatcher.prototype = {
@@ -113,6 +114,8 @@ ModelBatcher.prototype = {
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
+
+        this.customProperties = null;
     },
 
     _flush () {
@@ -144,7 +147,7 @@ ModelBatcher.prototype = {
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
-        model.setEffect(effect);
+        model.setEffect(effect, this.customProperties);
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
@@ -174,7 +177,7 @@ ModelBatcher.prototype = {
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
-        model.setEffect(effect);
+        model.setEffect(effect, this.customProperties);
         model.setInputAssembler(iaRenderData.ia);
         
         this._renderScene.addModel(model);
@@ -182,7 +185,7 @@ ModelBatcher.prototype = {
 
     _commitComp (comp, assembler, cullingMask) {
         let material = comp.sharedMaterials[0];
-        if ((material && material._hash !== this.material._hash) || 
+        if ((material && material.getHash() !== this.material.getHash()) || 
             this.cullingMask !== cullingMask) {
             this._flush();
     

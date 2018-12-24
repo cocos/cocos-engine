@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const RenderComponent = require('../core/components/CCRenderComponent');
-const Material = require('../core/assets/CCMaterial');
+const Material = require('../core/assets/material/CCMaterial');
 
 /**
  * !#en Render the TMX layer.

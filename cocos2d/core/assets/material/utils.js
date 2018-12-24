@@ -1,6 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
-import murmurhash2 from './murmurhash2_gc';
 import enums from '../../../renderer/enums';
 
 // function genHashCode (str) {
@@ -16,7 +15,7 @@ import enums from '../../../renderer/enums';
 //     return hash;
 // }
 
-export function serializeDefines (defines) {
+function serializeDefines (defines) {
     let str = '';
     for (let name in defines) {
         str += name + defines[name];
@@ -24,7 +23,7 @@ export function serializeDefines (defines) {
     return str;
 }
 
-export function serializePass (pass) {
+function serializePass (pass) {
     let str = pass._programName + pass._cullMode;
     if (pass._blend) {
         str += pass._blendEq + pass._blendAlphaEq + pass._blendSrc + pass._blendDst
@@ -44,7 +43,7 @@ export function serializePass (pass) {
     return str;
 }
 
-export function serializeTechniques (techniques) {
+function serializeTechniques (techniques) {
     let hashData = '';
     for (let i = 0; i < techniques.length; i++) {
         let techData = techniques[i];
@@ -60,7 +59,7 @@ export function serializeTechniques (techniques) {
     return hashData;
 }
 
-export function serializeUniforms (uniforms) {
+function serializeUniforms (uniforms) {
     let hashData = '';
     for (let name in uniforms) {
         let param = uniforms[name];
@@ -107,16 +106,8 @@ export function serializeUniforms (uniforms) {
     return hashData;
 }
 
-export function computeMaterial (material) {
-    let effect = material._effect;
-    let hashData = '';
-    if (effect) {
-        // effect._defines
-        hashData += serializeDefines(effect._defines);
-        // effect._techniques
-        hashData += serializeTechniques(effect._techniques);
-        // effect._properties
-        hashData += serializeUniforms(effect._properties);
-    }
-    return hashData ? murmurhash2(hashData, 666) : hashData;
+export default {
+    serializeDefines,
+    serializeTechniques,
+    serializeUniforms
 };

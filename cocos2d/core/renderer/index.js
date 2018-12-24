@@ -30,6 +30,7 @@ import Scene from '../../renderer/scene/scene';
 
 import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
+import Pass from '../../renderer/core/pass';
 
 const RenderFlow = require('./render-flow');
 
@@ -67,6 +68,7 @@ cc.renderer = module.exports = {
 
     InputAssembler: InputAssembler,
     IARenderData: IARenderData,
+    Pass: Pass,
 
     /**
      * !#en The render engine is available only after cc.game.EVENT_ENGINE_INITED event.<br/>

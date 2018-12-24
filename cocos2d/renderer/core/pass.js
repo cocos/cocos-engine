@@ -13,10 +13,10 @@ export default class Pass {
     this._blend = false;
     this._blendEq = gfx.BLEND_FUNC_ADD;
     this._blendAlphaEq = gfx.BLEND_FUNC_ADD;
-    this._blendSrc = gfx.BLEND_ONE;
-    this._blendDst = gfx.BLEND_ZERO;
-    this._blendSrcAlpha = gfx.BLEND_ONE;
-    this._blendDstAlpha = gfx.BLEND_ZERO;
+    this._blendSrc = gfx.BLEND_SRC_ALPHA;
+    this._blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA;
+    this._blendSrcAlpha = gfx.BLEND_SRC_ALPHA;
+    this._blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA;
     this._blendColor = 0xffffffff;
 
     // depth

@@ -29,7 +29,7 @@ import RenderData from '../../renderer/render-data/render-data';
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en
@@ -68,7 +68,7 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type:BlendFactor,
@@ -90,7 +90,7 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._dstBlendFactor === value) return;
                 this._dstBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type: BlendFactor,
@@ -221,21 +221,21 @@ let RenderComponent = cc.Class({
     setMaterial (index, material) {
         this._materials[index] = material;
         if (material) {
-            this._updateMaterialBlendFunc(true, material);
+            this._updateMaterialBlendFunc(material);
             this.markForUpdateRenderData(true);
         }
     },
 
-    _updateBlendFunc: function (updateHash) {
+    _updateBlendFunc: function () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
             let material = materials[i];
-            this._updateMaterialBlendFunc(updateHash, material);
+            this._updateMaterialBlendFunc(material);
         }
     },
 
-    _updateMaterialBlendFunc (updateHash, material) {
-        let passes = material._effect._techniques[0].passes;
+    _updateMaterialBlendFunc (material) {
+        let passes = material._effect.getDefaultTechnique().passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(
@@ -245,10 +245,6 @@ let RenderComponent = cc.Class({
                 gfx.BLEND_FUNC_ADD,
                 this._srcBlendFactor, this._dstBlendFactor
             );
-        }
-
-        if (updateHash) {
-            material.updateHash();
         }
     },
 

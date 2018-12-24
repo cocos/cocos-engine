@@ -27,10 +27,10 @@ const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
 const aabb = require('../3d/geom-utils/aabb');
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 import gfx from '../../renderer/gfx';
-import ShaderConfig from './shader-config';
+import CustomProperties from '../assets/material/custom-properties';
 
 /**
  * !#en Shadow projection mode
@@ -144,14 +144,12 @@ let MeshRenderer = cc.Class({
     ctor () {
         this._renderDatas = [];
         this._boundingBox = null;
-        this._shaderConfig = new ShaderConfig();
+        this._customProperties = new CustomProperties();
     },
 
     onEnable () {
         this._super();
         this._activateMaterial();
-        this._updateReceiveShadow();
-        this._updateCastShadow();
     },
 
     _getDefaultMaterial () {
@@ -191,18 +189,31 @@ let MeshRenderer = cc.Class({
             let material = this._getDefaultMaterial();
             materials[0] = material;
         }
+
+        this._updateMeshAttribute();
+        this._updateReceiveShadow();
+        this._updateCastShadow();
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
 
     _updateReceiveShadow () {
-        this._shaderConfig.setDefine('_USE_SHADOW_MAP', this._receiveShadows);
+        this._customProperties.define('_USE_SHADOW_MAP', this._receiveShadows);
     },
 
     _updateCastShadow () {
-        this._shaderConfig.setDefine('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+        this._customProperties.define('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
     },
+
+    _updateMeshAttribute () {
+        let subMeshes = this._mesh && this._mesh.subMeshes;
+        if (!subMeshes) return;
+
+        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
+    }
 });
 
 cc.MeshRenderer = module.exports = MeshRenderer;

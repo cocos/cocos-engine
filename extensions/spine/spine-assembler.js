@@ -27,7 +27,7 @@ const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manage
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const Material = require('../../cocos2d/core/assets/CCMaterial');
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 import gfx from '../../cocos2d/renderer/gfx';
 
 const STENCIL_SEP = '@';
@@ -90,11 +90,9 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             src, dst
         );
         materials[key] = material;
-        material.updateHash(key);
     }
     else if (material.getProperty('texture') !== tex) {
         material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
@@ -312,7 +310,6 @@ var spineAssembler = {
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
                 data.material = materials[newKey] || data.material.clone();
-                data.material.updateHash(newKey);
                 if (!materials[newKey]) {
                     materials[newKey] = data.material;
                 }

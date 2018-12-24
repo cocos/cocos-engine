@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 const textureUtil = require('../utils/texture-util');
 
 /**

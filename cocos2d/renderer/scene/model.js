@@ -62,17 +62,21 @@ export default class Model {
    * Set the model effect
    * @param {?Effect} effect the effect to use
    */
-  setEffect(effect) {
+  setEffect(effect, customProperties) {
+    this._defines = Object.create(null);
+    this._dependencies = Object.create(null);
+    this._uniforms = Object.create(null);
+    this._effect = effect;
+
     if (effect) {
-      this._effect = effect;
-      this._defines = effect.extractDefines(Object.create(null));
-      this._dependencies = effect.extractDependencies(Object.create(null));
-      this._uniforms = effect.extractProperties(Object.create(null));
-    } else {
-      this._effect = null;
-      this._defines = Object.create(null);
-      this._dependencies = Object.create(null);
-      this._uniforms = Object.create(null);
+      effect.extractDefines(this._defines);
+      effect.extractProperties(this._uniforms);
+      effect.extractDependencies(this._dependencies);
+    }
+
+    if (customProperties) {
+      customProperties.extractDefines(this._defines);
+      customProperties.extractProperties(this._uniforms);
     }
   }
 

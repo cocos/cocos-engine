@@ -29,7 +29,7 @@ const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en Enum for sprite type.

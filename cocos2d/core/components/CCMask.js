@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const misc = require('../utils/misc');
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
@@ -196,8 +196,7 @@ let Mask = cc.Class({
                 }
                 let material = this.sharedMaterials[0];
                 if (material) {
-                    material.alphaThreshold = this.alphaThreshold;
-                    material.updateHash();
+                    material.setProperty('alphaThreshold', this.alphaThreshold);
                 }
             }
         },

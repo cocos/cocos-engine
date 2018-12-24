@@ -24,18 +24,20 @@
  ****************************************************************************/
 // @ts-check
 
-const Asset = require('./CCAsset');
-const Texture = require('./CCTexture2D');
-const EffectAsset = require('./CCEffectAsset');
+const Asset = require('../CCAsset');
+const Texture = require('../CCTexture2D');
+const EffectAsset = require('../CCEffectAsset');
 
-import { computeMaterial } from '../utils/hash/compute';
-import Effect from '../../renderer/core/effect';
+import Effect from '../../../renderer/core/effect';
+import murmurhash2 from './murmurhash2_gc';
+import utils from './utils';
 
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
 
     ctor () {
+        this._dirty = true;
         this._effect = null;
     },
 
@@ -89,14 +91,14 @@ let Material = cc.Class({
     },
 
     statics: {
-        getBuiltinMaterial(name) {
+        getBuiltinMaterial (name) {
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
-        getInstantiatedBuiltinMaterial(name, renderComponent) {
+        getInstantiatedBuiltinMaterial (name, renderComponent) {
             let builtinMaterial = this.getBuiltinMaterial(name);
             return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
         },
-        getInstantiatedMaterial(mat, renderComponent) {
+        getInstantiatedMaterial (mat, renderComponent) {
             if (mat._owner === renderComponent) {
                 return mat;
             }
@@ -115,7 +117,7 @@ let Material = cc.Class({
      *
      * @param {Material} mat
      */
-    copy(mat) {
+    copy (mat) {
         this.effectAsset = mat.effectAsset;
 
         for (let name in mat._defines) {
@@ -130,10 +132,12 @@ let Material = cc.Class({
     /**
      *
      * @param {string} name
-     * @param {*} val
+     * @param {Object} val
      */
-    setProperty(name, val) {
+    setProperty (name, val, force) {
+        if (this._props[name] === val && !force) return;
         this._props[name] = val;
+        this._dirty = true;
 
         if (this._effect) {
             if (val instanceof Texture) {
@@ -145,42 +149,58 @@ let Material = cc.Class({
         }
     },
 
-    getProperty(name) {
+    getProperty (name) {
         return this._props[name];
     },
 
     /**
      *
      * @param {string} name
-     * @param {*} val
+     * @param {Boolean|Number} val
      */
-    define(name, val) {
+    define (name, val, force) {
+        if (this._defines[name] === val && !force) return;
         this._defines[name] = val;
+        this._dirty = true;
+
         if (this._effect) {
             this._effect.define(name, val);
         }
     },
 
-    getDefine(name) {
+    getDefine (name) {
         return this._defines[name];
     },
 
-    updateHash (val) {
-        this._hash = val || computeMaterial(this);
+    setDirty (dirty) {
+        this._dirty = dirty;
+    },
+
+    getHash () {
+        if (!this._dirty) return this._hash;
+        this._dirty = false;
+        let effect = this._effect;
+
+        let hashStr = '';
+        if (effect) {
+            hashStr += utils.serializeDefines(effect._defines);
+            hashStr += utils.serializeTechniques(effect._techniques);
+            hashStr += utils.serializeUniforms(effect._properties);
+        }
+
+        return this._hash = murmurhash2(hashStr, 666);
     },
 
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
-        
+
         for (let def in this._defines) {
-            this.define(def, this._defines[def]);
+            this.define(def, this._defines[def], true);
         }
         for (let prop in this._props) {
-            this.setProperty(prop, this._props[prop]);
+            this.setProperty(prop, this._props[prop], true);
         }
-
-        this.updateHash();
     },
 });
 

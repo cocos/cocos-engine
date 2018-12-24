@@ -115,7 +115,7 @@ let SkinnedMeshRenderer = cc.Class({
         if (!this._skeleton) return;
 
         let jointCount = this._joints.length;
-        let shaderConfig = this._shaderConfig;
+        let customProperties = this._customProperties;
 
         let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
@@ -138,16 +138,16 @@ let SkinnedMeshRenderer = cc.Class({
 
             this._jointsTexture = texture;
             
-            shaderConfig.setUniform('_jointsTexture', texture.getImpl());
-            shaderConfig.setUniform('_jointsTextureSize', this._jointsTexture.width);
+            customProperties.setProperty('_jointsTexture', texture.getImpl());
+            customProperties.setProperty('_jointsTextureSize', this._jointsTexture.width);
         }
         else {
             this._jointsTextureData = new Float32Array(jointCount * 16);
-            shaderConfig.setUniform('_jointMatrices', this._jointsTextureData);
+            customProperties.setProperty('_jointMatrices', this._jointsTextureData);
         }
 
-        shaderConfig.setDefine('_USE_SKINNING', true);
-        shaderConfig.setDefine('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
+        customProperties.define('_USE_SKINNING', true);
+        customProperties.define('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
     _setJointsTextureData (iMatrix, matrix) {

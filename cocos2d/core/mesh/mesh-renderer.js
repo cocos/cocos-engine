@@ -49,9 +49,8 @@ let meshRendererAssembler = {
     createWireFrameData (ia, oldIbData, material, renderer) {
         let data = new IARenderData();
         let m = material.clone();
-        m.color = BLACK_COLOR;
+        m.setProperty('color', BLACK_COLOR);
         m.define('USE_TEXTURE', false);
-        m._mainTech._passes[0].setDepth(true, true);
         data.material = m;
 
         let indices = [];
@@ -100,7 +99,8 @@ let meshRendererAssembler = {
         let tmpNode = renderer.node;
         renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
 
-        let shaderConfig = comp._shaderConfig;
+        let customProperties = renderer.customProperties = comp._customProperties;
+        let tmpCustomProperties = renderer.customProperties;
 
         comp.mesh._uploadData();
 
@@ -108,19 +108,11 @@ let meshRendererAssembler = {
             let renderData = renderDatas[i];
             let material = renderData.material;
 
-            let attr2el = renderData.ia._vertexBuffer._format._attr2el;
-            shaderConfig.setDefine('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
-            shaderConfig.setDefine('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
-            
-            let tmpConfig = material.effect._dynamicConfig;
-            material.effect._dynamicConfig = shaderConfig;
-
             renderer.material = material;
             renderer._flushIA(renderData);
-
-            material.effect._dynamicConfig = tmpConfig;
         }
 
+        renderer.customProperties = tmpCustomProperties;
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
     }
