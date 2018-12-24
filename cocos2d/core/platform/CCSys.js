@@ -811,6 +811,7 @@ function initSys () {
         /**
          * Get current language iso 639-1 code.
          * Examples of valid language codes include "zh-tw", "en", "en-us", "fr", "fr-fr", "es-es", etc.
+         * The actual value totally depends on results provided by destination platform.
          * @property {String} languageCode
          */
         sys.languageCode = currLanguage.toLowerCase();
