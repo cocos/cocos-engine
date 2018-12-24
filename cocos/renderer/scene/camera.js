@@ -325,6 +325,11 @@ export default class Camera {
    * @param {number} height framebuffer height
    */
   extractView(out, width, height) {
+    if (this._framebuffer) {
+      width = this._framebuffer._width;
+      height = this._framebuffer._height;
+    }
+
     // priority
     out._priority = this._priority;
 

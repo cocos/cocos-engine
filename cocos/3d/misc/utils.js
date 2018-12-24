@@ -1,12 +1,11 @@
 import renderer from '../../renderer';
-import { Layers, find } from '../../scene-graph';
+import find from '../../scene-graph/find';
 import Mesh from '../assets/mesh';
 import gfx from '../../renderer/gfx/index';
-// import parseLevel from '../loaders/utils/level-parser';
 
 /**
- * 
- * @param {import("../assets/skeleton").default} skinning 
+ *
+ * @param {import("../assets/skeleton").default} skinning
  */
 function createJointsTexture(skinning) {
   const jointCount = skinning.joints.length;
@@ -52,14 +51,17 @@ function createMesh(context, data) {
   return meshAsset;
 }
 
+/**
+ * @param {Uint8Array} buffer
+ */
+function toPPM(buffer, w, h) {
+  return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
+}
+
 export default {
   createJointsTexture,
   createMesh,
 
-//   parseLevel,
-
-//   walk: sceneUtils.walk,
-//   flat: sceneUtils.flat,
-  find: find,
-  Layers: Layers,
+  find,
+  toPPM
 };

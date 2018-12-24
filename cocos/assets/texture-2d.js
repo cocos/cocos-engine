@@ -284,7 +284,7 @@ export default class Texture2D extends TextureBase {
      * Resets sources and amount of the underlying texture's the mipmaps.
      * @param {ImageSource[]} mipmapSources
      */
-    _resetUnderlyingMipmaps(mipmapSources) {
+    _resetUnderlyingMipmaps(mipmapSources = [null]) {
         const opts = this._getOpts();
         opts.images = mipmapSources;
         if (!this._texture) {
