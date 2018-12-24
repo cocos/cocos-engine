@@ -579,7 +579,7 @@ function initSys () {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
         sys.language = sys.LANGUAGE_UNKNOWN;
-        sys.languageCode  = sys.LANGUAGE_UNKNOWN;
+        sys.languageCode = undefined;
         sys.os = ({
             darwin: sys.OS_OSX,
             win32: sys.OS_WINDOWS,
@@ -616,7 +616,8 @@ function initSys () {
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
-        sys.languageCode  = __getCurrentLanguageCode();
+        var languageCode = __getCurrentLanguageCode();
+        sys.languageCode = languageCode ? languageCode.toLowerCase() : undefined;
         sys.osVersion = __getOSVersion();
         sys.osMainVersion = parseInt(sys.osVersion);
         sys.browserType = null;
@@ -661,7 +662,7 @@ function initSys () {
         sys.isMobile = true;
         sys.platform = sys.WECHAT_GAME;
         sys.language = env.language.substr(0, 2);
-        sys.languageCode  = env.language;
+        sys.languageCode = env.language.toLowerCase();
         var system = env.system.toLowerCase();
         if (env.platform === "android") {
             sys.os = sys.OS_ANDROID;
@@ -722,7 +723,7 @@ function initSys () {
         sys.isMobile = true;
         sys.platform = sys.QQ_PLAY;
         sys.language = sys.LANGUAGE_UNKNOWN;
-        sys.languageCode  = sys.LANGUAGE_UNKNOWN;
+        sys.languageCode = undefined;
         if (env.platform === "android") {
             sys.os = sys.OS_ANDROID;
         }
@@ -766,7 +767,7 @@ function initSys () {
         sys.browserType = env.browserType;
         sys.isMobile = env.isMobile;
         sys.language = env.language;
-        sys.languageCode  = env.language;
+        sys.languageCode = env.language.toLowerCase();
         sys.os = env.os;
         sys.osVersion = env.osVersion;
         sys.osMainVersion = env.osMainVersion;
@@ -809,9 +810,11 @@ function initSys () {
 
         /**
          * Get current language iso 639-1 code.
+         * Examples of valid language codes include "zh-tw", "en", "en-us", "fr", "fr-fr", "es-es", etc.
+         * The actual value totally depends on results provided by destination platform.
          * @property {String} languageCode
          */
-        sys.languageCode  = currLanguage;
+        sys.languageCode = currLanguage.toLowerCase();
 
         currLanguage = currLanguage ? currLanguage.split("-")[0] : sys.LANGUAGE_ENGLISH;
 
