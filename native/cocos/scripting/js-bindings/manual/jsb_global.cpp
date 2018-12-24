@@ -607,6 +607,14 @@ static bool JSBCore_getCurrentLanguage(se::State& s)
 }
 SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
+static bool JSBCore_getCurrentLanguageCode(se::State& s)
+{
+    std::string language = Application::getInstance()->getCurrentLanguageCode();
+    s.rval().setString(language);
+    return true;
+}
+SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
+
 static bool JSB_getOSVersion(se::State& s)
 {
     std::string systemVersion = Application::getInstance()->getSystemVersion();
@@ -1143,6 +1151,7 @@ bool jsb_register_global_variables(se::Object* global)
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
+    global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__getVersion", _SE(JSBCore_version));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__cleanScript", _SE(JSB_cleanScript));
