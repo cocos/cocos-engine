@@ -221,13 +221,14 @@ void SpineRenderer::initWithBinaryFile (const std::string& skeletonDataFile, con
 
 void SpineRenderer::update (float deltaTime)
 {
-    if (_paused) return;
-    
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isUpdating) return;
     
-	spSkeleton_update(_skeleton, deltaTime * _timeScale);
+    if (!_paused)
+    {
+        spSkeleton_update(_skeleton, deltaTime * _timeScale);
+    }
     
     _skeleton->r = _nodeColor.r / (float)255;
     _skeleton->g = _nodeColor.g / (float)255;
