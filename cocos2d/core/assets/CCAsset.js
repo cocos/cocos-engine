@@ -50,7 +50,7 @@ var RawAsset = require('./CCRawAsset');
 cc.Asset = cc.Class({
     name: 'cc.Asset', extends: RawAsset,
 
-    ctor () {
+    ctor() {
         /**
          * !#en
          * Whether the asset is loaded or not
@@ -84,14 +84,19 @@ cc.Asset = cc.Class({
                     }
                     if (cc.AssetLibrary) {
                         var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+                        var url;
                         if (name.charCodeAt(0) === 46) {  // '.'
                             // imported in dir where json exist
-                            return base + name;
+                            url = base + name;
                         }
                         else {
                             // imported in an independent dir
-                            return base + '/' + name;
+                            url = base + '/' + name;
                         }
+                        if (cc.loader.subpackagePipe) {
+                            url = cc.loader.subpackagePipe.transformURL(url);
+                        }
+                        return url;
                     }
                     else {
                         cc.errorID(6400);
@@ -119,8 +124,8 @@ cc.Asset = cc.Class({
          * @private
          */
         _nativeAsset: {
-            get () {},
-            set (obj) {}
+            get() { },
+            set(obj) { }
         },
     },
 
@@ -169,7 +174,7 @@ cc.Asset = cc.Class({
      * @method toString
      * @return {String}
      */
-    toString () {
+    toString() {
         return this.nativeUrl;
     },
 

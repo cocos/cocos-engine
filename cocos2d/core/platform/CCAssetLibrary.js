@@ -31,6 +31,7 @@ var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
 var MD5Pipe = require('../load-pipeline/md5-pipe');
+var SubpackagePipe = require('../load-pipeline/subpackage-pipe');
 var js = require('./js');
 
 /**
@@ -46,13 +47,13 @@ var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAsset = js.createMap(true);
 
-function isScene (asset) {
+function isScene(asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
 }
 
 // types
 
-function RawAssetEntry (url, type) {
+function RawAssetEntry(url, type) {
     this.url = url;
     this.type = type;
 }
@@ -146,7 +147,7 @@ var AssetLibrary = {
     },
 
     _getAssetInfoInRuntime: function (uuid, result) {
-        result = result || {url: null, raw: false};
+        result = result || { url: null, raw: false };
         var info = _uuidToRawAsset[uuid];
         if (info && !js.isChildClassOf(info.type, cc.Asset)) {
             // backward compatibility since 1.10
@@ -223,7 +224,7 @@ var AssetLibrary = {
             uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ Loader.assetLoader.id, Loader.downloader.id ]
+            skips: [Loader.assetLoader.id, Loader.downloader.id]
         };
         Loader.load(item, function (error, asset) {
             if (error) {
@@ -294,7 +295,6 @@ var AssetLibrary = {
                 uuid = decodeUuid(md5Entries[i]);
                 md5ImportMap[uuid] = md5Entries[i + 1];
             }
-
             var md5RawAssetsMap = js.createMap(true);
             md5Entries = md5AssetsMap['raw-assets'];
             for (i = 0; i < md5Entries.length; i += 2) {
@@ -305,6 +305,14 @@ var AssetLibrary = {
             var md5Pipe = new MD5Pipe(md5ImportMap, md5RawAssetsMap, _libraryBase);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
             cc.loader.md5Pipe = md5Pipe;
+        }
+
+        var subpackages = options.subpackages;
+        if (subpackages) {
+            // decode uuid
+            var subpackagePipe = new SubpackagePipe(subpackages, _libraryBase);
+            //cc.loader.insertPipeAfter(cc.loader.md5Pipe || cc.loader.assetLoader, subpackagePipe);
+            cc.loader.subpackagePipe = subpackagePipe;
         }
 
         // init raw assets
