@@ -1,19 +1,19 @@
 
 // @ts-check
 
-import { ccclass, property } from '../../../core/data/class-decorator';
-import Asset from "../../../assets/CCAsset";
 import CANNON from 'cannon';
+import Asset from '../../../assets/CCAsset';
+import { ccclass, property } from '../../../core/data/class-decorator';
 
 @ccclass('cc.PhysicalMaterial')
 export class PhysicsMaterial extends Asset {
     @property
-    friction = -1;
+    public friction = -1;
 
     @property
-    restitution = -1;
+    public restitution = -1;
 
-    private _cannonMaterial: CANNON.Material | null = null;
+    private _cannonMaterial: CANNON.Material;
 
     constructor() {
         super();

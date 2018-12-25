@@ -1,10 +1,10 @@
-import { PhysicsBoxShape, PhysicsSphereShape, RigidBody } from './body';
+import { PhysicsBoxShape, PhysicsSphereShape, PhysicsBody } from './body';
 import { ContactMaterial } from './contact-material';
 import './physics-system';
 import './world';
 
 // @ts-ignore
-cc.RigidBody = RigidBody;
+cc.PhysicsBody = PhysicsBody;
 // @ts-ignore
 cc.PhysicsBoxShape = PhysicsBoxShape;
 // @ts-ignore

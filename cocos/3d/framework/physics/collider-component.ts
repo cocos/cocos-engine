@@ -1,6 +1,4 @@
 
-import { RigidBody, PhysicsBoxShape, PhysicsShape as PhysicsShape, PhysicsSphereShape } from './body';
-import Component from '../../../components/CCComponent';
 import {
     ccclass,
     executeInEditMode,
@@ -8,26 +6,19 @@ import {
     menu,
     property
 } from '../../../core/data/class-decorator';
-import { PhysicsMaterial } from '../../assets/physics/material';
 import Vec3 from '../../../core/value-types/vec3';
+import { PhysicsBoxShape, PhysicsShape, PhysicsSphereShape } from './body';
+import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 @ccclass('cc.ColliderComponentBase')
-export class ColliderComponentBase extends Component {
+export class ColliderComponentBase extends PhysicsBasedComponent {
     protected _shape: PhysicsShape;
-
-    private _material: PhysicsMaterial | null = null;
-
-    protected _body: RigidBody | null = null;
 
     @property
     private _center: Vec3 = new cc.Vec3(0, 0, 0);
 
-    @property
-    private _mass: number = 0;
-
     constructor(shape: PhysicsShape) {
         super();
-
         this._center = new Vec3(0, 0, 0);
         this._shape = shape;
     }
@@ -37,16 +28,19 @@ export class ColliderComponentBase extends Component {
     }
 
     public onLoad() {
-        this._body = this._getSharedBody();
-        this._body.addShape(this._shape);
+        super.onLoad();
+        this.center = this._center;
+        this._body!.addShape(this._shape);
     }
 
     public onEnable() {
-        cc.director._physicsSystem.world.addBody(this._body);
+        super.onEnable();
+        this._body!.addShape(this._shape);
     }
 
     public onDisable() {
-        cc.director._physicsSystem.world.removeBody(this._body);
+        super.onDisable();
+        this._body!.removeShape(this._shape);
     }
 
     @property(Vec3)
@@ -59,39 +53,6 @@ export class ColliderComponentBase extends Component {
         if (this._body) {
             this._body.setCenter(this._shape, this._center);
         }
-    }
-
-    @property
-    get mass() {
-        return this._mass;
-    }
-
-    set mass(value) {
-        this._mass = value;
-        this._body.mass = value;
-    }
-
-    @property(PhysicsMaterial)
-    get material() {
-        return this._material;
-    }
-
-    set material(value) {
-        this._material = value;
-        if (this._body) {
-            this._body.material = this._material;
-        }
-    }
-
-    private _getSharedBody() {
-        let component = this.getComponent(ColliderComponentBase) as (ColliderComponentBase | null);
-        if (!component) {
-            component = this;
-        }
-        if (!component._body) {
-            component._body = new RigidBody(this.node);
-        }
-        return component._body!;
     }
 }
 
@@ -108,9 +69,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
     }
 
     public onLoad() {
-        if (super.onLoad) {
-            super.onLoad();
-        }
+        super.onLoad();
         this.size = this._size;
     }
 
@@ -125,7 +84,9 @@ export class BoxColliderComponent extends ColliderComponentBase {
     set size(value) {
         this._size = value;
         (this._shape as PhysicsBoxShape).size = this._size;
-        this._body.commitShapesUpdate();
+        if (this._body) {
+            this._body.commitShapesUpdate();
+        }
     }
 }
 
@@ -134,18 +95,28 @@ export class BoxColliderComponent extends ColliderComponentBase {
 @menu('Components/SphereColliderComponent')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponentBase {
+    @property
+    private _radius: number = 0;
+
     constructor() {
         super(new PhysicsSphereShape(0));
     }
 
-    @property(cc.Float)
-    // @property(Number)
+    public onLoad() {
+        super.onLoad();
+        this.radius = this._radius;
+    }
+
+    @property
     get radius() {
-        return (this._shape as PhysicsSphereShape).radius;
+        return this._radius;
     }
 
     set radius(value) {
+        this._radius = value;
         (this._shape as PhysicsSphereShape).radius = value;
-        this._body.commitShapesUpdate();
+        if (this._body) {
+            this._body.commitShapesUpdate();
+        }
     }
 }

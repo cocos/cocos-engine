@@ -31,6 +31,7 @@ import ModelComponent from './model-component';
 import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
+import { RigidBodyComponent } from './physics/rigid-body-component';
 import './physics/index';
 
 cc.CameraComponent = CameraComponent;
@@ -40,5 +41,6 @@ cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
 cc.SkyboxComponent = SkyboxComponent;
 
+cc.RigidBodyComponent = RigidBodyComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;

@@ -10,8 +10,8 @@ export enum DataFlow {
     PULLING,
 }
 
-export class RigidBody {
-    private _node: Node;
+export class PhysicsBody {
+    private _node: Node | null = null;
 
     private _material: PhysicsMaterial | null = null;
 
@@ -27,19 +27,21 @@ export class RigidBody {
 
     private _useGravity = true;
 
-    constructor(node: Node) {
-        this._node = node;
-
+    constructor() {
         const cannonBodyOptions: CANNON.IBodyOptions = {
             mass: 0,
             material: new CANNON.Material(''),
         };
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
-        setWrap<RigidBody>(this._cannonBody, this);
+        setWrap<PhysicsBody>(this._cannonBody, this);
 
         this._onCollidedListener = this._onCollided.bind(this);
         this._cannonBody.addEventListener('collide', this._onCollidedListener);
+    }
+
+    public bind(node: Node) {
+        this._node = node;
     }
 
     public destroy() {
@@ -62,12 +64,19 @@ export class RigidBody {
     }
 
     public addShape(shape: PhysicsShape) {
-        // shape.__debugNodeName = this._node.name;
-
-        shape.scale = this._node.getWorldScale();
+        // if (this._node) {
+        //     shape.__debugNodeName = this._node.name;
+        // }
+        if (this._node) {
+            shape.scale = this._node.getWorldScale();
+        }
         this._shapes.add(shape);
         this._cannonBody.addShape(shape._getCannonShape());
         this.commitShapesUpdate();
+    }
+
+    public removeShape(shape: PhysicsShape) {
+        throw new Error(`not impl`);
     }
 
     public getCenter(shape: PhysicsShape) {
@@ -157,19 +166,19 @@ export class RigidBody {
         this._cannonBody.updateMassProperties();
     }
 
-    get drag() {
+    get linearDamping() {
         return this._cannonBody.linearDamping;
     }
 
-    set drag(value) {
+    set linearDamping(value) {
         this._cannonBody.linearDamping = value;
     }
 
-    get angularDrag() {
+    get angularDamping() {
         return this._cannonBody.angularDamping;
     }
 
-    set angularDrag(value) {
+    set angularDamping(value) {
         this._cannonBody.angularDamping = value;
     }
 
@@ -203,7 +212,7 @@ export class RigidBody {
      * Is this body currently in contact with the specified body?
      * @param {CannonBody} body The body to test against.
      */
-    public isInContactWith(body: RigidBody) {
+    public isInContactWith(body: PhysicsBody) {
         if (!this._cannonBody.world) {
             return false;
         }
@@ -216,6 +225,10 @@ export class RigidBody {
      * Push the rigidbody's transform information back to node.
      */
     public push() {
+        if (!this._node) {
+            return;
+        }
+
         const p = this._cannonBody.position;
         this._node.setWorldPosition(p.x, p.y, p.z);
         if (!this._cannonBody.fixedRotation) {
@@ -229,7 +242,7 @@ export class RigidBody {
     }
 
     private _onCollided(event: CANNON.ICollisionEvent) {
-        // console.log(`Collided {${getWrap<RigidBody>(event.body)._node.name}} and {${getWrap<RigidBody>(event.target)._node.name}}.`);
+        // console.log(`Collided {${getWrap<PhysicsBody>(event.body)._node.name}} and {${getWrap<PhysicsBody>(event.target)._node.name}}.`);
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
@@ -248,6 +261,10 @@ export class RigidBody {
      * Pull node's transform information into rigidbody.
      */
     private _pull() {
+        if (!this._node) {
+            return;
+        }
+
         // @ts-nocheck
         this._node.getWorldPosition(this._cannonBody.position);
         // @ts-nocheck
