@@ -34,6 +34,7 @@ export default class RenderTexture extends Texture2D {
             colors: [ this._texture ],
         };
         if (depthStencilFormat) {
+            if (this.depthStencilBuffer) this.depthStencilBuffer.destroy();
             let depthStencilBuffer = new gfx.RenderBuffer(cc.game._renderContext, depthStencilFormat, this.width, this.height);
             if (depthStencilFormat === gfx.RB_FMT_D24S8) {
                 opts.depthStencil = depthStencilBuffer;
@@ -44,15 +45,26 @@ export default class RenderTexture extends Texture2D {
             else if (depthStencilFormat === gfx.RB_FMT_D16) {
                 opts.depth = depthStencilBuffer;
             }
+            this.depthStencilBuffer = depthStencilBuffer;
+            this.depthStencilFormat = depthStencilFormat;
         }
 
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-        }
+        if (this._framebuffer) this._framebuffer.destroy();
         this._framebuffer = new gfx.FrameBuffer(cc.game._renderContext, this.width, this.height, opts);
 
         this.loaded = true;
         this.emit("load");
+    }
+
+    updateSize(width, height) {
+        this.width = Math.floor(width || cc.visibleRect.width);
+        this.height = Math.floor(height || cc.visibleRect.height);
+        this._resetUnderlyingMipmaps();
+
+        let rbo = this.depthStencilBuffer;
+        if (rbo) rbo.update(this.width, this.height);
+        this._framebuffer._width = width;
+        this._framebuffer._height = height;
     }
 
     /**
@@ -106,7 +118,6 @@ export default class RenderTexture extends Texture2D {
         let gl = cc.game._renderContext._gl;
         let oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer._glID);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._texture._glID, 0);
         gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
 

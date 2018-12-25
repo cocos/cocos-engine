@@ -90,8 +90,10 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
-  render(canvas, scene) {
+  render(scene) {
     this._reset();
+
+    const canvas = this._device._gl.canvas;
 
     // update lights, extract shadow view.
     this.updateLights(scene);

@@ -9,14 +9,17 @@ export default class RenderBuffer {
   constructor(device, format, width, height) {
     this._device = device;
     this._format = format;
+
+    this._glID = device._gl.createRenderbuffer();
+    this.update(width, height);
+  }
+
+  update(width, height) {
     this._width = width;
     this._height = height;
-
-    const gl = device._gl;
-    this._glID = gl.createRenderbuffer();
-
+    const gl = this._device._gl;
     gl.bindRenderbuffer(gl.RENDERBUFFER, this._glID);
-    gl.renderbufferStorage(gl.RENDERBUFFER, format, width, height);
+    gl.renderbufferStorage(gl.RENDERBUFFER, this._format, width, height);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
   }
 
