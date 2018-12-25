@@ -344,6 +344,7 @@ function buildEffectJSON(json) {
   // map param's type offline.
   for (let j = 0; j < json.techniques.length; ++j) {
     let jsonTech = json.techniques[j];
+    if (!jsonTech.stages) jsonTech.stages = ['opaque']; // Note: for creator
     let { queue, priority } = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
     jsonTech.queue = queue; jsonTech.priority = priority;
     for (let k = 0; k < jsonTech.passes.length; ++k) {
