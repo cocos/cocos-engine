@@ -179,7 +179,8 @@ let WebViewImpl = cc.Class({
             this._iframe = null;
         }
     },
-
+    // CC_JSB data-driven
+    _updateData () {},
     setOnJSCallback (callback) {},
     setJavascriptInterfaceScheme (scheme) {},
     loadData (data, MIMEType, encoding, baseURL) {},

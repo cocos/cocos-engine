@@ -153,6 +153,7 @@ let WebView = cc.Class({
     update (dt) {
         if (this._impl) {
             this._impl.updateMatrix(this.node);
+            this._impl._updateData();
         }
     },
 
