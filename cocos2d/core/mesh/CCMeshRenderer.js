@@ -101,7 +101,7 @@ let MeshRenderer = cc.Class({
             },
             set (v) {
                 if (this._mesh === v) return;
-                this._mesh = v;
+                this._setMesh(v);
                 this._activateMaterial(true);
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
@@ -149,7 +149,22 @@ let MeshRenderer = cc.Class({
 
     onEnable () {
         this._super();
+        this._setMesh(this._mesh);
         this._activateMaterial();
+    },
+
+    onDestroy () {
+        this._setMesh(null);
+    },
+
+    _setMesh (mesh) {
+        if (this._mesh) {
+            this._mesh.off('init-format', this._updateMeshAttribute, this);
+        }
+        if (mesh) {
+            mesh.on('init-format', this._updateMeshAttribute, this);
+        }
+        this._mesh = mesh;
     },
 
     _getDefaultMaterial () {

@@ -25,6 +25,7 @@
 
 const MeshResource = require('./CCMeshResource');
 const renderer = require('../renderer');
+const EventTarget = require('../event/event-target');
 
 import InputAssembler from '../../renderer/core/input-assembler';
 import gfx from '../../renderer/gfx';
@@ -56,6 +57,7 @@ function applyVec3 (data, offset, value) {
 let Mesh = cc.Class({
     name: 'cc.Mesh',
     extends: cc.Asset,
+    mixins: [EventTarget],
 
     properties: {
         _resource: {
@@ -124,6 +126,8 @@ let Mesh = cc.Class({
             data: data,
             dirty: true
         };
+
+        this.emit('init-format');
     },
 
     /**
