@@ -45,10 +45,6 @@ export default class ForwardRenderer extends BaseRenderer {
       let width = canvas.width;
       let height = canvas.height;
       let camera = scene._cameras.data[i];
-      if (camera._framebuffer) {
-        width = camera._framebuffer._width;
-        height = camera._framebuffer._height;
-      }
       camera.extractView(view, width, height);
     }
 

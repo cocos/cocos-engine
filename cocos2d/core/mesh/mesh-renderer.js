@@ -99,7 +99,7 @@ let meshRendererAssembler = {
         let tmpNode = renderer.node;
         renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
 
-        let customProperties = renderer.customProperties = comp._customProperties;
+        renderer.customProperties = comp._customProperties;
         let tmpCustomProperties = renderer.customProperties;
 
         comp.mesh._uploadData();

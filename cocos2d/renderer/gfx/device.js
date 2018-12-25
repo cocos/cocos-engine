@@ -773,9 +773,9 @@ export default class Device {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb._glID);
 
-    let numColors = this._framebuffer._colors.length;
+    let numColors = fb._colors.length;
     for (let i = 0; i < numColors; ++i) {
-      let colorBuffer = this._framebuffer._colors[i];
+      let colorBuffer = fb._colors[i];
       _attach(gl, gl.COLOR_ATTACHMENT0 + i, colorBuffer);
 
       // TODO: what about cubemap face??? should be the target parameter for colorBuffer
