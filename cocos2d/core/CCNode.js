@@ -524,6 +524,14 @@ function _getActualGroupIndex (node) {
     return groupIndex;
 }
 
+function _updateCullingMask (node) {
+    let index = _getActualGroupIndex(node);
+    node._cullingMask = 1 << index;
+    for (let i = 0; i < node._children.length; i++) {
+        _updateCullingMask(node._children[i]);
+    }
+}
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -601,8 +609,7 @@ var Node = cc.Class({
             set (value) {
                 // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                let index = _getActualGroupIndex(this);
-                this._cullingMask = 1 << index;
+                _updateCullingMask(this);
                 this.emit(EventType.GROUP_CHANGED, this);
             }
         },
@@ -1253,6 +1260,7 @@ var Node = cc.Class({
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
