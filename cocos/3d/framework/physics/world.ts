@@ -1,7 +1,7 @@
 import CANNON from 'cannon';
-import { RigidBody, DataFlow, PhysicsShape } from './body';
-import { getWrap, setWrap, toCannonOptions } from './util';
+import { DataFlow, PhysicsShape, RigidBody } from './body';
 import { ContactMaterial } from './contact-material';
+import { getWrap, setWrap, toCannonOptions } from './util';
 
 export interface RaycastOptions {
     collisionFilterMask?: number;
@@ -13,7 +13,7 @@ export class RaycastResult {
     public _cannonResult: CANNON.RaycastResult = new CANNON.RaycastResult();
 
     public _update() {
-        
+
     }
 
     get hit() {
@@ -93,7 +93,7 @@ export class PhysicsWorld {
             result._update();
         }
         return hit;
-    };
+    }
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
@@ -106,7 +106,7 @@ export class PhysicsWorld {
             result._update();
             callback(result);
         });
-    };
+    }
 
     public addContactMaterial(contactMaterial: ContactMaterial) {
         this._cannonWorld.addContactMaterial(contactMaterial._getImpl());

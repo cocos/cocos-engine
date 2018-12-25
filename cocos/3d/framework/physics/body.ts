@@ -23,7 +23,7 @@ export class RigidBody {
 
     private _shapes: Set<PhysicsShape> = new Set();
 
-    private _dataflow: DataFlow = DataFlow.PUSHING;
+    private _dataflow: DataFlow = DataFlow.PULLING;
 
     private _useGravity = true;
 
@@ -32,7 +32,7 @@ export class RigidBody {
 
         const cannonBodyOptions: CANNON.IBodyOptions = {
             mass: 0,
-            material: new CANNON.Material('')
+            material: new CANNON.Material(''),
         };
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
