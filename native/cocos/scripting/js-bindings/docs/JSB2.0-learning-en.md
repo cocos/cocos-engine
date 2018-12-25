@@ -495,7 +495,7 @@ namespace ns {
         void foo() {
             printf("SomeClass::foo\n");
             
-            Director::getInstance()->getScheduler()->schedule([this](float dt){
+            Application::getInstance()->getScheduler()->schedule([this](float dt){
                 static int counter = 0;
                 ++counter;
                 if (_cb != nullptr)
@@ -941,22 +941,22 @@ For more specific, please refer to the engine directory `tools/tojs/cocos2dx.ini
 [cocos2d-x] 
 
 # The prefix for callback functions and the binding file name.
-prefix = cocos2dx
+prefix = engine
 
 # The namspace of the binding class attaches to.
-target_namespace = cc
+target_namespace = jsb
 
 # Automatic binding tools is based on the Android NDK. The android_headers field configures the search path of Android header file.
-android_headers = -I%(androidndkdir)s/platforms/android-14/arch-arm/usr/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.8/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi-v7a/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.9/include
+android_headers =
 
 # Configure building parameters for Android.
-android_flags = -D_SIZE_T_DEFINED_
+android_flags = -target armv7-none-linux-androideabi -D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS -DANDROID -D__ANDROID_API__=14 -gcc-toolchain %(gcc_toolchain_dir)s --sysroot=%(androidndkdir)s/platforms/android-14/arch-arm  -idirafter %(androidndkdir)s/sources/android/support/include -idirafter %(androidndkdir)s/sysroot/usr/include -idirafter %(androidndkdir)s/sysroot/usr/include/arm-linux-androideabi -idirafter %(clangllvmdir)s/lib64/clang/5.0/include -I%(androidndkdir)s/sources/
 
 # Configure the search path for clang header file.
-clang_headers = -I%(clangllvmdir)s/%(clang_include)s
+clang_headers =
 
 # Configure building parameters for clang
-clang_flags = -nostdinc -x c++ -std=c++11 -U __SSE__
+clang_flags = -nostdinc -x c++ -std=c++11 -fsigned-char -U__SSE__
 
 # Configure the search path for Cocos2D-X header file
 cocos_headers = -I%(cocosdir)s/cocos -I%(cocosdir)s/cocos/platform/android -I%(cocosdir)s/external/sources
@@ -968,44 +968,44 @@ cocos_flags = -DANDROID
 extra_arguments = %(android_headers)s %(clang_headers)s %(cxxgenerator_headers)s %(cocos_headers)s %(android_flags)s %(clang_flags)s %(cocos_flags)s %(extra_flags)s
  
 # Which header files needed to be parsed
-headers = %(cocosdir)s/cocos/cocos2d.h %(cocosdir)s/cocos/scripting/js-bindings/manual/BaseJSAction.h
+headers = %(cocosdir)s/cocos/cocos2d.h
 
 # Rename the header file in the generated binding code
-replace_headers=CCProtectedNode.h::2d/CCProtectedNode.h,CCAsyncTaskPool.h::base/CCAsyncTaskPool.h
+replace_headers=
 
 # Which classes need to be bound, you can use regular expressions, separated by space.
-classes = 
+classes = FileUtils$ SAXParser CanvasRenderingContext2D CanvasGradient Device
 
 # Which classes which use cc.Class.extend to inherit, separated by space.
 classes_need_extend = 
 
 # Which classes need to bind properties, separated by commas
-field = Acceleration::[x y z timestamp]
+field =
 
 # Which classes need to be skipped, separated by commas
-skip = AtlasNode::[getTextureAtlas],
-       ParticleBatchNode::[getTextureAtlas],
+skip = FileUtils::[getFileData setFilenameLookupDictionary destroyInstance getFullPathCache getContents],
+        SAXParser::[(?!(init))],
+        Device::[getDeviceMotionValue],
+        CanvasRenderingContext2D::[setCanvasBufferUpdatedCallback set_.+]
 
 # Which functions need to be renamed, separated by commas
-rename_functions = ComponentContainer::[get=getComponent],
-                   LayerColor::[initWithColor=init],
+rename_functions = FileUtils::[loadFilenameLookupDictionaryFromFile=loadFilenameLookup],
+                   CanvasRenderingContext2D::[getImageData=_getImageData]
 
 # Which classes need to be renamed, separated by commas
-rename_classes = SimpleAudioEngine::AudioEngine,
-                 SAXParser::PlistParser,
-
+rename_classes = SAXParser::PlistParser
 
 # Which classes do not have parents in JS
-classes_have_no_parents = Node Director SimpleAudioEngine FileUtils TMXMapInfo Application GLViewProtocol SAXParser Configuration
+classes_have_no_parents = SAXParser
 
 # Which C++ base classes need to be skipped
 base_classes_to_skip = Ref Clonable
 
 # Which classes are abstract classes which do not have a constructor in JS
-abstract_classes = Director SpriteFrameCache Set SimpleAudioEngine
+abstract_classes = SAXParser Device
 
 # Which classes are singleton or always keep alive until game exits
-persistent_classes = TextureCache SpriteFrameCache FileUtils EventDispatcher ActionManager Scheduler
+persistent_classes = FileUtils
 
 # Which classes use `CPP object controls JS object's life cycle`, the unconfigured classes will use `JS controls CPP object's life cycle`.
 classes_owned_by_cpp = 
@@ -1042,7 +1042,7 @@ Change to：
 #### Windows
 
 * Compile, run the game (or run directly in the Creator simulator)
-* Open with Chrome: [chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008)
+* Open with Chrome: [chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008)
 
 Breakpoint debugging：
 ![](v8-win32-debug.jpg)
@@ -1057,7 +1057,7 @@ Profile
 
 * Make sure your Android device is on the same network as your PC or Mac
 * Compile and run your game
-* Open with Chrome: [chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), `xxx.xxx.xxx.xxx` is the IP address of Android device
+* Open with Chrome: [chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008), `xxx.xxx.xxx.xxx` is the IP address of Android device
 * The remote debugging interface is the same as debugging Windows.
 
 
@@ -1092,28 +1092,6 @@ Then run `gulp gen-simulator` in terminal to generate simulator.
 
 ## Q & A
 
-### What's The Difference between se::ScriptEngine and ScriptingCore? Why to keep ScriptingCore?
-
-In Creator v1.7, the abstraction layer was designed as a stand-alone module that had no relation to the engine. The management of the JS engine was moved from the `ScriptingCore` to `se::ScriptEngine` class. `ScriptingCore` was retained in hopes of passing engine events to the abstraction layer, which acts like a adapter.
-
-ScriptingCore only needs to be used once in AppDelegate.cpp, and all subsequent operations only require `se::ScriptEngine`.
-
-```c++
-bool AppDelegate::applicationDidFinishLaunching()
-{
-	...
-	...
-    director->setAnimationInterval(1.0 / 60);
-
-    // These two lines set the ScriptingCore adapter to the engine for passing engine events, such as Node's onEnter, onExit, Action's update
-    ScriptingCore* sc = ScriptingCore::getInstance();
-    ScriptEngineManager::getInstance()->setScriptEngine(sc);
-    
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    ...
-    ...
-}
-```
 ### What's The Difference between se::Object::root/unroot and se::Object::incRef/decRef?
 
 `root`/`unroot` is used to control whether JS objects are controlled by GC, `root` means JS object should not be controlled by GC, `unroot` means it should be controlled by GC. For a `se::Object`, `root` and `unroot` can be called multiple times, `se::Object`'s internal `_rootCount` variables is used to indicate the count of `root` operation. When `unroot` is called and `_rootCount` reach **0**, the JS object associated with `se::Object` is handed over to the GC. Another situation is that if `se::Object` destructor is triggered and `_rootCount` is still greater than 0, it will force the JS object to be controlled by the GC.
