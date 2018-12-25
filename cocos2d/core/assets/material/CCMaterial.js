@@ -79,7 +79,7 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = Effect.parseEffect(asset.effect);
+                this._effect = Effect.parseEffect(asset);
             }
         },
 

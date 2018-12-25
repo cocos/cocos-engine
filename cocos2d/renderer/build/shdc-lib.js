@@ -1,7 +1,10 @@
 'use strict';
 
 const tokenizer = require('glsl-tokenizer/string');
+const parser = require('glsl-parser/direct');
 const mappings = require('./mappings');
+const { sha3_224 } = require('js-sha3');
+const HJSON = require('hjson');
 
 let includeRE = /#include +<([\w-.]+)>/gm;
 let defineRE = /#define\s+(\w+)\(([\w,\s]+)\)\s+(.*##.*)\n/g;
@@ -14,8 +17,7 @@ let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
 let defaultPragma = /default\(([\d.,]+)\)/;
 let namePragma = /name\(([^)]+)\)/;
 let precision = /(low|medium|high)p/;
-
-let builtinRE = /^_[A-Za-z0-9]+/;
+let builtins = /^_\w+$/;
 
 function convertType(t) { let tp = mappings.typeParams[t.toUpperCase()]; return tp === undefined ? t : tp; }
 
@@ -44,24 +46,59 @@ function glslStripComment(code) {
   return result;
 }
 
+/**
+ * say we are parsing this program:
+ * ```
+ *    // ..
+ * 12 #if USE_LIGHTING
+ *      // ..
+ * 34   #if NUM_LIGHTS > 0
+ *        // ..
+ * 56   #endif
+ *      // ..
+ * 78 #endif
+ *    // ..
+ * ```
+ *
+ * the output would be:
+ * ```
+ * // the complete define list
+ * defines = [ { name: 'USE_LIGHTING', type: 'boolean' }, { name: 'NUM_LIGHTS', type: 'number' } ]
+ * // bookkeeping: define dependency throughout the code
+ * cache = {
+ *   lines: [12, 34, 56, 78],
+ *   12: [ 'USE_LIGHTING' ],
+ *   34: [ 'USE_LIGHTING', 'NUM_LIGHTS' ],
+ *   56: [ 'USE_LIGHTING' ],
+ *   78: []
+ * }
+ * ````
+ */
 function extractDefines(tokens, defines, cache) {
-  let curDefs = [], save = (line) => {
+  let loopBegIdx = 0, curDefs = [], save = (line) => {
     cache[line] = curDefs.reduce((acc, val) => acc.concat(val), []);
     cache.lines.push(line);
   };
-  for (let i = 0; i < tokens.length; ++i) {
+  for (let i = 0; i < tokens.length; ) {
     let t = tokens[i], str = t.data, id, df;
-    if (t.type !== 'preprocessor') continue;
+    if (t.type !== 'preprocessor' || str.startsWith('#extension')) { i++; continue; }
+    tokens.splice(i, 1); // strip out other preprocessor tokens for parser to work
     str = str.split(whitespaces);
-    if (str[0] === '#endif') {
-        curDefs.pop(); save(t.line); continue;
-    } else if (str[0] === '#else') {
+    if (str[0] === '#endif') { // pop one level up
+      curDefs.pop(); save(t.line); continue;
+    } else if (str[0] === '#else') { // just clear this level
       curDefs[curDefs.length - 1].length = 0; save(t.line); continue;
-    } else if (str[0] === '#pragma') {
-      if (str[1] === 'for') { curDefs.push(0); save(t.line); }
-      else if (str[1] === 'endFor') { curDefs.pop(); save(t.line); }
+    } else if (str[0] === '#pragma') { // pragma treatments
+      // pragma loops are ignored and left to runtime
+      // here we jsut strip out all of them
+      if (str[1] === 'for') loopBegIdx = i;
+      else if (str[1] === 'endFor') {
+        tokens.splice(loopBegIdx, i - loopBegIdx);
+        i = loopBegIdx;
+      }
+      // record the tags for the next extraction stage
       else if (str[1][0] === '#') cache[t.line] = str.splice(1);
-      else {
+      else { // custom numeric define ranges
         let mc = rangePragma.exec(t.data);
         if (!mc) continue;
         let def = defines.find(d => d.name === mc[2]);
@@ -71,40 +108,23 @@ function extractDefines(tokens, defines, cache) {
       }
       continue;
     } else if (!ifprocessor.test(str[0])) continue;
-    if (str[0] === '#elif') { curDefs.pop(); save(t.line); }
+    if (str[0] === '#elif') { curDefs.pop(); save(t.line); } // pop one level up
     let defs = [];
     str.splice(1).some(s => {
       id = s.match(ident);
       if (id) { // is identifier
-        defs.push(id[0]);
+        let d = curDefs.reduce((acc, val) => acc.concat(val), defs.slice());
         df = defines.find(d => d.name === id[0]);
-        if (df) return; // first encounter
-        defines.push(df = { name: id[0], type: 'boolean' });
+        if (df) { if (d.length < df.defines.length) df.defines = d; }
+        else defines.push(df = { name: id[0], type: 'boolean', defines: d });
+        defs.push(id[0]);
       } else if (comparators.test(s)) df.type = 'number';
-      else if (s === '||') return true;
+      else if (s === '||') return defs = []; // ignore logical OR defines all together
     });
     curDefs.push(defs); save(t.line);
   }
-  return defines;
 }
 
-/* here the `define dependency` for some param is interpreted as
- * the existance of some define ids directly desides the existance of that param.
- * so basically therer is no logical expression support
- * (all will be treated as '&&' operator)
- * for wrapping unifom, attribute and extension declarations.
- * try to write them in straightforward ways like:
- *     #ifdef USE_COLOR
- *         attribute vec4 a_color;
- *     #endif
- * or nested when needed:
- *     #if USE_BILLBOARD && BILLBOARD_STRETCHED
- *         uniform vec3 stretch_color;
- *         #ifdef USE_NORMAL_TEXTURE
- *             uniform sampler2D tex_normal;
- *         #endif
- *     #endif // no else branch
- */
 function extractParams(tokens, cache, uniforms, attributes, extensions) {
   let getDefs = line => {
     let idx = cache.lines.findIndex(i => i > line);
@@ -117,10 +137,9 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     else if (tp === 'preprocessor' && str.startsWith('#extension')) dest = extensions;
     else continue;
     let defines = getDefs(t.line), param = {};
-    if (defines.findIndex(i => !i) >= 0) continue; // inside pragmas
-    if (dest === uniforms && builtinRE.test(tokens[i+4].data)) continue;
+    if (dest === uniforms && builtins.test(tokens[i+4].data)) continue;
     if (dest === extensions) {
-      if (defines.length > 1) console.warn('extensions must be under controll of no more than 1 define');
+      if (defines.length !== 1) console.warn('extensions must be under controll of exactly 1 define');
       param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
       param.define = defines[0];
       dest.push(param);
@@ -130,7 +149,7 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
       param.name = tokens[i+offset+2].data;
       param.type = convertType(tokens[i+offset].data);
       let tags = cache[t.line - 1];
-      if (tags && tags[0][0] === '#') { // tags
+      if (tags && tags[0] && tags[0][0] === '#') { // tags
         let mc = defaultPragma.exec(tags.join(''));
         if (mc && mc[1].length > 0) {
           mc = JSON.parse(`[${mc[1]}]`);
@@ -241,23 +260,29 @@ let expandStructMacro = (function() {
   };
 })();
 
-let assemble = (function() {
+let getChunkByName = (function() {
   let entryRE = /([\w-]+)(?::(\w+))?/;
-  let integrity = /void\s+main\s*\(\s*\)/g;
-  let wrapperFactory = (vert, fn) => `\nvoid main() { ${vert ? 'gl_Position' : 'gl_FragColor'} = ${fn}(); }\n`;
-  return function(name, cache, vert) {
-    let entryCap = entryRE.exec(name), content = cache[entryCap[1]];
-    if (!content) { console.error(`${entryCap[1]} not found, please check again.`); return ''; }
-    if (!entryCap[2]) {
-      if (!integrity.test(content)) console.error(`no main function found in ${name}!`);
-      return cache[name];
-    }
-    return content + wrapperFactory(vert, entryCap[2]);
+  return function(name, cache) {
+    let entryCap = entryRE.exec(name), entry = entryCap[2] || 'main', content = cache[entryCap[1]];
+    if (!content) { console.error(`shader ${entryCap[1]} not found!`); return [ '', entry ]; }
+    return [ content, entry ];
   };
 })();
 
-let build = function(vert, frag, cache) {
-  let defines = [], defCache = { lines: [] }, tokens;
+let wrapEntry = (function() {
+  let wrapperFactory = (vert, fn) => `\nvoid main() { ${vert ? 'gl_Position' : 'gl_FragColor'} = ${fn}(); }\n`;
+  return function(content, name, entry, ast, isVert) {
+    if (!ast.scope[entry] || ast.scope[entry].parent.type !== 'function')
+      console.error(`entry function ${name} not found`);
+    return entry === 'main' ? content : content + wrapperFactory(isVert, entry);
+  };
+})();
+
+let buildShader = function(vertName, fragName, cache) {
+  let [ vert, vEntry ] = getChunkByName(vertName, cache, true);
+  let [ frag, fEntry ] = getChunkByName(fragName, cache);
+
+  let defines = [], defCache = { lines: [] }, tokens, ast;
   let uniforms = [], attributes = [], extensions = [];
 
   vert = glslStripComment(vert);
@@ -266,6 +291,10 @@ let build = function(vert, frag, cache) {
   tokens = tokenizer(vert);
   extractDefines(tokens, defines, defCache);
   extractParams(tokens, defCache, uniforms, attributes, extensions);
+  try {
+    ast = parser(tokens);
+    vert = wrapEntry(vert, vertName, vEntry, ast, true);
+  } catch (e) { console.error(`parse ${vertName} failed: ${e}`); }
 
   defCache = { lines: [] };
   frag = glslStripComment(frag);
@@ -274,14 +303,126 @@ let build = function(vert, frag, cache) {
   tokens = tokenizer(frag);
   extractDefines(tokens, defines, defCache);
   extractParams(tokens, defCache, uniforms, attributes, extensions);
+  try {
+    ast = parser(tokens);
+    frag = wrapEntry(frag, fragName, fEntry, ast);
+  } catch (e) { console.error(`parse ${fragName} failed: ${e}`); }
 
   return { vert, frag, defines, uniforms, attributes, extensions };
 };
 
-let assembleAndBuild = function(vertName, fragName, cache) {
-  let vert = assemble(vertName, cache, true);
-  let frag = assemble(fragName, cache);
-  return build(vert, frag, cache);
+// ==================
+// effects
+// ==================
+
+let queueRE = /(\w+)\s*(?:([+-])\s*(\d+))?/;
+let parseQueue = function (queue) {
+  let res = { queue: 0, priority: 0 };
+  let m = queueRE.exec(queue);
+  if (m === null) return res;
+  res.queue = mappings.RenderQueue[m[1].toUpperCase()];
+  if (m.length === 4) {
+    if (m[2] === '+') res.priority = parseInt(m[3]);
+    if (m[2] === '-') res.priority = -parseInt(m[3]);
+  }
+  return res;
+};
+
+function mapPassParam(p) {
+  let num;
+  switch (typeof p) {
+  case 'string':
+    num = parseInt(p);
+    return isNaN(num) ? mappings.passParams[p.toUpperCase()] : num;
+  case 'object':
+    return ((p[0] * 255) << 24 | (p[1] * 255) << 16 | (p[2] * 255) << 8 | (p[3] || 0) * 255) >>> 0;
+  }
+  return p;
+}
+
+function buildEffectJSON(json) {
+  // map param's type offline.
+  for (let j = 0; j < json.techniques.length; ++j) {
+    let jsonTech = json.techniques[j];
+    let { queue, priority } = parseQueue(jsonTech.queue ? jsonTech.queue : 'opaque');
+    jsonTech.queue = queue; jsonTech.priority = priority;
+    for (let k = 0; k < jsonTech.passes.length; ++k) {
+      let pass = jsonTech.passes[k];
+      if (pass.stage == null) {
+        pass.stage = 'default';
+      }
+      for (let key in pass) {
+        if (key === "vert" || key === 'frag') continue;
+        pass[key] = mapPassParam(pass[key]);
+      }
+    }
+  }
+  for (let prop in json.properties) {
+    let info = json.properties[prop];
+    info.type = mappings.typeParams[info.type.toUpperCase()];
+  }
+  return json;
+}
+
+let parseEffect = (function() {
+  let effectRE = /%{([^%]+)%}/;
+  let blockRE = /%%\s*([\w-]+)\s*{([^]+)}/;
+  let parenRE = /[{}]/g;
+  let trimToSize = content => {
+    let level = 1, end = content.length;
+    content.replace(parenRE, (p, i) => {
+      if (p === '{') level++;
+      else if (level === 1) { end = i; level = 1e9; }
+      else level--;
+    });
+    return content.substring(0, end);
+  };
+  return function (content) {
+    let effectCap = effectRE.exec(content);
+    let effect = HJSON.parse(`{${effectCap[1]}}`), templates = {};
+    content = content.substring(effectCap.index + effectCap[0].length);
+    let blockCap = blockRE.exec(content);
+    while (blockCap) {
+      let str = templates[blockCap[1]] = trimToSize(blockCap[2]);
+      content = content.substring(blockCap.index + str.length);
+      blockCap = blockRE.exec(content);
+    }
+    return { effect, templates };
+  };
+})();
+
+let chunksCache = {};
+let addChunksCache = function(chunksDir) {
+  const path_ = require('path');
+  const fsJetpack = require('fs-jetpack');
+  const fs = require('fs');
+  let files = fsJetpack.find(chunksDir, { matching: ['**/*.inc'] });
+  for (let i = 0; i < files.length; ++i) {
+    let name = path_.basename(files[i], '.inc');
+    let content = fs.readFileSync(files[i], { encoding: 'utf8' });
+    chunksCache[name] = glslStripComment(content);
+  }
+  return chunksCache;
+};
+
+let buildEffect = function (name, content) {
+  let { effect, templates } = parseEffect(content);
+  effect = buildEffectJSON(effect); effect.name = name;
+  Object.assign(templates, chunksCache);
+  let shaders = effect.shaders = [];
+  for (let j = 0; j < effect.techniques.length; ++j) {
+    let jsonTech = effect.techniques[j];
+    for (let k = 0; k < jsonTech.passes.length; ++k) {
+      let pass = jsonTech.passes[k];
+      let vert = pass.vert, frag = pass.frag;
+      let shader = buildShader(vert, frag, templates);
+      let name = sha3_224(shader.vert + shader.frag);
+      shader.name = pass.program = name;
+      delete pass.vert; delete pass.frag;
+      shaders.push(shader);
+    }
+  }
+  return effect;
 };
 
 // ==================
@@ -289,8 +430,6 @@ let assembleAndBuild = function(vertName, fragName, cache) {
 // ==================
 
 module.exports = {
-  glslStripComment,
-  assemble,
-  build,
-  assembleAndBuild
+  addChunksCache,
+  buildEffect
 };

@@ -179,12 +179,12 @@ let parseProperties = (function() {
     };
 })();
 
-Effect.parseEffect = function(json) {
+Effect.parseEffect = function(effect) {
     // techniques
-    let techNum = json.techniques.length;
+    let techNum = effect.techniques.length;
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
-        let tech = json.techniques[j];
+        let tech = effect.techniques[j];
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
@@ -201,9 +201,9 @@ Effect.parseEffect = function(json) {
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
-    let programs = getInvolvedPrograms(json);
+    let programs = getInvolvedPrograms(effect);
 
-    let props = parseProperties(json, programs), uniforms = {}, defines = {};
+    let props = parseProperties(effect, programs), uniforms = {}, defines = {};
     programs.forEach(p => {
         // uniforms
         p.uniforms.forEach(u => {
