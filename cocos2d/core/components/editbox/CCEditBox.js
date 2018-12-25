@@ -85,18 +85,55 @@ let EditBox = cc.Class({
             }
         },
 
+        _backgroundImage: {
+            type: cc.SpriteFrame,
+            default: undefined,
+            formerlySerializedAs: '_N$backgroundImage',
+        },
+
         /**
          * !#en The background image of EditBox.
          * !#zh 输入框的背景图片
-         * @property {SpriteFrame} backgroundImage
+         * @property {SpriteFrame} background
          */
-        backgroundImage: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
+        background: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.background',
             default: null,
-            type: cc.SpriteFrame,
+            type: cc.Sprite,
+        },
+
+        /**
+         * !#en The text label of EditBox.
+         * !#zh 输入框输入文本的标签
+         * @property {Label} textLabel
+         */
+        textLabel: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.textLabel',
+            default: null,
+            type: cc.Label,
             notify () {
-                this._createBackgroundSprite();
-            }
+                if (this.textLabel) {
+                    this.textLabel.string = this.string;
+                }
+                this._updateStayOnTop();
+            },
+        },
+
+        /**
+         * !en The placeholder label of EditBox.
+         * !zh 输入框占位符的标签
+         * @property {Label} placeholderLabel
+         */
+        placeholderLabel: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholderLabel',
+            default: null,
+            type: cc.Label,
+            notify () {
+                if (this.placeholderLabel) {
+                    this.placeholderLabel.string = this.placeholder;
+                }
+                this._updateStayOnTop();
+            },
         },
 
         /**
@@ -158,56 +195,21 @@ let EditBox = cc.Class({
             }
         },
 
-        /**
-         * !#en Font size of the input text.
-         * !#zh 输入框文本的字体大小
-         * @property {Number} fontSize
-         */
-        fontSize: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
-            default: 20,
-            notify () {
-                if (this._textLabel) {
-                    this._textLabel.fontSize = this.fontSize;
-                }
-                if (this._impl) {
-                    this._impl.setFontSize(this.fontSize);
-                }
-            }
+        _fontSize: {
+            type: cc.Float,
+            default: undefined,
+            formerlySerializedAs: '_N$fontSize',
         },
 
-        /**
-         * !#en Change the lineHeight of displayed text.
-         * !#zh 输入框文本的行高。
-         * @property {Number} lineHeight
-         */
-        lineHeight: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
-            default: 40,
-            notify () {
-                if (this._textLabel) {
-                    this._textLabel.lineHeight = this.lineHeight;
-                }
-            }
+        _lineHeight: {
+            type: cc.Float,
+            default: undefined,
+            formerlySerializedAs: '_N$lineHeight',
         },
 
-        /**
-         * !#en Font color of the input text.
-         * !#zh 输入框文本的颜色。
-         * @property {Color} fontColor
-         */
-        fontColor: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
-            default: cc.Color.WHITE,
-            notify () {
-                if (this._textLabel) {
-                    this._textLabel.node.opacity = this.fontColor.a;
-                    this._textLabel.node.color = this.fontColor;
-                }
-                if (this._impl) {
-                    this._impl.setFontColor(this.fontColor);
-                }
-            }
+        _fontColor: {
+            default: undefined,
+            formerlySerializedAs: '_N$fontColor',
         },
 
         /**
@@ -219,8 +221,8 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify () {
-                if (this._placeholderLabel) {
-                    this._placeholderLabel.string = this.placeholder;
+                if (this.placeholderLabel) {
+                    this.placeholderLabel.string = this.placeholder;
                 }
                 if (this._impl) {
                     this._impl.setPlaceholderText(this.placeholder);
@@ -228,35 +230,15 @@ let EditBox = cc.Class({
             }
         },
 
-        /**
-         * !#en The font size of placeholder.
-         * !#zh 输入框占位符的字体大小。
-         * @property {Number} placeholderFontSize
-         */
-        placeholderFontSize: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
-            default: 20,
-            notify () {
-                if (this._placeholderLabel) {
-                    this._placeholderLabel.fontSize = this.placeholderFontSize;
-                }
-            }
+        _placeholderFontSize: {
+            type: cc.Float,
+            default: undefined,
+            formerlySerializedAs: '_N$placeholderFontSize',
         },
 
-        /**
-         * !#en The font color of placeholder.
-         * !#zh 输入框占位符的字体颜色。
-         * @property {Color} placeholderFontColor
-         */
-        placeholderFontColor: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
-            default: cc.Color.GRAY,
-            notify () {
-                if (this._placeholderLabel) {
-                    this._placeholderLabel.node.color = this.placeholderFontColor;
-                    this._placeholderLabel.node.opacity = this.placeholderFontColor.a;
-                }
-            }
+        _placeholderFontColor: {
+            default: undefined,
+            formerlySerializedAs: '_N$placeholderFontColor',
         },
 
         /**
@@ -363,12 +345,52 @@ let EditBox = cc.Class({
         InputMode: InputMode
     },
 
-    _init () {
-        this._createBackgroundSprite();
-        this._createLabels();
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
+    // to be deprecated in the future
+    _upgradeComponent () {
+        // whether need to create background
+        if (this._backgroundImage) {
+            this._createBackgroundSprite();
+            this.background.spriteFrame = this._backgroundImage;
+            this._backgroundImage = undefined;
+        }
 
+        // whether need to create textLabel
+        if (this._fontSize || this._fontColor || this._lineHeight) {
+            this._createTextLabel();
+            if (this._fontSize) {
+                this.textLabel.fontSize = this._fontSize;
+                this._fontSize = undefined;
+            }
+            if (this._fontColor) {
+                this.textLabel.node.color = this._fontColor;
+                this._fontColor = undefined;
+            }
+            if (this._lineHeight) {
+                this.textLabel.lineHeight = this._lineHeight;
+                this._lineHeight = undefined;
+            }
+        }
+
+        // whether need to create placeholderLabel
+        if (this._placeholderFontSize || this._placeholderFontColor) {
+            this._createPlaceholderLabel();
+            if (this._placeholderFontSize) {
+                this.placeholderLabel.fontSize = this._placeholderFontSize;
+                this._placeholderFontSize = undefined;
+            }
+            if (this._placeholderFontColor) {
+                this.placeholderLabel.node.color = this._placeholderFontColor;
+                this._placeholderFontColor = undefined;
+            }
+        }
+    },
+
+    _init () {
+        if (CC_EDITOR) {
+            this._upgradeComponent();
+        }
         let impl = this._impl = new EditBoxImpl();
+        let size = this.node.getContentSize();
 
         impl.setDelegate(this);
         impl.setNode(this.node);
@@ -377,13 +399,15 @@ let EditBox = cc.Class({
         impl.setInputFlag(this.inputFlag);
         impl.setReturnType(this.returnType);
         impl.setTabIndex(this.tabIndex);
-        impl.setFontColor(this.fontColor);
-        impl.setFontSize(this.fontSize);
         impl.setPlaceholderText(this.placeholder);
+        impl.setSize(size.width, size.height);
+        impl.setFontColor(this.textLabel ? this.textLabel.node.color : cc.Color.WHITE);
+        impl.setFontSize(this.textLabel ? this.textLabel.fontSize : 20);
 
         this._updateStayOnTop();
         this._updateString(this.string);
-        this._syncSize();
+        
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
     },
 
     _updateStayOnTop () {
@@ -393,17 +417,19 @@ let EditBox = cc.Class({
         else {
             this._showLabels();
         }
-        this._impl.stayOnTop(this.stayOnTop);
+        this._impl && this._impl.stayOnTop(this.stayOnTop);
     },
 
     _syncSize () {
         let size = this.node.getContentSize();
         
-        this._background.node.setAnchorPoint(this.node.getAnchorPoint());
-        this._background.node.setContentSize(size);
+        if (this.background) {
+            this.background.node.setAnchorPoint(this.node.getAnchorPoint());
+            this.background.node.setContentSize(size);
+        }
 
         this._updateLabelPosition(size);
-        this._impl.setSize(size.width, size.height);
+        this._impl && this._impl.setSize(size.width, size.height);
     },
 
     _updateLabelPosition (size) {
@@ -411,32 +437,41 @@ let EditBox = cc.Class({
         let offx = -node.anchorX * node.width;
         let offy = -node.anchorY * node.height;
 
-        let placeholderLabel = this._placeholderLabel;
-        let textLabel = this._textLabel;
+        let placeholderLabel = this.placeholderLabel;
+        let textLabel = this.textLabel;
 
-        textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-        placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-        placeholderLabel.lineHeight = size.height;
+        if (textLabel) {
+            textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
+            if (this.inputMode === InputMode.ANY){
+                textLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
+                textLabel.enableWrapText = true;
+            }
+            else {
+                textLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
+                textLabel.enableWrapText = false;
+            }
 
-        placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
-        textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
-
-        if (this.inputMode === InputMode.ANY){
-            placeholderLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
-            placeholderLabel.enableWrapText = true;
-            textLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
-            textLabel.enableWrapText = true;
         }
-        else {
-            placeholderLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
-            placeholderLabel.enableWrapText = false;
-            textLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
-            textLabel.enableWrapText = false;
+
+        if (placeholderLabel) {
+            placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.lineHeight = size.height;
+            placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
+            if (this.inputMode === InputMode.ANY){
+                placeholderLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
+                placeholderLabel.enableWrapText = true;
+            }
+            else {
+                placeholderLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
+                placeholderLabel.enableWrapText = false;
+            }
         }
     },
 
+    // to be deprecated in the future
     _createBackgroundSprite () {
-        let background = this._background;
+        let background = this.background;
         if (!background) {
             let node = this.node.getChildByName('BACKGROUND_SPRITE');
             if (!node) {
@@ -450,18 +485,18 @@ let EditBox = cc.Class({
             background.type = cc.Sprite.Type.SLICED;
 
             node.parent = this.node;
-            this._background = background;
+            this.background = background;
         }
-        background.spriteFrame = this.backgroundImage;
     },
 
-    _createLabels () {
-        if (!this._textLabel) {
+    // to be deprecated in the future
+    _createTextLabel () {
+        if (!this.textLabel) {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new cc.Node('TEXT_LABEL');
             }
-            node.color = this.fontColor;
+            node.color = cc.Color.WHITE;  // default font color
             node.parent = this.node;
             node.setAnchorPoint(0, 1);
 
@@ -470,17 +505,20 @@ let EditBox = cc.Class({
                 textLabel = node.addComponent(Label);
             }
             textLabel.overflow = Label.Overflow.CLAMP;
-            textLabel.fontSize = this.fontSize;
-            textLabel.lineHeight = this.lineHeight;
-            this._textLabel = textLabel;
+            textLabel.fontSize = 20;  // default font size
+            textLabel.lineHeight = 40;  // default line height 
+            this.textLabel = textLabel;
         }
+    },
 
-        if (!this._placeholderLabel) {
+    // to be deprecated in the future
+    _createPlaceholderLabel () {
+        if (!this.placeholderLabel) {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new cc.Node('PLACEHOLDER_LABEL');
             }
-            node.color = this.placeholderFontColor;
+            node.color = cc.Color.WHITE;  // default placeholder font color
             node.parent = this.node;
             node.setAnchorPoint(0, 1);
 
@@ -489,44 +527,33 @@ let EditBox = cc.Class({
                 placeholderLabel = node.addComponent(Label);
             }
             placeholderLabel.overflow = Label.Overflow.CLAMP;
-            placeholderLabel.fontSize = this.placeholderFontSize;
+            placeholderLabel.fontSize = 20;  // default placeholder font size
             placeholderLabel.string = this.placeholder;
-            this._placeholderLabel = placeholderLabel;
+            this.placeholderLabel = placeholderLabel;
         }
     },
 
-    _resizeChildNodes () {
-        let textLabelNode = this._textLabel.node,
-            placeholderLabelNode = this._placeholderLabel.node,
-            backgroundNode = this._background.node;
-            
-        textLabelNode.x = -this.node.width/2;
-        textLabelNode.y = this.node.height/2;
-        textLabelNode.width = this.node.width;
-        textLabelNode.height = this.node.height;
-        
-        placeholderLabelNode.x = -this.node.width/2;
-        placeholderLabelNode.y = this.node.height/2;
-        placeholderLabelNode.width = this.node.width;
-        placeholderLabelNode.height = this.node.height;            
-        
-        backgroundNode.width = this.node.width;
-        backgroundNode.height = this.node.height;
-    },
-
     _showLabels () {
-        let displayText = this._textLabel.string;
-        this._textLabel.node.active = displayText !== '';
-        this._placeholderLabel.node.active = displayText === '';
+        let displayText = this.string;
+        if (this.textLabel) {
+            this.textLabel.node.active = displayText !== '';
+        }
+        if (this.placeholderLabel) {
+            this.placeholderLabel.node.active = displayText === '';
+        }
     },
 
     _hideLabels () {
-        this._textLabel.node.active = false;
-        this._placeholderLabel.node.active = false;
+        if (this.textLabel) {
+            this.textLabel.node.active = false;
+        }
+        if (this.placeholderLabel) {
+            this.placeholderLabel.node.active = false;
+        }
     },
 
     _updateString (text) {
-        let textLabel = this._textLabel;
+        let textLabel = this.textLabel;
         // Not inited yet
         if (!textLabel) {
             return;
@@ -538,7 +565,7 @@ let EditBox = cc.Class({
         }
 
         textLabel.string = displayText;
-        this._impl.setString(text);
+        this._impl && this._impl.setString(text);
         if (!this._impl._editing && !this.stayOnTop) {
             this._showLabels();
         }
@@ -666,9 +693,119 @@ let EditBox = cc.Class({
     update () {
         if (this._impl) {
             this._impl.update();
+
+            let textLabel = this.textLabel;
+            let placeholderLabel = this.placeholderLabel;
+
+            if (textLabel) {
+                textLabel.string = this.string;
+                this._impl.setFontSize(textLabel.fontSize);
+                this._impl.setFontColor(textLabel.node.color);
+            }
+    
+            if (placeholderLabel) {
+                placeholderLabel.string = this.placeholder;
+            }
         }
     }
 
+});
+
+/**
+ * !#en The background image of EditBox.
+ * !#zh 输入框的背景图片
+ * @property {SpriteFrame} backgroundImage
+ * @deprecated since v2.1, please use editbox.background.spriteFrame instead.
+ */
+Object.defineProperty(EditBox.prototype, 'backgroundImage', {
+    get () {
+        if (this.background) {
+            let spriteComp = this.background.getComponent(cc.Sprite);
+            return spriteComp && spriteComp.spriteFrame;
+        }
+        return null;
+    },
+    set (value) {
+        if (this.background) {
+            let spriteComp = this.background.getComponent(cc.Sprite);
+            spriteComp && (spriteComp.spriteFrame = value);
+        }
+    }
+});
+
+/**
+ * !#en Font size of the input text.
+ * !#zh 输入框文本的字体大小
+ * @property {Number} fontSize
+ * @deprecated since v2.1, please use editbox.textLabel.fontSize instead.
+ */
+Object.defineProperty(EditBox.prototype, 'fontSize', {
+    get () {
+        return this.textLabel && this.textLabel.fontSize;
+    },
+    set (value) {
+        this.textLabel && (this.textLabel.fontSize = value);
+    }
+});
+
+/**
+ * !#en Change the lineHeight of displayed text.
+ * !#zh 输入框文本的行高。
+ * @property {Number} lineHeight
+ * @deprecated since v2.1, please use editbox.textLabel.lineHeight instead.
+ */
+Object.defineProperty(EditBox.prototype, 'lineHeight', {
+    get () {
+        return this.textLabel && this.textLabel.lineHeight;
+    },
+    set (value) {
+        this.textLabel && (this.textLabel.lineHeight = value);
+    }
+});
+
+/**
+ * !#en Font color of the input text.
+ * !#zh 输入框文本的颜色。
+ * @property {Color} fontColor
+ * @deprecated since v2.1, please use editbox.textLabel.node.color instead.
+ */
+Object.defineProperty(EditBox.prototype, 'fontColor', {
+    get () {
+        return this.textLabel && this.textLabel.node.color;
+    },
+    set (value) {
+        this.textLabel && (this.textLabel.node.color = value);
+    }
+});
+
+/**
+ * !#en The font size of placeholder.
+ * !#zh 输入框占位符的字体大小。
+ * @property {Number} placeholderFontSize
+ * @deprecated since v2.1, please use editbox.placeholderLabel.fontSize instead.
+ */
+Object.defineProperty(EditBox.prototype, 'placeholderFontSize', {
+    get () {
+        return this.placeholderLabel && this.placeholderLabel.fontSize;
+    },
+    set (value) {
+        this.placeholderLabel && (this.placeholderLabel.fontSize = value);
+    }
+});
+
+/**
+ * !#en The font color of placeholder.
+ * !#zh 输入框占位符的字体颜色。
+ * @property {Color} placeholderFontColor
+ * @deprecated since v2.1, please use editbox.placeholderLabel.fontColor instead.
+ */
+Object.defineProperty(EditBox.prototype, 'placeholderFontColor', {
+    get () {
+        return this.placeholderLabel && this.placeholderLabel.node.color;
+    },
+    set (value) {
+        this.placeholderLabel && (this.placeholderLabel.node.color = value);
+    }
 });
 
 cc.EditBox = module.exports = EditBox;

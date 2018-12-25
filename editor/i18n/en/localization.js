@@ -210,19 +210,16 @@ module.exports = {
         },
         "editbox": {
             "string": "The initial input text of EditBox.",
-            "backgroundImage": "The background image of EditBox.",
+            "background": "The background image of EditBox.",
             "returnType": "The keyboard return type of EditBox. This is useful for keyboard of mobile device.",
             "input_flag": "Specify the input flag: password or capitalize word. ",
             "input_mode": "Specify the input mode: multiline or single line.",
-            "font_size": "The font size of input label.",
-            "line_height": "The line height of input label.",
             "stay_on_top": "Set to true and the input is always visible and be on top of the game view",
             "tab_index": "Set the tabIndex of the DOM input element, only useful on Web.",
-            "font_color": "The font color of input label.",
             "placeholder": "The content string of placeholder.",
-            "placeholder_font_size": "The font size of placeholder label.",
-            "placeholder_font_color": "The font color of placeholder label.",
-            "max_length": "The maximize input characters."
+            "max_length": "The maximize input characters.",
+            "textLabel": "The text label of EditBox.",
+            "placeholderLabel": "The placeholder label of EditBox.",
         },
         "videoplayer": {
             "resourceType": "The resource type of VideoPlayer, currently support remote URL and local videos.",
