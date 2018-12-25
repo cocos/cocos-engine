@@ -2464,13 +2464,13 @@ let NodeDefines = {
      * Set world rotation with quaternion
      * This is not a public API yet, its usage could be updated
      * @method setWorldRotation
-     * @param {Quat} rot
+     * @param {Quat} val
      */
-    setWorldRotation (quat) {
+    setWorldRotation (val) {
         if (this._parent) {
             this._parent.getWorldRotation(this._quat);
             quat.conjugate(this._quat, this._quat);
-            quat.mul(this._quat, this._quat, quat);
+            quat.mul(this._quat, this._quat, val);
         }
         else {
             quat.copy(this._quat, quat);
