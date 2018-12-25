@@ -167,9 +167,9 @@ proto.lerp = function (to, ratio, out) {
  * @example
  * var min_inclusive = cc.v2(0, 0);
  * var max_inclusive = cc.v2(20, 20);
- * var v1 = cc.v2(20, 20).clamp(min_inclusive, max_inclusive); // Vec2 {x: 20, y: 20};
- * var v2 = cc.v2(0, 0).clamp(min_inclusive, max_inclusive);   // Vec2 {x: 0, y: 0};
- * var v3 = cc.v2(10, 10).clamp(min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
+ * var v1 = cc.v2(20, 20).clampf(min_inclusive, max_inclusive); // Vec2 {x: 20, y: 20};
+ * var v2 = cc.v2(0, 0).clampf(min_inclusive, max_inclusive);   // Vec2 {x: 0, y: 0};
+ * var v3 = cc.v2(10, 10).clampf(min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
  */
 proto.clampf = function (min_inclusive, max_inclusive) {
     this.x = misc.clampf(this.x, min_inclusive.x, max_inclusive.x);
