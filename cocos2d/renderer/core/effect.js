@@ -230,14 +230,20 @@ if (CC_EDITOR) {
     Effect.parseForInspector = function(json) {
         let programs = getInvolvedPrograms(json);
         let props = parseProperties(json, programs), defines = {};
-        programs.forEach(program => {
-            program.defines.forEach(define => {
+        for (let pn in programs) {
+            programs[pn].uniforms.forEach(u => {
+                let prop = props[u.name];
+                if (!prop) return;
+                prop.defines = u.defines;
+            });
+            programs[pn].defines.forEach(define => {
                 defines[define.name] = {
                     instanceType: getInstanceType(define.type),
-                    value: getInstanceCtor(define.type)()
+                    value: getInstanceCtor(define.type)(),
+                    defines: define.defines
                 };
             });
-        });
+        }
         return { props, defines };
     };
 }
