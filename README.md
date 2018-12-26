@@ -3,19 +3,19 @@
 </p>
 <p align="center">
     <a href="https://github.com/cocos-creator/engine/stargazers">
-        <img src="https://img.shields.io/github/stars/cocos-creator/engine.svg?style=flat-square"
+        <img src="https://img.shields.io/github/stars/cocos-creator/engine.svg?style=flat-square&colorB=6aabe8"
              alt="stars">
     </a>
     <a href="https://github.com/cocos-creator/engine/network">
-        <img src="https://img.shields.io/github/forks/cocos-creator/engine.svg?style=flat-square"
+        <img src="https://img.shields.io/github/forks/cocos-creator/engine.svg?style=flat-square&colorB=6aabe8"
              alt="forks">
     </a>
     <a href="https://github.com/cocos-creator/engine/releases">
-        <img src="https://img.shields.io/github/tag/cocos-creator/engine.svg?label=version&style=flat-square"
+        <img src="https://img.shields.io/github/tag/cocos-creator/engine.svg?label=version&style=flat-square&colorB=6aabe8"
              alt="version">
     </a>
     <a href="./licenses/LICENSE">
-        <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"
+        <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=6aabe8"
              alt="license">
     </a>
     <a href="https://twitter.com/cocos2dx">
@@ -26,7 +26,7 @@
 
 # Cocos Creator
 
-![image](https://user-images.githubusercontent.com/1503156/50446041-a95bac80-094d-11e9-8292-012b56b21103.png)
+![image](https://user-images.githubusercontent.com/1503156/50451713-97d7cc00-0970-11e9-89f8-ccdd8b2cc5cb.png)
 
 Cocos Creator is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Cocos Creator focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x. With JavaScript, you can scripting your component in no time. The editor and engine extension is also made with JavaScript so you can make games and refine your tool in a single programming language. Cocos Creator is an provides an innovative, easy to use toolset such as the UI system and Animation editor. The toolset will be expanding continuously and quickly, thanks to the open editor extension system.
 
