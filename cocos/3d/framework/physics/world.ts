@@ -13,10 +13,6 @@ export interface RaycastOptions {
 export class RaycastResult {
     public _cannonResult: CANNON.RaycastResult = new CANNON.RaycastResult();
 
-    public _update() {
-
-    }
-
     get hit() {
         return this._cannonResult.hasHit;
     }
@@ -40,20 +36,26 @@ export class RaycastResult {
 
 export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
-    private _defaultMaterial = new PhysicsMaterial();
+    private _defaultMaterial: PhysicsMaterial;
+    private _defaultContactMaterial: ContactMaterial;
     private _bodys: Set<PhysicsBody>;
 
     constructor() {
+        this._defaultMaterial = new PhysicsMaterial();
+        this._defaultContactMaterial = new ContactMaterial(
+            this._defaultMaterial, this._defaultMaterial, { friction: 0.3, restitution: 0.0 });
+
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorld>(this._cannonWorld, this);
         this._cannonWorld.gravity.set(0, -9.81, 0);
         this._cannonWorld.broadphase = new CANNON.NaiveBroadphase();
         this._cannonWorld.defaultMaterial = this._defaultMaterial._getImpl();
+        this._cannonWorld.defaultContactMaterial = this._defaultContactMaterial._getImpl();
         this._bodys = new Set();
     }
 
-    get defaultMaterial() {
-        return this._defaultMaterial;
+    get defaultContactMaterial() {
+        return this._defaultContactMaterial;
     }
 
     public addBody(body: PhysicsBody) {
@@ -84,9 +86,6 @@ export class PhysicsWorld {
      */
     public raycastClosest(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
         const hit = (this._cannonWorld as any).raycastClosest(from, to, toCannonRaycastOptions(options), result._cannonResult);
-        if (hit) {
-            result._update();
-        }
         return hit;
     }
 
@@ -96,9 +95,6 @@ export class PhysicsWorld {
      */
     public raycastAny(from: cc.Vec3, to: cc.Vec3, options: RaycastOptions, result: RaycastResult): boolean {
         const hit = (this._cannonWorld as any).raycastAny(from, to, toCannonRaycastOptions(options), result._cannonResult);
-        if (hit) {
-            result._update();
-        }
         return hit;
     }
 
@@ -110,7 +106,6 @@ export class PhysicsWorld {
         return (this._cannonWorld as any).raycastAll(from, to, toCannonRaycastOptions(options), (cannonResult: CANNON.RaycastResult) => {
             const result = new RaycastResult();
             result._cannonResult = cannonResult;
-            result._update();
             callback(result);
         });
     }

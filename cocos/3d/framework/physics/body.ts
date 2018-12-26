@@ -19,6 +19,8 @@ export class PhysicsBody {
 
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
 
+    private _onWorldBeforeStepListener: ((event: CANNON.IEvent) => any) | null = null;
+
     private _onWorldPostStepListener: ((event: CANNON.IEvent) => any) | null = null;
 
     private _shapes: Set<PhysicsShape> = new Set();
@@ -30,7 +32,7 @@ export class PhysicsBody {
     constructor() {
         const cannonBodyOptions: CANNON.IBodyOptions = {
             mass: 0,
-            material: new CANNON.Material(''),
+            // material: new CANNON.Material(''),
         };
 
         this._cannonBody = new CANNON.Body(cannonBodyOptions);
@@ -49,6 +51,9 @@ export class PhysicsBody {
     }
 
     public _onAdded() {
+        this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
+        this._cannonBody.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
+
         this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
         this._cannonBody.world.addEventListener('postStep', this._onWorldPostStepListener);
     }
@@ -245,13 +250,15 @@ export class PhysicsBody {
         // console.log(`Collided {${getWrap<PhysicsBody>(event.body)._node.name}} and {${getWrap<PhysicsBody>(event.target)._node.name}}.`);
     }
 
-    private _onWorldPostStep(event: CANNON.IEvent) {
+    private _onWorldBeforeStep(event: CANNON.IEvent) {
         if (!this._useGravity) {
             const gravity = this._cannonBody.world.gravity;
             vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this.mass * -1);
             this._cannonBody.force;
         }
+    }
 
+    private _onWorldPostStep(event: CANNON.IEvent) {
         if (this._dataflow === DataFlow.PULLING) {
             this._pull();
         }
@@ -344,12 +351,15 @@ export class PhysicsBoxShape extends PhysicsShape {
     }
 
     protected _onShapeParamUpdated() {
-        const newHalfExtents = new CANNON.Vec3();
+        const shape = this._getCannonShape<CANNON.Box>();
+        if (!shape.halfExtents) {
+            shape.halfExtents = new CANNON.Vec3();
+        }
+
+        const newHalfExtents = shape.halfExtents;
         vec3.multiply(newHalfExtents, this._size, this.scale);
         vec3.scale(newHalfExtents, newHalfExtents, 0.5);
-        const shape = this._getCannonShape<CANNON.Box>();
-        shape.halfExtents = newHalfExtents;
-        shape.updateBoundingSphereRadius();
+        // shape.updateBoundingSphereRadius();
         shape.updateConvexPolyhedronRepresentation();
 
         // console.log(`Set ${this.__debugNodeName} halfExtents to ${shape.halfExtents.x}, ${shape.halfExtents.y},${shape.halfExtents.z}.`);
@@ -377,7 +387,7 @@ export class PhysicsSphereShape extends PhysicsShape {
     protected _onShapeParamUpdated() {
         const shape = this._getCannonShape<CANNON.Sphere>();
         shape.radius = this._radius * maxComponent(this.scale);
-        shape.updateBoundingSphereRadius();
+        // shape.updateBoundingSphereRadius();
 
         // console.log(`Set ${this.__debugNodeName} radius to ${shape.radius}.`);
     }
