@@ -30,7 +30,6 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     public onLoad() {
         super.onLoad();
         this.center = this._center;
-        this._body!.addShape(this._shape);
     }
 
     public onEnable() {
