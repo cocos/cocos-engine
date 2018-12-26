@@ -29,6 +29,7 @@
 const utils = require('../../platform/utils');
 const macro = require('../../platform/CCMacro');
 const Types = require('./types');
+const Label = require('../CCLabel');
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
 const KeyboardReturnType = Types.KeyboardReturnType;
@@ -75,6 +76,9 @@ function getKeyboardReturnType (type) {
     return 'done';
 }
 
+// index of the style sheet for editBox DOM placeholder, only available on Web
+let styleSheetIndex = 0;
+
 let EditBoxImpl = cc.Class({
     ctor () {
         this._delegate = null;
@@ -88,6 +92,7 @@ let EditBoxImpl = cc.Class({
         this._size = cc.size();
         this._node = null;
         this._editing = false;
+        this._domId = `EditBox_${styleSheetIndex++}`;
         
         this.__eventListeners = {};
         this.__fullscreen = false;
@@ -168,6 +173,7 @@ let EditBoxImpl = cc.Class({
 
     setPlaceholderText (text) {
         this._placeholderText = text;
+        this._edTxt && (this._edTxt.placeholder = text);
     },
 
     getPlaceholderText () {
@@ -213,16 +219,6 @@ let EditBoxImpl = cc.Class({
         this._returnType = returnType;
         this._updateDomInputType();
     },
-
-    setFontSize (fontSize) {
-        this._edFontSize = fontSize || this._edFontSize;
-        this._edTxt && (this._edTxt.style.fontSize = this._edFontSize + 'px');
-    },
-    
-    setFontColor (color) {
-        this._textColor = color;
-        this._edTxt && (this._edTxt.style.color = color.toCSS('rgba'));
-    },
     
     setSize (width, height) {
         this._size.width = width;
@@ -232,6 +228,134 @@ let EditBoxImpl = cc.Class({
 
     setNode (node) {
         this._node = node;
+    },
+
+    updateDomTextLabel (textLabel) {
+        if (!textLabel) {
+            return;
+        }
+        this.setTextLabelFont(textLabel.font);
+        this.setTextLabelFontSize(textLabel.fontSize);
+        this.setTextLabelFontColor(textLabel.node.color);
+        this.setTextLabelLineHeight(textLabel.lineHeight);
+        this.setTextLabelHorizontalAlign(textLabel.horizontalAlign);
+    },
+    
+    setTextLabelFont (font) {
+        if (this._edTxt && font) {
+            if (font instanceof cc.BitmapFont) {
+                cc.warn('EditBoxLabel doesnot support BitmapFont !');
+                return;
+            }
+            this._edTxt.style['font-family'] = font._fontFamily;
+        }
+    },
+
+    setTextLabelFontSize (fontSize) {
+        this._edFontSize = fontSize || this._edFontSize;
+        this._edTxt && (this._edTxt.style.fontSize = this._edFontSize + 'px');
+    },
+    
+    setTextLabelFontColor (color) {
+        this._textColor = color;
+        this._edTxt && (this._edTxt.style.color = color.toCSS('rgba'));
+    },
+
+    setTextLabelLineHeight (lineHeight) {
+        this._edTxt && (this._edTxt.style['line-height'] = `${lineHeight}px`);
+    },
+
+    setTextLabelHorizontalAlign (align) {
+        let edTxt = this._edTxt;
+        if (!edTxt) {
+            return;
+        }
+        switch (align) {
+            case Label.HorizontalAlign.LEFT:
+                edTxt.style['text-align'] = 'left';
+                break;
+            case Label.HorizontalAlign.CENTER:
+                edTxt.style['text-align'] = 'center';
+                break;
+            case Label.HorizontalAlign.RIGHT:
+                edTxt.style['text-align'] = 'right';
+                break;
+        }
+    },
+
+    // get editBox styleSheet by domId
+    // the styleSheet is to sync editBox.placeholder with _edTxt
+    _getStyleSheet () {
+        let styleSheetId = `${this._domId}_styleSheet`;
+        let styleEl = document.getElementById(styleSheetId);
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = styleSheetId;
+            document.head.appendChild(styleEl);
+        }
+        return styleEl;
+    },
+
+    updateDomPlaceholderLabel (placeholderLabel) {
+        if (!placeholderLabel) {
+            return;
+        }
+        let styleEl = this._getStyleSheet();
+        // font
+        let font = 'Arial';
+        if (placeholderLabel.font) {
+            if (placeholderLabel.font instanceof cc.BitmapFont) {
+                cc.warn('EditBoxLabel doesnot support BitmapFont !');
+            }
+            else {
+                font = placeholderLabel.font._fontFamily;
+            }
+        }
+        // font size
+        let fontSize = placeholderLabel.fontSize;
+        // font color
+        let fontColor = placeholderLabel.node.color.toCSS('rgba');
+        // line height
+        let lineHeight = placeholderLabel.lineHeight;
+        // horizontal align
+        let horizontalAlign;
+        switch (placeholderLabel.horizontalAlign) {
+            case Label.HorizontalAlign.LEFT:
+                horizontalAlign = 'left';
+                break;
+            case Label.HorizontalAlign.CENTER:
+                horizontalAlign = 'center';
+                break;
+            case Label.HorizontalAlign.RIGHT:
+                horizontalAlign = 'right';
+                break;
+        }
+        
+        styleEl.innerHTML = `
+            #${this._domId}::-webkit-input-placeholder {
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+
+            #${this._domId}::-moz-placeholder {
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+
+            #${this._domId}:-ms-input-placeholder {
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+            `;
     },
 
     update () {
@@ -573,6 +697,7 @@ _p._createDomInput = function () {
     this.removeDom();
 
     let tmpEdTxt = this._edTxt = document.createElement('input');
+    tmpEdTxt.id = this._domId;
     tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
     tmpEdTxt.style.color = '#000000';
@@ -601,6 +726,7 @@ _p._createDomTextArea = function () {
     this.removeDom();
 
     let tmpEdTxt = this._edTxt = document.createElement('textarea');
+    tmpEdTxt.id = this._domId;
     tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
     tmpEdTxt.style.color = '#000000';

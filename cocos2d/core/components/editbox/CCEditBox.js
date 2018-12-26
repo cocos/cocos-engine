@@ -27,6 +27,7 @@
 const macro = require('../../platform/CCMacro');
 const EditBoxImpl = require('../editbox/CCEditBoxImpl');
 const Label = require('../CCLabel');
+const EditBoxLabel = require('./EditBoxLabel');
 const Types = require('./types');
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
@@ -110,7 +111,7 @@ let EditBox = cc.Class({
         textLabel: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.textLabel',
             default: null,
-            type: cc.Label,
+            type: EditBoxLabel,
             notify () {
                 if (this.textLabel) {
                     this.textLabel.string = this.string;
@@ -127,7 +128,7 @@ let EditBox = cc.Class({
         placeholderLabel: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholderLabel',
             default: null,
-            type: cc.Label,
+            type: EditBoxLabel,
             notify () {
                 if (this.placeholderLabel) {
                     this.placeholderLabel.string = this.placeholder;
@@ -191,6 +192,14 @@ let EditBox = cc.Class({
             notify () {
                 if (this._impl) {
                     this._impl.setInputMode(this.inputMode);
+                }
+                if (this.inputMode === InputMode.ANY) {
+                    this.textLabel && (this.textLabel.verticalAlign = Label.VerticalAlign.TOP);
+                    this.placeholderLabel && (this.placeholderLabel.verticalAlign = Label.VerticalAlign.TOP);
+                }
+                else {
+                    this.textLabel && (this.textLabel.verticalAlign = Label.VerticalAlign.CENTER);
+                    this.placeholderLabel && (this.placeholderLabel.verticalAlign = Label.VerticalAlign.CENTER);
                 }
             }
         },
@@ -401,13 +410,61 @@ let EditBox = cc.Class({
         impl.setTabIndex(this.tabIndex);
         impl.setPlaceholderText(this.placeholder);
         impl.setSize(size.width, size.height);
-        impl.setFontColor(this.textLabel ? this.textLabel.node.color : cc.Color.WHITE);
-        impl.setFontSize(this.textLabel ? this.textLabel.fontSize : 20);
+        impl.updateDomTextLabel(this.textLabel);
+        impl.updateDomPlaceholderLabel(this.placeholderLabel);
 
         this._updateStayOnTop();
         this._updateString(this.string);
         
+        this._syncSize();
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
+        this._initLabelEvent();
+    },
+
+    _initLabelEvent () {
+        let textLabel = this.textLabel, placeholderLabel = this.placeholderLabel;
+        let self = this;
+        if (textLabel && this._impl) {
+            textLabel.node.on('string-changed', function () {
+                self.string = textLabel.string;
+            });
+            textLabel.node.on('font-changed', function () {
+                self._impl.setTextLabelFont(textLabel.font);
+            });
+            textLabel.node.on('color-changed', function () {
+                self._impl.setTextLabelFontColor(textLabel.node.color);
+            });
+            textLabel.node.on('fontSize-changed', function () {
+                self._impl.setTextLabelFontSize(textLabel.fontSize);
+            });
+            textLabel.node.on('lineHeight-changed', function () {
+                self._impl.setTextLabelLineHeight(textLabel.lineHeight);
+            });
+            textLabel.node.on('horizontalAlign-changed', function () {
+                self._impl.setTextLabelHorizontalAlign(textLabel.horizontalAlign);
+            });
+        }
+        if (placeholderLabel) {
+            placeholderLabel.node.on('string-changed', function () {
+                self.placeholder = placeholderLabel.string;
+                self._impl.setPlaceholderText(placeholderLabel.string);
+            });
+            placeholderLabel.node.on('font-changed', function () {
+                self._impl.updateDomPlaceholderLabel(placeholderLabel);
+            });
+            placeholderLabel.node.on('color-changed', function () {
+                self._impl.updateDomPlaceholderLabel(placeholderLabel);
+            });
+            placeholderLabel.node.on('fontSize-changed', function () {
+                self._impl.updateDomPlaceholderLabel(placeholderLabel);
+            });
+            placeholderLabel.node.on('lineHeight-changed', function () {
+                self._impl.updateDomPlaceholderLabel(placeholderLabel);
+            });
+            placeholderLabel.node.on('horizontalAlign-changed', function () {
+                self._impl.updateDomPlaceholderLabel(placeholderLabel);
+            });
+        }
     },
 
     _updateStayOnTop () {
@@ -443,29 +500,11 @@ let EditBox = cc.Class({
         if (textLabel) {
             textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
-            if (this.inputMode === InputMode.ANY){
-                textLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
-                textLabel.enableWrapText = true;
-            }
-            else {
-                textLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
-                textLabel.enableWrapText = false;
-            }
-
         }
 
         if (placeholderLabel) {
             placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-            placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
-            if (this.inputMode === InputMode.ANY){
-                placeholderLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
-                placeholderLabel.enableWrapText = true;
-            }
-            else {
-                placeholderLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
-                placeholderLabel.enableWrapText = false;
-            }
         }
     },
 
@@ -489,46 +528,70 @@ let EditBox = cc.Class({
         }
     },
 
-    // to be deprecated in the future
-    _createTextLabel () {
-        if (!this.textLabel) {
-            let node = this.node.getChildByName('TEXT_LABEL');
-            if (!node) {
-                node = new cc.Node('TEXT_LABEL');
-            }
-            node.color = cc.Color.WHITE;  // default font color
-            node.parent = this.node;
-            node.setAnchorPoint(0, 1);
-
-            let textLabel = node.getComponent(Label);
-            if (!textLabel) {
-                textLabel = node.addComponent(Label);
-            }
-            textLabel.overflow = Label.Overflow.CLAMP;
-            textLabel.fontSize = 20;  // default font size
-            textLabel.lineHeight = 40;  // default line height 
-            this.textLabel = textLabel;
+    _createLabelNode (name) {
+        let node = this.node.getChildByName(name);
+        if (!node) {
+            node = new cc.Node(name);
         }
+
+        let labelComp = node.getComponent(Label);
+        if (!labelComp) {
+            labelComp = node.addComponent(EditBoxLabel);
+        }
+        // convert Label to EditBoxLabel
+        else if (!(labelComp instanceof EditBoxLabel)) {
+            if (CC_EDITOR) {
+                node.removeFromParent();
+                node = new cc.Node(name);
+            }
+            else {
+                node.removeComponent(Label);
+            }
+            labelComp = node.addComponent(EditBoxLabel);
+        }
+
+        node.color = cc.Color.WHITE;  // default font color
+        node.parent = this.node;
+        node.setAnchorPoint(0, 1);
+        return node;
     },
 
     // to be deprecated in the future
+    _createTextLabel () {
+        if (!this.textLabel) {
+            let node = this._createLabelNode('TEXT_LABEL');
+            textLabel = node.getComponent(EditBoxLabel);
+            // set default value
+            textLabel.overflow = Label.Overflow.CLAMP;
+            textLabel.fontSize = 20;
+            textLabel.lineHeight = 40;
+            textLabel.string = this.string;
+            if (this.inputMode === InputMode.ANY) {
+                textLabel.verticalAlign = Label.VerticalAlign.TOP;
+            }
+            else {
+                textLabel.verticalAlign = Label.VerticalAlign.CENTER;
+            }
+            this.textLabel = textLabel;
+        }
+    },
+    
+    // to be deprecated in the future
     _createPlaceholderLabel () {
         if (!this.placeholderLabel) {
-            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
-            if (!node) {
-                node = new cc.Node('PLACEHOLDER_LABEL');
-            }
-            node.color = cc.Color.WHITE;  // default placeholder font color
-            node.parent = this.node;
-            node.setAnchorPoint(0, 1);
-
-            let placeholderLabel = node.getComponent(Label);
-            if (!placeholderLabel) {
-                placeholderLabel = node.addComponent(Label);
-            }
+            let node = this._createLabelNode('PLACEHOLDER_LABEL');
+            let placeholderLabel = node.getComponent(EditBoxLabel);
+            // set default value
             placeholderLabel.overflow = Label.Overflow.CLAMP;
-            placeholderLabel.fontSize = 20;  // default placeholder font size
+            placeholderLabel.fontSize = 20;
+            placeholderLabel.lineHeight = 40;
             placeholderLabel.string = this.placeholder;
+            if (this.inputMode === InputMode.ANY) {
+                placeholderLabel.verticalAlign = Label.VerticalAlign.TOP;
+            }
+            else {
+                placeholderLabel.verticalAlign = Label.VerticalAlign.CENTER;
+            }
             this.placeholderLabel = placeholderLabel;
         }
     },
@@ -693,19 +756,6 @@ let EditBox = cc.Class({
     update () {
         if (this._impl) {
             this._impl.update();
-
-            let textLabel = this.textLabel;
-            let placeholderLabel = this.placeholderLabel;
-
-            if (textLabel) {
-                textLabel.string = this.string;
-                this._impl.setFontSize(textLabel.fontSize);
-                this._impl.setFontColor(textLabel.node.color);
-            }
-    
-            if (placeholderLabel) {
-                placeholderLabel.string = this.placeholder;
-            }
         }
     }
 
