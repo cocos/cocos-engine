@@ -616,7 +616,10 @@ function initSys () {
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
-        var languageCode = __getCurrentLanguageCode();
+        var languageCode; 
+        if (CC_JSB) {
+            languageCode = __getCurrentLanguageCode();
+        }
         sys.languageCode = languageCode ? languageCode.toLowerCase() : undefined;
         sys.osVersion = __getOSVersion();
         sys.osMainVersion = parseInt(sys.osVersion);
