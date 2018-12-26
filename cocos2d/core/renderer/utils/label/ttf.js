@@ -149,6 +149,7 @@ textUtils.ttf = module.exports = {
                 else {
                     cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
                         _fontFamily = fontFamily || 'Arial';
+                        comp.font._nativeAsset = fontFamily;
                         comp._forceUpdateRenderData();
                     });
                 }

@@ -23,16 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
+const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     useModel: false,
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        
+
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
@@ -67,7 +68,7 @@ module.exports = {
             fillRange = fillRange < 0.0 ? 0.0 : fillRange;
             fillRange = fillRange - fillStart;
             fillRange = fillRange < 0 ? 0 : fillRange;
-            
+
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
@@ -116,22 +117,22 @@ module.exports = {
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
                 verts[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                verts[0].v = quadUV1;
+                verts[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
                 verts[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                verts[1].v = quadUV3;
+                verts[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
                 verts[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                verts[2].v = quadUV5;
+                verts[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
                 verts[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                verts[3].v = quadUV7;
+                verts[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
                 break;
             case FillType.VERTICAL:
-                verts[0].u = quadUV0;
+                verts[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
                 verts[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                verts[1].u = quadUV2;
+                verts[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
                 verts[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                verts[2].u = quadUV4;
+                verts[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
                 verts[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                verts[3].u = quadUV6;
+                verts[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
                 verts[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
@@ -148,7 +149,7 @@ module.exports = {
             appx = node.anchorX * width, appy = node.anchorY * height;
 
         let l = -appx, b = -appy,
-            r = width-appx, t = height-appy;
+            r = width - appx, t = height - appy;
 
         let progressStart, progressEnd;
         switch (sprite._fillType) {
@@ -188,6 +189,11 @@ module.exports = {
         renderData.dataLength = 8;
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
+
+        let verts = renderData.vertices;
+        for (let i = 0; i < verts.length; i++) {
+            verts[i].z = 0;
+        }
         return renderData;
     },
 
@@ -198,9 +204,9 @@ module.exports = {
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        
+
         for (let i = 0; i < 4; i++) {
-            let local = verts[i+4];
+            let local = verts[i + 4];
             let world = verts[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
@@ -212,27 +218,21 @@ module.exports = {
             this.updateWorldVerts(sprite);
         }
 
-        let verts = sprite._renderData.vertices,
-            node = sprite.node,
-            color = node._color._val;
-    
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+        // buffer
+        let buffer = renderer._meshBuffer,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
-        buffer.request(4, 6);
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        // vertex
-        for (let i = 0; i < 4; i++) {
-            let vert = verts[i];
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        let ibuf = buffer._iData;
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
+        ibuf[indiceOffset++] = vertexId + 2;
     }
 };

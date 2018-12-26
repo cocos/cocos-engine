@@ -23,8 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../platform/js');
-const ttfUtls = require('../../../utils/label/ttf');
+const js = require('../../../../../platform/js');
+const ttfUtls = require('../../../../utils/label/ttf');
+const fillVertices = require('../../utils').fillVertices;
 
 const WHITE = cc.color(255, 255, 255, 255);
 
@@ -49,31 +50,7 @@ module.exports = js.addon({
     },
 
     fillBuffers (comp, renderer) {
-        let verts = comp._renderData.vertices,
-            node = comp.node,
-            color = WHITE._val,
-            matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-    
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-
-        buffer.request(4, 6);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        // vertex
-        for (let i = 0; i < 4; i++) {
-            let vert = verts[i];
-            vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        fillVertices(comp.node, renderer._quadBuffer, comp._renderData, WHITE._val);
     },
 
     _updateVerts (comp) {

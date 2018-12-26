@@ -620,6 +620,8 @@ let Camera = cc.Class({
      * @return {Ray}
      */
     getRay (screenPos) {
+        if (!ray) return screenPos;
+        
         vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
         this._camera.screenToWorld(_v3_temp_2, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
 

@@ -159,7 +159,7 @@ function checkUrl (val, className, propName, url) {
 
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if (CC_EDITOR) {
+        if (CC_EDITOR && 'default' in val) {
             var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
                 cc.warnID(5507, className, propName);

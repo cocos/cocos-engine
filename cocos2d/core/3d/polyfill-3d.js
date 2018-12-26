@@ -35,7 +35,7 @@ const ONE_DEGREE = Math.PI / 180;
 
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
-const ROTATION_ON = 1 << 2;
+const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
 let _quat = cc.quat();
 
@@ -158,7 +158,11 @@ function _update3DFunction () {
         this._calculWorldMatrix = _calculWorldMatrix2d;
         this._mulMat = _mulMat2d;
     }
+    if (this._renderComponent && this._renderComponent._on3DNodeChanged) {
+        this._renderComponent._on3DNodeChanged();
+    }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    this._localMatDirty = DirtyFlag.ALL;
 }
 
 function _upgrade_1x_to_2x () {
@@ -175,7 +179,6 @@ const _updateLocalMatrix2d = proto._updateLocalMatrix;
 const _calculWorldMatrix2d = proto._calculWorldMatrix;
 const _upgrade_1x_to_2x_2d = proto._upgrade_1x_to_2x;
 const _mulMat2d = proto._mulMat;
-const _onBatchCreated2d = proto._onBatchCreated;
 
 proto.setPosition = setPosition;
 proto.setScale = setScale;
@@ -233,14 +236,14 @@ cc.js.getset(proto, 'eulerAngles', function () {
     }
     else {
         _quat.fromRotation(this._trs);
-        return _quat.getEulerAngles(cc.v3());
+        return _quat.toEuler(cc.v3());
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    math.quat.fromEuler(_quat, v.x, v.y, v.z);
+    _quat.fromEuler(v);
     _quat.toRotation(this._trs);
     this.setLocalDirty(DirtyFlag.ROTATION);
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;

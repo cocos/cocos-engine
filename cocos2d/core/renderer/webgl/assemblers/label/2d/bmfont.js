@@ -23,8 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../platform/js');
-const bmfontUtls = require('../../../utils/label/bmfont');
+const js = require('../../../../../platform/js');
+const bmfontUtls = require('../../../../utils/label/bmfont');
+const fillVertices = require('../../utils').fillVertices;
 
 module.exports = js.addon({
     createData (comp) {
@@ -32,39 +33,14 @@ module.exports = js.addon({
     },
 
     fillBuffers (comp, renderer) {
-        let node = comp.node,
-            renderData = comp._renderData,
-            verts = renderData.vertices,
-            color = node._color._val;
-        
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
-            tx = matrix.m12, ty = matrix.m13;
-    
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let vertexCount = renderData.vertexCount;
-        buffer.request(vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData;
-
-        for (let i = 0; i < vertexCount; i++) {
-            let vert = verts[i];
-            vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-            vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = color;
-        }
+        let node = comp.node;
+        fillVertices(node, renderer._quadBuffer, comp._renderData, node._color._val);
     },
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
         let renderData = comp._renderData;
         let dataOffset = renderData.dataLength;
-        
+
         renderData.dataLength += 4;
         renderData.vertexCount = renderData.dataLength;
         renderData.indiceCount = renderData.dataLength / 2 * 3;
@@ -85,12 +61,12 @@ module.exports = js.addon({
 
             verts[dataOffset].u = l;
             verts[dataOffset].v = b;
-            verts[dataOffset+1].u = r;
-            verts[dataOffset+1].v = b;
-            verts[dataOffset+2].u = l;
-            verts[dataOffset+2].v = t;
-            verts[dataOffset+3].u = r;
-            verts[dataOffset+3].v = t;
+            verts[dataOffset + 1].u = r;
+            verts[dataOffset + 1].v = b;
+            verts[dataOffset + 2].u = l;
+            verts[dataOffset + 2].v = t;
+            verts[dataOffset + 3].u = r;
+            verts[dataOffset + 3].v = t;
         } else {
             l = (rect.x) / texw;
             r = (rect.x + rectHeight) / texw;
@@ -99,21 +75,21 @@ module.exports = js.addon({
 
             verts[dataOffset].u = l;
             verts[dataOffset].v = t;
-            verts[dataOffset+1].u = l;
-            verts[dataOffset+1].v = b;
-            verts[dataOffset+2].u = r;
-            verts[dataOffset+2].v = t;
-            verts[dataOffset+3].u = r;
-            verts[dataOffset+3].v = b;
+            verts[dataOffset + 1].u = l;
+            verts[dataOffset + 1].v = b;
+            verts[dataOffset + 2].u = r;
+            verts[dataOffset + 2].v = t;
+            verts[dataOffset + 3].u = r;
+            verts[dataOffset + 3].v = b;
         }
 
         verts[dataOffset].x = x;
         verts[dataOffset].y = y - rectHeight * scale;
-        verts[dataOffset+1].x = x + rectWidth * scale;
-        verts[dataOffset+1].y = y - rectHeight * scale;
-        verts[dataOffset+2].x = x;
-        verts[dataOffset+2].y = y;
-        verts[dataOffset+3].x = x + rectWidth * scale;
-        verts[dataOffset+3].y = y;
+        verts[dataOffset + 1].x = x + rectWidth * scale;
+        verts[dataOffset + 1].y = y - rectHeight * scale;
+        verts[dataOffset + 2].x = x;
+        verts[dataOffset + 2].y = y;
+        verts[dataOffset + 3].x = x + rectWidth * scale;
+        verts[dataOffset + 3].y = y;
     },
 }, bmfontUtls);

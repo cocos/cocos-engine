@@ -401,12 +401,12 @@ var PageView = cc.Class({
                 var lastPage = this._pages[this._pages.length - 1];
                 if (this.sizeMode === SizeMode.Free) {
                     if (this.direction === Direction.Horizontal) {
-                        layout.paddingLeft = (this.node.width - this._pages[0].width) / 2;
-                        layout.paddingRight = (this.node.width - lastPage.width) / 2;
+                        layout.paddingLeft = (this._view.width - this._pages[0].width) / 2;
+                        layout.paddingRight = (this._view.width - lastPage.width) / 2;
                     }
                     else if (this.direction === Direction.Vertical) {
-                        layout.paddingTop = (this.node.height - this._pages[0].height) / 2;
-                        layout.paddingBottom = (this.node.height - lastPage.height) / 2;
+                        layout.paddingTop = (this._view.height - this._pages[0].height) / 2;
+                        layout.paddingBottom = (this._view.height - lastPage.height) / 2;
                     }
                 }
             }
@@ -451,7 +451,7 @@ var PageView = cc.Class({
             return;
         }
         var locPages = CC_EDITOR ? this.content.children : this._pages;
-        var selfSize = this.node.getContentSize();
+        var selfSize = this._view.getContentSize();
         for (var i = 0, len = locPages.length; i < len; i++) {
             locPages[i].setContentSize(selfSize);
         }
@@ -495,10 +495,10 @@ var PageView = cc.Class({
         }
         else {
             if (this.direction === Direction.Horizontal) {
-                return Math.abs(offset.x) >= this.node.width * this.scrollThreshold;
+                return Math.abs(offset.x) >= this._view.width * this.scrollThreshold;
             }
             else if (this.direction === Direction.Vertical) {
-                return Math.abs(offset.y) >= this.node.height * this.scrollThreshold;
+                return Math.abs(offset.y) >= this._view.height * this.scrollThreshold;
             }
         }
     },
@@ -531,10 +531,10 @@ var PageView = cc.Class({
         }
         else {
             if (this.direction === Direction.Horizontal) {
-                offset.x = idx * this.node.width;
+                offset.x = idx * this._view.width;
             }
             else if (this.direction === Direction.Vertical) {
-                offset.y = idx * this.node.height;
+                offset.y = idx * this._view.height;
             }
         }
         return offset;

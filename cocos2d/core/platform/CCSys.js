@@ -724,7 +724,7 @@ function initSys () {
              * Indicate the running platform
              * @property {Number} platform
              */
-            if (typeof FbPlayableAd !== undefined) {
+            if (typeof FbPlayableAd !== "undefined") {
                 sys.platform = sys.FB_PLAYABLE_ADS;
             }
             else {
@@ -830,7 +830,7 @@ function initSys () {
         sys.browserVersion = "";
         /* Determine the browser version number */
         (function(){
-            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
             var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
             var tmp = ua.match(versionReg1);
             if(!tmp) tmp = ua.match(versionReg2);
@@ -898,53 +898,14 @@ function initSys () {
         var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
         var _supportCanvas = !!_tmpCanvas1.getContext("2d");
         var _supportWebGL = false;
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (CC_TEST) {
+            _supportWebGL = false;
+        }
+        else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
             _supportWebGL = true;
         }
         else if (win.WebGLRenderingContext) {
-            if (create3DContext(document.createElement("CANVAS"))) {
-                _supportWebGL = true;
-            }
-            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-                var browserVer = parseFloat(sys.browserVersion);
-                switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                    _supportWebGL = false;
-                    break;
-                }
-            }
+            _supportWebGL = true;
         }
 
         /**
@@ -1143,17 +1104,17 @@ function initSys () {
     };
 
     /**
-     * !#en 
-     * Return the safe area rect. only available on the iOS device. <br/>
-     * when the safeArea rect is unavailable, it will return a rect with design resolution size.
+     * !#en
+     * Return the safe area rect. <br/>
+     * only available on the iOS native platform, otherwise it will return a rect with design resolution size.
      * !#zh
-     * 返回手机屏幕安全区域，目前仅在 iOS 设备上有效。其它平台将默认返回设计分辨率尺寸。
+     * 返回手机屏幕安全区域，目前仅在 iOS 原生平台有效。其它平台将默认返回设计分辨率尺寸。
      * @method getSafeAreaRect
      * @return {Rect}
     */
     sys.getSafeAreaRect = function () {
-        let designSize = cc.view.getDesignResolutionSize();
-        return cc.rect(0, 0, designSize.width, designSize.height);
+        let visibleSize = cc.view.getVisibleSize();
+        return cc.rect(0, 0, visibleSize.width, visibleSize.height);
     };
 
     /**

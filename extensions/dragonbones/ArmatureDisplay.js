@@ -239,6 +239,7 @@ let ArmatureDisplay = cc.Class({
             type: DefaultAnimsEnum,
             visible: true,
             editorOnly: true,
+            animatable: false,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_name'
         },

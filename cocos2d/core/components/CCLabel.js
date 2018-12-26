@@ -344,16 +344,11 @@ let Label = cc.Class({
                 }
 
                 this._N$file = value;
-                this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
 
                 if ( typeof value === 'string' ) {
                     cc.warnID(4000);
-                }
-
-                if (value instanceof cc.BitmapFont) {
-                    this._bmFontOriginalSize = value.fontSize;
                 }
 
                 if (this._renderData) {
@@ -362,7 +357,7 @@ let Label = cc.Class({
                 }
                 this._fontAtlas = null;
                 this._updateAssembler();
-                this._activateMaterial(true);
+                this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
             },
             type: cc.Font,
@@ -413,9 +408,14 @@ let Label = cc.Class({
 
         _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
-            default: -1,
-            serializable: false,
-            readonly: true,
+            get () {
+                if (this._N$file instanceof cc.BitmapFont) {
+                    return this._N$file.fontSize;
+                }
+                else {
+                    return -1;
+                }
+            },
             visible: true,
             animatable: false
         },
@@ -494,6 +494,10 @@ let Label = cc.Class({
         this.markForRender(!!this.string);
     },
 
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
     _updateAssembler () {
         let assembler = Label._assembler.getAssembler(this);
 
@@ -505,6 +509,7 @@ let Label = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.material = this._material;
+            this.markForUpdateRenderData(true);
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
@@ -512,28 +517,32 @@ let Label = cc.Class({
         }
     },
 
-    _activateMaterial (force) {
-        let material = this._material;
-        if (material && !force) {
-            return;
-        }
-        
+    _applyFontTexture (force) {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
+            let self = this;
+            let onBMFontTextureLoaded = function () {
+                // TODO: old texture in material have been released by loader
+                self._texture = spriteFrame._texture;
+                self._activateMaterial(force);
+
+                if (force) {
+                    this._assembler && this._assembler.updateRenderData(this);
+                }
+            };
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                onBMFontTextureLoaded();
+            }
+            else {
                 this.disableRender();
 
                 if (spriteFrame) {
-                    spriteFrame.once('load', this._activateMaterial, this);
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                     spriteFrame.ensureLoadTexture();
                 }
-                return;
             }
-            
-            // TODO: old texture in material have been released by loader
-            this._texture = spriteFrame._texture;
         }
         else {
             if (!this._ttfTexture) {
@@ -546,6 +555,18 @@ let Label = cc.Class({
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
+            this._activateMaterial(force);
+
+            if (force) {
+                this._assembler && this._assembler.updateRenderData(this);
+            }
+        }
+    },
+
+    _activateMaterial (force) {
+        let material = this._material;
+        if (material && !force) {
+            return;
         }
 
         // Canvas
@@ -597,8 +618,7 @@ let Label = cc.Class({
         this.setVertsDirty();
         this.markForUpdateRenderData(true);
         this._updateAssembler();
-        this._activateMaterial(true);
-        this._assembler.updateRenderData(this);
+        this._applyFontTexture(true);
     },
 
     _enableBold (enabled) {

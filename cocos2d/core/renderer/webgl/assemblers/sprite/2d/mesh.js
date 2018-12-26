@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     useModel: false,
@@ -34,7 +35,7 @@ module.exports = {
 
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-        
+
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
@@ -53,7 +54,7 @@ module.exports = {
                 if (renderData.vertexCount !== vertices.x.length) {
                     renderData.vertexCount = vertices.x.length;
                     renderData.indiceCount = vertices.triangles.length;
-                    
+
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
 
@@ -107,8 +108,8 @@ module.exports = {
             offsetY = frame._offset.y,
             trimX = offsetX + (originalWidth - rectWidth) / 2,
             trimY = offsetY + (originalHeight - rectHeight) / 2;
-            
-        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth), 
+
+        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth),
             scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
 
         let renderData = sprite._renderData;
@@ -116,14 +117,14 @@ module.exports = {
         
         if (!sprite.trim) {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = verts[i+l];
+                let vertice = verts[i + l];
                 vertice.x = (x[i]) * scaleX - appx;
                 vertice.y = (originalHeight - y[i]) * scaleY - appy;
             }
         }
         else {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = verts[i+l];
+                let vertice = verts[i + l];
                 vertice.x = (x[i] - trimX) * scaleX - appx;
                 vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
@@ -135,11 +136,11 @@ module.exports = {
             renderData = sprite._renderData,
             verts = renderData.vertices;
         let matrix = node._worldMatrix;
+
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = verts[i+l];
+            let local = verts[i + l];
             let world = verts[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
@@ -147,41 +148,27 @@ module.exports = {
     },
 
     fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            renderData = sprite._renderData,
-            verts = renderData.vertices;
-        
         let vertices = sprite.spriteFrame.vertices;
         if (!vertices) {
             return;
         }
 
-        // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vertice = verts[i];
-            vbuf[vertexOffset++] = vertice.x;
-            vbuf[vertexOffset++] = vertice.y;
-            vbuf[vertexOffset++] = vertice.u;
-            vbuf[vertexOffset++] = vertice.v;
-            uintbuf[vertexOffset++] = color;
+        // update world verts
+        if (renderer.worldMatDirty) {
+            this.updateWorldVerts(sprite);
         }
 
-        let triangles = vertices.triangles;
+        // buffer
+        let buffer = renderer._meshBuffer3D,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
+        let node = sprite.node;
+        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
+
+        // buffer data may be realloc, need get reference after request.
+        let ibuf = buffer._iData;
+        let triangles = vertices.triangles;
         for (let i = 0, l = triangles.length; i < l; i++) {
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }

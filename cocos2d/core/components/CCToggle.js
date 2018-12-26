@@ -31,7 +31,7 @@
  * @class Toggle
  * @extends Button
  */
-var Toggle = cc.Class({
+let Toggle = cc.Class({
     name: 'cc.Toggle',
     extends: require('./CCButton'),
     editor: CC_EDITOR && {
@@ -47,12 +47,34 @@ var Toggle = cc.Class({
          * !#zh 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
          * @property {Boolean} isChecked
          */
+        _N$isChecked: true,
         isChecked: {
-            default: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
-            notify: function () {
+            get: function () {
+                return this._N$isChecked;
+            },
+            set: function (value) {
+                if (value === this._N$isChecked) {
+                    return;
+                }
+
+                var group = this.toggleGroup || this._toggleContainer;
+                if (group && group.enabled && this._N$isChecked) {
+                    if (!group.allowSwitchOff) {
+                        return;
+                    }
+
+                }
+
+                this._N$isChecked = value;
                 this._updateCheckMark();
-            }
+
+                if (group && group.enabled) {
+                    group.updateToggles(this);
+                }
+
+                this._emitToggleEvents();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
         },
 
         /**
@@ -120,6 +142,33 @@ var Toggle = cc.Class({
         }
     },
 
+    _hideCheckMark () {
+        this._N$isChecked = false;
+        this._updateCheckMark();
+    },
+
+    toggle: function (event) {
+        this.isChecked = !this.isChecked;
+    },
+
+    /**
+     * !#en Make the toggle button checked.
+     * !#zh 使 toggle 按钮处于选中状态
+     * @method check
+     */
+    check: function () {
+        this.isChecked = true;
+    },
+
+    /**
+     * !#en Make the toggle button unchecked.
+     * !#zh 使 toggle 按钮处于未选中状态
+     * @method uncheck
+     */
+    uncheck: function () {
+        this.isChecked = false;
+    },
+
     _updateCheckMark: function () {
         if (this.checkMark) {
             this.checkMark.node.active = !!this.isChecked;
@@ -147,85 +196,22 @@ var Toggle = cc.Class({
         this.node.off('click', this.toggle, this);
     },
 
-    toggle: function (event) {
-        var group = this.toggleGroup || this._toggleContainer;
-
-        if (group && group.enabled && this.isChecked) {
-            if (!group.allowSwitchOff) {
-                return;
-            }
-        }
-
-        this.isChecked = !this.isChecked;
-
-        this._updateCheckMark();
-
-        if (group && group.enabled) {
-            group.updateToggles(this);
-        }
-
-        this._emitToggleEvents();
-    },
-
     _emitToggleEvents: function () {
-        if (CC_EDITOR) { return; }
         this.node.emit('toggle', this);
         if (this.checkEvents) {
             cc.Component.EventHandler.emitEvents(this.checkEvents, this);
         }
-    },
-
-    /**
-     * !#en Make the toggle button checked.
-     * !#zh 使 toggle 按钮处于选中状态
-     * @method check
-     */
-    check: function () {
-        var group = this.toggleGroup || this._toggleContainer;
-
-        if (group && group.enabled && this.isChecked) {
-            if (!group.allowSwitchOff) {
-                return;
-            }
-        }
-
-        this.isChecked = true;
-
-        if (group && group.enabled) {
-            group.updateToggles(this);
-        }
-
-        this._emitToggleEvents();
-    },
-
-    /**
-     * !#en Make the toggle button unchecked.
-     * !#zh 使 toggle 按钮处于未选中状态
-     * @method uncheck
-     */
-    uncheck: function () {
-        var group = this.toggleGroup || this._toggleContainer;
-
-        if (group && group.enabled && this.isChecked) {
-            if (!group.allowSwitchOff) {
-                return;
-            }
-        }
-
-        this.isChecked = false;
-
-        this._emitToggleEvents();
     }
+
 });
 
 cc.Toggle = module.exports = Toggle;
 
-
-var js = require('../platform/js');
+const js = require('../platform/js');
 
 js.get(Toggle.prototype, '_toggleContainer',
     function () {
-        var parent = this.node.parent;
+        let parent = this.node.parent;
         if (cc.Node.isNode(parent)) {
             return parent.getComponent(cc.ToggleContainer);
         }

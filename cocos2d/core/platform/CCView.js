@@ -348,15 +348,6 @@ cc.js.mixin(View.prototype, {
             cc.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
             cc.game.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
-
-            // Fix for issue: https://github.com/cocos-creator/fireball/issues/8365
-            // Reference: https://www.douban.com/note/343402554/
-            // For Chrome, z-index not working after container transform rotate 90deg.
-            // Because 'transform' style adds canvas (the top-element of container) to a new stack context.
-            // That causes the DOM Input was hidden under canvas.
-            // This should be done after container rotated, instead of in style-mobile.css.
-            cc.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
-            cc.game.canvas.style.transform = 'translateZ(0px)';
         }
         if (this._orientationChanging) {
             setTimeout(function () {
@@ -1069,7 +1060,7 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (!CC_WECHATGAME) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';

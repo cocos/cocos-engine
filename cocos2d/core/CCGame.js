@@ -39,7 +39,6 @@ const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manage
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class Game
- * @static
  * @extends EventTarget
  */
 var game = {
@@ -704,11 +703,9 @@ var game = {
 
         let el = this.config.id,
             width, height,
-            localCanvas, localContainer,
-            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
-            isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
+            localCanvas, localContainer;
 
-        if (isWeChatGame || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -722,7 +719,7 @@ var game = {
             }
             this.canvas = localCanvas;
         }
-        else if (isQQPlay) {
+        else if (CC_QQPLAY) {
             this.container = cc.container = document.createElement("DIV");
             this.frame = document.documentElement;
             this.canvas = localCanvas = canvas;
@@ -778,7 +775,7 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (isWeChatGame || isQQPlay) {
+            if (CC_WECHATGAME || CC_QQPLAY) {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.initWebGL(localCanvas, opts);
@@ -832,10 +829,11 @@ var game = {
                 game.emit(game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        // In order to adapt the most of platforms the onshow API.
+        function onShown (arg0, arg1, arg2, arg3, arg4) {
             if (hidden) {
                 hidden = false;
-                game.emit(game.EVENT_SHOW);
+                game.emit(game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 

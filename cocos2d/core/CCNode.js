@@ -730,9 +730,8 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                this._eulerAngles.z = value;
-                math.quat.fromEuler(_quata, 0, 0, value);
-                _quata.toRotation(this._trs);
+                math.vec3.set(this._eulerAngles, 0, 0, value);
+                this._fromEuler();
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                 if (this._eventMask & ROTATION_ON) {
@@ -1306,6 +1305,25 @@ let NodeDefines = {
 
     // INTERNAL
 
+    _toEuler () {
+        if (this.is3DNode) {
+            _quata.fromRotation(this._trs).toEuler(this._eulerAngles);
+        }
+        else {
+            let z = Math.asin(this._trs[6]) / ONE_DEGREE * 2;
+            math.vec3.set(this._eulerAngles, 0, 0, z);
+        }
+    },
+    _fromEuler () {
+        if (this.is3DNode) {
+            _quata.fromRotation(this._trs).fromEuler(this._eulerAngles);
+        }
+        else {
+            math.quat.fromEuler(_quata, 0, 0, this._eulerAngles.z);
+            _quata.toRotation(this._trs);
+        }
+    },
+
     _upgrade_1x_to_2x () {
         if (!this._trs) {
             this._initTrs();
@@ -1330,6 +1348,23 @@ let NodeDefines = {
             this._quat = undefined;
         }
         _quata.fromRotation(trs).toEuler(this._eulerAngles);
+
+        // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
+        // Update quaternion from rotation, when upgrade from 1.x to 2.0
+        // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
+        // _quata.fromRotation(this._trs);
+        if ((this._rotationX || this._rotationY) &&
+            (_quata.x === 0 && _quata.y === 0 && _quata.z === 0 && _quata.w === 1)) {
+            if (this._rotationX === this._rotationY) {
+                math.quat.fromEuler(_quata, 0, 0, -this._rotationX);
+            }
+            else {
+                math.quat.fromEuler(_quata, this._rotationX, this._rotationY, 0);
+            }
+            this._rotationX = this._rotationY = undefined;
+        }
+
+        this._toEuler();
 
         // Upgrade _scale from v2
         // TODO: remove in future version, 3.0 ?
@@ -2080,10 +2115,10 @@ let NodeDefines = {
 
 // TRANSFORM RELATED
     /**
-     * !#en 
+     * !#en
      * Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
      * You can pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取节点在父节点坐标系中的位置（x, y, z）。
      * 你可以传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getPosition
@@ -2182,10 +2217,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
+     * !#en
      * Sets the scale of axis in local coordinates of the node.
      * You can operate 2 axis in 2D node, and 3 axis in 3D node.
-     * !#zh 
+     * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
      * @method setScale
@@ -2218,10 +2253,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
-     * Get rotation of node (in quaternion). 
+     * !#en
+     * Get rotation of node (in quaternion).
      * Need pass a cc.Quat as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取该节点的 quaternion 旋转角度，需要传一个 cc.Quat 作为参数来接收返回值。
      * @method getRotation
      * @param {Quat} out
@@ -2241,9 +2276,9 @@ let NodeDefines = {
      * !#en Set rotation of node (in quaternion).
      * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
-     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion	
-     * @param {Number} y y value of quternion	
-     * @param {Number} z z value of quternion	
+     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
+     * @param {Number} y y value of quternion
+     * @param {Number} z z value of quternion
      * @param {Number} w w value of quternion
      */
     setRotation (quat, y, z, w) {
@@ -2273,8 +2308,7 @@ let NodeDefines = {
                 }
 
                 if (CC_EDITOR) {
-                    _quata.fromRotation(trs);
-                    _quata.toEuler(this._eulerAngles);
+                    this._toEuler();
                 }
             }
         }
@@ -2528,8 +2562,7 @@ let NodeDefines = {
         else {
             math.quat.copy(_quata, quat);
         }
-        _quata.toEuler(this._eulerAngles);
-        _quata.toRotation(this._trs);
+        this._toEuler();
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
@@ -3221,9 +3254,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        let trs = this._trs;
-        _quata.fromRotation(trs);
-        _quata.toEuler(this._eulerAngles);
+        this._toEuler();
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {

@@ -193,10 +193,10 @@ Simulator.prototype.emitParticle = function (pos) {
 
 Simulator.prototype.updateUVs = function (force) {
     let particleCount = this.particles.length;
-    if (this.sys._buffer && this.sys._spriteFrame) {
+    if (this.sys._buffer && this.sys._renderSpriteFrame) {
         const FLOAT_PER_PARTICLE = 4 * this.sys._vertexFormat._bytes / 4;
         let vbuf = this.sys._buffer._vData;
-        let uv = this.sys._spriteFrame.uv;
+        let uv = this.sys._renderSpriteFrame.uv;
 
         let start = force ? 0 : this._uvFilled;
         for (let i = start; i < particleCount; i++) {

@@ -201,7 +201,8 @@ module.exports = {
             'vertical_direction': '垂直排列子节点的方向，包括：\n 1. TOP_TO_BOTTOM, 从上到下排列 \n 2. BOTTOM_TO_TOP, 从下到上排列',
             'horizontal_direction': '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
             'cell_size': '网格布局中，规定每一个网格的大小',
-            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
+            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向',
+            "affected_by_scale": "子节点的缩放是否影响布局"
         },
         'particle': {
             'export_title': "将自定义的粒子数据导出成 plist 文件",
@@ -244,6 +245,8 @@ module.exports = {
             "horizontal_align": "水平对齐方式",
             "font_size": "字体大小, 单位是 point",
             "font": "富文本定制字体",
+            "font_family": "富文本定制系统字体",
+            'system_font': "是否使用系统默认字体",
             "line_height": "字体行高, 单位是 point",
             "max_width": "富文本的最大宽度, 传 0 的话意味着必须手动换行.",
             "image_atlas": "对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。",

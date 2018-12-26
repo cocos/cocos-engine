@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AnimationClip = require('../../animation/animation-clip');
 const BufferAsset = require('../assets/CCBufferAsset');
 
 const renderEngine = require('../renderer/render-engine');
@@ -237,6 +236,8 @@ let Model = cc.Class({
         meshAsset._ibs.length = length;
         meshAsset._vbs.length = length;
         meshAsset._subMeshes.length = length;
+        vec3.set(meshAsset._minPos, Infinity, Infinity, Infinity);
+        vec3.set(meshAsset._maxPos, -Infinity, -Infinity, -Infinity);
         for (let i = 0; i < length; ++i) {
             let primitive = gltfMesh.primitives[i];
 
@@ -267,12 +268,8 @@ let Model = cc.Class({
         this._initNodes();
 
         let gltf = this._gltf;
-        let bin = this._bin;
-
-        let accessors = gltf.accessors;
         let gltfAnimation = gltf.animations[clip._animationID];
 
-        clip.name = gltfAnimation.name;
         clip.wrapMode = cc.WrapMode.Loop;
         let duration = 0;
 
@@ -280,7 +277,6 @@ let Model = cc.Class({
         let paths = curveData.paths = {};
 
         let nodes = gltf.nodes;
-        let rootNode = nodes[0];
 
         let samplers = gltfAnimation.samplers;
         let channels = gltfAnimation.channels;
@@ -290,8 +286,6 @@ let Model = cc.Class({
 
             let inputArray = this._createArray(gltf, sampler.input);
             let outputArray = this._createArray(gltf, sampler.output);
-
-            let interpolation = sampler.interpolation;
 
             let target = gltfChannel.target;
             let node = nodes[target.node];
