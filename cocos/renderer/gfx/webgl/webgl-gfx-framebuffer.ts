@@ -33,5 +33,9 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
         return <WebGLGFXDevice>this._device;
     }
 
+    public get gpuFramebuffer() : WebGLGPUFramebuffer | null {
+        return this._gpuFramebuffer;
+    }
+
     private _gpuFramebuffer : WebGLGPUFramebuffer | null = null;
 };

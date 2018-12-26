@@ -2,6 +2,8 @@ import { GFXDevice } from './gfx-device';
 import { GFX_MAX_VERTEX_ATTRIBUTES, GFXFormat } from './gfx-define';
 import { GFXShader } from './gfx-shader';
 import { GFXRenderPass } from './gfx-render-pass';
+import { GFXPipelineLayout } from './gfx-pipeline-layout';
+import { GFXInputAttribute } from './gfx-input-assembler';
 
 export const enum GFXPrimitiveMode {
     POINT_LIST,
@@ -132,7 +134,7 @@ export class GFXDepthStencilState {
     frontStencilWriteMask : number = 0xffffffff;
     frontStencilFailOp : GFXStencilOp = GFXStencilOp.KEEP;
     frontStencilDepthFailOp : GFXStencilOp = GFXStencilOp.KEEP;
-    frontStencilPassFailOp : GFXStencilOp = GFXStencilOp.KEEP;
+    frontStencilPassOp : GFXStencilOp = GFXStencilOp.KEEP;
     frontStencilRef : number = 1;
     isBackStencilTest : boolean = false;
     backStencilFunc : GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
@@ -140,7 +142,7 @@ export class GFXDepthStencilState {
     backStencilWriteMask : number = 0xffffffff;
     backStencilFailOp : GFXStencilOp = GFXStencilOp.KEEP;
     backStencilDepthFailOp : GFXStencilOp = GFXStencilOp.KEEP;
-    backStencilPassFailOp : GFXStencilOp = GFXStencilOp.KEEP;
+    backStencilPassOp : GFXStencilOp = GFXStencilOp.KEEP;
     backStencilRef : number = 1;
 
     public compare(state : GFXDepthStencilState) : boolean {
@@ -153,7 +155,7 @@ export class GFXDepthStencilState {
         (this.frontStencilWriteMask === state.frontStencilWriteMask) && 
         (this.frontStencilFailOp === state.frontStencilFailOp) && 
         (this.frontStencilDepthFailOp === state.frontStencilDepthFailOp) && 
-        (this.frontStencilPassFailOp === state.frontStencilPassFailOp) &&
+        (this.frontStencilPassOp === state.frontStencilPassOp) &&
         (this.frontStencilRef === state.frontStencilRef) &&
         (this.isBackStencilTest === state.isBackStencilTest) &&
         (this.backStencilFunc === state.backStencilFunc) &&
@@ -161,7 +163,7 @@ export class GFXDepthStencilState {
         (this.backStencilWriteMask === state.backStencilWriteMask) &&
         (this.backStencilFailOp === state.backStencilFailOp) &&
         (this.backStencilDepthFailOp === state.backStencilDepthFailOp) &&
-        (this.backStencilPassFailOp === state.backStencilPassFailOp) &&
+        (this.backStencilPassOp === state.backStencilPassOp) &&
         (this.backStencilRef === state.backStencilRef);
     }
 };
@@ -196,12 +198,18 @@ export class GFXBlendState {
     targets : GFXBlendTarget[] = [new GFXBlendTarget];
 }
 
+export class GFXInputState {
+    attributes: GFXInputAttribute[] = [];
+};
+
 export class GFXPipelineStateInfo {
-    primitiveMode : GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
+    primitive : GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     shader : GFXShader | null = null;
+    is : GFXInputState | null = null;
     rs : GFXRasterizerState | null = null;
     dss : GFXDepthStencilState | null = null;
-    bs : GFXBlendState = new GFXBlendState;
+    bs : GFXBlendState | null = null;
+    layout : GFXPipelineLayout | null = null;
     renderPass : GFXRenderPass | null = null;
 };
 
@@ -216,8 +224,11 @@ export abstract class GFXPipelineState {
 
     protected _device : GFXDevice;
     protected _shader : GFXShader | null = null;
+    protected _primitive : GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
+    protected _is : GFXInputState | null = null;
     protected _rs : GFXRasterizerState | null = null;
     protected _dss : GFXDepthStencilState | null = null;
     protected _bs : GFXBlendState | null = null;
+    protected _layout: GFXPipelineLayout | null = null;
     protected _renderPass: GFXRenderPass | null = null;
 };

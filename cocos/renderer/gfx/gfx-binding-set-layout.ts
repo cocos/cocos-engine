@@ -7,7 +7,6 @@ export const enum GFXBindingType {
     UNKNOWN,
     UNIFORM_BUFFER,
     SAMPLER,
-    TEXTURE_VIEW,
     STORAGE_BUFFER,
 };
 
@@ -38,6 +37,42 @@ export abstract class GFXBindingSetLayout {
 
     public abstract initialize(info : GFXBindingSetLayoutInfo) : boolean;
     public abstract destroy() : void;
+
+    public bindBuffer(binding: number, buffer: GFXBuffer) {
+        for (let i = 0; i < this._bindingUnits.length; ++i) {
+            let bindingUnit = this._bindingUnits[i];
+            if (bindingUnit.type === GFXBindingType.UNIFORM_BUFFER) {
+                bindingUnit.buffer = buffer;
+                return;
+            } else {
+                console.error("Setting binding is not GFXBindingType.UNIFORM_BUFFER.");
+            }
+        }
+    }
+
+    public bindSampler(binding: number, sampler: GFXSampler) {
+        for (let i = 0; i < this._bindingUnits.length; ++i) {
+            let bindingUnit = this._bindingUnits[i];
+            if (bindingUnit.type === GFXBindingType.SAMPLER) {
+                bindingUnit.sampler = sampler;
+                return;
+            } else {
+                console.error("Setting binding is not GFXBindingType.SAMPLER.");
+            }
+        }
+    }
+
+    public bindTextureView(binding: number, texView: GFXTextureView) {
+        for (let i = 0; i < this._bindingUnits.length; ++i) {
+            let bindingUnit = this._bindingUnits[i];
+            if (bindingUnit.type === GFXBindingType.SAMPLER) {
+                bindingUnit.texView = texView;
+                return;
+            } else {
+                console.error("Setting binding is not GFXBindingType.SAMPLER.");
+            }
+        }
+    }
 
     protected _device : GFXDevice;
     protected _bindingUnits : GFXBindingUnit[] = [];

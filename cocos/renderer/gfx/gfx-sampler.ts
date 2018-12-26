@@ -1,14 +1,14 @@
 import { GFXDevice } from './gfx-device';
 import { GFXComparisonFunc } from './gfx-pipeline-state';
 
-export const enum GFXFilterOp {
+export const enum GFXFilter {
     NONE,
     POINT,
     LINEAR,
     ANISOTROPIC,
 };
 
-export const enum GFXAddressMode {
+export const enum GFXAddress {
     WRAP,
     MIRROR,
     CLAMP,
@@ -17,12 +17,12 @@ export const enum GFXAddressMode {
 
 export class GFXSamplerInfo {
     name : string = "";
-    minFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    magFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    mipFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    addressU : GFXAddressMode = GFXAddressMode.WRAP;
-    addressV : GFXAddressMode = GFXAddressMode.WRAP;
-    addressW : GFXAddressMode = GFXAddressMode.WRAP;
+    minFilter : GFXFilter = GFXFilter.LINEAR;
+    magFilter : GFXFilter = GFXFilter.LINEAR;
+    mipFilter : GFXFilter = GFXFilter.LINEAR;
+    addressU : GFXAddress = GFXAddress.WRAP;
+    addressV : GFXAddress = GFXAddress.WRAP;
+    addressW : GFXAddress = GFXAddress.WRAP;
     maxAnisotropy : number = 16;
     cmpFunc : GFXComparisonFunc = GFXComparisonFunc.NEVER;
     borderColor : number[] = [0.0, 0.0, 0.0, 0.0];
@@ -57,12 +57,12 @@ export abstract class GFXSampler {
 
     protected _device : GFXDevice;
     protected _name : string = "";
-    protected _minFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    protected _magFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    protected _mipFilter : GFXFilterOp = GFXFilterOp.LINEAR;
-    protected _addressU : GFXAddressMode = GFXAddressMode.WRAP;
-    protected _addressV : GFXAddressMode = GFXAddressMode.WRAP;
-    protected _addressW : GFXAddressMode = GFXAddressMode.WRAP;
+    protected _minFilter : GFXFilter = GFXFilter.LINEAR;
+    protected _magFilter : GFXFilter = GFXFilter.LINEAR;
+    protected _mipFilter : GFXFilter = GFXFilter.LINEAR;
+    protected _addressU : GFXAddress = GFXAddress.WRAP;
+    protected _addressV : GFXAddress = GFXAddress.WRAP;
+    protected _addressW : GFXAddress = GFXAddress.WRAP;
     protected _maxAnisotropy : number = 16;
     protected _cmpFunc : GFXComparisonFunc = GFXComparisonFunc.NEVER;
     protected _borderColor : number[] = [0.0, 0.0, 0.0, 0.0];

@@ -7,7 +7,7 @@ export abstract class GFXCommandAllocator {
     }
 
     public abstract initialize() : boolean;
-    public abstract destroy() : void;
+    public abstract destroy();
 
     protected _device : GFXDevice;
 }

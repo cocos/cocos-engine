@@ -1,5 +1,4 @@
 import { GFXDevice } from './gfx-device';
-import { GFXRenderPass } from './gfx-render-pass';
 import { GFXBindingSetLayout } from './gfx-binding-set-layout';
 import { GFXShaderType } from './gfx-shader';
 
@@ -24,5 +23,6 @@ export abstract class GFXPipelineLayout {
     public abstract destroy() : void;
 
     protected _device : GFXDevice;
-    protected _renderPass: GFXRenderPass | null = null;
+    protected _pushConstantsRanges : GFXPushConstantRange[] = [];
+    protected _layouts: GFXBindingSetLayout[] = [];
 };

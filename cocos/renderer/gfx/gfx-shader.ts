@@ -22,28 +22,17 @@ export class GFXShaderMacro {
     }
 };
 
-export class GFXShaderVar {
-    binding : number = -1;
+export class GFXUniform {
     name : string = "";
     type : GFXType = GFXType.UNKNOWN;
-    stride : number = 0;
-    count : number = 0;
-    size : number = 0;
-    offset : number = 0;
+    count : number = 1;
 };
 
-export class GFXShaderBlock {
+export class GFXUniformBlock {
     binding : number = -1;
     name : string = "";
-    size : number = 0;
-    uniforms : GFXShaderVar[] = [];
-};
-
-export class GFXShaderSampler {
-    binding : number = -1;
-    name : string = "";
-    type : GFXType = GFXType.UNKNOWN;
-    units : number[] = [];
+    //instance : string = "";
+    uniforms : GFXUniform[] = [];
 };
 
 export class GFXShaderStage {
@@ -60,6 +49,9 @@ export class GFXShaderInfo {
     name : string = "";
     stages : GFXShaderStage[] = [];
     bindings : GFXBinding[] = [];
+
+    // blocks are used for being compatible with single uniforms
+    blocks : GFXUniformBlock[] = [];
 };
 
 export abstract class GFXShader {
@@ -75,9 +67,5 @@ export abstract class GFXShader {
     protected _name : string = "";
     protected _stages : GFXShaderStage[] = [];
     protected _bindings : GFXBinding[] = [];    
-
-    protected _inputs : GFXShaderVar[] = [];
-    protected _uniforms : GFXShaderVar[] = [];
-    protected _blocks : GFXShaderBlock[] = [];
-    protected _samplers : GFXShaderSampler[] = [];
+    protected _blocks : GFXUniformBlock[] = [];
 };

@@ -1,6 +1,9 @@
 import { GFXDevice } from '../gfx-device';
 import { GFXQueueInfo, GFXQueue } from '../gfx-queue';
 import { GFXCommandBuffer } from '../gfx-command-buffer';
+import { WebGLGFXCommandBuffer } from './webgl-gfx-command-buffer';
+import { WebGLCmdFuncExecuteCmds } from './webgl-commands';
+import { WebGLGFXDevice } from './webgl-gfx-device';
 
 export class WebGLGFXQueue extends GFXQueue {
 
@@ -19,10 +22,14 @@ export class WebGLGFXQueue extends GFXQueue {
 
     }
 
-    public submit(cmdBuffs: GFXCommandBuffer[], fence) {
+    public submit(cmdBuffs: GFXCommandBuffer[], fence : null = null) {
         
-        for(let cb in cmdBuffs) {
-            
+        // TODO: Async
+        if(!this._isAsync) {
+            for(let i = 0; i < cmdBuffs.length; ++i) {
+                let cmdBuff = <WebGLGFXCommandBuffer>cmdBuffs[i];
+                WebGLCmdFuncExecuteCmds(<WebGLGFXDevice>this._device, cmdBuff.cmdPackage);
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 import { GFXDevice } from '../gfx-device';
 import { GFXSampler, GFXSamplerInfo } from '../gfx-sampler';
+import { WebGLGFXDevice } from './webgl-gfx-device';
+import { WebGLGPUSampler } from './webgl-gpu-objects';
 
 export class WebGLGFXSampler extends GFXSampler {
 
@@ -22,9 +24,21 @@ export class WebGLGFXSampler extends GFXSampler {
         this._maxLOD = info.maxLOD;
         this._mipLODBias = info.mipLODBias;
 
+        this._gpuSampler = this.webGLDevice.emitCmdCreateGPUSampler(info);
+
         return true;
     }
 
     public destroy() {
+        if(this._gpuSampler) {
+            this.webGLDevice.emitCmdDestroyGPUSampler(this._gpuSampler);
+            this._gpuSampler = null;
+        }
     }
+
+    public get webGLDevice() : WebGLGFXDevice {
+        return <WebGLGFXDevice>this._device;
+    }
+
+    private _gpuSampler : WebGLGPUSampler | null = null;
 };

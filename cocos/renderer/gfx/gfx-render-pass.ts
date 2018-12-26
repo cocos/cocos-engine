@@ -30,7 +30,7 @@ export const enum GFXTextureLayout
     PRESENT_SRC,
 };
 
-export class ColorAttachmentInfo
+export class GFXColorAttachment
 {
 	format : GFXFormat = GFXFormat.UNKNOWN;
 	loadOp : GFXLoadOp = GFXLoadOp.CLEAR;
@@ -40,11 +40,11 @@ export class ColorAttachmentInfo
 	endLayout : GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 };
 
-export class  DepthStencilAttachmentInfo
+export class  GFXDepthStencilAttachment
 {
 	format : GFXFormat = GFXFormat.UNKNOWN;
-	loadOp : GFXLoadOp = GFXLoadOp.CLEAR;
-	storeOp : GFXStoreOp = GFXStoreOp.STORE;
+	depthLoadOp : GFXLoadOp = GFXLoadOp.CLEAR;
+	depthStoreOp : GFXStoreOp = GFXStoreOp.STORE;
 	stencilLoadOp : GFXLoadOp = GFXLoadOp.CLEAR;
 	stencilStoreOp : GFXStoreOp = GFXStoreOp.STORE;
     sampleCount : number = 1;
@@ -71,8 +71,8 @@ export class GFXSubPassInfo
 
 export class GFXRenderPassInfo
 {
-	colorInfos : ColorAttachmentInfo[] = [];
-	depthStencilInfo : DepthStencilAttachmentInfo | null = null;
+	colorInfos : GFXColorAttachment[] = [];
+	depthStencilInfo : GFXDepthStencilAttachment | null = null;
 	subPasses : GFXSubPassInfo[] = [];
 };
 
@@ -86,7 +86,7 @@ export abstract class GFXRenderPass {
     public abstract destroy() : void;
 
     protected _device : GFXDevice;
-    protected _colorInfos : ColorAttachmentInfo[] = [];
-    protected _depthStencilInfo : DepthStencilAttachmentInfo | null = null;
+    protected _colorInfos : GFXColorAttachment[] = [];
+    protected _depthStencilInfo : GFXDepthStencilAttachment | null = null;
     protected _subPasses : GFXSubPassInfo[] = [];
 };

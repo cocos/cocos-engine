@@ -2,14 +2,12 @@ import { GFXDevice } from './gfx-device';
 
 export const enum GFXBufferUsageBit {
     NONE = 0,
-    MAP_READ = 0x1,
-    MAP_WRITE = 0x2,
-    TRANSFER_SRC = 0x4,
-    TRANSFER_DST = 0x8,
-    INDEX = 0x10,
-    VERTEX = 0x20,
-    UNIFORM = 0x40,
-    STORAGE = 0x80,
+    TRANSFER_SRC = 0x1,
+    TRANSFER_DST = 0x2,
+    INDEX = 0x4,
+    VERTEX = 0x8,
+    UNIFORM = 0x10,
+    STORAGE = 0x20,
 };
 
 export type GFXBufferUsage = GFXBufferUsageBit;
@@ -45,7 +43,7 @@ export abstract class GFXBuffer {
 
     public abstract initialize(info : GFXBufferInfo) : boolean;
     public abstract destroy() : void;
-    public abstract update(buffer : ArrayBuffer, offset : number);
+    public abstract update(buffer : Buffer, offset : number);
 
     public get usage(): GFXBufferUsage {
         return this._usage;
@@ -63,7 +61,7 @@ export abstract class GFXBuffer {
         return this._stride;
     }
 
-    public get buffer(): ArrayBuffer | null {
+    public get buffer(): Buffer | null {
         return this._buffer;
     }
 
@@ -72,5 +70,6 @@ export abstract class GFXBuffer {
     protected _memUsage : GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     protected _size : number = 0;
     protected _stride : number = 1;
-    protected _buffer : ArrayBuffer | null = null;
+    protected _arrayBuffer : ArrayBuffer | null = null;
+    protected _buffer: Buffer | null = null;
 };

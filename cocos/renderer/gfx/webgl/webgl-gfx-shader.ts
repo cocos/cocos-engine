@@ -14,6 +14,7 @@ export class WebGLGFXShader extends GFXShader {
         this._name = info.name;
         this._stages = info.stages;
         this._bindings = info.bindings;
+        this._blocks = info.blocks;
 
         this._gpuShader = this.webGLDevice.emitCmdCreateGPUShader(info);
 
