@@ -685,6 +685,28 @@ let EditBox = cc.Class({
 
     onDestroy () {
         this._impl.clear();
+
+        this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
+        
+        let textLabel = this.textLabel, placeholderLabel = this.placeholderLabel;
+        if (textLabel) {
+            textLabel.node.off('string-changed');
+            textLabel.node.off('font-changed');
+            textLabel.node.off('color-changed');
+            textLabel.node.off('fontSize-changed');
+            textLabel.node.off('lineHeight-changed');
+            textLabel.node.off('horizontalAlign-changed');
+        }
+        if (placeholderLabel) {
+            placeholderLabel.node.off('string-changed');
+            placeholderLabel.node.off('font-changed');
+            placeholderLabel.node.off('color-changed');
+            placeholderLabel.node.off('fontSize-changed');
+            placeholderLabel.node.off('lineHeight-changed');
+            placeholderLabel.node.off('horizontalAlign-changed');
+        }
     },
 
     onEnable () {
