@@ -1153,14 +1153,7 @@ let NodeDefines = {
         // Mouse event listener
         this._mouseListener = null;
 
-        // Transform / Rotation / Scale data slots, with local dirty flags at 0
-        let trs = this._trs = new Float32Array(11);
-        trs[0] = RenderFlow.FLAG_TRANSFORM;
-        trs[3] = 0;
-        trs[7] = 1;
-        trs[8] = 1;
-        trs[9] = 1;
-        trs[10] = 1;
+        this._initTrs();
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
@@ -1285,7 +1278,9 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
-        this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
+        if (this._trs) {
+            this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
+        }
         this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
@@ -1298,11 +1293,24 @@ let NodeDefines = {
         }
     },
 
+    _initTrs () {
+        // Transform / Rotation / Scale data slots, with local dirty flags at 0
+        let trs = this._trs = new Float32Array(11);
+        trs[0] = RenderFlow.FLAG_TRANSFORM;
+        trs[3] = 0;
+        trs[7] = 1;
+        trs[8] = 1;
+        trs[9] = 1;
+        trs[10] = 1;
+    },
+
     // INTERNAL
 
     _upgrade_1x_to_2x () {
+        if (!this._trs) {
+            this._initTrs();
+        }
         let trs = this._trs;
-
         // Upgrade _position from v2
         // TODO: remove in future version, 3.0 ?
         if (this._position !== undefined) {
