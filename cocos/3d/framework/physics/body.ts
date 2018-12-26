@@ -23,6 +23,8 @@ export class PhysicsBody {
 
     private _onWorldPostStepListener: ((event: CANNON.IEvent) => any) | null = null;
 
+    private _cancelGravityListener: ((event: CANNON.IEvent) => any);
+
     private _shapes: Set<PhysicsShape> = new Set();
 
     private _dataflow: DataFlow = DataFlow.PULLING;
@@ -40,6 +42,11 @@ export class PhysicsBody {
 
         this._onCollidedListener = this._onCollided.bind(this);
         this._cannonBody.addEventListener('collide', this._onCollidedListener);
+
+        this._cancelGravityListener = (event) => {
+            const gravity = this._cannonBody.world.gravity;
+            vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this.mass * -1);
+        };
     }
 
     public bind(node: Node) {
@@ -59,8 +66,16 @@ export class PhysicsBody {
     }
 
     public _onRemoved() {
-        if (this._cannonBody.world && this._onWorldPostStepListener) {
-            this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
+        if (this._cannonBody.world) {
+            if (this._onWorldPostStepListener) {
+                this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
+            }
+
+            if (this._onWorldBeforeStepListener) {
+                this._cannonBody.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
+            }
+
+            this._cannonBody.world.removeEventListener('beforeStep', this._cancelGravityListener);
         }
     }
 
@@ -160,6 +175,11 @@ export class PhysicsBody {
 
     set useGravity(value) {
         this._useGravity = value;
+        if (this._useGravity) {
+            this._cannonBody.world.removeEventListener('beforeStep', this._cancelGravityListener);
+        } else {
+            this._cannonBody.world.addEventListener('beforeStep', this._cancelGravityListener);
+        }
     }
 
     get freezeRotation() {
@@ -226,22 +246,6 @@ export class PhysicsBody {
             this._cannonBody.id, body._cannonBody.id) > 0;
     }
 
-    /**
-     * Push the rigidbody's transform information back to node.
-     */
-    public push() {
-        if (!this._node) {
-            return;
-        }
-
-        const p = this._cannonBody.position;
-        this._node.setWorldPosition(p.x, p.y, p.z);
-        if (!this._cannonBody.fixedRotation) {
-            const q = this._cannonBody.quaternion;
-            this._node.setWorldRotation(q.x, q.y, q.z, q.w);
-        }
-    }
-
     public commitShapesUpdate() {
         this._cannonBody.updateBoundingRadius();
     }
@@ -251,16 +255,14 @@ export class PhysicsBody {
     }
 
     private _onWorldBeforeStep(event: CANNON.IEvent) {
-        if (!this._useGravity) {
-            const gravity = this._cannonBody.world.gravity;
-            vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this.mass * -1);
-            this._cannonBody.force;
+        if (this._dataflow === DataFlow.PULLING) {
+            this._pull();
         }
     }
 
     private _onWorldPostStep(event: CANNON.IEvent) {
-        if (this._dataflow === DataFlow.PULLING) {
-            this._pull();
+        if (this._dataflow === DataFlow.PUSHING) {
+            this._push();
         }
     }
 
@@ -269,6 +271,10 @@ export class PhysicsBody {
      */
     private _pull() {
         if (!this._node) {
+            return;
+        }
+
+        if (!this._node._hasChanged) {
             return;
         }
 
@@ -286,6 +292,22 @@ export class PhysicsBody {
         });
         if (shapeUpdated) {
             this.commitShapesUpdate();
+        }
+    }
+
+    /**
+     * Push the rigidbody's transform information back to node.
+     */
+    private _push() {
+        if (!this._node) {
+            return;
+        }
+
+        const p = this._cannonBody.position;
+        this._node.setWorldPosition(p.x, p.y, p.z);
+        if (!this._cannonBody.fixedRotation) {
+            const q = this._cannonBody.quaternion;
+            this._node.setWorldRotation(q.x, q.y, q.z, q.w);
         }
     }
 

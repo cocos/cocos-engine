@@ -328,4 +328,16 @@ export default class CameraComponent extends RenderSystemActor{
     onDisable() {
         this.scene.removeCamera(this._camera);
     }
+
+    /**
+     * transform a screen position to world space
+     * @param out the resulting vector
+     * @param screenPos the screen position to be transformed
+     * @param width framebuffer width
+     * @param height framebuffer height
+     * @returns the resulting vector
+     */
+    screenToWorld(out, screenPos, width, height) {
+        return this._camera.screenToWorld(out, screenPos, width, height);
+    }
 }

@@ -39,6 +39,9 @@ export class PhysicsWorld {
     private _defaultMaterial: PhysicsMaterial;
     private _defaultContactMaterial: ContactMaterial;
     private _bodys: Set<PhysicsBody>;
+    private _beforeStepEvent: CANNON.IEvent = {
+        type: 'beforeStep',
+    };
 
     constructor() {
         this._defaultMaterial = new PhysicsMaterial();
@@ -71,12 +74,7 @@ export class PhysicsWorld {
     }
 
     public step(deltaTime: number) {
-        this._bodys.forEach((physicalBody) => {
-            if (physicalBody.dataFlow === DataFlow.PUSHING) {
-                physicalBody.push();
-            }
-        });
-
+        this._cannonWorld.dispatchEvent(this._beforeStepEvent);
         this._cannonWorld.step(deltaTime);
     }
 
