@@ -36,7 +36,7 @@ import {ccclass, property, executeInEditMode, menu, help, disallowMultiple} from
  * @extends Component
  */
 @ccclass('cc.Canvas')
-@menu('i18n:MAIN_MENU.component.ui/Canvas')
+@menu('UI/Canvas')
 @help('i18n:COMPONENT.help_url.canvas')
 @executeInEditMode
 @disallowMultiple
