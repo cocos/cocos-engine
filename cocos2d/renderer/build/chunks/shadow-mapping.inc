@@ -13,12 +13,22 @@
   #pragma endFor
 #endif
 
-float computeShadow(sampler2D shadowMap, vec4 pos_lightspace, float bias) {
-  vec3 projCoords = pos_lightspace.xyz / pos_lightspace.w;
-  projCoords = projCoords * 0.5 + 0.5;
-  float closestDepth = unpackRGBAToDepth(texture2D(shadowMap, projCoords.xy));
-  float currentDepth = projCoords.z;
-  float shadow = (currentDepth - bias > closestDepth) ? 0.0 : 1.0;
+// float computeShadow(sampler2D shadowMap, vec4 pos_lightspace, float bias) {
+//   vec3 projCoords = pos_lightspace.xyz / pos_lightspace.w;
+//   projCoords = projCoords * 0.5 + 0.5;
+//   float closestDepth = unpackRGBAToDepth(texture2D(shadowMap, projCoords.xy));
+//   float currentDepth = projCoords.z;
+//   float shadow = (currentDepth - bias > closestDepth) ? 0.0 : 1.0;
+//   return shadow;
+// }
+
+float computeShadow() {
+  float shadow = 1.0;
+  #if _NUM_SHADOW_LIGHTS > 0
+    #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
+      shadow *= computeShadowESM(_shadowMap_{id}, pos_lightspace_{id}, vDepth_{id}, _depthScale_{id}, _darkness_{id}, _frustumEdgeFalloff_{id});
+    #pragma endFor
+  #endif
   return shadow;
 }
 

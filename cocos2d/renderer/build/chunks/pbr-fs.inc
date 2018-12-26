@@ -352,16 +352,9 @@ vec4 frag() {
     ambient = (kD * diffuse + specular) * ao;
   #endif
 
+  vec3 color = ambient + Lo;
   #if _USE_SHADOW_MAP
-    float shadow = 1.0;
-    #if _NUM_SHADOW_LIGHTS > 0
-      #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
-        shadow *= computeShadowESM(_shadowMap_{id}, pos_lightspace_{id}, vDepth_{id}, _depthScale_{id}, _darkness_{id}, _frustumEdgeFalloff_{id});
-      #pragma endFor
-    #endif
-    vec3 color = (ambient + Lo) * shadow;
-  #else
-    vec3 color = ambient + Lo;
+    color *= computeShadow();
   #endif
 
   // HDR tone mapping.
