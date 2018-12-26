@@ -1278,10 +1278,9 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
-        if (!this._trs) {
-            this._initTrs();
+        if (this._trs) {
+            this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
         }
-        this._trs[0] |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
