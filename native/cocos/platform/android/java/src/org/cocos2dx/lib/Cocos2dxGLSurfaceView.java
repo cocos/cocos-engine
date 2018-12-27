@@ -129,7 +129,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             }
         });
         this.setRenderMode(RENDERMODE_WHEN_DIRTY);
-        //super.onPause();
+        super.onPause();
     }
 
     @Override
