@@ -6,8 +6,8 @@ export const enum GFXQueueType {
     TRANSFER,
 };
 
-export class GFXQueueInfo {
-    type : GFXQueueType = GFXQueueType.GRAPHICS;
+export interface GFXQueueInfo {
+    type : GFXQueueType;
 };
 
 export abstract class GFXQueue {

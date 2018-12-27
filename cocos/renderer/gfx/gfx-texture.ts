@@ -13,9 +13,10 @@ export const enum GFXTextureUsageBit {
     TRANSFER_DST = 0x2,
     SAMPLED = 0x4,
     STORAGE = 0x8,
-    INPUT_ATTACHMENT = 0x10,
-    OUTPUT_ATTACHMENT = 0x20,
-    PRESENT = 0x30,
+    COLOR_ATTACHMENT = 0x10,
+    DEPTH_STENCIL_ATTACHMENT = 0x20,
+    TRANSIENT_ATTACHMENT = 0x40,
+    INPUT_ATTACHMENT = 0x80,
 };
 
 export type GFXTextureUsage = GFXTextureUsageBit;
@@ -29,26 +30,26 @@ export const enum GFXTextureFlagBit {
 
 export type GFXTextureFlags = GFXTextureFlagBit;
 
-export class GFXTextureInfo {
-    type : GFXTextureType = GFXTextureType.TEX2D;
-    usage : GFXTextureUsage = GFXTextureUsageBit.NONE;
-    format : GFXFormat = GFXFormat.UNKNOWN;
-    width : number = 0;
-    height : number = 0;
-    depth : number = 1;
-    arrayLayer : number = 1;
-    mipLevel : number = 1;
-    flags : GFXTextureFlags = GFXTextureFlagBit.NONE;
+export interface GFXTextureInfo {
+    type: GFXTextureType;
+    usage: GFXTextureUsage;
+    format: GFXFormat;
+    width: number;
+    height: number;
+    depth?: number;
+    arrayLayer?: number;
+    mipLevel?: number;
+    flags?: GFXTextureFlags;
 };
 
 export abstract class GFXTexture {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXTextureInfo) : boolean;
-    public abstract destroy() : void;
+    public abstract initialize(info: GFXTextureInfo): boolean;
+    public abstract destroy(): void;
 
     public get type(): GFXTextureType {
         return this._type;
@@ -94,16 +95,16 @@ export abstract class GFXTexture {
         return this._buffer;
     }
 
-    protected _device : GFXDevice;
-    protected _type : GFXTextureType = GFXTextureType.TEX2D;
-    protected _usage : GFXTextureUsage = GFXTextureUsageBit.NONE;
-    protected _format : GFXFormat = GFXFormat.UNKNOWN;
-    protected _width : number = 0;
-    protected _height : number = 0;
-    protected _depth : number = 1;
-    protected _arrayLayer : number = 1;
-    protected _mipLevel : number = 1;
-    protected _flags : GFXTextureFlags = GFXTextureFlagBit.NONE;
-    protected _size : number = 0;
-    protected _buffer : ArrayBuffer | null = null;
+    protected _device: GFXDevice;
+    protected _type: GFXTextureType = GFXTextureType.TEX2D;
+    protected _usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
+    protected _format: GFXFormat = GFXFormat.UNKNOWN;
+    protected _width: number = 0;
+    protected _height: number = 0;
+    protected _depth: number = 1;
+    protected _arrayLayer: number = 1;
+    protected _mipLevel: number = 1;
+    protected _flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
+    protected _size: number = 0;
+    protected _buffer: ArrayBuffer | null = null;
 };

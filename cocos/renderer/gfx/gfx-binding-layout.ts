@@ -16,7 +16,7 @@ export class GFXBinding {
     name : string = "";
 };
 
-export class GFXBindingSetLayoutInfo {
+export class GFXBindingLayoutInfo {
     bindings : GFXBinding[] = [];
 };
 
@@ -29,13 +29,13 @@ export class GFXBindingUnit {
     sampler : GFXSampler | null = null;
 };
 
-export abstract class GFXBindingSetLayout {
+export abstract class GFXBindingLayout {
 
     constructor(device : GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXBindingSetLayoutInfo) : boolean;
+    public abstract initialize(info : GFXBindingLayoutInfo) : boolean;
     public abstract destroy() : void;
 
     public bindBuffer(binding: number, buffer: GFXBuffer) {

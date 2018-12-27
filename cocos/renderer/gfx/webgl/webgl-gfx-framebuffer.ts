@@ -11,9 +11,12 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
 
     public initialize(info : GFXFramebufferInfo) : boolean {
 
-        this._colorViews = info.colorViews;
-        this._depthStencilView = info.depthStencilView;
-        this._isOffscreen = info.isOffscreen;
+        if(info.colorViews) {
+            this._colorViews = info.colorViews;
+        }
+        
+        this._depthStencilView = info.depthStencilView? info.depthStencilView : null;
+        this._isOffscreen = info.isOffscreen? info.isOffscreen : true;
 
         this._gpuFramebuffer = this.webGLDevice.emitCmdCreateGPUFramebuffer(info);
 

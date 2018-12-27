@@ -3,19 +3,19 @@ import { GFXFormat } from './gfx-define';
 import { GFXBuffer } from './gfx-buffer';
 import { GFXShader } from './gfx-shader';
 
-export class GFXInputAttribute {
-    name: string = "";
-    format: GFXFormat = GFXFormat.UNKNOWN;
-    stream: number = 0;
-    isInstanced: boolean = false;
+export interface GFXInputAttribute {
+    name: string;
+    format: GFXFormat;
+    stream?: number;
+    isInstanced?: boolean;
 };
 
-export class GFXInputAssemblerInfo {
-    attributes: GFXInputAttribute[] = [];
-    shader: GFXShader | null = null;
-    vertexBuffers: GFXBuffer[] = [];
-    indexBuffer: GFXBuffer | null = null;
-    isIndirect: boolean = false;
+export interface GFXInputAssemblerInfo {
+    attributes: GFXInputAttribute[];
+    shader: GFXShader;
+    vertexBuffers: GFXBuffer[];
+    indexBuffer?: GFXBuffer;
+    isIndirect?: boolean;
 };
 
 export abstract class GFXInputAssembler {

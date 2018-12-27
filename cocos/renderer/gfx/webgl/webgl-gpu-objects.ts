@@ -3,8 +3,8 @@ import { GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, G
 import { GFXTextureViewType } from "../gfx-texture-view";
 import { GFXFormat, GFXType } from "../gfx-define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../gfx-render-pass";
-import { GFXShaderType, GFXShaderMacro, GFXUniformBlock } from "../gfx-shader";
-import { GFXBinding, GFXBindingType } from "../gfx-binding-set-layout";
+import { GFXShaderType, GFXShaderMacro, GFXUniformBlock, GFXUniformSampler } from "../gfx-shader";
+import { GFXBinding, GFXBindingType } from "../gfx-binding-layout";
 import { GFXFilter, GFXAddress } from "../gfx-sampler";
 import { GFXComparisonFunc, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../gfx-pipeline-state";
 import { GFXInputAttribute } from "../gfx-input-assembler";
@@ -19,7 +19,7 @@ export const enum WebGLGPUObjectType {
     SAMPLER,
     SHADER,
     PIPELINE_STATE,
-    BINDING_SET_LAYOUT,
+    BINDING_LAYOUT,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
 };
@@ -55,9 +55,9 @@ export class WebGLGPUTexture extends WebGLGPUObject {
     usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
     width: number = 0;
     height: number = 0;
-    depth: number = 0;
-    arrayLayer: number = 0;
-    mipLevel: number = 0;
+    depth: number = 1;
+    arrayLayer: number = 1;
+    mipLevel: number = 1;
     flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
 
     glTarget: GLenum = 0;
@@ -101,7 +101,7 @@ export class WebGLGPUFramebuffer extends WebGLGPUObject {
     gpuRenderPass: WebGLGPURenderPass;
     gpuColorViews: (WebGLGPUTextureView | null)[] = [];
     gpuDepthStencilView: WebGLGPUTextureView | null = null;
-    isOffscreen: boolean = false;
+    isOffscreen?: boolean = false;
 
     glFramebuffer: WebGLFramebuffer = 0;
 
@@ -113,18 +113,11 @@ export class WebGLGPUFramebuffer extends WebGLGPUObject {
 };
 
 export class WebGLGPUSampler extends WebGLGPUObject {
-    minFilter: GFXFilter = GFXFilter.LINEAR;
-    magFilter: GFXFilter = GFXFilter.LINEAR;
-    mipFilter: GFXFilter = GFXFilter.LINEAR;
-    addressU: GFXAddress = GFXAddress.WRAP;
-    addressV: GFXAddress = GFXAddress.WRAP;
-    addressW: GFXAddress = GFXAddress.WRAP;
-    maxAnisotropy: number = 16;
-    cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    borderColor: number[] = [0.0, 0.0, 0.0, 0.0];
-    minLOD: number = 0;
-    maxLOD: number = 1000;
-    mipLODBias: number = 0.0;
+    glMinFilter: GLenum = WebGLRenderingContext.NONE;
+    glMagFilter: GLenum = WebGLRenderingContext.NONE;
+    glWrapS: GLenum = WebGLRenderingContext.NONE;
+    glWrapT: GLenum = WebGLRenderingContext.NONE;
+    glWrapR: GLenum = WebGLRenderingContext.NONE;
 
     constructor() {
         super(WebGLGPUObjectType.SAMPLER);
@@ -187,8 +180,8 @@ export class WebGLGPUShaderStage {
 
 export class WebGLGPUShader extends WebGLGPUObject {
     name: string = "";
-    bindings: GFXBinding[] = [];
-    blocks: GFXUniformBlock[] = [];
+    blocks?: GFXUniformBlock[];
+    samplers?: GFXUniformSampler[];
 
     gpuStages: WebGLGPUShaderStage[] = [];
     glProgram: WebGLProgram = 0;
@@ -210,9 +203,9 @@ export class WebGLGPUPipelineState extends WebGLGPUObject {
 
     glPrimitive: GLenum = WebGLRenderingContext.TRIANGLES;
     gpuShader: WebGLGPUShader | null = null;
-    rs: GFXRasterizerState | null = null;
-    dss: GFXDepthStencilState | null = null;
-    bs: GFXBlendState | null = null;
+    rs: GFXRasterizerState = new GFXRasterizerState;
+    dss: GFXDepthStencilState = new GFXDepthStencilState;
+    bs: GFXBlendState = new GFXBlendState;
     gpuLayout: WebGLGPUPipelineLayout | null = null;
     gpuRenderPass: WebGLGPURenderPass | null = null;
 
@@ -230,12 +223,12 @@ export class WebGLGPUBinding {
     gpuSampler: WebGLGPUSampler | null = null;
 };
 
-export class WebGLGPUBindingSetLayout extends WebGLGPUObject {
+export class WebGLGPUBindingLayout extends WebGLGPUObject {
 
-    gpuBinding: WebGLGPUBinding[] = [];
+    gpuBindings: WebGLGPUBinding[] = [];
 
     constructor() {
-        super(WebGLGPUObjectType.BINDING_SET_LAYOUT);
+        super(WebGLGPUObjectType.BINDING_LAYOUT);
     }
 };
 

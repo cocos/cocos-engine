@@ -11,19 +11,7 @@ export class WebGLGFXSampler extends GFXSampler {
 
     public initialize(info : GFXSamplerInfo) : boolean {
 
-        this._minFilter = info.minFilter;
-        this._magFilter = info.magFilter;
-        this._mipFilter = info.mipFilter;
-        this._addressU = info.addressU;
-        this._addressV = info.addressV;
-        this._addressW = info.addressW;
-        this._maxAnisotropy = info.maxAnisotropy;
-        this._cmpFunc = info.cmpFunc;
-        this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
-        this._mipLODBias = info.mipLODBias;
-
+        this._state = info;
         this._gpuSampler = this.webGLDevice.emitCmdCreateGPUSampler(info);
 
         return true;
@@ -38,6 +26,10 @@ export class WebGLGFXSampler extends GFXSampler {
 
     public get webGLDevice() : WebGLGFXDevice {
         return <WebGLGFXDevice>this._device;
+    }
+
+    public get gpuSampler() : WebGLGPUSampler | null {
+        return this._gpuSampler;
     }
 
     private _gpuSampler : WebGLGPUSampler | null = null;

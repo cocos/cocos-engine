@@ -56,17 +56,5 @@ export abstract class GFXSampler {
     public abstract destroy() : void;
 
     protected _device : GFXDevice;
-    protected _name : string = "";
-    protected _minFilter : GFXFilter = GFXFilter.LINEAR;
-    protected _magFilter : GFXFilter = GFXFilter.LINEAR;
-    protected _mipFilter : GFXFilter = GFXFilter.LINEAR;
-    protected _addressU : GFXAddress = GFXAddress.WRAP;
-    protected _addressV : GFXAddress = GFXAddress.WRAP;
-    protected _addressW : GFXAddress = GFXAddress.WRAP;
-    protected _maxAnisotropy : number = 16;
-    protected _cmpFunc : GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    protected _borderColor : number[] = [0.0, 0.0, 0.0, 0.0];
-    protected _minLOD : number = 0;
-    protected _maxLOD : number = 1000;
-    protected _mipLODBias : number = 0.0;
+    protected _state : GFXSamplerInfo | null = null;
 };

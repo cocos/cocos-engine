@@ -28,22 +28,22 @@ export const enum GFXBufferAccessBit {
 
 export type GFXBufferAccess = GFXBufferAccessBit;
 
-export class GFXBufferInfo {
-    usage : GFXBufferUsage = GFXBufferUsageBit.NONE;
-    memUsage : GFXMemoryUsage = GFXMemoryUsageBit.NONE;
-    size : number = 0;
-    stride : number = 1;
+export interface GFXBufferInfo {
+    usage: GFXBufferUsage;
+    memUsage: GFXMemoryUsage;
+    size: number;
+    stride?: number;
 };
 
 export abstract class GFXBuffer {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXBufferInfo) : boolean;
-    public abstract destroy() : void;
-    public abstract update(buffer : Buffer, offset : number);
+    public abstract initialize(info: GFXBufferInfo): boolean;
+    public abstract destroy(): void;
+    public abstract update(buffer: Buffer, offset: number);
 
     public get usage(): GFXBufferUsage {
         return this._usage;
@@ -65,11 +65,11 @@ export abstract class GFXBuffer {
         return this._buffer;
     }
 
-    protected _device : GFXDevice;
-    protected _usage : GFXBufferUsage = GFXBufferUsageBit.NONE;
-    protected _memUsage : GFXMemoryUsage = GFXMemoryUsageBit.NONE;
-    protected _size : number = 0;
-    protected _stride : number = 1;
-    protected _arrayBuffer : ArrayBuffer | null = null;
+    protected _device: GFXDevice;
+    protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
+    protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
+    protected _size: number = 0;
+    protected _stride: number = 1;
+    protected _arrayBuffer: ArrayBuffer | null = null;
     protected _buffer: Buffer | null = null;
 };

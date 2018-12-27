@@ -7,11 +7,11 @@ import { WebGLGFXDevice } from './webgl-gfx-device';
 
 export class WebGLGFXQueue extends GFXQueue {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info : GFXQueueInfo) : boolean {
+    public initialize(info: GFXQueueInfo): boolean {
 
         this._type = info.type;
 
@@ -22,16 +22,16 @@ export class WebGLGFXQueue extends GFXQueue {
 
     }
 
-    public submit(cmdBuffs: GFXCommandBuffer[], fence : null = null) {
-        
+    public submit(cmdBuffs: GFXCommandBuffer[], fence: null = null) {
+
         // TODO: Async
-        if(!this._isAsync) {
-            for(let i = 0; i < cmdBuffs.length; ++i) {
+        if (!this._isAsync) {
+            for (let i = 0; i < cmdBuffs.length; ++i) {
                 let cmdBuff = <WebGLGFXCommandBuffer>cmdBuffs[i];
                 WebGLCmdFuncExecuteCmds(<WebGLGFXDevice>this._device, cmdBuff.cmdPackage);
             }
         }
     }
 
-    private _isAsync : boolean = false;
+    private _isAsync: boolean = false;
 };

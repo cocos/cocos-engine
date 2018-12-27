@@ -17,10 +17,10 @@ export class WebGLGFXTexture extends GFXTexture {
         this._format = info.format;
         this._width = info.width;
         this._height = info.height;
-        this._depth = info.depth;
-        this._arrayLayer = info.arrayLayer;
-        this._mipLevel = info.mipLevel;
-        this._flags = info.flags;
+        this._depth = info.depth? info.depth : 1;
+        this._arrayLayer = info.arrayLayer? info.arrayLayer : 1;
+        this._mipLevel = info.mipLevel? info.mipLevel : 1;
+        this._flags = info.flags? info.flags : GFXTextureFlagBit.NONE;
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height, this.depth, this.mipLevel) * this._arrayLayer;
 
         if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {

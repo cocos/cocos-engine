@@ -14,11 +14,23 @@ export class WebGLGFXTextureView extends GFXTextureView {
         this._texture = info.texture;
         this._type = info.type;
         this._format = info.format;
-        this._baseLevel = info.baseLevel;
         this._format = info.format;
-        this._levelCount = info.levelCount;
-        this._baseLayer = info.baseLayer;
-        this._layerCount = info.layerCount;
+
+        if(info.baseLevel) {
+            this._baseLevel = info.baseLevel;
+        }
+
+        if(info.levelCount) {
+            this._levelCount = info.levelCount;
+        }
+
+        if(info.baseLayer) {
+            this._baseLayer = info.baseLayer;
+        }
+
+        if(info.layerCount) {
+            this._layerCount = info.layerCount;
+        }
 
         this.webGLDevice.emitCmdCreateGPUTextureView(info);
 

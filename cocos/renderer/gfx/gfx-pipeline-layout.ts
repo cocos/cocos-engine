@@ -1,5 +1,5 @@
 import { GFXDevice } from './gfx-device';
-import { GFXBindingSetLayout } from './gfx-binding-set-layout';
+import { GFXBindingLayout } from './gfx-binding-layout';
 import { GFXShaderType } from './gfx-shader';
 
 export class GFXPushConstantRange {
@@ -8,12 +8,12 @@ export class GFXPushConstantRange {
     count : number = 0;
 };
 
-export class GFXPipelineLayoutInfo {
-    pushConstantsRanges : GFXPushConstantRange[] = [];
-    layouts : GFXBindingSetLayout[] = [];
+export interface GFXPipelineLayoutInfo {
+    pushConstantsRanges? : GFXPushConstantRange[];
+    layouts : GFXBindingLayout[];
 };
 
-export abstract class GFXPipelineLayout {  
+export abstract class GFXPipelineLayout {
 
     constructor(device : GFXDevice) {
         this._device = device;
@@ -24,5 +24,5 @@ export abstract class GFXPipelineLayout {
 
     protected _device : GFXDevice;
     protected _pushConstantsRanges : GFXPushConstantRange[] = [];
-    protected _layouts: GFXBindingSetLayout[] = [];
+    protected _layouts: GFXBindingLayout[] = [];
 };

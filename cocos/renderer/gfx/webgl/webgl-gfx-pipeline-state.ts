@@ -5,11 +5,11 @@ import { WebGLGPUPipelineState } from './webgl-gpu-objects';
 
 export class WebGLGFXPipelineState extends GFXPipelineState {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info : GFXPipelineStateInfo) : boolean {
+    public initialize(info: GFXPipelineStateInfo): boolean {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
@@ -26,20 +26,19 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
     }
 
     public destroy() {
-        if(this._gpuPipelineState)
-        {
+        if (this._gpuPipelineState) {
             this.webGLDevice.emitCmdDestroyGPUPipelineState(this._gpuPipelineState);
             this._gpuPipelineState = null;
         }
     }
 
-    public get webGLDevice() : WebGLGFXDevice {
+    public get webGLDevice(): WebGLGFXDevice {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuPipelineState() : WebGLGPUPipelineState | null {
+    public get gpuPipelineState(): WebGLGPUPipelineState | null {
         return this._gpuPipelineState;
     }
 
-    private _gpuPipelineState : WebGLGPUPipelineState | null = null;
+    private _gpuPipelineState: WebGLGPUPipelineState | null = null;
 };

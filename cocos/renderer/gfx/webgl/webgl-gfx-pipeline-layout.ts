@@ -11,8 +11,11 @@ export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 
     public initialize(info: GFXPipelineLayoutInfo): boolean {
 
-        this._pushConstantsRanges = info.pushConstantsRanges;
         this._layouts = info.layouts;
+
+        if(info.pushConstantsRanges) {
+            this._pushConstantsRanges = info.pushConstantsRanges;
+        }
 
         return true;
     }

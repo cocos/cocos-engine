@@ -11,24 +11,24 @@ export const enum GFXTextureViewType {
     TV2D_ARRAY,
 };
 
-export class GFXTextureViewInfo {
-    texture : GFXTexture | null = null;
-    type : GFXTextureViewType = GFXTextureViewType.TV2D;
-    format : GFXFormat = GFXFormat.UNKNOWN;
-    baseLevel : number = 0;
-    levelCount : number = 1;
-    baseLayer : number = 0;
-    layerCount : number = 1;
+export interface GFXTextureViewInfo {
+    texture: GFXTexture;
+    type: GFXTextureViewType;
+    format: GFXFormat;
+    baseLevel?: number;
+    levelCount?: number;
+    baseLayer?: number;
+    layerCount?: number;
 };
 
 export abstract class GFXTextureView {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXTextureViewInfo) : boolean;
-    public abstract destroy() : void;
+    public abstract initialize(info: GFXTextureViewInfo): boolean;
+    public abstract destroy(): void;
 
     public get texture(): GFXTexture {
         return <GFXTexture>this._texture;
@@ -58,12 +58,12 @@ export abstract class GFXTextureView {
         return this._layerCount;
     }
 
-    protected _device : GFXDevice;
-    protected _texture : GFXTexture | null = null;
-    protected _type : GFXTextureViewType = GFXTextureViewType.TV2D;
-    protected _format : GFXFormat = GFXFormat.UNKNOWN;
-    protected _baseLevel : number = 0;
-    protected _levelCount : number = 1;
-    protected _baseLayer : number = 0;
-    protected _layerCount : number = 1;
+    protected _device: GFXDevice;
+    protected _texture: GFXTexture | null = null;
+    protected _type: GFXTextureViewType = GFXTextureViewType.TV2D;
+    protected _format: GFXFormat = GFXFormat.UNKNOWN;
+    protected _baseLevel: number = 0;
+    protected _levelCount: number = 1;
+    protected _baseLayer: number = 0;
+    protected _layerCount: number = 1;
 };

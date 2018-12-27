@@ -13,9 +13,8 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
     public initialize(info: GFXRenderPassInfo): boolean {
 
-        this._colorInfos = info.colorInfos;
-        this._depthStencilInfo = info.depthStencilInfo;
-        this._subPasses = info.subPasses;
+        this._colorInfos = info.colorAttachment;
+        this._depthStencilInfo = info.depthStencilAttachment;
 
         this._gpuRenderPass = this.webGLDevice.emitCmdCreateGPURenderPass(info);
 

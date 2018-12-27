@@ -5,16 +5,22 @@ import { WebGLGPUInputAssembler } from './webgl-gpu-objects';
 
 export class WebGLGFXInputAssembler extends GFXInputAssembler {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info : GFXInputAssemblerInfo) : boolean {
+    public initialize(info: GFXInputAssemblerInfo): boolean {
 
         this._attributes = info.attributes;
         this._vertexBuffers = info.vertexBuffers;
-        this._indexBuffer = info.indexBuffer;
-        this._isIndirect = info.isIndirect;
+
+        if (info.indexBuffer) {
+            this._indexBuffer = info.indexBuffer;
+        }
+
+        if (info.isIndirect) {
+            this._isIndirect = info.isIndirect;
+        }
 
         this._gpuInputAssembler = this.webGLDevice.emitCmdCreateGPUInputAssembler(info);
 
@@ -22,19 +28,19 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
     }
 
     public destroy() {
-        if(this._gpuInputAssembler) {
+        if (this._gpuInputAssembler) {
             this.webGLDevice.emitCmdDestroyGPUInputAssembler(this._gpuInputAssembler);
             this._gpuInputAssembler = null;
         }
     }
 
-    public get webGLDevice() : WebGLGFXDevice {
+    public get webGLDevice(): WebGLGFXDevice {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuInputAssembler() : WebGLGPUInputAssembler | null {
+    public get gpuInputAssembler(): WebGLGPUInputAssembler | null {
         return this._gpuInputAssembler;
     }
 
-    private _gpuInputAssembler : WebGLGPUInputAssembler | null = null;
+    private _gpuInputAssembler: WebGLGPUInputAssembler | null = null;
 };

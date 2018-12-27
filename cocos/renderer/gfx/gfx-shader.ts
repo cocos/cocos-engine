@@ -1,5 +1,5 @@
 import { GFXDevice } from './gfx-device';
-import { GFXBinding } from './gfx-binding-set-layout';
+import { GFXBinding } from './gfx-binding-layout';
 import { GFXType } from './gfx-define';
 
 export const enum GFXShaderType {
@@ -12,60 +12,60 @@ export const enum GFXShaderType {
     COUNT,
 };
 
-export class GFXShaderMacro {
-    macro : string = "";
-    value : string = "";
-
-    constructor(macro : string, value : string = "") {
-        this.macro = macro;
-        this.value = value;
-    }
+export interface GFXShaderMacro {
+    macro: string;
+    value: string;
 };
 
-export class GFXUniform {
-    name : string = "";
-    type : GFXType = GFXType.UNKNOWN;
-    count : number = 1;
+export interface GFXUniform {
+    name: string;
+    type: GFXType;
+    count: number;
 };
 
-export class GFXUniformBlock {
-    binding : number = -1;
-    name : string = "";
-    //instance : string = "";
-    uniforms : GFXUniform[] = [];
+export interface GFXUniformBlock {
+    binding: number;
+    name: string;
+    //instance : string;
+    uniforms: GFXUniform[];
 };
 
-export class GFXShaderStage {
-    type : GFXShaderType = GFXShaderType.VERTEX;
-    source : string = "";
-    macros : GFXShaderMacro[] = [];
-
-    public define(macro : string, value : string = "") : void {
-        this.macros.push({ macro, value });
-    }
+export interface GFXUniformSampler {
+    binding: number;
+    name: string;
+    type: GFXType;
+    count: number;
 };
 
-export class GFXShaderInfo {
-    name : string = "";
-    stages : GFXShaderStage[] = [];
-    bindings : GFXBinding[] = [];
+export interface GFXShaderStage {
+    type: GFXShaderType;
+    source: string;
+    macros?: GFXShaderMacro[];
+};
+
+export interface GFXShaderInfo {
+    name?: string;
+    stages: GFXShaderStage[];
+    //bindings: GFXBinding[];
 
     // blocks are used for being compatible with single uniforms
-    blocks : GFXUniformBlock[] = [];
+    blocks?: GFXUniformBlock[];
+    samplers?: GFXUniformSampler[];
 };
 
 export abstract class GFXShader {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXShaderInfo) : boolean;
-    public abstract destroy() : void;
+    public abstract initialize(info: GFXShaderInfo): boolean;
+    public abstract destroy();
 
-    protected _device : GFXDevice;
-    protected _name : string = "";
-    protected _stages : GFXShaderStage[] = [];
-    protected _bindings : GFXBinding[] = [];    
-    protected _blocks : GFXUniformBlock[] = [];
+    protected _device: GFXDevice;
+    protected _name: string = "";
+    protected _stages: GFXShaderStage[] = [];
+    //protected _bindings: GFXBinding[] = [];
+    protected _blocks?: GFXUniformBlock[];
+    protected _samplers?: GFXUniformSampler[];
 };

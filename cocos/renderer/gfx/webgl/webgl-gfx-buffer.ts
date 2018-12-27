@@ -14,18 +14,15 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._usage = info.usage;
         this._memUsage = info.memUsage;
         this._size = info.size;
-        this._stride = info.stride;
+        this._stride = info.stride? info.stride : 1;
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
             this._arrayBuffer = new ArrayBuffer(this._size);
             this._buffer = new Buffer(this._arrayBuffer);
         }
 
-        this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
-
-        if (!this._isSimulate || this._usage & GFXBufferUsageBit.UNIFORM) {
-            this._gpuBuffer = this.webGLDevice.emitCmdCreateGPUBuffer(info, this._buffer);
-        }
+        //this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
+        this._gpuBuffer = this.webGLDevice.emitCmdCreateGPUBuffer(info, this._buffer);
 
         return true;
     }
@@ -46,9 +43,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._buffer.set(buffer, offset);
         }
 
-        if (!this._isSimulate && this._buffer) {
-            this.webGLDevice.emitCmdUpdateGPUBuffer(<WebGLGPUBuffer>this._gpuBuffer, offset, this._buffer);
-        }
+        this.webGLDevice.emitCmdUpdateGPUBuffer(<WebGLGPUBuffer>this._gpuBuffer, offset, buffer);
     }
 
     public get webGLDevice(): WebGLGFXDevice {
@@ -60,5 +55,4 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
-    private _isSimulate: boolean = false;
 };

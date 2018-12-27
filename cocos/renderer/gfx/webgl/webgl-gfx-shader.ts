@@ -5,16 +5,19 @@ import { WebGLGPUShader } from './webgl-gpu-objects';
 
 export class WebGLGFXShader extends GFXShader {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info : GFXShaderInfo) : boolean {
+    public initialize(info: GFXShaderInfo): boolean {
 
-        this._name = info.name;
+        if (info.name) {
+            this._name = info.name;
+        }
+
         this._stages = info.stages;
-        this._bindings = info.bindings;
         this._blocks = info.blocks;
+        this._samplers = info.samplers;
 
         this._gpuShader = this.webGLDevice.emitCmdCreateGPUShader(info);
 
@@ -28,13 +31,13 @@ export class WebGLGFXShader extends GFXShader {
         }
     }
 
-    public get webGLDevice() : WebGLGFXDevice {
+    public get webGLDevice(): WebGLGFXDevice {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuShader() : WebGLGPUShader | null  {
+    public get gpuShader(): WebGLGPUShader | null {
         return this._gpuShader;
     }
 
-    private _gpuShader : WebGLGPUShader | null = null;
+    private _gpuShader: WebGLGPUShader | null = null;
 };

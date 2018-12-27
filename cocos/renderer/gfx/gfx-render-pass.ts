@@ -71,9 +71,9 @@ export class GFXSubPassInfo
 
 export class GFXRenderPassInfo
 {
-	colorInfos : GFXColorAttachment[] = [];
-	depthStencilInfo : GFXDepthStencilAttachment | null = null;
-	subPasses : GFXSubPassInfo[] = [];
+	colorAttachment : GFXColorAttachment[] = [];
+	depthStencilAttachment : GFXDepthStencilAttachment | null = null;
+	//subPasses : GFXSubPassInfo[] = [];
 };
 
 export abstract class GFXRenderPass {
@@ -88,5 +88,5 @@ export abstract class GFXRenderPass {
     protected _device : GFXDevice;
     protected _colorInfos : GFXColorAttachment[] = [];
     protected _depthStencilInfo : GFXDepthStencilAttachment | null = null;
-    protected _subPasses : GFXSubPassInfo[] = [];
+    //protected _subPasses : GFXSubPassInfo[] = [];
 };
