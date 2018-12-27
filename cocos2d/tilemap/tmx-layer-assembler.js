@@ -146,7 +146,7 @@ let tmxAssembler = {
         let cullingA = a, cullingD = d,
             cullingMapx = tx, cullingMapy = ty,
             cullingW = w, cullingH = h;
-        let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+        let enabledCulling = !CC_EDITOR && cc.macro.ENABLE_TILEDMAP_CULLING;
         
         if (enabledCulling) {
             let camera = cc.Camera.findCamera(comp.node);
