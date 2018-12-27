@@ -1,4 +1,5 @@
 import { GFXDevice } from './gfx-device';
+import { BufferView } from './gfx-define';
 
 export const enum GFXBufferUsageBit {
     NONE = 0,
@@ -61,7 +62,7 @@ export abstract class GFXBuffer {
         return this._stride;
     }
 
-    public get buffer(): Buffer | null {
+    public get buffer(): ArrayBuffer | null {
         return this._buffer;
     }
 
@@ -70,6 +71,6 @@ export abstract class GFXBuffer {
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     protected _size: number = 0;
     protected _stride: number = 1;
-    protected _arrayBuffer: ArrayBuffer | null = null;
-    protected _buffer: Buffer | null = null;
+    protected _buffer: ArrayBuffer | null = null;
+    protected _bufferView: BufferView | null = null;
 };

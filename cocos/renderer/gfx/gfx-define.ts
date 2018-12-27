@@ -401,3 +401,5 @@ export function GFXGetTypeSize(type : GFXType) : number {
         }
     }
 }
+
+export type BufferView = Uint8Array;

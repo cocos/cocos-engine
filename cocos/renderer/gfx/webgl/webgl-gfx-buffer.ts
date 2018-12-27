@@ -2,6 +2,7 @@ import { GFXBufferInfo, GFXBuffer, GFXMemoryUsageBit, GFXBufferAccess, GFXBuffer
 import { GFXDevice } from '../gfx-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
 import { WebGLGFXDevice } from './webgl-gfx-device';
+import { BufferView } from '../gfx-define';
 
 export class WebGLGFXBuffer extends GFXBuffer {
 
@@ -17,12 +18,12 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._stride = info.stride? info.stride : 1;
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
-            this._arrayBuffer = new ArrayBuffer(this._size);
-            this._buffer = new Buffer(this._arrayBuffer);
+            this._buffer = new ArrayBuffer(this._size);
+            this._bufferView = new Uint8Array(this._buffer);
         }
 
         //this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
-        this._gpuBuffer = this.webGLDevice.emitCmdCreateGPUBuffer(info, this._buffer);
+        this._gpuBuffer = this.webGLDevice.emitCmdCreateGPUBuffer(info, this._bufferView);
 
         return true;
     }
@@ -33,14 +34,14 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._gpuBuffer = null;
         }
 
-        this._arrayBuffer = null;
         this._buffer = null;
+        this._bufferView = null;
     }
 
-    public update(buffer: Buffer, offset: number) {
+    public update(buffer: BufferView, offset: number) {
 
-        if (this._buffer) {
-            this._buffer.set(buffer, offset);
+        if (this._bufferView) {
+            this._bufferView.set(buffer, offset);
         }
 
         this.webGLDevice.emitCmdUpdateGPUBuffer(<WebGLGPUBuffer>this._gpuBuffer, offset, buffer);

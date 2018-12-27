@@ -2,13 +2,12 @@ import { WebGLGPUBuffer, WebGLGPUTexture, WebGLGPUInputAssembler, WebGLGPUFrameb
 import { WebGLGFXDevice } from "./webgl-gfx-device";
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from "../gfx-buffer";
 import { GFXTextureViewType } from "../gfx-texture-view";
-import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize } from "../gfx-define";
+import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, BufferView } from "../gfx-define";
 import { GFXShaderType } from "../gfx-shader";
 import { GFXLoadOp, GFXTextureLayout } from "../gfx-render-pass";
 import { GFXColorMask, GFXCullMode } from "../gfx-pipeline-state";
 import { WebGLGFXCommandAllocator } from "./webgl-gfx-command-allocator";
 import { GFXBindingType } from "../gfx-binding-layout";
-import { Buffer } from "buffer";
 import { WebGLTexUnit } from "./webgl-state-cache";
 import { GFXBufferTextureCopy } from "../gfx-command-buffer";
 import { GFXTextureFlagBit } from "../gfx-texture";
@@ -558,7 +557,7 @@ export function WebGLCmdFuncDestroyBuffer(device: WebGLGFXDevice, gpuBuffer: Web
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: Buffer) {
+export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: BufferView) {
 
     let gl = device.gl;
 
@@ -869,7 +868,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
             }
 
             glBlock.buffer = new ArrayBuffer(glBlock.size);
-            glBlock.bufferView = new Buffer(glBlock.buffer);
+            glBlock.bufferView = new DataView(glBlock.buffer);
 
             for (let u = 0; u < glBlock.glUniforms.length; ++u) {
                 let glUniform = glBlock.glUniforms[u];
@@ -1495,56 +1494,191 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                     if (glBlock && glBlock.bufferView) {
                                         for (let u = 0; u < glBlock.glUniforms.length; ++u) {
                                             let glUniform = glBlock.glUniforms[u];
-                                            if (glUniform.glLoc >= 0 &&
-                                                glBlock.bufferView.compare(gpuBinding.gpuBuffer.buffer, glUniform.offset, glUniform.size, glUniform.offset, glUniform.size) != 0) {
+                                            if (glUniform.glLoc >= 0 && glUniform.bufferView) {
 
                                                 switch (glUniform.glType) {
                                                     case WebGLRenderingContext.BOOL:
                                                     case WebGLRenderingContext.INT: {
-                                                        gl.uniform1iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
-                                                        break;
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[m]) {
+                                                                gl.uniform1iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 4;
+                                                        }
                                                     }
                                                     case WebGLRenderingContext.BOOL_VEC2:
                                                     case WebGLRenderingContext.INT_VEC2: {
-                                                        gl.uniform2iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 2*m;
+                                                            if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1]) {
+                                                                gl.uniform2iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 8;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.BOOL_VEC3:
                                                     case WebGLRenderingContext.INT_VEC3: {
-                                                        gl.uniform3iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 3*m;
+                                                            if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2]) {
+                                                                gl.uniform3iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 12;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.BOOL_VEC4:
                                                     case WebGLRenderingContext.INT_VEC4: {
-                                                        gl.uniform4iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 4*m;
+                                                            if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getInt32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                gl.uniform4iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 16;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT: {
-                                                        gl.uniform1fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[m]) {
+                                                                gl.uniform1fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 4;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC2: {
-                                                        gl.uniform2fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 2*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1]) {
+                                                                gl.uniform2fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 8;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC3: {
-                                                        gl.uniform3fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 3*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2]) {
+                                                                gl.uniform3fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 12;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC4: {
-                                                        gl.uniform4fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 4*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                gl.uniform4fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 16;
+                                                        }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT2: {
-                                                        gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 4*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 16;
+                                                        }
+
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT3: {
-                                                        gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 9*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
+                                                                glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
+                                                                glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
+                                                                glBlock.bufferView.getFloat32(offset+24) !== glUniform.bufferView[idx+6] ||
+                                                                glBlock.bufferView.getFloat32(offset+28) !== glUniform.bufferView[idx+7] ||
+                                                                glBlock.bufferView.getFloat32(offset+32) !== glUniform.bufferView[idx+8]) {
+                                                                gl.uniformMatrix3fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 36;
+                                                        }
+
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT4: {
-                                                        gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+
+                                                        let offset = glUniform.offset;
+                                                        for (let m = 0; m < glUniform.count; ++m) {
+                                                            let idx = 9*m;
+                                                            if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
+                                                                glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
+                                                                glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
+                                                                glBlock.bufferView.getFloat32(offset+24) !== glUniform.bufferView[idx+6] ||
+                                                                glBlock.bufferView.getFloat32(offset+28) !== glUniform.bufferView[idx+7] ||
+                                                                glBlock.bufferView.getFloat32(offset+32) !== glUniform.bufferView[idx+8] ||
+                                                                glBlock.bufferView.getFloat32(offset+36) !== glUniform.bufferView[idx+9] ||
+                                                                glBlock.bufferView.getFloat32(offset+40) !== glUniform.bufferView[idx+10] ||
+                                                                glBlock.bufferView.getFloat32(offset+44) !== glUniform.bufferView[idx+11] ||
+                                                                glBlock.bufferView.getFloat32(offset+48) !== glUniform.bufferView[idx+12] ||
+                                                                glBlock.bufferView.getFloat32(offset+52) !== glUniform.bufferView[idx+13] ||
+                                                                glBlock.bufferView.getFloat32(offset+56) !== glUniform.bufferView[idx+14] ||
+                                                                glBlock.bufferView.getFloat32(offset+60) !== glUniform.bufferView[idx+15]) {
+                                                                gl.uniformMatrix4fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
+                                                                break;
+                                                            }
+                                                            offset += 64;
+                                                        }
                                                         break;
                                                     }
                                                     default: ;
@@ -1738,7 +1872,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
                 let cmd = cmdPackage.copyBufferToTextureCmds[copyBufferToTextureCmdIdx++];
-                if (cmd.gpuBuffer && cmd.gpuBuffer.buffer && cmd.gpuTexture) {
+                if (cmd.gpuBuffer && cmd.gpuBuffer.bufferView && cmd.gpuTexture) {
                     switch (cmd.gpuTexture.glTarget) {
                         case WebGLRenderingContext.TEXTURE_2D: {
                             let texUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
@@ -1758,7 +1892,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                                         let memSize = GFXFormatSize(cmd.gpuTexture.format, w, h, 1);
-                                        let data = cmd.gpuBuffer.buffer.subarray(buffOffset, buffOffset + memSize);
+                                        let data = cmd.gpuBuffer.bufferView.subarray(buffOffset, buffOffset + memSize);
 
                                         gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                                             region.texOffset[0], region.texOffset[1], w, h,
@@ -1779,7 +1913,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                                         let memSize = GFXFormatSize(cmd.gpuTexture.format, w, h, 1);
-                                        let data = cmd.gpuBuffer.buffer.subarray(buffOffset, buffOffset + memSize);
+                                        let data = cmd.gpuBuffer.bufferView.subarray(buffOffset, buffOffset + memSize);
 
                                         gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                                             region.texOffset[0], region.texOffset[1], w, h,
@@ -1812,7 +1946,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                                             let memSize = GFXFormatSize(cmd.gpuTexture.format, w, h, 1);
-                                            let data = cmd.gpuBuffer.buffer.subarray(buffOffset, buffOffset + memSize);
+                                            let data = cmd.gpuBuffer.bufferView.subarray(buffOffset, buffOffset + memSize);
 
                                             gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
                                                 region.texOffset[0], region.texOffset[1], w, h,
@@ -1835,7 +1969,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                                             let memSize = GFXFormatSize(cmd.gpuTexture.format, w, h, 1);
-                                            let data = cmd.gpuBuffer.buffer.subarray(buffOffset, buffOffset + memSize);
+                                            let data = cmd.gpuBuffer.bufferView.subarray(buffOffset, buffOffset + memSize);
 
                                             gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
                                                 region.texOffset[0], region.texOffset[1], w, h,

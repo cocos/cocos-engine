@@ -1,7 +1,7 @@
 import { GFXBufferUsage, GFXBufferUsageBit, GFXMemoryUsage, GFXMemoryUsageBit } from "../gfx-buffer";
 import { GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit } from "../gfx-texture";
 import { GFXTextureViewType } from "../gfx-texture-view";
-import { GFXFormat, GFXType } from "../gfx-define";
+import { GFXFormat, GFXType, BufferView } from "../gfx-define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../gfx-render-pass";
 import { GFXShaderType, GFXShaderMacro, GFXUniformBlock, GFXUniformSampler } from "../gfx-shader";
 import { GFXBinding, GFXBindingType } from "../gfx-binding-layout";
@@ -40,8 +40,8 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
 
     glTarget: GLenum = 0;
     glBuffer: WebGLBuffer = 0;
-    arrayBuffer: ArrayBuffer | null = null;
-    buffer: Buffer | null = null;
+    buffer: ArrayBuffer | null = null;
+    bufferView: BufferView | null = null;
 
     constructor() {
         super(WebGLGPUObjectType.BUFFER);
@@ -158,7 +158,7 @@ export class WebGLGPUUniformBlock {
 
     isUniformPackage: boolean = false;  // Is a single uniform package? 
     buffer: ArrayBuffer | null = null;  // for cache
-    bufferView: Buffer | null = null;
+    bufferView: DataView | null = null;
 }
 
 export class WebGLGPUUniformSampler {
