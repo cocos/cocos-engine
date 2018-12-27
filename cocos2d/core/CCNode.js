@@ -1126,11 +1126,6 @@ let NodeDefines = {
                 }
             }
         },
-
-        showInEditor: {
-            default: true,
-            editorOnly: true
-        }
     },
 
     /**
