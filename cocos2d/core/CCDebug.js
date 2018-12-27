@@ -129,7 +129,7 @@ let resetDebugSetting = function (mode) {
             cc.error = console.error.bind(console);
         }
         else {
-            cc.error = CC_JSB ? console.error : function () {
+            cc.error = CC_JSB || CC_RUNTIME ? console.error : function () {
                 return console.error.apply(console, arguments);
             };
         }
@@ -172,7 +172,7 @@ let resetDebugSetting = function (mode) {
             cc.warn = console.warn.bind(console);
         }
         else {
-            cc.warn = CC_JSB ? console.warn : function () {
+            cc.warn = CC_JSB || CC_RUNTIME ? console.warn : function () {
                 return console.warn.apply(console, arguments);
             };
         }
@@ -188,7 +188,7 @@ let resetDebugSetting = function (mode) {
          * @param {String|any} msg - A JavaScript string containing zero or more substitution strings.
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             if (scriptEngineType === "JavaScriptCore") {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 cc.log = function () {
@@ -213,7 +213,7 @@ let resetDebugSetting = function (mode) {
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
     var stack = error.stack;
     if (stack) {
-        cc.error(CC_JSB ? (error + '\n' + stack) : stack);
+        cc.error(CC_JSB || CC_RUNTIME ? (error + '\n' + stack) : stack);
     }
     else {
         cc.error(error);

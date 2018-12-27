@@ -497,7 +497,7 @@ var _Deserializer = (function () {
             }
 
             sources.push('prop=d' + accessorToGet + ';');
-            sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
+            sources.push(`if(typeof ${CC_JSB || CC_RUNTIME ? '(prop)' : 'prop'}!=="undefined"){`);
 
             var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
             // function undefined object(null) string boolean number
@@ -526,7 +526,7 @@ var _Deserializer = (function () {
                 }
             }
             else {
-                sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
+                sources.push(`if(typeof ${CC_JSB || CC_RUNTIME ? '(prop)' : 'prop'}!=="object"){` +
                                  'o' + accessorToSet + '=prop;' +
                              '}else{');
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
