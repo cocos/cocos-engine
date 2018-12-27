@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ImageAsset from './image-asset';
-import Texture2D from './CCTexture2D';
+import Texture2D from './texture-2d';
 
 /**
  * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously

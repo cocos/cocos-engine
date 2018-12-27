@@ -77,7 +77,7 @@ let ClearFlags = cc.Enum({
  * @extends Component
  */
 @ccclass('cc.Camera')
-@menu('i18n:MAIN_MENU.component.others/Camera')
+@menu('Render/Camera(deprecated)')
 @inspector('packages://inspector/inspectors/comps/camera.js')
 @executeInEditMode
 export default class Camera extends Component {

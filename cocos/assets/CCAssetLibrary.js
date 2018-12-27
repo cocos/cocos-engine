@@ -347,13 +347,8 @@ let AssetLibrary = {
                     // backward compatibility since 1.10
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    var ext = cc.path.extname(url);
-                    if (ext) {
-                        // trim base dir and extname
-                        url = url.slice(0, - ext.length);
-                    }
-
                     var isSubAsset = info[2] === 1;
+                    
                     if (!assetTables[mountPoint]) {
                         assetTables[mountPoint] = new AssetTable();
                     } 

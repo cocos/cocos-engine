@@ -268,8 +268,8 @@ export default class ModelComponent extends RenderableComponent {
     _updateReceiveShadow() {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
-            if (model._defines['USE_SHADOW_MAP'] != undefined) {
-                this.getMaterial(i).define('USE_SHADOW_MAP', this._receiveShadows);
+            if (model._defines['_USE_SHADOW_MAP'] != undefined) {
+                this.getMaterial(i).define('_USE_SHADOW_MAP', this._receiveShadows);
             }
         }
     }

@@ -42,7 +42,8 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, programs, properties = {}, lod = -1) {
+    constructor(name, techniques, programs, properties = {}, lod = -1) {
+        this._name = name;
         this._techniques = techniques;
         this._properties = properties;
         this._programs = programs;
@@ -247,16 +248,15 @@ Effect.parseEffect = function(effect) {
     let props = parseProperties(effect, programs), uniforms = {};
     for (let pn in programs) {
         programs[pn].uniforms.forEach(u => {
-            let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            uniform.value = getInstanceCtor(u.type)(u.value);
-            if (props[name]) { // effect info override
-                uniform.type = props[name].type;
-                uniform.value = props[name].value;
-            }
+            let prop = props[u.name];
+            uniforms[u.name] = {
+                type: prop ? prop.type : u.type,
+                value: prop ? prop.value : getInstanceCtor(u.type)(u.value)
+            };
         });
     }
 
-    let parsedEffect = new Effect(techniques, programs, uniforms);
+    let parsedEffect = new Effect(effect.name, techniques, programs, uniforms);
     return parsedEffect;
 };
 
@@ -265,10 +265,16 @@ if (CC_EDITOR) {
         let programs = getInvolvedPrograms(effect);
         let props = parseProperties(effect, programs), defines = {};
         for (let pn in programs) {
+            programs[pn].uniforms.forEach(u => {
+                let prop = props[u.name];
+                if (!prop) return;
+                prop.defines = u.defines;
+            });
             programs[pn].defines.forEach(define => {
                 defines[define.name] = {
                     instanceType: getInstanceType(define.type),
-                    value: getInstanceCtor(define.type)()
+                    value: getInstanceCtor(define.type)(),
+                    defines: define.defines
                 };
             });
         }

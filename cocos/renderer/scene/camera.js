@@ -29,7 +29,7 @@ export default class Camera {
     this._priority = 0;
 
     // clear options
-    this._color = color4.create(0.2, 0.3, 0.47, 1);
+    this._color = color4.create();
     this._depth = 1;
     this._stencil = 0;
     this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
@@ -325,6 +325,11 @@ export default class Camera {
    * @param {number} height framebuffer height
    */
   extractView(out, width, height) {
+    if (this._framebuffer) {
+      width = this._framebuffer._width;
+      height = this._framebuffer._height;
+    }
+
     // priority
     out._priority = this._priority;
 

@@ -1,8 +1,9 @@
-import Texture2D from '../../assets/CCTexture2D';
+import Texture2D from '../../assets/texture-2d';
 import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
 import Material from '../assets/material';
 import EffectAsset from '../assets/effect-asset';
+import effects from './effects';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
@@ -27,7 +28,7 @@ let builtinResMgr = {
         const canvasImage = new ImageAsset(canvas);
 
         // default-texture
-        let defaultTexture = new Texture2D(device);
+        let defaultTexture = new Texture2D();
         defaultTexture.setMipFilter(Texture2D.Filter.LINEAR);
         defaultTexture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
         defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
@@ -35,7 +36,7 @@ let builtinResMgr = {
         defaultTexture.image = canvasImage;
 
         // default-texture-cube
-        let defaultTextureCube = new TextureCube(device);
+        let defaultTextureCube = new TextureCube();
         defaultTextureCube._uuid = 'default-texture-cube';
         defaultTextureCube.image = {
             front: canvasImage,
@@ -52,8 +53,7 @@ let builtinResMgr = {
         context.fillRect(0, 0, 2, 2);
 
         // black-texture
-        let blackTexture = new Texture2D(device);
-        blackTexture.setMipmap(false);
+        let blackTexture = new Texture2D();
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         blackTexture._uuid = 'black-texture';
@@ -65,27 +65,24 @@ let builtinResMgr = {
         context.fillRect(0, 0, 2, 2);
 
         // white-texture
-        let whiteTexture = new Texture2D(device);
-        blackTexture.setMipmap(false);
+        let whiteTexture = new Texture2D();
         blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         whiteTexture._uuid = 'white-texture';
         defaultTexture.image = canvasImage;
 
-        // classic ugly pink indicating missing material
-        let pinkEffect = new EffectAsset();
-        pinkEffect.name = 'default';
-        pinkEffect.techniques.push({ passes: [{ program: 'default', depthTest: true, depthWrite: true }] });
-        pinkEffect.shaders.push({
-            name: 'default',
-            vert: `attribute vec3 a_position; \n uniform mat4 _model; \n uniform mat4 _viewProj; \n void main() { gl_Position = _viewProj * _model * vec4(a_position, 1); }`,
-            frag: `void main() { gl_FragColor = vec4(1, 0, 1, 1); }`,
-            uniforms: [], defines: [], attributes: [], extensions: []
+        // essential builtin effects
+        let efxs = effects.map(e => {
+            let effect = Object.assign(new EffectAsset(), e);
+            effect.onLoaded(); return effect;
         });
-        pinkEffect.onLoaded();
+
+        // default material
         let defaultMtl = new Material();
         defaultMtl._uuid = 'default-material';
-        defaultMtl.effectAsset = pinkEffect;
+        defaultMtl.effectAsset = efxs[0];
+        defaultMtl.define('USE_COLOR', true);
+        defaultMtl.setProperty('color', cc.color('#FF00FF'));
 
         let builtins = {
             [defaultTexture._uuid]: defaultTexture,

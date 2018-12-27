@@ -774,9 +774,9 @@ export default class Device {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb._glID);
 
-    let numColors = this._framebuffer._colors.length;
+    let numColors = fb._colors.length;
     for (let i = 0; i < numColors; ++i) {
-      let colorBuffer = this._framebuffer._colors[i];
+      let colorBuffer = fb._colors[i];
       _attach(gl, gl.COLOR_ATTACHMENT0 + i, colorBuffer);
 
       // TODO: what about cubemap face??? should be the target parameter for colorBuffer
@@ -791,15 +791,15 @@ export default class Device {
       );
     }
 
-    if (this._framebuffer._depth) {
-      _attach(gl, gl.DEPTH_ATTACHMENT, this._framebuffer._depth);
+    if (fb._depth) {
+      _attach(gl, gl.DEPTH_ATTACHMENT, fb._depth);
     }
 
-    if (this._framebuffer._stencil) {
+    if (fb._stencil) {
       _attach(gl, gl.STENCIL_ATTACHMENT, fb._stencil);
     }
 
-    if (this._framebuffer._depthStencil) {
+    if (fb._depthStencil) {
       _attach(gl, gl.DEPTH_STENCIL_ATTACHMENT, fb._depthStencil);
     }
   }
@@ -1222,8 +1222,6 @@ export default class Device {
     if (cur.program !== next.program) {
       if (next.program._linked) {
         gl.useProgram(next.program._glID);
-      } else {
-        console.warn('Failed to use program: has not linked yet.');
       }
       programDirty = true;
     }

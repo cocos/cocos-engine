@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import Texture2D from '../../assets/CCTexture2D';
+import Texture2D from '../../assets/texture-2d';
 import Sprite from "./sprite";
 
 @ccclass('cc.TextureSprite')

@@ -29,7 +29,7 @@ export default class Model {
     this._bsModelSpace.transform(this._node._mat, this._node._pos,
       this._node._rot, this._node._scale, this._boundingShape);
   }
-  
+
   /**
    * Create the bounding shape of this model
    * @param {vec3} minPos the min position of the model
@@ -39,6 +39,14 @@ export default class Model {
     if (!minPos || !maxPos) return;
     this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
     this._boundingShape = aabb.clone(this._bsModelSpace);
+  }
+
+  /**
+   * Get the hosting node of this camera
+   * @returns {Node} the hosting node
+   */
+  getNode() {
+    return this._node;
   }
 
   /**
@@ -90,7 +98,7 @@ export default class Model {
     out.node = this._node;
     out.ia = this._inputAssembler;
     out.effect = this._effect;
-    out.defines = this._effect.extractDefines(this._defines);
-    out.dependencies = this._effect.extractDependencies(this._dependencies);
+    out.defines = this._effect ? this._effect.extractDefines(this._defines) : this._defines;
+    out.dependencies = this._effect ? this._effect.extractDependencies(this._dependencies) : this._dependencies;
   }
 }

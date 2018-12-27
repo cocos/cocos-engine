@@ -163,7 +163,7 @@ export default class ProgramLib {
    * @param {Object} defines
    * @param {Object} extensions
    */
-  getProgram(name, defines, extensions) {
+  getProgram(name, defines, extensions, effectName) {
     let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
@@ -183,6 +183,9 @@ export default class ProgramLib {
       frag
     });
     program.link();
+    if (!program._linked) {
+      console.warn(`Failed to link program from effect ${effectName}.`);
+    }
     this._cache[key] = program;
 
     return program;

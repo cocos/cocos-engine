@@ -35,7 +35,7 @@ function Entry (uuid, type) {
 function isMatchByWord (path, test) {
     if (path.length > test.length) {
         var nextAscii = path.charCodeAt(test.length);
-        return (nextAscii === 46 || nextAscii === 47); // '.' or '/'
+        return (nextAscii === 47); // '/'
     }
     return true;
 }
@@ -159,7 +159,7 @@ export default class AssetTable {
     add (path, uuid, type, isMainAsset) {
         // remove extname
         // (can not use path.slice because length of extname maybe 0)
-        path = path.substring(0, path.length - cc.path.extname(path).length);
+        isMainAsset && (path = path.substring(0, path.length - cc.path.extname(path).length));
         var newEntry = new Entry(uuid, type);
         pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
     }

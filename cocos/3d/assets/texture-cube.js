@@ -29,7 +29,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import ImageAsset from '../../assets/image-asset';
 
 /**
- * @typedef {import("../../assets/CCTexture2D")} Texture2D
+ * @typedef {import("../../assets/texture-2d")} Texture2D
  * @typedef {import("../../assets/texture-base").ImageSource} ImageSource
  * @typedef {import("../../assets/texture-base").TextureUpdateOpts} TextureUpdateOpts
  * @typedef {import("../../assets/texture-base").HTMLImageSource} HTMLImageSource
@@ -45,8 +45,8 @@ const FaceIndex = cc.Enum({
     left: 1,
     top: 2,
     bottom: 3,
-    back: 4,
-    front: 5
+    front: 4,
+    back: 5
 });
 
 @ccclass('cc.TextureCube')
@@ -168,9 +168,7 @@ export default class TextureCube extends TextureBase {
                 if (face.loaded) {
                     inc();
                 } else {
-                    face.addEventListener("load", () => {
-                        inc();
-                    });
+                    face.addEventListener("load", () => inc());
                 }
             });
         });
@@ -187,6 +185,23 @@ export default class TextureCube extends TextureBase {
             this._texture = new GFXTextureCube(cc.game._renderContext, opts);
         } else {
             this._texture.update(opts);
+        }
+    }
+
+    /**
+     * Update texture options, not available in Canvas render mode.
+     * image, format, premultiplyAlpha can not be updated in native.
+     * @method update
+     */
+    update (options) {
+        if (!options) return;
+
+        super.update(options);
+
+        // TODO: options.image
+
+        if (this._texture) {
+            this._texture.update(options);
         }
     }
 
@@ -219,7 +234,7 @@ export default class TextureCube extends TextureBase {
     /**
      * @param {Texture2D[]} textures
      */
-    static fromTexture2DArray(textures) {
+    static fromTexture2DArray(textures, out) {
         let res = [], mips = textures.length / 6;
         for (let i = 0; i < mips; i++) {
             res.push(textures.splice(0, 6).reduce((acc, img, i) => {
@@ -227,9 +242,43 @@ export default class TextureCube extends TextureBase {
                 return acc;
             }, {}));
         }
-        let cube = new TextureCube();
-        cube.mipmaps = res;
-        return cube;
+        if (!out) out = new TextureCube();
+        out.mipmaps = res;
+        return out;
+    }
+
+    _serialize() {
+        return {
+            base: super._serialize(),
+            mipmaps: this._mipmaps.map(mipmap => {return {
+                front: mipmap.front._uuid,
+                back: mipmap.back._uuid,
+                left: mipmap.left._uuid,
+                right: mipmap.right._uuid,
+                top: mipmap.top._uuid,
+                bottom: mipmap.bottom._uuid,
+            };})
+        };
+    }
+
+    _deserialize (data, handle) {
+        super._deserialize(data.base);
+
+        this._mipmaps = new Array(data.mipmaps.length);
+        this._mipmaps.fill({});
+        for (let i = 0; i < data.mipmaps.length; ++i) {
+            const mipmap = data.mipmaps[i];
+            handle.result.push(this._mipmaps[i], `front`, mipmap.front);
+            handle.result.push(this._mipmaps[i], `back`, mipmap.back);
+            handle.result.push(this._mipmaps[i], `left`, mipmap.left);
+            handle.result.push(this._mipmaps[i], `right`, mipmap.right);
+            handle.result.push(this._mipmaps[i], `top`, mipmap.top);
+            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom);
+        }
+    }
+
+    onLoaded() {
+        this.mipmaps = this._mipmaps;
     }
 }
 

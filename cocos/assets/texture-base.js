@@ -36,7 +36,7 @@ import {ccclass, property} from '../core/data/class-decorator';
  * @typedef {import("../renderer/gfx/texture-2d").HTMLImageSource} HTMLImageSource
  * @typedef {import("../renderer/gfx/texture-2d").ImageSource} ImageSource
  * @typedef {import("../renderer/gfx/texture-2d").TextureUpdateOpts} TextureUpdateOpts
- * 
+ *
  * @exports HTMLImageSource
  * @exports ImageSource
  * @exports TextureUpdateOpts
@@ -241,7 +241,7 @@ function _getSharedOptions () {
 @ccclass('cc.TextureBase')
 export default class TextureBase extends Asset {
     @property
-    _hasMipmap = false;
+    _genMipmap = false;
 
     @property
     _format = PixelFormat.RGBA8888;
@@ -277,8 +277,8 @@ export default class TextureBase extends Asset {
     static Filter = Filter;
 
     /**
-     * 
-     * @param {TextureBase} texture 
+     *
+     * @param {TextureBase} texture
      */
     static _isCompressed (texture) {
         return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
@@ -337,7 +337,7 @@ export default class TextureBase extends Asset {
         if (!options) {
             return;
         }
-        
+
         if (options.width !== undefined) {
             this.width = options.width;
         }
@@ -375,7 +375,7 @@ export default class TextureBase extends Asset {
             this._anisotropy = options.anisotropy;
         }
         if (options.mipmap !== undefined) {
-            this._hasMipmap = options.mipmap;
+            this._genMipmap = options.mipmap;
         }
     }
 
@@ -383,7 +383,7 @@ export default class TextureBase extends Asset {
         let opts = _getSharedOptions();
         opts.width = this.width;
         opts.height = this.height;
-        opts.mipmap = this._hasMipmap;
+        opts.mipmap = this._genMipmap;
         opts.format = this._format;
         opts.premultiplyAlpha = this._premultiplyAlpha;
         opts.anisotropy = this._anisotropy;
@@ -431,13 +431,13 @@ export default class TextureBase extends Asset {
 
     /**
      * !#en
-     * Whether or not use mipmap.
-     * !#zh 检查问题在上传 GPU 时是否生成 mipmap。
+     * Whether or not to generate mipmap.
+     * !#zh 检查纹理在上传 GPU 时是否生成 mipmap。
      * @method hasMipmap
      * @return {Boolean}
      */
-    hasMipmap () {
-        return this._hasMipmap || false;
+    genMipmap () {
+        return this._genMipmap || false;
     }
 
     /**
@@ -536,11 +536,11 @@ export default class TextureBase extends Asset {
      * !#en
      * Sets whether generate mipmaps for the texture
      * !#zh 是否为纹理设置生成 mipmaps。
-     * @method setMipmap
+     * @method setGenerateMipmap
      * @param {Boolean} mipmap
      */
-    setMipmap (mipmap) {
-        if (this._hasMipmap !== mipmap) {
+    setGenMipmap (mipmap) {
+        if (this._genMipmap !== mipmap) {
             var opts = _getSharedOptions();
             opts.mipmap = mipmap;
             this.update(opts);
@@ -556,13 +556,14 @@ export default class TextureBase extends Asset {
         return this._minFilter + "," + this._magFilter + "," +
             this._wrapS + "," + this._wrapT + "," +
             (this._premultiplyAlpha ? 1 : 0) + "," +
-            this._mipFilter + "," +
-            this._anisotropy;
+            this._mipFilter + "," + this._anisotropy + "," +
+            (this._flipY ? 1 : 0) + "," +
+            (this._genMipmap ? 1 : 0);
     }
 
     /**
-     * 
-     * @param {string} data 
+     *
+     * @param {string} data
      */
     _deserialize (data) {
         let fields = data.split(',');
@@ -580,6 +581,10 @@ export default class TextureBase extends Asset {
         if (fields.length >= 8) {
             this._mipFilter = parseInt(fields[6]);
             this._anisotropy = parseInt(fields[7]);
+        }
+        if (fields.length >= 10) {
+            this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
+            this._genMipmap = fields[9].charCodeAt(0) === CHAR_CODE_1;
         }
     }
 }
