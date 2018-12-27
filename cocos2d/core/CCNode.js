@@ -53,11 +53,7 @@ var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
 var _globalOrderOfArrival = 1;
 
-var _cachedArrayPool = new Array(3);
-_cachedArrayPool.length = 0;
-
-_cachedArrayPool.push(new Array(16));
-_cachedArrayPool.push(new Array(16));
+var _cachedArrayPool = [new Array(16)];
 
 function _getCachedArray(){
     if(_cachedArrayPool.length === 0){
