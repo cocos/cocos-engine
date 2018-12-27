@@ -148,6 +148,7 @@ let RenderComponent = cc.Class({
             RenderData.free(this.__allocedDatas[i]);
         }
         this.__allocedDatas.length = 0;
+        this._renderData = null;
         this._material = null;
     },
 
