@@ -48,6 +48,7 @@ let Audio = function (src) {
     this._state = Audio.State.INITIALZING;
 
     this._onended = function () {
+        this._state = Audio.State.STOPPED;
         this.emit('ended');
     }.bind(this);
 };
@@ -236,6 +237,8 @@ Audio.State = {
         }
 
         if (!(CC_QQPLAY || CC_WECHATGAME)) {
+            // setCurrentTime would fire 'ended' event
+            // so we need to change the callback to rebind ended callback after setCurrentTime
             this._unbindEnded();
             this._bindEnded(function () {
                 this._bindEnded();
@@ -265,9 +268,11 @@ Audio.State = {
 
     proto.getState = function () {
         if (!CC_WECHATGAME && !CC_QQPLAY) {
+            // HACK: in some browser, audio may not fire 'ended' event
+            // so we need to force updating the Audio state
             let elem = this._element;
             if (elem && Audio.State.PLAYING === this._state && elem.paused) {
-                this._state = Audio.State.PAUSED;
+                this._state = Audio.State.STOPPED;
             }
         }
         return this._state;
