@@ -176,6 +176,11 @@ let Material = cc.Class({
         this._dirty = dirty;
     },
 
+    updateHash (hash) {
+        this._dirty = false;
+        this._hash = hash;
+    },
+
     getHash () {
         if (!this._dirty) return this._hash;
         this._dirty = false;

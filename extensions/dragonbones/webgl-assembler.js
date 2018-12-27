@@ -120,7 +120,7 @@ let armatureAssembler = {
             if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
-                math.mat4.mul(_matrix, _worldMatrix, slot._matrix);
+                mat4.mul(_matrix, _worldMatrix, slot._matrix);
                 _a = _matrix.m00; _b = _matrix.m01; _c = _matrix.m04; _d = _matrix.m05;
                 _tx = _matrix.m12; _ty = _matrix.m13;
                 this.fillVertexBufferWithArmature(slot.childArmature);
