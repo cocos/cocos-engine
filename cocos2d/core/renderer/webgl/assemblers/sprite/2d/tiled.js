@@ -24,11 +24,8 @@
  ****************************************************************************/
 
 const utils = require('../utils');
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
-    useModel: false,
-    
     vertexOffset: 5,
     uvOffset: 2,
     colorOffset: 4,

@@ -25,7 +25,6 @@
 
 const utils = require('../utils');
 
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const fillVertices = require('../../utils').fillVertices;
 
 const PI_2 = Math.PI * 2;
@@ -213,8 +212,6 @@ function _generateUV (progressX, progressY, data, offset) {
 }
 
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         return sprite.requestRenderData();
     },

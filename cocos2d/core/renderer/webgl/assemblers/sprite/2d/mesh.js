@@ -24,12 +24,9 @@
  ****************************************************************************/
 
 const utils = require('../utils');
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         return sprite.requestRenderData();
     },

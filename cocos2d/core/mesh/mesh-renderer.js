@@ -32,7 +32,6 @@ const MeshRenderer = require('./CCMeshRenderer');
 const BLACK_COLOR = cc.Color.BLACK;
 
 let meshRendererAssembler = {
-    useModel: true,
     updateRenderData (comp) {
         let renderDatas = comp._renderDatas;
         renderDatas.length = 0;

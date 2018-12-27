@@ -189,7 +189,7 @@ ModelBatcher.prototype = {
             this.cullingMask !== cullingMask) {
             this._flush();
     
-            this.node = assembler.useModel ? comp.node : this._dummyNode;
+            this.node = material.getDefine('_USE_MODEL') ? comp.node : this._dummyNode;
             this.material = material;
             this.cullingMask = cullingMask;
         }
@@ -201,7 +201,7 @@ ModelBatcher.prototype = {
         this._flush();
         this.cullingMask = cullingMask;
         this.material = comp.sharedMaterials[0] || empty_material;
-        this.node = assembler.useModel ? comp.node : this._dummyNode;
+        this.node = this.material.getDefine('_USE_MODEL') ? comp.node : this._dummyNode;
 
         assembler.renderIA(comp, this);
     },

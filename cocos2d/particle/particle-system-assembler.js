@@ -33,8 +33,6 @@ const QuadBuffer = require('../core/renderer/webgl/quad-buffer');
 import InputAssembler from '../renderer/core/input-assembler';
 
 var particleSystemAssembler = {
-    useModel: true,
-
     createIA (comp) {
         let device = renderer.device;
         // Vertex format defines vertex buffer layout: x, y, u, v color

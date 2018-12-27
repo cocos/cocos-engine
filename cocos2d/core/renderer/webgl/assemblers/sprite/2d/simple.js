@@ -24,11 +24,7 @@
  ****************************************************************************/
 
 const utils = require('../utils');
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-
 module.exports = {
-    useModel: false,
-
     updateRenderData (sprite) {
         utils.packToDynamicAtlas(sprite);
 

@@ -63,7 +63,6 @@ function clamp (v, min, max) {
 }
 
 let graphicsAssembler = {
-    useModel: true,
     createImpl (graphics) {
         return new Impl(graphics);
     },
