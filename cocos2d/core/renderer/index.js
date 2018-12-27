@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const renderEngine = require('./render-engine');
+const math = renderEngine.math;
 
 let _pos = math.vec3.create();
 
@@ -133,9 +134,7 @@ cc.renderer = module.exports = {
                 this._camera.view = view;
                 this._camera.dirty = true;
                 
-                if (CC_EDITOR) {
-                    this._camera.setColor(0, 0, 0, 0);
-                }
+                this._camera.setColor(0, 0, 0, 0);
                 this._camera.setStages([
                     'transparent'
                 ]);

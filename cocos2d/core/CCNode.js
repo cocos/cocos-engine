@@ -2633,10 +2633,10 @@ let NodeDefines = {
      * @param {Vec3} [up] - default is (0,1,0)
      */
     lookAt (pos, up) {
-        this.getWorldPosition(_vec3_temp);
-        math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
-        math.vec3.normalize(_vec3_temp, _vec3_temp);
-        math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
+        this.getWorldPosition(_v3a);
+        math.vec3.sub(_v3a, _v3a, pos); // NOTE: we use -z for view-dir
+        math.vec3.normalize(_v3a, _v3a);
+        math.quat.fromViewUp(_quat_temp, _v3a, up);
     
         this.setWorldRotation(_quat_temp);
     },
