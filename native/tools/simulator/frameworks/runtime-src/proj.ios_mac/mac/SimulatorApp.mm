@@ -431,9 +431,8 @@ std::string getCurAppName(void)
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
     _app->start();
-    CC_SAFE_DELETE(_app);
     // After run, application needs to be terminated immediately.
-    [NSApp terminate: self];
+    [[NSApplication sharedApplication] terminate:self];
 }
 
 
@@ -694,7 +693,6 @@ std::string getCurAppName(void)
 - (void)applicationWillTerminate:(NSNotification *)notification
 {
     CC_SAFE_DELETE(_app);
-    [[NSApplication sharedApplication] terminate:self];
 }
 
 @end

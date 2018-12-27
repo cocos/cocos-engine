@@ -183,11 +183,8 @@ void SimulatorWin::quit()
 
 void SimulatorWin::relaunch()
 {
-    quit();
-    CC_SAFE_DELETE(_app);
-
     _project.setWindowOffset(Vec2(getPositionX(), getPositionY()));
-    openNewPlayerWithProjectConfig(_project);
+	openProjectWithProjectConfig(_project);
 }
 
 void SimulatorWin::openNewPlayer()
