@@ -228,6 +228,15 @@ function instantiateObj (obj, parent) {
         return obj;
     }
     var clone;
+    if (ArrayBuffer.isView(obj)) {
+        clone = new (obj.constructor)(obj.length);
+        obj._iN$t = clone;
+        for (var i = 0; i < len; ++i) {
+            clone[i] = obj[i];
+        }
+        objsToClearTmpVar.push(obj);
+        return clone;
+    }
     if (Array.isArray(obj)) {
         var len = obj.length;
         clone = new Array(len);
