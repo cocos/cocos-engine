@@ -255,10 +255,11 @@ export default class Texture2D extends TextureBase {
                 height: 0
             });
         } else {
+            const level0 = this._mipmaps[0];
             super.update({
-                width: this._mipmaps[0].width,
-                height: this._mipmaps[0].height,
-                format: this._mipmaps[0]._format
+                width: level0.width,
+                height: level0.height,
+                format: level0._format
             });
         }
 
@@ -306,6 +307,8 @@ export default class Texture2D extends TextureBase {
 
         this._mipmaps = new Array(data.mipmaps.length);
         for (let i = 0; i < data.mipmaps.length; ++i) {
+            // Prevent resource load failed
+            this._mipmaps[i] = new ImageAsset();
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
         }

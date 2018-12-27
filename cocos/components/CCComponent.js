@@ -246,7 +246,7 @@ class Component extends CCObject {
      *
      * @method getComponent
      * @param {Function|String} typeOrClassName
-     * @return {Component}
+     * @return {Component | null}
      * @example
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);

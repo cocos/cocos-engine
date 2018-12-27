@@ -36,6 +36,7 @@ import NodeActivator from '../scene-graph/node-activator';
 // import AnimationSystem from '../3d/framework/animation-system';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import RenderSystem from '../3d/framework/render-system';
+import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -139,6 +140,11 @@ class Director extends EventTarget {
         // Action manager
         this._actionManager = null;
 
+        /**
+         * @type {PhysicsSystem}
+         */
+        this._physicsSystem = null;
+
         this._systems = [];
 
         var self = this;
@@ -184,6 +190,10 @@ class Director extends EventTarget {
             renderComps.forEach((compName) => {
                 getClassByName(compName).system = this._renderSystem;
             });
+        }
+
+        {
+            this._physicsSystem = new PhysicsSystem();
         }
 
         cc.loader.init(this);
@@ -890,6 +900,7 @@ class Director extends EventTarget {
             }
 
             // Render
+            this._physicsSystem.update(this._deltaTime);
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
             this._renderSystem.update(this._deltaTime);
             // After draw

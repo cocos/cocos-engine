@@ -31,7 +31,6 @@ import { ccclass, property, executionOrder, menu,executeInEditMode } from '../..
 import utils from '../misc/utils';
 import Skeleton from '../assets/skeleton';
 import Node from '../../scene-graph/node';
-import { createNode } from '../assets/utils/gltf-utils';
 
 /**
  * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance
