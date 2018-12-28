@@ -4,6 +4,7 @@ import { vec3 } from '../../../core/vmath';
 import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 import { setWrap, getWrap } from './util';
+import { Quat } from '../../../core/value-types';
 
 export enum DataFlow {
     PUSHING,
@@ -230,6 +231,22 @@ export class PhysicsBody {
         this._pullScale(scale);
     }
 
+    public setWorldRotation(rotation: Quat) {
+        this._cannonBody.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+    }
+
+    public pullTransform() {
+        if (!this._node) {
+            return;
+        }
+        // @ts-ignore
+        this.setWorldPosition(this._node.getWorldPosition());
+        // @ts-ignore
+        this.setWorldScale(this._node.getWorldScale());
+        // @ts-ignore
+        this.setWorldRotation(this._node.getWorldRotation());
+    }
+
     /**
      * Is this body currently in contact with the specified body?
      * @param {CannonBody} body The body to test against.
@@ -275,12 +292,7 @@ export class PhysicsBody {
             return;
         }
 
-        // @ts-nocheck
-        this._node.getWorldPosition(this._cannonBody.position);
-        // @ts-nocheck
-        this._node.getWorldRotation(this._cannonBody.quaternion);
-        const scale = this._node.getWorldScale();
-        this._pullScale(scale);
+        this.pullTransform();
     }
 
     private _pullScale(scale: cc.Vec3) {
