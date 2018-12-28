@@ -107,7 +107,7 @@ export class GFXRasterizerState {
     depthBiasFactor: number = 0.0;
     isDepthClip: boolean = true;
     isMultisample: boolean = false;
-    lineWidth: number = 1.0;
+    // lineWidth: number = 1.0;
 
     public compare(state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
@@ -118,8 +118,8 @@ export class GFXRasterizerState {
             (this.depthBias === state.depthBias) &&
             (this.depthBiasFactor === state.depthBiasFactor) &&
             (this.isDepthClip === state.isDepthClip) &&
-            (this.isMultisample === state.isMultisample) &&
-            (this.lineWidth === state.lineWidth);
+            // (this.lineWidth === state.lineWidth) &&
+            (this.isMultisample === state.isMultisample);
     }
 };
 
