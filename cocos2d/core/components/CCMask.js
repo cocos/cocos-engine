@@ -265,6 +265,9 @@ let Mask = cc.Class({
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
+        else {
+            this._applySpriteFrame();
+        }
     },
 
     onEnable () {
@@ -344,6 +347,9 @@ let Mask = cc.Class({
                 spriteFrame.once('load', this._onTextureLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
+        }
+        else {
+            this.disableRender();
         }
     },
 
