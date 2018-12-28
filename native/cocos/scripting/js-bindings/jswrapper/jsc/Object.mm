@@ -137,9 +137,12 @@ namespace se {
         }
 #endif
         JSObjectRef ret = EJJSObjectMakeTypedArray(__cx, kEJJSTypedArrayTypeArrayBuffer, byteLength);
-        NSData* nsData = [NSData dataWithBytes:data length:byteLength];
-        EJJSObjectSetTypedArrayData(__cx, ret, nsData);
-
+        if (data)
+        {
+            NSData* nsData = [NSData dataWithBytes:data length:byteLength];
+            EJJSObjectSetTypedArrayData(__cx, ret, nsData);
+        }
+        
         Object* obj = Object::_createJSObject(nullptr, ret);
         if (obj != nullptr)
             obj->_type = Type::ARRAY_BUFFER;
@@ -282,8 +285,11 @@ namespace se {
         }
 
         JSObjectRef ret = EJJSObjectMakeTypedArray(__cx, jscTypedArrayType, numElements);
-        NSData* nsData = [NSData dataWithBytes:data length:byteLength];
-        EJJSObjectSetTypedArrayData(__cx, ret, nsData);
+        if (data)
+        {
+            NSData* nsData = nsData = [NSData dataWithBytes:data length:byteLength];
+            EJJSObjectSetTypedArrayData(__cx, ret, nsData);
+        }
 
         Object* obj = Object::_createJSObject(nullptr, ret);
         if (obj != nullptr)
