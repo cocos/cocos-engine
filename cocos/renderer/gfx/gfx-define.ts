@@ -123,6 +123,7 @@ export const enum GFXFormat {
 
     // Depth-Stencil Format
     D16,
+    D16S8,
     D24,
     D24S8,
     D32F,
@@ -253,6 +254,7 @@ export const GFXFormatInfos : GFXFormatInfo[] = [
     { name : "RGB9E5", size : 2, count : 4, isFloating : false, hasAlpha : true, hasDepth : false, hasStencil : false, isCompressed : false },
 
     { name : "D16", size : 2, count : 1, isFloating : false, hasAlpha : false, hasDepth : true, hasStencil : false, isCompressed : false },
+    { name : "D16S8", size : 3, count : 2, isFloating : false, hasAlpha : false, hasDepth : true, hasStencil : true, isCompressed : false },
     { name : "D24", size : 3, count : 1, isFloating : false, hasAlpha : false, hasDepth : true, hasStencil : false, isCompressed : false },
     { name : "D24S8", size : 4, count : 2, isFloating : false, hasAlpha : false, hasDepth : true, hasStencil : true, isCompressed : false },
     { name : "D32F", size : 4, count : 1, isFloating : true, hasAlpha : false, hasDepth : true, hasStencil : false, isCompressed : false },

@@ -62,8 +62,7 @@ export class WebGLGFXDevice extends GFXDevice {
     stateCache: WebGLStateCache = new WebGLStateCache;
     //webGLCmdAllocator: WebGLGFXCommandAllocator;
 
-    constructor(canvasEL: HTMLElement) {
-
+    constructor() {
         super();
 
         //this.webGLCmdAllocator = new WebGLGFXCommandAllocator(this);
@@ -71,21 +70,29 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public initialize(info: GFXDeviceInfo): boolean {
 
-        this._canvasElm = <HTMLCanvasElement>info.canvasElm;
+        let canvasElm = <HTMLCanvasElement>info.canvasElm;
+
+        if (info.isAntialias) {
+            this._isAntialias = info.isAntialias;
+        }
+
+        if (info.isPremultipliedAlpha) {
+            this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        }
 
         try {
             let webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: true,
-                antialias: true,
+                antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
-                premultipliedAlpha: true,
+                premultipliedAlpha: this._isPremultipliedAlpha,
                 preserveDrawingBuffer: false,
                 powerPreference: "default",
                 failIfMajorPerformanceCaveat: false,
             };
 
-            this._webGLRC = this._canvasElm.getContext('webgl', webGLCtxAttribs);
+            this._webGLRC = canvasElm.getContext('webgl', webGLCtxAttribs);
         } catch (err) {
             console.error(err);
             return false;
@@ -95,16 +102,58 @@ export class WebGLGFXDevice extends GFXDevice {
         // Tested through ios baidu browser 4.14.1
         if (!this._webGLRC) {
             console.error('This device does not support WebGL.');
+            return false;
         }
+
+        console.info('WebGL device initialization successed.');
 
         this._deviceName = "WebGL";
 
+        this._WEBGL_debug_renderer_info = this._webGLRC.getExtension("WEBGL_debug_renderer_info");
+        if (this._WEBGL_debug_renderer_info) {
+            let renderer = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
+            console.info("RENDERER: " + renderer);
+
+            let vendor = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
+            console.info("VENDOR: " + vendor);
+        }
+
+        this._extensions = this._webGLRC.getSupportedExtensions();
+        /*
+        if (this._extensions) {
+            for (let i = 0; i < this._extensions.length; ++i) {
+                console.info(this._extensions[i]);
+            }
+        }
+        */
+
+        this._EXT_texture_filter_anisotropic = this._webGLRC.getExtension("EXT_texture_filter_anisotropic");
+        this._EXT_frag_depth = this._webGLRC.getExtension("EXT_frag_depth");
+        this._EXT_shader_texture_lod = this._webGLRC.getExtension("EXT_shader_texture_lod");
+        this._EXT_sRGB = this._webGLRC.getExtension("EXT_sRGB");
+        this._OES_vertex_array_object = this._webGLRC.getExtension("OES_vertex_array_object");
+        this._WEBGL_color_buffer_float = this._webGLRC.getExtension("WEBGL_color_buffer_float");
+        this._WEBGL_compressed_texture_astc = this._webGLRC.getExtension("WEBGL_compressed_texture_astc");
+        this._WEBGL_compressed_texture_s3tc = this._webGLRC.getExtension("WEBGL_compressed_texture_s3tc");
+        this._WEBGL_compressed_texture_s3tc_srgb = this._webGLRC.getExtension("WEBGL_compressed_texture_s3tc_srgb");
+        this._WEBGL_debug_shaders = this._webGLRC.getExtension("WEBGL_debug_shaders");
+        this._WEBGL_draw_buffers = this._webGLRC.getExtension("WEBGL_draw_buffers");
+        this._WEBGL_lose_context = this._webGLRC.getExtension("WEBGL_lose_context");
+        this._WEBGL_depth_texture = this._webGLRC.getExtension("WEBGL_depth_texture");
+        this._OES_texture_half_float = this._webGLRC.getExtension("OES_texture_half_float");
+        this._OES_texture_half_float_linear = this._webGLRC.getExtension("OES_texture_half_float_linear");
+        this._OES_texture_float = this._webGLRC.getExtension("OES_texture_float");
+        this._OES_standard_derivatives = this._webGLRC.getExtension("OES_standard_derivatives");
+        this._OES_element_index_uint = this._webGLRC.getExtension("OES_element_index_uint");
+        this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
+
+        // create primary window
         this._primaryWindow = this.createWindow({
-            title: this._canvasElm.title,
-            left: this._canvasElm.offsetLeft,
-            top: this._canvasElm.offsetTop,
-            width: this._canvasElm.width,
-            height: this._canvasElm.height,
+            title: this._webGLRC.canvas.title,
+            left: this._webGLRC.canvas.offsetLeft,
+            top: this._webGLRC.canvas.offsetTop,
+            width: this._webGLRC.drawingBufferWidth,
+            height: this._webGLRC.drawingBufferHeight,
         });
 
         return true;
@@ -117,7 +166,7 @@ export class WebGLGFXDevice extends GFXDevice {
             this._primaryWindow = null;
         }
 
-        this._canvasElm = null;
+        this._webGLRC = null;
     }
 
     public createBuffer(info: GFXBufferInfo): GFXBuffer | null {
@@ -697,6 +746,117 @@ export class WebGLGFXDevice extends GFXDevice {
         // WebGLCmdFuncDestroyInputAssembler(<WebGLGFXDevice>this, gpuInputAssembler);
     }
 
+    public get isAntialias(): boolean {
+        return this._isAntialias;
+    }
+
+    public get isPremultipliedAlpha(): boolean {
+        return this._isPremultipliedAlpha;
+    }
+
+    public get EXT_texture_filter_anisotropic(): EXT_texture_filter_anisotropic | null {
+        return this._EXT_texture_filter_anisotropic;
+    }
+
+    public get EXT_frag_depth(): EXT_frag_depth | null {
+        return this._EXT_frag_depth;
+    }
+
+    public get EXT_shader_texture_lod(): EXT_shader_texture_lod | null {
+        return this._EXT_shader_texture_lod;
+    }
+
+    public get EXT_sRGB(): EXT_sRGB | null {
+        return this._EXT_sRGB;
+    }
+
+    public get OES_vertex_array_object(): OES_vertex_array_object | null {
+        return this._OES_vertex_array_object;
+    }
+
+    public get WEBGL_color_buffer_float(): WEBGL_color_buffer_float | null {
+        return this._WEBGL_color_buffer_float;
+    }
+
+    public get WEBGL_compressed_texture_astc(): WEBGL_compressed_texture_astc | null {
+        return this._WEBGL_compressed_texture_astc;
+    }
+
+    public get WEBGL_compressed_texture_s3tc(): WEBGL_compressed_texture_s3tc | null {
+        return this._WEBGL_compressed_texture_s3tc;
+    }
+
+    public get WEBGL_compressed_texture_s3tc_srgb(): WEBGL_compressed_texture_s3tc_srgb | null {
+        return this._WEBGL_compressed_texture_s3tc_srgb;
+    }
+
+    public get WEBGL_debug_shaders(): WEBGL_debug_shaders | null {
+        return this._WEBGL_debug_shaders;
+    }
+
+    public get WEBGL_draw_buffers(): WEBGL_draw_buffers | null {
+        return this._WEBGL_draw_buffers;
+    }
+
+    public get WEBGL_lose_context(): WEBGL_lose_context | null {
+        return this._WEBGL_lose_context;
+    }
+
+    public get WEBGL_depth_texture(): WEBGL_depth_texture | null {
+        return this._WEBGL_depth_texture;
+    }
+
+    public get WEBGL_debug_renderer_info(): WEBGL_debug_renderer_info | null {
+        return this._WEBGL_debug_renderer_info;
+    }
+
+    public get OES_texture_half_float(): OES_texture_half_float | null {
+        return this._OES_texture_half_float;
+    }
+
+    public get OES_texture_half_float_linear(): OES_texture_half_float_linear | null {
+        return this._OES_texture_half_float_linear;
+    }
+
+    public get OES_texture_float(): OES_texture_float | null {
+        return this._OES_texture_float;
+    }
+
+    public get OES_standard_derivatives(): OES_standard_derivatives | null {
+        return this._OES_standard_derivatives;
+    }
+
+    public get OES_element_index_uint(): OES_element_index_uint | null {
+        return this._OES_element_index_uint;
+    }
+
+    public get ANGLE_instanced_arrays(): ANGLE_instanced_arrays | null {
+        return this._ANGLE_instanced_arrays;
+    }
+
     private _webGLRC: WebGLRenderingContext | null = null;
-    private _canvasElm: HTMLCanvasElement | null = null;
+    private _isAntialias: boolean = true;
+    private _isPremultipliedAlpha: boolean = false;
+
+    private _extensions: string[] | null = null;
+    private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
+    private _EXT_frag_depth: EXT_frag_depth | null = null;
+    private _EXT_shader_texture_lod: EXT_shader_texture_lod | null = null;
+    private _EXT_sRGB: EXT_sRGB | null = null;
+    private _OES_vertex_array_object: OES_vertex_array_object | null = null;
+    private _WEBGL_color_buffer_float: WEBGL_color_buffer_float | null = null;
+    private _WEBGL_compressed_texture_astc: WEBGL_compressed_texture_astc | null = null;
+    private _WEBGL_compressed_texture_s3tc: WEBGL_compressed_texture_s3tc | null = null;
+    private _WEBGL_compressed_texture_s3tc_srgb: WEBGL_compressed_texture_s3tc_srgb | null = null;
+    private _WEBGL_debug_shaders: WEBGL_debug_shaders | null = null;
+    private _WEBGL_draw_buffers: WEBGL_draw_buffers | null = null;
+    private _WEBGL_lose_context: WEBGL_lose_context | null = null;
+    private _WEBGL_depth_texture: WEBGL_depth_texture | null = null;
+    private _WEBGL_debug_renderer_info: WEBGL_debug_renderer_info | null = null;
+    private _OES_texture_half_float: OES_texture_half_float | null = null;
+    private _OES_texture_half_float_linear: OES_texture_half_float_linear | null = null;
+    private _OES_texture_float: OES_texture_float | null = null;
+    private _OES_standard_derivatives: OES_standard_derivatives | null = null;
+    private _OES_element_index_uint: OES_element_index_uint | null = null;
+    private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
 };

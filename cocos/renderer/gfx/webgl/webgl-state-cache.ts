@@ -1,16 +1,16 @@
 import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES } from "../gfx-define";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../gfx-pipeline-state";
 
-export class WebGLTexUnit
+export interface WebGLTexUnit
 {
-    glTexture : WebGLTexture = 0;
-	minFilter : GLenum = WebGLRenderingContext.NONE;
-	magFilter : GLenum = WebGLRenderingContext.NONE;
-	wrapS : GLenum = WebGLRenderingContext.NONE;
-	wrapT : GLenum = WebGLRenderingContext.NONE;
-	wrapR : GLenum = WebGLRenderingContext.NONE;
-	baseLevel : number = 0;
-	maxLevel : number = 1000;
+    glTexture : WebGLTexture;
+	minFilter : GLenum;
+	magFilter : GLenum;
+	wrapS : GLenum;
+	wrapT : GLenum;
+	wrapR : GLenum;
+	baseLevel : number;
+	maxLevel : number;
 };
 
 export class WebGLStateCache {
@@ -37,6 +37,19 @@ export class WebGLStateCache {
         this.bs = new GFXBlendState;
         this.glEnabledAttribLocs = new Array<boolean>(GFX_MAX_VERTEX_ATTRIBUTES);
         this.glCurrentAttribLocs = new Array<boolean>(GFX_MAX_VERTEX_ATTRIBUTES);
+
+        for(let i = 0; i < GFX_MAX_TEXTURE_UNITS; ++i) {
+            this.glTex2DUnits[i] = {
+                glTexture : 0,
+                minFilter : WebGLRenderingContext.NONE,
+                magFilter : WebGLRenderingContext.NONE,
+                wrapS : WebGLRenderingContext.NONE,
+                wrapT : WebGLRenderingContext.NONE,
+                wrapR : WebGLRenderingContext.NONE,
+                baseLevel : 0,
+                maxLevel : 1000,
+            }
+        }
 
         for(let i = 0; i < GFX_MAX_VERTEX_ATTRIBUTES; ++i) {
             this.glEnabledAttribLocs[i] = false;

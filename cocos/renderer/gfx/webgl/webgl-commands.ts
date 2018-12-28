@@ -12,7 +12,7 @@ import { WebGLTexUnit } from "./webgl-state-cache";
 import { GFXBufferTextureCopy } from "../gfx-command-buffer";
 import { GFXTextureFlagBit } from "../gfx-texture";
 
-function GFXFormatToWebGLType(format: GFXFormat): GLenum {
+function GFXFormatToWebGLType(format: GFXFormat, device : WebGLGFXDevice): GLenum {
     switch (format) {
         case GFXFormat.R8: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return WebGLRenderingContext.BYTE;
@@ -69,8 +69,9 @@ function GFXFormatToWebGLType(format: GFXFormat): GLenum {
         case GFXFormat.RGB9E5: return WebGLRenderingContext.UNSIGNED_BYTE;
 
         case GFXFormat.D16: return WebGLRenderingContext.UNSIGNED_SHORT;
+        case GFXFormat.D16S8: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D24: return WebGLRenderingContext.UNSIGNED_INT;
-        case GFXFormat.D24S8: return WebGLRenderingContext.UNSIGNED_INT;
+        case GFXFormat.D24S8: return device.WEBGL_depth_texture? device.WEBGL_depth_texture.UNSIGNED_INT_24_8_WEBGL : WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.D32F: return WebGLRenderingContext.FLOAT;
         case GFXFormat.D32F_S8: return WebGLRenderingContext.FLOAT;
 
@@ -125,6 +126,7 @@ function GFXFormatToWebGLInternalFormat(format: GFXFormat): GLenum {
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGB5_A1;
         case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA4;
         case GFXFormat.D16: return WebGLRenderingContext.DEPTH_COMPONENT16;
+        case GFXFormat.D16S8: return WebGLRenderingContext.DEPTH_STENCIL;
         case GFXFormat.D24: return WebGLRenderingContext.DEPTH_COMPONENT;
         case GFXFormat.D24S8: return WebGLRenderingContext.DEPTH_STENCIL;
         case GFXFormat.D32F: return WebGLRenderingContext.DEPTH_COMPONENT;
@@ -164,6 +166,7 @@ function GFXFormatToWebGLFormat(format: GFXFormat): GLenum {
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGBA;
         case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA;
         case GFXFormat.D16: return WebGLRenderingContext.DEPTH_COMPONENT;
+        case GFXFormat.D16S8: return WebGLRenderingContext.DEPTH_STENCIL;
         case GFXFormat.D24: return WebGLRenderingContext.DEPTH_COMPONENT;
         case GFXFormat.D24S8: return WebGLRenderingContext.DEPTH_STENCIL;
         case GFXFormat.D32F: return WebGLRenderingContext.DEPTH_COMPONENT;
@@ -590,7 +593,7 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
 
     gpuTexture.glInternelFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format);
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format);
+    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, device);
 
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {

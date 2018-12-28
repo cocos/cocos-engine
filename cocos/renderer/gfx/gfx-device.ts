@@ -13,8 +13,13 @@ import { GFXCommandBufferInfo, GFXCommandBuffer } from './gfx-command-buffer';
 import { GFXCommandAllocatorInfo, GFXCommandAllocator } from './gfx-command-allocator';
 import { GFXWindowInfo, GFXWindow } from './gfx-window';
 
-export class GFXDeviceInfo {
-    canvasElm: HTMLElement | null = null;
+export const enum GFXFeature {
+};
+
+export interface GFXDeviceInfo {
+    canvasElm: HTMLElement;
+    isAntialias?: boolean;
+    isPremultipliedAlpha?: boolean;
 };
 
 export abstract class GFXDevice {

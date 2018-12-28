@@ -5,6 +5,7 @@ import { GFXFramebufferInfo } from '../gfx-framebuffer';
 import { GFXRenderPassInfo, GFXColorAttachment, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint, GFXDepthStencilAttachment } from '../gfx-render-pass';
 import { GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../gfx-texture';
 import { GFXTextureViewType } from '../gfx-texture-view';
+import { GFXFormat } from '../gfx-define';
 
 export class WebGLGFXWindow extends GFXWindow {
 
@@ -28,6 +29,13 @@ export class WebGLGFXWindow extends GFXWindow {
 
         this._width = info.width;
         this._height = info.height;
+        this._colorFmt = GFXFormat.RGBA8;
+
+        if(this.webGLDevice.WEBGL_depth_texture) {
+            this._depthStencilFmt = GFXFormat.D24S8;
+        } else {
+            this._depthStencilFmt = GFXFormat.D16S8;
+        }
 
         this._renderPass = this._device.createRenderPass({
             colorAttachment: [{
