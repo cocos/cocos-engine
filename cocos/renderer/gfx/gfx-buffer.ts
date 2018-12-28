@@ -1,7 +1,7 @@
 import { GFXDevice } from './gfx-device';
 import { BufferView } from './gfx-define';
 
-export const enum GFXBufferUsageBit {
+export enum GFXBufferUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -13,7 +13,7 @@ export const enum GFXBufferUsageBit {
 
 export type GFXBufferUsage = GFXBufferUsageBit;
 
-export const enum GFXMemoryUsageBit {
+export enum GFXMemoryUsageBit {
     NONE = 0,
     DEVICE = 0x1,
     HOST = 0x2,
@@ -21,7 +21,7 @@ export const enum GFXMemoryUsageBit {
 
 export type GFXMemoryUsage = GFXMemoryUsageBit;
 
-export const enum GFXBufferAccessBit {
+export enum GFXBufferAccessBit {
     NONE = 0,
     READ = 0x1,
     WRITE = 0x2,

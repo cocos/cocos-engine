@@ -16,20 +16,20 @@ import RenderBuffer from './render-buffer';
 import FrameBuffer from './frame-buffer';
 import Device from './device';
 
-import { GFXDevice } from '../../../dist/cocos/renderer/gfx/gfx-device';
-import { GFXBuffer } from '../../../dist/cocos/renderer/gfx/gfx-buffer';
-import { GFXTexture } from '../../../dist/cocos/renderer/gfx/gfx-texture';
-import { GFXTextureView } from '../../../dist/cocos/renderer/gfx/gfx-texture-view';
-import { GFXSampler } from '../../../dist/cocos/renderer/gfx/gfx-sampler';
-import { GFXShader } from '../../../dist/cocos/renderer/gfx/gfx-shader';
-import { GFXInputAssembler } from '../../../dist/cocos/renderer/gfx/gfx-input-assembler';
-import { GFXRenderPass } from '../../../dist/cocos/renderer/gfx/gfx-render-pass';
-import { GFXFramebuffer } from '../../../dist/cocos/renderer/gfx/gfx-framebuffer';
-import { GFXPipelineLayout } from '../../../dist/cocos/renderer/gfx/gfx-pipeline-layout';
-import { GFXPipelineState } from '../../../dist/cocos/renderer/gfx/gfx-pipeline-state';
-import { GFXCommandBuffer } from '../../../dist/cocos/renderer/gfx/gfx-command-buffer';
-import { GFXQueue } from '../../../dist/cocos/renderer/gfx/gfx-queue';
-import { WebGLGFXDevice } from '../../../dist/cocos/renderer/gfx/webgl/webgl-gfx-device';
+import { GFXDevice } from './gfx-device';
+import { GFXBuffer } from './gfx-buffer';
+import { GFXTexture } from './gfx-texture';
+import { GFXTextureView } from './gfx-texture-view';
+import { GFXSampler } from './gfx-sampler';
+import { GFXShader } from './gfx-shader';
+import { GFXInputAssembler } from './gfx-input-assembler';
+import { GFXRenderPass } from './gfx-render-pass';
+import { GFXFramebuffer } from './gfx-framebuffer';
+import { GFXPipelineLayout } from './gfx-pipeline-layout';
+import { GFXPipelineState } from './gfx-pipeline-state';
+import { GFXCommandBuffer } from './gfx-command-buffer';
+import { GFXQueue } from './gfx-queue';
+import { WebGLGFXDevice } from './webgl/webgl-gfx-device';
 
 let gfx = {
   // classes

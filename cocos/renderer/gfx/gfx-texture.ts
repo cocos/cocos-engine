@@ -1,13 +1,13 @@
 import { GFXFormat, GFXFormatInfo } from './gfx-define';
 import { GFXDevice } from './gfx-device';
 
-export const enum GFXTextureType {
+export enum GFXTextureType {
     TEX1D,
     TEX2D,
     TEX3D,
 };
 
-export const enum GFXTextureUsageBit {
+export enum GFXTextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -21,7 +21,7 @@ export const enum GFXTextureUsageBit {
 
 export type GFXTextureUsage = GFXTextureUsageBit;
 
-export const enum GFXTextureFlagBit {
+export enum GFXTextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,
     CUBEMAP = 0x2,

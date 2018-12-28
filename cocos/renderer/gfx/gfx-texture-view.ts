@@ -2,7 +2,7 @@ import { GFXFormat, GFXFormatInfo } from './gfx-define';
 import { GFXDevice } from './gfx-device';
 import { GFXTexture } from './gfx-texture';
 
-export const enum GFXTextureViewType {
+export enum GFXTextureViewType {
     TV1D,
     TV2D,
     TV3D,

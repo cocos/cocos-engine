@@ -3,7 +3,7 @@ import { GFXBuffer } from './gfx-buffer';
 import { GFXTextureView } from './gfx-texture-view';
 import { GFXSampler } from './gfx-sampler';
 
-export const enum GFXBindingType {
+export enum GFXBindingType {
     UNKNOWN,
     UNIFORM_BUFFER,
     SAMPLER,

@@ -1,5 +1,5 @@
 // Extensions
-export const enum WebGLEXT {
+export enum WebGLEXT {
     COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0,
     COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1,
     COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2,
@@ -58,7 +58,7 @@ export enum GFXType {
     COUNT,
 };
 
-export const enum GFXFormat {
+export enum GFXFormat {
    
     UNKNOWN,
 

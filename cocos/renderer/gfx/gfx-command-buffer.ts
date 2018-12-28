@@ -33,7 +33,7 @@ export class GFXBufferTextureCopy {
     texSubres: GFXTextureSubres = new GFXTextureSubres;
 };
 
-export const enum GFXCommandBufferType {
+export enum GFXCommandBufferType {
     PRIMARY,
     SECONDARY,
 };

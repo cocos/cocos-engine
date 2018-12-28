@@ -4,12 +4,11 @@ import { GFXTextureViewType } from "../gfx-texture-view";
 import { GFXFormat, GFXType, BufferView } from "../gfx-define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../gfx-render-pass";
 import { GFXShaderType, GFXShaderMacro, GFXUniformBlock, GFXUniformSampler } from "../gfx-shader";
-import { GFXBinding, GFXBindingType } from "../gfx-binding-layout";
-import { GFXFilter, GFXAddress } from "../gfx-sampler";
-import { GFXComparisonFunc, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../gfx-pipeline-state";
+import { GFXBindingType } from "../gfx-binding-layout";
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../gfx-pipeline-state";
 import { GFXInputAttribute } from "../gfx-input-assembler";
 
-export const enum WebGLGPUObjectType {
+export enum WebGLGPUObjectType {
     UNKNOWN,
     BUFFER,
     TEXTURE,

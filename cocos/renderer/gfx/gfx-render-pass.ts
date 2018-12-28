@@ -2,7 +2,7 @@ import { GFXFormat, GFXFormatInfo } from './gfx-define';
 import { GFXDevice } from './gfx-device';
 
 // Enumeration all possible values of operations to be performed on initially Loading a Framebuffer Object.
-export const enum GFXLoadOp
+export enum GFXLoadOp
 {
 	LOAD,		// Load the contents from the fbo from previous
 	CLEAR,		// Clear the fbo
@@ -10,13 +10,13 @@ export const enum GFXLoadOp
 };
 
 // Enumerates all possible values of operations to be performed when Storing to a Framebuffer Object.
-export const enum GFXStoreOp
+export enum GFXStoreOp
 {
 	STORE,		// Write the source to the destination
 	DISCARD,	// Don't write the source to the destination
 };
 
-export const enum GFXTextureLayout
+export enum GFXTextureLayout
 {
     UNDEFINED,
     GENERAL,
@@ -40,7 +40,7 @@ export class GFXColorAttachment
 	endLayout : GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 };
 
-export class  GFXDepthStencilAttachment
+export class GFXDepthStencilAttachment
 {
 	format : GFXFormat = GFXFormat.UNKNOWN;
 	depthLoadOp : GFXLoadOp = GFXLoadOp.CLEAR;
@@ -52,7 +52,7 @@ export class  GFXDepthStencilAttachment
 	endLayout : GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 };
 
-export const enum GFXPipelineBindPoint
+export enum GFXPipelineBindPoint
 {
     GRAPHICS,
     COMPUTE,

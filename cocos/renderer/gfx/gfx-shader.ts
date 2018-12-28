@@ -2,7 +2,7 @@ import { GFXDevice } from './gfx-device';
 import { GFXBinding } from './gfx-binding-layout';
 import { GFXType } from './gfx-define';
 
-export const enum GFXShaderType {
+export enum GFXShaderType {
     VERTEX,
     HULL,
     DOMAIN,

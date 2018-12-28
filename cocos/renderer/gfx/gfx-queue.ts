@@ -1,6 +1,6 @@
 import { GFXDevice } from './gfx-device';
 
-export const enum GFXQueueType {
+export enum GFXQueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,

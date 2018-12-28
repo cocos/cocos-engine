@@ -13,7 +13,7 @@ import { GFXCommandBufferInfo, GFXCommandBuffer } from './gfx-command-buffer';
 import { GFXCommandAllocatorInfo, GFXCommandAllocator } from './gfx-command-allocator';
 import { GFXWindowInfo, GFXWindow } from './gfx-window';
 
-export const enum GFXFeature {
+export enum GFXFeature {
 };
 
 export interface GFXDeviceInfo {

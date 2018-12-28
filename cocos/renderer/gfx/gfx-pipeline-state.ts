@@ -1,11 +1,10 @@
 import { GFXDevice } from './gfx-device';
-import { GFX_MAX_VERTEX_ATTRIBUTES, GFXFormat } from './gfx-define';
 import { GFXShader } from './gfx-shader';
 import { GFXRenderPass } from './gfx-render-pass';
 import { GFXPipelineLayout } from './gfx-pipeline-layout';
 import { GFXInputAttribute } from './gfx-input-assembler';
 
-export const enum GFXPrimitiveMode {
+export enum GFXPrimitiveMode {
     POINT_LIST,
     LINE_LIST,
     LINE_STRIP,
@@ -22,24 +21,24 @@ export const enum GFXPrimitiveMode {
     ISO_LINE_LIST,
 };
 
-export const enum GFXPolygonMode {
+export enum GFXPolygonMode {
     FILL,
     LINE,
     POINT,
 };
 
-export const enum GFXShadeModel {
+export enum GFXShadeModel {
     GOURAND,
     FLAT,
 };
 
-export const enum GFXCullMode {
+export enum GFXCullMode {
     NONE,
     FRONT,
     BACK,
 };
 
-export const enum GFXComparisonFunc {
+export enum GFXComparisonFunc {
     NEVER,
     LESS,
     EQUAL,
@@ -50,7 +49,7 @@ export const enum GFXComparisonFunc {
     ALWAYS,
 };
 
-export const enum GFXStencilOp {
+export enum GFXStencilOp {
     KEEP,
     ZERO,
     REPLACE,
@@ -61,7 +60,7 @@ export const enum GFXStencilOp {
     DECR_WRAP,
 };
 
-export const enum GFXBlendOp {
+export enum GFXBlendOp {
     ADD,
     SUB,
     REV_SUB,
@@ -69,7 +68,7 @@ export const enum GFXBlendOp {
     MAX,
 };
 
-export const enum GFXBlendFactor {
+export enum GFXBlendFactor {
     ZERO,
     ONE,
     SRC_ALPHA,
@@ -87,7 +86,7 @@ export const enum GFXBlendFactor {
     ONE_MINUS_CONSTANT_ALPHA,
 };
 
-export const enum GFXColorMask {
+export enum GFXColorMask {
     NONE = 0x0,
     R = 0x1,
     G = 0x2,

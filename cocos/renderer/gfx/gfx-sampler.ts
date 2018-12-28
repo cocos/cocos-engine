@@ -1,14 +1,14 @@
 import { GFXDevice } from './gfx-device';
 import { GFXComparisonFunc } from './gfx-pipeline-state';
 
-export const enum GFXFilter {
+export enum GFXFilter {
     NONE,
     POINT,
     LINEAR,
     ANISOTROPIC,
 };
 
-export const enum GFXAddress {
+export enum GFXAddress {
     WRAP,
     MIRROR,
     CLAMP,
