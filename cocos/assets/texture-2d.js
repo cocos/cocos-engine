@@ -47,11 +47,11 @@ import ImageAsset from './image-asset';
  */
 @ccclass('cc.Texture2D')
 export default class Texture2D extends TextureBase {
-	@property({
-	    override: true
-	})
+    @property({
+        override: true
+    })
     _flipY = true;
-	
+    
     /**
      * @type {ImageAsset[]}
      */
