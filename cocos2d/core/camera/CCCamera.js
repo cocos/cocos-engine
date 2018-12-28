@@ -78,6 +78,11 @@ let ClearFlags = cc.Enum({
     STENCIL: 4,
 });
 
+let StageFlags = cc.Enum({
+    OPAQUE: 1,
+    TRANSPARENT: 2
+});
+
 /**
  * !#en
  * Camera is usefull when making reel game or other games which need scroll screen.
@@ -131,6 +136,7 @@ let Camera = cc.Class({
         _farClip: 4096,
         _ortho: true,
         _rect: cc.rect(0, 0, 1, 1),
+        _renderStages: 1,
 
         /**
          * !#en
@@ -345,6 +351,16 @@ let Camera = cc.Class({
             }
         },
 
+        renderStages: {
+            get () {
+                return this._renderStages;
+            },
+            set (val) {
+                this._renderStages = val;
+                this._updateStages();
+            }
+        },
+
         _is3D: {
             get () {
                 return this.node._is3DNode;
@@ -401,10 +417,6 @@ let Camera = cc.Class({
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
             let camera = new RendererCamera();
             _debugCamera = camera;
-
-            camera.setStages([
-                'opaque'
-            ]);
 
             camera.setFov(Math.PI * 60 / 180);
             camera.setNear(0.1);
@@ -472,6 +484,18 @@ let Camera = cc.Class({
         this._camera.setRect(this._rect);
     },
 
+    _updateStages () {
+        let flags = this._renderStages;
+        let stages = this._camera._stages;
+        stages.length = 0;
+        if (flags & StageFlags.OPAQUE) {
+            stages.push('opaque');
+        }
+        if (flags & StageFlags.TRANSPARENT) {
+            stages.push('transparent');
+        }
+    },
+
     _init () {
         if (this._inited) return;
         this._inited = true;
@@ -486,6 +510,7 @@ let Camera = cc.Class({
         this._updateTargetTexture();
         this._updateClippingpPlanes();
         this._updateProjection();
+        this._updateStages();
     },
 
     onLoad () {
