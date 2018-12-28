@@ -1243,7 +1243,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                         gpuShader = cmd.gpuPipelineState.gpuShader;
                     }
 
-                    // rasterizater state
+                    // rasterizer state
                     let rs = cmd.gpuPipelineState.rs;
                     if (rs) {
 
@@ -1281,10 +1281,13 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                             device.stateCache.rs.depthBiasFactor = rs.depthBiasFactor;
                         }
 
+                        /* no browser actually supports this
                         if (device.stateCache.rs.lineWidth !== rs.lineWidth) {
                             gl.lineWidth(rs.lineWidth);
                             device.stateCache.rs.lineWidth = rs.lineWidth;
                         }
+                        */
+
                     } // rasterizater state
 
                     // depth-stencil state
@@ -1534,7 +1537,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 3*m;
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] ||
                                                                 glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2]) {
                                                                 gl.uniform3iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
                                                                 break;
@@ -1550,8 +1553,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 4*m;
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] || 
-                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] ||
+                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2] ||
                                                                 glBlock.bufferView.getInt32(offset+12) !== glUniform.bufferView[idx+3]) {
                                                                 gl.uniform4iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
                                                                 break;
@@ -1592,7 +1595,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 3*m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
                                                                 glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2]) {
                                                                 gl.uniform3fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
                                                                 break;
@@ -1607,8 +1610,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 4*m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
                                                                 glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
                                                                 gl.uniform4fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
                                                                 break;
@@ -1623,8 +1626,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 4*m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
                                                                 glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
                                                                 gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
                                                                 break;
@@ -1640,8 +1643,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 9*m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
                                                                 glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
                                                                 glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
                                                                 glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
@@ -1660,10 +1663,10 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 9*m;
+                                                            let idx = 16*m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] || 
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] || 
+                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
+                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
                                                                 glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
                                                                 glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
                                                                 glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
