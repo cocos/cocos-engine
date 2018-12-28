@@ -198,7 +198,13 @@ void jsb_init_file_operation_delegate()
                 }
             }
 
-            return FileUtils::getInstance()->getStringFromFile(path);
+            if (FileUtils::getInstance()->isFileExist(path)) {
+                return FileUtils::getInstance()->getStringFromFile(path);
+            }
+            else {
+                SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
+            }
+            return "";
         };
 
         delegate.onGetFullPath = [](const std::string& path) -> std::string{

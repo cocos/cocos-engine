@@ -667,7 +667,10 @@ namespace se {
             }
         }
 
-//        assert(success);
+        if (!success)
+        {
+            SE_LOGE("ScriptEngine::evalString script %s, failed!\n", fileName);
+        }
         return success;
     }
 

@@ -470,6 +470,7 @@ namespace se {
 
         if (errCode != JsNoError)
         {
+            SE_LOGE("ScriptEngine::evalString script %s, failed!\n", fileName);
             clearException();
             return false;
         }
