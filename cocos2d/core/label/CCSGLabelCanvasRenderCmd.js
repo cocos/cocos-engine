@@ -25,6 +25,10 @@
  THE SOFTWARE.
 
  ****************************************************************************/
+
+var BASELINE_RATIO = 0.25;
+var MIDDLE_RATIO = (BASELINE_RATIO + 1) / 2 - BASELINE_RATIO;
+
 (function () {
     _ccsg.Label.TTFLabelBaker = function () {};
 
@@ -278,9 +282,10 @@
         var paragraphedStrings = node._string.split('\n');
         var i;
         var ctx = this._labelContext;
+        var margin = this._getMargin();
 
         if (_ccsg.Label.Overflow.RESIZE_HEIGHT === node._overFlow) {
-            this._canvasSize.height = this._splitedStrings.length * this._getLineHeight();
+            this._canvasSize.height = (this._splitedStrings.length + BASELINE_RATIO) * this._getLineHeight() + 2 * margin;
             _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
         else if(_ccsg.Label.Overflow.NONE === node._overFlow) {
@@ -291,10 +296,10 @@
                 var paraLength = this._safeMeasureText(ctx, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = this._splitedStrings.length * this._getLineHeight();
+            canvasSizeY = (this._splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
 
-            this._canvasSize.width = Math.round(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
-            this._canvasSize.height = Math.round(canvasSizeY.toFixed(2));
+            this._canvasSize.width = Math.round(canvasSizeX.toFixed(2)) + 2 * margin;
+            this._canvasSize.height = Math.round(canvasSizeY.toFixed(2)) + 2 * margin;
             if(node._isItalic) {
                 //0.0174532925 = 3.141592653 / 180
                 this._canvasSize.width += node._drawFontsize * Math.tan(12 * 0.0174532925);
@@ -309,29 +314,30 @@
 
     proto._calculateFillTextStartPosition = function() {
         var node = this._node;
-        var lineHeight = this._getLineHeight();
-        var lineCount = this._splitedStrings.length;
-        var labelX;
-        var firstLinelabelY;
+        var labelX = 0;
+        var margin = this._getMargin();
 
         if (cc.TextAlignment.RIGHT === node._hAlign) {
-            labelX = this._canvasSize.width - this._getMargin();
+            labelX = this._canvasSize.width - margin;
         }
         else if (cc.TextAlignment.CENTER === node._hAlign) {
             labelX = this._canvasSize.width / 2;
         }
         else {
-            labelX = 0 + this._getMargin();
+            labelX = 0 + margin;
         }
 
+        var firstLinelabelY = 0;
+        var lineHeight = this._getLineHeight();
+        var drawStartY = lineHeight * (this._splitedStrings.length - 1);
         if (cc.VerticalTextAlignment.TOP === node._vAlign) {
-            firstLinelabelY = 0;
+            firstLinelabelY = lineHeight + margin;
         }
         else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
-            firstLinelabelY = this._canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
+            firstLinelabelY = (this._canvasSize.height - drawStartY) * 0.5 + node._drawFontsize * MIDDLE_RATIO;
         }
         else {
-            firstLinelabelY = this._canvasSize.height - lineHeight * (lineCount - 1);
+            firstLinelabelY = this._canvasSize.height - drawStartY - node._drawFontsize * BASELINE_RATIO - margin;
         }
 
         return cc.p(labelX, firstLinelabelY);
@@ -353,16 +359,7 @@
         }
 
         this._labelContext.textAlign = hAlign;
-        if (cc.VerticalTextAlignment.TOP === node._vAlign) {
-            vAlign = 'top';
-        }
-        else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
-            vAlign = 'middle';
-        }
-        else {
-            vAlign = 'bottom';
-        }
-        this._labelContext.textBaseline = vAlign;
+        this._labelContext.textBaseline = 'alphabetic';
     };
 
     proto._bakeLabel = function () {
@@ -381,28 +378,6 @@
     };
 
 
-    proto._calculateUnderlineStartPosition = function () {
-        var node = this._node;
-        var lineHeight = this._getLineHeight();
-        var lineCount = this._splitedStrings.length;
-        var labelX;
-        var firstLinelabelY;
-
-        labelX = 0 + this._getMargin();
-
-        if (cc.VerticalTextAlignment.TOP === node._vAlign) {
-            firstLinelabelY = node._fontSize;
-        }
-        else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
-            firstLinelabelY = this._canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + node._fontSize / 2;
-        }
-        else {
-            firstLinelabelY = this._canvasSize.height - lineHeight * (lineCount - 1);
-        }
-
-        return cc.p(labelX, firstLinelabelY);
-    };
-
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._canvasSize.width, this._canvasSize.height);
 
@@ -417,15 +392,32 @@
         var underlineStartPosition;
 
         //do real rendering
+        var margin = this._getMargin();
         for (var i = 0; i < this._splitedStrings.length; ++i) {
+            var drawTextPosX = startPosition.x;
+            var drawTextPosY = startPosition.y + i * lineHeight;
+
+            if(this._node._isUnderline) {
+                var underlineThickness = this._node._fontSize / 8;
+                var drawUnderlinePosX = 0 + margin;
+                var drawUnderlinePosY = drawTextPosY + underlineThickness;
+                this._labelContext.save();
+                this._labelContext.beginPath();
+                this._labelContext.lineWidth = underlineThickness;
+                this._labelContext.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+                this._labelContext.moveTo(drawUnderlinePosX, drawUnderlinePosY);
+                this._labelContext.lineTo(drawUnderlinePosX + this._labelCanvas.width, drawUnderlinePosY);
+                this._labelContext.stroke();
+                this._labelContext.restore();
+            }
+
             if(this._node.isOutlined())
             {
                 var strokeColor = this._node.getOutlineColor() || cc.color(255,255,255,255);
                 this._labelContext.globalCompositeOperation = 'source-over';
                 this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
                 this._labelContext.lineWidth = this._node.getOutlineWidth() * 2;
-                this._labelContext.strokeText(this._splitedStrings[i],
-                                              startPosition.x, startPosition.y + i * lineHeight);
+                this._labelContext.strokeText(this._splitedStrings[i], drawTextPosX, drawTextPosY);
             }
             if(this._node.getFillColorGradientEnabled()) {
                 var gradientStartColor = this._node.getGradientStartColor() || cc.color(255, 255, 255, 255);
@@ -436,18 +428,7 @@
                 gradient.addColorStop(1, cc.colorToHex(gradientEndColor));
                 this._labelContext.fillStyle = gradient;
             }
-            this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
-            if(this._node._isUnderline) {
-                underlineStartPosition = this._calculateUnderlineStartPosition();
-                this._labelContext.save();
-                this._labelContext.beginPath();
-                this._labelContext.lineWidth = this._node._fontSize / 8;
-                this._labelContext.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
-                this._labelContext.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
-                this._labelContext.lineTo(underlineStartPosition.x + this._labelCanvas.width, underlineStartPosition.y + i * lineHeight - 1);
-                this._labelContext.stroke();
-                this._labelContext.restore();
-            }
+            this._labelContext.fillText(this._splitedStrings[i], drawTextPosX, drawTextPosY);
         }
 
         this._texture.loaded = false;
