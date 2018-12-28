@@ -108,13 +108,6 @@ export class PhysicsBody {
         throw new Error(`shape not found.`);
     }
 
-    public setCenter(shape: PhysicsShape, center: Vec3) {
-        const iShape = this._cannonBody.shapes.indexOf(shape._getCannonShape());
-        if (iShape >= 0) {
-            this._cannonBody.shapeOffsets[iShape].set(center.x, center.y, center.z);
-        }
-    }
-
     get velocity() {
         return this._cannonBody.velocity;
     }
@@ -233,6 +226,10 @@ export class PhysicsBody {
         this._cannonBody.position.set(position.x, position.y, position.z);
     }
 
+    public setWorldScale(scale: Vec3) {
+        this._pullScale(scale);
+    }
+
     /**
      * Is this body currently in contact with the specified body?
      * @param {CannonBody} body The body to test against.
@@ -283,11 +280,30 @@ export class PhysicsBody {
         // @ts-nocheck
         this._node.getWorldRotation(this._cannonBody.quaternion);
         const scale = this._node.getWorldScale();
+        this._pullScale(scale);
+    }
+
+    private _pullScale(scale: cc.Vec3) {
         let shapeUpdated = false;
         this._shapes.forEach((shape) => {
+            let calcShapeOffset = false;
+            if (shape._centerChanged) {
+                shape._centerChanged = false;
+                calcShapeOffset = true;
+            }
+
             if (!vec3.exactEquals(scale, shape.scale)) {
                 shape.scale = scale;
                 shapeUpdated = true;
+                calcShapeOffset = true;
+            }
+
+            if (calcShapeOffset) {
+                const iShape = this._cannonBody.shapes.findIndex((cannonShape) => cannonShape === shape._getCannonShape());
+                if (iShape >= 0) {
+                    const shapeOffset = this._cannonBody.shapeOffsets[iShape];
+                    vec3.multiply(shapeOffset, shape.center, scale);
+                }
             }
         });
         if (shapeUpdated) {
@@ -332,6 +348,18 @@ export class PhysicsShape {
     // public __debugNodeName: string = '';
 
     private _scale: cc.Vec3 = new cc.Vec3(1.0, 1.0, 1.0);
+
+    private _center: cc.Vec3 = new cc.Vec3(0, 0, 0);
+
+    public _centerChanged = true;
+
+    public get center() {
+        return this._center;
+    }
+
+    public set center(value) {
+        vec3.copy(this._center, value);
+    }
 
     constructor(private _cannonShape: CANNON.Shape) {
         setWrap<PhysicsShape>(this._cannonShape, this);
