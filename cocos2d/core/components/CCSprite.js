@@ -567,6 +567,7 @@ var Sprite = cc.Class({
                 this.node.setContentSize(rect.width, rect.height);
             }
             
+            this.setVertsDirty();
             this._activateMaterial();
         }
     },
