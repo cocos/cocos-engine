@@ -34,4 +34,6 @@ import "./skeleton";
 import "./sprite";
 import "./web-audio-clip";
 import "./wx-game-audio-clip";
-import "./utils/gltf-utils.js";
+
+import { PhysicsMaterial } from './physics/material';
+cc.PhysicsMaterial = PhysicsMaterial;
