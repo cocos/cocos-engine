@@ -536,7 +536,7 @@ let Label = cc.Class({
             };
             // cannot be activated if texture not loaded yet
             if (spriteFrame && spriteFrame.textureLoaded()) {
-                onBMFontTextureLoaded();
+                onBMFontTextureLoaded.call(this);
             }
             else {
                 this.disableRender();
