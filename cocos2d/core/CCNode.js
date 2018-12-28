@@ -942,6 +942,9 @@ let NodeDefines = {
             set (value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
+                    if (CC_JSB && CC_NATIVERENDERER) {
+                        this._proxy.updateOpacity();
+                    };
                     this._renderFlag |= RenderFlow.FLAG_OPACITY | RenderFlow.FLAG_COLOR;
                 }
             },
@@ -1163,6 +1166,7 @@ let NodeDefines = {
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy = new renderer.NodeProxy();
             this._proxy.bind(this);
+            this._proxy.updateOpacity();
         }
     },
 
@@ -1421,6 +1425,7 @@ let NodeDefines = {
             this._proxy.setName(this._name);
             this._parent && this._proxy.updateParent(this._parent._proxy);
             this._proxy.updateJSTRS(this._trs);
+            this._proxy.updateOpacity();
         }
     },
 
