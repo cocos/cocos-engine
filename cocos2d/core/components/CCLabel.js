@@ -496,6 +496,7 @@ let Label = cc.Class({
 
     _on3DNodeChanged () {
         this._updateAssembler();
+        this.markForUpdateRenderData(true);
     },
 
     _updateAssembler () {
@@ -509,7 +510,6 @@ let Label = cc.Class({
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
             this._renderData.material = this._material;
-            this.markForUpdateRenderData(true);
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
@@ -616,9 +616,9 @@ let Label = cc.Class({
 
     _forceUpdateRenderData () {
         this.setVertsDirty();
-        this.markForUpdateRenderData(true);
         this._updateAssembler();
         this._applyFontTexture(true);
+        this.markForUpdateRenderData(true);
     },
 
     _enableBold (enabled) {
