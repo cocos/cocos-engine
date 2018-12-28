@@ -53,6 +53,7 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
 /*
  * @param [options.sourcemaps = true]
  * @param [options.babelifyOpt]
+ * @param [options.aliasifyConfig]
  */
 module.exports = function createBundler(entryFiles, options) {
     // https://github.com/substack/node-browserify#methods
@@ -69,27 +70,35 @@ module.exports = function createBundler(entryFiles, options) {
         preludePath: Path.relative(process.cwd(), preludePath),
     };
 
-    // var presets = [
-    //     [ 'es2015', { loose: true } ],
-    // ];
-
-    var plugins = [
-        // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
-        'babel-plugin-transform-es2015-shorthand-properties',
-        // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
-        'babel-plugin-transform-es2015-template-literals',
-        // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
-        'babel-plugin-transform-es2015-block-scoping',
-
-        // < 6.16.0
-        [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    var presets = [
+        // [ 'es2015', { loose: true } ],
+        'env'
     ];
+
+    // var plugins = [
+    //     // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
+    //     'babel-plugin-transform-es2015-shorthand-properties',
+    //     // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
+    //     'babel-plugin-transform-es2015-template-literals',
+    //     // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
+    //     'babel-plugin-transform-es2015-block-scoping',
+
+    //     // < 6.16.0
+    //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    // ];
 
     var Babelify;
     try {
         Babelify = require('babelify');
     } catch (e) {
         console.error('Please run "npm install babelify".');
+        throw e;
+    }
+    var aliasify;
+    try {
+        aliasify = require('aliasify');
+    } catch (e) {
+        console.error('Please run "npm install aliasify".');
         throw e;
     }
 
@@ -111,8 +120,8 @@ module.exports = function createBundler(entryFiles, options) {
     return b
         .exclude(Path.join(__dirname, '../../package.json'))
         .transform(Babelify, (options && options.babelifyOpt) || {
-            // presets: presets,
-            plugins: plugins,
+            presets: presets,
+            // plugins: plugins,
 
             // >= 6.16.0
             // parserOpts: {
@@ -124,5 +133,6 @@ module.exports = function createBundler(entryFiles, options) {
             highlightCode: false,
             sourceMaps: true,
             compact: false
-        });
+        })
+        .transform(aliasify, (options && options.aliasifyConfig) || {});
 };

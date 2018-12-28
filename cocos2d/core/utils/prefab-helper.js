@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+var math = require("../renderer").renderEngine.math;
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
@@ -69,8 +72,11 @@ module.exports = {
         //
         if (!_prefab.asset) {
             if (CC_EDITOR) {
-                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: _Scene.NodeUtils.getNodePath(node) }));
-                node.name += _Scene.PrefabUtils.MISSING_PREFAB_SUFFIX;
+                var NodeUtils = Editor.require('scene://utils/node');
+                var PrefabUtils = Editor.require('scene://utils/prefab');
+
+                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
+                node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
             }
             else {
                 cc.errorID(3701, node.name);
@@ -87,8 +93,7 @@ module.exports = {
         var _active = node._active;
         var x = node._position.x;
         var y = node._position.y;
-        var _rotationX = node._rotationX;
-        var _rotationY = node._rotationY;
+        var _quat = node._quat;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
 
@@ -119,8 +124,7 @@ module.exports = {
         node._active = _active;
         node._position.x = x;
         node._position.y = y;
-        node._rotationX = _rotationX;
-        node._rotationY = _rotationY;
+        math.quat.copy(node._quat, _quat);
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
     }

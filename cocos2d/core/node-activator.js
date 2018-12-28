@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +26,7 @@
 
 var CompScheduler = require('./component-scheduler');
 var Flags = require('./platform/CCObject').Flags;
-var JS = require('./platform/js');
+var js = require('./platform/js');
 var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 
 var MAX_POOL_SIZE = 4;
@@ -74,7 +75,7 @@ var invokeOnLoad = CompScheduler.createInvokeImpl(
     CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
 );
 
-var activateTasksPool = new JS.Pool(MAX_POOL_SIZE);
+var activateTasksPool = new js.Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     var task = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
@@ -105,18 +106,18 @@ function _componentCorrupted (node, comp, index) {
         node._removeComponent(comp);
     }
     else {
-        JS.array.removeAt(node._components, index);
+        js.array.removeAt(node._components, index);
     }
 }
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !cc.engine._isPlaying) {
         var focused = Editor.Selection.curActivate('node') === comp.node.uuid;
-        if (focused && comp.onFocusInEditor) {
-            callOnFocusInTryCatch(comp);
+        if (focused) {
+            comp.onFocusInEditor && callOnFocusInTryCatch(comp);
         }
-        else if (comp.onLostFocusInEditor) {
-            callOnLostFocusInTryCatch(comp);
+        else {
+            comp.onLostFocusInEditor && callOnLostFocusInTryCatch(comp);
         }
     }
     if ( !CC_TEST ) {
@@ -246,10 +247,14 @@ var NodeActivator = cc.Class({
     },
 
     activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
-                if (typeof comp.__preload === 'function') {
+                if (comp.__preload) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
                     }
@@ -282,9 +287,13 @@ var NodeActivator = cc.Class({
             cc.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+        if (!cc.isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
-            if (typeof comp.__preload === 'function') {
+            if (comp.__preload) {
                 if (preloadInvoker) {
                     preloadInvoker.add(comp);
                 }
@@ -336,7 +345,7 @@ var NodeActivator = cc.Class({
     },
 
     resetComp: CC_EDITOR && function (comp) {
-        if (typeof comp.resetInEditor === 'function') {
+        if (comp.resetInEditor) {
             callResetInTryCatch(comp);
         }
     }

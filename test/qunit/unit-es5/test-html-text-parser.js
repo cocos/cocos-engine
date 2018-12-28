@@ -2,7 +2,7 @@
 
 largeModule('HtmlTextParser');
 
-var parser = new cc.HtmlTextParser();
+var parser = new cc._Test.HtmlTextParser();
 
 test('Basic Test', function() {
 

@@ -10,7 +10,7 @@ cc.Class({
 
     onKeyDown: function (event) {
         switch(event.keyCode) {
-            case cc.KEY['0']:
+            case cc.macro.KEY['0']:
                 console.log('Press a key');
                 break;
         }

@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('./js');
+var js = require('./js');
 var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
 const DELIMETER = '$_$';
@@ -44,10 +45,10 @@ function createAttrsSingle (owner, ownerCtor, superAttrs) {
         AttrsCtor = function () {};
     }
     if (superAttrs) {
-        JS.extend(AttrsCtor, superAttrs.constructor);
+        js.extend(AttrsCtor, superAttrs.constructor);
     }
     var attrs = new AttrsCtor();
-    JS.value(owner, '__attrs__', attrs);
+    js.value(owner, '__attrs__', attrs);
     return attrs;
 }
 
@@ -184,7 +185,7 @@ cc.Integer = 'Integer';
 cc.Float = 'Float';
 
 if (CC_EDITOR) {
-    JS.get(cc, 'Number', function () {
+    js.get(cc, 'Number', function () {
         cc.warnID(3603);
         return cc.Float;
     });
@@ -245,7 +246,7 @@ Callbacks: {
 function getTypeChecker (type, attrName) {
     if (CC_DEV) {
         return function (constructor, mainPropName) {
-            var propInfo = '"' + JS.getClassName(constructor) + '.' + mainPropName + '"';
+            var propInfo = '"' + js.getClassName(constructor) + '.' + mainPropName + '"';
             var mainPropAttrs = attr(constructor, mainPropName);
             if (!mainPropAttrs.saveUrlAsAsset) {
                 var mainPropAttrsType = mainPropAttrs.type;
@@ -274,7 +275,7 @@ function getTypeChecker (type, attrName) {
                 if (!mainPropAttrs.saveUrlAsAsset) {
                     if (type_lowerCase === 'object') {
                         if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                            cc.warnID(3605, propInfo, JS.getClassName(mainPropAttrs.ctor));
+                            cc.warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
                         }
                         else {
                             return;
@@ -287,7 +288,7 @@ function getTypeChecker (type, attrName) {
             }
             else if (defaultType !== 'function') {
                 if (type === cc.String && defaultVal == null) {
-                    if (!cc.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
+                    if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
                         cc.warnID(3607, propInfo);
                     }
                 }
@@ -324,15 +325,15 @@ function ObjectType (typeCtor) {
             // check ValueType
             var defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
             var defaultVal = require('./CCClass').getDefault(defaultDef);
-            if (!Array.isArray(defaultVal) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
-                var typename = JS.getClassName(typeCtor);
+            if (!Array.isArray(defaultVal) && js.isChildClassOf(typeCtor, cc.ValueType)) {
+                var typename = js.getClassName(typeCtor);
                 var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-                    JS.getClassName(classCtor), mainPropName, typename);
+                    js.getClassName(classCtor), mainPropName, typename);
                 if (defaultDef) {
                     cc.log(info);
                 }
                 else {
-                    cc.warnID(3612, info, typename, JS.getClassName(classCtor), mainPropName, typename);
+                    cc.warnID(3612, info, typename, js.getClassName(classCtor), mainPropName, typename);
                 }
             }
         }

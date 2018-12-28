@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,6 +50,19 @@ var RawAsset = require('./CCRawAsset');
 cc.Asset = cc.Class({
     name: 'cc.Asset', extends: RawAsset,
 
+    ctor () {
+        /**
+         * !#en
+         * Whether the asset is loaded or not
+         * !#zh
+         * 该资源是否已经成功加载
+         *
+         * @property loaded
+         * @type {Boolean}
+         */
+        this.loaded = true;
+    },
+
     properties: {
         /**
          * !#en
@@ -62,9 +76,14 @@ cc.Asset = cc.Class({
         nativeUrl: {
             get: function () {
                 if (this._native) {
+                    var name = this._native;
+                    if (name.charCodeAt(0) === 47) {    // '/'
+                        // remove library tag
+                        // not imported in library, just created on-the-fly
+                        return name.slice(1);
+                    }
                     if (cc.AssetLibrary) {
-                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid);
-                        var name = this._native;
+                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                         if (name.charCodeAt(0) === 46) {  // '.'
                             // imported in dir where json exist
                             return base + name;
@@ -91,11 +110,6 @@ cc.Asset = cc.Class({
          */
         _native: "",
 
-        // __nativeAsset: {
-        //     default: null,
-        //     serializable: false
-        // },
-
         /**
          * The underlying native asset of this asset if one is available.
          * This property can be used to access additional details or functionality releated to the asset.
@@ -105,18 +119,8 @@ cc.Asset = cc.Class({
          * @private
          */
         _nativeAsset: {
-            get () {
-                if (CC_EDITOR) {
-                    cc.errorID('0100', 'getter of ' + JS.getClassName(this) + '._nativeAsset');
-                }
-                // return this.__nativeAsset;
-            },
-            set (obj) {
-                if (CC_EDITOR) {
-                    cc.errorID('0100', 'setter of ' + JS.getClassName(this) + '._nativeAsset');
-                }
-                // this.__nativeAsset = obj;
-            }
+            get () { },
+            set (obj) { }
         },
     },
 
@@ -156,6 +160,20 @@ cc.Asset = cc.Class({
     },
 
     /**
+     * Returns the asset's url.
+     *
+     * The `Asset` object overrides the `toString()` method of the `Object` object.
+     * For `Asset` objects, the toString() method returns a string representation of the object.
+     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     *
+     * @method toString
+     * @return {String}
+     */
+    toString () {
+        return this.nativeUrl;
+    },
+
+    /**
      * 应 AssetDB 要求提供这个方法
      *
      * @method serialize
@@ -187,10 +205,16 @@ cc.Asset = cc.Class({
      *
      * @method _setRawAsset
      * @param {String} filename
+     * @param {Boolean} [inLibrary=true]
      * @private
      */
-    _setRawAsset: function (filename) {
-        this._native = filename || undefined;
+    _setRawAsset: function (filename, inLibrary) {
+        if (inLibrary !== false) {
+            this._native = filename || undefined;
+        }
+        else {
+            this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
+        }
     }
 });
 

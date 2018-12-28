@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,13 +26,7 @@
 
 var EventTarget = require('../event/event-target');
 var eventManager = require('../event-manager');
-var inputManger;
-if (CC_JSB) {
-    inputManger = cc.inputManager;
-}
-else {
-    inputManger = require('../platform/CCInputManager');
-}
+var inputManger = require('../platform/CCInputManager');;
 
 /**
  * !#en The event type supported by SystemEvent
@@ -69,15 +64,28 @@ var EventType = cc.Enum({
 });
 
 /**
- * !#en The System event, it currently supports the key events and accelerometer events
- * !#zh 系统事件，它目前支持按键事件和重力感应事件
+ * !#en
+ * The System event, it currently supports keyboard events and accelerometer events.<br>
+ * You can get the SystemEvent instance with cc.systemEvent.<br>
+ * example:
+ * ```
+ * cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * ```
+ * !#zh
+ * 系统事件，它目前支持按键事件和重力感应事件。<br>
+ * 你可以通过 cc.systemEvent 获取到 SystemEvent 的实例。<br>
+ * 参考示例：
+ * ```
+ * cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * ```
  * @class SystemEvent
  * @extends EventTarget
  */
 
 var keyboardListener = null;
 var accelerationListener = null;
-var keyboardListenerAddFrame = 0;
 var SystemEvent = cc.Class({
     name: 'SystemEvent',
     extends: EventTarget,
@@ -106,8 +114,8 @@ var SystemEvent = cc.Class({
         inputManger.setAccelerometerInterval(interval);
     },
 
-    on: function (type, callback, target, useCapture) {
-        this._super(type, callback, target, useCapture);
+    on: function (type, callback, target) {
+        this._super(type, callback, target);
 
         // Keyboard
         if (type === EventType.KEY_DOWN || type === EventType.KEY_UP) {
@@ -116,28 +124,16 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.KEYBOARD,
                     onKeyPressed: function (keyCode, event) {
                         event.type = EventType.KEY_DOWN;
-                        if (CC_JSB) {
-                            event.keyCode = keyCode;
-                            event.isPressed = true;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     },
                     onKeyReleased: function (keyCode, event) {
                         event.type = EventType.KEY_UP;
-                        if (CC_JSB) {
-                            event.keyCode = keyCode;
-                            event.isPressed = false;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });
             }
-            if (!eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
-                var currentFrame = cc.director.getTotalFrames();
-                if (currentFrame !== keyboardListenerAddFrame) {
-                    eventManager.addListener(keyboardListener, 1);
-                    keyboardListenerAddFrame = currentFrame;
-                }
+            if (!eventManager.hasEventListener(cc.EventListener.ListenerID.KEYBOARD)) {
+                eventManager.addListener(keyboardListener, 1);
             }
         }
 
@@ -148,22 +144,19 @@ var SystemEvent = cc.Class({
                     event: cc.EventListener.ACCELERATION,
                     callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        if (CC_JSB) {
-                            event.acc = acc;
-                        }
                         cc.systemEvent.dispatchEvent(event);
                     }
                 });
             }
-            if (!eventManager.hasEventListener(cc._EventListenerAcceleration.LISTENER_ID)) {
+            if (!eventManager.hasEventListener(cc.EventListener.ListenerID.ACCELERATION)) {
                 eventManager.addListener(accelerationListener, 1);
             }
         }
     },
 
 
-    off: function (type, callback, target, useCapture) {
-        this._super(type, callback, target, useCapture);
+    off: function (type, callback, target) {
+        this._super(type, callback, target);
 
         // Keyboard
         if (keyboardListener && (type === EventType.KEY_DOWN || type === EventType.KEY_UP)) {

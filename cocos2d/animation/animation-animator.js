@@ -1,4 +1,29 @@
-var JS = cc.js;
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+var js = cc.js;
 var Playable = require('./playable');
 var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
 var quickFindIndex = require('./animation-curves').quickFindIndex;
@@ -15,9 +40,9 @@ function AnimationAnimator (target, animation) {
     this.target = target;
     this.animation = animation;
 
-    this._anims = new JS.array.MutableForwardIterator([]);
+    this._anims = new js.array.MutableForwardIterator([]);
 }
-JS.extend(AnimationAnimator, Playable);
+js.extend(AnimationAnimator, Playable);
 var p = AnimationAnimator.prototype;
 
 p.playState = function (state, startTime) {
@@ -58,7 +83,7 @@ p.addAnimation = function (anim) {
         this._anims.push(anim);
     }
 
-    anim._setListeners(this.animation);
+    anim._setEventTarget(this.animation);
 };
 
 p.removeAnimation = function (anim) {
@@ -228,7 +253,9 @@ function initClipData (root, state) {
     }
 
     function createPropCurve (target, propPath, keyframes) {
-        var isMotionPathProp = (target instanceof cc.Node) && (propPath === 'position');
+        var isMotionPathProp = (target instanceof cc.Node) 
+            && (propPath === 'position') 
+            && (keyframes[0] && Array.isArray(keyframes[0].value));
         var motionPaths = [];
         
         var curve = new DynamicAnimCurve();

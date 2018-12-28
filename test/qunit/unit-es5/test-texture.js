@@ -17,9 +17,12 @@
 
         test('(de)serialize empty texture', function () {
             var tex = new cc.Texture2D();
+            var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
+                    tex._wrapS + "," + tex._wrapT + "," + 
+                    (tex._premultiplyAlpha ? 1 : 0);
             var expected = {
                 __type__: 'cc.Texture2D',
-                content: ''
+                content: '' + append
             };
             serializedAs(tex, expected, 'should be serialized');
 
@@ -37,9 +40,13 @@
                 tex.url = tex.nativeUrl;
                 ok(tex.url.endsWith('.png'), 'url should contains extname');
 
+                var append = "," + tex._minFilter + "," + tex._magFilter + "," + 
+                        tex._wrapS + "," + tex._wrapT + "," + 
+                        (tex._premultiplyAlpha ? 1 : 0);
+
                 var expected = {
                     __type__: 'cc.Texture2D',
-                    content: '0'
+                    content: '0' + append
                 };
                 serializedAs(tex, expected, 'should be serialized');
 

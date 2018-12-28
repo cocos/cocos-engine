@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2017 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 function parseDepends (key, parsed) {
     var item = cc.loader.getItem(key);
@@ -42,6 +43,10 @@ function parseDepends (key, parsed) {
 }
 
 function visitAsset (asset, excludeMap) {
+    // Skip assets generated programmatically or by user (e.g. label texture)
+    if (!asset._uuid) {
+        return;
+    }
     var key = cc.loader._getReferenceKey(asset);
     if ( !excludeMap[key] ) {
         excludeMap[key] = true;
@@ -57,7 +62,7 @@ function visitComponent (comp, excludeMap) {
             if (Array.isArray(value)) {
                 for (let j = 0; j < value.length; j++) {
                     let val = value[j];
-                    if (cc.Class.isInstanceOf(val, cc.RawAsset)) {
+                    if (val instanceof cc.RawAsset) {
                         visitAsset(val, excludeMap);
                     }
                 }
@@ -66,12 +71,12 @@ function visitComponent (comp, excludeMap) {
                 let keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     let val = value[keys[j]];
-                    if (cc.Class.isInstanceOf(val, cc.RawAsset)) {
+                    if (val instanceof cc.RawAsset) {
                         visitAsset(val, excludeMap);
                     }
                 }
             }
-            else if (cc.Class.isInstanceOf(value, cc.RawAsset)) {
+            else if (value instanceof cc.RawAsset) {
                 visitAsset(value, excludeMap);
             }
         }
@@ -91,7 +96,7 @@ module.exports = {
     // do auto release
     autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodes) {
         var releaseSettings = cc.loader._autoReleaseSetting;
-        var excludeMap = JS.createMap();
+        var excludeMap = js.createMap();
 
         // collect next scene assets
         if (nextSceneAssets) {

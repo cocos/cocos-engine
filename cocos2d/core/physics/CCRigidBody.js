@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const NodeEvent = require('../CCNode').EventType;
 var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
 var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
 var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
@@ -63,7 +65,7 @@ var RigidBody = cc.Class({
                 return this._enabled;
             },
             set: function () {
-                cc.warnID('8200');
+                cc.warnID(8200);
             },
             visible: false,
             override: true
@@ -309,7 +311,7 @@ var RigidBody = cc.Class({
                 this._linearVelocity = value;
                 var b2body = this._b2Body;
                 if (b2body) {
-                    var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+                    var temp = b2body.m_linearVelocity;
                     temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
                     b2body.SetLinearVelocity(temp);
                 }
@@ -428,7 +430,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
-            var pos = this._b2Body.GetLocalPoint(tempb2Vec21);
+            var pos = this._b2Body.GetLocalPoint(tempb2Vec21, out);
             out.x = pos.x*PTM_RATIO;
             out.y = pos.y*PTM_RATIO;
         }
@@ -449,7 +451,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(localPoint.x/PTM_RATIO, localPoint.y/PTM_RATIO);
-            var pos = this._b2Body.GetWorldPoint(tempb2Vec21);
+            var pos = this._b2Body.GetWorldPoint(tempb2Vec21, out);
             out.x = pos.x*PTM_RATIO;
             out.y = pos.y*PTM_RATIO;
         }
@@ -470,7 +472,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(localVector.x/PTM_RATIO, localVector.y/PTM_RATIO);
-            var vector = this._b2Body.GetWorldVector(tempb2Vec21);
+            var vector = this._b2Body.GetWorldVector(tempb2Vec21, out);
             out.x = vector.x*PTM_RATIO;
             out.y = vector.y*PTM_RATIO;
         }
@@ -491,7 +493,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldVector.x/PTM_RATIO, worldVector.y/PTM_RATIO);
-            var vector = this._b2Body.GetLocalVector(tempb2Vec21);
+            var vector = this._b2Body.GetLocalVector(tempb2Vec21, out);
             out.x = vector.x*PTM_RATIO;
             out.y = vector.y*PTM_RATIO;
         }
@@ -582,7 +584,7 @@ var RigidBody = cc.Class({
         out = out || cc.v2();
         if (this._b2Body) {
             tempb2Vec21.Set(worldPoint.x/PTM_RATIO, worldPoint.y/PTM_RATIO);
-            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21);
+            var velocity = this._b2Body.GetLinearVelocityFromWorldPoint(tempb2Vec21, out);
             out.x = velocity.x*PTM_RATIO;
             out.y = velocity.y*PTM_RATIO;
         }
@@ -624,37 +626,28 @@ var RigidBody = cc.Class({
     getJointList: function () {
         if (!this._b2Body) return [];
 
-        if (CC_JSB) {
-            var joints = this._b2Body.GetJointList();
-            for (var i = 0; i < joints.length; i++) {
-                joints[i] = joints[i]._joint;
-            }
-            return joints;
+        var joints = [];
+
+        var list = this._b2Body.GetJointList();
+        if (!list) return [];
+
+        joints.push(list.joint._joint);
+        
+        // find prev joint
+        var prev = list.prev;
+        while (prev) {
+            joints.push(prev.joint._joint);
+            prev = prev.prev;
         }
-        else {
-            var joints = [];
 
-            var list = this._b2Body.GetJointList();
-            if (!list) return [];
-
-            joints.push(list.joint._joint);
-            
-            // find prev joint
-            var prev = list.prev;
-            while (prev) {
-                joints.push(prev.joint._joint);
-                prev = prev.prev;
-            }
-
-            // find next joint
-            var next = list.next;
-            while (next) {
-                joints.push(next.joint._joint);
-                next = next.next;
-            }
-
-            return joints;
+        // find next joint
+        var next = list.next;
+        while (next) {
+            joints.push(next.joint._joint);
+            next = next.next;
         }
+
+        return joints;
     },
 
     /**
@@ -762,10 +755,7 @@ var RigidBody = cc.Class({
         var pos = this.node.convertToWorldSpaceAR(VEC2_ZERO);
 
         var temp;
-        if (CC_JSB) {
-            temp = tempb2Vec21;
-        }
-        else if (this.type === BodyType.Animated) {
+        if (this.type === BodyType.Animated) {
             temp = b2body.GetLinearVelocity();
         }
         else {
@@ -786,7 +776,7 @@ var RigidBody = cc.Class({
             b2body.SetLinearVelocity(temp);
         }
         else {
-            b2body.SetTransform(temp, b2body.GetAngle());
+            b2body.SetTransformVec(temp, b2body.GetAngle());
         }
     },
     /**
@@ -812,7 +802,7 @@ var RigidBody = cc.Class({
             b2body.SetAngularVelocity((rotation - b2Rotation)*timeStep);
         }
         else {
-            b2body.SetTransform(b2body.GetPosition(), rotation);
+            b2body.SetTransformVec(b2body.GetPosition(), rotation);
         }
     },
     
@@ -820,7 +810,7 @@ var RigidBody = cc.Class({
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
+        var temp = b2body.m_linearVelocity;
         temp.Set(0, 0);
 
         b2body.SetLinearVelocity(temp);
@@ -837,16 +827,16 @@ var RigidBody = cc.Class({
 
     _registerNodeEvents: function () {
         var node = this.node;
-        node.on('position-changed', this._onNodePositionChanged, this);
-        node.on('rotation-changed', this._onNodeRotationChanged, this);
-        node.on('scale-changed', this._onNodeScaleChanged, this);
+        node.on(NodeEvent.POSITION_CHANGED, this._onNodePositionChanged, this);
+        node.on(NodeEvent.ROTATION_CHANGED, this._onNodeRotationChanged, this);
+        node.on(NodeEvent.SCALE_CHANGED, this._onNodeScaleChanged, this);
     },
 
     _unregisterNodeEvents: function () {
         var node = this.node;
-        node.off('position-changed', this._onNodePositionChanged, this);
-        node.off('rotation-changed', this._onNodeRotationChanged, this);
-        node.off('scale-changed', this._onNodeScaleChanged, this);
+        node.off(NodeEvent.POSITION_CHANGED, this._onNodePositionChanged, this);
+        node.off(NodeEvent.ROTATION_CHANGED, this._onNodeRotationChanged, this);
+        node.off(NodeEvent.SCALE_CHANGED, this._onNodeScaleChanged, this);
     },
 
     _onNodePositionChanged: function () {

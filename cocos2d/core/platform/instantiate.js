@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,9 +25,9 @@
  ****************************************************************************/
 
 var CCObject = require('./CCObject');
+var CCValueType = require('../value-types/value-type');
 var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
-var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
@@ -77,7 +78,7 @@ function instantiate (original, internal_force) {
     }
 
     var clone;
-    if (cc.Class.isInstanceOf(original, CCObject)) {
+    if (original instanceof CCObject) {
         // Invoke _instantiate method if supplied.
         // The _instantiate callback will be called only on the root object, its associated object will not be called.
         // @callback associated
@@ -90,7 +91,7 @@ function instantiate (original, internal_force) {
             cc.game._isCloning = false;
             return clone;
         }
-        else if (cc.Class.isInstanceOf(original, cc.Asset)) {
+        else if (original instanceof cc.Asset) {
             // 不允许用通用方案实例化资源
             if (CC_DEV) {
                 cc.errorID(6903);
@@ -125,7 +126,7 @@ function doInstantiate (obj, parent) {
         }
         return null;
     }
-    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
+    if (_isDomNode && _isDomNode(obj)) {
         if (CC_DEV) {
             cc.errorID(6905);
         }
@@ -156,26 +157,26 @@ function doInstantiate (obj, parent) {
     return clone;
 }
 
-var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
 function enumerateCCClass (klass, obj, clone, parent) {
-    var props = klass.__props__;
-    var attrs = Attr.getClassAttrs(klass);
+    var props = klass.__values__;
     for (var p = 0; p < props.length; p++) {
         var key = props[p];
-        if (attrs[key + SERIALIZABLE] !== false) {
-            var value = obj[key];
-            if (typeof value === 'object' && value) {
-                clone[key] = value._iN$t || instantiateObj(value, parent);
+        var value = obj[key];
+        if (typeof value === 'object' && value) {
+            var initValue = clone[key];
+            if (initValue instanceof CCValueType &&
+                initValue.constructor === value.constructor) {
+                initValue.set(value);
             }
             else {
-                clone[key] = value;
+                clone[key] = value._iN$t || instantiateObj(value, parent);
             }
         }
-    }
-    if ((CC_EDITOR || CC_TEST) && (obj instanceof cc._BaseNode || obj instanceof cc.Component)) {
-        clone._id = '';
+        else {
+            clone[key] = value;
+        }
     }
 }
 
@@ -209,7 +210,7 @@ function enumerateObject (obj, clone, parent) {
             }
         }
     }
-    if (cc.Class.isInstanceOf(obj, CCObject)) {
+    if (obj instanceof CCObject) {
         clone._objFlags &= PersistentMask;
     }
 }
@@ -219,10 +220,10 @@ function enumerateObject (obj, clone, parent) {
  * @return {Object|Array} - the original non-nil object, typeof must be 'object'
  */
 function instantiateObj (obj, parent) {
-    if (obj instanceof cc.ValueType) {
+    if (obj instanceof CCValueType) {
         return obj.clone();
     }
-    if (cc.Class.isInstanceOf(obj, cc.Asset)) {
+    if (obj instanceof cc.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }

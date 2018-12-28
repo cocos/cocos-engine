@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -73,7 +74,7 @@ var ToggleGroup = cc.Class({
         this._toggleItems.forEach(function (item){
             if(toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
+                    item._hideCheckMark();
                 }
             }
         });
@@ -99,7 +100,7 @@ var ToggleGroup = cc.Class({
         var isChecked = false;
         this._toggleItems.forEach(function (item) {
             if(isChecked && item.enabled) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
 
             if (item.isChecked && item.enabled) {
@@ -125,9 +126,9 @@ var ToggleGroup = cc.Class({
     }
 });
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var showed = false;
-cc.js.get(cc, 'ToggleGroup', function () {
+js.get(cc, 'ToggleGroup', function () {
     if (!showed) {
         cc.logID(1405, 'cc.ToggleGroup', 'cc.ToggleContainer');
         showed = true;
@@ -135,4 +136,4 @@ cc.js.get(cc, 'ToggleGroup', function () {
     return ToggleGroup;
 });
 
-cc.ToggleGroup = module.exports = ToggleGroup;
+module.exports = ToggleGroup;

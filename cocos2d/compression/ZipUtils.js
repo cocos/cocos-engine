@@ -4,21 +4,18 @@
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
 
-/**
- * mixin cc.Codec
- */
-cc.Codec = {name:'Jacob__Codec'};
+var codec = {name:'Jacob__Codec'};
 
-cc.Codec.Base64 = require('./base64');
-cc.Codec.GZip = require('./gzip');
+codec.Base64 = require('./base64');
+codec.GZip = require('./gzip');
 
 /**
  * Unpack a gzipped byte array
  * @param {Array} input Byte array
  * @returns {String} Unpacked byte string
  */
-cc.Codec.unzip = function () {
-    return cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, arguments);
+codec.unzip = function () {
+    return codec.GZip.gunzip.apply(codec.GZip, arguments);
 };
 
 /**
@@ -26,10 +23,10 @@ cc.Codec.unzip = function () {
  * @param {String} input Byte string encoded as base64
  * @returns {String} Unpacked byte string
  */
-cc.Codec.unzipBase64 = function () {
-    var buffer = cc.Codec.Base64.decode.apply(cc.Codec.Base64, arguments);
+codec.unzipBase64 = function () {
+    var buffer = codec.Base64.decode.apply(codec.Base64, arguments);
     try {
-        return cc.Codec.GZip.gunzip.call(cc.Codec.GZip, buffer);
+        return codec.GZip.gunzip.call(codec.GZip, buffer);
     }
     catch(e) {
         // if not zipped, just skip
@@ -43,7 +40,7 @@ cc.Codec.unzipBase64 = function () {
  * @param {Number} bytes Bytes per array item
  * @returns {Array} Unpacked byte array
  */
-cc.Codec.unzipBase64AsArray = function (input, bytes) {
+codec.unzipBase64AsArray = function (input, bytes) {
     bytes = bytes || 1;
 
     var dec = this.unzipBase64(input),
@@ -63,7 +60,7 @@ cc.Codec.unzipBase64AsArray = function (input, bytes) {
  * @param {Number} bytes Bytes per array item
  * @returns {Array} Unpacked byte array
  */
-cc.Codec.unzipAsArray = function (input, bytes) {
+codec.unzipAsArray = function (input, bytes) {
     bytes = bytes || 1;
 
     var dec = this.unzip(input),
@@ -76,3 +73,5 @@ cc.Codec.unzipAsArray = function (input, bytes) {
     }
     return ar;
 };
+
+cc.codec = module.exports = codec;

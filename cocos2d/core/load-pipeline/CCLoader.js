@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
 var AssetLoader = require('./asset-loader');
@@ -35,7 +36,9 @@ var AutoReleaseUtils = require('./auto-release-utils');
 // var pushToMap = require('../utils/misc').pushToMap;
 var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
-var resources = new AssetTable();
+var assetTables = Object.create(null);
+assetTables.assets = new AssetTable();
+assetTables.internal = new AssetTable();
 
 function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
@@ -60,7 +63,7 @@ function getResWithUrl (res) {
         result = {};
         id = res;
     }
-    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._getAssetUrl(id);
+    isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._uuidInSettings(id);
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {
@@ -102,6 +105,14 @@ function CCLoader () {
     this.assetLoader = assetLoader;
 
     /**
+     * The md5 pipe in cc.loader's pipeline, it could be absent if the project isn't build with md5 option.
+     * It's used to modify the url to the real downloadable url with md5 suffix.
+     * @property md5Pipe
+     * @type {Object}
+     */
+    this.md5Pipe = null;
+
+    /**
      * The downloader in cc.loader's pipeline, it's by default the second pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
      * You can add your own download function with addDownloadHandlers
@@ -111,7 +122,7 @@ function CCLoader () {
     this.downloader = downloader;
 
     /**
-     * The downloader in cc.loader's pipeline, it's by default the third pipe.
+     * The loader in cc.loader's pipeline, it's by default the third pipe.
      * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
      * You can add your own download function with addLoadHandlers
      * @property loader
@@ -122,19 +133,19 @@ function CCLoader () {
     this.onProgress = null;
 
     // assets to release automatically
-    this._autoReleaseSetting = {};
+    this._autoReleaseSetting = js.createMap(true);
 
     if (CC_DEBUG) {
         this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
     }
 }
-JS.extend(CCLoader, Pipeline);
+js.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
 
 proto.init = function (director) {
     if (CC_DEBUG) {
         var self = this;
-        director.on(cc.Director.EVENT_BEFORE_VISIT, function () {
+        director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
             self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
         });
     }
@@ -216,6 +227,10 @@ proto.addLoadHandlers = function (extMap) {
  * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
  */
 proto.load = function(resources, progressCallback, completeCallback) {
+    if (CC_DEV && !resources) {
+        return cc.error("[cc.loader.load] resources must be non-nil.");
+    }
+
     if (completeCallback === undefined) {
         completeCallback = progressCallback;
         progressCallback = this.onProgress || null;
@@ -223,9 +238,14 @@ proto.load = function(resources, progressCallback, completeCallback) {
 
     var self = this;
     var singleRes = false;
+    var res;
     if (!(resources instanceof Array)) {
-        singleRes = true;
-        resources = resources ? [resources] : [];
+        if (resources) {
+            singleRes = true;
+            resources = [resources];
+        } else { 
+            resources = [];
+        }
     }
 
     _sharedResources.length = 0;
@@ -238,7 +258,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
                 resource.url = resource.id;
             }
         }
-        var res = getResWithUrl(resource);
+        res = getResWithUrl(resource);
         if (!res.url && !res.uuid)
             continue;
         var item = this._cache[res.url];
@@ -309,22 +329,26 @@ proto.flowInDeps = function (owner, urlList, callback) {
     return accepted;
 };
 
-proto._resources = resources;
-proto._getResUuid = function (url, type, quiet) {
-    if (!url) {
+proto._assetTables = assetTables;
+proto._getResUuid = function (url, type, mount, quiet) {
+    mount = mount || 'assets';
+
+    var assetTable = assetTables[mount];
+    if (!url || !assetTable) {
         return null;
     }
+    
     // Ignore parameter
     var index = url.indexOf('?');
     if (index !== -1)
         url = url.substr(0, index);
-    var uuid = resources.getUuid(url, type);
+    var uuid = assetTable.getUuid(url, type);
     if ( !uuid ) {
         var extname = cc.path.extname(url);
         if (extname) {
             // strip extname
             url = url.slice(0, - extname.length);
-            uuid = resources.getUuid(url, type);
+            uuid = assetTable.getUuid(url, type);
             if (uuid && !quiet) {
                 cc.warnID(4901, url, extname);
             }
@@ -332,6 +356,7 @@ proto._getResUuid = function (url, type, quiet) {
     }
     return uuid;
 };
+
 // Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
 proto._getReferenceKey = function (assetOrUrlOrUuid) {
     var key;
@@ -339,7 +364,7 @@ proto._getReferenceKey = function (assetOrUrlOrUuid) {
         key = assetOrUrlOrUuid._uuid || null;
     }
     else if (typeof assetOrUrlOrUuid === 'string') {
-        key = this._getResUuid(assetOrUrlOrUuid, null, true) || assetOrUrlOrUuid;
+        key = this._getResUuid(assetOrUrlOrUuid, null, null, true) || assetOrUrlOrUuid;
     }
     if (!key) {
         cc.warnID(4800, assetOrUrlOrUuid);
@@ -352,7 +377,7 @@ proto._getReferenceKey = function (assetOrUrlOrUuid) {
 proto._urlNotFound = function (url, type, completeCallback) {
     callInNextTick(function () {
         url = cc.url.normalize(url);
-        var info = `${type ? JS.getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
+        var info = `${type ? js.getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
         if (completeCallback) {
             completeCallback(new Error(info), []);
         }
@@ -370,7 +395,7 @@ proto._urlNotFound = function (url, type, completeCallback) {
  */
 proto._parseLoadResArgs = function (type, onProgress, onComplete) {
     if (onComplete === undefined) {
-        var isValidType = cc.isChildClassOf(type, cc.RawAsset);
+        var isValidType = (type instanceof Array) || js.isChildClassOf(type, cc.RawAsset);
         if (onProgress) {
             onComplete = onProgress;
             if (isValidType) {
@@ -438,13 +463,20 @@ proto._parseLoadResArgs = function (type, onProgress, onComplete) {
  * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
  * loadRes(url: string): void
  */
-proto.loadRes = function (url, type, progressCallback, completeCallback) {
+proto.loadRes = function (url, type, mount, progressCallback, completeCallback) {
+    if (arguments.length !== 5) {
+        completeCallback = progressCallback;
+        progressCallback = mount;
+        mount = 'assets';
+    }
+
     var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
     type = args.type;
     progressCallback = args.onProgress;
     completeCallback = args.onComplete;
+
     var self = this;
-    var uuid = self._getResUuid(url, type);
+    var uuid = self._getResUuid(url, type, mount);
     if (uuid) {
         this.load(
             {
@@ -553,22 +585,31 @@ proto._loadResUuids = function (uuids, progressCallback, completeCallback, urls)
  * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
  * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
  * loadResArray(url: string[]): void
+ * loadResArray(url: string[], type: typeof cc.Asset[]): void
  */
-proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
+proto.loadResArray = function (urls, type, mount, progressCallback, completeCallback) {
+    if (arguments.length !== 5) {
+        completeCallback = progressCallback;
+        progressCallback = mount;
+        mount = 'assets';
+    }
+
     var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
     type = args.type;
     progressCallback = args.onProgress;
     completeCallback = args.onComplete;
 
     var uuids = [];
+    var isTypesArray = type instanceof Array;
     for (var i = 0; i < urls.length; i++) {
         var url = urls[i];
-        var uuid = this._getResUuid(url, type);
+        var assetType = isTypesArray ? type[i] : type;
+        var uuid = this._getResUuid(url, assetType, mount);
         if (uuid) {
             uuids.push(uuid);
         }
         else {
-            this._urlNotFound(url, type, completeCallback);
+            this._urlNotFound(url, assetType, completeCallback);
             return;
         }
     }
@@ -626,15 +667,41 @@ proto.loadResArray = function (urls, type, progressCallback, completeCallback) {
  * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
  * loadResDir(url: string): void
  */
-proto.loadResDir = function (url, type, progressCallback, completeCallback) {
+proto.loadResDir = function (url, type, mount, progressCallback, completeCallback) {
+    if (arguments.length !== 5) {
+        completeCallback = progressCallback;
+        progressCallback = mount;
+        mount = 'assets';
+    }
+    
+    if (!assetTables[mount]) return; 
+
     var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
+    
     type = args.type;
     progressCallback = args.onProgress;
     completeCallback = args.onComplete;
 
     var urls = [];
-    var uuids = resources.getUuidArray(url, type, urls);
-    this._loadResUuids(uuids, progressCallback, completeCallback, urls);
+    var uuids = assetTables[mount].getUuidArray(url, type, urls);
+    this._loadResUuids(uuids, progressCallback, function (errors, assetRes, urlRes) {
+        // The spriteFrame url in spriteAtlas will be removed after build project
+        // To show users the exact structure in asset panel, we need to return the spriteFrame assets in spriteAtlas
+        let assetResLength = assetRes.length;
+        for (let i = 0; i < assetResLength; ++i) {
+            if (assetRes[i] instanceof cc.SpriteAtlas) {
+                let spriteFrames = assetRes[i].getSpriteFrames();
+                for (let k in spriteFrames) {
+                    let sf = spriteFrames[k];
+                    assetRes.push(sf);
+                    if (urlRes) {
+                        urlRes.push(`${urlRes[i]}/${sf.name}`);
+                    }
+                }
+            }
+        }
+        completeCallback && completeCallback(errors, assetRes, urlRes);
+    }, urls);
 };
 
 /**
@@ -651,7 +718,7 @@ proto.loadResDir = function (url, type, progressCallback, completeCallback) {
 proto.getRes = function (url, type) {
     var item = this._cache[url];
     if (!item) {
-        var uuid = this._getResUuid(url, type, true);
+        var uuid = this._getResUuid(url, type, null, true);
         if (uuid) {
             var ref = this._getReferenceKey(uuid);
             item = this._cache[ref];
@@ -764,10 +831,10 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            // TODO: AUDIO
-            if (cc.Class.isInstanceOf(asset, cc.Asset)) {
-                if (asset.nativeUrl) {
-                    this.release(asset.nativeUrl);
+            if (asset instanceof cc.Asset) {
+                let nativeUrl = asset.nativeUrl;
+                if (nativeUrl) {
+                    this.release(nativeUrl);  // uncache loading item of native asset
                 }
                 asset.destroy();
             }
@@ -800,8 +867,8 @@ proto.releaseAsset = function (asset) {
  * @param {String} url
  * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
  */
-proto.releaseRes = function (url, type) {
-    var uuid = this._getResUuid(url, type);
+proto.releaseRes = function (url, type, mount) {
+    var uuid = this._getResUuid(url, type, mount);
     if (uuid) {
         this.release(uuid);
     }
@@ -818,8 +885,11 @@ proto.releaseRes = function (url, type) {
  * @param {String} url
  * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
  */
-proto.releaseResDir = function (url, type) {
-    var uuids = resources.getUuidArray(url, type);
+proto.releaseResDir = function (url, type, mount) {
+    mount = mount || 'assets';
+    if (!assetTables[mount]) return;
+    
+    var uuids = assetTables[mount].getUuidArray(url, type);
     for (var i = 0; i < uuids.length; i++) {
         var uuid = uuids[i];
         this.release(uuid);

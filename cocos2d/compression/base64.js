@@ -4,8 +4,8 @@
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
 
-var Misc = require('../core/utils/misc');
-var strValue = Misc.BASE64_VALUES;
+var misc = require('../core/utils/misc');
+var strValue = misc.BASE64_VALUES;
 
 /**
  * mixin cc.Codec.Base64

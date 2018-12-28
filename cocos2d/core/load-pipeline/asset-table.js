@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +25,7 @@
  ****************************************************************************/
 
 var pushToMap = require('../utils/misc').pushToMap;
+var js = require('../platform/js');
 
 function Entry (uuid, type) {
     this.uuid = uuid;
@@ -38,7 +40,7 @@ function Entry (uuid, type) {
  */
 
 function AssetTable () {
-    this._pathToUuid = {};
+    this._pathToUuid = js.createMap(true);
 }
 
 function isMatchByWord (path, test) {
@@ -59,8 +61,19 @@ proto.getUuid = function (path, type) {
             if (type) {
                 for (var i = 0; i < item.length; i++) {
                     var entry = item[i];
-                    if (cc.isChildClassOf(entry.type, type)) {
+                    if (js.isChildClassOf(entry.type, type)) {
                         return entry.uuid;
+                    }
+                }
+                // not found
+                if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame)) {
+                    for (let i = 0; i < item.length; i++) {
+                        let entry = item[i];
+                        if (js.isChildClassOf(entry.type, cc.SpriteAtlas)) {
+                            // not support sprite frame in atlas
+                            cc.errorID(4932, path);
+                            break;
+                        }
                     }
                 }
             }
@@ -68,8 +81,12 @@ proto.getUuid = function (path, type) {
                 return item[0].uuid;
             }
         }
-        else if (!type || cc.isChildClassOf(item.type, type)) {
+        else if (!type || js.isChildClassOf(item.type, type)) {
             return item.uuid;
+        }
+        else if (CC_DEBUG && js.isChildClassOf(type, cc.SpriteFrame) && js.isChildClassOf(item.type, cc.SpriteAtlas)) {
+            // not support sprite frame in atlas
+            cc.errorID(4932, path);
         }
     }
     return '';
@@ -82,7 +99,8 @@ proto.getUuidArray = function (path, type, out_urls) {
     }
     var path2uuid = this._pathToUuid;
     var uuids = [];
-    var isChildClassOf = cc.isChildClassOf;
+    var isChildClassOf = js.isChildClassOf;
+    var _foundAtlasUrl;
     for (var p in path2uuid) {
         if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
             var item = path2uuid[p];
@@ -95,6 +113,9 @@ proto.getUuidArray = function (path, type, out_urls) {
                             out_urls.push(p);
                         }
                     }
+                    else if (CC_DEBUG && entry.type === cc.SpriteAtlas) {
+                        _foundAtlasUrl = p;
+                    }
                 }
             }
             else {
@@ -104,8 +125,15 @@ proto.getUuidArray = function (path, type, out_urls) {
                         out_urls.push(p);
                     }
                 }
+                else if (CC_DEBUG && item.type === cc.SpriteAtlas) {
+                    _foundAtlasUrl = p;
+                }
             }
         }
+    }
+    if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && js.isChildClassOf(type, cc.SpriteFrame)) {
+        // not support sprite frame in atlas
+        cc.errorID(4932, _foundAtlasUrl);
     }
     return uuids;
 };
@@ -164,7 +192,7 @@ proto._getInfo_DEBUG = CC_DEBUG && function (uuid, out_info) {
 };
 
 proto.reset = function () {
-    this._pathToUuid = {};
+    this._pathToUuid = js.createMap(true);
 };
 
 

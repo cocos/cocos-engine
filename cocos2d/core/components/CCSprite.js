@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,58 +24,76 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Base = require('./CCRendererUnderSG');
+const misc = require('../utils/misc');
+const NodeEvent = require('../CCNode').EventType;
+const RenderComponent = require('./CCRenderComponent');
+const RenderFlow = require('../renderer/render-flow');
+
+const Material = require('../assets/CCMaterial');
 
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
  * @enum Sprite.Type
  */
-/**
- * !#en The simple type.
- * !#zh 普通类型
- * @property {Number} SIMPLE
- */
-/**
- * !#en The sliced type.
- * !#zh 切片（九宫格）类型
- * @property {Number} SLICED
- */
-/**
- * !#en The tiled type.
- * !#zh 平铺类型
- * @property {Number} TILED
- */
-/**
- * !#en The filled type.
- * !#zh 填充类型
- * @property {Number} FILLED
- */
-var SpriteType = cc.Scale9Sprite.RenderingType;
+var SpriteType = cc.Enum({
+    /**
+     * !#en The simple type.
+     * !#zh 普通类型
+     * @property {Number} SIMPLE
+     */
+    SIMPLE: 0,
+    /**
+     * !#en The sliced type.
+     * !#zh 切片（九宫格）类型
+     * @property {Number} SLICED
+     */
+    SLICED: 1,
+    /**
+     * !#en The tiled type.
+     * !#zh 平铺类型
+     * @property {Number} TILED
+     */
+    TILED: 2,
+    /**
+     * !#en The filled type.
+     * !#zh 填充类型
+     * @property {Number} FILLED
+     */
+    FILLED: 3,
+    /**
+     * !#en The mesh type.
+     * !#zh 以 Mesh 三角形组成的类型
+     * @property {Number} MESH
+     */
+    MESH: 4
+});
 
 /**
  * !#en Enum for fill type.
  * !#zh 填充类型
  * @enum Sprite.FillType
  */
-/**
- * !#en The horizontal fill.
- * !#zh 水平方向填充
- * @property {Number} HORIZONTAL
- */
-/**
- * !#en The vertical fill.
- * !#zh 垂直方向填充
- * @property {Number} VERTICAL
- */
-/**
- * !#en The radial fill.
- * !#zh 径向填充
- * @property {Number} RADIAL
- */
-var FillType = cc.Scale9Sprite.FillType;
-
-var BlendFactor = cc.BlendFunc.BlendFactor;
+var FillType = cc.Enum({
+    /**
+     * !#en The horizontal fill.
+     * !#zh 水平方向填充
+     * @property {Number} HORIZONTAL
+     */
+    HORIZONTAL: 0,
+    /**
+     * !#en The vertical fill.
+     * !#zh 垂直方向填充
+     * @property {Number} VERTICAL
+     */
+    VERTICAL: 1,
+    /**
+     * !#en The radial fill.
+     * !#zh 径向填充
+     * @property {Number} RADIAL
+     */
+    RADIAL:2,
+});
 
 /**
  * !#en Sprite Size can track trimmed size, raw size or none.
@@ -101,12 +120,31 @@ var SizeMode = cc.Enum({
      */
     RAW: 2
 });
+/**
+ * !#en Sprite state can choice the normal or grayscale.
+ * !#zh 精灵颜色通道模式。
+ * @enum Sprite.State
+ */
+var State = cc.Enum({
+    /**
+     * !#en The normal state
+     * !#zh 正常状态
+     * @property {Number} NORMAL
+     */
+    NORMAL: 0,
+    /**
+     * !#en The gray state, all color will be modified to grayscale value.
+     * !#zh 灰色状态，所有颜色会被转换成灰度值
+     * @property {Number} GRAY
+     */
+    GRAY: 1
+});
 
 /**
  * !#en Renders a sprite in the scene.
  * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
- * @extends _RendererUnderSG
+ * @extends RenderComponent
  * @example
  *  // Create a new node and add sprite components.
  *  var node = new cc.Node("New Sprite");
@@ -115,16 +153,17 @@ var SizeMode = cc.Enum({
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: Base,
+    extends: RenderComponent,
+
+    ctor () {
+        this._graySpriteMaterial = null;
+        this._spriteMaterial = null;
+    },
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
         inspector: 'packages://inspector/inspectors/comps/sprite.js',
-    },
-
-    ctor: function() {
-        this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
     },
 
     properties: {
@@ -139,8 +178,7 @@ var Sprite = cc.Class({
         _fillStart: 0,
         _fillRange: 0,
         _isTrimmedMode: true,
-        _srcBlendFactor: BlendFactor.SRC_ALPHA,
-        _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
+        _state: 0,
         _atlas: {
             default: null,
             type: cc.SpriteAtlas,
@@ -175,6 +213,8 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
+                // render & update render data flag will be triggered while applying new sprite frame
+                this.markForUpdateRenderData(false);
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
@@ -187,7 +227,7 @@ var Sprite = cc.Class({
          * !#en The sprite render type.
          * !#zh 精灵渲染类型
          * @property type
-         * @type {Sprite.SpriteType}
+         * @type {Sprite.Type}
          * @example
          * sprite.type = cc.Sprite.Type.SIMPLE;
          */
@@ -196,8 +236,12 @@ var Sprite = cc.Class({
                 return this._type;
             },
             set: function (value) {
-                this._type = value;
-                this._sgNode.setRenderingType(value);
+                if (this._type !== value) {
+                    this.destroyRenderData(this._renderData);
+                    this._renderData = null;
+                    this._type = value;
+                    this._updateAssembler();
+                }
             },
             type: SpriteType,
             animatable: false,
@@ -208,7 +252,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillType
          * @type {Sprite.FillType}
          * @example
@@ -219,8 +263,17 @@ var Sprite = cc.Class({
                 return this._fillType;
             },
             set: function(value) {
-                this._fillType = value;
-                this._sgNode && this._sgNode.setFillType(value);
+                if (value !== this._fillType) {
+                    if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
+                        this.destroyRenderData(this._renderData);
+                        this._renderData = null;
+                    }
+                    else if (this._renderData) {
+                        this.markForUpdateRenderData(true);
+                    }
+                    this._fillType = value;
+                    this._updateAssembler();
+                }
             },
             type: FillType,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_type'
@@ -230,7 +283,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充中心点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充中心点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillCenter
          * @type {Vec2}
          * @example
@@ -241,8 +294,11 @@ var Sprite = cc.Class({
                 return this._fillCenter;
             },
             set: function(value) {
-                this._fillCenter = cc.v2(value);
-                this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
+                this._fillCenter.x = value.x;
+                this._fillCenter.y = value.y;
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.markForUpdateRenderData(true);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
         },
@@ -251,7 +307,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充起始点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillStart
          * @type {Number}
          * @example
@@ -263,8 +319,10 @@ var Sprite = cc.Class({
                 return this._fillStart;
             },
             set: function(value) {
-                this._fillStart = cc.clampf(value, -1, 1);
-                this._sgNode && this._sgNode.setFillStart(value);
+                this._fillStart = misc.clampf(value, -1, 1);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.markForUpdateRenderData(true);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
         },
@@ -273,7 +331,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充范围，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillRange
          * @type {Number}
          * @example
@@ -285,8 +343,10 @@ var Sprite = cc.Class({
                 return this._fillRange;
             },
             set: function(value) {
-                this._fillRange = cc.clampf(value, -1, 1);
-                this._sgNode && this._sgNode.setFillRange(value);
+                this._fillRange = misc.clampf(value, -1, 1);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.markForUpdateRenderData(true);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
         },
@@ -305,57 +365,17 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    this._sgNode.enableTrimmedContentSize(value);
+                    if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
+                        this._renderData) {
+                        this.markForUpdateRenderData(true);
+                    }
                 }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.trim'
         },
 
-        /**
-         * !#en specify the source Blend Factor.
-         * !#zh 指定原图的混合模式
-         * @property srcBlendFactor
-         * @type {BlendFactor}
-         * @example
-         * sprite.srcBlendFactor = cc.BlendFunc.BlendFactor.ONE;
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                this._srcBlendFactor = value;
-                this._blendFunc.src = value;
-                this._sgNode.setBlendFunc(this._blendFunc);
-            },
-            animatable: false,
-            type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
-        },
-
-        /**
-         * !#en specify the destination Blend Factor.
-         * !#zh 指定目标的混合模式
-         * @property dstBlendFactor
-         * @type {BlendFactor}
-         * @example
-         * sprite.dstBlendFactor = cc.BlendFunc.BlendFactor.ONE;
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                this._dstBlendFactor = value;
-                this._blendFunc.dst = value;
-                this._sgNode.setBlendFunc(this._blendFunc);
-            },
-            animatable: false,
-            type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
-        },
-
+      
         /**
          * !#en specify the size tracing mode.
          * !#zh 精灵尺寸调整模式
@@ -384,6 +404,7 @@ var Sprite = cc.Class({
         FillType: FillType,
         Type: SpriteType,
         SizeMode: SizeMode,
+        State: State,
     },
 
     setVisible: function (visible) {
@@ -391,110 +412,131 @@ var Sprite = cc.Class({
     },
 
     /**
-     * !#en Change the left sprite's cap inset.
-     * !#zh 设置精灵左边框-用于九宫格。
-     * @method setInsetLeft
-     * @param {Number} insetLeft - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetLeft(5);
+     * Change the state of sprite.
+     * @method setState
+     * @see `Sprite.State`
+     * @param state {Sprite.State} NORMAL or GRAY State.
      */
-    setInsetLeft: function (insetLeft) {
-        this._sgNode.setInsetLeft(insetLeft);
+    setState: function (state) {
+        if (this._state === state) return;
+        this._state = state;
+        this._activateMaterial();
     },
 
     /**
-     * !#en Query the left sprite's cap inset.
-     * !#zh 获取精灵左边框
-     * @method getInsetLeft
-     * @return {Number} The left sprite's cap inset.
-     * @example
-     * var insetLeft = sprite.getInsetLeft();
-     * cc.log("Inset Left:" + insetLeft);
+     * Gets the current state.
+     * @method getState
+     * @see `Sprite.State`
+     * @return {Sprite.State}
      */
-    getInsetLeft: function () {
-        return this._sgNode.getInsetLeft();
-    },
-
-    /**
-     * !#en Change the top sprite's cap inset.
-     * !#zh 设置精灵上边框-用于九宫格。
-     * @method setInsetTop
-     * @param {Number} insetTop - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetTop(5);
-     */
-    setInsetTop: function (insetTop) {
-        this._sgNode.setInsetTop(insetTop);
-    },
-
-    /**
-     * !#en Query the top sprite's cap inset.
-     * !#zh 获取精灵上边框。
-     * @method getInsetTop
-     * @return {Number} The top sprite's cap inset.
-     * @example
-     * var insetTop = sprite.getInsetTop();
-     * cc.log("Inset Top:" + insetTop);
-     */
-    getInsetTop: function () {
-        return this._sgNode.getInsetTop();
-    },
-
-    /**
-     * !#en Change the right sprite's cap inset.
-     * !#zh 设置精灵右边框-用于九宫格。
-     * @method setInsetRight
-     * @param {Number} insetRight - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetRight(5);
-     */
-    setInsetRight: function (insetRight) {
-        this._sgNode.setInsetRight(insetRight);
-    },
-
-    /**
-     * !#en Query the right sprite's cap inset.
-     * !#zh 获取精灵右边框。
-     * @method getInsetRight
-     * @return {Number} The right sprite's cap inset.
-     * @example
-     * var insetRight = sprite.getInsetRight();
-     * cc.log("Inset Right:" + insetRight);
-     */
-    getInsetRight: function () {
-        return this._sgNode.getInsetRight();
-    },
-
-    /**
-     * !#en Change the bottom sprite's cap inset.
-     * !#zh 设置精灵下边框-用于九宫格。
-     * @method setInsetBottom
-     * @param {Number} bottomInset - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetBottom(5);
-     */
-    setInsetBottom: function (insetBottom) {
-        this._sgNode.setInsetBottom(insetBottom);
-    },
-
-    /**
-     * !#en Query the bottom sprite's cap inset.
-     * !#zh 获取精灵下边框。
-     * @method getInsetBottom
-     * @return {Number} The bottom sprite's cap inset.
-     * @example
-     * var insetBottom = sprite.getInsetBottom();
-     * cc.log("Inset Bottom:" + insetBottom);
-     */
-    getInsetBottom: function () {
-        return this._sgNode.getInsetBottom();
+    getState: function () {
+        return this._state;
     },
 
     onEnable: function () {
-        if (this._sgNode) {
-            if (this._spriteFrame && this._spriteFrame.textureLoaded()) {
-                this._sgNode.setVisible(true);
+        this._super();
+
+        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+            // Do not render when sprite frame is not ready
+            this.disableRender();
+            if (this._spriteFrame) {
+                this._spriteFrame.once('load', this._onTextureLoaded, this);
+                this._spriteFrame.ensureLoadTexture();
             }
+        }
+        
+        this._updateAssembler();
+        this._activateMaterial();
+
+        this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+    },
+
+    onDisable: function () {
+        this._super();
+
+        this.node.off(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+    },
+
+    _onNodeSizeDirty () {
+        if (!this._renderData) return;
+        this.markForUpdateRenderData(true);
+    },
+
+    _on3DNodeChanged () {
+        this._updateAssembler();
+    },
+
+    _updateAssembler: function () {
+        let assembler = Sprite._assembler.getAssembler(this);
+        
+        if (this._assembler !== assembler) {
+            this._assembler = assembler;
+            this._renderData = null;
+        }
+
+        if (!this._renderData) {
+            this._renderData = this._assembler.createData(this);
+            this._renderData.material = this.sharedMaterials[0];
+            this.markForUpdateRenderData(true);
+        }
+    },
+
+    _activateMaterial: function () {
+        let spriteFrame = this._spriteFrame;
+
+        // WebGL
+        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+
+            let material = this.sharedMaterials[0];
+            // if material is not internal material, then need do nothing
+            if (material && material!== this._graySpriteMaterial && material !== this._spriteMaterial) {
+                return;
+            }
+
+            if (this._state === State.GRAY) {
+                material = this._graySpriteMaterial;
+                if (!material) {
+                    material = this._graySpriteMaterial = Material.getInstantiatedBuiltinMaterial('gray-sprite', this);
+                }
+
+                this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+            }
+            else {
+                material = this._spriteMaterial;
+                if (!material) {
+                    material = this._spriteMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                    material.define('useColor', true);
+                    material.define('useTexture', true);
+                }
+                this.node._renderFlag |= RenderFlow.FLAG_COLOR;
+            }
+            
+            // Set texture
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                let texture = spriteFrame.getTexture();
+                if (material.getProperty('texture') !== texture) {
+                    material.setProperty('texture', texture);
+                    this.setMaterial(0, material);
+                }
+                else if (material !== this.sharedMaterials[0]) {
+                    this.setMaterial(0, material);
+                }
+
+                if (this._renderData) {
+                    this._renderData.material = material;
+                }
+            }
+            else {
+                this.disableRender();
+            }
+        }
+        else {
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
         }
     },
 
@@ -510,13 +552,34 @@ var Sprite = cc.Class({
         }
     },
 
-    _applySpriteFrameInsets: function () {
-        var spriteFrame = this._spriteFrame;
-        var sgNode = this._sgNode;
-        sgNode.setInsetTop(spriteFrame.insetTop);
-        sgNode.setInsetBottom(spriteFrame.insetBottom);
-        sgNode.setInsetRight(spriteFrame.insetRight);
-        sgNode.setInsetLeft(spriteFrame.insetLeft);
+    _canRender () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            if (!this._enabled) return false;
+        }
+        else {
+            if (!this._enabled || !this.sharedMaterials[0] || !this.node._activeInHierarchy) return false;
+        }
+
+        let spriteFrame = this._spriteFrame;
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            return false;
+        }
+        return true;
+    },
+
+    markForUpdateRenderData (enable) {
+        if (enable && this._canRender()) {
+            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            
+            let renderData = this._renderData;
+            if (renderData) {
+                renderData.uvDirty = true;
+                renderData.vertDirty = true;
+            }
+        }
+        else if (!enable) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        }
     },
 
     _applySpriteSize: function () {
@@ -528,75 +591,50 @@ var Sprite = cc.Class({
                 var rect = this._spriteFrame.getRect();
                 this.node.setContentSize(rect.width, rect.height);
             }
+            
+            this._activateMaterial();
         }
     },
 
-    _onTextureLoaded: function (event) {
-        var self = this;
-        if (!self.isValid) {
+    _onTextureLoaded: function () {
+        if (!this.isValid) {
             return;
         }
-        var sgNode = self._sgNode;
-        sgNode.setSpriteFrame(self._spriteFrame);
-        self._applySpriteSize();
-        if (self.enabledInHierarchy && !sgNode.isVisible()) {
-            sgNode.setVisible(true);
-        }
+
+        this._applySpriteSize();
     },
 
-    _applySpriteFrame: function (oldFrame, keepInsets) {
-        var sgNode = this._sgNode;
+    _applySpriteFrame: function (oldFrame) {
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
         var spriteFrame = this._spriteFrame;
+        let material = this.sharedMaterials[0];
+        if (!spriteFrame || (material && material._texture) !== (spriteFrame && spriteFrame._texture)) {
+            // disable render flow until texture is loaded
+            this.markForRender(false);
+        }
+
         if (spriteFrame) {
-            if (!keepInsets) {
-                this._applySpriteFrameInsets();
-            }
-            if (spriteFrame.textureLoaded()) {
-                this._onTextureLoaded(null);
+            if (!oldFrame || spriteFrame._texture !== oldFrame._texture) {
+                if (spriteFrame.textureLoaded()) {
+                    this._onTextureLoaded(null);
+                }
+                else {
+                    spriteFrame.once('load', this._onTextureLoaded, this);
+                    spriteFrame.ensureLoadTexture();
+                }
             }
             else {
-                spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
+                this._applySpriteSize();
             }
-        }
-        else {
-            sgNode.setVisible(false);
         }
 
         if (CC_EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
         }
-    },
-
-    _createSgNode: function () {
-        return new cc.Scale9Sprite();
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
-                                  sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
-        this._applySpriteFrame(null, insetsChangedViaAPI);
-
-        // sgNode is the sizeProvider of the node so we should sync its size with the node,
-        // otherwise setContentSize may not take effect
-        sgNode.setContentSize(this.node.getContentSize(true));
-        this._applySpriteSize();
-
-        sgNode.setRenderingType(this._type);
-        sgNode.setFillType(this._fillType);
-        sgNode.setFillCenter(this._fillCenter);
-        sgNode.setFillStart(this._fillStart);
-        sgNode.setFillRange(this._fillRange);
-        sgNode.enableTrimmedContentSize(this._isTrimmedMode);
-        this._blendFunc.src = this._srcBlendFactor;
-        this._blendFunc.dst = this._dstBlendFactor;
-        sgNode.setBlendFunc(this._blendFunc);
     },
 
     _resized: CC_EDITOR && function () {
@@ -624,24 +662,17 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     // override __preload
-    Sprite.prototype.__superPreload = Base.prototype.__preload;
+    Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
     Sprite.prototype.__preload = function () {
-        this.__superPreload();
-        this.node.on('size-changed', this._resized, this);
+        if (this.__superPreload) this.__superPreload();
+        this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
     };
     // override onDestroy
-    Sprite.prototype.__superOnDestroy = Base.prototype.onDestroy;
+    Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
-        this.__superOnDestroy();
-        this.node.off('size-changed', this._resized, this);
+        if (this.__superOnDestroy) this.__superOnDestroy();
+        this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
     };
 }
-
-var misc = require('../utils/misc');
-var SameNameGetSets = ['insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
-var DiffNameGetSets = {
-    type: [null, 'setRenderingType']
-};
-misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
 
 cc.Sprite = module.exports = Sprite;

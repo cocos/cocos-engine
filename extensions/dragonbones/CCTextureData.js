@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -43,7 +44,7 @@ dragonBones.CCTextureAtlasData = cc.Class({
         this.texture = null;
     },
 
-    generateTextureData: function () {
+    createTexture : function() {
         return dragonBones.BaseObject.borrowObject(dragonBones.CCTextureData);
     }
 });

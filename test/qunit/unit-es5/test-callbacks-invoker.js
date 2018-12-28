@@ -7,8 +7,8 @@ test('test', function () {
     var cb2 = Callback();
     var cb3 = Callback();
     ci.add('a', cb1);
-    strictEqual(ci.has('a', function () {}), false, '`has` should return false if the callback not exists');
-    strictEqual(ci.has('a', cb1), true, '`has` should return true if the callback exists');
+    strictEqual(ci.hasEventListener('a', function () {}), false, '`has` should return false if the callback not exists');
+    strictEqual(ci.hasEventListener('a', cb1), true, '`has` should return true if the callback exists');
     ci.add('a', cb2);
     ci.add('b', cb3);
     ci.add('nil', undefined);
@@ -30,9 +30,9 @@ test('test', function () {
     cb1.once('callback should still be invoked if not excatly the one being removed');
 
     ci.add('a', cb2);
-    strictEqual(ci.has('a'), true, '`has` should return true if has any callback');
+    strictEqual(ci.hasEventListener('a'), true, '`has` should return true if has any callback');
     ci.removeAll('a');
-    strictEqual(ci.has('a'), false, '`has` should return false if all callbacks removed');
+    strictEqual(ci.hasEventListener('a'), false, '`has` should return false if all callbacks removed');
     cb1.setDisabledMessage('should not be called after all removed');
     cb2.setDisabledMessage('should not be called after all removed');
     ci.invoke('a');
@@ -82,8 +82,8 @@ test('remove previous during invoking', function () {
     ci.add('eve', cb2);
     ci.invoke('eve');
 
-    strictEqual(ci.has('eve', cb1), false, 'previous callback should be removed');
-    strictEqual(ci.has('eve', cb2), true, 'self callback should not be removed');
+    strictEqual(ci.hasEventListener('eve', cb1), false, 'previous callback should be removed');
+    strictEqual(ci.hasEventListener('eve', cb2), true, 'self callback should not be removed');
 });
 
 test('remove previous with target during invoking', function () {
@@ -98,8 +98,8 @@ test('remove previous with target during invoking', function () {
     ci.add('eve', cb2, target);
     ci.invoke('eve');
 
-    strictEqual(ci.has('eve', cb1, target), false, 'previous callback should be removed');
-    strictEqual(ci.has('eve', cb2, target), true, 'self callback should not be removed');
+    strictEqual(ci.hasEventListener('eve', cb1, target), false, 'previous callback should be removed');
+    strictEqual(ci.hasEventListener('eve', cb2, target), true, 'self callback should not be removed');
 });
 
 test('remove last during invoking', function () {
@@ -113,8 +113,8 @@ test('remove last during invoking', function () {
     ci.add('eve', cb2);
     ci.invoke('eve');
 
-    strictEqual(ci.has('eve', cb1), true, 'previous callback should not be removed');
-    strictEqual(ci.has('eve', cb2), false, 'self callback should be removed');
+    strictEqual(ci.hasEventListener('eve', cb1), true, 'previous callback should not be removed');
+    strictEqual(ci.hasEventListener('eve', cb2), false, 'self callback should be removed');
 });
 
 test('remove last with target during invoking', function () {
@@ -128,8 +128,8 @@ test('remove last with target during invoking', function () {
     ci.add('eve', cb2, target);
     ci.invoke('eve');
 
-    strictEqual(ci.has('eve', cb1, target), true, 'previous callback should not be removed');
-    strictEqual(ci.has('eve', cb2, target), false, 'self callback should be removed');
+    strictEqual(ci.hasEventListener('eve', cb1, target), true, 'previous callback should not be removed');
+    strictEqual(ci.hasEventListener('eve', cb2, target), false, 'self callback should be removed');
 });
 
 test('remove multiple callbacks during invoking', function () {
@@ -153,10 +153,10 @@ test('remove multiple callbacks during invoking', function () {
     cb1.expect(2, 'first callback should be invoked twice');
     cb2.expect(1, 'second callback should be invoked once');
     cb3.expect(1, 'third callback should be invoked once');
-    strictEqual(ci.has('eve', cb1, target), true, 'first callback with target should not be removed');
-    strictEqual(ci.has('eve', cb1), false, 'first callback should be removed');
-    strictEqual(ci.has('eve', cb2, target), false, 'second callback with target should be removed');
-    strictEqual(ci.has('eve', cb3, target), false, 'third callback with target should be removed');
+    strictEqual(ci.hasEventListener('eve', cb1, target), true, 'first callback with target should not be removed');
+    strictEqual(ci.hasEventListener('eve', cb1), false, 'first callback should be removed');
+    strictEqual(ci.hasEventListener('eve', cb2, target), false, 'second callback with target should be removed');
+    strictEqual(ci.hasEventListener('eve', cb3, target), false, 'third callback with target should be removed');
 });
 
 test('remove all callbacks during invoking', function () {
@@ -179,7 +179,7 @@ test('remove all callbacks during invoking', function () {
     cb1.expect(2, 'first callback should be invoked twice');
     cb2.expect(1, 'second callback should be invoked once');
     cb3.expect(0, 'third callback should never invoked');
-    strictEqual(ci.has('eve'), false, 'All callbacks should be removed');
+    strictEqual(ci.hasEventListener('eve'), false, 'All callbacks should be removed');
 });
 
 test('remove and add again during invoking', function () {
@@ -194,7 +194,7 @@ test('remove and add again during invoking', function () {
     ci.add('eve', cb1, target);
     ci.invoke(new cc.Event.EventCustom('eve'));
 
-    strictEqual(ci.has('eve', cb1, target), true, 'first callback should be added back');
+    strictEqual(ci.hasEventListener('eve', cb1, target), true, 'first callback should be added back');
 });
 
 test('remove twice and add again during invoking', function () {
@@ -210,7 +210,7 @@ test('remove twice and add again during invoking', function () {
    ci.add('eve', cb1, target);
    ci.invoke(new cc.Event.EventCustom('eve'));
 
-   strictEqual(ci.has('eve', cb1, target), true, 'first callback should be added back');
+   strictEqual(ci.hasEventListener('eve', cb1, target), true, 'first callback should be added back');
 });
 
 test('remove and check has during invoking', function () {
@@ -219,7 +219,7 @@ test('remove and check has during invoking', function () {
 
    var cb1 = function () {
        ci.remove('eve', cb1, target);
-       strictEqual(ci.has('eve', cb1, target), false, 'first callback should be removed');
+       strictEqual(ci.hasEventListener('eve', cb1, target), false, 'first callback should be removed');
    };
 
    ci.add('eve', cb1, target);
@@ -257,9 +257,9 @@ test('CallbacksInvoker support target', function () {
     ci.add('a', cb3, target1);
     ci.add('b', cb1, target1);
 
-    strictEqual(ci.has('a', cb2), false, '`has` should return false if the callback without target not exists');
-    strictEqual(ci.has('a', cb2, target1), true, '`has` should return true if the callback with correct target exists');
-    strictEqual(ci.has('a', cb3), true, '`has` should return true if the callback without target exists');
+    strictEqual(ci.hasEventListener('a', cb2), false, '`has` should return false if the callback without target not exists');
+    strictEqual(ci.hasEventListener('a', cb2, target1), true, '`has` should return true if the callback with correct target exists');
+    strictEqual(ci.hasEventListener('a', cb3), true, '`has` should return true if the callback without target exists');
 
     cb2.enable();
     cb3.enable();
@@ -271,13 +271,13 @@ test('CallbacksInvoker support target', function () {
     cb2.expect(2, 'callback2 should be called twice');
     cb3.expect(2, 'callback3 should be called twice');
 
-    strictEqual(ci.has('a', target1), false, '`has` should return false if the target is given');
+    strictEqual(ci.hasEventListener('a', target1), false, '`has` should return false if the target is given');
 
     ci.remove('b', cb1);
     ci.remove('b', cb1, target2);
-    strictEqual(ci.has('b', cb1, target1), true, 'remove callback without the correct target should fail');
+    strictEqual(ci.hasEventListener('b', cb1, target1), true, 'remove callback without the correct target should fail');
     ci.remove('b', cb1, target1);
-    strictEqual(ci.has('b', cb1, target1), false, 'remove callback with the correct callback and target should succeed');
+    strictEqual(ci.hasEventListener('b', cb1, target1), false, 'remove callback with the correct callback and target should succeed');
 
     cb1.count = 0;
     target1.count = 0;
@@ -408,7 +408,7 @@ test('remove during nest invoke', function () {
         }
         else {
             ci.remove('visit', cb1);
-            strictEqual(ci.has('visit'), false, 'all callbacks removed');
+            strictEqual(ci.hasEventListener('visit'), false, 'all callbacks removed');
         }
     };
 

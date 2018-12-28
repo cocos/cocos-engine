@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,10 +27,12 @@
 var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
+var AssetTable = require('../load-pipeline/asset-table');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
 var MD5Pipe = require('../load-pipeline/md5-pipe');
+var js = require('./js');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -42,7 +45,7 @@ var MD5Pipe = require('../load-pipeline/md5-pipe');
 
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
-var _uuidToRawAsset = {};
+var _uuidToRawAsset = js.createMap(true);
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
@@ -112,11 +115,12 @@ var AssetLibrary = {
         });
     },
 
-    getLibUrlNoExt: function (uuid) {
+    getLibUrlNoExt: function (uuid, inRawAssetsDir) {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
         }
-        return _libraryBase + uuid.slice(0, 2) + '/' + uuid;
+        var base = (CC_BUILD && inRawAssetsDir) ? (_rawAssetsBase + 'assets/') : _libraryBase;
+        return base + uuid.slice(0, 2) + '/' + uuid;
     },
 
     _queryAssetInfoInEditor: function (uuid, callback) {
@@ -126,7 +130,7 @@ var AssetLibrary = {
                     Editor.Utils.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
-                        var isRawAsset = !cc.isChildClassOf(ctor, Asset);
+                        var isRawAsset = !js.isChildClassOf(ctor, Asset);
                         callback(null, info.url, isRawAsset, ctor);
                     }
                     else {
@@ -145,7 +149,8 @@ var AssetLibrary = {
     _getAssetInfoInRuntime: function (uuid, result) {
         result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
-        if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
+        if (info && !js.isChildClassOf(info.type, cc.Asset)) {
+            // backward compatibility since 1.10
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
         }
@@ -156,12 +161,8 @@ var AssetLibrary = {
         return result;
     },
 
-    _getAssetUrl: function (uuid) {
-        var info = _uuidToRawAsset[uuid];
-        if (info) {
-            return _rawAssetsBase + info.url;
-        }
-        return null;
+    _uuidInSettings: function (uuid) {
+        return uuid in _uuidToRawAsset;
     },
 
     /**
@@ -285,19 +286,37 @@ var AssetLibrary = {
         _rawAssetsBase = options.rawAssetsBase;
 
         var md5AssetsMap = options.md5AssetsMap;
-        if (md5AssetsMap) {
-            var md5Pipe = new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase);
+        if (md5AssetsMap && md5AssetsMap.import) {
+            // decode uuid
+            var i = 0, uuid = 0;
+            var md5ImportMap = js.createMap(true);
+            var md5Entries = md5AssetsMap.import;
+            for (i = 0; i < md5Entries.length; i += 2) {
+                uuid = decodeUuid(md5Entries[i]);
+                md5ImportMap[uuid] = md5Entries[i + 1];
+            }
+
+            var md5RawAssetsMap = js.createMap(true);
+            md5Entries = md5AssetsMap['raw-assets'];
+            for (i = 0; i < md5Entries.length; i += 2) {
+                uuid = decodeUuid(md5Entries[i]);
+                md5RawAssetsMap[uuid] = md5Entries[i + 1];
+            }
+
+            var md5Pipe = new MD5Pipe(md5ImportMap, md5RawAssetsMap, _libraryBase);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
             cc.loader.md5Pipe = md5Pipe;
         }
 
         // init raw assets
 
-        var resources = Loader._resources;
-        resources.reset();
+        var assetTables = Loader._assetTables;
+        for (var mount in assetTables) {
+            assetTables[mount].reset();
+        }
+        
         var rawAssets = options.rawAssets;
         if (rawAssets) {
-            var RES_DIR = 'resources/';
             for (var mountPoint in rawAssets) {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
@@ -309,27 +328,21 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
+                    // backward compatibility since 1.10
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if (cc.isChildClassOf(type, Asset)) {
-                            var ext = cc.path.extname(url);
-                            if (ext) {
-                                // trim base dir and extname
-                                url = url.slice(RES_DIR.length, - ext.length);
-                            }
-                            else {
-                                // trim base dir
-                                url = url.slice(RES_DIR.length);
-                            }
-                        }
-                        else {
-                            url = url.slice(RES_DIR.length);
-                        }
-                        var isSubAsset = info[2] === 1;
-                        // register
-                        resources.add(url, uuid, type, !isSubAsset);
+                    var ext = cc.path.extname(url);
+                    if (ext) {
+                        // trim base dir and extname
+                        url = url.slice(0, - ext.length);
                     }
+
+                    var isSubAsset = info[2] === 1;
+                    if (!assetTables[mountPoint]) {
+                        assetTables[mountPoint] = new AssetTable();
+                    } 
+
+                    assetTables[mountPoint].add(url, uuid, type, !isSubAsset);
                 }
             }
         }
@@ -338,17 +351,10 @@ var AssetLibrary = {
             PackDownloader.initPacks(options.packedAssets);
         }
 
-        // init mount paths
-
-        var mountPaths = options.mountPaths;
-        if (!mountPaths) {
-            mountPaths = {
-                assets: _rawAssetsBase + 'assets',
-                internal: _rawAssetsBase + 'internal',
-            };
-        }
-        cc.url._init(mountPaths);
+        // init cc.url
+        cc.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
     }
+
 };
 
 // unload asset if it is destoryed
@@ -378,5 +384,43 @@ AssetLibrary._uuidToAsset = {};
 //        AssetLibrary.unloadAsset(this);
 //    }
 //};
+
+
+let _builtins = {
+    effect: {},
+    material: {}
+};
+
+function loadBuiltins (name, type, cb) {
+    let dirname = name  + 's';
+    let builtin = _builtins[name] = {};
+    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
+        if (err) {
+            cc.error(err);
+        }
+        else {
+            for (let i = 0; i < assets.length; i++) {
+                builtin[`${assets[i].name}`] = assets[i];
+            }
+        }
+
+        cb();
+    });
+}
+
+AssetLibrary._loadBuiltins = function (cb) {
+    loadBuiltins('effect', cc.EffectAsset, () => {
+        loadBuiltins('material', cc.Material, cb);
+    });
+};
+
+AssetLibrary.getBuiltin = function (type, name) {
+    return _builtins[type][name];
+};
+
+AssetLibrary.getBuiltins = function (type) {
+    if (!type) return _builtins;
+    return _builtins[type];
+};
 
 module.exports = cc.AssetLibrary = AssetLibrary;

@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,7 +25,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var idGenerater = new (require('../platform/id-generater'))('Comp');
 
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -52,8 +53,7 @@ var Component = cc.Class({
         if (window._Scene && _Scene.AssetsWatcher) {
             _Scene.AssetsWatcher.initComponent(this);
         }
-        // Support for Scheduler
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._id = Editor.Utils.UuidUtils.uuid();
 
         /**
          * Register all related EventTargets,
@@ -63,8 +63,8 @@ var Component = cc.Class({
          */
         this.__eventTargets = [];
     } : function () {
-        // Support for Scheduler
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._id = idGenerater.getNewId();
+
         this.__eventTargets = [];
     },
 
@@ -100,11 +100,6 @@ var Component = cc.Class({
             visible: false
         },
 
-        _id: {
-            default: '',
-            serializable: false
-        },
-
         /**
          * !#en The uuid for editor.
          * !#zh 组件的 uuid，用于编辑器。
@@ -116,14 +111,7 @@ var Component = cc.Class({
          */
         uuid: {
             get () {
-                var id = this._id;
-                if ( !id ) {
-                    id = this._id = idGenerater.getNewId();
-                    if (CC_EDITOR || CC_TEST) {
-                        cc.engine.attachedObjsForEditor[id] = this;
-                    }
-                }
-                return id;
+                return this._id;
             },
             visible: false
         },
@@ -135,7 +123,7 @@ var Component = cc.Class({
             //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
             //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
             //            var NewComp = cc.js._getClassById(classId);
-            //            if (cc.isChildClassOf(NewComp, cc.Component)) {
+            //            if (js.isChildClassOf(NewComp, cc.Component)) {
             //                cc.warn('Sorry, replacing component script is not yet implemented.');
             //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
             //            }
@@ -229,8 +217,10 @@ var Component = cc.Class({
     // We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
 
     /**
-     * !#en Update is called every frame, if the Component is enabled.
-     * !#zh 如果该组件启用，则每帧调用 update。
+     * !#en Update is called every frame, if the Component is enabled.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+     * !#zh 如果该组件启用，则每帧调用 update。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method update
      * @param {Number} dt - the delta time in seconds it took to complete the last frame
      * @protected
@@ -238,8 +228,10 @@ var Component = cc.Class({
     update: null,
 
     /**
-     * !#en LateUpdate is called every frame, if the Component is enabled.
-     * !#zh 如果该组件启用，则每帧调用 LateUpdate。
+     * !#en LateUpdate is called every frame, if the Component is enabled.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+     * !#zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method lateUpdate
      * @protected
      */
@@ -259,9 +251,11 @@ var Component = cc.Class({
     /**
      * !#en
      * When attaching to an active node or its node first activated.
-     * onLoad is always called before any start functions, this allows you to order initialization of scripts.
+     * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
      * !#zh
-     * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。
+     * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method onLoad
      * @protected
      */
@@ -270,33 +264,41 @@ var Component = cc.Class({
     /**
      * !#en
      * Called before all scripts' update if the Component is enabled the first time.
-     * Usually used to initialize some logic which need to be called after all components' `onload` methods called.
+     * Usually used to initialize some logic which need to be called after all components' `onload` methods called.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
      * !#zh
-     * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。
+     * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method start
      * @protected
      */
     start: null,
 
     /**
-     * !#en Called when this component becomes enabled and its node is active.
-     * !#zh 当该组件被启用，并且它的节点也激活时。
+     * !#en Called when this component becomes enabled and its node is active.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+     * !#zh 当该组件被启用，并且它的节点也激活时。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method onEnable
      * @protected
      */
     onEnable: null,
 
     /**
-     * !#en Called when this component becomes disabled or its node becomes inactive.
-     * !#zh 当该组件被禁用或节点变为无效时调用。
+     * !#en Called when this component becomes disabled or its node becomes inactive.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+     * !#zh 当该组件被禁用或节点变为无效时调用。<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method onDisable
      * @protected
      */
     onDisable: null,
 
     /**
-     * !#en Called when this component will be destroyed.
-     * !#zh 当该组件被销毁时调用
+     * !#en Called when this component will be destroyed.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class. You can only call its super class method inside it. It should not be called manually elsewhere.
+     * !#zh 当该组件被销毁时调用<br/>
+     * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @method onDestroy
      * @protected
      */
@@ -515,10 +517,6 @@ var Component = cc.Class({
 
         // do remove component
         this.node._removeComponent(this);
-
-        if (CC_EDITOR || CC_TEST) {
-            delete cc.engine.attachedObjsForEditor[this._id];
-        }
     },
 
     _instantiate (cloned) {
@@ -530,10 +528,6 @@ var Component = cc.Class({
     },
 
 // Scheduler
-
-    isRunning () {
-        return this.enabledInHierarchy;
-    },
 
     /**
      * !#en
@@ -634,8 +628,8 @@ if (CC_EDITOR || CC_TEST) {
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)
 
-    JS.value(Component, '_inspector', '', true);
-    JS.value(Component, '_icon', '', true);
+    js.value(Component, '_inspector', '', true);
+    js.value(Component, '_icon', '', true);
 
     // COMPONENT HELPERS
 
@@ -651,7 +645,7 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-JS.value(Component, '_registerEditorProps', function (cls, props) {
+js.value(Component, '_registerEditorProps', function (cls, props) {
     var reqComp = props.requireComponent;
     if (reqComp) {
         cls._requireComponent = reqComp;
@@ -682,11 +676,11 @@ JS.value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 case 'inspector':
-                    JS.value(cls, '_inspector', val, true);
+                    js.value(cls, '_inspector', val, true);
                     break;
 
                 case 'icon':
-                    JS.value(cls, '_icon', val, true);
+                    js.value(cls, '_icon', val, true);
                     break;
 
                 case 'menu':

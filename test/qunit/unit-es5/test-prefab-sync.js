@@ -38,19 +38,20 @@
 
         // CREATE PREFAB ASSET
 
-        _Scene.PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
+        var PrefabUtils = Editor.require('scene://utils/prefab');
+        PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
         //var asset = new cc.Prefab();
         //asset.data = parent;
         nodeToCreatePrefab._prefab.asset._uuid = UUID;
-        //_Scene.PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
-        _Scene.PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
+        //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
+        PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
 
         otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
         otherSyncedNode.x = 1234;
         otherSyncedNode.name = 'otherSyncedNode';
 
         // apply sync property
-        prefabAsset = _Scene.PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
+        prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
 
         // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
         prefabJson = Editor.serialize(prefabAsset, { stringify: false });
@@ -157,9 +158,6 @@
         strictEqual(reloadedParent.active, false, 'root active should be kept');
         strictEqual(reloadedParent.children.length, 1, 'children should be synced');
 
-        // test parent sgNode
-        strictEqual(reloadedParent._sgNode.parent === scene._sgNode, true, 'parent of parent _sgNode should be synced');
-
         // test child
         var syncedChild = reloadedParent.children[0];
         strictEqual(syncedChild.active, child.active, 'child active should be synced');
@@ -167,9 +165,6 @@
         strictEqual(syncedChild.y, child.y, 'child position should be synced');
         strictEqual(syncedChild.scaleY, child.scaleY, 'child scale should be synced');
         strictEqual(syncedChild.parent, reloadedParent, 'prefab reference should redirect to scene node');
-
-        // test child sgNode
-        strictEqual(syncedChild._sgNode.parent === reloadedParent._sgNode, true, 'parent of child _sgNode should be synced');
     });
 
 })();

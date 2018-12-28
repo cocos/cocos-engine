@@ -3,6 +3,7 @@ largeModule('Animation', SetupEngine);
 var color = cc.color;
 var Color = cc.Color;
 var v2 = cc.v2;
+var v3 = cc.v3;
 
 test('curve types', function () {
     var initClipData = cc._Test.initClipData;
@@ -63,7 +64,7 @@ test('DynamicAnimCurve', function () {
     anim.ratios = [0.0, 1.0];
     anim.sample(null, 0.1, null);
 
-    deepEqual(target.position, v2(55, 456), 'The composed position should animated');
+    deepEqual(target.position, v2(55, 456, 0), 'The composed position should animated');
 
     anim.target = target;
     anim.prop = 'foo';
@@ -276,6 +277,8 @@ test('Animation Component', function () {
 
     entity.x = 400;
 
+    cc.director.getScene().addChild(entity);
+
     var clip = new cc.AnimationClip();
     clip._duration = 10;
     clip._name = 'test';
@@ -315,6 +318,11 @@ test('Animation Component', function () {
     strictEqual(animation.getAnimationState('test'), null, 'should remove state');
 
     animation.stop();
+
+    animation.addClip(clip);
+    animation.play('test');
+    cc.director.runSceneImmediate(new cc.Scene());
+    strictEqual(!!(animation._animator && animation._animator.isPlaying), false, 'animation should be stopped after load scene');
 });
 
 
@@ -399,17 +407,17 @@ test('SampledAnimCurve', function () {
     state.time = 0.2;
     state.sample();
 
-    deepEqual(entity.position, v2(0, 0), 'entity position should be (0,0)');
+    deepEqual(entity.position, v3(0, 0, 0), 'entity position should be (0, 0, 0)');
 
     state.time = 0.7;
     state.sample();
 
-    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+    deepEqual(entity.position, v3(100, 100, 0), 'entity position should be (100, 100, 0)');
 
     state.time = 0.9;
     state.sample();
 
-    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+    deepEqual(entity.position, v3(100, 100, 0), 'entity position should be (100, 100, 0)');
 });
 
 
@@ -449,6 +457,8 @@ test('EventAnimCurve', function () {
 
     var entity = new cc.Node();
     entity.addComponent(MyComp);
+
+    cc.director.getScene().addChild(entity);
 
     var animation = entity.addComponent(cc.Animation);
 
@@ -532,6 +542,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.3);
@@ -551,6 +562,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -570,6 +582,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Reverse;
     state.repeatCount = 1;
+    manager.update(0);
     calls = [];
     manager.update(0.1);
     deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
@@ -626,6 +639,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -653,6 +667,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -668,6 +683,7 @@ test('EventAnimCurve', function () {
     state.speed = -1;
     state.wrapMode = cc.WrapMode.Normal;
     state.repeatCount = Infinity;
+    manager.update(0);
     calls = [];
     manager.update(0.5);
     deepEqual(calls, [
@@ -684,6 +700,7 @@ test('EventAnimCurve', function () {
     state.speed = -1;
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -773,6 +790,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.setTime(0);
+    manager.update(0);
     calls = [];
     manager.update(1);
     manager.update(2);
@@ -794,6 +812,7 @@ test('EventAnimCurve', function () {
     state.wrapMode = cc.WrapMode.LoopReverse;
     state.setTime(0);
     calls = [];
+    manager.update(0);
     manager.update(2);
     deepEqual(calls, [
         {
@@ -902,6 +921,8 @@ test('EventAnimCurve', function () {
 test('stop Animation', function () {
     var entity = new cc.Node();
     var animation = entity.addComponent(cc.Animation);
+    
+    cc.director.getScene().addChild(entity);
 
     var clip = new cc.AnimationClip();
     clip._name = 'test';
@@ -1097,19 +1118,19 @@ test('animation removeClip', function () {
 test('animation callback', function () {
     var type; 
 
-    function callback (event) {
-        var state = event.detail;
-
+    function callback (t, state) {
         strictEqual(state instanceof cc.AnimationState, true);
         strictEqual(state.name === 'move', true);
 
-        type = event.type;
+        type = t;
     }
 
     var manager = cc.director.getAnimationManager();
 
     var entity = new cc.Node();
     var animation = entity.addComponent(cc.Animation);
+
+    cc.director.getScene().addChild(entity);
 
     var clip = new cc.AnimationClip();
     clip._name = 'move';
@@ -1186,8 +1207,8 @@ test('animation callback', function () {
     animation.addClip(clip);
 
     var list = [];
-    function callback2 (event) {
-        list.push([event.detail.name, event.type]);
+    function callback2 (t, state) {
+        list.push([state.name, t]);
     }
 
     animation.play('move');
@@ -1389,4 +1410,10 @@ test('animation play on load', function () {
     strictEqual(animation.getAnimationState('clip2').isPlaying, true, 'should play the specified animation');
 
     entity.parent = null;
+});
+
+test('quickFindIndex', function () {
+    var ratios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+    var ratio = 0.7;
+    strictEqual(cc._Test.quickFindIndex(ratios, ratio), 7, 'should find ratio at index 7');
 });

@@ -1,3 +1,29 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+const PointFlags = require('./types').PointFlags;
 
 var PI      = Math.PI;
 var min     = Math.min;
@@ -91,9 +117,43 @@ function roundRect (ctx, x, y, w, h, r) {
     }
 }
 
+function tesselateBezier (ctx, x1, y1, x2, y2, x3, y3, x4, y4, level, type) {
+    var x12, y12, x23, y23, x34, y34, x123, y123, x234, y234, x1234, y1234;
+    var dx, dy, d2, d3;
+
+    if (level > 10) return;
+
+    x12 = (x1 + x2) * 0.5;
+    y12 = (y1 + y2) * 0.5;
+    x23 = (x2 + x3) * 0.5;
+    y23 = (y2 + y3) * 0.5;
+    x34 = (x3 + x4) * 0.5;
+    y34 = (y3 + y4) * 0.5;
+    x123 = (x12 + x23) * 0.5;
+    y123 = (y12 + y23) * 0.5;
+
+    dx = x4 - x1;
+    dy = y4 - y1;
+    d2 = abs((x2 - x4) * dy - (y2 - y4) * dx);
+    d3 = abs((x3 - x4) * dy - (y3 - y4) * dx);
+
+    if ((d2 + d3) * (d2 + d3) < ctx._tessTol * (dx * dx + dy * dy)) {
+        ctx._addPoint(x4, y4, type === 0 ? type | PointFlags.PT_BEVEL : type);
+        return;
+    }
+
+    x234 = (x23 + x34) * 0.5;
+    y234 = (y23 + y34) * 0.5;
+    x1234 = (x123 + x234) * 0.5;
+    y1234 = (y123 + y234) * 0.5;
+
+    tesselateBezier(ctx, x1, y1, x12, y12, x123, y123, x1234, y1234, level + 1, 0);
+    tesselateBezier(ctx, x1234, y1234, x234, y234, x34, y34, x4, y4, level + 1, type);
+}
 
 module.exports =  {
     arc: arc,
     ellipse: ellipse,
     roundRect: roundRect,
+    tesselateBezier: tesselateBezier
 };

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,7 +32,7 @@
  * to specify how to optimize the instantiate operation.
  *
  * @enum Prefab.OptimizationPolicy
- * @since 1.8.0
+ * @since 1.10.0
  */
 var OptimizationPolicy = cc.Enum({
     /**
@@ -103,7 +104,7 @@ var Prefab = cc.Class({
          *
          * @property {Prefab.OptimizationPolicy} optimizationPolicy
          * @default Prefab.OptimizationPolicy.AUTO
-         * @since 1.8.0
+         * @since 1.10.0
          * @example
          * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
          */
@@ -116,6 +117,15 @@ var Prefab = cc.Class({
          * @default false
          */
         asyncLoadAssets: false,
+
+        /**
+         * @property {Boolean} readonly
+         * @default false
+         */
+        readonly: {
+            default: false,
+            editorOnly: true
+        }
     },
 
     statics: {
@@ -188,8 +198,9 @@ var Prefab = cc.Class({
 
         // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
+            var PrefabUtils = Editor.require('scene://utils/prefab');
             // This operation is not necessary, but some old prefab asset may not contain complete data.
-            _Scene.PrefabUtils.linkPrefab(this, node);
+            PrefabUtils.linkPrefab(this, node);
         }
         return node;
     }

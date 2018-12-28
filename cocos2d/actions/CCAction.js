@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,6 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/platform/CCClass');
+const misc = require('../core/utils/misc');
+
 /**
  * @module cc
  */
@@ -33,7 +37,8 @@
  * !#zh Action 类是所有动作类型的基类。
  * @class Action
  */
-cc.Action = cc._Class.extend({
+cc.Action = cc.Class({
+    name: 'cc.Action',
 
     //**************Public Functions***********
 
@@ -185,12 +190,12 @@ cc.Action.TAG_INVALID = -1;
  * @class FiniteTimeAction
  * @extends Action
  */
-cc.FiniteTimeAction = cc.Action.extend({
-    //! duration in seconds
-    _duration:0,
+cc.FiniteTimeAction = cc.Class({
+    name: 'cc.FiniteTimeAction',
+    extends: cc.Action,
 
     ctor:function () {
-        cc.Action.prototype.ctor.call(this);
+        //! duration in seconds
         this._duration = 0;
     },
 
@@ -259,12 +264,11 @@ cc.FiniteTimeAction = cc.Action.extend({
  * @param {ActionInterval} action
  * @param {Number} speed
  */
-cc.Speed = cc.Action.extend({
-    _speed:0.0,
-    _innerAction:null,
+cc.Speed = cc.Class({
+    name: 'cc.Speed',
+    extends: cc.Action,
 
     ctor:function (action, speed) {
-        cc.Action.prototype.ctor.call(this);
         this._speed = 0;
         this._innerAction = null;
 
@@ -299,8 +303,10 @@ cc.Speed = cc.Action.extend({
      * @return {Boolean}
      */
     initWithAction:function (action, speed) {
-        if(!action)
-            throw new Error(cc._getError(1021));
+        if (!action) {
+            cc.errorID(1021);
+            return false;
+        }
 
         this._innerAction = action;
         this._speed = speed;
@@ -394,52 +400,39 @@ cc.speed = function (action, speed) {
  * @property {Number}  topBoundary - world topBoundary.
  * @property {Number}  bottomBoundary - world bottomBoundary.
  *
- * @param {_ccsg.Node} followedNode
+ * @param {cc.Node} followedNode
  * @param {Rect} rect
  * @example
  * // creates the action with a set boundary
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = new cc.Follow(sprite, cc.rect(0, 0, s.width * 2 - 100, s.height));
+ * var followAction = new cc.Follow(node, cc.rect(0, 0, s.width * 2 - 100, s.height));
  * this.runAction(followAction);
  *
  * // creates the action with no boundary set
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = new cc.Follow(sprite);
+ * var followAction = new cc.Follow(node);
  * this.runAction(followAction);
  *
  * @class
  * @extends Action
  */
-cc.Follow = cc.Action.extend({
-    // node to follow
-    _followedNode:null,
-    // whether camera should be limited to certain area
-    _boundarySet:false,
-    // if screen size is bigger than the boundary - update not needed
-    _boundaryFullyCovered:false,
-    // fast access to the screen dimensions
-    _halfScreenSize:null,
-    _fullScreenSize:null,
-    _worldRect:null,
-
-    leftBoundary:0.0,
-    rightBoundary:0.0,
-    topBoundary:0.0,
-    bottomBoundary:0.0,
+cc.Follow = cc.Class({
+    name: 'cc.Follow',
+    extends: cc.Action,
 
 	/*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with a set boundary. <br/>
 	 * creates the action with no boundary set.
-     * @param {_ccsg.Node} followedNode
+     * @param {cc.Node} followedNode
      * @param {Rect} rect
 	 */
     ctor:function (followedNode, rect) {
-        cc.Action.prototype.ctor.call(this);
+        // node to follow
         this._followedNode = null;
+        // whether camera should be limited to certain area
         this._boundarySet = false;
-
+        // if screen size is bigger than the boundary - update not needed
         this._boundaryFullyCovered = false;
+        // fast access to the screen dimensions
         this._halfScreenSize = null;
         this._fullScreenSize = null;
 
@@ -483,26 +476,28 @@ cc.Follow = cc.Action.extend({
     /*
      * initializes the action with a set boundary.
      *
-     * @param {_ccsg.Node} followedNode
+     * @param {cc.Node} followedNode
      * @param {Rect} [rect=]
      * @return {Boolean}
      */
     initWithTarget:function (followedNode, rect) {
-        if(!followedNode)
-            throw new Error(cc._getError(1022));
+        if (!followedNode) {
+            cc.errorID(1022);
+            return false;
+        }
 
         var _this = this;
         rect = rect || cc.rect(0, 0, 0, 0);
         _this._followedNode = followedNode;
         _this._worldRect = rect;
 
-        _this._boundarySet = !cc._rectEqualToZero(rect);
+        _this._boundarySet = !(rect.width === 0 && rect.height === 0);
 
         _this._boundaryFullyCovered = false;
 
-        var winSize = cc.director.getWinSize();
-        _this._fullScreenSize = cc.p(winSize.width, winSize.height);
-        _this._halfScreenSize = cc.pMult(_this._fullScreenSize, 0.5);
+        var winSize = cc.winSize;
+        _this._fullScreenSize = cc.v2(winSize.width, winSize.height);
+        _this._halfScreenSize = _this._fullScreenSize.mul(0.5);
 
         if (_this._boundarySet) {
             _this.leftBoundary = -((rect.x + rect.width) - _this._fullScreenSize.x);
@@ -531,22 +526,22 @@ cc.Follow = cc.Action.extend({
         var targetWorldPos = this.target.convertToWorldSpaceAR(cc.Vec2.ZERO);
         var followedWorldPos = this._followedNode.convertToWorldSpaceAR(cc.Vec2.ZERO);
         // compute the offset between followed and target node
-        var delta = cc.pSub(targetWorldPos, followedWorldPos);
-        var tempPos = this.target.parent.convertToNodeSpaceAR(cc.pAdd(delta, this._halfScreenSize));
+        var delta = targetWorldPos.sub(followedWorldPos);
+        var tempPos = this.target.parent.convertToNodeSpaceAR(delta.add(this._halfScreenSize));
 
         if (this._boundarySet) {
             // whole map fits inside a single screen, no need to modify the position - unless map boundaries are increased
             if (this._boundaryFullyCovered)
                 return;
 
-	        this.target.setPosition(cc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), cc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
+	        this.target.setPosition(misc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), misc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
         } else {
             this.target.setPosition(tempPos.x, tempPos.y);
         }
     },
 
     isDone:function () {
-        return ( !this._followedNode.isRunning() );
+        return ( !this._followedNode.activeInHierarchy );
     },
 
     stop:function () {

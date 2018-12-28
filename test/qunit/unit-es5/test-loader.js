@@ -86,7 +86,7 @@ asyncTest('Load with dependencies', function () {
         type: 'deps'
     };
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
-    var audio = assetDir + '/background.mp3';
+    var audio = assetDir + '/library/12/1258a1.json';
     var resources = [
         json1,
         json2,
@@ -112,7 +112,7 @@ asyncTest('Load with dependencies', function () {
         }
         else if (item.id === audio) {
             // Test environment doesn't support audio
-            ok((item.content instanceof cc.Audio) || true, 'audio url\'s result should be Audio');
+            ok((item.content instanceof cc.AudioClip) || true, 'audio url\'s result should be AudioClip');
         }
         else if (item.id === dep1 || item.id === dep2 || item.id === dep3) {
             depsProgression();
@@ -127,13 +127,7 @@ asyncTest('Load with dependencies', function () {
         depsProgression.expect(depsCount, 'should call progress callback for all ' + depsCount + ' dependencies');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
         var count = loader.getResCount();
-        if (isPhantomJS) {
-            // Test environment doesn't load audio
-            strictEqual(count, total-1, 'getResCount should return correct count of loaded resources');
-        }
-        else {
-            strictEqual(count, total, 'getResCount should return correct count of loaded resources');
-        }
+        strictEqual(count, total, 'getResCount should return correct count of loaded resources');
         loader.releaseAll();
         
         start();
@@ -159,7 +153,7 @@ asyncTest('Loading font', function () {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
         else if (item.id === font.url) {
-            strictEqual(item.content, null, 'should set null as content for Font type');
+            strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
         }
         else {
             ok(false, 'should not load an unknown url');

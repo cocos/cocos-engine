@@ -34,7 +34,7 @@
             var timerId = setTimeout(function () {
                 ok(false, 'time out!');
                 start();
-            }, 100);
+            }, 1000);
         });
     }
 
@@ -60,7 +60,7 @@
         var timerId = setTimeout(function () {
             ok(false, 'time out!');
             start();
-        }, 200);
+        }, 2000);
     });
 
     asyncTest('load asset with depends asset recursively if no cache', function () {

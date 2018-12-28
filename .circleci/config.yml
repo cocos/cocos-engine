@@ -1,0 +1,19 @@
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/node:8.9.4
+    steps:
+      - checkout
+      - run: sudo npm install -g gulp
+      - run: npm install gulp-qunit
+      - run: npm install
+      - run: npm test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test

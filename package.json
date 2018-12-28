@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test-in-ci"
   },
   "devDependencies": {
     "async": "1.5.2",
@@ -41,13 +41,20 @@
     "gulp-sourcemaps": "1.5.2",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "3.0.6",
+    "js-sha1": "^0.6.0",
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
-    "uglify-es": "~3.3.3",
+    "aliasify": "^2.1.0",
+    "require-dir": "0.3.0",
+    "uglify-es": "3.3.7",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",
-    "watchify": "^3.7.0"
+    "watchify": "^3.7.0",
+    "glsl-tokenizer": "^2.1.5",
+    "gulp-qunit": "^2.0.1",
+    "rollup": "^0.66.6",
+    "rollup-plugin-node-resolve": "^3.4.0"
   }
 }

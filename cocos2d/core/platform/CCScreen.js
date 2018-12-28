@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -83,7 +84,7 @@ cc.screen = /** @lends cc.screen# */{
         var i, l, val, map = this._fnMap, valL;
         for (i = 0, l = map.length; i < l; i++) {
             val = map[i];
-            if (val && val[1] in document) {
+            if (val && (typeof document[val[1]] !== 'undefined')) {
                 for (i = 0, valL = val.length; i < valL; i++) {
                     this._fn[map[0][i]] = val[i];
                 }
@@ -91,7 +92,7 @@ cc.screen = /** @lends cc.screen# */{
             }
         }
 
-        this._supportsFullScreen = (typeof this._fn.requestFullscreen !== 'undefined');
+        this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
         this._touchEvent = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
     },
     
@@ -101,7 +102,7 @@ cc.screen = /** @lends cc.screen# */{
      * @returns {Boolean}
      */
     fullScreen: function () {
-        if(!this._supportsFullScreen)   return false;
+        if(!this._supportsFullScreen) return false;
         else if( document[this._fn.fullscreenElement] === undefined || document[this._fn.fullscreenElement] === null )
             return false;
         else
@@ -115,6 +116,16 @@ cc.screen = /** @lends cc.screen# */{
      * @param {Function} onFullScreenChange
      */
     requestFullScreen: function (element, onFullScreenChange) {
+        if (element.tagName.toLowerCase() === "video") {
+            if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
+                element.webkitEnterFullscreen && element.webkitEnterFullscreen();
+                return;
+            }
+            else {
+                element.setAttribute("x5-video-player-fullscreen", "true");
+            }
+        }
+
         if (!this._supportsFullScreen) {
             return;
         }
@@ -138,7 +149,16 @@ cc.screen = /** @lends cc.screen# */{
      * @method exitFullScreen
      * @return {Boolean}
      */
-    exitFullScreen: function () {
+    exitFullScreen: function (element) {
+        if (element.tagName.toLowerCase() === "video") {
+            if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser) {
+                element.webkitExitFullscreen && element.webkitExitFullscreen();
+                return;
+            }
+            else {
+                element.setAttribute("x5-video-player-fullscreen", "false");
+            }
+        }
         return this._supportsFullScreen ? document[this._fn.exitFullscreen]() : true;
     },
     

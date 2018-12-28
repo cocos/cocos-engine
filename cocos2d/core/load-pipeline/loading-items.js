@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,11 +25,11 @@
  ****************************************************************************/
 
 var CallbacksInvoker = require('../platform/callbacks-invoker');
-var Path = require('../utils/CCPath');
-var JS = require('../platform/js');
+require('../utils/CCPath');
+var js = require('../platform/js');
 
 var _qid = (0|(Math.random()*998));
-var _queues = {};
+var _queues = js.createMap(true);
 var _pool = [];
 var _POOL_MAX_LENGTH = 10;
 
@@ -38,7 +39,7 @@ var ItemState = {
     ERROR: 3
 };
 
-var _queueDeps = {};
+var _queueDeps = js.createMap(true);
 
 function isIdValid (id) {
     var realId = id.url || id;
@@ -76,7 +77,7 @@ function createItem (id, queueId) {
     };
 
     if (typeof id === 'object') {
-        JS.mixin(result, id);
+        js.mixin(result, id);
         if (id.skips) {
             for (var i = 0; i < id.skips.length; i++) {
                 var skip = id.skips[i];
@@ -86,7 +87,7 @@ function createItem (id, queueId) {
     }
     result.rawUrl = result.url;
     if (url && !result.type) {
-        result.type = Path.extname(url).toLowerCase().substr(1);
+        result.type = cc.path.extname(url).toLowerCase().substr(1);
     }
     return result;
 }
@@ -123,35 +124,35 @@ function checkCircleReference(owner, item, recursiveCall) {
 
 /**
  * !#en
- * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
- * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
- * It hold a map of items, each entry in the map is a url to object key value pair.</br>
- * Each item always contains the following property:</br>
- * - id: The identification of the item, usually it's identical to url</br>
- * - url: The url </br>
- * - type: The type, it's the extension name of the url by default, could be specified manually too.</br>
- * - error: The error happened in pipeline will be stored in this property.</br>
- * - content: The content processed by the pipeline, the final result will also be stored in this property.</br>
- * - complete: The flag indicate whether the item is completed by the pipeline.</br>
- * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
- * </br>
- * Item can hold other custom properties.</br>
- * Each LoadingItems object will be destroyed for recycle after onComplete callback</br>
+ * LoadingItems is the queue of items which can flow them into the loading pipeline.<br/>
+ * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.<br/>
+ * It hold a map of items, each entry in the map is a url to object key value pair.<br/>
+ * Each item always contains the following property:<br/>
+ * - id: The identification of the item, usually it's identical to url<br/>
+ * - url: The url <br/>
+ * - type: The type, it's the extension name of the url by default, could be specified manually too.<br/>
+ * - error: The error happened in pipeline will be stored in this property.<br/>
+ * - content: The content processed by the pipeline, the final result will also be stored in this property.<br/>
+ * - complete: The flag indicate whether the item is completed by the pipeline.<br/>
+ * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE<br/>
+ * <br/>
+ * Item can hold other custom properties.<br/>
+ * Each LoadingItems object will be destroyed for recycle after onComplete callback<br/>
  * So please don't hold its reference for later usage, you can copy properties in it though.
  * !#zh
- * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。</br>
- * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
- * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。</br>
- * 每个对象都会包含下列属性：</br>
- * - id：该对象的标识，通常与 url 相同。</br>
- * - url：路径 </br>
- * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。</br>
- * - error：pipeline 中发生的错误将被保存在这个属性中。</br>
- * - content: pipeline 中处理的临时结果，最终的结果也将被存储在这个属性中。</br>
- * - complete：该标志表明该对象是否通过 pipeline 完成。</br>
- * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
- * </br>
- * 对象可容纳其他自定义属性。</br>
+ * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。<br/>
+ * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
+ * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。<br/>
+ * 每个对象都会包含下列属性：<br/>
+ * - id：该对象的标识，通常与 url 相同。<br/>
+ * - url：路径 <br/>
+ * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。<br/>
+ * - error：pipeline 中发生的错误将被保存在这个属性中。<br/>
+ * - content: pipeline 中处理的临时结果，最终的结果也将被存储在这个属性中。<br/>
+ * - complete：该标志表明该对象是否通过 pipeline 完成。<br/>
+ * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE<br/>
+ * <br/>
+ * 对象可容纳其他自定义属性。<br/>
  * 每个 LoadingItems 对象都会在 onComplete 回调之后被销毁，所以请不要持有它的引用并在结束回调之后依赖它的内容执行任何逻辑，有这种需求的话你可以提前复制它的内容。
  *
  * @class LoadingItems
@@ -211,7 +212,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
      * @property map
      * @type {Object}
      */
-    this.map = {};
+    this.map = js.createMap(true);
 
     /**
      * !#en The map of completed items.
@@ -296,9 +297,9 @@ LoadingItems.ItemState = new cc.Enum(ItemState);
  * @param {Array} urlList The items array.
  * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
  * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  * @example
- *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
+ *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
  *      var progress = (100 * completedCount / totalCount).toFixed(2);
  *      cc.log(progress + '%');
  *  }, function (errors, items) {
@@ -358,7 +359,7 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
  * @method getQueue
  * @static
  * @param {Object} item The item to query
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  */
 LoadingItems.getQueue = function (item) {
     return item.queueId ? _queues[item.queueId] : null;
@@ -430,7 +431,7 @@ LoadingItems.finishDep = function (depId) {
 };
 
 var proto = LoadingItems.prototype;
-JS.mixin(proto, CallbacksInvoker.prototype);
+js.mixin(proto, CallbacksInvoker.prototype);
 
 /**
  * !#en Add urls to the LoadingItems queue.
@@ -616,10 +617,10 @@ proto.addListener = CallbacksInvoker.prototype.add;
 
 /**
  * !#en
- * Check if the specified key has any registered callback. </br>
+ * Check if the specified key has any registered callback. 
  * If a callback is also specified, it will only return true if the callback is registered.
  * !#zh
- * 检查指定的加载项是否有完成事件监听器。</br>
+ * 检查指定的加载项是否有完成事件监听器。
  * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
  * @method hasListener
  * @param {String} key
@@ -631,10 +632,10 @@ proto.hasListener = CallbacksInvoker.prototype.has;
 
 /**
  * !#en
- * Removes a listener. </br>
+ * Removes a listener. 
  * It will only remove when key, callback, target all match correctly.
  * !#zh
- * 移除指定加载项已经注册的完成事件监听器。</br>
+ * 移除指定加载项已经注册的完成事件监听器。
  * 只会删除 key, callback, target 均匹配的监听器。
  * @method remove
  * @param {String} key
@@ -730,7 +731,7 @@ proto.destroy = function () {
     this.onProgress = null;
     this.onComplete = null;
 
-    this.map = {};
+    this.map = js.createMap(true);
     this.completed = {};
 
     this.totalCount = 0;
@@ -738,12 +739,14 @@ proto.destroy = function () {
 
     // Reinitialize CallbacksInvoker, generate three new objects, could be improved
     CallbacksInvoker.call(this);
-
-    _queues[this._id] = null;
+    
     if (_queueDeps[this._id]) {
         _queueDeps[this._id].completed.length = 0;
         _queueDeps[this._id].deps.length = 0;
     }
+    delete _queues[this._id];
+    delete _queueDeps[this._id];
+
     if (_pool.indexOf(this) === -1 && _pool.length < _POOL_MAX_LENGTH) {
         _pool.push(this);
     }

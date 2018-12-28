@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -197,14 +198,28 @@ var RevoluteJoint = cc.Class({
         return 0;
     },
 
+    /**
+     * #!en
+     * Set the max and min limit angle.
+     * #!zh
+     * 设置关节的角度最大和最小角度。
+     * @param {Number} lower 
+     * @param {Number} upper 
+     */
+    setLimits (lower, upper) {
+        if (this._joint) {
+            return this._joint.SetLimits(lower * ANGLE_TO_PHYSICS_ANGLE, upper * ANGLE_TO_PHYSICS_ANGLE);
+        }
+    },
+
     _createJointDef: function () {
         var def = new b2.RevoluteJointDef();
         def.localAnchorA = new b2.Vec2(this.anchor.x/PTM_RATIO, this.anchor.y/PTM_RATIO);
         def.localAnchorB = new b2.Vec2(this.connectedAnchor.x/PTM_RATIO, this.connectedAnchor.y/PTM_RATIO);
 
         // cocos degree 0 is to right, and box2d degree 0 is to up.
-        def.lowerAngle = (this.upperAngle + 90) * ANGLE_TO_PHYSICS_ANGLE;
-        def.upperAngle = (this.lowerAngle + 90) * ANGLE_TO_PHYSICS_ANGLE;
+        def.lowerAngle = this.upperAngle* ANGLE_TO_PHYSICS_ANGLE;
+        def.upperAngle = this.lowerAngle* ANGLE_TO_PHYSICS_ANGLE;
         
         def.maxMotorTorque = this.maxMotorTorque;
         def.motorSpeed = this.motorSpeed * ANGLE_TO_PHYSICS_ANGLE;

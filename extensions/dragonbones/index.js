@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -38,7 +39,8 @@
  * http://dragonbones.com/cn/index.html
  */
 
-dragonBones = CC_JSB ? dragonBones : require('./lib/dragonBones');
+var _global = typeof window === 'undefined' ? global : window;
+_global.dragonBones = require('./lib/dragonBones');
 
 dragonBones.DisplayType = {
     Image : 0,
@@ -85,19 +87,59 @@ dragonBones.AnimationFadeOutMode = {
     All : 4
 };
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
+dragonBones.BinaryOffset = {
+    WeigthBoneCount: 0,
+    WeigthFloatOffset: 1,
+    WeigthBoneIndices: 2,
 
-    if (!CC_JSB) {
-        require('./CCFactory');
-        require('./CCSlot');
-        require('./CCTextureData');
-        require('./CCArmatureDisplay');
-    }
+    MeshVertexCount: 0,
+    MeshTriangleCount: 1,
+    MeshFloatOffset: 2,
+    MeshWeightOffset: 3,
+    MeshVertexIndices: 4,
+
+    TimelineScale: 0,
+    TimelineOffset: 1,
+    TimelineKeyFrameCount: 2,
+    TimelineFrameValueCount: 3,
+    TimelineFrameValueOffset: 4,
+    TimelineFrameOffset: 5,
+
+    FramePosition: 0,
+    FrameTweenType: 1,
+    FrameTweenEasingOrCurveSampleCount: 2,
+    FrameCurveSamples: 3,
+
+    DeformMeshOffset: 0,
+    DeformCount: 1,
+    DeformValueCount: 2,
+    DeformValueOffset: 3,
+    DeformFloatOffset: 4
+}; 
+
+dragonBones.BoneType = {
+    Bone: 0,
+    Surface: 1
+};
+
+if (!CC_EDITOR || !Editor.isMainProcess) {
+    require('./CCFactory');
+    require('./CCSlot');
+    require('./CCTextureData');
 
     // require the component for dragonbones
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');
-    require('./ArmatureDisplay')
+    require('./ArmatureDisplay');
+
+    cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            require('./canvas-assembler');
+        }
+        else {
+            require('./webgl-assembler');
+        }
+    });
 } else {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');

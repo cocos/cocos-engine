@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,11 +25,11 @@
  ****************************************************************************/
 
 /**
- * !#en ToggleContainer is not a visiable UI component but a way to modify the behavior of a set of Toggles. </br>
- * Toggles that belong to the same group could only have one of them to be switched on at a time.</br>
+ * !#en ToggleContainer is not a visiable UI component but a way to modify the behavior of a set of Toggles. <br/>
+ * Toggles that belong to the same group could only have one of them to be switched on at a time.<br/>
  * Note: All the first layer child node containing the toggle component will auto be added to the container
- * !#zh ToggleContainer 不是一个可见的 UI 组件，它可以用来修改一组 Toggle 组件的行为。</br>
- * 当一组 Toggle 属于同一个 ToggleContainer 的时候，任何时候只能有一个 Toggle 处于选中状态。</br>
+ * !#zh ToggleContainer 不是一个可见的 UI 组件，它可以用来修改一组 Toggle 组件的行为。<br/>
+ * 当一组 Toggle 属于同一个 ToggleContainer 的时候，任何时候只能有一个 Toggle 处于选中状态。<br/>
  * 注意：所有包含 Toggle 组件的一级子节点都会自动被添加到该容器中
  * @class ToggleContainer
  * @extends Component
@@ -54,21 +55,39 @@ var ToggleContainer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         },
+
+        /**
+         * !#en If Toggle is clicked, it will trigger event's handler
+         * !#zh Toggle 按钮的点击事件列表。
+         * @property {Component.EventHandler[]} checkEvents
+         */
+        checkEvents: {
+            default: [],
+            type: cc.Component.EventHandler
+        },
     },
 
     updateToggles: function (toggle) {
-        this.toggleItems.forEach(function (item) {
-            if (toggle.isChecked && item !== toggle) {
-                item.isChecked = false;
+        if(!this.enabledInHierarchy) return;
+
+        if (toggle.isChecked) {
+            this.toggleItems.forEach(function (item) {
+                if (item !== toggle && item.isChecked && item.enabled) {
+                    item._hideCheckMark();
+                }
+            });
+
+            if (this.checkEvents) {
+                cc.Component.EventHandler.emitEvents(this.checkEvents, toggle);
             }
-        });
+        }
     },
 
     _allowOnlyOneToggleChecked: function () {
         var isChecked = false;
         this.toggleItems.forEach(function (item) {
             if (isChecked) {
-                item.isChecked = false;
+                item._hideCheckMark();
             }
             else if (item.isChecked) {
                 isChecked = true;
@@ -109,8 +128,8 @@ var ToggleContainer = cc.Class({
  * !#zh 只读属性，返回 ToggleContainer 管理的 toggle 数组引用
  * @property {Toggle[]} toggleItems
  */
-var JS = require('../platform/js');
-JS.get(ToggleContainer.prototype, 'toggleItems',
+var js = require('../platform/js');
+js.get(ToggleContainer.prototype, 'toggleItems',
     function () {
         return this.node.getComponentsInChildren(cc.Toggle);
     }

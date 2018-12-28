@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2015-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -39,6 +40,10 @@ cc.Scene = cc.Class({
     extends: require('./CCNode'),
 
     properties: {
+        _is3DNode: {
+            default: true,
+            override: true
+        },
 
         /**
          * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
@@ -46,13 +51,14 @@ cc.Scene = cc.Class({
          * @property {Boolean} autoReleaseAssets
          * @default false
          */
-        autoReleaseAssets: undefined,
+        autoReleaseAssets: {
+            default: undefined,
+            type: cc.Boolean
+        },
 
     },
 
     ctor: function () {
-        var sgNode = this._sgNode = new _ccsg.Scene();
-        sgNode.setAnchorPoint(0.0, 0.0);
         this._anchorPoint.x = 0.0;
         this._anchorPoint.y = 0.0;
 
@@ -68,7 +74,13 @@ cc.Scene = cc.Class({
     },
 
     destroy: function () {
-        this._super();
+        if (cc.Object.prototype.destroy.call(this)) {
+            var children = this._children;
+            for (var i = 0; i < children.length; ++i) {
+                children[i].active = false;
+            }
+        }
+        this._active = false;
         this._activeInHierarchy = false;
     },
 

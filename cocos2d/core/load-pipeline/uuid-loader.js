@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,9 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+const js = require('../platform/js');
+const debug = require('../CCDebug');
 require('../platform/deserialize');
-var LoadingItems = require('./loading-items');
+const LoadingItems = require('./loading-items');
 
 function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';
@@ -57,7 +59,6 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
             var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
-                // TODO - skip preloading native texture
                 var url = info.url;
                 obj[prop] = url;
                 dependKeys.push(url);
@@ -90,12 +91,10 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
             };
         }
 
-        // parse native
+        // load native object (Image/Audio) as depends
         if (asset._native && !asset.constructor.preventPreloadNativeObject) {
             depends.push({
                 url: asset.nativeUrl,
-                // For image, we should skip loader otherwise it will load a new texture
-                skips: [ 'Loader' ],
                 _owner: asset,
                 _ownerProp: '_nativeAsset',
             });
@@ -111,8 +110,9 @@ function loadDepends (pipeline, item, asset, depends, callback) {
     var dependKeys = item.dependKeys;
     pipeline.flowInDeps(item, depends, function (errors, items) {
         var item, missingAssetReporter;
-        for (var src in items.map) {
-            item = items.map[src];
+        var itemsMap = items.map;
+        for (var src in itemsMap) {
+            item = itemsMap[src];
             if (item.uuid && item.content) {
                 item.content._uuid = item.uuid;
             }
@@ -123,69 +123,75 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             var dependUrl = dep.url;
             var dependObj = dep._owner;
             var dependProp = dep._ownerProp;
-            item = items.map[dependUrl];
-            if (item) {
-                var thisOfLoadCallback = dep;
-                function loadCallback (item) {
-                    var value;
-                    if (this._stillUseUrl) {
-                        value = (item.content instanceof cc.Texture2D) ? item.content.nativeUrl : item.rawUrl
-                    }
-                    else {
-                        value = item.content;
-                    }
-                    this._owner[this._ownerProp] = value;
-                    if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
-                        dependKeys.push(item.id);
-                    }
+            item = itemsMap[dependUrl];
+            if (!item) {
+                continue;
+            }
+
+            var loadCallbackCtx = dep;
+            function loadCallback (item) {
+                var value = item.content;
+                if (this._stillUseUrl) {
+                    value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
                 }
-                if (item.complete || item.content) {
-                    if (item.error) {
-                        if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
-                            if (!missingAssetReporter) {
-                                var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
-                                missingAssetReporter = new MissingObjectReporter(asset);
-                            }
-                            missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                this._owner[this._ownerProp] = value;
+                if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                    dependKeys.push(item.id);
+                }
+            }
+
+            if (item.complete || item.content) {
+                if (item.error) {
+                    if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                        if (!missingAssetReporter) {
+                            var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                            missingAssetReporter = new MissingObjectReporter(asset);
                         }
-                        else {
-                            cc._throw(item.error);
-                        }
+                        missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
                     }
                     else {
-                        loadCallback.call(thisOfLoadCallback, item);
+                        cc._throw(item.error);
                     }
                 }
                 else {
-                    // item was removed from cache, but ready in pipeline actually
-                    var queue = LoadingItems.getQueue(item);
-                    // Hack to get a better behavior
-                    var list = queue._callbackTable[dependSrc];
-                    if (list) {
-                        list.unshift(loadCallback, thisOfLoadCallback);
-                    }
-                    else {
-                        queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);
-                    }
+                    loadCallback.call(loadCallbackCtx, item);
+                }
+            }
+            else {
+                // item was removed from cache, but ready in pipeline actually
+                var queue = LoadingItems.getQueue(item);
+                // Hack to get a better behavior
+                var list = queue._callbackTable[dependSrc];
+                if (list) {
+                    list.unshift(loadCallback, loadCallbackCtx);
+                }
+                else {
+                    queue.addListener(dependSrc, loadCallback, loadCallbackCtx);
                 }
             }
         }
+        // Emit dependency errors in runtime, but not in editor,
+        // because editor need to open the scene / prefab to let user fix missing asset issues
         if (CC_EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
+            callback(null, asset);
         }
-        callback(null, asset);
+        else {
+            if (!errors && asset.onLoad) asset.onLoad();
+            callback(errors, asset);
+        }
     });
 }
 
 // can deferred load raw assets in runtime
 function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR || CC_JSB) {
+    if (CC_EDITOR) {
         return false;
     }
     var res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
-        if (cc.Class.isInstanceOf(asset, cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
+        if ((asset instanceof cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
             res = false;
         }
     }
@@ -213,14 +219,14 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            return new Error(cc._getError(4923, item.id, e.stack));
+            return new Error(debug.getError(4923, item.id, e.stack));
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        return new Error(cc._getError(4924));
+        return new Error(debug.getError(4924));
     }
 
     var classFinder;
@@ -243,7 +249,7 @@ function loadUuid (item, callback) {
     }
     else {
         classFinder = function (id) {
-            var cls = JS._getClassById(id);
+            var cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }
@@ -265,7 +271,7 @@ function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        return new Error(cc._getError(4925, item.id, err));
+        return new Error(debug.getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;
@@ -280,6 +286,7 @@ function loadUuid (item, callback) {
     cc.deserialize.Details.pool.put(tdInfo);
 
     if (depends.length === 0) {
+        if (asset.onLoad) asset.onLoad();
         return callback(null, asset);
     }
     loadDepends(this.pipeline, item, asset, depends, callback);

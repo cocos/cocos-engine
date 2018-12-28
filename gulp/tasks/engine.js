@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,96 +39,64 @@ const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
-    '../../cocos2d/core/CCGame',
-    '../../cocos2d/core/CCDrawingPrimitives.js',
-    // '../../cocos2d/core/textures/CCTexture2D',
-    // '../../cocos2d/core/sprites/CCSpriteFrame',
-    '../../cocos2d/core/event-manager/CCTouch.js',
-    '../../cocos2d/core/event-manager/CCEventListener.js',
-    '../../cocos2d/core/event-manager/CCEventManager.js',
-    '../../cocos2d/core/load-pipeline/audio-downloader',
-    '../../cocos2d/core/physics/platform/CCPhysicsDebugDraw.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsUtils.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsContactListner.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsAABBQueryCallback.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsRayCastCallback.js',
-    '../../cocos2d/core/platform/CCInputManager.js',
-    '../../cocos2d/core/platform/CCVisibleRect.js',
-    '../../cocos2d/core/camera/CCSGCameraNode.js',
-    '../../cocos2d/core/label/CCSGLabel.js',
-    '../../cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
-    '../../cocos2d/core/label/CCSGLabelWebGLRenderCmd.js',
-    '../../cocos2d/core/videoplayer/CCSGVideoPlayer.js',
-    '../../cocos2d/core/webview/CCSGWebView.js',
-    '../../cocos2d/core/editbox/CCSGEditBox.js',
-    '../../cocos2d/core/graphics/graphics-node.js',
-    '../../cocos2d/core/graphics/graphics-webgl-cmd.js',
-    '../../cocos2d/core/graphics/graphics-canvas-cmd.js',
-    '../../cocos2d/core/graphics/earcut.js',
-    '../../cocos2d/core/graphics/helper.js',
-    '../../cocos2d/actions/index.js',
-    '../../cocos2d/audio/CCAudio',
-    '../../cocos2d/shape-nodes/CCDrawNode.js',
-    '../../cocos2d/clipping-nodes/CCClippingNode.js',
-    '../../cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
-    '../../cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
-    '../../cocos2d/particle/CCSGParticleSystem.js',
-    '../../cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
-    '../../cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
-    '../../cocos2d/tilemap/CCSGTMXTiledMap.js',
-    '../../cocos2d/tilemap/CCTMXXMLParser.js',
-    '../../cocos2d/tilemap/CCSGTMXObjectGroup.js',
-    '../../cocos2d/tilemap/CCSGTMXObject.js',
-    '../../cocos2d/tilemap/CCSGTMXLayer.js',
-    '../../cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
-    '../../cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js',
-    '../../cocos2d/motion-streak/CCSGMotionStreak.js',
-    '../../cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
-    '../../cocos2d/render-texture/CCRenderTexture.js',
-    '../../cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
-    '../../cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js',
-    '../../extensions/spine/SGSkeletonTexture',
-    '../../extensions/spine/SGSkeleton',
-    '../../extensions/spine/SGSkeletonAnimation',
-    '../../extensions/spine/SGSkeletonCanvasRenderCmd',
-    '../../extensions/spine/SGSkeletonWebGLRenderCmd',
-    '../../extensions/spine/lib/spine',
-    '../../extensions/dragonbones/lib/dragonBones',
-    '../../extensions/dragonbones/CCFactory',
-    '../../extensions/dragonbones/CCSlot',
-    '../../extensions/dragonbones/CCTextureData',
-    '../../extensions/dragonbones/CCArmatureDisplay',
-    '../../external/box2d/box2d.js',
-    '../../external/chipmunk/chipmunk.js',
+    // modules need to skip in jsb
 ];
+var jsbAliasify = {
+    replacements: {
+        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.jsb')
+    },
+    verbose: false
+};
+var canvasAliasify = {
+    replacements: {
+        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
+    },
+    verbose: false
+};
 
-exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildDebugInfos = require('./buildDebugInfos');
+
+exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+        opts.aliasifyConfig = canvasAliasify;
+    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
-        bundler.ignore(file);
+        bundler.exclude(file);
     });
 
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
-    bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+    }
+
     bundler = bundler.pipe(Utils.uglify('build', Object.assign({ debug: true }, opt_macroFlags)));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
-    bundler = bundler.pipe(Sourcemaps.write('./', {
-        sourceRoot: './',
-        includeContent: true,
-        addComment: true
-    }));
+
+    if (createMap) {
+        bundler = bundler.pipe(Sourcemaps.write('./', {
+            sourceRoot: './',
+            includeContent: true,
+            addComment: true
+        }));
+    }
+
     bundler = bundler.pipe(Gulp.dest(outDir));
     return bundler.on('end', callback);
 };
@@ -139,13 +107,21 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+        opts.aliasifyConfig = canvasAliasify;
+    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = createBundler(sourceFile);
+    var bundler = createBundler(sourceFile, opts);
 
     excludes && excludes.forEach(function (file) {
-        bundler.ignore(file);
+        bundler.exclude(file);
     });
+
+    bundler.exclude(Path.resolve(__dirname, '../../DebugInfos.json'));
 
     var Size = null;
     try {
@@ -228,7 +204,6 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
 
 exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
-    var CheckInstanceof = require('../util/check-jsb-instanceof');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
@@ -237,10 +212,9 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
 
     var bundler = createBundler(sourceFile);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
-    bundler.transform(CheckInstanceof)
-        .bundle()
+    bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
@@ -254,10 +228,17 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .on('end', callback);
 };
 
-exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
+    }
+
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
     }
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
@@ -265,11 +246,10 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
+    var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
-
-    var bundler = createBundler(sourceFile);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
     bundler.bundle()
         .on('error', HandleErrors.handler)
@@ -285,23 +265,32 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .on('end', callback);
 };
 
-exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
+exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
     if (typeof opt_macroFlags === 'function') {
         callback = opt_macroFlags;
         opt_macroFlags = null;
     }
 
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
+    }
+    
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
+    var bundler = createBundler(sourceFile, opts);
     excludes = excludes.concat(jsbSkipModules);
-
-    var bundler = createBundler(sourceFile);
     excludes.forEach(function (module) {
-        bundler.ignore(require.resolve(module));
+        bundler.exclude(require.resolve(module));
     });
+
+    bundler.exclude(Path.resolve(__dirname, '../../DebugInfos.json'));
+
     bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())

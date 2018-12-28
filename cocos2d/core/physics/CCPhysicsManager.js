@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,20 +24,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ContactType = require('./CCPhysicsTypes').ContactType;
-var BodyType = require('./CCPhysicsTypes').BodyType;
-var RayCastType = require('./CCPhysicsTypes').RayCastType;
+const PhysicsTypes = require('./CCPhysicsTypes');
+const ContactType = PhysicsTypes.ContactType;
+const BodyType = PhysicsTypes.BodyType;
+const RayCastType = PhysicsTypes.RayCastType;
+const DrawBits = PhysicsTypes.DrawBits;
 
-var PTM_RATIO = require('./CCPhysicsTypes').PTM_RATIO;
-var ANGLE_TO_PHYSICS_ANGLE = require('./CCPhysicsTypes').ANGLE_TO_PHYSICS_ANGLE;
-var PHYSICS_ANGLE_TO_ANGLE = require('./CCPhysicsTypes').PHYSICS_ANGLE_TO_ANGLE;
+const PTM_RATIO = PhysicsTypes.PTM_RATIO;
+const ANGLE_TO_PHYSICS_ANGLE = PhysicsTypes.ANGLE_TO_PHYSICS_ANGLE;
+const PHYSICS_ANGLE_TO_ANGLE = PhysicsTypes.PHYSICS_ANGLE_TO_ANGLE;
 
-var tempB2AABB = new b2.AABB();
-var tempB2Vec21 = new b2.Vec2();
-var tempB2Vec22 = new b2.Vec2();
+const convertToNodeRotation = require('./utils').convertToNodeRotation;
+const DebugDraw = require('./platform/CCPhysicsDebugDraw');
 
-var FIXED_TIME_STEP = 1/60;
-var MAX_ACCUMULATOR = 1/5;
+var b2_aabb_tmp = new b2.AABB();
+var b2_vec2_tmp1 = new b2.Vec2();
+var b2_vec2_tmp2 = new b2.Vec2();
+
+var vec2_tmp = cc.v2();
 
 /**
  * !#en
@@ -72,7 +77,7 @@ var PhysicsManager = cc.Class({
             cc.PhysicsManager.DrawBits.e_jointBit |
             cc.PhysicsManager.DrawBits.e_shapeBit;
         */
-        DrawBits: b2.Draw,
+        DrawBits: DrawBits,
 
         /**
          * !#en
@@ -104,18 +109,41 @@ var PhysicsManager = cc.Class({
          * @default 10
          * @static
          */
-        POSITION_ITERATIONS: 10
+        POSITION_ITERATIONS: 10,
+
+        /**
+         * !#en
+         * Specify the fixed time step.
+         * Need enabledAccumulator to make it work.
+         * !#zh
+         * 指定固定的物理更新间隔时间，需要开启 enabledAccumulator 才有效。
+         * @property {Number} FIXED_TIME_STEP
+         * @default 1/60
+         * @static
+         */
+        FIXED_TIME_STEP: 1/60,
+
+        /**
+         * !#en
+         * Specify the max accumulator time.
+         * Need enabledAccumulator to make it work.
+         * !#zh
+         * 每次可用于更新物理系统的最大时间，需要开启 enabledAccumulator 才有效。
+         * @property {Number} MAX_ACCUMULATOR
+         * @default 1/5
+         * @static
+         */
+        MAX_ACCUMULATOR: 1/5
     },
 
     ctor: function () {
-        this.__instanceId = cc.ClassManager.getNewInstanceId();
-
         this._debugDrawFlags = 0;
         this._debugDrawer = null;
 
         this._world = null;
 
         this._bodies = [];
+        this._joints = [];
 
         this._contactMap = {};
         this._contactID = 0;
@@ -124,19 +152,20 @@ var PhysicsManager = cc.Class({
 
         this._accumulator = 0;
 
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
+
         /**
          * !#en
-         * If enabled accumulator, then will call step function with a fixed time step. 
+         * If enabled accumulator, then will call step function with the fixed time step FIXED_TIME_STEP. 
          * And if the update dt is bigger than the time step, then will call step function several times.
          * If disabled accumulator, then will call step function with a time step calculated with the frame rate.
          * !#zh
-         * 如果开启此选项，那么将会以一个固定的时间步来更新物理引擎，如果一个 update 的间隔时间大于这个时间步，则会对物理引擎进行多次更新。
-         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个时间步来更新物理引擎。
+         * 如果开启此选项，那么将会以固定的间隔时间 FIXED_TIME_STEP 来更新物理引擎，如果一个 update 的间隔时间大于 FIXED_TIME_STEP，则会对物理引擎进行多次更新。
+         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个间隔时间来更新物理引擎。
          * @property {Boolean} enabledAccumulator
          * @default false
          */
-        this.enabledAccumulator = false;
-        
+        this.enabledAccumulator = false;        
     },
 
     pushDelayEvent: function (target, func, args) {
@@ -165,7 +194,10 @@ var PhysicsManager = cc.Class({
 
         if (this.enabledAccumulator) {
             this._accumulator += dt;
-        
+
+            var FIXED_TIME_STEP = PhysicsManager.FIXED_TIME_STEP;
+            var MAX_ACCUMULATOR = PhysicsManager.MAX_ACCUMULATOR;
+
             // max accumulator time to avoid spiral of death
             if (this._accumulator > MAX_ACCUMULATOR) {
                 this._accumulator = MAX_ACCUMULATOR;
@@ -180,9 +212,12 @@ var PhysicsManager = cc.Class({
             var timeStep = 1/cc.game.config['frameRate'];
             world.Step(timeStep, velocityIterations, positionIterations);
         }
-        
 
-        world.DrawDebugData();
+        if (this.debugDrawFlags) {
+            this._checkDebugDrawValid();
+            this._debugDrawer.clear();
+            world.DrawDebugData();
+        }
 
         this._steping = false;
 
@@ -206,18 +241,18 @@ var PhysicsManager = cc.Class({
      * @return {PhysicsCollider}
      */
     testPoint: function (point) {
-        var x = tempB2Vec21.x = point.x/PTM_RATIO;
-        var y = tempB2Vec21.y = point.y/PTM_RATIO;
+        var x = b2_vec2_tmp1.x = point.x/PTM_RATIO;
+        var y = b2_vec2_tmp1.y = point.y/PTM_RATIO;
 
         var d = 0.2/PTM_RATIO;
-        tempB2AABB.lowerBound.x = x-d;
-        tempB2AABB.lowerBound.y = y-d;
-        tempB2AABB.upperBound.x = x+d;
-        tempB2AABB.upperBound.y = y+d;
+        b2_aabb_tmp.lowerBound.x = x-d;
+        b2_aabb_tmp.lowerBound.y = y-d;
+        b2_aabb_tmp.upperBound.x = x+d;
+        b2_aabb_tmp.upperBound.y = y+d;
 
         var callback = this._aabbQueryCallback;
-        callback.init(tempB2Vec21);
-        this._world.QueryAABB(callback, tempB2AABB);
+        callback.init(b2_vec2_tmp1);
+        this._world.QueryAABB(callback, b2_aabb_tmp);
 
         var fixture = callback.getFixture();
         if (fixture) {
@@ -237,14 +272,14 @@ var PhysicsManager = cc.Class({
      * @return {[PhysicsCollider]}
      */
     testAABB: function (rect) {
-        tempB2AABB.lowerBound.x = rect.xMin/PTM_RATIO;
-        tempB2AABB.lowerBound.y = rect.yMin/PTM_RATIO;
-        tempB2AABB.upperBound.x = rect.xMax/PTM_RATIO;
-        tempB2AABB.upperBound.y = rect.yMax/PTM_RATIO;
+        b2_aabb_tmp.lowerBound.x = rect.xMin/PTM_RATIO;
+        b2_aabb_tmp.lowerBound.y = rect.yMin/PTM_RATIO;
+        b2_aabb_tmp.upperBound.x = rect.xMax/PTM_RATIO;
+        b2_aabb_tmp.upperBound.y = rect.yMax/PTM_RATIO;
 
         var callback = this._aabbQueryCallback;
         callback.init();
-        this._world.QueryAABB(callback, tempB2AABB);
+        this._world.QueryAABB(callback, b2_aabb_tmp);
 
         var fixtures = callback.getFixtures();
         var colliders = fixtures.map(function (fixture) {
@@ -273,14 +308,14 @@ var PhysicsManager = cc.Class({
 
         type = type || RayCastType.Closest;
 
-        tempB2Vec21.x = p1.x/PTM_RATIO;
-        tempB2Vec21.y = p1.y/PTM_RATIO;
-        tempB2Vec22.x = p2.x/PTM_RATIO;
-        tempB2Vec22.y = p2.y/PTM_RATIO;
+        b2_vec2_tmp1.x = p1.x/PTM_RATIO;
+        b2_vec2_tmp1.y = p1.y/PTM_RATIO;
+        b2_vec2_tmp2.x = p2.x/PTM_RATIO;
+        b2_vec2_tmp2.y = p2.y/PTM_RATIO;
 
         var callback = this._raycastQueryCallback;
         callback.init(type);
-        this._world.RayCast(callback, tempB2Vec21, tempB2Vec22);
+        this._world.RayCast(callback, b2_vec2_tmp1, b2_vec2_tmp2);
 
         var fixtures = callback.getFixtures();
         if (fixtures.length > 0) {
@@ -339,31 +374,6 @@ var PhysicsManager = cc.Class({
         }
     },    
 
-    /**
-     * !#en
-     * Attach physics debug draw to camera
-     * !#zh
-     * 将物理的调试绘制信息附加到指定摄像机上
-     * @method attachDebugDrawToCamera
-     * @param {Camera} camera
-     */
-    attachDebugDrawToCamera: function (camera) {
-        if (!this._debugDrawer) return;
-        camera.addTarget(this._debugDrawer.getDrawer());
-    },
-    /**
-     * !#en
-     * Detach physics debug draw to camera
-     * !#zh
-     * 将物理的调试绘制信息从指定摄像机上移除
-     * @method detachDebugDrawFromCamera
-     * @param {Camera} camera
-     */
-    detachDebugDrawFromCamera: function (camera) {
-        if (!this._debugDrawer) return;
-        camera.removeTarget(this._debugDrawer.getDrawer());
-    },
-
     _registerContactFixture: function (fixture) {
         this._contactListener.registerContactFixture(fixture);
     },
@@ -379,14 +389,8 @@ var PhysicsManager = cc.Class({
         if (!world || !node) return;
 
         body._b2Body = world.CreateBody(bodyDef);
-
-        if (CC_JSB) {
-            body._b2Body.SetUserData( node._sgNode );
-        }
-
         body._b2Body.body = body;
 
-        this._utils.addB2Body(body._b2Body);
         this._bodies.push(body);
     },
 
@@ -394,19 +398,33 @@ var PhysicsManager = cc.Class({
         var world = this._world;
         if (!world) return;
 
-        if (CC_JSB) {
-            body._b2Body.SetUserData(null);
-        }
         body._b2Body.body = null;
-        this._utils.removeB2Body(body._b2Body);
-
         world.DestroyBody(body._b2Body);
         body._b2Body = null;
 
-        var index = this._bodies.indexOf(body);
-        if (index !== -1) {
-            this._bodies.splice(index, 1);
+        cc.js.array.remove(this._bodies, body);
+    },
+
+    _addJoint (joint, jointDef) {
+        let b2joint = this._world.CreateJoint(jointDef);
+        if (!b2joint) return;
+        
+        b2joint._joint = joint;
+        joint._joint = b2joint;
+
+        this._joints.push(joint);
+    },
+
+    _removeJoint (joint) {
+        if (joint._isValid()) {
+            this._world.DestroyJoint(joint._joint);
         }
+        
+        if (joint._joint) {
+            joint._joint._joint = null;
+        }
+
+        cc.js.array.remove(this._joints, joint);
     },
 
     _initCallback: function () {
@@ -432,7 +450,7 @@ var PhysicsManager = cc.Class({
 
     _init: function () {
         this.enabled = true;
-        this.debugDrawFlags = b2.Draw.e_shapeBit;
+        this.debugDrawFlags = DrawBits.e_shapeBit;
     },
 
     _getWorld: function () {
@@ -440,26 +458,40 @@ var PhysicsManager = cc.Class({
     },
 
     _syncNode: function () {
-        this._utils.syncNode();
-        
         var bodies = this._bodies;
         for (var i = 0, l = bodies.length; i < l; i++) {
             var body = bodies[i];
-            if (CC_JSB) {
-                var node = body.node;
-                node._position.x = node._sgNode.getPositionX();
-                node._position.y = node._sgNode.getPositionY();
-                node._rotationX = node._rotationY = node._sgNode.getRotation();
+            var node = body.node;
+
+            var b2body = body._b2Body;
+            var pos = b2body.GetPosition();
+
+            vec2_tmp.x = pos.x * PTM_RATIO;
+            vec2_tmp.y = pos.y * PTM_RATIO;
+
+            var angle = b2body.GetAngle() * PHYSICS_ANGLE_TO_ANGLE;
+
+            // When node's parent is not scene, convert position and rotation.
+            if (node.parent.parent !== null) {
+                vec2_tmp = node.parent.convertToNodeSpaceAR( vec2_tmp );
+                angle = convertToNodeRotation( node.parent, angle );
             }
+
+            let tempMask = node._eventMask;
+            node._eventMask = 0;
+
+            // sync position
+            node.position = vec2_tmp;
+
+            // sync rotation
+            node.angle = -angle;
+
+            node._eventMask = tempMask;
             
             if (body.type === BodyType.Animated) {
                 body.resetVelocity();
             }
         }
-    },
-
-    _onSceneLaunched: function () {
-        this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
     },
 
     _onBeginContact: function (b2contact) {
@@ -496,6 +528,19 @@ var PhysicsManager = cc.Class({
         c._impulse = impulse;
         c.emit(ContactType.POST_SOLVE);
         c._impulse = null;
+    },
+
+    _checkDebugDrawValid () {
+        if (!this._debugDrawer || !this._debugDrawer.isValid) {
+            let node = new cc.Node('PHYSICS_MANAGER_DEBUG_DRAW');
+            node.zIndex = cc.macro.MAX_ZINDEX;
+            cc.game.addPersistRootNode(node);
+            this._debugDrawer = node.addComponent(cc.Graphics);
+
+            let debugDraw = new DebugDraw(this._debugDrawer);
+            debugDraw.SetFlags(this.debugDrawFlags);
+            this._world.SetDebugDraw(debugDraw);
+        }
     }
 });
 
@@ -512,12 +557,13 @@ cc.js.getset(PhysicsManager.prototype, 'enabled',
         return this._enabled;
     },
     function (value) {
+        if (CC_EDITOR) return;
+        
         if (value && !this._world) {
             var world = new b2.World( new b2.Vec2(0, -10) );
             world.SetAllowSleeping(true);
 
             this._world = world;
-            this._utils = new cc.PhysicsUtils();
 
             this._initCallback();
         }
@@ -550,26 +596,25 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
         return this._debugDrawFlags;
     },
     function (value) {
+        if (CC_EDITOR) return;
+        
         if (value && !this._debugDrawFlags) {
-            if (!this._debugDrawer) {
-                this._debugDrawer = new cc.PhysicsDebugDraw(PTM_RATIO);
-                this._world.SetDebugDraw( this._debugDrawer );
-            }
-
-            var scene = cc.director.getScene();
-            if (scene) {
-                this._debugDrawer.AddDrawerToNode( cc.director.getScene()._sgNode );
-            }
-            cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this._onSceneLaunched, this);
+            if (this._debugDrawer && this._debugDrawer.node) this._debugDrawer.node.active = true;
         }
         else if (!value && this._debugDrawFlags) {
-            cc.director.off(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this._onSceneLaunched, this);
+            if (this._debugDrawer && this._debugDrawer.node) this._debugDrawer.node.active = false;
+        }
+
+        if (value) {
+            this._checkDebugDrawValid();
+            this._world.m_debugDraw.SetFlags(value);
         }
 
         this._debugDrawFlags = value;
 
-        if (this._debugDrawer) {
-            this._debugDrawer.SetFlags(value);
+        if (value) {
+            this._checkDebugDrawValid();
+            this._world.m_debugDraw.SetFlags(value);
         }
     }
 );
@@ -609,20 +654,6 @@ cc.PhysicsManager = module.exports = PhysicsManager;
  * !#zh
  * 绘制包围盒
  * @property {Number} e_aabbBit
- */
-/**
- * !#en
- * Draw broad-phase pairs
- * !#zh
- * 绘制粗测阶段物体
- * @property {Number} e_pairBit
- */
-/**
- * !#en
- * Draw center of mass frame
- * !#zh
- * 绘制物体质心
- * @property {Number} e_centerOfMassBit
  */
 /**
  * !#en

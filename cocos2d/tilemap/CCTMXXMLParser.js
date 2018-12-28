@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,17 +25,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../compression/ZipUtils');
-var Zlib = require('../compression/zlib.min');
+'use strict';
+
+const codec = require('../compression/ZipUtils');
+const zlib = require('../compression/zlib.min');
+const js = require('../core/platform/js');
+require('../core/platform/CCSAXParser');
 
 function uint8ArrayToUint32Array (uint8Arr) {
     if(uint8Arr.length % 4 !== 0)
         return null;
 
-    var arrLen = uint8Arr.length /4;
-    var retArr = window.Uint32Array? new Uint32Array(arrLen) : [];
-    for(var i = 0; i < arrLen; i++){
-        var offset = i * 4;
+    let arrLen = uint8Arr.length /4;
+    let retArr = window.Uint32Array? new Uint32Array(arrLen) : [];
+    for(let i = 0; i < arrLen; i++){
+        let offset = i * 4;
         retArr[i] = uint8Arr[offset]  + uint8Arr[offset + 1] * (1 << 8) + uint8Arr[offset + 2] * (1 << 16) + uint8Arr[offset + 3] * (1<<24);
     }
     return retArr;
@@ -50,31 +55,30 @@ function uint8ArrayToUint32Array (uint8Arr) {
  * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created) <br />
  *  <br />
  * This information is obtained from the TMX file.</p>
- * @class
- * @extends cc._Class
+ * @class TMXLayerInfo
  *
  * @property {Array}    properties  - Properties of the layer info.
  */
-cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
+cc.TMXLayerInfo = function () {
+    this.properties = {};
+    this.name = "";
+    this._layerSize = null;
+    this._tiles = [];
+    this.visible = true;
+    this._opacity = 0;
+    this.ownTiles = true;
+    this._minGID = 100000;
+    this._maxGID = 0;
+    this.offset = cc.v2(0,0);
+};
 
-    ctor:function () {
-        this.properties = {};
-        this.name = "";
-        this._layerSize = null;
-        this._tiles = [];
-        this.visible = true;
-        this._opacity = 0;
-        this.ownTiles = true;
-        this._minGID = 100000;
-        this._maxGID = 0;
-        this.offset = cc.p(0,0);
-    },
-
+cc.TMXLayerInfo.prototype = {
+    constructor: cc.TMXLayerInfo,
     /**
      * Gets the Properties.
      * @return {Array}
      */
-    getProperties:function () {
+    getProperties () {
         return this.properties;
     },
 
@@ -82,10 +86,10 @@ cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
      * Set the Properties.
      * @param {object} value
      */
-    setProperties:function (value) {
+    setProperties (value) {
         this.properties = value;
     }
-});
+};
 
 /**
  * <p>cc.TMXObjectGroupInfo contains the information about the object group like: <br />
@@ -95,29 +99,28 @@ cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
  * - Whether the group is visible <br />
  *  <br />
  * This information is obtained from the TMX file.</p>
- * @class
- * @extends cc._Class
+ * @class TMXObjectGroupInfo
  *
  * @property {Array}    properties  - Properties of the ObjectGroup info.
  */
-cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
+cc.TMXObjectGroupInfo = function () {
+    this.properties = {};
+    this.name = "";
+    this._objects = [];
+    this.visible = true;
+    this._opacity = 0;
+    this._color = new cc.Color(255, 255, 255, 255);
+    this.offset = cc.v2(0,0);
+    this._draworder = 'topdown';
+};
 
-    ctor:function () {
-        this.properties = {};
-        this.name = "";
-        this._objects = [];
-        this.visible = true;
-        this._opacity = 0;
-        this._color = new cc.Color(255, 255, 255, 255);
-        this.offset = cc.p(0,0);
-        this._draworder = 'topdown';
-    },
-
+cc.TMXObjectGroupInfo.prototype = {
+    constructor: cc.TMXObjectGroupInfo,
     /**
      * Gets the Properties.
      * @return {Array}
      */
-    getProperties:function () {
+    getProperties () {
         return this.properties;
     },
 
@@ -125,10 +128,10 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
      * Set the Properties.
      * @param {object} value
      */
-    setProperties:function (value) {
+    setProperties (value) {
         this.properties = value;
     }
-});
+};
 
 /**
  * <p>cc.TMXTilesetInfo contains the information about the tilesets like: <br />
@@ -140,8 +143,7 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  * - Image size<br />
  *
  * This information is obtained from the TMX file. </p>
- * @class
- * @extends cc._Class
+ * @class TMXTilesetInfo
  *
  * @property {string} name - Tileset name
  * @property {number} firstGid - First grid
@@ -150,46 +152,46 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  * @property {null} sourceImage - Texture containing the tiles (should be sprite sheet / texture atlas)
  * @property {cc.Size} imageSize - Size in pixels of the image
  */
-cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
+cc.TMXTilesetInfo = function () {
+    // Tileset name
+    this.name = "";
+    // First grid
+    this.firstGid = 0;
+    // Spacing
+    this.spacing = 0;
+    // Margin
+    this.margin = 0;
+    // Texture containing the tiles (should be sprite sheet / texture atlas)
+    this.sourceImage = null;
+    // Size in pixels of the image
+    this.imageSize = cc.size(0, 0);
 
-    ctor:function () {
-        // Tileset name
-        this.name = "";
-        // First grid
-        this.firstGid = 0;
-        // Spacing
-        this.spacing = 0;
-        // Margin
-        this.margin = 0;
-        // Texture containing the tiles (should be sprite sheet / texture atlas)
-        this.sourceImage = null;
-        // Size in pixels of the image
-        this.imageSize = cc.size(0, 0);
+    this.tileOffset = cc.v2(0, 0);
 
-        this.tileOffset = cc.p(0, 0);
+    this._tileSize = cc.size(0, 0);
+};
 
-        this._tileSize = cc.size(0, 0);
-    },
-
+cc.TMXTilesetInfo.prototype = {
+    constructor: cc.TMXTilesetInfo,
     /**
      * Return rect
      * @param {Number} gid
      * @return {Rect}
      */
-    rectForGID:function (gid, result) {
-        var rect = result || cc.rect(0, 0, 0, 0);
+    rectForGID (gid, result) {
+        let rect = result || cc.rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
         gid &= cc.TiledMap.TileFlag.FLIPPED_MASK;
         gid = gid - parseInt(this.firstGid, 10);
-        var max_x = parseInt((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing), 10);
+        let max_x = parseInt((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing), 10);
         rect.x = parseInt((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin, 10);
         rect.y = parseInt(parseInt(gid / max_x, 10) * (this._tileSize.height + this.spacing) + this.margin, 10);
         return rect;
     }
-});
+};
 
-function getPropertyList (node) {
+function getPropertyList (node, map) {
     let res = [];
     let properties = node.getElementsByTagName("properties");
     for (let i = 0; i < properties.length; ++i) {
@@ -198,7 +200,36 @@ function getPropertyList (node) {
             res.push(property[j]);
         }
     }
-    return res.length ? res : null;
+
+    map = map || {};
+    for (let i = 0; i < res.length; i++) {
+        let element = res[i];
+        let name = element.getAttribute('name');
+        let type = element.getAttribute('type') || 'string';
+
+        let value = element.getAttribute('value');
+        if (type === 'int') {
+            value = parseInt(value);
+        }
+        else if (type === 'float') {
+            value = parseFloat(value);
+        }
+        else if (type === 'bool') {
+            value = value === 'true';
+        }
+        else if (type === 'color') {
+            value = (value.indexOf('#') === 0) ? value.substring(1) : value;
+            let a = parseInt(value.substr(0, 2), 16) || 255;
+            let r = parseInt(value.substr(2, 2), 16) || 0;
+            let g = parseInt(value.substr(4, 2), 16) || 0;
+            let b = parseInt(value.substr(6, 2), 16) || 0;
+            value = cc.color(r, g, b, a);
+        }
+
+        map[name] = value;
+    }
+
+    return map;
 }
 
 /**
@@ -214,7 +245,6 @@ function getPropertyList (node) {
  *
  * <p>This information is obtained from the TMX file. </p>
  * @class
- * @extends cc.saxParser
  *
  * @property {Array}    properties          - Properties of the map info.
  * @property {Number}   orientation         - Map orientation.
@@ -227,72 +257,62 @@ function getPropertyList (node) {
  * @property {Number}   mapHeight           - Height of the map
  * @property {Number}   tileWidth           - Width of a tile
  * @property {Number}   tileHeight          - Height of a tile
- *
- * @param {String} tmxFile fileName or content string
- * @param {String} resourcePath  If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
  * @example
  * 1.
  * //create a TMXMapInfo with file name
- * var tmxMapInfo = new cc.TMXMapInfo("res/orthogonal-test1.tmx");
+ * let tmxMapInfo = new cc.TMXMapInfo("res/orthogonal-test1.tmx");
  * 2.
  * //create a TMXMapInfo with content string and resource path
- * var resources = "res/TileMaps";
- * var filePath = "res/TileMaps/orthogonal-test1.tmx";
- * var xmlStr = cc.loader.getRes(filePath);
- * var tmxMapInfo = new cc.TMXMapInfo(xmlStr, resources);
+ * let resources = "res/TileMaps";
+ * let filePath = "res/TileMaps/orthogonal-test1.tmx";
+ * let xmlStr = cc.loader.getRes(filePath);
+ * let tmxMapInfo = new cc.TMXMapInfo(xmlStr, resources);
  */
-cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
-	properties:null,
-    orientation:null,
-	parentElement:null,
-	parentGID:null,
-	layerAttrs:0,
-	storingCharacters:false,
-	currentString:null,
 
-	_objectGroups:null,
-    _allChildren: null,
-    _mapSize:null,
-    _tileSize:null,
-    _layers:null,
-    _tilesets:null,
-    // tile properties
-    _tileProperties:null,
-    _resources: "",  // used to load relative tsx
+/**
+ * Creates a TMX Format with a tmx file or content string                           <br/>
+ * Constructor of cc.TMXMapInfo
+ * @method constructor
+ * @param {String} tmxFile content string
+ * @param {Object} tsxMap
+ * @param {Object} textures
+ */
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures) {
+    this.properties = [];
+    this.orientation = null;
+    this.parentElement = null;
+    this.parentGID = null;
+    this.layerAttrs = 0;
+    this.storingCharacters = false;
+    this.currentString = null;
+
+    this._parser = new cc.SAXParser();
+    this._objectGroups = [];
+    this._allChildren = [];
+    this._mapSize = cc.size(0, 0);
+    this._tileSize = cc.size(0, 0);
+    this._layers = [];
+    this._tilesets = [];
+    this._tileProperties = {};
+    this._tsxMap = null;
 
     // map of textures indexed by name
-    _textures: null,
+    this._textures = null;
 
     // hex map values
-    _staggerAxis: null,
-    _staggerIndex: null,
-    _hexSideLength: 0,
+    this._staggerAxis = null;
+    this._staggerIndex = null;
+    this._hexSideLength = 0;
 
-    /**
-     * Creates a TMX Format with a tmx file or content string                           <br/>
-     * Constructor of cc.TMXMapInfo
-     * @param {String} tmxFile content string
-     * @param {String} resourcePath
-     * @param {Object} textures
-     */
-    ctor: function (tmxFile, resourcePath, textures) {
-        cc.SAXParser.prototype.ctor.apply(this);
-        this._mapSize = cc.size(0, 0);
-        this._tileSize = cc.size(0, 0);
-        this._layers = [];
-        this._tilesets = [];
-        this._objectGroups = [];
-        this._allChildren = [];
-        this.properties = [];
-        this._tileProperties = {};
-
-        this.initWithXML(tmxFile, resourcePath, textures);
-    },
+    this.initWithXML(tmxFile, tsxMap, textures);
+};
+cc.TMXMapInfo.prototype = {
+    constructor: cc.TMXMapInfo,
     /**
      * Gets Map orientation.
      * @return {Number}
      */
-    getOrientation:function () {
+    getOrientation () {
         return this.orientation;
     },
 
@@ -300,7 +320,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the Map orientation.
      * @param {Number} value
      */
-    setOrientation:function (value) {
+    setOrientation (value) {
         this.orientation = value;
     },
 
@@ -308,7 +328,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Gets the staggerAxis of map.
      * @return {cc.TiledMap.StaggerAxis}
      */
-    getStaggerAxis:function () {
+    getStaggerAxis () {
         return this._staggerAxis;
     },
 
@@ -316,7 +336,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the staggerAxis of map.
      * @param {cc.TiledMap.StaggerAxis} value
      */
-    setStaggerAxis:function (value) {
+    setStaggerAxis (value) {
         this._staggerAxis = value;
     },
 
@@ -324,7 +344,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Gets stagger index
      * @return {cc.TiledMap.StaggerIndex}
      */
-    getStaggerIndex:function () {
+    getStaggerIndex () {
         return this._staggerIndex;
     },
 
@@ -332,7 +352,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the stagger index.
      * @param {cc.TiledMap.StaggerIndex} value
      */
-    setStaggerIndex:function (value) {
+    setStaggerIndex (value) {
         this._staggerIndex = value;
     },
 
@@ -340,7 +360,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Gets Hex side length.
      * @return {Number}
      */
-    getHexSideLength:function () {
+    getHexSideLength () {
         return this._hexSideLength;
     },
 
@@ -348,7 +368,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the Hex side length.
      * @param {Number} value
      */
-    setHexSideLength:function (value) {
+    setHexSideLength (value) {
         this._hexSideLength = value;
     },
 
@@ -356,37 +376,37 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Map width & height
      * @return {Size}
      */
-    getMapSize:function () {
-        return cc.size(this._mapSize.width,this._mapSize.height);
+    getMapSize () {
+        return cc.size(this._mapSize.width, this._mapSize.height);
     },
 
     /**
      * Map width & height
      * @param {Size} value
      */
-    setMapSize:function (value) {
+    setMapSize (value) {
         this._mapSize.width = value.width;
         this._mapSize.height = value.height;
     },
 
-	_getMapWidth: function () {
-		return this._mapSize.width;
-	},
-	_setMapWidth: function (width) {
-		this._mapSize.width = width;
-	},
-	_getMapHeight: function () {
-		return this._mapSize.height;
-	},
-	_setMapHeight: function (height) {
-		this._mapSize.height = height;
-	},
+    _getMapWidth () {
+        return this._mapSize.width;
+    },
+    _setMapWidth (width) {
+        this._mapSize.width = width;
+    },
+    _getMapHeight () {
+        return this._mapSize.height;
+    },
+    _setMapHeight (height) {
+        this._mapSize.height = height;
+    },
 
     /**
      * Tiles width & height
      * @return {Size}
      */
-    getTileSize:function () {
+    getTileSize () {
         return cc.size(this._tileSize.width, this._tileSize.height);
     },
 
@@ -394,29 +414,29 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Tiles width & height
      * @param {Size} value
      */
-    setTileSize:function (value) {
+    setTileSize (value) {
         this._tileSize.width = value.width;
         this._tileSize.height = value.height;
     },
 
-	_getTileWidth: function () {
-		return this._tileSize.width;
-	},
-	_setTileWidth: function (width) {
-		this._tileSize.width = width;
-	},
-	_getTileHeight: function () {
-		return this._tileSize.height;
-	},
-	_setTileHeight: function (height) {
-		this._tileSize.height = height;
-	},
+    _getTileWidth () {
+        return this._tileSize.width;
+    },
+    _setTileWidth (width) {
+        this._tileSize.width = width;
+    },
+    _getTileHeight () {
+        return this._tileSize.height;
+    },
+    _setTileHeight (height) {
+        this._tileSize.height = height;
+    },
 
     /**
      * Layers
      * @return {Array}
      */
-    getLayers:function () {
+    getLayers () {
         return this._layers;
     },
 
@@ -424,7 +444,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Layers
      * @param {cc.TMXLayerInfo} value
      */
-    setLayers:function (value) {
+    setLayers (value) {
         this._allChildren.push(value);
         this._layers.push(value);
     },
@@ -433,7 +453,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * tilesets
      * @return {Array}
      */
-    getTilesets:function () {
+    getTilesets () {
         return this._tilesets;
     },
 
@@ -441,7 +461,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * tilesets
      * @param {cc.TMXTilesetInfo} value
      */
-    setTilesets:function (value) {
+    setTilesets (value) {
         this._tilesets.push(value);
     },
 
@@ -449,7 +469,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * ObjectGroups
      * @return {Array}
      */
-    getObjectGroups:function () {
+    getObjectGroups () {
         return this._objectGroups;
     },
 
@@ -457,12 +477,12 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * ObjectGroups
      * @param {cc.TMXObjectGroup} value
      */
-    setObjectGroups:function (value) {
+    setObjectGroups (value) {
         this._allChildren.push(value);
         this._objectGroups.push(value);
     },
 
-    getAllChildren: function() {
+    getAllChildren () {
         return this._allChildren;
     },
 
@@ -470,7 +490,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * parent element
      * @return {Object}
      */
-    getParentElement:function () {
+    getParentElement () {
         return this.parentElement;
     },
 
@@ -478,7 +498,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * parent element
      * @param {Object} value
      */
-    setParentElement:function (value) {
+    setParentElement (value) {
         this.parentElement = value;
     },
 
@@ -486,7 +506,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * parent GID
      * @return {Number}
      */
-    getParentGID:function () {
+    getParentGID () {
         return this.parentGID;
     },
 
@@ -494,7 +514,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * parent GID
      * @param {Number} value
      */
-    setParentGID:function (value) {
+    setParentGID (value) {
         this.parentGID = value;
     },
 
@@ -502,7 +522,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Layer attribute
      * @return {Object}
      */
-    getLayerAttribs:function () {
+    getLayerAttribs () {
         return this.layerAttrs;
     },
 
@@ -510,7 +530,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Layer attribute
      * @param {Object} value
      */
-    setLayerAttribs:function (value) {
+    setLayerAttribs (value) {
         this.layerAttrs = value;
     },
 
@@ -518,7 +538,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Is reading storing characters stream
      * @return {Boolean}
      */
-    getStoringCharacters:function () {
+    getStoringCharacters () {
         return this.storingCharacters;
     },
 
@@ -526,7 +546,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Is reading storing characters stream
      * @param {Boolean} value
      */
-    setStoringCharacters:function (value) {
+    setStoringCharacters (value) {
         this.storingCharacters = value;
     },
 
@@ -534,7 +554,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Properties
      * @return {Array}
      */
-    getProperties:function () {
+    getProperties () {
         return this.properties;
     },
 
@@ -542,24 +562,22 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Properties
      * @param {object} value
      */
-    setProperties:function (value) {
+    setProperties (value) {
         this.properties = value;
     },
 
     /**
      * initializes a TMX format with an XML string and a TMX resource path
      * @param {String} tmxString
-     * @param {String} resourcePath
+     * @param {Object} tsxMap
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML:function (tmxString, resourcePath, textures) {
-
+    initWithXML (tmxString, tsxMap, textures) {
         this._tilesets.length = 0;
         this._layers.length = 0;
 
-        if (resourcePath)
-            this._resources = resourcePath;
+        this._tsxMap = tsxMap;
         this._textures = textures;
 
         this._objectGroups.length = 0;
@@ -576,30 +594,24 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         return this.parseXMLString(tmxString);
     },
 
-    /** Initalises parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file
-     * @param {String} tmxFile
-     * @param {boolean} [isXmlString=false]
+    /**
+     * Initializes parsing of an XML string, either a tmx (Map) string or tsx (Tileset) string
+     * @param {String} xmlString
      * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLFile:function (tmxFile, isXmlString, tilesetFirstGid) {
-        isXmlString = isXmlString || false;
-	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
-        if (!xmlStr) {
-            cc.errorID(7220, tmxFile);
-        }
-
-        var mapXML = this._parseXML(xmlStr);
-        var i, j;
+    parseXMLString (xmlStr, tilesetFirstGid) {
+        let mapXML = this._parser._parseXML(xmlStr);
+        let i, j;
 
         // PARSE <map>
-        var map = mapXML.documentElement;
+        let map = mapXML.documentElement;
 
-        var version = map.getAttribute('version');
-        var orientationStr = map.getAttribute('orientation');
-        var staggerAxisStr = map.getAttribute('staggeraxis');
-        var staggerIndexStr = map.getAttribute('staggerindex');
-        var hexSideLengthStr = map.getAttribute('hexsidelength');
+        let version = map.getAttribute('version');
+        let orientationStr = map.getAttribute('orientation');
+        let staggerAxisStr = map.getAttribute('staggeraxis');
+        let staggerIndexStr = map.getAttribute('staggerindex');
+        let hexSideLengthStr = map.getAttribute('hexsidelength');
 
         if (map.nodeName === "map") {
             if (version !== "1.0" && version !== null)
@@ -632,7 +644,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 this.setHexSideLength(parseFloat(hexSideLengthStr));
             }
 
-            var mapSize = cc.size(0, 0);
+            let mapSize = cc.size(0, 0);
             mapSize.width = parseFloat(map.getAttribute('width'));
             mapSize.height = parseFloat(map.getAttribute('height'));
             this.setMapSize(mapSize);
@@ -643,33 +655,28 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             this.setTileSize(mapSize);
 
             // The parent element is the map
-            var propertyArr = getPropertyList(map);
-            if (propertyArr) {
-                var aPropertyDict = {};
-                for (i = 0; i < propertyArr.length; i++) {
-                    aPropertyDict[propertyArr[i].getAttribute('name')] = propertyArr[i].getAttribute('value');
-                }
-                this.properties = aPropertyDict;
-            }
+            this.properties = getPropertyList(map);
         }
 
         // PARSE <tileset>
-        var tilesets = map.getElementsByTagName('tileset');
+        let tilesets = map.getElementsByTagName('tileset');
         if (map.nodeName !== "map") {
             tilesets = [];
             tilesets.push(map);
         }
 
         for (i = 0; i < tilesets.length; i++) {
-            var selTileset = tilesets[i];
+            let selTileset = tilesets[i];
             // If this is an external tileset then start parsing that
-            var tsxName = selTileset.getAttribute('source');
+            let tsxName = selTileset.getAttribute('source');
             if (tsxName) {
-                var currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
-                var tsxPath = isXmlString ? cc.path.join(this._resources, tsxName) : cc.path.changeBasename(tmxFile, tsxName);
-                this.parseXMLFile(tsxPath, false, currentFirstGID);
+                let currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
+                let tsxXmlString = this._tsxMap[tsxName];
+                if (tsxXmlString) {
+                    this.parseXMLString(tsxXmlString, currentFirstGID);
+                }
             } else {
-                var tileset = new cc.TMXTilesetInfo();
+                let tileset = new cc.TMXTilesetInfo();
                 tileset.name = selTileset.getAttribute('name') || "";
                 if (tilesetFirstGid) {
                     tileset.firstGid = tilesetFirstGid;
@@ -680,13 +687,14 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 tileset.spacing = parseInt(selTileset.getAttribute('spacing')) || 0;
                 tileset.margin = parseInt(selTileset.getAttribute('margin')) || 0;
 
-                var tilesetSize = cc.size(0, 0);
+                let tilesetSize = cc.size(0, 0);
                 tilesetSize.width = parseFloat(selTileset.getAttribute('tilewidth'));
                 tilesetSize.height = parseFloat(selTileset.getAttribute('tileheight'));
                 tileset._tileSize = tilesetSize;
 
-                var image = selTileset.getElementsByTagName('image')[0];
-                var imagename = image.getAttribute('source');
+                let image = selTileset.getElementsByTagName('image')[0];
+                let imagename = image.getAttribute('source');
+                imagename.replace(/\\/g, '\/');
                 tileset.sourceImage = this._textures[imagename];
                 if (!tileset.sourceImage) {
                     cc.errorID(7221, imagename);
@@ -695,48 +703,40 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 this.setTilesets(tileset);
 
                 // parse tile offset
-                var offset = selTileset.getElementsByTagName('tileoffset')[0];
+                let offset = selTileset.getElementsByTagName('tileoffset')[0];
                 if (offset) {
-                    var offsetX = parseFloat(offset.getAttribute('x'));
-                    var offsetY = parseFloat(offset.getAttribute('y'));
-                    tileset.tileOffset = cc.p(offsetX, offsetY);
+                    let offsetX = parseFloat(offset.getAttribute('x'));
+                    let offsetY = parseFloat(offset.getAttribute('y'));
+                    tileset.tileOffset = cc.v2(offsetX, offsetY);
                 }
 
                 // PARSE  <tile>
-                var tiles = selTileset.getElementsByTagName('tile');
+                let tiles = selTileset.getElementsByTagName('tile');
                 if (tiles) {
-                    for (var tIdx = 0; tIdx < tiles.length; tIdx++) {
-                        var t = tiles[tIdx];
+                    for (let tIdx = 0; tIdx < tiles.length; tIdx++) {
+                        let t = tiles[tIdx];
                         this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
-                        var tp = getPropertyList(t);
-                        if (tp) {
-                            var dict = {};
-                            for (j = 0; j < tp.length; j++) {
-                                var name = tp[j].getAttribute('name');
-                                dict[name] = tp[j].getAttribute('value');
-                            }
-                            this._tileProperties[this.parentGID] = dict;
-                        }
+                        this._tileProperties[this.parentGID] = getPropertyList(t);
                     }
                 }
             }
         }
 
         // PARSE <layer> & <objectgroup> in order
-        var childNodes = map.childNodes;
+        let childNodes = map.childNodes;
         for (i = 0; i < childNodes.length; i++) {
-            var childNode = childNodes[i];
+            let childNode = childNodes[i];
             if (this._shouldIgnoreNode(childNode)) {
                 continue;
             }
 
             if (childNode.nodeName === 'layer') {
-                var layer = this._parseLayer(childNode);
+                let layer = this._parseLayer(childNode);
                 this.setLayers(layer);
             }
 
             if (childNode.nodeName === 'objectgroup') {
-                var objectGroup = this._parseObjectGroup(childNode);
+                let objectGroup = this._parseObjectGroup(childNode);
                 this.setObjectGroups(objectGroup);
             }
         }
@@ -744,75 +744,75 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         return map;
     },
 
-    _shouldIgnoreNode: function (node) {
+    _shouldIgnoreNode (node) {
         return node.nodeType === 3 // text
             || node.nodeType === 8   // comment
             || node.nodeType === 4;  // cdata
     },
 
-    _parseLayer: function (selLayer) {
-        var data = selLayer.getElementsByTagName('data')[0];
+    _parseLayer (selLayer) {
+        let data = selLayer.getElementsByTagName('data')[0];
 
-        var layer = new cc.TMXLayerInfo();
+        let layer = new cc.TMXLayerInfo();
         layer.name = selLayer.getAttribute('name');
 
-        var layerSize = cc.size(0, 0);
+        let layerSize = cc.size(0, 0);
         layerSize.width = parseFloat(selLayer.getAttribute('width'));
         layerSize.height = parseFloat(selLayer.getAttribute('height'));
         layer._layerSize = layerSize;
 
-        var visible = selLayer.getAttribute('visible');
-        layer.visible = !(visible == "0");
+        let visible = selLayer.getAttribute('visible');
+        layer.visible = !(visible === "0");
 
-        var opacity = selLayer.getAttribute('opacity') || 1;
+        let opacity = selLayer.getAttribute('opacity') || 1;
         if (opacity)
             layer._opacity = parseInt(255 * parseFloat(opacity));
         else
             layer._opacity = 255;
-        layer.offset = cc.p(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
+        layer.offset = cc.v2(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
 
-        var nodeValue = '';
+        let nodeValue = '';
         for (let j = 0; j < data.childNodes.length; j++) {
             nodeValue += data.childNodes[j].nodeValue
         }
         nodeValue = nodeValue.trim();
 
         // Unpack the tilemap data
-        var compression = data.getAttribute('compression');
-        var encoding = data.getAttribute('encoding');
-        if(compression && compression !== "gzip" && compression !== "zlib"){
+        let compression = data.getAttribute('compression');
+        let encoding = data.getAttribute('encoding');
+        if (compression && compression !== "gzip" && compression !== "zlib") {
             cc.logID(7218);
             return null;
         }
-        var tiles;
+        let tiles;
         switch (compression) {
             case 'gzip':
-                tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
+                tiles = codec.unzipBase64AsArray(nodeValue, 4);
                 break;
             case 'zlib':
-                var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
+                let inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
                 tiles = uint8ArrayToUint32Array(inflator.decompress());
                 break;
             case null:
             case '':
                 // Uncompressed
                 if (encoding === "base64")
-                    tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
+                    tiles = codec.Base64.decodeAsArray(nodeValue, 4);
                 else if (encoding === "csv") {
                     tiles = [];
-                    var csvTiles = nodeValue.split(',');
-                    for (var csvIdx = 0; csvIdx < csvTiles.length; csvIdx++)
+                    let csvTiles = nodeValue.split(',');
+                    for (let csvIdx = 0; csvIdx < csvTiles.length; csvIdx++)
                         tiles.push(parseInt(csvTiles[csvIdx]));
                 } else {
                     //XML format
-                    var selDataTiles = data.getElementsByTagName("tile");
+                    let selDataTiles = data.getElementsByTagName("tile");
                     tiles = [];
-                    for (var xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++)
+                    for (let xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++)
                         tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute("gid")));
                 }
                 break;
             default:
-                if(this.layerAttrs === cc.TMXLayerInfo.ATTRIB_NONE)
+                if (this.layerAttrs === cc.TMXLayerInfo.ATTRIB_NONE)
                     cc.logID(7219);
                 break;
         }
@@ -821,58 +821,44 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         }
 
         // The parent element is the last layer
-        var layerProps = getPropertyList(selLayer);
-        if (layerProps) {
-            var layerProp = {};
-            for (let j = 0; j < layerProps.length; j++) {
-                layerProp[layerProps[j].getAttribute('name')] = layerProps[j].getAttribute('value');
-            }
-            layer.properties = layerProp;
-        }
+        layer.properties = getPropertyList(selLayer);
+
         return layer;
     },
 
-    _parseObjectGroup: function (selGroup) {
-        var objectGroup = new cc.TMXObjectGroupInfo();
+    _parseObjectGroup (selGroup) {
+        let objectGroup = new cc.TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
-        objectGroup.offset = cc.p(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
+        objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
 
-        var opacity = selGroup.getAttribute('opacity') || 1;
+        let opacity = selGroup.getAttribute('opacity') || 1;
         if (opacity)
             objectGroup._opacity = parseInt(255 * parseFloat(opacity));
         else
             objectGroup._opacity = 255;
 
-        var visible = selGroup.getAttribute('visible');
+        let visible = selGroup.getAttribute('visible');
         if (visible && parseInt(visible) === 0)
             objectGroup.visible = false;
 
-        var color = selGroup.getAttribute('color');
+        let color = selGroup.getAttribute('color');
         if (color)
-            objectGroup._color = cc.hexToColor(color);
+            objectGroup._color.fromHEX(color);
 
-        var draworder = selGroup.getAttribute('draworder');
+        let draworder = selGroup.getAttribute('draworder');
         if (draworder)
             objectGroup._draworder = draworder;
 
-        var groupProps = getPropertyList(selGroup);
-        if (groupProps) {
-            var parsedProps = {};
-            for (let j = 0; j < groupProps.length; j++) {
-                parsedProps[groupProps[j].getAttribute('name')] = groupProps[j].getAttribute('value');
-            }
-            // set the properties to the group
-            objectGroup.setProperties(parsedProps);
-        }
+        // set the properties to the group
+        objectGroup.setProperties(getPropertyList(selGroup));
 
-        var objects = selGroup.getElementsByTagName('object');
-        var getContentScaleFactor = cc.director.getContentScaleFactor();
+        let objects = selGroup.getElementsByTagName('object');
         if (objects) {
             for (let j = 0; j < objects.length; j++) {
-                var selObj = objects[j];
+                let selObj = objects[j];
                 // The value for "type" was blank or not a valid class name
                 // Create an instance of TMXObjectInfo to store the object and its properties
-                var objectProp = {};
+                let objectProp = {};
 
                 // Set the id of the object
                 objectProp['id'] = selObj.getAttribute('id') || 0;
@@ -884,49 +870,45 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
                 objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
 
-                objectProp["x"] = (selObj.getAttribute('x') || 0) / getContentScaleFactor;
-                objectProp["y"] = (selObj.getAttribute('y') || 0) / getContentScaleFactor;
+                objectProp["x"] = parseFloat(selObj.getAttribute('x')) || 0;
+                objectProp["y"] = parseFloat(selObj.getAttribute('y')) || 0;
 
                 objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 
-                var docObjProps = getPropertyList(selObj);
-                if (docObjProps) {
-                    for (var k = 0; k < docObjProps.length; k++)
-                        objectProp[docObjProps[k].getAttribute('name')] = docObjProps[k].getAttribute('value');
-                }
+                getPropertyList(selObj, objectProp);
 
                 // visible
-                var visibleAttr = selObj.getAttribute('visible');
-                objectProp['visible'] = ! (visibleAttr && parseInt(visibleAttr) === 0);
+                let visibleAttr = selObj.getAttribute('visible');
+                objectProp['visible'] = !(visibleAttr && parseInt(visibleAttr) === 0);
 
                 // image
-                var gid = selObj.getAttribute('gid');
+                let gid = selObj.getAttribute('gid');
                 if (gid) {
                     objectProp['gid'] = parseInt(gid);
                     objectProp['type'] = cc.TiledMap.TMXObjectType.IMAGE;
                 }
 
                 // ellipse
-                var ellipse = selObj.getElementsByTagName('ellipse');
+                let ellipse = selObj.getElementsByTagName('ellipse');
                 if (ellipse && ellipse.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.ELLIPSE;
                 }
 
                 //polygon
-                var polygonProps = selObj.getElementsByTagName("polygon");
-                if(polygonProps && polygonProps.length > 0) {
+                let polygonProps = selObj.getElementsByTagName("polygon");
+                if (polygonProps && polygonProps.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.POLYGON;
-                    var selPgPointStr = polygonProps[0].getAttribute('points');
-                    if(selPgPointStr)
+                    let selPgPointStr = polygonProps[0].getAttribute('points');
+                    if (selPgPointStr)
                         objectProp["points"] = this._parsePointsString(selPgPointStr);
                 }
 
                 //polyline
-                var polylineProps = selObj.getElementsByTagName("polyline");
-                if(polylineProps && polylineProps.length > 0) {
+                let polylineProps = selObj.getElementsByTagName("polyline");
+                if (polylineProps && polylineProps.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.POLYLINE;
-                    var selPlPointStr = polylineProps[0].getAttribute('points');
-                    if(selPlPointStr)
+                    let selPlPointStr = polylineProps[0].getAttribute('points');
+                    if (selPlPointStr)
                         objectProp["polylinePoints"] = this._parsePointsString(selPlPointStr);
                 }
 
@@ -941,33 +923,24 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         return objectGroup;
     },
 
-    _parsePointsString:function(pointsString){
-         if(!pointsString)
+    _parsePointsString (pointsString) {
+        if (!pointsString)
             return null;
 
-        var points = [];
-        var pointsStr = pointsString.split(' ');
-        for(var i = 0; i < pointsStr.length; i++){
-            var selPointStr = pointsStr[i].split(',');
-            points.push({'x':parseFloat(selPointStr[0]), 'y':parseFloat(selPointStr[1])});
+        let points = [];
+        let pointsStr = pointsString.split(' ');
+        for (let i = 0; i < pointsStr.length; i++) {
+            let selPointStr = pointsStr[i].split(',');
+            points.push({'x': parseFloat(selPointStr[0]), 'y': parseFloat(selPointStr[1])});
         }
         return points;
-    },
-
-    /**
-     * initializes parsing of an XML string, either a tmx (Map) string or tsx (Tileset) string
-     * @param {String} xmlString
-     * @return {Boolean}
-     */
-    parseXMLString:function (xmlString) {
-        return this.parseXMLFile(xmlString, true);
     },
 
     /**
      * Gets the tile properties.
      * @return {object}
      */
-    getTileProperties:function () {
+    getTileProperties () {
         return this._tileProperties;
     },
 
@@ -975,7 +948,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the tile properties.
      * @param {object} tileProperties
      */
-    setTileProperties:function (tileProperties) {
+    setTileProperties (tileProperties) {
         this._tileProperties.push(tileProperties);
     },
 
@@ -983,7 +956,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Gets the currentString
      * @return {String}
      */
-    getCurrentString:function () {
+    getCurrentString () {
         return this.currentString;
     },
 
@@ -991,26 +964,18 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Set the currentString
      * @param {String} currentString
      */
-    setCurrentString:function (currentString) {
+    setCurrentString (currentString) {
         this.currentString = currentString;
     }
-});
+};
 
-var _p = cc.TMXMapInfo.prototype;
+let _p = cc.TMXMapInfo.prototype;
 
 // Extended properties
-/** @expose */
-_p.mapWidth;
-cc.defineGetterSetter(_p, "mapWidth", _p._getMapWidth, _p._setMapWidth);
-/** @expose */
-_p.mapHeight;
-cc.defineGetterSetter(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
-/** @expose */
-_p.tileWidth;
-cc.defineGetterSetter(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
-/** @expose */
-_p.tileHeight;
-cc.defineGetterSetter(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
+js.getset(_p, "mapWidth", _p._getMapWidth, _p._setMapWidth);
+js.getset(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
+js.getset(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
+js.getset(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
 
 
 /**

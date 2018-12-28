@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,7 +40,7 @@
 
 require('./CCClass');
 const Preprocess = require('./preprocess-class');
-const JS = require('./js');
+const js = require('./js');
 const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;
 
 // caches for class construction
@@ -104,7 +105,7 @@ var checkNumberArgument = _argumentChecker('number');
 
 function getClassCache (ctor, decoratorName) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
-        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, JS.getClassName(ctor));
+        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
     }
     return getSubDict(ctor, CACHE_KEY);
@@ -138,7 +139,7 @@ function extractActualDefaultValues (ctor) {
     }
     catch (e) {
         if (CC_DEV) {
-            cc.warnID(3652, JS.getClassName(ctor), e);
+            cc.warnID(3652, js.getClassName(ctor), e);
         }
         return {};
     }
@@ -148,12 +149,12 @@ function extractActualDefaultValues (ctor) {
 function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, JS.getClassName(ctor)) :
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
                                Preprocess.getFullFormOfProperty(options);
         fullOptions = fullOptions || options;
     }
     var existsProperty = properties[propName];
-    var prop = JS.mixin(existsProperty || {}, fullOptions || {});
+    var prop = js.mixin(existsProperty || {}, fullOptions || {});
 
     var isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
@@ -162,7 +163,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             var errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
-                cc.warnID(3655, propName, JS.getClassName(ctor), propName, propName);
+                cc.warnID(3655, propName, js.getClassName(ctor), propName, propName);
             }
         }
         if (desc.get) {
@@ -179,7 +180,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             //     set (...) { ... },
             // })
             // value;
-            cc.errorID(3655, propName, JS.getClassName(ctor), propName, propName);
+            cc.errorID(3655, propName, js.getClassName(ctor), propName, propName);
             return;
         }
         // member variables
@@ -215,11 +216,11 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 
         if (CC_DEV) {
             if (options && options.hasOwnProperty('default')) {
-                cc.warnID(3653, propName, JS.getClassName(ctor));
+                cc.warnID(3653, propName, js.getClassName(ctor));
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, JS.getClassName(ctor), propName);
+                cc.warnID(3654, js.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
             }
             if (cc.RawAsset.wasRawAssetType(prop.url) &&
@@ -227,7 +228,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 isDefaultValueSpecified &&
                 defaultValue == null
             ) {
-                cc.warnID(3656, JS.getClassName(ctor), propName);
+                cc.warnID(3656, js.getClassName(ctor), propName);
             }
         }
         prop.default = defaultValue;
@@ -239,9 +240,9 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 /**
  * !#en
  * Declare the standard [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
- * as CCClass, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
+ * as CCClass, please see [Class](../../../manual/en/scripting/class.html) for details.
  * !#zh
- * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](/docs/creator/scripting/class/)。
+ * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](../../../manual/zh/scripting/class.html)。
  *
  * @method ccclass
  * @param {String} [name] - The class name used for serialization.
@@ -267,7 +268,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
-    var base = JS.getSuper(ctor);
+    var base = js.getSuper(ctor);
     if (base === Object) {
         base = null;
     }
@@ -283,7 +284,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
         var decoratedProto = cache.proto;
         if (decoratedProto) {
             // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
-            JS.mixin(proto, decoratedProto);
+            js.mixin(proto, decoratedProto);
         }
         ctor[CACHE_KEY] = undefined;
     }
@@ -299,7 +300,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
                 var desc = Object.getOwnPropertyDescriptor(ctor.prototype, prop);
                 var func = desc && desc.value;
                 if (typeof func === 'function') {
-                    Preprocess.doValidateMethodWithProps_DEV(func, prop, JS.getClassName(ctor), ctor, base);
+                    Preprocess.doValidateMethodWithProps_DEV(func, prop, js.getClassName(ctor), ctor, base);
                 }
             }
         }
@@ -310,14 +311,13 @@ var ccclass = checkCtorArgument(function (ctor, name) {
 
 /**
  * !#en
- * Declare property for [CCClass](/docs/editors_and_tools/creator-chapters/scripting/class/).
+ * Declare property for [CCClass](../../../manual/en/scripting/reference/attributes.html).
  * !#zh
- * 定义 [CCClass](/docs/creator/scripting/class/) 所用的属性。
+ * 定义 [CCClass](../../../manual/zh/scripting/reference/attributes.html) 所用的属性。
  *
  * @method property
  * @param {Object} [options] - an object with some property attributes
  * @param {Any} [options.type]
- * @param {Function} [options.url]
  * @param {Boolean|Function} [options.visible]
  * @param {String} [options.displayName]
  * @param {String} [options.tooltip]
@@ -416,7 +416,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     }
  * });
  * @typescript
- * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
+ * property(options?: {type?: any; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {
@@ -587,7 +587,7 @@ var disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(c
  * playOnFocus(): Function
  * playOnFocus(_class: Function): void
  */
-var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus', true);
 
 /**
  * !#en
