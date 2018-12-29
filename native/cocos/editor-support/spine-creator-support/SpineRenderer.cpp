@@ -370,7 +370,7 @@ void SpineRenderer::update (float deltaTime)
         
         // Calculation vertex color.
         color.a *= _skeleton->a * slot->a * 255;
-        float multiplier = _premultipliedAlpha ? color.a : 255;
+        float multiplier = _premultipliedAlpha ? slot->a * 255 : 255;
         color.r *= _skeleton->r * slot->r * multiplier;
         color.g *= _skeleton->g * slot->g * multiplier;
         color.b *= _skeleton->b * slot->b * multiplier;
