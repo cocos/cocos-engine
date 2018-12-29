@@ -32,6 +32,7 @@ import cc from './predefine';
 import './cocos/core';
 import './cocos/scene-graph';
 import './cocos/renderer';
+import './cocos/gfx';
 
 import './cocos/assets';
 import './cocos/load-pipeline';
