@@ -96,7 +96,6 @@ export enum GFXColorMask {
 };
 
 export class GFXRasterizerState {
-    name: string = "";
     isDiscard: boolean = false;
     polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
     shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
@@ -123,7 +122,6 @@ export class GFXRasterizerState {
 };
 
 export class GFXDepthStencilState {
-    name: string = "";
     isDepthTest: boolean = true;
     isWriteDepth: boolean = true;
     depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
@@ -190,7 +188,6 @@ export class GFXBlendTarget {
 };
 
 export class GFXBlendState {
-    name: string = "";
     isA2C: boolean = false;
     isIndepend: boolean = false;
     factor: number[] = [0, 0, 0, 0];

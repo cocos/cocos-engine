@@ -42,6 +42,7 @@ export abstract class GFXDevice {
     public abstract createCommandBuffer(info: GFXCommandBufferInfo) : GFXCommandBuffer | null;
     public abstract createQueue(info: GFXQueueInfo) : GFXQueue | null;
     public abstract createWindow(info: GFXWindowInfo) : GFXWindow | null;
+    public abstract present();
 
     public get queue(): GFXQueue {
         return <GFXQueue>this._queue;

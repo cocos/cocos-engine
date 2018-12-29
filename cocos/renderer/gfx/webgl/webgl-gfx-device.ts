@@ -320,6 +320,9 @@ export class WebGLGFXDevice extends GFXDevice {
         }
     }
 
+    public present() {
+    }
+
     public get gl(): WebGLRenderingContext {
         return <WebGLRenderingContext>this._webGLRC;
     }

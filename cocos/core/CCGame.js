@@ -127,6 +127,8 @@ var game = {
 
     _renderContext: null,
 
+    _gfxDevice: null,
+
     _intervalId: null,//interval target of main
 
     _lastTime: null,
@@ -765,11 +767,21 @@ var game = {
 
             {
                 // todo, adjust opts here
+
                 let device = this._renderContext = new gfx.Device(localCanvas, {});
+                
+                /*
+                this._gfxDevice = new WebGLGFXDevice;
+                this._gfxDevice.initialize({
+                    canvasElm : localCanvas,
+                });
+                */
+
                 renderer.addStage('opaque');
                 renderer.addStage('transparent');
                 renderer.addStage('ui');
                 renderer.addStage('shadowcast');
+
                 this._renderer = new renderer.ForwardRenderer(device);
             }
             // renderer.initWebGL(localCanvas, opts);
