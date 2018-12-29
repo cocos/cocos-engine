@@ -1,5 +1,6 @@
 import { RenderStage, RenderStageInfo } from "./render-stage";
 import { RenderView } from "./render-view";
+import { RenderPipeline } from "./render-pipeline";
 
 export interface RenderFlowInfo {
     name?: string;
@@ -7,6 +8,10 @@ export interface RenderFlowInfo {
 };
 
 export abstract class RenderFlow {
+
+    constructor(pipeline: RenderPipeline) {
+        this._pipeline = pipeline;
+    }
 
     public abstract initialize(info: RenderFlowInfo): boolean;
     public abstract destroy();
@@ -46,7 +51,9 @@ export abstract class RenderFlow {
         return this._priority;
     }
 
+    protected _pipeline: RenderPipeline;
     protected _name: string = "";
     protected _priority: number = 0;
     protected _stages: RenderStage[] = [];
+    protected _material: null = null;   // TODO
 };

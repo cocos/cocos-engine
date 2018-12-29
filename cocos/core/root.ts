@@ -6,6 +6,7 @@ import { RenderPipeline } from "../renderer/pipeline/render-pipeline";
 import { ForwardPipeline } from "../renderer/pipeline/forward/forward-pipeline";
 
 export interface RootInfo {
+    device: GFXDevice;
 };
 
 export class Root {
@@ -15,7 +16,14 @@ export class Root {
 
     public initialize(info: RootInfo): boolean {
 
-        let pipeline = new ForwardPipeline;
+        if(!info.device) {
+            console.error("RootInfo.device is null.");
+            return false;
+        }
+        this._device = info.device;
+        this._mainWindow = this._device.mainWindow;
+
+        let pipeline = new ForwardPipeline(this);
         if (!pipeline.initialize()) {
             return false;
         }
@@ -125,6 +133,14 @@ export class Root {
         this._views = [];
     }
 
+    public get device(): GFXDevice | null {
+        return this._device;
+    }
+
+    public get mainWindow(): GFXWindow | null {
+        return this._mainWindow;
+    }
+
     public get pipeline(): RenderPipeline | null {
         return this._pipeline;
     }
@@ -138,6 +154,7 @@ export class Root {
     }
 
     private _device: GFXDevice | null = null;
+    private _mainWindow: GFXWindow | null = null;
     private _windows: GFXWindow[] = [];
     private _pipeline: RenderPipeline | null = null;
     private _scenes: Scene[] = [];

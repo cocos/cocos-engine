@@ -48,13 +48,17 @@ export abstract class GFXDevice {
         return <GFXQueue>this._queue;
     }
 
+    public get mainWindow(): GFXWindow | null {
+        return this._mainWindow;
+    }
+
     public get maxVertexAttributes(): number {
         return this._maxVertexAttributes;
     }
 
     protected _deviceName : string = "";
     protected _queue : GFXQueue | null = null;
-    protected _curWindow : GFXWindow | null = null;
+    protected _mainWindow : GFXWindow | null = null;
 
     protected _maxVertexAttributes : number = 0;
 };

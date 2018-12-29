@@ -149,7 +149,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
 
         // create primary window
-        this._curWindow = this.createWindow({
+        this._mainWindow = this.createWindow({
             title: this._webGLRC.canvas.title,
             left: this._webGLRC.canvas.offsetLeft,
             top: this._webGLRC.canvas.offsetTop,
@@ -162,9 +162,9 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public destroy(): void {
 
-        if (this._curWindow) {
-            this._curWindow.destroy();
-            this._curWindow = null;
+        if (this._mainWindow) {
+            this._mainWindow.destroy();
+            this._mainWindow = null;
         }
 
         this._webGLRC = null;
