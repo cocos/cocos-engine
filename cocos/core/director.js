@@ -28,8 +28,8 @@
 import EventTarget from './event/event-target';
 import eventManager from './platform/event-manager/CCEventManager';
 import ccobject from './data/object';
-import game from './CCGame';
-import Scheduler from './CCScheduler';
+import game from './game';
+import Scheduler from './scheduler';
 import { autoRelease } from '../load-pipeline/auto-release-utils';
 import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
@@ -229,7 +229,7 @@ class Director extends EventTarget {
      * !#en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
-     * Implementation can be found in CCDirectorWebGL.
+     * Implementation can be found in directorWebGL.
      * !#zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
      * @method convertToGL
      * @param {Vec2} uiPoint
@@ -251,7 +251,7 @@ class Director extends EventTarget {
      * !#en
      * Converts an OpenGL coordinate to a view coordinate<br/>
      * Useful to convert node points to window points for calls such as glScissor<br/>
-     * Implementation can be found in CCDirectorWebGL.
+     * Implementation can be found in directorWebGL.
      * !#zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
      * @method convertToUI
      * @param {Vec2} glPoint
@@ -680,7 +680,7 @@ class Director extends EventTarget {
     /**
      * !#en
      * Enables or disables WebGL depth test.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
+     * Implementation can be found in directorCanvas.js/directorWebGL.js
      * !#zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
      * @method setDepthTest
      * @param {Boolean} on
@@ -696,7 +696,7 @@ class Director extends EventTarget {
     /**
      * !#en
      * Set color for clear screen.<br/>
-     * (Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js)
+     * (Implementation can be found in directorCanvas.js/directorWebGL.js)
      * !#zh
      * 设置场景的默认擦除颜色。<br/>
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。

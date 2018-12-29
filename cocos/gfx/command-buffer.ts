@@ -6,7 +6,7 @@ import { GFXPipelineState } from './pipeline-state';
 import { GFXBindingLayout } from './binding-layout';
 import { GFXTexture } from './texture';
 import { GFXFramebuffer } from './framebuffer';
-import { GFXColor, GFXRect, GFXCommandBufferType, GFXBufferTextureCopy, GFXTextureLayout } from './gfx-define';
+import { GFXColor, GFXRect, GFXCommandBufferType, GFXBufferTextureCopy, GFXTextureLayout } from './define';
 
 export interface GFXCommandBufferInfo {
     allocator : GFXCommandAllocator;

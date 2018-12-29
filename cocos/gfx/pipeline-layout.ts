@@ -1,6 +1,6 @@
 import { GFXDevice } from './device';
 import { GFXBindingLayout } from './binding-layout';
-import { GFXShaderType } from './gfx-define';
+import { GFXShaderType } from './define';
 
 export interface GFXPushConstantRange {
     shaderType : GFXShaderType;

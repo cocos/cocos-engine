@@ -1,7 +1,7 @@
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { GFXWindow, GFXWindowInfo } from '../window';
-import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXStoreOp } from '../gfx-define';
+import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXStoreOp } from '../define';
 
 export class WebGLGFXWindow extends GFXWindow {
 
@@ -34,7 +34,7 @@ export class WebGLGFXWindow extends GFXWindow {
         }
 
         this._renderPass = this._device.createRenderPass({
-            colorAttachment: [{
+            colorAttachments: [{
                 format: this._colorFmt,
                 loadOp: GFXLoadOp.CLEAR,
                 storeOp: GFXStoreOp.STORE,

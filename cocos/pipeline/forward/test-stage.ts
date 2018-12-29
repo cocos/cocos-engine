@@ -3,7 +3,7 @@ import { RenderFlow } from "../render-flow";
 import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
 import { GFXFramebuffer } from "../../gfx/framebuffer";
-import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode } from "../../gfx/gfx-define";
+import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode } from "../../gfx/define";
 import { GFXInputAssembler } from "../../gfx/input-assembler";
 import { GFXPipelineState, GFXInputState, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../../gfx/pipeline-state";
 import { GFXShader } from "../../gfx/shader";
@@ -122,7 +122,7 @@ export class TestStage extends RenderStage {
             this._pipelineState.destroy();
             this._pipelineState = null;
         }
-        
+
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
             this._cmdBuff = null;

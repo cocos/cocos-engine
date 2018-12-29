@@ -1,6 +1,6 @@
 import { WebGLGPUBuffer, WebGLGPUTexture, WebGLGPUInputAssembler, WebGLGPUFramebuffer, WebGLGPUShader, WebGLGPUInput, WebGLAttrib, WebGLGPUPipelineState, WebGLGPUUniformBlock, WebGLGPUBindingLayout, WebGLGPUUniform, WebGLGPUUniformSampler } from "./webgl-gpu-objects";
 import { WebGLGFXDevice } from "./webgl-device";
-import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit, GFXGetAttributeBinding } from "../gfx-define";
+import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit, GFXBuiltinAttributeBindings } from "../define";
 import { WebGLGFXCommandAllocator } from "./webgl-command-allocator";
 import { WebGLTexUnit } from "./webgl-state-cache";
 
@@ -818,7 +818,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                 varName = info.name;
             }
 
-            let glLoc = GFXGetAttributeBinding(varName);
+            let glLoc = GFXBuiltinAttributeBindings[varName];
 
             if(glLoc >= 0) {
                 gl.bindAttribLocation(gpuShader.glProgram, glLoc, varName);

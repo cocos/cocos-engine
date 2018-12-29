@@ -5,7 +5,7 @@ import { GFXCommandBuffer } from "../gfx/command-buffer";
 import { RenderFlow } from "./render-flow";
 import { GFXDevice } from "../gfx/device";
 import { RenderPipeline } from "./render-pipeline";
-import { GFXColor, GFX_MAX_ATTACHMENTS, GFXRect } from "../gfx/gfx-define";
+import { GFXColor, GFX_MAX_ATTACHMENTS, GFXRect } from "../gfx/define";
 
 export interface RenderStageInfo {
     name?: string;

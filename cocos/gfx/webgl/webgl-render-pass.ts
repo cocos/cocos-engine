@@ -11,8 +11,8 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
     public initialize(info: GFXRenderPassInfo): boolean {
 
-        if (info.colorAttachment) {
-            this._colorInfos = info.colorAttachment;
+        if (info.colorAttachments) {
+            this._colorInfos = info.colorAttachments;
         }
 
         if (info.depthStencilAttachment) {

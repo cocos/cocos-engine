@@ -1,4 +1,4 @@
-import { GFXFormat, GFXType, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit, GFXShaderType, GFXBindingType, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXMemoryUsage, GFXBufferUsage } from "../gfx-define";
+import { GFXFormat, GFXType, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit, GFXShaderType, GFXBindingType, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXMemoryUsage, GFXBufferUsage } from "../define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../render-pass";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../pipeline-state";
 import { GFXInputAttribute } from "../input-assembler";
