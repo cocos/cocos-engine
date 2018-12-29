@@ -1505,7 +1505,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                 switch (glUniform.glType) {
                                                     case WebGLRenderingContext.BOOL:
                                                     case WebGLRenderingContext.INT: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[m]) {
@@ -1514,6 +1513,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                             }
                                                             offset += 4;
                                                         }
+                                                        break;
                                                     }
                                                     case WebGLRenderingContext.BOOL_VEC2:
                                                     case WebGLRenderingContext.INT_VEC2: {
@@ -1532,7 +1532,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.BOOL_VEC3:
                                                     case WebGLRenderingContext.INT_VEC3: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 3*m;
@@ -1590,7 +1589,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC3: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 3*m;
@@ -1605,7 +1603,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC4: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 4*m;
@@ -1621,7 +1618,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT2: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 4*m;
@@ -1634,11 +1630,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                             }
                                                             offset += 16;
                                                         }
-
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT3: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 9*m;
@@ -1656,11 +1650,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                             }
                                                             offset += 36;
                                                         }
-
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT4: {
-
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
                                                             let idx = 16*m;

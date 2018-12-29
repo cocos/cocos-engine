@@ -20,7 +20,7 @@ import { WebGLGFXShader } from './webgl-gfx-shader';
 import { GFXCommandAllocator, GFXCommandAllocatorInfo } from '../gfx-command-allocator';
 import { GFXPipelineStateInfo, GFXPipelineState } from '../gfx-pipeline-state';
 import { WebGLGFXPipelineLayout } from './webgl-gfx-pipeline-layout';
-import { GFXBindingLayoutInfo, GFXBindingUnit, GFXBindingType } from '../gfx-binding-layout';
+import { GFXBindingLayoutInfo, GFXBindingUnit, GFXBindingType, GFXBindingLayout } from '../gfx-binding-layout';
 import { WebGLGFXSampler } from './webgl-gfx-sampler';
 import { GFXCommandBufferInfo, GFXCommandBuffer } from '../gfx-command-buffer';
 import { GFXQueueInfo, GFXQueue } from '../gfx-queue';
@@ -32,6 +32,7 @@ import { WebGLGFXInputAssembler } from './webgl-gfx-input-assembler';
 import { GFXWindowInfo, GFXWindow } from '../gfx-window';
 import { WebGLGFXWindow } from './webgl-gfx-window';
 import { BufferView } from '../gfx-define';
+import { WebGLGFXBindingLayout } from './webgl-gfx-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
     WebGLRenderingContext.POINTS,
@@ -148,7 +149,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
 
         // create primary window
-        this._primaryWindow = this.createWindow({
+        this._curWindow = this.createWindow({
             title: this._webGLRC.canvas.title,
             left: this._webGLRC.canvas.offsetLeft,
             top: this._webGLRC.canvas.offsetTop,
@@ -161,9 +162,9 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public destroy(): void {
 
-        if (this._primaryWindow) {
-            this._primaryWindow.destroy();
-            this._primaryWindow = null;
+        if (this._curWindow) {
+            this._curWindow.destroy();
+            this._curWindow = null;
         }
 
         this._webGLRC = null;
@@ -205,6 +206,16 @@ export class WebGLGFXDevice extends GFXDevice {
             return sampler;
         } else {
             sampler.destroy();
+            return null;
+        }
+    }
+
+    public createBindingLayout(info: GFXBindingLayoutInfo): GFXBindingLayout | null {
+        let bindingLayout = new WebGLGFXBindingLayout(this);
+        if (bindingLayout.initialize(info)) {
+            return bindingLayout;
+        } else {
+            bindingLayout.destroy();
             return null;
         }
     }
@@ -302,7 +313,6 @@ export class WebGLGFXDevice extends GFXDevice {
     public createWindow(info: GFXWindowInfo): GFXWindow | null {
         let window = new WebGLGFXWindow(this);
         if (window.initialize(info)) {
-            this._windows.push(window);
             return window;
         } else {
             window.destroy();

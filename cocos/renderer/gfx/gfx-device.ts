@@ -12,6 +12,7 @@ import { GFXInputAssemblerInfo, GFXInputAssembler } from './gfx-input-assembler'
 import { GFXCommandBufferInfo, GFXCommandBuffer } from './gfx-command-buffer';
 import { GFXCommandAllocatorInfo, GFXCommandAllocator } from './gfx-command-allocator';
 import { GFXWindowInfo, GFXWindow } from './gfx-window';
+import { GFXBindingLayoutInfo, GFXBindingLayout } from './gfx-binding-layout';
 
 export enum GFXFeature {
 };
@@ -30,6 +31,7 @@ export abstract class GFXDevice {
     public abstract createTexture(info: GFXTextureInfo) : GFXTexture | null;
     public abstract createTextureView(info: GFXTextureViewInfo) : GFXTextureView | null;
     public abstract createSampler(info: GFXSamplerInfo) : GFXSampler | null;
+    public abstract createBindingLayout(info: GFXBindingLayoutInfo) : GFXBindingLayout | null;
     public abstract createShader(info: GFXShaderInfo) : GFXShader | null;
     public abstract createInputAssembler(info: GFXInputAssemblerInfo) : GFXInputAssembler | null;
     public abstract createRenderPass(info: GFXRenderPassInfo) : GFXRenderPass | null;
@@ -51,8 +53,7 @@ export abstract class GFXDevice {
 
     protected _deviceName : string = "";
     protected _queue : GFXQueue | null = null;
-    protected _primaryWindow : GFXWindow | null = null;
-    protected _windows : GFXWindow[] = [];
+    protected _curWindow : GFXWindow | null = null;
 
     protected _maxVertexAttributes : number = 0;
 };
