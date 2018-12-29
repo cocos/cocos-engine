@@ -1,6 +1,6 @@
-import { RenderPipeline } from "../../../pipeline/render-pipeline";
-import { RenderFlow, RenderFlowInfo } from "../../../pipeline/render-flow";
-import { GFXRenderPass } from "../../../gfx/render-pass";
+import { RenderFlow, RenderFlowInfo } from "../render-flow";
+import { GFXRenderPass } from "../../gfx/gfx-render-pass";
+import { RenderPipeline } from "../render-pipeline";
 
 export class ForwardFlow extends RenderFlow {
 

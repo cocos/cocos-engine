@@ -1,5 +1,5 @@
+import { RenderPipeline } from "../render-pipeline";
 import { Root } from "../../../core/root";
-import { RenderPipeline } from "../../../pipeline/render-pipeline";
 
 export class ForwardPipeline extends RenderPipeline {
 

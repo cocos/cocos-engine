@@ -1,6 +1,6 @@
-import { GFXRenderPass } from "../gfx/gfx-render-pass";
-import { GFXFramebuffer } from "../gfx/gfx-framebuffer";
 import { RenderView } from "./render-view";
+import { GFXRenderPass } from "../../gfx/render-pass";
+import { GFXFramebuffer } from "../../gfx/framebuffer";
 
 export interface RenderStageInfo {
     name?: string;

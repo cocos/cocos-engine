@@ -1,9 +1,9 @@
 import { Scene } from "../renderer/scene/scene";
-import { RenderView, RenderViewInfo } from "../renderer/pipeline/render-view";
-import { GFXDevice } from "../renderer/gfx/gfx-device";
-import { GFXWindow, GFXWindowInfo } from "../renderer/gfx/gfx-window";
-import { RenderPipeline } from "../renderer/pipeline/render-pipeline";
 import { ForwardPipeline } from "../renderer/pipeline/forward/forward-pipeline";
+import { GFXWindowInfo, GFXWindow } from "../gfx/window";
+import { GFXDevice } from "../gfx/device";
+import { RenderView, RenderViewInfo } from "../pipeline/render-view";
+import { RenderPipeline } from "../pipeline/render-pipeline";
 
 export interface RootInfo {
     device: GFXDevice;
