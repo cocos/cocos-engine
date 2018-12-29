@@ -79,7 +79,7 @@ let VideoPlayerImpl = cc.Class({
             if (self._fullScreenEnabled) {
                 cc.screen.requestFullScreen(video);
             }
-            else {
+            else if (cc.screen.fullScreen()) {
                 cc.screen.exitFullScreen(video);
             }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
@@ -368,7 +368,7 @@ let VideoPlayerImpl = cc.Class({
         if (enable) {
             cc.screen.requestFullScreen(video);
         }
-        else {
+        else if (cc.screen.fullScreen()) {
             cc.screen.exitFullScreen(video);
         }
     },
