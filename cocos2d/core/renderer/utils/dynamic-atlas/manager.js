@@ -106,7 +106,7 @@ let dynamicAtlasManager = {
         if (CC_EDITOR) return null;
         if (!_enabled || _atlasIndex === _maxAtlasCount ||
             !spriteFrame || spriteFrame._original) return null;
-        
+
         let texture = spriteFrame._texture;
         if (texture instanceof cc.RenderTexture) return null;
 
@@ -121,6 +121,8 @@ let dynamicAtlasManager = {
         if (!atlas) {
             atlas = newAtlas();
         }
+
+        if (atlas._texture._getHash() !== texture._getHash()) return null;
 
         let frame = atlas.insertSpriteFrame(spriteFrame);
         if (!frame && _atlasIndex !== _maxAtlasCount) {
