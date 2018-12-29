@@ -1333,7 +1333,7 @@ let NodeDefines = {
         if (this._position !== undefined) {
             trs[1] = this._position.x;
             trs[2] = this._position.y;
-            trs[3] = this._position.z;
+            trs[3] = this._position.z || 0;
             this._position = undefined;
         }
 
