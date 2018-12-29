@@ -106,14 +106,8 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mVideoWidth == 0 || mVideoHeight == 0) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            Log.i(TAG, ""+mViewWidth+ ":" +mViewHeight);
-        }
-        else {
-            setMeasuredDimension(mVisibleWidth, mVisibleHeight);
-            Log.i(TAG, ""+mVisibleWidth+ ":" +mVisibleHeight);
-        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(mVisibleWidth, mVisibleHeight);
 
     }
 
@@ -276,7 +270,6 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
             //if (mMediaPlayer == null) {
                 mMediaPlayer = new MediaPlayer();
                 mMediaPlayer.setOnPreparedListener(mPreparedListener);
-                mMediaPlayer.setOnVideoSizeChangedListener(mSizeChangedListener);
                 mMediaPlayer.setOnCompletionListener(mCompletionListener);
                 mMediaPlayer.setOnErrorListener(mErrorListener);
                 mMediaPlayer.setOnBufferingUpdateListener(mBufferingUpdateListener);
@@ -375,18 +368,6 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
         lParams.topMargin = mVisibleTop;
         setLayoutParams(lParams);
     }
-
-    protected
-    MediaPlayer.OnVideoSizeChangedListener mSizeChangedListener =
-        new MediaPlayer.OnVideoSizeChangedListener() {
-            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                mVideoWidth = mp.getVideoWidth();
-                mVideoHeight = mp.getVideoHeight();
-                if (mVideoWidth != 0 && mVideoHeight != 0) {
-                    getHolder().setFixedSize(mVideoWidth, mVideoHeight);
-                }
-            }
-    };
 
 
     MediaPlayer.OnPreparedListener mPreparedListener = new MediaPlayer.OnPreparedListener() {
