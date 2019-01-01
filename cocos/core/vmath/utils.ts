@@ -22,7 +22,7 @@ export const EPSILON = 0.000001;
  * @return True if the numbers are approximately equal, false otherwise.
  */
 export function equals(a, b) {
-  return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
+    return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
 }
 
 /**
@@ -34,8 +34,8 @@ export function equals(a, b) {
  * @return True if the numbers are approximately equal, false otherwise.
  */
 export function approx(a, b, maxDiff) {
-  maxDiff = maxDiff || EPSILON;
-  return Math.abs(a - b) <= maxDiff;
+    maxDiff = maxDiff || EPSILON;
+    return Math.abs(a - b) <= maxDiff;
 }
 
 /**
@@ -48,7 +48,7 @@ export function approx(a, b, maxDiff) {
  * @return
  */
 export function clamp(val, min, max) {
-  return val < min ? min : val > max ? max : val;
+    return val < min ? min : val > max ? max : val;
 }
 
 /**
@@ -59,7 +59,7 @@ export function clamp(val, min, max) {
  * @return
  */
 export function clamp01(val) {
-  return val < 0 ? 0 : val > 1 ? 1 : val;
+    return val < 0 ? 0 : val > 1 ? 1 : val;
 }
 
 /**
@@ -70,7 +70,7 @@ export function clamp01(val) {
  * @return
  */
 export function lerp(from, to, ratio) {
-  return from + (to - from) * ratio;
+    return from + (to - from) * ratio;
 }
 
 /**
@@ -79,7 +79,7 @@ export function lerp(from, to, ratio) {
 * @param a Angle in Degrees
 */
 export function toRadian(a) {
-  return a * _d2r;
+    return a * _d2r;
 }
 
 /**
@@ -88,7 +88,7 @@ export function toRadian(a) {
 * @param a Angle in Radian
 */
 export function toDegree(a) {
-  return a * _r2d;
+    return a * _r2d;
 }
 
 /**
@@ -105,7 +105,7 @@ export const random = Math.random;
  * @return the random number
  */
 export function randomRange(min, max) {
-  return Math.random() * (max - min) + min;
+    return Math.random() * (max - min) + min;
 }
 
 /**
@@ -117,7 +117,7 @@ export function randomRange(min, max) {
  * @return the random integer
  */
 export function randomRangeInt(min, max) {
-  return Math.floor(randomRange(min, max));
+    return Math.floor(randomRange(min, max));
 }
 
 /**
@@ -128,8 +128,8 @@ export function randomRangeInt(min, max) {
  * @return the pseudo random
  */
 export function pseudoRandom(seed) {
-  seed = (seed * 9301 + 49297) % 233280;
-  return seed / 233280.0;
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280.0;
 }
 
 /**
@@ -142,7 +142,7 @@ export function pseudoRandom(seed) {
  * @return the random number
  */
 export function pseudoRandomRange(seed, min, max) {
-  return pseudoRandom(seed) * (max - min) + min;
+    return pseudoRandom(seed) * (max - min) + min;
 }
 
 /**
@@ -155,7 +155,7 @@ export function pseudoRandomRange(seed, min, max) {
  * @return the random integer
  */
 export function pseudoRandomRangeInt(seed, min, max) {
-  return Math.floor(pseudoRandomRange(seed, min, max));
+    return Math.floor(pseudoRandomRange(seed, min, max));
 }
 
 /**
@@ -166,15 +166,15 @@ export function pseudoRandomRangeInt(seed, min, max) {
  * @return the the next power of two
  */
 export function nextPow2(val) {
-  --val;
-  val = (val >> 1) | val;
-  val = (val >> 2) | val;
-  val = (val >> 4) | val;
-  val = (val >> 8) | val;
-  val = (val >> 16) | val;
-  ++val;
+    --val;
+    val = (val >> 1) | val;
+    val = (val >> 2) | val;
+    val = (val >> 4) | val;
+    val = (val >> 8) | val;
+    val = (val >> 16) | val;
+    ++val;
 
-  return val;
+    return val;
 }
 
 /**
@@ -186,7 +186,7 @@ export function nextPow2(val) {
  * @return the time wrapped in the first cycle
  */
 export function repeat(t, length) {
-  return t - Math.floor(t / length) * length;
+    return t - Math.floor(t / length) * length;
 }
 
 /**
@@ -198,9 +198,9 @@ export function repeat(t, length) {
  * @return the time wrapped in the first cycle
  */
 export function pingPong(t, length) {
-  t = repeat(t, length * 2);
-  t = length - Math.abs(t - length);
-  return t;
+    t = repeat(t, length * 2);
+    t = length - Math.abs(t - length);
+    return t;
 }
 
 /**
@@ -213,5 +213,5 @@ export function pingPong(t, length) {
  * @return the ratio between [from,to]
  */
 export function inverseLerp(from, to, value) {
-  return (value - from) / (to - from);
+    return (value - from) / (to - from);
 }
